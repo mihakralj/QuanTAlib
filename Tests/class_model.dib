@@ -1,0 +1,75 @@
+#!csharp
+
+#r "nuget:YahooFinanceApi;" 
+using YahooFinanceApi;
+
+#!csharp
+
+public class TSeries : System.Collections.Generic.List<(System.DateTime t, double v)>
+{
+    public void Add((System.DateTime t, double v) TValue, bool update = false) {
+        if (update) this[^1] = TValue; else base.Add(TValue);
+        OnEvent(TValue, update); }
+
+    public void Add(System.DateTime t, double v, bool update = false) { this.Add((t, v), update); }
+
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(e.TValue, e.update); }
+
+    protected virtual void OnEvent((System.DateTime t, double v) TValue, bool update = false) {
+        if (Pub!=null && Pub.Target!=this) { Pub(this, new TSeriesEventArgs() {TValue=TValue, update=update}); }
+    }
+
+    public delegate void NewDataEventHandler (object source, TSeriesEventArgs args);
+    public event NewDataEventHandler Pub;
+}  
+
+public class TSeriesEventArgs : EventArgs {
+    public (System.DateTime t, double v) TValue {get; set;}
+    public bool update {get; set;} }
+
+#!csharp
+
+public class EMA_Series : TSeries
+{
+    private int _p;
+    private bool _NaN;
+    private TSeries _data;
+    private double _k, _k1m;
+    private double _ema, _lastema, _lastlastema;
+
+    public EMA_Series(TSeries source, int period, bool useNaN = false)
+    {
+        source.Pub += this.Sub;
+        _p = period;
+        _data = source;
+        _k = 2.0 / (double)(period + 1);
+        _k1m = 1.0 - _k;
+        _NaN = useNaN;
+        _lastema = _lastlastema = double.NaN;
+    }
+
+    public new void Add((System.DateTime t, double v) data, bool update = false)
+    {
+        if (update) _lastema = _lastlastema;
+        _ema = System.Double.IsNaN(_lastema) ? data.v : data.v * _k + _lastema * _k1m;
+        _lastlastema = _lastema;
+        _lastema = _ema;
+
+        (System.DateTime t, double v) result = (data.t, (this.Count < _p - 1 && _NaN) ? double.NaN : _ema);
+        if (update) base[base.Count - 1] = result; else base.Add(result);
+    }
+
+    public void Add(bool update = false) { this.Add(_data[_data.Count - 1], update); }
+    public new void Sub(object source, TSeriesEventArgs e) { this.Add(e.TValue, e.update); }
+} 
+
+#!csharp
+
+TSeries data = new();
+EMA_Series indicator = new(data, 10);
+
+var history = await Yahoo.GetHistoricalAsync("TQQQ", DateTime.Today.AddDays(-30), DateTime.Now, Period.Daily);
+foreach (var i in history) {
+    data.Add((i.DateTime,  (double)i.Close), update: false);
+    Console.WriteLine($"{data[^1].v:f2}   {indicator[^1].v:f2}");
+}

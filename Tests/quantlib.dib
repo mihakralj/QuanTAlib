@@ -1,0 +1,34 @@
+#!csharp
+
+#r "nuget:YahooFinanceApi;" 
+#r "../Algos/bin/Debug/QuantLibrary.dll"
+using YahooFinanceApi;
+using QuantLib;
+var history = await Yahoo.GetHistoricalAsync("TQQQ", DateTime.Today.AddDays(-30), DateTime.Now, Period.Daily);
+
+#!csharp
+
+TSeries data = new();
+//SMA_Series sma = new(data, 5, false);
+//WMA_Series wma = new(data, 5, false);
+//EMA_Series ema = new(data, 5, false);
+//HMA_Series hma = new(data, 5, false);
+//DEMA_Series dema = new(data, 5, false);
+//TEMA_Series tema = new(data, 5, false);
+//ZLEMA_Series zlema = new(data, 5, false);
+JMA_Series jma = new(data, 10, 0.0, false);
+
+Console.WriteLine($"date\t\t Value\t SMA\t WMA\t EMA\t HMA\t DEMA\t TEMA \tZLEMA\t JMA");
+foreach (var i in history) {
+    data.Add(i.DateTime,  (double)i.Close);
+    //sma.Add();
+    //ema.Add();
+    //wma.Add();
+    //hma.Add();
+    //dema.Add();
+    //tema.Add();
+    //zlema.Add();
+    jma.Add();
+    //Console.Write($"{data[^1].t:yyyy-MM-dd}\t {(double)data:f2}\t {(double)sma:f2}\t {(double)wma:f2}\t {(double)ema:f2}\t {(double)hma:f2}\t {(double)dema:f2}\t {(double)tema:f2}\t {(double)zlema:f2}\t {(double)jma:f2}\n");
+    Console.Write($"{(double)data:f2}\t {(double)jma:f2}\t\n");
+}
