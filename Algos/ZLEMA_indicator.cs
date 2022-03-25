@@ -24,7 +24,7 @@ public class ZLEMA_Series : TSeries
     private double _k, _k1m, _lagdata;
     private double _ema, _lastema, _lastlastema;
 
-    public ZLEMA_Series(TSeries source, int period, bool useNaN = true)
+    public ZLEMA_Series(TSeries source, int period, bool useNaN = false)
     {
         _p = period;
         _l = (int)Math.Round((_p - 1) * 0.5);
@@ -33,6 +33,7 @@ public class ZLEMA_Series : TSeries
         _k1m = 1.0 - _k;
         _NaN = useNaN;
         _lastema = _lastlastema = double.NaN;
+        source.Pub += this.Sub;
     }
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
@@ -53,5 +54,6 @@ public class ZLEMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
 }

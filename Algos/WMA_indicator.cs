@@ -19,12 +19,13 @@ public class WMA_Series : TSeries
     private System.Collections.Generic.List<double> _buffer = new();
     private System.Collections.Generic.List<double> _weights = new();
 
-    public WMA_Series(TSeries source, int period, bool useNaN = true)
+    public WMA_Series(TSeries source, int period, bool useNaN = false)
     {
         _p = period;
         _data = source;
         _NaN = useNaN;
         for (int i = 0; i < _p; i++) _weights.Add(i + 1);
+        source.Pub += this.Sub;
     }
     public new void Add((System.DateTime t, double v) data, bool update = false)
     {
@@ -42,5 +43,6 @@ public class WMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
 }

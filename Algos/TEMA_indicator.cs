@@ -26,7 +26,7 @@ public class TEMA_Series : TSeries
     private double _ema3, _lastema3, _lastlastema3;
     private double _tema;
 
-    public TEMA_Series(TSeries source, int period, bool useNaN = true)
+    public TEMA_Series(TSeries source, int period, bool useNaN = false)
     {
         _p = period;
         _data = source;
@@ -36,6 +36,7 @@ public class TEMA_Series : TSeries
         _lastema1 = _lastlastema1 = double.NaN;
         _lastema2 = _lastlastema2 = double.NaN;
         _lastema3 = _lastlastema3 = double.NaN;
+        source.Pub += this.Sub;
     }
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
@@ -66,5 +67,6 @@ public class TEMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
 } 
