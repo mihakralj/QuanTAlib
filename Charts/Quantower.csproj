@@ -22,12 +22,9 @@
     <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\QuantLib</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Algos\bin\**" />
-    <Compile Remove="Algos\obj\**" />
-    <EmbeddedResource Remove="Algos\bin\**" />
-    <EmbeddedResource Remove="Algos\obj\**" />
-    <None Remove="Algos\bin\**" />
-    <None Remove="Algos\obj\**" />
+    <Compile Include="..\Algos\*.cs">
+      <Link>Algos\%(RecursiveDir)%(FileName)</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
@@ -37,5 +34,8 @@
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>C:\Quantower\TradingPlatform\v1.121.2\bin\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Algos\" />
   </ItemGroup>
 </Project>

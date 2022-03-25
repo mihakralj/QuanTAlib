@@ -12,14 +12,14 @@ Library is written with some specific design criteria in mind - this is a list o
 
 QuantLib needs a feed of OHLCV quotes with timestamps and can calculate technical indicators regardless of the source, type of security, size of a data bar.
 
-To use QuantLib with .NET interactive notebook, first build the .DLL package in /Algos folder:
+QuantLib is now published on nuget.org so it can be included in .NET interactive notebooks.
 
-```sh
-\Algos> dotnet build
-```
+## Completed
 
-## Completed and tested indicators
-
+- ADD - Add TSeries
+- SUB - Subtract TSeries
+- MUL - Multiply TSeries
+- DIV - Divide TSeries
 - SMA - Simple Moving Average
 - EMA - Exponential Moving Average
 - WMA - Weighted Moving average
@@ -27,6 +27,6 @@ To use QuantLib with .NET interactive notebook, first build the .DLL package in 
 - DEMA - Double Exponential Moving Average
 - TEMA - Triple Exponential Moving Average
 - HMA - Hull moving average
-- HEMA - Hull-EMA hybrid moving average
 - ZLEMA - Zero-Lag EMA moving average
 - JMA - Jurik Moving Indicator
+- HEMA - Hull-EMA moving average (a hybrid experiment, not a standard indicator )

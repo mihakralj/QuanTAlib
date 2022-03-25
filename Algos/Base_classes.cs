@@ -9,7 +9,7 @@
     public static implicit operator double(TSeries l) => l[l.Count - 1].v;
 
     // when asked for a (DateTime), return the DateTime part of the last tuple on the list
-    public static implicit operator DateTime(TSeries l) => l[l.Count - 1].t;
+    public static implicit operator System.DateTime(TSeries l) => l[l.Count - 1].t;
 
     // adding one (t,v) tuple to the end of the list - or update the last value on the list
     // trigger the broadcast of the event to subscribers
@@ -25,11 +25,11 @@
 
     // delegate used by event handler + event handler (Pub == publisher)
     public delegate void NewDataEventHandler (object source, TSeriesEventArgs args);
-    public event NewDataEventHandler? Pub;
+    public event NewDataEventHandler Pub;
 }  
 
 //  EventArgs extension - carries the update field
-public class TSeriesEventArgs : EventArgs {
+public class TSeriesEventArgs : System.EventArgs {
     public bool update {get; set;} 
 }
 

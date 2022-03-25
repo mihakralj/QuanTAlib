@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32210.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantLib", "Algos\QuantLib.csproj", "{620A21B1-FEAE-49AC-8C50-BA988E989779}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quantower", "Charts\Quantower.csproj", "{DB0EE209-ACE6-4954-9DCF-82B01F96196C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Debug|x64.Build.0 = Debug|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Release|Any CPU.Build.0 = Release|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Release|x64.ActiveCfg = Release|Any CPU
+		{620A21B1-FEAE-49AC-8C50-BA988E989779}.Release|x64.Build.0 = Release|Any CPU
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Debug|x64.ActiveCfg = Debug|x64
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Debug|x64.Build.0 = Debug|x64
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Release|x64.ActiveCfg = Release|x64
+		{DB0EE209-ACE6-4954-9DCF-82B01F96196C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E5592DC2-0542-45B2-A0CF-C6B1EDC72B87}
+	EndGlobalSection
+EndGlobal

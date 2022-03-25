@@ -2,9 +2,10 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.0.1</version>
+    <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
+    <license type="file">LICENSE</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Quantitative Library of Technical Indicators</description>
   </metadata>

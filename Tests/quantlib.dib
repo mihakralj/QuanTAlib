@@ -1,7 +1,7 @@
 #!csharp
 
 #r "nuget:YahooFinanceApi;" 
-#r "../Algos/bin/Debug/QuantLibrary.dll"
+#r "nuget:QuantLib;"
 using YahooFinanceApi;
 using QuantLib;
 var history = await Yahoo.GetHistoricalAsync("TQQQ", DateTime.Today.AddDays(-30), DateTime.Now, Period.Daily);
@@ -20,7 +20,7 @@ JMA_Series jma = new(data, 10, 0.0, false);
 
 Console.WriteLine($"date\t\t Value\t SMA\t WMA\t EMA\t HMA\t DEMA\t TEMA \tZLEMA\t JMA");
 foreach (var i in history) {
-    data.Add(i.DateTime,  (double)i.Close);
+    data.Add((i.DateTime,  (double)i.Close));
     //sma.Add();
     //ema.Add();
     //wma.Add();
