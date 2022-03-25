@@ -16,17 +16,17 @@ QuantLib is now published on nuget.org so it can be included in .NET interactive
 
 ## Completed
 
-- ADD - Add TSeries
-- SUB - Subtract TSeries
-- MUL - Multiply TSeries
-- DIV - Divide TSeries
-- SMA - Simple Moving Average
-- EMA - Exponential Moving Average
-- WMA - Weighted Moving average
-- RMA - WildeR's Moving average
-- DEMA - Double Exponential Moving Average
-- TEMA - Triple Exponential Moving Average
-- HMA - Hull moving average
+- ADD   - Add TSeries
+- SUB   - Subtract TSeries
+- MUL   - Multiply TSeries
+- DIV   - Divide TSeries
+- SMA   - Simple Moving Average
+- EMA   - Exponential Moving Average
+- WMA   - Weighted Moving average
+- RMA   - WildeR's Moving average
+- DEMA  - Double Exponential Moving Average
+- TEMA  - Triple Exponential Moving Average
+- HMA   - Hull moving average
 - ZLEMA - Zero-Lag EMA moving average
-- JMA - Jurik Moving Indicator
-- HEMA - Hull-EMA moving average (a hybrid experiment, not a standard indicator )
+- JMA   - Jurik Moving Indicator
+- HEMA  - Hull-EMA moving average (a hybrid experiment, not a standard indicator )

@@ -12,13 +12,12 @@ using QuantLib;
 
 #!csharp
 
-var history = await Yahoo.GetHistoricalAsync("TQQQ", DateTime.Today.AddDays(-230), DateTime.Now, Period.Daily);
+var history = await Yahoo.GetHistoricalAsync("TQQQ", DateTime.Today.AddDays(-530), DateTime.Now, Period.Daily);
 TSeries data = new();
 EMA_Series slow = new(data,26);
 EMA_Series fast = new(data,12);
 SUB_Series macd = new(fast,slow);
 EMA_Series signal = new(macd,9);
-
 foreach (var i in history) data.Add((i.DateTime,  (double)i.Close));
 
 #!csharp
