@@ -4,7 +4,7 @@ namespace QuantLib;
 
 public class ADD_Series : TSeries {
     TSeries _d1;
-    TSeries? _d2;
+    TSeries _d2;
     double _dd;
 
     public ADD_Series(TSeries d1, TSeries d2) {

@@ -2,7 +2,7 @@
 
 #r "nuget: Plotly.NET, 2.0.0-preview.18 "
 #r "nuget: Plotly.NET.Interactive, 2.0.0-preview.18 "
-#r "nuget: QuantLib, 1.0.0"
+#r "nuget: QuantLib;"
 
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
@@ -41,7 +41,7 @@ SMA_Series indicator=new(source: data, period: Period);
 
 var series = Spike;
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -54,7 +54,7 @@ var series = Impulse;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -67,7 +67,7 @@ var series = Triangle;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -80,7 +80,7 @@ var series = Sawtooth;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -93,7 +93,7 @@ var series = Sine;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -106,7 +106,7 @@ var series = Chirp;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -119,7 +119,7 @@ var series = White;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -132,7 +132,7 @@ var series = Gauss;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -145,7 +145,7 @@ var series = B;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -158,7 +158,7 @@ var series = HF;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -171,7 +171,7 @@ var series = ImpulseHF;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -184,7 +184,7 @@ var series = SawtoothHF;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -197,7 +197,7 @@ var series = SineG;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -210,7 +210,7 @@ var series = ChirpG;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -223,7 +223,7 @@ var series = Complex;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
@@ -236,7 +236,7 @@ var series = Market;
 data = new();
 indicator=new(source: data, period: Period);
 JMA_Series reference = new(source: data, period: Period);
-for (int i=0; i<x.Count-1; i++) { data.Add((DateTime.Today.AddDays(-x.Count+i)), series[i]); indicator.Add(); reference.Add();}
+for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.Select(x => (double)x.v),false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));
 GenericChart.GenericChart ch3 = Chart2D.Chart.Line<double,double,bool>(x,reference.Select(x => (double)x.v),false,"ref").WithLineStyle(Width: 1.5, Color: Color.fromString("green"));
