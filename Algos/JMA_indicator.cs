@@ -29,13 +29,14 @@ public class JMA_Series : TSeries
     private double len1, pr, pow1, len2, beta, rvolty;
     private int _l;
 
-    public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = true)
+    public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = false)
     {
         _p = period;
         _NaN = useNaN;
         _source = source;
         vbuffer10 = new();
         vsum65 = new();
+        source.Pub += this.Sub;
 
         //constants
         double _pp = _p * 0.333333333333;
@@ -134,4 +135,6 @@ public class JMA_Series : TSeries
     }
 
     public void Add(bool update = false) { this.Add(_source[_source.Count - 1], update); }
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(_source[_source.Count - 1], e.update); }
+
 }

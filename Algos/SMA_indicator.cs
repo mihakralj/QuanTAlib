@@ -21,11 +21,12 @@ public class SMA_Series : TSeries
     private double _sma;
     private System.Collections.Generic.List<double> _buffer = new();
 
-    public SMA_Series(TSeries source, int period, bool useNaN = true)
+    public SMA_Series(TSeries source, int period, bool useNaN = false)
     {
         _p = period;
         _data = source;
         _NaN = useNaN;
+        source.Pub += this.Sub;
     }
     public new void Add((System.DateTime t, double v) data, bool update = false)
     {
@@ -43,5 +44,6 @@ public class SMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
 }

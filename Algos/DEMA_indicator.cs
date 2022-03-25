@@ -24,7 +24,7 @@ public class DEMA_Series : TSeries
     private double _ema2, _lastema2, _lastlastema2;
     private double _dema;
 
-    public DEMA_Series(TSeries source, int period, bool useNaN = true)
+    public DEMA_Series(TSeries source, int period, bool useNaN = false)
     {
         _p = period;
         _data = source;
@@ -33,6 +33,7 @@ public class DEMA_Series : TSeries
         _NaN = useNaN;
         _lastema1 = _lastlastema1 = double.NaN;
         _lastema2 = _lastlastema2 = double.NaN;
+        source.Pub += this.Sub;
     }
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
@@ -58,5 +59,6 @@ public class DEMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
+    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
 } 

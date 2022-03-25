@@ -1,17 +1,37 @@
 ﻿namespace QuantLib;
 
-public class TSeries : System.Collections.Generic.List<(System.DateTime t, double v)>
+ public class TSeries : System.Collections.Generic.List<(System.DateTime t, double v)>
 {
+    // when asked for a (t,v) tuple, return the last (t,v) on the List
     public static implicit operator (System.DateTime t, double v)(TSeries l) => l[l.Count-1];
+
+    // when asked for a (double), return the value part of the last tuple on the list
     public static implicit operator double(TSeries l) => l[l.Count - 1].v;
 
-    public void Add(System.DateTime t, double v, bool update = false) {
-        this.Add((t, v), update);
-    }
+    // when asked for a (DateTime), return the DateTime part of the last tuple on the list
+    public static implicit operator DateTime(TSeries l) => l[l.Count - 1].t;
+
+    // adding one (t,v) tuple to the end of the list - or update the last value on the list
+    // trigger the broadcast of the event to subscribers
     public void Add((System.DateTime t, double v) TValue, bool update = false) {
-        if (update) this[this.Count - 1] = TValue; else base.Add(TValue);
+        if (update) this[this.Count-1] = TValue; else base.Add(TValue);
+        OnEvent(update);
     }
+
+    // Broadcast handler - only to valid targets
+    protected virtual void OnEvent(bool update = false) {
+        if (Pub!=null && Pub.Target!=this)  Pub(this, new TSeriesEventArgs() {update=update}); 
+    }
+
+    // delegate used by event handler + event handler (Pub == publisher)
+    public delegate void NewDataEventHandler (object source, TSeriesEventArgs args);
+    public event NewDataEventHandler? Pub;
 }  
+
+//  EventArgs extension - carries the update field
+public class TSeriesEventArgs : EventArgs {
+    public bool update {get; set;} 
+}
 
 
 public class TBars
