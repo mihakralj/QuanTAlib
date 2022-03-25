@@ -33,7 +33,7 @@ TSeries data = new();
 // change these two values - the period and the type of observed indicator
 // currently available indicators are: DEMA_Series, EMA_Series, HEMA_Series, HMA_Series, JMA_Series, RMA_Series, SMA_Series, TEMA_Series, WMA_Series and ZLEMA_Series
 int Period = 20;
-HMA_Series indicator=new(source: data, period: Period);
+SMA_Series indicator=new(source: data, period: Period);
 
 //On charts below, blue line is the data input, the green line is a JMA reference
 
