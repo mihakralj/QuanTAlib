@@ -33,6 +33,8 @@ public class EMA_Series : TSeries
         _NaN = useNaN;
         _lastema = _lastlastema = double.NaN;
         source.Pub += this.Sub;
+        if (source.Count > 0) for (int i = 0; i < source.Count; i++) this.Add(source[i], false);
+
     }
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
@@ -50,6 +52,6 @@ public class EMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
-    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
 } 

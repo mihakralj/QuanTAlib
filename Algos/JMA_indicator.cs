@@ -37,6 +37,8 @@ public class JMA_Series : TSeries
         vbuffer10 = new();
         vsum65 = new();
         source.Pub += this.Sub;
+        if (source.Count > 0) for (int i = 0; i < source.Count; i++) this.Add(source[i], false);
+
 
         //constants
         double _pp = _p * 0.333333333333;
@@ -135,6 +137,6 @@ public class JMA_Series : TSeries
     }
 
     public void Add(bool update = false) { this.Add(_source[_source.Count - 1], update); }
-    public void Sub(object source, TSeriesEventArgs e) { this.Add(_source[_source.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) { this.Add(_source[_source.Count - 1], e.update); }
 
 }
