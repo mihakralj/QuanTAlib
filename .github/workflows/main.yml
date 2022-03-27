@@ -1,0 +1,33 @@
+name: .NET library build/test/publish to Nuget
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+        include-prerelease: true
+        
+    - name: Build with dotnet
+      run: dotnet build Algos/QuantLib.csproj --configuration Release
+      
+    - name: Test with dotnet
+      run: dotnet test --verbosity normal
+        
+    - name: Push package to nuget.org
+      run: dotnet nuget push 'D:\a\QuantLib\QuantLib\Algos\bin\Release\QuantLib.*.nupkg'
+          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
