@@ -1,5 +1,4 @@
-﻿using System;
-namespace QuantLib;
+﻿namespace QuantLib;
 
 /** 
 DEMA: Double Exponential Moving Average 
@@ -16,29 +15,32 @@ Remark:
 
 public class DEMA_Series : TSeries
 {
-    private int _p;
-    private bool _NaN;
-    private TSeries _data;
-    private double _k, _k1m;
+    private readonly int _p;
+    private readonly bool _NaN;
+    private readonly TSeries _data;
+    private readonly double _k, _k1m;
     private double _ema1, _lastema1, _lastlastema1;
     private double _ema2, _lastema2, _lastlastema2;
     private double _dema;
 
     public DEMA_Series(TSeries source, int period, bool useNaN = false)
     {
-        _p = period;
-        _data = source;
-        _k = 2.0 / (double)(period + 1);
-        _k1m = 1.0 - _k;
-        _NaN = useNaN;
-        _lastema1 = _lastlastema1 = double.NaN;
-        _lastema2 = _lastlastema2 = double.NaN;
+        this._p = period;
+        this._data = source;
+        this._k = 2.0 / (double)(period + 1);
+        this._k1m = 1.0 - _k;
+        this._NaN = useNaN;
+        this._lastema1 = _lastlastema1 = double.NaN;
+        this._lastema2 = _lastlastema2 = double.NaN;
         source.Pub += this.Sub;
+        if (source.Count > 0) for (int i = 0; i < source.Count; i++) this.Add(source[i], false);
+
     }
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
     {
-        if (update) {
+        if (update)
+        {
             _lastema1 = _lastlastema1;
             _lastema2 = _lastlastema2;
         }
@@ -59,6 +61,6 @@ public class DEMA_Series : TSeries
     {
         this.Add(_data[_data.Count - 1], update);
     }
-    public void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) { this.Add(_data[_data.Count - 1], e.update); }
 
-} 
+}

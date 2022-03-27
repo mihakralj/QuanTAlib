@@ -10,16 +10,16 @@
     <RootNamespace>QuantLib</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\QuantLib</OutputPath>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\QuantLib</OutputPath>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\QuantLib</OutputPath>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\QuantLib</OutputPath>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.121.2\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Algos\*.cs">
