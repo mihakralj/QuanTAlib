@@ -5,10 +5,10 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuantLib)
 
 ![GitHub top language](https://img.shields.io/github/languages/top/mihakralj/QuantLib?style=flat-square)
-![.NET7.0](https://img.shields.io/badge/.NET-7.0-yellow?style=flat-square)
-![.NET6.0](https://img.shields.io/badge/.NET-6.0-blue?style=flat-square)
-![.NET5.0](https://img.shields.io/badge/.NET-5.0-blue?style=flat-square)
-![.NET4.8](https://img.shields.io/badge/.NET-4.8-blue?style=flat-square)
+[![.NET7.0](https://img.shields.io/badge/.NET-7.0-yellow?style=flat-square)]()
+[![.NET6.0](https://img.shields.io/badge/.NET-6.0-blue?style=flat-square)]()
+[![.NET5.0](https://img.shields.io/badge/.NET-5.0-blue?style=flat-square)]()
+[![.NET4.8](https://img.shields.io/badge/.NET-4.8-blue?style=flat-square)]()
 [![GitHub license](https://img.shields.io/github/license/mihakralj/QuantLib?style=flat-square)](Docs/LICENSE)
 
 Quantitative Library (**QuantLib**) is an easy-to-use C# library for quantitative technical analysis with base algorithms, charts, signals and strategies useful for trading securities with [Quantower](https://www.quantower.com/), [MultiCharts.NET](https://www.multicharts.com/net/") and other C#-based trading platforms.
