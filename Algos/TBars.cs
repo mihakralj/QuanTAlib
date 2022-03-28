@@ -4,17 +4,17 @@ using System;
 
 public class TBars
 {
-    private TSeries _open = new();
-    private TSeries _high = new();
-    private TSeries _low = new();
-    private TSeries _close = new();
-    private TSeries _volume = new();
-    private TSeries _hl2 = new();
-    private TSeries _oc2 = new();
-    private TSeries _ohl3 = new();
-    private TSeries _hlc3 = new();
-    private TSeries _ohlc4 = new();
-    private TSeries _hlcc4 = new();
+    private readonly TSeries _open = new();
+    private readonly TSeries _high = new();
+    private readonly TSeries _low = new();
+    private readonly TSeries _close = new();
+    private readonly TSeries _volume = new();
+    private readonly TSeries _hl2 = new();
+    private readonly TSeries _oc2 = new();
+    private readonly TSeries _ohl3 = new();
+    private readonly TSeries _hlc3 = new();
+    private readonly TSeries _ohlc4 = new();
+    private readonly TSeries _hlcc4 = new();
 
     public TSeries open { get { return _open; } }
     public TSeries high { get { return _high; } }
@@ -29,6 +29,7 @@ public class TBars
     public TSeries hlcc4 { get { return _hlcc4; } }
 
     public void Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false) => this.Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
+    public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c, decimal v, bool update = false) => this.Add(t, (double)o, (double)h, (double)l, (double)c, (double)v, update);
     public void Add(DateTime t, double o, double h, double l, double c, double v, bool update = false)
     {
         if (update)

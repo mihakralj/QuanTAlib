@@ -22,8 +22,10 @@
     <OutputPath>C:\Quantower\TradingPlatform\v1.122.2\..\..\Settings\Scripts\Indicators\QT_QuantLib</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="QuantLib" Version="1.0.4" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.2.22152.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Algos\QuantLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Drawing.Design" />

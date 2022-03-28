@@ -31,3 +31,8 @@ jobs:
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
 
+    - name: Push package to github
+      run: dotnet nuget push 'D:\a\QuantLib\QuantLib\Algos\bin\Release\QuantLib.*.nupkg'
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --source https://nuget.pkg.github.com/mihakralj/index.json
+          --skip-duplicate

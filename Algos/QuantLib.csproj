@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.4</Version>
-    <releaseNotes>Expanded support for most .NET frameworks.</releaseNotes>
+    <Version>1.0.5</Version>
+    <releaseNotes>Improved code quality</releaseNotes>
     <Title>QuantLib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Analysis library in C# for both real-time (streaming) and historical data analysis</Description>
     <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mihakralj/QuantLib</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Authors>Miha Kralj</Authors>
     <Copyright>Miha Kralj</Copyright>

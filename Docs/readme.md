@@ -3,8 +3,8 @@
 [![Nuget](https://img.shields.io/nuget/dt/QuantLib?style=flat-square)](https://www.nuget.org/packages/QuantLib/)
 [![GitHub watchers](https://img.shields.io/github/watchers/mihakralj/QuantLib?style=flat-square)](https://github.com/mihakralj/QuantLib/watchers)
 ![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuantLib)
+![Codacy grade](https://img.shields.io/codacy/grade/b1f9109222234c87bce45f1fd4c63aee?style=flat-square)
 
-![GitHub top language](https://img.shields.io/github/languages/top/mihakralj/QuantLib?style=flat-square)
 [![.NET7.0](https://img.shields.io/badge/.NET-7.0-yellow?style=flat-square)]()
 [![.NET6.0](https://img.shields.io/badge/.NET-6.0-blue?style=flat-square)]()
 [![.NET5.0](https://img.shields.io/badge/.NET-5.0-blue?style=flat-square)]()
@@ -15,12 +15,12 @@ Quantitative Library (**QuantLib**) is an easy-to-use C# library for quantitativ
 
 **QuantLib** is written with some specific design criteria in mind - this is a list of reasons why there is '*yet another C# TA library*':
 
-  * Written in native C# - no code conversion from TALIB or other existing TA libraries
-  * No usage of Decimal datatypes, Linq, interface abstractions, or static classes (all for performance reasons)
-  * Support both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without re-calculating the whole history)
-  * Separation of calculations (**algos**) and visualizations (**charts**)
-  * Handle early data right - no hiding of poor calculations with NaN values (unless explicitly requested)
-  * Preservation of time-value integrity of each data throughout the calculation chain (each data point has a timestamp)
+* Written in native C# - no code conversion from TALIB or other existing TA libraries
+* No usage of Decimal datatypes, Linq, interface abstractions, or static classes (all for performance reasons)
+* Support both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without re-calculating the whole history)
+* Separation of calculations (**algos**) and visualizations (**charts**)
+* Handle early data right - no hiding of poor calculations with NaN values (unless explicitly requested)
+* Preservation of time-value integrity of each data throughout the calculation chain (each data point has a timestamp)
 
 QuantLib does not provide OHLCV quotes - but it can easily connect to any  data feeds - see Docs for examples.
 
