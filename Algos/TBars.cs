@@ -28,6 +28,38 @@ public class TBars
     public TSeries ohlc4 { get { return _ohlc4; } }
     public TSeries hlcc4 { get { return _hlcc4; } }
 
+    public TSeries Select(int source) {
+        switch (source)
+        {
+            case 0: return this._open;
+            case 1: return this._high;
+            case 2: return this._low;
+            case 3: return this._close;
+            case 4: return this._hl2;
+            case 5: return this._oc2;
+            case 6: return this._ohl3;
+            case 7: return this._hlc3;
+            case 8: return this._ohlc4;
+            default: return this._hlcc4;
+        }
+    }
+    public String SelectStr(int source)
+    {
+        switch (source)
+        {
+            case 0: return "Open";
+            case 1: return "High";
+            case 2: return "Low";
+            case 3: return "Close";
+            case 4: return "HL2";
+            case 5: return "OC2";
+            case 6: return "OHL3";
+            case 7: return "HLC3";
+            case 8: return "OHLC4";
+            default: return "Weighted";
+        }
+    }
+
     public void Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false) => this.Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
     public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c, decimal v, bool update = false) => this.Add(t, (double)o, (double)h, (double)l, (double)c, (double)v, update);
     public void Add(DateTime t, double o, double h, double l, double c, double v, bool update = false)

@@ -15,12 +15,12 @@ Quantitative Library (**QuantLib**) is an easy-to-use C# library for quantitativ
 
 **QuantLib** is written with some specific design criteria in mind - this is a list of reasons why there is '*yet another C# TA library*':
 
-* Written in native C# - no code conversion from TALIB or other existing TA libraries
-* No usage of Decimal datatypes, Linq, interface abstractions, or static classes (all for performance reasons)
-* Support both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without re-calculating the whole history)
-* Separation of calculations (**algos**) and visualizations (**charts**)
-* Handle early data right - no hiding of poor calculations with NaN values (unless explicitly requested)
-* Preservation of time-value integrity of each data throughout the calculation chain (each data point has a timestamp)
+*   Written in native C# - no code conversion from TALIB or other existing TA libraries
+*   No usage of Decimal datatypes, Linq, interface abstractions, or static classes (all for performance reasons)
+*   Support both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without re-calculating the whole history)
+*   Separation of calculations (**algos**) and visualizations (**charts**)
+*   Handle early data right - no hiding of poor calculations with NaN values (unless explicitly requested)
+*   Preservation of time-value integrity of each data throughout the calculation chain (each data point has a timestamp)
 
 QuantLib does not provide OHLCV quotes - but it can easily connect to any  data feeds - see Docs for examples.
 

@@ -30,7 +30,7 @@
   <ItemGroup>
     <Reference Include="System.Drawing.Design" />
     <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>C:\Quantower\TradingPlatform\v1.122.2\bin\TradingPlatform.BusinessLayer.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Quantower\TradingPlatform\v1.122.4\bin\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
