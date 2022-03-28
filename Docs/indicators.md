@@ -70,6 +70,3 @@
 | TRIX | |
 | VROC | Volume Rate of Change |
 | WPR | Williams %R |
-
-
-

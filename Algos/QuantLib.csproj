@@ -4,7 +4,7 @@
     <releaseNotes>Expanded support for most .NET frameworks.</releaseNotes>
     <Title>QuantLib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
-    <Description>Quantitative technical indicators that allow historical and realtime (streaming) analysis.</Description>
+    <Description>Quantitative Analysis library in C# for both real-time (streaming) and historical data analysis</Description>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Authors>Miha Kralj</Authors>
@@ -54,6 +54,7 @@
     <None Remove="QuantLib.nuspec" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="..\Docs\readme.md">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

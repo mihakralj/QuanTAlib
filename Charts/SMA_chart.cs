@@ -1,14 +1,13 @@
-using System;
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
-
+using QuantLib;
 
 public class SMA_chart : Indicator
-    {
+{
     #region Parameters
 
     [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
-        public int Period = 9;
+    private int Period = 9;
 
     [InputParameter("Data source", 1, variants: new object[]{
             "Open", 0,
@@ -22,86 +21,87 @@ public class SMA_chart : Indicator
             "OHLC4", 8,
             "Weighted (HLCC4)", 9
         })]
-        public int DataSource = 3;
-    
+    private int DataSource = 3;
+
     [InputParameter("Debug info", 3)]
-        public bool debug = false;
+    private bool debug;
 
     #endregion Parameters
 
     private HistoricalData History;
 
-    private QuantLib.TBars bars = new();
-    private QuantLib.TSeries source = new();
-
+    private readonly QuantLib.TBars bars = new();
     private QuantLib.SMA_Series sma;
 
     public SMA_chart() : base()
     {
-        SeparateWindow = false;
-        Name = "SMA - Simple Moving Average";
-        Description = "Simple Moving Average description";
+        this.SeparateWindow = false;
+        this.Name = "SMA - Simple Moving Average";
+        this.Description = "Simple Moving Average description";
 
-        AddLineSeries("SMA", Color.Yellow, 2, LineStyle.Solid);
+        this.AddLineSeries("SMA", Color.Yellow, 2, LineStyle.Solid);
     }
 
     protected override void OnInit()
     {
-        source = GetSource(DataSource);
+        TSeries source = this.GetSource(this.DataSource);
 
         /////////////////////////////////////////////////////////
-        sma = new(source: this.source, period: this.Period, useNaN: true);
+        this.sma = new(source: source, period: this.Period, useNaN: true);
         /////////////////////////////////////////////////////////
 
-        GetHistory(Period, bars);
-        ShortName = "SMA (" + SourceStr(DataSource) + ", " + Period + ")";
+        this.GetHistory(this.Period, this.bars);
+        this.ShortName = "SMA (" + this.SourceStr(this.DataSource) + ", " + this.Period + ")";
     }
 
     protected void OnNewData(bool update = false)
     {
         /////////////////////////////////////////////////////////
-        sma.Add(update);
+        this.sma.Add(update);
         /////////////////////////////////////////////////////////
     }
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool update= !(args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar);
-        bars.Add(Time(), GetPrice(PriceType.Open), GetPrice(PriceType.High), GetPrice(PriceType.Low), GetPrice(PriceType.Close), GetPrice(PriceType.Volume), update);
-        OnNewData(update);
+        bool update = !(args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar);
+        this.bars.Add(this.Time(), this.GetPrice(PriceType.Open), this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low), this.GetPrice(PriceType.Close), this.GetPrice(PriceType.Volume), update);
+        this.OnNewData(update);
 
         /////////////////////////////////////////////////////////
-        double result = sma[sma.Count - 1].v;
+        double result = this.sma[this.sma.Count - 1].v;
         /////////////////////////////////////////////////////////
 
-        SetValue(result);
+        this.SetValue(result);
     }
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         Graphics gr = args.Graphics;
-        if (debug)
+        if (this.debug)
         {
             int y = 25;
             gr.FillRectangle(Brushes.Black, 1, y + 25, 170, y + 53);
             gr.DrawRectangle(Pens.DarkGray, 1, y + 25, 170, y + 53);
 
-            gr.DrawString($"History bars: {History.Count}", new Font("Tahoma", 10), (History.Count >= Period) ? Brushes.YellowGreen : Brushes.Red, 3, y + 30);
-            gr.DrawString($"Bars on chart: {sma.Count - History.Count}", new Font("Tahoma", 10), Brushes.Gray, 3, y + 45);
-            gr.DrawString($"Last value: {(double)sma:f3}", new Font("Tahoma", 10), Brushes.Gray, 3, y + 65);
-            gr.DrawString($"Timespan: {(sma[sma.Count - 1].t - sma[History.Count - 1].t).ToString()}", new Font("Tahoma", 10), Brushes.Gray, 3, y + 80);
+            gr.DrawString($"History bars: {this.History.Count}", new Font("Tahoma", 10), (this.History.Count >= this.Period) ? Brushes.YellowGreen : Brushes.Red, 3, y + 30);
+            gr.DrawString($"Bars on chart: {this.sma.Count - this.History.Count}", new Font("Tahoma", 10), Brushes.Gray, 3, y + 45);
+            gr.DrawString($"Last value: {(double)this.sma:f3}", new Font("Tahoma", 10), Brushes.Gray, 3, y + 65);
+            gr.DrawString($"Timespan: {(this.sma[this.sma.Count - 1].t - this.sma[this.History.Count - 1].t).ToString()}", new Font("Tahoma", 10), Brushes.Gray, 3, y + 80);
         }
     }
     protected void GetHistory(int HistoryBars, QuantLib.TBars bars)
     {
         for (int i = 1; i < 50; i++)
         {
-            History = Symbol.GetHistory(HistoricalData.Period, HistoricalData.FromTime.AddSeconds(-HistoricalData.Period.Duration.TotalSeconds * (HistoryBars + i)), HistoricalData.FromTime);
-            if (History.Count >= HistoryBars) break;
+            this.History = this.Symbol.GetHistory(this.HistoricalData.Period, this.HistoricalData.FromTime.AddSeconds(-this.HistoricalData.Period.Duration.TotalSeconds * (HistoryBars + i)), this.HistoricalData.FromTime);
+            if (this.History.Count >= HistoryBars)
+            {
+                break;
+            }
         }
-        for (int i = History.Count - 1; i >= 0; i--)
+        for (int i = this.History.Count - 1; i >= 0; i--)
         {
-            bars.Add(History[i].TimeLeft, ((HistoryItemBar)History[i]).Open, ((HistoryItemBar)History[i]).High, ((HistoryItemBar)History[i]).Low, ((HistoryItemBar)History[i]).Close, ((HistoryItemBar)History[i]).Volume);
+            bars.Add(this.History[i].TimeLeft, ((HistoryItemBar)this.History[i]).Open, ((HistoryItemBar)this.History[i]).High, ((HistoryItemBar)this.History[i]).Low, ((HistoryItemBar)this.History[i]).Close, ((HistoryItemBar)this.History[i]).Volume);
             OnNewData(update: false);
         }
     }
@@ -109,16 +109,16 @@ public class SMA_chart : Indicator
     {
         switch (DataSource)
         {
-            case 0: return bars.open;
-            case 1: return bars.high; 
-            case 2: return bars.low; 
-            case 3: return bars.close; 
-            case 4: return bars.hl2; 
-            case 5: return bars.oc2; 
-            case 6: return bars.ohl3; 
-            case 7: return bars.hlc3; 
-            case 8: return bars.ohlc4; 
-            default: return bars.hlcc4; 
+            case 0: return this.bars.open;
+            case 1: return this.bars.high;
+            case 2: return this.bars.low;
+            case 3: return this.bars.close;
+            case 4: return this.bars.hl2;
+            case 5: return this.bars.oc2;
+            case 6: return this.bars.ohl3;
+            case 7: return this.bars.hlc3;
+            case 8: return this.bars.ohlc4;
+            default: return this.bars.hlcc4;
         }
     }
 

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantLib", "Algos\QuantLib.csproj", "{620A21B1-FEAE-49AC-8C50-BA988E989779}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quantower", "Charts\Quantower.csproj", "{DB0EE209-ACE6-4954-9DCF-82B01F96196C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QT_QuantLib", "Charts\QT_QuantLib.csproj", "{DB0EE209-ACE6-4954-9DCF-82B01F96196C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

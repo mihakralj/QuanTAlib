@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS0649: Field 'DEMA_chart.debug' is never assigned to, and will always have its default value false
+dotnet_diagnostic.CS0649.severity = silent
