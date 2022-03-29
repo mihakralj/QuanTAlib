@@ -7,12 +7,14 @@ public class ADD_Series : TSeries
     readonly TSeries _d1;
     readonly TSeries _d2;
     readonly double _dd;
+    readonly byte _type;
 
     public ADD_Series(TSeries d1, TSeries d2)
     {
         this._d1 = d1;
         this._d2 = d2;
         this._dd = 0;
+        this._type = 1;
         d1.Pub += this.Sub;
         d2.Pub += this.Sub;
         if (d1.Count > 0 && d2.Count > 0)
@@ -29,6 +31,7 @@ public class ADD_Series : TSeries
         this._d1 = d1;
         this._d2 = null;
         this._dd = dd;
+        this._type = 2;
         d1.Pub += this.Sub;
         if (d1.Count > 0)
         {
@@ -44,6 +47,7 @@ public class ADD_Series : TSeries
         this._d1 = d1;
         this._d2 = null;
         this._dd = dd;
+        this._type = 3;
         d1.Pub += this.Sub;
         if (d1.Count > 0) { for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], dd, false); } }
     }
@@ -60,14 +64,16 @@ public class ADD_Series : TSeries
         if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
     }
 
+    public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) { this.Add(d1, dd, update);  }
+
     public void Add(bool update = false)
     {
-        if (this._d2 == null)
-        { this.Add(this._d1[this._d1.Count - 1], this._dd, update); }
-        else if (this._d1.Count > 0 && this._d2.Count > 0 &&
-                 this._d1[this._d1.Count - 1].t == this._d2[this._d2.Count - 1].t &&
-                 this[this.Count - 1].t != this._d1[this._d1.Count - 1].t)
-        { this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update); }
+        if (update || (this._d1.Count > 0 && this._d1.Count == this._d2.Count && this.Count != this._d1.Count))
+        {
+            if (this._type == 1) { this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update); }
+            else if (this._type == 2) { this.Add(this._d1[this._d1.Count - 1], this._dd, update); }
+            else if (this._type == 3) { this.Add(this._dd, this._d1[this._d1.Count - 1], update); }
+        }
     }
 
     public new void Sub(object source, TSeriesEventArgs e) => this.Add(e.update);

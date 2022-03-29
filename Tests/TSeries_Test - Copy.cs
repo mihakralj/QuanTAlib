@@ -2,7 +2,8 @@ using Xunit;
 using System;
 using QuantLib;
 
-public class TSeries_Test
+namespace QuantLib;
+public class TSeriesL_Test
 {
     [Fact]
     public void InsertingTuple()
