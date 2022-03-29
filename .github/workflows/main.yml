@@ -20,16 +20,22 @@ jobs:
         include-prerelease: true
         
     - name: Build with dotnet
-      run: dotnet build Algos/QuantLib.csproj --configuration Release
+      run: dotnet build Algos/QuantLib.csproj --configuration Release --nologo --verbosity normal
       
     - name: Test with dotnet
-      run: dotnet test --framework net7.0 --verbosity normal
+      run: dotnet test --framework net7.0
+
+    - name: Install dotCover
+      run: dotnet tool install JetBrains.dotCover.GlobalTool --global
+
+    - name: Test with dotCover
+      run: dotnet dotcover test --framework net7.0 --no-build --verbosity normal --dcReportType=DetailedXML --dcoutput=Tests/coveragereport.xml
 
     - name: CodeCov integration
       uses: codecov/codecov-action@v2
       with: 
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage.xml
+        files: ./Tests/coveragereport.xml
         flags: unittests # optional
         fail_ci_if_error: false # optional
         verbose: true 

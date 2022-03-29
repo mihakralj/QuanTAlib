@@ -2,7 +2,6 @@ using Xunit;
 using System;
 using QuantLib;
 
-
 public class TSeries_Test
 {
     [Fact]
