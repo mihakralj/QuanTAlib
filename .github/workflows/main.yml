@@ -16,14 +16,23 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '7.0.x'
         include-prerelease: true
         
     - name: Build with dotnet
       run: dotnet build Algos/QuantLib.csproj --configuration Release
       
     - name: Test with dotnet
-      run: dotnet test --verbosity normal
+      run: dotnet test --framework net7.0 --verbosity normal
+
+    - name: CodeCov integration
+      uses: codecov/codecov-action@v2
+      with: 
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        flags: unittests # optional
+        fail_ci_if_error: false # optional
+        verbose: true 
         
     - name: Push package to nuget.org
       run: dotnet nuget push 'D:\a\QuantLib\QuantLib\Algos\bin\Release\QuantLib.*.nupkg'
