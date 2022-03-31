@@ -18,10 +18,13 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
 
     public System.Collections.Generic.List<double> v => this.Select(x => (double)x.v).ToList();
 
-    public TSeries() {}
+    public int Length { get => this.Count; }
+
+/*
     public TSeries(TSeries s) {
         for (int i=0; i<s.Count; i++) { this.Add(s[i]); }
     }
+*/
 
     // adding one (t,v) tuple to the end of the list - or update the last value on the list
     // trigger the broadcast of the event to subscribers

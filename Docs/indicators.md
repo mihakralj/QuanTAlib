@@ -2,20 +2,24 @@
 
 | Class | Indicator |
 |--|--|
-| **ADD_Series** | Addition |
-| **SUB_Series** | Subtraction |
-| **MUL_Series** | Multiplication |
-| **DIV_Series** | Division |
-| **SMA_Series** | Simple Moving Average |
-| **EMA_Series** | Exponential Moving Average |
-| **WMA_Series** | Weighted Moving average |
-| **RMA_Series** | WildeR's Moving average |
-| **DEMA_Series** | Double Exponential Moving Average |
-| **TEMA_Series** | Triple Exponential Moving Average |
-| **HMA_Series** | Hull moving average |
-| **ZLEMA_Series** | Zero-Lag EMA moving average |
-| **JMA_Series** | Jurik Moving Indicator |
-| **HEMA_Series** | Hull-EMA moving average (a hybrid, not a standard indicator ) |
+| **ADD** | Addition |
+| **SUB** | Subtraction |
+| **MUL** | Multiplication |
+| **DIV** | Division |
+| **SMA** | Simple Moving Average |
+| **SMA.STDDEV** | Standard Deviation from the Mean |
+| **SMA.MAD** | Mean Absolute Deviation |
+| **SMA.MSE** | Mean Squared Error |
+| **SMA.MAPE** | Mean Absolute Percentage Error |
+| **EMA** | Exponential Moving Average |
+| **WMA** | Weighted Moving average |
+| **RMA** | WildeR's Moving average |
+| **DEMA** | Double Exponential Moving Average |
+| **TEMA** | Triple Exponential Moving Average |
+| **HMA** | Hull moving average |
+| **ZLEMA** | Zero-Lag EMA moving average |
+| **JMA** | Jurik Moving Indicator |
+| **HEMA** | Hull-EMA moving average (a hybrid, not a standard indicator ) |
 
 ## To-do (a wishlist in random order)
 

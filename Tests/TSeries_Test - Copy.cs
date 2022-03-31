@@ -41,7 +41,7 @@ public class TSeriesL_Test
     public void ReflectingSeries()
     {
         TSeries s = new() { 1, 2, 3, 4, 5 };
-        TSeries t = new(s);
+        TSeries t = s;
         Assert.Equal(5, (double)t);
         Assert.Equal(5, t.Count);
 
