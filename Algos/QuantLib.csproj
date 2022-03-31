@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <releaseNotes>Improved code quality</releaseNotes>
     <Title>QuantLib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
