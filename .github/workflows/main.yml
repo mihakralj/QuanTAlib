@@ -45,7 +45,29 @@ jobs:
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./Tests/coveragereport.xml
-        
+
+#    - name: Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          draft: false
+#          prerelease: false
+#          release_name: ${{ steps.version.outputs.version }}
+#          tag_name: ${{ github.ref }}
+          #body_path: CHANGELOG.md
+
+ #   - name: Upload Library artifacts
+ #       uses: actions/upload-release-asset@v1
+ #       env:
+ #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ #       with:
+ #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+ #         asset_path: ./bin/Release/net6.0/QuantLib.zip
+ #         asset_name: net6.0/QuantLib.dll
+          #asset_content_type: application/zip
+
     - name: Push package to nuget.org
       run: dotnet nuget push './Algos/bin/Release/QuantLib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
