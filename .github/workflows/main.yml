@@ -20,7 +20,7 @@ jobs:
         include-prerelease: true
         
     - name: Build with dotnet
-      run: dotnet build Algos/QuantLib.csproj --configuration Release --nologo --verbosity normal
+      run: dotnet build QuantLib/QuantLib.csproj --configuration Release --nologo --verbosity normal
       
     - name: Test with dotnet
       run: dotnet test --framework net7.0
@@ -69,13 +69,13 @@ jobs:
           #asset_content_type: application/zip
 
     - name: Push package to nuget.org
-      run: dotnet nuget push './Algos/bin/Release/QuantLib.*.nupkg'
+      run: dotnet nuget push './QuantLib/bin/Release/QuantLib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
 
     - name: Push package to github
-      run: dotnet nuget push './Algos/bin/Release/QuantLib.*.nupkg'
+      run: dotnet nuget push './QuantLib/bin/Release/QuantLib.*.nupkg'
           --api-key ${{ secrets.GITHUB_TOKEN }}
           --source https://nuget.pkg.github.com/mihakralj/index.json
           --skip-duplicate
