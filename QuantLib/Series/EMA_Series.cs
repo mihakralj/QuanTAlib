@@ -1,7 +1,7 @@
 ﻿namespace QuantLib;
 
-/** 
-EMA: Exponential Moving Average 
+/**
+EMA: Exponential Moving Average
 
 EMA needs very short history buffer and calculates the EMA value using just the previous EMA value.
 The weight of the new datapoint (k) is k = 2 / (period-1)
@@ -43,7 +43,9 @@ public class EMA_Series : TSeries
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
     {
-        if (update) { this._lastema = this._lastlastema; }
+        if (update) {
+            this._lastema = this._lastlastema;
+        }
         double _ema = System.Double.IsNaN(this._lastema) ? data.v : data.v * this._k + this._lastema * this._k1m;
         this._lastlastema = this._lastema;
         this._lastema = _ema;
@@ -63,6 +65,8 @@ public class EMA_Series : TSeries
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

@@ -1,7 +1,7 @@
 ﻿namespace QuantLib;
 
-/** 
-TEMA: Triple Exponential Moving Average 
+/**
+TEMA: Triple Exponential Moving Average
 TEMA uses EMA(EMA(EMA())) to calculate less laggy Exponential moving average.
 
 Sources:
@@ -81,6 +81,8 @@ public class TEMA_Series : TSeries
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

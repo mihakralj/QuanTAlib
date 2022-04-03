@@ -16,57 +16,111 @@ public class TBars
     private readonly TSeries _ohlc4 = new();
     private readonly TSeries _hlcc4 = new();
 
-    public TSeries Open { get { return _open; } }
-    public TSeries High { get { return _high; } }
-    public TSeries Low { get { return _low; } }
-    public TSeries Close { get { return _close; } }
-    public TSeries Volume { get { return _volume; } }
-    public TSeries Hl2 { get { return _hl2; } }
-    public TSeries Oc2 { get { return _oc2; } }
-    public TSeries Ohl3 { get { return _ohl3; } }
-    public TSeries Hlc3 { get { return _hlc3; } }
-    public TSeries Ohlc4 { get { return _ohlc4; } }
-    public TSeries Hlcc4 { get { return _hlcc4; } }
+    public TSeries Open {
+        get {
+            return _open;
+        }
+    }
+    public TSeries High {
+        get {
+            return _high;
+        }
+    }
+    public TSeries Low {
+        get {
+            return _low;
+        }
+    }
+    public TSeries Close {
+        get {
+            return _close;
+        }
+    }
+    public TSeries Volume {
+        get {
+            return _volume;
+        }
+    }
+    public TSeries Hl2 {
+        get {
+            return _hl2;
+        }
+    }
+    public TSeries Oc2 {
+        get {
+            return _oc2;
+        }
+    }
+    public TSeries Ohl3 {
+        get {
+            return _ohl3;
+        }
+    }
+    public TSeries Hlc3 {
+        get {
+            return _hlc3;
+        }
+    }
+    public TSeries Ohlc4 {
+        get {
+            return _ohlc4;
+        }
+    }
+    public TSeries Hlcc4 {
+        get {
+            return _hlcc4;
+        }
+    }
 
     public TSeries Select(int source)
     {
         return source switch
-        {
-            0 => _open,
-            1 => _high,
-            2 => _low,
-            3 => _close,
-            4 => _hl2,
-            5 => _oc2,
-            6 => _ohl3,
-            7 => _hlc3,
-            8 => _ohlc4,
-            _ => _hlcc4,
-        };
-    }
-    public string SelectStr(int source)
+    {
+        0 => _open,
+        1 => _high,
+        2 => _low,
+        3 => _close,
+        4 => _hl2,
+        5 => _oc2,
+        6 => _ohl3,
+        7 => _hlc3,
+        8 => _ohlc4,
+        _ => _hlcc4,
+    };
+}
+public string SelectStr(int source)
     {
         switch (source)
         {
-            case 0: return "Open";
-            case 1: return "High";
-            case 2: return "Low";
-            case 3: return "Close";
-            case 4: return "HL2";
-            case 5: return "OC2";
-            case 6: return "OHL3";
-            case 7: return "HLC3";
-            case 8: return "OHLC4";
-            default: return "Weighted";
+        case 0:
+            return "Open";
+        case 1:
+            return "High";
+        case 2:
+            return "Low";
+        case 3:
+            return "Close";
+        case 4:
+            return "HL2";
+        case 5:
+            return "OC2";
+        case 6:
+            return "OHL3";
+        case 7:
+            return "HLC3";
+        case 8:
+            return "OHLC4";
+        default:
+            return "Weighted";
         }
     }
 
-    public void Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false) => 
-        Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
-    
-    public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c, decimal v, bool update = false) => 
-        Add(t, (double)o, (double)h, (double)l, (double)c, (double)v, update);
-    
+    public void Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false) =>
+    Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
+
+    public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c, decimal v, bool update = false) =>
+    Add(t, (double)o, (double)h, (double)l, (double)c, (double)v, update);
+
     public void Add(DateTime t, double o, double h, double l, double c, double v, bool update = false)
     {
         if (update)

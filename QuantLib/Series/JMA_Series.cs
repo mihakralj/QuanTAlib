@@ -1,9 +1,9 @@
 ﻿using System;
 namespace QuantLib;
 
-/** 
-JMA: Jurik Moving Average 
-Mark Jurik's Moving Average (JMA) attempts to eliminate noise to see the  underlying activity. 
+/**
+JMA: Jurik Moving Average
+Mark Jurik's Moving Average (JMA) attempts to eliminate noise to see the  underlying activity.
 It has extremely low lag, is very smooth and is responsive to market gaps.
 
 Sources:
@@ -95,13 +95,27 @@ public class JMA_Series : TSeries
         double del2 = lprice - this.bsmin;
 
         double volty = (Math.Abs(del1) != Math.Abs(del2)) ? Math.Max(Math.Abs(del1), Math.Abs(del2)) : 0;
-        if (update) { this.vbuffer10[this.vbuffer10.Count - 1] = volty; } else { this.vbuffer10.Add(volty); }
-        if (this.vbuffer10.Count > 10) { this.vbuffer10.RemoveAt(0); }
+        if (update) {
+            this.vbuffer10[this.vbuffer10.Count - 1] = volty;
+        }
+        else {
+            this.vbuffer10.Add(volty);
+        }
+        if (this.vbuffer10.Count > 10) {
+            this.vbuffer10.RemoveAt(0);
+        }
 
         double prevvsum = (this.vsum65.Count > 0) ? this.vsum65[this.vsum65.Count - 1] : 0;
         double vsumitem = prevvsum + 0.1 * (volty - this.vbuffer10[0]);
-        if (update) { this.vsum65[this.vsum65.Count - 1] = vsumitem; } else { this.vsum65.Add(vsumitem); }
-        if (this.vsum65.Count > 65) { this.vsum65.RemoveAt(0); }
+        if (update) {
+            this.vsum65[this.vsum65.Count - 1] = vsumitem;
+        }
+        else {
+            this.vsum65.Add(vsumitem);
+        }
+        if (this.vsum65.Count > 65) {
+            this.vsum65.RemoveAt(0);
+        }
 
         double avolty = 0;
         for (int i = 0; i < this.vsum65.Count; i++)
@@ -139,11 +153,20 @@ public class JMA_Series : TSeries
         this.prev_jma = jma;
 
         (System.DateTime t, double v) result = (data.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : jma);
-        if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
+        if (update) {
+            base[base.Count - 1] = result;
+        }
+        else {
+            base.Add(result);
+        }
 
     }
 
-    public void Add(bool update = false) { this.Add(this._source[this._source.Count - 1], update); }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._source[this._source.Count - 1], e.update); }
+    public void Add(bool update = false) {
+        this.Add(this._source[this._source.Count - 1], update);
+    }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._source[this._source.Count - 1], e.update);
+    }
 
 }

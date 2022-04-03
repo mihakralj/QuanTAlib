@@ -1,9 +1,9 @@
 ﻿using System;
 namespace QuantLib;
 
-/** 
-HMA: Hull Moving Average 
-Developed by Alan Hull, an extremely fast and smooth moving average; almost eliminates lag altogether 
+/**
+HMA: Hull Moving Average
+Developed by Alan Hull, an extremely fast and smooth moving average; almost eliminates lag altogether
 and manages to improve smoothing at the same time.
 
 Sources:
@@ -57,7 +57,9 @@ public class HMA_Series : TSeries
             this._buf1.Add(data.v);
             this._buf2.Add(data.v);
         }
-        if (this._buf1.Count > (int)(Math.Ceiling((double)this._p / 2))) { this._buf1.RemoveAt(0); }
+        if (this._buf1.Count > (int)(Math.Ceiling((double)this._p / 2))) {
+            this._buf1.RemoveAt(0);
+        }
         if (this._buf2.Count > this._p)
         {
             this._buf2.RemoveAt(0);
@@ -114,6 +116,8 @@ public class HMA_Series : TSeries
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

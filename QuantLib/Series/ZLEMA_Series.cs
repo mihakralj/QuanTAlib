@@ -1,8 +1,8 @@
 ﻿using System;
 namespace QuantLib;
 
-/** 
-ZLEMA: Zero Lag Exponential Moving Average 
+/**
+ZLEMA: Zero Lag Exponential Moving Average
 
 The Zero lag exponential moving average (ZLEMA) indicator was created by John Ehlers and Ric Way.
 
@@ -11,8 +11,8 @@ Lag = (Period-1)/2
 Ema Data = {Data+(Data-Data(Lag days ago))
 ZLEMA = EMA (EmaData,Period)
 
-The idea is do a regular exponential moving average (EMA) calculation but on a de-lagged data instead of 
-doing it on the regular data. Data is de-lagged by removing the data from "lag" days ago thus removing 
+The idea is do a regular exponential moving average (EMA) calculation but on a de-lagged data instead of
+doing it on the regular data. Data is de-lagged by removing the data from "lag" days ago thus removing
 (or attempting to remove) the cumulative lag effect of the moving average.
 **/
 
@@ -46,7 +46,9 @@ public class ZLEMA_Series : TSeries
 
     public new void Add((System.DateTime t, double v) data, bool update = false)
     {
-        if (update) { this._lastema = this._lastlastema; }
+        if (update) {
+            this._lastema = this._lastlastema;
+        }
 
         double _lagdata = this._data[this._data.Count - 1].v + (this._data[this._data.Count - 1].v - this._data[Math.Max(this._data.Count - 1 - this._l, 0)].v);
 
@@ -55,13 +57,20 @@ public class ZLEMA_Series : TSeries
         this._lastema = _ema;
 
         (System.DateTime t, double v) result = (data.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
-        if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
+        if (update) {
+            base[base.Count - 1] = result;
+        }
+        else {
+            base.Add(result);
+        }
     }
 
     public void Add(bool update = false)
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

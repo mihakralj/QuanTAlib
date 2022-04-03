@@ -1,7 +1,7 @@
 ﻿namespace QuantLib;
 
-/** 
-WMA: (linearly) Weighted Moving Average 
+/**
+WMA: (linearly) Weighted Moving Average
 The weights are linearly decreasing over the period and the most recent data has the heaviest weight.
 
 Sources:
@@ -39,20 +39,36 @@ public class WMA_Series : TSeries
     }
     public new void Add((System.DateTime t, double v) data, bool update = false)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = data.v; } else { this._buffer.Add(data.v); }
-        if (this._buffer.Count > this._p) { this._buffer.RemoveAt(0); }
+        if (update) {
+            this._buffer[this._buffer.Count - 1] = data.v;
+        }
+        else {
+            this._buffer.Add(data.v);
+        }
+        if (this._buffer.Count > this._p) {
+            this._buffer.RemoveAt(0);
+        }
 
         double _wma = 0;
-        for (int i = 0; i < this._buffer.Count; i++) { _wma += this._buffer[i] * this._weights[i]; }
+        for (int i = 0; i < this._buffer.Count; i++) {
+            _wma += this._buffer[i] * this._weights[i];
+        }
         _wma /= (this._buffer.Count * (this._buffer.Count + 1)) * 0.5;
 
         (System.DateTime t, double v) result = (data.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _wma);
-        if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
+        if (update) {
+            base[base.Count - 1] = result;
+        }
+        else {
+            base.Add(result);
+        }
     }
     public void Add(bool update = false)
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

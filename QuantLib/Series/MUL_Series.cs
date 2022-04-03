@@ -83,17 +83,27 @@ public class MUL_Series : TSeries
         }
     }
 
-    public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) { this.Add(d1, dd, update); }
+    public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) {
+        this.Add(d1, dd, update);
+    }
 
     public void Add(bool update = false)
     {
         if (update || (this._d1.Count > 0 && this._d1.Count == this._d2.Count && this.Count != this._d1.Count))
         {
-            if (this._type == 1) { this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update); }
-            else if (this._type == 2) { this.Add(this._d1[this._d1.Count - 1], this._dd, update); }
-            else if (this._type == 3) { this.Add(this._dd, this._d1[this._d1.Count - 1], update); }
+            if (this._type == 1) {
+                this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update);
+            }
+            else if (this._type == 2) {
+                this.Add(this._d1[this._d1.Count - 1], this._dd, update);
+            }
+            else if (this._type == 3) {
+                this.Add(this._dd, this._d1[this._d1.Count - 1], update);
+            }
         }
     }
 
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(e.update);
+    }
 }

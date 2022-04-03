@@ -49,30 +49,52 @@ public class ADD_Series : TSeries
         this._dd = dd;
         this._type = 3;
         d1.Pub += this.Sub;
-        if (d1.Count > 0) { for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], dd, false); } }
+        if (d1.Count > 0) {
+            for (int i = 0; i < d1.Count; i++) {
+                this.Add(d1[i], dd, false);
+            }
+        }
     }
 
     public void Add((System.DateTime t, double v) d1, (System.DateTime t, double v) d2, bool update = false)
     {
         (System.DateTime t, double v) result = ((d1.t > d2.t) ? d1.t : d2.t, d1.v + d2.v);
-        if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
+        if (update) {
+            base[base.Count - 1] = result;
+        }
+        else {
+            base.Add(result);
+        }
     }
 
     public void Add((System.DateTime t, double v) d1, double dd, bool update = false)
     {
         (System.DateTime t, double v) result = (d1.t, d1.v + dd);
-        if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
+        if (update) {
+            base[base.Count - 1] = result;
+        }
+        else {
+            base.Add(result);
+        }
     }
 
-    public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) { this.Add(d1, dd, update);  }
+    public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) {
+        this.Add(d1, dd, update);
+    }
 
     public void Add(bool update = false)
     {
         if (update || (this._d1.Count > 0 && this._d1.Count == this._d2.Count && this.Count != this._d1.Count))
         {
-            if (this._type == 1) { this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update); }
-            else if (this._type == 2) { this.Add(this._d1[this._d1.Count - 1], this._dd, update); }
-            else if (this._type == 3) { this.Add(this._dd, this._d1[this._d1.Count - 1], update); }
+            if (this._type == 1) {
+                this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update);
+            }
+            else if (this._type == 2) {
+                this.Add(this._d1[this._d1.Count - 1], this._dd, update);
+            }
+            else if (this._type == 3) {
+                this.Add(this._dd, this._d1[this._d1.Count - 1], update);
+            }
         }
     }
 

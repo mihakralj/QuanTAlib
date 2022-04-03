@@ -18,7 +18,9 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
 
     public System.Collections.Generic.List<double> v => this.Select(x => (double)x.v).ToList();
 
-    public int Length { get => Count; }
+    public int Length {
+        get => Count;
+    }
 
     // adding one (t,v) tuple to the end of the list - or update the last value on the list
     // trigger the broadcast of the event to subscribers
@@ -58,7 +60,9 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
         if (ss.Count > 0)
         {
             for (int i = 0; i < ss.Count; i++)
-            { this.Add(ss[i]); }
+            {
+                this.Add(ss[i]);
+            }
         }
         else
         {
@@ -71,5 +75,8 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
 //  EventArgs extension - carries the update field
 public class TSeriesEventArgs : EventArgs
 {
-    public bool update { get; set; }
+    public bool update {
+        get;
+        set;
+    }
 }

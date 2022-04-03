@@ -8,8 +8,12 @@ public class ADD_Test
     [Fact]
     public void ADDSeriesSeries_Test()
     {
-        TSeries a = new() { 0, 1, 2, 3, 4, 5 };
-        TSeries b = new() { 5, 4, 3, 2, 1, 0 };
+        TSeries a = new() {
+            0, 1, 2, 3, 4, 5
+        };
+        TSeries b = new() {
+            5, 4, 3, 2, 1, 0
+        };
         ADD_Series c = new(a, b);
         Assert.Equal(5, c.Last().v);
     }
@@ -17,7 +21,9 @@ public class ADD_Test
     [Fact]
     public void ADDSeriesDouble_Test()
     {
-        TSeries a = new() { 0, 1, 2, 3, 4, 5 };
+        TSeries a = new() {
+            0, 1, 2, 3, 4, 5
+        };
         ADD_Series c = new(a, 10.0);
         Assert.Equal(15, c.Last().v);
     }
@@ -25,7 +31,9 @@ public class ADD_Test
     [Fact]
     public void ADDDoubleSeries_Test()
     {
-        TSeries a = new() { 0, 1, 2, 3, 4, 5 };
+        TSeries a = new() {
+            0, 1, 2, 3, 4, 5
+        };
         ADD_Series c = new(10.0, a);
         Assert.Equal(15, c.Last().v);
     }
@@ -33,8 +41,12 @@ public class ADD_Test
     [Fact]
     public void ADDEventing_Test()
     {
-        TSeries a = new() { 0, 1, 2, 3, 4, 5 };
-        TSeries b = new() { 5, 4, 3, 2, 1, 0 };
+        TSeries a = new() {
+            0, 1, 2, 3, 4, 5
+        };
+        TSeries b = new() {
+            5, 4, 3, 2, 1, 0
+        };
         ADD_Series c = new(a,b);
         a.Add(2);
         b.Add(2);
@@ -44,7 +56,9 @@ public class ADD_Test
     [Fact]
     public void ADDUpdateDouble_Test()
     {
-        TSeries a = new() { 0, 1, 2, 3, 4, 5 };
+        TSeries a = new() {
+            0, 1, 2, 3, 4, 5
+        };
         double b = 10;
         ADD_Series c = new(a, b);
         a.Add(0, true);
@@ -54,8 +68,12 @@ public class ADD_Test
     [Fact]
     public void ADDUpdating_Test()
     {
-        TSeries a = new() { 0, 1, 2, 3, 4, 5 };
-        TSeries b = new() { 5, 4, 3, 2, 1, 0 };
+        TSeries a = new() {
+            0, 1, 2, 3, 4, 5
+        };
+        TSeries b = new() {
+            5, 4, 3, 2, 1, 0
+        };
         ADD_Series c = new(a, b);
         a.Add(10, true);
         b.Add(10, true);

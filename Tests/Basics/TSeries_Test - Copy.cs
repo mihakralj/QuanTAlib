@@ -7,7 +7,9 @@ public class TSeriesL_Test
     [Fact]
     public void InsertingTuple()
     {
-        TSeries s = new() { (t: DateTime.Today, v: double.Epsilon) };
+        TSeries s = new() {
+            (t: DateTime.Today, v: double.Epsilon)
+        };
         Assert.Equal((DateTime.Today, double.Epsilon), s);
     }
 
@@ -31,7 +33,9 @@ public class TSeriesL_Test
     [Fact]
     public void UpdatingValue()
     {
-        TSeries s = new() {1, 2, 3, 4, 5};
+        TSeries s = new() {
+            1, 2, 3, 4, 5
+        };
         s.Add(0.0, update: true);
         Assert.Equal(0.0, (double)s);
         Assert.Equal(5, s.Count);
@@ -39,7 +43,9 @@ public class TSeriesL_Test
     [Fact]
     public void ReflectingSeries()
     {
-        TSeries s = new() { 1, 2, 3, 4, 5 };
+        TSeries s = new() {
+            1, 2, 3, 4, 5
+        };
         TSeries t = s;
         Assert.Equal(5, (double)t);
         Assert.Equal(5, t.Count);
@@ -48,7 +54,9 @@ public class TSeriesL_Test
     [Fact]
     public void BroadcastingEvents()
     {
-        TSeries s = new() { 1, 2, 3, 4, 5 };
+        TSeries s = new() {
+            1, 2, 3, 4, 5
+        };
         TSeries t = new();
         s.Pub += t.Sub;
         s.Add(0.0, update: true);

@@ -1,7 +1,7 @@
 ﻿namespace QuantLib;
 
-/** 
-DEMA: Double Exponential Moving Average 
+/**
+DEMA: Double Exponential Moving Average
 DEMA uses EMA(EMA()) to calculate smoother Exponential moving average.
 
 Sources:
@@ -73,6 +73,8 @@ public class DEMA_Series : TSeries
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

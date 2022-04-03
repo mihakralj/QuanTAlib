@@ -2,8 +2,8 @@
 
 namespace QuantLib;
 
-/** 
-SMA: Simple Moving Average 
+/**
+SMA: Simple Moving Average
 The weights are equally distributed across the period, resulting in a mean() of the data within the period/
 
 Sources:
@@ -11,7 +11,7 @@ Sources:
     https://stats.stackexchange.com/a/24739
 
 Remark:
-    This calc doesn't use LINQ or SUM() or any of iterative methods. 
+    This calc doesn't use LINQ or SUM() or any of iterative methods.
 **/
 
 public class SMA_Series : TSeries
@@ -21,14 +21,30 @@ public class SMA_Series : TSeries
     private readonly TSeries _data;
     private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly TSeries _mad = new();
-     private readonly TSeries _stddev= new();
-     private readonly TSeries _mape = new();
-     private readonly TSeries  _mse = new();
+    private readonly TSeries _stddev= new();
+    private readonly TSeries _mape = new();
+    private readonly TSeries  _mse = new();
 
-    public TSeries MAD { get { return _mad; } }
-    public TSeries STDDEV { get { return _stddev; } }
-    public TSeries MSE { get { return _mse; } }
-    public TSeries MAPE { get { return _mape; } }
+    public TSeries MAD {
+        get {
+            return _mad;
+        }
+    }
+    public TSeries STDDEV {
+        get {
+            return _stddev;
+        }
+    }
+    public TSeries MSE {
+        get {
+            return _mse;
+        }
+    }
+    public TSeries MAPE {
+        get {
+            return _mape;
+        }
+    }
 
     public SMA_Series(TSeries source, int period, bool useNaN = false)
     {
@@ -64,7 +80,9 @@ public class SMA_Series : TSeries
         double _mad_item = 0;
         double _mse_item = 0;
         double _mape_item = 0;
-        for (int i = 0; i < this._buffer.Count; i++) {  _sma_item += this._buffer[i]; }
+        for (int i = 0; i < this._buffer.Count; i++) {
+            _sma_item += this._buffer[i];
+        }
         _sma_item /= this._buffer.Count;
 
         for (int i = 0; i < this._buffer.Count; i++)
@@ -106,6 +124,8 @@ public class SMA_Series : TSeries
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }

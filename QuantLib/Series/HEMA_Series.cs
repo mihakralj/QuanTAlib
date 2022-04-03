@@ -1,14 +1,14 @@
 ﻿using System;
 namespace QuantLib;
 
-/** 
-HEMA: Hull-EMA Moving Average 
+/**
+HEMA: Hull-EMA Moving Average
 Modified HUll Moving Average; instead of using WMA (Weighted MA) for a calculation, HEMA uses EMA for Hull's
 formula:
 
 EMA1 = EMA(n/2) of price - where k = 4/(n/2 +1)
 EMA2 = EMA(n) of price - where k = 3/(n+1)
-Raw HMA = (2 * EMA1) - EMA2 
+Raw HMA = (2 * EMA1) - EMA2
 EMA3 = EMA(sqrt(n)) of Raw HMA - where k = 2/(sqrt(n)+1)
 **/
 
@@ -80,6 +80,8 @@ public class HEMA_Series : TSeries
     {
         this.Add(this._data[this._data.Count - 1], update);
     }
-    public new void Sub(object source, TSeriesEventArgs e) { this.Add(this._data[this._data.Count - 1], e.update); }
+    public new void Sub(object source, TSeriesEventArgs e) {
+        this.Add(this._data[this._data.Count - 1], e.update);
+    }
 
 }
