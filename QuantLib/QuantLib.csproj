@@ -34,7 +34,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageLicenseFile></PackageLicenseFile>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
