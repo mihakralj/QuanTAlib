@@ -1,8 +1,7 @@
 using Xunit;
-using System;
-using QuantLib;
 
 namespace QuantLib;
+
 public class RMA_Test
 {
     [Fact]
@@ -22,5 +21,4 @@ public class RMA_Test
         a.Add(2, true);
         Assert.Equal(2.263374485596708, c.Last().v);
     }
-
 }

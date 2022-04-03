@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Version>1.0.6</Version>
+    <releaseNotes>Improved code quality</releaseNotes>
+    <Title>QuantLib</Title>
+    <Product>Library of Technical Indicators for .NET</Product>
+    <Description>Quantitative Analysis library in C# for both real-time (streaming) and historical data analysis</Description>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mihakralj/QuantLib</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Authors>Miha Kralj</Authors>
+    <Copyright>Miha Kralj</Copyright>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <RootNamespace>QuantLib</RootNamespace>
+    <AssemblyName>QuantLib</AssemblyName>
+    <IsPublishable>True</IsPublishable>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <DebugType>embedded</DebugType>
+    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageTags>
+       Indicators;Stock;Market;Technical;Analysis;Algorithmic;Trading;Trade;Trend;Momentum;Finance;Algorithm;Algo;
+       AlgoTrading;Financial;Strategy;Chart;Charting;Oscillator;Overlay;Equity;Bitcoin;Crypto;Cryptocurrency;Forex;
+       Quantitative;Historical;Quotes;
+    </PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageLicenseFile></PackageLicenseFile>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>True</Optimize>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="QuantLib.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Docs\readme.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+</Project>
