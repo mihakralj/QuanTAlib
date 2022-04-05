@@ -5,15 +5,12 @@ using System.Linq;
 
 public class TSeries : System.Collections.Generic.List<(DateTime t, double v)> {
   // when asked for a (t,v) tuple, return the last (t,v) on the List
-  public static implicit operator(DateTime t,
-                                  double v)(TSeries l) => l[l.Count - 1];
+  public static implicit operator(DateTime t, double v)(TSeries l) => l[l.Count - 1];
 
-  // when asked for a (double), return the value part of the last tuple on the
-  // list
+  // when asked for a (double), return the value part of the last tuple on the list
   public static implicit operator double(TSeries l) => l[l.Count - 1].v;
 
-  // when asked for a (DateTime), return the DateTime part of the last tuple on
-  // the list
+  // when asked for a (DateTime), return the DateTime part of the last tuple on the list
   public static implicit operator DateTime(TSeries l) => l[l.Count - 1].t;
 
   public System.Collections.Generic.List<DateTime> t =>
@@ -36,8 +33,7 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)> {
     this.OnEvent(update);
   } public void Add(DateTime t, double v,
                     bool update = false) => this.Add((t, v), update);
-  public void Add(double v, bool update = false) => this.Add((DateTime.Now, v),
-                                                             update);
+  public void Add(double v, bool update = false) => this.Add((DateTime.Now, v), update);
 
   // Broadcast handler - only to valid targets
   protected virtual void OnEvent(bool update = false) {

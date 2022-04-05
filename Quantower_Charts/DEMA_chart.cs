@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Runtime;
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
 using QuantLib;
+
 
 public class DEMA_chart : Indicator
 {

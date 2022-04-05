@@ -2,7 +2,7 @@
 
 using System;
 
-public class TBars {
+public class TBars : System.Collections.Generic.List<(DateTime t, double o, double h, double l, double c, double v)> {
   private readonly TSeries _open = new();
   private readonly TSeries _high = new();
   private readonly TSeries _low = new();
@@ -81,18 +81,15 @@ public class TBars {
   }
 
   public void
-  Add((DateTime t, double o, double h, double l, double c, double v)i,
-      bool update = false) => Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
+  Add((DateTime t, double o, double h, double l, double c, double v)i, bool update = false) 
+    => Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
 
-  public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c,
-                  decimal v, bool update = false) => Add(t, (double)o,
-                                                         (double)h, (double)l,
-                                                         (double)c, (double)v,
-                                                         update);
+  public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c,decimal v, bool update = false) 
+    => Add(t, (double)o, (double)h, (double)l, (double)c, (double)v, update);
 
-  public void Add(DateTime t, double o, double h, double l, double c, double v,
-                  bool update = false) {
+  public void Add(DateTime t, double o, double h, double l, double c, double v, bool update = false) {
     if (update) {
+      this[this.Count-1] = (t,o,h,l,c,v);
       _open[_open.Count - 1] = (t, o);
       _high[_high.Count - 1] = (t, h);
       _low[_low.Count - 1] = (t, l);
@@ -105,6 +102,7 @@ public class TBars {
       _ohlc4[_ohlc4.Count - 1] = (t, (o + h + l + c) * 0.25);
       _hlcc4[_hlcc4.Count - 1] = (t, (h + l + c + c) * 0.25);
     } else {
+      base.Add((t,o,h,l,c,v));
       _open.Add((t, o));
       _high.Add((t, h));
       _low.Add((t, l));
