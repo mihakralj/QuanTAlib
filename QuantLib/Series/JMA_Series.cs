@@ -45,14 +45,13 @@ public class JMA_Series : TSeries {
     }
 
     // constants
-    double _pp = this._p * 0.5;
     this.pr = (phase < -100) ? 0.5 : (phase > 100) ? 2.5 : (phase * 0.01) + 1.5;
     double len1 = Math.Max(
-        (Math.Log(Math.Sqrt(0.5 * (_pp - 1))) / Math.Log(2.0)) + 2.0, 0);
+        (Math.Log(Math.Sqrt(0.5 * (_p - 1))) / Math.Log(2.0)) + 2.0, 0);
     this.pow1 = Math.Max(len1 - 2, 0.5);
     this.rvolty = Math.Exp((1 / this.pow1) * Math.Log(len1));
-    this.len2 = Math.Sqrt(0.5 * (_pp - 1)) * len1;
-    this.beta = 0.45 * (_pp - 1) / (0.45 * (_pp - 1) + 2);
+    this.len2 = Math.Sqrt(0.5 * (_p - 1)) * len1;
+    this.beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
     this._l = (int)Math.Round(this._p - 1 * 0.5);
   }
 

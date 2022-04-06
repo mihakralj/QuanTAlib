@@ -30,22 +30,22 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
   public TSeries Volume {
     get { return _volume; }
   }
-  public TSeries Hl2 {
+  public TSeries HL2 {
     get { return _hl2; }
   }
-  public TSeries Oc2 {
+  public TSeries OC2 {
     get { return _oc2; }
   }
-  public TSeries Ohl3 {
+  public TSeries OHL3 {
     get { return _ohl3; }
   }
-  public TSeries Hlc3 {
+  public TSeries HLC3 {
     get { return _hlc3; }
   }
-  public TSeries Ohlc4 {
+  public TSeries OHLC4 {
     get { return _ohlc4; }
   }
-  public TSeries Hlcc4 {
+  public TSeries HLCC4 {
     get { return _hlcc4; }
   }
 
