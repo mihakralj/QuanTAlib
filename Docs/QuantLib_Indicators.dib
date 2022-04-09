@@ -1,15 +1,12 @@
 #!csharp
 
-#r "nuget:YahooFinanceApi;" 
 #r "nuget:QuantLib;"
-using YahooFinanceApi;
 using QuantLib;
-var history = await Yahoo.GetHistoricalAsync("TQQQ", DateTime.Today.AddDays(-30), DateTime.Now, Period.Daily);
 
-#!csharp
-
-TSeries data = new();
+YAHOO_Feed tqqq = new(30,"TQQQ");
+TSeries data = tqqq.Close;
 SMA_Series sma = new(data, 5, false);
+MED_Series med = new(data, 5);
 WMA_Series wma = new(data, 5, false);
 EMA_Series ema = new(data, 5, false);
 HMA_Series hma = new(data, 5, false);
@@ -18,8 +15,7 @@ TEMA_Series tema = new(data, 5, false);
 ZLEMA_Series zlema = new(data, 5, false);
 JMA_Series jma = new(data, 10, 0.0, false);
 
-Console.WriteLine($"date\t\t Value\t SMA\t WMA\t EMA\t HMA\t DEMA\t TEMA \tZLEMA\t JMA");
-foreach (var i in history) {
-    data.Add((i.DateTime,  (double)i.Close));
-    Console.Write($"{data[^1].t:yyyy-MM-dd}\t {(double)data:f2}\t {(double)sma:f2}\t {(double)wma:f2}\t {(double)ema:f2}\t {(double)hma:f2}\t {(double)dema:f2}\t {(double)tema:f2}\t {(double)zlema:f2}\t {(double)jma:f2}\n");
+Console.WriteLine($"date\t\t Value\t SMA\t MED\t WMA\t EMA\t HMA\t DEMA\t TEMA \tZLEMA\t JMA");
+for (int i=0; i < data.Length; i++) {
+    Console.Write($"{data[i].t:yyyy-MM-dd}\t {data[i].v:f2}\t {sma[i].v:f2}\t {med[i].v:f2}\t {wma[i].v:f2}\t {ema[i].v:f2}\t {hma[i].v:f2}\t {dema[i].v:f2}\t {tema[i].v:f2}\t {zlema[i].v:f2}\t {jma[i].v:f2}\n");
 }

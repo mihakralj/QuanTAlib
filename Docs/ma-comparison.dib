@@ -2,7 +2,7 @@
 
 #r "nuget: Plotly.NET, 2.0.0-preview.18 "
 #r "nuget: Plotly.NET.Interactive, 2.0.0-preview.18 "
-#r "nuget: QuantLib;"
+#r "nuget: QuantLib"
 
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
@@ -40,7 +40,7 @@ HMA_Series indicator=new(source: data, period: Period);
 #!csharp
 
 var series = Spike;
-JMA_Series reference = new(source: data, period: Period);
+ZLEMA_Series reference = new(source: data, period: Period);
 for (int i=0; i<x.Count-1; i++) data.Add(((DateTime.Today.AddDays(-x.Count+i)), series[i]));
 GenericChart.GenericChart ch1 = Chart2D.Chart.Line<double,double,bool>(x,series,false,"data").WithLineStyle(Width: 1.0, Color: Color.fromString("blue"));
 GenericChart.GenericChart ch2 = Chart2D.Chart.Line<double,double,bool>(x,indicator.v,false,"sig").WithLineStyle(Width: 2, Color: Color.fromString("red"));

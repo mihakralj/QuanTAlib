@@ -3,147 +3,150 @@
 | Indicator | QuantLib | TA-LIB | Skender | Pandas-TA |
 |--|:--:|:--:|:--:|:--:|
 | **Basics** |||||
-| ADD - Addition |✔️|✔️|||
-| DIV - Division |✔️|✔️|||
+| OC2 - (Open+Close)/2 |✔️|||✔️|
 | HL2 - (High+Low)/2 |✔️|||✔️|
 | HLC3 - Typical Price |✔️|||✔️|
-| HLCC4 - Weighted Price |✔️||||
-| MUL - Multiplication |✔️|✔️|||
-| OC2 - (Open+Close)/2 |✔️|||✔️|
 | OHL3 - (Open+High+Low)/3 |✔️|||✔️|
 | OHLC4 - (O+H+L+C)/4 |✔️|||✔️|
+| HLCC4 - Weighted Price |✔️||✔️|✔️|
+| ADD - Addition |✔️|✔️|||
 | SUB - Subtraction |✔️|✔️|||
+| MUL - Multiplication |✔️|✔️|||
+| DIV - Division |✔️|✔️|||
 ||||||
 | **Statistics** |||||
+| BETA - Beta coefficient |||✔️||
 | BIAS - Bias |||||
-| ENT - Entropy |||||
-| KUR - Kurtosis |||||
+| ENT - Entropy ||||✔️|
+| KUR - Kurtosis ||||✔️|
 | LINREG - Linear Regression ||✔️|||
-| MAD - Mean Absolute Deviation |✔️||||
-| MAPE - Mean Absolute Percent Error |✔️||||
-| MAX - Max value ||✔️|||
-| MIN - Min value ||✔️|||
-| MED - Median value ||✔️|||
+| MAD - Mean Absolute Deviation |✔️||✔️|✔️|
+| MAPE - Mean Absolute Percent Error |✔️||✔️||
+| MAX - Max value |✔️|✔️|||
+| MIN - Min value |✔️|✔️|||
+| MED - Median value |✔️|✔️||✔️|
 | MSE - Mean Squared Error |✔️||||
-| QUANTILE |||||
-| SKEW - Skewness |||||
-| STDDEV - Standard Deviation |✔️|✔️|||
-| VAR - Variance |||||
-| ZSCORE |||||
+| QUANTILE ||||✔️|
+| RS - R-Squared Coefficient |||✔️||
+| SKEW - Skewness ||||✔️|
+| SLOPE - Slope |||✔️||
+| STDDEV - Standard Deviation |✔️|✔️|✔️|✔️|
+| VAR - Variance ||||✔️|
+| ZSCORE ||||✔️|
 ||||||
 | **Moving Averages** |||||
 | AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
-| ALMA - Arnaud Legoux Moving Average |||✔️||
+| ALMA - Arnaud Legoux Moving Average |||✔️|✔️|
 | ARIMA - Autoregressive Integrated Moving Average |||||
-| ATR - Average True Range ||✔️|||
+| ATR - Average True Range ||✔️|✔️|✔️|
 | DEMA - Double EMA |✔️|✔️|✔️|✔️|
-| EMA - Exponential Moving Average |✔️|✔️|✔️||
+| EMA - Exponential Moving Average |✔️|✔️|✔️|✔️|
 | EPMA - Endpoint Moving Average |||✔️||
-| FWMA - Fibonacci's Weighted Moving Average |||||
+| FWMA - Fibonacci's Weighted Moving Average ||||✔️|
 | HEMA - Hull Exponential Moving Average |✔️||||
-| HMA - Hull  Moving Average |✔️||✔️||
-| HWMA - Holt-Winter Moving Average |||||
-| JMA - Jurik Moving Average |✔️||||
-| KAMA - Kaufman's Adaptive Moving Average ||✔️|✔️||
+| HMA - Hull  Moving Average |✔️||✔️|✔️|
+| HWMA - Holt-Winter Moving Average ||||✔️|
+| JMA - Jurik Moving Average |✔️|||✔️|
+| KAMA - Kaufman's Adaptive Moving Average ||✔️|✔️|✔️|
 | LSMA - Least Squares Moving Average |||✔️||
 | LWMA - Linearly Weighted Moving Average |||||
-| MACD - Moving Average Convergence/Divergence ||✔️|✔️||
-| MAMA - MESA Adaptive Moving Average ||✔️|||
-| MMA - Modified Moving Average |||||
-| NATR - Normalized Average True Range ||✔️|||
+| MACD - Moving Average Convergence/Divergence ||✔️|✔️|✔️|
+| MAMA - MESA Adaptive Moving Average ||✔️|✔️||
+| MMA - Modified Moving Average |||✔️||
+| NATR - Normalized Average True Range ||✔️||✔️|
 | PPMA - Pivot Point Moving Average |||✔️||
-| PWMA - Pascal's Weighted Moving Average |||||
-| RMA - WildeR's Moving Average |✔️||||
-| SINWMA - Sine Weighted Moving Average |||||
-| SMA - Simple Moving Average |✔️|✔️|||
-| SMMA - Smoothed Moving Average |||||
-| STOCH - Stochastic Oscillator ||✔️|✔️||
-| SSF - Ehler's Super Smoother Filter |||||
-| SUP - Supertrend |||✔️||
-| SWMA - Symmetric Weighted Moving Average |||||
-| T3 - Tillson T3 Moving Average ||✔️|||
-| TEMA - Triple EMA |✔️|✔️|||
-| TRIMA - Triangular Moving Average ||✔️|||
-| VIDYA - Variable Index Dynamic Average |||||
-| VWAP - Volume Weighted Average Price |||||
-| VWMA - Volume Weighted Moving Average |||||
-| WMA - Weighted Moving Average |✔️|✔️|||
-| ZLEMA - Zero Lag EMA |✔️||||
+| PWMA - Pascal's Weighted Moving Average ||||✔️|
+| RMA - WildeR's Moving Average |✔️|||✔️|
+| SINWMA - Sine Weighted Moving Average ||||✔️|
+| SMA - Simple Moving Average |✔️|✔️|✔️|✔️|
+| SMMA - Smoothed Moving Average |||✔️||
+| STOCH - Stochastic Oscillator ||✔️|✔️|✔️|
+| SSF - Ehler's Super Smoother Filter ||||✔️|
+| SUP - Supertrend |||✔️|✔️|
+| SWMA - Symmetric Weighted Moving Average ||||✔️|
+| T3 - Tillson T3 Moving Average ||✔️|✔️|✔️|
+| TEMA - Triple EMA |✔️|✔️|✔️|✔️|
+| TRIMA - Triangular Moving Average ||✔️||✔️|
+| VIDYA - Variable Index Dynamic Average ||||✔️|
+| VWAP - Volume Weighted Average Price |||✔️|✔️|
+| VWMA - Volume Weighted Moving Average |||✔️|✔️|
+| WMA - Weighted Moving Average |✔️|✔️|✔️|✔️|
+| ZLEMA - Zero Lag EMA |✔️|||✔️|
 ||||||
 | **Oscillators and Indices** |||||
-| AC - Acceleration Oscillator |||||
-| AD - Chaikin Accumulation Distribution ||✔️|||
+| AC - Acceleration Oscillator ||||✔️|
+| AD - Chaikin Accumulation Distribution ||✔️||✔️|
 | ADL - Accumulation/Distribution Line |||✔️||
 | ADOSC - Chaikin Accumulation Distribution Oscillator ||✔️|✔️||
-| ADX - Average Directional Movement Index ||✔️|✔️||
+| ADX - Average Directional Movement Index ||✔️|✔️|✔️|
 | ADXR - Average Directional Movement Index Rating ||✔️|||
-| AO - Awesome Oscillator |||✔️||
-| APO - Absolute Price Oscillator ||✔️|||
-| AROON - Aroon oscillator ||✔️|✔️||
-| BBANDS - Bollinger Bands ||✔️|✔️||
-| BOP - Balance of Power ||✔️|||
-| CCI - Commodity Channel Index ||✔️|✔️||
-| CFO - Chande Forcast Oscillator |||||
-| CMF - Chaikin Money Flow |||✔️||
-| CMO - Chande Momentum Oscillator ||✔️|||
-| COG - Center of Gravity |||||
+| AO - Awesome Oscillator |||✔️|✔️|
+| APO - Absolute Price Oscillator ||✔️||✔️|
+| AROON - Aroon oscillator ||✔️|✔️|✔️|
+| BBANDS - Bollinger Bands ||✔️|✔️|✔️|
+| BOP - Balance of Power ||✔️|✔️|✔️|
+| CCI - Commodity Channel Index ||✔️|✔️|✔️|
+| CFO - Chande Forcast Oscillator ||||✔️|
+| CMF - Chaikin Money Flow |||✔️|✔️|
+| CMO - Chande Momentum Oscillator ||✔️||✔️|
+| COG - Center of Gravity ||||✔️|
 | CRSI - Connor RSI |||✔️||
-| CTI - Ehler's Correlation Trend Indicator |||||
-| DMI - Directional Movement Index ||✔️|||
-| EFI - Elder's Force Index |||✔️||
+| CTI - Ehler's Correlation Trend Indicator ||||✔️|
+| DMI - Directional Movement Index ||✔️||✔️|
+| EFI - Elder Ray's Force Index |||✔️|✔️|
 | GAT - Alligator oscillator |||✔️||
 | KRI - Kairi Relative Index |||||
-| KVO - Klinger Volume Oscillator |||✔️||
-| MFI - Money Flow Index ||✔️|✔️||
-| MOM - Momentum |||||
-| NVI - Negative Volume Index |||||
-| PO - Price Oscillator |||||
-| PPO - Percentage Price Oscillator ||✔️|||
-| PVI - Positive Volume Index |||||
-| RSI - Relative Strength Index ||✔️|✔️||
-| RVGI - Relative Vigor Index |||||
-| SRSI - Stochastic RSI |||✔️||
+| KVO - Klinger Volume Oscillator |||✔️|✔️|
+| MFI - Money Flow Index ||✔️|✔️|✔️|
+| MOM - Momentum |||✔️|✔️|
+| NVI - Negative Volume Index ||||✔️|
+| PO - Price Oscillator ||||✔️|
+| PPO - Percentage Price Oscillator ||✔️||✔️|
+| PVI - Positive Volume Index ||||✔️|
+| RSI - Relative Strength Index ||✔️|✔️|✔️|
+| RVGI - Relative Vigor Index ||||✔️|
+| SRSI - Stochastic RSI |||✔️|✔️|
 | TRIX - 1-day ROC of TEMA ||✔️||✔️|
-| TSI - True Strength Index |||||
-| UI - Ulcer Index |||||
-| UO - Ultimate Oscillator ||✔️|✔️||
+| TSI - True Strength Index |||✔️|✔️|
+| UI - Ulcer Index |||✔️|✔️|
+| UO - Ultimate Oscillator ||✔️|✔️|✔️|
 | WGAT - Williams Alligator |||✔️||
 ||||||
 | **Volume** |||||
-| AOBV - Archer On-Balance Volume |||||
-| OBV - On-Balance Volume ||✔️|✔️||
-| PRS - Price Relative Strength |||||
+| AOBV - Archer On-Balance Volume ||||✔️|
+| OBV - On-Balance Volume ||✔️|✔️|✔️|
+| PRS - Price Relative Strength |||✔️||
 | PVOL - Price-Volume |||||
-| PVR - Price Volume Rank |||||
-| PVT - Price Volume Trend |||||
-| VP - Volume Profile |||||
+| PVR - Price Volume Rank ||||✔️|
+| PVT - Price Volume Trend ||||✔️|
+| VP - Volume Profile ||||✔️|
 ||||||
 |**Unsorted**|||||
 | CHN - Price Channel |||✔️||
-| COPPOCK - Coppock Curve |||||
+| COPPOCK - Coppock Curve ||||✔️|
 | CORREL - Pearson's Correlation Coefficient ||✔️|||
-| EOM - Ease of Movement |||||
-| HILO - Gann High-Low Activator |||||
-| HV - Historical Volatility |||||
-| ICH - Ichimoku |||✔️||
-| MCGD - McGinley Dynamic |||||
-| ROC - Rate of Change ||✔️|✔️||
-| SAR - Parabolic Stop and Reverse ||✔️|✔️||
-| STC - Schaff Trend Cycle |||✔️||
-| TR - True Range ||✔️|||
-| WCP - Weighted Close Price ||✔️|||
-| WILLR - Larry Williams' %R ||✔️|✔️||
+| EOM - Ease of Movement ||||✔️|
+| HILO - Gann High-Low Activator ||||✔️|
+| HV - Historical Volatility |||✔️||
+| ICH - Ichimoku |||✔️|✔️|
+| MCGD - McGinley Dynamic ||||✔️|
+| ROC - Rate of Change ||✔️|✔️|✔️|
+| SAR - Parabolic Stop and Reverse ||✔️|✔️|✔️|
+| STC - Schaff Trend Cycle |||✔️|✔️|
+| TR - True Range ||✔️||✔️|
+| WILLR - Larry Williams' %R ||✔️|✔️|✔️|
 | HURST - Hurst Exponent |||✔️||
-| VOR - Vortex Indicator |||✔️||
-| DON - Donchian Channels |||✔️||
+| VOR - Vortex Indicator |||✔️|✔️|
+| DON - Donchian Channels |||✔️|✔️|
 | FCB - Fractal Chaos Bands |||✔️||
-| KEL - Keltner Channels |||✔️||
-| PVT - Pivot POints |||✔️||
+| KEL - Keltner Channels |||✔️|✔️|
+| PVT - Pivot Points |||✔️||
 | STARC - Starc Bands |||✔️||
-| DPO - De-trended Price Oscillator |||✔️||
-| KDJ - KDJ Index |||✔️||
-| SMI - Stochastic Momentum Index |||✔️||
+| DPO - De-trended Price Oscillator |||✔️|✔️|
+| KDJ - KDJ Index |||✔️|✔️|
+| SMI - Stochastic Momentum Index |||✔️|✔️|
 | CHAND - Chandelier Exit |||✔️||
 | VSTOP - Volatility Stop |||✔️||
-| PVO - Percentage Volume Oscillator |||✔️||
+| PVO - Percentage Volume Oscillator |||✔️|✔️|
 | Hilbert Transform Instantaneous Trendline |||||
+| PMO - Price Momentum Oscillator |||✔️||

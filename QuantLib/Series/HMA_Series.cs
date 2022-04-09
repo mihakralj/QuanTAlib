@@ -87,11 +87,7 @@ public class HMA_Series : TSeries {
 
     (System.DateTime t, double v) result =
         (data.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _hma);
-    if (update) {
-      base[base.Count - 1] = result;
-    } else {
-      base.Add(result);
-    }
+    base.Add(result, update);
   }
   public void Add(bool update = false) {
     this.Add(this._data[this._data.Count - 1], update);

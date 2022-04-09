@@ -101,19 +101,11 @@ public class SMA_Series : TSeries {
         (data.t,
          (this.Count < this._p - 1 && this._NaN) ? double.NaN : _mape_item);
 
-    if (update) {
-      base[base.Count - 1] = result;
-      _stddev[base.Count - 1] = stddev;
-      _mad[base.Count - 1] = mad;
-      _mse[base.Count - 1] = mse;
-      _mape[base.Count - 1] = mape;
-    } else {
-      base.Add(result);
-      _stddev.Add(stddev);
-      _mad.Add(mad);
-      _mse.Add(mse);
-      _mape.Add(mape);
-    }
+    base.Add(result, update);
+    _stddev.Add(stddev, update);
+    _mad.Add(mad, update);
+    _mse.Add(mse, update);
+    _mape.Add(mape, update);
   }
   public void Add(bool update = false) {
     this.Add(this._data[this._data.Count - 1], update);
