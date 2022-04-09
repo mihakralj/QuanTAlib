@@ -17,7 +17,7 @@
 | **Statistics** |||||
 | BETA - Beta coefficient |||✔️||
 | BIAS - Bias |||||
-| ENT - Entropy |✔️|||✔️|
+| ENTP - Entropy |✔️|||✔️|
 | KUR - Kurtosis ||||✔️|
 | LINREG - Linear Regression ||✔️|||
 | MAD - Mean Absolute Deviation |✔️||✔️|✔️|

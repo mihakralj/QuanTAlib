@@ -11,10 +11,10 @@
     <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Quantower\TradingPlatform\v1.122.7\..\..\Settings\Scripts\Indicators\QT_QuantLib</OutputPath>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.123.1\..\..\Settings\Scripts\Indicators\QT_QuantLib</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>C:\Quantower\TradingPlatform\v1.122.7\..\..\Settings\Scripts\Indicators\QT_QuantLib</OutputPath>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.123.1\..\..\Settings\Scripts\Indicators\QT_QuantLib</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.2.22152.2" />
@@ -25,7 +25,7 @@
   <ItemGroup>
     <Reference Include="System.Drawing.Design" />
     <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>C:\Quantower\TradingPlatform\v1.122.7\bin\TradingPlatform.BusinessLayer.dll</HintPath>
+      <HintPath>C:\Quantower\TradingPlatform\v1.123.1\bin\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

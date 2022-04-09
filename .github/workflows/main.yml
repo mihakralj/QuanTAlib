@@ -19,10 +19,10 @@ jobs:
         dotnet-version: '7.0.x'
         include-prerelease: true
 
-    - name: Intialize codeql
-      uses: ithub/codeql-action/init@v2
-      with:
-        language: [ 'csharp' ]
+#    - name: Intialize codeql
+#      uses: ithub/codeql-action/init@v2
+#      with:
+#        language: [ 'csharp' ]
         
     - name: Build with dotnet
       run: dotnet build QuantLib/QuantLib.csproj --configuration Release --nologo --verbosity normal
@@ -51,8 +51,9 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./Tests/coveragereport.xml
 
-    - name: Perform CodeQL analysis
-      uses: github/codeql-action/analyze@v2
+#    - name: Perform CodeQL analysis
+#      uses: github/codeql-action/analyze@v2
+
 #    - name: Release
 #        id: create_release
 #        uses: actions/create-release@v1
