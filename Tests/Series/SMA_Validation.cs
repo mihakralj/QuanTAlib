@@ -4,6 +4,7 @@ using QuantLib;
 using Skender.Stock.Indicators;
 using TALib;
 
+namespace Validation;
 public class SMA_Validation
 {
     [Fact]
@@ -13,11 +14,11 @@ public class SMA_Validation
         RND_Feed bars = new(200);
 
         // generate random period between 2 and 50
-        Random ran = new Random();
+        Random ran = new();
         int period = ran.Next(48)+2;
 
         // Calculate QuantLib SMA
-        SMA_Series QLsma = new(bars.Close,period);
+        SMA_Series QLsma = new(bars.Close, period, false);
 
         // Calculate Skender.Stock.Indicators SMA
         IEnumerable<Quote> quotes = bars.Select(q => new Quote
@@ -25,13 +26,12 @@ public class SMA_Validation
         var SKsma = quotes.GetSma(period, CandlePart.Close);
 
         // Calculate TALib.NETCore SMA
-        int outBegIdx, outNbElement;
         double[] TALIBsma = new double[bars.Count];
         double[] input = bars.Close.v.ToArray();
-        Core.Sma(input, 0, bars.Count-1, TALIBsma, out outBegIdx, out outNbElement, period);
+        Core.Sma(input, 0, bars.Count-1, TALIBsma, out int outBegIdx, out int outNbElement, period);
 
         //Round results to 7 decimal places
-        double s1 = Math.Round((double) SKsma.Last().Sma, 7);
+        double s1 = Math.Round((double) SKsma.Last().Sma!, 7);
         double s2 = Math.Round( TALIBsma[TALIBsma.Length-outBegIdx-1], 7);
         double s3 = Math.Round(QLsma.Last().v, 7);
 

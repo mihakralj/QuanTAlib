@@ -1,6 +1,5 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
-using QuantLib;
 
 public class SMA_chart : Indicator
 {
@@ -41,7 +40,7 @@ public class SMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "SMA (" + bars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "SMA (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
     }
 

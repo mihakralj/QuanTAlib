@@ -15,8 +15,10 @@ public class TSeriesL_Test
     [Fact]
     public void CastingTwoParameters()
     {
-        TSeries s = new();
-        s.Add(DateTime.Today, 0.0);
+        TSeries s = new()
+        {
+            { DateTime.Today, 0.0 }
+        };
         Assert.Equal(0.0, s[^1].v);
         Assert.Equal(DateTime.Today, s[^1].t);
     }
@@ -24,8 +26,10 @@ public class TSeriesL_Test
     [Fact]
     public void CastingOneParameter()
     {
-        TSeries s = new();
-        s.Add(double.PositiveInfinity);
+        TSeries s = new()
+        {
+            double.PositiveInfinity
+        };
         Assert.Equal(double.PositiveInfinity, (double)s);
     }
 

@@ -1,7 +1,6 @@
 ﻿namespace QuantLib;
 
 using System;
-using System.Linq;
 
 public class TSeries : System.Collections.Generic.List<(DateTime t, double v)> {
   // when asked for a (t,v) tuple, return the last (t,v) on the List
@@ -17,22 +16,19 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)> {
       this.Select(x => (DateTime)x.t).ToList();
 
   public System.Collections.Generic.List<double> v =>
-      this.Select(x => (double)x.v).ToList();
+    this.Select(x => (double)x.v).ToList();
 
-  public int Length { get => Count; }
+    public int Length => this.Count;
 
-  // adding one (t,v) tuple to the end of the list - or update the last value on
-  // the list trigger the broadcast of the event to subscribers
-  public void Add((DateTime t, double v)TValue, bool update = false) {
-    if (update) {
-      this[this.Count - 1] = TValue;
-    } else {
-      base.Add(TValue);
-    }
-
-    this.OnEvent(update);
-  } public void Add(DateTime t, double v,
-                    bool update = false) => this.Add((t, v), update);
+    // add/update one (t,v) tuple to/at the end of the list
+    public void Add((DateTime t, double v)TValue, bool update = false) {
+        if (update) { this[this.Count - 1] = TValue; } 
+            else { base.Add(TValue); }
+        this.OnEvent(update);
+    } 
+    
+  public void Add(DateTime t, double v, bool update = false) => this.Add((t, v), update);
+  
   public void Add(double v, bool update = false) => this.Add((DateTime.Now, v), update);
 
   // Broadcast handler - only to valid targets

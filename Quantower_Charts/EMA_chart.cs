@@ -41,7 +41,7 @@ public class EMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "EMA (" + bars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "EMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
     }
 

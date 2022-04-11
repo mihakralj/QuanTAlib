@@ -16,23 +16,27 @@
 ||||||
 | **Statistics** |||||
 | BETA - Beta coefficient |||✔️||
-| BIAS - Bias |||||
-| ENTP - Entropy |✔️|||✔️|
+| BIAS - Bias |✔️|||✔️|
+| ENTR - Entropy |✔️|||✔️|
 | KUR - Kurtosis ||||✔️|
-| LINREG - Linear Regression ||✔️|||
+| LINREG - Linear Regression ||✔️|✔️||
 | MAD - Mean Absolute Deviation |✔️||✔️|✔️|
 | MAPE - Mean Absolute Percent Error |✔️||✔️||
 | MAX - Max value |✔️|✔️|||
 | MIN - Min value |✔️|✔️|||
 | MED - Median value |✔️|✔️||✔️|
-| MSE - Mean Squared Error |✔️||||
+| MSE - Mean Squared Error |✔️||✔️||
+| PSDEV - Population Standard Deviation |✔️||||
+| PVAR - Population Variance |✔️||||
 | QUANTILE ||||✔️|
 | RS - R-Squared Coefficient |||✔️||
 | SKEW - Skewness ||||✔️|
 | SLOPE - Slope |||✔️||
-| STDDEV - Standard Deviation |✔️|✔️|✔️|✔️|
-| VAR - Variance ||||✔️|
-| ZSCORE ||||✔️|
+| SMAPE - Symmetric Mean Absolute Percent Error |✔️||||
+| SSDEV - Sample Standard Deviation |✔️|✔️|✔️|✔️|
+| SVAR - Sample Variance |✔️|||✔️|
+| WMAPE - Weighted Mean Absolute Percent Error |✔️||||
+| ZSCORE |||✔️|✔️|
 ||||||
 | **Moving Averages** |||||
 | AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
@@ -49,11 +53,10 @@
 | JMA - Jurik Moving Average |✔️|||✔️|
 | KAMA - Kaufman's Adaptive Moving Average ||✔️|✔️|✔️|
 | LSMA - Least Squares Moving Average |||✔️||
-| LWMA - Linearly Weighted Moving Average |||||
 | MACD - Moving Average Convergence/Divergence ||✔️|✔️|✔️|
 | MAMA - MESA Adaptive Moving Average ||✔️|✔️||
 | MMA - Modified Moving Average |||✔️||
-| NATR - Normalized Average True Range ||✔️||✔️|
+| NATR - Normalized Average True Range ||✔️|✔️|✔️|
 | PPMA - Pivot Point Moving Average |||✔️||
 | PWMA - Pascal's Weighted Moving Average ||||✔️|
 | RMA - WildeR's Moving Average |✔️|||✔️|
@@ -75,11 +78,10 @@
 ||||||
 | **Oscillators and Indices** |||||
 | AC - Acceleration Oscillator ||||✔️|
-| AD - Chaikin Accumulation Distribution ||✔️||✔️|
-| ADL - Accumulation/Distribution Line |||✔️||
+| AD - Chaikin Accumulation Distribution ||✔️|✔️|✔️|
 | ADOSC - Chaikin Accumulation Distribution Oscillator ||✔️|✔️||
 | ADX - Average Directional Movement Index ||✔️|✔️|✔️|
-| ADXR - Average Directional Movement Index Rating ||✔️|||
+| ADXR - Average Directional Movement Index Rating ||✔️|✔️||
 | AO - Awesome Oscillator |||✔️|✔️|
 | APO - Absolute Price Oscillator ||✔️||✔️|
 | AROON - Aroon oscillator ||✔️|✔️|✔️|
@@ -92,7 +94,7 @@
 | COG - Center of Gravity ||||✔️|
 | CRSI - Connor RSI |||✔️||
 | CTI - Ehler's Correlation Trend Indicator ||||✔️|
-| DMI - Directional Movement Index ||✔️||✔️|
+| DMI - Directional Movement Index ||✔️|✔️|✔️|
 | EFI - Elder Ray's Force Index |||✔️|✔️|
 | GAT - Alligator oscillator |||✔️||
 | KRI - Kairi Relative Index |||||
@@ -106,7 +108,7 @@
 | RSI - Relative Strength Index ||✔️|✔️|✔️|
 | RVGI - Relative Vigor Index ||||✔️|
 | SRSI - Stochastic RSI |||✔️|✔️|
-| TRIX - 1-day ROC of TEMA ||✔️||✔️|
+| TRIX - 1-day ROC of TEMA ||✔️|✔️|✔️|
 | TSI - True Strength Index |||✔️|✔️|
 | UI - Ulcer Index |||✔️|✔️|
 | UO - Ultimate Oscillator ||✔️|✔️|✔️|
@@ -124,16 +126,17 @@
 |**Unsorted**|||||
 | CHN - Price Channel |||✔️||
 | COPPOCK - Coppock Curve ||||✔️|
-| CORREL - Pearson's Correlation Coefficient ||✔️|||
+| CORREL - Pearson's Correlation Coefficient ||✔️|✔️||
 | EOM - Ease of Movement ||||✔️|
 | HILO - Gann High-Low Activator ||||✔️|
 | HV - Historical Volatility |||✔️||
+| HT - HT Trendline |||✔️||
 | ICH - Ichimoku |||✔️|✔️|
 | MCGD - McGinley Dynamic ||||✔️|
 | ROC - Rate of Change ||✔️|✔️|✔️|
 | SAR - Parabolic Stop and Reverse ||✔️|✔️|✔️|
 | STC - Schaff Trend Cycle |||✔️|✔️|
-| TR - True Range ||✔️||✔️|
+| TR - True Range ||✔️|✔️|✔️|
 | WILLR - Larry Williams' %R ||✔️|✔️|✔️|
 | HURST - Hurst Exponent |||✔️||
 | VOR - Vortex Indicator |||✔️|✔️|

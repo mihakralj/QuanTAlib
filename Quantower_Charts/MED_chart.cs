@@ -1,6 +1,5 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
-using QuantLib;
 
 public class MINMAXMED_chart : Indicator
 {
@@ -45,7 +44,7 @@ public MINMAXMED_chart()
 
     protected override void OnInit()
     {
-        this.ShortName = "MED (" + bars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MED (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period);
         this.mmin = new(source: bars.Select(this.DataSource), period: this.Period);
         this.mmax = new(source: bars.Select(this.DataSource), period: this.Period);

@@ -41,7 +41,7 @@ public class HEMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "HEMA (" + bars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "HEMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
     }
 

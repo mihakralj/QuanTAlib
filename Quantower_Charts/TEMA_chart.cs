@@ -41,7 +41,7 @@ public class TEMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "TEMA (" + bars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "TEMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
     }
 
