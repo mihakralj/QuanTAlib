@@ -1,7 +1,7 @@
 ﻿/**
 MSE: Mean Square Error 
-Defined as a Mean (Average) of the Square of the difference between actual and estimated values.
 
+Defined as a Mean (Average) of the Square of the difference between actual and estimated values.
 
 Sources:
   https://en.wikipedia.org/wiki/Mean_squared_error

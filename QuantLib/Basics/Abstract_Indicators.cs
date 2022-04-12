@@ -14,7 +14,6 @@ public abstract class Single_TSeries_Indicator : TSeries
         this._p = period;
         this._NaN = useNaN;
         this._data.Pub += this.Sub;
-        //if (this._data.Count > 0) { this.Add(this._data); }
     }
 
     // overridable Add() method for the whole series (should be replaced with faster algo than default)

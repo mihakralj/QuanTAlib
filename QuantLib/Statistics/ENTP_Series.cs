@@ -5,8 +5,8 @@ Introduced by Claude Shannon in 1948, entropy measures the unpredictability
 of the data, or equivalently, of its average information.
 
 Calculation:
-    P = close / SUM(close, length)
-    E = SUM(-P * npLog(P) / npLog(base), length)
+    P = close / Σ(close)
+    ENTP = Σ(-P * Log(P) / Log(base))
 
 Sources:
     https://en.wikipedia.org/wiki/Entropy_(information_theory)

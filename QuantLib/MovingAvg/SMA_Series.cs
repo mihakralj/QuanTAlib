@@ -18,7 +18,6 @@ public class SMA_Series : Single_TSeries_Indicator
 {
     public SMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN) { 
         if (base._data.Count > 0) { base.Add(base._data); }
-        base._data.Pub += this.Sub;
     }
     private readonly System.Collections.Generic.List<double> _buffer = new();
 

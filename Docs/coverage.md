@@ -18,7 +18,7 @@
 | BETA - Beta coefficient |||✔️||
 | BIAS - Bias |✔️|||✔️|
 | ENTR - Entropy |✔️|||✔️|
-| KUR - Kurtosis ||||✔️|
+| KUR - Kurtosis |✔️|||✔️|
 | LINREG - Linear Regression ||✔️|✔️||
 | MAD - Mean Absolute Deviation |✔️||✔️|✔️|
 | MAPE - Mean Absolute Percent Error |✔️||✔️||
@@ -33,8 +33,8 @@
 | SKEW - Skewness ||||✔️|
 | SLOPE - Slope |||✔️||
 | SMAPE - Symmetric Mean Absolute Percent Error |✔️||||
-| SSDEV - Sample Standard Deviation |✔️|✔️|✔️|✔️|
-| SVAR - Sample Variance |✔️|||✔️|
+| SDEV - Sample Standard Deviation |✔️|✔️|✔️|✔️|
+| VAR - Sample Variance |✔️|||✔️|
 | WMAPE - Weighted Mean Absolute Percent Error |✔️||||
 | ZSCORE |||✔️|✔️|
 ||||||

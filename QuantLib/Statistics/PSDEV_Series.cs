@@ -9,7 +9,7 @@ Sources:
 
 Remark:
   PSDEV (Population Standard Deviation) is also known as a biased/uncorrected Standard Deviation.
-  For unbiased version that uses Bessel's correction, use SSDEV instead.
+  For unbiased version that uses Bessel's correction, use SDEV instead.
     
 **/
 

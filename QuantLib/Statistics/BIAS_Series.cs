@@ -1,11 +1,14 @@
 ﻿/**
-BIAS: Rate of change between the source and a moving average.
+  BIAS: Rate of change between the source and a moving average.
+
+  Bias is a statistical term which means a systematic deviation from the actual value.
+
+  BIAS = (close - SMA) / SMA
+       = (close / SMA) - 1
 
 Sources:
   https://en.wikipedia.org/wiki/Bias_of_an_estimator
 
-Remark:
-    
 **/
 
 using System;

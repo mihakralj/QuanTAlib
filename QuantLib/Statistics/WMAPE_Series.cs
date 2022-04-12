@@ -1,14 +1,11 @@
 ﻿/**
 WMAPE: Weighted Mean Absolute Percentage Error
-Measures the size of the error in percentage terms
 
+Measures the size of the error in percentage terms
 
 Sources:
   https://en.wikipedia.org/wiki/WMAPE
 
-Remark:
-
-    
 **/
 
 using System;

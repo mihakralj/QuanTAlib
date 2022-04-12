@@ -1,7 +1,10 @@
 ﻿/**
 MAPE: Mean Absolute Percentage Error
+
 Measures the size of the error in percentage terms
 
+Calculation:
+  MAPE = Σ(|close – SMA| / |close|) / n
 
 Sources:
   https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
@@ -32,7 +35,7 @@ public class MAPE_Series : Single_TSeries_Indicator
     _sma /= this._buffer.Count;
 
     double _mape = 0;
-    for (int i = 0; i < _buffer.Count; i++) { _mape += (_buffer[i] != 0) ? Math.Abs(_buffer[i] - _sma) / _buffer[i] : double.PositiveInfinity; }
+    for (int i = 0; i < _buffer.Count; i++) { _mape += (_buffer[i] != 0) ? Math.Abs(_buffer[i] - _sma) / Math.Abs(_buffer[i]) : double.PositiveInfinity; }
     _mape /= this._buffer.Count;
 
     var result = (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _mape);

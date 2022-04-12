@@ -1,14 +1,15 @@
 ﻿/**
 MAD: Mean Absolute Deviation
+
 Also known as AAD - Average Absolute Deviation, to differentiate it from Median Absolute Deviation
 MAD defines the degree of variation across the series.
 
+Calculation:
+  MAD = Σ(|close-SMA|) / period
+
 Sources:
   https://en.wikipedia.org/wiki/Average_absolute_deviation
-
-Remark:
-
-    
+   
 **/
 
 using System;

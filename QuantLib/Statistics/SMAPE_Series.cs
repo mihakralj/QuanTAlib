@@ -1,14 +1,11 @@
 ﻿/**
 SMAPE: Symmetric Mean Absolute Percentage Error
-Measures the size of the error in percentage terms
 
+Measures the size of the error in percentage terms
 
 Sources:
   https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
 
-Remark:
-
-    
 **/
 
 using System;
