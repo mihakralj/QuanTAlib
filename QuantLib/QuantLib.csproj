@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.8.1</Version>
+    <Version>1.0.9</Version>
     <releaseNotes></releaseNotes>
     <Title>QuantLib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
@@ -33,7 +33,7 @@
     </PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageLicenseFile></PackageLicenseFile>
-    <ReleaseVersion>1.0.6</ReleaseVersion>
+    <ReleaseVersion>1.0.9</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   
@@ -58,7 +58,7 @@
 
   <PropertyGroup>
     <PackageIcon>images\icon.png</PackageIcon>
-    <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuantLib/main/.github/QuantLib.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuantLib/main/.github/QuantLib2.png</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\.github\QuantLib.png" Pack="true" Visible="false" PackagePath="images\icon.png" />

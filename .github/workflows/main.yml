@@ -51,9 +51,6 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./Tests/coveragereport.xml
 
-#    - name: Perform CodeQL analysis
-#      uses: github/codeql-action/analyze@v2
-
 #    - name: Release
 #        id: create_release
 #        uses: actions/create-release@v1
