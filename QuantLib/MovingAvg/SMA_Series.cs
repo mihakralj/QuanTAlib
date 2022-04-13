@@ -1,4 +1,6 @@
-﻿/**
+﻿namespace QuantLib;
+
+/**
 SMA: Simple Moving Average
 The weights are equally distributed across the period, resulting in a mean() of
 the data within the period/
@@ -10,9 +12,6 @@ Sources:
 Remark:
     This calc doesn't use LINQ or SUM() or any of iterative methods.
 **/
-
-using System;
-namespace QuantLib;
 
 public class SMA_Series : Single_TSeries_Indicator
 {
