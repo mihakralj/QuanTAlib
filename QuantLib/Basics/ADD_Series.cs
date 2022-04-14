@@ -87,9 +87,9 @@ public class ADD_Series : TSeries
         }
     }
 
-	public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) => this.Add(d1, dd, update);
+    public void Add(double dd, (System.DateTime t, double v) d1, bool update = false) => this.Add(d1, dd, update);
 
-	public void Add(bool update = false)
+    public void Add(bool update = false)
     {
         if (update || (this._d1.Count > 0 && this._d1.Count == this._d2.Count &&
                        this.Count != this._d1.Count))

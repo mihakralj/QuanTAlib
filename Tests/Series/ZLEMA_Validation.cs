@@ -9,25 +9,25 @@ namespace Validation;
 public class ZLEMA_Validation
 {
 
-	[Fact]
-	public void Update()
-	{
-		RND_Feed bars = new(1000);
-		Random rnd = new();
-		int period = rnd.Next(28) + 3;
-		/////
+    [Fact]
+    public void Update()
+    {
+        RND_Feed bars = new(1000);
+        Random rnd = new();
+        int period = rnd.Next(28) + 3;
+        /////
 
-		ZLEMA_Series QL = new(bars.Close, period, false);
+        ZLEMA_Series QL = new(bars.Close, period, false);
 
-		/////
-		int len1 = QL.Count;
-		QL.Add(bars.Close.First(), update: true);
-		int len2 = QL.Count;
+        /////
+        int len1 = QL.Count;
+        QL.Add(bars.Close.First(), update: true);
+        int len2 = QL.Count;
 
-		Assert.Equal(len1, len2);
-	}
+        Assert.Equal(len1, len2);
+    }
 
-	/*
+    /*
 	[Fact]
 	public void Pandas_TA()
 	{

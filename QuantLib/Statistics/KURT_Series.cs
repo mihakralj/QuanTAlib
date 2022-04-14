@@ -28,41 +28,43 @@ namespace QuantLib;
 
 public class KURT_Series : Single_TSeries_Indicator
 {
-  public KURT_Series(TSeries source, int period, double logbase = 2.0, bool useNaN = false)  : base(source, period, useNaN) {
-    this._logbase = logbase;
-    if (base._data.Count > 0) { base.Add(base._data); }
-  }
- protected double _logbase = 2.0;
-  private readonly System.Collections.Generic.List<double> _buffer = new();
-  private readonly System.Collections.Generic.List<double> _buff2 = new();
-  private readonly System.Collections.Generic.List<double> _buff4 = new();
-  
-
-  public override void Add((System.DateTime t, double v) d, bool update)
-  {
-    if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
-        else { _buffer.Add(d.v); }
-    if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
-
-    double _n = _buffer.Count;
-
-    double _avg = 0;
-    for (int i = 0; i < _buffer.Count; i++) { _avg += _buffer[i]; }
-    _avg /= _n;
-
-    double _s2 = 0;
-    double _s4 = 0;
-    for (int i = 0; i < _buffer.Count; i++) { 
-      _s2 += (_buffer[i]-_avg)*(_buffer[i]-_avg); 
-      _s4 += (_buffer[i]-_avg)*(_buffer[i]-_avg)*(_buffer[i]-_avg)*(_buffer[i]-_avg); 
+    public KURT_Series(TSeries source, int period, double logbase = 2.0, bool useNaN = false) : base(source, period, useNaN)
+    {
+        this._logbase = logbase;
+        if (base._data.Count > 0) { base.Add(base._data); }
     }
-    
-    double _m2 = _s2/_n;
-    double _m4 = _s4/_n;
-    double _Vx = _s2/(_n-1);
-    double _kurt = (_n>3)?  (((_n*(_n+1))/((_n-1)*(_n-2)*(_n-3))) * (_s4/(_Vx*_Vx)) - (3*((_n-1)*(_n-1)/((_n-2)*(_n-3)))))  :Double.NaN;
-    
-    var result = (d.t, (this.Count < this._p -1 && this._NaN) ? Double.NaN : _kurt);
-    base.Add(result, update);
-  }
+    protected double _logbase = 2.0;
+    private readonly System.Collections.Generic.List<double> _buffer = new();
+    private readonly System.Collections.Generic.List<double> _buff2 = new();
+    private readonly System.Collections.Generic.List<double> _buff4 = new();
+
+
+    public override void Add((System.DateTime t, double v) d, bool update)
+    {
+        if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
+        else { _buffer.Add(d.v); }
+        if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
+
+        double _n = _buffer.Count;
+
+        double _avg = 0;
+        for (int i = 0; i < _buffer.Count; i++) { _avg += _buffer[i]; }
+        _avg /= _n;
+
+        double _s2 = 0;
+        double _s4 = 0;
+        for (int i = 0; i < _buffer.Count; i++)
+        {
+            _s2 += (_buffer[i] - _avg) * (_buffer[i] - _avg);
+            _s4 += (_buffer[i] - _avg) * (_buffer[i] - _avg) * (_buffer[i] - _avg) * (_buffer[i] - _avg);
+        }
+
+        double _m2 = _s2 / _n;
+        double _m4 = _s4 / _n;
+        double _Vx = _s2 / (_n - 1);
+        double _kurt = (_n > 3) ? (((_n * (_n + 1)) / ((_n - 1) * (_n - 2) * (_n - 3))) * (_s4 / (_Vx * _Vx)) - (3 * ((_n - 1) * (_n - 1) / ((_n - 2) * (_n - 3))))) : Double.NaN;
+
+        var result = (d.t, (this.Count < this._p - 1 && this._NaN) ? Double.NaN : _kurt);
+        base.Add(result, update);
+    }
 }

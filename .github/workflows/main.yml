@@ -1,10 +1,10 @@
 name: .NET library build/test/publish to Nuget
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+#  push:
+#    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -73,14 +73,14 @@ jobs:
  #         asset_name: net6.0/QuantLib.dll
           #asset_content_type: application/zip
 
-    - name: Push package to nuget.org
-      run: dotnet nuget push './QuantLib/bin/Release/QuantLib.*.nupkg'
-          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
-          --source https://api.nuget.org/v3/index.json
-          --skip-duplicate
+    #- name: Push package to nuget.org
+    #  run: dotnet nuget push './QuantLib/bin/Release/QuantLib.*.nupkg'
+    #      --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+    #      --source https://api.nuget.org/v3/index.json
+    #      --skip-duplicate
 
-    - name: Push package to github
-      run: dotnet nuget push './QuantLib/bin/Release/QuantLib.*.nupkg'
-          --api-key ${{ secrets.GITHUB_TOKEN }}
-          --source https://nuget.pkg.github.com/mihakralj/index.json
-          --skip-duplicate
+    #- name: Push package to github
+    #  run: dotnet nuget push './QuantLib/bin/Release/QuantLib.*.nupkg'
+    #      --api-key ${{ secrets.GITHUB_TOKEN }}
+    #      --source https://nuget.pkg.github.com/mihakralj/index.json
+    #      --skip-duplicate

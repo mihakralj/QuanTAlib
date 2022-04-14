@@ -17,7 +17,7 @@ public class HEMA_Test
     [Fact]
     public void HEMAUpdate_Test()
     {
-        TSeries a = new() { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+        TSeries a = new() { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
         HEMA_Series c = new(a, 3);
         a.Add(4, true);
         Assert.Equal(3.206475521456251, c.Last().v);

@@ -17,46 +17,48 @@ Issues:
 
 **/
 
+using System;
+using System.Collections.Generic;
 public class RMA_Series : Single_TSeries_Indicator
 {
-	private readonly List<double> _buffer = new();
-	private readonly double _k, _k1m;
-	private double _lastema, _lastlastema;
+    private readonly List<double> _buffer = new();
+    private readonly double _k, _k1m;
+    private double _lastema, _lastlastema;
 
-	public RMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
-	{
-		this._k = 1.0 / (double)(this._p);
-		this._k1m = 1.0 - this._k;
-		this._lastema = this._lastlastema = double.NaN;
-		if (_data.Count > 0) { base.Add(_data); }
-	}
+    public RMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+    {
+        this._k = 1.0 / (double)(this._p);
+        this._k1m = 1.0 - this._k;
+        this._lastema = this._lastlastema = double.NaN;
+        if (_data.Count > 0) { base.Add(_data); }
+    }
 
-	public override void Add((DateTime t, double v) d, bool update = false)
-	{
-		double _ema = 0;
-		if (update) { this._lastema = this._lastlastema; }
+    public override void Add((DateTime t, double v) d, bool update = false)
+    {
+        double _ema = 0;
+        if (update) { this._lastema = this._lastlastema; }
 
-		if (this.Count < this._p)
-		{
-			if (update) { _buffer[_buffer.Count - 1] = d.v; }
-			else
-			{
-				_buffer.Add(d.v);
-			}
-			if (_buffer.Count > this._p) { _buffer.RemoveAt(0); }
+        if (this.Count < this._p)
+        {
+            if (update) { _buffer[_buffer.Count - 1] = d.v; }
+            else
+            {
+                _buffer.Add(d.v);
+            }
+            if (_buffer.Count > this._p) { _buffer.RemoveAt(0); }
 
-			for (int i = 0; i < _buffer.Count; i++) { _ema += _buffer[i]; }
-			_ema /= this._buffer.Count;
-		}
-		else
-		{
-			_ema = d.v * _k + _lastema * _k1m;
-		}
+            for (int i = 0; i < _buffer.Count; i++) { _ema += _buffer[i]; }
+            _ema /= this._buffer.Count;
+        }
+        else
+        {
+            _ema = d.v * _k + _lastema * _k1m;
+        }
 
-		this._lastlastema = this._lastema;
-		this._lastema = _ema;
+        this._lastlastema = this._lastema;
+        this._lastema = _ema;
 
-		var ret = (d.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
-		base.Add(ret, update);
-	}
+        var ret = (d.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
+        base.Add(ret, update);
+    }
 }

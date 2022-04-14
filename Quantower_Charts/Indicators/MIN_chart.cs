@@ -1,12 +1,12 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
 
-public class MINMAXMED_chart : Indicator
+public class MIN_chart : Indicator
 {
     #region Parameters
 
     [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
-    private int Period = 9;
+    private int Period = 10;
 
     [InputParameter("Data source", 1, variants: new object[]{
             "Open", 0,
@@ -20,42 +20,35 @@ public class MINMAXMED_chart : Indicator
             "OHLC4", 8,
             "Weighted (HLCC4)", 9
         })]
-    private int DataSource = 3;
+    private int DataSource = 2;
 
     #endregion Parameters
 
     private readonly QuantLib.TBars bars = new();
 
     ///////
-    private QuantLib.MED_Series indicator;
-    private QuantLib.MIN_Series mmin;
-    private QuantLib.MAX_Series mmax;
+    private QuantLib.MIN_Series indicator;
     ///////
 
-public MINMAXMED_chart()
+    public MIN_chart()
     {
         this.SeparateWindow = false;
-        this.Name = "MEDIAN - Movin Median, Minimum and Maximum";
-        this.Description = "Moving Median/Minimum/Maximum description";
-        this.AddLineSeries("MED", Color.SkyBlue, 3, LineStyle.Solid);
-        this.AddLineSeries("MIN", Color.Yellow, 1, LineStyle.Solid);
-        this.AddLineSeries("MAX", Color.Yellow, 1, LineStyle.Solid);
-}
+        this.Name = "MIN - Moving Minimum";
+        this.Description = "Moving Minimum description";
+        this.AddLineSeries("MIN", Color.RoyalBlue, 3, LineStyle.Solid);
+    }
 
     protected override void OnInit()
     {
-        this.ShortName = "MED (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MIN (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period);
-        this.mmin = new(source: bars.Select(this.DataSource), period: this.Period);
-        this.mmax = new(source: bars.Select(this.DataSource), period: this.Period);
-}
+    }
 
     protected void OnNewData(bool update = false)
-    { 
+    {
         this.indicator.Add(update);
-        this.mmin.Add(update);
-        this.mmax.Add(update);
-}
+
+    }
 
     protected override void OnUpdate(UpdateArgs args)
     {
@@ -64,14 +57,12 @@ public MINMAXMED_chart()
         this.OnNewData(update);
 
         double result = this.indicator[this.indicator.Count - 1].v;
-        double minresult = this.mmin[this.mmin.Count - 1].v;
-        double maxresult = this.mmax[this.mmax.Count - 1].v;
 
-        this.SetValue(result,0);
-        this.SetValue(minresult, 1);
-        this.SetValue(maxresult, 2);
+
+        this.SetValue(result, 0);
 
 
 
-}
+
+    }
 }

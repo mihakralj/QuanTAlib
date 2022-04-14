@@ -16,19 +16,19 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
     private readonly TSeries _ohlc4 = new();
     private readonly TSeries _hlcc4 = new();
 
-	public TSeries Open => this._open;
-	public TSeries High => this._high;
-	public TSeries Low => this._low;
-	public TSeries Close => this._close;
-	public TSeries Volume => this._volume;
-	public TSeries HL2 => this._hl2;
-	public TSeries OC2 => this._oc2;
-	public TSeries OHL3 => this._ohl3;
-	public TSeries HLC3 => this._hlc3;
-	public TSeries OHLC4 => this._ohlc4;
-	public TSeries HLCC4 => this._hlcc4;
+    public TSeries Open => this._open;
+    public TSeries High => this._high;
+    public TSeries Low => this._low;
+    public TSeries Close => this._close;
+    public TSeries Volume => this._volume;
+    public TSeries HL2 => this._hl2;
+    public TSeries OC2 => this._oc2;
+    public TSeries OHL3 => this._ohl3;
+    public TSeries HLC3 => this._hlc3;
+    public TSeries OHLC4 => this._ohlc4;
+    public TSeries HLCC4 => this._hlcc4;
 
-	public TSeries Select(int source)
+    public TSeries Select(int source)
     {
         return source switch
         {
@@ -46,20 +46,20 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
     }
     public static string SelectStr(int source)
     {
-		return source switch
-		{
-			0 => "Open",
-			1 => "High",
-			2 => "Low",
-			3 => "Close",
-			4 => "HL2",
-			5 => "OC2",
-			6 => "OHL3",
-			7 => "Typical",
-			8 => "Mean",
-			_ => "Weighted",
-		};
-	}
+        return source switch
+        {
+            0 => "Open",
+            1 => "High",
+            2 => "Low",
+            3 => "Close",
+            4 => "HL2",
+            5 => "OC2",
+            6 => "OHL3",
+            7 => "Typical",
+            8 => "Mean",
+            _ => "Weighted",
+        };
+    }
 
     public void
     Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false)

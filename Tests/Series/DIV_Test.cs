@@ -35,7 +35,7 @@ public class DIV_Test
     {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
-        DIV_Series c = new(a,b);
+        DIV_Series c = new(a, b);
         a.Add(12.0);
         b.Add(2);
         Assert.Equal(6.0, c.Last().v);

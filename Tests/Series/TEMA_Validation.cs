@@ -9,96 +9,96 @@ namespace Validation;
 public class TEMA_Validation
 {
 
-	[Fact]
-	public void Update()
-	{
-		RND_Feed bars = new(1000);
-		Random rnd = new();
-		int period = rnd.Next(28) + 3;
-		/////
+    [Fact]
+    public void Update()
+    {
+        RND_Feed bars = new(1000);
+        Random rnd = new();
+        int period = rnd.Next(28) + 3;
+        /////
 
-		TEMA_Series QL = new(bars.Close, period, false);
+        TEMA_Series QL = new(bars.Close, period, false);
 
-		/////
-		int len1 = QL.Count;
-		QL.Add(bars.Close.First(), update: true);
-		int len2 = QL.Count;
+        /////
+        int len1 = QL.Count;
+        QL.Add(bars.Close.First(), update: true);
+        int len2 = QL.Count;
 
-		Assert.Equal(len1, len2);
-	}
+        Assert.Equal(len1, len2);
+    }
 
-	[Fact]
-	public void Skender_Stock()
-	{
-		// Calculate Skender.Stock.Indicators value on 1000 random bars
+    [Fact]
+    public void Skender_Stock()
+    {
+        // Calculate Skender.Stock.Indicators value on 1000 random bars
 
-		RND_Feed bars = new(1000);
-		Random rnd = new();
-		int period = rnd.Next(28) + 3;
-		IEnumerable<Quote> quotes = bars.Select(q => new Quote
-		{
-			Date = q.t,
-			Open = (decimal)q.o,
-			High = (decimal)q.h,
-			Low = (decimal)q.l,
-			Close = (decimal)q.c,
-			Volume = (decimal)q.v
-		});
-		/////
+        RND_Feed bars = new(1000);
+        Random rnd = new();
+        int period = rnd.Next(28) + 3;
+        IEnumerable<Quote> quotes = bars.Select(q => new Quote
+        {
+            Date = q.t,
+            Open = (decimal)q.o,
+            High = (decimal)q.h,
+            Low = (decimal)q.l,
+            Close = (decimal)q.c,
+            Volume = (decimal)q.v
+        });
+        /////
 
-		TEMA_Series QL = new(bars.Close, period, false);
-		var SK = quotes.GetTripleEma(period);
-		double expected = Math.Round((double)SK.Last().Tema!, 8);
+        TEMA_Series QL = new(bars.Close, period, false);
+        var SK = quotes.GetTripleEma(period);
+        double expected = Math.Round((double)SK.Last().Tema!, 8);
 
-		/////
-		double result = Math.Round(QL.Last().v, 8);
-		Assert.Equal(expected, result);
-	}
+        /////
+        double result = Math.Round(QL.Last().v, 8);
+        Assert.Equal(expected, result);
+    }
 
-	[Fact]
-	public void TA_LIB()
-	{
-		// Calculate TALib.NETCore value
+    [Fact]
+    public void TA_LIB()
+    {
+        // Calculate TALib.NETCore value
 
-		RND_Feed bars = new(1000);
-		Random rnd = new();
-		int period = rnd.Next(28) + 3;
-		double[] TALIB = new double[bars.Count];
-		double[] input = bars.Close.v.ToArray();
-		/////
+        RND_Feed bars = new(1000);
+        Random rnd = new();
+        int period = rnd.Next(28) + 3;
+        double[] TALIB = new double[bars.Count];
+        double[] input = bars.Close.v.ToArray();
+        /////
 
-		TEMA_Series QL = new(bars.Close, period, false);
-		Core.Tema(input, 0, bars.Count - 1, TALIB, out int outBegIdx, out int outNbElement, period);
+        TEMA_Series QL = new(bars.Close, period, false);
+        Core.Tema(input, 0, bars.Count - 1, TALIB, out int outBegIdx, out int outNbElement, period);
 
-		/////
-		double result = Math.Round(QL.Last().v, 8);
-		double expected = Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 8);
+        /////
+        double result = Math.Round(QL.Last().v, 8);
+        double expected = Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 8);
 
-		Assert.Equal(expected, result);
-	}
+        Assert.Equal(expected, result);
+    }
 
-/* 	[Fact]
-	public void Pandas_TA()
-	{
-		// Calculate Pandas.TA value
+    /* 	[Fact]
+        public void Pandas_TA()
+        {
+            // Calculate Pandas.TA value
 
-		RND_Feed bars = new(1000);
-		Random rnd = new();
-		int period = rnd.Next(28) + 3;
-		Installer.SetupPython().Wait();
-		Installer.TryInstallPip();
-		Installer.PipInstallModule("pandas-ta");
-		PythonEngine.Initialize();
-		dynamic ta = Py.Import("pandas_ta");
-		var df = ta.DataFrame(bars.Close.v);
-		/////
+            RND_Feed bars = new(1000);
+            Random rnd = new();
+            int period = rnd.Next(28) + 3;
+            Installer.SetupPython().Wait();
+            Installer.TryInstallPip();
+            Installer.PipInstallModule("pandas-ta");
+            PythonEngine.Initialize();
+            dynamic ta = Py.Import("pandas_ta");
+            var df = ta.DataFrame(bars.Close.v);
+            /////
 
-		TEMA_Series QL = new(bars.Close, period, false);
-		var pta = ta.tema(close: df[0], length: period);
+            TEMA_Series QL = new(bars.Close, period, false);
+            var pta = ta.tema(close: df[0], length: period);
 
-		/////		
-		double result = Math.Round(QL.Last().v, 7);
-		double expected = System.Math.Round((double)pta.tail(1), 7);
-		Assert.Equal(expected, result);
-	} */
+            /////		
+            double result = Math.Round(QL.Last().v, 7);
+            double expected = System.Math.Round((double)pta.tail(1), 7);
+            Assert.Equal(expected, result);
+        } */
 }

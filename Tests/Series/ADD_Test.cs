@@ -35,7 +35,7 @@ public class ADD_Test
     {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
-        ADD_Series c = new(a,b);
+        ADD_Series c = new(a, b);
         a.Add(2);
         b.Add(2);
         Assert.Equal(4, c.Last().v);

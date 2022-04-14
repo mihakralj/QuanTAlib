@@ -7,8 +7,8 @@ public abstract class Single_TSeries_Indicator : TSeries
     protected readonly bool _NaN;
     protected readonly TSeries _data;
 
-  // Default Constructor
-  protected Single_TSeries_Indicator(TSeries source, int period, bool useNaN)
+    // Default Constructor
+    protected Single_TSeries_Indicator(TSeries source, int period, bool useNaN)
     {
         this._data = source;
         this._p = period;

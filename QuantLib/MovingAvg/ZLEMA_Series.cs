@@ -20,42 +20,42 @@ the cumulative lag effect of the moving average.
 
 public class ZLEMA_Series : Single_TSeries_Indicator
 {
-	private readonly double _k;
-	private double _dm1, _dm2, _olddm2;
-	private readonly double _k1m;
-	private double _lastema, _lastlastema;
+    private readonly double _k;
+    private double _dm1, _dm2, _olddm2;
+    private readonly double _k1m;
+    private double _lastema, _lastlastema;
 
-	public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
-	{
-		this._k = 2.0 / (double)(period + 1);
-		this._k1m = 1.0 - this._k;
-		this._lastema = this._lastlastema = this._olddm2 = double.NaN;
-		this._dm1 = this._dm2 = 0;
+    public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+    {
+        this._k = 2.0 / (double)(period + 1);
+        this._k1m = 1.0 - this._k;
+        this._lastema = this._lastlastema = this._olddm2 = double.NaN;
+        this._dm1 = this._dm2 = 0;
 
-		if (base._data.Count > 0) { base.Add(base._data); }
-	}
+        if (base._data.Count > 0) { base.Add(base._data); }
+    }
 
-	public override void Add((System.DateTime t, double v) d, bool update)
-	{
-		if (update)
-		{
-			this._lastema = this._lastlastema;
-			this._dm1 = this._dm2;
-			this._dm2 = this._olddm2;
-		}
+    public override void Add((System.DateTime t, double v) d, bool update)
+    {
+        if (update)
+        {
+            this._lastema = this._lastlastema;
+            this._dm1 = this._dm2;
+            this._dm2 = this._olddm2;
+        }
 
-		double _lagdata = d.v + (d.v - _dm2);
+        double _lagdata = d.v + (d.v - _dm2);
 
-		double _ema = System.Double.IsNaN(this._lastema) ? _lagdata : _lagdata * this._k + this._lastema * this._k1m;
-		this._lastlastema = this._lastema;
-		this._lastema = _ema;
-		this._olddm2 = this._dm2;
-		this._dm2 = this._dm1;
-		this._dm1 = d.v;
+        double _ema = System.Double.IsNaN(this._lastema) ? _lagdata : _lagdata * this._k + this._lastema * this._k1m;
+        this._lastlastema = this._lastema;
+        this._lastema = _ema;
+        this._olddm2 = this._dm2;
+        this._dm2 = this._dm1;
+        this._dm1 = d.v;
 
-		(System.DateTime t, double v) result =
-			(d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
-		base.Add(result, update);
+        (System.DateTime t, double v) result =
+            (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
+        base.Add(result, update);
 
-	}
+    }
 }

@@ -19,8 +19,8 @@ public class TSeries_Test
         {
             { DateTime.Today, 0.0 }
         };
-        Assert.Equal(0.0, s[^1].v);
-        Assert.Equal(DateTime.Today, s[^1].t);
+        Assert.Equal(0.0, s[s.Count - 1].v);
+        Assert.Equal(DateTime.Today, s[s.Count - 1].t);
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class TSeries_Test
     [Fact]
     public void UpdatingValue()
     {
-        TSeries s = new() {1, 2, 3, 4, 5};
+        TSeries s = new() { 1, 2, 3, 4, 5 };
         s.Add(0.0, update: true);
         Assert.Equal(0.0, (double)s);
         Assert.Equal(5, s.Count);
@@ -57,7 +57,7 @@ public class TSeries_Test
         TSeries t = new();
         s.Pub += t.Sub;
         s.Add(0.0, update: true);
-        Assert.Equal(0.0, (double) t);
+        Assert.Equal(0.0, (double)t);
 
     }
 }

@@ -35,7 +35,7 @@ public class SUB_Test
     {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
-        SUB_Series c = new(a,b);
+        SUB_Series c = new(a, b);
         a.Add(7.0);
         b.Add(2);
         Assert.Equal(5.0, c.Last().v);

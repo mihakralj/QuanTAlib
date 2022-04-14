@@ -15,7 +15,8 @@ Remark:
 
 public class SMA_Series : Single_TSeries_Indicator
 {
-    public SMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN) { 
+    public SMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+    {
         if (base._data.Count > 0) { base.Add(base._data); }
     }
     private readonly System.Collections.Generic.List<double> _buffer = new();
@@ -23,7 +24,7 @@ public class SMA_Series : Single_TSeries_Indicator
     public override void Add((System.DateTime t, double v) d, bool update)
     {
         if (update) { _buffer[_buffer.Count - 1] = d.v; }
-          else { _buffer.Add(d.v); }
+        else { _buffer.Add(d.v); }
         if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
 
         double _sma = 0;

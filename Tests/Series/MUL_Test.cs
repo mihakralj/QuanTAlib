@@ -35,7 +35,7 @@ public class MUL_Test
     {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
-        MUL_Series c = new(a,b);
+        MUL_Series c = new(a, b);
         a.Add(2);
         b.Add(5);
         Assert.Equal(10, c.Last().v);
