@@ -1,0 +1,77 @@
+name: Build Workflow
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install .NET 7.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: |
+          7.0.x
+          5.0.x
+        include-prerelease: true
+
+    - name: Install JetBrains dotCover
+      run: dotnet tool install JetBrains.dotCover.GlobalTool --global
+
+    - name: Build QuantLib DLL
+      run: dotnet build ./QuantLib/QuantLib.csproj --verbosity normal --configuration Release --nologo 
+
+    - name: Build Quantower charts DLL
+      run: dotnet build ./Quantower_charts/Quantower.csproj --verbosity normal --configuration Release --nologo 
+
+    - name: Test with dotnet
+      run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo 
+
+    - name: Test with dotCover
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=Tests/coveragereport.xml
+
+    - name: CodeCov installation
+      run: dotnet tool install --global Codecov.Tool
+
+    - name: CodeCov run
+      run: codecov -f ./Tests/coveragereport.xml -v -t ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Codacy coverage reporter
+      uses: codacy/codacy-coverage-reporter-action@v1
+      with:
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        coverage-reports: ./Tests/coveragereport.xml
+
+    - name: Zip DLLs
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        directory: \Quantower\Settings\Scripts\Indicators\Quantlib
+        filename: QL_Quantower.zip
+
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: /Quantower/Settings/Scripts/Indicators/Quantlib/*.zip
+            
+    - name: Push package to nuget.org
+      run: dotnet nuget push '\a\QuantLib\QuantLib\QuantLib\bin\Release\QuantLib.*.nupkg'
+          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+    - name: Push package to github
+      run: dotnet nuget push '\a\QuantLib\QuantLib\QuantLib\bin\Release\QuantLib.*.nupkg'
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --source https://nuget.pkg.github.com/mihakralj/index.json
+          --skip-duplicate

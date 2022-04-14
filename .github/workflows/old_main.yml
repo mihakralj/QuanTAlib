@@ -19,14 +19,17 @@ jobs:
         dotnet-version: '7.0.x'
         include-prerelease: true
 
-#    - name: Intialize codeql
-#      uses: ithub/codeql-action/init@v2
-#      with:
-#        language: [ 'csharp' ]
+    - name: Intialize codeql
+      uses: ithub/codeql-action/init@v2
+      with:
+        languages: csharp
         
     - name: Build with dotnet
       run: dotnet build QuantLib/QuantLib.csproj --configuration Release --nologo --verbosity normal
-      
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2  
+
     - name: Test with dotnet
       run: dotnet test --framework net7.0
 
