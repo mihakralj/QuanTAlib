@@ -1,6 +1,6 @@
 # QuantLib - quantitative technical indicators for Quantower and other C#-based trading platorms
 ![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuantLib)
-[![.NET library build/test](https://github.com/mihakralj/QuantLib/actions/workflows/main.yml/badge.svg)](https://github.com/mihakralj/QuantLib/actions/workflows/main.yml)
+[![.NET library build/test](https://github.com/mihakralj/QuantLib/actions/workflows/main_automation.yml/badge.svg)](https://github.com/mihakralj/QuantLib/actions/workflows/main_automation.yml)
 [![Codacy grade](https://img.shields.io/codacy/grade/b1f9109222234c87bce45f1fd4c63aee)](https://app.codacy.com/gh/mihakralj/QuantLib/dashboard)
 [![codecov](https://codecov.io/gh/mihakralj/QuantLib/branch/main/graph/badge.svg?style=flat-square&token=YNMJRGKMTJ)](https://codecov.io/gh/mihakralj/QuantLib)
 
