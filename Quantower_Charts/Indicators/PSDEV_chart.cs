@@ -2,68 +2,70 @@ using System.Drawing;
 using TradingPlatform.BusinessLayer;
 using QuantLib;
 
-public class PSDEV_chart : Indicator
-{
-    #region Parameters
+public class PSDEV_chart : Indicator {
+#region Parameters
 
-    [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
-    private int Period = 10;
+  [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
+  private int Period = 10;
 
-    [InputParameter("Data source", 1, variants: new object[]{
-            "Open", 0,
-            "High", 1,
-            "Low", 2,
-            "Close", 3,
-            "HL2", 4,
-            "OC2", 5,
-            "OHL3", 6,
-            "HLC3", 7,
-            "OHLC4", 8,
-            "Weighted (HLCC4)", 9
-        })]
-    private int DataSource = 8;
+  [InputParameter("Data source", 1,
+                  variants: new object[] { "Open",
+                                           0,
+                                           "High",
+                                           1,
+                                           "Low",
+                                           2,
+                                           "Close",
+                                           3,
+                                           "HL2",
+                                           4,
+                                           "OC2",
+                                           5,
+                                           "OHL3",
+                                           6,
+                                           "HLC3",
+                                           7,
+                                           "OHLC4",
+                                           8,
+                                           "Weighted (HLCC4)",
+                                           9 })]
+  private int DataSource = 8;
 
-    #endregion Parameters
+#endregion Parameters
 
-    private readonly TBars bars = new();
+  private readonly TBars bars = new();
 
-    ///////dotnet
-    private PSDEV_Series indicator;
-    ///////
+  ///////dotnet
+  private PSDEV_Series indicator;
+  ///////
 
-    public PSDEV_chart()
-    {
-        this.SeparateWindow = true;
-        this.Name = "PSDEV - Population Standard Deviation (Biased)";
-        this.Description = "PSDEV description";
-        this.AddLineSeries("PSDEV", Color.RoyalBlue, 3, LineStyle.Solid);
-    }
+  public PSDEV_chart() {
+    this.SeparateWindow = true;
+    this.Name = "PSDEV - Population Standard Deviation (Biased)";
+    this.Description = "PSDEV description";
+    this.AddLineSeries("PSDEV", Color.RoyalBlue, 3, LineStyle.Solid);
+  }
 
-    protected override void OnInit()
-    {
-        this.ShortName = "PSDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
-    }
+  protected override void OnInit() {
+    this.ShortName =
+        "PSDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+    this.indicator = new(source: bars.Select(this.DataSource),
+                         period: this.Period, useNaN: true);
+  }
 
-    protected void OnNewData(bool update = false)
-    {
-        this.indicator.Add(update);
+  protected void OnNewData(bool update = false) { this.indicator.Add(update); }
 
-    }
+  protected override void OnUpdate(UpdateArgs args) {
+    bool update = !(args.Reason == UpdateReason.NewBar ||
+                    args.Reason == UpdateReason.HistoricalBar);
+    this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
+                  this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low),
+                  this.GetPrice(PriceType.Close),
+                  this.GetPrice(PriceType.Volume), update);
+    this.OnNewData(update);
 
-    protected override void OnUpdate(UpdateArgs args)
-    {
-        bool update = !(args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar);
-        this.bars.Add(this.Time(), this.GetPrice(PriceType.Open), this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low), this.GetPrice(PriceType.Close), this.GetPrice(PriceType.Volume), update);
-        this.OnNewData(update);
+    double result = this.indicator[this.indicator.Count - 1].v;
 
-        double result = this.indicator[this.indicator.Count - 1].v;
-
-
-        this.SetValue(result, 0);
-
-
-
-
-    }
+    this.SetValue(result, 0);
+  }
 }
