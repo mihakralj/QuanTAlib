@@ -9,18 +9,18 @@ public class WMA_chart : Indicator
     [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
     private int Period = 10;
 
-    [InputParameter("Data source", 1, variants: new object[]{
-            "Open", 0,
-            "High", 1,
-            "Low", 2,
-            "Close", 3,
-            "HL2", 4,
-            "OC2", 5,
-            "OHL3", 6,
-            "HLC3", 7,
-            "OHLC4", 8,
-            "Weighted (HLCC4)", 9
-        })]
+    [InputParameter("Data source", 1, variants: new object[] {
+        "Open", 0,
+        "High", 1,
+        "Low", 2,
+        "Close", 3,
+        "HL2", 4,
+        "OC2", 5,
+        "OHL3", 6,
+        "HLC3", 7,
+        "OHLC4", 8,
+        "Weighted (HLCC4)", 9
+    })]
     private int DataSource = 3;
 
     #endregion Parameters
@@ -46,7 +46,9 @@ public class WMA_chart : Indicator
     }
 
     protected void OnNewData(bool update = false)
-    { this.indicator.Add(update); }
+    {
+        this.indicator.Add(update);
+    }
 
     protected override void OnUpdate(UpdateArgs args)
     {
