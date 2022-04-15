@@ -3,6 +3,8 @@ using System;
 using QuantLib;
 using Skender.Stock.Indicators;
 using TALib;
+using Python.Included;
+using Python.Runtime;
 
 
 namespace Validation;
@@ -77,7 +79,7 @@ public class EMA_Validation
         Assert.Equal(expected, result);
     }
 
-    /* [Fact]
+    [Fact]
 	public void Pandas_TA()
 	{
 		// Calculate Pandas.TA value
@@ -100,5 +102,5 @@ public class EMA_Validation
 		double result = Math.Round(QL.Last().v, 7);
 		double expected = System.Math.Round((double)pta.tail(1), 7);
 		Assert.Equal(expected, result);
-	} */
+	}
 }
