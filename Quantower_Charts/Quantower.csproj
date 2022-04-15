@@ -11,6 +11,9 @@
     <Configurations>Release</Configurations>
     <BaseOutputPath>bin\</BaseOutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>C:\Quantower\TradingPlatform\v1.123.1\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
+  </PropertyGroup>
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles="..\QuantLib\bin\release\net48\QuantLib.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\Quantlib" />
     <Copy SourceFiles=".\bin\release\net48\QuantLib_Chart.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\Quantlib" />
@@ -20,7 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>dll\TradingPlatform.BusinessLayer.dll</HintPath>
+      <HintPath>C:\Quantower\TradingPlatform\v1.123.1\bin\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

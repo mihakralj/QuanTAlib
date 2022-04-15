@@ -3,8 +3,7 @@ using System;
 using QuantLib;
 using Skender.Stock.Indicators;
 using TALib;
-using Python.Included;
-using Python.Runtime;
+
 
 namespace Validation;
 public class WMA_Validation
@@ -77,7 +76,7 @@ public class WMA_Validation
 
         Assert.Equal(expected, result);
     }
-
+  /*
     [Fact]
         public void Pandas_TA()
         {
@@ -102,4 +101,5 @@ public class WMA_Validation
             double expected = System.Math.Round((double)pta.tail(1), 7);
             Assert.Equal(expected, result);
         }
+        */
 }
