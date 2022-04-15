@@ -25,10 +25,10 @@ public class HEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.HEMA_Series indicator;
+    private HEMA_Series indicator;
     ///////
 
     public HEMA_chart()

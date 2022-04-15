@@ -25,10 +25,10 @@ public class ZLEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.ZLEMA_Series indicator;
+    private ZLEMA_Series indicator;
     ///////
 
     public ZLEMA_chart()

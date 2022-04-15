@@ -25,10 +25,10 @@ public class HMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.HMA_Series indicator;
+    private HMA_Series indicator;
     ///////
 
     public HMA_chart()

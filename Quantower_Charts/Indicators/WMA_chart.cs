@@ -25,10 +25,10 @@ public class WMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.WMA_Series indicator;
+    private WMA_Series indicator;
     ///////
 
     public WMA_chart()

@@ -25,10 +25,10 @@ public class JMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.JMA_Series indicator;
+    private JMA_Series indicator;
     ///////
 
     public JMA_chart()

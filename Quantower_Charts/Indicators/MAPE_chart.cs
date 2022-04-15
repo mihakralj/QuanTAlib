@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class MAPE_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class MAPE_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////dotnet
-    private QuantLib.MAPE_Series indicator;
+    private MAPE_Series indicator;
     ///////
 
     public MAPE_chart()
@@ -40,7 +41,7 @@ public class MAPE_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "MAPE (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MAPE (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 

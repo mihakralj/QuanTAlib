@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class MIN_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class MIN_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.MIN_Series indicator;
+    private MIN_Series indicator;
     ///////
 
     public MIN_chart()
@@ -40,7 +41,7 @@ public class MIN_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "MIN (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MIN (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period);
     }
 

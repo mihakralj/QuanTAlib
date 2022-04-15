@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class BIAS_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class BIAS_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.BIAS_Series indicator;
+    private BIAS_Series indicator;
     ///////
 
     public BIAS_chart()
@@ -40,7 +41,7 @@ public class BIAS_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "BIAS (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "BIAS (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period);
     }
 

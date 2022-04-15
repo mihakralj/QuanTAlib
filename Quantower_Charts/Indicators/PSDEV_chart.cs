@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class PSDEV_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class PSDEV_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////dotnet
-    private QuantLib.PSDEV_Series indicator;
+    private PSDEV_Series indicator;
     ///////
 
     public PSDEV_chart()
@@ -40,7 +41,7 @@ public class PSDEV_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "PSDEV (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "PSDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 

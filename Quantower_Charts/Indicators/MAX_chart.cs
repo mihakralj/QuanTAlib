@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class MAX_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class MAX_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.MAX_Series indicator;
+    private MAX_Series indicator;
     ///////
 
     public MAX_chart()
@@ -40,7 +41,7 @@ public class MAX_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "MAX (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MAX (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period);
     }
 

@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class MAD_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class MAD_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.MAD_Series indicator;
+    private MAD_Series indicator;
     ///////
 
     public MAD_chart()
@@ -40,7 +41,7 @@ public class MAD_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "MAD (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MAD (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 

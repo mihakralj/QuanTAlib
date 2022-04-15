@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class KURT_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class KURT_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.KURT_Series indicator;
+    private KURT_Series indicator;
     ///////
 
     public KURT_chart()
@@ -40,7 +41,7 @@ public class KURT_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "KURT (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "KURT (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 

@@ -25,10 +25,10 @@ public class TEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.TEMA_Series indicator;
+    private TEMA_Series indicator;
     ///////
 
     public TEMA_chart()

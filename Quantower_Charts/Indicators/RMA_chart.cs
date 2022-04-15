@@ -25,10 +25,10 @@ public class RMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.RMA_Series indicator;
+    private RMA_Series indicator;
     ///////
 
     public RMA_chart()

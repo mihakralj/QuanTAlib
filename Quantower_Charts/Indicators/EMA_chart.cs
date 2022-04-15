@@ -25,10 +25,10 @@ public class EMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.EMA_Series indicator;
+    private EMA_Series indicator;
     ///////
 
     public EMA_chart()

@@ -1,9 +1,6 @@
-using System.Runtime;
-using System.Collections;
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
 using QuantLib;
-
 
 public class DEMA_chart : Indicator
 {
@@ -28,10 +25,10 @@ public class DEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.DEMA_Series indicator;
+    private DEMA_Series indicator;
     ///////
 
     public DEMA_chart()

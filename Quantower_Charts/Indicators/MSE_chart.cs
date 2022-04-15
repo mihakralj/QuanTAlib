@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class MSE_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class MSE_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.MSE_Series indicator;
+    private MSE_Series indicator;
     ///////
 
     public MSE_chart()
@@ -40,7 +41,7 @@ public class MSE_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "MSE (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "MSE (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 

@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class PVAR_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class PVAR_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////dotnet
-    private QuantLib.PVAR_Series indicator;
+    private PVAR_Series indicator;
     ///////
 
     public PVAR_chart()
@@ -40,7 +41,7 @@ public class PVAR_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "PVAR (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "PVAR (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 

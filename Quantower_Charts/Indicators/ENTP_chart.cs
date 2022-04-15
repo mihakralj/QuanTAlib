@@ -1,5 +1,6 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
+using QuantLib;
 
 public class ENTP_chart : Indicator
 {
@@ -24,10 +25,10 @@ public class ENTP_chart : Indicator
 
     #endregion Parameters
 
-    private readonly QuantLib.TBars bars = new();
+    private readonly TBars bars = new();
 
     ///////
-    private QuantLib.ENTP_Series indicator;
+    private ENTP_Series indicator;
     ///////
 
     public ENTP_chart()
@@ -40,7 +41,7 @@ public class ENTP_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "ENTP (" + QuantLib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.ShortName = "ENTP (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 
