@@ -16,14 +16,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{3AA87FFE-4
 		Docs\LICENSE = Docs\LICENSE
 		Docs\ma-comparison.dib = Docs\ma-comparison.dib
 		Docs\macd_example.ipynb = Docs\macd_example.ipynb
-		Docs\QuantLib_Indicators.dib = Docs\QuantLib_Indicators.dib
-		Docs\QuantLib_test.ipynb = Docs\QuantLib_test.ipynb
+		Docs\QuanTAlib_Indicators.dib = Docs\QuanTAlib_Indicators.dib
+		Docs\QuanTAlib_test.ipynb = Docs\QuanTAlib_test.ipynb
 		Docs\README.md = Docs\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{8D8CD223-7A8C-46C4-A326-58E0B735FBA4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quantower", "Quantower_Charts\Quantower.csproj", "{5096AEA1-81BC-46E7-9F2B-B408AFAA850C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quantower", "Quantower\Quantower.csproj", "{5096AEA1-81BC-46E7-9F2B-B408AFAA850C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
