@@ -24,11 +24,11 @@ jobs:
     - name: Install JetBrains dotCover
       run: dotnet tool install JetBrains.dotCover.GlobalTool --global
 
-    - name: Build QuantLib DLL
-      run: dotnet build ./QuantLib/QuantLib.csproj --verbosity normal --configuration Release --nologo 
+    - name: Build QuanTAlib DLL
+      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo 
 
     - name: Build Quantower charts DLL
-      run: dotnet build ./Quantower_charts/Quantower.csproj --verbosity normal --configuration Release --nologo 
+      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo 
 
     - name: Test with dotnet
       run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo 

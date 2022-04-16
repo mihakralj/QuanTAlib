@@ -24,11 +24,11 @@ jobs:
     - name: Install JetBrains dotCover
       run: dotnet tool install JetBrains.dotCover.GlobalTool --global
 
-    - name: Build QuantLib DLL
-      run: dotnet build ./QuantLib/QuantLib.csproj --verbosity normal --configuration Release --nologo 
+    - name: Build QuanTAlib DLL
+      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo 
 
     - name: Build Quantower charts DLL
-      run: dotnet build ./Quantower_charts/Quantower.csproj --verbosity normal --configuration Release --nologo 
+      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo 
 
     - name: Test with dotnet
       run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo 
@@ -52,7 +52,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        directory: \Quantower\Settings\Scripts\Indicators\Quantlib
+        directory: \Quantower\Settings\Scripts\Indicators\QuanTAlib
         filename: QL_Quantower.zip
 
     - name: Release
@@ -62,16 +62,16 @@ jobs:
         automatic_release_tag: "latest"
         prerelease: true
         title: "Development Build"
-        files: /Quantower/Settings/Scripts/Indicators/Quantlib/*.zip
+        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.zip
             
     - name: Push package to nuget.org
-      run: dotnet nuget push '\a\QuantLib\QuantLib\QuantLib\bin\Release\QuantLib.*.nupkg'
+      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
 
     - name: Push package to github
-      run: dotnet nuget push '\a\QuantLib\QuantLib\QuantLib\bin\Release\QuantLib.*.nupkg'
+      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.GITHUB_TOKEN }}
           --source https://nuget.pkg.github.com/mihakralj/index.json
           --skip-duplicate
