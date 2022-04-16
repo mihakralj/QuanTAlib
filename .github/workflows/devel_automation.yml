@@ -1,4 +1,4 @@
-name: Main Workflow
+name: Devel Workflow
 on:
   workflow_dispatch:
   push:
@@ -48,3 +48,18 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./Tests/coveragereport.xml
 
+    - name: Zip DLLs
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        directory: \Quantower\Settings\Scripts\Indicators\QuanTAlib
+        filename: QL_Quantower.zip
+
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "development"
+        prerelease: true
+        title: "Development Build"
+        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.zip
