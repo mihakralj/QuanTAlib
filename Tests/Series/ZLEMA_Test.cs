@@ -1,9 +1,9 @@
 using Xunit;
 using System;
-using QuantLib;
+using QuanTAlib;
 
-namespace QuantLib;
-public class ZLEMA_Test
+namespace QuanTAlib;
+/* public class ZLEMA_Test
 {
     [Fact]
     public void ZLEMASeries_Test()
@@ -22,4 +22,4 @@ public class ZLEMA_Test
         a.Add(30.0, true);
         Assert.Equal(30.8115234375, c.Last().v);
     }
-}
+} */

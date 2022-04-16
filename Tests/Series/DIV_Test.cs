@@ -1,8 +1,8 @@
 using Xunit;
 using System;
-using QuantLib;
+using QuanTAlib;
 
-namespace QuantLib;
+namespace QuanTAlib;
 public class DIV_Test
 {
     [Fact]

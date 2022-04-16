@@ -1,6 +1,6 @@
 # Coverage of indicators
 
-| Indicator | QuantLib | TA-LIB | Skender | Pandas-TA |
+| Indicator | QuanTAlib | TA-LIB | Skender | Pandas-TA |
 |--|:--:|:--:|:--:|:--:|
 | **Basics** |||||
 | OC2 - (Open+Close)/2 |✔️|||✔️|
