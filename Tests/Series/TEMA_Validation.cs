@@ -1,6 +1,6 @@
 using Xunit;
 using System;
-using QuantLib;
+using QuanTAlib;
 using Skender.Stock.Indicators;
 using TALib;
 
