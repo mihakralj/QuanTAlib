@@ -1,0 +1,21 @@
+#!csharp
+
+#r "nuget:QuanTAlib;"
+using QuanTAlib;
+
+YAHOO_Feed tqqq = new(30,"TQQQ");
+TSeries data = tqqq.Close;
+SMA_Series sma = new(data, 5, false);
+MED_Series med = new(data, 5);
+WMA_Series wma = new(data, 5, false);
+EMA_Series ema = new(data, 5, false);
+HMA_Series hma = new(data, 5, false);
+DEMA_Series dema = new(data, 5, false);
+TEMA_Series tema = new(data, 5, false);
+ZLEMA_Series zlema = new(data, 5, false);
+JMA_Series jma = new(data, 10, 0.0, false);
+
+Console.WriteLine($"date\t\t Value\t SMA\t MED\t WMA\t EMA\t HMA\t DEMA\t TEMA \tZLEMA\t JMA");
+for (int i=0; i < data.Length; i++) {
+    Console.Write($"{data[i].t:yyyy-MM-dd}\t {data[i].v:f2}\t {sma[i].v:f2}\t {med[i].v:f2}\t {wma[i].v:f2}\t {ema[i].v:f2}\t {hma[i].v:f2}\t {dema[i].v:f2}\t {tema[i].v:f2}\t {zlema[i].v:f2}\t {jma[i].v:f2}\n");
+}

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <Platforms>AnyCPU</Platforms>
+    <AlgoType>Indicator</AlgoType>
+    <AssemblyName>Quantower_QTAlib</AssemblyName>
+    <RootNamespace>QuanTAlib</RootNamespace>
+    <Configurations>Release</Configurations>
+    <BaseOutputPath>bin\</BaseOutputPath>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**"/>
+  </ItemGroup>
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild" >
+    <Copy SourceFiles=".\bin\$(Configuration)\net48\Quantower_QTAlib.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\QuanTAlib" />
+  </Target>
+
+  <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>.\dll\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
