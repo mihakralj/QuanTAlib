@@ -1,15 +1,14 @@
-﻿/**
-WMAPE: Weighted Mean Absolute Percentage Error
+﻿namespace QuanTAlib;
+using System;
 
-Measures the size of the error in percentage terms
+/* <summary>
+WMAPE: Weighted Mean Absolute Percentage Error
+    Measures the size of the error in percentage terms
 
 Sources:
   https://en.wikipedia.org/wiki/WMAPE
 
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class WMAPE_Series : Single_TSeries_Indicator
 {

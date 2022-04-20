@@ -1,12 +1,10 @@
-/*
-MIN - Minimum value in the given period in the series.
-
-If period = 0 => period = full length of the series
-
-*/
-
-using System;
 namespace QuanTAlib;
+using System;
+
+/* <summary>
+MIN - Minimum value in the given period in the series.
+    If period = 0 => period = full length of the series
+</summary> */
 
 public class MIN_Series : Single_TSeries_Indicator
 {

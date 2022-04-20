@@ -1,8 +1,9 @@
 ﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 TEMA: Triple Exponential Moving Average
-TEMA uses EMA(EMA(EMA())) to calculate less laggy Exponential moving average.
+    TEMA uses EMA(EMA(EMA())) to calculate less laggy Exponential moving average.
 
 Sources:
     https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/triple-exponential-moving-average-tema/
@@ -12,13 +13,12 @@ Remark:
     ema2 = EMA(ema1, length)
     ema3 = EMA(ema2, length)
     TEMA = 3 * (ema1 - ema2) + ema3
-**/
 
-using System;
-using System.Collections.Generic;
+</summary> */
+
 public class TEMA_Series : Single_TSeries_Indicator
 {
-    private readonly List<double> _buffer = new();
+    private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly double _k, _k1m;
     private double _lastema1, _lastlastema1;
     private double _lastema2, _lastlastema2;

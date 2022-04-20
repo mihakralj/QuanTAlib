@@ -1,6 +1,8 @@
-﻿/**
-KURT: Kurtosis of population
+﻿namespace QuanTAlib;
+using System;
 
+/* <summary>
+KURT: Kurtosis of population
   Kurtosis characterizes the relative peakedness or flatness of a distribution
   compared with the normal distribution. Positive kurtosis indicates a relatively
   peaked distribution. Negative kurtosis indicates a relatively flat distribution.
@@ -19,12 +21,7 @@ Sources:
   https://en.wikipedia.org/wiki/Kurtosis
   https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-whats-with-the-different-formulas-for-kurtosis/
     
-**/
-
-using System;
-namespace QuanTAlib;
-
-// https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-whats-with-the-different-formulas-for-kurtosis/
+</summary> */
 
 public class KURT_Series : Single_TSeries_Indicator
 {

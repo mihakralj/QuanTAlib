@@ -10,14 +10,22 @@ public class TA_LIB
 	private readonly Random rnd = new();
 	private readonly int period;
 	private readonly double[] TALIB;
-	private readonly double[] input;
+	private readonly double[] inopen;
+	private readonly double[] inhigh;
+	private readonly double[] inlow;
+	private readonly double[] inclose;
+	private readonly double[] involume;
 
 	public TA_LIB()
 	{
 		this.bars = new(1000);
 		this.period = this.rnd.Next(28) + 3;
 		this.TALIB = new double[this.bars.Count];
-		this.input = this.bars.Close.v.ToArray();
+		this.inopen = this.bars.Open.v.ToArray();
+		this.inhigh = this.bars.High.v.ToArray();
+		this.inlow = this.bars.Low.v.ToArray();
+		this.inclose = this.bars.Close.v.ToArray();
+		this.involume = this.bars.Volume.v.ToArray();
 	}
 
 /////////////////////////////////////////
@@ -26,7 +34,7 @@ public class TA_LIB
 	public void SMA()
 	{
 		SMA_Series QL = new(this.bars.Close, this.period, false);
-		Core.Sma(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Sma(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
@@ -35,7 +43,7 @@ public class TA_LIB
 	public void EMA()
 	{
 		EMA_Series QL = new(this.bars.Close, this.period, false);
-		Core.Ema(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Ema(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
@@ -44,7 +52,7 @@ public class TA_LIB
 	public void WMA()
 	{
 		WMA_Series QL = new(this.bars.Close, this.period, false);
-		Core.Wma(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Wma(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
@@ -53,7 +61,7 @@ public class TA_LIB
 	public void DEMA()
 	{
 		DEMA_Series QL = new(this.bars.Close, this.period, false);
-		Core.Dema(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Dema(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
@@ -62,7 +70,7 @@ public class TA_LIB
 	public void TEMA()
 	{
 		TEMA_Series QL = new(this.bars.Close, this.period, false);
-		Core.Tema(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Tema(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
@@ -71,7 +79,7 @@ public class TA_LIB
 	public void MAX()
 	{
 		MAX_Series QL = new(this.bars.Close, this.period, false);
-		Core.Max(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Max(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
@@ -80,9 +88,17 @@ public class TA_LIB
 	public void MIN()
 	{
 		MIN_Series QL = new(this.bars.Close, this.period, false);
-		Core.Min(this.input, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+		Core.Min(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
 
+	[Fact]
+	public void ATR()
+	{
+		ATR_Series QL = new(this.bars, this.period, false);
+		Core.Atr(this.inhigh, this.inlow, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
 }

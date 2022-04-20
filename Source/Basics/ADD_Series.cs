@@ -1,6 +1,13 @@
-// ADD - adding TSeries+TSeries together, or TSeries+double, or double+TSeries
-using System;
 namespace QuanTAlib;
+using System;
+
+/* <summary>
+ADD - adding TSeries+TSeries together, or TSeries+double, or double+TSeries
+
+Remarks: 
+    Most of scaffolding is packaged in abstracty class Pair_TSeries_Indicator.
+    
+</summary> */
 
 public class ADD_Series : Pair_TSeries_Indicator 
 {

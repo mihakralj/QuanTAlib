@@ -1,8 +1,10 @@
-﻿/**
-ENTP: Entropy
+﻿namespace QuanTAlib;
+using System;
 
-Introduced by Claude Shannon in 1948, entropy measures the unpredictability
-of the data, or equivalently, of its average information.
+/* <summary>
+ENTP: Entropy
+    Introduced by Claude Shannon in 1948, entropy measures the unpredictability
+    of the data, or equivalently, of its average information.
 
 Calculation:
     P = close / Σ(close)
@@ -12,9 +14,8 @@ Sources:
     https://en.wikipedia.org/wiki/Entropy_(information_theory)
     https://math.stackexchange.com/questions/3428693/how-to-calculate-entropy-from-a-set-of-correlated-samples
 
-**/
-namespace QuanTAlib;
-using System;
+</summary> */
+
 public class ENTP_Series : Single_TSeries_Indicator
 {
     public ENTP_Series(TSeries source, int period, double logbase = 2.0, bool useNaN = false) : base(source, period, useNaN)

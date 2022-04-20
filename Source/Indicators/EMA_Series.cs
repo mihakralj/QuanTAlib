@@ -1,26 +1,27 @@
 ﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 EMA: Exponential Moving Average
+    EMA needs very short history buffer and calculates the EMA value using just the
+    previous EMA value. The weight of the new datapoint (k) is k = 2 / (period-1)
 
-EMA needs very short history buffer and calculates the EMA value using just the
-previous EMA value. The weight of the new datapoint (k) is k = 2 / (period-1)
 Sources:
     https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
     https://www.investopedia.com/ask/answers/122314/what-exponential-moving-average-ema-formula-and-how-ema-calculated.asp
     https://blog.fugue88.ws/archives/2017-01/The-correct-way-to-start-an-Exponential-Moving-Average-EMA
+
 Issues:
     There is no consensus what the first EMA value should be - a zero, a first
-datapoint, or an average of the initial Period bars. All three starting methods
-converge within 20+ bars to the same moving average. Most implementations (including this one)
-use SMA() for the first Period bars as a seeding value for EMA.
-**/
+    datapoint, or an average of the initial Period bars. All three starting methods
+    converge within 20+ bars to the same moving average. Most implementations (including this one)
+    use SMA() for the first Period bars as a seeding value for EMA.
 
-using System;
-using System.Collections.Generic;
+</summary> */
+
 public class EMA_Series : Single_TSeries_Indicator
 {
-    private readonly List<double> _buffer = new();
+    private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly double _k, _k1m;
     private double _lastema, _lastlastema;
 

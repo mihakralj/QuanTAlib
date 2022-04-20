@@ -1,6 +1,12 @@
-// DIV - divide TSeries/TSeries , or TSeries/double, or double/TSeries
-using System;
 namespace QuanTAlib;
+using System;
+
+/* <summary>
+DIV - divide TSeries/TSeries , or TSeries/double, or double/TSeries
+
+Remarks: 
+    Most of scaffolding is packaged in abstracty class Pair_TSeries_Indicator.
+</summary> */
 
 public class DIV_Series : Pair_TSeries_Indicator 
 {

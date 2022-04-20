@@ -1,11 +1,11 @@
-﻿using System;
-namespace QuanTAlib;
+﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 JMA: Jurik Moving Average
-Mark Jurik's Moving Average (JMA) attempts to eliminate noise to see the
-underlying activity. It has extremely low lag, is very smooth and is responsive
-to market gaps.
+    Mark Jurik's Moving Average (JMA) attempts to eliminate noise to see the
+    underlying activity. It has extremely low lag, is very smooth and is responsive
+    to market gaps.
 
 Sources:
     https://c.mql5.com/forextsd/forum/164/jurik_1.pdf
@@ -13,10 +13,12 @@ Sources:
 
 Issues:
     Real JMA algorithm is not published and this formula is derived through
-deduction and reverse analysis of JMA behavior. It is really close, but not
-exact - published JMA tests against JMA.CSV fail with small deviation. The
-original algo is slightly different, yet this approximation is close enough.
-**/
+    deduction and reverse analysis of JMA behavior. It is really close, but not
+    exact - published JMA tests against JMA.CSV fail with small deviation. The
+    original algo is slightly different, yet this approximation is close enough.
+
+</summary> */
+
 public class JMA_Series : Single_TSeries_Indicator
 {
     private readonly System.Collections.Generic.List<double> vbuffer10;

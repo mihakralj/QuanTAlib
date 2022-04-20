@@ -1,6 +1,18 @@
 ﻿namespace QuanTAlib;
 using System;
+/* <summary>
+Abstract classes with all scaffolding required to build indicators.
+    All abstracts support period, NaN, and all permutations of Add() methods. 
+    Indicator classess need to implement:
+        - Chaining constructor (Abstract's constructor executes first)
+        - Default Add(value) class
+        - optional Add(series) bulk insert class (for optimization of historical analysis)
 
+    Single_TSeries_Indicator    - one single-value TSeries in, one TSeries out. 
+    Pair_TSeries_Indicator      - Two TSeries in, one TSeries out. (includes simple semaphoring)
+    Single_TBars_Indicator      - One OHLCV TBars in, one TSeries out.
+
+</summary> */
 public abstract class Single_TSeries_Indicator : TSeries
 {
     protected readonly int _p;
@@ -124,8 +136,9 @@ public abstract class Single_TBars_Indicator : TSeries
     protected readonly TBars _bars;
 
     // Chainable Constructor - add it at the end of primary constructor :base(source: source, period: period, useNaN: useNaN)
-    protected Single_TBars_Indicator(TBars source, bool useNaN)
+    protected Single_TBars_Indicator(TBars source, int period, bool useNaN)
     {
+        this._p = period;
         this._bars = source;
         this._NaN = useNaN;
         this._bars.Close.Pub += this.Sub;

@@ -1,8 +1,10 @@
-﻿/**
-MAD: Mean Absolute Deviation
+﻿namespace QuanTAlib;
+using System;
 
-Also known as AAD - Average Absolute Deviation, to differentiate it from Median Absolute Deviation
-MAD defines the degree of variation across the series.
+/* <summary>
+MAD: Mean Absolute Deviation
+  Also known as AAD - Average Absolute Deviation, to differentiate it from Median Absolute Deviation
+  MAD defines the degree of variation across the series.
 
 Calculation:
   MAD = Σ(|close-SMA|) / period
@@ -10,10 +12,7 @@ Calculation:
 Sources:
   https://en.wikipedia.org/wiki/Average_absolute_deviation
    
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class MAD_Series : Single_TSeries_Indicator
 {

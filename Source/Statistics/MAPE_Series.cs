@@ -1,7 +1,9 @@
-﻿/**
-MAPE: Mean Absolute Percentage Error
+﻿namespace QuanTAlib;
+using System;
 
-Measures the size of the error in percentage terms
+/* <summary>
+MAPE: Mean Absolute Percentage Error
+  Measures the size of the error in percentage terms
 
 Calculation:
   MAPE = Σ(|close – SMA| / |close|) / n
@@ -9,13 +11,11 @@ Calculation:
 Sources:
   https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
 
-Remark: returns infinity if any of observations is 0. 
-Use SMAPE or WMAPE instead to avoid division-by-zero in MAPE
+Remark: 
+  returns infinity if any of observations is 0. 
+  Use SMAPE or WMAPE instead to avoid division-by-zero in MAPE
     
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class MAPE_Series : Single_TSeries_Indicator
 {

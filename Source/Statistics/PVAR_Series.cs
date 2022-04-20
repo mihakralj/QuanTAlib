@@ -1,7 +1,9 @@
-﻿/**
-PVAR: Population Variance
+﻿namespace QuanTAlib;
+using System;
 
-Population variance....
+/* <summary>
+PVAR: Population Variance
+  Population variance without Bessel's correction
 
 Sources:
   https://en.wikipedia.org/wiki/Variance
@@ -11,10 +13,7 @@ Remark:
   PVAR (Population Variance) is also known as a biased Sample Variance. For unbiased
   sample variance use SVAR instead.
     
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class PVAR_Series : Single_TSeries_Indicator
 {

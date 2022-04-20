@@ -1,17 +1,14 @@
-﻿/**
-MSE: Mean Square Error 
+﻿namespace QuanTAlib;
+using System;
 
-Defined as a Mean (Average) of the Square of the difference between actual and estimated values.
+/* <summary>
+MSE: Mean Square Error 
+    Defined as a Mean (Average) of the Square of the difference between actual and estimated values.
 
 Sources:
   https://en.wikipedia.org/wiki/Mean_squared_error
 
-Remark:
-    
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class MSE_Series : Single_TSeries_Indicator
 {

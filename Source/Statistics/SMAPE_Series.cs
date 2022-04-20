@@ -1,15 +1,14 @@
-﻿/**
-SMAPE: Symmetric Mean Absolute Percentage Error
+﻿namespace QuanTAlib;
+using System;
 
-Measures the size of the error in percentage terms
+/* <summary>
+SMAPE: Symmetric Mean Absolute Percentage Error
+    Measures the size of the error in percentage terms
 
 Sources:
   https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error
 
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class SMAPE_Series : Single_TSeries_Indicator
 {

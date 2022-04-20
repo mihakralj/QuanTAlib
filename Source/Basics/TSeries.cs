@@ -1,8 +1,18 @@
 ﻿namespace QuanTAlib;
-
 using System;
 using System.Linq;
 
+/* <summary>
+TSeries is the cornerstone of all QuanTAlib classess. 
+    TSeries is a single List of tuples (time, value) and contains several operators, casts, overloads 
+    and other helpers that simplify usage of library. 
+    Think of TSeries as an equivalent of Numpy array.
+    
+        - includes Length property (to mimic array's method)
+        - includes publishing and subscribing methods that attach to events
+        - uses Linq only for two transmutations - needs to be refactored out eventually (for speed)
+
+</summary> */
 public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
 {
     // when asked for a (t,v) tuple, return the last (t,v) on the List

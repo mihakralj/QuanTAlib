@@ -1,25 +1,24 @@
-/*
+namespace QuanTAlib;
+using System;
+
+/* <summary>
 MED - Median value
+    Median of numbers is the middlemost value of the given set of numbers. 
+    It separates the higher half and the lower half of a given data sample. 
+    At least half of the observations are smaller than or equal to median 
+    and at least half of the observations are greater than or equal to the median.
 
-Median of numbers is the middlemost value of the given set of numbers. 
-It separates the higher half and the lower half of a given data sample. 
-At least half of the observations are smaller than or equal to median 
-and at least half of the observations are greater than or equal to the median.
+    If the number of values is odd, the middlemost observation of the sorted
+    list is the median of the given data.  If the number of values is even, 
+    median is the average of (n/2)th and [(n/2) + 1]th values of the sorted list.
 
-If the number of values is odd, the middlemost observation of the sorted
-list is the median of the given data.  If the number of values is even, 
-median is the average of (n/2)th and [(n/2) + 1]th values of the sorted list.
-
-If period = 0 => period is max
+    If period = 0 => period is max
 
 Sources:
     https://corporatefinanceinstitute.com/resources/knowledge/other/median/
     https://en.wikipedia.org/wiki/Median
 
-*/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class MED_Series : Single_TSeries_Indicator
 {

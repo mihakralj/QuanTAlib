@@ -1,14 +1,16 @@
 ﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 WMA: (linearly) Weighted Moving Average
-The weights are linearly decreasing over the period and the most recent data has
-the heaviest weight.
+    The weights are linearly decreasing over the period and the most recent data has
+    the heaviest weight.
 
 Sources:
     https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/weighted-moving-average-wma/
     https://www.technicalindicators.net/indicators-technical-analysis/83-moving-averages-simple-exponential-weighted
-**/
+
+</summary> */
 
 public class WMA_Series : Single_TSeries_Indicator
 {

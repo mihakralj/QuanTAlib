@@ -1,7 +1,9 @@
-﻿/**
-VAR: Sample Variance
+﻿namespace QuanTAlib;
+using System;
 
-Sample variance uses Bessel's correction to correct the bias in the estimation of population variance.
+/* <summary>
+VAR: Sample Variance
+  Sample variance uses Bessel's correction to correct the bias in the estimation of population variance.
 
 Sources:
   https://en.wikipedia.org/wiki/Variance
@@ -11,10 +13,7 @@ Remark:
   VAR is also known as the Unbiased Sample Variance, while PVAR (Population Variance) is known as
   the Biased Sample Variance. 
     
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class VAR_Series : Single_TSeries_Indicator
 {

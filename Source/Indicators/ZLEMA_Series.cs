@@ -1,22 +1,23 @@
-﻿using System;
-namespace QuanTAlib;
+﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 ZLEMA: Zero Lag Exponential Moving Average
-
-The Zero lag exponential moving average (ZLEMA) indicator was created by John
-Ehlers and Ric Way.
+    The Zero lag exponential moving average (ZLEMA) indicator was created by John
+    Ehlers and Ric Way.
 
 The formula for a given N-Day period and for a given Data series is:
-Lag = (Period-1)/2
-Ema Data = {Data+(Data-Data(Lag days ago))
-ZLEMA = EMA (EmaData,Period)
+    Lag = (Period-1)/2
+    Ema Data = {Data+(Data-Data(Lag days ago))
+    ZLEMA = EMA (EmaData,Period)
 
-The idea is do a regular exponential moving average (EMA) calculation but on a
-de-lagged data instead of doing it on the regular data. Data is de-lagged by
-removing the data from "lag" days ago thus removing (or attempting to remove)
-the cumulative lag effect of the moving average.
-**/
+Remark:
+    The idea is do a regular exponential moving average (EMA) calculation but on a
+    de-lagged data instead of doing it on the regular data. Data is de-lagged by
+    removing the data from "lag" days ago thus removing (or attempting to remove)
+    the cumulative lag effect of the moving average.
+
+</summary> */
 
 public class ZLEMA_Series : Single_TSeries_Indicator
 {

@@ -1,6 +1,11 @@
-// SUB - subtracting TSeries-TSeries, or TSeries-double, or double-TSeries
-using System;
 namespace QuanTAlib;
+using System;
+
+/* <summary>
+SUB - subtracting TSeries-TSeries, or TSeries-double, or double-TSeries
+
+</summary> */
+
 
 public class SUB_Series : Pair_TSeries_Indicator 
 {

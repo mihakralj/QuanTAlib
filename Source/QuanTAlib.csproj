@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>0.1.10-beta</Version>
+    <Version>0.1.11</Version>
     <releaseNotes></releaseNotes>
     <Title>QuanTAlib</Title>
     <Product>Library of Technical Indicators for .NET</Product>

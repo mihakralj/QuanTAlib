@@ -1,18 +1,17 @@
-﻿/**
-  BIAS: Rate of change between the source and a moving average.
+﻿namespace QuanTAlib;
+using System;
 
-  Bias is a statistical term which means a systematic deviation from the actual value.
+/* <summary>
+BIAS: Rate of change between the source and a moving average.
+    Bias is a statistical term which means a systematic deviation from the actual value.
 
-  BIAS = (close - SMA) / SMA
+BIAS = (close - SMA) / SMA
        = (close / SMA) - 1
 
 Sources:
-  https://en.wikipedia.org/wiki/Bias_of_an_estimator
+	https://en.wikipedia.org/wiki/Bias_of_an_estimator
 
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class BIAS_Series : Single_TSeries_Indicator
 {

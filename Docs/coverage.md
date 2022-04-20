@@ -42,7 +42,8 @@
 | AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
 | ALMA - Arnaud Legoux Moving Average |||✔️|✔️|
 | ARIMA - Autoregressive Integrated Moving Average |||||
-| ATR - Average True Range ||✔️|✔️|✔️|
+| ATR - Average True Range |✔️|✔️|✔️|✔️|
+| ATRP - Average True Range Percent |✔️||✔️||
 | DEMA - Double EMA |✔️|✔️|✔️|✔️|
 | EMA - Exponential Moving Average |✔️|✔️|✔️|✔️|
 | EPMA - Endpoint Moving Average |||✔️||

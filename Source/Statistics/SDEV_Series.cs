@@ -1,21 +1,19 @@
-﻿/**
-SDEV: (Corrected) Sample Standard Deviation
+﻿namespace QuanTAlib;
+using System;
 
-Sample Standard Deviaton uses Bessel's correction to correct the bias in the variance.
+/* <summary>
+SDEV: (Corrected) Sample Standard Deviation
+  Sample Standard Deviaton uses Bessel's correction to correct the bias in the variance.
 
 Sources:
   https://en.wikipedia.org/wiki/Standard_deviation#Corrected_sample_standard_deviation
   Bessel's correction: https://en.wikipedia.org/wiki/Bessel%27s_correction
 
 Remark:
-
   SSDEV (Sample Standard Deviation) is also known as a unbiased/corrected Standard Deviation.
   For a population/biased/uncorrected Standard Deviation, use PSDEV instead
       
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class SDEV_Series : Single_TSeries_Indicator
 {

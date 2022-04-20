@@ -1,19 +1,21 @@
-﻿using System;
-namespace QuanTAlib;
+﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 HMA: Hull Moving Average
-Developed by Alan Hull, an extremely fast and smooth moving average; almost
-eliminates lag altogether and manages to improve smoothing at the same time.
+    Developed by Alan Hull, an extremely fast and smooth moving average; almost
+    eliminates lag altogether and manages to improve smoothing at the same time.
 
 Sources:
     https://alanhull.com/hull-moving-average
     https://school.stockcharts.com/doku.php?id=technical_indicators:hull_moving_average
+
 WMA1 = WMA(n/2) of price
 WMA2 = WMA(n) of price
 Raw HMA = (2 * WMA1) - WMA2
 HMA = WMA(sqrt(n)) of Raw HMA
-**/
+
+</summary> */
 
 public class HMA_Series : TSeries
 {

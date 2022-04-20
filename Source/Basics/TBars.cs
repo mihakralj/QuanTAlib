@@ -1,6 +1,14 @@
 ﻿namespace QuanTAlib;
-
 using System;
+
+/* <summary>
+TBars class - includes all series for common data used in indicators and other calculations.
+    Has a bit limited overloading and casting (compared to TSeries)
+    Includes Select(int) method to simplify choosing the most optimal data source for indicators
+    Includes the most basic pricing calcs: HL2, OC2, OHL3, HLC3, OHLC4, HLCC4 
+        (it is 'cheaper' to calculate them once during data capture than each time during data analysis)
+
+</summary> */
 
 public class TBars : System.Collections.Generic.List<(DateTime t, double o, double h, double l, double c, double v)>
 {

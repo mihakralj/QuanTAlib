@@ -1,6 +1,10 @@
-// MUL - multiply TSeries*TSeries together, or TSeries*double, or double*TSeries
-using System;
 namespace QuanTAlib;
+using System;
+
+/* <summary>
+MUL - multiply TSeries*TSeries together, or TSeries*double, or double*TSeries
+
+</summary> */
 
 public class MUL_Series : Pair_TSeries_Indicator 
 {

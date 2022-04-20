@@ -1,8 +1,9 @@
 ﻿namespace QuanTAlib;
+using System;
 
-/**
+/* <summary>
 DEMA: Double Exponential Moving Average
-DEMA uses EMA(EMA()) to calculate smoother Exponential moving average.
+    DEMA uses EMA(EMA()) to calculate smoother Exponential moving average.
 
 Sources:
     https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/double-exponential-moving-average-dema/
@@ -11,13 +12,12 @@ Remark:
     ema1 = EMA(close, length)
     ema2 = EMA(ema1, length)
     DEMA = 2 * ema1 - ema2
-**/
 
-using System;
-using System.Collections.Generic;
+</summary> */
+
 public class DEMA_Series : Single_TSeries_Indicator
 {
-    private readonly List<double> _buffer = new();
+    private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly double _k, _k1m;
     private double _lastema1, _lastlastema1;
     private double _lastema2, _lastlastema2;

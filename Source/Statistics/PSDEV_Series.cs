@@ -1,8 +1,10 @@
-﻿/**
-PSDEV: Population Standard Deviation
+﻿namespace QuanTAlib;
+using System;
 
-Population Standard Deviation is the square root of the biased variance, also knons as
-Uncorrected Sample Standard Deviation
+/* <summary>
+PSDEV: Population Standard Deviation
+  Population Standard Deviation is the square root of the biased variance, also knons as
+  Uncorrected Sample Standard Deviation
 
 Sources:
   https://en.wikipedia.org/wiki/Standard_deviation#Uncorrected_sample_standard_deviation
@@ -11,10 +13,7 @@ Remark:
   PSDEV (Population Standard Deviation) is also known as a biased/uncorrected Standard Deviation.
   For unbiased version that uses Bessel's correction, use SDEV instead.
     
-**/
-
-using System;
-namespace QuanTAlib;
+</summary> */
 
 public class PSDEV_Series : Single_TSeries_Indicator
 {

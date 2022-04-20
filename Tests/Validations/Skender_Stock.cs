@@ -90,4 +90,22 @@ public class Skender_Stock
 		Assert.Equal(Math.Round((double)SK.Last().Mape!, 8), Math.Round(QL.Last().v, 8));
 	}
 
+	[Fact]
+	public void ATR()
+	{
+		ATR_Series QL = new(this.bars, this.period, false);
+		var SK = this.quotes.GetAtr(this.period);
+
+		Assert.Equal(Math.Round((double)SK.Last().Atr!, 8), Math.Round(QL.Last().v, 8));
+	}
+
+
+	[Fact]
+	public void ATRP()
+	{
+		ATRP_Series QL = new(this.bars, this.period, false);
+		var SK = this.quotes.GetAtr(this.period);
+
+		Assert.Equal(Math.Round((double)SK.Last().Atrp!, 8), Math.Round(QL.Last().v, 8));
+	}
 }
