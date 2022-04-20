@@ -1,4 +1,4 @@
-﻿namespace QuanTAlib;
+﻿namespace QuanTAlib; 
 using System;
 
 /* <summary>
