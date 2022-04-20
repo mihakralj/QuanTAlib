@@ -27,8 +27,7 @@ public class JMA_Series : Single_TSeries_Indicator
     private double prev_ma1, prev_det0, prev_det1, prev_jma, bsmax, bsmin;
     private double o_prev_ma1, o_prev_det0, o_prev_det1, o_prev_jma, o_bsmax, o_bsmin;
 
-    private readonly double pr, pow1, len2, beta, rvolty;
-    private readonly int _l;
+    private readonly double pr, pow1, len2, beta, rvolty, _l;
 
     public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = false) : base(source, period, useNaN)
     {
@@ -47,11 +46,11 @@ public class JMA_Series : Single_TSeries_Indicator
         if (base._data.Count > 0) { base.Add(base._data); }
     }
 
-    public override void Add((System.DateTime t, double v) d, bool update)
+    public override void Add((System.DateTime t, double v) TValue, bool update)
     {
         if (this.Count == 0)
         {
-            this.prev_ma1 = this.prev_jma = d.v;
+            this.prev_ma1 = this.prev_jma = TValue.v;
             this.bsmax = this.bsmin = this.prev_det0 = this.prev_det1 = 0;
         }
 
@@ -74,8 +73,8 @@ public class JMA_Series : Single_TSeries_Indicator
             this.o_bsmin = this.bsmin;
         }
 
-        double hprice = d.v;
-        double lprice = d.v;
+        double hprice = TValue.v;
+        double lprice = TValue.v;
         for (int i = 0; i <= Math.Min(9, this._data.Count - 1); i++)
         {
             var _item = this._data[this._data.Count - 1 - i].v;
@@ -139,11 +138,11 @@ public class JMA_Series : Single_TSeries_Indicator
         double alpha = Math.Pow(this.beta, pow);
 
         // 1st stage - preliminary smoothing by adaptive EMA
-        double ma1 = d.v * (1 - alpha) + this.prev_ma1 * alpha;
+        double ma1 = TValue.v * (1 - alpha) + this.prev_ma1 * alpha;
         this.prev_ma1 = ma1;
 
         // 2nd stage - one more preliminary smoothing by Kalman filter
-        double det0 = (d.v - ma1) * (1 - this.beta) + this.prev_det0 * this.beta;
+        double det0 = (TValue.v - ma1) * (1 - this.beta) + this.prev_det0 * this.beta;
         this.prev_det0 = det0;
         double ma2 = ma1 + (this.pr * det0);
 
@@ -155,7 +154,7 @@ public class JMA_Series : Single_TSeries_Indicator
         this.prev_jma = jma;
 
         (System.DateTime t, double v) result =
-            (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : jma);
+            (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : jma);
         base.Add(result, update);
 
     }

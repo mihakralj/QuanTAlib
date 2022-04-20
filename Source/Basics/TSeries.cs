@@ -1,6 +1,5 @@
 ﻿namespace QuanTAlib;
 using System;
-using System.Linq;
 
 /* <summary>
 TSeries is the cornerstone of all QuanTAlib classess. 
@@ -10,7 +9,6 @@ TSeries is the cornerstone of all QuanTAlib classess.
     
         - includes Length property (to mimic array's method)
         - includes publishing and subscribing methods that attach to events
-        - uses Linq only for two transmutations - needs to be refactored out eventually (for speed)
 
 </summary> */
 public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
@@ -23,12 +21,22 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
 
     // when asked for a (DateTime), return the DateTime part of the last tuple on the list
     public static implicit operator DateTime(TSeries l) => l[l.Count - 1].t;
+    
+    //convert from tuple List(t,v) to single List(DateTime)
+    public System.Collections.Generic.List<DateTime> t { 
+        get { System.Collections.Generic.List<DateTime> TList = new();
+            for (int i = 0; i < this.Count; i++) { TList.Add(this[i].t); }
+            return TList;
+        }
+    }
 
-    public System.Collections.Generic.List<DateTime> t =>
-        this.Select(x => (DateTime)x.t).ToList();
-
-    public System.Collections.Generic.List<double> v =>
-      this.Select(x => (double)x.v).ToList();
+    //convert from tuple List(t,v) to single List(double)
+    public System.Collections.Generic.List<double> v { 
+        get { System.Collections.Generic.List<double> VList = new();
+            for (int i = 0; i < this.Count; i++) { VList.Add(this[i].v); }
+            return VList;
+        }
+    }
 
     public int Length => this.Count;
 

@@ -41,7 +41,11 @@ jobs:
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths="Tests/coverage.xml"
+      #run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths="./coverage.xml"
+      run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" 
+        /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
+        /d:sonar.host.url="https://sonarcloud.io" 
+        /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core DLL
       run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo 
@@ -50,10 +54,12 @@ jobs:
 
     - name: dotnet Test
       run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo 
-    - name: DotCover Test
-      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=Tests/coveragereport.xml
-    - name: dotnet-coverage
-      run: dotnet-coverage collect 'dotnet test' -f xml -o 'Tests/coverage.xml'
+    - name: DotCover Test XML
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
+    - name: DotCover Test HTML
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=HTML --dcoutput=./coveragereport.html
+#    - name: dotnet-coverage
+#      run: dotnet-coverage collect 'dotnet test' -f xml -o './coverage.xml'
 
     - name: Sonar reporter
       env: 
@@ -62,38 +68,38 @@ jobs:
       run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
     - name: CodeCov run
-      run: codecov -f ./Tests/coveragereport.xml -v -t ${{ secrets.CODECOV_TOKEN }}
+      run: codecov -f ./coveragereport.xml -v -t ${{ secrets.CODECOV_TOKEN }}
 
     - name: Codacy coverage reporter
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: ./Tests/coveragereport.xml
+        coverage-reports: ./coveragereport.xml
 
-    - name: Zip DLLs
-      uses: thedoctor0/zip-release@master
-      with:
-        type: 'zip'
-        directory: \Quantower\Settings\Scripts\Indicators\QuanTAlib
-        filename: QL_Quantower.zip
+#    - name: Zip DLLs
+#      uses: thedoctor0/zip-release@master
+#      with:
+#        type: 'zip'
+#        directory: \Quantower\Settings\Scripts\Indicators\QuanTAlib
+#        filename: QL_Quantower.zip
 
-    - name: Release
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: true
-        title: "Pre-release Build"
-        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.zip
+#    - name: Release
+#      uses: marvinpinto/action-automatic-releases@latest
+#      with:
+#        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#        automatic_release_tag: "latest"
+#        prerelease: true
+#        title: "Pre-release Build"
+#        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.zip
             
-    - name: Push package to nuget.org
-      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
-          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
-          --source https://api.nuget.org/v3/index.json
-          --skip-duplicate
+#    - name: Push package to nuget.org
+#      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+#          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+#          --source https://api.nuget.org/v3/index.json
+#          --skip-duplicate
 
-    - name: Push package to github
-      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
-          --api-key ${{ secrets.GITHUB_TOKEN }}
-          --source https://nuget.pkg.github.com/mihakralj/index.json
-          --skip-duplicate
+#    - name: Push package to github
+#      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+#          --api-key ${{ secrets.GITHUB_TOKEN }}
+#          --source https://nuget.pkg.github.com/mihakralj/index.json
+#          --skip-duplicate
