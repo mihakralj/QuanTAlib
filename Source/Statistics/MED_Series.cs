@@ -28,10 +28,10 @@ public class MED_Series : Single_TSeries_Indicator
     }
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
-    public override void Add((System.DateTime t, double v) d, bool update)
+    public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
-        else { this._buffer.Add(d.v); }
+        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
+        else { this._buffer.Add(TValue.v); }
         if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
 
         System.Collections.Generic.List<double> _s = new(this._buffer);
@@ -40,7 +40,7 @@ public class MED_Series : Single_TSeries_Indicator
         int _p2 = Math.Max(0, _s.Count / 2 - 1);
         double _med = (_s.Count % 2 != 0) ? _s[_p1] : (_s[_p1] + _s[_p2]) / 2;
 
-        var result = (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _med);
+        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _med);
 
         base.Add(result, update);
     }

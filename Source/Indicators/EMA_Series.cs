@@ -33,17 +33,17 @@ public class EMA_Series : Single_TSeries_Indicator
         if (this._data.Count > 0) { base.Add(this._data); }
     }
 
-    public override void Add((DateTime t, double v) d, bool update = false)
+    public override void Add((DateTime t, double v) TValue, bool update)
     {
         double _ema = 0;
         if (update) { this._lastema = this._lastlastema; }
 
         if (this.Count < this._p)
         {
-            if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
+            if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
             else
             {
-                this._buffer.Add(d.v);
+                this._buffer.Add(TValue.v);
             }
             if (this._buffer.Count > this._p) { this._buffer.RemoveAt(0); }
 
@@ -52,13 +52,13 @@ public class EMA_Series : Single_TSeries_Indicator
         }
         else
         {
-            _ema = d.v * this._k + this._lastema * this._k1m;
+            _ema = TValue.v * this._k + this._lastema * this._k1m;
         }
 
         this._lastlastema = this._lastema;
         this._lastema = _ema;
 
-        var ret = (d.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
+        var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
         base.Add(ret, update);
     }
 }

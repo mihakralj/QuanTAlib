@@ -31,7 +31,7 @@ public class TEMA_Series : Single_TSeries_Indicator
         if (_data.Count > 0) { base.Add(_data); }
     }
 
-    public override void Add((DateTime t, double v) d, bool update = false)
+    public override void Add((DateTime t, double v) TValue, bool update)
     {
 
         if (update)
@@ -45,10 +45,10 @@ public class TEMA_Series : Single_TSeries_Indicator
 
         if (this.Count < this._p)
         {
-            if (update) { _buffer[_buffer.Count - 1] = d.v; }
+            if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
             else
             {
-                _buffer.Add(d.v);
+                _buffer.Add(TValue.v);
             }
             if (_buffer.Count > this._p) { _buffer.RemoveAt(0); }
 
@@ -59,7 +59,7 @@ public class TEMA_Series : Single_TSeries_Indicator
         }
         else
         {
-            _ema1 = d.v * this._k + this._lastema1 * this._k1m;
+            _ema1 = TValue.v * this._k + this._lastema1 * this._k1m;
             _ema2 = _ema1 * this._k + this._lastema2 * this._k1m;
             _ema3 = _ema2 * this._k + this._lastema3 * this._k1m;
         }
@@ -73,7 +73,7 @@ public class TEMA_Series : Single_TSeries_Indicator
         this._lastema2 = _ema2;
         this._lastema3 = _ema3;
 
-        var ret = (d.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _tema);
+        var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _tema);
         base.Add(ret, update);
     }
 }

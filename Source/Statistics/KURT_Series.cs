@@ -33,10 +33,10 @@ public class KURT_Series : Single_TSeries_Indicator
     protected double _logbase = 2.0;
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
-    public override void Add((System.DateTime t, double v) d, bool update)
+    public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
-        else { this._buffer.Add(d.v); }
+        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
+        else { this._buffer.Add(TValue.v); }
         if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
 
         double _n = this._buffer.Count;
@@ -56,7 +56,7 @@ public class KURT_Series : Single_TSeries_Indicator
         double _Vx = _s2 / (_n - 1);
         double _kurt = (_n > 3) ? (((_n * (_n + 1)) / ((_n - 1) * (_n - 2) * (_n - 3))) * (_s4 / (_Vx * _Vx)) - (3 * ((_n - 1) * (_n - 1) / ((_n - 2) * (_n - 3))))) : Double.NaN;
 
-        var result = (d.t, (this.Count < this._p - 1 && this._NaN) ? Double.NaN : _kurt);
+        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? Double.NaN : _kurt);
         base.Add(result, update);
     }
 }

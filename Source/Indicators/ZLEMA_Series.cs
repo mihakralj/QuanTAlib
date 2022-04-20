@@ -34,7 +34,7 @@ public class ZLEMA_Series : Single_TSeries_Indicator
         if (base._data.Count > 0) { base.Add(base._data); }
     }
 
-    public override void Add((System.DateTime t, double v) d, bool update)
+    public override void Add((System.DateTime t, double v) TValue, bool update)
     {
         if (update)
         {
@@ -42,14 +42,14 @@ public class ZLEMA_Series : Single_TSeries_Indicator
         }
         int _lag = (int)(0.5 * (_p - 1));
         int _l = Math.Max(this._data.Count - _lag, 0);
-        double _lagdata = 1 * d.v - this._data[_l].v;
+        double _lagdata = 1 * TValue.v - this._data[_l].v;
 
         double _ema = System.Double.IsNaN(this._lastema) ? _lagdata : _lagdata * this._k + this._lastema * this._k1m;
         this._lastlastema = this._lastema;
         this._lastema = _ema;
 
         (System.DateTime t, double v) result =
-            (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
+            (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
         base.Add(result, update);
 
     }

@@ -14,17 +14,17 @@ public class MIN_Series : Single_TSeries_Indicator
     }
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
-    public override void Add((System.DateTime t, double v) d, bool update)
+    public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
-        else { this._buffer.Add(d.v); }
+        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
+        else { this._buffer.Add(TValue.v); }
         if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
 
-        double _min = d.v;
+        double _min = TValue.v;
         for (int i = 0; i < this._buffer.Count; i++)
         { _min = (this._buffer[i] < _min) ? this._buffer[i] : _min; }
 
-        var result = (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _min);
+        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _min);
 
         base.Add(result, update);
     }

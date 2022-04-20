@@ -14,17 +14,17 @@ public class MAX_Series : Single_TSeries_Indicator
     }
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
-    public override void Add((DateTime t, double v) d, bool update)
+    public override void Add((DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = d.v; }
-        else { this._buffer.Add(d.v); }
+        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
+        else { this._buffer.Add(TValue.v); }
         if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
 
-        double _max = d.v;
+        double _max = TValue.v;
         for (int i = 0; i < this._buffer.Count; i++)
         { _max = (this._buffer[i] > _max) ? this._buffer[i] : _max; }
 
-        var result = (d.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _max);
+        var result = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _max);
 
         base.Add(result, update);
     }

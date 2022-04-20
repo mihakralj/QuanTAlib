@@ -31,7 +31,7 @@ public class HEMA_Series : Single_TSeries_Indicator
     private double _lastema2, _lastlastema2;
     private double _lastema3, _lastlastema3;
 
-    public override void Add((System.DateTime t, double v) d, bool update)
+    public override void Add((System.DateTime t, double v) TValue, bool update)
     {
         if (update)
         {
@@ -40,11 +40,11 @@ public class HEMA_Series : Single_TSeries_Indicator
             this._lastema3 = this._lastlastema3;
         }
         double _ema1 = System.Double.IsNaN(this._lastema1)
-                           ? d.v
-                           : d.v * this._k1 + this._lastema1 * (1 - this._k1);
+                           ? TValue.v
+                           : TValue.v * this._k1 + this._lastema1 * (1 - this._k1);
         double _ema2 = System.Double.IsNaN(this._lastema2)
-                           ? d.v
-                           : d.v * this._k2 + this._lastema2 * (1 - this._k2);
+                           ? TValue.v
+                           : TValue.v * this._k2 + this._lastema2 * (1 - this._k2);
 
         double _rawhema = (2 * _ema1) - _ema2;
         double _ema3 = System.Double.IsNaN(this._lastema3)
@@ -59,7 +59,7 @@ public class HEMA_Series : Single_TSeries_Indicator
         this._lastema3 = _ema3;
 
         (System.DateTime t, double v) result =
-            (d.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema3);
+            (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema3);
         base.Add(result, update);
     }
 }
