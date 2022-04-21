@@ -51,11 +51,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageIcon>images\icon.png</PackageIcon>
+    <PackageIcon>QuanTAlib2.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
+    <SignAssembly>False</SignAssembly>
+    <AssemblyOriginatorKeyFile>C:\Dropbox\SSH keys\Certum\MihaKralj_OpenSource.pem</AssemblyOriginatorKeyFile>
+    <DelaySign>True</DelaySign>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="images\icon.png" />
+    <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
