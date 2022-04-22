@@ -31,29 +31,29 @@ jobs:
     - name: Install JetBrains
       run: dotnet tool install JetBrains.dotCover.GlobalTool --global
     - name: Install Sonar Scanner
-      run: dotnet tool install dotnet-sonarscanner --global 
+      run: dotnet tool install dotnet-sonarscanner --global
     - name: Install dotnet-coverage
       run: dotnet tool install dotnet-coverage --global
     - name: Install CodeCov
       run: dotnet tool install --global Codecov.Tool
 
     - name: Sonar start
-      env: 
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths="./coverage.xml"
-      run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" 
-        /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
-        /d:sonar.host.url="https://sonarcloud.io" 
+      run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib"
+        /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        /d:sonar.host.url="https://sonarcloud.io"
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core DLL
-      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo 
+      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo
     - name: Build Quantower DLL
-      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo 
+      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo
 
     - name: dotnet Test
-      run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo 
+      run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo
     - name: DotCover Test XML
       run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
     - name: DotCover Test HTML
@@ -62,7 +62,7 @@ jobs:
 #      run: dotnet-coverage collect 'dotnet test' -f xml -o './coverage.xml'
 
     - name: Sonar reporter
-      env: 
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
@@ -82,7 +82,7 @@ jobs:
 #        type: 'zip'
 #        directory: \Quantower\Settings\Scripts\Indicators\QuanTAlib
 #        filename: QL_Quantower.zip
-
+#
 #    - name: Release
 #      uses: marvinpinto/action-automatic-releases@latest
 #      with:
@@ -91,13 +91,13 @@ jobs:
 #        prerelease: true
 #        title: "Pre-release Build"
 #        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.zip
-            
+#
 #    - name: Push package to nuget.org
 #      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
 #          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
 #          --source https://api.nuget.org/v3/index.json
 #          --skip-duplicate
-
+#
 #    - name: Push package to github
 #      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
 #          --api-key ${{ secrets.GITHUB_TOKEN }}
