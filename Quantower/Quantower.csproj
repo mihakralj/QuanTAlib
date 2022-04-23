@@ -8,15 +8,33 @@
     <AlgoType>Indicator</AlgoType>
     <AssemblyName>Quantower_QTAlib</AssemblyName>
     <RootNamespace>QuanTAlib</RootNamespace>
-    <Configurations>Release</Configurations>
-    <BaseOutputPath>bin\</BaseOutputPath>
+    <DebugType>embedded</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Nullable>disable</Nullable>
+    <SignAssembly>False</SignAssembly>
   </PropertyGroup>
   
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+    <WarningLevel>3</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <Optimize>True</Optimize>
+    <WarningLevel>3</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>anycpu</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**"/>
+    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**" />
   </ItemGroup>
 
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild" >
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles=".\bin\$(Configuration)\net48\Quantower_QTAlib.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\QuanTAlib" />
   </Target>
 

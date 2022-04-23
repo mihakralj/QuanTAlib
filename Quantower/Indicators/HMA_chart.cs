@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
@@ -36,20 +37,19 @@ public class HMA_chart : Indicator
             "HMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: false);
-    }
-
-    protected void OnNewData(bool update = false) { this.indicator.Add(update); }
+        Debug.WriteLine("Send to debug output.");
+}
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool update = !(args.Reason == UpdateReason.NewBar ||
+	    Debug.WriteLine("Send to debug output.");
+
+			bool update = !(args.Reason == UpdateReason.NewBar ||
                         args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
                       this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low),
                       this.GetPrice(PriceType.Close),
                       this.GetPrice(PriceType.Volume), update);
-        this.OnNewData(update);
-
         double result = this.indicator[this.indicator.Count - 1].v;
         this.SetValue(result);
     }

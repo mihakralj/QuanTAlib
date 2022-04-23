@@ -13,7 +13,7 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <TargetFrameworks>net7.0;net6.0;net48;netcoreapp3.1;netstandard2.1</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>disable</Nullable>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <NeutralLanguage>en-US</NeutralLanguage>

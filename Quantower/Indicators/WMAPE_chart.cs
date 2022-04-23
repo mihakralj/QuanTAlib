@@ -44,15 +44,10 @@ public class WMAPE_chart : Indicator
         this.ShortName = "WMAPE (" + QuanTAlib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: this.bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
-
-	protected void OnNewData(bool update = false) => this.indicator.Add(update);
-
 	protected override void OnUpdate(UpdateArgs args)
     {
         bool update = !(args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open), this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low), this.GetPrice(PriceType.Close), this.GetPrice(PriceType.Volume), update);
-        this.OnNewData(update);
-
         double result = this.indicator[this.indicator.Count - 1].v;
 
 

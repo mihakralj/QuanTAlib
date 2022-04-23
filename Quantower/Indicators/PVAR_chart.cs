@@ -38,8 +38,6 @@ public class PVAR_chart : Indicator
                              period: this.Period, useNaN: true);
     }
 
-    protected void OnNewData(bool update = false) { this.indicator.Add(update); }
-
     protected override void OnUpdate(UpdateArgs args)
     {
         bool update = !(args.Reason == UpdateReason.NewBar ||
@@ -48,8 +46,6 @@ public class PVAR_chart : Indicator
                       this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low),
                       this.GetPrice(PriceType.Close),
                       this.GetPrice(PriceType.Volume), update);
-        this.OnNewData(update);
-
         double result = this.indicator[this.indicator.Count - 1].v;
 
         this.SetValue(result, 0);
