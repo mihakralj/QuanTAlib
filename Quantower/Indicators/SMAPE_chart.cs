@@ -16,7 +16,7 @@ public class SMAPE_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////dotnet
     private SMAPE_Series indicator;
@@ -32,7 +32,8 @@ public class SMAPE_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
+	    this.bars = new(); 
+	    this.ShortName =
             "SMAPE (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: true);

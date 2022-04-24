@@ -16,7 +16,7 @@ public class ZLEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////
     private ZLEMA_Series indicator;
@@ -32,10 +32,9 @@ public class ZLEMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
-            "ZLEMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource),
-                             period: this.Period, useNaN: false);
+	    this.bars = new(); 
+	    this.ShortName = "ZLEMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+	    this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
     }
   protected override void OnUpdate(UpdateArgs args)
     {

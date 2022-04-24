@@ -26,28 +26,38 @@ Remark:
 public class KAMA_Series : Single_TSeries_Indicator
 {
   private static double _scFast, _scSlow;
+  private readonly System.Collections.Generic.List<double> _buffer = new();
+  private double _lastkama = double.NaN;
+  private double _lastlastkama;
+
   public KAMA_Series(TSeries source, int period, int fast = 2, int slow= 30, bool useNaN = false) : base(source, period, useNaN) {
     _scFast = 2.0 / (fast+1);
     _scSlow = 2.0 / (slow+1);
     if (base._data.Count > 0) { base.Add(base._data); }
   }
   public override void Add((System.DateTime t, double v) TValue, bool update) {
-      //if (update) { } else { }
-      double _change = Math.Abs( TValue.v - _data[(this.Count>_p)?this.Count-_p : 0].v);
-      double _sumpv = 0;
-      double _kama = TValue.v;
-      for (int i = (this.Count-_p+1>0)?this.Count-_p+1:0; i <= this.Count; i++) {
-        _sumpv += Math.Abs(_data[(i>0)?i:0].v- _data[(i>1)?i-1:0].v);
-      }
-      if (_sumpv != 0) {
-        double _er = _change/_sumpv;
-        double _sc = (_er * (_scFast - _scSlow)) + _scSlow;
-        double _prevKama = (this.Count > 0) ? this[this.Count-1].v : TValue.v;
-        if (double.IsNaN(_prevKama)) { _prevKama = TValue.v; }
-        _kama = (_prevKama + (_sc * _sc * (TValue.v - _prevKama)));
-      }
+    if (update) {
+      _buffer[_buffer.Count - 1] = TValue.v;
+      this._lastkama = this._lastlastkama;
+    }
+    else { 
+	    _buffer.Add(TValue.v); 
+    }
+    if (_buffer.Count>_p+1) { _buffer.RemoveAt(0); }
+    double _kama = TValue.v;
+    double _change = Math.Abs( _buffer[_buffer.Count-1] - _buffer[(_buffer.Count>_p+1)?1:0]);
+    double _sumpv = 0;
+    for (int i = 1; i < _buffer.Count; i++) {
+      _sumpv += Math.Abs(_buffer[(_buffer.Count>0)?i:0]- _buffer[i-1]);
+    }
+    double _er = (_sumpv==0)?0:_change/_sumpv;
+    double _sc = (_er * (_scFast - _scSlow)) + _scSlow;
+    if (_buffer.Count==1) { _lastkama = _buffer[0]; }
 
-      var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _kama);
-      base.Add(result, update);
+    _kama = (_lastkama + (_sc * _sc * (TValue.v - _lastkama)));
+    _lastlastkama = _lastkama;
+    _lastkama = _kama;
+    var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _kama);
+    base.Add(result, update);
   }
 }

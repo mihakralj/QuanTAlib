@@ -9,11 +9,12 @@
     <AssemblyName>Quantower_QTAlib</AssemblyName>
     <RootNamespace>QuanTAlib</RootNamespace>
     <DebugType>embedded</DebugType>
+    <LangVersion>preview</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Nullable>disable</Nullable>
     <SignAssembly>False</SignAssembly>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>
     <WarningLevel>3</WarningLevel>
@@ -31,7 +32,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**" />
+    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**" >
+      <Link>QuanTAlib\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">

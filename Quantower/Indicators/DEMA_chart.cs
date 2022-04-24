@@ -16,7 +16,7 @@ public class DEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars ;
 
     ///////
     private DEMA_Series indicator;
@@ -34,7 +34,8 @@ public class DEMA_chart : Indicator
     {
         this.ShortName =
             "DEMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource),
+        this.bars = new();
+				this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: false);
     }
 

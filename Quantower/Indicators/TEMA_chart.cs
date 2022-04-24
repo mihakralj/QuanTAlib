@@ -16,7 +16,7 @@ public class TEMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////
     private TEMA_Series indicator;
@@ -32,7 +32,8 @@ public class TEMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
+	    this.bars = new(); 
+	    this.ShortName =
             "TEMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: false);

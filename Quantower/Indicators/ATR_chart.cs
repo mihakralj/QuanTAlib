@@ -11,7 +11,7 @@ public class ATR_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////
     private ATR_Series indicator;
@@ -27,9 +27,9 @@ public class ATR_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
-            "ATR (" + this.Period + ")";
-        this.indicator = new(source: bars, period: this.Period, useNaN: false);
+        this.ShortName = "ATR (" + this.Period + ")";
+        this.bars = new();
+this.indicator = new(source: bars, period: this.Period, useNaN: false);
     }
 
 	protected override void OnUpdate(UpdateArgs args)

@@ -16,7 +16,7 @@ public class SMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////
     private SMA_Series indicator;
@@ -32,7 +32,8 @@ public class SMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
+	    this.bars = new(); 
+	    this.ShortName =
             "SMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: false);

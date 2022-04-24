@@ -16,7 +16,7 @@ public class EMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private  TBars bars;
 
     ///////
     private EMA_Series indicator;
@@ -32,10 +32,9 @@ public class EMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
-            "EMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource),
-                             period: this.Period, useNaN: false);
+        this.ShortName = "EMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.bars = new();
+				this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
     }
 
     protected override void OnUpdate(UpdateArgs args)

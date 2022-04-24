@@ -17,7 +17,7 @@ public class HMA_chart : Indicator
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////
     private HMA_Series indicator;
@@ -35,7 +35,8 @@ public class HMA_chart : Indicator
     {
         this.ShortName =
             "HMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource),
+		    this.bars = new();
+				this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: false);
         Debug.WriteLine("Send to debug output.");
 }

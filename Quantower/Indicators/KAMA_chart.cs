@@ -9,15 +9,19 @@ public class KAMA_chart : Indicator
 
     [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
     private int Period = 10;
+    [InputParameter("Fastest EMA", 1, 1, 999, 1, 1)]
+    private int Fast = 2;
+    [InputParameter("Slowest EMA", 2, 1, 999, 1, 1)]
+    private int Slow = 30;
 
-    [InputParameter("Data source", 1, variants: new object[]
+  [InputParameter("Data source", 3, variants: new object[]
       { "Open", 0, "High", 1,  "Low", 2,  "Close", 3,  "HL2", 4,  "OC2", 5,
       "OHL3", 6,  "HLC3", 7,  "OHLC4", 8,  "Weighted (HLCC4)", 9 })]
     private int DataSource = 3;
 
     #endregion Parameters
 
-    private readonly TBars bars = new();
+    private TBars bars;
 
     ///////
     private KAMA_Series indicator;
@@ -33,10 +37,9 @@ public class KAMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
-            "KAMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
-        Debug.WriteLine($"KAMA on-init. indicator.Count: {indicator.Count}");
+        this.ShortName = "KAMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ":" + this.Fast + ":" + this.Slow + ")";
+      this.bars = new();
+			this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, fast: this.Fast, slow: this.Slow, useNaN: false);
 		}
 
     protected override void OnUpdate(UpdateArgs args)
@@ -46,7 +49,8 @@ public class KAMA_chart : Indicator
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
                       this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low),
                       this.GetPrice(PriceType.Close), this.GetPrice(PriceType.Volume), update);
-        double result = this.indicator[this.indicator.Count - 1].v;
+        double result = this.indicator;
         this.SetValue(result);
+		Debug.WriteLine($"{this.indicator[0].v}");
     }
 }
