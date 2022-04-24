@@ -3,7 +3,7 @@ using System.Drawing;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
-public class HMA_chart : Indicator
+public class KAMA_chart : Indicator
 {
     #region Parameters
 
@@ -20,36 +20,32 @@ public class HMA_chart : Indicator
     private readonly TBars bars = new();
 
     ///////
-    private HMA_Series indicator;
+    private KAMA_Series indicator;
     ///////
 
-    public HMA_chart()
+    public KAMA_chart()
     {
-        this.SeparateWindow = false;
-        this.Name = "HMA - Hull Moving Average";
-        this.Description = "Hull Moving Average description";
-        this.AddLineSeries("HMA", Color.RoyalBlue, 3, LineStyle.Solid);
+    this.SeparateWindow = false;
+        this.Name = "KAMA - Kaufman's Adaptive Moving Average";
+        this.Description = "Kaufman's Adaptive Moving Average description";
+        this.AddLineSeries("KAMA", Color.RoyalBlue, 3, LineStyle.Solid);
     }
 
     protected override void OnInit()
     {
         this.ShortName =
-            "HMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource),
-                             period: this.Period, useNaN: false);
-        Debug.WriteLine("Send to debug output.");
-}
+            "KAMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
+        Debug.WriteLine($"KAMA on-init. indicator.Count: {indicator.Count}");
+		}
 
     protected override void OnUpdate(UpdateArgs args)
     {
-	    Debug.WriteLine("Send to debug output.");
-
-			bool update = !(args.Reason == UpdateReason.NewBar ||
+        bool update = !(args.Reason == UpdateReason.NewBar ||
                         args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
                       this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low),
-                      this.GetPrice(PriceType.Close),
-                      this.GetPrice(PriceType.Volume), update);
+                      this.GetPrice(PriceType.Close), this.GetPrice(PriceType.Volume), update);
         double result = this.indicator[this.indicator.Count - 1].v;
         this.SetValue(result);
     }

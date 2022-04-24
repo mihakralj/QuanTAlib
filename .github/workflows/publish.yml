@@ -1,0 +1,54 @@
+name: Publish
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    needs: build
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET 7.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: |
+          7.0.x
+          5.0.x
+        include-prerelease: true
+
+    - name: Build Core DLL
+      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo
+    - name: Build Quantower DLL
+      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo
+
+    - name: Zip DLLs
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        directory: \Quantower\Settings\Scripts\Indicators\QuanTAlib
+        filename: QL_Quantower.zip
+
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Pre-release Build"
+        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.zip
+
+    - name: Push package to nuget.org
+      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+    - name: Push package to github
+      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --source https://nuget.pkg.github.com/mihakralj/index.json
+          --skip-duplicate
