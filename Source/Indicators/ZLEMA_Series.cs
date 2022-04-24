@@ -21,35 +21,18 @@ Remark:
 
 public class ZLEMA_Series : Single_TSeries_Indicator
 {
-    private readonly double _k, _k1m;
-    private double _lastema, _lastlastema;
+	private ZL_Series zlag;
+	private EMA_Series ema;
 
-    public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
-    {
-        this._k = 2.0 / (double)(period + 1);
-        this._k1m = 1.0 - this._k;
-        this._lastema = this._lastlastema = double.NaN;
-
-
-        if (base._data.Count > 0) { base.Add(base._data); }
-    }
+  public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+  {
+	  zlag = new(source: source, period: period, useNaN: false);
+	  ema = new EMA_Series(source: source, period: period, useNaN: useNaN);
+  }
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update)
-        {
-            this._lastema = this._lastlastema;
-        }
-        int _lag = (int)(0.5 * (_p - 1));
-        int _l = Math.Max(this._data.Count - _lag, 0);
-        double _lagdata = 1 * TValue.v - this._data[_l].v;
-
-        double _ema = System.Double.IsNaN(this._lastema) ? _lagdata : _lagdata * this._k + this._lastema * this._k1m;
-        this._lastlastema = this._lastema;
-        this._lastema = _ema;
-
-        (System.DateTime t, double v) result =
-            (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
+    (System.DateTime t, double v) result = ema[ema.Count-1];
         base.Add(result, update);
 
     }

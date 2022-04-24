@@ -59,7 +59,7 @@ public class HMA_Series : TSeries
             this._buf1.Add(data.v);
             this._buf2.Add(data.v);
         }
-        if (this._buf1.Count > (int)(Math.Ceiling((double)this._p / 2)))
+        if (this._buf1.Count > (int)((double)this._p / 2))
         {
             this._buf1.RemoveAt(0);
         }

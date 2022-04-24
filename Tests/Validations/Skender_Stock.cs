@@ -117,4 +117,13 @@ public class Skender_Stock
 
         Assert.Equal(Math.Round((double)SK.Last().Kama!, 8), Math.Round(QL.Last().v, 8));
     }
+
+    [Fact]
+    public void SMMA()
+    {
+	    SMMA_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetSmma(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Smma!, 8), Math.Round(QL.Last().v, 8));
+    }
 }
