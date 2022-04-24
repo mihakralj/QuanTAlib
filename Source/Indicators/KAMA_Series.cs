@@ -35,30 +35,28 @@ public class KAMA_Series : Single_TSeries_Indicator
     _scSlow = 2.0 / (slow+1);
     if (base._data.Count > 0) { base.Add(base._data); }
   }
-    public override void Add((System.DateTime t, double v) TValue, bool update)
-    {
-      if (update){
-        _buffer[_buffer.Count - 1] = TValue.v;
-        this._lastkama = this._lastlastkama;
-      } else {
-        _buffer.Add(TValue.v);
-      }
-      if (_buffer.Count > _p + 1) { _buffer.RemoveAt(0); }
-      double _kama = TValue.v;
-      if (this.Count < this._p) {
-          for (int i = 0; i < this._buffer.Count; i++) { _kama += this._buffer[i]; }
-          _kama /= this._buffer.Count;
-      } else {
-        double _change = Math.Abs(_buffer[_buffer.Count - 1] - _buffer[(_buffer.Count > _p + 1) ? 1 : 0]);
-        double _sumpv = 0;
-        for (int i = 1; i < _buffer.Count; i++)
-        {
-            _sumpv += Math.Abs(_buffer[(_buffer.Count > 0) ? i : 0] - _buffer[i - 1]);
-        }
-        double _er = (_sumpv == 0) ? 0 : _change / _sumpv;
-        double _sc = (_er * (_scFast - _scSlow)) + _scSlow;
-        _kama = (_lastkama + (_sc * _sc * (TValue.v - _lastkama)));
-      }
+  public override void Add((System.DateTime t, double v) TValue, bool update)
+  {
+    if (update){
+      _buffer[_buffer.Count - 1] = TValue.v;
+      this._lastkama = this._lastlastkama;
+    } else {
+      _buffer.Add(TValue.v);
+    }
+    if (_buffer.Count > _p + 1) { _buffer.RemoveAt(0); }
+    double _kama = 0;
+    if (this.Count < this._p) {
+        for (int i = 0; i < this._buffer.Count; i++) { _kama += this._buffer[i]; }
+        _kama /= this._buffer.Count;
+    } else {
+      double _change = Math.Abs(_buffer[_buffer.Count - 1] - _buffer[(_buffer.Count > _p + 1) ? 1 : 0]);
+      double _sumpv = 0;
+      for (int i = 1; i < _buffer.Count; i++)
+      { _sumpv += Math.Abs(_buffer[(_buffer.Count > 0) ? i : 0] - _buffer[i - 1]); }
+      double _er = (_sumpv == 0) ? 0 : _change / _sumpv;
+      double _sc = (_er * (_scFast - _scSlow)) + _scSlow;
+      _kama = (_lastkama + (_sc * _sc * (TValue.v - _lastkama)));
+    }
     _lastlastkama = _lastkama;
     _lastkama = _kama;
     var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _kama);
