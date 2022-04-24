@@ -21,36 +21,51 @@ Remark:
 
 public class ZLEMA_Series : Single_TSeries_Indicator
 {
-    private readonly double _k, _k1m;
-    private double _lastema, _lastlastema;
+	private readonly System.Collections.Generic.List<double> _buffer = new();
+	private readonly double _k, _k1m;
+	private double _lastema, _lastlastema;
 
-    public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
-    {
-        this._k = 2.0 / (double)(period + 1);
-        this._k1m = 1.0 - this._k;
-        this._lastema = this._lastlastema = double.NaN;
+	public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+	{
+		this._k = 2.0 / (this._p + 1);
+		this._k1m = 1.0 - this._k;
+		this._lastema = this._lastlastema = double.NaN;
+		if (base._data.Count > 0)
+		{ base.Add(base._data); }
+	}
 
+	public override void Add((System.DateTime t, double v) TValue, bool update)
+	{
+		int _lag = (int)((_p - 1) * 0.5);
+		_lag = (this.Count - _lag < 0) ? 0 : this.Count - _lag;
+		double _zl = TValue.v + (TValue.v - _data[_lag].v);
+		double _ema = 0;
+		if (update)
+		{ this._lastema = this._lastlastema; }
+		if (this.Count < this._p)
+		{
+			if (update)
+			{ this._buffer[this._buffer.Count - 1] = _zl; }
+			else
+			{
+				this._buffer.Add(_zl);
+			}
+			if (this._buffer.Count > this._p)
+			{ this._buffer.RemoveAt(0); }
 
-        if (base._data.Count > 0) { base.Add(base._data); }
-    }
+			for (int i = 0; i < this._buffer.Count; i++)
+			{ _ema += this._buffer[i]; }
+			_ema /= this._buffer.Count;
+		}
+		else
+		{
+			_ema = TValue.v * this._k + this._lastema * this._k1m;
+		}
 
-    public override void Add((System.DateTime t, double v) TValue, bool update)
-    {
-        if (update)
-        {
-            this._lastema = this._lastlastema;
-        }
-        int _lag = (int)(0.5 * (_p - 1));
-        int _l = Math.Max(this._data.Count - _lag, 0);
-        double _lagdata = 1 * TValue.v - this._data[_l].v;
+		this._lastlastema = this._lastema;
+		this._lastema = _ema;
 
-        double _ema = System.Double.IsNaN(this._lastema) ? _lagdata : _lagdata * this._k + this._lastema * this._k1m;
-        this._lastlastema = this._lastema;
-        this._lastema = _ema;
-
-        (System.DateTime t, double v) result =
-            (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ema);
-        base.Add(result, update);
-
-    }
+		var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
+		base.Add(ret, update);
+	}
 }
