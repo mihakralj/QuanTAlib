@@ -33,7 +33,6 @@ public class ZLMA_chart : Indicator
 
   private TBars bars;
 	///////
-  private ZL_Series zerolag;
   private TSeries indicator;
   ///////
 
