@@ -52,7 +52,7 @@
 | HMA - Hull  Moving Average |✔️||✔️|✔️|
 | HWMA - Holt-Winter Moving Average ||||✔️|
 | JMA - Jurik Moving Average |✔️|||✔️|
-| KAMA - Kaufman's Adaptive Moving Average ||✔️|✔️|✔️|
+| KAMA - Kaufman's Adaptive Moving Average |✔️|✔️|✔️|✔️|
 | LSMA - Least Squares Moving Average |||✔️||
 | MACD - Moving Average Convergence/Divergence ||✔️|✔️|✔️|
 | MAMA - MESA Adaptive Moving Average ||✔️|✔️||
@@ -63,7 +63,7 @@
 | RMA - WildeR's Moving Average |✔️|||✔️|
 | SINWMA - Sine Weighted Moving Average ||||✔️|
 | SMA - Simple Moving Average |✔️|✔️|✔️|✔️|
-| SMMA - Smoothed Moving Average |||✔️||
+| SMMA - Smoothed Moving Average |✔️||✔️||
 | STOCH - Stochastic Oscillator ||✔️|✔️|✔️|
 | SSF - Ehler's Super Smoother Filter ||||✔️|
 | SUP - Supertrend |||✔️|✔️|
