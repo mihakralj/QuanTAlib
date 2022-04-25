@@ -20,7 +20,7 @@ Calculation:
 Sources:
   https://en.wikipedia.org/wiki/Kurtosis
   https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-whats-with-the-different-formulas-for-kurtosis/
-    
+
 </summary> */
 
 public class KURT_Series : Single_TSeries_Indicator
@@ -30,7 +30,7 @@ public class KURT_Series : Single_TSeries_Indicator
         this._logbase = logbase;
         if (base._data.Count > 0) { base.Add(base._data); }
     }
-    protected double _logbase = 2.0;
+    protected double _logbase;
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
     public override void Add((System.DateTime t, double v) TValue, bool update)

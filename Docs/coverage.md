@@ -9,6 +9,7 @@
 | OHL3 - (Open+High+Low)/3 |✔️|||✔️|
 | OHLC4 - (O+H+L+C)/4 |✔️|||✔️|
 | HLCC4 - Weighted Price |✔️||✔️|✔️|
+| ZL - Zero Lag - De-lagged price |✔️|||✔️|
 | ADD - Addition |✔️|✔️|||
 | SUB - Subtraction |✔️|✔️|||
 | MUL - Multiplication |✔️|✔️|||

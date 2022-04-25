@@ -33,7 +33,6 @@ public class ZLMA_chart : Indicator
 
   private TBars bars;
 	///////
-  private ZL_Series zerolag;
   private TSeries indicator;
   ///////
 
@@ -63,7 +62,7 @@ public class ZLMA_chart : Indicator
 	  };
 
 	  this.ShortName = "ZLMA (" + maname + ", " + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-	  this.zerolag = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
+	  ZL_Series zerolag = new(source: bars.Select(this.DataSource), period: this.Period, useNaN: false);
 	  this.indicator = matype switch
 	  {
 		  0 => new SMA_Series(source: zerolag, period: this.Period, useNaN: false),
