@@ -41,8 +41,6 @@ public class JMA_Series : Single_TSeries_Indicator
         this.rvolty = Math.Exp((1 / this.pow1) * Math.Log(len1));
         this.len2 = Math.Sqrt(0.5 * (_p - 1)) * len1;
         this.beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
-        //this._l = (int)Math.Round(this._p - 1 * 0.5);
-
         if (base._data.Count > 0) { base.Add(base._data); }
     }
 
