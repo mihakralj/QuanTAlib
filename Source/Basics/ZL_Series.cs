@@ -3,12 +3,12 @@ using System;
 
 /* <summary>
 ZL: Zero Lag
-    Data is de-lagged by removing the data from “lag” days ago, thus removing 
+    Data is de-lagged by removing the data from “lag” days ago, thus removing
     (or attempting to) the cumulative effect of the moving average.
 
 Calculation:
     Lag = (Period-1)/2
-    ZL = Data + (Data - Data(Lag days ago) ) 
+    ZL = Data + (Data - Data(Lag days ago) )
 
 Sources:
      https://mudrex.com/blog/zero-lag-ema-trading-strategy/
@@ -24,7 +24,7 @@ public class ZL_Series : Single_TSeries_Indicator
     public override void Add((DateTime t, double v) TValue, bool update)
     {
         int _lag = (int)((_p-1) * 0.5);
-        _lag = (_data.Count-_lag < 0) ? 0 : _data.Count-_lag;
+        _lag = (this.Count-_lag < 0) ? 0 : this.Count-_lag;
 
         double _zl = TValue.v + (TValue.v - _data[_lag].v);
 
