@@ -50,12 +50,12 @@ jobs:
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core DLL
-      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Debug --nologo
+      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo
     - name: Build Quantower DLL
-      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Debug --nologo
+      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo
 
     - name: dotnet Test
-      run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Debug --nologo
+      run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo
     - name: DotCover Test XML
       run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
     - name: DotCover Test HTML
