@@ -23,7 +23,7 @@ public class ENTP_Series : Single_TSeries_Indicator
         this._logbase = logbase;
         if (base._data.Count > 0) { base.Add(base._data); }
     }
-    private readonly double _logbase = 2.0;
+    private readonly double _logbase;
     private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly System.Collections.Generic.List<double> _buff2 = new();
 

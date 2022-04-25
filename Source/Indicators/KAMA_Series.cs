@@ -25,7 +25,7 @@ Remark:
 
 public class KAMA_Series : Single_TSeries_Indicator
 {
-  private static double _scFast, _scSlow;
+  private readonly double _scFast, _scSlow;
   private readonly System.Collections.Generic.List<double> _buffer = new();
   private double _lastkama = double.NaN;
   private double _lastlastkama;

@@ -27,7 +27,7 @@ public class JMA_Series : Single_TSeries_Indicator
     private double prev_ma1, prev_det0, prev_det1, prev_jma, bsmax, bsmin;
     private double o_prev_ma1, o_prev_det0, o_prev_det1, o_prev_jma, o_bsmax, o_bsmin;
 
-    private readonly double pr, pow1, len2, beta, rvolty, _l;
+    private readonly double pr, pow1, len2, beta, rvolty;
 
     public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = false) : base(source, period, useNaN)
     {
