@@ -16,10 +16,10 @@ public class RSI_Series : Single_TSeries_Indicator
 {
     private readonly System.Collections.Generic.List<double> _gain = new();
     private readonly System.Collections.Generic.List<double> _loss = new();
-    private double _avgGain;
-    private double _avgLoss;
-    private double _lastValue;
-    private double _lastlastValue;
+    double _avgGain = 0;
+    double _avgLoss = 0;
+    double _lastValue = 0;
+    double _lastlastValue = 0;
 
     public RSI_Series(TSeries source, int period = 10, bool useNaN = false) : base(source, period: period, useNaN: useNaN)
     { if (source.Count > 0) { base.Add(source); } }
