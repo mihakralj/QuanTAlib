@@ -16,9 +16,9 @@ Sources:
 
 public class MACD_Series : Single_TSeries_Indicator
 {
-    private EMA_Series _TSslow;
-    private EMA_Series _TSfast;
-    private SUB_Series _TSmacd;
+    private readonly EMA_Series _TSslow;
+    private readonly EMA_Series _TSfast;
+    private readonly SUB_Series _TSmacd;
     public EMA_Series Signal { get; }
 
     public MACD_Series(TSeries source, int slow = 26, int fast = 12, int signal = 9, bool useNaN = false)
@@ -27,7 +27,7 @@ public class MACD_Series : Single_TSeries_Indicator
         _TSslow = new(source: source, period: slow, useNaN: false);
         _TSfast = new(source: source, period: fast, useNaN: false);
         _TSmacd = new(_TSfast, _TSslow);
-        Signal = new(source: _TSmacd, period: signal, useNaN: useNaN);
+        this.Signal = new(source: _TSmacd, period: signal, useNaN: useNaN);
 
         if (source.Count > 0) { base.Add(_TSmacd); }
     }

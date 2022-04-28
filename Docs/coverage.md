@@ -89,7 +89,7 @@
 | AROON - Aroon oscillator ||✔️|✔️|✔️|
 | BBANDS - Bollinger Bands ||✔️|✔️|✔️|
 | BOP - Balance of Power ||✔️|✔️|✔️|
-| CCI - Commodity Channel Index ||✔️|✔️|✔️|
+| CCI - Commodity Channel Index |✔️|✔️|✔️|✔️|
 | CFO - Chande Forcast Oscillator ||||✔️|
 | CMF - Chaikin Money Flow |||✔️|✔️|
 | CMO - Chande Momentum Oscillator ||✔️||✔️|

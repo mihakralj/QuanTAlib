@@ -145,7 +145,7 @@ public abstract class Single_TBars_Indicator : TSeries
     }
 
     // overridable Add() method to add/update a single item at the end of the list
-    public virtual void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar, bool update) => base.Add(TBar.c, update);
+    public virtual void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar, bool update) => base.Add((TBar.t, TBar.c), update);
 
     // potentially overridable Add() method for the whole series (could be replaced with faster bulk algo)
     public virtual void Add(TBars bars)

@@ -9,12 +9,12 @@ public class ZLMA_chart : Indicator
     #region Parameters
 
     [InputParameter("Smoothing period", 0, 1, 999, 1, 1)]
-    private int Period = 10;
+    private readonly int Period = 10;
 
     [InputParameter("Data source", 1, variants: new object[]
       { "Open", 0, "High", 1,  "Low", 2,  "Close", 3,  "HL2", 4,  "OC2", 5,
       "OHL3", 6,  "HLC3", 7,  "OHLC4", 8,  "Weighted (HLCC4)", 9 })]
-    private int DataSource = 3;
+    private readonly int DataSource = 3;
 
     [InputParameter("MA algorithm", 2, variants: new object[]
     { "SMA", 0, 
@@ -27,7 +27,7 @@ public class ZLMA_chart : Indicator
 	    "JMA", 7,
 	    "SMMA", 8
 			})]
-    private int matype = 2;
+    private readonly int matype = 2;
 
 #endregion Parameters
 
@@ -87,7 +87,7 @@ public class ZLMA_chart : Indicator
                       this.GetPrice(PriceType.Close),
                       this.GetPrice(PriceType.Volume), update);
 
-        double result = this.indicator[this.indicator.Count - 1].v;
+        double result = this.indicator[this.indicator.Count-1].v;
         this.SetValue(result);
     }
 }

@@ -103,6 +103,15 @@ public class TA_LIB
 	}
 
 	[Fact]
+	public void CCI()
+	{
+		CCI_Series QL = new(this.bars, this.period, false);
+		Core.Cci(this.inhigh, this.inlow, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
 	public void RSI()
 	{
 		RSI_Series QL = new(this.bars.Close, this.period, false);

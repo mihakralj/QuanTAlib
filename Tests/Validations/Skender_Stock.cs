@@ -99,6 +99,14 @@ public class Skender_Stock
 		Assert.Equal(Math.Round((double)SK.Last().Atr!, 8), Math.Round(QL.Last().v, 8));
 	}
 
+	[Fact]
+	public void CCI()
+	{
+		CCI_Series QL = new(this.bars, this.period, false);
+		var SK = this.quotes.GetCci(this.period);
+
+		Assert.Equal(Math.Round((double)SK.Last().Cci!, 8), Math.Round(QL.Last().v, 8));
+	}
 
 	[Fact]
 	public void ATRP()
