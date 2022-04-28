@@ -101,4 +101,23 @@ public class TA_LIB
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
+
+	[Fact]
+	public void RSI()
+	{
+		RSI_Series QL = new(this.bars.Close, this.period, false);
+		Core.Rsi(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void MACD()
+	{ 
+	double[] macdSignal = new double[this.bars.Count];
+	double[] macdHist = new double[this.bars.Count];
+MACD_Series QL = new(this.bars.Close, slow: 26, fast: 12, signal: 9, false);
+Core.Macd(this.inclose, 0, this.bars.Count - 1, outMacd: this.TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _);
+Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
 }

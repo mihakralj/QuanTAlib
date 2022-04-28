@@ -126,4 +126,22 @@ public class Skender_Stock
 
 	    Assert.Equal(Math.Round((double)SK.Last().Smma!, 8), Math.Round(QL.Last().v, 8));
     }
+
+    [Fact]
+    public void MACD()
+    {
+	    MACD_Series QL = new(this.bars.Close, 26,12,9, useNaN: false);
+	    var SK = this.quotes.GetMacd(12,26,9);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Macd!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void RSI()
+    {
+	    RSI_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetRsi(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Rsi!, 8), Math.Round(QL.Last().v, 8));
+    }
 }

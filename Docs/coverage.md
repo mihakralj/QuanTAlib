@@ -55,7 +55,7 @@
 | JMA - Jurik Moving Average |✔️|||✔️|
 | KAMA - Kaufman's Adaptive Moving Average |✔️|✔️|✔️|✔️|
 | LSMA - Least Squares Moving Average |||✔️||
-| MACD - Moving Average Convergence/Divergence ||✔️|✔️|✔️|
+| MACD - Moving Average Convergence/Divergence |✔️|✔️|✔️|✔️|
 | MAMA - MESA Adaptive Moving Average ||✔️|✔️||
 | MMA - Modified Moving Average |||✔️||
 | NATR - Normalized Average True Range ||✔️|✔️|✔️|
@@ -107,7 +107,7 @@
 | PO - Price Oscillator ||||✔️|
 | PPO - Percentage Price Oscillator ||✔️||✔️|
 | PVI - Positive Volume Index ||||✔️|
-| RSI - Relative Strength Index ||✔️|✔️|✔️|
+| RSI - Relative Strength Index |✔️|✔️|✔️|✔️|
 | RVGI - Relative Vigor Index ||||✔️|
 | SRSI - Stochastic RSI |||✔️|✔️|
 | TRIX - 1-day ROC of TEMA ||✔️|✔️|✔️|
