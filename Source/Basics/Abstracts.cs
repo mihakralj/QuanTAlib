@@ -141,7 +141,7 @@ public abstract class Single_TBars_Indicator : TSeries
         this._p = period;
         this._bars = source;
         this._NaN = useNaN;
-        this._bars.Close.Pub += this.Sub;
+        this._bars.Pub += this.Sub;
     }
 
     // overridable Add() method to add/update a single item at the end of the list

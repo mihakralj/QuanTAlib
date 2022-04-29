@@ -152,4 +152,13 @@ public class Skender_Stock
 
 	    Assert.Equal(Math.Round((double)SK.Last().Rsi!, 8), Math.Round(QL.Last().v, 8));
     }
+
+    [Fact]
+    public void ALMA()
+    {
+	    ALMA_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetAlma(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Alma!, 8), Math.Round(QL.Last().v, 8));
+    }
 }

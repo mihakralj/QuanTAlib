@@ -41,7 +41,7 @@
 ||||||
 | **Moving Averages** |||||
 | AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
-| ALMA - Arnaud Legoux Moving Average |||✔️|✔️|
+| ALMA - Arnaud Legoux Moving Average |✔️||✔️|✔️|
 | ARIMA - Autoregressive Integrated Moving Average |||||
 | ATR - Average True Range |✔️|✔️|✔️|✔️|
 | ATRP - Average True Range Percent |✔️||✔️||
