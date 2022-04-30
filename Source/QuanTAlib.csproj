@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>0.1.12</Version>
-    <releaseNotes></releaseNotes>
+    <Version>0.1.13</Version>
+    <releaseNotes>Added MACD, RSI, CCI, ALMA, LINREG</releaseNotes>
     <Title>QuanTAlib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Technical Analysis library for both real-time (streaming) and historical data analysis</Description>
