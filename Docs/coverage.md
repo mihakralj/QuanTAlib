@@ -20,7 +20,7 @@
 | BIAS - Bias |✔️|||✔️|
 | ENTR - Entropy |✔️|||✔️|
 | KUR - Kurtosis |✔️|||✔️|
-| LINREG - Linear Regression ||✔️|✔️||
+| LINREG - Linear Regression |✔️|✔️|✔️||
 | MAD - Mean Absolute Deviation |✔️||✔️|✔️|
 | MAPE - Mean Absolute Percent Error |✔️||✔️||
 | MAX - Max value |✔️|✔️|||
@@ -30,9 +30,7 @@
 | PSDEV - Population Standard Deviation |✔️||||
 | PVAR - Population Variance |✔️||||
 | QUANTILE ||||✔️|
-| RS - R-Squared Coefficient |||✔️||
 | SKEW - Skewness ||||✔️|
-| SLOPE - Slope |||✔️||
 | SMAPE - Symmetric Mean Absolute Percent Error |✔️||||
 | SDEV - Sample Standard Deviation |✔️|✔️|✔️|✔️|
 | VAR - Sample Variance |✔️|||✔️|

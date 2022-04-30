@@ -161,4 +161,16 @@ public class Skender_Stock
 
 	    Assert.Equal(Math.Round((double)SK.Last().Alma!, 8), Math.Round(QL.Last().v, 8));
     }
+
+    [Fact]
+    public void LINREG()
+    {
+	    LINREG_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetSlope(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Slope!, 8), Math.Round(QL.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().Intercept!, 8), Math.Round(QL.Intercept.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().RSquared!, 8), Math.Round(QL.RSquared.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().StdDev!, 8), Math.Round(QL.StdDev.Last().v, 8));
+	}
 }
