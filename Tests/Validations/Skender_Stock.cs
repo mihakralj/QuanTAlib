@@ -99,6 +99,14 @@ public class Skender_Stock
 		Assert.Equal(Math.Round((double)SK.Last().Atr!, 8), Math.Round(QL.Last().v, 8));
 	}
 
+	[Fact]
+	public void CCI()
+	{
+		CCI_Series QL = new(this.bars, this.period, false);
+		var SK = this.quotes.GetCci(this.period);
+
+		Assert.Equal(Math.Round((double)SK.Last().Cci!, 8), Math.Round(QL.Last().v, 8));
+	}
 
 	[Fact]
 	public void ATRP()
@@ -126,4 +134,43 @@ public class Skender_Stock
 
 	    Assert.Equal(Math.Round((double)SK.Last().Smma!, 8), Math.Round(QL.Last().v, 8));
     }
+
+    [Fact]
+    public void MACD()
+    {
+	    MACD_Series QL = new(this.bars.Close, 26,12,9, useNaN: false);
+	    var SK = this.quotes.GetMacd(12,26,9);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Macd!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void RSI()
+    {
+	    RSI_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetRsi(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Rsi!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void ALMA()
+    {
+	    ALMA_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetAlma(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Alma!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void LINREG()
+    {
+	    LINREG_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetSlope(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Slope!, 8), Math.Round(QL.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().Intercept!, 8), Math.Round(QL.Intercept.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().RSquared!, 8), Math.Round(QL.RSquared.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().StdDev!, 8), Math.Round(QL.StdDev.Last().v, 8));
+	}
 }

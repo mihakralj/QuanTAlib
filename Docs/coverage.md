@@ -9,6 +9,7 @@
 | OHL3 - (Open+High+Low)/3 |✔️|||✔️|
 | OHLC4 - (O+H+L+C)/4 |✔️|||✔️|
 | HLCC4 - Weighted Price |✔️||✔️|✔️|
+| ZL - Zero Lag - De-lagged price |✔️|||✔️|
 | ADD - Addition |✔️|✔️|||
 | SUB - Subtraction |✔️|✔️|||
 | MUL - Multiplication |✔️|✔️|||
@@ -19,7 +20,7 @@
 | BIAS - Bias |✔️|||✔️|
 | ENTR - Entropy |✔️|||✔️|
 | KUR - Kurtosis |✔️|||✔️|
-| LINREG - Linear Regression ||✔️|✔️||
+| LINREG - Linear Regression |✔️|✔️|✔️||
 | MAD - Mean Absolute Deviation |✔️||✔️|✔️|
 | MAPE - Mean Absolute Percent Error |✔️||✔️||
 | MAX - Max value |✔️|✔️|||
@@ -29,9 +30,7 @@
 | PSDEV - Population Standard Deviation |✔️||||
 | PVAR - Population Variance |✔️||||
 | QUANTILE ||||✔️|
-| RS - R-Squared Coefficient |||✔️||
 | SKEW - Skewness ||||✔️|
-| SLOPE - Slope |||✔️||
 | SMAPE - Symmetric Mean Absolute Percent Error |✔️||||
 | SDEV - Sample Standard Deviation |✔️|✔️|✔️|✔️|
 | VAR - Sample Variance |✔️|||✔️|
@@ -40,7 +39,7 @@
 ||||||
 | **Moving Averages** |||||
 | AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
-| ALMA - Arnaud Legoux Moving Average |||✔️|✔️|
+| ALMA - Arnaud Legoux Moving Average |✔️||✔️|✔️|
 | ARIMA - Autoregressive Integrated Moving Average |||||
 | ATR - Average True Range |✔️|✔️|✔️|✔️|
 | ATRP - Average True Range Percent |✔️||✔️||
@@ -54,7 +53,7 @@
 | JMA - Jurik Moving Average |✔️|||✔️|
 | KAMA - Kaufman's Adaptive Moving Average |✔️|✔️|✔️|✔️|
 | LSMA - Least Squares Moving Average |||✔️||
-| MACD - Moving Average Convergence/Divergence ||✔️|✔️|✔️|
+| MACD - Moving Average Convergence/Divergence |✔️|✔️|✔️|✔️|
 | MAMA - MESA Adaptive Moving Average ||✔️|✔️||
 | MMA - Modified Moving Average |||✔️||
 | NATR - Normalized Average True Range ||✔️|✔️|✔️|
@@ -88,7 +87,7 @@
 | AROON - Aroon oscillator ||✔️|✔️|✔️|
 | BBANDS - Bollinger Bands ||✔️|✔️|✔️|
 | BOP - Balance of Power ||✔️|✔️|✔️|
-| CCI - Commodity Channel Index ||✔️|✔️|✔️|
+| CCI - Commodity Channel Index |✔️|✔️|✔️|✔️|
 | CFO - Chande Forcast Oscillator ||||✔️|
 | CMF - Chaikin Money Flow |||✔️|✔️|
 | CMO - Chande Momentum Oscillator ||✔️||✔️|
@@ -106,7 +105,7 @@
 | PO - Price Oscillator ||||✔️|
 | PPO - Percentage Price Oscillator ||✔️||✔️|
 | PVI - Positive Volume Index ||||✔️|
-| RSI - Relative Strength Index ||✔️|✔️|✔️|
+| RSI - Relative Strength Index |✔️|✔️|✔️|✔️|
 | RVGI - Relative Vigor Index ||||✔️|
 | SRSI - Stochastic RSI |||✔️|✔️|
 | TRIX - 1-day ROC of TEMA ||✔️|✔️|✔️|

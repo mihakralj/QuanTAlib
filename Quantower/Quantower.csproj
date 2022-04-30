@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <Platforms>AnyCPU</Platforms>
     <AlgoType>Indicator</AlgoType>
@@ -14,7 +14,6 @@
     <Nullable>disable</Nullable>
     <SignAssembly>False</SignAssembly>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>
     <WarningLevel>3</WarningLevel>
@@ -22,7 +21,6 @@
     <PlatformTarget>anycpu</PlatformTarget>
     <DebugType>full</DebugType>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>embedded</DebugType>
     <Optimize>True</Optimize>
@@ -30,20 +28,17 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**" >
+    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**">
       <Link>QuanTAlib\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
-
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles=".\bin\$(Configuration)\net48\Quantower_QTAlib.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\QuanTAlib" />
   </Target>
-
   <ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>.\dll\TradingPlatform.BusinessLayer.dll</HintPath>
+      <HintPath>C:\Quantower\TradingPlatform\v1.124.6\bin\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

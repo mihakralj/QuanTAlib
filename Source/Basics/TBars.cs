@@ -108,5 +108,22 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
             _ohlc4.Add((t, (o + h + l + c) * 0.25));
             _hlcc4.Add((t, (h + l + c + c) * 0.25));
         }
+        this.OnEvent(update);
     }
+
+    // delegate used by event handler + event handler (Pub == publisher)
+    public delegate
+        void NewDataEventHandler(object source, TSeriesEventArgs args);
+    public event NewDataEventHandler Pub;
+
+    // Broadcast handler - only to valid targets
+    protected virtual void OnEvent(bool update = false)
+    {
+        if (Pub != null && Pub.Target != this)
+        {
+            Pub(this, new TSeriesEventArgs { update = update });
+        }
+    }
+
+
 }
