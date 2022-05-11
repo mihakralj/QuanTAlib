@@ -22,7 +22,7 @@ Quantitative TA Library (**QuanTAlib**) is an easy-to-use C# library for quantit
 - Separation of calculations (**algos**) and visualizations (**charts**)
 - Handle early data right - no hiding of poor calculations with NaN values (unless explicitly requested), data is as valid as mathematically possible from the first value
 - Preservation of time-value integrity of each data throughout the calculation chain (each data point has a timestamp)
-- Usage of events - each data series is an event publisher, each indicator is a subscriber - this allows seamless data flow between indicators without the need of plumbing (see [MACD example](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/macd_example.ipynb) to understand how events allow chaining of indicators)
+- Usage of events - each data series is an event publisher, each indicator is a subscriber - this allows seamless data flow between indicators without the need of plumbing (see [MACD example](https://github.com/mihakralj/QuanTAlib/blob/main/docs/macd_example.ipynb) to understand how events allow chaining of indicators)
 
 QuanTAlib does not provide OHLCV quotes - but it can easily connect to any data feeds. There are some data feed classess
 available (**RND_Feed** for random OHLCV, **YAHOO_Feed** for Yahoo Finance daily stock data)
