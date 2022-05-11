@@ -30,4 +30,4 @@ available (**RND_Feed** for random OHLCV, **YAHOO_Feed** for Yahoo Finance daily
 See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/getting_started.ipynb) .NET interactive notebook to get a feel how library works. Developers can use QuanTAlib in .NET interactive or in console apps, but the best
 usage of the library is withing C#-enabled trading platforms - see **QuanTower_Charts** folder for Quantower examples.
 
-[**List of available and planned indicators**](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/coverage.md). **So. Much. To. Do...**
+[**List of available and planned indicators**](https://github.com/mihakralj/QuanTAlib/blob/main/docs/coverage.md). **So. Much. To. Do...**
