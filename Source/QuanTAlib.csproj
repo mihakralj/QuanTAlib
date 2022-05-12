@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>0.1.13</Version>
-    <releaseNotes>Added MACD, RSI, CCI, ALMA, LINREG</releaseNotes>
+    <Version>0.1.14</Version>
+    <releaseNotes></releaseNotes>
     <Title>QuanTAlib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Technical Analysis library for both real-time (streaming) and historical data analysis</Description>
@@ -11,7 +11,7 @@
     <Authors>Miha Kralj</Authors>
     <Copyright>Miha Kralj</Copyright>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <TargetFrameworks>net7.0;net6.0;netcoreapp3.1;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
     <Nullable>disable</Nullable>

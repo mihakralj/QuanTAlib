@@ -29,7 +29,7 @@
     <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**;..\Source\Basics\*_Feed.cs">
+    <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**;..\Source\Feeds\**">
       <Link>QuanTAlib\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
