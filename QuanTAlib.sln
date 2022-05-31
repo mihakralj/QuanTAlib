@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanTAlib", "Source\QuanTAlib.csproj", "{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanTAlib", "Source\QuanTAlib.csproj", "{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quantower", "Quantower\Quantower.csproj", "{5096AEA1-81BC-46E7-9F2B-B408AFAA850C}"
 EndProject

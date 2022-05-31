@@ -23,7 +23,7 @@ public class Alphavantage_Feed : TBars
         if (Extended) { outputsize = "full"; }
         System.Net.Http.HttpClient client = new();
         JsonElement json = new();
-        var tokens = Symbol.Split("-");
+        var tokens = Symbol.Split('-');
         if (tokens.Length > 1)
         {
             string req = "https://www.alphavantage.co/query?function=FX" + GetInterval(Interval) + "&from_symbol=" + tokens[0] + "&to_symbol=" + tokens[1] + "&outputsize=" + outputsize + "&apikey=" + APIkey;
