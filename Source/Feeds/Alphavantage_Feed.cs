@@ -122,3 +122,4 @@ public class Alphavantage_Feed : TBars
 		_ => "_DAILY"
 	};
 }
+
