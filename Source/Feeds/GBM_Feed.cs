@@ -20,7 +20,7 @@ GBM - Geometric Brownian Motion is a random simulator of market movement, return
 
 public class GBM_Feed : TBars
 {
-    double seed;
+    static double seed;
     readonly double drift, volatility;
     public GBM_Feed(int Bars = 252, double Volatility = 1.0, double Drift = 0.05, double Seed = 100.0) {
         seed = Seed;
