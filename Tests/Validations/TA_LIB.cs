@@ -6,7 +6,7 @@ using QuanTAlib;
 namespace Validation;
 public class TA_LIB
 {
-	private readonly RND_Feed bars;
+	private readonly GBM_Feed bars;
 	private readonly Random rnd = new();
 	private readonly int period;
 	private readonly double[] TALIB;

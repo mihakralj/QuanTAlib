@@ -51,7 +51,7 @@ public class GBM_Feed : TBars
     }
 
     private static double GBM_value (double Seed, double Volatility, double Drift) {
-        Random rnd = new((int)(DateTime.UtcNow.Ticks));
+        Random rnd = new();
         double U1 = 1.0-rnd.NextDouble();
         double U2 = 1.0-rnd.NextDouble();
         double Z = Math.Sqrt(-2.0 * Math.Log(U1)) * Math.Sin(2.0 * Math.PI * U2);

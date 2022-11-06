@@ -7,7 +7,7 @@ using Xunit;
 namespace Validation;
 public class Skender_Stock
 {
-	private readonly RND_Feed bars;
+	private readonly GBM_Feed bars;
 	private readonly Random rnd = new();
 	private readonly int period;
 	private readonly IEnumerable<Quote> quotes;
@@ -32,7 +32,7 @@ public class Skender_Stock
 	public void SMA()
 	{
 		SMA_Series QL = new(this.bars.Close, this.period, false);
-		var SK = this.quotes.GetSma(this.period, CandlePart.Close);
+		var SK = this.quotes.GetSma(this.period);
 
 		Assert.Equal(Math.Round((double)SK.Last().Sma!, 8), Math.Round(QL.Last().v, 8));
 	}
@@ -41,7 +41,7 @@ public class Skender_Stock
 	public void EMA()
 	{
 		EMA_Series QL = new(this.bars.Close, this.period, false);
-		var SK = this.quotes.GetEma(this.period, CandlePart.Close);
+		var SK = this.quotes.GetEma(this.period);
 
 		Assert.Equal(Math.Round((double)SK.Last().Ema!, 8), Math.Round(QL.Last().v, 8));
 	}
@@ -49,7 +49,7 @@ public class Skender_Stock
 	public void WMA()
 	{
 		WMA_Series QL = new(this.bars.Close, this.period, false);
-		var SK = this.quotes.GetWma(this.period, CandlePart.Close);
+		var SK = this.quotes.GetWma(this.period);
 
 		Assert.Equal(Math.Round((double)SK.Last().Wma!, 8), Math.Round(QL.Last().v, 8));
 	}
@@ -76,7 +76,7 @@ public class Skender_Stock
 	public void MAD()
 	{
 		MAD_Series QL = new(this.bars.Close, this.period, false);
-		var SK = this.quotes.GetSmaExtended(this.period);
+		var SK = this.quotes.GetSmaAnalysis(this.period);
 
 		Assert.Equal(Math.Round((double)SK.Last().Mad!, 8), Math.Round(QL.Last().v, 8));
 	}
@@ -85,7 +85,7 @@ public class Skender_Stock
 	public void MAPE()
 	{
 		MAPE_Series QL = new(this.bars.Close, this.period, false);
-		var SK = this.quotes.GetSmaExtended(this.period);
+		var SK = this.quotes.GetSmaAnalysis(this.period);
 
 		Assert.Equal(Math.Round((double)SK.Last().Mape!, 8), Math.Round(QL.Last().v, 8));
 	}
