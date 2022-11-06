@@ -32,9 +32,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="7.0.0-rc.2.22476.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221003-04" />
-    <PackageReference Include="Python.Included" Version="3.10.0-preview5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0-preview-20220401-08" />
+    <PackageReference Include="Python.Included" Version="3.7.3.13" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Skender.Stock.Indicators" Version="2.4.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
