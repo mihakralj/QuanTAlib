@@ -28,7 +28,16 @@ public class TA_LIB
 		this.involume = this.bars.Volume.v.ToArray();
 	}
 
-/////////////////////////////////////////
+	/////////////////////////////////////////
+
+	[Fact]
+	public void SDEV()
+	{
+		SDEV_Series QL = new(this.bars.Close, this.period, false);
+		Core.StdDev(this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _, this.period);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
 
 	[Fact]
 	public void SMA()

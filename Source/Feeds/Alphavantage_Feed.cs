@@ -113,7 +113,7 @@ public class Alphavantage_Feed : TBars
 	{
 		Interval.Month => "_MONTHLY",
 		Interval.Week => "_WEEKLY",
-		Interval.Day => "_DAILY",
+		Interval.Day => "_DAILY_ADJUSTED",
 		Interval.Hour => "_INTRADAY&interval=60min",
 		Interval.Min30 => "_INTRADAY&interval=30min",
 		Interval.Min15 => "_INTRADAY&interval=15min",

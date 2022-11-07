@@ -19,7 +19,7 @@ public class SDEV_chart : Indicator
     private TBars bars;
 
     ///////dotnet
-    private SDEV_Series indicator;
+    private SSDEV_Series indicator;
     ///////
 
     public SDEV_chart()
