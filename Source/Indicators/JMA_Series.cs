@@ -17,7 +17,9 @@ Issues:
     exact - published JMA tests against JMA.CSV fail with small deviation. The
     original algo is slightly different, yet this approximation is close enough.
 
-</summary> */
+</summary> 
+TODO: buggy - rework
+*/
 
 public class JMA_Series : Single_TSeries_Indicator
 {
