@@ -109,6 +109,14 @@ public class TA_LIB
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
 
+	[Fact]
+	public void ADO()
+	{
+		ADO_Series QL = new(this.bars, false);
+		Core.AdOsc(this.inhigh, this.inlow, this.inclose, this.involume, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
 
 	[Fact]
 	public void ATR()
