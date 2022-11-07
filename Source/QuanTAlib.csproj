@@ -13,7 +13,7 @@
     <Authors>Miha Kralj</Authors>
     <Copyright>Miha Kralj</Copyright>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
     <Nullable>disable</Nullable>
@@ -67,6 +67,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="7.0.0-preview.4.22229.4" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0-rc.2.22472.3" />
   </ItemGroup>
 </Project>

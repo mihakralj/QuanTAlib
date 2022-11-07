@@ -19,6 +19,9 @@ Issues:
 
 </summary> */
 
+/* TODO: This indicator is not calculating results correctly - needs to be debugged */
+
+/*
 public class JMA_Series : Single_TSeries_Indicator
 {
     private readonly System.Collections.Generic.List<double> vbuffer10;
@@ -157,3 +160,5 @@ public class JMA_Series : Single_TSeries_Indicator
 
     }
 }
+
+*/

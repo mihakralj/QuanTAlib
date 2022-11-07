@@ -25,14 +25,14 @@ public class SDEV_chart : Indicator
     public SDEV_chart()
     {
         this.SeparateWindow = true;
-        this.Name = "SDEV - Sample Standard Deviation (Unbiased)";
+        this.Name = "SDEV - Population Standard Deviation (Biased)";
         this.Description = "SDEV description";
         this.AddLineSeries("SDEV", Color.RoyalBlue, 3, LineStyle.Solid);
     }
 
     protected override void OnInit()
     {
-	    this.bars = new(); 
+	    this.bars = new();
 	    this.ShortName =
             "SDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource),
