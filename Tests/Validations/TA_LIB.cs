@@ -10,22 +10,18 @@ public class TA_LIB
 	private readonly Random rnd = new();
 	private readonly int period;
 	private readonly double[] TALIB;
-	private readonly double[] inopen;
 	private readonly double[] inhigh;
 	private readonly double[] inlow;
 	private readonly double[] inclose;
-	private readonly double[] involume;
 
 	public TA_LIB()
 	{
 		this.bars = new(1000);
 		this.period = this.rnd.Next(28) + 3;
 		this.TALIB = new double[this.bars.Count];
-		this.inopen = this.bars.Open.v.ToArray();
 		this.inhigh = this.bars.High.v.ToArray();
 		this.inlow = this.bars.Low.v.ToArray();
 		this.inclose = this.bars.Close.v.ToArray();
-		this.involume = this.bars.Volume.v.ToArray();
 	}
 
 	/////////////////////////////////////////

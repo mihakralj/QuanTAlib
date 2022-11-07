@@ -67,6 +67,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="7.0.0-preview.4.22229.4" />
+    <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
 </Project>
