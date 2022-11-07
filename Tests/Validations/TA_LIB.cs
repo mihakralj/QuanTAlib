@@ -13,6 +13,7 @@ public class TA_LIB
 	private readonly double[] inhigh;
 	private readonly double[] inlow;
 	private readonly double[] inclose;
+	private readonly double[] involume;
 
 	public TA_LIB()
 	{
@@ -22,6 +23,7 @@ public class TA_LIB
 		this.inhigh = this.bars.High.v.ToArray();
 		this.inlow = this.bars.Low.v.ToArray();
 		this.inclose = this.bars.Close.v.ToArray();
+		this.involume = this.bars.Volume.v.ToArray();
 	}
 
 	/////////////////////////////////////////
@@ -97,6 +99,16 @@ public class TA_LIB
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
+
+	[Fact]
+	public void ADL()
+	{
+		ADL_Series QL = new(this.bars, false);
+		Core.Ad(this.inhigh, this.inlow, this.inclose, this.involume, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
 
 	[Fact]
 	public void ATR()

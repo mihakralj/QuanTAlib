@@ -100,6 +100,15 @@ public class Skender_Stock
 	}
 
 	[Fact]
+	public void ADL()
+	{
+		ADL_Series QL = new(this.bars, false);
+		var SK = this.quotes.GetAdl();
+
+		Assert.Equal(Math.Round((double)SK.Last().Adl!, 6), Math.Round(QL.Last().v, 6));
+	}
+
+	[Fact]
 	public void CCI()
 	{
 		CCI_Series QL = new(this.bars, this.period, false);
