@@ -2,7 +2,7 @@ using System.Drawing;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
-public class SDEV_chart : Indicator
+public class PSDEV_chart : Indicator
 {
     #region Parameters
 
@@ -19,22 +19,22 @@ public class SDEV_chart : Indicator
     private TBars bars;
 
     ///////dotnet
-    private SSDEV_Series indicator;
+    private SDEV_Series indicator;
     ///////
 
-    public SDEV_chart()
+    public PSDEV_chart()
     {
         this.SeparateWindow = true;
-        this.Name = "SDEV - Sample Standard Deviation (Unbiased)";
-        this.Description = "SDEV description";
-        this.AddLineSeries("SDEV", Color.RoyalBlue, 3, LineStyle.Solid);
+        this.Name = "PSDEV - Population Standard Deviation (Biased)";
+        this.Description = "PSDEV description";
+        this.AddLineSeries("PSDEV", Color.RoyalBlue, 3, LineStyle.Solid);
     }
 
     protected override void OnInit()
     {
 	    this.bars = new(); 
 	    this.ShortName =
-            "SDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+            "PSDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: true);
     }

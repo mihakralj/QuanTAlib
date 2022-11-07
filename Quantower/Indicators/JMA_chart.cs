@@ -2,7 +2,7 @@ using System.Drawing;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
-public class SSDEV_chart : Indicator
+public class JMA_chart : Indicator
 {
     #region Parameters
 
@@ -12,31 +12,31 @@ public class SSDEV_chart : Indicator
     [InputParameter("Data source", 1, variants: new object[]
       { "Open", 0, "High", 1,  "Low", 2,  "Close", 3,  "HL2", 4,  "OC2", 5,
       "OHL3", 6,  "HLC3", 7,  "OHLC4", 8,  "Weighted (HLCC4)", 9 })]
-    private int DataSource = 8;
+    private int DataSource = 3;
 
     #endregion Parameters
 
-    private TBars bars;
+    private TBars bars ;
 
-    ///////dotnet
-    private SSDEV_Series indicator;
+    ///////
+    private JMA_Series indicator;
     ///////
 
-    public SSDEV_chart()
+    public JMA_chart()
     {
-        this.SeparateWindow = true;
-        this.Name = "SSDEV - Sample Standard Deviation (Unbiased)";
-        this.Description = "SSDEV description";
-        this.AddLineSeries("SSDEV", Color.RoyalBlue, 3, LineStyle.Solid);
+        this.SeparateWindow = false;
+        this.Name = "JMA - Jurik Moving Average";
+        this.Description = "Jurik Moving Average description";
+        this.AddLineSeries("JMA", Color.RoyalBlue, 3, LineStyle.Solid);
     }
 
     protected override void OnInit()
     {
-	    this.bars = new();
-	    this.ShortName =
-            "SSDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
-        this.indicator = new(source: bars.Select(this.DataSource),
-                             period: this.Period, useNaN: true);
+        this.ShortName =
+            "JMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+        this.bars = new();
+				this.indicator = new(source: bars.Select(this.DataSource),
+                             period: this.Period, useNaN: false);
     }
     protected override void OnUpdate(UpdateArgs args)
     {
@@ -47,7 +47,6 @@ public class SSDEV_chart : Indicator
                       this.GetPrice(PriceType.Close),
                       this.GetPrice(PriceType.Volume), update);
         double result = this.indicator[this.indicator.Count - 1].v;
-
-        this.SetValue(result, 0);
+        this.SetValue(result);
     }
 }

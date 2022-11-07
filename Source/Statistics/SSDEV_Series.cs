@@ -11,7 +11,7 @@ Sources:
 
 Remark:
   SSDEV (Sample Standard Deviation) is also known as a unbiased/corrected Standard Deviation.
-  For a population/biased/uncorrected Standard Deviation, use SDEV instead
+  For a population/biased/uncorrected Standard Deviation, use PSDEV instead
       
 </summary> */
 

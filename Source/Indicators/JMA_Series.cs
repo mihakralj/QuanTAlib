@@ -17,11 +17,10 @@ Issues:
     exact - published JMA tests against JMA.CSV fail with small deviation. The
     original algo is slightly different, yet this approximation is close enough.
 
-</summary> */
+</summary> 
+TODO: buggy - rework
+*/
 
-/* TODO: This indicator is not calculating results correctly - needs to be debugged */
-
-/*
 public class JMA_Series : Single_TSeries_Indicator
 {
     private readonly System.Collections.Generic.List<double> vbuffer10;
@@ -160,5 +159,3 @@ public class JMA_Series : Single_TSeries_Indicator
 
     }
 }
-
-*/

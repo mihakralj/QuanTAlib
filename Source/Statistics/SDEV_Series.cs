@@ -3,7 +3,7 @@ using System;
 
 /* <summary>
 SDEV: Population Standard Deviation
-  Population Standard Deviation is the square root of the biased variance, also known as
+  Population Standard Deviation is the square root of the biased variance, also knons as
   Uncorrected Sample Standard Deviation
 
 Sources:

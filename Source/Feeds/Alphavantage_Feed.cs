@@ -13,8 +13,6 @@ Alphavantage - Free API to collect quotes for stock, Forex and crypto. It requir
 
 </summary> */
 
-/* TODO: refactor into three feeds: FX, Crypto, Stock */
-
 public class Alphavantage_Feed : TBars
 {
     public enum Interval { Month, Week, Day, Hour, Min30, Min15, Min5, Min1}
