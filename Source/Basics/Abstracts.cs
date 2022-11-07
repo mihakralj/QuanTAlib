@@ -145,16 +145,21 @@ public abstract class Single_TBars_Indicator : TSeries
     }
 
     // overridable Add() method to add/update a single item at the end of the list
-    public virtual void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar, bool update) => base.Add((TBar.t, TBar.c), update);
+    public virtual void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar, bool update) => base.Add((TBar.t, 0.0), update);
 
-    // potentially overridable Add() method for the whole series (could be replaced with faster bulk algo)
+    // potentially overridable Add() method for the whole bars or series (could be replaced with faster bulk algo)
     public virtual void Add(TBars bars)
     {
         for (int i = 0; i < bars.Count; i++) { this.Add(TBar: bars[i], update: false); }
     }
 
-    public new void Add((System.DateTime t, double v) TValue) 
-        => this.Add(TValue: TValue, update: false);
+    public virtual void Add(TSeries data)
+    {
+	    for (int i = 0; i < data.Count; i++) { base.Add(TValue: data[i], update: false); }
+    }
+
+public new void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar) 
+        => this.Add(TBar: TBar, update: false);
     public void Add(bool update) 
         => this.Add(TBar: this._bars[this._bars.Count - 1], update: update);
     public void Add() 
