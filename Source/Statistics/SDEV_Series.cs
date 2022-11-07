@@ -2,17 +2,17 @@
 using System;
 
 /* <summary>
-SDEV: Population Standard Deviation
-  Population Standard Deviation is the square root of the biased variance, also known as
-  Uncorrected Sample Standard Deviation
+SDEV: (Corrected) Sample Standard Deviation
+  Sample Standard Deviaton uses Bessel's correction to correct the bias in the variance.
 
 Sources:
-  https://en.wikipedia.org/wiki/Standard_deviation#Uncorrected_sample_standard_deviation
+  https://en.wikipedia.org/wiki/Standard_deviation#Corrected_sample_standard_deviation
+  Bessel's correction: https://en.wikipedia.org/wiki/Bessel%27s_correction
 
 Remark:
-  SDEV (Population Standard Deviation) is also known as a biased/uncorrected Standard Deviation.
-  For unbiased version that uses Bessel's correction, use SDEV instead.
-    
+  SSDEV (Sample Standard Deviation) is also known as a unbiased/corrected Standard Deviation.
+  For a population/biased/uncorrected Standard Deviation, use PSDEV instead
+      
 </summary> */
 
 public class SDEV_Series : Single_TSeries_Indicator
@@ -25,20 +25,20 @@ public class SDEV_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
-        else { _buffer.Add(TValue.v); }
-        if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
+        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
+        else { this._buffer.Add(TValue.v); }
+        if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
 
         double _sma = 0;
-        for (int i = 0; i < _buffer.Count; i++) { _sma += _buffer[i]; }
+        for (int i = 0; i < this._buffer.Count; i++) { _sma += this._buffer[i]; }
         _sma /= this._buffer.Count;
 
-        double _pvar = 0;
-        for (int i = 0; i < _buffer.Count; i++) { _pvar += (_buffer[i] - _sma) * (_buffer[i] - _sma); }
-        _pvar /= this._buffer.Count;
-        double _psdev = Math.Sqrt(_pvar);
+        double _svar = 0;
+        for (int i = 0; i < this._buffer.Count; i++) { _svar += (this._buffer[i] - _sma) * (this._buffer[i] - _sma); }
+        _svar /= (this._buffer.Count > 1) ? this._buffer.Count - 1 : 1; // Bessel's correction
+        double _ssdev = Math.Sqrt(_svar);
 
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _psdev);
+        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _ssdev);
         base.Add(result, update);
     }
 }

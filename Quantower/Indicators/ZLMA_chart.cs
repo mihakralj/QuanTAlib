@@ -72,7 +72,8 @@ public class ZLMA_chart : Indicator
 		  4 => new TEMA_Series(source: zerolag, period: this.Period, useNaN: false),
 		  5 => new HMA_Series(source: zerolag, period: this.Period, useNaN: false),
 		  6 => new KAMA_Series(source: zerolag, period: this.Period, useNaN: false),
-		  7 => new SMMA_Series(source: zerolag, period: this.Period, useNaN: false),
+		  7 => new JMA_Series(source: zerolag, period: this.Period, useNaN: false),
+		 8 => new SMMA_Series(source: zerolag, period: this.Period, useNaN: false),
 		  _ => new EMA_Series(source: zerolag, period: this.Period, useNaN: false)
 	  };
   }
