@@ -10,6 +10,7 @@ public class TA_LIB
 	private readonly Random rnd = new();
 	private readonly int period;
 	private readonly double[] TALIB;
+	private readonly double[] inopen;
 	private readonly double[] inhigh;
 	private readonly double[] inlow;
 	private readonly double[] inclose;
@@ -20,6 +21,7 @@ public class TA_LIB
 		this.bars = new(1000);
 		this.period = this.rnd.Next(28) + 3;
 		this.TALIB = new double[this.bars.Count];
+		this.inopen = this.bars.Open.v.ToArray();
 		this.inhigh = this.bars.High.v.ToArray();
 		this.inlow = this.bars.Low.v.ToArray();
 		this.inclose = this.bars.Close.v.ToArray();
@@ -146,12 +148,58 @@ public class TA_LIB
 	}
 
 	[Fact]
+	public void TR()
+	{
+		TR_Series QL = new(this.bars, false);
+		Core.TRange(this.inhigh, this.inlow, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
 	public void MACD()
 	{ 
-	double[] macdSignal = new double[this.bars.Count];
-	double[] macdHist = new double[this.bars.Count];
-MACD_Series QL = new(this.bars.Close, slow: 26, fast: 12, signal: 9, false);
-Core.Macd(this.inclose, 0, this.bars.Count - 1, outMacd: this.TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _);
-Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+		double[] macdSignal = new double[this.bars.Count];
+		double[] macdHist = new double[this.bars.Count];
+		MACD_Series QL = new(this.bars.Close, slow: 26, fast: 12, signal: 9, false);
+		Core.Macd(this.inclose, 0, this.bars.Count - 1, outMacd: this.TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _);
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
+
+	[Fact]
+	public void HL2()
+	{
+		TSeries QL = this.bars.HL2;
+		Core.MedPrice(this.inhigh, this.inlow, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void HLC3()
+	{
+		TSeries QL = this.bars.HLC3;
+		Core.TypPrice(this.inhigh, this.inlow, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void OHLC4()
+	{
+		TSeries QL = this.bars.OHLC4;
+		Core.AvgPrice(this.inopen, this.inhigh, this.inlow, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void HLCC4()
+	{
+		TSeries QL = this.bars.HLCC4;
+		Core.WclPrice( this.inhigh, this.inlow, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
 }
