@@ -136,6 +136,15 @@ public class Skender_Stock
     }
 
     [Fact]
+    public void HMA()
+    {
+	    HMA_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetHma(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Hma!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+	[Fact]
     public void SMMA()
     {
 	    SMMA_Series QL = new(this.bars.Close, this.period, useNaN: false);
@@ -172,6 +181,15 @@ public class Skender_Stock
     }
 
     [Fact]
+    public void SDEV()
+    {
+	    SDEV_Series QL = new(this.bars.Close, this.period, useNaN: false);
+	    var SK = this.quotes.GetStdDev(this.period);
+
+	    Assert.Equal(Math.Round((double)SK.Last().StdDev!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+	[Fact]
     public void LINREG()
     {
 	    LINREG_Series QL = new(this.bars.Close, this.period, useNaN: false);
@@ -182,4 +200,58 @@ public class Skender_Stock
 	    Assert.Equal(Math.Round((double)SK.Last().RSquared!, 8), Math.Round(QL.RSquared.Last().v, 8));
 	    Assert.Equal(Math.Round((double)SK.Last().StdDev!, 8), Math.Round(QL.StdDev.Last().v, 8));
 	}
+
+    [Fact]
+    public void TR()
+    {
+	    TR_Series QL = new(this.bars, useNaN: false);
+	    var SK = this.quotes.GetTr();
+
+	    Assert.Equal(Math.Round((double)SK.Last().Tr!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+	[Fact]
+    public void HL2()
+    {
+	    TSeries QL = this.bars.HL2;
+	    var SK = this.quotes.GetBaseQuote(CandlePart.HL2);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Value!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void OC2()
+    {
+	    TSeries QL = this.bars.OC2;
+	    var SK = this.quotes.GetBaseQuote(CandlePart.OC2);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Value!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+	[Fact]
+    public void HLC3()
+    {
+	    TSeries QL = this.bars.HLC3;
+	    var SK = this.quotes.GetBaseQuote(CandlePart.HLC3);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Value!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void OHL3()
+    {
+	    TSeries QL = this.bars.OHL3;
+	    var SK = this.quotes.GetBaseQuote(CandlePart.OHL3);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Value!, 8), Math.Round(QL.Last().v, 8));
+    }
+
+    [Fact]
+    public void OHLC4()
+    {
+	    TSeries QL = this.bars.OHLC4;
+	    var SK = this.quotes.GetBaseQuote(CandlePart.OHLC4);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Value!, 8), Math.Round(QL.Last().v, 8));
+    }
 }
