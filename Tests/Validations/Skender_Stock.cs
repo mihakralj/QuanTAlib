@@ -160,9 +160,25 @@ public class Skender_Stock
 	    var SK = this.quotes.GetMacd(12,26,9);
 
 	    Assert.Equal(Math.Round((double)SK.Last().Macd!, 8), Math.Round(QL.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().Signal!, 8), Math.Round(QL.Signal.Last().v, 8));
     }
 
     [Fact]
+    public void BBANDS()
+    {
+	    BBANDS_Series QL = new(this.bars.Close, this.period, 2.0, useNaN: false);
+	    var SK = this.quotes.GetBollingerBands(this.period, 2.0);
+
+	    Assert.Equal(Math.Round((double)SK.Last().Sma!, 8), Math.Round(QL.Mid.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().UpperBand!, 8), Math.Round(QL.Upper.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().LowerBand!, 8), Math.Round(QL.Lower.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().Width!, 8), Math.Round(QL.Bandwidth.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().PercentB!, 8), Math.Round(QL.PercentB.Last().v, 8));
+	    Assert.Equal(Math.Round((double)SK.Last().ZScore!, 8), Math.Round(QL.Zscore.Last().v, 8));
+    }
+
+
+	[Fact]
     public void RSI()
     {
 	    RSI_Series QL = new(this.bars.Close, this.period, useNaN: false);
