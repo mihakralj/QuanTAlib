@@ -158,7 +158,7 @@ public abstract class Single_TBars_Indicator : TSeries
 	    for (int i = 0; i < data.Count; i++) { base.Add(TValue: data[i], update: false); }
     }
 
-public new void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar) 
+public void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar) 
         => this.Add(TBar: TBar, update: false);
     public void Add(bool update) 
         => this.Add(TBar: this._bars[this._bars.Count - 1], update: update);
