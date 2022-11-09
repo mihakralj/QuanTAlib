@@ -25,7 +25,7 @@ public class VAR_chart : Indicator
     public VAR_chart()
     {
         this.SeparateWindow = true;
-        this.Name = "VAR - Sample Variance (Unbiased)";
+        this.Name = "VAR - Variance";
         this.Description = "VAR description";
         this.AddLineSeries("VAR", Color.RoyalBlue, 3, LineStyle.Solid);
     }

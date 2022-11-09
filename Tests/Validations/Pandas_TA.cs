@@ -1,4 +1,4 @@
-/*
+
 
 using Xunit;
 using System;
@@ -20,6 +20,8 @@ public class PandasTA
 		this.bars = new(1000);
 		this.period = this.rnd.Next(28) + 3;
 
+		Runtime.PythonDLL = @"python310.dll";
+		Installer.InstallPath = Path.GetFullPath(".");
 		Installer.SetupPython().Wait();
 		Installer.TryInstallPip();
 		Installer.PipInstallModule("numpy");
@@ -34,91 +36,89 @@ public class PandasTA
 	{
 		PythonEngine.Shutdown();
 	}
+	/*
+			[Fact]
+			void SMA()
+			{
+				SMA_Series QL = new(this.bars.Close, this.period, false);
+				var pta = this.ta.sma(close: this.df[0], length: this.period);
 
-	[Fact]
-	void SMA()
-	{
-		SMA_Series QL = new(this.bars.Close, this.period, false);
-		var pta = this.ta.sma(close: this.df[0], length: this.period);
-		
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
-	
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
 
-	[Fact]
-	void EMA()
-	{
-		EMA_Series QL = new(this.bars.Close, this.period, false);
-		var pta = this.ta.ema(close: this.df[0], length: this.period);
-		
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
+			[Fact]
+			void EMA()
+			{
+				EMA_Series QL = new(this.bars.Close, this.period, false);
+				var pta = this.ta.ema(close: this.df[0], length: this.period);
 
-
-	[Fact]
-	void TEMA()
-	{
-		TEMA_Series QL = new(this.bars.Close, this.period, false);
-		var pta = this.ta.tema(close: this.df[0], length: this.period);
-
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
-
-	[Fact]
-	void ENTP()
-	{
-		ENTP_Series QL = new(this.bars.Close, this.period, useNaN:false);
-		var pta = this.ta.entropy(close: this.df[0], length: this.period);
-
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
 
 
-	[Fact]
-	void WMA()
-	{
-		WMA_Series QL = new(this.bars.Close, this.period, false);
-		var pta = this.ta.wma(close: this.df[0], length: this.period);
-		
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
-	
-	[Fact]
-	void DEMA()
-	{
-		DEMA_Series QL = new(this.bars.Close, this.period, false);
-		var pta = this.ta.dema(close: this.df[0], length: this.period);
-		
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
-	
-	[Fact]
-	void BIAS()
-	{
-		BIAS_Series QL = new(this.bars.Close, this.period, false);
-		var pta = this.ta.bias(close: this.df[0], length: this.period);
+			[Fact]
+			void TEMA()
+			{
+				TEMA_Series QL = new(this.bars.Close, this.period, false);
+				var pta = this.ta.tema(close: this.df[0], length: this.period);
 
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
 
-	[Fact]
-	void KURT()
-	{
-		KURT_Series QL = new(this.bars.Close, this.period, useNaN: false);
-		var pta = this.ta.kurtosis(close: this.df[0], length: this.period);
+			[Fact]
+			void ENTP()
+			{
+				ENTP_Series QL = new(this.bars.Close, this.period, useNaN:false);
+				var pta = this.ta.entropy(close: this.df[0], length: this.period);
 
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
-	}
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
 
-	[Fact]
-	void MAD()
-	{
-		MAD_Series QL = new(this.bars.Close, this.period, useNaN: false);
-		var pta = this.ta.mad(close: this.df[0], length: this.period);
 
-		Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-	}
-	
+			[Fact]
+			void WMA()
+			{
+				WMA_Series QL = new(this.bars.Close, this.period, false);
+				var pta = this.ta.wma(close: this.df[0], length: this.period);
+
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
+
+			[Fact]
+			void DEMA()
+			{
+				DEMA_Series QL = new(this.bars.Close, this.period, false);
+				var pta = this.ta.dema(close: this.df[0], length: this.period);
+
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
+
+			[Fact]
+			void BIAS()
+			{
+				BIAS_Series QL = new(this.bars.Close, this.period, false);
+				var pta = this.ta.bias(close: this.df[0], length: this.period);
+
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
+
+			[Fact]
+			void KURT()
+			{
+				KURT_Series QL = new(this.bars.Close, this.period, useNaN: false);
+				var pta = this.ta.kurtosis(close: this.df[0], length: this.period);
+
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+			}
+
+			[Fact]
+			void MAD()
+			{
+				MAD_Series QL = new(this.bars.Close, this.period, useNaN: false);
+				var pta = this.ta.mad(close: this.df[0], length: this.period);
+
+				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+			}
+		*/
+
 }
-
-*/

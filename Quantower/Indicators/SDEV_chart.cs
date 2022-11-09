@@ -19,13 +19,13 @@ public class SDEV_chart : Indicator
     private TBars bars;
 
     ///////dotnet
-    private SSDEV_Series indicator;
+    private SDEV_Series indicator;
     ///////
 
     public SDEV_chart()
     {
         this.SeparateWindow = true;
-        this.Name = "SDEV - Sample Standard Deviation (Unbiased)";
+        this.Name = "SDEV - Standard Deviation";
         this.Description = "SDEV description";
         this.AddLineSeries("SDEV", Color.RoyalBlue, 3, LineStyle.Solid);
     }

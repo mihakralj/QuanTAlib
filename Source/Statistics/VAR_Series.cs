@@ -2,16 +2,16 @@
 using System;
 
 /* <summary>
-VAR: Sample Variance
-  Sample variance uses Bessel's correction to correct the bias in the estimation of population variance.
+VAR: Population Variance
+  Population variance without Bessel's correction
 
 Sources:
   https://en.wikipedia.org/wiki/Variance
   Bessel's correction: https://en.wikipedia.org/wiki/Bessel%27s_correction
 
 Remark:
-  VAR is also known as the Unbiased Sample Variance, while PVAR (Population Variance) is known as
-  the Biased Sample Variance. 
+  VAR (Population Variance) is also known as a biased Sample Variance. For unbiased
+  sample variance use SVAR instead.
     
 </summary> */
 
@@ -25,19 +25,19 @@ public class VAR_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-        else { this._buffer.Add(TValue.v); }
-        if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
+        if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
+        else { _buffer.Add(TValue.v); }
+        if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
 
         double _sma = 0;
-        for (int i = 0; i < this._buffer.Count; i++) { _sma += this._buffer[i]; }
+        for (int i = 0; i < _buffer.Count; i++) { _sma += _buffer[i]; }
         _sma /= this._buffer.Count;
 
-        double _svar = 0;
-        for (int i = 0; i < this._buffer.Count; i++) { _svar += (this._buffer[i] - _sma) * (this._buffer[i] - _sma); }
-        _svar /= (this._buffer.Count > 1) ? this._buffer.Count - 1 : 1; // Bessel's correction
+        double _pvar = 0;
+        for (int i = 0; i < _buffer.Count; i++) { _pvar += (_buffer[i] - _sma) * (_buffer[i] - _sma); }
+        _pvar /= this._buffer.Count;
 
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _svar);
+        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _pvar);
         base.Add(result, update);
     }
 }
