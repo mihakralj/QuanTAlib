@@ -164,7 +164,24 @@ public class TA_LIB
 		MACD_Series QL = new(this.bars.Close, slow: 26, fast: 12, signal: 9, false);
 		Core.Macd(this.inclose, 0, this.bars.Count - 1, outMacd: this.TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _);
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+		Assert.Equal(Math.Round(macdSignal[macdSignal.Length - outBegIdx - 1], 8), Math.Round(QL.Signal.Last().v, 8));
 	}
+
+	[Fact]
+	public void BBANDS()
+	{
+		double[] outMiddle = new double[this.bars.Count];
+		double[] outUpper = new double[this.bars.Count];
+		double[] outLower = new double[this.bars.Count];
+		BBANDS_Series QL = new(this.bars.Close, period:26, multiplier:2.0, false);
+		Core.Bbands(this.inclose, 0, this.bars.Count - 1, outRealUpperBand: outUpper, outRealMiddleBand: outMiddle, outRealLowerBand: outLower, out int outBegIdx, out _, optInTimePeriod:26, optInNbDevUp:2.0, optInNbDevDn:2.0);
+		Assert.Equal(Math.Round(outUpper[outUpper.Length - outBegIdx - 1], 8), Math.Round(QL.Upper.Last().v, 8));
+		Assert.Equal(Math.Round(outMiddle[outMiddle.Length - outBegIdx - 1], 8), Math.Round(QL.Mid.Last().v, 8));
+	  Assert.Equal(Math.Round(outLower[outLower.Length - outBegIdx - 1], 8), Math.Round(QL.Lower.Last().v, 8));
+
+	}
+
+
 
 	[Fact]
 	public void HL2()
