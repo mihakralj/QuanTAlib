@@ -31,6 +31,42 @@ public class TA_LIB
 	/////////////////////////////////////////
 
 	[Fact]
+	public void ADD()
+	{
+		ADD_Series QL = new(this.bars.Open, this.bars.Close);
+		Core.Add(this.inopen, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void SUB()
+	{
+		SUB_Series QL = new(this.bars.Open, this.bars.Close);
+		Core.Sub(this.inopen, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void MUL()
+	{
+		MUL_Series QL = new(this.bars.Open, this.bars.Close);
+		Core.Mult(this.inopen, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
+	public void DIV()
+	{
+		DIV_Series QL = new(this.bars.Open, this.bars.Close);
+		Core.Div(this.inopen, this.inclose, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
+
+		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
+	}
+
+	[Fact]
 	public void SDEV()
 	{
 		SDEV_Series QL = new(this.bars.Close, this.period, false);
@@ -112,9 +148,9 @@ public class TA_LIB
 	}
 
 	[Fact]
-	public void ADO()
+	public void ADOSC()
 	{
-		ADO_Series QL = new(this.bars, false);
+		ADOSC_Series QL = new(this.bars, false);
 		Core.AdOsc(this.inhigh, this.inlow, this.inclose, this.involume, 0, this.bars.Count - 1, this.TALIB, out int outBegIdx, out _);
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
@@ -175,9 +211,9 @@ public class TA_LIB
 		double[] outLower = new double[this.bars.Count];
 		BBANDS_Series QL = new(this.bars.Close, period:26, multiplier:2.0, false);
 		Core.Bbands(this.inclose, 0, this.bars.Count - 1, outRealUpperBand: outUpper, outRealMiddleBand: outMiddle, outRealLowerBand: outLower, out int outBegIdx, out _, optInTimePeriod:26, optInNbDevUp:2.0, optInNbDevDn:2.0);
-		Assert.Equal(Math.Round(outUpper[outUpper.Length - outBegIdx - 1], 8), Math.Round(QL.Upper.Last().v, 8));
-		Assert.Equal(Math.Round(outMiddle[outMiddle.Length - outBegIdx - 1], 8), Math.Round(QL.Mid.Last().v, 8));
-	  Assert.Equal(Math.Round(outLower[outLower.Length - outBegIdx - 1], 8), Math.Round(QL.Lower.Last().v, 8));
+		Assert.Equal(Math.Round(outUpper[outUpper.Length - outBegIdx - 1], 7), Math.Round(QL.Upper.Last().v, 7));
+		Assert.Equal(Math.Round(outMiddle[outMiddle.Length - outBegIdx - 1], 7), Math.Round(QL.Mid.Last().v, 7));
+	  Assert.Equal(Math.Round(outLower[outLower.Length - outBegIdx - 1], 7), Math.Round(QL.Lower.Last().v, 7));
 
 	}
 

@@ -13,7 +13,7 @@ Sources:
 
 </summary> */
 
-public class ADO_Series : Single_TBars_Indicator
+public class ADOSC_Series : Single_TBars_Indicator
 {
 	private readonly ADL_Series _TSadl;
 
@@ -21,7 +21,7 @@ public class ADO_Series : Single_TBars_Indicator
 	private readonly EMA_Series _TSfast;
 	private readonly SUB_Series _TSado;
 
-	public ADO_Series(TBars source, bool useNaN = false) : base(source, period: 0, useNaN)
+	public ADOSC_Series(TBars source, bool useNaN = false) : base(source, period: 0, useNaN)
 	{
 		_TSadl = new(source: source, useNaN: false);
 		_TSslow = new(source: _TSadl, period: 10, useNaN: false);
