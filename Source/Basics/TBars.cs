@@ -36,6 +36,12 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
     public TSeries OHLC4 => this._ohlc4;
     public TSeries HLCC4 => this._hlcc4;
 
+    public TBars Tail(int count=10) {
+        TBars outBars = new();
+        if (count > this.Count) { count = this.Count; } 
+        for (int i = this.Count-count; i<this.Count; i++) { outBars.Add(this[i]); }
+        return outBars;
+    }
     public TSeries Select(int source)
     {
         return source switch
@@ -68,9 +74,9 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
             _ => "Weighted",
         };
     }
+    
 
-    public void
-    Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false)
+    public void Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false)
       => Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
 
     public void Add(DateTime t, decimal o, decimal h, decimal l, decimal c, decimal v, bool update = false)

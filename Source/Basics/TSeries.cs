@@ -40,6 +40,13 @@ public class TSeries : System.Collections.Generic.List<(DateTime t, double v)>
 
     public int Length => this.Count;
 
+    public TSeries Tail(int count=10) {
+        TSeries outSeries = new();
+        if (count > this.Count) { count = this.Count; } 
+        for (int i = this.Count-count; i<this.Count; i++) { outSeries.Add(this[i]); }
+        return outSeries;
+    }
+
     // add/update one (t,v) tuple to/at the end of the list
     public void Add((DateTime t, double v) TValue, bool update = false)
     {
