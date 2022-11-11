@@ -36,9 +36,10 @@ public class ZLEMA_Series : Single_TSeries_Indicator
 
 	public override void Add((System.DateTime t, double v) TValue, bool update)
 	{
-		int _lag = (int)((_p - 1) * 0.5);
-		_lag = (this.Count - _lag < 0) ? 0 : this.Count - _lag;
-		double _zl = TValue.v + (TValue.v - _data[_lag].v);
+		int _lag = (int)((_p-1) * 0.5);
+        _lag = (this.Count-_lag < 0) ? 0 : this.Count-_lag;
+        double _zl = TValue.v + (TValue.v - _data[_lag].v);
+
 		double _ema = 0;
 		if (update)
 		{ this._lastema = this._lastlastema; }
@@ -59,7 +60,7 @@ public class ZLEMA_Series : Single_TSeries_Indicator
 		}
 		else
 		{
-			_ema = TValue.v * this._k + this._lastema * this._k1m;
+			_ema = _zl * this._k + this._lastema * this._k1m;
 		}
 
 		this._lastlastema = this._lastema;

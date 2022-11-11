@@ -27,7 +27,7 @@ QuanTAlib does not focus on sources of OHLCV quotes. There are some basic data f
 
 See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/getting_started.ipynb) .NET interactive notebook to get a feel how library works. Developers can use QuanTAlib in .NET interactive or in console apps, but the best usage of the library is withing C#-enabled trading platforms - see **QuanTower_Charts** folder for Quantower examples.
 
-# Coverage
+## Coverage
 
 ⭐= Calculation is validated against other TA libraries
 
@@ -67,7 +67,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⛔ SKEW - Skewness ||||
 | ⭐ SDEV - Standard Deviation (Volatility) | SDEV_Series |||
 | ✔️ SSDEV - Sample Standard Deviation | SSDEV_Series |||
-| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | SMAPE_Series ||| 
+| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | SMAPE_Series |||
 | ✔️ VAR - Population Variance | VAR_Series |||
 | ✔️ SVAR - Sample Variance | SVAR_Series |||
 | ⛔ QUANT - Quantile ||||
