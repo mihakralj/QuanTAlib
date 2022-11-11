@@ -31,7 +31,6 @@ public class DEMA_Series : Single_TSeries_Indicator
 
     public override void Add((DateTime t, double v) TValue, bool update)
     {
-
         if (update)
         {
             this._lastema1 = this._lastlastema1;
@@ -53,15 +52,14 @@ public class DEMA_Series : Single_TSeries_Indicator
             for (int i = 0; i < _buffer.Count; i++) { _sma += _buffer[i]; }
             _sma /= this._buffer.Count;
             _ema1 = _ema2 = _sma;
-
         }
         else
         {
-            _ema1 = TValue.v * this._k + this._lastema1 * this._k1m;
-            _ema2 = _ema1 * this._k + this._lastema2 * this._k1m;
+            _ema1 = (TValue.v * this._k) + (this._lastema1 * this._k1m);
+            _ema2 = (_ema1 * this._k) + (this._lastema2 * this._k1m);
         }
 
-        double _dema = 2 * _ema1 - _ema2;
+        double _dema = (2 * _ema1) - _ema2;
         this._lastlastema1 = this._lastema1;
         this._lastlastema2 = this._lastema2;
         this._lastema1 = _ema1;

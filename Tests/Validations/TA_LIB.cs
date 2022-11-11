@@ -75,7 +75,6 @@ public class TA_LIB
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
 
-
 	[Fact]
 	public void SMA()
 	{
@@ -215,10 +214,7 @@ public class TA_LIB
 		Assert.Equal(Math.Round(outUpper[outUpper.Length - outBegIdx - 1], 7), Math.Round(QL.Upper.Last().v, 7));
 		Assert.Equal(Math.Round(outMiddle[outMiddle.Length - outBegIdx - 1], 7), Math.Round(QL.Mid.Last().v, 7));
 	  Assert.Equal(Math.Round(outLower[outLower.Length - outBegIdx - 1], 7), Math.Round(QL.Lower.Last().v, 7));
-
 	}
-
-
 
 	[Fact]
 	public void HL2()
@@ -255,5 +251,4 @@ public class TA_LIB
 
 		Assert.Equal(Math.Round(this.TALIB[this.TALIB.Length - outBegIdx - 1], 8), Math.Round(QL.Last().v, 8));
 	}
-
 }

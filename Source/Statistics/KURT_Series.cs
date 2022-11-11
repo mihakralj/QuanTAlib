@@ -54,7 +54,7 @@ public class KURT_Series : Single_TSeries_Indicator
         }
 
         double _Vx = _s2 / (_n - 1);
-        double _kurt = (_n > 3) ? (((_n * (_n + 1)) / ((_n - 1) * (_n - 2) * (_n - 3))) * (_s4 / (_Vx * _Vx)) - (3 * ((_n - 1) * (_n - 1) / ((_n - 2) * (_n - 3))))) : Double.NaN;
+        double _kurt = (_n > 3) ? (((_n * (_n + 1)) / (((_n - 1) * (_n - 2)) * (_n - 3))) * (_s4 / (_Vx * _Vx)) - (3 * (((_n - 1) * (_n - 1)) / ((_n - 2) * (_n - 3))))) : Double.NaN;
 
         var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? Double.NaN : _kurt);
         base.Add(result, update);

@@ -75,7 +75,6 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
         };
     }
     
-
     public void Add((DateTime t, double o, double h, double l, double c, double v) i, bool update = false)
       => Add(i.t, i.o, i.h, i.l, i.c, i.v, update);
 
@@ -130,6 +129,4 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
             Pub(this, new TSeriesEventArgs { update = update });
         }
     }
-
-
 }

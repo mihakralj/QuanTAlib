@@ -50,7 +50,7 @@ public class ATRP_Series : Single_TBars_Indicator
             for (int i = 0; i < _buffer.Count; i++) { _ema += _buffer[i]; }
             _ema /= this._buffer.Count;
         }
-        else { _ema = d.v * _k + _lastema * _k1m; }
+        else { _ema = (d.v * _k) + (_lastema * _k1m); }
 
         this._lastlastema = this._lastema;
         this._lastema = _ema;

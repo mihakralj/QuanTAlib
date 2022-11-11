@@ -27,7 +27,5 @@ public class HMA_Test
 		Assert.Equal(a.Count, c.Count);
 		a.Add(double.PositiveInfinity);
 		Assert.Equal(a.Count, c.Count);
-
 	}
-
 }

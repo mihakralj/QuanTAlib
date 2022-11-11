@@ -17,9 +17,9 @@ public class RND_Feed : TBars
         double c = startvalue;
         for (int i = 0; i < bars; i++)
         {
-            double o = Math.Round(c + c * (volatility * 0.1 * rnd.NextDouble() - 0.005), 2);
-            double h = Math.Round(o + c * volatility * rnd.NextDouble(), 2);
-            double l = Math.Round(o - c * volatility * rnd.NextDouble(), 2);
+            double o = Math.Round(c + (c * (volatility * 0.1 * rnd.NextDouble() - 0.005)), 2);
+            double h = Math.Round(o + (c * volatility * rnd.NextDouble()), 2);
+            double l = Math.Round(o - (c * volatility * rnd.NextDouble()), 2);
             c = Math.Round(l + (h - l) * rnd.NextDouble(), 2);
             double v = Math.Round(1000 * rnd.NextDouble(), 2);
             this.Add(DateTime.Today.AddDays(i - bars), o, h, l, c, v);

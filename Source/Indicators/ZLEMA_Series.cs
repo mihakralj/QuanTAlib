@@ -60,7 +60,7 @@ public class ZLEMA_Series : Single_TSeries_Indicator
 		}
 		else
 		{
-			_ema = _zl * this._k + this._lastema * this._k1m;
+			_ema = (_zl * this._k) + (this._lastema * this._k1m);
 		}
 
 		this._lastlastema = this._lastema;
