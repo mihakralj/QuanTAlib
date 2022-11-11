@@ -51,11 +51,6 @@ public class WMAPE_chart : Indicator
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open), this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low), this.GetPrice(PriceType.Close), this.GetPrice(PriceType.Volume), update);
         double result = this.indicator[this.indicator.Count - 1].v;
 
-
         this.SetValue(result, 0);
-
-
-
-
     }
 }

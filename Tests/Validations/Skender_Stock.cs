@@ -3,7 +3,6 @@ using QuanTAlib;
 using Skender.Stock.Indicators;
 using Xunit;
 
-
 namespace Validation;
 public class Skender_Stock
 {
@@ -176,7 +175,6 @@ public class Skender_Stock
 	    Assert.Equal(Math.Round((double)SK.Last().PercentB!, 8), Math.Round(QL.PercentB.Last().v, 8));
 	    Assert.Equal(Math.Round((double)SK.Last().ZScore!, 8), Math.Round(QL.Zscore.Last().v, 8));
     }
-
 
 	[Fact]
     public void RSI()
