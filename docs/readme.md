@@ -14,20 +14,180 @@
 
 Quantitative TA Library (**QuanTAlib**) is an easy-to-use C# library for quantitative technical analysis with base algorithms, charts, signals and strategies useful for trading securities with [Quantower](https://www.quantower.com/) and other C#-based trading platforms.
 
-**QuanTAlib** is written with some specific design criteria in mind - this is a list of reasons why there is '_yet another C# TA library_':
+**QuanTAlib** is written with some specific design criteria in mind - some reasons why there is '_yet another C# TA library_':
 
 - Written in native C# - no code conversion from TA-LIB or other imported/converted TA libraries
-- No usage of Decimal datatypes, LINQ, interface abstractions, or static classes (all for performance reasons)
+- No usage of Decimal datatypes, LINQ, interface abstractions, or static classes with tons of methods (all for performance reasons)
 - Supports both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without the need to re-calculate the whole history)
-- Separation of calculations (**algos**) and visualizations (**charts**)
-- Handle early data right - no hiding of poor calculations with NaN values (unless explicitly requested), data is as valid as mathematically possible from the first value
-- Preservation of time-value integrity of each data throughout the calculation chain (each data point has a timestamp)
-- Usage of events - each data series is an event publisher, each indicator is a subscriber - this allows seamless data flow between indicators without the need of plumbing (see [MACD example](https://github.com/mihakralj/QuanTAlib/blob/main/docs/macd_example.ipynb) to understand how events allow chaining of indicators)
+- Calculate early data right - no hiding of incomplete calculations with NaN values (unless explicitly requested with useNan: true), data is as valid as mathematically possible from the first value
+- Usage of events - each data series is an event publisher, each indicator is a subscriber - this allows seamless data flow between indicators)
+- Seamlessly integrates with **Polyglot notebooks** (.NET Interactive) and used in Jupyter notebooks - see the examples and documentation.
 
-QuanTAlib does not provide OHLCV quotes - but it can easily connect to any data feeds. There are some data feed classess
-available (**RND_Feed** for random OHLCV, **YAHOO_Feed** for Yahoo Finance daily stock data)
+QuanTAlib does not focus on sources of OHLCV quotes. There are some basic data feeds available to use in learning and strategy exploration: `RND_Feed` and `GBM_Feed` for random data feed, `Yahoo_Feed` and `Alphavantage_Feed` for quick grab of basic daily data of US stock market.
 
-See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/getting_started.ipynb) .NET interactive notebook to get a feel how library works. Developers can use QuanTAlib in .NET interactive or in console apps, but the best
-usage of the library is withing C#-enabled trading platforms - see **QuanTower_Charts** folder for Quantower examples.
+See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/getting_started.ipynb) .NET interactive notebook to get a feel how library works. Developers can use QuanTAlib in .NET interactive or in console apps, but the best usage of the library is withing C#-enabled trading platforms - see **QuanTower_Charts** folder for Quantower examples.
 
-[**List of available and planned indicators**](https://github.com/mihakralj/QuanTAlib/blob/main/docs/coverage.md). **So. Much. To. Do...**
+# Coverage
+
+⭐= Calculation is validated against other TA libraries
+
+✔️= Calculation exists but has no cross-validation tests
+
+⛔= Not implemented (yet)
+
+| **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** |
+|--|:--:|:--:|:--:|
+| ✔️ OC2 - (Open+Close)/2 |️ `.OC2` || ️`GetBaseQuote` |
+| ⭐ HL2 - Median Price | `.HL2` | `MEDPRICE` | ️`GetBaseQuote` |
+| ⭐ HLC3 - Typical Price | `.HLC3` | `TYPPRICE` ||
+| ✔️ OHL3 - (Open+High+Low)/3 | `.OHL3` |||
+| ⭐ OHLC4 - Average Price | `.OHLC4` | `AVGPRICE` |️ `GetBaseQuote` |
+| ⭐ HLCC4 - Weighted Price |  `.HLCC4` | `WCLPRICE` ||
+| ✔️ ZL - De-lagged price (Zero-Lag) | `ZL_Series` |||
+| ⭐ MAX - Max value | `MAX_Series` | `MAX` ||
+| ⛔ MID - Midpoint value || `MIDPOINT` ||
+| ⛔ MIDP - Midpoint price || `MIDPRICE` ||
+| ⭐ MIN - Min value | `MIN_Series` | `MIN` ||
+| ⭐ ADD - Addition | `ADD_Series` | `ADD` ||
+| ⭐ SUB - Subtraction | `SUB_Series` | `SUB` ||
+| ⭐ MUL - Multiplication | `MUL_Series` | `MUL` ||
+| ⭐ DIV - Division | `DIV_Series` | `DIV` ||
+|||||
+| **STATISTICS & NUMERICAL ANALYSIS** | **QuanTAlib** | **TA-LIB** | **Skender** |
+| ✔️ BIAS - Bias | BIAS_Series |||
+| ⛔ CORREL - Pearson's Correlation Coefficient || CORREL | GetCorrelation |
+| ⛔ COVAR - Covariance ||| GetCorrelation |
+| ✔️ ENTP - Entropy | ENTP_Series |||
+| ✔️ KURT - Kurtosis | KURT_Series |||
+| ⭐ LINREG - Linear Regression | LINREG_Series || GetSlope |
+| ⭐ MAD - Mean Absolute Deviation | MAD_Series || GetSma |
+| ⭐ MAPE - Mean Absolute Percent Error | MAPE_Series || GetSma |
+| ✔️ MED - Median value | MED_Series |||
+| ✔️ MSE - Mean Squared Error | MSE_Series || GetSma |
+| ⛔ SKEW - Skewness ||||
+| ⭐ SDEV - Standard Deviation (Volatility) | SDEV_Series |||
+| ✔️ SSDEV - Sample Standard Deviation | SSDEV_Series |||
+| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | SMAPE_Series ||| 
+| ✔️ VAR - Population Variance | VAR_Series |||
+| ✔️ SVAR - Sample Variance | SVAR_Series |||
+| ⛔ QUANT - Quantile ||||
+| ✔️ WMAPE - Weighted Mean Absolute Percent Error | WMAPE_Series |||
+| ⛔ ZSCORE - Number of standard deviations from mean ||||
+|||||
+| **TREND INDICATORS & AVERAGES** | **QuanTAlib** | **TA-LIB** | **Skender** |
+| ⛔ AFIRMA - Autoregressive Finite Impulse Response Moving Average ||||
+| ⭐ ALMA - Arnaud Legoux Moving Average | ALMA_Series || GetAlma |
+| ⛔ ARIMA - Autoregressive Integrated Moving Average ||||
+| ⭐ DEMA - Double EMA Average | DEMA_Series | DEMA | GetDema |
+| ⭐ EMA - Exponential Moving Average | EMA_Series || GetEma |
+| ⛔ EPMA - Endpoint Moving Average ||| GetEpma |
+| ⛔ FWMA - Fibonacci's Weighted Moving Average ||||
+| ✔️ HEMA - Hull/EMA Average | HEMA_Series |||
+| ⛔ Hilbert Transform Instantaneous Trendline || HT_TRENDLINE | GetHtTrendline |
+| ⭐ HMA - Hull  Moving Average | HMA_Series || GetHma |
+| ⛔ HWMA - Holt-Winter Moving Average ||||
+| ✔️ JMA - Jurik Moving Average | JMA_Series |||
+| ⭐ KAMA - Kaufman's Adaptive Moving Average | KAMA_Series | KAMA | GetKama |
+| ⛔ LSMA - Least Squares Moving Average ||||
+| ⭐ MACD - Moving Average Convergence/Divergence | MACD_Series | MACD | GetMacd |
+| ⛔ MAMA - MESA Adaptive Moving Average || MAMA | GetMama |
+| ⛔ MMA - Modified Moving Average ||||
+| ⛔ PPMA - Pivot Point Moving Average ||||
+| ⛔ PWMA - Pascal's Weighted Moving Average ||||
+| ✔️ RMA - WildeR's Moving Average | RMA__Series |||
+| ⛔ SINWMA - Sine Weighted Moving Average ||||
+| ⭐ SMA - Simple Moving Average | SMA_Series |||
+| ⭐ SMMA - Smoothed Moving Average | SMMA_Series |||
+| ⛔ SSF - Ehler's Super Smoother Filter ||||
+| ⛔ SUP - Supertrend ||||
+| ⛔ SWMA - Symmetric Weighted Moving Average ||||
+| ⛔ T3 - Tillson T3 Moving Average ||||
+| ⭐ TEMA - Triple EMA Average | TEMA_Series |||
+| ⛔ TRIMA - Triangular Moving Average ||||
+| ⛔ VIDYA - Variable Index Dynamic Average ||||
+| ⭐ WMA - Weighted Moving Average | WMA_Series |||
+| ✔️ ZLEMA - Zero Lag EMA Average | ZLEMA_Series |||
+|||||
+| **VOLATILITY INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** |
+| ⭐ ADL - Chaikin Accumulation Distribution Line | ADL_Series | AD | GetAdl |
+| ⭐ ADOSC - Chaikin Accumulation Distribution Oscillator | ADOSC_Series | ADOSC| GetAdl |
+| ⭐ ATR - Average True Range | ATR_Series | ATR | GetAtr |
+| ⭐ ATRP - Average True Range Percent | ATRP_Series || GetAtr |
+| ✔️ BETA - Beta coefficient || BETA | GetBeta |
+| ⭐ BBANDS - Bollinger Bands® | BBANDS_Series | BBANDS | GetBollingerBands |
+| ⛔ CRSI - Connor RSI ||| GetConnorsRsi |
+| ⛔ DON - Donchian Channels ||| GetDonchian |
+| ⛔ FCB - Fractal Chaos Bands ||| GetFcb |
+| ⛔ HV - Historical Volatility ||||
+| ⛔ ICH - Ichimoku ||| GetIchimoku |
+| ⛔ KEL - Keltner Channels ||| GetKeltner |
+| ⛔ NATR - Normalized Average True Range || NATR | GetAtr |
+| ⭐ RSI - Relative Strength Index | RSI_Series ||
+| ⛔ SAR - Parabolic Stop and Reverse || SAR | GetParabolicSar |
+| ⛔ SRSI - Stochastic RSI ||||
+| ⛔ STARC - Starc Bands ||||
+| ⭐ TR - True Range | TR_Series |||
+| ⛔ UI - Ulcer Index ||||
+| ⛔ VSTOP - Volatility Stop ||||
+|||||
+| **MOMENTUM INDICATORS & OSCILLATORS** | **QuanTAlib** | **TA-LIB** | **Skender** |
+| ⛔ AC - Acceleration Oscillator ||||
+| ⛔ ADX - Average Directional Movement Index || ADX | GetAdx |
+| ⛔ ADXR - Average Directional Movement Index Rating || ADXR | GetAdx |
+| ⛔ AO - Awesome Oscillator ||| GetAwesome |
+| ⛔ APO - Absolute Price Oscillator || APO ||
+| ⛔ AROON - Aroon oscillator || AROON | GetAroon |
+| ⛔ BOP - Balance of Power || BOP | GetBop |
+| ⭐ CCI - Commodity Channel Index | CCI_Series | CCI | GetCci |
+| ⛔ CFO - Chande Forcast Oscillator ||||
+| ⛔ CMF - Chaikin Money Flow ||||
+| ⛔ CMO - Chande Momentum Oscillator || CMO | GetCmo |
+| ⛔ COG - Center of Gravity ||||
+| ⛔ CTI - Ehler's Correlation Trend Indicator ||||
+| ⛔ DPO - Detrended Price Oscillator ||| GetDpo |
+| ⛔ DMI - Directional Movement Index || DX | GetAdx |
+| ⛔ EFI - Elder Ray's Force Index ||| GetElderRay |
+| ⛔ GAT - Alligator oscillator ||| GetGator |
+| ⛔ HURST - Hurst Exponent ||| GetHurst |
+| ⛔ KRI - Kairi Relative Index ||||
+| ⛔ KVO - Klinger Volume Oscillator ||||
+| ⛔ MFI - Money Flow Index || MFI | GetMfi |
+| ⛔ ROC - Rate of Change (Momentum) || MOM | GetRoc |
+| ⛔ NVI - Negative Volume Index ||||
+| ⛔ PO - Price Oscillator ||||
+| ⛔ PPO - Percentage Price Oscillator || PPO ||
+| ⛔ PMO - Price Momentum Oscillator ||||
+| ⛔ PVI - Positive Volume Index ||||
+| ⛔ RVGI - Relative Vigor Index ||||
+| ⛔ SMI - Stochastic Momentum Index ||||
+| ⛔ STOCH - Stochastic Oscillator ||||
+| ⛔ TRIX - 1-day ROC of TEMA ||||
+| ⛔ TSI - True Strength Index ||||
+| ⛔ UO - Ultimate Oscillator ||||
+| ⛔ WGAT - Williams Alligator ||||
+|||||
+| **VOLUME INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** |
+| ⛔ AOBV - Archer On-Balance Volume ||||
+| ⛔ OBV - On-Balance Volume || OBV | GetObv |
+| ⛔ PRS - Price Relative Strength |||
+| ⛔ PVOL - Price-Volume ||||
+| ⛔ PVO - Percentage Volume Oscillator ||||
+| ⛔ PVR - Price Volume Rank ||||
+| ⛔ PVT - Price Volume Trend ||||
+| ⛔ VP - Volume Profile ||||
+| ⛔ VWAP - Volume Weighted Average Price ||||
+| ⛔ VWMA - Volume Weighted Moving Average ||||
+|||||
+|**Unsorted** | **QuanTAlib** | **TA-LIB** | **Skender** |
+| ⛔ CHN - Price Channel ||||
+| ⛔ COPPOCK - Coppock Curve ||||
+| ⛔ EOM - Ease of Movement ||||
+| ⛔ HILO - Gann High-Low Activator ||||
+| ⛔ HT - HT Trendline ||||
+| ⛔ MCGD - McGinley Dynamic ||||
+| ⛔ STC - Schaff Trend Cycle ||||
+| ⛔ WILLR - Larry Williams' %R ||||
+| ⛔ VOR - Vortex Indicator ||||
+| ⛔ PVT - Pivot Points ||||
+| ⛔ KDJ - KDJ Index ||||
+| ⛔ CHAND - Chandelier Exit ||||

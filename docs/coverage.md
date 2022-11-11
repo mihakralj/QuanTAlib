@@ -38,7 +38,7 @@
 | ⛔ SKEW - Skewness ||||
 | ⭐ SDEV - Standard Deviation (Volatility) | SDEV_Series |||
 | ✔️ SSDEV - Sample Standard Deviation | SSDEV_Series |||
-| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | SMAPE_Series |||
+| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | SMAPE_Series ||| 
 | ✔️ VAR - Population Variance | VAR_Series |||
 | ✔️ SVAR - Sample Variance | SVAR_Series |||
 | ⛔ QUANT - Quantile ||||
