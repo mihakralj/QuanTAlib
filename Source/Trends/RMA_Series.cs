@@ -51,7 +51,7 @@ public class RMA_Series : Single_TSeries_Indicator
         }
         else
         {
-            _ema = TValue.v * _k + _lastema * _k1m;
+            _ema = (TValue.v * _k) + (_lastema * _k1m);
         }
 
         this._lastlastema = this._lastema;

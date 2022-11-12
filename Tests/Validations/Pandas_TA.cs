@@ -1,5 +1,3 @@
-
-
 using Xunit;
 using System;
 using QuanTAlib;
@@ -120,5 +118,4 @@ public class PandasTA
 				Assert.Equal(System.Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
 			}
 		*/
-
 }

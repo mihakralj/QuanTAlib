@@ -87,6 +87,20 @@ jobs:
         title: "Latest Build"
         files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
 
+    - name: Authenticate to Github packages source
+      run: dotnet nuget add source
+          --username mihakralj
+          --password ${{ secrets.GITHUB_TOKEN }}
+          --store-password-in-clear-text
+          --name github "https://nuget.pkg.github.com/mihakralj/index.json"
+
+    - name: Push package to github
+      if: ${{ github.ref == 'refs/heads/dev' }}
+      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+          --source https://nuget.pkg.github.com/mihakralj/index.json
+          --skip-duplicate
+          --no-symbols
+
     - name: Push package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
       run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'

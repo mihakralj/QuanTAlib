@@ -30,6 +30,5 @@ public class ZL_Series : Single_TSeries_Indicator
 
         var ret = (TValue.t, (base.Count==0 && base._NaN) ? double.NaN : _zl );
         base.Add(ret, update);
-
     }
 }

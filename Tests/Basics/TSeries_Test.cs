@@ -48,7 +48,6 @@ public class TSeries_Test
         TSeries t = s;
         Assert.Equal(5, (double)t);
         Assert.Equal(5, t.Count);
-
     }
     [Fact]
     public void BroadcastingEvents()
@@ -58,6 +57,5 @@ public class TSeries_Test
         s.Pub += t.Sub;
         s.Add(0.0, update: true);
         Assert.Equal(0.0, (double)t);
-
     }
 }

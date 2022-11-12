@@ -52,7 +52,5 @@ public class BBANDS_Test
 		Assert.Equal(a.Count, c.PercentB.Count);
 		Assert.Equal(a.Count, c.Zscore.Count);
 		Assert.Equal(a.Count, c.Bandwidth.Count);
-
 	}
-
 }

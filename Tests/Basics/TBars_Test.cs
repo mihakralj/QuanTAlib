@@ -108,6 +108,5 @@ public class TBars_Test
 			s.Add(DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1, false);
 			Assert.Equal(s.Close.v, t.v);
 			Assert.Equal(s.Close.Count, t.Count);
-
   }
 }

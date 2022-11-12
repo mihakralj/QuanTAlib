@@ -20,14 +20,13 @@ public class CCI_Series : Single_TBars_Indicator
 {
   private readonly System.Collections.Generic.List<double> _tp = new();
 
-  public CCI_Series(TBars source, int period = 10, bool useNaN = false) 
-    : base(source, period: period, useNaN: useNaN) {
-
+  public CCI_Series(TBars source, int period = 10, bool useNaN = false) : base(source, period: period, useNaN: useNaN) 
+  {
     if (_bars.Count > 0) { base.Add(_bars); }
   }
 
-  public override void Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update) {
-    
+  public override void Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update) 
+  {
     double _tpItem = (TBar.h + TBar.l + TBar.c) / 3.0;
     if (update) { this._tp[this._tp.Count - 1] = _tpItem; } else { this._tp.Add(_tpItem); }
     if (this._tp.Count > this._p) { this._tp.RemoveAt(0); }

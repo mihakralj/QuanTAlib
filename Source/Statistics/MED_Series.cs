@@ -37,7 +37,7 @@ public class MED_Series : Single_TSeries_Indicator
         System.Collections.Generic.List<double> _s = new(this._buffer);
         _s.Sort();
         int _p1 = _s.Count / 2;
-        int _p2 = Math.Max(0, _s.Count / 2 - 1);
+        int _p2 = Math.Max(0, (_s.Count / 2) - 1);
         double _med = (_s.Count % 2 != 0) ? _s[_p1] : (_s[_p1] + _s[_p2]) / 2;
 
         var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _med);

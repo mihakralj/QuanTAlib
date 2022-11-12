@@ -55,4 +55,3 @@ public class Alphavantage_Feed : TBars
         return (date, o, h, l, c, v);
     }
 }
-

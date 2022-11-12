@@ -30,8 +30,8 @@ public class ATR_chart : Indicator
         this.ShortName = "ATR (" + this.Period + ")";
         this.bars = new();
 this.indicator = new(source: bars, period: this.Period, useNaN: false);
-    }
-
+    }
+
 	protected override void OnUpdate(UpdateArgs args)
     {
         bool update = !(args.Reason == UpdateReason.NewBar ||
