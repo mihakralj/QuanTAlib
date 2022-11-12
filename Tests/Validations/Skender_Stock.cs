@@ -13,7 +13,7 @@ public class Skender_Stock
 
 	public Skender_Stock()
 	{
-		this.bars = new(Bars: 1, Volatility:0.7, Drift:0.0);
+		this.bars = new(Bars: 5000, Volatility:0.7, Drift:0.0);
 		this.period = this.rnd.Next(28) + 3;
 		this.quotes = this.bars.Select(
 			q => new Quote
