@@ -38,11 +38,11 @@ public class GBM_Feed : TBars
 
         double OCMax = Math.Max(Open,Close);
         double High = (GBM_value(seed, volatility*0.5, 0));
-        High = (High<OCMax)? 2*OCMax-High : High;
+        High = (High<OCMax)? (2 * OCMax) - High : High;
 
         double OCMin = Math.Min(Open,Close);
         double Low = (GBM_value(seed, volatility*0.5, 0));
-        Low = (Low>OCMin)? 2*OCMin-Low : Low;
+        Low = (Low>OCMin)? (2 * OCMin) - Low : Low;
 
         double Volume = GBM_value(seed*10, volatility*2, Drift:0);
 
@@ -55,6 +55,6 @@ public class GBM_Feed : TBars
         double U1 = 1.0-rnd.NextDouble();
         double U2 = 1.0-rnd.NextDouble();
         double Z = Math.Sqrt(-2.0 * Math.Log(U1)) * Math.Sin(2.0 * Math.PI * U2);
-        return Seed * Math.Exp( Drift - (Volatility*Volatility*0.5) + Volatility * Z);
+        return Seed * Math.Exp( Drift - (Volatility*Volatility*0.5) + (Volatility * Z));
     }
 }

@@ -32,22 +32,13 @@ public abstract class Single_TSeries_Indicator : TSeries
     public new virtual void Add((System.DateTime t, double v) TValue, bool update) => base.Add(TValue, update);
 
     // potentially overridable Add() method for the whole series (could be replaced with faster bulk algo)
-    public virtual void Add(TSeries data)
-    {
-        for (int i = 0; i < data.Count; i++) { this.Add(TValue: data[i], update: false); }
-    }
+    public virtual void Add(TSeries data) { for (int i = 0; i < data.Count; i++) { this.Add(TValue: data[i], update: false); }}
 
-    public new void Add((System.DateTime t, double v) TValue) 
-        => this.Add(TValue: TValue, update: false);
-    public void Add(bool update) 
-        => this.Add(TValue: this._data[this._data.Count - 1], update: update);
-    public void Add() 
-        => this.Add(TValue: this._data[this._data.Count - 1], update: false);
-    public new void Sub(object source, TSeriesEventArgs e) 
-        => this.Add(TValue: this._data[this._data.Count - 1], update: e.update);
+    public new void Add((System.DateTime t, double v) TValue) => this.Add(TValue: TValue, update: false);
+    public void Add(bool update) => this.Add(TValue: this._data[this._data.Count - 1], update: update);
+    public void Add() => this.Add(TValue: this._data[this._data.Count - 1], update: false);
+    public new void Sub(object source, TSeriesEventArgs e) => this.Add(TValue: this._data[this._data.Count - 1], update: e.update);
 }
-
-
 
 public abstract class Pair_TSeries_Indicator : TSeries
 {
@@ -83,24 +74,14 @@ public abstract class Pair_TSeries_Indicator : TSeries
     }
 
     // overridable Add(Tvalue, Tvalue) method to add/update a single value at the end of the list
-    public virtual void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2, bool update) 
-        => base.Add(TValue: (TValue1.t, 0), update: update); // default inserts zeros
-
+    public virtual void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2, bool update) => base.Add(TValue: (TValue1.t, 0), update: update); // default inserts zeros
 
     // potentially overridable Add() bulk variations (could be replaced with faster bulk algos)
-    public virtual void Add(TSeries d1, TSeries d2) {
-        for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], d2[i], update: false); }
-    }
-    public virtual void Add(TSeries d1, double dd2) {
-        for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], (d1[i].t, dd2), update: false); }
-    }
-    public virtual void Add(double dd1, TSeries d2) {
-        for (int i = 0; i < d2.Count; i++) { this.Add((d2[i].t, dd1), d2[i], update: false); }
-    }
+    public virtual void Add(TSeries d1, TSeries d2) { for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], d2[i], update: false); }}
+    public virtual void Add(TSeries d1, double dd2) { for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], (d1[i].t, dd2), update: false); }}
+    public virtual void Add(double dd1, TSeries d2) { for (int i = 0; i < d2.Count; i++) { this.Add((d2[i].t, dd1), d2[i], update: false); }}
 
-
-    public void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2) 
-        => this.Add(TValue1, TValue2, update: false);
+    public void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2) => this.Add(TValue1, TValue2, update: false);
 
 	public void Add(bool update)
 	{
@@ -123,11 +104,8 @@ public abstract class Pair_TSeries_Indicator : TSeries
 	}
 
 	public void Add() => this.Add(update: false);
-
-    public new void Sub(object source, TSeriesEventArgs e) 
-        => this.Add(e.update);
+    public new void Sub(object source, TSeriesEventArgs e) => this.Add(e.update);
 }
-
 
 public abstract class Single_TBars_Indicator : TSeries
 {
@@ -148,22 +126,10 @@ public abstract class Single_TBars_Indicator : TSeries
     public virtual void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar, bool update) => base.Add((TBar.t, 0.0), update);
 
     // potentially overridable Add() method for the whole bars or series (could be replaced with faster bulk algo)
-    public virtual void Add(TBars bars)
-    {
-        for (int i = 0; i < bars.Count; i++) { this.Add(TBar: bars[i], update: false); }
-    }
-
-    public virtual void Add(TSeries data)
-    {
-	    for (int i = 0; i < data.Count; i++) { base.Add(TValue: data[i], update: false); }
-    }
-
-public void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar) 
-        => this.Add(TBar: TBar, update: false);
-    public void Add(bool update) 
-        => this.Add(TBar: this._bars[this._bars.Count - 1], update: update);
-    public void Add() 
-        => this.Add(TBar: this._bars[this._bars.Count - 1], update: false);
-    public new void Sub(object source, TSeriesEventArgs e) 
-        => this.Add(TBar: this._bars[this._bars.Count - 1], update: e.update);
+    public virtual void Add(TBars bars) { for (int i = 0; i < bars.Count; i++) { this.Add(TBar: bars[i], update: false); }}
+    public virtual void Add(TSeries data) { for (int i = 0; i < data.Count; i++) { base.Add(TValue: data[i], update: false); }}
+    public void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar) => this.Add(TBar: TBar, update: false);
+    public void Add(bool update) => this.Add(TBar: this._bars[this._bars.Count - 1], update: update);
+    public void Add() => this.Add(TBar: this._bars[this._bars.Count - 1], update: false);
+    public new void Sub(object source, TSeriesEventArgs e) => this.Add(TBar: this._bars[this._bars.Count - 1], update: e.update);
 }

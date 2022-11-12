@@ -22,7 +22,10 @@ public class MIN_Series : Single_TSeries_Indicator
 
         double _min = TValue.v;
         for (int i = 0; i < this._buffer.Count; i++)
-        { _min = (this._buffer[i] < _min) ? this._buffer[i] : _min; }
+        { 
+            //_min = (this._buffer[i] < _min) ? this._buffer[i] : _min; 
+            _min = Math.Min(this._buffer[i], _min);
+        }
 
         var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _min);
 

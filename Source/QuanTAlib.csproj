@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>0.1.17</Version>
+    <Version>0.1.18</Version>
     <releaseNotes>
     </releaseNotes>
     <Title>QuanTAlib</Title>

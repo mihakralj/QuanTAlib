@@ -52,7 +52,7 @@ public class EMA_Series : Single_TSeries_Indicator
         }
         else
         {
-            _ema = TValue.v * this._k + this._lastema * this._k1m;
+            _ema = (TValue.v * this._k) + (this._lastema * this._k1m);
         }
 
         this._lastlastema = this._lastema;
