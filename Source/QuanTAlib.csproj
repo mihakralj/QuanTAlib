@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>0.1.18</Version>
-    <releaseNotes>
-    </releaseNotes>
     <Title>QuanTAlib</Title>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Technical Analysis library for both real-time (streaming) and historical data analysis</Description>
@@ -13,7 +10,7 @@
     <Authors>Miha Kralj</Authors>
     <Copyright>Miha Kralj</Copyright>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
     <Nullable>disable</Nullable>
@@ -68,5 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="6.0.6" />
+    <PackageReference Include="GitVersion.MsBuild" Version="5.6.10*">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
+  
 </Project>

@@ -105,8 +105,8 @@ public class Skender_Stock
 		var SK = this.quotes.GetObv(this.period);
 
 		// adding volume[0] to OBV to pass the test and keep compatibility with TA-LIB
-		Assert.Equal(Math.Round((double)SK.Last().Obv!, 6) + Math.Round((double)this.quotes.First().Volume!, 6),
-			Math.Round(QL.Last().v, 6));
+		Assert.Equal(Math.Round(SK.Last().Obv! + (double)this.quotes.First().Volume!, 5),
+			Math.Round(QL.Last().v, 5));
 	}
 
 	[Fact]

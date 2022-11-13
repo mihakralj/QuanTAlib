@@ -181,7 +181,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⛔ AOBV - Archer On-Balance Volume ||||
 | ⛔ CMF - Chaikin Money Flow ||||
 | ⛔ EOM - Ease of Movement ||||
-| ⭐ OBV - On-Balance Volume | `OBV_Series` | OBV | GetObv |
+| ⭐ OBV - On-Balance Volume | ` OBV_Series` | OBV | GetObv |
 | ⛔ PRS - Price Relative Strength |||
 | ⛔ PVOL - Price-Volume ||||
 | ⛔ PVO - Percentage Volume Oscillator ||||

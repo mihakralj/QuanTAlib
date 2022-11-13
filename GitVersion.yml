@@ -1,0 +1,17 @@
+next-version: 0.1.19
+minor-version-bump-message: \+semver:\s?(feature|new)
+branches:
+  main:
+    regex: ^main$
+    is-release-branch: true
+    prevent-increment-of-merged-branch-version: true
+    mode: ContinuousDelivery
+    tag: ''
+    increment: Patch
+  develop:
+    regex: ^dev(elop)?(ment)?$
+    is-release-branch: false
+    mode: ContinuousDelivery
+    tag: 'nightly'
+    increment: Inherit
+update-build-number: true
