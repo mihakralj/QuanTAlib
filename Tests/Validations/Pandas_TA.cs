@@ -29,8 +29,8 @@ public class PandasTA : IDisposable
     Installer.InstallPath = Path.GetFullPath(".");
     Installer.SetupPython().Wait();
     Installer.TryInstallPip();
-    //Installer.PipInstallModule("pandas-ta");
-    Installer.PipInstallModule("git+https://github.com/twopirllc/pandas-ta@development");
+    Installer.PipInstallModule("pandas-ta");
+    //Installer.PipInstallModule("git+https://github.com/twopirllc/pandas-ta@development");
 
     Runtime.PythonDLL = OStype;
     PythonEngine.Initialize();
