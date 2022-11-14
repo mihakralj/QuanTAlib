@@ -35,158 +35,158 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 
 ⛔= Not implemented (yet)
 
-| **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** |
-|--|:--:|:--:|:--:|
-| ✔️ OC2 - (Open+Close)/2 |️ `.OC2` || ️GetBaseQuote |
-| ⭐ HL2 - Median Price | `.HL2` | MEDPRICE | ️GetBaseQuote |
-| ⭐ HLC3 - Typical Price | `.HLC3` | TYPPRICE ||
-| ✔️ OHL3 - (Open+High+Low)/3 | `.OHL3` |||
-| ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ GetBaseQuote |
-| ⭐ HLCC4 - Weighted Price |  `.HLCC4` | WCLPRICE ||
-| ⭐ MIDPOINT - Midpoint value | `MIDPOINT_Series` | MIDPOINT ||
-| ⭐ MIDPRICE - Midpoint price | `MIDPRICE_Series` | MIDPRICE ||
-| ⭐ MAX - Max value | `MAX_Series` | MAX ||
-| ⭐ MIN - Min value | `MIN_Series` | MIN ||
-| ⭐ SUM - Summation | `SUM_Series` | SUM ||
-| ⭐ ADD - Addition | `ADD_Series` | ADD ||
-| ⭐ SUB - Subtraction | `SUB_Series` | SUB ||
-| ⭐ MUL - Multiplication | `MUL_Series` | MUL ||
-| ⭐ DIV - Division | `DIV_Series` | DIV ||
+| **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+|--|:--:|:--:|:--:|:--:|
+| ⭐ OC2 - (Open+Close)/2 |️ `.OC2` || CandlePart.OC2 ||
+| ⭐ HL2 - Median Price | `.HL2` | MEDPRICE | CandlePart.HL2 ||
+| ⭐ HLC3 - Typical Price | `.HLC3` | TYPPRICE | CandlePart.HLC3 ||
+| ⭐ OHL3 - (Open+High+Low)/3 | `.OHL3` || CandlePart.OHL3 ||
+| ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ CandlePart.OHLC4 ||
+| ⭐ HLCC4 - Weighted Price |  `.HLCC4` | WCLPRICE | CandlePart.HLCC4 ||
+| ⭐ MIDPOINT - Midpoint value | `MIDPOINT_Series` | MIDPOINT |||
+| ⭐ MIDPRICE - Midpoint price | `MIDPRICE_Series` | MIDPRICE |||
+| ⭐ MAX - Max value | `MAX_Series` | MAX |||
+| ⭐ MIN - Min value | `MIN_Series` | MIN |||
+| ⭐ SUM - Summation | `SUM_Series` | SUM |||
+| ⭐ ADD - Addition | `ADD_Series` | ADD |||
+| ⭐ SUB - Subtraction | `SUB_Series` | SUB |||
+| ⭐ MUL - Multiplication | `MUL_Series` | MUL |||
+| ⭐ DIV - Division | `DIV_Series` | DIV |||
 |||||
-| **STATISTICS & NUMERICAL ANALYSIS** | **QuanTAlib** | **TA-LIB** | **Skender** |
-| ✔️ BIAS - Bias | `BIAS_Series` |||
-| ⛔ CORREL - Pearson's Correlation Coefficient || CORREL | GetCorrelation |
-| ⛔ COVAR - Covariance ||| GetCorrelation |
-| ✔️ ENTP - Entropy | `ENTP_Series` |||
-| ✔️ KURT - Kurtosis | `KURT_Series` |||
-| ⭐ LINREG - Linear Regression | `LINREG_Series` || GetSlope |
-| ⭐ MAD - Mean Absolute Deviation | `MAD_Series` || GetSma |
-| ⭐ MAPE - Mean Absolute Percent Error | `MAPE_Series` || GetSma |
-| ✔️ MED - Median value | `MED_Series` |||
-| ✔️ MSE - Mean Squared Error | `MSE_Series` || GetSma |
-| ⛔ SKEW - Skewness ||||
-| ⭐ SDEV - Standard Deviation (Volatility) | `SDEV_Series` | STDDEV ||
-| ✔️ SSDEV - Sample Standard Deviation | `SSDEV_Series` |||
-| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | `SMAPE_Series` |||
-| ✔️ VAR - Population Variance | `VAR_Series` | VAR ||
-| ✔️ SVAR - Sample Variance | `SVAR_Series` |||
-| ⛔ QUANT - Quantile ||||
-| ✔️ WMAPE - Weighted Mean Absolute Percent Error | `WMAPE_Series` |||
-| ⛔ ZSCORE - Number of standard deviations from mean ||||
-|||||
-| **TREND INDICATORS & AVERAGES** | **QuanTAlib** | **TA-LIB** | **Skender** |
-| ⛔ AFIRMA - Autoregressive Finite Impulse Response Moving Average ||||
-| ⭐ ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma |
-| ⛔ ARIMA - Autoregressive Integrated Moving Average ||||
-| ⭐ DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema |
-| ⭐ EMA - Exponential Moving Average | `EMA_Series` || GetEma |
-| ⛔ EPMA - Endpoint Moving Average ||| GetEpma |
-| ⛔ FRAMA - Fractal Adaptive Moving Average ||||
-| ⛔ FWMA - Fibonacci's Weighted Moving Average ||||
-| ⛔ HILO - Gann High-Low Activator ||||
-| ✔️ HEMA - Hull/EMA Average | `HEMA_Series` |||
-| ⛔ Hilbert Transform Instantaneous Trendline || HT_TRENDLINE | GetHtTrendline |
-| ⭐ HMA - Hull  Moving Average | `HMA_Series` || GetHma |
-| ⛔ HWMA - Holt-Winter Moving Average ||||
-| ✔️ JMA - Jurik Moving Average | `JMA_Series` |||
-| ⭐ KAMA - Kaufman's Adaptive Moving Average | `KAMA_Series` | KAMA | GetKama |
-| ⛔ KDJ - KDJ Indicator (trend reversal) ||||
-| ⛔ LSMA - Least Squares Moving Average ||||
-| ⭐ MACD - Moving Average Convergence/Divergence | `MACD_Series` | MACD | GetMacd |
-| ⛔ MAMA - MESA Adaptive Moving Average || MAMA | GetMama |
-| ⛔ MCGD - McGinley Dynamic ||||
-| ⛔ MMA - Modified Moving Average ||||
-| ⛔ PPMA - Pivot Point Moving Average ||||
-| ⛔ PWMA - Pascal's Weighted Moving Average ||||
-| ✔️ RMA - WildeR's Moving Average | `RMA_Series` |||
-| ⛔ SINWMA - Sine Weighted Moving Average ||||
-| ⭐ SMA - Simple Moving Average | `SMA_Series` | SMA | GetSma |
-| ⭐ SMMA - Smoothed Moving Average | `SMMA_Series` |||
-| ⛔ SSF - Ehler's Super Smoother Filter ||||
-| ⛔ SUP - Supertrend ||||
-| ⛔ SWMA - Symmetric Weighted Moving Average ||||
-| ⛔ T3 - Tillson T3 Moving Average || T3 | GetT3 |
-| ⭐ TEMA - Triple EMA Average | `TEMA_Series` | TEMA | GetTema |
-| ⭐ TRIMA - Triangular Moving Average | `TRIMA_Series` | TRIMA ||
-| ⛔ TSF - Time Series Forecast || TSF ||
-| ⛔ VIDYA - Variable Index Dynamic Average ||||
-| ⛔ VOR - Vortex Indicator ||||
-| ⭐ WMA - Weighted Moving Average | `WMA_Series` | WMA | GetWma |
-| ✔️ ZLEMA - Zero Lag EMA Average | `ZLEMA_Series` |||
-|||||
-| **VOLATILITY INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** |
-| ⭐ ADL - Chaikin Accumulation Distribution Line | `ADL_Series` | AD | GetAdl |
-| ⭐ ADOSC - Chaikin Accumulation Distribution Oscillator | `ADOSC_Series` | ADOSC| GetAdl |
-| ⭐ ATR - Average True Range | `ATR_Series` | ATR | GetAtr |
-| ⭐ ATRP - Average True Range Percent | `ATRP_Series` || GetAtr |
-| ⛔ BETA - Beta coefficient || BETA | GetBeta |
-| ⭐ BBANDS - Bollinger Bands® | `BBANDS_Series` | BBANDS | GetBollingerBands |
-| ⛔ CHAND - Chandelier Exit ||| GetChandelier |
-| ⛔ CRSI - Connor RSI ||| GetConnorsRsi |
-| ⛔ DON - Donchian Channels ||| GetDonchian |
-| ⛔ FCB - Fractal Chaos Bands ||| GetFcb |
-| ⛔ HV - Historical Volatility ||||
-| ⛔ ICH - Ichimoku ||| GetIchimoku |
-| ⛔ KEL - Keltner Channels ||| GetKeltner |
-| ⛔ NATR - Normalized Average True Range || NATR | GetAtr |
-| ⛔ CHN - Price Channel Indicator ||||
-| ⭐ RSI - Relative Strength Index | `RSI_Series` | RSI | GetRsi |
-| ⛔ SAR - Parabolic Stop and Reverse || SAR | GetParabolicSar |
-| ⛔ SRSI - Stochastic RSI || STOCHRSI | GetStochRsi |
-| ⛔ STARC - Starc Bands ||||
-| ⭐ TR - True Range | `TR_Series` | TRANGE | GetTr |
-| ⛔ UI - Ulcer Index ||||
-| ⛔ VSTOP - Volatility Stop ||||
-|||||
-| **MOMENTUM INDICATORS & OSCILLATORS** | **QuanTAlib** | **TA-LIB** | **Skender** |
-| ⛔ AC - Acceleration Oscillator ||||
-| ⛔ ADX - Average Directional Movement Index || ADX | GetAdx |
-| ⛔ ADXR - Average Directional Movement Index Rating || ADXR | GetAdx |
-| ⛔ AO - Awesome Oscillator ||| GetAwesome |
-| ⛔ APO - Absolute Price Oscillator || APO ||
-| ⛔ AROON - Aroon oscillator || AROON | GetAroon |
-| ⛔ BOP - Balance of Power || BOP | GetBop |
-| ⭐ CCI - Commodity Channel Index | `CCI_Series` | CCI | GetCci |
-| ⛔ CFO - Chande Forcast Oscillator ||||
-| ⛔ CMO - Chande Momentum Oscillator || CMO | GetCmo |
-| ⛔ COG - Center of Gravity ||||
-| ⛔ COPPOCK - Coppock Curve ||||
-| ⛔ CTI - Ehler's Correlation Trend Indicator ||||
-| ⛔ DPO - Detrended Price Oscillator ||| GetDpo |
-| ⛔ DMI - Directional Movement Index || DX | GetAdx |
-| ⛔ EFI - Elder Ray's Force Index ||| GetElderRay |
-| ⛔ GAT - Alligator oscillator ||| GetGator |
-| ⛔ HURST - Hurst Exponent ||| GetHurst |
-| ⛔ KRI - Kairi Relative Index ||||
-| ⛔ KVO - Klinger Volume Oscillator ||||
-| ⛔ MFI - Money Flow Index || MFI | GetMfi |
-| ⛔ MOM - Momentum || MOM ||
-| ⛔ NVI - Negative Volume Index ||||
-| ⛔ PO - Price Oscillator ||||
-| ⛔ PPO - Percentage Price Oscillator || PPO ||
-| ⛔ PMO - Price Momentum Oscillator ||||
-| ⛔ PVI - Positive Volume Index ||||
-| ⛔ ROC - Rate of Change || MOM | GetRoc |
-| ⛔ RVGI - Relative Vigor Index ||||
-| ⛔ SMI - Stochastic Momentum Index ||||
-| ⛔ STC - Schaff Trend Cycle ||||
-| ⛔ STOCH - Stochastic Oscillator || STOCH | GetStoch |
-| ⛔ TRIX - 1-day ROC of TEMA || TRIX | GetTrix |
-| ⛔ TSI - True Strength Index ||||
-| ⛔ UO - Ultimate Oscillator || ULTOSC | GetUltimate |
-| ⛔ WILLR - Larry Williams' %R || WILLR | GetWilliamsR |
-| ⛔ WGAT - Williams Alligator ||||
-|||||
-| **VOLUME INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** |
-| ⛔ AOBV - Archer On-Balance Volume ||||
-| ⛔ CMF - Chaikin Money Flow ||||
-| ⛔ EOM - Ease of Movement ||||
-| ⭐ OBV - On-Balance Volume | ` OBV_Series` | OBV | GetObv |
-| ⛔ PRS - Price Relative Strength |||
-| ⛔ PVOL - Price-Volume ||||
-| ⛔ PVO - Percentage Volume Oscillator ||||
-| ⛔ PVR - Price Volume Rank ||||
-| ⛔ PVT - Price Volume Trend ||||
-| ⛔ VP - Volume Profile ||||
-| ⛔ VWAP - Volume Weighted Average Price ||||
-| ⛔ VWMA - Volume Weighted Moving Average ||||
+| **STATISTICS & NUMERICAL ANALYSIS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| ⭐ BIAS - Bias | `BIAS_Series` ||| bias |
+| ⛔ CORREL - Pearson's Correlation Coefficient || CORREL | GetCorrelation ||
+| ⛔ COVAR - Covariance ||| GetCorrelation ||
+| ⭐ ENTP - Entropy | `ENTP_Series` ||| entropy |
+| ⭐ KURT - Kurtosis | `KURT_Series` ||| kurtosis |
+| ⭐ LINREG - Linear Regression | `LINREG_Series` || GetSlope ||
+| ⭐ MAD - Mean Absolute Deviation | `MAD_Series` || GetSma | mad |
+| ⭐ MAPE - Mean Absolute Percent Error | `MAPE_Series` || GetSma ||
+| ⭐ MED - Median value | `MED_Series` ||| median |
+| ✔️ MSE - Mean Squared Error | `MSE_Series` || GetSma ||
+| ⛔ SKEW - Skewness |||||
+| ⭐ SDEV - Standard Deviation (Volatility) | `SDEV_Series` | STDDEV |||
+| ✔️ SSDEV - Sample Standard Deviation | `SSDEV_Series` ||||
+| ✔️ SMAPE - Symmetric Mean Absolute Percent Error | `SMAPE_Series` ||||
+| ⭐ VAR - Population Variance | `VAR_Series` | VAR || variance |
+| ⭐ SVAR - Sample Variance | `SVAR_Series` ||| variance |
+| ⛔ QUANT - Quantile |||||
+| ✔️ WMAPE - Weighted Mean Absolute Percent Error | `WMAPE_Series` ||||
+| ⛔ ZSCORE - Number of standard deviations from mean |||||
+||||||
+| **TREND INDICATORS & AVERAGES** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| ⛔ AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
+| ⭐ ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma ||
+| ⛔ ARIMA - Autoregressive Integrated Moving Average |||||
+| ⭐ DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema | dema |
+| ⭐ EMA - Exponential Moving Average | `EMA_Series` || GetEma | ema |
+| ⛔ EPMA - Endpoint Moving Average ||| GetEpma ||
+| ⛔ FRAMA - Fractal Adaptive Moving Average |||||
+| ⛔ FWMA - Fibonacci's Weighted Moving Average |||||
+| ⛔ HILO - Gann High-Low Activator |||||
+| ✔️ HEMA - Hull/EMA Average | `HEMA_Series` ||||
+| ⛔ Hilbert Transform Instantaneous Trendline || HT_TRENDLINE | GetHtTrendline ||
+| ⭐ HMA - Hull  Moving Average | `HMA_Series` || GetHma | hma |
+| ⛔ HWMA - Holt-Winter Moving Average |||||
+| ✔️ JMA - Jurik Moving Average | `JMA_Series` ||||
+| ⭐ KAMA - Kaufman's Adaptive Moving Average | `KAMA_Series` | KAMA | GetKama | kama |
+| ⛔ KDJ - KDJ Indicator (trend reversal) |||||
+| ⛔ LSMA - Least Squares Moving Average |||||
+| ⭐ MACD - Moving Average Convergence/Divergence | `MACD_Series` | MACD | GetMacd ||
+| ⛔ MAMA - MESA Adaptive Moving Average || MAMA | GetMama ||
+| ⛔ MCGD - McGinley Dynamic |||||
+| ⛔ MMA - Modified Moving Average |||||
+| ⛔ PPMA - Pivot Point Moving Average |||||
+| ⛔ PWMA - Pascal's Weighted Moving Average |||||
+| ⭐ RMA - WildeR's Moving Average | `RMA_Series` ||| rma |
+| ⛔ SINWMA - Sine Weighted Moving Average |||||
+| ⭐ SMA - Simple Moving Average | `SMA_Series` | SMA | GetSma | sma |
+| ⭐ SMMA - Smoothed Moving Average | `SMMA_Series` || GetSmma ||
+| ⛔ SSF - Ehler's Super Smoother Filter |||||
+| ⛔ SUP - Supertrend |||||
+| ⛔ SWMA - Symmetric Weighted Moving Average |||||
+| ⛔ T3 - Tillson T3 Moving Average || T3 | GetT3 ||
+| ⭐ TEMA - Triple EMA Average | `TEMA_Series` | TEMA | GetTema | tema |
+| ⭐ TRIMA - Triangular Moving Average | `TRIMA_Series` | TRIMA |||
+| ⛔ TSF - Time Series Forecast || TSF |||
+| ⛔ VIDYA - Variable Index Dynamic Average |||||
+| ⛔ VOR - Vortex Indicator |||||
+| ⭐ WMA - Weighted Moving Average | `WMA_Series` | WMA | GetWma | wma |
+| ⭐ ZLEMA - Zero Lag EMA Average | `ZLEMA_Series` ||| zlma |
+||||||
+| **VOLATILITY INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| ⭐ ADL - Chaikin Accumulation Distribution Line | `ADL_Series` | AD | GetAdl | ad |
+| ⭐ ADOSC - Chaikin Accumulation Distribution Oscillator | `ADOSC_Series` | ADOSC| GetAdl | adosc |
+| ⭐ ATR - Average True Range | `ATR_Series` | ATR | GetAtr | atr |
+| ⭐ ATRP - Average True Range Percent | `ATRP_Series` || GetAtr ||
+| ⛔ BETA - Beta coefficient || BETA | GetBeta ||
+| ⭐ BBANDS - Bollinger Bands® | `BBANDS_Series` | BBANDS | GetBollingerBands ||
+| ⛔ CHAND - Chandelier Exit ||| GetChandelier ||
+| ⛔ CRSI - Connor RSI ||| GetConnorsRsi ||
+| ⛔ DON - Donchian Channels ||| GetDonchian ||
+| ⛔ FCB - Fractal Chaos Bands ||| GetFcb ||
+| ⛔ HV - Historical Volatility |||||
+| ⛔ ICH - Ichimoku ||| GetIchimoku ||
+| ⛔ KEL - Keltner Channels ||| GetKeltner ||
+| ⛔ NATR - Normalized Average True Range || NATR | GetAtr ||
+| ⛔ CHN - Price Channel Indicator |||||
+| ⭐ RSI - Relative Strength Index | `RSI_Series` | RSI | GetRsi | rsi |
+| ⛔ SAR - Parabolic Stop and Reverse || SAR | GetParabolicSar ||
+| ⛔ SRSI - Stochastic RSI || STOCHRSI | GetStochRsi ||
+| ⛔ STARC - Starc Bands |||||
+| ⭐ TR - True Range | `TR_Series` | TRANGE | GetTr | true_range |
+| ⛔ UI - Ulcer Index |||||
+| ⛔ VSTOP - Volatility Stop |||||
+||||||
+| **MOMENTUM INDICATORS & OSCILLATORS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| ⛔ AC - Acceleration Oscillator |||||
+| ⛔ ADX - Average Directional Movement Index || ADX | GetAdx ||
+| ⛔ ADXR - Average Directional Movement Index Rating || ADXR | GetAdx ||
+| ⛔ AO - Awesome Oscillator ||| GetAwesome ||
+| ⛔ APO - Absolute Price Oscillator || APO |||
+| ⛔ AROON - Aroon oscillator || AROON | GetAroon ||
+| ⛔ BOP - Balance of Power || BOP | GetBop ||
+| ⭐ CCI - Commodity Channel Index | `CCI_Series` | CCI | GetCci ||
+| ⛔ CFO - Chande Forcast Oscillator |||||
+| ⛔ CMO - Chande Momentum Oscillator || CMO | GetCmo ||
+| ⛔ COG - Center of Gravity |||||
+| ⛔ COPPOCK - Coppock Curve |||||
+| ⛔ CTI - Ehler's Correlation Trend Indicator |||||
+| ⛔ DPO - Detrended Price Oscillator ||| GetDpo ||
+| ⛔ DMI - Directional Movement Index || DX | GetAdx ||
+| ⛔ EFI - Elder Ray's Force Index ||| GetElderRay ||
+| ⛔ GAT - Alligator oscillator ||| GetGator ||
+| ⛔ HURST - Hurst Exponent ||| GetHurst ||
+| ⛔ KRI - Kairi Relative Index |||||
+| ⛔ KVO - Klinger Volume Oscillator |||||
+| ⛔ MFI - Money Flow Index || MFI | GetMfi ||
+| ⛔ MOM - Momentum || MOM |||
+| ⛔ NVI - Negative Volume Index |||||
+| ⛔ PO - Price Oscillator |||||
+| ⛔ PPO - Percentage Price Oscillator || PPO |||
+| ⛔ PMO - Price Momentum Oscillator |||||
+| ⛔ PVI - Positive Volume Index |||||
+| ⛔ ROC - Rate of Change || MOM | GetRoc ||
+| ⛔ RVGI - Relative Vigor Index |||||
+| ⛔ SMI - Stochastic Momentum Index |||||
+| ⛔ STC - Schaff Trend Cycle |||||
+| ⛔ STOCH - Stochastic Oscillator || STOCH | GetStoch ||
+| ⛔ TRIX - 1-day ROC of TEMA || TRIX | GetTrix ||
+| ⛔ TSI - True Strength Index |||||
+| ⛔ UO - Ultimate Oscillator || ULTOSC | GetUltimate ||
+| ⛔ WILLR - Larry Williams' %R || WILLR | GetWilliamsR ||
+| ⛔ WGAT - Williams Alligator |||||
+||||||
+| **VOLUME INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| ⛔ AOBV - Archer On-Balance Volume |||||
+| ⛔ CMF - Chaikin Money Flow |||||
+| ⛔ EOM - Ease of Movement |||||
+| ⭐ OBV - On-Balance Volume | `OBV_Series` | OBV | GetObv ||
+| ⛔ PRS - Price Relative Strength ||||
+| ⛔ PVOL - Price-Volume |||||
+| ⛔ PVO - Percentage Volume Oscillator |||||
+| ⛔ PVR - Price Volume Rank |||||
+| ⛔ PVT - Price Volume Trend |||||
+| ⛔ VP - Volume Profile |||||
+| ⛔ VWAP - Volume Weighted Average Price |||||
+| ⛔ VWMA - Volume Weighted Moving Average |||||

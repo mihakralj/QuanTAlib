@@ -23,7 +23,6 @@ public class MIN_Series : Single_TSeries_Indicator
         double _min = TValue.v;
         for (int i = 0; i < this._buffer.Count; i++)
         { 
-            //_min = (this._buffer[i] < _min) ? this._buffer[i] : _min; 
             _min = Math.Min(this._buffer[i], _min);
         }
 

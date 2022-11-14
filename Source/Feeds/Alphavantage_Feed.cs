@@ -8,8 +8,6 @@ Alphavantage - Free API to collect 100 recent daily quotes. It requires a (free)
     Parameters:
         Symbol: stock ("AAPL"),
         APIkey: unique Alphavantage API key
-    Usage:
-        Alphavantage_Feed ticker = new("MSFT", APIkey:"xxxxxxx");
 
 </summary> */
 
@@ -47,9 +45,10 @@ public class Alphavantage_Feed : TBars
                 case "3b. low (USD)": l = Convert.ToDouble(val.Value.ToString()); break;
                 case "4. close": c = Convert.ToDouble(val.Value.ToString()); break;
                 case "4b. close (USD)": c = Convert.ToDouble(val.Value.ToString()); break;
-                //case "5. adjusted close": c = Convert.ToDouble(val.Value.ToString()); break;
+                case "5. adjusted close": c = Convert.ToDouble(val.Value.ToString()); break;
                 case "5. volume": v = Convert.ToDouble(val.Value.ToString()); break;
                 case "6. volume": v = Convert.ToDouble(val.Value.ToString()); break;
+                default: o = 0; h = 0; l = 0; c = 0; v = 0; break;
             }
         }
         return (date, o, h, l, c, v);

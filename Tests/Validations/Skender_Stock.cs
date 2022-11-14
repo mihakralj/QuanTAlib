@@ -27,7 +27,7 @@ public class Skender_Stock
             });
     }
 
-    [Fact]
+	[Fact]
     public void SMA()
     {
         SMA_Series QL = new(bars.Close, period, false);
@@ -196,7 +196,7 @@ public class Skender_Stock
         Assert.Equal(Math.Round((double)SK.Last().Rsi!, 6), Math.Round(QL.Last().v, 6));
     }
 
-    [Fact]
+	[Fact]
     public void ALMA()
     {
         ALMA_Series QL = new(bars.Close, period, useNaN: false);

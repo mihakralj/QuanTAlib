@@ -8,16 +8,14 @@ Yahoo Finance - Free API feed to collect daily market quotes
         Symbol: stock symbol (default: "IBM")
         Period: number of days of collected history (default: 252)
     Usage:
-        Yahoo_Feed ticker = new("MSFT", 20);
+        Yahoo_Feed ticker = new("MSFT", 20)
     
 </summary> */
 
 public class Yahoo_Feed : TBars
 {
-    private static string requestUrl;
-
     public Yahoo_Feed(string Symbol = "IBM", int Period =  252) {
-        requestUrl = "https://query1.finance.yahoo.com/v8/finance/chart/"+
+        string requestUrl = "https://query1.finance.yahoo.com/v8/finance/chart/"+
             Symbol+"?interval=1d&period1="+
             (int)new DateTimeOffset(DateTime.UtcNow.AddDays(-Period+1)).ToUnixTimeSeconds()+"&period2="+
             (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();

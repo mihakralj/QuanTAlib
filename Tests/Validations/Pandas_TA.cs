@@ -7,10 +7,10 @@ using Python.Included;
 namespace Validations;
 public class PandasTA : IDisposable
 {
-  private GBM_Feed bars;
-  private Random rnd = new();
-  private int period;
-  private string OStype;
+  private readonly GBM_Feed bars;
+  private readonly Random rnd = new();
+  private readonly int period;
+  private readonly string OStype;
   private dynamic np;
   private dynamic ta;
   private dynamic df;
@@ -23,14 +23,19 @@ public class PandasTA : IDisposable
     // Checking the host OS and setting PythonDLL accordingly
     OStype = Environment.OSVersion.ToString();
     if (OStype == "Unix 13.1.0")
-      OStype = @"/usr/local/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/libpython3.10.dylib";
-    else OStype = Path.GetFullPath(".") + @"\python-3.10.0-embed-amd64\python310.dll";
+    {
+	    OStype = @"/usr/local/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/libpython3.10.dylib";
+    }
+    else
+    {
+	    OStype = Path.GetFullPath(".") + @"\python-3.10.0-embed-amd64\python310.dll";
+    }
 
     Installer.InstallPath = Path.GetFullPath(".");
     Installer.SetupPython().Wait();
     Installer.TryInstallPip();
     Installer.PipInstallModule("pandas-ta");
-    //Installer.PipInstallModule("git+https://github.com/twopirllc/pandas-ta@development");
+    //alternative: git+https://github.com/twopirllc/pandas-ta
 
     Runtime.PythonDLL = OStype;
     PythonEngine.Initialize();
@@ -76,7 +81,80 @@ public class PandasTA : IDisposable
     Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(bars.OHLC4.Last().v, 7));
   }
 
-  [Fact]
+	[Fact]
+	void MEDIAN()
+	{
+		MED_Series QL = new(bars.Close, period);
+		var pta = df.ta.median(close: df.close, length: period);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void VARIANCE()
+	{
+		VAR_Series QL = new(bars.Close, period);
+		var pta = df.ta.variance(close: df.close, length: period, ddof:0);
+		Assert.Equal(Math.Round((double)pta.tail(1), 5), Math.Round(QL.Last().v, 5));
+	}
+
+	[Fact]
+	void SVARIANCE()
+	{
+		SVAR_Series QL = new(bars.Close, period);
+		var pta = df.ta.variance(close: df.close, length: period, ddof: 1);
+		Assert.Equal(Math.Round((double)pta.tail(1), 5), Math.Round(QL.Last().v, 5));
+	}
+
+	[Fact]
+	void ADL()
+	{
+		ADL_Series QL = new(bars);
+		var pta = df.ta.ad(high: df.high, low: df.low, close:df.close, volume:df.volume);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void ADOSC()
+	{
+		ADOSC_Series QL = new(bars);
+		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void TR()
+	{
+		TR_Series QL = new(bars);
+		var pta = df.ta.true_range(high: df.high, low: df.low, close: df.close);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void ATR()
+	{
+		ATR_Series QL = new(bars, period);
+		var pta = df.ta.atr(high: df.high, low: df.low, close: df.close, length: period);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void RSI()
+	{
+		RSI_Series QL = new(bars.Close, period);
+		var pta = df.ta.rsi(close: df.close, length: period);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void TRIMA()
+	{
+    //TODO: return length to variable length (period) when Pandas-TA fixes trima
+		TRIMA_Series QL = new(bars.Close, 11);
+		var pta = df.ta.trima(close: df.close, length: 11);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
   void KAMA()
   {
     KAMA_Series QL = new(bars.Close, period);
@@ -84,17 +162,7 @@ public class PandasTA : IDisposable
     Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
   }
 
-  /*
-  [Fact]
-  void ALMA()
-  {
-    ALMA_Series QL = new(bars.Close, period: period, offset: 0.85, sigma: 6.0, false);
-    var pta = df.ta.alma(close: df.close, length: period, distribution_offset: 0.85, sigma: 6.0);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
-  }
-  */
-
-  [Fact]
+	[Fact]
   void HMA()
   {
     HMA_Series QL = new(bars.Close, period, false);
@@ -102,7 +170,7 @@ public class PandasTA : IDisposable
     Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
   }
 
-  [Fact]
+	[Fact]
   void SMA()
   {
     SMA_Series QL = new(bars.Close, period, false);
@@ -142,7 +210,23 @@ public class PandasTA : IDisposable
     Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
   }
 
-  [Fact]
+	[Fact]
+	void RMA()
+	{
+		RMA_Series QL = new(bars.Close, period, false);
+		var pta = df.ta.rma(close: df.close, length: period);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
+	void ZLEMA()
+	{
+		ZLEMA_Series QL = new(bars.Close, period, false);
+		var pta = df.ta.zlma(close: df.close, length: period);
+		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+	}
+
+	[Fact]
   void DEMA()
   {
     DEMA_Series QL = new(bars.Close, period, false);

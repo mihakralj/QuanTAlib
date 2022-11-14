@@ -103,6 +103,7 @@ jobs:
           --skip-duplicate
 
     - name: Push  package to nuget.org
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json

@@ -102,6 +102,16 @@ public class TA_LIB
 	    Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
     }
 
+
+	[Fact]
+	public void VAR()
+	{
+		VAR_Series QL = new(bars.Close, period, false);
+		Core.Var(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
+
+		Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 5, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 5));
+	}
+
 	[Fact]
     public void MIDPOINT()
     {

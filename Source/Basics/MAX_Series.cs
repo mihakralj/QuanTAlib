@@ -23,7 +23,6 @@ public class MAX_Series : Single_TSeries_Indicator
         double _max = TValue.v;
         for (int i = 0; i < this._buffer.Count; i++)
         { 
-            //_max = (this._buffer[i] > _max) ? this._buffer[i] : _max; 
             _max = Math.Max(this._buffer[i], _max);
         }
 

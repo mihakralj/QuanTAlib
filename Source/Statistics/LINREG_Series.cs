@@ -71,11 +71,11 @@ public class LINREG_Series : Single_TSeries_Indicator
         double _intercept = avgY - (_slope * avgX);
 
         // calculate Standard Deviation and R-Squared
-        double stdDevX = Math.Sqrt((double)sumSqX / _len);
-        double stdDevY = Math.Sqrt((double)sumSqY / _len);
+        double stdDevX = Math.Sqrt(sumSqX / _len);
+        double stdDevY = Math.Sqrt(sumSqY / _len);
         double _StdDev = stdDevY;
 
-        double arrr = (stdDevX * stdDevY != 0) ? (double)sumSqXY / (stdDevX * stdDevY) / _len : 0;
+        double arrr = (stdDevX * stdDevY != 0) ? sumSqXY / (stdDevX * stdDevY) / _len : 0;
         double _RSquared = arrr * arrr;
 
         var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _slope);

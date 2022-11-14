@@ -47,9 +47,6 @@ public class OBV_Series : Single_TBars_Indicator
     if (TBar.c > this._lastclose) { _obv += TBar.v; }
     if (TBar.c < this._lastclose) { _obv -= TBar.v; }
 
-    // Unclear what the first value in OBV series is - currently set to volume[0]
-    // if (this.Count == 0) { _obv = 0; }
-
     this._lastlastobv = this._lastobv;
     this._lastobv = _obv;
 
