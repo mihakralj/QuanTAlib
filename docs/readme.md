@@ -43,11 +43,11 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ✔️ OHL3 - (Open+High+Low)/3 | `.OHL3` |||
 | ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ GetBaseQuote |
 | ⭐ HLCC4 - Weighted Price |  `.HLCC4` | WCLPRICE ||
+| ⭐ MIDPOINT - Midpoint value | `MIDPOINT_Series` | MIDPOINT ||
+| ⭐ MIDPRICE - Midpoint price | `MIDPRICE_Series` | MIDPRICE ||
 | ⭐ MAX - Max value | `MAX_Series` | MAX ||
 | ⭐ MIN - Min value | `MIN_Series` | MIN ||
-| ⛔ MID - Midpoint value || MIDPOINT ||
-| ⛔ MIDP - Midpoint price || MIDPRICE ||
-| ⛔ SUM - Summation || SUM ||
+| ⭐ SUM - Summation | `SUM_Series` | SUM ||
 | ⭐ ADD - Addition | `ADD_Series` | ADD ||
 | ⭐ SUB - Subtraction | `SUB_Series` | SUB ||
 | ⭐ MUL - Multiplication | `MUL_Series` | MUL ||

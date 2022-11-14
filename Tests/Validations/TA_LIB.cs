@@ -85,6 +85,33 @@ public class TA_LIB
     }
 
     [Fact]
+    public void SUM()
+    {
+	    SUM_Series QL = new(bars.Close, period, false);
+	    Core.Sum(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
+
+	    Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
+    }
+
+    [Fact]
+    public void MIDPRICE()
+    {
+	    MIDPRICE_Series QL = new(bars, period, false);
+	    Core.MidPrice(inhigh, inlow, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
+
+	    Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
+    }
+
+	[Fact]
+    public void MIDPOINT()
+    {
+	    MIDPOINT_Series QL = new(bars.Close, period, false);
+	    Core.MidPoint(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
+
+	    Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
+    }
+
+	[Fact]
     public void TRIMA()
     {
         TRIMA_Series QL = new(bars.Close, period, false);
