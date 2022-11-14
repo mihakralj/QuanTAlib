@@ -30,6 +30,8 @@ jobs:
       with:
         java-version: 1.11
 
+    - name: Install GitVersion
+      run: dotnet tool install GitVersion.Tool --global
     - name: Install JetBrains
       run: dotnet tool install JetBrains.dotCover.GlobalTool --global
     - name: Install Sonar Scanner
@@ -78,14 +80,14 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
 
-    - name: Release
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: true
-        title: "Latest Build"
-        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
+#    - name: Release
+#      uses: marvinpinto/action-automatic-releases@latest
+#      with:
+#        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#        automatic_release_tag: "latest"
+#        prerelease: true
+#        title: "Latest Build"
+#        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
 
     - name: Authenticate to Github packages source
       run: dotnet nuget add source
@@ -95,14 +97,12 @@ jobs:
           --name github "https://nuget.pkg.github.com/mihakralj/index.json"
 
     - name: Push package to github
-      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+          --api-key ${{ secrets.GITHUB_TOKEN }}
           --source https://nuget.pkg.github.com/mihakralj/index.json
           --skip-duplicate
-          --no-symbols
 
-    - name: Push package to nuget.org
-      if: ${{ github.ref == 'refs/heads/main' }}
+    - name: Push  package to nuget.org
       run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
