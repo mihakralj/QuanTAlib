@@ -64,21 +64,21 @@ public class PandasTA : IDisposable
   void HL2()
   {
     var pta = df.ta.hl2(high: df.high, low: df.low);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(bars.HL2.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(bars.HL2.Last().v, 4));
   }
 
   [Fact]
   void HLC3()
   {
     var pta = df.ta.hlc3(high: df.high, low: df.low, close: df.close);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(bars.HLC3.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(bars.HLC3.Last().v, 4));
   }
 
   [Fact]
   void OHLC4()
   {
     var pta = df.ta.ohlc4(open: df.open, high: df.high, low: df.low, close: df.close);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(bars.OHLC4.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(bars.OHLC4.Last().v, 4));
   }
 
 	[Fact]
@@ -86,7 +86,7 @@ public class PandasTA : IDisposable
 	{
 		MED_Series QL = new(bars.Close, period);
 		var pta = df.ta.median(close: df.close, length: period);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -110,7 +110,7 @@ public class PandasTA : IDisposable
 	{
 		ADL_Series QL = new(bars);
 		var pta = df.ta.ad(high: df.high, low: df.low, close:df.close, volume:df.volume);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -118,7 +118,7 @@ public class PandasTA : IDisposable
 	{
 		ADOSC_Series QL = new(bars);
 		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -126,7 +126,7 @@ public class PandasTA : IDisposable
 	{
 		TR_Series QL = new(bars);
 		var pta = df.ta.true_range(high: df.high, low: df.low, close: df.close);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -134,7 +134,7 @@ public class PandasTA : IDisposable
 	{
 		ATR_Series QL = new(bars, period);
 		var pta = df.ta.atr(high: df.high, low: df.low, close: df.close, length: period);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -142,7 +142,7 @@ public class PandasTA : IDisposable
 	{
 		RSI_Series QL = new(bars.Close, period);
 		var pta = df.ta.rsi(close: df.close, length: period);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -151,7 +151,7 @@ public class PandasTA : IDisposable
     //TODO: return length to variable length (period) when Pandas-TA fixes trima
 		TRIMA_Series QL = new(bars.Close, 11);
 		var pta = df.ta.trima(close: df.close, length: 11);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -159,7 +159,7 @@ public class PandasTA : IDisposable
   {
     KAMA_Series QL = new(bars.Close, period);
     var pta = df.ta.kama(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
 	[Fact]
@@ -167,7 +167,7 @@ public class PandasTA : IDisposable
   {
     HMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.hma(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
 	[Fact]
@@ -175,7 +175,7 @@ public class PandasTA : IDisposable
   {
     SMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.sma(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -183,7 +183,7 @@ public class PandasTA : IDisposable
   {
     EMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.ema(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -191,7 +191,7 @@ public class PandasTA : IDisposable
   {
     TEMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.tema(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -199,7 +199,7 @@ public class PandasTA : IDisposable
   {
     ENTP_Series QL = new(bars.Close, period, useNaN: false);
     var pta = df.ta.entropy(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -207,7 +207,7 @@ public class PandasTA : IDisposable
   {
     WMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.wma(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
 	[Fact]
@@ -215,7 +215,7 @@ public class PandasTA : IDisposable
 	{
 		RMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.rma(close: df.close, length: period);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -223,7 +223,7 @@ public class PandasTA : IDisposable
 	{
 		ZLEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.zlma(close: df.close, length: period);
-		Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
 	[Fact]
@@ -231,7 +231,7 @@ public class PandasTA : IDisposable
   {
     DEMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.dema(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -239,7 +239,7 @@ public class PandasTA : IDisposable
   {
     BIAS_Series QL = new(bars.Close, period, false);
     var pta = df.ta.bias(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -255,6 +255,6 @@ public class PandasTA : IDisposable
   {
     MAD_Series QL = new(bars.Close, period, useNaN: false);
     var pta = df.ta.mad(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
+    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
 }
