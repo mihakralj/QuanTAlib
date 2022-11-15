@@ -21,14 +21,17 @@ Sources:
 
 public class LINREG_Series : Single_TSeries_Indicator
 {
-    public readonly TSeries Intercept = new();
-    public readonly TSeries RSquared = new();
-    public readonly TSeries StdDev = new();
+    public  TSeries Intercept { get; }
+    public  TSeries RSquared { get; }
+    public  TSeries StdDev { get; }
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
     public LINREG_Series(TSeries source, int period, bool useNaN = false)
         : base(source, period, useNaN)
     {
+        this.Intercept = new();
+        this.RSquared = new();
+        this.StdDev = new();
         if (this._data.Count > 0) { base.Add(this._data); }
     }
 
