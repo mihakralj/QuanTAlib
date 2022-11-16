@@ -55,7 +55,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 |||||
 | **STATISTICS & NUMERICAL ANALYSIS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
 | ⭐ BIAS - Bias | `BIAS_Series` ||| bias |
-| ⛔ CORREL - Pearson's Correlation Coefficient || CORREL | GetCorrelation ||
+| ⭐ CORR - Pearson's Correlation Coefficient | `CORR_Series` | CORREL | GetCorrelation ||
 | ⛔ COVAR - Covariance ||| GetCorrelation ||
 | ⭐ ENTP - Entropy | `ENTP_Series` ||| entropy |
 | ⭐ KURT - Kurtosis | `KURT_Series` ||| kurtosis |
@@ -72,7 +72,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⭐ SVAR - Sample Variance | `SVAR_Series` ||| variance |
 | ⛔ QUANTILE - Quantile |||| quantile |
 | ✔️ WMAPE - Weighted Mean Absolute Percent Error | `WMAPE_Series` ||||
-| ⭐ ZSCORE - Number of standard deviations from mean | ZSCORE_Series || GetStdDev | zscore |
+| ⭐ ZSCORE - Number of standard deviations from mean | `ZSCORE_Series` || GetStdDev | zscore |
 ||||||
 | **TREND INDICATORS & AVERAGES** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
 | ⛔ AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
