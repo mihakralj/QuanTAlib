@@ -1,3 +1,4 @@
+next-version: 0.1.19
 minor-version-bump-message: \+semver:\s?(feature|new)
 branches:
   main:
@@ -11,6 +12,6 @@ branches:
     regex: ^dev(elop)?(ment)?$
     is-release-branch: false
     mode: ContinuousDelivery
-    tag: 'v'
+    tag: 'nightly'
     increment: Inherit
 update-build-number: true

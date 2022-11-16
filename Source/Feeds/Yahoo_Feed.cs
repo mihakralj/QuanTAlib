@@ -22,24 +22,17 @@ public class Yahoo_Feed : TBars
         System.Net.Http.HttpClient client = new();
         var msg = client.GetStringAsync(requestUrl).Result;
         var jresult = JsonSerializer.Deserialize<JsonDocument>(msg).RootElement;
-        JsonElement json = new();
-        JsonElement datetime = new();
-        JsonElement open = new();
-        JsonElement high = new();
-        JsonElement low = new();
-        JsonElement close = new();
-        JsonElement volume = new();
         
-        jresult.TryGetProperty("chart",out json);
+        jresult.TryGetProperty("chart",out JsonElement json);
         json.TryGetProperty("result",out json);
-        json[0].TryGetProperty("timestamp",out datetime);
+        json[0].TryGetProperty("timestamp",out JsonElement datetime);
         json[0].TryGetProperty("indicators",out json);
         json.TryGetProperty("quote",out json);
-        json[0].TryGetProperty("open",out open);
-        json[0].TryGetProperty("high",out high);
-        json[0].TryGetProperty("low",out low);
-        json[0].TryGetProperty("close",out close);
-        json[0].TryGetProperty("volume",out volume);
+        json[0].TryGetProperty("open",out JsonElement open);
+        json[0].TryGetProperty("high",out JsonElement high);
+        json[0].TryGetProperty("low",out JsonElement low);
+        json[0].TryGetProperty("close",out JsonElement close);
+        json[0].TryGetProperty("volume",out JsonElement volume);
         
         for (int i=0; i<datetime.GetArrayLength(); i++) {
             DateTime d = DateTimeOffset.FromUnixTimeSeconds(long.Parse(datetime[i].GetRawText())).DateTime;

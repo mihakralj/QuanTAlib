@@ -58,7 +58,8 @@ public class PandasTA : IDisposable
   public void Dispose()
   {
     PythonEngine.Shutdown();
-  }
+		GC.SuppressFinalize(this);
+	}
 
   [Fact]
   void HL2()
@@ -191,10 +192,34 @@ public class PandasTA : IDisposable
   {
     TEMA_Series QL = new(bars.Close, period, false);
     var pta = df.ta.tema(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+    Assert.Equal(Math.Round((double)pta.tail(1), 7), Math.Round(QL.Last().v, 7));
   }
 
-  [Fact]
+	[Fact]
+	void SDEV()
+	{
+		SDEV_Series QL = new(bars.Close, period, useNaN: false);
+		var pta = df.ta.stdev(close: df.close, length: period, ddof: 0);
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+	}
+
+	[Fact]
+	void SSDEV()
+	{
+		SSDEV_Series QL = new(bars.Close, period, useNaN: false);
+		var pta = df.ta.stdev(close: df.close, length: period, ddof: 1);
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+	}
+
+	[Fact]
+	void ZSCORE()
+	{
+		ZSCORE_Series QL = new(bars.Close, period, useNaN: false);
+		var pta = df.ta.zscore(close: df.close, length: period, ddof: 0);
+		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+	}
+
+	[Fact]
   void ENTP()
   {
     ENTP_Series QL = new(bars.Close, period, useNaN: false);

@@ -2,13 +2,13 @@
 using System;
 /* <summary>
 Abstract classes with all scaffolding required to build indicators.
-    All abstracts support period, NaN, and all permutations of Add() methods. 
+    All abstracts support period, NaN, and all permutations of Add() methods.
     Indicator classess need to implement:
         - Chaining constructor (Abstract's constructor executes first)
         - Default Add(value) class
         - optional Add(series) bulk insert class (for optimization of historical analysis)
 
-    Single_TSeries_Indicator    - one single-value TSeries in, one TSeries out. 
+    Single_TSeries_Indicator    - one single-value TSeries in, one TSeries out.
     Pair_TSeries_Indicator      - Two TSeries in, one TSeries out. (includes simple semaphoring)
     Single_TBars_Indicator      - One OHLCV TBars in, one TSeries out.
 
@@ -42,11 +42,24 @@ public abstract class Single_TSeries_Indicator : TSeries
 
 public abstract class Pair_TSeries_Indicator : TSeries
 {
+    protected readonly int _p;
+    protected readonly bool _NaN;
     protected readonly TSeries _d1;
     protected readonly TSeries _d2;
     protected readonly double _dd1, _dd2;
 
   // Chainable Constructors - add them at the end of primary constructors if needed
+    protected Pair_TSeries_Indicator(TSeries source1, TSeries source2, int period, bool useNaN)
+    {
+        this._p = period;
+        this._NaN = useNaN;
+        this._d1 = source1;
+        this._d2 = source2;
+        this._dd1 = double.NaN;
+        this._dd2 = double.NaN;
+        this._d1.Pub += this.Sub;
+        this._d2.Pub += this.Sub;
+    }
   protected Pair_TSeries_Indicator(TSeries source1, TSeries source2)
     {
         this._d1 = source1;

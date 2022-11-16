@@ -12,6 +12,7 @@
 .vscode/
 *.deps.json
 .Sandbox/
+.sonarlint/
 .DS_Store
 
 # User-specific files (MonoDevelop/Xamarin Studio)
