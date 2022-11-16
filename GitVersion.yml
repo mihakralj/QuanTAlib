@@ -3,7 +3,7 @@ branches:
   main:
     regex: ^main$
     is-release-branch: true
-    prevent-increment-of-merged-branch-version: true
+    prevent-increment-of-merged-branch-version: false
     mode: ContinuousDelivery
     tag: ''
     increment: Patch
