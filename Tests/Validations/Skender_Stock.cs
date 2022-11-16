@@ -80,7 +80,16 @@ public class Skender_Stock
         Assert.Equal(Math.Round((double)SK.Last().Mad!, 6), Math.Round(QL.Last().v, 6));
     }
 
-    [Fact]
+	[Fact]
+	public void MSE()
+	{
+		MSE_Series QL = new(bars.Close, period, false);
+		var SK = quotes.GetSmaAnalysis(period);
+
+		Assert.Equal(Math.Round((double)SK.Last().Mse!, 6), Math.Round(QL.Last().v, 6));
+	}
+
+	[Fact]
     public void MAPE()
     {
         MAPE_Series QL = new(bars.Close, period, false);
@@ -115,7 +124,7 @@ public class Skender_Stock
         ADL_Series QL = new(bars, false);
         var SK = quotes.GetAdl();
 
-        Assert.Equal(Math.Round((double)SK.Last().Adl!, 5), Math.Round(QL.Last().v, 5));
+        Assert.Equal(Math.Round(SK.Last().Adl!, 5), Math.Round(QL.Last().v, 5));
     }
 
     [Fact]
@@ -214,7 +223,16 @@ public class Skender_Stock
         Assert.Equal(Math.Round((double)SK.Last().StdDev!, 6), Math.Round(QL.Last().v, 6));
     }
 
-    [Fact]
+	[Fact]
+	public void ZSCORE()
+	{
+		ZSCORE_Series QL = new(bars.Close, period, useNaN: false);
+		var SK = quotes.GetStdDev(period); 
+
+		Assert.Equal(Math.Round((double)SK.Last().ZScore!, 6), Math.Round(QL.Last().v, 6));
+	}
+
+	[Fact]
     public void LINREG()
     {
         LINREG_Series QL = new(bars.Close, period, useNaN: false);
@@ -241,7 +259,7 @@ public class Skender_Stock
         TSeries QL = bars.HL2;
         var SK = quotes.GetBaseQuote(CandlePart.HL2);
 
-        Assert.Equal(Math.Round((double)SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
+        Assert.Equal(Math.Round(SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
     }
 
     [Fact]
@@ -250,7 +268,7 @@ public class Skender_Stock
         TSeries QL = bars.OC2;
         var SK = quotes.GetBaseQuote(CandlePart.OC2);
 
-        Assert.Equal(Math.Round((double)SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
+        Assert.Equal(Math.Round(SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
     }
 
     [Fact]
@@ -259,7 +277,7 @@ public class Skender_Stock
         TSeries QL = bars.HLC3;
         var SK = quotes.GetBaseQuote(CandlePart.HLC3);
 
-        Assert.Equal(Math.Round((double)SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
+        Assert.Equal(Math.Round(SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
     }
 
     [Fact]
@@ -268,7 +286,7 @@ public class Skender_Stock
         TSeries QL = bars.OHL3;
         var SK = quotes.GetBaseQuote(CandlePart.OHL3);
 
-        Assert.Equal(Math.Round((double)SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
+        Assert.Equal(Math.Round(SK.Last().Value!, 6), Math.Round(QL.Last().v, 6));
     }
 
     [Fact]

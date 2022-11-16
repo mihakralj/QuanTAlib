@@ -38,13 +38,13 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
 |--|:--:|:--:|:--:|:--:|
 | ⭐ OC2 - (Open+Close)/2 |️ `.OC2` || CandlePart.OC2 ||
-| ⭐ HL2 - Median Price | `.HL2` | MEDPRICE | CandlePart.HL2 ||
-| ⭐ HLC3 - Typical Price | `.HLC3` | TYPPRICE | CandlePart.HLC3 ||
+| ⭐ HL2 - Median Price | `.HL2` | MEDPRICE | CandlePart.HL2 | hl2 |
+| ⭐ HLC3 - Typical Price | `.HLC3` | TYPPRICE | CandlePart.HLC3 | hlc3 |
 | ⭐ OHL3 - (Open+High+Low)/3 | `.OHL3` || CandlePart.OHL3 ||
-| ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ CandlePart.OHLC4 ||
+| ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ CandlePart.OHLC4 | ohlc4 |
 | ⭐ HLCC4 - Weighted Price |  `.HLCC4` | WCLPRICE | CandlePart.HLCC4 ||
-| ⭐ MIDPOINT - Midpoint value | `MIDPOINT_Series` | MIDPOINT |||
-| ⭐ MIDPRICE - Midpoint price | `MIDPRICE_Series` | MIDPRICE |||
+| ⭐ MIDPOINT - Midpoint value | `MIDPOINT_Series` | MIDPOINT || midpoint |
+| ⭐ MIDPRICE - Midpoint price | `MIDPRICE_Series` | MIDPRICE || midprice |
 | ⭐ MAX - Max value | `MAX_Series` | MAX |||
 | ⭐ MIN - Min value | `MIN_Series` | MIN |||
 | ⭐ SUM - Summation | `SUM_Series` | SUM |||
@@ -63,54 +63,54 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⭐ MAD - Mean Absolute Deviation | `MAD_Series` || GetSma | mad |
 | ⭐ MAPE - Mean Absolute Percent Error | `MAPE_Series` || GetSma ||
 | ⭐ MED - Median value | `MED_Series` ||| median |
-| ✔️ MSE - Mean Squared Error | `MSE_Series` || GetSma ||
-| ⛔ SKEW - Skewness |||||
-| ⭐ SDEV - Standard Deviation (Volatility) | `SDEV_Series` | STDDEV |||
-| ✔️ SSDEV - Sample Standard Deviation | `SSDEV_Series` ||||
+| ⭐ MSE - Mean Squared Error | `MSE_Series` || GetSma ||
+| ⛔ SKEW - Skewness |||| skew |
+| ⭐ SDEV - Standard Deviation (Volatility) | `SDEV_Series` | STDDEV | GetStdDev | stdev |
+| ⭐ SSDEV - Sample Standard Deviation | `SSDEV_Series` ||| stdev |
 | ✔️ SMAPE - Symmetric Mean Absolute Percent Error | `SMAPE_Series` ||||
 | ⭐ VAR - Population Variance | `VAR_Series` | VAR || variance |
 | ⭐ SVAR - Sample Variance | `SVAR_Series` ||| variance |
-| ⛔ QUANT - Quantile |||||
+| ⛔ QUANTILE - Quantile |||| quantile |
 | ✔️ WMAPE - Weighted Mean Absolute Percent Error | `WMAPE_Series` ||||
-| ⛔ ZSCORE - Number of standard deviations from mean |||||
+| ⭐ ZSCORE - Number of standard deviations from mean | ZSCORE_Series || GetStdDev | zscore |
 ||||||
 | **TREND INDICATORS & AVERAGES** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
 | ⛔ AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
-| ⭐ ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma ||
+| ⭐ ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma | alma |
 | ⛔ ARIMA - Autoregressive Integrated Moving Average |||||
 | ⭐ DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema | dema |
 | ⭐ EMA - Exponential Moving Average | `EMA_Series` || GetEma | ema |
 | ⛔ EPMA - Endpoint Moving Average ||| GetEpma ||
 | ⛔ FRAMA - Fractal Adaptive Moving Average |||||
-| ⛔ FWMA - Fibonacci's Weighted Moving Average |||||
-| ⛔ HILO - Gann High-Low Activator |||||
+| ⛔ FWMA - Fibonacci's Weighted Moving Average |||| fwma |
+| ⛔ HILO - Gann High-Low Activator |||| hilo |
 | ✔️ HEMA - Hull/EMA Average | `HEMA_Series` ||||
 | ⛔ Hilbert Transform Instantaneous Trendline || HT_TRENDLINE | GetHtTrendline ||
 | ⭐ HMA - Hull  Moving Average | `HMA_Series` || GetHma | hma |
-| ⛔ HWMA - Holt-Winter Moving Average |||||
-| ✔️ JMA - Jurik Moving Average | `JMA_Series` ||||
+| ⛔ HWMA - Holt-Winter Moving Average |||| hwma |
+| ✔️ JMA - Jurik Moving Average | `JMA_Series` ||| jma |
 | ⭐ KAMA - Kaufman's Adaptive Moving Average | `KAMA_Series` | KAMA | GetKama | kama |
-| ⛔ KDJ - KDJ Indicator (trend reversal) |||||
+| ⛔ KDJ - KDJ Indicator (trend reversal) |||| kdj |
 | ⛔ LSMA - Least Squares Moving Average |||||
-| ⭐ MACD - Moving Average Convergence/Divergence | `MACD_Series` | MACD | GetMacd ||
+| ⭐ MACD - Moving Average Convergence/Divergence | `MACD_Series` | MACD | GetMacd | macd |
 | ⛔ MAMA - MESA Adaptive Moving Average || MAMA | GetMama ||
-| ⛔ MCGD - McGinley Dynamic |||||
+| ⛔ MCGD - McGinley Dynamic |||| mcgd |
 | ⛔ MMA - Modified Moving Average |||||
 | ⛔ PPMA - Pivot Point Moving Average |||||
-| ⛔ PWMA - Pascal's Weighted Moving Average |||||
+| ⛔ PWMA - Pascal's Weighted Moving Average |||| pwma |
 | ⭐ RMA - WildeR's Moving Average | `RMA_Series` ||| rma |
-| ⛔ SINWMA - Sine Weighted Moving Average |||||
+| ⛔ SINWMA - Sine Weighted Moving Average |||| sinwma |
 | ⭐ SMA - Simple Moving Average | `SMA_Series` | SMA | GetSma | sma |
 | ⭐ SMMA - Smoothed Moving Average | `SMMA_Series` || GetSmma ||
-| ⛔ SSF - Ehler's Super Smoother Filter |||||
-| ⛔ SUP - Supertrend |||||
-| ⛔ SWMA - Symmetric Weighted Moving Average |||||
-| ⛔ T3 - Tillson T3 Moving Average || T3 | GetT3 ||
+| ⛔ SSF - Ehler's Super Smoother Filter |||| ssf |
+| ⛔ SUPERTREND - Supertrend |||| supertrend |
+| ⛔ SWMA - Symmetric Weighted Moving Average |||| swma |
+| ⛔ T3 - Tillson T3 Moving Average || T3 | GetT3 | t3 |
 | ⭐ TEMA - Triple EMA Average | `TEMA_Series` | TEMA | GetTema | tema |
-| ⭐ TRIMA - Triangular Moving Average | `TRIMA_Series` | TRIMA |||
+| ⭐ TRIMA - Triangular Moving Average | `TRIMA_Series` | TRIMA || trima |
 | ⛔ TSF - Time Series Forecast || TSF |||
-| ⛔ VIDYA - Variable Index Dynamic Average |||||
-| ⛔ VOR - Vortex Indicator |||||
+| ⛔ VIDYA - Variable Index Dynamic Average |||| vidya |
+| ⛔ VORTEX - Vortex Indicator |||| vortex |
 | ⭐ WMA - Weighted Moving Average | `WMA_Series` | WMA | GetWma | wma |
 | ⭐ ZLEMA - Zero Lag EMA Average | `ZLEMA_Series` ||| zlma |
 ||||||
