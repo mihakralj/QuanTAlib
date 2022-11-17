@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 DEMA: Double Exponential Moving Average
@@ -41,16 +42,9 @@ public class DEMA_Series : Single_TSeries_Indicator
 
         if (this.Count < this._p)
         {
-            if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
-            else
-            {
-                _buffer.Add(TValue.v);
-            }
-            if (_buffer.Count > this._p) { _buffer.RemoveAt(0); }
+            Add_Replace_Trim(_buffer, TValue.v, _p, update);
+            double _sma = _buffer.Average();
 
-            double _sma = 0;
-            for (int i = 0; i < _buffer.Count; i++) { _sma += _buffer[i]; }
-            _sma /= this._buffer.Count;
             _ema1 = _ema2 = _sma;
         }
         else
@@ -65,7 +59,6 @@ public class DEMA_Series : Single_TSeries_Indicator
         this._lastema1 = _ema1;
         this._lastema2 = _ema2;
 
-        var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _dema);
-        base.Add(ret, update);
+        base.Add((TValue.t, _dema), update, _NaN);
     }
 }

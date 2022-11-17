@@ -1,5 +1,7 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 /* <summary>
 CCI: Commodity Channel Index 
@@ -32,18 +34,16 @@ public class CCI_Series : Single_TBars_Indicator
     if (this._tp.Count > this._p) { this._tp.RemoveAt(0); }
     
     // average TP over _tp buffer
-    double _avgTp = 0;
-    for (int i = 0; i < this._tp.Count; i++) { _avgTp+=this._tp[i]; }
-    _avgTp /= this._tp.Count;
+    double _avgTp = _tp.Average();
 
     // average Deviation over _tp buffer
     double _avgDv = 0;
     for (int i = 0; i < this._tp.Count; i++) { _avgDv += Math.Abs(_avgTp - this._tp[i]); }
     _avgDv /= this._tp.Count;
 
+
     double _cci =  (_avgDv == 0) ? double.NaN : (this._tp[this._tp.Count-1] - _avgTp) / (0.015 * _avgDv);
 
-    var result = (TBar.t, (this.Count < this._p  && this._NaN) ? double.NaN : _cci);
-    base.Add(result, update);
-  }
+        base.Add((TBar.t, _cci), update, _NaN);
+    }
 }

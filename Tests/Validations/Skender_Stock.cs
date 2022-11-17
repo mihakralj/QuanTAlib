@@ -99,6 +99,15 @@ public class Skender_Stock
   }
 
   [Fact]
+  public void COVAR()
+  {
+    COVAR_Series QL = new(bars.High, bars.Low, period, false);
+    var SK = quotes.Use(CandlePart.High).GetCorrelation(quotes.Use(CandlePart.Low), period);
+
+    Assert.Equal(Math.Round((double)SK.Last().Covariance!, 6), Math.Round(QL.Last().v, 6));
+  }
+
+  [Fact]
   public void CORR()
   {
     CORR_Series QL = new(bars.High, bars.Low, period, false);

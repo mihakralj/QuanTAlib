@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanTAlib", "Source\QuanTAlib.csproj", "{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanTAlib", "Source\QuanTAlib.csproj", "{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quantower", "Quantower\Quantower.csproj", "{693713F9-F33A-4B33-8F98-63794CA9734C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{693713F9-F33A-4B33-8F98-63794CA9734C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{693713F9-F33A-4B33-8F98-63794CA9734C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{693713F9-F33A-4B33-8F98-63794CA9734C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{693713F9-F33A-4B33-8F98-63794CA9734C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

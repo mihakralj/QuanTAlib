@@ -150,12 +150,9 @@ public class JMA_Series : Single_TSeries_Indicator
         double det1 = ((ma2 - this.prev_jma) * (1 - alpha) * (1 - alpha)) +
                       (this.prev_det1 * alpha * alpha);
         this.prev_det1 = det1;
-        var jma = this.prev_jma + det1;
-        this.prev_jma = jma;
+        var _jma = this.prev_jma + det1;
+        this.prev_jma = _jma;
 
-        (System.DateTime t, double v) result =
-            (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : jma);
-        base.Add(result, update);
-
-    }
+        base.Add((TValue.t, _jma), update, _NaN);
+        }
 }

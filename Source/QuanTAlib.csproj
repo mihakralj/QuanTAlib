@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>QuanTAlib</Title>
+    <Version>0.1.20</Version>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Technical Analysis library for both real-time (streaming) and historical data analysis</Description>
     <RepositoryType>git</RepositoryType>
@@ -31,7 +32,6 @@
     </PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageLicenseFile></PackageLicenseFile>
-    <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
@@ -51,7 +51,7 @@
     <PackageIcon>QuanTAlib2.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <CodeAnalysisRuleSet>..\.sonarlint\mihakralj_quantalibcsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>QuanTAlib.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
@@ -67,12 +67,4 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.11.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Text.Json" Version="7.0.0" />
-  </ItemGroup>
-  
 </Project>

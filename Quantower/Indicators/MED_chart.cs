@@ -19,7 +19,7 @@ public class MED_chart : Indicator
     private TBars bars;
 
     ///////
-    private MED_Series indicator;
+    private MEDIAN_Series indicator;
     ///////
 
     public MED_chart()

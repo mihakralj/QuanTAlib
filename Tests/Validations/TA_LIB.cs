@@ -118,7 +118,7 @@ public class TA_LIB
     VAR_Series QL = new(bars.Close, period, false);
     Core.Var(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
 
-    Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 5, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 5));
+    Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 4, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 4));
   }
 
   [Fact]
@@ -315,4 +315,5 @@ public class TA_LIB
 
     Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
   }
+
 }

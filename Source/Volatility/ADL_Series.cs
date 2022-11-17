@@ -37,7 +37,6 @@ public class ADL_Series : Single_TBars_Indicator
 		this._lastlastadl = this._lastadl;
 		this._lastadl = _adl;
 
-		var ret = (TBar.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _adl);
-		base.Add(ret, update);
-	}
+        base.Add((TBar.t, _adl), update, _NaN);
+    }
 }

@@ -15,10 +15,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.dotCover.CommandLineTools" Version="2022.3.0-eap07">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221003-04" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Skender.Stock.Indicators" Version="2.4.0" />

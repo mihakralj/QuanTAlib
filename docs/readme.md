@@ -17,7 +17,6 @@ Quantitative TA Library (**QuanTAlib**) is an easy-to-use C# library for quantit
 **QuanTAlib** is written with some specific design criteria in mind - some reasons why there is '_yet another C# TA library_':
 
 - Written in native C# - no code conversion from TA-LIB or other imported/converted TA libraries
-- No usage of Decimal datatypes, LINQ, interface abstractions, or static classes with tons of methods (all for performance reasons)
 - Supports both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without the need to re-calculate the whole history)
 - Calculate early data right - no hiding of incomplete calculations with NaN values (unless explicitly requested with useNan: true), data is as valid as mathematically possible from the first value
 - Usage of events - each data series is an event publisher, each indicator is a subscriber - this allows seamless data flow between indicators)
@@ -56,9 +55,9 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | **STATISTICS & NUMERICAL ANALYSIS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
 | ⭐ BIAS - Bias | `BIAS_Series` ||| bias |
 | ⭐ CORR - Pearson's Correlation Coefficient | `CORR_Series` | CORREL | GetCorrelation ||
-| ⛔ COVAR - Covariance ||| GetCorrelation ||
-| ⭐ ENTP - Entropy | `ENTP_Series` ||| entropy |
-| ⭐ KURT - Kurtosis | `KURT_Series` ||| kurtosis |
+| ⭐ COVAR - Covariance | `COVAR_Series` || GetCorrelation ||
+| ⭐ ENTROPY - Entropy | `ENTROPY_Series` ||| entropy |
+| ⭐ KURTOSIS - Kurtosis | `KURT_Series` ||| kurtosis |
 | ⭐ LINREG - Linear Regression | `LINREG_Series` || GetSlope ||
 | ⭐ MAD - Mean Absolute Deviation | `MAD_Series` || GetSma | mad |
 | ⭐ MAPE - Mean Absolute Percent Error | `MAPE_Series` || GetSma ||
@@ -79,7 +78,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⭐ ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma | alma |
 | ⛔ ARIMA - Autoregressive Integrated Moving Average |||||
 | ⭐ DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema | dema |
-| ⭐ EMA - Exponential Moving Average | `EMA_Series` || GetEma | ema |
+| ⭐ EMA - Exponential Moving Average | `EMA_Series` | EMA | GetEma | ema |
 | ⛔ EPMA - Endpoint Moving Average ||| GetEpma ||
 | ⛔ FRAMA - Fractal Adaptive Moving Average |||||
 | ⛔ FWMA - Fibonacci's Weighted Moving Average |||| fwma |

@@ -1,5 +1,6 @@
 namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 MIDPRICE: Midpoint price (highhest high + lowest low)/2 in the given period in the series.
@@ -19,32 +20,13 @@ public class MIDPRICE_Series : Single_TBars_Indicator
 
 	public override void Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update)
 	{
-		if (update)
-		{
-			this._bufferhi[this._bufferhi.Count - 1] = TBar.h;
-			this._bufferlo[this._bufferlo.Count - 1] = TBar.l;
-		}
-		else
-		{
-			this._bufferhi.Add(TBar.h);
-			this._bufferlo.Add(TBar.l);
-		}
-		if (this._bufferhi.Count > this._p && this._p != 0)
-		{ this._bufferhi.RemoveAt(0); }
-		if (this._bufferlo.Count > this._p && this._p != 0)
-		{ this._bufferlo.RemoveAt(0); }
+		Add_Replace_Trim(_bufferhi, TBar.h, _p, update);
+        Add_Replace_Trim(_bufferlo, TBar.l, _p, update);
 
-		double _max = TBar.h;
-		double _min = TBar.l;
-		for (int i = 0; i < this._bufferhi.Count; i++)
-		{
-			_max = Math.Max(this._bufferhi[i], _max);
-			_min = Math.Min(this._bufferlo[i], _min);
-		}
+		double _max = _bufferhi.Max();
+		double _min = _bufferlo.Min();
 		double _mid = (_max + _min) * 0.5;
 
-		var result = (TBar.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _mid);
-
-		base.Add(result, update);
+		base.Add((TBar.t, _mid), update, _NaN);
 	}
 }

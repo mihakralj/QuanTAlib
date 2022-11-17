@@ -1,5 +1,6 @@
 namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 MAX - Maximum value in the given period in the series.
@@ -16,18 +17,9 @@ public class MAX_Series : Single_TSeries_Indicator
 
     public override void Add((DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-        else { this._buffer.Add(TValue.v); }
-        if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
+        double _max = _buffer.Max();
 
-        double _max = TValue.v;
-        for (int i = 0; i < this._buffer.Count; i++)
-        { 
-            _max = Math.Max(this._buffer[i], _max);
-        }
-
-        var result = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _max);
-
-        base.Add(result, update);
+        base.Add((TValue.t, _max), update, _NaN);
     }
 }

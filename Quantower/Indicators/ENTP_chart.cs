@@ -19,13 +19,13 @@ public class ENTP_chart : Indicator
     private  TBars bars;
 
     ///////
-    private ENTP_Series indicator;
+    private ENTROPY_Series indicator;
     ///////
 
     public ENTP_chart()
     {
         this.SeparateWindow = true;
-        this.Name = "ENTP - Entropy (Unpredictability)";
+        this.Name = "ENTROPY - Entropy (Unpredictability)";
         this.Description = "Entropy description";
         this.AddLineSeries("ENTROPY", Color.RoyalBlue, 3, LineStyle.Solid);
     }

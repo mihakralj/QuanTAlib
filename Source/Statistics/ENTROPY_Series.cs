@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 ENTP: Entropy
@@ -16,9 +17,9 @@ Sources:
 
 </summary> */
 
-public class ENTP_Series : Single_TSeries_Indicator
+public class ENTROPY_Series : Single_TSeries_Indicator
 {
-    public ENTP_Series(TSeries source, int period, double logbase = 2.0, bool useNaN = false) : base(source, period, useNaN)
+    public ENTROPY_Series(TSeries source, int period, double logbase = 2.0, bool useNaN = false) : base(source, period, useNaN)
     {
         this._logbase = logbase;
         if (base._data.Count > 0) { base.Add(base._data); }
@@ -29,24 +30,15 @@ public class ENTP_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-        else { this._buffer.Add(TValue.v); }
-        if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
-
-        double _sum = 0;
-        for (int i = 0; i < this._buffer.Count; i++) { _sum += this._buffer[i]; }
-
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
+        double _sum = _buffer.Sum();
+        
         double _pp = this._buffer[this._buffer.Count - 1] / _sum;
         double _ppp = -_pp * Math.Log(_pp) / Math.Log(this._logbase);
 
-        if (update) { this._buff2[this._buff2.Count - 1] = _ppp; }
-        else { this._buff2.Add(_ppp); }
-        if (this._buff2.Count > this._p && this._p != 0) { this._buff2.RemoveAt(0); }
+        Add_Replace_Trim(_buff2, _ppp, _p, update);
+        double _entp = _buff2.Sum();
 
-        double _entp = 0;
-        for (int i = 0; i < this._buff2.Count; i++) { _entp += this._buff2[i]; }
-
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _entp);
-        base.Add(result, update);
+        base.Add((TValue.t, _entp), update, _NaN);
     }
 }

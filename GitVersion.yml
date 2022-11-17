@@ -1,10 +1,9 @@
-next-version: 0.1.19
 minor-version-bump-message: \+semver:\s?(feature|new)
 branches:
   main:
     regex: ^main$
     is-release-branch: true
-    prevent-increment-of-merged-branch-version: true
+    prevent-increment-of-merged-branch-version: false
     mode: ContinuousDelivery
     tag: ''
     increment: Patch

@@ -34,9 +34,7 @@ public class LINREG_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-        else { this._buffer.Add(TValue.v); }
-        if (this._buffer.Count > this._p) { this._buffer.RemoveAt(0); }
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
 
         int _len = this._buffer.Count;
 
@@ -79,7 +77,7 @@ public class LINREG_Series : Single_TSeries_Indicator
         double _RSquared = arrr * arrr;
 
         var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _slope);
-        base.Add(ret, update);
+        base.Add(ret, update, _NaN);
 
         ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _intercept);
         Intercept.Add(ret, update);

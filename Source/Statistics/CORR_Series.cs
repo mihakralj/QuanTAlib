@@ -1,5 +1,7 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 /* <summary>
 CORR: Pearson's Correlation Coefficient
@@ -28,43 +30,23 @@ public class CORR_Series : Pair_TSeries_Indicator
 
   public override void Add((System.DateTime t, double v) TValue1, (System.DateTime t, double v) TValue2, bool update)
   {
-    if (update)
-    {
-      _x[_x.Count - 1] = TValue1.v;
-      _xx[_xx.Count - 1] = TValue1.v * TValue1.v;
-      _y[_y.Count - 1] = TValue2.v;
-      _y[_yy.Count - 1] = TValue2.v * TValue2.v;
-      _xy[_xy.Count - 1] = TValue1.v * TValue2.v;
-    }
-    else
-    {
-      _x.Add(TValue1.v);
-      _xx.Add(TValue1.v * TValue1.v);
-      _y.Add(TValue2.v);
-      _yy.Add(TValue2.v * TValue2.v);
-      _xy.Add(TValue1.v * TValue2.v);
-    }
-    if (_x.Count > this._p) { _x.RemoveAt(0); }
-    if (_xx.Count > this._p) { _xx.RemoveAt(0); }
-    if (_y.Count > this._p) { _y.RemoveAt(0); }
-    if (_yy.Count > this._p) { _yy.RemoveAt(0); }
-    if (_xy.Count > this._p) { _xy.RemoveAt(0); }
+	Add_Replace_Trim(_x, TValue1.v, _p, update);
+	Add_Replace_Trim(_xx, TValue1.v * TValue1.v, _p, update);
+	Add_Replace_Trim(_y, TValue2.v, _p, update);
+	Add_Replace_Trim(_yy, TValue2.v * TValue2.v, _p, update);
+	Add_Replace_Trim(_xy, TValue1.v * TValue2.v, _p, update);
 
-    double _sumx = 0;
-    for (int i = 0; i < _x.Count; i++) { _sumx += _x[i]; }
-    double _sumxx = 0;
-    for (int i = 0; i < _xx.Count; i++) { _sumxx += _xx[i]; }
-    double _sumy = 0;
-    for (int i = 0; i < _y.Count; i++) { _sumy += _y[i]; }
-    double _sumyy = 0;
-    for (int i = 0; i < _yy.Count; i++) { _sumyy += _yy[i]; }
-    double _sumxy = 0;
-    for (int i = 0; i < _xy.Count; i++) { _sumxy += _xy[i]; }
+    double _sumx = _x.Sum();
+	double _sumxx = _xx.Sum();
+	double _sumy = _y.Sum();
+	double _sumyy = _yy.Sum();
+	double _sumxy = _xy.Sum();
 
-    double _div = (_sumxx - _sumx * _sumx / _p) * (_sumyy - _sumy * _sumy / _p);
-    double _cor = (_div != 0) ? (_sumxy - _sumx * _sumy / _p) / Math.Sqrt(_div) : 0.0;
+    double _covar = (_sumxx - _sumx * _sumx / _p) * (_sumyy - _sumy * _sumy / _p);
+    double _cor = (_covar != 0) ? (_sumxy - _sumx * _sumy / _p) / Math.Sqrt(_covar) : 0.0;
 
-    var result = (TValue1.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _cor);
+	var result = (TValue1.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _cor);
     if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
-  }
+
+    }
 }
