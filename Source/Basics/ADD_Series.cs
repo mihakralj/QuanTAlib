@@ -23,8 +23,7 @@ public class ADD_Series : Pair_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2, bool update) 
     {
-        (System.DateTime t, double v) result = ((TValue1.t > TValue2.t) ? TValue1.t : TValue2.t, 
-                TValue1.v+TValue2.v);
+        (System.DateTime t, double v) result = ((TValue1.t > TValue2.t) ? TValue1.t : TValue2.t, TValue1.v+TValue2.v);
         if (update) { base[base.Count - 1] = result; } else { base.Add(result); }
     }
 }

@@ -10,6 +10,7 @@ public class TA_LIB
   private readonly Random rnd = new();
   private readonly int period;
   private readonly double[] TALIB;
+  private readonly double[] TALIB2;
   private readonly double[] inopen;
   private readonly double[] inhigh;
   private readonly double[] inlow;
@@ -21,6 +22,7 @@ public class TA_LIB
     bars = new(5000);
     period = rnd.Next(28) + 3;
     TALIB = new double[bars.Count];
+    TALIB2 = new double[bars.Count];
     inopen = bars.Open.v.ToArray();
     inhigh = bars.High.v.ToArray();
     inlow = bars.Low.v.ToArray();
@@ -130,7 +132,16 @@ public class TA_LIB
     Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
   }
 
-  [Fact]
+
+    [Fact]
+    public void MAMA() {
+        MAMA_Series QL = new(bars.Close, fastlimit: 0.5, slowlimit: 0.05);
+        Core.Mama(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outMama: TALIB, outFama: TALIB2, outBegIdx: out int outBegIdx, outNbElement: out _, optInFastLimit: 0.5, optInSlowLimit: 0.05);
+
+        Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
+        }
+
+    [Fact]
   public void TRIMA()
   {
     TRIMA_Series QL = new(bars.Close, period, false);
@@ -315,4 +326,5 @@ public class TA_LIB
 
     Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));
   }
+
 }

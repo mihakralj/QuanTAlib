@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 SMMA: Smoothed Moving Average
@@ -34,15 +35,8 @@ public class SMMA_Series : Single_TSeries_Indicator
 
         if (this.Count < this._p)
         {
-            if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-            else
-            {
-                this._buffer.Add(TValue.v);
-            }
-            if (this._buffer.Count > this._p) { this._buffer.RemoveAt(0); }
-
-            for (int i = 0; i < this._buffer.Count; i++) { _smma += this._buffer[i]; }
-            _smma /= this._buffer.Count;
+            Add_Replace_Trim(_buffer, TValue.v, _p, update);
+            _smma = _buffer.Average();
         }
         else
         {
@@ -52,7 +46,6 @@ public class SMMA_Series : Single_TSeries_Indicator
         this._lastlastsmma = this._lastsmma;
         this._lastsmma = _smma;
 
-        var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _smma);
-        base.Add(ret, update);
-    }
+        base.Add((TValue.t, _smma), update, _NaN);
+        }
 }

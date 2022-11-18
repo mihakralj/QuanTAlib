@@ -1,5 +1,6 @@
 namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 MIN - Minimum value in the given period in the series.
@@ -16,18 +17,9 @@ public class MIN_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-        else { this._buffer.Add(TValue.v); }
-        if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
 
-        double _min = TValue.v;
-        for (int i = 0; i < this._buffer.Count; i++)
-        { 
-            _min = Math.Min(this._buffer[i], _min);
-        }
-
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _min);
-
-        base.Add(result, update);
+        double _min = _buffer.Min();
+        base.Add((TValue.t, _min), update, _NaN);
     }
 }

@@ -17,7 +17,6 @@ Quantitative TA Library (**QuanTAlib**) is an easy-to-use C# library for quantit
 **QuanTAlib** is written with some specific design criteria in mind - some reasons why there is '_yet another C# TA library_':
 
 - Written in native C# - no code conversion from TA-LIB or other imported/converted TA libraries
-- No usage of Decimal datatypes, LINQ, interface abstractions, or static classes with tons of methods (all for performance reasons)
 - Supports both **historical data analysis** (working on bulk of historical arrays) and **real-time analysis** (adding one data item at the time without the need to re-calculate the whole history)
 - Calculate early data right - no hiding of incomplete calculations with NaN values (unless explicitly requested with useNan: true), data is as valid as mathematically possible from the first value
 - Usage of events - each data series is an event publisher, each indicator is a subscriber - this allows seamless data flow between indicators)
@@ -57,8 +56,8 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⭐ BIAS - Bias | `BIAS_Series` ||| bias |
 | ⭐ CORR - Pearson's Correlation Coefficient | `CORR_Series` | CORREL | GetCorrelation ||
 | ⭐ COVAR - Covariance | `COVAR_Series` || GetCorrelation ||
-| ⭐ ENTP - Entropy | `ENTP_Series` ||| entropy |
-| ⭐ KURT - Kurtosis | `KURT_Series` ||| kurtosis |
+| ⭐ ENTROPY - Entropy | `ENTROPY_Series` ||| entropy |
+| ⭐ KURTOSIS - Kurtosis | `KURT_Series` ||| kurtosis |
 | ⭐ LINREG - Linear Regression | `LINREG_Series` || GetSlope ||
 | ⭐ MAD - Mean Absolute Deviation | `MAD_Series` || GetSma | mad |
 | ⭐ MAPE - Mean Absolute Percent Error | `MAPE_Series` || GetSma ||

@@ -1,9 +1,12 @@
 ﻿namespace QuanTAlib; 
 using System;
+using System.Linq;
 
 /* <summary>
 WMAPE: Weighted Mean Absolute Percentage Error
-    Measures the size of the error in percentage terms
+    Measures the size of the error in percentage terms. Improves problems with MAPE
+    when there are zero or close-to-zero values because there would be a division by zero 
+    or values of MAPE tending to infinity.
 
 Sources:
   https://en.wikipedia.org/wiki/WMAPE
@@ -20,13 +23,8 @@ public class WMAPE_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
-        else { _buffer.Add(TValue.v); }
-        if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
-
-        double _sma = 0;
-        for (int i = 0; i < _buffer.Count; i++) { _sma += _buffer[i]; }
-        _sma /= this._buffer.Count;
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
+        double _sma = _buffer.Average();
 
         double _div = 0;
         double _wmape = 0;
@@ -35,9 +33,8 @@ public class WMAPE_Series : Single_TSeries_Indicator
             _wmape += Math.Abs(_buffer[i] - _sma);
             _div += Math.Abs(_buffer[i]);
         }
-        _wmape /= _div;
+        _wmape = (_div!=0) ? _wmape/_div : double.PositiveInfinity;
 
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _wmape);
-        base.Add(result, update);
+        base.Add((TValue.t, _wmape), update, _NaN);
     }
 }

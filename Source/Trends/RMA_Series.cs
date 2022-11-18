@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 RMA: wildeR Moving Average
@@ -34,20 +35,13 @@ public class RMA_Series : Single_TSeries_Indicator
 
     public override void Add((DateTime t, double v) TValue, bool update)
     {
-        double _ema = 0;
+        double _ema;
         if (update) { this._lastema = this._lastlastema; }
 
         if (this.Count < this._p)
         {
-            if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
-            else
-            {
-                _buffer.Add(TValue.v);
-            }
-            if (_buffer.Count > this._p) { _buffer.RemoveAt(0); }
-
-            for (int i = 0; i < _buffer.Count; i++) { _ema += _buffer[i]; }
-            _ema /= this._buffer.Count;
+            Add_Replace_Trim(_buffer, TValue.v, _p, update);
+            _ema = _buffer.Average();
         }
         else
         {
@@ -57,7 +51,6 @@ public class RMA_Series : Single_TSeries_Indicator
         this._lastlastema = this._lastema;
         this._lastema = _ema;
 
-        var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
-        base.Add(ret, update);
-    }
+        base.Add((TValue.t, _ema), update, _NaN);
+        }
 }

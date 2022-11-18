@@ -73,7 +73,6 @@ public class HMA_Series : TSeries
         {
             this._wma1 += this._buf1[i] * this._weights[i];
         }
-
         this._wma1 /= (this._buf1.Count * (this._buf1.Count + 1)) * 0.5;
 
         this._wma2 = 0;
@@ -81,7 +80,6 @@ public class HMA_Series : TSeries
         {
             this._wma2 += this._buf2[i] * this._weights[i];
         }
-
         this._wma2 /= (this._buf2.Count * (this._buf2.Count + 1)) * 0.5;
 
         if (update)
@@ -92,6 +90,7 @@ public class HMA_Series : TSeries
         {
             this._buf3.Add(2 * this._wma1 - this._wma2);
         }
+
         if (this._buf3.Count > (int)Math.Sqrt(this._p))
         {
             this._buf3.RemoveAt(0);

@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 BIAS: Rate of change between the source and a moving average.
@@ -23,17 +24,11 @@ public class BIAS_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-        else { this._buffer.Add(TValue.v); }
-        if (this._buffer.Count > this._p && this._p != 0) { this._buffer.RemoveAt(0); }
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
 
-        double _sma = 0;
-        for (int i = 0; i < this._buffer.Count; i++) { _sma += this._buffer[i]; }
-        _sma /= this._buffer.Count;
-        double _bias = (this._buffer[this._buffer.Count - 1] / ((_sma != 0) ? _sma : 1)) - 1;
+        double _sma = _buffer.Average();
+        double _bias = (_buffer[_buffer.Count - 1] / ((_sma != 0) ? _sma : 1)) - 1;
 
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _bias);
-
-        base.Add(result, update);
+        base.Add((TValue.t, _bias), update, _NaN);
     }
 }

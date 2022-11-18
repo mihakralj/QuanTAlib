@@ -21,12 +21,7 @@ public class MIDPOINT_Series : Single_TSeries_Indicator
 
 	public override void Add((DateTime t, double v) TValue, bool update)
 	{
-		if (update)
-		{ this._buffer[this._buffer.Count - 1] = TValue.v; }
-		else
-		{ this._buffer.Add(TValue.v); }
-		if (this._buffer.Count > this._p && this._p != 0)
-		{ this._buffer.RemoveAt(0); }
+		Add_Replace_Trim(_buffer, TValue.v, _p, update);
 
 		double _max = TValue.v;
 		double _min = TValue.v;
@@ -37,8 +32,6 @@ public class MIDPOINT_Series : Single_TSeries_Indicator
 		}
 		double _mid = (_max + _min) * 0.5;
 
-		var result = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _mid);
-
-		base.Add(result, update);
+		base.Add((TValue.t, _mid), update, _NaN);
 	}
 }

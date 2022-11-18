@@ -19,13 +19,13 @@ public class KURT_chart : Indicator
     private  TBars bars;
 
     ///////
-    private KURT_Series indicator;
+    private KURTOSIS_Series indicator;
     ///////
 
     public KURT_chart()
     {
         this.SeparateWindow = true;
-        this.Name = "KURT - Kurtosis (Flatness)";
+        this.Name = "KURTOSIS - Kurtosis (Flatness)";
         this.Description = "Kurtosis description";
         this.AddLineSeries("KURTOSIS", Color.RoyalBlue, 3, LineStyle.Solid);
     }

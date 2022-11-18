@@ -11,9 +11,9 @@ public class PandasTA : IDisposable
   private readonly Random rnd = new();
   private readonly int period;
   private readonly string OStype;
-  private dynamic np;
-  private dynamic ta;
-  private dynamic df;
+  private readonly dynamic np;
+  private readonly dynamic ta;
+  private readonly dynamic df;
 
   public PandasTA()
   {
@@ -85,7 +85,7 @@ public class PandasTA : IDisposable
 	[Fact]
 	void MEDIAN()
 	{
-		MED_Series QL = new(bars.Close, period);
+		MEDIAN_Series QL = new(bars.Close, period);
 		var pta = df.ta.median(close: df.close, length: period);
 		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
@@ -130,7 +130,15 @@ public class PandasTA : IDisposable
 		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
-	[Fact]
+    [Fact]
+    void OBV()
+    {
+        OBV_Series QL = new(bars);
+        var pta = df.ta.obv(close: df.close, volume: df.volume);
+        Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+    }
+
+    [Fact]
 	void ATR()
 	{
 		ATR_Series QL = new(bars, period);
@@ -149,21 +157,21 @@ public class PandasTA : IDisposable
 	[Fact]
 	void TRIMA()
 	{
-    //TODO: return length to variable length (period) when Pandas-TA fixes trima
+    // TODO: return length to variable length (period) when Pandas-TA fixes trima
 		TRIMA_Series QL = new(bars.Close, 11);
 		var pta = df.ta.trima(close: df.close, length: 11);
 		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
 	}
 
-	[Fact]
-  void KAMA()
-  {
-    KAMA_Series QL = new(bars.Close, period);
-    var pta = df.ta.kama(close: df.close, length: period);
-    Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
-  }
+    [Fact]
+    void KAMA()
+    {
+        KAMA_Series QL = new(bars.Close, period);
+        var pta = df.ta.kama(close: df.close, length: period);
+        Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
+    }
 
-	[Fact]
+    [Fact]
   void HMA()
   {
     HMA_Series QL = new(bars.Close, period, false);
@@ -220,9 +228,9 @@ public class PandasTA : IDisposable
 	}
 
 	[Fact]
-  void ENTP()
+  void ENTROPY()
   {
-    ENTP_Series QL = new(bars.Close, period, useNaN: false);
+    ENTROPY_Series QL = new(bars.Close, period, useNaN: false);
     var pta = df.ta.entropy(close: df.close, length: period);
     Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }
@@ -268,9 +276,9 @@ public class PandasTA : IDisposable
   }
 
   [Fact]
-  void KURT()
+  void KURTOSIS()
   {
-    KURT_Series QL = new(bars.Close, period, useNaN: false);
+    KURTOSIS_Series QL = new(bars.Close, period, useNaN: false);
     var pta = df.ta.kurtosis(close: df.close, length: period);
     Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
   }

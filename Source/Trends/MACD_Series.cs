@@ -40,7 +40,6 @@ public class MACD_Series : Single_TSeries_Indicator
             _TSfast.Add(TValue, true);
         }
         _macd = this._TSmacd[(this.Count < this._TSmacd.Count) ? this.Count : this._TSmacd.Count - 1].v;
-        var result = (TValue.t, _macd);
-        base.Add(result, update);
-    }
+        base.Add((TValue.t, _macd), update, _NaN);
+        }
 }

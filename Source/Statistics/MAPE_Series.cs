@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 MAPE: Mean Absolute Percentage Error
@@ -27,19 +28,15 @@ public class MAPE_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        if (update) { _buffer[_buffer.Count - 1] = TValue.v; }
-        else { _buffer.Add(TValue.v); }
-        if (_buffer.Count > this._p && this._p != 0) { _buffer.RemoveAt(0); }
-
-        double _sma = 0;
-        for (int i = 0; i < _buffer.Count; i++) { _sma += _buffer[i]; }
-        _sma /= this._buffer.Count;
+        Add_Replace_Trim(_buffer, TValue.v, _p, update);
+        double _sma = _buffer.Average();
 
         double _mape = 0;
-        for (int i = 0; i < _buffer.Count; i++) { _mape += (_buffer[i] != 0) ? Math.Abs(_buffer[i] - _sma) / Math.Abs(_buffer[i]) : double.PositiveInfinity; }
-        _mape /= this._buffer.Count;
+        for (int i = 0; i < _buffer.Count; i++) { 
+            _mape += (_buffer[i] != 0) ? Math.Abs(_buffer[i] - _sma) / Math.Abs(_buffer[i]) : double.PositiveInfinity; 
+        }
+        _mape /= (_buffer.Count>0) ? _buffer.Count : 1;
 
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _mape);
-        base.Add(result, update);
+        base.Add((TValue.t, _mape), update, _NaN);
     }
 }

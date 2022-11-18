@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 TRIMA: Triangular Moving Average
@@ -31,19 +32,12 @@ public class TRIMA_Series : Single_TSeries_Indicator
     {
         if (update) { _buffer1[_buffer1.Count - 1] = TValue.v; } else { _buffer1.Add(TValue.v); }
         if (_buffer1.Count > this._p1b && this._p1b != 0) { _buffer1.RemoveAt(0); }
-        
-        double _sma1 = 0;
-        for (int i = 0; i < _buffer1.Count; i++) { _sma1 += _buffer1[i]; }
-        _sma1 /= this._buffer1.Count;
+        double _sma1 = _buffer1.Average();
 
         if (update) { _buffer2[_buffer2.Count - 1] = _sma1; } else { _buffer2.Add(_sma1); }
         if (_buffer2.Count > this._p1a && this._p1a != 0) { _buffer2.RemoveAt(0); }
+        double _trima = _buffer2.Average();
 
-        double _trima = 0;        
-        for (int i = 0; i < _buffer2.Count; i++) { _trima += _buffer2[i]; }
-        _trima /= this._buffer2.Count;
-
-        var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _trima);
-        base.Add(result, update);
-    }
+        base.Add((TValue.t, _trima), update, _NaN);
+        }
 }

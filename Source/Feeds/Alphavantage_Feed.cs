@@ -17,12 +17,11 @@ public class Alphavantage_Feed : TBars
     public Alphavantage_Feed(string Symbol = "IBM", string APIkey = "demo")
     {
         System.Net.Http.HttpClient client = new();
-        JsonElement json = new();
 
         string req = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED" + "&symbol=" + Symbol + "&apikey=" + APIkey;
         var msg = client.GetStringAsync(req).Result;
         var jres = JsonSerializer.Deserialize<JsonDocument>(msg).RootElement;
-        jres.TryGetProperty("Time Series (Daily)", out json);
+        jres.TryGetProperty("Time Series (Daily)", out JsonElement json);
         
         if (json.ValueKind == JsonValueKind.Undefined) {throw new InvalidOperationException("Stock symbol "+Symbol+" not found"); }
         foreach (var val in json.EnumerateObject()) { base.Add(GetOHLC(val)); }

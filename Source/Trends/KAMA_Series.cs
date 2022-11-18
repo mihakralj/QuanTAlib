@@ -44,6 +44,7 @@ public class KAMA_Series : Single_TSeries_Indicator
       _buffer.Add(TValue.v);
     }
     if (_buffer.Count > _p + 1) { _buffer.RemoveAt(0); }
+
     double _kama = 0;
     if (this.Count < this._p) {
         for (int i = 0; i < this._buffer.Count; i++) { _kama += this._buffer[i]; }
@@ -59,7 +60,6 @@ public class KAMA_Series : Single_TSeries_Indicator
     }
     _lastlastkama = _lastkama;
     _lastkama = _kama;
-    var result = (TValue.t, (this.Count < this._p - 1 && this._NaN) ? double.NaN : _kama);
-    base.Add(result, update);
-  }
+        base.Add((TValue.t, _kama), update, _NaN);
+        }
 }

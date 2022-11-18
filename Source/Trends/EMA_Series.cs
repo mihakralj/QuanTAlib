@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 EMA: Exponential Moving Average
@@ -35,20 +36,13 @@ public class EMA_Series : Single_TSeries_Indicator
 
     public override void Add((DateTime t, double v) TValue, bool update)
     {
-        double _ema = 0;
+        double _ema;
         if (update) { this._lastema = this._lastlastema; }
 
         if (this.Count < this._p)
         {
-            if (update) { this._buffer[this._buffer.Count - 1] = TValue.v; }
-            else
-            {
-                this._buffer.Add(TValue.v);
-            }
-            if (this._buffer.Count > this._p) { this._buffer.RemoveAt(0); }
-
-            for (int i = 0; i < this._buffer.Count; i++) { _ema += this._buffer[i]; }
-            _ema /= this._buffer.Count;
+            Add_Replace(_buffer, TValue.v, update);
+            _ema = _buffer.Average();
         }
         else
         {
@@ -58,7 +52,6 @@ public class EMA_Series : Single_TSeries_Indicator
         this._lastlastema = this._lastema;
         this._lastema = _ema;
 
-        var ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _ema);
-        base.Add(ret, update);
+        base.Add((TValue.t, _ema), update, _NaN);
     }
 }
