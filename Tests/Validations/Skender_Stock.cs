@@ -71,7 +71,16 @@ public class Skender_Stock
     Assert.Equal(Math.Round((double)SK.Last().Tema!, 6), Math.Round(QL.Last().v, 6));
   }
 
-  [Fact]
+
+    [Fact]
+    public void MAMA() {
+        MAMA_Series QL = new(bars.HL2, fastlimit: 0.5, slowlimit: 0.05);
+        var SK = quotes.GetMama(fastLimit: 0.5, slowLimit: 0.05);
+
+        Assert.Equal(Math.Round((double)SK.Last().Mama!, 6), Math.Round(QL.Last().v, 6));
+        }
+
+    [Fact]
   public void MAD()
   {
     MAD_Series QL = new(bars.Close, period, false);

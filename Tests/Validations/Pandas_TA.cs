@@ -157,7 +157,7 @@ public class PandasTA : IDisposable
 	[Fact]
 	void TRIMA()
 	{
-    //TODO: return length to variable length (period) when Pandas-TA fixes trima
+    // TODO: return length to variable length (period) when Pandas-TA fixes trima
 		TRIMA_Series QL = new(bars.Close, 11);
 		var pta = df.ta.trima(close: df.close, length: 11);
 		Assert.Equal(Math.Round((double)pta.tail(1), 4), Math.Round(QL.Last().v, 4));
