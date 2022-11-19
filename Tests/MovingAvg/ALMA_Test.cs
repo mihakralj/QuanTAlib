@@ -3,7 +3,7 @@ using System;
 using QuanTAlib;
 
 namespace MovingAvg;
-public class ALMA_Test
+public class Update
 {
 	[Fact]
 	public void Add_Test()

@@ -16,30 +16,34 @@ public class RSI_Series : Single_TSeries_Indicator
 {
     private readonly System.Collections.Generic.List<double> _gain = new();
     private readonly System.Collections.Generic.List<double> _loss = new();
-    private double _avgGain;
-    private double _avgLoss;
-    private double _lastValue;
-    private double _lastlastValue;
+    private double _avgGain, _avgLoss, _lastValue;
+    private double _avgGain_o, _avgLoss_o, _lastValue_o;
+    private int i;
 
-    public RSI_Series(TSeries source, int period = 10, bool useNaN = false) : base(source, period: period, useNaN: useNaN)
-    { if (source.Count > 0) { base.Add(source); } }
+    public RSI_Series(TSeries source, int period = 10, bool useNaN = false) : base(source, period: period, useNaN: useNaN) {
+        i = 0;
+        if (source.Count > 0) { base.Add(source); }
+    }
 
-    public override void Add((System.DateTime t, double v) TValue, bool update)
-    {
-        int i = this.Count;
+    public override void Add((System.DateTime t, double v) TValue, bool update) {
         double _rsi = 0;
-        if (update) { _lastValue = _lastlastValue; }
+        if (update) {
+            _lastValue = _lastValue_o;
+            _avgGain = _avgGain_o;
+            _avgLoss = _avgLoss_o;
+        }
+        else {
+            _lastValue_o = _lastValue;
+            _avgGain_o = _avgGain;
+            _avgLoss_o = _avgLoss;
+        }
+
         if (i == 0) { _lastValue = TValue.v; }
 
         double _gainval = (TValue.v > _lastValue) ? TValue.v - _lastValue : 0;
-        if (update) { _gain[_gain.Count - 1] = _gainval; } else { _gain.Add(_gainval); }
-        if (_gain.Count > this._p) { _gain.RemoveAt(0); }
-
+        Add_Replace_Trim(_gain, _gainval, _p, update);
         double _lossval = (TValue.v < _lastValue) ? _lastValue - TValue.v : 0;
-        if (update) { _loss[_loss.Count - 1] = _lossval; } else { _loss.Add(_lossval); }
-        if (_loss.Count > this._p) { _loss.RemoveAt(0); }
-
-        _lastlastValue = _lastValue;
+        Add_Replace_Trim(_loss, _lossval, _p, update);
         _lastValue = TValue.v;
 
         // calculate RSI
@@ -67,6 +71,7 @@ public class RSI_Series : Single_TSeries_Indicator
             _rsi = (_avgLoss > 0) ? 100 - (100 / (1 + (_avgGain / _avgLoss))) : 100;
         }
 
+        if (!update) { i++; }
         var result = (TValue.t, (this.Count < this._p && this._NaN) ? double.NaN : _rsi);
         base.Add(result, update);
     }
