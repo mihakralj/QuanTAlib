@@ -24,38 +24,36 @@ public class ZLEMA_Series : Single_TSeries_Indicator
 {
 	private readonly System.Collections.Generic.List<double> _buffer = new();
 	private readonly double _k, _k1m;
-	private double _lastema, _lastlastema;
+	private double _lastema, _lastema_o;
+	private int _llag;
 
 	public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
 	{
 		this._k = 2.0 / (this._p + 1);
 		this._k1m = 1.0 - this._k;
-		this._lastema = this._lastlastema = double.NaN;
-		if (base._data.Count > 0)
-		{ base.Add(base._data); }
+		this._lastema = this._lastema_o = double.NaN;
+		_llag = (int)((_p-1) * 0.5);
+		if (_data.Count > 0) { base.Add(_data); }
 	}
 
 	public override void Add((System.DateTime t, double v) TValue, bool update)
 	{
-		int _lag = (int)((_p-1) * 0.5);
-        _lag = (this.Count-_lag < 0) ? 0 : this.Count-_lag;
+		int _lag = Math.Max(this.Count-_llag, 0);
+		if (update) {
+			_lastema = _lastema_o; _lag--;
+		} else {
+			_lastema_o = _lastema;
+		}
         double _zl = TValue.v + (TValue.v - _data[_lag].v);
-
 		double _ema = 0;
-		if (update)
-		{ this._lastema = this._lastlastema; }
-		if (this.Count < this._p)
-		{
-            Add_Replace_Trim(_buffer, _zl, _p, update);
-			_ema = _buffer.Average();
-		}
-		else
-		{
-			_ema = (_zl * this._k) + (this._lastema * this._k1m);
-		}
 
-		this._lastlastema = this._lastema;
-		this._lastema = _ema;
+		if (this.Count < this._p) {
+			 Add_Replace_Trim(_buffer, _zl, _p, update);
+			_ema = _buffer.Average();
+		} else {
+			_ema = (_zl * _k) + (_lastema * _k1m);
+		}
+		_lastema = _ema;
 
         base.Add((TValue.t, _ema), update, _NaN);
         }

@@ -92,7 +92,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⛔ KDJ - KDJ Indicator (trend reversal) |||| kdj |
 | ⛔ LSMA - Least Squares Moving Average |||||
 | ⭐ MACD - Moving Average Convergence/Divergence | `MACD_Series` | MACD | GetMacd | macd |
-| ⛔ MAMA - MESA Adaptive Moving Average || MAMA | GetMama ||
+| ⭐ MAMA - MESA Adaptive Moving Average | `MAMA_Series` | MAMA | GetMama ||
 | ⛔ MCGD - McGinley Dynamic |||| mcgd |
 | ⛔ MMA - Modified Moving Average |||||
 | ⛔ PPMA - Pivot Point Moving Average |||||
@@ -104,7 +104,7 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⛔ SSF - Ehler's Super Smoother Filter |||| ssf |
 | ⛔ SUPERTREND - Supertrend |||| supertrend |
 | ⛔ SWMA - Symmetric Weighted Moving Average |||| swma |
-| ⛔ T3 - Tillson T3 Moving Average || T3 | GetT3 | t3 |
+| ⭐ T3 - Tillson T3 Moving Average | `T3_Series` | T3 | GetT3 | t3 |
 | ⭐ TEMA - Triple EMA Average | `TEMA_Series` | TEMA | GetTema | tema |
 | ⭐ TRIMA - Triangular Moving Average | `TRIMA_Series` | TRIMA || trima |
 | ⛔ TSF - Time Series Forecast || TSF |||
