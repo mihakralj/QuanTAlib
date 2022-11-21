@@ -105,7 +105,7 @@ public class Update {
         Assert.Equal(lastCalc, QL.Last()); // same data
     }
     [Fact] public void COVAR() {
-        COVAR_Series QL = new(d1: bars.High, d2: bars.Low, period: period);
+        COVAR_Series QL = new(d1: bars.High, d2: bars.Low, period);
         var lastData = bars.Last();
         var lastCalc = QL.Last();
         int lastLen = QL.Count;

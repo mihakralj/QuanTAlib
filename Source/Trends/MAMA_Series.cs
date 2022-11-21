@@ -21,12 +21,10 @@ public class MAMA_Series : Single_TSeries_Indicator
     {
         fastl = fastlimit;
         slowl = slowlimit;
-        i = 0;
         Fama = new();
         if (base._data.Count > 0) { base.Add(base._data); }
     }
 
-    private int i;
     private double sumPr, jI, jQ, fastl, slowl;
     private (double i, double i1, double i2, double i3, double i4, double i5, double i6, double io) pr, i1, q1, sm, dt;
     private (double i, double i1, double io) i2, q2, re, im, pd, ph, mama, fama;
@@ -51,7 +49,7 @@ public class MAMA_Series : Single_TSeries_Indicator
             mama.io = mama.i1; mama.i1 = mama.i;
             fama.io = fama.i1; fama.i1 = fama.i;
         }
-
+        int i = base.Count;
         pr.i = TValue.v;
         if (i > 5) {
             double adj = (0.075 * pd.i1) + 0.54;
@@ -113,7 +111,6 @@ public class MAMA_Series : Single_TSeries_Indicator
             mama.i = fama.i = sumPr / (i+1);
         }
 
-        if (!update) { i++; }
         base.Add((TValue.t, mama.i), update, _NaN);
         var result = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : fama.i);
         Fama.Add(result, update);

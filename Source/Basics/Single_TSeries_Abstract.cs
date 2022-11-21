@@ -17,15 +17,17 @@ Abstract classes with all scaffolding required to build indicators.
 </summary> */
 public abstract class Single_TSeries_Indicator : TSeries
 {
-    protected readonly int _p;
+    protected readonly int _period;
     protected readonly bool _NaN;
     protected readonly TSeries _data;
+    protected int _p;
 
     // Chainable Constructor - add it at the end of primary constructor :base(source: source, period: period, useNaN: useNaN)
     protected Single_TSeries_Indicator(TSeries source, int period, bool useNaN)
     {
         this._data = source;
-        this._p = period;
+        this._period = period;
+        this._p = _period;
         this._NaN = useNaN;
         this._data.Pub += this.Sub;
     }
@@ -34,6 +36,7 @@ public abstract class Single_TSeries_Indicator : TSeries
     
     public virtual void Add((System.DateTime t, double v) TValue, bool update, bool useNaN)
     {
+        if (_period == 0) { _p = this.Length; }
         var res = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : TValue.v);
         base.Add(res, update);
     }
