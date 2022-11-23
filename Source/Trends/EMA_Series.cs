@@ -42,7 +42,9 @@ public class EMA_Series : Single_TSeries_Indicator
         if (this.Count < this._p)
         {
             Add_Replace(_buffer, TValue.v, update);
-            _ema = _buffer.Average();
+            _ema = 0;
+            for (int i = 0; i < _buffer.Count; i++) { _ema += _buffer[i]; }
+            _ema /= _buffer.Count;
         }
         else
         {

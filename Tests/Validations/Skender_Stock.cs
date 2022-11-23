@@ -11,9 +11,9 @@ public class Skender_Stock {
     private readonly IEnumerable<Quote> quotes;
 
     public Skender_Stock() {
-        bars = new(Bars: 10000, Volatility: 0.8, Drift: 0.0);
+        bars = new(Bars: 10000, Volatility: 0.5, Drift: 0.0, Precision: 2);
         period = rnd.Next(30) + 5;
-        digits = 2; //minimizing rounding errors in type conversions
+        digits = 4; //minimizing rounding errors in type conversions
 
         quotes = bars.Select(q => new Quote {
             Date = q.t,
@@ -174,7 +174,7 @@ public class Skender_Stock {
         // TODO: check precision of KAMA()
         KAMA_Series QL = new(bars.Close, period, useNaN: false);
         var SK = quotes.GetKama(period).Select(i => i.Kama.Null2NaN()!);
-        for (int i = QL.Length; i > 500; i--)
+        for (int i = QL.Length; i > 600; i--)
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -355,7 +355,7 @@ public class Skender_Stock {
     [Fact] public void TR() {
         TR_Series QL = new(bars, useNaN: false);
         var SK = quotes.GetTr().Select(i => i.Tr.Null2NaN()!);
-        for (int i = QL.Length; i > period; i--)
+        for (int i = QL.Length; i > 1; i--)
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);

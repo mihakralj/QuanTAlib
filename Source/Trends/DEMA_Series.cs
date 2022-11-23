@@ -1,6 +1,7 @@
 ﻿namespace QuanTAlib;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 /* <summary>
 DEMA: Double Exponential Moving Average
@@ -18,15 +19,15 @@ Remark:
 
 public class DEMA_Series : Single_TSeries_Indicator
 {
-    private readonly System.Collections.Generic.List<double> _buffer = new();
-    private readonly double _k, _k1m;
+    private readonly System.Collections.Generic.List<double> _buffer1 = new();
+    private readonly System.Collections.Generic.List<double> _buffer2 = new();
+    private readonly double _k;
     private double _lastema1, _lastlastema1;
     private double _lastema2, _lastlastema2;
 
     public DEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
     {
-        this._k = 2.0 / (this._p + 1);
-        this._k1m = 1.0 - this._k;
+        _k = 2.0 / (_p + 1);
         if (_data.Count > 0) { base.Add(_data); }
     }
 
@@ -34,26 +35,40 @@ public class DEMA_Series : Single_TSeries_Indicator
     {
         if (update)
         {
-            this._lastema1 = this._lastlastema1;
-            this._lastema2 = this._lastlastema2;
+            _lastema1 = _lastlastema1;
+            _lastema2 = _lastlastema2;
         }
 
-        double _ema1, _ema2;
-
-        if (this.Count < this._p)
+        double _ema1, _ema2, _dema;
+        if (this.Count < _p)
         {
-            Add_Replace_Trim(_buffer, TValue.v, _p, update);
-            double _sma = _buffer.Average();
+            Add_Replace_Trim(_buffer1, TValue.v, _p, update);
+            _ema1 = 0;
+            for (int i=0; i<_buffer1.Count; i++) { _ema1 += _buffer1[i]; }
+            _ema1 /= _buffer1.Count;
 
-            _ema1 = _ema2 = _sma;
+            Add_Replace_Trim(_buffer2, _ema1, _p, update);
+            _ema2 = 0;
+            for (int i = 0; i < _buffer2.Count; i++) { _ema2 += _buffer2[i]; }
+            _ema2 /= _buffer2.Count;
         }
-        else
+        else if(this.Count < (2*_p - 1)) // second _p
         {
-            _ema1 = (TValue.v * this._k) + (this._lastema1 * this._k1m);
-            _ema2 = (_ema1 * this._k) + (this._lastema2 * this._k1m);
-        }
+            _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
 
-        double _dema = (2 * _ema1) - _ema2;
+            Add_Replace_Trim(_buffer2, _ema1, _p, update);
+            _ema2 = 0;
+            for (int i = 0; i < _buffer2.Count; i++) { _ema2 += _buffer2[i]; }
+            _ema2 /= _buffer2.Count; 
+        }
+        else // all others
+        {
+            _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
+            _ema2 = (_ema1 - _lastema2) * _k + _lastema2;
+            
+        }
+        _dema = 2*_ema1 - _ema2;
+
         this._lastlastema1 = this._lastema1;
         this._lastlastema2 = this._lastema2;
         this._lastema1 = _ema1;
