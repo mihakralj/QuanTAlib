@@ -8,7 +8,7 @@ public class Ta_Lib
 {
   private readonly GBM_Feed bars;
   private readonly Random rnd = new();
-  private readonly int period, digits;
+  private readonly int period, digits, skip;
   private readonly double[] TALIB;
   private readonly double[] TALIB2;
   private readonly double[] inopen;
@@ -21,6 +21,7 @@ public class Ta_Lib
   {
     bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0, Precision: 3);
     period = rnd.Next(28) + 3;
+    skip = 200;
     digits = 6;
 
     TALIB = new double[bars.Count];
@@ -37,7 +38,7 @@ public class Ta_Lib
   {
     ADD_Series QL = new(bars.Open, bars.Close);
     Core.Add(inopen, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -59,9 +60,9 @@ public class Ta_Lib
   [Fact]
   public void ADOSC()
   {
-    ADOSC_Series QL = new(bars, false);
+    ADOSC_Series QL = new(bars, 3, 10, false);
     Core.AdOsc(inhigh, inlow, inclose, involume, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -73,7 +74,7 @@ public class Ta_Lib
   {
     ATR_Series QL = new(bars, period, false);
     Core.Atr(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx * 15; i--)
+    for (int i = QL.Length - 1; i > skip * 15; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -88,7 +89,7 @@ public class Ta_Lib
     double[] outLower = new double[bars.Count];
     BBANDS_Series QL = new(bars.Close, period: 26, multiplier: 2.0, false);
     Core.Bbands(inclose, 0, bars.Count - 1, outRealUpperBand: outUpper, outRealMiddleBand: outMiddle, outRealLowerBand: outLower, out int outBegIdx, out _, optInTimePeriod: 26, optInNbDevUp: 2.0, optInNbDevDn: 2.0);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL.Upper[i].v, digits: digits);
       double TA_item = Math.Round(outUpper[i - outBegIdx], digits: digits);
@@ -109,7 +110,7 @@ public class Ta_Lib
   {
     CCI_Series QL = new(bars, period, false);
     Core.Cci(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -121,7 +122,7 @@ public class Ta_Lib
   {
     CORR_Series QL = new(bars.Open, bars.Close, period);
     Core.Correl(inopen, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, optInTimePeriod: period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -133,7 +134,7 @@ public class Ta_Lib
   {
     DEMA_Series QL = new(bars.Close, period, false);
     Core.Dema(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -145,7 +146,7 @@ public class Ta_Lib
   {
     DIV_Series QL = new(bars.Open, bars.Close);
     Core.Div(inopen, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -157,7 +158,7 @@ public class Ta_Lib
   {
     EMA_Series QL = new(bars.Close, period, false);
     Core.Ema(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -169,7 +170,7 @@ public class Ta_Lib
   {
     TSeries QL = bars.HL2;
     Core.MedPrice(inhigh, inlow, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -181,7 +182,7 @@ public class Ta_Lib
   {
     TSeries QL = bars.HLC3;
     Core.TypPrice(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -193,7 +194,7 @@ public class Ta_Lib
   {
     TSeries QL = bars.HLCC4;
     Core.WclPrice(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -207,7 +208,7 @@ public class Ta_Lib
     double[] macdHist = new double[bars.Count];
     MACD_Series QL = new(bars.Close, slow: 26, fast: 12, signal: 9, false);
     Core.Macd(inclose, 0, bars.Count - 1, outMacd: TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx * 10; i--)
+    for (int i = QL.Length - 1; i > skip * 10; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -222,7 +223,7 @@ public class Ta_Lib
   {
     MAMA_Series QL = new(bars.Close, fastlimit: 0.5, slowlimit: 0.05);
     Core.Mama(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outMama: TALIB, outFama: TALIB2, outBegIdx: out int outBegIdx, outNbElement: out _, optInFastLimit: 0.5, optInSlowLimit: 0.05);
-    for (int i = QL.Length - 1; i > outBegIdx * 15; i--)
+    for (int i = QL.Length - 1; i > skip * 15; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -234,7 +235,7 @@ public class Ta_Lib
   {
     MAX_Series QL = new(bars.Close, period, false);
     Core.Max(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -246,7 +247,7 @@ public class Ta_Lib
   {
     MIDPOINT_Series QL = new(bars.Close, period, false);
     Core.MidPoint(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -258,7 +259,7 @@ public class Ta_Lib
   {
     MIDPRICE_Series QL = new(bars, period, false);
     Core.MidPrice(inhigh, inlow, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -270,7 +271,7 @@ public class Ta_Lib
   {
     MIN_Series QL = new(bars.Close, period, false);
     Core.Min(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -282,7 +283,7 @@ public class Ta_Lib
   {
     MUL_Series QL = new(bars.Open, bars.Close);
     Core.Mult(inopen, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -294,7 +295,7 @@ public class Ta_Lib
   {
     OBV_Series QL = new(bars, period, false);
     Core.Obv(inclose, involume, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -306,7 +307,7 @@ public class Ta_Lib
   {
     TSeries QL = bars.OHLC4;
     Core.AvgPrice(inopen, inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -318,7 +319,7 @@ public class Ta_Lib
   {
     RSI_Series QL = new(bars.Close, period, false);
     Core.Rsi(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -330,7 +331,7 @@ public class Ta_Lib
   {
     SDEV_Series QL = new(bars.Close, period, false);
     Core.StdDev(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -342,7 +343,7 @@ public class Ta_Lib
   {
     SMA_Series QL = new(bars.Close, period, false);
     Core.Sma(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -354,7 +355,7 @@ public class Ta_Lib
   {
     SUB_Series QL = new(bars.Open, bars.Close);
     Core.Sub(inopen, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -366,7 +367,7 @@ public class Ta_Lib
   {
     SUM_Series QL = new(bars.Close, period, false);
     Core.Sum(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -378,7 +379,7 @@ public class Ta_Lib
   {
     T3_Series QL = new(source: bars.Close, period: period, vfactor: 0.7, useNaN: false);
     Core.T3(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outReal: TALIB, outBegIdx: out int outBegIdx, outNbElement: out _, optInTimePeriod: period, optInVFactor: 0.7);
-    for (int i = QL.Length - 1; i > outBegIdx * 15; i--)
+    for (int i = QL.Length - 1; i > skip * 15; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -390,7 +391,7 @@ public class Ta_Lib
   {
     TEMA_Series QL = new(bars.Close, period, false);
     Core.Tema(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx * 15; i--)
+    for (int i = QL.Length - 1; i > skip * 15; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -402,7 +403,7 @@ public class Ta_Lib
   {
     TR_Series QL = new(bars, false);
     Core.TRange(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -414,7 +415,7 @@ public class Ta_Lib
   {
     TRIMA_Series QL = new(bars.Close, period, false);
     Core.Trima(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -426,7 +427,7 @@ public class Ta_Lib
   {
     VAR_Series QL = new(bars.Close, period, false);
     Core.Var(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx * 15; i--)
+    for (int i = QL.Length - 1; i > skip * 15; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -438,7 +439,7 @@ public class Ta_Lib
   {
     WMA_Series QL = new(bars.Close, period, false);
     Core.Wma(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > outBegIdx; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);

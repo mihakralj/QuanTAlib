@@ -4,18 +4,20 @@ using Skender.Stock.Indicators;
 using Xunit;
 
 namespace Validations;
-public class Skender_Stock
+public class Skender
 {
   private readonly GBM_Feed bars;
   private readonly Random rnd = new();
-  private readonly int period, digits;
+  private readonly int period, digits, skip;
   private readonly IEnumerable<Quote> quotes;
+	
 
-  public Skender_Stock()
+  public Skender()
   {
     bars = new(Bars: 10000, Volatility: 0.5, Drift: 0.0, Precision: 2);
     period = rnd.Next(30) + 5;
-    digits = 4; //minimizing rounding errors in type conversions
+    digits = 2; //minimizing rounding errors in type conversions
+    skip = 300;
 
     quotes = bars.Select(q => new Quote
     {
@@ -27,27 +29,26 @@ public class Skender_Stock
       Volume = (decimal)q.v
     });
   }
-  /*
+
   [Fact]
   public void ADL()
   {
     // TODO: check precision of ADL()
     ADL_Series QL = new(bars, false);
     var SK = quotes.GetAdl().Select(i => i.Adl);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1)!, digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  */
   [Fact]
   public void ALMA()
   {
     ALMA_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetAlma(period).Select(i => i.Alma.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
@@ -59,7 +60,7 @@ public class Skender_Stock
   {
     ATR_Series QL = new(bars, period, false);
     var SK = quotes.GetAtr(period).Select(i => i.Atr.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
@@ -71,7 +72,7 @@ public class Skender_Stock
   {
     ATRP_Series QL = new(bars, period, false);
     var SK = quotes.GetAtr(period).Select(i => i.Atrp.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
@@ -83,7 +84,7 @@ public class Skender_Stock
   {
     BBANDS_Series QL = new(bars.Close, period, 2.0, useNaN: false);
     var SK = quotes.GetBollingerBands(period, 2.0);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL.Mid[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1).Sma!.Value, digits: digits);
@@ -110,7 +111,7 @@ public class Skender_Stock
   {
     CCI_Series QL = new(bars, period, false);
     var SK = quotes.GetCci(period).Select(i => i.Cci.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
@@ -122,20 +123,19 @@ public class Skender_Stock
   {
     CORR_Series QL = new(bars.High, bars.Low, period, false);
     var SK = quotes.Use(CandlePart.High).GetCorrelation(quotes.Use(CandlePart.Low), period).Select(i => i.Correlation.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  /*
   [Fact]
   public void COVAR()
   {
     COVAR_Series QL = new(bars.High, bars.Low, period, false);
     var SK = quotes.Use(CandlePart.High).GetCorrelation(quotes.Use(CandlePart.Low), period).Select(i => i.Covariance.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
@@ -147,33 +147,32 @@ public class Skender_Stock
   {
     DEMA_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetDema(period).Select(i => i.Dema.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  */
   [Fact]
   public void EMA()
   {
     EMA_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetEma(period).Select(i => i.Ema.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  /*
+	/*
   [Fact]
   public void HL2()
   {
     TSeries QL = bars.HL2;
     var SK = quotes.GetBaseQuote(CandlePart.HL2).Select(i => i.Value);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
@@ -185,33 +184,33 @@ public class Skender_Stock
   {
     TSeries QL = bars.HLC3;
     var SK = quotes.GetBaseQuote(CandlePart.HLC3).Select(i => i.Value);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
+	*/
   [Fact]
   public void HMA()
   {
     HMA_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetHma(period).Select(i => i.Hma.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  */
   [Fact]
   public void KAMA()
   {
     // TODO: check precision of KAMA()
     KAMA_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetKama(period).Select(i => i.Kama.Null2NaN()!);
-    for (int i = QL.Length; i > 600; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -223,7 +222,7 @@ public class Skender_Stock
   {
     LINREG_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetSlope(period);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1).Slope!, digits: digits);
@@ -244,7 +243,7 @@ public class Skender_Stock
   {
     MACD_Series QL = new(bars.Close, 26, 12, 9, useNaN: false);
     var SK = quotes.GetMacd(12, 26, 9);
-    for (int i = QL.Length; i > 500; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1).Macd.Null2NaN()!, digits: digits);
@@ -259,7 +258,7 @@ public class Skender_Stock
   {
     MAD_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetSmaAnalysis(period).Select(i => i.Mad.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -271,7 +270,7 @@ public class Skender_Stock
   {
     MAMA_Series QL = new(bars.HL2, fastlimit: 0.5, slowlimit: 0.05);
     var SK = quotes.GetMama(fastLimit: 0.5, slowLimit: 0.05);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1).Mama.Null2NaN()!, digits: digits);
@@ -286,7 +285,7 @@ public class Skender_Stock
   {
     MAPE_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetSmaAnalysis(period).Select(i => i.Mape.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -298,7 +297,7 @@ public class Skender_Stock
   {
     MSE_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetSmaAnalysis(period).Select(i => i.Mse.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -311,27 +310,32 @@ public class Skender_Stock
     OBV_Series QL = new(bars, period, false);
     var SK = quotes.GetObv(period).Select(i => i.Obv!);
     // adding volume[0] to OBV to pass the test and keep compatibility with TA-LIB
-    Assert.Equal(Math.Round(SK.Last()! + (double)quotes.First().Volume!, digits: digits), Math.Round(QL.Last().v, digits: digits));
+        for (int i = QL.Length; i > skip; i--)
+    {
+      double QL_item = Math.Round(QL.Last().v, digits: digits);
+      double SK_item = Math.Round(SK.Last()! + (double)quotes.First().Volume!, digits: digits);
+      Assert.Equal(SK_item!, QL_item);
+    }
   }
-  /*
+	/*
   [Fact]
   public void OC2()
   {
     TSeries QL = bars.OC2;
     var SK = quotes.GetBaseQuote(CandlePart.OC2).Select(i => i.Value);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  [Fact]
+	[Fact]
   public void OHL3()
   {
     TSeries QL = bars.OHL3;
     var SK = quotes.GetBaseQuote(CandlePart.OHL3).Select(i => i.Value);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
@@ -343,20 +347,20 @@ public class Skender_Stock
   {
     TSeries QL = bars.OHLC4;
     var SK = quotes.GetBaseQuote(CandlePart.OHLC4).Select(i => i.Value);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  */
-  [Fact]
+	*/
+	[Fact]
   public void RSI()
   {
     RSI_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetRsi(period).Select(i => i.Rsi.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -368,7 +372,7 @@ public class Skender_Stock
   {
     SDEV_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetStdDev(period).Select(i => i.StdDev.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -380,7 +384,7 @@ public class Skender_Stock
   {
     SMA_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetSma(period).Select(i => i.Sma.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -392,33 +396,31 @@ public class Skender_Stock
   {
     SMMA_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetSmma(period).Select(i => i.Smma.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  /*
   [Fact]
   public void T3()
   {
     T3_Series QL = new(source: bars.Close, period: period, vfactor: 0.7, false);
     var SK = quotes.GetT3(lookbackPeriods: period, volumeFactor: 0.7).Select(i => i.T3.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  */
   [Fact]
   public void TEMA()
   {
     TEMA_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetTema(period).Select(i => i.Tema.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -430,33 +432,31 @@ public class Skender_Stock
   {
     TR_Series QL = new(bars, useNaN: false);
     var SK = quotes.GetTr().Select(i => i.Tr.Null2NaN()!);
-    for (int i = QL.Length; i > 1; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  /*
   [Fact]
   public void WMA()
   {
     WMA_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetWma(period).Select(i => i.Wma.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
       Assert.Equal(SK_item!, QL_item);
     }
   }
-  */
   [Fact]
   public void ZSCORE()
   {
     ZSCORE_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetStdDev(period).Select(i => i.ZScore.Null2NaN()!);
-    for (int i = QL.Length; i > period; i--)
+    for (int i = QL.Length; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);

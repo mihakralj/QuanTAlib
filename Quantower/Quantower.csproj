@@ -34,9 +34,11 @@
       <Link>QuanTAlib\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
+  <!--
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles=".\bin\$(Configuration)\net48\Quantower_QTAlib.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\QuanTAlib" />
   </Target>
+  -->
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
   </ItemGroup>

@@ -20,10 +20,10 @@ public class ADOSC_Series : Single_TBars_Indicator
     private double _lastema1, _lastlastema1, _lastema2, _lastlastema2;
     private double _lastadl, _lastlastadl;
 
-    public ADOSC_Series(TBars source, bool useNaN = false) : base(source, period: 0, useNaN)
+	public ADOSC_Series(TBars source, int shortPeriod = 3, int longPeriod =10, bool useNaN = false) : base(source, period: 0, useNaN)
 	{
-        _k1 = 2.0 / (3 + 1);
-        _k2 = 2.0 / (10 + 1);
+        _k1 = 2.0 / (shortPeriod + 1);
+        _k2 = 2.0 / (longPeriod + 1);
         _lastadl = _lastlastadl = _lastema1 = _lastlastema1 = _lastema2 = _lastlastema2 = 0;
         if (_bars.Count > 0) { base.Add(_bars); }
     }

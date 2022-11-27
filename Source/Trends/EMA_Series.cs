@@ -25,12 +25,14 @@ public class EMA_Series : Single_TSeries_Indicator
     private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly double _k, _k1m;
     private double _lastema, _lastlastema;
+    private bool _useSMA;
 
-    public EMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+    public EMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
     {
         this._k = 2.0 / (this._p + 1);
         this._k1m = 1.0 - this._k;
-        this._lastema = this._lastlastema = double.NaN;
+        this._lastema = this._lastlastema = 0;
+        _useSMA = useSMA;
         if (this._data.Count > 0) { base.Add(this._data); }
     }
 
@@ -38,8 +40,9 @@ public class EMA_Series : Single_TSeries_Indicator
     {
         double _ema;
         if (update) { this._lastema = this._lastlastema; }
+        if (this.Count == 0) { _lastema = TValue.v; }
 
-        if (this.Count < this._p)
+        if (this.Count < this._p && _useSMA)
         {
             Add_Replace(_buffer, TValue.v, update);
             _ema = 0;
