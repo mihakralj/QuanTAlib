@@ -17,24 +17,22 @@ $$
 
 ``` csharp
 SMA_Series mean = new(source: data, period: p, useNaN: false);
-
-QuanTA fluent = data.SMA(period: p);
 ```
-
-## Parameters
 
 - `TSeries source` -  List of value tuples (DateTime, double)
 - `int period` - Integer representing the period of SMA
 - `bool useNaN` - if true, initial values from 1 to period-1 will be replaced with NaN. If false, the initial calculation will return values for SMA(length) instead of SMA(period)
 
-## Sample chart
-
-picture of SMA
-
 ## Comparison & Validation
 
 Validation tests
 Performance tests
+
+## Visual analysis
+
+![Alt text](./img/SMA_chart.svg)
+
+
 
 ## References
    - https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/simple-moving-average-sma/
