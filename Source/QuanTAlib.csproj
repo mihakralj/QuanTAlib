@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>QuanTAlib</Title>
-    <Version>0.1.22</Version>
+    <Version>0.1.23</Version>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Technical Analysis library for both real-time (streaming) and historical data analysis</Description>
     <RepositoryType>git</RepositoryType>
@@ -66,7 +66,6 @@
       <Visible>False</Visible>
       <PackagePath></PackagePath>
     </None>
-    <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>
 </Project>

@@ -34,28 +34,31 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 
 ⛔= Not implemented (yet)
 
-| **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
-|--|:--:|:--:|:--:|:--:|
+| **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** | **Tulip** |
+|--|:--:|:--:|:--:|:--:|:--:|
 | ⭐ OC2 - (Open+Close)/2 |️ `.OC2` || CandlePart.OC2 ||
 | ⭐ HL2 - Median Price | `.HL2` | MEDPRICE | CandlePart.HL2 | hl2 |
 | ⭐ HLC3 - Typical Price | `.HLC3` | TYPPRICE | CandlePart.HLC3 | hlc3 |
 | ⭐ OHL3 - (Open+High+Low)/3 | `.OHL3` || CandlePart.OHL3 ||
-| ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ CandlePart.OHLC4 | ohlc4 |
+| ⭐ OHLC4 - Average Price | `.OHLC4` | AVGPRICE |️ CandlePart.OHLC4 | ohlc4 | avgprice |
 | ⭐ HLCC4 - Weighted Price |  `.HLCC4` | WCLPRICE | CandlePart.HLCC4 ||
 | ⭐ MIDPOINT - Midpoint value | `MIDPOINT_Series` | MIDPOINT || midpoint |
 | ⭐ MIDPRICE - Midpoint price | `MIDPRICE_Series` | MIDPRICE || midprice |
-| ⭐ MAX - Max value | `MAX_Series` | MAX |||
-| ⭐ MIN - Min value | `MIN_Series` | MIN |||
-| ⭐ SUM - Summation | `SUM_Series` | SUM |||
-| ⭐ ADD - Addition | `ADD_Series` | ADD |||
-| ⭐ SUB - Subtraction | `SUB_Series` | SUB |||
-| ⭐ MUL - Multiplication | `MUL_Series` | MUL |||
-| ⭐ DIV - Division | `DIV_Series` | DIV |||
+| ⭐ MAX - Max value | `MAX_Series` | MAX ||| max |
+| ⭐ MIN - Min value | `MIN_Series` | MIN ||| min |
+| ⭐ SUM - Summation | `SUM_Series` | SUM ||| sum |
+| ⭐ ADD - Addition | `ADD_Series` | ADD ||| add |
+| ⭐ SUB - Subtraction | `SUB_Series` | SUB ||| sub |
+| ⭐ MUL - Multiplication | `MUL_Series` | MUL ||| mul |
+| ⭐ DIV - Division | `DIV_Series` | DIV ||| div |
 |||||
-| **STATISTICS & NUMERICAL ANALYSIS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| **STATISTICS & NUMERICAL ANALYSIS** |
+||||||
 | ⭐ BIAS - Bias | `BIAS_Series` ||| bias |
 | ⭐ CORR - Pearson's Correlation Coefficient | `CORR_Series` | CORREL | GetCorrelation ||
 | ⭐ COVAR - Covariance | `COVAR_Series` || GetCorrelation ||
+| ⛔ DECAY - Linear Decay ||||| decay |
+| ⛔ EDECAY - Exponential Decay ||||| edecay |
 | ⭐ ENTROPY - Entropy | `ENTROPY_Series` ||| entropy |
 | ⭐ KURTOSIS - Kurtosis | `KURT_Series` ||| kurtosis |
 | ⭐ LINREG - Linear Regression | `LINREG_Series` || GetSlope ||
@@ -73,22 +76,23 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ✔️ WMAPE - Weighted Mean Absolute Percent Error | `WMAPE_Series` ||||
 | ⭐ ZSCORE - Number of standard deviations from mean | `ZSCORE_Series` || GetStdDev | zscore |
 ||||||
-| **TREND INDICATORS & AVERAGES** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| **TREND INDICATORS & AVERAGES** |
+||||||
 | ⛔ AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
 | ⭐ ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma | alma |
 | ⛔ ARIMA - Autoregressive Integrated Moving Average |||||
-| ⭐ DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema | dema |
-| ⭐ EMA - Exponential Moving Average | `EMA_Series` | EMA | GetEma | ema |
+| ⭐ DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema | dema | dema |
+| ⭐ EMA - Exponential Moving Average | `EMA_Series` | EMA | GetEma | ema | ema |
 | ⛔ EPMA - Endpoint Moving Average ||| GetEpma ||
 | ⛔ FRAMA - Fractal Adaptive Moving Average |||||
 | ⛔ FWMA - Fibonacci's Weighted Moving Average |||| fwma |
 | ⛔ HILO - Gann High-Low Activator |||| hilo |
 | ✔️ HEMA - Hull/EMA Average | `HEMA_Series` ||||
 | ⛔ Hilbert Transform Instantaneous Trendline || HT_TRENDLINE | GetHtTrendline ||
-| ⭐ HMA - Hull  Moving Average | `HMA_Series` || GetHma | hma |
+| ⭐ HMA - Hull  Moving Average | `HMA_Series` || GetHma | hma | hma |
 | ⛔ HWMA - Holt-Winter Moving Average |||| hwma |
 | ✔️ JMA - Jurik Moving Average | `JMA_Series` ||| jma |
-| ⭐ KAMA - Kaufman's Adaptive Moving Average | `KAMA_Series` | KAMA | GetKama | kama |
+| ⭐ KAMA - Kaufman's Adaptive Moving Average | `KAMA_Series` | KAMA | GetKama | kama | kama |
 | ⛔ KDJ - KDJ Indicator (trend reversal) |||| kdj |
 | ⛔ LSMA - Least Squares Moving Average |||||
 | ⭐ MACD - Moving Average Convergence/Divergence | `MACD_Series` | MACD | GetMacd | macd |
@@ -113,17 +117,20 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⭐ WMA - Weighted Moving Average | `WMA_Series` | WMA | GetWma | wma |
 | ⭐ ZLEMA - Zero Lag EMA Average | `ZLEMA_Series` ||| zlma |
 ||||||
-| **VOLATILITY INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
-| ⭐ ADL - Chaikin Accumulation Distribution Line | `ADL_Series` | AD | GetAdl | ad |
-| ⭐ ADOSC - Chaikin Accumulation Distribution Oscillator | `ADOSC_Series` | ADOSC| GetAdl | adosc |
-| ⭐ ATR - Average True Range | `ATR_Series` | ATR | GetAtr | atr |
+| **VOLATILITY INDICATORS** |
+||||||
+| ⭐ ADL - Chaikin Accumulation Distribution Line | `ADL_Series` | AD | GetAdl | ad | ad |
+| ⭐ ADOSC - Chaikin Accumulation Distribution Oscillator | `ADOSC_Series` | ADOSC| GetAdl | adosc | adosc |
+| ⭐ ATR - Average True Range | `ATR_Series` | ATR | GetAtr | atr | atr |
 | ⭐ ATRP - Average True Range Percent | `ATRP_Series` || GetAtr ||
 | ⛔ BETA - Beta coefficient || BETA | GetBeta ||
-| ⭐ BBANDS - Bollinger Bands® | `BBANDS_Series` | BBANDS | GetBollingerBands ||
+| ⭐ BBANDS - Bollinger Bands® | `BBANDS_Series` | BBANDS | GetBollingerBands || bbands |
 | ⛔ CHAND - Chandelier Exit ||| GetChandelier ||
 | ⛔ CRSI - Connor RSI ||| GetConnorsRsi ||
+| ⛔ CVI - Chaikins Volatility ||||| cvi |
 | ⛔ DON - Donchian Channels ||| GetDonchian ||
 | ⛔ FCB - Fractal Chaos Bands ||| GetFcb ||
+| ⛔ FISHER - Fisher Transform ||| GetFcb || fisher |
 | ⛔ HV - Historical Volatility |||||
 | ⛔ ICH - Ichimoku ||| GetIchimoku ||
 | ⛔ KEL - Keltner Channels ||| GetKeltner ||
@@ -137,23 +144,25 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⛔ UI - Ulcer Index |||||
 | ⛔ VSTOP - Volatility Stop |||||
 ||||||
-| **MOMENTUM INDICATORS & OSCILLATORS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| **MOMENTUM INDICATORS & OSCILLATORS** |
+||||||
 | ⛔ AC - Acceleration Oscillator |||||
-| ⛔ ADX - Average Directional Movement Index || ADX | GetAdx ||
-| ⛔ ADXR - Average Directional Movement Index Rating || ADXR | GetAdx ||
-| ⛔ AO - Awesome Oscillator ||| GetAwesome ||
-| ⛔ APO - Absolute Price Oscillator || APO |||
-| ⛔ AROON - Aroon oscillator || AROON | GetAroon ||
-| ⛔ BOP - Balance of Power || BOP | GetBop ||
-| ⭐ CCI - Commodity Channel Index | `CCI_Series` | CCI | GetCci ||
+| ⛔ ADX - Average Directional Movement Index || ADX | GetAdx || adx |
+| ⛔ ADXR - Average Directional Movement Index Rating || ADXR | GetAdx || adxr |
+| ⛔ AO - Awesome Oscillator ||| GetAwesome || ao |
+| ⛔ APO - Absolute Price Oscillator || APO ||| apo |
+| ⛔ AROON - Aroon oscillator || AROON | GetAroon || aroon |
+| ⛔ BOP - Balance of Power || BOP | GetBop || bop |
+| ⭐ CCI - Commodity Channel Index | `CCI_Series` | CCI | GetCci || cci |
 | ⛔ CFO - Chande Forcast Oscillator |||||
-| ⛔ CMO - Chande Momentum Oscillator || CMO | GetCmo ||
+| ⛔ CMO - Chande Momentum Oscillator || CMO | GetCmo || cmo |
 | ⛔ COG - Center of Gravity |||||
 | ⛔ COPPOCK - Coppock Curve |||||
 | ⛔ CTI - Ehler's Correlation Trend Indicator |||||
 | ⛔ DPO - Detrended Price Oscillator ||| GetDpo ||
 | ⛔ DMI - Directional Movement Index || DX | GetAdx ||
 | ⛔ EFI - Elder Ray's Force Index ||| GetElderRay ||
+| ⛔ FOSC - Forecast oscillator ||||| fosc |
 | ⛔ GAT - Alligator oscillator ||| GetGator ||
 | ⛔ HURST - Hurst Exponent ||| GetHurst ||
 | ⛔ KRI - Kairi Relative Index |||||
@@ -176,10 +185,12 @@ See [Getting Started](https://github.com/mihakralj/QuanTAlib/blob/main/Docs/gett
 | ⛔ WILLR - Larry Williams' %R || WILLR | GetWilliamsR ||
 | ⛔ WGAT - Williams Alligator |||||
 ||||||
-| **VOLUME INDICATORS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** |
+| **VOLUME INDICATORS** |
+||||||
 | ⛔ AOBV - Archer On-Balance Volume |||||
 | ⛔ CMF - Chaikin Money Flow |||||
-| ⛔ EOM - Ease of Movement |||||
+| ⛔ EOM - Ease of Movement ||||| emv |
+| ⛔ KVO - Klinger Volume Oscilaltor ||||| kvo |
 | ⭐ OBV - On-Balance Volume | `OBV_Series` | OBV | GetObv ||
 | ⛔ PRS - Price Relative Strength ||||
 | ⛔ PVOL - Price-Volume |||||

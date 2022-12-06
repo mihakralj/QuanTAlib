@@ -4,19 +4,30 @@ using System.Linq;
 using System.Numerics;
 
 /* <summary>
-T3: Triple Exponential Moving Average
-    TEMA uses EMA(EMA(EMA())) to calculate less laggy Exponential moving average.
+T3: Tillson T3 Moving Average
+    Tim Tillson described it in "Technical Analysis of Stocks and Commodities", January 1998 in the
+    article "Better Moving Averages". Tillson’s moving average becomes a popular indicator of
+    technical analysis as it gets less lag with the price chart and its curve is considerably smoother.
 
 Sources:
-    https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/triple-exponential-moving-average-tema/
+    https://technicalindicators.net/indicators-technical-analysis/150-t3-moving-average
+    http://www.binarytribune.com/forex-trading-indicators/t3-moving-average-indicator/
 
+Calculation:
+    a = 0.7 (but also 0.618);
+    Ema1 = Ema (Close);
+    Ema2 = Ema (Ema1);
+    Ema3 = Ema (Ema2);
+    Ema4 = Ema (Ema3);
+    Ema5 = Ema (Ema4);
+    Ema6 = Ema (Ema5);
+    T3 = –(a*a*a) * Ema6 + (3*a*a + 3*a*a*a) * Ema5 + (–6*a*a – 3*a – 3*a*a*a) * Ema4 + (1 + 3*a + a*a*a + 3*a*a) * Ema3
 
 </summary> */
 
 public class T3_Series : Single_TSeries_Indicator
 {
-    private int i;
-    private double k, a; 
+    private double k, a;
     private double c1, c2, c3, c4;
     private double o_c1, o_c2, o_c3, o_c4;
 
@@ -26,9 +37,8 @@ public class T3_Series : Single_TSeries_Indicator
     private double sum1, sum2, sum3, sum4, sum5, sum6;
     private double o_sum1, o_sum2, o_sum3, o_sum4, o_sum5, o_sum6;
 
-    public T3_Series(TSeries source, int period, double vfactor, bool useNaN = false) : base(source, period, useNaN)
+    public T3_Series(TSeries source, int period, double vfactor = 0.7, bool useNaN = false) : base(source, period, useNaN)
     {
-        i = 0;
         k = 2.0 / (_p + 1);
         a = vfactor;
         c1 = -a * a * a;
@@ -55,6 +65,7 @@ public class T3_Series : Single_TSeries_Indicator
             o_sum1 = sum1; o_sum2 = sum2; o_sum3 = sum3; o_sum4 = sum4; o_sum5 = sum5; o_sum6 = sum6;
         }
         double v = TValue.v;
+        int i = base.Count;
         if (i > _p - 1) {
             e1 += k * (v - e1);
             if (i > 2 * (_p - 1)) {
@@ -71,45 +82,44 @@ public class T3_Series : Single_TSeries_Indicator
                             else {
                                 sum6 += e5;
                                 if (i == 6 * (_p - 1)) {
-                                    e6 = sum6 / _p;
+                                    e6 = sum6 / Math.Max(_p, base.Count);
                                     }
                                 }
                             }
                         else {
                             sum5 += e4;
                             if (i == 5 * (_p - 1)) {
-                                sum6 = e5 = sum5 / _p;
+                                sum6 = e5 = sum5 / Math.Max(_p, base.Count);
                                 }
                             }
                         }
                     else {
                         sum4 += e3;
                         if (i == 4 * (_p - 1)) {
-                            sum5 = e4 = sum4 / _p;
+                            sum5 = e4 = sum4 / Math.Max(_p, base.Count);
                             }
                         }
                     }
                 else {
                     sum3 += e2;
                     if (i == 3 * (_p - 1)) {
-                        sum4 = e3 = sum3 / _p;
+                        sum4 = e3 = sum3 / Math.Max(_p, base.Count);
                         }
                     }
                 }
             else {
                 sum2 += e1;
                 if (i == 2 * (_p - 1)) {
-                    sum3 = e2 = sum2 / _p;
+                    sum3 = e2 = sum2 / Math.Max(_p, base.Count);
                     }
                 }
             }
         else {
             sum1 += v;
             if (i == _p - 1) {
-                sum2 = e1 = sum1 / _p;
+                sum2 = e1 = sum1 / Math.Max(_p, base.Count);
                 }
             }
-        if (!update) { i++; }
 
         double t3 = (c1 * e6) + (c2 * e5) + (c3 * e4) + (c4 * e3);
         base.Add(TValue: (TValue.t, t3), update: update, useNaN: _NaN);

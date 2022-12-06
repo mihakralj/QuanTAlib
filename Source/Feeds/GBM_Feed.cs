@@ -22,10 +22,12 @@ public class GBM_Feed : TBars
 {
     private double seed;
     readonly double drift, volatility;
-    public GBM_Feed(int Bars = 252, double Volatility = 1.0, double Drift = 0.05, double Seed = 100.0) {
+    readonly int precision;
+    public GBM_Feed(int Bars = 252, double Volatility = 1.0, double Drift = 0.05, double Seed = 100.0, int Precision = 2) {
         this.seed = Seed;
         volatility = Volatility*0.01;
         drift = Drift*0.01;
+        precision = Precision;
         for (int i = 0; i <Bars; i++) {
             DateTime Timestamp = DateTime.Today.AddDays(i - Bars);
             this.Add(Timestamp);
@@ -33,28 +35,28 @@ public class GBM_Feed : TBars
     }
 
     public void Add(DateTime timestamp, bool update = false) {
-        double Open = GBM_value(seed, volatility*volatility, drift);
-        double Close = GBM_value(Open, volatility, drift);
+        double Open = GBM_value(seed, volatility*volatility, drift, precision);
+        double Close = GBM_value(Open, volatility, drift, precision);
 
         double OCMax = Math.Max(Open,Close);
-        double High = (GBM_value(seed, volatility*0.5, 0));
+        double High = (GBM_value(seed, volatility*0.5, 0, precision));
         High = (High<OCMax)? (2 * OCMax) - High : High;
 
         double OCMin = Math.Min(Open,Close);
-        double Low = (GBM_value(seed, volatility*0.5, 0));
+        double Low = (GBM_value(seed, volatility*0.5, 0, precision));
         Low = (Low>OCMin)? (2 * OCMin) - Low : Low;
 
-        double Volume = GBM_value(seed*10, volatility*2, Drift:0);
+        double Volume = GBM_value(seed*10, volatility*2, Drift:0, precision: 1);
 
         base.Add((timestamp, Open, High, Low, Close, Volume), update);
         seed = Close;
     }
 
-    private static double GBM_value (double Seed, double Volatility, double Drift) {
+    private static double GBM_value(double Seed, double Volatility, double Drift, int precision) {
         Random rnd = new();
         double U1 = 1.0-rnd.NextDouble();
         double U2 = 1.0-rnd.NextDouble();
         double Z = Math.Sqrt(-2.0 * Math.Log(U1)) * Math.Sin(2.0 * Math.PI * U2);
-        return Seed * Math.Exp( Drift - (Volatility*Volatility*0.5) + (Volatility * Z));
+        return Math.Round(Seed * Math.Exp( Drift - (Volatility*Volatility*0.5) + (Volatility * Z)), digits: precision);
     }
 }

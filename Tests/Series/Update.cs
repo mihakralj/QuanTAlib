@@ -105,7 +105,7 @@ public class Update {
         Assert.Equal(lastCalc, QL.Last()); // same data
     }
     [Fact] public void COVAR() {
-        COVAR_Series QL = new(d1: bars.High, d2: bars.Low, period: period);
+        COVAR_Series QL = new(d1: bars.High, d2: bars.Low, period);
         var lastData = bars.Last();
         var lastCalc = QL.Last();
         int lastLen = QL.Count;
@@ -124,7 +124,18 @@ public class Update {
         Assert.Equal(lastLen, QL.Count); // same size
         Assert.Equal(lastCalc, QL.Last()); // same data
     }
-    [Fact] public void ENTROPY() {
+	[Fact]
+	public void DWMA() {
+		DWMA_Series QL = new(source: bars.Close, period);
+		var lastData = bars.Close.Last();
+		var lastCalc = QL.Last();
+		int lastLen = QL.Count;
+		QL.Add((DateTime.Today, 0), update: true);
+		QL.Add(lastData, update: true);
+		Assert.Equal(lastLen, QL.Count); // same size
+		Assert.Equal(lastCalc, QL.Last()); // same data
+	}
+	[Fact] public void ENTROPY() {
         ENTROPY_Series QL = new(source: bars.Close, period: period);
         var lastData = bars.Close.Last();
         var lastCalc = QL.Last();

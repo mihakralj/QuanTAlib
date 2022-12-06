@@ -19,6 +19,8 @@
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Skender.Stock.Indicators" Version="2.4.0" />
     <PackageReference Include="pythonnet" Version="3.0.1" />
+    <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,5 +30,7 @@
   <ItemGroup>
     <None Remove="Python.Included" />
     <None Remove="pythonnet" />
+    <None Remove="Tulip.NETCore" />
+    <None Remove="System.Text.Json" />
   </ItemGroup>
 </Project>
