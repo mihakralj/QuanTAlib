@@ -20,7 +20,7 @@ public class PandasTA : IDisposable
         bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0);
         period = rnd.Next(maxValue: 28) + 3;
         sample = 200;
-		    digits = 3; //minimizing rounding errors in type conversions
+	    digits = 10;
 
 		// Checking the host OS and setting PythonDLL accordingly
         OStype = Environment.OSVersion.ToString();
@@ -61,7 +61,8 @@ public class PandasTA : IDisposable
 		{
             double QL_item = Math.Round(QL[i-1].v, digits: digits);
 			double PanTA_item = Math.Round((double)pta[i-1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+
 		}
 	}
 	[Fact] void ADOSC() {
@@ -71,7 +72,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
     [Fact] void ATR() {
@@ -81,7 +82,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void BIAS() {
@@ -91,7 +92,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void DEMA() {
@@ -101,7 +102,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void EMA() {
@@ -111,7 +112,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void ENTROPY() {
@@ -121,7 +122,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void HL2() {
@@ -130,7 +131,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(bars.HL2[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 	}
 	[Fact] void HLC3() {
@@ -139,7 +140,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(bars.HLC3[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
     [Fact] void HMA() {
@@ -149,7 +150,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 
 	}
@@ -160,7 +161,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void KURTOSIS() {
@@ -170,7 +171,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void MAD()
@@ -181,7 +182,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void MEDIAN() {
@@ -191,7 +192,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
     [Fact] void OBV() {
@@ -201,7 +202,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void OHLC4() {
@@ -210,7 +211,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(bars.OHLC4[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 	}
 	[Fact] void RMA() {
@@ -220,7 +221,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void RSI() {
@@ -230,7 +231,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void SDEV()	{
@@ -240,7 +241,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void SMA() {
@@ -250,7 +251,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void SSDEV() {
@@ -260,7 +261,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	/*
@@ -271,7 +272,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 */
@@ -282,7 +283,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
     [Fact] void TEMA() {
@@ -292,7 +293,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void TR() {
@@ -302,7 +303,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void TRIMA() {
@@ -313,7 +314,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void VARIANCE()	{
@@ -323,7 +324,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void WMA() {
@@ -333,7 +334,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void ZLEMA() {
@@ -343,7 +344,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 	[Fact] void ZSCORE() {
@@ -353,7 +354,7 @@ public class PandasTA : IDisposable
         {
             double QL_item = Math.Round(QL[i - 1].v, digits: digits);
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
-            Assert.Equal(PanTA_item, QL_item);
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 

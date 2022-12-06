@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Linq;
 
 /* <summary>
 JMA: Jurik Moving Average
@@ -18,141 +19,81 @@ Issues:
     original algo is slightly different, yet this approximation is close enough.
 
 </summary> 
-TODO: buggy - rework
 */
+public class JMA_Series : Single_TSeries_Indicator {
+	private readonly System.Collections.Generic.List<double> volty_10 = new();
+	private readonly System.Collections.Generic.List<double> vsum_buff = new();
+	private readonly double pr, beta;
 
-public class JMA_Series : Single_TSeries_Indicator
-{
-    private readonly System.Collections.Generic.List<double> vbuffer10;
-    private readonly System.Collections.Generic.List<double> vsum65;
+	private double upperBand, lowerBand, _phase, vsum, Kv, del1, del2, prev_del1, prev_del2;
+	private double prev_ma1, prev_det0, prev_det1, prev_vsum, prev_jma;
+	private double p_upperBand, p_lowerBand, p_Kv, p_prev_ma1, p_prev_det0, p_prev_det1, p_prev_vsum, p_prev_jma;
 
-    private double prev_ma1, prev_det0, prev_det1, prev_jma, bsmax, bsmin;
-    private double o_prev_ma1, o_prev_det0, o_prev_det1, o_prev_jma, o_bsmax, o_bsmin;
+	public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = false) : base(source, period, useNaN) {
+		upperBand = lowerBand = prev_ma1 = prev_det0 = prev_det1 = prev_vsum = prev_jma = Kv = del1 = del2 = 0.0;
+		Kv = 0;
+		pr = (phase * 0.01) + 1.5;
+		if (phase < -100) pr = 0.5;
+		if (phase > 100) pr = 2.5;
+		beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
 
-    private readonly double pr, pow1, len2, beta, rvolty;
+		if (base._data.Count > 0) { base.Add(base._data); }
+	}
 
-    public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = false) : base(source, period, useNaN)
-    {
-        this.vbuffer10 = new();
-        this.vsum65 = new();
+	public override void Add((System.DateTime t, double v) TValue, bool update) {
+		if (update) {
+			upperBand = p_upperBand; lowerBand = p_lowerBand; Kv = p_Kv; prev_vsum = p_prev_vsum;
+			prev_ma1 = p_prev_ma1; prev_det0 = p_prev_det0; prev_det1 = p_prev_det1; prev_jma = p_prev_jma;
+		} else {
+			p_upperBand = upperBand; p_lowerBand = lowerBand; p_Kv = Kv; p_prev_vsum = prev_vsum;
+			p_prev_ma1 = prev_ma1; p_prev_det0 = prev_det0; p_prev_det1 = prev_det1; p_prev_jma = prev_jma;
+		}
 
-        // constants
-        this.pr = (phase < -100) ? 0.5 : (phase > 100) ? 2.5 : (phase * 0.01) + 1.5;
-        double len1 = Math.Max((Math.Log(Math.Sqrt(0.5 * (_p - 1))) / Math.Log(2.0)) + 2.0, 0);
-        this.pow1 = Math.Max(len1 - 2, 0.5);
-        this.rvolty = Math.Exp((1 / this.pow1) * Math.Log(len1));
-        this.len2 = Math.Sqrt(0.5 * (_p - 1)) * len1;
-        this.beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
-        if (base._data.Count > 0) { base.Add(base._data); }
-    }
+		// from Tvalue to volty
+		del1 = TValue.v - upperBand;
+		del2 = TValue.v - lowerBand;
+		upperBand = (del1 > 0) ? TValue.v : TValue.v - (Kv * del1);
+		lowerBand = (del2 < 0) ? TValue.v : TValue.v - (Kv * del2);
+		double volty = 0;
+		if (Math.Abs(del1) > Math.Abs(del2)) { volty = Math.Abs(del1); }
+		if (Math.Abs(del1) < Math.Abs(del2)) { volty = Math.Abs(del2); }
 
-    public override void Add((System.DateTime t, double v) TValue, bool update)
-    {
-        if (this.Count == 0)
-        {
-            this.prev_ma1 = this.prev_jma = TValue.v;
-            this.bsmax = this.bsmin = this.prev_det0 = this.prev_det1 = 0;
-        }
+		//// from volty to avolty
+		if (update) { volty_10[volty_10.Count - 1] = volty; } 	else { volty_10.Add(volty); }
+		if (volty_10.Count > 10) { volty_10.RemoveAt(0); }
+		vsum = prev_vsum + 0.1 * (volty - volty_10.First());
+		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; } else { vsum_buff.Add(vsum); }
+		if (vsum_buff.Count > 65) vsum_buff.RemoveAt(0);
+		double avolty = 0;
+		for (int i = 0; i < vsum_buff.Count; i++) { avolty += vsum_buff[i]; }
+		avolty /= vsum_buff.Count;
 
-        if (update)
-        {
-            this.prev_jma = this.o_prev_jma;
-            this.prev_ma1 = this.o_prev_ma1;
-            this.prev_det0 = this.o_prev_det0;
-            this.prev_det1 = this.o_prev_det1;
-            this.bsmax = this.o_bsmax;
-            this.bsmin = this.o_bsmin;
-        }
-        else
-        {
-            this.o_prev_jma = this.prev_jma;
-            this.o_prev_ma1 = this.prev_ma1;
-            this.o_prev_det0 = this.prev_det0;
-            this.o_prev_det1 = this.prev_det1;
-            this.o_bsmax = this.bsmax;
-            this.o_bsmin = this.bsmin;
-        }
+		/// from avolty to rolty
+		double rvolty = (avolty > 0) ? volty / avolty : 0;
+		double len1 = (Math.Log(Math.Sqrt(_p)) / Math.Log(2.0)) + 2;
+		if (len1 < 0) len1 = 0;
+		double pow1 = Math.Max(len1 - 2.0, 0.5);
+		if (rvolty > Math.Pow(len1, 1.0 / pow1)) rvolty = Math.Pow(len1, 1.0 / pow1);
+		if (rvolty < 1)	rvolty = 1;
 
-        double hprice = TValue.v;
-        double lprice = TValue.v;
-        for (int i = 0; i <= Math.Min(9, this._data.Count - 1); i++)
-        {
-            var _item = this._data[this._data.Count - 1 - i].v;
-            hprice = (_item > hprice) ? _item : hprice;
-            lprice = (_item < lprice) ? _item : lprice;
-        }
-        double del1 = hprice - this.bsmax;
-        double del2 = lprice - this.bsmin;
+		//// from rvolty to second smoothing
+		double pow2 = Math.Pow(rvolty, pow1);
+		double len2 = Math.Sqrt(0.5 * (_p - 1)) * len1;
+		Kv = Math.Pow(len2 / (len2 + 1), Math.Sqrt(pow2));
+		double alpha = Math.Pow(beta, pow2);
+		double ma1 = (1 - alpha) * TValue.v + alpha * prev_ma1; 
+		prev_ma1 = ma1;
+		double det0 = (1 - beta) * (TValue.v - ma1) + beta * prev_det0;	
+		prev_det0 = det0;
 
-        double volty = (Math.Abs(del1) != Math.Abs(del2))
-                           ? Math.Max(Math.Abs(del1), Math.Abs(del2))
-                           : 0;
-        if (update)
-        {
-            this.vbuffer10[this.vbuffer10.Count - 1] = volty;
-        }
-        else
-        {
-            this.vbuffer10.Add(volty);
-        }
-        if (this.vbuffer10.Count > 10)
-        {
-            this.vbuffer10.RemoveAt(0);
-        }
+		/// from second smoothing to jma
+		double ma2 = ma1 + pr * det0;
+		double det1 = (1 - alpha) * (1 - alpha) * (ma2 - prev_jma) + alpha * alpha * prev_det1;
+		prev_det1 = det1;
+		double jma = prev_jma + det1;
+		prev_jma = jma;
 
-        double prevvsum =
-            (this.vsum65.Count > 0) ? this.vsum65[this.vsum65.Count - 1] : 0;
-        double vsumitem = prevvsum + 0.1 * (volty - this.vbuffer10[0]);
-        if (update)
-        {
-            this.vsum65[this.vsum65.Count - 1] = vsumitem;
-        }
-        else
-        {
-            this.vsum65.Add(vsumitem);
-        }
-        if (this.vsum65.Count > 65)
-        {
-            this.vsum65.RemoveAt(0);
-        }
-
-        double avolty = 0;
-        for (int i = 0; i < this.vsum65.Count; i++)
-        {
-            avolty += this.vsum65[i];
-        }
-
-        avolty /= this.vsum65.Count;
-        double dvolty = (avolty > 0) ? volty / avolty : 0;
-        dvolty = Math.Max((dvolty > this.rvolty) ? this.rvolty : dvolty, 1.0);
-
-        double pow2 = Math.Exp(this.pow1 * Math.Log(dvolty));
-        double kv =
-            Math.Exp(Math.Sqrt(pow2) * Math.Log(this.len2 / (this.len2 + 1)));
-
-        this.bsmax = (del1 > 0) ? hprice : hprice - (kv * del1);
-        this.bsmin = (del2 < 0) ? lprice : lprice - (kv * del2);
-
-        // adaptive EMA dynamic factor
-        double pow = Math.Pow(dvolty, this.pow1);
-        double alpha = Math.Pow(this.beta, pow);
-
-        // 1st stage - preliminary smoothing by adaptive EMA
-        double ma1 = TValue.v * (1 - alpha) + this.prev_ma1 * alpha;
-        this.prev_ma1 = ma1;
-
-        // 2nd stage - one more preliminary smoothing by Kalman filter
-        double det0 = (TValue.v - ma1) * (1 - this.beta) + this.prev_det0 * this.beta;
-        this.prev_det0 = det0;
-        double ma2 = ma1 + (this.pr * det0);
-
-        // 3rd stage - final smoothing by Jurik adaptive filter
-        double det1 = ((ma2 - this.prev_jma) * (1 - alpha) * (1 - alpha)) +
-                      (this.prev_det1 * alpha * alpha);
-        this.prev_det1 = det1;
-        var _jma = this.prev_jma + det1;
-        this.prev_jma = _jma;
-
-        base.Add((TValue.t, _jma), update, _NaN);
-        }
+		base.Add((TValue.t, jma), update, _NaN);
+	}
 }
+

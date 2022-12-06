@@ -20,8 +20,8 @@ public class Tulip_Test
   {
     bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0, Precision: 3);
     period = rnd.Next(28) + 3;
-    skip = 600;
-    digits = 5;
+    skip = 200;
+    digits = 10;
 
     outdata = new double[bars.Count];
     inopen = bars.Open.v.ToArray();
@@ -42,7 +42,7 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 	[Fact]
@@ -56,7 +56,7 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 	[Fact]
@@ -71,7 +71,7 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i-period+1], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 	[Fact]
@@ -86,7 +86,7 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i - period + 1], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 	[Fact]
@@ -103,13 +103,13 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL.Lower[i].v, digits: digits);
 			double TU_item = Math.Round(outlower[i - period + 1], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 			QL_item = Math.Round(QL.Mid[i].v, digits: digits);
 			TU_item = Math.Round(outmid[i - period + 1], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 			QL_item = Math.Round(QL.Upper[i].v, digits: digits);
 			TU_item = Math.Round(outupper[i - period + 1], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 	[Fact]
@@ -123,7 +123,7 @@ public class Tulip_Test
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TU_item = Math.Round(arrout[0][i], digits);
-      Assert.Equal(TU_item!, QL_item);
+      Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
 	[Fact]
@@ -138,7 +138,7 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 	[Fact]
@@ -152,7 +152,7 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i-period+1], digits);
-			Assert.Equal(TU_item!, QL_item);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
 }

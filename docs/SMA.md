@@ -1,3 +1,4 @@
+![Alt text](./img/SMA_chart.svg)
 # SMA: Simple Moving Average
 SMA is one of the most basic trend-following indicators used in Technical Analysis. It is calculated as the *unweighted mean* of the previous $p$ (period) data-points.
 
@@ -30,7 +31,7 @@ Performance tests
 
 ## Visual analysis
 
-![Alt text](./img/SMA_chart.svg)
+
 
 
 
