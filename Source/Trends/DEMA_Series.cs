@@ -22,13 +22,15 @@ public class DEMA_Series : Single_TSeries_Indicator
     private readonly System.Collections.Generic.List<double> _buffer1 = new();
     private readonly System.Collections.Generic.List<double> _buffer2 = new();
     private readonly double _k;
-    private double _lastema1, _lastlastema1;
+	private readonly bool _useSMA;
+	private double _lastema1, _lastlastema1;
     private double _lastema2, _lastlastema2;
 
-    public DEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+    public DEMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
     {
         _k = 2.0 / (_p + 1);
-        if (_data.Count > 0) { base.Add(_data); }
+		_useSMA = useSMA;
+		if (_data.Count > 0) { base.Add(_data); }
     }
 
     public override void Add((DateTime t, double v) TValue, bool update)
@@ -40,7 +42,7 @@ public class DEMA_Series : Single_TSeries_Indicator
         }
 
         double _ema1, _ema2, _dema;
-        if (this.Count < _p)
+        if (this.Count < _p && _useSMA)
         {
             Add_Replace_Trim(_buffer1, TValue.v, _p, update);
             _ema1 = 0;
@@ -52,7 +54,7 @@ public class DEMA_Series : Single_TSeries_Indicator
             for (int i = 0; i < _buffer2.Count; i++) { _ema2 += _buffer2[i]; }
             _ema2 /= _buffer2.Count;
         }
-        else if(this.Count < (2*_p - 1)) // second _p
+        else if(this.Count < (2*_p - 1) && _useSMA) // second _p
         {
             _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
 

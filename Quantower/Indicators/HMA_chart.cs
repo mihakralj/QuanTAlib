@@ -43,14 +43,11 @@ public class HMA_chart : Indicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-	    Debug.WriteLine("Send to debug output.");
+	    bool update = !(args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar);
 
-			bool update = !(args.Reason == UpdateReason.NewBar ||
-                        args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
                       this.GetPrice(PriceType.High), this.GetPrice(PriceType.Low),
-                      this.GetPrice(PriceType.Close),
-                      this.GetPrice(PriceType.Volume), update);
+                      this.GetPrice(PriceType.Close),this.GetPrice(PriceType.Volume), update);
         double result = this.indicator[this.indicator.Count - 1].v;
         this.SetValue(result);
     }

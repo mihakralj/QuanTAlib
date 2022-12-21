@@ -25,7 +25,7 @@ public class EMA_Series : Single_TSeries_Indicator
     private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly double _k, _k1m;
     private double _lastema, _lastlastema;
-    private bool _useSMA;
+    private readonly bool _useSMA;
 
     public EMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
     {

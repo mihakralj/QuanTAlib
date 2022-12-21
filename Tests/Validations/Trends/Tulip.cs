@@ -32,7 +32,7 @@ public class Tulip_Test
 
   }
 	[Fact]
-	public void AD()
+	public void ADL()
 	{
 		double[][] arrin = {inhigh, inlow, inclose, involume };
 		double[][] arrout = { outdata };
@@ -113,6 +113,18 @@ public class Tulip_Test
 		}
 	}
 	[Fact]
+	public void DEMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		DEMA_Series QL = new(bars.Close, period, useNaN: false, useSMA: false);
+		Tulip.Indicators.dema.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = Math.Round(QL[i].v, digits: digits);
+			double TU_item = Math.Round(arrout[0][i-(period+period-2)], digits);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
   public void EMA()
   {
     double[][] arrin = { inclose };
@@ -152,6 +164,30 @@ public class Tulip_Test
 		{
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TU_item = Math.Round(arrout[0][i-period+1], digits);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void HMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		HMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.hma.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = Math.Round(QL[i].v, digits: digits);
+			double TU_item = Math.Round(arrout[0][i-period-1], digits);
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void CMO() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		CMO_Series QL = new(bars.Close, period, useNaN: false);
+		Tulip.Indicators.cmo.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = Math.Round(QL[i].v, digits: digits);
+			double TU_item = Math.Round(arrout[0][i-period], digits);
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}

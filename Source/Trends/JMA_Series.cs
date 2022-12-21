@@ -23,9 +23,11 @@ Issues:
 public class JMA_Series : Single_TSeries_Indicator {
 	private readonly System.Collections.Generic.List<double> volty_10 = new();
 	private readonly System.Collections.Generic.List<double> vsum_buff = new();
-	private readonly double pr, beta;
+	private readonly double pr;
+	public TSeries mma1 { get; }
+	public TSeries mma2 { get; }
 
-	private double upperBand, lowerBand, _phase, vsum, Kv, del1, del2, prev_del1, prev_del2;
+	private double upperBand, lowerBand, vsum, Kv, del1, del2;
 	private double prev_ma1, prev_det0, prev_det1, prev_vsum, prev_jma;
 	private double p_upperBand, p_lowerBand, p_Kv, p_prev_ma1, p_prev_det0, p_prev_det1, p_prev_vsum, p_prev_jma;
 
@@ -35,18 +37,34 @@ public class JMA_Series : Single_TSeries_Indicator {
 		pr = (phase * 0.01) + 1.5;
 		if (phase < -100) pr = 0.5;
 		if (phase > 100) pr = 2.5;
-		beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
+
+		mma1 = new();
+		mma2 = new();
 
 		if (base._data.Count > 0) { base.Add(base._data); }
 	}
 
 	public override void Add((System.DateTime t, double v) TValue, bool update) {
+		if (this.Count == 0) { prev_ma1 = TValue.v; }
 		if (update) {
-			upperBand = p_upperBand; lowerBand = p_lowerBand; Kv = p_Kv; prev_vsum = p_prev_vsum;
-			prev_ma1 = p_prev_ma1; prev_det0 = p_prev_det0; prev_det1 = p_prev_det1; prev_jma = p_prev_jma;
-		} else {
-			p_upperBand = upperBand; p_lowerBand = lowerBand; p_Kv = Kv; p_prev_vsum = prev_vsum;
-			p_prev_ma1 = prev_ma1; p_prev_det0 = prev_det0; p_prev_det1 = prev_det1; p_prev_jma = prev_jma;
+			upperBand = p_upperBand;
+			lowerBand = p_lowerBand;
+			Kv = p_Kv;
+			prev_vsum = p_prev_vsum;
+			prev_ma1 = p_prev_ma1;
+			prev_det0 = p_prev_det0;
+			prev_det1 = p_prev_det1;
+			prev_jma = p_prev_jma;
+		}
+		else {
+			p_upperBand = upperBand;
+			p_lowerBand = lowerBand;
+			p_Kv = Kv;
+			p_prev_vsum = prev_vsum;
+			p_prev_ma1 = prev_ma1;
+			p_prev_det0 = prev_det0;
+			p_prev_det1 = prev_det1;
+			p_prev_jma = prev_jma;
 		}
 
 		// from Tvalue to volty
@@ -59,41 +77,49 @@ public class JMA_Series : Single_TSeries_Indicator {
 		if (Math.Abs(del1) < Math.Abs(del2)) { volty = Math.Abs(del2); }
 
 		//// from volty to avolty
-		if (update) { volty_10[volty_10.Count - 1] = volty; } 	else { volty_10.Add(volty); }
-		if (volty_10.Count > 10) { volty_10.RemoveAt(0); }
+		if (update) { volty_10[volty_10.Count - 1] = volty; }
+		else { volty_10.Add(volty); }
+		if (volty_10.Count > _p) { volty_10.RemoveAt(0); }
 		vsum = prev_vsum + 0.1 * (volty - volty_10.First());
-		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; } else { vsum_buff.Add(vsum); }
-		if (vsum_buff.Count > 65) vsum_buff.RemoveAt(0);
+		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; }
+		else { vsum_buff.Add(vsum); }
+		if (vsum_buff.Count > (65))
+			vsum_buff.RemoveAt(0);
 		double avolty = 0;
 		for (int i = 0; i < vsum_buff.Count; i++) { avolty += vsum_buff[i]; }
 		avolty /= vsum_buff.Count;
 
 		/// from avolty to rolty
-		double rvolty = (avolty > 0) ? volty / avolty : 0;
-		double len1 = (Math.Log(Math.Sqrt(_p)) / Math.Log(2.0)) + 2;
-		if (len1 < 0) len1 = 0;
+		double rvolty = (avolty != 0) ? volty / avolty : 0;
+		double len1 = (Math.Log(Math.Sqrt(0.5 * (_p - 1))) / Math.Log(2.0)) + 2;
+		if (len1 < 0)
+			len1 = 0;
 		double pow1 = Math.Max(len1 - 2.0, 0.5);
-		if (rvolty > Math.Pow(len1, 1.0 / pow1)) rvolty = Math.Pow(len1, 1.0 / pow1);
-		if (rvolty < 1)	rvolty = 1;
+		if (rvolty > Math.Pow(len1, 1.0 / pow1))
+			rvolty = Math.Pow(len1, 1.0 / pow1);
+		if (rvolty < 1)
+			rvolty = 1;
 
 		//// from rvolty to second smoothing
 		double pow2 = Math.Pow(rvolty, pow1);
 		double len2 = Math.Sqrt(0.5 * (_p - 1)) * len1;
-		Kv = Math.Pow(len2 / (len2 + 1), Math.Sqrt(pow2));
-		double alpha = Math.Pow(beta, pow2);
-		double ma1 = (1 - alpha) * TValue.v + alpha * prev_ma1; 
+		Kv = Math.Pow(len2 / (len2 + 2), Math.Sqrt(pow2));
+		double beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
+		double alpha = Math.Pow(beta * 1.1, pow2);
+		double ma1 = (1 - alpha) * TValue.v + alpha * prev_ma1;
 		prev_ma1 = ma1;
-		double det0 = (1 - beta) * (TValue.v - ma1) + beta * prev_det0;	
-		prev_det0 = det0;
+		mma1.Add(ma1);
 
-		/// from second smoothing to jma
+		double det0 = (1 - beta) * (TValue.v - ma1) + beta * prev_det0;
+		prev_det0 = det0;
 		double ma2 = ma1 + pr * det0;
-		double det1 = (1 - alpha) * (1 - alpha) * (ma2 - prev_jma) + alpha * alpha * prev_det1;
+		mma2.Add(ma2);
+
+		double det1 = ((1 - alpha) * (1 - alpha) * (ma2 - prev_jma)) + (alpha * alpha * prev_det1);
 		prev_det1 = det1;
 		double jma = prev_jma + det1;
 		prev_jma = jma;
 
-		base.Add((TValue.t, jma), update, _NaN);
+		base.Add((TValue.t, ma1), update, _NaN);
 	}
 }
-
