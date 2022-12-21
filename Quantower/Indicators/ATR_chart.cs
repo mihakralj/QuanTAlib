@@ -27,7 +27,6 @@ public class ATR_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "ATR (" + this.Period + ")";
         this.bars = new();
 this.indicator = new(source: bars, period: this.Period, useNaN: false);
     }

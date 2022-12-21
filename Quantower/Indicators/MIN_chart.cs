@@ -33,8 +33,6 @@ public class MIN_chart : Indicator
     protected override void OnInit()
     {
 	    this.bars = new();
-	    this.ShortName =
-            "MIN (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.indicator =
             new(source: bars.Select(this.DataSource), period: this.Period);
     }
