@@ -33,6 +33,7 @@ public class Skender
   [Fact]
   public void ADL()
   {
+    // TODO: check precision of ADL()
     ADL_Series QL = new(bars, false);
     var SK = quotes.GetAdl().Select(i => i.Adl);
     for (int i = QL.Length; i > skip; i--)
