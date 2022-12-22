@@ -448,6 +448,7 @@ public class Skender
       Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
+  /*
   [Fact]
   public void WMA()
   {
@@ -460,6 +461,7 @@ public class Skender
       Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
+  */
   [Fact]
   public void ZSCORE()
   {
