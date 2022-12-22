@@ -112,6 +112,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	/*
 	[Fact]
 	public void DEMA() {
 		double[][] arrin = { inclose };
@@ -124,6 +125,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	*/
 	[Fact]
   public void EMA()
   {
