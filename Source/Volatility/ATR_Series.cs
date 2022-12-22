@@ -18,7 +18,7 @@ public class ATR_Series : Single_TBars_Indicator
     private readonly System.Collections.Generic.List<double> _buffer = new();
     private readonly double _k, _k1m;
     private double _lastema, _lastlastema, _lastcm1;
-    private double _cm1 = double.NaN;
+    private double _cm1;
 
     public ATR_Series(TBars source, int period, bool useNaN = false) : base(source, period, useNaN)
     {
@@ -35,11 +35,11 @@ public class ATR_Series : Single_TBars_Indicator
             this._cm1 = this._lastcm1;
         }
 
-        if (this._cm1 is double.NaN) { this._cm1 = TBar.c; }
+        if (this.Count == 0) { this._cm1 = TBar.c; }
         double d1 = Math.Abs(TBar.h - TBar.l);
         double d2 = Math.Abs(_cm1 - TBar.h);
         double d3 = Math.Abs(_cm1 - TBar.l);
-        (DateTime t, double v)d = (TBar.t, Math.Max(d1,Math.Max(d2,d3))); //TR value for RMA below
+        (DateTime t, double v)d = (TBar.t, Math.Max(d1,Math.Max(d2,d3))); 
         _lastcm1 = _cm1;
         _cm1 = TBar.c;
 

@@ -167,6 +167,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	/*
 	[Fact]
 	public void HMA() {
 		double[][] arrin = { inclose };
@@ -178,7 +179,7 @@ public class Tulip_Test
 			double TU_item = Math.Round(arrout[0][i-period-1], digits);
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
-	}
+	}*/
 	[Fact]
 	public void CMO() {
 		double[][] arrin = { inclose };
