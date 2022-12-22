@@ -34,6 +34,6 @@ public class DWMA_Series : Single_TSeries_Indicator
 		for (int i = 0; i < _buffer2.Count; i++) { _dwma += _buffer2[i] * this._weights[i]; }
 		_dwma /= (this._buffer2.Count * (this._buffer2.Count + 1)) * 0.5;
 
-		base.Add((TValue.t, _dwma), update, _NaN);
+		base.Add((TValue.t, 2*_wma - _dwma), update, _NaN);
     }
 }

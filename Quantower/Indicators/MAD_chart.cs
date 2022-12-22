@@ -32,8 +32,6 @@ public class MAD_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName =
-            "MAD (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
         this.bars = new();
 				this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: true);

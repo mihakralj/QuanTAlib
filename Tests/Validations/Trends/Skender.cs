@@ -10,16 +10,16 @@ public class Skender
   private readonly Random rnd = new();
   private readonly int period, digits, skip;
   private readonly IEnumerable<Quote> quotes;
-	
+
 
   public Skender()
   {
     bars = new(Bars: 10000, Volatility: 0.5, Drift: 0.0, Precision: 2);
     period = rnd.Next(30) + 5;
-    skip = 200;
-	digits = 10;
+    digits = 5; //minimizing rounding errors in type conversions
+    skip = 300;
 
-	quotes = bars.Select(q => new Quote
+    quotes = bars.Select(q => new Quote
     {
       Date = q.t,
       Open = (decimal)q.o,
@@ -37,10 +37,10 @@ public class Skender
     var SK = quotes.GetAdl().Select(i => i.Adl);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round(SK.ElementAt(i - 1)!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-	}
+      double QL_item = QL[i - 1].v;
+      double SK_item = SK.ElementAt(i - 1)!;
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
+		}
   }
   [Fact]
   public void ALMA()
@@ -49,10 +49,10 @@ public class Skender
     var SK = quotes.GetAlma(period).Select(i => i.Alma.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+      double QL_item = QL[i - 1].v;
+      double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void ATR()
@@ -61,10 +61,10 @@ public class Skender
     var SK = quotes.GetAtr(period).Select(i => i.Atr.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+      double QL_item = QL[i - 1].v;
+      double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void ATRP()
@@ -73,10 +73,10 @@ public class Skender
     var SK = quotes.GetAtr(period).Select(i => i.Atrp.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+      double QL_item = QL[i - 1].v;
+      double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void BBANDS()
@@ -85,25 +85,25 @@ public class Skender
     var SK = quotes.GetBollingerBands(period, 2.0);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL.Mid[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1).Sma!.Value, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.Upper[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).UpperBand!.Value, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.Lower[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).LowerBand!.Value, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.Bandwidth[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).Width!.Value, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.PercentB[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).PercentB!.Value, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.Zscore[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).ZScore!.Value, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+      double QL_item = QL.Mid[i - 1].v;
+      double SK_item = SK.ElementAt(i - 1).Sma!.Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+			QL_item = QL.Upper[i - 1].v;
+      SK_item = SK.ElementAt(i - 1).UpperBand!.Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+			QL_item = QL.Lower[i - 1].v;
+      SK_item = SK.ElementAt(i - 1).LowerBand!.Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+			QL_item = QL.Bandwidth[i - 1].v;
+      SK_item = SK.ElementAt(i - 1).Width!.Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+			QL_item = QL.PercentB[i - 1].v;
+      SK_item = SK.ElementAt(i - 1).PercentB!.Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+			QL_item = QL.Zscore[i - 1].v;
+      SK_item = SK.ElementAt(i - 1).ZScore!.Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void CCI()
@@ -112,10 +112,22 @@ public class Skender
     var SK = quotes.GetCci(period).Select(i => i.Cci.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
+  }
+    [Fact]
+  public void CMO()
+  {
+    CMO_Series QL = new(bars.Close, period, false);
+    var SK = quotes.GetCmo(period).Select(i => i.Cmo.Null2NaN()!);
+    for (int i = QL.Length; i > skip; i--)
+    {
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void CORR()
@@ -124,10 +136,10 @@ public class Skender
     var SK = quotes.Use(CandlePart.High).GetCorrelation(quotes.Use(CandlePart.Low), period).Select(i => i.Correlation.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void COVAR()
@@ -136,12 +148,11 @@ public class Skender
     var SK = quotes.Use(CandlePart.High).GetCorrelation(quotes.Use(CandlePart.Low), period).Select(i => i.Covariance.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
-/*
   [Fact]
   public void DEMA()
   {
@@ -149,63 +160,60 @@ public class Skender
     var SK = quotes.GetDema(period).Select(i => i.Dema.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
-*/
   [Fact]
   public void EMA()
   {
     EMA_Series QL = new(bars.Close, period, false);
-    var SK = quotes.GetEma(period).Select(i => i.Ema.Null2NaN()!);
+    var SK = quotes.GetEma(lookbackPeriods: period).Select(i => i.Ema.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
-	/*
   [Fact]
   public void HL2()
   {
     TSeries QL = bars.HL2;
-    var SK = quotes.GetBaseQuote(CandlePart.HL2).Select(i => i.Value);
+    var SK = quotes.GetBaseQuote(CandlePart.HL2).ToList();
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1).Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
   [Fact]
   public void HLC3()
   {
     TSeries QL = bars.HLC3;
-    var SK = quotes.GetBaseQuote(CandlePart.HLC3).Select(i => i.Value);
-    for (int i = QL.Length; i > skip; i--)
+		var SK = quotes.GetBaseQuote(CandlePart.HLC3).ToList();
+		for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1).Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
-	*/
-  [Fact]
+	[Fact]
   public void HMA()
   {
     HMA_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetHma(period).Select(i => i.Hma.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
   }
-/*
+  /*
   [Fact]
   public void KAMA()
   {
@@ -214,12 +222,11 @@ public class Skender
     var SK = quotes.GetKama(period).Select(i => i.Kama.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits/2), Math.Exp(-digits/2));
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1);
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
-  }
-*/
+  } */
   [Fact]
   public void LINREG()
   {
@@ -227,18 +234,18 @@ public class Skender
     var SK = quotes.GetSlope(period);
     for (int i = QL.Length; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1).Slope!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.Intercept[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).Intercept!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.RSquared[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).RSquared!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-      QL_item = Math.Round(QL.StdDev[i - 1].v, digits: digits);
-      SK_item = Math.Round((double)SK.ElementAt(i - 1).StdDev!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      double QL_item = QL[i - 1].v;
+      double SK_item = (double)SK.ElementAt(i - 1).Slope!;
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
+      QL_item = QL.Intercept[i - 1].v;
+      SK_item = (double)SK.ElementAt(i - 1).Intercept!;
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
+      QL_item = QL.RSquared[i - 1].v;
+      SK_item = (double)SK.ElementAt(i - 1).RSquared!;
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
+      QL_item = QL.StdDev[i - 1].v;
+      SK_item = (double)SK.ElementAt(i - 1).StdDev!;
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -250,10 +257,10 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1).Macd.Null2NaN()!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
       QL_item = Math.Round(QL.Signal[i - 1].v, digits: digits);
       SK_item = Math.Round(SK.ElementAt(i - 1).Signal.Null2NaN()!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -265,7 +272,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -277,10 +284,10 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1).Mama.Null2NaN()!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
       QL_item = Math.Round(QL.Fama[i - 1].v, digits: digits);
       SK_item = Math.Round(SK.ElementAt(i - 1).Fama.Null2NaN()!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -292,7 +299,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -304,7 +311,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -317,47 +324,45 @@ public class Skender
     {
       double QL_item = Math.Round(QL.Last().v, digits: digits);
       double SK_item = Math.Round(SK.Last()! + (double)quotes.First().Volume!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
-	/*
   [Fact]
   public void OC2()
   {
-    TSeries QL = bars.OC2;
-    var SK = quotes.GetBaseQuote(CandlePart.OC2).Select(i => i.Value);
-    for (int i = QL.Length; i > skip; i--)
-    {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
-  }
+		TSeries QL = bars.OC2;
+		var SK = quotes.GetBaseQuote(CandlePart.OC2).ToList();
+		for (int i = QL.Length; i > skip; i--)
+		{
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1).Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
+	}
 	[Fact]
   public void OHL3()
   {
     TSeries QL = bars.OHL3;
-    var SK = quotes.GetBaseQuote(CandlePart.OHL3).Select(i => i.Value);
-    for (int i = QL.Length; i > skip; i--)
-    {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
-  }
+		var SK = quotes.GetBaseQuote(CandlePart.OHL3).ToList();
+		for (int i = QL.Length; i > skip; i--)
+		{
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1).Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
+	}
   [Fact]
   public void OHLC4()
   {
     TSeries QL = bars.OHLC4;
-    var SK = quotes.GetBaseQuote(CandlePart.OHLC4).Select(i => i.Value);
-    for (int i = QL.Length; i > skip; i--)
-    {
-      double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-      double SK_item = Math.Round((double)SK.ElementAt(i - 1)!, digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-    }
-  }
-	*/
+		var SK = quotes.GetBaseQuote(CandlePart.OHLC4).ToList();
+		for (int i = QL.Length; i > skip; i--)
+		{
+			double QL_item = QL[i - 1].v;
+			double SK_item = SK.ElementAt(i - 1).Value;
+			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));
+		}
+	}
 	[Fact]
   public void RSI()
   {
@@ -367,7 +372,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -379,7 +384,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -391,7 +396,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -403,10 +408,10 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
-/*
+  /*
   [Fact]
   public void T3()
   {
@@ -416,10 +421,9 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
-  }
-*/
+  }*/
   [Fact]
   public void TEMA()
   {
@@ -429,7 +433,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -441,7 +445,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -453,7 +457,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
   [Fact]
@@ -465,7 +469,7 @@ public class Skender
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
-      Assert.InRange(SK_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
     }
   }
 

@@ -41,8 +41,7 @@ public class WMAPE_chart : Indicator
 
     protected override void OnInit()
     {
-	    this.bars = new(); 
-	    this.ShortName = "WMAPE (" + QuanTAlib.TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+	    this.bars = new();
       this.indicator = new(source: this.bars.Select(this.DataSource), period: this.Period, useNaN: true);
     }
 	protected override void OnUpdate(UpdateArgs args)

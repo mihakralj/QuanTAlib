@@ -119,7 +119,19 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
-  [Fact]
+/*
+	[Fact]
+	public void CMO() {
+		CMO_Series QL = new(bars.Close, period, false);
+		Core.Cmo(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = Math.Round(QL[i].v, digits: digits);
+			double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+*/
+	[Fact]
   public void CORR()
   {
     CORR_Series QL = new(bars.Open, bars.Close, period);
@@ -381,7 +393,7 @@ public class Ta_Lib
   {
     T3_Series QL = new(source: bars.Close, period: period, vfactor: 0.7, useNaN: false);
     Core.T3(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outReal: TALIB, outBegIdx: out int outBegIdx, outNbElement: out _, optInTimePeriod: period, optInVFactor: 0.7);
-    for (int i = QL.Length - 1; i > skip * 15; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -424,7 +436,17 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
-  [Fact]
+	[Fact]
+	public void TRIX() {
+		TRIX_Series QL = new(bars.Close, period, useNaN: false, useSMA: true);
+		Core.Trix(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = Math.Round(QL[i].v, digits: digits);
+			double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
   public void VAR()
   {
     VAR_Series QL = new(bars.Close, period, false);

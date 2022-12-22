@@ -28,10 +28,10 @@ public class CCI_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "CCI (" + this.Period + ")";
         this.bars = new();
 				this.indicator = new(source: bars, period: this.Period, useNaN: false);
-    }
+    }
+
 	protected override void OnUpdate(UpdateArgs args)
 	{
         bool update = (args.Reason != UpdateReason.NewBar && args.Reason != UpdateReason.HistoricalBar);

@@ -1,10 +1,10 @@
 # Coverage
 
-⭐= Calculation is validated against one or many TA libraries
+⭐= Calculation is validated against several TA libraries
 
-✔️= Calculation exists but has no cross-validation tests
+✔️= Validation tests passed
 
-⛔= Not implemented (yet)
+❌= Wrong implementation
 
 | **BASIC TRANSFORMS** | **QuanTAlib** | **TA-LIB** | **Skender** | **Pandas TA** | **Tulip** |
 |--|:--:|:--:|:--:|:--:|:--:|
@@ -26,7 +26,7 @@
 |||||
 | **STATISTICS & NUMERICAL ANALYSIS** |
 ||||||
-| BIAS - Bias | `BIAS_Series` ||| bias |
+| ⭐BIAS - Bias | `BIAS_Series` ||| ✔️bias |
 | CORR - Pearson's Correlation Coefficient | `CORR_Series` | CORREL | GetCorrelation ||
 | COVAR - Covariance | `COVAR_Series` || GetCorrelation ||
 | DECAY - Linear Decay ||||| decay |
@@ -53,17 +53,17 @@
 | AFIRMA - Autoregressive Finite Impulse Response Moving Average |||||
 | ALMA - Arnaud Legoux Moving Average | `ALMA_Series` || GetAlma | alma |
 | ARIMA - Autoregressive Integrated Moving Average |||||
-| DEMA - Double EMA Average | `DEMA_Series` | DEMA | GetDema | dema | dema |
-| EMA - Exponential Moving Average | `EMA_Series` | EMA | GetEma | ema | ema |
+| ⭐DEMA - Double EMA Average | `DEMA_Series` | ✔️DEMA | ✔️GetDema | ✔️dema | ✔️dema |
+| ⭐EMA - Exponential Moving Average | `EMA_Series` | ✔️EMA | ✔️GetEma | ✔️ema | ✔️ema |
 | EPMA - Endpoint Moving Average ||| GetEpma ||
 | FRAMA - Fractal Adaptive Moving Average |||||
 | FWMA - Fibonacci's Weighted Moving Average |||| fwma |
 | HILO - Gann High-Low Activator |||| hilo |
 | HEMA - Hull/EMA Average | `HEMA_Series` ||||
 | Hilbert Transform Instantaneous Trendline || HT_TRENDLINE | GetHtTrendline ||
-| HMA - Hull  Moving Average | `HMA_Series` || GetHma | hma | hma |
+| ⭐HMA - Hull  Moving Average | `HMA_Series` || ✔️GetHma | ✔️hma | ✔️hma |
 | HWMA - Holt-Winter Moving Average |||| hwma |
-| JMA - Jurik Moving Average | `JMA_Series` ||| jma |
+| JMA - Jurik Moving Average | `JMA_Series` ||| jma ||
 | KAMA - Kaufman's Adaptive Moving Average | `KAMA_Series` | KAMA | GetKama | kama | kama |
 | KDJ - KDJ Indicator (trend reversal) |||| kdj |
 | LSMA - Least Squares Moving Average |||||
@@ -75,7 +75,7 @@
 | PWMA - Pascal's Weighted Moving Average |||| pwma |
 | RMA - WildeR's Moving Average | `RMA_Series` ||| rma |
 | SINWMA - Sine Weighted Moving Average |||| sinwma |
-| ⭐ [SMA - Simple Moving Average](SMA.md) | `SMA_Series` | ⭐ SMA | ⭐ GetSma | ⭐ sma | ⭐ sma |
+| ⭐[SMA - Simple Moving Average](SMA.md) | `SMA_Series` | ✔️SMA | ✔️GetSma | ✔️sma | ✔️sma |
 | SMMA - Smoothed Moving Average | `SMMA_Series` || GetSmma ||
 | SSF - Ehler's Super Smoother Filter |||| ssf |
 | SUPERTREND - Supertrend |||| supertrend |
@@ -91,9 +91,9 @@
 ||||||
 | **VOLATILITY INDICATORS** |
 ||||||
-| ADL - Chaikin Accumulation Distribution Line | `ADL_Series` | AD | GetAdl | ad | ad |
-| ADOSC - Chaikin Accumulation Distribution Oscillator | `ADOSC_Series` | ADOSC| GetAdl | adosc | adosc |
-| ATR - Average True Range | `ATR_Series` | ATR | GetAtr | atr | atr |
+| ⭐ADL - Chaikin Accumulation Distribution Line | `ADL_Series` | ✔️AD | ✔️GetAdl | ✔️ad | ✔️ad |
+| ⭐ADOSC - Chaikin Accumulation Distribution Oscillator | `ADOSC_Series` | ✔️ADOSC| | ✔️adosc | ✔️adosc |
+| ⭐ATR - Average True Range | `ATR_Series` | ✔️ATR | ✔️GetAtr | ✔️atr | ✔️atr |
 | ATRP - Average True Range Percent | `ATRP_Series` || GetAtr ||
 | BETA - Beta coefficient || BETA | GetBeta ||
 | BBANDS - Bollinger Bands® | `BBANDS_Series` | BBANDS | GetBollingerBands || bbands |
@@ -127,7 +127,7 @@
 | BOP - Balance of Power || BOP | GetBop || bop |
 | CCI - Commodity Channel Index | `CCI_Series` | CCI | GetCci || cci |
 | CFO - Chande Forcast Oscillator |||||
-| CMO - Chande Momentum Oscillator || CMO | GetCmo || cmo |
+| CMO - Chande Momentum Oscillator | `CMO_Series` | ❌CMO | ❌GetCmo | ❌cmo | cmo |
 | COG - Center of Gravity |||||
 | COPPOCK - Coppock Curve |||||
 | CTI - Ehler's Correlation Trend Indicator |||||
@@ -151,7 +151,7 @@
 | SMI - Stochastic Momentum Index |||||
 | STC - Schaff Trend Cycle |||||
 | STOCH - Stochastic Oscillator || STOCH | GetStoch ||
-| TRIX - 1-day ROC of TEMA || TRIX | GetTrix ||
+| TRIX - 1-day ROC of TEMA | TRIX | TRIX | GetTrix | trix |
 | TSI - True Strength Index |||||
 | UO - Ultimate Oscillator || ULTOSC | GetUltimate ||
 | WILLR - Larry Williams' %R || WILLR | GetWilliamsR ||

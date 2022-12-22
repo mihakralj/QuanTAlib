@@ -32,9 +32,7 @@ public class SDEV_chart : Indicator
 
     protected override void OnInit()
     {
-	    this.bars = new(); 
-	    this.ShortName =
-            "SDEV (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ")";
+	    this.bars = new();
         this.indicator = new(source: bars.Select(this.DataSource),
                              period: this.Period, useNaN: true);
     }

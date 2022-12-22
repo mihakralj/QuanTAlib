@@ -37,7 +37,6 @@ public class KAMA_chart : Indicator
 
     protected override void OnInit()
     {
-        this.ShortName = "KAMA (" + TBars.SelectStr(this.DataSource) + ", " + this.Period + ":" + this.Fast + ":" + this.Slow + ")";
       this.bars = new();
 			this.indicator = new(source: bars.Select(this.DataSource), period: this.Period, fast: this.Fast, slow: this.Slow, useNaN: false);
 		}
