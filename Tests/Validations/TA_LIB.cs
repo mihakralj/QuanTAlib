@@ -214,7 +214,7 @@ public class TA_LIB
   [Fact]
   public void ADOSC()
   {
-    ADOSC_Series QL = new(bars, false);
+    ADOSC_Series QL = new(bars );
     Core.AdOsc(inhigh, inlow, inclose, involume, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
 
     Assert.Equal(Math.Round(TALIB[TALIB.Length - outBegIdx - 1], 6, MidpointRounding.AwayFromZero), Math.Round(QL.Last().v, 6, MidpointRounding.AwayFromZero));

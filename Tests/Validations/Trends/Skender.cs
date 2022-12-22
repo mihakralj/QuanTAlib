@@ -453,7 +453,7 @@ public class Skender
   {
     WMA_Series QL = new(bars.Close, period, false);
     var SK = quotes.GetWma(period).Select(i => i.Wma.Null2NaN()!);
-    for (int i = QL.Length; i > skip; i--)
+    for (int i = QL.Length; i > skip*2; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
