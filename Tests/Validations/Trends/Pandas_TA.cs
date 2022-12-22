@@ -1,3 +1,4 @@
+/*
 using Xunit;
 using System;
 using QuanTAlib;
@@ -95,7 +96,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-/*
+
 	[Fact]
 	void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -106,7 +107,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-*/
+
 	[Fact] void DEMA() {
 		DEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.dema(close: df.close, length: period);
@@ -276,7 +277,6 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-	/*
 	[Fact] void SVARIANCE() {
 		SVAR_Series QL = new(bars.Close, period);
 		var pta = df.ta.variance(close: df.close, length: period, ddof: 1);
@@ -287,7 +287,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-*/
+
     [Fact] void T3() {
         T3_Series QL = new(source: bars.Close, period: period, vfactor: 0.7, useNaN: false);
         var pta = df.ta.t3(close: df.close, length: period, a: 0.7);
@@ -380,3 +380,4 @@ public class PandasTA : IDisposable
     }
 
 }
+*/
