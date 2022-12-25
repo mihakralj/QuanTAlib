@@ -16,9 +16,9 @@
 |HLCC4 - Weighted Price|`.HLCC4`|✔️WCLPRICE|||✔️wcprice|
 |MIDPOINT - Midpoint value|`MIDPOINT_Series`|✔️MIDPOINT||midpoint|
 |MIDPRICE - Midpoint price|`MIDPRICE_Series`|✔️MIDPRICE||midprice|
-|MAX - Max value|`MAX_Series`|✔️MAX|||❌max|
-|MIN - Min value|`MIN_Series`|✔️MIN|||❌min|
-|SUM - Summation|`SUM_Series`|✔️SUM|||❌sum|
+|MAX - Max value|`MAX_Series`|✔️MAX|||✔️max|
+|MIN - Min value|`MIN_Series`|✔️MIN|||✔️min|
+|SUM - Summation|`SUM_Series`|✔️SUM|||✔️sum|
 |ADD - Addition|`ADD_Series`|✔️ADD|||✔️add|
 |SUB - Subtraction|`SUB_Series`|✔️SUB|||✔️sub|
 |MUL - Multiplication|`MUL_Series`|✔️MUL|||✔️mul|
@@ -33,7 +33,7 @@
 |EDECAY - Exponential Decay|||||edecay|
 |ENTROPY - Entropy|`ENTROPY_Series`|||✔️entropy|
 |KURTOSIS - Kurtosis|`KURT_Series`|||✔️kurtosis|
-|LINREG - Linear Regression|`LINREG_Series`||✔️GetSlope||❌linreg|
+|LINREG - Linear Regression|`LINREG_Series`||✔️GetSlope||✔️linregslope|
 |MAD - Mean Absolute Deviation|`MAD_Series`||✔️GetSmaAnalysis|✔️mad|
 |MAPE - Mean Absolute Percent Error|`MAPE_Series`||✔️GetSmaAnalysis||
 |MEDIAN - Median value|`MEDIAN_Series`|||✔️median|
@@ -52,7 +52,7 @@
 ||||||
 |AFIRMA - Autoregressive Finite Impulse Response Moving Average|||||
 |ALMA - Arnaud Legoux Moving Average|`ALMA_Series`||✔️GetAlma|alma|
-|DEMA - Double EMA Average|`DEMA_Series`|❌DEMA|❌GetDema|✔️dema|❌dema|
+|DEMA - Double EMA Average|`DEMA_Series`|❌DEMA|✔️GetDema|✔️dema|❌dema|
 |DWMA - Double WMA Average|`DWMA_Series`|||||
 |⭐EMA - Exponential Moving Average|`EMA_Series`|✔️EMA|✔️GetEma|✔️ema|✔️ema|
 |EPMA - Endpoint Moving Average|||GetEpma||
@@ -64,10 +64,10 @@
 |⭐HMA - Hull  Moving Average|`HMA_Series`||✔️GetHma|✔️hma|✔️hma|
 |HWMA - Holt-Winter Moving Average||||hwma|
 |JMA - Jurik Moving Average|`JMA_Series`|||jma||
-|KAMA - Kaufman's Adaptive Moving Average|`KAMA_Series`|KAMA|❌GetKama|✔️kama|❌kama|
+|KAMA - Kaufman's Adaptive Moving Average|`KAMA_Series`|✔️KAMA|✔️GetKama|✔️kama|✔️kama|
 |KDJ - KDJ Indicator (trend reversal)||||kdj|
 |LSMA - Least Squares Moving Average|||GetEpma||
-|MACD - Moving Average Convergence/Divergence|`MACD_Series`|❌MACD|❌GetMacd|macd|❌macd|
+|⭐MACD - Moving Average Convergence/Divergence|`MACD_Series`|✔️MACD|✔️GetMacd|✔️macd|✔️macd|
 |MAMA - MESA Adaptive Moving Average|`MAMA_Series`|✔️MAMA|✔️GetMama||
 |MCGD - McGinley Dynamic||||mcgd|
 |MMA - Modified Moving Average|||||

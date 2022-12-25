@@ -30,6 +30,7 @@ public class DEMA_Series : Single_TSeries_Indicator
     {
         _k = 2.0 / (_p + 1);
 		_useSMA = useSMA;
+    _lastema1 = _lastema2 =0;
 		if (_data.Count > 0) { base.Add(_data); }
     }
 
@@ -48,22 +49,9 @@ public class DEMA_Series : Single_TSeries_Indicator
             _ema1 = 0;
             for (int i=0; i<_buffer1.Count; i++) { _ema1 += _buffer1[i]; }
             _ema1 /= _buffer1.Count;
-
-            Add_Replace_Trim(_buffer2, _ema1, _p, update);
-            _ema2 = 0;
-            for (int i = 0; i < _buffer2.Count; i++) { _ema2 += _buffer2[i]; }
-            _ema2 /= _buffer2.Count;
+            _ema2 = _ema1;
         }
-        else if(this.Count < (2*_p - 1) && _useSMA) // second _p
-        {
-            _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
-
-            Add_Replace_Trim(_buffer2, _ema1, _p, update);
-            _ema2 = 0;
-            for (int i = 0; i < _buffer2.Count; i++) { _ema2 += _buffer2[i]; }
-            _ema2 /= _buffer2.Count; 
-        }
-        else // all others
+        else
         {
             _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
             _ema2 = (_ema1 - _lastema2) * _k + _lastema2;
