@@ -20,7 +20,7 @@ public class Tulip_Test
   {
     bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0, Precision: 3);
     period = rnd.Next(28) + 3;
-    skip = 200;
+    skip = period+1;
     digits = 10;
 
     outdata = new double[bars.Count];
@@ -40,8 +40,8 @@ public class Tulip_Test
 		Tulip.Indicators.ad.Run(inputs: arrin, options: new double[] { }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
@@ -54,8 +54,8 @@ public class Tulip_Test
 		Tulip.Indicators.add.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
@@ -69,8 +69,8 @@ public class Tulip_Test
 		Tulip.Indicators.adosc.Run(inputs: arrin, options: new double[] { s, period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--) 
 		{
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i-period+1], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i-period+1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
@@ -84,8 +84,8 @@ public class Tulip_Test
 		Tulip.Indicators.atr.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i - period + 1], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
@@ -101,47 +101,220 @@ public class Tulip_Test
 		Tulip.Indicators.bbands.Run(inputs: arrin, options: new double[] { period, 2 }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
-			double QL_item = Math.Round(QL.Lower[i].v, digits: digits);
-			double TU_item = Math.Round(outlower[i - period + 1], digits);
+			double QL_item = QL.Lower[i].v;
+			double TU_item = outlower[i - period + 1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-			QL_item = Math.Round(QL.Mid[i].v, digits: digits);
-			TU_item = Math.Round(outmid[i - period + 1], digits);
+			QL_item = QL.Mid[i].v;
+			TU_item = outmid[i - period + 1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
-			QL_item = Math.Round(QL.Upper[i].v, digits: digits);
-			TU_item = Math.Round(outupper[i - period + 1], digits);
+			QL_item = QL.Upper[i].v;
+			TU_item = outupper[i - period + 1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-	/*
+	[Fact]
+	public void CCI() {
+		double[][] arrin = { inopen, inhigh, inlow, inclose, involume };
+		double[][] arrout = { outdata };
+		CCI_Series QL = new(bars, period, useNaN: false);
+		Tulip.Indicators.cci.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period-1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void CMO() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		CMO_Series QL = new(bars.Close, period, useNaN: false);
+		Tulip.Indicators.cmo.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
 	[Fact]
 	public void DEMA() {
 		double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
 		DEMA_Series QL = new(bars.Close, period, useNaN: false, useSMA: false);
 		Tulip.Indicators.dema.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
-		for (int i = QL.Length - 1; i > skip; i--) {
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i-(period+period-2)], digits);
+		for (int i = QL.Length - 1; i > skip*2; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i-(period+period-2)];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-	*/
+	[Fact]
+	public void DIV() {
+		double[][] arrin = { inhigh, inlow };
+		double[][] arrout = { outdata };
+		DIV_Series QL = new(bars.High, bars.Low);
+		Tulip.Indicators.div.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
 	[Fact]
   public void EMA()
   {
     double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
-		EMA_Series QL = new(bars.Close, period, false);
+		// Tulip EMA doesn't use SMA to warm-up
+		EMA_Series QL = new(bars.Close, period, false, useSMA: false);
     Tulip.Indicators.ema.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
     for (int i = QL.Length - 1; i > skip; i--)
     {
-      double QL_item = Math.Round(QL[i].v, digits: digits);
-      double TU_item = Math.Round(arrout[0][i], digits);
+      double QL_item = QL[i].v;
+      double TU_item = arrout[0][i];
       Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
 	[Fact]
-	public void AVGPRICE()
+	public void HL2() {
+		double[][] arrin = { inhigh, inlow };
+		double[][] arrout = { outdata };
+
+		TSeries QL = bars.HL2;
+		Tulip.Indicators.medprice.Run(inputs: arrin, options: new double[] { }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void HLC3() {
+		double[][] arrin = { inhigh, inlow, inclose };
+		double[][] arrout = { outdata };
+
+		TSeries QL = bars.HLC3;
+		Tulip.Indicators.typprice.Run(inputs: arrin, options: new double[] { }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void HLCC4() {
+		double[][] arrin = { inhigh, inlow, inclose };
+		double[][] arrout = { outdata };
+
+		TSeries QL = bars.HLCC4;
+		Tulip.Indicators.wcprice.Run(inputs: arrin, options: new double[] { }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void HMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		HMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.hma.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period - 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void KAMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		KAMA_Series QL = new(bars.Close, period);
+		Tulip.Indicators.kama.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > 250; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void LINREG() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		LINREG_Series QL = new(bars.Close, period);
+		Tulip.Indicators.linregslope.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period+1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void MACD() {
+
+		double[] outsignal = new double[bars.Count];
+		double[] outhist = new double[bars.Count];
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata, outsignal, outhist };
+		MACD_Series QL = new(bars.Close, slow: 26,fast: 10, signal: 9);
+		Tulip.Indicators.macd.Run(inputs: arrin, options: new double[] { 10,26,9 }, outputs: arrout);
+		for (int i = QL.Length - 1; i > 150; i--) {
+			double QL_item = QL[i].v;
+			double TU_item =outdata[i - 26+1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void MAX() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		MAX_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.max.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i-period+1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void MIN() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		MIN_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.min.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void MUL() {
+		double[][] arrin = { inhigh, inlow };
+		double[][] arrout = { outdata };
+		MUL_Series QL = new(bars.High, bars.Low);
+		Tulip.Indicators.mul.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void OBV() {
+		double[][] arrin = { inclose, involume };
+		double[][] arrout = { outdata };
+		OBV_Series QL = new(bars, period, false);
+		Tulip.Indicators.obv.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void OHLC4()
 	{
 		double[][] arrin = { inopen, inhigh, inlow, inclose };
 		double[][] arrout = { outdata };
@@ -150,8 +323,32 @@ public class Tulip_Test
 		Tulip.Indicators.avgprice.Run(inputs: arrin, options: new double[] { }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void RMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		RMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.wilders.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void RSI() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		RSI_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.rsi.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
@@ -164,33 +361,128 @@ public class Tulip_Test
 		Tulip.Indicators.sma.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i-period+1], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i-period+1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-	/*
 	[Fact]
-	public void HMA() {
+	public void SDEV() {
 		double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
-		HMA_Series QL = new(bars.Close, period, false);
-		Tulip.Indicators.hma.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		SDEV_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.stddev.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--) {
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i-period-1], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
-	}*/
+	}
 	[Fact]
-	public void CMO() {
+	public void SUB() {
+		double[][] arrin = { inhigh, inlow };
+		double[][] arrout = { outdata };
+		SUB_Series QL = new(bars.High, bars.Low);
+		Tulip.Indicators.sub.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void SUM() {
 		double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
-		CMO_Series QL = new(bars.Close, period, useNaN: false);
-		Tulip.Indicators.cmo.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		SUM_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.sum.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--) {
-			double QL_item = Math.Round(QL[i].v, digits: digits);
-			double TU_item = Math.Round(arrout[0][i-period], digits);
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void TR() {
+		double[][] arrin = { inhigh,inlow,inclose };
+		double[][] arrout = { outdata };
+		TR_Series QL = new(bars, false);
+		Tulip.Indicators.tr.Run(inputs: arrin, options: new double[] {}, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void TEMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		TEMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.tema.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void TRIMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		TRIMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.trima.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void TRIX() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		TRIX_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.trix.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period +1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void VAR() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		VAR_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.var.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void WMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		WMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.wma.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
+			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
+	public void ZLEMA() {
+		double[][] arrin = { inclose };
+		double[][] arrout = { outdata };
+		ZLEMA_Series QL = new(bars.Close, period, false);
+		Tulip.Indicators.zlema.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+		for (int i = QL.Length - 1; i > skip; i--) {
+			double QL_item = QL[i].v;
+			double TU_item = arrout[0][i - period + 1];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}

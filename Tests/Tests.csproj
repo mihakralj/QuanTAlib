@@ -9,6 +9,8 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
+      <PackageReference Include="Python.Included" Version="3.11.1" />
+      <PackageReference Include="pythonnet" Version="3.0.1" />
       <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,7 +18,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221221-03" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
-    <PackageReference Include="Skender.Stock.Indicators" Version="2.4.5" />
+    <PackageReference Include="Skender.Stock.Indicators" Version="2.4.6" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
   </ItemGroup>

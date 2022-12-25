@@ -80,14 +80,14 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
 
-#    - name: Release
-#      uses: marvinpinto/action-automatic-releases@latest
-#      with:
-#        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-#        automatic_release_tag: "latest"
-#        prerelease: true
-#        title: "Latest Build"
-#        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Latest Build"
+        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
 
     - name: Authenticate to Github packages source
       run: dotnet nuget add source

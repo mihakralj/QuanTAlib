@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*
+=======
+
+>>>>>>> dev
 using Xunit;
 using System;
 using QuanTAlib;
@@ -20,7 +24,7 @@ public class PandasTA : IDisposable
 	public PandasTA() {
         bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0);
         period = rnd.Next(maxValue: 28) + 3;
-        sample = 200;
+        sample = period+1;
 	    digits = 10;
 
 		// Checking the host OS and setting PythonDLL accordingly
@@ -186,7 +190,20 @@ public class PandasTA : IDisposable
             double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
-    }
+  }
+	[Fact]
+	void MACD() {
+		MACD_Series QL = new(bars.Close, 26,fast: 12,signal:9);
+		var pta = df.ta.macd(close: df.close).to_numpy();
+		for (int i = QL.Length; i > QL.Length - sample; i--) {
+			double QL_item = QL[i - 1].v;
+			double PanTA_item = (double)pta[i - 1][0];
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+			QL_item = QL.Signal[i - 1].v;
+			PanTA_item = (double)pta[i - 1][2];
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
 	[Fact] void MAD()
 	{
 		MAD_Series QL = new(bars.Close, period, useNaN: false);
@@ -380,4 +397,7 @@ public class PandasTA : IDisposable
     }
 
 }
+<<<<<<< HEAD
 */
+=======
+>>>>>>> dev

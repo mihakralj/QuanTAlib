@@ -21,7 +21,7 @@ public class Ta_Lib
   {
     bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0, Precision: 3);
     period = rnd.Next(28) + 3;
-    skip = 500;
+    skip = period+2;
     digits = 10;
 
     TALIB = new double[bars.Count];
@@ -81,32 +81,27 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
-/*
   [Fact]
   public void BBANDS()
   {
     double[] outMiddle = new double[bars.Count];
     double[] outUpper = new double[bars.Count];
     double[] outLower = new double[bars.Count];
-    BBANDS_Series QL = new(bars.Close, period: 26, multiplier: 2.0, false);
-    Core.Bbands(inclose, 0, bars.Count - 1, outRealUpperBand: outUpper, outRealMiddleBand: outMiddle, outRealLowerBand: outLower, out int outBegIdx, out _, optInTimePeriod: 26, optInNbDevUp: 2.0, optInNbDevDn: 2.0);
+    BBANDS_Series QL = new(bars.Close, period: period, multiplier: 2.0, false);
+    Core.Bbands(inclose, 0, bars.Count - 1, outRealUpperBand: outUpper, outRealMiddleBand: outMiddle, outRealLowerBand: outLower, out int outBegIdx, out _, optInTimePeriod: period, optInNbDevUp: 2.0, optInNbDevDn: 2.0);
     for (int i = QL.Length - 1; i > skip; i--)
     {
-      double QL_item = Math.Round(QL.Upper[i].v, digits: digits);
-      double TA_item = Math.Round(outUpper[i - outBegIdx], digits: digits);
-      Assert.Equal(TA_item!, QL_item);
-      QL_item = Math.Round(QL.Mid[i].v, digits: digits);
-      TA_item = Math.Round(outMiddle[i - outBegIdx], digits: digits);
-      Assert.Equal(TA_item!, QL_item);
-      QL_item = Math.Round(QL.Lower[i].v, digits: digits);
-      TA_item = Math.Round(outLower[i - outBegIdx], digits: digits);
-      Assert.Equal(TA_item!, QL_item);
+      double QL_item = QL.Upper[i].v;
+      double TA_item = outUpper[i - outBegIdx];
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), high: Math.Exp(-digits));
+			QL_item = QL.Mid[i].v;
+      TA_item = outMiddle[i - outBegIdx];
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), high: Math.Exp(-digits));
+      QL_item = QL.Lower[i].v;
+      TA_item = outLower[i - outBegIdx];
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), high: Math.Exp(-digits));
     }
-    Assert.Equal(Math.Round(outUpper[outUpper.Length - outBegIdx - 1], digits: digits), Math.Round(QL.Upper.Last().v, digits: digits));
-    Assert.Equal(Math.Round(outMiddle[outMiddle.Length - outBegIdx - 1], digits: digits), Math.Round(QL.Mid.Last().v, digits: digits));
-    Assert.Equal(Math.Round(outLower[outLower.Length - outBegIdx - 1], digits: digits), Math.Round(QL.Lower.Last().v, digits: digits));
   }
-*/
   [Fact]
   public void CCI()
   {
@@ -119,7 +114,6 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
-/*
 	[Fact]
 	public void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -130,7 +124,6 @@ public class Ta_Lib
 			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-*/
 	[Fact]
   public void CORR()
   {
@@ -146,9 +139,9 @@ public class Ta_Lib
   [Fact]
   public void DEMA()
   {
-    DEMA_Series QL = new(bars.Close, period, false);
+    DEMA_Series QL = new(bars.Close, period, false, useSMA: false);
     Core.Dema(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > skip; i--)
+    for (int i = QL.Length - 1; i > skip*2; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -215,20 +208,31 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
-  [Fact]
+	[Fact]
+	public void KAMA() {
+		KAMA_Series QL = new(bars.Close, period, fast: 2, slow: 30);
+		Core.Kama(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outReal: TALIB, outBegIdx: out int outBegIdx, outNbElement: out _, optInTimePeriod: period);
+		for (int i = QL.Length - 1; i > skip * 15; i--) {
+			double QL_item = QL[i].v;
+			double TA_item = TALIB[i - outBegIdx];
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+	[Fact]
   public void MACD()
   {
     double[] macdSignal = new double[bars.Count];
     double[] macdHist = new double[bars.Count];
     MACD_Series QL = new(bars.Close, slow: 26, fast: 12, signal: 9, false);
-    Core.Macd(inclose, 0, bars.Count - 1, outMacd: TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > skip * 10; i--)
+    // TA-LIB runs EMA without SMA, leaving first 100 values for convergence
+    Core.Macd(inclose, 0, bars.Count - 1, outMacd: TALIB, outMacdSignal: macdSignal, outMacdHist: macdHist, out int outBegIdx, out _, optInFastPeriod: 12, optInSlowPeriod: 26, optInSignalPeriod: 9);
+    for (int i = QL.Length - 1; i > 100; i--)
     {
-      double QL_item = Math.Round(QL[i].v, digits: digits);
-      double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
-      Assert.Equal(TA_item!, QL_item);
-      QL_item = Math.Round(QL.Signal[i].v, digits: digits);
-      TA_item = Math.Round(macdSignal[i - outBegIdx], digits: digits);
+      double QL_item = QL[i].v;
+      double TA_item = TALIB[i - outBegIdx];
+			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      QL_item = QL.Signal[i].v;
+      TA_item = macdSignal[i - outBegIdx];
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
