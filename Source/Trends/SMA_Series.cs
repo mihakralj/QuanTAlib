@@ -4,7 +4,7 @@ using System;
 /* <summary>
 SMA: Simple Moving Average
     The weights are equally distributed across the period, resulting in a mean() of
-    the data within the period/
+    the data within the period
 
 Sources:
     https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/simple-moving-average-sma/

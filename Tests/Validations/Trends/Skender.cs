@@ -414,7 +414,7 @@ public class Skender
   {
     T3_Series QL = new(source: bars.Close, period: period, vfactor: 0.7, false);
     var SK = quotes.GetT3(lookbackPeriods: period, volumeFactor: 0.7).Select(i => i.T3.Null2NaN()!);
-    for (int i = QL.Length; i > skip; i--)
+    for (int i = QL.Length; i > period*15; i--)
     {
       double QL_item = Math.Round(QL[i - 1].v, digits: digits);
       double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
@@ -425,7 +425,7 @@ public class Skender
 	public void TRIX() {
 		TRIX_Series QL = new(bars.Close, period, false);
 		var SK = quotes.GetTrix(period).Select(i => i.Trix.Null2NaN()!);
-		for (int i = QL.Length; i > skip; i--) {
+		for (int i = QL.Length; i > period*12; i--) {
 			double QL_item = Math.Round(QL[i - 1].v, digits: digits);
 			double SK_item = Math.Round(SK.ElementAt(i - 1), digits: digits);
 			Assert.InRange(SK_item! - QL_item, -Math.Pow(10, -digits), Math.Pow(10, -digits));

@@ -1,4 +1,3 @@
-
 using Xunit;
 using System;
 using QuanTAlib;
