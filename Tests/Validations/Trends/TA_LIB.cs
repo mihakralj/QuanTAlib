@@ -141,7 +141,7 @@ public class Ta_Lib
   {
     DEMA_Series QL = new(bars.Close, period, false, useSMA: false);
     Core.Dema(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > skip*2; i--)
+    for (int i = QL.Length - 1; i > period*10; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -397,7 +397,7 @@ public class Ta_Lib
   {
     T3_Series QL = new(source: bars.Close, period: period, vfactor: 0.7, useNaN: false);
     Core.T3(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outReal: TALIB, outBegIdx: out int outBegIdx, outNbElement: out _, optInTimePeriod: period, optInVFactor: 0.7);
-    for (int i = QL.Length - 1; i > skip; i--)
+    for (int i = QL.Length - 1; i > period*10; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -444,7 +444,7 @@ public class Ta_Lib
 	public void TRIX() {
 		TRIX_Series QL = new(bars.Close, period, useNaN: false, useSMA: true);
 		Core.Trix(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-		for (int i = QL.Length - 1; i > skip; i--) {
+		for (int i = QL.Length - 1; i > period*10; i--) {
 			double QL_item = Math.Round(QL[i].v, digits: digits);
 			double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
 			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));

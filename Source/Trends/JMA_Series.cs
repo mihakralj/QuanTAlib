@@ -79,11 +79,11 @@ public class JMA_Series : Single_TSeries_Indicator {
 		//// from volty to avolty
 		if (update) { volty_10[volty_10.Count - 1] = volty; }
 		else { volty_10.Add(volty); }
-		if (volty_10.Count > _p) { volty_10.RemoveAt(0); }
+		if (volty_10.Count > 10) { volty_10.RemoveAt(0); }
 		vsum = prev_vsum + 0.1 * (volty - volty_10.First());
 		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; }
 		else { vsum_buff.Add(vsum); }
-		if (vsum_buff.Count > (65))
+		if (vsum_buff.Count > (10*_p))
 			vsum_buff.RemoveAt(0);
 		double avolty = 0;
 		for (int i = 0; i < vsum_buff.Count; i++) { avolty += vsum_buff[i]; }

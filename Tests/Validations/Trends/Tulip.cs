@@ -442,11 +442,11 @@ public class Tulip_Test
 	public void TRIX() {
 		double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
-		TRIX_Series QL = new(bars.Close, period, false);
+		TRIX_Series QL = new(bars.Close, period);
 		Tulip.Indicators.trix.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
-		for (int i = QL.Length - 1; i > skip; i--) {
+		for (int i = QL.Length - 1; i > period*10; i--) {
 			double QL_item = QL[i].v;
-			double TU_item = arrout[0][i - period +1];
+			double TU_item = arrout[0][i - (period*3) + 2];
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
