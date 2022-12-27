@@ -165,7 +165,18 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 
-	}
+	  }
+    [Fact] void HWMA() {
+		HWMA_Series QL = new(bars.Close, useNaN: false);
+		var pta = df.ta.hwma(close: df.close);
+        for (int i = QL.Length; i > QL.Length-sample; i--)
+        {
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
+            Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+        }
+
+	  }
     [Fact] void KAMA() {
         KAMA_Series QL = new(bars.Close, period);
         var pta = df.ta.kama(close: df.close, length: period);

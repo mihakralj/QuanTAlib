@@ -91,9 +91,8 @@ public class JMA_Series : Single_TSeries_Indicator {
 
 		/// from avolty to rolty
 		double rvolty = (avolty != 0) ? volty / avolty : 0;
-		double len1 = (Math.Log(Math.Sqrt(0.5 * (_p - 1))) / Math.Log(2.0)) + 2;
-		if (len1 < 0)
-			len1 = 0;
+		double len1 = (Math.Log(Math.Sqrt(2.0 * _p)) / Math.Log(2.0)) + 2;
+		if (len1 < 0)	len1 = 0;
 		double pow1 = Math.Max(len1 - 2.0, 0.5);
 		if (rvolty > Math.Pow(len1, 1.0 / pow1))
 			rvolty = Math.Pow(len1, 1.0 / pow1);
@@ -102,7 +101,7 @@ public class JMA_Series : Single_TSeries_Indicator {
 
 		//// from rvolty to second smoothing
 		double pow2 = Math.Pow(rvolty, pow1);
-		double len2 = Math.Sqrt(0.5 * (_p - 1)) * len1;
+		double len2 = Math.Sqrt(0.5 * (_p - 2)) * len1;
 		Kv = Math.Pow(len2 / (len2 + 2), Math.Sqrt(pow2));
 		double beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
 		double alpha = Math.Pow(beta * 1.1, pow2);
@@ -120,6 +119,6 @@ public class JMA_Series : Single_TSeries_Indicator {
 		double jma = prev_jma + det1;
 		prev_jma = jma;
 
-		base.Add((TValue.t, ma1), update, _NaN);
+		base.Add((TValue.t, jma), update, _NaN);
 	}
 }

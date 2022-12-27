@@ -57,10 +57,13 @@ jobs:
       run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo
 
     - name: dotnet Test
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo
     - name: DotCover Test XML
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
     - name: DotCover Test HTML
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=HTML --dcoutput=./coveragereport.html
 #    - name: dotnet-coverage
 #      run: dotnet-coverage collect 'dotnet test' -f xml -o './coverage.xml'
@@ -72,15 +75,18 @@ jobs:
       run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
     - name: CodeCov run
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: codecov -f ./coveragereport.xml -v -t ${{ secrets.CODECOV_TOKEN }}
 
     - name: Codacy coverage reporter
+      if: ${{ github.ref == 'refs/heads/dev' }}
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
 
     - name: Release
+      if: ${{ github.ref == 'refs/heads/main' }}
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -90,6 +96,7 @@ jobs:
         files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
 
     - name: Authenticate to Github packages source
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: dotnet nuget add source
           --username mihakralj
           --password ${{ secrets.GITHUB_TOKEN }}
@@ -97,6 +104,7 @@ jobs:
           --name github "https://nuget.pkg.github.com/mihakralj/index.json"
 
     - name: Push package to github
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.GITHUB_TOKEN }}
           --source https://nuget.pkg.github.com/mihakralj/index.json
