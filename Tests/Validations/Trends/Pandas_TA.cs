@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-/*
-=======
-
->>>>>>> dev
 using Xunit;
 using System;
 using QuanTAlib;
@@ -397,7 +392,3 @@ public class PandasTA : IDisposable
     }
 
 }
-<<<<<<< HEAD
-*/
-=======
->>>>>>> dev

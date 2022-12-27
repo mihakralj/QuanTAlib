@@ -52,7 +52,7 @@
 ||||||
 |AFIRMA - Autoregressive Finite Impulse Response Moving Average|||||
 |ALMA - Arnaud Legoux Moving Average|`ALMA_Series`||✔️GetAlma|alma|
-|DEMA - Double EMA Average|`DEMA_Series`|❌DEMA|✔️GetDema|✔️dema|❌dema|
+|DEMA - Double EMA Average|`DEMA_Series`|✔️DEMA|✔️GetDema|✔️dema|❌dema|
 |DWMA - Double WMA Average|`DWMA_Series`|||||
 |⭐EMA - Exponential Moving Average|`EMA_Series`|✔️EMA|✔️GetEma|✔️ema|✔️ema|
 |EPMA - Endpoint Moving Average|||GetEpma||
@@ -80,7 +80,7 @@
 |SSF - Ehler's Super Smoother Filter||||ssf|
 |SUPERTREND - Supertrend||||supertrend|
 |SWMA - Symmetric Weighted Moving Average||||swma|
-|T3 - Tillson T3 Moving Average|`T3_Series`|❌T3|❌GetT3|✔️t3|
+|T3 - Tillson T3 Moving Average|`T3_Series`|✔️T3|✔️GetT3|✔️t3|
 |TEMA - Triple EMA Average|`TEMA_Series`|✔️TEMA|✔️GetTema|✔️tema|❌tema|
 |⭐TRIMA - Triangular Moving Average|`TRIMA_Series`|✔️TRIMA||✔️trima|✔️trima|
 |TSF - Time Series Forecast||TSF|||
@@ -151,7 +151,7 @@
 |SMI - Stochastic Momentum Index|||||
 |STC - Schaff Trend Cycle|||||
 |STOCH - Stochastic Oscillator||STOCH|GetStoch||
-|TRIX - 1-day ROC of TEMA|`TRIX_Series`|❌TRIX|❌GetTrix|✔️trix|❌trix|
+|TRIX - 1-day ROC of TEMA|`TRIX_Series`|✔️TRIX|✔️GetTrix|✔️trix|❌trix|
 |TSI - True Strength Index|||||
 |UO - Ultimate Oscillator||ULTOSC|GetUltimate||ultosc|
 |WILLR - Larry Williams' %R||WILLR|GetWilliamsR||willr|
