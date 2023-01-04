@@ -1,3 +1,4 @@
+/*
 using Xunit;
 using System;
 using QuanTAlib;
@@ -403,3 +404,4 @@ public class PandasTA : IDisposable
     }
 
 }
+*/

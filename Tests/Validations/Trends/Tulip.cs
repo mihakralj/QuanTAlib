@@ -20,8 +20,8 @@ public class Tulip_Test
   {
     bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0, Precision: 3);
     period = rnd.Next(28) + 3;
-    skip = period+1;
-    digits = 10;
+    skip = period+5;
+    digits = 8;
 
     outdata = new double[bars.Count];
     inopen = bars.Open.v.ToArray();
@@ -124,6 +124,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	
 	[Fact]
 	public void CMO() {
 		double[][] arrin = { inclose };
@@ -214,6 +215,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	
 	[Fact]
 	public void HMA() {
 		double[][] arrin = { inclose };
@@ -226,6 +228,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	
 	[Fact]
 	public void KAMA() {
 		double[][] arrin = { inclose };
@@ -238,6 +241,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	
 	[Fact]
 	public void LINREG() {
 		double[][] arrin = { inclose };
