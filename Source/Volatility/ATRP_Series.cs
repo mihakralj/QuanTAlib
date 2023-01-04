@@ -28,8 +28,7 @@ public class ATRP_Series : Single_TBars_Indicator {
 		if (update) { _lastatr = _lastlastatr; _cm1 = _lastcm1; _sum = _oldsum; }
 		else { _lastlastatr = _lastatr; _lastcm1 = _cm1; _oldsum = _sum; }
 
-		if (this.Count == 0)
-			_cm1 = TBar.c;
+		if (this.Count == 0) { _cm1 = TBar.c; }
 		double d1 = Math.Abs(TBar.h - TBar.l);
 		double d2 = Math.Abs(_cm1 - TBar.h);
 		double d3 = Math.Abs(_cm1 - TBar.l);
