@@ -35,8 +35,8 @@ public class JMA_Series : Single_TSeries_Indicator {
 		upperBand = lowerBand = prev_ma1 = prev_det0 = prev_det1 = prev_vsum = prev_jma = Kv = del1 = del2 = 0.0;
 		Kv = 0;
 		pr = (phase * 0.01) + 1.5;
-		if (phase < -100) pr = 0.5;
-		if (phase > 100) pr = 2.5;
+		if (phase < -100) { pr = 0.5; }
+		if (phase > 100) { pr = 2.5; }
 
 		mma1 = new();
 		mma2 = new();
@@ -83,8 +83,7 @@ public class JMA_Series : Single_TSeries_Indicator {
 		vsum = prev_vsum + 0.1 * (volty - volty_10.First());
 		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; }
 		else { vsum_buff.Add(vsum); }
-		if (vsum_buff.Count > (10*_p))
-			vsum_buff.RemoveAt(0);
+		if (vsum_buff.Count > (10 * _p)) { vsum_buff.RemoveAt(0); }
 		double avolty = 0;
 		for (int i = 0; i < vsum_buff.Count; i++) { avolty += vsum_buff[i]; }
 		avolty /= vsum_buff.Count;
@@ -94,10 +93,8 @@ public class JMA_Series : Single_TSeries_Indicator {
 		double len1 = (Math.Log(Math.Sqrt(2.0 * _p)) / Math.Log(2.0)) + 2;
 		if (len1 < 0)	len1 = 0;
 		double pow1 = Math.Max(len1 - 2.0, 0.5);
-		if (rvolty > Math.Pow(len1, 1.0 / pow1))
-			rvolty = Math.Pow(len1, 1.0 / pow1);
-		if (rvolty < 1)
-			rvolty = 1;
+		if (rvolty > Math.Pow(len1, 1.0 / pow1)) { rvolty = Math.Pow(len1, 1.0 / pow1); }
+		if (rvolty < 1) { rvolty = 1; }
 
 		//// from rvolty to second smoothing
 		double pow2 = Math.Pow(rvolty, pow1);

@@ -9,6 +9,7 @@
    * [SMMA - Smoothed Moving Average](SMMA.md)
    * [TRIMA - Triangular Moving Average](TRIMA.md)
    * [DWMA - Double Weighted Moving Average](DWMA.md)
+   * [FMA - Fibonacci Moving Average](FMA.md)
    * [DEMA - Double Exponential MA](DEMA.md)
    * [TEMA - Triple Exponential MA](TEMA.md)
    * [ALMA - Arnaud Legoux Moving Average](ALMA.md)

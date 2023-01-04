@@ -57,7 +57,7 @@
 |⭐EMA - Exponential Moving Average|`EMA_Series`|✔️EMA|✔️GetEma|✔️ema|✔️ema|
 |EPMA - Endpoint Moving Average|||GetEpma||
 |FRAMA - Fractal Adaptive Moving Average|||||
-|FWMA - Fibonacci's Weighted Moving Average||||fwma|
+|FMA - Fibonacci's Weighted Moving Average|`FMA_Series`|||fwma|
 |HILO - Gann High-Low Activator||||hilo|
 |HEMA - Hull/EMA Average|`HEMA_Series`||||
 |Hilbert Transform Instantaneous Trendline||HT_TRENDLINE|GetHtTrendline||
