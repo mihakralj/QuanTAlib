@@ -62,7 +62,7 @@
 |HEMA - Hull/EMA Average|`HEMA_Series`||||
 |Hilbert Transform Instantaneous Trendline||HT_TRENDLINE|GetHtTrendline||
 |⭐HMA - Hull  Moving Average|`HMA_Series`||✔️GetHma|✔️hma|✔️hma|
-|HWMA - Holt-Winter Moving Average||||hwma|
+|HWMA - Holt-Winter Moving Average|`HWMA_Series`|||✔️hwma|
 |JMA - Jurik Moving Average|`JMA_Series`|||jma||
 |KAMA - Kaufman's Adaptive Moving Average|`KAMA_Series`|✔️KAMA|✔️GetKama|✔️kama|✔️kama|
 |KDJ - KDJ Indicator (trend reversal)||||kdj|

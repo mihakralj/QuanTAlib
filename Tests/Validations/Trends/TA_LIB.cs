@@ -74,7 +74,7 @@ public class Ta_Lib
   {
     ATR_Series QL = new(bars, period, false);
     Core.Atr(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
-    for (int i = QL.Length - 1; i > skip * 15; i--)
+    for (int i = QL.Length - 1; i > skip; i--)
     {
       double QL_item = Math.Round(QL[i].v, digits: digits);
       double TA_item = Math.Round(TALIB[i - outBegIdx], digits: digits);
@@ -114,6 +114,7 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
+ 
 	[Fact]
 	public void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -124,6 +125,7 @@ public class Ta_Lib
 			Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+ 
 	[Fact]
   public void CORR()
   {

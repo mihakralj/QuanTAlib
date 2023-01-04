@@ -175,7 +175,18 @@ public class Update {
         Assert.Equal(lastLen, QL.Count); // same size
         Assert.Equal(lastCalc, QL.Last()); // same data
     }
-    [Fact] public void JMA() {
+	[Fact]
+	public void HWMA() {
+		HWMA_Series QL = new(source: bars.Close);
+		var lastData = bars.Close.Last();
+		var lastCalc = QL.Last();
+		int lastLen = QL.Count;
+		QL.Add((DateTime.Today, 0), update: true);
+		QL.Add(lastData, update: true);
+		Assert.Equal(lastLen, QL.Count); // same size
+		Assert.Equal(lastCalc, QL.Last()); // same data
+	}
+	[Fact] public void JMA() {
         JMA_Series QL = new(source: bars.Close, period: period);
         var lastData = bars.Close.Last();
         var lastCalc = QL.Last();

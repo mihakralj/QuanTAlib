@@ -16,6 +16,30 @@ Remark:
 
 </summary> */
 
+public class SMA_Series : Single_TSeries_Indicator {
+	private double _sum, _oldsum;
+	private int _len, _oldlen;
+
+	public SMA_Series(TSeries source, int period = 0, bool useNaN = false) : base(source, period, false) {
+		Reset();
+		if (this._data.Count > 0) { base.Add(this._data); }
+	}
+
+	public override void Add((DateTime t, double v) TValue, bool update) {
+		if (update) { _sum = _oldsum; }
+		else { _oldsum = _sum; _len++; }
+		_sum += TValue.v;
+		if (_period != 0 && _len > _period)
+			_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v);
+		double _div = (_period == 0) ? _len : Math.Min(_len, _period);
+		base.Add((TValue.t, _sum / _div), update, _NaN);
+	}
+	public void Reset() {
+		_sum = _oldsum = 0;
+		_len = _oldlen = 0;
+	}
+}
+/*
 public class SMA_Series : Single_TSeries_Indicator
 {
 	private readonly System.Collections.Generic.List<double> _buffer = new();
@@ -59,4 +83,4 @@ public class SMA_Series : Single_TSeries_Indicator
 
 		base.Add((TValue.t, _sma), update, _NaN);
 	}
-}
+}*/
