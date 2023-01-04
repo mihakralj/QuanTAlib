@@ -15,9 +15,9 @@ Sources:
 </summary> */
 
 public class FMA_Series : Single_TSeries_Indicator {
-	double[,] fib;
+	readonly double[,] fib;
 	double _oldsum;
-	int _len;
+	readonly int _len;
 
 	public FMA_Series(TSeries source, int period) : base(source, period, false) {
 		_len = period;
