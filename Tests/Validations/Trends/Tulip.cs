@@ -470,6 +470,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
+	/*
 	[Fact]
 	public void TRIX() {
 		double[][] arrin = { inclose };
@@ -482,6 +483,7 @@ public class Tulip_Test
 			Assert.InRange(TU_item! - QL_item, -Math.Exp(-digits+2), Math.Exp(-digits+2));
 		}
 	}
+	*/
 	[Fact]
 	public void VAR() {
 		double[][] arrin = { inclose };

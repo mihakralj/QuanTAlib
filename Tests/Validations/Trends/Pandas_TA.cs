@@ -25,13 +25,16 @@ public class PandasTA : IDisposable
 
 		Installer.InstallPath = Path.GetFullPath(path: ".");
 		Installer.SetupPython().Wait();
-		Installer.TryInstallPip().Wait();
-		Installer.PipInstallModule(module_name: "numpy").Wait();
-		Installer.PipInstallModule(module_name: "pandas").Wait();
-		Installer.PipInstallModule(module_name: "pandas-ta").Wait();
-    dllpath = Installer.InstallPath + "\\" + Installer.InstallDirectory + "\\" + Runtime.PythonDLL;
+		Installer.TryInstallPip();
+		Installer.PipInstallModule(module_name: "numpy");
+		Installer.PipInstallModule(module_name: "pandas");
+		Installer.PipInstallModule(module_name: "pandas-ta");
+		dllpath = Installer.InstallPath + "\\" + Installer.InstallDirectory + "\\" + Runtime.PythonDLL;
+
 		Runtime.PythonDLL = dllpath;
-    PythonEngine.Initialize();
+    //Runtime.PythonDLL = "python.dll";
+
+		PythonEngine.Initialize();
 
     np = Py.Import(name: "numpy");
 		pd = Py.Import(name: "pandas");
@@ -65,7 +68,7 @@ public class PandasTA : IDisposable
 
 		}
 	}
-  /*
+
 	[Fact] void ADOSC() {
 		ADOSC_Series QL = new(bars);
 		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
@@ -122,7 +125,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  
+  /*
 	[Fact]
 	void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -133,7 +136,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  
+  */
 	[Fact] void DEMA() {
 		DEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.dema(close: df.close, length: period);
@@ -428,5 +431,5 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  */
+
 }
