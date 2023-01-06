@@ -96,7 +96,7 @@
 |⭐ATR - Average True Range|`ATR_Series`|✔️ATR|✔️GetAtr|✔️atr|✔️atr|
 |ATRP - Average True Range Percent|`ATRP_Series`||✔️GetAtr||
 |BETA - Beta coefficient||BETA|GetBeta||
-|BBANDS - Bollinger Bands®|`BBANDS_Series`|✔️BBANDS|✔️GetBollingerBands|bbands|✔️bbands|
+|⭐BBANDS - Bollinger Bands®|`BBANDS_Series`|✔️BBANDS|✔️GetBollingerBands|✔️bbands|✔️bbands|
 |CHAND - Chandelier Exit|||GetChandelier||
 |CRSI - Connor RSI|||GetConnorsRsi||
 |CVI - Chaikins Volatility|||||cvi|

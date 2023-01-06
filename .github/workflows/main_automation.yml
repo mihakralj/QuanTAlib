@@ -52,21 +52,21 @@ jobs:
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core DLL
-      run: dotnet build ./Source/QuanTAlib.csproj --verbosity normal --configuration Release --nologo
+      run: dotnet build ./Source/QuanTAlib.csproj --verbosity minimal --configuration Release --nologo
     - name: Build Quantower DLL
-      run: dotnet build ./Quantower/Quantower.csproj --verbosity normal --configuration Release --nologo
+      run: dotnet build ./Quantower/Quantower.csproj --verbosity minimal --configuration Release --nologo
 
     - name: dotnet Test
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet test ./Tests/Tests.csproj --verbosity normal --configuration Release --nologo
+      #if: ${{ github.ref == 'refs/heads/dev' }}
+      run: dotnet test ./Tests/Tests.csproj --verbosity minimal --framework net7.0 --configuration Release --nologo
     - name: DotCover Test XML
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
+      #if: ${{ github.ref == 'refs/heads/dev' }}
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
     - name: DotCover Test HTML
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity normal --framework net7.0 --dcReportType=HTML --dcoutput=./coveragereport.html
-#    - name: dotnet-coverage
-#      run: dotnet-coverage collect 'dotnet test' -f xml -o './coverage.xml'
+      #if: ${{ github.ref == 'refs/heads/dev' }}
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --framework net7.0 --dcReportType=HTML --dcoutput=./coveragereport.html
+    - name: dotnet-coverage
+      run: dotnet-coverage collect 'dotnet test' -f xml -o './coverage.xml'
 
     - name: Sonar reporter
       env:

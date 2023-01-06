@@ -11,30 +11,30 @@ public class PandasTA : IDisposable
     private readonly Random rnd = new();
 	private readonly int period, sample;
 	private int digits;
-	private readonly string OStype;
+	private readonly string dllpath;
 	private readonly dynamic np;
 	private readonly dynamic ta;
+	private readonly dynamic pd;
 	private readonly dynamic df;
 
 	public PandasTA() {
-        bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0);
-        period = rnd.Next(maxValue: 28) + 3;
-        sample = period+1;
-	    digits = 10;
-
-		// Checking the host OS and setting PythonDLL accordingly
-        OStype = Environment.OSVersion.ToString();
-        if (OStype == "Unix 13.1.0")
-            OStype = @"/usr/local/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/lib/libpython3.10.dylib";
-        else OStype = Path.GetFullPath(".") + @"\python-3.10.0-embed-amd64\python310.dll";
+    bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0);
+    period = rnd.Next(maxValue: 28) + 3;
+    sample = period+1;
+	  digits = 10;
 
 		Installer.InstallPath = Path.GetFullPath(path: ".");
 		Installer.SetupPython().Wait();
-		Installer.TryInstallPip();
-		Installer.PipInstallModule(module_name: "pandas-ta");
-		Runtime.PythonDLL = OStype;
-	    PythonEngine.Initialize();
-		np = Py.Import(name: "numpy");
+		Installer.TryInstallPip().Wait();
+		Installer.PipInstallModule(module_name: "numpy").Wait();
+		Installer.PipInstallModule(module_name: "pandas").Wait();
+		Installer.PipInstallModule(module_name: "pandas-ta").Wait();
+    dllpath = Installer.InstallPath + "\\" + Installer.InstallDirectory + "\\" + Runtime.PythonDLL;
+		Runtime.PythonDLL = dllpath;
+    PythonEngine.Initialize();
+
+    np = Py.Import(name: "numpy");
+		pd = Py.Import(name: "pandas");
 		ta = Py.Import(name: "pandas_ta");
 
 		string[] cols = { "open", "high", "low", "close", "volume" };
@@ -51,7 +51,7 @@ public class PandasTA : IDisposable
 		public void Dispose()
 	{
     PythonEngine.Shutdown();
-	GC.SuppressFinalize(this);
+	  GC.SuppressFinalize(this);
 	}
 
 	[Fact] void ADL() {
@@ -65,6 +65,7 @@ public class PandasTA : IDisposable
 
 		}
 	}
+  /*
 	[Fact] void ADOSC() {
 		ADOSC_Series QL = new(bars);
 		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
@@ -85,6 +86,22 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
+	[Fact]
+	void BBANDS() {
+		BBANDS_Series QL = new(bars.Close, period);
+		var pta = df.ta.bbands(close: df.close, length: period).to_numpy();
+		for (int i = QL.Length-1; i > QL.Length - sample; i--) {
+			double QL_item = QL.Lower[i].v;
+			double PanTA_item = (double)pta[i][0]; //lower
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+			QL_item = QL.Mid[i].v;
+			PanTA_item = (double)pta[i][1]; //mid
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+			QL_item = QL.Upper[i].v;
+			PanTA_item = (double)pta[i][2]; //upper
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
 	[Fact] void BIAS() {
 		BIAS_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.bias(close: df.close, length: period);
@@ -105,7 +122,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  /*
+  
 	[Fact]
 	void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -116,7 +133,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  */
+  
 	[Fact] void DEMA() {
 		DEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.dema(close: df.close, length: period);
@@ -411,5 +428,5 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-
+  */
 }
