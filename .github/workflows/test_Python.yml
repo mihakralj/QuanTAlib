@@ -1,0 +1,52 @@
+name: Python_included
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build_test:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET 7.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: |
+          7.0.x
+          5.0.x
+        include-prerelease: true
+
+    - name: Install Python
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        check-latest: true
+        cache: 'pip'
+        cache-dependency-path: '**/requirements.txt'
+    - run: pip install -r worklflows/requirements.txt
+
+    - name: Install JDK11 for Sonar Scanner
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.11
+
+    - name: Install GitVersion
+      run: dotnet tool install GitVersion.Tool --global
+    - name: Install JetBrains
+      run: dotnet tool install JetBrains.dotCover.GlobalTool --global
+    - name: Install Sonar Scanner
+      run: dotnet tool install dotnet-sonarscanner --global
+    - name: Install dotnet-coverage
+      run: dotnet tool install dotnet-coverage --global
+    - name: Install CodeCov
+      run: dotnet tool install --global Codecov.Tool
+
