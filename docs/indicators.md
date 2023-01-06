@@ -29,9 +29,9 @@
 |BIAS - Bias|`BIAS_Series`|||✔️bias|
 |CORR - Pearson's Correlation Coefficient|`CORR_Series`|✔️CORREL|✔️GetCorrelation||
 |COVAR - Covariance|`COVAR_Series`||✔️GetCorrelation||
-|DECAY - Linear Decay|||||decay|
-|EDECAY - Exponential Decay|||||edecay|
-|ENTROPY - Entropy|`ENTROPY_Series`|||✔️entropy|
+|DECAY - Linear Decay|`DECAY_Series`|||decay|✔️decay|
+|EDECAY - Exponential Decay|`DECAY_Series`|||decay|✔️edecay|
+|ENTROPY - Entropy|`ENTROPY_Series`|||entropy||
 |KURTOSIS - Kurtosis|`KURT_Series`|||✔️kurtosis|
 |LINREG - Linear Regression|`LINREG_Series`||✔️GetSlope||✔️linregslope|
 |MAD - Mean Absolute Deviation|`MAD_Series`||✔️GetSmaAnalysis|✔️mad|
@@ -52,7 +52,7 @@
 ||||||
 |AFIRMA - Autoregressive Finite Impulse Response Moving Average|||||
 |ALMA - Arnaud Legoux Moving Average|`ALMA_Series`||✔️GetAlma|alma|
-|DEMA - Double EMA Average|`DEMA_Series`|✔️DEMA|✔️GetDema|✔️dema|❌dema|
+|DEMA - Double EMA Average|`DEMA_Series`|✔️DEMA|✔️GetDema|✔️dema|✔️dema|
 |DWMA - Double WMA Average|`DWMA_Series`|||||
 |⭐EMA - Exponential Moving Average|`EMA_Series`|✔️EMA|✔️GetEma|✔️ema|✔️ema|
 |EPMA - Endpoint Moving Average|||GetEpma||
@@ -80,8 +80,8 @@
 |SSF - Ehler's Super Smoother Filter||||ssf|
 |SUPERTREND - Supertrend||||supertrend|
 |SWMA - Symmetric Weighted Moving Average||||swma|
-|T3 - Tillson T3 Moving Average|`T3_Series`|✔️T3|✔️GetT3|✔️t3|
-|TEMA - Triple EMA Average|`TEMA_Series`|✔️TEMA|✔️GetTema|✔️tema|❌tema|
+|T3 - Tillson T3 Moving Average|`T3_Series`|✔️T3|✔️GetT3|✔️t3||
+|⭐TEMA - Triple EMA Average|`TEMA_Series`|✔️TEMA|✔️GetTema|✔️tema|✔️tema|
 |⭐TRIMA - Triangular Moving Average|`TRIMA_Series`|✔️TRIMA||✔️trima|✔️trima|
 |TSF - Time Series Forecast||TSF|||
 |VIDYA - Variable Index Dynamic Average||||vidya|vidya|
@@ -93,10 +93,10 @@
 ||||||
 |⭐ADL - Chaikin Accumulation Distribution Line|`ADL_Series`|✔️AD|✔️GetAdl|✔️ad|✔️ad|
 |⭐ADOSC - Chaikin Accumulation Distribution Oscillator|`ADOSC_Series`|✔️ADOSC||✔️adosc|✔️adosc|
-|ATR - Average True Range|`ATR_Series`|✔️ATR|❌GetAtr|✔️atr|✔️atr|
-|ATRP - Average True Range Percent|`ATRP_Series`||❌GetAtr||
+|⭐ATR - Average True Range|`ATR_Series`|✔️ATR|✔️GetAtr|✔️atr|✔️atr|
+|ATRP - Average True Range Percent|`ATRP_Series`||✔️GetAtr||
 |BETA - Beta coefficient||BETA|GetBeta||
-|BBANDS - Bollinger Bands®|`BBANDS_Series`|✔️BBANDS|✔️GetBollingerBands||✔️bbands|
+|BBANDS - Bollinger Bands®|`BBANDS_Series`|✔️BBANDS|✔️GetBollingerBands|bbands|✔️bbands|
 |CHAND - Chandelier Exit|||GetChandelier||
 |CRSI - Connor RSI|||GetConnorsRsi||
 |CVI - Chaikins Volatility|||||cvi|

@@ -39,17 +39,17 @@ public class KAMA_Series : Single_TSeries_Indicator
   {
     if (update){
       _buffer[_buffer.Count - 1] = TValue.v;
-      this._lastkama = this._lastlastkama;
-    } else {
+      _lastkama = _lastlastkama;
+    }
+    else {
       _buffer.Add(TValue.v);
+      _lastlastkama = _lastkama;
     }
     if (_buffer.Count > _p + 1) { _buffer.RemoveAt(0); }
 
     double _kama = 0;
-    if (this.Count < this._p) {
-        for (int i = 0; i < this._buffer.Count; i++) { _kama += this._buffer[i]; }
-        _kama /= this._buffer.Count;
-    } else {
+    if (this.Count < this._p) { _kama = TValue.v; }
+    else {
       double _change = Math.Abs(_buffer[_buffer.Count - 1] - _buffer[(_buffer.Count > _p + 1) ? 1 : 0]);
       double _sumpv = 0;
       for (int i = 1; i < _buffer.Count; i++)
@@ -58,8 +58,7 @@ public class KAMA_Series : Single_TSeries_Indicator
       double _sc = (_er * (_scFast - _scSlow)) + _scSlow;
       _kama = (_lastkama + (_sc * _sc * (TValue.v - _lastkama)));
     }
-    _lastlastkama = _lastkama;
     _lastkama = _kama;
         base.Add((TValue.t, _kama), update, _NaN);
-        }
+  }
 }

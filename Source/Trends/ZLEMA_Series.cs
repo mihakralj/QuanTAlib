@@ -26,13 +26,15 @@ public class ZLEMA_Series : Single_TSeries_Indicator
 	private readonly double _k, _k1m;
 	private double _lastema, _lastema_o;
 	private int _llag;
+	private readonly bool _useSMA;
 
-	public ZLEMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
+	public ZLEMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
 	{
 		this._k = 2.0 / (this._p + 1);
 		this._k1m = 1.0 - this._k;
 		this._lastema = this._lastema_o = double.NaN;
 		_llag = (int)((_p-1) * 0.5);
+		_useSMA = useSMA;
 		if (_data.Count > 0) { base.Add(_data); }
 	}
 
@@ -47,7 +49,7 @@ public class ZLEMA_Series : Single_TSeries_Indicator
         double _zl = TValue.v + (TValue.v - _data[_lag].v);
 		double _ema = 0;
 
-		if (this.Count < this._p) {
+		if (this.Count < this._p && _useSMA) {
 			 Add_Replace_Trim(_buffer, _zl, _p, update);
 			_ema = _buffer.Average();
 		} else {

@@ -21,7 +21,8 @@ public class SMA_Series : Single_TSeries_Indicator {
 	private int _len, _oldlen;
 
 	public SMA_Series(TSeries source, int period = 0, bool useNaN = false) : base(source, period, false) {
-		Reset();
+		_sum = _oldsum = 0;
+		_len = _oldlen = 0;
 		if (this._data.Count > 0) { base.Add(this._data); }
 	}
 

@@ -114,7 +114,18 @@ public class Update {
         Assert.Equal(lastLen, QL.Count); // same size
         Assert.Equal(lastCalc, QL.Last()); // same data
     }
-    [Fact] public void DEMA() {
+	[Fact]
+	public void DECAY() {
+		DECAY_Series QL = new(source: bars.Close, period: period);
+		var lastData = bars.Close.Last();
+		var lastCalc = QL.Last();
+		int lastLen = QL.Count;
+		QL.Add((DateTime.Today, 0), update: true);
+		QL.Add(lastData, update: true);
+		Assert.Equal(lastLen, QL.Count); // same size
+		Assert.Equal(lastCalc, QL.Last()); // same data
+	}
+	[Fact] public void DEMA() {
         DEMA_Series QL = new(source: bars.Close, period: period);
         var lastData = bars.Close.Last();
         var lastCalc = QL.Last();

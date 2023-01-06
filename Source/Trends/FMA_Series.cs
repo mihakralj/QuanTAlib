@@ -10,7 +10,7 @@ FMA: Fibonacci Moving Average
 
 Sources:
     https://kaabar-sofien.medium.com/the-fibonacci-moving-average-the-full-guide-60e718117595
-	  https://www.tradingview.com/script/6pxgp2vh-Fibonacci-Moving-Average-FMA/
+	https://usethinkscript.com/threads/fibonacci-moving-average.8099/
 
 </summary> */
 

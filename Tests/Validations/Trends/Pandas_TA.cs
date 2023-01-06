@@ -1,4 +1,3 @@
-/*
 using Xunit;
 using System;
 using QuanTAlib;
@@ -60,8 +59,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.ad(high: df.high, low: df.low, close:df.close, volume:df.volume);
 		for (int i = QL.Length; i > QL.Length-sample; i--)
 		{
-            double QL_item = Math.Round(QL[i-1].v, digits: digits);
-			double PanTA_item = Math.Round((double)pta[i-1], digits: digits);
+            double QL_item = QL[i-1].v;
+			double PanTA_item = (double)pta[i-1];
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 
 		}
@@ -71,8 +70,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -81,8 +80,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.atr(high: df.high, low: df.low, close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -91,30 +90,40 @@ public class PandasTA : IDisposable
 		var pta = df.ta.bias(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-
+	[Fact]
+	void CCI() {
+		CCI_Series QL = new(bars, period, false);
+		var pta = df.ta.cci(close: df.close, length: period);
+		for (int i = QL.Length; i > QL.Length - sample; i--) {
+			double QL_item = QL[i - 1].v;
+			double PanTA_item = (double)pta[i - 1];
+			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+		}
+	}
+  /*
 	[Fact]
 	void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.cmo(close: df.close, length: period);
 		for (int i = QL.Length; i > QL.Length - sample; i--) {
-			double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-			double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+			double QL_item = QL[i - 1].v;
+			double PanTA_item = (double)pta[i - 1];
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-
+  */
 	[Fact] void DEMA() {
 		DEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.dema(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -123,8 +132,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.ema(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -133,8 +142,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.entropy(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -142,8 +151,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.hl2(high: df.high, low: df.low);
         for (int i = bars.HL2.Length; i > bars.HL2.Length-sample; i--)
         {
-            double QL_item = Math.Round(bars.HL2[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = bars.HL2[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 	}
@@ -151,8 +160,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.hlc3(high: df.high, low: df.low, close: df.close);
         for (int i = bars.HLC3.Length; i > bars.HLC3.Length-sample; i--)
         {
-            double QL_item = Math.Round(bars.HLC3[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = bars.HLC3[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -161,8 +170,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.hma(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 
@@ -183,8 +192,8 @@ public class PandasTA : IDisposable
         var pta = df.ta.kama(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -193,8 +202,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.kurtosis(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
   }
@@ -217,8 +226,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.mad(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -227,8 +236,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.median(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -237,8 +246,8 @@ public class PandasTA : IDisposable
         var pta = df.ta.obv(close: df.close, volume: df.volume);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -246,8 +255,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.ohlc4(open: df.open, high: df.high, low: df.low, close: df.close);
         for (int i = bars.OHLC4.Length; i > bars.OHLC4.Length-sample; i--)
         {
-            double QL_item = Math.Round(bars.OHLC4[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = bars.OHLC4[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
 	}
@@ -256,8 +265,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.rma(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -266,8 +275,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.rsi(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -276,8 +285,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.stdev(close: df.close, length: period, ddof: 0);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -286,8 +295,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.sma(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -296,8 +305,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.stdev(close: df.close, length: period, ddof: 1);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -306,8 +315,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.variance(close: df.close, length: period, ddof: 1);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -317,8 +326,8 @@ public class PandasTA : IDisposable
         var pta = df.ta.t3(close: df.close, length: period, a: 0.7);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -327,8 +336,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.tema(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -337,8 +346,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.true_range(high: df.high, low: df.low, close: df.close);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -348,8 +357,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.trima(close: df.close, length: 11);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -357,8 +366,8 @@ public class PandasTA : IDisposable
 		TRIX_Series QL = new(bars.Close, period);
 		var pta = df.ta.trix(close: df.close, length: period).to_numpy();
 		for (int i = QL.Length; i > QL.Length - sample; i--) {
-			double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-			double PanTA_item = Math.Round((double)pta[i - 1][0], digits: digits);
+			double QL_item = QL[i - 1].v;
+			double PanTA_item = (double)pta[i - 1][0];
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
@@ -367,8 +376,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.variance(close: df.close, length: period, ddof:0);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -377,8 +386,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.wma(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -387,8 +396,8 @@ public class PandasTA : IDisposable
 		var pta = df.ta.zlma(close: df.close, length: period);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
@@ -397,11 +406,10 @@ public class PandasTA : IDisposable
 		var pta = df.ta.zscore(close: df.close, length: period, ddof: 0);
         for (int i = QL.Length; i > QL.Length-sample; i--)
         {
-            double QL_item = Math.Round(QL[i - 1].v, digits: digits);
-            double PanTA_item = Math.Round((double)pta[i - 1], digits: digits);
+            double QL_item = QL[i - 1].v;
+            double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
 
 }
-*/
