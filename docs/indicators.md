@@ -75,7 +75,7 @@
 |PWMA - Pascal's Weighted Moving Average||||pwma|
 |⭐RMA - WildeR's Moving Average|`RMA_Series`|||✔️rma|✔️rma|
 |SINWMA - Sine Weighted Moving Average||||sinwma|
-|⭐SMA - Simple Moving Average|`SMA_Series`|✔️SMA|✔️GetSma|✔️sma|✔️sma|
+|⭐[SMA - Simple Moving Average](SMA.md)|`SMA_Series`|✔️SMA|✔️GetSma|✔️sma|✔️sma|
 |SMMA - Smoothed Moving Average|`SMMA_Series`||✔️GetSmma||
 |SSF - Ehler's Super Smoother Filter||||ssf|
 |SUPERTREND - Supertrend||||supertrend|
