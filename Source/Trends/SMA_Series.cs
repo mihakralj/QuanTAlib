@@ -21,7 +21,8 @@ public class SMA_Series : Single_TSeries_Indicator {
 	private int _len, _oldlen;
 
 	public SMA_Series(TSeries source, int period = 0, bool useNaN = false) : base(source, period, false) {
-		Reset();
+		_sum = _oldsum = 0;
+		_len = _oldlen = 0;
 		if (this._data.Count > 0) { base.Add(this._data); }
 	}
 
@@ -29,8 +30,9 @@ public class SMA_Series : Single_TSeries_Indicator {
 		if (update) { _sum = _oldsum; }
 		else { _oldsum = _sum; _len++; }
 		_sum += TValue.v;
-		if (_period != 0 && _len > _period)
-			_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v);
+		if (_period != 0 && _len > _period) { 
+			_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v); 
+		}
 		double _div = (_period == 0) ? _len : Math.Min(_len, _period);
 		base.Add((TValue.t, _sum / _div), update, _NaN);
 	}
@@ -39,48 +41,3 @@ public class SMA_Series : Single_TSeries_Indicator {
 		_len = _oldlen = 0;
 	}
 }
-/*
-public class SMA_Series : Single_TSeries_Indicator
-{
-	private readonly System.Collections.Generic.List<double> _buffer = new();
-	private double _sma, _oldsma;
-	private double _topv, _oldtopv;
-	public SMA_Series(TSeries source, int period, bool useNaN = false) : base(source, period, useNaN)
-	{
-		if (base._data.Count > 0)
-		{ base.Add(base._data); }
-	}
-	public override void Add((System.DateTime t, double v) TValue, bool update)
-	{
-		_topv = Add_Replace_Trim(_buffer, TValue.v, _p, update);
-
-		// rolling back if update, storing data for potential future update
-		if (update)
-		{
-			_sma = _oldsma;
-			_topv = _oldtopv;
-		}
-		else
-		{
-			_oldsma = _sma;
-			_oldtopv = _topv;
-		}
-
-		// main additive calculation of SMA - for data points that are larger than _p period
-		// this.Count > _p
-		if (this.Count > _p)
-		{
-			_sma += (TValue.v - _topv) / _p;
-		}
-		else
-		{
-			// calculate SMA the traditional way (sum all, divide with _p) for data points within _p period
-			_sma = 0;
-			for (int i = 0; i < _buffer.Count; i++)
-			{ _sma += _buffer[i]; }
-			_sma /= _buffer.Count;
-		}
-
-		base.Add((TValue.t, _sma), update, _NaN);
-	}
-}*/
