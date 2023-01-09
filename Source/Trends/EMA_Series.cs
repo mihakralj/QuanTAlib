@@ -20,43 +20,51 @@ Issues:
 
 </summary> */
 
-public class EMA_Series : Single_TSeries_Indicator
-{
-    private readonly System.Collections.Generic.List<double> _buffer = new();
-    private readonly double _k, _k1m;
-    private double _lastema, _lastlastema;
-    private readonly bool _useSMA;
+public class EMA_Series : Single_TSeries_Indicator {
+	private double _k;
+	private double _lastema, _lastlastema;
+	private double _sum, _oldsum;
+	private int _len, _oldlen;
+	private readonly bool _useSMA;
 
-    public EMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
-    {
-        this._k = 2.0 / (this._p + 1);
-        this._k1m = 1.0 - this._k;
-        this._lastema = this._lastlastema = 0;
-        _useSMA = useSMA;
-        if (this._data.Count > 0) { base.Add(this._data); }
-    }
+	public EMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN) {
+		this._k = 2.0 / (this._p + 1);
+		_sum = _oldsum = _lastema = _lastlastema = 0;
+		_len = _oldlen = 0;
+		_useSMA = useSMA;
+		if (this._data.Count > 0) { base.Add(this._data); }
+	}
 
-    public override void Add((DateTime t, double v) TValue, bool update)
-    {
-        double _ema;
-        if (update) { this._lastema = this._lastlastema; }
-        if (this.Count == 0) { _lastema = TValue.v; }
+	public override void Add((DateTime t, double v) TValue, bool update) {
+		double _ema = 0;
+		if (update) { _lastema = _lastlastema; _sum = _oldsum; }
+		else { _lastlastema = _lastema; _oldsum = _sum; _len++; }
 
-        if (this.Count < this._p && _useSMA)
-        {
-            Add_Replace(_buffer, TValue.v, update);
-            _ema = 0;
-            for (int i = 0; i < _buffer.Count; i++) { _ema += _buffer[i]; }
-            _ema /= _buffer.Count;
-        }
-        else
-        {
-            _ema = (TValue.v * this._k) + (this._lastema * this._k1m);
-        }
+		// when period = 0, create cumulative/additive series where _k is progressively larger
+		if (_period == 0) { _k = 2.0 / (_len + 1); }
 
-        this._lastlastema = this._lastema;
-        this._lastema = _ema;
+		// the first value of the series
+		if (this.Count == 0) {
+			_ema = _sum = TValue.v;
+		}
+		// if SMA is used for seeding, calculate SMA within period
+		else if (_len <= _period && _useSMA && _p != 0) {
+			_sum += TValue.v;
+			if (_period != 0 && _len > _period) {
+				_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v);
+			}
+			_ema = _sum / Math.Min(_len, _period);
+		}
+		// calculate EMA out from last EMA and factor k
+		else {
+			_ema = _k * (TValue.v - _lastema) + _lastema;
+		}
+		_lastema = _ema;
 
-        base.Add((TValue.t, _ema), update, _NaN);
-    }
+		base.Add((TValue.t, _ema), update, _NaN);
+	}
+	public void Reset() {
+		_sum = _oldsum = _lastema = _lastlastema = 0;
+		_len = _oldlen = 0;
+	}
 }
