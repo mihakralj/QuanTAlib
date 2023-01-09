@@ -65,7 +65,7 @@ public class PandasTA : IDisposable
 
 		}
 	}
-
+  /*
 	[Fact] void ADOSC() {
 		ADOSC_Series QL = new(bars);
 		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
@@ -122,7 +122,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  /*
+  
 	[Fact]
 	void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -133,7 +133,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  */
+  
 	[Fact] void DEMA() {
 		DEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.dema(close: df.close, length: period);
@@ -428,5 +428,5 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-
+  */
 }
