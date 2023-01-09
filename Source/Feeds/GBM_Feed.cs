@@ -34,6 +34,7 @@ public class GBM_Feed : TBars
         }
     }
 
+    public void Add(bool update = false) {this.Add(DateTime.Now, update);}
     public void Add(DateTime timestamp, bool update = false) {
         double Open = GBM_value(seed, volatility*volatility, drift, precision);
         double Close = GBM_value(Open, volatility, drift, precision);

@@ -39,12 +39,6 @@ QuanTAlib uses validation tests with four other TA libraries to assure accuracy 
 - [Pandas-TA](https://twopirllc.github.io/pandas-ta/)
 - [Tulip Indicators](https://tulipindicators.org/)
 
-### Performance
+### Questions
 
-Is QuanTAlib fast? Well, _no_, but actually *yes*. QuanTAlib works on an additive principle, meaning that even when served a full list of quotes, QuanTAlib will process one item at the time, rolling forward throug time series of data.
-- If the last bar is still forming (parameter `update: true`), QuanTAlib easily recalculates the last entry as often as needed without any need to recalculate the history.
-- If a new bar is added to the input, QuanTAlib will process that one item (default parameter `update: false`) and add that one result to the List. No recalculation of the history needed.
-
-If you feed QuanTAlib 500 historical bars and calculate EMA(20) on it, the performance of QuanTAlib will be dead last compared to all other TA libraries.
-
-But when system uses 10,000 historical bars, does updates to the current/last bar every tick, and adds a new bar every minute, QuanTAlib has no rivals; all other libraries need to re-calculate the full length of the array on each  update/addition to the time series. Longer the series and more updates/additions it gets, more advantage for QuanTAlib.
+[Some most common questions addressed](QA.md)

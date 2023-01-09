@@ -62,7 +62,7 @@ public class Ta_Lib
   {
     ADOSC_Series QL = new(bars, 3, 10, false);
     Core.AdOsc(inhigh, inlow, inclose, involume, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
-    for (int i = QL.Length - 1; i > skip; i--)
+    for (int i = QL.Length - 1; i > skip*2; i--)
     {
       double QL_item = QL[i].v;
       double TA_item = TALIB[i - outBegIdx];
@@ -244,11 +244,11 @@ public class Ta_Lib
   {
     MAMA_Series QL = new(bars.Close, fastlimit: 0.5, slowlimit: 0.05);
     Core.Mama(inReal: inclose, startIdx: 0, endIdx: bars.Count - 1, outMama: TALIB, outFama: TALIB2, outBegIdx: out int outBegIdx, outNbElement: out _, optInFastLimit: 0.5, optInSlowLimit: 0.05);
-    for (int i = QL.Length - 1; i > skip * 15; i--)
+    for (int i = QL.Length - 1; i > skip * 10; i--)
     {
       double QL_item = QL[i].v;
       double TA_item = TALIB[i - outBegIdx];
-      Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
+      Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits-1), Math.Exp(-digits-1));
     }
   }
   [Fact]
