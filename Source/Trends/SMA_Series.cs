@@ -29,6 +29,7 @@ public class SMA_Series : Single_TSeries_Indicator {
 	public override void Add((DateTime t, double v) TValue, bool update) {
 		if (update) { _sum = _oldsum; }
 		else { _oldsum = _sum; _len++; }
+
 		_sum += TValue.v;
 		if (_period != 0 && _len > _period) { 
 			_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v); 

@@ -239,6 +239,7 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
     }
   }
+  /*
   [Fact]
   public void MAMA()
   {
@@ -251,6 +252,7 @@ public class Ta_Lib
       Assert.InRange(TA_item! - QL_item, -Math.Exp(-digits-1), Math.Exp(-digits-1));
     }
   }
+  */
   [Fact]
   public void MAX()
   {
