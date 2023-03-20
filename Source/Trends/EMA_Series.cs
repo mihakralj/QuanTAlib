@@ -24,22 +24,23 @@ public class EMA_Series : Single_TSeries_Indicator {
 	private double _k;
 	private double _lastema, _lastlastema;
 	private double _sum, _oldsum;
-	private int _len, _oldlen;
+	private int _len;
 	private readonly bool _useSMA;
 
 	public EMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN) {
-		this._k = 2.0 / (this._p + 1);
+		_k = 2.0 / (_p + 1);
 		_sum = _oldsum = _lastema = _lastlastema = 0;
-		_len = _oldlen = 0;
+		_len = 0;
 		_useSMA = useSMA;
 		if (this._data.Count > 0) { base.Add(this._data); }
 	}
 
 	public override void Add((DateTime t, double v) TValue, bool update) {
-		double _ema = 0;
+
 		if (update) { _lastema = _lastlastema; _sum = _oldsum; }
 		else { _lastlastema = _lastema; _oldsum = _sum; _len++; }
 
+		double _ema = 0;
 		// when period = 0, create cumulative/additive series where _k is progressively larger
 		if (_period == 0) { _k = 2.0 / (_len + 1); }
 
@@ -48,7 +49,7 @@ public class EMA_Series : Single_TSeries_Indicator {
 			_ema = _sum = TValue.v;
 		}
 		// if SMA is used for seeding, calculate SMA within period
-		else if (_len <= _period && _useSMA && _p != 0) {
+		else if (_len <= _period && _useSMA && _period != 0) {
 			_sum += TValue.v;
 			if (_period != 0 && _len > _period) {
 				_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v);
@@ -65,6 +66,6 @@ public class EMA_Series : Single_TSeries_Indicator {
 	}
 	public void Reset() {
 		_sum = _oldsum = _lastema = _lastlastema = 0;
-		_len = _oldlen = 0;
+		_len =  0;
 	}
 }

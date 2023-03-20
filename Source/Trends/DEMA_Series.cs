@@ -19,51 +19,57 @@ Remark:
 
 public class DEMA_Series : Single_TSeries_Indicator
 {
-    private readonly System.Collections.Generic.List<double> _buffer1 = new();
-    private readonly System.Collections.Generic.List<double> _buffer2 = new();
-    private readonly double _k;
+  private readonly double _k;
+	private int _len;
 	private readonly bool _useSMA;
+  private double _sum, _lastsum, _lastlastsum;
 	private double _lastema1, _lastlastema1;
-    private double _lastema2, _lastlastema2;
+  private double _lastema2, _lastlastema2;
 
     public DEMA_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
     {
-        _k = 2.0 / (_p + 1);
+    _k = 2.0 / (_p + 1);
+		_len = 0;
 		_useSMA = useSMA;
-    _lastema1 = _lastema2 =0;
+    _sum = _lastema1 = _lastema2 =0;
 		if (_data.Count > 0) { base.Add(_data); }
     }
 
     public override void Add((DateTime t, double v) TValue, bool update)
     {
-        if (update)
-        {
-            _lastema1 = _lastlastema1;
-            _lastema2 = _lastlastema2;
-        }
+    if (update) {
+      _lastsum = _lastlastsum;
+      _lastema1 = _lastlastema1;
+      _lastema2 = _lastlastema2;
+    } 
+    else {
+      _lastlastsum = _lastsum;
+			_lastlastema1 = _lastema1;
+			_lastlastema2 = _lastema2;
+      _len++;
+		}
 
-        double _ema1, _ema2, _dema;
-        if (this.Count < _p && _useSMA)
-        {
-            Add_Replace_Trim(_buffer1, TValue.v, _p, update);
-            _ema1 = 0;
-            for (int i=0; i<_buffer1.Count; i++) { _ema1 += _buffer1[i]; }
-            _ema1 /= _buffer1.Count;
-            _ema2 = _ema1;
-        }
-        else
-        {
-            _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
-            _ema2 = (_ema1 - _lastema2) * _k + _lastema2;
-            
-        }
-        _dema = 2*_ema1 - _ema2;
+    double _ema1, _ema2, _dema;
+		if (this.Count == 0) {
+			_ema1 = _ema2 = _sum = TValue.v;
+		}
+		else if (_len <= _period && _useSMA && _period != 0) {
+			_sum += TValue.v;
+			if (_period != 0 && _len > _period) {
+				_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v);
+			}
+			_ema1 = _sum / Math.Min(_len, _period);
+			_ema2 = _ema1;
+    }
+    else {
+      _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
+      _ema2 = (_ema1 - _lastema2) * _k + _lastema2;
+    }
+    _dema = 2*_ema1 - _ema2;
 
-        this._lastlastema1 = this._lastema1;
-        this._lastlastema2 = this._lastema2;
-        this._lastema1 = _ema1;
-        this._lastema2 = _ema2;
+		_lastema1 = _ema1;
+		_lastema2 = _ema2;
 
-        base.Add((TValue.t, _dema), update, _NaN);
+		base.Add((TValue.t, _dema), update, _NaN);
     }
 }

@@ -45,7 +45,7 @@ public class JMA_Series : Single_TSeries_Indicator {
 	}
 
 	public override void Add((System.DateTime t, double v) TValue, bool update) {
-		if (this.Count == 0) { prev_ma1 = TValue.v; }
+		if (this.Count == 0) { prev_ma1 = prev_jma = TValue.v; }
 		if (update) {
 			upperBand = p_upperBand;
 			lowerBand = p_lowerBand;
@@ -81,6 +81,7 @@ public class JMA_Series : Single_TSeries_Indicator {
 		else { volty_10.Add(volty); }
 		if (volty_10.Count > 10) { volty_10.RemoveAt(0); }
 		vsum = prev_vsum + 0.1 * (volty - volty_10.First());
+		prev_vsum = vsum;
 		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; }
 		else { vsum_buff.Add(vsum); }
 		if (vsum_buff.Count > (10 * _p)) { vsum_buff.RemoveAt(0); }
