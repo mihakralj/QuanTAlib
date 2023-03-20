@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>QuanTAlib</Title>
-    <Version>0.1.28</Version>
+    <Version>0.1.29</Version>
     <Product>Library of Technical Indicators for .NET</Product>
     <Description>Quantitative Technical Analysis library for real-time (streaming) data analysis</Description>
     <RepositoryType>git</RepositoryType>
