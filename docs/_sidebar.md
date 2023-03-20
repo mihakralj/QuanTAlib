@@ -1,4 +1,5 @@
 * [Home](/)
+   * [FAQ - Frequently asked questions answered](QA.md)
 
 * [List of all Indicators](indicators.md "Indicators coverage")
 

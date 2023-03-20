@@ -54,7 +54,7 @@
 |ALMA - Arnaud Legoux Moving Average|`ALMA_Series`||✔️GetAlma|alma|
 |DEMA - Double EMA Average|`DEMA_Series`|✔️DEMA|✔️GetDema|✔️dema|✔️dema|
 |DWMA - Double WMA Average|`DWMA_Series`|||||
-|⭐EMA - Exponential Moving Average|`EMA_Series`|✔️EMA|✔️GetEma|✔️ema|✔️ema|
+|⭐[EMA - Exponential Moving Average](EMA.md)|`EMA_Series`|✔️EMA|✔️GetEma|✔️ema|✔️ema|
 |EPMA - Endpoint Moving Average|||GetEpma||
 |FRAMA - Fractal Adaptive Moving Average|||||
 |FMA - Fibonacci's Weighted Moving Average|`FMA_Series`|||fwma|

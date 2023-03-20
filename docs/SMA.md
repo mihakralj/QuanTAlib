@@ -21,8 +21,6 @@ $$
 - `period`: optional size of a lookback window; if set to 0, SMA calculates cumulative average across the whole source
 - `useNaN`: if set to _true_, SMA_Series will hide values within the initial period with NaN (for compatibility with other libraries)
 
-[Link to source](..\Source\Trends\SMA_Series.cs)
-
 ## Behavior
 ![Alt text](./img/SMA_chart.svg)
 ## Reference Calculation & Validation
