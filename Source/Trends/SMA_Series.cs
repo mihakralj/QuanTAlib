@@ -18,11 +18,11 @@ Remark:
 
 public class SMA_Series : Single_TSeries_Indicator {
 	private double _sum, _oldsum;
-	private int _len, _oldlen;
+	private int _len;
 
 	public SMA_Series(TSeries source, int period = 0, bool useNaN = false) : base(source, period, false) {
 		_sum = _oldsum = 0;
-		_len = _oldlen = 0;
+		_len = 0;
 		if (this._data.Count > 0) { base.Add(this._data); }
 	}
 
@@ -39,6 +39,6 @@ public class SMA_Series : Single_TSeries_Indicator {
 	}
 	public void Reset() {
 		_sum = _oldsum = 0;
-		_len = _oldlen = 0;
+		_len = 0;
 	}
 }

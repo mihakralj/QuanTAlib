@@ -21,6 +21,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <PlatformTarget>anycpu</PlatformTarget>
     <DebugType>full</DebugType>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.129.11\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>embedded</DebugType>
@@ -28,6 +29,7 @@
     <WarningLevel>3</WarningLevel>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <PlatformTarget>anycpu</PlatformTarget>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.129.11\..\..\Settings\Scripts\Indicators\Quantower</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Source\**\*.cs" Exclude="..\Source\obj\**;..\Source\Feeds\**">
