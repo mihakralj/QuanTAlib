@@ -9,7 +9,7 @@ Alphavantage - Free API to collect 100 recent daily quotes. It requires a (free)
         Symbol: stock ("AAPL"),
         APIkey: unique Alphavantage API key
 
-</summary> */
+</summary> 
 
 public class Alphavantage_Feed : TBars
 {
@@ -53,3 +53,4 @@ public class Alphavantage_Feed : TBars
         return (date, o, h, l, c, v);
     }
 }
+*/

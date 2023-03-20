@@ -10,7 +10,7 @@ Yahoo Finance - Free API feed to collect daily market quotes
     Usage:
         Yahoo_Feed ticker = new("MSFT", 20)
 
-</summary> */
+</summary> 
 
 public class Yahoo_Feed : TBars
 {
@@ -46,3 +46,4 @@ public class Yahoo_Feed : TBars
         }
     }
 }
+*/
