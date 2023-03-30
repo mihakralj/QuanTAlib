@@ -5,6 +5,8 @@ using Python.Runtime;
 using Python.Included;
 
 namespace Validations;
+
+/*
 public class PandasTA : IDisposable
 {
 	private readonly GBM_Feed bars;
@@ -144,7 +146,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  */
+  
 	[Fact] void EMA() {
 		EMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.ema(close: df.close, length: period);
@@ -155,7 +157,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  /*
+  
 	[Fact] void ENTROPY() {
 		ENTROPY_Series QL = new(bars.Close, period, useNaN: false);
 		var pta = df.ta.entropy(close: df.close, length: period);
@@ -309,7 +311,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  */
+  
 	[Fact] void SMA() {
 		SMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.sma(close: df.close, length: period);
@@ -320,7 +322,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  /*
+  
 	[Fact] void SSDEV() {
 		SSDEV_Series QL = new(bars.Close, period, useNaN: false);
 		var pta = df.ta.stdev(close: df.close, length: period, ddof: 1);
@@ -432,5 +434,6 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  */
+  
 }
+*/

@@ -380,6 +380,7 @@
     <Rule Id="S6423" Action="None" />
     <Rule Id="S6424" Action="None" />
     <Rule Id="S6507" Action="None" />
+    <Rule Id="S6513" Action="None" />
     <Rule Id="S818" Action="Info" />
     <Rule Id="S881" Action="None" />
     <Rule Id="S907" Action="Warning" />

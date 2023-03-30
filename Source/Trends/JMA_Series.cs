@@ -21,7 +21,7 @@ Issues:
 </summary> 
 */
 public class JMA_Series : Single_TSeries_Indicator {
-	private readonly System.Collections.Generic.List<double> volty_10 = new();
+	private readonly System.Collections.Generic.List<double> volty_short = new();
 	private readonly System.Collections.Generic.List<double> vsum_buff = new();
 	private readonly double pr;
 	public TSeries mma1 { get; }
@@ -30,14 +30,17 @@ public class JMA_Series : Single_TSeries_Indicator {
 	private double upperBand, lowerBand, vsum, Kv, del1, del2;
 	private double prev_ma1, prev_det0, prev_det1, prev_vsum, prev_jma;
 	private double p_upperBand, p_lowerBand, p_Kv, p_prev_ma1, p_prev_det0, p_prev_det1, p_prev_vsum, p_prev_jma;
+	private readonly int _voltyS, _voltyL;
 
-	public JMA_Series(TSeries source, int period, double phase = 0.0, bool useNaN = false) : base(source, period, useNaN) {
+	public JMA_Series(TSeries source, int period, double phase = 0.0, int vshort = 10, int vlong = 65, bool useNaN = false) : base(source, period, useNaN) {
 		upperBand = lowerBand = prev_ma1 = prev_det0 = prev_det1 = prev_vsum = prev_jma = Kv = del1 = del2 = 0.0;
 		Kv = 0;
+
 		pr = (phase * 0.01) + 1.5;
 		if (phase < -100) { pr = 0.5; }
 		if (phase > 100) { pr = 2.5; }
-
+		_voltyS = vshort;
+		_voltyL = vlong;
 		mma1 = new();
 		mma2 = new();
 
@@ -77,32 +80,32 @@ public class JMA_Series : Single_TSeries_Indicator {
 		if (Math.Abs(del1) < Math.Abs(del2)) { volty = Math.Abs(del2); }
 
 		//// from volty to avolty
-		if (update) { volty_10[volty_10.Count - 1] = volty; }
-		else { volty_10.Add(volty); }
-		if (volty_10.Count > 10) { volty_10.RemoveAt(0); }
-		vsum = prev_vsum + 0.1 * (volty - volty_10.First());
+		if (update) { volty_short[volty_short.Count - 1] = volty; }
+		else { volty_short.Add(volty); }
+		if (volty_short.Count > _voltyS) { volty_short.RemoveAt(0); }
+		vsum = prev_vsum + 0.1 * (volty - volty_short.First());
 		prev_vsum = vsum;
 		if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; }
 		else { vsum_buff.Add(vsum); }
-		if (vsum_buff.Count > (10 * _p)) { vsum_buff.RemoveAt(0); }
+		if (vsum_buff.Count > _voltyL) { vsum_buff.RemoveAt(0); }
 		double avolty = 0;
 		for (int i = 0; i < vsum_buff.Count; i++) { avolty += vsum_buff[i]; }
 		avolty /= vsum_buff.Count;
 
 		/// from avolty to rolty
 		double rvolty = (avolty != 0) ? volty / avolty : 0;
-		double len1 = (Math.Log(Math.Sqrt(2.0 * _p)) / Math.Log(2.0)) + 2;
-		if (len1 < 0)	len1 = 0;
+		double len1 = (Math.Log(Math.Sqrt(_p)) / Math.Log(2.0)) + 2;
+		if (len1 < 0)
+			len1 = 0;
 		double pow1 = Math.Max(len1 - 2.0, 0.5);
 		if (rvolty > Math.Pow(len1, 1.0 / pow1)) { rvolty = Math.Pow(len1, 1.0 / pow1); }
 		if (rvolty < 1) { rvolty = 1; }
 
 		//// from rvolty to second smoothing
 		double pow2 = Math.Pow(rvolty, pow1);
-		double len2 = Math.Sqrt(0.5 * (_p - 2)) * len1;
-		Kv = Math.Pow(len2 / (len2 + 2), Math.Sqrt(pow2));
 		double beta = 0.45 * (_p - 1) / (0.45 * (_p - 1) + 2);
-		double alpha = Math.Pow(beta * 1.1, pow2);
+		Kv = Math.Pow(beta, Math.Sqrt(pow2));
+		double alpha = Math.Pow(beta, pow2);
 		double ma1 = (1 - alpha) * TValue.v + alpha * prev_ma1;
 		prev_ma1 = ma1;
 		mma1.Add(ma1);

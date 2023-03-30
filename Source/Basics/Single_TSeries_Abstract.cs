@@ -23,30 +23,29 @@ public abstract class Single_TSeries_Indicator : TSeries
   protected readonly TSeries _data;
   protected int _p;
 
-  // Chainable Constructor - add it at the end of primary constructor :base(source: source, period: period, useNaN: useNaN)
-  protected Single_TSeries_Indicator(TSeries source, int period, bool useNaN)
-  {
-    this._data = source;
-    this._period = period;
-    this._p = _period;
-    this._NaN = useNaN;
-    this._data.Pub += this.Sub;
-  }
+	// Chainable Constructor - add it at the end of primary constructor :base(source: source, period: period, useNaN: useNaN)
+	protected Single_TSeries_Indicator(TSeries source, int period, bool useNaN) {
+		_data = source;
+		_period = period;
+		_p = _period;
+		_NaN = useNaN;
+		_data.Pub += Sub;
+	}
 
-  // overridable Add() method to add/update a single item at the end of the list
+	// overridable Add() method to add/update a single item at the end of the list
 
-  public virtual void Add((System.DateTime t, double v) TValue, bool update, bool useNaN)
-  {
-    if (_period == 0) { _p = this.Length; }
-    var res = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : TValue.v);
-    base.Add(res, update);
-  }
-  public new virtual void Add((System.DateTime t, double v) TValue, bool update) => base.Add(TValue, update);
+	public virtual void Add((DateTime t, double v) TValue, bool update, bool useNaN) {
+		if (_period == 0) { _p = Length; }
+		var res = (TValue.t, Count < _p - 1 && _NaN ? double.NaN : TValue.v);
+		base.Add(res, update);
+	}
+	public new virtual void Add((DateTime t, double v) TValue, bool update) => base.Add(TValue, update);
 
-  // potentially overridable Add() method for the whole series (could be replaced with faster bulk algo)
-  public virtual void Add(TSeries data) { for (int i = 0; i < data.Count; i++) { this.Add(TValue: data[i], update: false); } }
-
-  public new void Add((System.DateTime t, double v) TValue) => this.Add(TValue: TValue, update: false);
+	// potentially overridable Add() method for the whole series (could be replaced with faster bulk algo)
+	public virtual void Add(TSeries data) {
+		foreach (var item in data) { Add(TValue: item, update: false); }
+	}
+	public new void Add((System.DateTime t, double v) TValue) => this.Add(TValue: TValue, update: false);
   public void Add(bool update) => this.Add(TValue: this._data[this._data.Count - 1], update: update);
   public void Add() => this.Add(TValue: this._data[this._data.Count - 1], update: false);
   public new void Sub(object source, TSeriesEventArgs e) => this.Add(TValue: this._data[this._data.Count - 1], update: e.update);
