@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Platforms>AnyCPU</Platforms>
+    <AlgoType>Indicator</AlgoType>
+    <AssemblyName>Quantower_QTAlib</AssemblyName>
+    <RootNamespace>QuanTAlib</RootNamespace>
+    <DebugType>embedded</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Nullable>disable</Nullable>
+    <SignAssembly>False</SignAssembly>
+    <CodeAnalysisRuleSet>..\.sonarlint\mihakralj_quantalibcsharp.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+    <WarningLevel>3</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <DebugType>full</DebugType>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.130.7\..\..\Settings\Scripts\Indicators\QuanTAlib</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <Optimize>True</Optimize>
+    <WarningLevel>3</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.130.7\..\..\Settings\Scripts\Indicators\QuanTAlib</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Calculations\Calculations.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>C:\Quantower\TradingPlatform\v1.130.7\bin\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

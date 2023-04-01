@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Platforms>AnyCPU</Platforms>
+    <AlgoType>Strategy</AlgoType>
+    <AssemblyName>Strategy</AssemblyName>
+    <RootNamespace>Strategy</RootNamespace>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Nullable>disable</Nullable>
+    <SignAssembly>False</SignAssembly>
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Quantower\TradingPlatform\v1.130.7\Console.StarterNew.exe</StartProgram>
+    <StartArguments>--address 127.0.0.1 --port 51113</StartArguments>
+    <CodeAnalysisRuleSet>..\.sonarlint\mihakralj_quantalibcsharp.ruleset</CodeAnalysisRuleSet>    
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+    <WarningLevel>3</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <DebugType>full</DebugType>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.130.7\..\..\Settings\Scripts\Strategies\QuanTAlib</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <Optimize>True</Optimize>
+    <WarningLevel>3</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <OutputPath>C:\Quantower\TradingPlatform\v1.130.7\..\..\Settings\Scripts\Strategies\QuanTAlib</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Calculations\Calculations.csproj" />
+  </ItemGroup> 
+  <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>C:\Quantower\TradingPlatform\v1.130.7\bin\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

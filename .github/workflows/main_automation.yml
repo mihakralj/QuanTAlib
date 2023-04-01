@@ -52,7 +52,7 @@ jobs:
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core DLL
-      run: dotnet build ./Source/QuanTAlib.csproj --verbosity minimal --configuration Release --nologo
+      run: dotnet build ./Calculations/QuanTAlib.csproj --verbosity minimal --configuration Release --nologo
     - name: Build Quantower DLL
       run: dotnet build ./Quantower/Quantower.csproj --verbosity minimal --configuration Release --nologo
 
@@ -93,11 +93,13 @@ jobs:
         automatic_release_tag: "latest"
         prerelease: true
         title: "Latest Build"
-        files: /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
+        files: |
+          /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
+          /Quantower/Settings/Scripts/Strategies/QuanTAlib/*.dll
 
-    - name: Authenticate to Github packages source
+    - name: Authenticate to Github packages Calculations
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget add source
+      run: dotnet nuget add Calculations
           --username mihakralj
           --password ${{ secrets.GITHUB_TOKEN }}
           --store-password-in-clear-text
@@ -105,14 +107,14 @@ jobs:
 
     - name: Push package to github
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+      run: dotnet nuget push '.\Calculations\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.GITHUB_TOKEN }}
-          --source https://nuget.pkg.github.com/mihakralj/index.json
+          --Calculations https://nuget.pkg.github.com/mihakralj/index.json
           --skip-duplicate
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push '.\Source\bin\Release\QuanTAlib.*.nupkg'
+      run: dotnet nuget push '.\Calculations\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
-          --source https://api.nuget.org/v3/index.json
+          --Calculations https://api.nuget.org/v3/index.json
           --skip-duplicate

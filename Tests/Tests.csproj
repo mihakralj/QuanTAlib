@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Source\QuanTAlib.csproj" />
+    <ProjectReference Include="..\Calculations\Calculations.csproj" />
   </ItemGroup>
 
   <ItemGroup>
