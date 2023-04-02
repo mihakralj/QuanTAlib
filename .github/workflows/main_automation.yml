@@ -101,5 +101,5 @@ jobs:
       if: ${{ github.ref == 'refs/heads/main' }}
       run: dotnet nuget push '.\Calculations\bin\Release\net8.0\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
-          --Calculations https://api.nuget.org/v3/index.json
+          --source https://api.nuget.org/v3/index.json
           --skip-duplicate
