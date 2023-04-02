@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Platforms>AnyCPU</Platforms>
     <AlgoType>Indicator</AlgoType>
-    <AssemblyName>Quantower_QTAlib</AssemblyName>
+    <AssemblyName>QuanTAlib_Indicators</AssemblyName>
     <RootNamespace>QuanTAlib</RootNamespace>
     <DebugType>embedded</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -20,7 +20,6 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <PlatformTarget>anycpu</PlatformTarget>
     <DebugType>full</DebugType>
-    <OutputPath>C:\Quantower\TradingPlatform\v1.130.7\..\..\Settings\Scripts\Indicators\QuanTAlib</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>embedded</DebugType>
@@ -28,7 +27,6 @@
     <WarningLevel>3</WarningLevel>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <PlatformTarget>anycpu</PlatformTarget>
-    <OutputPath>C:\Quantower\TradingPlatform\v1.130.7\..\..\Settings\Scripts\Indicators\QuanTAlib</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
@@ -36,12 +34,17 @@
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles=".\bin\$(Configuration)\QuanTAlib_Indicators.dll" DestinationFolder="\Quantower\Settings\Scripts\Indicators\QuanTAlib" />
+  </Target>
   <ItemGroup>
-    <ProjectReference Include="..\Calculations\Calculations.csproj" />
+    <Compile Include="..\Calculations\**\*.cs" Exclude="..\Calculations\obj\**">
+      <Link>QuanTAlib\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>..\QuantowerDLL\TradingPlatform.BusinessLayer.dll</HintPath>
+      <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

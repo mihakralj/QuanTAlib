@@ -28,19 +28,6 @@ jobs:
       with:
         java-version: 1.11
 
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: '6.x'
-        includePrerelease: true
-    - name: Determine Version
-      uses: gittools/actions/gitversion/execute@v0
-      with:
-        useConfigFile: true
-        configFilePath: .\.github\GitVersion.yml
-        additionalArguments: '/verbosity Diagnostic'
-
-
     - name: Install JetBrains
       run: dotnet tool install JetBrains.dotCover.GlobalTool --global
     - name: Install Sonar Scanner
@@ -57,7 +44,7 @@ jobs:
         /d:sonar.host.url="https://sonarcloud.io"
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
-    - name: Build Core DLL
+    - name: Build Core QuanTAlib DLL
       run: dotnet build ./Calculations/Calculations.csproj --verbosity minimal --configuration Release --nologo
     - name: Build Indicators DLL
       run: dotnet build ./Indicators/Indicators.csproj --verbosity minimal --configuration Release --nologo
@@ -93,12 +80,19 @@ jobs:
         prerelease: true
         title: "Latest Build"
         files: |
-          /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
-          /Quantower/Settings/Scripts/Strategies/QuanTAlib/*.dll
+          .\Calculations\bin\Release\net6.0\QuanTAlib.dll
+          .\Indicators\bin\Release\QuanTAlib_Indicators.dll
+          .\Strategies\bin\Release\QuanTAlib_Strategies.dll
+
+    - name: Push  package to myget.org
+      run: dotnet nuget push '.\Calculations\bin\Release\QuanTAlib.*.nupkg'
+          --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
+          --source https://www.myget.org/F/quantalib/api/v2/package
+          --skip-duplicate
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push '.\Calculations\bin\Release\net8.0\QuanTAlib.*.nupkg'
+      run: dotnet nuget push '.\Calculations\bin\Release\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
