@@ -58,13 +58,13 @@ jobs:
 
     - name: dotnet Test
       #if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet test ./Tests/Tests.csproj --verbosity minimal --framework net7.0 --configuration Release --nologo
+      run: dotnet test ./Tests/Tests.csproj --verbosity minimal --configuration Release --nologo
     - name: DotCover Test XML
       #if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --framework net7.0 --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
     - name: DotCover Test HTML
       #if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --framework net7.0 --dcReportType=HTML --dcoutput=./coveragereport.html
+      run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --dcReportType=HTML --dcoutput=./coveragereport.html
     - name: dotnet-coverage
       run: dotnet-coverage collect 'dotnet test' -f xml -o './coverage.xml'
 
@@ -96,21 +96,6 @@ jobs:
         files: |
           /Quantower/Settings/Scripts/Indicators/QuanTAlib/*.dll
           /Quantower/Settings/Scripts/Strategies/QuanTAlib/*.dll
-
-    - name: Authenticate to Github packages Calculations
-      if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget add Calculations
-          --username mihakralj
-          --password ${{ secrets.GITHUB_TOKEN }}
-          --store-password-in-clear-text
-          --name github "https://nuget.pkg.github.com/mihakralj/index.json"
-
-    - name: Push package to github
-      if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push '.\Calculations\bin\Release\QuanTAlib.*.nupkg'
-          --api-key ${{ secrets.GITHUB_TOKEN }}
-          --Calculations https://nuget.pkg.github.com/mihakralj/index.json
-          --skip-duplicate
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
