@@ -22,7 +22,6 @@ jobs:
       with:
         dotnet-version: '8.x'
         dotnet-quality: 'preview'
-        include-prerelease: true
 
     - name: Install JDK11 for Sonar Scanner
       uses: actions/setup-java@v1
