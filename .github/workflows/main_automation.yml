@@ -18,11 +18,13 @@ jobs:
         fetch-depth: 0
 
     - name: Install .NET 6.0 and 8.0
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: |
-          8.0.x
-          6.0.x
+          '8'
+          '7'
+          '6'
+        dotnet-quality: 'preview'
         include-prerelease: true
 
     - name: Install JDK11 for Sonar Scanner
@@ -52,9 +54,11 @@ jobs:
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core DLL
-      run: dotnet build ./Calculations/QuanTAlib.csproj --verbosity minimal --configuration Release --nologo
-    - name: Build Quantower DLL
-      run: dotnet build ./Quantower/Quantower.csproj --verbosity minimal --configuration Release --nologo
+      run: dotnet build ./Calculations/Calculations.csproj --verbosity minimal --configuration Release --nologo
+    - name: Build Indicators DLL
+      run: dotnet build ./Indicators/Indicators.csproj --verbosity minimal --configuration Release --nologo
+    - name: Build Strategies DLL
+      run: dotnet build ./Strategies/Strategies.csproj --verbosity minimal --configuration Release --nologo
 
     - name: dotnet Test
       #if: ${{ github.ref == 'refs/heads/dev' }}
@@ -114,7 +118,7 @@ jobs:
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push '.\Calculations\bin\Release\QuanTAlib.*.nupkg'
+      run: dotnet nuget push '.\Calculations\bin\Release\net8.0\QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --Calculations https://api.nuget.org/v3/index.json
           --skip-duplicate

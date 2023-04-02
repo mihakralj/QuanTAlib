@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -9,18 +9,18 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
-      <PackageReference Include="Python.Included" Version="3.10.0-preview5" />
-      <PackageReference Include="pythonnet" Version="3.0.1" />
+      <PackageReference Include="Python.Included" Version="3.11.2" />
+      <PackageReference Include="pythonnet" Version="3.1.0-preview2023-03-04" />
       <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0-preview-20221221-03" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0-preview-20230223-05" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
-    <PackageReference Include="Skender.Stock.Indicators" Version="2.4.7" />
+    <PackageReference Include="Skender.Stock.Indicators" Version="3.0.0-preview1014-0015" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
-    <PackageReference Include="System.Text.Json" Version="7.0.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
   </ItemGroup>
 
   <ItemGroup>
