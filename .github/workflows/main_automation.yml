@@ -20,10 +20,7 @@ jobs:
     - name: Install .NET 6.0 and 8.0
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: |
-          '8'
-          '7'
-          '6'
+        dotnet-version: '8.x'
         dotnet-quality: 'preview'
         include-prerelease: true
 
