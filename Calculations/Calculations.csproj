@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>QuanTAlib</Title>
-    <Version>0.1.32</Version>
+    <Version>$(GitVersion_NuGetVersionV2)</Version>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
     <RepositoryType>git</RepositoryType>

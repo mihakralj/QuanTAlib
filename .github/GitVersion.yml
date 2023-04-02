@@ -1,0 +1,20 @@
+mode: ContinuousDeployment
+branches:
+  main:
+    regex: ^main$
+    is-release-branch: true
+    is-mainline: true
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    increment: inherit
+  develop:
+    regex: ^dev$
+    is-release-branch: false
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+ignore:
+  sha: []
+major-version-bump-message: '\+semver:\s?(feature|major)'
+minor-version-bump-message: '\+semver:\s?(new|update|minor)'
+no-bump-message: '\+semver:\s?(skip|none|fix)'
+

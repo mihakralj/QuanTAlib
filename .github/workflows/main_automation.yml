@@ -28,6 +28,19 @@ jobs:
       with:
         java-version: 1.11
 
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '6.x'
+        includePrerelease: true
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0
+      with:
+        useConfigFile: true
+        configFilePath: .\.github\GitVersion.yml
+        additionalArguments: '/verbosity Diagnostic'
+
+
     - name: Install JetBrains
       run: dotnet tool install JetBrains.dotCover.GlobalTool --global
     - name: Install Sonar Scanner
@@ -39,7 +52,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths="./coverage.xml"
       run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib"
         /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
         /d:sonar.host.url="https://sonarcloud.io"
@@ -68,18 +80,16 @@ jobs:
       run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
     - name: Codacy coverage reporter
-      if: ${{ github.ref == 'refs/heads/dev' }}
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
 
     - name: Release
-      if: ${{ github.ref == 'refs/heads/main' }}
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        automatic_release_tag: latest
         prerelease: true
         title: "Latest Build"
         files: |
