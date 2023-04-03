@@ -10,7 +10,7 @@ Alphavantage - Free API to collect 100 recent daily quotes. It requires a (free)
         APIkey: unique Alphavantage API key
 
 </summary> 
-
+*/
 public class Alphavantage_Feed : TBars
 {
     public enum Interval { Month, Week, Day, Hour, Min30, Min15, Min5, Min1}
@@ -53,4 +53,3 @@ public class Alphavantage_Feed : TBars
         return (date, o, h, l, c, v);
     }
 }
-*/

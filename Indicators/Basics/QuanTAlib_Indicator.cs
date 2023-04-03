@@ -6,15 +6,30 @@ using TradingPlatform.BusinessLayer.Chart;
 
 namespace QuanTAlib;
 
-public class QuanTAlib_Indicator : Indicator {
+public abstract class QuanTAlib_Indicator : Indicator {
 	protected TBars bars;
 	protected IChartWindow mainWindow;
 	protected Graphics graphics;
 	protected int firstOnScreenBarIndex, lastOnScreenBarIndex;
+	protected HistoricalData History;
+	protected int HistPeriod;
 
 	protected override void OnInit() {
 		base.OnInit();
 		bars = new();
+		var dur1 = this.HistoricalData.FromTime;
+		var dur = this.HistoricalData.Period.Duration.TotalSeconds * (HistPeriod*4)  ; //seconds of two periods
+
+		this.History = this.Symbol.GetHistory(period: this.HistoricalData.Period,  fromTime: HistoricalData.FromTime);
+
+		for (int i = this.History.Count-1; i >= 0; i--) {
+
+			var rec = this.History[i, SeekOriginHistory.Begin];
+
+			bars.Add(rec.TimeLeft, rec[PriceType.Open], 
+				 rec[PriceType.High], rec[PriceType.Low],
+				 rec[PriceType.Close], rec[PriceType.Volume]);
+		}
 	}
 
 	protected override void OnUpdate(UpdateArgs args) {

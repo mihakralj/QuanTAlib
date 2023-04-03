@@ -14,7 +14,7 @@ public class JMA_chart : QuanTAlib_Indicator {
 	private int DataSource = 3;
 
 	[InputParameter("Smoothing period", 1, 1, 999, 1, 1)]
-	private int Period = 10;
+	private int Period = 9;
 
 	[InputParameter("Volatility short", 2, 3, 50, 1, 1)]
 	private int Vshort = 10;
@@ -28,7 +28,7 @@ public class JMA_chart : QuanTAlib_Indicator {
 	#endregion Parameters
 
 	///////
-	private JMA_Series indicator;
+	private EMA_Series indicator;
 	///////
 
 	public JMA_chart() :base() {
@@ -36,14 +36,15 @@ public class JMA_chart : QuanTAlib_Indicator {
 		Description = "Jurik Moving Average description";
 		AddLineSeries(lineName: "JMA", lineColor: Color.Yellow, lineWidth:  3,lineStyle: LineStyle.Solid);
 		SeparateWindow = false;
+		HistPeriod = Period;
 	}
 
 
 	protected override void OnInit() { 
 		base.OnInit();
 		indicator = new(source: bars.Select(DataSource), period: Period, 
-										phase: Jphase, vshort: Vshort, vlong: Vlong, 
-										useNaN: false);
+		//								phase: Jphase, vshort: Vshort, vlong: Vlong, 
+										useNaN: true);
 	}
 
 	protected override void OnUpdate(UpdateArgs args) { 
