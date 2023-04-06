@@ -28,7 +28,7 @@ public class JMA_chart : QuanTAlib_Indicator {
 	#endregion Parameters
 
 	///////
-	private EMA_Series indicator;
+	private JMA_Series indicator;
 	///////
 
 	public JMA_chart() :base() {
@@ -43,7 +43,7 @@ public class JMA_chart : QuanTAlib_Indicator {
 	protected override void OnInit() { 
 		base.OnInit();
 		indicator = new(source: bars.Select(DataSource), period: Period, 
-		//								phase: Jphase, vshort: Vshort, vlong: Vlong, 
+										phase: Jphase, vshort: Vshort, vlong: Vlong, 
 										useNaN: true);
 	}
 

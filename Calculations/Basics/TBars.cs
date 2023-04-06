@@ -70,9 +70,9 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
       4 => "HL2",
       5 => "OC2",
       6 => "OHL3",
-      7 => "Typical",
-      8 => "Mean",
-      _ => "Weighted",
+      7 => "HLC3",
+      8 => "OHLC4",
+      _ => "HLCC4",
     };
   }
 
