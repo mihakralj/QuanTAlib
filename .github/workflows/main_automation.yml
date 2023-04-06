@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -22,6 +22,38 @@ jobs:
       with:
         dotnet-version: '8.x'
         dotnet-quality: 'preview'
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.5.0'
+
+    - name: Determine Version
+      id:   gitversion
+      uses: gittools/actions/gitversion/execute@v0
+      with:
+        useConfigFile: true
+        configFilePath: /a/QuanTAlib/QuanTAlib/GitVersion.yml
+
+    - name: Display GitVersion variables (without prefix)
+      run: |
+        echo "Major: ${{ steps.gitversion.outputs.major }}"
+        echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+        echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+        echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
+        echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}"
+        echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
+        echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
+        echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
+        echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
+        echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
+        echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
+        echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+        echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
+        echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
+        echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+        echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
 
     - name: Install JDK11 for Sonar Scanner
       uses: actions/setup-java@v1
@@ -45,11 +77,11 @@ jobs:
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Core QuanTAlib DLL
-      run: dotnet build ./Calculations/Calculations.csproj --verbosity minimal --configuration Release --nologo
+      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo
     - name: Build Indicators DLL
-      run: dotnet build ./Indicators/Indicators.csproj --verbosity minimal --configuration Release --nologo
+      run: dotnet build ./Indicators/Indicators.csproj --verbosity detailed --configuration Release --nologo
     - name: Build Strategies DLL
-      run: dotnet build ./Strategies/Strategies.csproj --verbosity minimal --configuration Release --nologo
+      run: dotnet build ./Strategies/Strategies.csproj --verbosity detailed --configuration Release --nologo
 
     - name: DotCover Test XML
       run: dotnet dotcover test ./Tests/Tests.csproj --verbosity minimal --dcReportType=DetailedXML --dcoutput=./coveragereport.xml
@@ -72,14 +104,19 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
 
-    - name: Release
-      uses: marvinpinto/action-automatic-releases@latest
+
+
+    - name: Publish dev release assets
+      if: ${{ github.ref == 'refs/heads/dev' }}
+      uses: SourceSprint/upload-multiple-releases@1.0.7
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: latest
         prerelease: true
-        title: "Latest Build"
-        files: |
+        overwrite: true
+        release_name: ${{ steps.gitversion.outputs.SemVer }}
+        tag_name: latest
+        release_config: |
           .\Calculations\bin\Release\net6.0\QuanTAlib.dll
           .\Indicators\bin\Release\QuanTAlib_Indicators.dll
           .\Strategies\bin\Release\QuanTAlib_Strategies.dll
@@ -89,6 +126,21 @@ jobs:
           --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
           --source https://www.myget.org/F/quantalib/api/v2/package
           --skip-duplicate
+
+    - name: Publish main release assets
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: SourceSprint/upload-multiple-releases@1.0.7
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        prerelease: false
+        overwrite: true
+        release_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        tag_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        release_config: |
+          .\Calculations\bin\Release\net6.0\QuanTAlib.dll
+          .\Indicators\bin\Release\QuanTAlib_Indicators.dll
+          .\Strategies\bin\Release\QuanTAlib_Strategies.dll
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
