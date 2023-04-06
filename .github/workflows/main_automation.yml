@@ -104,20 +104,7 @@ jobs:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
 
-    - name: Publish main release assets
-      if: ${{ github.ref == 'refs/heads/main' }}
-      uses: SourceSprint/upload-multiple-releases@1.0.7
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        prerelease: false
-        overwrite: true
-        release_name: latest stable
-        tag_name: ${{ steps.gitversion.outputs.fullSemVer }}
-        release_config: |
-          .\Calculations\bin\Release\net6.0\QuanTAlib.dll
-          .\Indicators\bin\Release\QuanTAlib_Indicators.dll
-          .\Strategies\bin\Release\QuanTAlib_Strategies.dll
+
 
     - name: Publish dev release assets
       if: ${{ github.ref == 'refs/heads/dev' }}
@@ -127,8 +114,8 @@ jobs:
       with:
         prerelease: true
         overwrite: true
-        release_name: latest pre-release
-        tag_name: ${{ steps.gitversion.outputs.fullSemVer }}
+        release_name: ${{ steps.gitversion.outputs.SemVer }}
+        tag_name: latest
         release_config: |
           .\Calculations\bin\Release\net6.0\QuanTAlib.dll
           .\Indicators\bin\Release\QuanTAlib_Indicators.dll
@@ -139,6 +126,21 @@ jobs:
           --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
           --source https://www.myget.org/F/quantalib/api/v2/package
           --skip-duplicate
+
+    - name: Publish main release assets
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: SourceSprint/upload-multiple-releases@1.0.7
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        prerelease: false
+        overwrite: true
+        release_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        tag_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        release_config: |
+          .\Calculations\bin\Release\net6.0\QuanTAlib.dll
+          .\Indicators\bin\Release\QuanTAlib_Indicators.dll
+          .\Strategies\bin\Release\QuanTAlib_Strategies.dll
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
