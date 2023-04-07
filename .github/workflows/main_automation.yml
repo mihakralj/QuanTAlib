@@ -116,7 +116,15 @@ jobs:
         prerelease: true
         overwrite: true
         release_name: ${{ steps.gitversion.outputs.SemVer }}
+<<<<<<< HEAD
         tag_name: ${{ steps.gitversion.outputs.SemVer }}
+=======
+<<<<<<< HEAD
+        tag_name: ${{ steps.gitversion.outputs.SemVer }}
+=======
+        tag_name: latest
+>>>>>>> main
+>>>>>>> main
         release_config: |
           .\Calculations\bin\Release\net6.0\QuanTAlib.dll
           .\Indicators\bin\Release\QuanTAlib_Indicators.dll
