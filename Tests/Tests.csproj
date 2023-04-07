@@ -6,11 +6,15 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64</Platforms>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
+    <FileVersion>0.2.1.0</FileVersion>
+    <InformationalVersion>0.2.1-dev.2+Branch.dev.Sha.cb5fe2dc86a78fe9358da810d17952c82299ed3d</InformationalVersion>
+    <Version>0.2.1-dev.2</Version>
   </PropertyGroup>
   <ItemGroup>
-      <PackageReference Include="Python.Included" Version="3.11.2" />
-      <PackageReference Include="pythonnet" Version="3.1.0-preview2023-03-04" />
-      <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="Python.Included" Version="3.11.2" />
+    <PackageReference Include="pythonnet" Version="3.1.0-preview2023-03-04" />
+    <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -21,11 +25,9 @@
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
     <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Calculations\Calculations.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove="Python.Included" />
     <None Remove="pythonnet" />

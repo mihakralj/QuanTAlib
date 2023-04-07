@@ -25,7 +25,8 @@ public class MAMA_Series : Single_TSeries_Indicator
         if (base._data.Count > 0) { base.Add(base._data); }
     }
 
-    private double sumPr, jI, jQ, fastl, slowl;
+  private double sumPr, jI, jQ;
+  readonly double fastl, slowl;
     private (double i, double i1, double i2, double i3, double i4, double i5, double i6, double io) pr, i1, q1, sm, dt;
     private (double i, double i1, double io) i2, q2, re, im, pd, ph, mama, fama;
     public TSeries Fama { get; }

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>QuanTAlib</Title>
+    <Version>0.2.0</Version>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
     <RepositoryType>git</RepositoryType>
@@ -31,6 +31,9 @@
     </PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageLicenseFile></PackageLicenseFile>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
+    <FileVersion>0.2.1.0</FileVersion>
+    <InformationalVersion>0.2.1-dev.2+Branch.dev.Sha.cb5fe2dc86a78fe9358da810d17952c82299ed3d</InformationalVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
@@ -51,7 +54,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <CodeAnalysisRuleSet>..\.sonarlint\mihakralj_quantalibcsharp.ruleset</CodeAnalysisRuleSet>
-    <Version />
+    <Version>0.2.1-dev.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
@@ -66,9 +69,5 @@
       <Visible>False</Visible>
       <PackagePath></PackagePath>
     </None>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 </Project>

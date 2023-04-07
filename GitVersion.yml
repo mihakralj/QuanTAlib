@@ -6,13 +6,15 @@ branches:
     is-mainline: true
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
-    increment: inherit
+    increment: Patch
     source-branches: [ 'develop' ]
     is-release-branch: true
     is-mainline: true
-    continuous-delivery-fallback-tag: ''
+    label: ''
+    #continuous-delivery-fallback-tag: ''
   develop:
     regex: ^dev$
+    increment: Patch
     is-release-branch: false
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
@@ -20,10 +22,10 @@ branches:
     is-release-branch: false
     tracks-release-branches: true
     is-mainline: false
-    tag: dev
+    label: dev
 ignore:
   sha: []
 major-version-bump-message: '\+semver:\s?(feature|major)'
-minor-version-bump-message: '\+semver:\s?(new|update|minor)'
+minor-version-bump-message: '\+semver:\s?(new|update|minor|add)'
 no-bump-message: '\+semver:\s?(skip|none|fix)'
 
