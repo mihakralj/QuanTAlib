@@ -26,7 +26,8 @@ jobs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
-        versionSpec: '5.5.0'
+        versionSpec: '6.x'
+        includePrerelease: true
 
     - name: Determine Version
       id:   gitversion
@@ -34,6 +35,7 @@ jobs:
       with:
         useConfigFile: true
         configFilePath: /a/QuanTAlib/QuanTAlib/GitVersion.yml
+        additionalArguments: '/updateassemblyinfo /ensureassemblyinfo'
 
     - name: Display GitVersion variables (without prefix)
       run: |
@@ -76,10 +78,17 @@ jobs:
         /d:sonar.host.url="https://sonarcloud.io"
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
-    - name: Build Core QuanTAlib DLL
-      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo
+    - name: Build Main branch of QuanTAlib DLL
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
+
+    - name: Build dev branch of QuanTAlib DLL
+      if: ${{ github.ref == 'refs/heads/dev' }}
+      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.FullSemVer }}
+
     - name: Build Indicators DLL
       run: dotnet build ./Indicators/Indicators.csproj --verbosity detailed --configuration Release --nologo
+
     - name: Build Strategies DLL
       run: dotnet build ./Strategies/Strategies.csproj --verbosity detailed --configuration Release --nologo
 
@@ -103,8 +112,6 @@ jobs:
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: ./coveragereport.xml
-
-
 
     - name: Publish dev release assets
       if: ${{ github.ref == 'refs/heads/dev' }}

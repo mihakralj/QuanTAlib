@@ -25,7 +25,7 @@ HWMA[i] = F[i] + V[i] + 0.5 * A[i]
 </summary> */
 
 public class HWMA_Series : Single_TSeries_Indicator {
-	double _nA, _nB, _nC;
+	readonly double _nA, _nB, _nC;
 	double _pF, _pV, _pA;
 	double _ppF, _ppV, _ppA;
 
