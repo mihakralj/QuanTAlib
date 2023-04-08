@@ -35,7 +35,7 @@ jobs:
       with:
         useConfigFile: true
         configFilePath: /a/QuanTAlib/QuanTAlib/GitVersion.yml
-        additionalArguments: '/updateassemblyinfo /ensureassemblyinfo'
+        updateAssemblyInfo: true
 
     - name: Display GitVersion variables (without prefix)
       run: |
