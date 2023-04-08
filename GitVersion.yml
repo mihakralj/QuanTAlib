@@ -11,7 +11,6 @@ branches:
     is-release-branch: true
     is-mainline: true
     label: ''
-    #continuous-delivery-fallback-tag: ''
   develop:
     regex: ^dev$
     increment: Patch

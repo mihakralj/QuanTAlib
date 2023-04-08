@@ -26,7 +26,8 @@ jobs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
-        versionSpec: '5.5.0'
+        versionSpec: '6.x'
+        includePrerelease: true
 
     - name: Determine Version
       id:   gitversion
@@ -34,7 +35,7 @@ jobs:
       with:
         useConfigFile: true
         configFilePath: /a/QuanTAlib/QuanTAlib/GitVersion.yml
-        additionalArguments: '/updateassemblyinfo /ensureassemblyinfo'
+        updateAssemblyInfo: true
 
     - name: Display GitVersion variables (without prefix)
       run: |
@@ -46,8 +47,6 @@ jobs:
         echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
         echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
         echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
-        echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
-        echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
         echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
         echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
         echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
@@ -77,10 +76,17 @@ jobs:
         /d:sonar.host.url="https://sonarcloud.io"
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
-    - name: Build Core QuanTAlib DLL
-      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo
+    - name: Build Main branch of QuanTAlib DLL
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
+
+    - name: Build dev branch of QuanTAlib DLL
+      if: ${{ github.ref == 'refs/heads/dev' }}
+      run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.FullSemVer }}
+
     - name: Build Indicators DLL
       run: dotnet build ./Indicators/Indicators.csproj --verbosity detailed --configuration Release --nologo
+
     - name: Build Strategies DLL
       run: dotnet build ./Strategies/Strategies.csproj --verbosity detailed --configuration Release --nologo
 
