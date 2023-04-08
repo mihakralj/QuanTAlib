@@ -47,8 +47,6 @@ jobs:
         echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
         echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
         echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
-        echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
-        echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
         echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
         echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
         echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
