@@ -77,7 +77,7 @@ jobs:
         /d:sonar.cs.dotcover.reportsPaths=./coveragereport.html
 
     - name: Build Main branch of QuanTAlib DLL
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref != 'refs/heads/dev' }}
       run: dotnet build ./Calculations/Calculations.csproj --verbosity detailed --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
 
     - name: Build dev branch of QuanTAlib DLL

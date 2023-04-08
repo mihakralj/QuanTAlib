@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 .vscode/
+.fleet/
 *.deps.json
 .Sandbox/
 #.sonarlint/
