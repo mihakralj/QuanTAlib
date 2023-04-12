@@ -33,7 +33,7 @@ public class MAMA_Series : Single_TSeries_Indicator
 
     public override void Add((System.DateTime t, double v) TValue, bool update)
     {
-        
+
         if (!update) {
             // roll forward (oldx = x)
             pr.io = pr.i6; pr.i6 = pr.i5; pr.i5 = pr.i4; pr.i4 = pr.i3; pr.i3 = pr.i2; pr.i2 = pr.i1; pr.i1 = pr.i;

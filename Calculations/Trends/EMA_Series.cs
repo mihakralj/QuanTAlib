@@ -60,7 +60,7 @@ public class EMA_Series : Single_TSeries_Indicator {
 		else {
 			_ema = _k * (TValue.v - _lastema) + _lastema;
 		}
-		_lastema = _ema;
+		_lastema = Double.IsNaN(_ema)?_lastema:_ema;
 
 		base.Add((TValue.t, _ema), update, _NaN);
 	}

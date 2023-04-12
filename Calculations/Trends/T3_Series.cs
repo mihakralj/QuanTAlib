@@ -13,16 +13,6 @@ Sources:
     https://technicalindicators.net/indicators-technical-analysis/150-t3-moving-average
     http://www.binarytribune.com/forex-trading-indicators/t3-moving-average-indicator/
 
-Calculation:
-    Volume Factor is typically 0.7 (but also 0.618);
-    Ema1 = Ema (Close);
-    Ema2 = Ema (Ema1);
-    Ema3 = Ema (Ema2);
-    Ema4 = Ema (Ema3);
-    Ema5 = Ema (Ema4);
-    Ema6 = Ema (Ema5);
-    T3 = –(a*a*a) * Ema6 + (3*a*a + 3*a*a*a) * Ema5 + (–6*a*a – 3*a – 3*a*a*a) * Ema4 + (1 + 3*a + a*a*a + 3*a*a) * Ema3
-
 </summary> */
 public class T3_Series : Single_TSeries_Indicator {
 	private readonly double _k, _k1m, _c1, _c2, _c3, _c4;
@@ -35,7 +25,7 @@ public class T3_Series : Single_TSeries_Indicator {
 
 	private double _lastema1, _lastema2, _lastema3, _lastema4, _lastema5, _lastema6;
 	private double _llastema1, _llastema2, _llastema3, _llastema4, _llastema5, _llastema6;
-	private bool _useSMA;
+	private readonly bool _useSMA;
 
 	public T3_Series(TSeries source, int period, double vfactor = 0.7, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN) {
 		double _a = vfactor; //0.7; //0.618

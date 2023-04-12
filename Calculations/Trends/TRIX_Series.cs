@@ -9,13 +9,6 @@ TRIX: Triple Exponential Average
 	has become a popular technical analysis tool to aid chartists in spotting diversions
 and directional cues in stock trading patterns. 
 
-
-Calculation:
-	Ema1 = Ema (Close);
-    Ema2 = Ema (Ema1);
-    Ema3 = Ema (Ema2);
-    TRIX = (Ema3-Ema3[1]) / Ema3[1]
-
 Sources:
 	https://www.investopedia.com/terms/t/trix.asp
 
@@ -29,7 +22,7 @@ public class TRIX_Series : Single_TSeries_Indicator
 
   private double _lastema1, _lastema2, _lastema3;
   private double _llastema1, _llastema2, _llastema3;
-  private bool _useSMA;
+  private readonly bool _useSMA;
 
   public TRIX_Series(TSeries source, int period, bool useNaN = false, bool useSMA = true) : base(source, period, useNaN)
   {

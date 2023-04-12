@@ -12,6 +12,10 @@
     <Version>0.2.1-dev.2</Version>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="3.2.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Python.Included" Version="3.11.2" />
     <PackageReference Include="pythonnet" Version="3.1.0-preview2023-03-04" />
     <PackageReference Include="xunit" Version="2.4.2" />

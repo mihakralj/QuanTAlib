@@ -1,6 +1,7 @@
 ﻿namespace QuanTAlib;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 /* <summary>
@@ -18,9 +19,9 @@ public class TSeries : List<(DateTime t, double v)> {
 	public static implicit operator (DateTime t, double v)(TSeries l) => l[^1];
 	public static implicit operator double(TSeries l) => l[^1].v;
 	public static implicit operator DateTime(TSeries l) => l[^1].t;
-  public List<DateTime> t => this.Select(item => item.t).ToList();
-  public List<double> v => this.Select(item => item.v).ToList();
-  public int Length => this.Count;
+	public ReadOnlyCollection<DateTime> t => this.Select(item => item.t).ToList().AsReadOnly();
+	public ReadOnlyCollection<double> v => this.Select(item => item.v).ToList().AsReadOnly();
+	public int Length => Count;
 
 	public TSeries Tail(int count = 10) {
 		var tailSeries = new TSeries();

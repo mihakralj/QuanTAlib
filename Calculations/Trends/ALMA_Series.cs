@@ -14,7 +14,7 @@ Sources:
     https://phemex.com/academy/what-is-arnaud-legoux-moving-averages
     https://www.prorealcode.com/prorealtime-indicators/alma-arnaud-legoux-moving-average/
 
-TODO: Discrepancy with Pandas-TA (but passes the validation with Skender.GetAlma)
+    Discrepancy with Pandas-TA (but passes the validation with Skender.GetAlma)
 
 </summary> */
 
