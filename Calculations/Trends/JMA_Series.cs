@@ -97,8 +97,8 @@ public class JMA_Series : Single_TSeries_Indicator {
 		/// from avolty to rolty
 		double rvolty = (avolty != 0) ? volty / avolty : 0;
 		double len1 = (Math.Log(Math.Sqrt(_p)) / Math.Log(2.0)) + 2;
-		if (len1 < 0)
-			len1 = 0;
+		if (len1 < 0) { len1 = 0; }
+
 		double pow1 = Math.Max(len1 - 2.0, 0.5);
 		if (rvolty > Math.Pow(len1, 1.0 / pow1)) { rvolty = Math.Pow(len1, 1.0 / pow1); }
 		if (rvolty < 1) { rvolty = 1; }

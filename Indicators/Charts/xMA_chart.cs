@@ -216,7 +216,7 @@ public class MovingAverage_chart : Indicator {
 
 		overunder = new(MA1, MA2);
 		trades = new(MA1, MA2);
-		equity = new(trades,prices: bars.Open,Long:LongTrades,Short:ShortTrades,Warmup:MA1Period+MA2Period);
+		equity = new(trades,price: bars.Open,warmup:MA1Period+MA2Period);
 	}
 
 	protected override void OnUpdate(UpdateArgs args) {
@@ -253,7 +253,7 @@ public class MovingAverage_chart : Indicator {
 	}
 	public override void OnPaintChart(PaintChartEventArgs args) {
 		base.OnPaintChart(args);
-		if (this.CurrentChart == null) return;
+		if (this.CurrentChart == null) {return;}
 		Graphics graphics = args.Graphics;
 		var mainWindow = this.CurrentChart.MainWindow;
 		int leftIndex = (int)mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Left));

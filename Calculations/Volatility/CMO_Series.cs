@@ -26,7 +26,7 @@ public class CMO_Series : Single_TSeries_Indicator {
 
 	public override void Add((DateTime t, double v) TValue, bool update) {
 		if (this.Count == 0) { _plast_value = _last_value = TValue.v; }
-		if (update) _last_value = _plast_value; else _plast_value = _last_value;
+		if (update) {_last_value = _plast_value;} else {_plast_value = _last_value;}
 
 		Add_Replace_Trim(_buff_up, (TValue.v > _last_value) ? TValue.v-_last_value : 0, _p, update);
 		Add_Replace_Trim(_buff_dn, (TValue.v < _last_value) ? _last_value-TValue.v : 0, _p, update);
@@ -40,8 +40,7 @@ public class CMO_Series : Single_TSeries_Indicator {
 		}
 
 		double _cmo = 100 * (_cmo_up - _cmo_dn) / (_cmo_up + _cmo_dn);
-		if (_cmo_up + _cmo_dn == 0)
-			_cmo = 0;
+		if (_cmo_up + _cmo_dn == 0) {_cmo = 0;}
 		base.Add((TValue.t, _cmo), update, _NaN);
 	}
 }
