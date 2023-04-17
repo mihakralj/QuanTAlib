@@ -18,7 +18,7 @@ public class TrailingStop_chart : Indicator {
 	private bool _LongTS = true;
 
 	[InputParameter("Short TS", 3)]
-	private bool _ShortTS = false;
+	private bool _ShortTS = true;
 
 	#endregion Parameters
 
@@ -26,8 +26,8 @@ public class TrailingStop_chart : Indicator {
 	private HistoricalData History;
 	private TBars bars;
 	private ATR_Series _atr;
-
 	private double _tslineL, _ratchetL, _tslineS, _ratchetS;
+
 	///////
 
 	public TrailingStop_chart() :base() {
@@ -37,6 +37,7 @@ public class TrailingStop_chart : Indicator {
 
 		AddLineSeries(lineName: "TrailingATR Short", lineColor: Color.Yellow, lineWidth: 1, lineStyle: LineStyle.Dot);
 		AddLineSeries(lineName: "Ratchet Short", lineColor: Color.Yellow, lineWidth: 3, lineStyle: LineStyle.Solid);
+		
 		SeparateWindow = false;
 	}
 
@@ -73,17 +74,48 @@ public class TrailingStop_chart : Indicator {
 		
 		_tslineL = bars.High[^1].v - (_factor * _atr[^1].v);
 		_ratchetL = Math.Max(_tslineL,_ratchetL);
-		_ratchetL = (_ratchetL > bars.Low[^1].v) ? _tslineL : _ratchetL;
+		if (_ratchetL > bars.Low[^1].v) {
+			this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.Yellow, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
+			_ratchetL = _tslineL;
+		}
 
-		_tslineS = bars.Low[^1].v + (_factor * _atr[^1].v);
+		_tslineS = bars.High[^1].v + (_factor * _atr[^1].v);
 		_ratchetS = Math.Min(_tslineS, _ratchetS);
-		_ratchetS = (_ratchetS < bars.High[^1].v) ? _tslineS : _ratchetS;
-
+		if (_ratchetS < bars.High[^1].v) {
+			this.LinesSeries[3].SetMarker(0, new IndicatorLineMarker(Color.Yellow, upperIcon: IndicatorLineMarkerIconType.UpArrow));
+			_ratchetS = _tslineS;
+		}
 
 		this.SetValue(_tslineL, lineIndex: 0);
 		this.SetValue(_ratchetL, lineIndex: 1);
 		this.SetValue(_tslineS, lineIndex: 2);
 		this.SetValue(_ratchetS, lineIndex: 3);
+
+	}
+
+	public override void OnPaintChart(PaintChartEventArgs args) {
+		base.OnPaintChart(args);
+		if (this.CurrentChart == null) { return; }
+		Graphics graphics = args.Graphics;
+		var mainWindow = this.CurrentChart.MainWindow;
+		int leftIndex = (int)mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Left));
+		int rightIndex = (int)Math.Ceiling(mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Right)));
+		int historycount = HistoricalData.Count;
+		int ymax = mainWindow.ClientRectangle.Height;
+
+		/*
+				for (int i = leftIndex; i <= rightIndex; i++) {
+					int xi = (int)Math.Round(mainWindow.CoordinatesConverter.GetChartX(Time(Count - 1 - i)));
+					int width = this.CurrentChart.BarsWidth;
+					int height = (int)((equity[i+historycount].v) *proportion);
+
+					Brush bb = Brushes.DarkSlateGray;
+					bb = (overunder[i+historycount].v>0 && LongTrades)? Brushes.Green : bb;
+					bb = (overunder[i + historycount].v < 0 && ShortTrades) ? Brushes.Red : bb;
+
+					graphics.FillRectangle(bb, xi, ymax - height, width, height);
+				}
+		*/
 	}
 }
 
