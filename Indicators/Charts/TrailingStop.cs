@@ -90,7 +90,6 @@ public class TrailingStop_chart : Indicator {
 		this.SetValue(_ratchetL, lineIndex: 1);
 		this.SetValue(_tslineS, lineIndex: 2);
 		this.SetValue(_ratchetS, lineIndex: 3);
-
 	}
 
 	public override void OnPaintChart(PaintChartEventArgs args) {
