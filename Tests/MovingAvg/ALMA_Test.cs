@@ -8,13 +8,14 @@ public class Update
 	[Fact]
 	public void Add_Test()
 	{
-		TSeries a = new() { 0, 1, 2, 3, 4, 5 };
+		TSeries a = new() { Double.NaN, 0, 1, 2, 3, 4 };
 		ALMA_Series c = new(a, 4);
 		Assert.Equal(6, c.Count);
 		a.Add(5);
 		Assert.Equal(a.Count, c.Count);
 		a.Add(10, update: true);
 		Assert.Equal(a.Count, c.Count);
+		Assert.Equal(0, a[1].v);
 	}
 
 	[Fact]

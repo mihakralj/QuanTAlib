@@ -16,6 +16,7 @@
     <FileVersion>0.2.1.0</FileVersion>
     <InformationalVersion>0.2.1-dev.2+Branch.dev.Sha.cb5fe2dc86a78fe9358da810d17952c82299ed3d</InformationalVersion>
     <Version>0.2.1-dev.2</Version>
+    <SuppressNETSdkWarningProperty>NETSDK1057</SuppressNETSdkWarningProperty>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>

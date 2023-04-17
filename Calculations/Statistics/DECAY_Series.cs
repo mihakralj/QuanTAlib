@@ -15,7 +15,7 @@ DECAY:
 </summary> */
 
 public class DECAY_Series : Single_TSeries_Indicator {
-	private bool _exp;
+	private readonly bool _exp;
 	private double _pdecay, _ppdecay;
 	private readonly double _dfactor;
 

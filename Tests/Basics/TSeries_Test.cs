@@ -9,7 +9,7 @@ public class TSeries_Test
     public void InsertingTuple()
     {
         TSeries s = new() { (t: DateTime.Today, v: double.Epsilon) };
-        Assert.Equal((DateTime.Today, double.Epsilon), s);
+        Assert.Equal((DateTime.Today, double.Epsilon), s[^1]);
     }
 
     [Fact]

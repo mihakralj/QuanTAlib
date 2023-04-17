@@ -38,8 +38,8 @@ namespace SimpleMACross {
 		}
 
 		protected override void OnRun() {
-			if (this.CurrentAccount != null && this.CurrentAccount.State == BusinessObjectState.Fake)	this.CurrentAccount = Core.Instance.GetAccount(this.CurrentAccount.CreateInfo());
-			if (this.CurrentSymbol != null && this.CurrentSymbol.State == BusinessObjectState.Fake)	this.CurrentSymbol = Core.Instance.GetSymbol(this.CurrentSymbol.CreateInfo());
+			if (this.CurrentAccount != null && this.CurrentAccount.State == BusinessObjectState.Fake)	{this.CurrentAccount = Core.Instance.GetAccount(this.CurrentAccount.CreateInfo());}
+			if (this.CurrentSymbol != null && this.CurrentSymbol.State == BusinessObjectState.Fake)	{this.CurrentSymbol = Core.Instance.GetSymbol(this.CurrentSymbol.CreateInfo());}
 			if (this.CurrentSymbol == null || this.CurrentAccount == null || this.CurrentSymbol.ConnectionId != this.CurrentAccount.ConnectionId) {
 				this.Log("Incorrect input parameters... Symbol or Account are not specified or they have different connectionID.", StrategyLoggingLevel.Error);
 				return;	}
@@ -59,12 +59,12 @@ namespace SimpleMACross {
 
 		private void OnUpdate() {
 			bool update = hdm.Last().TimeLeft - prev_time < this.period.Duration ? true : false;
-			if (!update) prev_time = hdm.Last().TimeLeft;
+			if (!update) {prev_time = hdm.Last().TimeLeft;}
 
 			bars.Add(hdm.Last().TimeLeft, hdm.Last()[PriceType.Open], hdm.Last()[PriceType.High], 
 					hdm.Last()[PriceType.Low], hdm.Last()[PriceType.Close], hdm.Last()[PriceType.Volume], update);
 
-			if (!update) this.LogInfo($"{bars.Close.Last().t}   OHLC4:{(double)bars.OHLC4}");
+			if (!update) {this.LogInfo($"{bars.Close.Last().t}   OHLC4:{(double)bars.OHLC4}");}
 
 		}
 

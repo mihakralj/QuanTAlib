@@ -21,12 +21,14 @@ Sources:
 
 public class LINREG_Series : Single_TSeries_Indicator
 {
-    public readonly TSeries Intercept = new();
-    public readonly TSeries RSquared = new();
-    public readonly TSeries StdDev = new();
+    private readonly TSeries p_Intercept = new();
+    private readonly TSeries p_RSquared = new();
+    private readonly TSeries p_StdDev = new();
     private readonly System.Collections.Generic.List<double> _buffer = new();
-
-    public LINREG_Series(TSeries source, int period, bool useNaN = false)
+    public TSeries Intercept => p_Intercept;
+    public TSeries RSquared => p_RSquared;
+    public TSeries StdDev => p_StdDev;
+public LINREG_Series(TSeries source, int period, bool useNaN = false)
         : base(source, period, useNaN)
     {
         if (this._data.Count > 0) { base.Add(this._data); }
@@ -80,12 +82,12 @@ public class LINREG_Series : Single_TSeries_Indicator
         base.Add(ret, update, _NaN);
 
         ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _intercept);
-        Intercept.Add(ret, update);
+        p_Intercept.Add(ret, update);
 
         ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _StdDev);
-        StdDev.Add(ret, update);
+        p_StdDev.Add(ret, update);
 
         ret = (TValue.t, this.Count < this._p - 1 && this._NaN ? double.NaN : _RSquared);
-        RSquared.Add(ret, update);
+        p_RSquared.Add(ret, update);
     }
 }

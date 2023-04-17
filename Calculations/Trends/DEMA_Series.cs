@@ -41,7 +41,7 @@ public class DEMA_Series : Single_TSeries_Indicator
       _lastsum = _lastlastsum;
       _lastema1 = _lastlastema1;
       _lastema2 = _lastlastema2;
-    } 
+    }
     else {
       _lastlastsum = _lastsum;
 			_lastlastema1 = _lastema1;
@@ -55,9 +55,6 @@ public class DEMA_Series : Single_TSeries_Indicator
 		}
 		else if (_len <= _period && _useSMA && _period != 0) {
 			_sum += TValue.v;
-			if (_period != 0 && _len > _period) {
-				_sum -= (_data[base.Count - _period - (update ? 1 : 0)].v);
-			}
 			_ema1 = _sum / Math.Min(_len, _period);
 			_ema2 = _ema1;
     }
@@ -67,8 +64,8 @@ public class DEMA_Series : Single_TSeries_Indicator
     }
     _dema = 2*_ema1 - _ema2;
 
-		_lastema1 = _ema1;
-		_lastema2 = _ema2;
+	  _lastema1 = Double.IsNaN(_ema1)?_lastema1:_ema1;
+    _lastema2 = Double.IsNaN(_ema2)?_lastema2:_ema2;
 
 		base.Add((TValue.t, _dema), update, _NaN);
     }

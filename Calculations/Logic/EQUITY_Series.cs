@@ -13,46 +13,75 @@ EQUITY - Generates P&L portfolio based on trades signals and equity prices
 //optional: warmup period: warmup
 
 public class EQUITY_Series : Single_TSeries_Indicator {
-	int trade_state = 0;
-	readonly int _warmup = 0;
-	double eq_value = 0;
-	readonly TSeries _prices;
-	readonly bool _long, _short;
-	public EQUITY_Series(TSeries trades, TSeries prices, bool Long = true, bool Short = false, int Warmup = 0) : base(trades, period: 0, useNaN: false) {
-		_prices = prices;
-		_long = Long;
-		_short = Short;
-		_warmup = Warmup;
+	readonly TSeries inmarket; //for every bar
+	private readonly TSeries _price;
+	private double _equity;
+	private readonly double _capital;
+
+	readonly int _warmup;
+	double _cash;
+	int _units;
+	private bool _longbuy, _longsell;
+	double _long_order, _open_order;
+	double _investment_value;
+	short _inmarket;
+
+	public EQUITY_Series(TSeries signal, TSeries price, int warmup = 0, double capital = 1000) : base(signal, period: 0, useNaN: false) {
+		_capital = capital;
+		_cash = _capital;
+		_investment_value = 0;
+		_warmup = (warmup > 0) ? warmup : 1;
+
+		inmarket = new();
+		_longbuy = _longsell = false;
+		_open_order = 0;
+		_inmarket = 0;
+		_units = 0;
+		_long_order = 0;
+
+		_price = price; //we buy on the Open price of the NEXT bar
+		_long_order = 0;
+
 		if (base._data.Count > 0) { base.Add(base._data); }
 	}
 
 	public override void Add((System.DateTime t, double v) TValue, bool update) {
-		if (this.Count != 0)
-			eq_value = this[this.Count - 1].v;
 
-		//buy signal
-		if (TValue.v == 1 && this.Count > _warmup) {
-			//we are not in-market and we can do long trades
-			if (_short) { trade_state = 0; }
-			if (_long) { trade_state = 1; }
+		if (this.Count > _warmup) {
+
+			// harvest the gain-loss from previous day
+			_investment_value = _units * _price[this.Count - 1].v;
+			_equity = _cash + _investment_value;
+
+
+			//execute orders from previous bar
+			if (_longbuy && _inmarket == 0) { //time to execute the long buy
+				_units = (int)(_cash / _price[this.Count - 1].v);
+				_long_order = _units * _price[this.Count - 1].v;
+				_cash -= _long_order;
+				_open_order = _long_order;
+				_equity = _cash + _open_order;
+				_inmarket = 1;
+				_longbuy = false;
+			}
+
+			if (_longsell && _inmarket == 1) { //time to execute the long sell
+				_long_order = (_units * _price[this.Count - 1].v);
+				_cash += _long_order;
+				_units = 0;
+
+				_open_order = 0;
+				_equity = _cash + _open_order;
+				_inmarket = 0;
+				_longsell = false;
+			}
+
+			if (_inmarket == 0 && TValue.v == 1) { _longbuy = true; }  //out of market, enter long
+			if (_inmarket == 1 && TValue.v == -1) { _longsell = true; }  //long market, exit long
+
+			//Console.WriteLine($"{TValue.v,3}\t {(_inmarket)} : {_cash,10:f2} + {_units*_price[this.Count-1].v,7:f2} = {_equity-_capital:f2}");
 		}
-
-		//sell signal
-		if (TValue.v == -1 && this.Count > _warmup) {
-			//we are in-market and we can do long trades
-			if (_long) { trade_state = 0; }
-			if (_short) { trade_state = -1; }
-		}
-
-		if (trade_state == 1) {
-			eq_value = this[this.Count - 1].v + (_prices[this.Count].v - _prices[this.Count - 1].v);
-
-		}
-
-		if (trade_state == -1) {
-			eq_value = this[this.Count - 1].v + (_prices[this.Count - 1].v - _prices[this.Count].v);
-
-		}
-		base.Add((TValue.t, eq_value), update, _NaN);
+		inmarket.Add(TValue.t, (double)_inmarket);
+		base.Add((TValue.t, _equity), update, _NaN);
 	}
 }

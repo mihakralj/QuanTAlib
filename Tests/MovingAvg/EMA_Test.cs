@@ -8,13 +8,14 @@ public class EMA_Test
 	[Fact]
 	public void Add_Test()
 	{
-		TSeries a = new() { 0, 1, 2, 3, 4, 5 };
+		TSeries a = new() { Double.NaN, 0, 1, 2, 3, 4 };
 		EMA_Series c = new(a, 3);
 		Assert.Equal(6, c.Count);
 		a.Add(5);
 		Assert.Equal(a.Count, c.Count);
 		a.Add(0, update: true);
 		Assert.Equal(a.Count, c.Count);
+		Assert.Equal(0, a[1].v);
 	}
 
 	[Fact]

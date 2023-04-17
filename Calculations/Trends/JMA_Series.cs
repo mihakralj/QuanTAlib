@@ -27,13 +27,14 @@ public class JMA_Series : Single_TSeries_Indicator {
 	public TSeries mma1 { get; }
 	public TSeries mma2 { get; }
 
-	private double upperBand, lowerBand, vsum, Kv, del1, del2;
+	private double upperBand, lowerBand, vsum, Kv;
 	private double prev_ma1, prev_det0, prev_det1, prev_vsum, prev_jma;
 	private double p_upperBand, p_lowerBand, p_Kv, p_prev_ma1, p_prev_det0, p_prev_det1, p_prev_vsum, p_prev_jma;
 	private readonly int _voltyS, _voltyL;
 
 	public JMA_Series(TSeries source, int period, double phase = 0.0, int vshort = 10, int vlong = 65, bool useNaN = false) : base(source, period, useNaN) {
-		upperBand = lowerBand = prev_ma1 = prev_det0 = prev_det1 = prev_vsum = prev_jma = Kv = del1 = del2 = 0.0;
+		upperBand = lowerBand = prev_ma1 = prev_det0 = prev_det1 = prev_vsum = prev_jma = Kv = 0.0;
+		
 		Kv = 0;
 
 		pr = (phase * 0.01) + 1.5;
@@ -48,6 +49,7 @@ public class JMA_Series : Single_TSeries_Indicator {
 	}
 
 	public override void Add((System.DateTime t, double v) TValue, bool update) {
+		double del1 = 0.0, del2 = 0.0;
 		if (this.Count == 0) { prev_ma1 = prev_jma = TValue.v; }
 		if (update) {
 			upperBand = p_upperBand;
@@ -95,8 +97,8 @@ public class JMA_Series : Single_TSeries_Indicator {
 		/// from avolty to rolty
 		double rvolty = (avolty != 0) ? volty / avolty : 0;
 		double len1 = (Math.Log(Math.Sqrt(_p)) / Math.Log(2.0)) + 2;
-		if (len1 < 0)
-			len1 = 0;
+		if (len1 < 0) { len1 = 0; }
+
 		double pow1 = Math.Max(len1 - 2.0, 0.5);
 		if (rvolty > Math.Pow(len1, 1.0 / pow1)) { rvolty = Math.Pow(len1, 1.0 / pow1); }
 		if (rvolty < 1) { rvolty = 1; }
