@@ -6,28 +6,28 @@ namespace QuanTAlib;
 
 public class MovingAverage_chart : Indicator {
 	#region Parameters
-	[InputParameter("MA1: Type", 0, variants: new object[]
+	[InputParameter("MA1: Type:", 0, variants: new object[]
 		{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FMA", 7,  "DEMA", 8,  "TEMA", 9,
 			"ALMA", 10, "HMA", 11,  "HEMA", 12,  "MAMA", 13, "KAMA", 14, "ZLEMA", 15,  "JMA", 16})]
 	private int MA1type = 15;
 
-	[InputParameter("MA1: Smoothing period", 1, 1, 999, 1, 1)]
+	[InputParameter("MA1: Smoothing period:", 1, 1, 999, 1, 1)]
 	private int MA1Period = 10;
 
-	[InputParameter("MA1: Data source", 2, variants: new object[]
+	[InputParameter("MA1: Data source:", 2, variants: new object[]
 		{ "Open", 0, "High", 1,  "Low", 2,  "Close", 3,  "HL2", 4,  "OC2", 5,
 			"OHL3", 6,  "HLC3", 7,  "OHLC4", 8,  "Weighted (HLCC4)", 9 })]
 	private int MA1DataSource = 3;
 
-	[InputParameter("MA2: Type", 3, variants: new object[]
+	[InputParameter("MA2: Type:", 3, variants: new object[]
 	{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FMA", 7,  "DEMA", 8,  "TEMA", 9,
 			"ALMA", 10, "HMA", 11,  "HEMA", 12,  "MAMA", 13, "KAMA", 14, "ZLEMA", 15,  "JMA", 16})]
 	private int MA2type = 16;
 
-	[InputParameter("MA2: Smoothing period", 4, 1, 999, 1, 1)]
+	[InputParameter("MA2: Smoothing period:", 4, 1, 999, 1, 1)]
 	private int MA2Period = 50;
 
-	[InputParameter("MA2: Data source", 5, variants: new object[]
+	[InputParameter("MA2: Data source:", 5, variants: new object[]
 		{ "Open", 0, "High", 1,  "Low", 2,  "Close", 3,  "HL2", 4,  "OC2", 5,
 			"OHL3", 6,  "HLC3", 7,  "OHLC4", 8,  "Weighted (HLCC4)", 9 })]
 	private int MA2DataSource = 8;
@@ -36,7 +36,7 @@ public class MovingAverage_chart : Indicator {
 	private bool LongTrades = true;
 
 	[InputParameter("Short trades", 6)]
-	private bool ShortTrades = false;
+	private bool ShortTrades = true;
 
 	#endregion Parameters
 
@@ -47,14 +47,14 @@ public class MovingAverage_chart : Indicator {
 	private TSeries MA1, MA2;
 	private CROSS_Series trades;
 	private COMPARE_Series overunder;
-	private EQUITY_Series equity;
+
 	///////
 
 	public MovingAverage_chart() {
 		this.SeparateWindow = false;
-		this.Name = "2MA Crossover";
-		this.AddLineSeries("MA1", Color.SeaGreen, 3, LineStyle.Solid);
-		this.AddLineSeries("MA2", Color.OrangeRed, 3, LineStyle.Solid);
+		this.Name = "MAs Crossover";
+		this.AddLineSeries("MA1", Color.LimeGreen, 2, LineStyle.Solid);
+		this.AddLineSeries("MA2", Color.OrangeRed, 2, LineStyle.Solid);
 	}
 
 	protected override void OnInit() {
@@ -66,7 +66,7 @@ public class MovingAverage_chart : Indicator {
 			rec[PriceType.High], rec[PriceType.Low],
 			rec[PriceType.Close], rec[PriceType.Volume]);
 		}
-		this.Name = "Crossover[ ";
+		this.Name = "MAs Cross: [ ";
 		switch (MA1type) {
 			case 0:
 				MA1 = new SMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period, useNaN: false);
@@ -216,7 +216,6 @@ public class MovingAverage_chart : Indicator {
 
 		overunder = new(MA1, MA2);
 		trades = new(MA1, MA2);
-		equity = new(trades,price: bars.Open,warmup:MA1Period+MA2Period);
 	}
 
 	protected override void OnUpdate(UpdateArgs args) {
@@ -233,21 +232,21 @@ public class MovingAverage_chart : Indicator {
 		if (trades[^1].v == 1) {
 			this.EndCloud(0, 1, Color.Empty);
 			if (LongTrades) {
-				this.LinesSeries[0].SetMarker(0, new IndicatorLineMarker(Color.SeaGreen, upperIcon: IndicatorLineMarkerIconType.UpArrow));
+				this.LinesSeries[0].SetMarker(0, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.UpArrow));
 				this.BeginCloud(0, 1, Color.FromArgb(127, Color.Green));
 			}
 			if (ShortTrades) {
-				this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
+				this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.DownArrow));
 			}
 		}
 		if (trades[^1].v == -1) {
 			this.EndCloud(0, 1, Color.Empty);
 			if (ShortTrades) {
-				this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, bottomIcon: IndicatorLineMarkerIconType.UpArrow));
+				this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.UpArrow));
 				this.BeginCloud(0, 1, Color.FromArgb(127, Color.Red));
 			}
 			if (LongTrades) {
-				this.LinesSeries[0].SetMarker(0, new IndicatorLineMarker(Color.SeaGreen, upperIcon: IndicatorLineMarkerIconType.DownArrow));
+				this.LinesSeries[0].SetMarker(0, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
 			}
 		}
 	}
@@ -260,21 +259,20 @@ public class MovingAverage_chart : Indicator {
 		int rightIndex = (int)Math.Ceiling(mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Right)));
 		int historycount = HistoricalData.Count;
 		int ymax = mainWindow.ClientRectangle.Height;
-		int ymin = ymax - (int)(ymax / 4);
-		double eqmin = equity.v.Min();
-		double eqmax = equity.v.Max();
-		double proportion = (ymax-ymin) / (eqmax-eqmin);
+		int xmax = mainWindow.ClientRectangle.Width;
 
-		for (int i = leftIndex; i <= rightIndex; i++) {
-			int xi = (int)Math.Round(mainWindow.CoordinatesConverter.GetChartX(Time(Count - 1 - i)));
-			int width = this.CurrentChart.BarsWidth;
-			int height = (int)((equity[i+historycount].v) *proportion);
+		/*
+				for (int i = leftIndex; i <= rightIndex; i++) {
+					int xi = (int)Math.Round(mainWindow.CoordinatesConverter.GetChartX(Time(Count - 1 - i)));
+					int width = this.CurrentChart.BarsWidth;
+					int height = (int)((equity[i+historycount].v) *proportion);
 
-			Brush bb = Brushes.DarkSlateGray;
-			bb = (overunder[i+historycount].v>0 && LongTrades)? Brushes.Green : bb;
-			bb = (overunder[i + historycount].v < 0 && ShortTrades) ? Brushes.Red : bb;
+					Brush bb = Brushes.DarkSlateGray;
+					bb = (overunder[i+historycount].v>0 && LongTrades)? Brushes.Green : bb;
+					bb = (overunder[i + historycount].v < 0 && ShortTrades) ? Brushes.Red : bb;
 
-			graphics.FillRectangle(bb, xi, ymax - height, width, height);
-		}
+					graphics.FillRectangle(bb, xi, ymax - height, width, height);
+				}
+		*/
 	}
 }
