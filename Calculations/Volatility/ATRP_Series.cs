@@ -19,7 +19,7 @@ public class ATRP_Series : Single_TBars_Indicator {
 
 	public ATRP_Series(TBars source, int period, bool useNaN = false) : base(source, period, useNaN) {
 		_period = period;
-		_k = 1.0 / (double)(_p);
+		_k = 1.0 / (double)(_period);
 		_lastatr = _lastlastatr = _cm1 = _lastcm1 = _sum = _oldsum = 0;
 		if (this._bars.Count > 0) { base.Add(this._bars); }
 	}

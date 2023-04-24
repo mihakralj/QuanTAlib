@@ -44,7 +44,7 @@ public abstract class Single_TBars_Indicator : TSeries
 
   // potentially overridable Add() method for the whole bars or series (could be replaced with faster bulk algo)
   public virtual void Add(TBars bars) { for (int i = 0; i < bars.Count; i++) { this.Add(TBar: bars[i], update: false); } }
-  public virtual void Add(TSeries data) { for (int i = 0; i < data.Count; i++) { base.Add(TValue: data[i], update: false); } }
+  public virtual new void Add(TSeries data) { for (int i = 0; i < data.Count; i++) { base.Add(TValue: data[i], update: false); } }
   public void Add((System.DateTime t, double o, double h, double l, double c, double v) TBar) => this.Add(TBar: TBar, update: false);
   public void Add(bool update) => this.Add(TBar: this._bars[this._bars.Count - 1], update: update);
   public void Add() => this.Add(TBar: this._bars[this._bars.Count - 1], update: false);
