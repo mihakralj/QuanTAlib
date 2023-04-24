@@ -426,7 +426,7 @@ public class Tulip_Test
 	public void SUM() {
 		double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
-		SUM_Series QL = new(bars.Close, period, false);
+		CUSUM_Series QL = new(bars.Close, period, false);
 		Tulip.Indicators.sum.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--) {
 			double QL_item = QL[i].v;

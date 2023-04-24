@@ -64,7 +64,7 @@ namespace SimpleMACross {
 			bars.Add(hdm.Last().TimeLeft, hdm.Last()[PriceType.Open], hdm.Last()[PriceType.High], 
 					hdm.Last()[PriceType.Low], hdm.Last()[PriceType.Close], hdm.Last()[PriceType.Volume], update);
 
-			if (!update) {this.LogInfo($"{bars.Close.Last().t}   OHLC4:{(double)bars.OHLC4}");}
+			if (!update) {this.LogInfo($"{bars.Close.Last().t}   OHLC4:{(double)bars.OHLC4.Last.v}");}
 
 		}
 

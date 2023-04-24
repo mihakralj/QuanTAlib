@@ -81,7 +81,7 @@ public class EQUITY_Series : Single_TSeries_Indicator {
 
 			//Console.WriteLine($"{TValue.v,3}\t {(_inmarket)} : {_cash,10:f2} + {_units*_price[this.Count-1].v,7:f2} = {_equity-_capital:f2}");
 		}
-		inmarket.Add(TValue.t, (double)_inmarket);
+		inmarket.Add((TValue.t, (double)_inmarket));
 		base.Add((TValue.t, _equity), update, _NaN);
 	}
 }

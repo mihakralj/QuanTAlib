@@ -388,7 +388,7 @@ public class Ta_Lib
   [Fact]
   public void SUM()
   {
-    SUM_Series QL = new(bars.Close, period, false);
+    CUSUM_Series QL = new(bars.Close, period, false);
     Core.Sum(inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
     for (int i = QL.Length - 1; i > skip; i--)
     {

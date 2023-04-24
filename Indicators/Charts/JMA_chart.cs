@@ -64,9 +64,7 @@ public class JMA_chart : Indicator {
 				rec[PriceType.Close], rec[PriceType.Volume]);
 		}
 
-		indicator = new(source: bars.Select(DataSource), period: Period, 
-										phase: Jphase, vshort: Vshort, vlong: Vlong, 
-										useNaN: true);
+		indicator = new(source: bars.Select(DataSource), period: Period, phase: Jphase, vshort: Vshort, vlong: Vlong, useNaN: true);
 	}
 
 	protected override void OnUpdate(UpdateArgs args) { 

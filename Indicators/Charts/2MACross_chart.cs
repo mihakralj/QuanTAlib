@@ -7,7 +7,7 @@ namespace QuanTAlib;
 public class MovingAverage_chart : Indicator {
 	#region Parameters
 	[InputParameter("MA1: Type:", 0, variants: new object[]
-		{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FMA", 7,  "DEMA", 8,  "TEMA", 9,
+		{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FWMA", 7,  "DEMA", 8,  "TEMA", 9,
 			"ALMA", 10, "HMA", 11,  "HEMA", 12,  "MAMA", 13, "KAMA", 14, "ZLEMA", 15,  "JMA", 16})]
 	private int MA1type = 15;
 
@@ -20,7 +20,7 @@ public class MovingAverage_chart : Indicator {
 	private int MA1DataSource = 3;
 
 	[InputParameter("MA2: Type:", 3, variants: new object[]
-	{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FMA", 7,  "DEMA", 8,  "TEMA", 9,
+	{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FWMA", 7,  "DEMA", 8,  "TEMA", 9,
 			"ALMA", 10, "HMA", 11,  "HEMA", 12,  "MAMA", 13, "KAMA", 14, "ZLEMA", 15,  "JMA", 16})]
 	private int MA2type = 16;
 
@@ -97,8 +97,8 @@ public class MovingAverage_chart : Indicator {
 				this.Name += $"DWMA";
 				break;
 			case 7:
-				MA1 = new FMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period);
-				this.Name += $"FMA";
+				MA1 = new FWMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period);
+				this.Name += $"FWMA";
 				break;
 			case 8:
 				MA1 = new DEMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period, useNaN: false);
@@ -171,8 +171,8 @@ public class MovingAverage_chart : Indicator {
 				this.Name += $"DWMA";
 				break;
 			case 7:
-				MA2 = new FMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period);
-				this.Name += $"FMA";
+				MA2 = new FWMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period);
+				this.Name += $"FWMA";
 				break;
 			case 8:
 				MA2 = new DEMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period, useNaN: false);
