@@ -7,7 +7,7 @@ namespace QuanTAlib;
 public class MovingAverageSlope_chart : Indicator {
 	#region Parameters
 	[InputParameter("MA1: Type:", 0, variants: new object[]
-		{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FMA", 7,  "DEMA", 8,  "TEMA", 9,
+		{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FWMA", 7,  "DEMA", 8,  "TEMA", 9,
 			"ALMA", 10, "HMA", 11,  "HEMA", 12,  "MAMA", 13, "KAMA", 14, "ZLEMA", 15,  "JMA", 16})]
 	private int MA1type = 16;
 
@@ -20,7 +20,7 @@ public class MovingAverageSlope_chart : Indicator {
 	private int MA1DataSource = 3;
 
 	[InputParameter("MA2: Type:", 3, variants: new object[]
-	{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FMA", 7,  "DEMA", 8,  "TEMA", 9,
+	{ "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FWMA", 7,  "DEMA", 8,  "TEMA", 9,
 			"ALMA", 10, "HMA", 11,  "HEMA", 12,  "MAMA", 13, "KAMA", 14, "ZLEMA", 15,  "JMA", 16})]
 	private int MA2type = 6;
 
@@ -50,6 +50,8 @@ public class MovingAverageSlope_chart : Indicator {
 	private TSeries MA1, MA2;
 	private LINREG_Series sMA1, sMA2;
 	private CROSS_Series sig1, sig2;
+
+	private bool inLong, inShort;
 	///////
 
 	public MovingAverageSlope_chart() {
@@ -99,8 +101,8 @@ public class MovingAverageSlope_chart : Indicator {
 				this.Name += $"DWMA";
 				break;
 			case 7:
-				MA1 = new FMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period);
-				this.Name += $"FMA";
+				MA1 = new FWMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period);
+				this.Name += $"FWMA";
 				break;
 			case 8:
 				MA1 = new DEMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period, useNaN: false);
@@ -173,8 +175,8 @@ public class MovingAverageSlope_chart : Indicator {
 				this.Name += $"DWMA";
 				break;
 			case 7:
-				MA2 = new FMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period);
-				this.Name += $"FMA";
+				MA2 = new FWMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period);
+				this.Name += $"FWMA";
 				break;
 			case 8:
 				MA2 = new DEMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period, useNaN: false);
@@ -225,11 +227,7 @@ public class MovingAverageSlope_chart : Indicator {
 	protected override void OnUpdate(UpdateArgs args) {
 		bool update = !(args.Reason == UpdateReason.NewBar ||
 										args.Reason == UpdateReason.HistoricalBar);
-		this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
-									this.GetPrice(PriceType.High),
-									this.GetPrice(PriceType.Low),
-									this.GetPrice(PriceType.Close),
-									this.GetPrice(PriceType.Volume), update);
+		this.bars.Add(this.Time(),this.Open(), this.High(), this.Low(), this.Close(), this.Volume(), update);
 		this.SetValue(this.MA1[^1].v, lineIndex: 0);
 		this.SetValue(this.MA2[^1].v, lineIndex: 1);
 
@@ -240,31 +238,37 @@ public class MovingAverageSlope_chart : Indicator {
 		this.LinesSeries[1].SetMarker(0,s2Color);
 
 		if (sig1[^1].v > 0 || sig2[^1].v > 0) {
-			if (sMA1[^1].v >= 0 && sMA2[^1].v >= 0)
+			if (sMA1[^1].v >= 0 && sMA2[^1].v >= 0 && LongTrades)
 			{
+				inLong = true;
 				this.BeginCloud(0, 1, Color.FromArgb(127, Color.DarkGreen));
 				this.LinesSeries[(this.MA1[^1].v < this.MA2[^1].v)? 0 : 1 ].SetMarker(0, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.UpArrow));
 			}
 			else {
 				this.EndCloud(0, 1, Color.Empty);
-				this.LinesSeries[(this.MA1[^1].v < this.MA2[^1].v) ? 1 : 0].SetMarker(1, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.DownArrow));
+				if (inShort)
+				{
+					this.LinesSeries[(this.MA1[^1].v < this.MA2[^1].v) ? 1 : 0].SetMarker(1, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.DownArrow));
+					inShort = false;
+				}
 			}
-
 		}
 
 		if (sig1[^1].v < 0 || sig2[^1].v < 0) {
-			if (sMA1[^1].v <= 0 && sMA2[^1].v <= 0) 
+			if (sMA1[^1].v <= 0 && sMA2[^1].v <= 0 && ShortTrades) 
 			{
+				inShort = true;
 				this.BeginCloud(0, 1, Color.FromArgb(100, Color.Red));
 				this.LinesSeries[(this.MA1[^1].v > this.MA2[^1].v) ? 0 : 1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.UpArrow));
-
 			}
 			else {
 				this.EndCloud(0, 1, Color.Empty);
-				this.LinesSeries[(this.MA1[^1].v > this.MA2[^1].v)?1:0].SetMarker(1, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
+				if (inLong) {
+					LinesSeries[(this.MA1[^1].v > this.MA2[^1].v)?1:0].SetMarker(1, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
+					inLong = false;
+				}
 			}
 		} 
-		
 	}
 	public override void OnPaintChart(PaintChartEventArgs args) {
 		base.OnPaintChart(args);

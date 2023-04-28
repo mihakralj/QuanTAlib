@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -10,6 +10,8 @@
     <FileVersion>0.2.1.0</FileVersion>
     <InformationalVersion>0.2.1-dev.2+Branch.dev.Sha.cb5fe2dc86a78fe9358da810d17952c82299ed3d</InformationalVersion>
     <Version>0.2.1-dev.2</Version>
+    <NoWarn>$(NoWarn);NETSDK1057</NoWarn>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.2.0">
@@ -37,5 +39,8 @@
     <None Remove="pythonnet" />
     <None Remove="Tulip.NETCore" />
     <None Remove="System.Text.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Statistics\" />
   </ItemGroup>
 </Project>
