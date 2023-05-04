@@ -29,9 +29,9 @@ public class CROSS_Series : Pair_TSeries_Indicator {
 		val = TValue1.v == TValue2.v ? 0 : val;
 		double over = TValue1.v > TValue2.v ? 1 : val;
 
-		val = (this._previous < over) ? 1 : -1;
-		(System.DateTime t, double v) result = ((TValue1.t > TValue2.t) ? TValue1.t : TValue2.t,
-						((this._previous == over) || Double.IsNaN(this._previous) || (this._previous == 0)) ? 0 : val);
+		val = (_previous < over) ? 1 : -1;
+		val = ((_previous == over) || Double.IsNaN(this._previous) || (this._previous == 0)) ? 0 : val;
+		(System.DateTime t, double v) result = ((TValue1.t > TValue2.t) ? TValue1.t : TValue2.t,val);
 
 		this._previous = over;
 
