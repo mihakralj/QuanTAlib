@@ -22,7 +22,7 @@ public class TSeriesEventArgs : EventArgs {
 public class TSeries : List<(DateTime t, double v)> {
 	public List<DateTime> t => this.Select(item => item.t).ToList();
 	public List<double> v => this.Select(item => item.v).ToList();
-	public (DateTime t, double v) Last => this[^1];
+	public (DateTime t, double v) Last => this[this.Count - 1];
 	public int Length => Count;
 	public string Name { get; set; }
 
@@ -35,13 +35,13 @@ public class TSeries : List<(DateTime t, double v)> {
 	}
 
 	public virtual (DateTime t, double v) Add(double v, bool update = false) {
-		var Value = (t: Count == 0 ? DateTime.Today : this[^1].t.AddDays(1), v);
+		var Value = (t: Count == 0 ? DateTime.Today : this[this.Count-1].t.AddDays(1), v);
 		return Add(Value, update);
 	}
 
 	public virtual (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 		if (update) {
-			this[^1] = TValue;
+			this[this.Count-1] = TValue;
 		}
 		else {
 			base.Add(TValue);
@@ -51,15 +51,32 @@ public class TSeries : List<(DateTime t, double v)> {
 		return TValue;
 	}
 
+	public virtual (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
+		if (update) {
+			this[this.Count - 1] = (TBar.t, TBar.c);
+		}
+		else {
+			base.Add((TBar.t, TBar.c));
+		}
+
+		OnEvent(update);
+		return (TBar.t, TBar.c);
+	}
+
 	public virtual (DateTime t, double v) Add(TSeries data) {
-		foreach (var item in data) { Add(item, false); }
+		foreach (var item in data) { Add(item); }
 		return data.Last;
+	}
+
+	public virtual (DateTime t, double v) Add(TBars data) {
+		foreach (var item in data) { Add(item.c, false); }
+		return (data.Last.t, data.Last.c);
 	}
 
 	public void Sub(object source, TSeriesEventArgs e) {
 		var data = (TSeries) source;
 		if (data == null) { return; }
-		foreach (var item in data) { Add(item, update: false); }
+		foreach (var item in data) { Add(item); }
 	}
 
 	public delegate void NewEventHandler(object source, TSeriesEventArgs args);

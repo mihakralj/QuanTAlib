@@ -32,7 +32,7 @@ public class KURTOSIS_Series : TSeries {
 	private readonly System.Collections.Generic.List<double> _buffer = new();
 
 	//core constructors
-	public KURTOSIS_Series(int period, bool useNaN) : base() {
+	public KURTOSIS_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"KURTOSIS({period})";
@@ -78,9 +78,6 @@ public class KURTOSIS_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

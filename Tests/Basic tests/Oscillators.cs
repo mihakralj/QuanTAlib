@@ -7,7 +7,7 @@ namespace Basics;
 #nullable disable
 public class Oscillators
 {
-  private static Type[] maSeriesTypes = new Type[]
+  private static Type[] maSeriesTypes = new[]
   {
     typeof(BIAS_Series),
     typeof(MAX_Series),
@@ -19,7 +19,8 @@ public class Oscillators
     typeof(KURTOSIS_Series),
     typeof(MAD_Series),
     typeof(MAPE_Series),
-    typeof(MSE_Series),
+    typeof(MAE_Series),
+		typeof(MSE_Series),
     typeof(SDEV_Series),
     typeof(SMAPE_Series),
     typeof(WMAPE_Series),
@@ -31,6 +32,7 @@ public class Oscillators
     typeof(CMO_Series),
     typeof(RSI_Series),
     typeof(TRIX_Series),
+    typeof(BBANDS_Series),
 };
 
   [Theory]

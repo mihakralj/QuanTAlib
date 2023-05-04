@@ -30,7 +30,7 @@ public class ZLEMA_Series : TSeries {
 	private readonly EMA_Series _ema;
 
 	//core constructor
-	public ZLEMA_Series(int period, bool useNaN, bool useSMA) : base() {
+	public ZLEMA_Series(int period, bool useNaN, bool useSMA) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"ZLEMA({period})";
@@ -54,7 +54,7 @@ public class ZLEMA_Series : TSeries {
 	}
 
 	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update) {
+	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 		BufferTrim(buffer: _buffer, value: TValue.v, period: _period, update: update);
 		int _lag;
 		if (_period == 0) { 
@@ -76,9 +76,7 @@ public class ZLEMA_Series : TSeries {
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
 	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
-	}
+
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);
 	}

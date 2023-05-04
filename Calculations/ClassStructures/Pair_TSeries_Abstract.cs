@@ -16,97 +16,117 @@ Abstract classes with all scaffolding required to build indicators.
 
 </summary> */
 
+public abstract class Pair_TSeries_Indicator : TSeries {
+	protected readonly int _p;
+	protected readonly bool _NaN;
+	protected readonly TSeries _d1;
+	protected readonly TSeries _d2;
+	protected readonly double _dd1, _dd2;
 
-public abstract class Pair_TSeries_Indicator : TSeries
-{
-    protected readonly int _p;
-    protected readonly bool _NaN;
-    protected readonly TSeries _d1;
-    protected readonly TSeries _d2;
-    protected readonly double _dd1, _dd2;
+	// Chainable Constructors - add them at the end of primary constructors if needed
+	protected Pair_TSeries_Indicator(TSeries source1, TSeries source2, int period, bool useNaN) {
+		_p = period;
+		_NaN = useNaN;
+		_d1 = source1;
+		_d2 = source2;
+		_dd1 = double.NaN;
+		_dd2 = double.NaN;
+		_d1.Pub += Sub;
+		_d2.Pub += Sub;
+	}
 
-  // Chainable Constructors - add them at the end of primary constructors if needed
-    protected Pair_TSeries_Indicator(TSeries source1, TSeries source2, int period, bool useNaN)
-    {
-        this._p = period;
-        this._NaN = useNaN;
-        this._d1 = source1;
-        this._d2 = source2;
-        this._dd1 = double.NaN;
-        this._dd2 = double.NaN;
-        this._d1.Pub += this.Sub;
-        this._d2.Pub += this.Sub;
-    }
-  protected Pair_TSeries_Indicator(TSeries source1, TSeries source2)
-    {
-        this._d1 = source1;
-        this._d2 = source2;
-        this._dd1 = double.NaN;
-        this._dd2 = double.NaN;
-        this._d1.Pub += this.Sub;
-        this._d2.Pub += this.Sub;
-    }
-    protected Pair_TSeries_Indicator(TSeries source1, double dd2)
-    {
-        this._d1 = source1;
-        this._d2 = new();
-        this._dd1 = double.NaN;
-        this._dd2 = dd2;
-        this._d1.Pub += this.Sub;
-    }
-        protected Pair_TSeries_Indicator(double dd1, TSeries source2)
-    {
-        this._d1 = new();
-        this._d2 = source2;
-        this._dd1 = dd1;
-        this._dd2 = double.NaN;
-        this._d2.Pub += this.Sub;
-    }
+	protected Pair_TSeries_Indicator(TSeries source1, TSeries source2) {
+		_d1 = source1;
+		_d2 = source2;
+		_dd1 = double.NaN;
+		_dd2 = double.NaN;
+		_d1.Pub += Sub;
+		_d2.Pub += Sub;
+	}
 
-    // overridable Add(Tvalue, Tvalue) method to add/update a single value at the end of the list
-    public virtual void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2, bool update) => base.Add(TValue: (TValue1.t, 0), update: update); // default inserts zeros
+	protected Pair_TSeries_Indicator(TSeries source1, double dd2) {
+		_d1 = source1;
+		_d2 = new TSeries();
+		_dd1 = double.NaN;
+		_dd2 = dd2;
+		_d1.Pub += Sub;
+	}
 
-    // potentially overridable Add() bulk variations (could be replaced with faster bulk algos)
-    public virtual void Add(TSeries d1, TSeries d2) { for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], d2[i], update: false); }}
-    public virtual void Add(TSeries d1, double dd2) { for (int i = 0; i < d1.Count; i++) { this.Add(d1[i], (d1[i].t, dd2), update: false); }}
-    public virtual void Add(double dd1, TSeries d2) { for (int i = 0; i < d2.Count; i++) { this.Add((d2[i].t, dd1), d2[i], update: false); }}
+	protected Pair_TSeries_Indicator(double dd1, TSeries source2) {
+		_d1 = new TSeries();
+		_d2 = source2;
+		_dd1 = dd1;
+		_dd2 = double.NaN;
+		_d2.Pub += Sub;
+	}
 
-    public void Add((System.DateTime t, double v)TValue1, (System.DateTime t, double v)TValue2) => this.Add(TValue1, TValue2, update: false);
+	// overridable Add(Tvalue, Tvalue) method to add/update a single value at the end of the list
+	public virtual void Add((DateTime t, double v) TValue1, (DateTime t, double v) TValue2, bool update) {
+		base.Add((TValue1.t, 0), update);
+		// default inserts zeros
+	}
 
-	public void Add(bool update)
-	{
-		if ((this._dd1 is double.NaN) && (this._dd2 is double.NaN))
-		{
-			// (Series, Series)
-			if (update || (this._d1.Count > this.Count && this._d2.Count > this.Count))
-			{ this.Add(this._d1[this._d1.Count - 1], this._d2[this._d2.Count - 1], update); }
-		}
-		else if ((this._dd2 is not double.NaN) && (this._dd1 is double.NaN))
-		{
-			// (Series, Double)
-			this.Add(TValue1: this._d1[this._d1.Count - 1], TValue2: (this._d1[this._d1.Count - 1].t, this._dd2), update: update);
-		}
-		else
-		{
-			// (Double, Series)
-			this.Add(TValue1: (this._d2[this._d2.Count - 1].t, this._dd1), TValue2: this._d2[this._d2.Count - 1], update: update);
+	// potentially overridable Add() bulk variations (could be replaced with faster bulk algos)
+	public virtual void Add(TSeries d1, TSeries d2) {
+		for (var i = 0; i < d1.Count; i++) {
+			Add(d1[i], d2[i], false);
 		}
 	}
 
-	public void Add() => this.Add(update: false);
-    public new void Sub(object source, TSeriesEventArgs e) => this.Add(e.update);
+	public virtual void Add(TSeries d1, double dd2) {
+		for (var i = 0; i < d1.Count; i++) {
+			Add(d1[i], (d1[i].t, dd2), false);
+		}
+	}
 
-    protected static void Add_Replace(List<double> l, double v, bool update)
-    {
-        if (update)
-        { l[l.Count - 1] = v; }
-        else
-        { l.Add(v); }
-    }
-    protected static void Add_Replace_Trim(List<double> l, double v, int p, bool update)
-    {
-        Add_Replace(l, v, update);
-        if (l.Count > p && p != 0)
-        { l.RemoveAt(0); }
-    }
+	public virtual void Add(double dd1, TSeries d2) {
+		for (var i = 0; i < d2.Count; i++) {
+			Add((d2[i].t, dd1), d2[i], false);
+		}
+	}
+
+	public void Add((DateTime t, double v) TValue1, (DateTime t, double v) TValue2) {
+		Add(TValue1, TValue2, false);
+	}
+
+	public void Add(bool update) {
+		if (_dd1 is double.NaN && _dd2 is double.NaN) {
+			// (Series, Series)
+			if (update || (_d1.Count > Count && _d2.Count > Count)) {
+				Add(_d1[_d1.Count - 1], _d2[_d2.Count - 1], update);
+			}
+		}
+		else if (_dd2 is not double.NaN && _dd1 is double.NaN) {
+			// (Series, Double)
+			Add(_d1[_d1.Count - 1], (_d1[_d1.Count - 1].t, _dd2), update);
+		}
+		else {
+			// (Double, Series)
+			Add((_d2[_d2.Count - 1].t, _dd1), _d2[_d2.Count - 1], update);
+		}
+	}
+
+	public void Add() {
+		Add(false);
+	}
+
+	public new void Sub(object source, TSeriesEventArgs e) {
+		Add(e.update);
+	}
+
+	protected static void Add_Replace(List<double> l, double v, bool update) {
+		if (update) {
+			l[l.Count - 1] = v;
+		}
+		else {
+			l.Add(v);
+		}
+	}
+
+	protected static void Add_Replace_Trim(List<double> l, double v, int p, bool update) {
+		Add_Replace(l, v, update);
+		if (l.Count > p && p != 0) {
+			l.RemoveAt(0);
+		}
+	}
 }

@@ -27,7 +27,7 @@ public class ENTROPY_Series : TSeries {
 	private readonly System.Collections.Generic.List<double> _buff2 = new();
 
 	//core constructors
-	public ENTROPY_Series(int period, double logbase, bool useNaN) : base() {
+	public ENTROPY_Series(int period, double logbase, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		_logbase = logbase;
@@ -68,9 +68,6 @@ public class ENTROPY_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

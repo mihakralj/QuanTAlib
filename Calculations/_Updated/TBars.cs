@@ -84,16 +84,16 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
     };
   }
 
-  public virtual (DateTime t, double o, double h, double l, double c, double v) Add((double o, double h, double l, double c, double v) p, bool update = false) =>
+  public virtual (DateTime t, double v) Add((double o, double h, double l, double c, double v) p, bool update = false) =>
 	  Add((t: (this.Count == 0) ? DateTime.Today : this[^1].t.AddDays(1),p.o,p.h,p.l,p.c,p.v),update);
 
-  public virtual (DateTime t, double o, double h, double l, double c, double v) Add(double o, double h, double l, double c, double v, bool update = false) =>
+  public virtual (DateTime t, double v) Add(double o, double h, double l, double c, double v, bool update = false) =>
 	  Add((o,h,l,c,v),update);
 
-  public virtual (DateTime t, double o, double h, double l, double c, double v) Add(DateTime t, double o, double h, double l, double c, double v, bool update = false) =>
+  public virtual (DateTime t, double v) Add(DateTime t, double o, double h, double l, double c, double v, bool update = false) =>
 	  this.Add((t, o, h, l, c, v), update);
 
-	public virtual (DateTime t, double o, double h, double l, double c, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
+	public virtual (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
 	  if (update) { this[^1] = TBar; } else { base.Add(TBar); }
 
 	  _open.Add((TBar.t, TBar.o), update);
@@ -109,8 +109,8 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
 	  _hlcc4.Add((TBar.t, (TBar.h + TBar.l + TBar.c + TBar.c) * 0.25), update);
 
 	  this.OnEvent(update);
-		return TBar;
-  }
+	  return (TBar.t, (TBar.o + TBar.h + TBar.l + TBar.c) * 0.25);
+	}
 
 	public delegate void NewDataEventHandler(object source, TSeriesEventArgs args);
   public event NewDataEventHandler Pub;
@@ -120,7 +120,19 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
   public void Sub(object source, TSeriesEventArgs e) { TBars ss = (TBars)source; if (ss.Count > 1) {
       for (int i = 0; i < ss.Count; i++) { this.Add(ss[i]); }
     } else {
-      this.Add(ss[ss.Count - 1], e.update);
+      this.Add(ss[^1], e.update);
     }
+  }
+
+  /// common helpers
+  public static void BufferTrim(System.Collections.Generic.List<double> buffer, double value, int period, bool update) {
+	  if (!update) {
+		  buffer.Add(value);
+		  if (buffer.Count > period && period > 0) { buffer.RemoveAt(0); }
+		  return;
+	  }
+	  buffer[^1] = value;
+  }
+  public virtual void Reset() {
   }
 }

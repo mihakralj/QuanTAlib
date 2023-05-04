@@ -22,7 +22,7 @@ public class DECAY_Series : TSeries {
 	private readonly double _dfactor;
 
 	//core constructors
-	public DECAY_Series(int period, bool exponential, bool useNaN) : base() {
+	public DECAY_Series(int period, bool exponential, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"DECAY({period})";
@@ -65,9 +65,6 @@ public class DECAY_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

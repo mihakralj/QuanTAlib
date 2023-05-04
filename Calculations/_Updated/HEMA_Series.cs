@@ -24,11 +24,11 @@ public class HEMA_Series : TSeries {
 	private double _lasthema, _oldhema;
 
 	//core constructors
-	public HEMA_Series(int period, bool useNaN) : base() {
+	public HEMA_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"HEMA({period})";
-		CalculateK(_period, out _k1, out _k2, out _k3);
+		(_k1, _k2, _k3) = CalculateK(_period);
 		_len = 0;
 		_lastema1 = _oldema1 = _lastema2 = _oldema2 = _lasthema = _oldhema = 0;
 	}
@@ -62,7 +62,7 @@ public class HEMA_Series : TSeries {
 		double _ema1, _ema2, _hema;
 		if (_period == 0) {
 			_len++;
-			CalculateK(_len, out _k1, out _k2, out _k3);
+			(_k1, _k2, _k3) = CalculateK(_len);
 		}
 		if (double.IsNaN(TValue.v)) {
 			return base.Add((TValue.t, double.NaN), update);
@@ -88,9 +88,6 @@ public class HEMA_Series : TSeries {
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
 	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
-	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);
 	}
@@ -108,9 +105,12 @@ public class HEMA_Series : TSeries {
 		_len = 0;
 	}
 
-	public static void CalculateK(int len, out double k1, out double k2, out double k3) {
-		k1 = 8 / (double)(len + 7);
-		k2 = 3 / (double)(len + 2);
-		k3 = 2 / Math.Sqrt(len + 3);
+	public static (double k1, double k2, double k3) CalculateK(int len) {
+		double k1 = 8 / (double)(len + 7);
+		double k2 = 3 / (double)(len + 2);
+		double k3 = 2 / Math.Sqrt(len + 3);
+
+		return (k1, k2, k3);
 	}
+
 }

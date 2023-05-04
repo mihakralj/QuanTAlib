@@ -27,7 +27,7 @@ public class CMO_Series : TSeries {
 	private double _plast_value, _last_value;
 
 	//core constructors
-	public CMO_Series(int period, bool useNaN) : base() {
+	public CMO_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"CMO({period})";
@@ -71,9 +71,7 @@ public class CMO_Series : TSeries {
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
 	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
-	}
+
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);
 	}

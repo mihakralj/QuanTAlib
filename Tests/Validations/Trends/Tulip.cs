@@ -36,7 +36,7 @@ public class Tulip_Test
 	{
 		double[][] arrin = {inhigh, inlow, inclose, involume };
 		double[][] arrout = { outdata };
-		ADL_Series QL = new(bars, false);
+		ADL_Series QL = new(bars);
 		Tulip.Indicators.ad.Run(inputs: arrin, options: new double[] { }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--)
 		{
@@ -274,7 +274,7 @@ public class Tulip_Test
 	public void LINREG() {
 		double[][] arrin = { inclose };
 		double[][] arrout = { outdata };
-		LINREG_Series QL = new(bars.Close, period);
+		SLOPE_Series QL = new(bars.Close, period);
 		Tulip.Indicators.linregslope.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--) {
 			double QL_item = QL[i].v;
@@ -438,7 +438,7 @@ public class Tulip_Test
 	public void TR() {
 		double[][] arrin = { inhigh,inlow,inclose };
 		double[][] arrout = { outdata };
-		TR_Series QL = new(bars, false);
+		TR_Series QL = new(bars);
 		Tulip.Indicators.tr.Run(inputs: arrin, options: new double[] {}, outputs: arrout);
 		for (int i = QL.Length - 1; i > skip; i--) {
 			double QL_item = QL[i].v;

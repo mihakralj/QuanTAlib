@@ -19,7 +19,7 @@ public class CUSUM_Series : TSeries {
 	protected readonly TSeries _data;
 
 	//core constructors
-	public CUSUM_Series(int period, bool useNaN) : base() {
+	public CUSUM_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"CUSUM({period})";
@@ -35,7 +35,7 @@ public class CUSUM_Series : TSeries {
 	public CUSUM_Series(TBars source) : this(source.Close, 0, false) { }
 	public CUSUM_Series(TBars source, int period) : this(source.Close, period, false) { }
 	public CUSUM_Series(TBars source, int period, bool useNaN) : this(source.Close, period, useNaN) { }
-	public CUSUM_Series(TSeries source) : this(source, 0, false) { }
+	public CUSUM_Series(TSeries source) : this(source, period: 0, useNaN: false) { }
 	public CUSUM_Series(TSeries source, int period) : this(source: source, period: period, useNaN: false) { }
 
 	//////////////////
@@ -53,9 +53,6 @@ public class CUSUM_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

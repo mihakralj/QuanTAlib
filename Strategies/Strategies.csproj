@@ -34,9 +34,6 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles=".\bin\$(Configuration)\QuanTAlib_Strategies.dll" DestinationFolder="\Quantower\Settings\Scripts\Strategies\QuanTAlib" />
   </Target>

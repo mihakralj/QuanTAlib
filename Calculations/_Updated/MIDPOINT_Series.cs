@@ -20,7 +20,7 @@ public class MIDPOINT_Series : TSeries {
 	protected readonly TSeries _data;
 
 	//core constructors
-	public MIDPOINT_Series(int period, bool useNaN) : base() {
+	public MIDPOINT_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"MIDPOINT({period})";
@@ -54,9 +54,6 @@ public class MIDPOINT_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

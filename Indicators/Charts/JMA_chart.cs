@@ -24,7 +24,7 @@ public class JMA_chart : Indicator {
 	private int Vlong = 65;
 
 	[InputParameter("Phase", 4, -100, 100, 1, 2)]
-	private double Jphase = 0.0;
+	private double Jphase;
 
 	#endregion Parameters
 
@@ -38,7 +38,7 @@ public class JMA_chart : Indicator {
 	protected int firstOnScreenBarIndex, lastOnScreenBarIndex;
 	protected HistoricalData History;
 	protected int HistPeriod;
-	public JMA_chart() :base() {
+	public JMA_chart() {
 		Name = "JMA - Jurik Moving Avg";
 		Description = "Jurik Moving Average description";
 		AddLineSeries(lineName: "JMA", lineColor: Color.Yellow, lineWidth:  3,lineStyle: LineStyle.Solid);
@@ -80,8 +80,10 @@ public class JMA_chart : Indicator {
 	}
 	public override void OnPaintChart(PaintChartEventArgs args) {
 		base.OnPaintChart(args);
-		if (this.CurrentChart == null)
+		if (this.CurrentChart == null) {
 			return;
+		}
+
 		graphics = args.Graphics;
 		mainWindow = this.CurrentChart.MainWindow;
 

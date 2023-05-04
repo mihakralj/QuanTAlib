@@ -31,7 +31,7 @@ public class T3_Series : TSeries {
 	protected readonly TSeries _data;
 
 	//core constructors
-	public T3_Series(int period, double vfactor, bool useSMA, bool useNaN) : base() {
+	public T3_Series(int period, double vfactor, bool useSMA, bool useNaN) {
 		_period = period;
 		_len = 0;
 		_NaN = useNaN;
@@ -136,9 +136,6 @@ public class T3_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

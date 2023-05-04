@@ -33,7 +33,7 @@ public class EMA_Series : TSeries {
 
 //core constructors
 
-	public EMA_Series(int period, bool useNaN, bool useSMA) : base() {
+	public EMA_Series(int period, bool useNaN, bool useSMA) {
 		_period = period;
 		_NaN = useNaN;
 		_useSMA = useSMA;
@@ -59,7 +59,7 @@ public class EMA_Series : TSeries {
 
 	//////////////////
 	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update) {
+	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 		if (update) {
 			_lastema = _oldema;
 			_sum = _oldsum;
@@ -101,9 +101,6 @@ public class EMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

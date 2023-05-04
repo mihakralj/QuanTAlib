@@ -33,7 +33,7 @@ public class Skender
   [Fact]
   public void ADL()
   {
-    ADL_Series QL = new(bars, false);
+    ADL_Series QL = new(bars);
     var SK = quotes.GetAdl().Select(i => i.Adl);
     for (int i = QL.Length; i > skip; i--)
     {
@@ -228,9 +228,9 @@ public class Skender
     }
   }
   [Fact]
-  public void LINREG()
+  public void SLOPE()
   {
-    LINREG_Series QL = new(bars.Close, period, useNaN: false);
+    SLOPE_Series QL = new(bars.Close, period, useNaN: false);
     var SK = quotes.GetSlope(period);
     for (int i = QL.Length; i > skip; i--)
     {
@@ -447,7 +447,7 @@ public class Skender
   [Fact]
   public void TR()
   {
-    TR_Series QL = new(bars, useNaN: false);
+    TR_Series QL = new(bars);
     var SK = quotes.GetTr().Select(i => i.Tr.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {

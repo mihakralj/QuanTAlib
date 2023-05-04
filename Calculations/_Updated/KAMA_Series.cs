@@ -27,17 +27,15 @@ Remark:
 public class KAMA_Series : TSeries {
 	private readonly System.Collections.Generic.List<double> _buffer = new();
 	private double _lastkama, _lastlastkama;
-	private int _len;
 	private readonly double _scFast, _scSlow;
 	protected readonly int _period;
 	protected readonly bool _NaN;
 	protected readonly TSeries _data;
 
 	//core constructors
-	public KAMA_Series(int period, int fast, int slow, bool useNaN) : base() {
+	public KAMA_Series(int period, int fast, int slow, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
-		_len = 0;
 		_scFast = 2.0 / (((period < fast) ? period : fast) + 1);
 		_scSlow = 2.0 / (slow + 1);
 		_lastkama = _lastlastkama = 0;
@@ -81,7 +79,6 @@ public class KAMA_Series : TSeries {
 			double _sc = (_er * (_scFast - _scSlow)) + _scSlow;
 			_kama = (_lastkama + (_sc * _sc * (TValue.v - _lastkama)));
 		}
-		_len++;
 		_lastkama = _kama;
 		var res = (TValue.t, Count < _period - 1 && _NaN ? double.NaN : _kama);
 		return base.Add(res, update);
@@ -91,9 +88,6 @@ public class KAMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);
@@ -108,7 +102,6 @@ public class KAMA_Series : TSeries {
 	//reset calculation
 	public override void Reset() {
 		_buffer.Clear();
-		_len = 0;
 		_lastkama = _lastlastkama = 0;
 	}
 }

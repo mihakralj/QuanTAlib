@@ -30,7 +30,7 @@ public class TrailingStop_chart : Indicator {
 
 	///////
 
-	public TrailingStop_chart() :base() {
+	public TrailingStop_chart() {
 		Name = $"ATR Trailing Stop";
 		AddLineSeries(lineName: "TrailingATR Long", lineColor: Color.Yellow, lineWidth:  1,lineStyle: LineStyle.Dot);
 		AddLineSeries(lineName: "Ratchet Long", lineColor: Color.Yellow, lineWidth: 3, lineStyle: LineStyle.Solid);
@@ -90,31 +90,6 @@ public class TrailingStop_chart : Indicator {
 		this.SetValue(_ratchetL, lineIndex: 1);
 		this.SetValue(_tslineS, lineIndex: 2);
 		this.SetValue(_ratchetS, lineIndex: 3);
-	}
-
-	public override void OnPaintChart(PaintChartEventArgs args) {
-		base.OnPaintChart(args);
-		if (this.CurrentChart == null) { return; }
-		Graphics graphics = args.Graphics;
-		var mainWindow = this.CurrentChart.MainWindow;
-		int leftIndex = (int)mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Left));
-		int rightIndex = (int)Math.Ceiling(mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Right)));
-		int historycount = HistoricalData.Count;
-		int ymax = mainWindow.ClientRectangle.Height;
-
-		/*
-				for (int i = leftIndex; i <= rightIndex; i++) {
-					int xi = (int)Math.Round(mainWindow.CoordinatesConverter.GetChartX(Time(Count - 1 - i)));
-					int width = this.CurrentChart.BarsWidth;
-					int height = (int)((equity[i+historycount].v) *proportion);
-
-					Brush bb = Brushes.DarkSlateGray;
-					bb = (overunder[i+historycount].v>0 && LongTrades)? Brushes.Green : bb;
-					bb = (overunder[i + historycount].v < 0 && ShortTrades) ? Brushes.Red : bb;
-
-					graphics.FillRectangle(bb, xi, ymax - height, width, height);
-				}
-		*/
 	}
 }
 

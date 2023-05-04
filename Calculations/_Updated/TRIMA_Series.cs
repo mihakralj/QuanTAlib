@@ -17,13 +17,13 @@ Remark:
 
 public class TRIMA_Series : TSeries {
 	private readonly int _p1a, _p1b;
-	private SMA_Series sma, trima;
+	private readonly SMA_Series sma, trima;
 	protected readonly int _period;
 	protected readonly bool _NaN;
 	protected readonly TSeries _data;
 
 	//core constructors
-	public TRIMA_Series(int period, bool useNaN) : base() {
+	public TRIMA_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"xMA({period})";
@@ -65,9 +65,6 @@ public class TRIMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

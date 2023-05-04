@@ -48,7 +48,7 @@ public class Ta_Lib
   [Fact]
   public void ADL()
   {
-    ADL_Series QL = new(bars, false);
+    ADL_Series QL = new(bars);
     Core.Ad(inhigh, inlow, inclose, involume, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
     for (int i = QL.Length - 1; i > 0; i--)
     {
@@ -424,7 +424,7 @@ public class Ta_Lib
   [Fact]
   public void TR()
   {
-    TR_Series QL = new(bars, false);
+    TR_Series QL = new(bars);
     Core.TRange(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _);
     for (int i = QL.Length - 1; i > skip; i--)
     {
