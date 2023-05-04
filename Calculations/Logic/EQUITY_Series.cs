@@ -12,6 +12,8 @@ EQUITY - Generates P&L portfolio based on trades signals and equity prices
 //optional: long, short, long&short
 //optional: warmup period: warmup
 
+/*
+
 public class EQUITY_Series : Single_TSeries_Indicator {
 	readonly TSeries inmarket; //for every bar
 	private readonly TSeries _price;
@@ -85,3 +87,5 @@ public class EQUITY_Series : Single_TSeries_Indicator {
 		base.Add((TValue.t, _equity), update, _NaN);
 	}
 }
+
+*/

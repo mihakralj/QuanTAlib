@@ -26,6 +26,8 @@ public class Indicators
     typeof(T3_Series),
     typeof(KAMA_Series),
     typeof(TRIMA_Series),
+    typeof(MAMA_Series),
+    typeof(HWMA_Series),
 };
 
   [Theory]

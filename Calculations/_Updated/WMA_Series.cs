@@ -19,7 +19,7 @@ Sources:
 
 public class WMA_Series : TSeries {
 	private readonly System.Collections.Generic.List<double> _buffer = new();
-	private System.Collections.Generic.List<double> _weights = new();
+	private System.Collections.Generic.List<double> _weights;
 	protected int _period;
 	protected readonly bool _NaN;
 	protected readonly TSeries _data;
@@ -30,7 +30,7 @@ public class WMA_Series : TSeries {
 	}
 
 	//core constructors
-	public WMA_Series(int period, bool useNaN) : base() {
+	public WMA_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"WMA({period})";
@@ -75,9 +75,6 @@ public class WMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

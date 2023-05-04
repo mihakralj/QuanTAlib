@@ -28,7 +28,7 @@ public class DEMA_Series : TSeries {
 	protected readonly TSeries _data;
 
 //core constructor
-	public DEMA_Series(int period, bool useNaN, bool useSMA) : base() {
+	public DEMA_Series(int period, bool useNaN, bool useSMA) {
 		_period = period;
 		_NaN = useNaN;
 		_useSMA = useSMA;
@@ -105,10 +105,6 @@ public class DEMA_Series : TSeries {
 		}
 
 		return _data.Last;
-	}
-
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 
 	public (DateTime t, double v) Add(bool update) {

@@ -33,8 +33,9 @@
 |EDECAY - Exponential Decay|`DECAY_Series`|||decay|✔️edecay|
 |ENTROPY - Entropy|`ENTROPY_Series`|||entropy||
 |KURTOSIS - Kurtosis|`KURT_Series`|||✔️kurtosis|
-|LINREG - Linear Regression|`LINREG_Series`||✔️GetSlope||✔️linregslope|
+|SLOPE - Slope of Linear Regression|`SLOPE_Series`||✔️GetSlope||✔️linregslope|
 |MAD - Mean Absolute Deviation|`MAD_Series`||✔️GetSmaAnalysis|✔️mad|
+|MAE - Mean Absolute Error|`MAE_Series`||||
 |MAPE - Mean Absolute Percent Error|`MAPE_Series`||✔️GetSmaAnalysis||
 |MEDIAN - Median value|`MEDIAN_Series`|||✔️median|
 |MSE - Mean Squared Error|`MSE_Series`||✔️GetSmaAnalysis||

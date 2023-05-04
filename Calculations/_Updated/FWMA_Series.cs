@@ -12,13 +12,13 @@ FWMA: Fibonacci's Weighted Moving Average is similar to a Weighted Moving Averag
 </summary> */
 public class FWMA_Series : TSeries {
 	private readonly List<double> _buffer = new();
-	private List<double> _weights = new();
+	private List<double> _weights;
 	protected readonly int _period;
 	protected readonly bool _NaN;
 	protected readonly TSeries _data;
 	protected int _len;
 
-	public FWMA_Series(int period, bool useNaN) : base() {
+	public FWMA_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"FWMA({period})";
@@ -64,12 +64,6 @@ public class FWMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
-	}
-	public (DateTime t, double v) Add(bool update) {
-		return this.Add(TValue: _data.Last, update: update);
 	}
 	public (DateTime t, double v) Add() {
 		return Add(TValue: _data.Last, update: false);

@@ -34,7 +34,7 @@ public class JMA_Series : TSeries {
 	private readonly int _voltyS, _voltyL;
 
 	//core constructors
-	public JMA_Series(int period, double phase, int vshort, int vlong, bool useNaN) : base() {
+	public JMA_Series(int period, double phase, int vshort, int vlong, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"JMA({period})";
@@ -146,9 +146,6 @@ public class JMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

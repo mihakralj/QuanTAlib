@@ -1,5 +1,6 @@
 ﻿namespace QuanTAlib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 /* <summary>
@@ -12,11 +13,16 @@ Sources:
 
 </summary> */
 
+
 public class COVAR_Series : Pair_TSeries_Indicator
 {
   public COVAR_Series(TSeries d1, TSeries d2, int period, bool useNaN = false) : base(d1, d2, period, useNaN)
   {
-    if (base._d1.Count > 0 && base._d2.Count > 0) { for (int i = 0; i < base._d1.Count; i++) { this.Add(base._d1[i], base._d2[i], false); } }
+	  if (base._d1.Count > 0 && base._d2.Count > 0) {
+		  for (int i = 0; i < base._d1.Count; i++) {
+			  this.Add(base._d1[i], base._d2[i], false);
+		  }
+	  }
   }
 
   private readonly System.Collections.Generic.List<double> _x = new();
@@ -25,9 +31,9 @@ public class COVAR_Series : Pair_TSeries_Indicator
 
   public override void Add((System.DateTime t, double v) TValue1, (System.DateTime t, double v) TValue2, bool update)
   {
-    Add_Replace_Trim(_x, TValue1.v, _p, update);
-    Add_Replace_Trim(_y, TValue2.v, _p, update);
-    Add_Replace_Trim(_xy, TValue1.v * TValue2.v, _p, update);
+    BufferTrim(_x, TValue1.v, _p, update);
+    BufferTrim(_y, TValue2.v, _p, update);
+    BufferTrim(_xy, TValue1.v * TValue2.v, _p, update);
 
     double _avgx = _x.Average();
     double _avgy = _y.Average();

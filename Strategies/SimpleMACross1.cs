@@ -14,16 +14,16 @@ namespace SimpleMACross {
 		public Account CurrentAccount { get; set; }
 
 		[InputParameter("Fast MA", 2, minimum: 1, maximum: 100, increment: 1, decimalPlaces: 0)]
-		public int FastMA = 5;
+		private int FastMA = 5;
 
 		[InputParameter("Slow MA", 3, minimum: 1, maximum: 100, increment: 1, decimalPlaces: 0)]
-		public int SlowMA = 10;
+		private int SlowMA = 10;
 
 		[InputParameter("Quantity", 4, 0.1, 99999, 0.1, 2)]
-		public double Quantity = 1.0;
+		private double Quantity = 1.0;
 	
 		[InputParameter("Period", 5)]
-		public Period period = Period.MIN1;
+		private Period period = Period.MIN1;
 
 		public override string[] MonitoringConnectionsIds => new string[] { this.CurrentSymbol?.ConnectionId, this.CurrentAccount?.ConnectionId };
 
@@ -31,9 +31,8 @@ namespace SimpleMACross {
 		private DateTime prev_time;
 		private readonly TBars bars = new();
 
-		public SimpleMACross1()
-				: base() {
-			this.Name = "Miha MA Cross strategy 3";
+		public SimpleMACross1() {
+			this.Name = "MA Cross strategy 3";
 			this.Description = "Raw strategy without any additional functional";
 		}
 
@@ -73,24 +72,7 @@ namespace SimpleMACross {
 
 			// An example of adding custom strategy metrics:
 			result.Add("Bars processed", this.bars.Count.ToString());
-			/*
-						result.Add("Trades [#]", "0");
-						result.Add("Long trades [#]", this.longPositionsCount.ToString());
-						result.Add("Short trades [#]", this.shortPositionsCount.ToString());
-						result.Add("Profitable trades [#]", "0");
-						result.Add("Win Rate [%]", "0");
-						result.Add("Best Trade [%]", "0");
-						result.Add("Worst Trade[%]", "0");
-						result.Add("Avg Winning Trade [%]", "0");
-						result.Add("Avg Losing Trade [%]", "0");
-						result.Add("Profit Factor", "0");
-						result.Add("Sharpe Ratio", "0");
-						result.Add("Sortino Ratio", "0");
-						result.Add("Omega Ratio", "0");
-						result.Add("Calmar Ratio", "0");
-						result.Add("Beta", "0");
-						result.Add("Alpha", "0");
-			*/
+			
 			return result;
 		}
 

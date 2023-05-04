@@ -65,7 +65,7 @@ jobs:
       run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib"
         /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
         /d:sonar.host.url="https://sonarcloud.io"
-        /d:sonar.cs.dotcover.reportsPaths=./dotcover.xml
+        /d:sonar.cs.dotcover.reportsPaths=dotcover*
 
 ############# Build and test
 
@@ -80,8 +80,10 @@ jobs:
     - name: Build Strategies DLL
       run: dotnet build ./Strategies/Strategies.csproj --configuration Release --nologo
 
-    - name: DotCover Test
-      run: dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcReportType=HTML --dcoutput=dotcover.xml --dcoutput=dotcover.html
+    - name: DotCover Test HTML
+      run: dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
+    - name: DotCover Test XML
+      run: dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
     - name: Coverlet Test
       run: dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
 

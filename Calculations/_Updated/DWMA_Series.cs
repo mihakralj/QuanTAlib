@@ -13,14 +13,14 @@ DWMA: Double Weighted Moving Average
 
 public class DWMA_Series : TSeries {
 	private readonly List<double> _buffer = new();
-	private List<double> _weights = new();
+	private List<double> _weights;
 	protected readonly int _period;
 	protected readonly bool _NaN;
 	protected readonly TSeries _data;
 	protected int _len;
 
 //core constructors
-	public DWMA_Series(int period, bool useNaN) : base() {
+	public DWMA_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"DWMA({period})";
@@ -89,10 +89,6 @@ public class DWMA_Series : TSeries {
 		}
 
 		return _data.Last;
-	}
-
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 
 	public (DateTime t, double v) Add(bool update) {

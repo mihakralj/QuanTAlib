@@ -25,7 +25,7 @@ public class SMA_Series : TSeries {
 	protected readonly bool _NaN;
 
 	//core constructor
-	public SMA_Series(int period, bool useNaN) : base() {
+	public SMA_Series(int period, bool useNaN) {
 		_period = Math.Max(0, period);
 		_NaN = useNaN;
 		Name = $"SMA({period})";
@@ -47,7 +47,7 @@ public class SMA_Series : TSeries {
 
 	//////////////////
 	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update) {
+	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 		if (double.IsNaN(TValue.v)) { return (TValue.t, double.NaN);
 		} else {
 			if (update && _buffer.Count > 0) {
@@ -76,9 +76,6 @@ public class SMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

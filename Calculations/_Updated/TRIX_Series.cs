@@ -21,7 +21,7 @@ public class TRIX_Series : TSeries {
 	private readonly System.Collections.Generic.List<double> _buffer3 = new();
 	private double _lastema1, _lastema2, _lastema3;
 	private double _llastema1, _llastema2, _llastema3;
-
+	private int _len;
 	private readonly bool _useSMA;
 	protected readonly int _period;
 	protected readonly bool _NaN;
@@ -29,12 +29,13 @@ public class TRIX_Series : TSeries {
 
 //core constructors
 
-	public TRIX_Series(int period, bool useNaN, bool useSMA) : base() {
+	public TRIX_Series(int period, bool useNaN, bool useSMA) {
 		_period = period;
 		_NaN = useNaN;
 		_useSMA = useSMA;
 		Name = $"TRIX({period})";
 		_k = 2.0 / (_period + 1);
+		_len = 0;
 		_lastema1 = _llastema1 = _lastema2 = _llastema2 = _lastema3 = _llastema3 = 0;
 	}	
 	public TRIX_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA) {
@@ -54,13 +55,14 @@ public class TRIX_Series : TSeries {
 
 	//////////////////
 	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update) {
+	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 		if (double.IsNaN(TValue.v)) {
 			return base.Add((TValue.t, Double.NaN), update);
 		}
-		if (this.Count == 0) { _lastema1 = _lastema2 = _lastema3 = TValue.v; }
+		if (_len == 0) { _lastema1 = _lastema2 = _lastema3 = TValue.v; }
 		if (update) { _lastema1 = _llastema1; _lastema2 = _llastema2; _lastema3 = _llastema3; }
-		else { _llastema1 = _lastema1; _llastema2 = _lastema2; _llastema3 = _lastema3; }
+		else { _llastema1 = _lastema1; _llastema2 = _lastema2; _llastema3 = _lastema3; _len++;
+		}
 
 		double _ema1, _ema2, _ema3;
 		if ((this.Count < _period) && _useSMA) {
@@ -99,9 +101,6 @@ public class TRIX_Series : TSeries {
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
 	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
-	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);
 	}
@@ -114,6 +113,6 @@ public class TRIX_Series : TSeries {
 	
 	//reset calculation
 	public override void Reset() {
-		
+		_len = 0;
 	}
 }

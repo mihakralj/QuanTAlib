@@ -20,7 +20,7 @@ public class SMAPE_Series : TSeries {
 	protected readonly TSeries _data;
 
 	//core constructors
-	public SMAPE_Series(int period, bool useNaN) : base() {
+	public SMAPE_Series(int period, bool useNaN) {
 		_period = period;
 		_NaN = useNaN;
 		Name = $"SMAPE({period})";
@@ -45,8 +45,6 @@ public class SMAPE_Series : TSeries {
 		BufferTrim(buffer:_buffer, value:TValue.v, period:_period, update: update);
 
 		double _sma = _buffer.Average();
-
-
 		double _smape = 0;
 		for (int i = 0; i < _buffer.Count; i++) { _smape += Math.Abs(_buffer[i] - _sma) / (Math.Abs(_buffer[i]) + Math.Abs(_sma)); }
 		_smape /= this._buffer.Count;
@@ -59,9 +57,6 @@ public class SMAPE_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

@@ -25,7 +25,7 @@ public class HMA_Series : TSeries {
 	protected WMA_Series _wma1, _wma2, _wma3;
 
 	//core constructors
-	public HMA_Series(int period, bool useNaN) : base() {
+	public HMA_Series(int period, bool useNaN) {
 		_period = period;
 		_period2 = period /2;
 		_psqrt = (int)Math.Sqrt(period);
@@ -68,9 +68,6 @@ public class HMA_Series : TSeries {
 		if (data == null) { return (DateTime.Today, Double.NaN); }
 		foreach (var item in data) { Add(item, false); }
 		return _data.Last;
-	}
-	public new (DateTime t, double v) Add((DateTime t, double v) TValue) {
-		return Add(TValue, false);
 	}
 	public (DateTime t, double v) Add(bool update) {
 		return this.Add(TValue: _data.Last, update: update);

@@ -39,7 +39,7 @@ public class MovingAverageSlope_chart : Indicator {
 	private bool LongTrades = true;
 
 	[InputParameter("Short trades", 8)]
-	private bool ShortTrades = false;
+	private bool ShortTrades;
 
 	#endregion Parameters
 
@@ -48,7 +48,7 @@ public class MovingAverageSlope_chart : Indicator {
 
 	///////
 	private TSeries MA1, MA2;
-	private LINREG_Series sMA1, sMA2;
+	private SLOPE_Series sMA1, sMA2;
 	private CROSS_Series sig1, sig2;
 
 	private bool inLong, inShort;
@@ -276,11 +276,12 @@ public class MovingAverageSlope_chart : Indicator {
 		Graphics graphics = args.Graphics;
 		var mainWindow = this.CurrentChart.MainWindow;
 		int leftIndex = (int)mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Left));
-		int rightIndex = (int)Math.Ceiling(mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Right)));
+		int rightIndex = (int)Math.Ceiling(mainWindow.CoordinatesConverter.GetBarIndex(mainWindow.CoordinatesConverter.GetTime(mainWindow.ClientRectangle.Right))); 
+/*
 		int historycount = HistoricalData.Count;
 		int ymax = mainWindow.ClientRectangle.Height;
 
-/*
+
 		for (int i = leftIndex; i <= rightIndex; i++) {
 			int xi = (int)Math.Round(mainWindow.CoordinatesConverter.GetChartX(Time(Count - 1 - i)));
 			int width = this.CurrentChart.BarsWidth;
