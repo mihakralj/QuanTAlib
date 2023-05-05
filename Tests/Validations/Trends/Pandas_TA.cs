@@ -463,7 +463,9 @@ public static class PythonLibrary {
 			throw new FileNotFoundException("Python library not found in PATH");
 		}
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-			List<string> pythonLibraries = new List<string>();
+            return "/usr/lib/x86_64-linux-gnu/libpython3.10.so";
+/*
+            List<string> pythonLibraries = new List<string>();
 			List<string> directoriesToSearch = new List<string> { "/home/runner/.local/lib" }; // Add more directories as needed
         	string filePattern = "libpython3.*.so";
         	SearchFiles(directoriesToSearch, filePattern, pythonLibraries);
@@ -474,6 +476,7 @@ public static class PythonLibrary {
 			else {
 				throw new FileNotFoundException("Python library not found");
 			}
+*/
 		}
 
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {

@@ -49,11 +49,12 @@ jobs:
 
     - name: Install pandas-ta
       run: |
+        sudo apt install python3.10
+        sudo apt install python3.10-dev
         pip3 install numpy
         pip3 install pandas
         pip3 install pandas-ta
         python --version
-        ls /home/runner/.local/lib/
 
 ############## Install more tools
 
