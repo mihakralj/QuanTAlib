@@ -30,6 +30,7 @@ public class Skender
     });
   }
 
+/*
   [Fact]
   public void ADL()
   {
@@ -42,6 +43,7 @@ public class Skender
       Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
 		}
   }
+  */
   [Fact]
   public void ALMA()
   {

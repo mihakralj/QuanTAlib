@@ -1,23 +1,25 @@
 using Xunit;
 using System;
 using QuanTAlib;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using Python.Runtime;
-using Python.Included;
 
 namespace Validations;
 
-/*
+
 public class PandasTA : IDisposable
 {
+	private bool disposed = false;
 	private readonly GBM_Feed bars;
-    private readonly Random rnd = new();
+	private readonly Random rnd = new();
 	private readonly int period, skip;
-	private int digits;
-	private readonly string dllpath;
+	private readonly int digits;
 	private readonly dynamic np;
 	private readonly dynamic ta;
 	private readonly dynamic pd;
 	private readonly dynamic df;
+
 
 	public PandasTA() {
     bars = new(Bars: 5000, Volatility: 0.8, Drift: 0.0);
@@ -25,17 +27,11 @@ public class PandasTA : IDisposable
     skip = period+10;
 	  digits = 8;
 
-		Installer.InstallPath = Path.GetFullPath(path: ".");
-		Installer.SetupPython().Wait();
-		Installer.TryInstallPip();
-		Installer.PipInstallModule(module_name: "numpy");
-		Installer.PipInstallModule(module_name: "pandas");
-		Installer.PipInstallModule(module_name: "pandas-ta");
-		dllpath = Installer.InstallPath + "\\" + Installer.InstallDirectory + "\\" + Runtime.PythonDLL;
-		Runtime.PythonDLL = dllpath;
+    string pythonDLL = PythonLibrary.Locate();
+		Runtime.PythonDLL = pythonDLL;
 		PythonEngine.Initialize();
 
-    np = Py.Import(name: "numpy");
+    	np = Py.Import(name: "numpy");
 		pd = Py.Import(name: "pandas");
 		ta = Py.Import(name: "pandas_ta");
 
@@ -52,11 +48,21 @@ public class PandasTA : IDisposable
 	}
 		public void Dispose()
 	{
-    PythonEngine.Shutdown();
+		Dispose(true);
+		PythonEngine.Shutdown();
 	  GC.SuppressFinalize(this);
 	}
+		~PandasTA() {
+			Dispose(false);
+		}
+		protected virtual void Dispose(bool disposing) {
+			if (!disposed) {
+				disposed = true;
+			}
+		}
 
-	[Fact] void ADL() {
+	[Fact]
+	void ADL() {
 		ADL_Series QL = new(bars);
 		var pta = df.ta.ad(high: df.high, low: df.low, close:df.close, volume:df.volume);
 		for (int i = QL.Length-1; i > skip; i--)
@@ -67,7 +73,7 @@ public class PandasTA : IDisposable
 
 		}
 	}
-  /*
+	/*
 	[Fact] void ADOSC() {
 		ADOSC_Series QL = new(bars);
 		var pta = df.ta.adosc(high: df.high, low: df.low, close: df.close, volume: df.volume);
@@ -124,7 +130,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  
+
 	[Fact]
 	void CMO() {
 		CMO_Series QL = new(bars.Close, period, false);
@@ -135,7 +141,7 @@ public class PandasTA : IDisposable
 			Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
 		}
 	}
-  
+
 	[Fact] void DEMA() {
 		DEMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.dema(close: df.close, length: period);
@@ -146,7 +152,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  
+
 	[Fact] void EMA() {
 		EMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.ema(close: df.close, length: period);
@@ -157,7 +163,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  
+
 	[Fact] void ENTROPY() {
 		ENTROPY_Series QL = new(bars.Close, period, useNaN: false);
 		var pta = df.ta.entropy(close: df.close, length: period);
@@ -197,6 +203,7 @@ public class PandasTA : IDisposable
         }
 
 	  }
+
     [Fact] void HWMA() {
 		HWMA_Series QL = new(bars.Close, useNaN: false);
 		var pta = df.ta.hwma(close: df.close);
@@ -206,8 +213,8 @@ public class PandasTA : IDisposable
             double PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
-
 	  }
+
     [Fact] void KAMA() {
         KAMA_Series QL = new(bars.Close, period);
         var pta = df.ta.kama(close: df.close, length: period);
@@ -311,7 +318,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  
+
 	[Fact] void SMA() {
 		SMA_Series QL = new(bars.Close, period, false);
 		var pta = df.ta.sma(close: df.close, length: period);
@@ -322,7 +329,7 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  
+
 	[Fact] void SSDEV() {
 		SSDEV_Series QL = new(bars.Close, period, useNaN: false);
 		var pta = df.ta.stdev(close: df.close, length: period, ddof: 1);
@@ -434,6 +441,63 @@ public class PandasTA : IDisposable
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
         }
     }
-  
+    */
+
 }
-*/
+
+public static class PythonLibrary {
+	public static string Locate() {
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+			string[] paths = Environment.GetEnvironmentVariable("PATH")?.Split(';') ?? Array.Empty<string>();
+			foreach (string path in paths) {
+				string[] pythonDLLs = Directory.GetFiles(path, "python3*.dll");
+				if (pythonDLLs.Length > 0) {
+					foreach (string item in pythonDLLs) {
+						if (!item.EndsWith("python3.dll", StringComparison.OrdinalIgnoreCase)) {
+							return item;
+						}
+					}
+
+				}
+			}
+			throw new FileNotFoundException("Python library not found in PATH");
+		}
+		else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+			List<string> pythonLibraries = new List<string>();
+			List<string> directoriesToSearch = new List<string> { "/opt/hostedtoolcache/Python" }; // Add more directories as needed
+        	string filePattern = "libpython3.*.so";
+        	SearchFiles(directoriesToSearch, filePattern, pythonLibraries);
+
+			if (pythonLibraries.Count > 0) {
+				return pythonLibraries[0];
+			}
+			else {
+				throw new FileNotFoundException("Python library not found");
+			}
+		}
+
+		else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+			throw new NotSupportedException("Not supported yet");
+		}
+
+		else { throw new NotSupportedException("Unsupported operating system"); }
+	}
+	static void SearchFiles(List<string> directoriesToSearch, string filePattern, List<string> foundFiles)
+    {
+        foreach (string directory in directoriesToSearch)
+        {
+            if (Directory.Exists(directory))
+            {
+                try
+                {
+                    string[] files = Directory.GetFiles(directory, filePattern, SearchOption.AllDirectories);
+                    foundFiles.AddRange(files);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error searching in directory: " + directory + " - " + e.Message);
+                }
+            }
+        }
+    }
+}
