@@ -464,7 +464,7 @@ public static class PythonLibrary {
 		}
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
 			List<string> pythonLibraries = new List<string>();
-			List<string> directoriesToSearch = new List<string> { "/opt/hostedtoolcache/Python" }; // Add more directories as needed
+			List<string> directoriesToSearch = new List<string> { "/home/runner/.local/lib" }; // Add more directories as needed
         	string filePattern = "libpython3.*.so";
         	SearchFiles(directoriesToSearch, filePattern, pythonLibraries);
 

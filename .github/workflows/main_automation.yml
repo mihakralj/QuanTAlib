@@ -47,22 +47,13 @@ jobs:
 
 ############## Install Python
 
-#    - name: Install Python3
-#      uses: actions/setup-python@v2
-#      with:
-#        python-version: 3.x
-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-dev
-        sudo apt-get install -y python3-pip
-
     - name: Install pandas-ta
       run: |
         pip3 install numpy
         pip3 install pandas
         pip3 install pandas-ta
+        python --version
+        ls /home/runner/.local/lib/
 
 ############## Install more tools
 
