@@ -80,7 +80,7 @@ public class Tulip_Test
 		double[][] arrin = { inhigh, inlow, inclose };
 		double[][] arrout = { outdata };
 
-		ATR_Series QL = new(bars, period, false);
+		ATR_Series QL = new(bars, period:period, useNaN:false);
 		Tulip.Indicators.atr.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
 		//Tulip ATR doesn't use warm-up SMA, compensating with 200 warming bars
 		for (int i = QL.Length - 1; i > 200+skip; i--)

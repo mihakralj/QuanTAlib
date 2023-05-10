@@ -43,6 +43,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\mihakralj_quantalib\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

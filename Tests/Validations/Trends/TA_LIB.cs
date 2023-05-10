@@ -72,7 +72,7 @@ public class Ta_Lib
   [Fact]
   public void ATR()
   {
-    ATR_Series QL = new(bars, period, false);
+    ATR_Series QL = new(bars, period:period, useNaN: false);
     Core.Atr(inhigh, inlow, inclose, 0, bars.Count - 1, TALIB, out int outBegIdx, out _, period);
     for (int i = QL.Length - 1; i > skip; i--)
     {

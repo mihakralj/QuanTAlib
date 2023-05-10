@@ -59,7 +59,7 @@ public class Skender
   [Fact]
   public void ATR()
   {
-    ATR_Series QL = new(bars, period, false);
+    ATR_Series QL = new(bars, period:period,useNaN: false);
     var SK = quotes.GetAtr(period).Select(i => i.Atr.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
