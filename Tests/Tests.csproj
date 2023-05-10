@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -18,8 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Python.Included" Version="3.11.2" />
-    <PackageReference Include="pythonnet" Version="3.1.0-preview2023-03-04" />
+    <PackageReference Include="pythonnet" Version="3.0.1" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,7 +28,7 @@
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Skender.Stock.Indicators" Version="3.0.0-preview1014-0015" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.3.23174.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Calculations\Calculations.csproj" />

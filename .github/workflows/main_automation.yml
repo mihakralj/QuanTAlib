@@ -45,6 +45,19 @@ jobs:
         #configFilePath: GitVersion.yml
         updateAssemblyInfo: true
 
+############## Install Python
+
+    - name: Install pandas-ta
+      run: |
+        sudo apt install python3.10
+        sudo apt install python3.10-dev
+        pip3 install numpy
+        pip3 install pandas
+        pip3 install pandas-ta
+        python --version
+
+############## Install more tools
+
     - name: Install JDK11 for Sonar Scanner
       uses: actions/setup-java@v3
       with:
@@ -158,3 +171,4 @@ jobs:
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
+

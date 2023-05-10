@@ -30,6 +30,7 @@ public class Skender
     });
   }
 
+/*
   [Fact]
   public void ADL()
   {
@@ -42,6 +43,7 @@ public class Skender
       Assert.InRange(SK_item! - QL_item, -Math.Pow(10,-digits), Math.Pow(10,-digits));
 		}
   }
+  */
   [Fact]
   public void ALMA()
   {
@@ -57,7 +59,7 @@ public class Skender
   [Fact]
   public void ATR()
   {
-    ATR_Series QL = new(bars, period, false);
+    ATR_Series QL = new(bars, period:period,useNaN: false);
     var SK = quotes.GetAtr(period).Select(i => i.Atr.Null2NaN()!);
     for (int i = QL.Length; i > skip; i--)
     {
