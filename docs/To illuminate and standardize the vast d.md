@@ -1,0 +1,2 @@
+"To use unique insights from EPAM's history, expertise, and innovative spirit we want to recalibrate technology strategies to deliver solutions that are not just innovative, but driven by value creation. We envision a future where every client engagement is delivers integrated value from strategy to optimization, and where our technical thought leadership is a benchmark for the industry, ensuring that EPAM is synonymous with transformative digital engineering."
+

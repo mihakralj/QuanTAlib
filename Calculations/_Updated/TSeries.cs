@@ -22,7 +22,7 @@ public class TSeriesEventArgs : EventArgs {
 public class TSeries : List<(DateTime t, double v)> {
 	public List<DateTime> t => this.Select(item => item.t).ToList();
 	public List<double> v => this.Select(item => item.v).ToList();
-	public (DateTime t, double v) Last => this[this.Count - 1];
+	public (DateTime t, double v) Last => this[^1];
 	public int Length => Count;
 	public string Name { get; set; }
 
