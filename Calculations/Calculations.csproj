@@ -2,9 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Title>QuanTAlib</Title>
-		<Version>0.2.27</Version>
-		<AssemblyVersion>0.2.27</AssemblyVersion>
-		<FileVersion>0.2.27</FileVersion>
+		<Version>0.2.30</Version>
+		<AssemblyVersion>0.2.30</AssemblyVersion>
+		<FileVersion>0.2.30</FileVersion>
 		<Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
 		<Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
 		<RepositoryType>git</RepositoryType>
@@ -14,7 +14,7 @@
 		<Copyright>Miha Kralj</Copyright>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
-		<TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net7.0</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>preview</LangVersion>
 		<Nullable>disable</Nullable>
