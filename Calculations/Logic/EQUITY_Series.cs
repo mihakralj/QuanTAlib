@@ -81,7 +81,7 @@ public class EQUITY_Series : Single_TSeries_Indicator {
 			if (_inmarket == 0 && TValue.v == 1) { _longbuy = true; }  //out of market, enter long
 			if (_inmarket == 1 && TValue.v == -1) { _longsell = true; }  //long market, exit long
 
-			//Console.WriteLine($"{TValue.v,3}\t {(_inmarket)} : {_cash,10:f2} + {_units*_price[this.Count-1].v,7:f2} = {_equity-_capital:f2}");
+			//Console.WriteLine($"{TValue.v,3}\t {(_inmarket)} : {_cash,10:f2} + {_units*_price[^1].v,7:f2} = {_equity-_capital:f2}");
 		}
 		inmarket.Add((TValue.t, (double)_inmarket));
 		base.Add((TValue.t, _equity), update, _NaN);

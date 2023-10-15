@@ -20,9 +20,11 @@ public class TSeriesEventArgs : EventArgs {
 }
 
 public class TSeries : List<(DateTime t, double v)> {
-	public List<DateTime> t => this.Select(item => item.t).ToList();
-	public List<double> v => this.Select(item => item.v).ToList();
-	public (DateTime t, double v) Last => this[^1];
+	private readonly (DateTime t, double v) Default = (DateTime.MinValue, double.NaN);
+	public IEnumerable<DateTime> t => this.Select(item => item.t);
+	public IEnumerable<double> v => this.Select(item => item.v);
+	public (DateTime t, double v) Last => Count > 0 ? this[^1] : Default;
+
 	public int Length => Count;
 	public string Name { get; set; }
 
@@ -35,13 +37,12 @@ public class TSeries : List<(DateTime t, double v)> {
 	}
 
 	public virtual (DateTime t, double v) Add(double v, bool update = false) {
-		var Value = (t: Count == 0 ? DateTime.Today : this[this.Count-1].t.AddDays(1), v);
-		return Add(Value, update);
+		return Add((t: Count == 0 ? DateTime.Today : this[^1].t.AddDays(1), v), update);
 	}
 
 	public virtual (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 		if (update) {
-			this[this.Count-1] = TValue;
+			this[^1] = TValue;
 		}
 		else {
 			base.Add(TValue);
