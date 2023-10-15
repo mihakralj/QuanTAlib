@@ -48,8 +48,7 @@
 		<PlatformTarget>anycpu</PlatformTarget>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>
-		</DebugType>
+    <DebugType>full</DebugType>
 		<Optimize>True</Optimize>
 		<WarningLevel>7</WarningLevel>
 		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
