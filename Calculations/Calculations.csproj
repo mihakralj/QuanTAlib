@@ -12,6 +12,7 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<Authors>Miha Kralj</Authors>
 		<Copyright>Miha Kralj</Copyright>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -32,14 +33,13 @@
     AlgoTrading;Financial;Strategy;Chart;Charting;Oscillator;Overlay;Equity;Bitcoin;Crypto;Cryptocurrency;Forex;
     Quantitative;Historical;Quotes;
     	</PackageTags>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+
 		<PackageLicenseFile>
 		</PackageLicenseFile>
-		<SuppressNETSdkWarningProperty>NETSDK1057</SuppressNETSdkWarningProperty>
-    <SuppressNETSdkWarningProperty>IDE1006</SuppressNETSdkWarningProperty>
-		<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-		<NoWarn>$(NoWarn);NETSDK1057</NoWarn>
+
 	</PropertyGroup>
+
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>full</DebugType>
 		<Optimize>True</Optimize>

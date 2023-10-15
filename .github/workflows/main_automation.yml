@@ -94,32 +94,39 @@ jobs:
       run: dotnet build ./Strategies/Strategies.csproj --configuration Release --nologo
 
     - name: DotCover Test HTML
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
     - name: DotCover Test XML
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
     - name: Coverlet Test
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
 
 ############## Report to Sonar/CodeCov/Codacy
 
     - name: Move coverage report to project root
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: |
         report=$(find . -name '*coverage.cobertura.xml' | head -1)
         mv "$report" ./coverage.cobertura.xml
 
     - name: Upload to Codacy
+      if: ${{ github.ref == 'refs/heads/dev' }}
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         coverage-reports: "*cover*.xml"
 
     - name: Upload to Codecov
+      if: ${{ github.ref == 'refs/heads/dev' }}
       uses: codecov/codecov-action@v3
       with:
         files: cover*
         verbose: true
 
     - name: Upload to Sonar
+      if: ${{ github.ref == 'refs/heads/dev' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
