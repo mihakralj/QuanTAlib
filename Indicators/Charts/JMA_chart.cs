@@ -65,6 +65,7 @@ public class JMA_chart : Indicator {
 		}
 
 		indicator = new(source: bars.Select(DataSource), period: Period, phase: Jphase, vshort: Vshort, vlong: Vlong, useNaN: true);
+		indicator.Keep = Math.Max(Period, 100);
 	}
 
 	protected override void OnUpdate(UpdateArgs args) { 

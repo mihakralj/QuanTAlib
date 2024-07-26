@@ -1,0 +1,92 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#load "./base.cs"
+
+#!csharp
+
+TValue vv = new(DateTime.Now, 100);
+display(vv.ToString());
+
+#!csharp
+
+TBar bb = new();
+display(bb.ToString());
+
+#!csharp
+
+public class Emitter {
+    private Random random = new Random();
+    public event EventHandler<TValueEventArg<TValue>> Pub;
+    public void Emit() {
+        DateTime now = DateTime.Now;
+        double randomValue = random.NextDouble() * 100; // Generates a random number between 0 and 100
+        TValue value = new TValue(now, randomValue);
+
+        TValueEventArg<TValue> eventArg = new TValueEventArg<TValue>(value, true, true);
+        OnValuePub(eventArg);
+    }
+    protected virtual void OnValuePub(TValueEventArg<TValue> eventArg) {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+public class BarEmitter
+{
+    private Random random = new Random();
+    public event EventHandler<TValueEventArg<TBar>> Pub;
+    private double lastClose = 100.0; // Starting price
+
+    public void Emit()
+    {
+        double open = lastClose;
+        double close = open * (1 + (random.NextDouble() - 0.5) * 0.02); // +/- 1% change
+        double high = Math.Max(open, close) * (1 + random.NextDouble() * 0.005); // Up to 0.5% higher
+        double low = Math.Min(open, close) * (1 - random.NextDouble() * 0.005); // Up to 0.5% lower
+        double volume = random.NextDouble() * 1000000; // Random volume between 0 and 1,000,000
+
+        TBar bar = new TBar(DateTime.Now, open, high, low, close, volume);
+        lastClose = close;
+
+        TValueEventArg<TBar> eventArg = new TValueEventArg<TBar>(bar, true, true);
+        OnBarPub(eventArg);
+    }
+
+    protected virtual void OnBarPub(TValueEventArg<TBar> eventArg)
+    {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+
+public class Listener
+{
+    public void Sub(object sender, EventArgs e)
+    {
+        if (e is TValueEventArg<TValue> tValueArg) {
+            Console.WriteLine($"TValue: {tValueArg.Data.Value:F2}");
+        } else if (e is TValueEventArg<TBar> tBarArg) {
+            Console.WriteLine($"TBar: o={tBarArg.Data.Open:F2}, v={tBarArg.Data.Volume:F2}");
+        } else {
+            Console.WriteLine($"Unknown type: {e.GetType().Name}");
+        }
+    }
+}
+
+#!csharp
+
+Emitter em1 = new();
+BarEmitter em2 = new();
+Listener list = new();
+
+em1.Pub += list.Sub;
+em2.Pub += list.Sub;
+
+// Emit 5 random values
+for (int i = 0; i < 3; i++) {
+    em1.Emit();
+    em2.Emit();
+}

@@ -72,10 +72,10 @@ public class MAMA_Series : TSeries {
 			q1.io = q1.i6; q1.i6 = q1.i5; q1.i5 = q1.i4; q1.i4 = q1.i3; q1.i3 = q1.i2; q1.i2 = q1.i1; q1.i1 = q1.i;
 			dt.io = dt.i6; dt.i6 = dt.i5; dt.i5 = dt.i4; dt.i4 = dt.i3; dt.i3 = dt.i2; dt.i2 = dt.i1; dt.i1 = dt.i;
 			sm.io = sm.i6; sm.i6 = sm.i5; sm.i5 = sm.i4; sm.i4 = sm.i3; sm.i3 = sm.i2; sm.i2 = sm.i1; sm.i1 = sm.i;
-			i2.io = i2.i1; i2.i1 = i2.i; q2.io = q2.i1; q2.i1 = q2.i; 
-			re.io = re.i1; re.i1 = re.i; im.io = im.i1; im.i1 = im.i; 
+			i2.io = i2.i1; i2.i1 = i2.i; q2.io = q2.i1; q2.i1 = q2.i;
+			re.io = re.i1; re.i1 = re.i; im.io = im.i1; im.i1 = im.i;
 			pd.io = pd.i1; pd.i1 = pd.i; ph.io = ph.i1; ph.i1 = ph.i;
-			mama.io = mama.i1; mama.i1 = mama.i; 
+			mama.io = mama.i1; mama.i1 = mama.i;
 			fama.io = fama.i1;
 			fama.i1 = fama.i;
 			_len++;

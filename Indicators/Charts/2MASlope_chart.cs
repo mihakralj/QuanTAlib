@@ -222,7 +222,16 @@ public class MovingAverageSlope_chart : Indicator {
 		sMA2 = new(MA2, SlopePeriod);
 		sig1 = new(sMA1, 0);
 		sig2 = new(sMA2, 0);
-	}
+
+		int maxKeep = Math.Max(Math.Max(this.MA1Period, this.MA2Period), 100);
+
+		MA1.Keep = maxKeep;
+		MA2.Keep = maxKeep;
+		sMA1.Keep = maxKeep;
+		sMA2.Keep = maxKeep;
+		sig1.Keep = maxKeep;
+		sig2.Keep = maxKeep;
+		}
 
 	protected override void OnUpdate(UpdateArgs args) {
 		bool update = !(args.Reason == UpdateReason.NewBar ||
@@ -246,7 +255,7 @@ public class MovingAverageSlope_chart : Indicator {
 			}
 			else {
 				this.EndCloud(0, 1, Color.Empty);
-				if (inShort)
+				if (inShort && this.Count > 1)
 				{
 					this.LinesSeries[(this.MA1[^1].v < this.MA2[^1].v) ? 1 : 0].SetMarker(1, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.DownArrow));
 					inShort = false;
@@ -263,7 +272,7 @@ public class MovingAverageSlope_chart : Indicator {
 			}
 			else {
 				this.EndCloud(0, 1, Color.Empty);
-				if (inLong) {
+				if (inLong && this.Count > 1) {
 					LinesSeries[(this.MA1[^1].v > this.MA2[^1].v)?1:0].SetMarker(1, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
 					inLong = false;
 				}

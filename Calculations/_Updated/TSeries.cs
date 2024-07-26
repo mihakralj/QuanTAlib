@@ -27,6 +27,7 @@ public class TSeries : List<(DateTime t, double v)> {
 
 	public int Length => Count;
 	public string Name { get; set; }
+	public int Keep = 0;
 
 	public TSeries() {
 		this.Name = "data";
@@ -86,6 +87,9 @@ public class TSeries : List<(DateTime t, double v)> {
 
 	protected virtual void OnEvent(bool update = false)
 	{
+		if (Keep > 0) {
+			TrimToSize(keep:Keep);
+		}
 		Pub?.Invoke(this, new TSeriesEventArgs {update = update});
 	}
 
@@ -99,5 +103,15 @@ public class TSeries : List<(DateTime t, double v)> {
 		buffer[^1] = value;
 	}
 	public virtual void Reset() {
+	}
+
+	public void TrimToSize(int keep) {
+		if (keep >= this.Count) {
+			return; // No need to trim if the series is already smaller than or equal to n
+		}
+
+		// Remove elements from the beginning of the list
+		int elementsToRemove = this.Count - keep;
+		RemoveRange(0, elementsToRemove);
 	}
 }

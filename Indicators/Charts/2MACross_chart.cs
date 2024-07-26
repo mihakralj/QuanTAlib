@@ -214,6 +214,12 @@ public class MovingAverage_chart : Indicator {
 		}
 		this.Name += $"({MA2Period}:{TBars.SelectStr(this.MA2DataSource)}) ]";
 
+		int maxKeep = Math.Max(Math.Max(this.MA1Period, this.MA2Period), 100);
+		MA1.Keep = maxKeep;
+		MA2.Keep = maxKeep;
+		trades.Keep = maxKeep;
+		overunder.Keep = maxKeep;
+
 		overunder = new(MA1, MA2);
 		trades = new(MA1, MA2);
 	}
