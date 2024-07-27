@@ -8,7 +8,7 @@
 
 #!csharp
 
-TValue vv = new(DateTime.Now, 100);
+TValue vv = new(10);
 display(vv.ToString());
 
 #!csharp
@@ -20,16 +20,16 @@ display(bb.ToString());
 
 public class Emitter {
     private Random random = new Random();
-    public event EventHandler<TValueEventArg<TValue>> Pub;
+    public event EventHandler<EventArg<TValue>> Pub;
     public void Emit() {
         DateTime now = DateTime.Now;
         double randomValue = random.NextDouble() * 100; // Generates a random number between 0 and 100
         TValue value = new TValue(now, randomValue);
 
-        TValueEventArg<TValue> eventArg = new TValueEventArg<TValue>(value, true, true);
+        EventArg<TValue> eventArg = new EventArg<TValue>(value, true, true);
         OnValuePub(eventArg);
     }
-    protected virtual void OnValuePub(TValueEventArg<TValue> eventArg) {
+    protected virtual void OnValuePub(EventArg<TValue> eventArg) {
         Pub?.Invoke(this, eventArg);
     }
 }
@@ -37,7 +37,7 @@ public class Emitter {
 public class BarEmitter
 {
     private Random random = new Random();
-    public event EventHandler<TValueEventArg<TBar>> Pub;
+    public event EventHandler<EventArg<TBar>> Pub;
     private double lastClose = 100.0; // Starting price
 
     public void Emit()
@@ -51,11 +51,11 @@ public class BarEmitter
         TBar bar = new TBar(DateTime.Now, open, high, low, close, volume);
         lastClose = close;
 
-        TValueEventArg<TBar> eventArg = new TValueEventArg<TBar>(bar, true, true);
+        EventArg<TBar> eventArg = new EventArg<TBar>(bar, true, true);
         OnBarPub(eventArg);
     }
 
-    protected virtual void OnBarPub(TValueEventArg<TBar> eventArg)
+    protected virtual void OnBarPub(EventArg<TBar> eventArg)
     {
         Pub?.Invoke(this, eventArg);
     }
@@ -66,9 +66,9 @@ public class Listener
 {
     public void Sub(object sender, EventArgs e)
     {
-        if (e is TValueEventArg<TValue> tValueArg) {
+        if (e is EventArg<TValue> tValueArg) {
             Console.WriteLine($"TValue: {tValueArg.Data.Value:F2}");
-        } else if (e is TValueEventArg<TBar> tBarArg) {
+        } else if (e is EventArg<TBar> tBarArg) {
             Console.WriteLine($"TBar: o={tBarArg.Data.Open:F2}, v={tBarArg.Data.Volume:F2}");
         } else {
             Console.WriteLine($"Unknown type: {e.GetType().Name}");
@@ -90,3 +90,57 @@ for (int i = 0; i < 3; i++) {
     em1.Emit();
     em2.Emit();
 }
+
+#!csharp
+
+public abstract class Indicator {
+    protected Indicator() {
+        Init(); }
+    public virtual void Init() {}
+    public virtual TValue Calc(TValue input, bool isNew=true, bool isHot=true) {
+        return new TValue();
+    }
+}
+
+public class EMA : Indicator
+{
+    private double lastEma, lastEmaCandidate, k;
+    private int period, i;
+
+    public EMA(int period) {
+        Init(period);
+    }
+
+   public void Init(int period)
+    {
+        this.period = period;
+        this.k = 2.0 / (period + 1);
+        this.lastEma = this.lastEmaCandidate = double.NaN;
+        this.i = 0;
+    }
+
+    public override TValue Calc(TValue input, bool isNew = true, bool isHot = true) {
+        double ema;
+
+        if (double.IsNaN(lastEma)) { lastEma = lastEmaCandidate = input.Value; }
+
+        if (isNew) {
+            lastEma = lastEmaCandidate;
+            i++;
+        }
+
+        double kk = (i>=period)?k:(2.0/(i+1));
+        ema = lastEma + kk * (input.Value - lastEma);
+        lastEmaCandidate = ema;
+
+        return new TValue(input.Timestamp, ema);
+    }
+}
+
+#!csharp
+
+EMA ema = new(3);
+display(ema.Calc(100));
+display(ema.Calc(0,false));
+display(ema.Calc(100,false));
+display(ema.Calc(0));

@@ -1,44 +1,46 @@
 using System;
 
-public struct TValue
-{
-    public DateTime Timestamp { get; set; }
-    public double Value { get; set; }
+public readonly struct TValue {
+    public DateTime Timestamp { get; }
+    public double Value { get; }
 
-    public TValue(DateTime timestamp, double value)
-    {
+    public TValue(DateTime timestamp, double value) {
         Timestamp = timestamp;
         Value = value;
     }
+    public TValue() : this(DateTime.Now, 0) { }
+    public TValue(double value) : this(DateTime.Now, value) { }
+    public static implicit operator double(TValue tv) => tv.Value;
+    public static implicit operator DateTime(TValue tv) => tv.Timestamp;
+    public static implicit operator TValue(double value) => new TValue(DateTime.Now, value);
 
-    public override string ToString()
-    {
-        return $"[{this.Timestamp:yyyy-MM-dd HH:mm:ss}: {this.Value:F2}]";
-    }
-    public override bool Equals(object obj)
-    {
-        if (obj is TValue other)
-        {
-            return Timestamp == other.Timestamp && Value == other.Value;
-        }
-        return false;
+
+    public override string ToString() {
+        return $"[{Timestamp:yyyy-MM-dd HH:mm:ss}: {Value:F2}]";
     }
 
-    public override int GetHashCode()
-    {
+    public override bool Equals(object obj) {
+        return obj is TValue other && Equals(in other);
+    }
+
+    public bool Equals(in TValue other) {
+        return Timestamp == other.Timestamp && Value == other.Value;
+    }
+
+    public override int GetHashCode() {
         return HashCode.Combine(Timestamp, Value);
     }
 }
 
 
-public struct TBar
+public readonly struct TBar
 {
-    public DateTime Timestamp { get; set; }
-    public double Open { get; set; }
-    public double High { get; set; }
-    public double Low { get; set; }
-    public double Close { get; set; }
-    public double Volume { get; set; }
+    public DateTime Timestamp { get; }
+    public double Open { get; }
+    public double High { get; }
+    public double Low { get; }
+    public double Close { get; }
+    public double Volume { get; }
 
     public TBar(DateTime timestamp, double open, double high, double low, double close, double volume)
     {
@@ -52,21 +54,22 @@ public struct TBar
 
     public override string ToString()
     {
-        return $"[{this.Timestamp:yyyy-MM-dd HH:mm:ss}: O={this.Open:F2}, H={this.High:F2}, L={this.Low:F2}, C={this.Close:F2}, V={this.Volume:F2}]";
+        return $"[{Timestamp:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
     }
 
     public override bool Equals(object obj)
     {
-        if (obj is TBar other)
-        {
-            return Timestamp == other.Timestamp &&
-                   Open == other.Open &&
-                   High == other.High &&
-                   Low == other.Low &&
-                   Close == other.Close &&
-                   Volume == other.Volume;
-        }
-        return false;
+        return obj is TBar other && Equals(in other);
+    }
+
+    public bool Equals(in TBar other)
+    {
+        return Timestamp == other.Timestamp &&
+               Open == other.Open &&
+               High == other.High &&
+               Low == other.Low &&
+               Close == other.Close &&
+               Volume == other.Volume;
     }
 
     public override int GetHashCode()
@@ -77,13 +80,13 @@ public struct TBar
 
 
 
-public class TValueEventArg<T> : EventArgs
+public class EventArg<T> : EventArgs
 {
     public T Data { get; }
     public bool IsClosed { get; }
     public bool IsHot { get; }
 
-    public TValueEventArg(T data, bool isClosed, bool isHot)
+    public EventArg(T data, bool isClosed, bool isHot)
     {
         Data = data;
         IsClosed = isClosed;
