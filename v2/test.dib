@@ -1,0 +1,277 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r ".\bin\Debug\calculations.dll"
+using QuanTAlib;
+
+#!csharp
+
+public class CircularBuffer
+{
+    private double[] _buffer;
+    private int _start;
+    private int _size;
+
+    public CircularBuffer(int capacity)
+    {
+        _buffer = new double[capacity];
+        _start = 0;
+        _size = 0;
+    }
+
+    public int Capacity => _buffer.Length;
+    public int Count => _size;
+
+    public void Add(double item, bool isNew)
+    {
+        if (!isNew)
+        {
+            // Add new item
+            if (_size < Capacity)
+            {
+                _buffer[(_start + _size) % Capacity] = item;
+                _size++;
+            }
+            else
+            {
+                _start = (_start + 1) % Capacity;
+                _buffer[(_start + _size - 1) % Capacity] = item;
+            }
+        }
+        else
+        {
+            // Update the last item
+            if (_size > 0)
+            {
+                _buffer[(_start + _size - 1) % Capacity] = item;
+            }
+            else
+            {
+                // If buffer is empty, add the item even if isNew is true
+                _buffer[0] = item;
+                _size = 1;
+            }
+        }
+    }
+
+    public double this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _size)
+                throw new IndexOutOfRangeException();
+            return _buffer[(_start + index) % Capacity];
+        }
+        set
+        {
+            if (index < 0 || index >= _size)
+                throw new IndexOutOfRangeException();
+            _buffer[(_start + index) % Capacity] = value;
+        }
+    }
+}
+
+#!csharp
+
+public class SMA1
+{
+    private CircularBuffer buffer;
+    private int period;
+    private double sum;
+    public TValue Value { get; private set; }
+    public bool IsHot => buffer.Count >= period;
+
+    public SMA1(int period)
+    {
+        Init(period);
+    }
+
+    public void Init(int period)
+    {
+        this.period = period;
+        this.buffer = new CircularBuffer(period);
+        this.sum = 0;
+        this.Value = default;
+    }
+
+    public TValue Update(TValue input, bool isNew = true)
+    {
+        if (!isNew)
+        {
+            if (buffer.Count == period)
+            {
+                sum -= buffer[0];
+            }
+            sum += input.Value;
+            buffer.Add(input.Value, isNew);
+        }
+        else
+        {
+            if (buffer.Count > 0)
+            {
+                sum -= buffer[buffer.Count - 1];
+                sum += input.Value;
+                buffer.Add(input.Value, isNew);
+            }
+            else
+            {
+                // If buffer is empty, add the item even if isNew is true
+                sum += input.Value;
+                buffer.Add(input.Value, false);
+            }
+        }
+
+        double sma = buffer.Count > 0 ? sum / buffer.Count : double.NaN;
+        Value = new TValue(input.Time, sma, isNew, IsHot);
+        return Value;
+    }
+}
+
+#!csharp
+
+GBM_Feed feed = new(initialPrice: 100, mu: 0.1, sigma: 0.9);
+int i=10;
+SMA1 ma = new(i);
+Console.WriteLine($"{"Close",10}   {"MA(" + i + ")",10}");
+for (int i = 0; i < 20; i++)
+{
+    TValue c =(double)feed.Generate().Close;
+    ma.Update(1000,false);
+     ma.Update(-10000,false);
+
+    ma.Update(c,true);
+
+    Console.WriteLine($"{i+1}  {(double)c,10:F2}   {(double)ma.Value,10:F2}");
+}
+
+#!csharp
+
+public class Emitter {
+    private Random random = new Random();
+    public event EventHandler<EventArg<TValue>> Pub;
+    public void Emit() {
+        DateTime now = DateTime.Now;
+        double randomValue = random.NextDouble() * 100; // Generates a random number between 0 and 100
+        TValue value = new TValue(now, randomValue);
+
+        EventArg<TValue> eventArg = new EventArg<TValue>(value, true, true);
+        OnValuePub(eventArg);
+    }
+    protected virtual void OnValuePub(EventArg<TValue> eventArg) {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+public class BarEmitter
+{
+    private Random random = new Random();
+    public event EventHandler<EventArg<TBar>> Pub;
+    private double lastClose = 100.0; // Starting price
+
+    public void Emit()
+    {
+        double open = lastClose;
+        double close = open * (1 + (random.NextDouble() - 0.5) * 0.02); // +/- 1% change
+        double high = Math.Max(open, close) * (1 + random.NextDouble() * 0.005); // Up to 0.5% higher
+        double low = Math.Min(open, close) * (1 - random.NextDouble() * 0.005); // Up to 0.5% lower
+        double volume = random.NextDouble() * 1000000; // Random volume between 0 and 1,000,000
+
+        TBar bar = new TBar(DateTime.Now, open, high, low, close, volume);
+        lastClose = close;
+
+        EventArg<TBar> eventArg = new EventArg<TBar>(bar, true, true);
+        OnBarPub(eventArg);
+    }
+
+    protected virtual void OnBarPub(EventArg<TBar> eventArg)
+    {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+
+public class Listener
+{
+    public void Sub(object sender, EventArgs e)
+    {
+        if (e is EventArg<TValue> tValueArg) {
+            Console.WriteLine($"TValue: {tValueArg.Data.Value:F2}");
+        } else if (e is EventArg<TBar> tBarArg) {
+            Console.WriteLine($"TBar: o={tBarArg.Data.Open:F2}, v={tBarArg.Data.Volume:F2}");
+        } else {
+            Console.WriteLine($"Unknown type: {e.GetType().Name}");
+        }
+    }
+}
+
+#!csharp
+
+Emitter em1 = new();
+BarEmitter em2 = new();
+Listener list = new();
+
+em1.Pub += list.Sub;
+em2.Pub += list.Sub;
+
+// Emit 5 random values
+for (int i = 0; i < 3; i++) {
+    em1.Emit();
+    em2.Emit();
+}
+
+#!csharp
+
+public abstract class Indicator {
+    protected Indicator() {
+        Init(); }
+    public virtual void Init() {}
+    public virtual TValue Calc(TValue input, bool isNew=true, bool isHot=true) {
+        return new TValue();
+    }
+}
+
+public class EMA : Indicator
+{
+    private double lastEma, lastEmaCandidate, k;
+    private int period, i;
+
+    public EMA(int period) {
+        Init(period);
+    }
+
+   public void Init(int period)
+    {
+        this.period = period;
+        this.k = 2.0 / (period + 1);
+        this.lastEma = this.lastEmaCandidate = double.NaN;
+        this.i = 0;
+    }
+
+    public override TValue Calc(TValue input, bool isNew = true, bool isHot = true) {
+        double ema;
+
+        if (double.IsNaN(lastEma)) { lastEma = lastEmaCandidate = input.Value; }
+
+        if (isNew) {
+            lastEma = lastEmaCandidate;
+            i++;
+        }
+
+        double kk = (i>=period)?k:(2.0/(i+1));
+        ema = lastEma + kk * (input.Value - lastEma);
+        lastEmaCandidate = ema;
+
+        return new TValue(input.Timestamp, ema);
+    }
+}
+
+#!csharp
+
+EMA ema = new(3);
+display(ema.Calc(100));
+display(ema.Calc(0,false));
+display(ema.Calc(100,false));
+display(ema.Calc(0));

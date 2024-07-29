@@ -13,7 +13,7 @@ Alphavantage - Free API to collect 100 recent daily quotes. It requires a (free)
 */
 public class Alphavantage_Feed : TBars
 {
-    public enum Interval { Month, Week, Day, Hour, Min30, Min15, Min5, Min1}
+    public enum Interval { Month, Week, Day, Hour, Min30, Min15, Min5, Min1 }
     public Alphavantage_Feed(string Symbol = "IBM", string APIkey = "demo")
     {
         System.Net.Http.HttpClient client = new();
@@ -22,8 +22,8 @@ public class Alphavantage_Feed : TBars
         var msg = client.GetStringAsync(req).Result;
         var jres = JsonSerializer.Deserialize<JsonDocument>(msg).RootElement;
         jres.TryGetProperty("Time Series (Daily)", out JsonElement json);
-        
-        if (json.ValueKind == JsonValueKind.Undefined) {throw new InvalidOperationException("Stock symbol "+Symbol+" not found"); }
+
+        if (json.ValueKind == JsonValueKind.Undefined) { throw new InvalidOperationException("Stock symbol " + Symbol + " not found"); }
         foreach (var val in json.EnumerateObject()) { base.Add(GetOHLC(val)); }
         base.Reverse();
     }

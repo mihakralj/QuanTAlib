@@ -15,55 +15,65 @@ Sources:
 
 </summary> */
 
-public class ADL_Series : TSeries {
-	protected readonly TBars _data;
-	private double _lastadl, _lastlastadl;
+public class ADL_Series : TSeries
+{
+    protected readonly TBars _data;
+    private double _lastadl, _lastlastadl;
 
-	//core constructors
-	public ADL_Series() {
-		Name = $"ADL()";
-		_lastadl = _lastlastadl = 0;
-	}
-	public ADL_Series(TBars source) {
-		_data = source;
-		Name = $"ADL({(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
-		_lastadl = _lastlastadl = 0;
-		_data.Pub += Sub;
-		Add(data: _data);
-	}
+    //core constructors
+    public ADL_Series()
+    {
+        Name = $"ADL()";
+        _lastadl = _lastlastadl = 0;
+    }
+    public ADL_Series(TBars source)
+    {
+        _data = source;
+        Name = $"ADL({(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
+        _lastadl = _lastlastadl = 0;
+        _data.Pub += Sub;
+        Add(data: _data);
+    }
 
-	//////////////////
-	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
-		if (update) { this._lastadl = this._lastlastadl; }
-		else { this._lastlastadl = this._lastadl; }
+    //////////////////
+    // core Add() algo
+    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false)
+    {
+        if (update) { this._lastadl = this._lastlastadl; }
+        else { this._lastlastadl = this._lastadl; }
 
-		double _adl = 0;
-		double tmp = TBar.h - TBar.l;
-		if (tmp > 0.0) {
-			_adl = _lastadl + ((2 * TBar.c - TBar.l - TBar.h) / tmp * TBar.v);
-		}
-		_lastadl = _adl;
+        double _adl = 0;
+        double tmp = TBar.h - TBar.l;
+        if (tmp > 0.0)
+        {
+            _adl = _lastadl + ((2 * TBar.c - TBar.l - TBar.h) / tmp * TBar.v);
+        }
+        _lastadl = _adl;
 
-		var ret = (TBar.t, _adl);
-		return base.Add(ret, update);
-	}
+        var ret = (TBar.t, _adl);
+        return base.Add(ret, update);
+    }
 
-	public new void Add(TBars data) {
-			foreach (var item in data) { Add(item, false); }
-		}
-		public (DateTime t, double v) Add(bool update) {
-			return this.Add(TBar: _data.Last, update: update);
-		}
-		public (DateTime t, double v) Add() {
-			return Add(TBar: _data.Last, update: false);
-		}
-	private new void Sub(object source, TSeriesEventArgs e) {
-		Add(TBar: _data.Last, update: e.update);
-	}
+    public new void Add(TBars data)
+    {
+        foreach (var item in data) { Add(item, false); }
+    }
+    public (DateTime t, double v) Add(bool update)
+    {
+        return this.Add(TBar: _data.Last, update: update);
+    }
+    public (DateTime t, double v) Add()
+    {
+        return Add(TBar: _data.Last, update: false);
+    }
+    private new void Sub(object source, TSeriesEventArgs e)
+    {
+        Add(TBar: _data.Last, update: e.update);
+    }
 
-	//reset calculation
-	public override void Reset() {
-		_lastadl = _lastlastadl = 0;
-	}
+    //reset calculation
+    public override void Reset()
+    {
+        _lastadl = _lastlastadl = 0;
+    }
 }

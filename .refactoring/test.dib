@@ -4,17 +4,34 @@
 
 #!csharp
 
-#load "./base.cs"
+#r "..\v2\bin\Debug\calculations.dll"
+using QuanTAlib;
 
 #!csharp
 
 TValue vv = new(10);
 display(vv.ToString());
+display(vv.IsHot);
+
+TBar bb = new(1,1,1,1,10);
+display(bb.ToString());
+display(bb.IsNew);
 
 #!csharp
 
-TBar bb = new();
-display(bb.ToString());
+int i=10;
+SMA sma = new(i);
+Console.WriteLine($"{"Close",10}   {"SMA(" + i + ")",10}");
+for (int i = 0; i < 20; i++)
+{
+    TValue c =(double)i+1;
+    sma.Update(10000,true);
+    sma.Update(1,false);
+    sma.Update(-1000,false);
+    sma.Update(c,false);
+
+    Console.WriteLine($"{i+1}  {(double)c,10:F2}   {(double)sma.Value,10:F2}     {sma.Value.IsHot}");
+}
 
 #!csharp
 

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AlgoType>Indicator</AlgoType>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <QuantowerPath>D:\Quantower\TradingPlatform</QuantowerPath>
+    <QuantowerVersion Condition="'$(QuantowerVersion)' == ''">v1.140.8</QuantowerVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>$(QuantowerPath)\$(QuantowerVersion)\bin\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(QuantowerPath)\$(QuantowerVersion)\bin\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
+</Project>
