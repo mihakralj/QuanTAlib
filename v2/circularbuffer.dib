@@ -1,4 +1,15 @@
-namespace QuanTAlib;
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r ".\bin\Debug\calculations.dll"
+using QuanTAlib;
+
+#!csharp
+
+using System.Runtime.CompilerServices;
 
 public class CircularBuffer: IEnumerable<double>
 {
@@ -79,4 +90,73 @@ public class CircularBuffer: IEnumerable<double>
 
         public void Dispose() { }
     }
+}
+
+#!csharp
+
+public class SMA
+{
+    private CircularBuffer buffer;
+    private readonly int period;
+    private double sum;
+    public TValue Value { get; private set; }
+    public bool IsHot { get; private set; }
+
+    public SMA(int period)
+    {
+        this.period = period;
+        Init();
+    }
+
+    public void Init()
+    {
+        this.buffer = new CircularBuffer(period);
+        this.sum = 0;
+        this.IsHot = false;
+        this.Value = default;
+    }
+
+    public TValue Update(TValue input, bool isNew = true)
+    {
+        double oldValue = 0;
+        if (buffer.Count == period && isNew)
+        {
+            oldValue = buffer[0];
+        }
+
+        buffer.Add(input.Value, isNew);
+
+        // Update sum
+        if (isNew)
+        {
+            if (buffer.Count <= period)
+            {
+                sum += input.Value;
+            }
+            else
+            {
+                sum = sum - oldValue + input.Value;
+            }
+        }
+        else if (buffer.Count > 0)
+        {
+            // If not new, update the sum by replacing the last value
+            sum = sum - buffer[buffer.Count - 1] + input.Value;
+        }
+
+        double sma = buffer.Count > 0 ? sum / buffer.Count : double.NaN;
+        IsHot = buffer.Count >= period;
+        Value = new TValue(input.Time, sma, isNew, IsHot);
+        return Value;
+    }
+}
+
+#!csharp
+
+CircularBuffer buffer = new(3);
+buffer.Add(1, false);
+buffer.Add(2, false);
+buffer.Add(3, true);
+for (int i=0; i<buffer.Count; i++) {
+    display(buffer[i]);
 }

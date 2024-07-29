@@ -9,68 +9,86 @@ using QuanTAlib;
 
 #!csharp
 
-public class CircularBuffer
+using System.Runtime.CompilerServices;
+
+public class CircularBuffer: IEnumerable<double>
 {
-    private double[] _buffer;
+    private double[] _buffer = null!;
     private int _start;
     private int _size;
 
+    public int Capacity => _buffer.Length;
+    public int Count => _size;
+
     public CircularBuffer(int capacity)
     {
+
         _buffer = new double[capacity];
         _start = 0;
         _size = 0;
     }
 
-    public int Capacity => _buffer.Length;
-    public int Count => _size;
-
-    public void Add(double item, bool isNew)
-    {
-        if (!isNew)
-        {
-            // Add new item
-            if (_size < Capacity)
-            {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(double item, bool isNew = true) {
+        if (_size == 0 || isNew) {
+            // If buffer is empty or isNew is true, add new item
+            if (_size < Capacity) {
                 _buffer[(_start + _size) % Capacity] = item;
                 _size++;
-            }
-            else
-            {
+            } else {
+                _buffer[_start] = item;
                 _start = (_start + 1) % Capacity;
-                _buffer[(_start + _size - 1) % Capacity] = item;
             }
-        }
-        else
-        {
-            // Update the last item
-            if (_size > 0)
-            {
-                _buffer[(_start + _size - 1) % Capacity] = item;
-            }
-            else
-            {
-                // If buffer is empty, add the item even if isNew is true
-                _buffer[0] = item;
-                _size = 1;
-            }
+        } else {
+            // If isNew is false, just update the last item
+            _buffer[(_start + _size - 1) % Capacity] = item;
         }
     }
 
-    public double this[int index]
-    {
-        get
-        {
+    public double this[int index] {
+        get {
             if (index < 0 || index >= _size)
                 throw new IndexOutOfRangeException();
             return _buffer[(_start + index) % Capacity];
-        }
-        set
-        {
+        } set {
             if (index < 0 || index >= _size)
                 throw new IndexOutOfRangeException();
             _buffer[(_start + index) % Capacity] = value;
         }
+    }
+
+    public Enumerator GetEnumerator() => new Enumerator(this);
+    IEnumerator<double> IEnumerable<double>.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public struct Enumerator : IEnumerator<double> {
+        private readonly CircularBuffer _buffer;
+        private int _index;
+        private double _current;
+
+        internal Enumerator(CircularBuffer buffer) {
+            _buffer = buffer;
+            _index = -1;
+            _current = default;
+        }
+
+        public bool MoveNext() {
+            if (_index + 1 >= _buffer._size)
+                return false;
+
+            _index++;
+            _current = _buffer[_index];
+            return true;
+        }
+
+        public double Current => _current;
+        object IEnumerator.Current => Current;
+
+        public void Reset() {
+            _index = -1;
+            _current = default;
+        }
+
+        public void Dispose() { }
     }
 }
 
@@ -79,52 +97,36 @@ public class CircularBuffer
 public class SMA1
 {
     private CircularBuffer buffer;
-    private int period;
+    private readonly int period;
     private double sum;
     public TValue Value { get; private set; }
-    public bool IsHot => buffer.Count >= period;
+    public bool IsHot { get; private set; }
 
     public SMA1(int period)
     {
-        Init(period);
+        this.period = period;
+        Init();
     }
 
-    public void Init(int period)
+    public void Init()
     {
-        this.period = period;
         this.buffer = new CircularBuffer(period);
         this.sum = 0;
+        this.IsHot = false;
         this.Value = default;
     }
 
     public TValue Update(TValue input, bool isNew = true)
     {
-        if (!isNew)
-        {
-            if (buffer.Count == period)
-            {
-                sum -= buffer[0];
-            }
-            sum += input.Value;
-            buffer.Add(input.Value, isNew);
-        }
-        else
-        {
-            if (buffer.Count > 0)
-            {
-                sum -= buffer[buffer.Count - 1];
-                sum += input.Value;
-                buffer.Add(input.Value, isNew);
-            }
-            else
-            {
-                // If buffer is empty, add the item even if isNew is true
-                sum += input.Value;
-                buffer.Add(input.Value, false);
-            }
+        buffer.Add(input.Value, isNew);
+
+        sum = 0;
+        for (int i=0; i<buffer.Count; i++) {
+            sum+=buffer[i];
         }
 
         double sma = buffer.Count > 0 ? sum / buffer.Count : double.NaN;
+        IsHot = buffer.Count >= period;
         Value = new TValue(input.Time, sma, isNew, IsHot);
         return Value;
     }
@@ -139,7 +141,7 @@ Console.WriteLine($"{"Close",10}   {"MA(" + i + ")",10}");
 for (int i = 0; i < 20; i++)
 {
     TValue c =(double)feed.Generate().Close;
-    ma.Update(1000,false);
+    //ma.Update(10000,false);
      ma.Update(-10000,false);
 
     ma.Update(c,true);

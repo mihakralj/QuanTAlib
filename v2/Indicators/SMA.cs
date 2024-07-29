@@ -24,21 +24,9 @@ public class SMA
 
     public TValue Update(TValue input, bool IsNew = true)
     {
-        if (buffer.Count == 0 || isNew)
-        {
-            if (buffer.Count == period)
-            {
-                sum -= buffer[0];
-            }
-            buffer.Add(input);
-            sum += input.Value;
-        }
-        else
-        {
-            sum -= buffer[buffer.Count - 1];
-            sum += input.Value;
-            buffer[buffer.Count - 1] = input;
-        }
+        buffer.Add(input.value, IsNew);
+
+        //calculate rolling sum
 
         double sma = sum / buffer.Count;
         Value = new TValue(input.Time, sma, isNew, IsHot);
