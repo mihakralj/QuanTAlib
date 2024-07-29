@@ -30,6 +30,8 @@ public class CircularBuffer: IEnumerable<double>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(double item, bool isNew = true) {
+
+        //refine this flow
         if (_size == 0 || isNew) {
             // If buffer is empty or isNew is true, add new item
             if (_size < Capacity) {
@@ -125,7 +127,7 @@ public class SMA1
             sum+=buffer[i];
         }
 
-        double sma = buffer.Count > 0 ? sum / buffer.Count : double.NaN;
+        double sma =  sum / buffer.Count;
         IsHot = buffer.Count >= period;
         Value = new TValue(input.Time, sma, isNew, IsHot);
         return Value;
@@ -140,13 +142,18 @@ SMA1 ma = new(i);
 Console.WriteLine($"{"Close",10}   {"MA(" + i + ")",10}");
 for (int i = 0; i < 20; i++)
 {
-    TValue c =(double)feed.Generate().Close;
+    //TValue c =(double)feed.Generate().Close;
     //ma.Update(10000,false);
-     ma.Update(-10000,false);
+    // ma.Update(-10000,false);
 
-    ma.Update(c,true);
+    //ma.Update(i,false);
+    ma.Update(i,false);
 
-    Console.WriteLine($"{i+1}  {(double)c,10:F2}   {(double)ma.Value,10:F2}");
+    ma.Update(i,true);
+    ma.Update(10000,false);
+    ma.Update(i+1,false);
+
+    Console.WriteLine($"{i+1}  {(double)i+1,10:F2}   {(double)ma.Value,10:F2}");
 }
 
 #!csharp
