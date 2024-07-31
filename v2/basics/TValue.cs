@@ -1,4 +1,4 @@
-namespace QuanTAlib;
+//namespace QuanTAlib;
 
 public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true)
 {

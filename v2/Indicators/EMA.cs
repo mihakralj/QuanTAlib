@@ -1,42 +1,45 @@
-namespace QuanTAlib;
-
 public class EMA
 {
-    private double lastEma, lastEmaCandidate, k;
-    private int period, i;
+    private readonly int period;
+    private int index;
     public TValue Value { get; private set; }
-    public bool IsHot { get; private set; }
+    public bool IsHot => index > period;
+    public int Period => Math.Min(index, period);
+    private double k;
+    private double lastEMA, lastEMAcandidate;
 
-    public EMA(int period)
-    {
-        Init(period);
+    public EMA(int Period) {
+        this.period = Period;
+        Init();
     }
 
-    public void Init(int period)
-    {
-        this.period = period;
+    public void Init() {
+        this.Value = default;
+        this.index = 0;
         this.k = 2.0 / (period + 1);
-        this.lastEma = this.lastEmaCandidate = double.NaN;
-        this.i = 0;
+        this.lastEMA = 0;
+        this.lastEMAcandidate = 0;
     }
-    public TValue Update(TValue input, bool IsNew = true)
-    {
-        double ema;
 
-        if (double.IsNaN(lastEma)) { lastEma = input.Value; }
-
-        if (IsNew)
-        {
-            lastEma = lastEmaCandidate;
-            i++;
+    public TValue Update(TValue Input, bool IsNew = true) {
+        double ma;
+        if (double.IsNaN(Input.Value) || double.IsInfinity(Input.Value)) { 
+            return new TValue(Input.Time, lastEMA, IsNew, index > period);
+        }
+        if (IsNew) {
+            if (index<1) { lastEMA = Input.Value; }
+            lastEMAcandidate = lastEMA;
+            index++;
+        } else {
+            if (index<=1) { lastEMAcandidate = Input.Value; }
+            lastEMA = lastEMAcandidate;
         }
 
-        double kk = (i < period) ? (2.0 / (i + 1)) : k;
-        ema = lastEma + kk * (input.Value - lastEma);
-        lastEmaCandidate = ema;
+        double kk = (index <= period) ? (2.0 / (index+1)) : k;
+        ma = (Input.Value - lastEMA) * kk + lastEMA;
+        lastEMA = ma;
 
-        IsHot = i >= period;
-        Value = new TValue(input.Time, ema, IsNew, IsHot);
-        return Value;
+        this.Value = new TValue(Input.Time, ma, IsNew, index > period);
+        return this.Value;
     }
 }

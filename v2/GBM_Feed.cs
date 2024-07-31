@@ -1,4 +1,4 @@
-namespace QuanTAlib;
+//namespace QuanTAlib;
 public class GBM_Feed
 {
     private readonly double _mu;

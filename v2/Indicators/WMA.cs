@@ -1,5 +1,3 @@
-namespace QuanTAlib;
-
 public class WMA
 {
     private CircularBuffer buffer = null!;

@@ -1,4 +1,7 @@
-namespace QuanTAlib;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public class CircularBuffer: IEnumerable<double>
 {
@@ -30,7 +33,12 @@ public class CircularBuffer: IEnumerable<double>
             }
         } else {
             // If isNew is false, just update the last item
-            _buffer[(_start + _size - 1) % Capacity] = item;
+            if (_size > 0) {
+                _buffer[(_start + _size - 1) % Capacity] = item;
+            } else {
+                _buffer[_start] = item;
+                _size = 1;
+            }
         }
     }
 

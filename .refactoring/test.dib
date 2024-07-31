@@ -4,7 +4,7 @@
 
 #!csharp
 
-#r "..\v2\bin\Debug\calculations.dll"
+#r "\bin\Debug\calculations.dll"
 using QuanTAlib;
 
 #!csharp

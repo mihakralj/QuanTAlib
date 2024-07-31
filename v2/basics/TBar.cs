@@ -1,4 +1,4 @@
-namespace QuanTAlib;
+//namespace QuanTAlib;
 public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true)
 {
     public DateTime Time { get; init; } = Time;

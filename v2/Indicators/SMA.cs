@@ -1,41 +1,55 @@
-namespace QuanTAlib;
-
 public class SMA
 {
-    private CircularBuffer buffer = null!;
-    private int period;
-    private double sum;
+    public CircularBuffer buffer = null!;
+    private readonly int period;
+    public double sum;
     public TValue Value { get; private set; }
     public bool IsHot { get; private set; }
 
     public SMA(int period)
     {
-        Init(period);
+        this.period = period;
+        Init();
     }
 
-    public void Init(int period)
+    public void Init()
     {
-        this.period = period;
         this.buffer = new CircularBuffer(period);
         this.sum = 0;
         this.IsHot = false;
         this.Value = default;
     }
 
-    public TValue Update(TValue input, bool IsNew = true)
+    public TValue Update(TValue input, bool isNew = true)
     {
-        buffer.Add(input.value, IsNew);
-
-        //calculate rolling sum
-
-        double sma = sum / buffer.Count;
-        Value = new TValue(input.Time, sma, isNew, IsHot);
-        return Value;
+        if (buffer.Count == 0)
+        {
+            // If buffer is empty, always add the value regardless of isNew
+            buffer.Add(input.Value, true);
+            sum = input.Value;
+        }
+        else if (isNew && buffer.Count == buffer.Capacity)
+        {
+            // If buffer is full and it's a new value, remove oldest
+            sum -= buffer[0];
+            buffer.Add(input.Value, true);
+            sum += input.Value;
+        }
+        else
+        {
+            // If it's not new, or if buffer isn't full yet
+            if (!isNew)
+            {
+                // Remove the last value if we're updating
+                sum -= buffer[buffer.Count - 1];
+            }
+            buffer.Add(input.Value, isNew);
+            sum += input.Value;
         }
 
-        double sma = buffer.Count > 0 ? sum / buffer.Count : double.NaN;
+        double sma = sum / buffer.Count;
         IsHot = buffer.Count >= period;
-        Value = new TValue(input.Time, sma, IsNew, IsHot);
+        Value = new TValue(input.Time, sma, isNew, IsHot);
         return Value;
     }
 }
