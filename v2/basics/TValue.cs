@@ -18,3 +18,4 @@ public readonly record struct TValue(DateTime Time, double Value, bool IsNew = t
     public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: {Value:F2}]";
 }
 
+public delegate void Signal(object source, TValue args);
