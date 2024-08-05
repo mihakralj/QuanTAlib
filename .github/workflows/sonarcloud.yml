@@ -24,7 +24,7 @@ jobs:
         with:
           # Additional arguments for the SonarScanner CLI
           args: >
-            -Dsonar.projectKey=your_project_key_here
-            -Dsonar.organization=your_organization_here
+            -Dsonar.projectKey=mihakralj_QuanTAlib
+            -Dsonar.organization=mihakralj
             -Dsonar.sources=.
             -Dsonar.verbose=false
