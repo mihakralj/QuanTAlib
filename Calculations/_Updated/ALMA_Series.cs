@@ -19,96 +19,111 @@ Sources:
     Discrepancy with Pandas-TA (but passes the validation with Skender.GetAlma)
 </summary> */
 
-public class ALMA_Series : TSeries {
-	protected readonly int _period;
-	protected readonly bool _NaN;
-	protected readonly TSeries _data;
+public class ALMA_Series : TSeries
+{
+    protected readonly int _period;
+    protected readonly bool _NaN;
+    protected readonly TSeries _data;
 
-	private readonly System.Collections.Generic.List<double> _buffer = new();
-	private readonly System.Collections.Generic.List<double> _weight;
-	private double _norm;
-	private readonly double _offset, _sigma;
+    private readonly System.Collections.Generic.List<double> _buffer = new();
+    private readonly System.Collections.Generic.List<double> _weight;
+    private double _norm;
+    private readonly double _offset, _sigma;
 
-	//core constructors
-	public ALMA_Series(int period, double offset, double sigma, bool useNaN) {
-		_period = period;
-		_NaN = useNaN;
-		Name = $"ALMA({period})";
-		_offset = offset;
-		_sigma = sigma;
-		_weight = new();
-	}
-	public ALMA_Series(TSeries source, int period, double offset, double sigma, bool useNaN) : this(period, offset, sigma, useNaN) {
-		_data = source;
-		Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
-		_data.Pub += Sub;
-		Add(_data);
-	}
+    //core constructors
+    public ALMA_Series(int period, double offset, double sigma, bool useNaN)
+    {
+        _period = period;
+        _NaN = useNaN;
+        Name = $"ALMA({period})";
+        _offset = offset;
+        _sigma = sigma;
+        _weight = new();
+    }
+    public ALMA_Series(TSeries source, int period, double offset, double sigma, bool useNaN) : this(period, offset, sigma, useNaN)
+    {
+        _data = source;
+        Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
+        _data.Pub += Sub;
+        Add(_data);
+    }
 
-	public ALMA_Series() : this(period:0, offset:0.85, sigma:6.0, useNaN: false) { }
-	public ALMA_Series(int period) : this(period: period, offset:0.85, sigma:6.0, useNaN:false) { }
-	public ALMA_Series(TBars source) : this(source:source.Close, period:0, offset:0.85, sigma:6.0, useNaN:false) { }
-	public ALMA_Series(TBars source, int period) : this(source:source.Close, period:period, offset: 0.85, sigma: 6.0, useNaN: false) { }
-	public ALMA_Series(TBars source, int period, double offset, double sigma, bool useNaN) : this(source.Close, period:period, offset: offset, sigma: sigma, useNaN: false) { }
-	public ALMA_Series(TSeries source) : this(source, period:0, offset:0.85, sigma:6.0, useNaN:false) { }
-	public ALMA_Series(TSeries source, int period) : this(source:source, period:period, offset:0.85, sigma:6.0, useNaN:false) { }
-	public ALMA_Series(TSeries source, int period, bool useNaN) : this(source: source, period: period, offset: 0.85, sigma: 6.0, useNaN: useNaN) { }
+    public ALMA_Series() : this(period: 0, offset: 0.85, sigma: 6.0, useNaN: false) { }
+    public ALMA_Series(int period) : this(period: period, offset: 0.85, sigma: 6.0, useNaN: false) { }
+    public ALMA_Series(TBars source) : this(source: source.Close, period: 0, offset: 0.85, sigma: 6.0, useNaN: false) { }
+    public ALMA_Series(TBars source, int period) : this(source: source.Close, period: period, offset: 0.85, sigma: 6.0, useNaN: false) { }
+    public ALMA_Series(TBars source, int period, double offset, double sigma, bool useNaN) : this(source.Close, period: period, offset: offset, sigma: sigma, useNaN: false) { }
+    public ALMA_Series(TSeries source) : this(source, period: 0, offset: 0.85, sigma: 6.0, useNaN: false) { }
+    public ALMA_Series(TSeries source, int period) : this(source: source, period: period, offset: 0.85, sigma: 6.0, useNaN: false) { }
+    public ALMA_Series(TSeries source, int period, bool useNaN) : this(source: source, period: period, offset: 0.85, sigma: 6.0, useNaN: useNaN) { }
 
-	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
-		if (double.IsNaN(TValue.v)) {
-			return base.Add((TValue.t, double.NaN), update);
-		}
+    // core Add() algo
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
+    {
+        if (double.IsNaN(TValue.v))
+        {
+            return base.Add((TValue.t, double.NaN), update);
+        }
 
-		BufferTrim(_buffer, TValue.v, _period, update);
-			if (_weight.Count < _buffer.Count) {
-				for (var i = 0; i < _buffer.Count - _weight.Count; i++) {
-					_weight.Add(0.0);
-				}
-			}
-			
+        BufferTrim(_buffer, TValue.v, _period, update);
+        if (_weight.Count < _buffer.Count)
+        {
+            for (var i = 0; i < _buffer.Count - _weight.Count; i++)
+            {
+                _weight.Add(0.0);
+            }
+        }
 
-			if (_buffer.Count <= _period || _period == 0) {
-				var _len = _buffer.Count;
-				_norm = 0;
-				var _m = _offset * (_len - 1);
-				var _s = _len / _sigma;
-				for (var i = 0; i < _len; i++) {
-					var _wt = Math.Exp(-((i - _m) * (i - _m)) / (2 * _s * _s));
-					_weight[i] = _wt;
-					_norm += _wt;
-				}
-			}
 
-			double _weightedSum = 0;
-			for (var i = 0; i < _buffer.Count; i++) {
-				_weightedSum += _weight[i] * _buffer[i];
-			}
+        if (_buffer.Count <= _period || _period == 0)
+        {
+            var _len = _buffer.Count;
+            _norm = 0;
+            var _m = _offset * (_len - 1);
+            var _s = _len / _sigma;
+            for (var i = 0; i < _len; i++)
+            {
+                var _wt = Math.Exp(-((i - _m) * (i - _m)) / (2 * _s * _s));
+                _weight[i] = _wt;
+                _norm += _wt;
+            }
+        }
 
-			var _alma = _weightedSum / _norm;
+        double _weightedSum = 0;
+        for (var i = 0; i < _buffer.Count; i++)
+        {
+            _weightedSum += _weight[i] * _buffer[i];
+        }
 
-			var res = (TValue.t, Count < _period - 1 && _NaN ? double.NaN : _alma);
-			return base.Add(res, update);
-		}
+        var _alma = _weightedSum / _norm;
 
-	//variation of Add()
-	public override (DateTime t, double v) Add(TSeries data) {
-		if (data == null) { return (DateTime.Today, Double.NaN); }
-		foreach (var item in data) { Add(item, false); }
-		return _data.Last;
-	}
-	public (DateTime t, double v) Add(bool update) {
-		return this.Add(TValue: _data.Last, update: update);
-	}
-	public (DateTime t, double v) Add() {
-		return Add(TValue: _data.Last, update: false);
-	}
-	private new void Sub(object source, TSeriesEventArgs e) {
-		Add(TValue: _data.Last, update: e.update);
-	}
-	//reset calculation
-	public override void Reset() {
-		_buffer.Clear();
-		_weight.Clear();
-	} 
+        var res = (TValue.t, Count < _period - 1 && _NaN ? double.NaN : _alma);
+        return base.Add(res, update);
+    }
+
+    //variation of Add()
+    public override (DateTime t, double v) Add(TSeries data)
+    {
+        if (data == null) { return (DateTime.Today, Double.NaN); }
+        foreach (var item in data) { Add(item, false); }
+        return _data.Last;
+    }
+    public (DateTime t, double v) Add(bool update)
+    {
+        return this.Add(TValue: _data.Last, update: update);
+    }
+    public (DateTime t, double v) Add()
+    {
+        return Add(TValue: _data.Last, update: false);
+    }
+    private new void Sub(object source, TSeriesEventArgs e)
+    {
+        Add(TValue: _data.Last, update: e.update);
+    }
+    //reset calculation
+    public override void Reset()
+    {
+        _buffer.Clear();
+        _weight.Clear();
+    }
 }

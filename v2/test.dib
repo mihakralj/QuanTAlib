@@ -1,0 +1,408 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+//#r "./bin/Debug/calculations.dll"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+#!csharp
+
+#load "./basics/CircularBuffer.cs"
+#load "./basics/TValue.cs"
+#load "./basics/TBar.cs"
+//#load "./Indicators/SMA.cs"
+//#load "./Indicators/EMA.cs"
+#load "./GBM_Feed.cs"
+
+#!csharp
+
+public delegate void Signal(object source, TValue args);
+
+#!csharp
+
+public class Template
+{
+    private CircularBuffer _buffer = null!;
+    private readonly int _period;
+    private int _index, _hotIndex;
+    public TValue Value { get; private set; }
+    public bool IsHot => _index >= _period;
+    public int Period => Math.Min(_index, _period);
+    private double _sum;
+    private double _lastValidValue;
+    private double _lastAddedValue;
+
+    public Template(int period) {
+        _period = period;
+        Init();
+    }
+
+    public Template(object source, int period) : this(period) {
+        var sourceType = source.GetType();
+        var updateMethod = sourceType.GetMethod("Update", new[] { typeof(TValue), typeof(bool) });
+        
+        if (updateMethod != null) {
+            var pubEvent = sourceType.GetEvent("Pub");
+            if (pubEvent != null && pubEvent.EventHandlerType == typeof(Signal)) {
+                pubEvent.AddEventHandler(source, new Signal(Sub));
+            } else {
+                throw new ArgumentException("Source object must have a Pub event of type NewValue.");
+            }
+        } else {
+            throw new ArgumentException("Source object must have an Update(TValue, bool) method.");
+        }
+    }
+
+    public void Init() {
+        _buffer = new CircularBuffer(_period);
+        _sum = 0;
+        _lastValidValue = 0;
+        Value = default;
+        _index = _hotIndex = 0;
+        _lastAddedValue = 0;
+    }
+
+    public TValue Update(TValue input, bool isNew = true) {
+        if (!input.IsHot && isNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) {
+            Value = new TValue(input.Time, _lastValidValue, isNew, _index > _period);
+            Pub?.Invoke(this, Value);
+            return Value;
+        }
+
+        if (isNew) {
+            if (_buffer.Count == _buffer.Capacity) {
+                _sum -= _buffer[0];
+            }
+            _buffer.Add(input.Value, true);
+            _sum += input.Value;
+            _lastAddedValue = input.Value;
+            _index++;
+        } else {
+            _sum = _sum - _lastAddedValue + input.Value;
+            _buffer[_buffer.Count - 1] = input.Value;
+            _lastAddedValue = input.Value;
+        }
+
+        double result = _sum / _buffer.Count;
+        _lastValidValue = result;
+
+        Value = new TValue(input.Time, result, isNew, _index > (_period + _hotIndex));
+        Pub?.Invoke(this, Value);
+        return Value;
+    }
+
+    public void Sub(object source, TValue arg) {
+        Update(arg);
+    }
+
+    public event Signal Pub;
+}
+
+#!csharp
+
+//public delegate void Signal(object source, TValue args);
+
+public class SMA
+{
+    private readonly int _period;
+    private int _index, _hotIndex;
+    public TValue Value { get; private set; }
+    public bool IsHot => _index >= _period;
+    public int Period => Math.Min(_index, _period);
+    private double _sum;
+    private double _lastValidSMA;
+    private CircularBuffer _buffer;
+    private double _lastAddedValue;
+
+    public SMA(int period) {
+        _period = period;
+        Init();
+    }
+
+    public SMA(object source, int period) : this(period) {
+        var sourceType = source.GetType();
+        var updateMethod = sourceType.GetMethod("Update", new[] { typeof(TValue) });
+        
+        if (updateMethod != null) {
+            var pubEvent = sourceType.GetEvent("Pub");
+            if (pubEvent != null && pubEvent.EventHandlerType == typeof(Signal)) {
+                pubEvent.AddEventHandler(source, new Signal(Sub));
+            } else {
+                throw new ArgumentException("Source object must have a Pub event of type NewValue.");
+            }
+        } else {
+            throw new ArgumentException("Source object must have an Update(TValue) method.");
+        }
+    }
+
+    public void Init() {
+        _buffer = new CircularBuffer(_period);
+        _sum = 0;
+        _lastValidSMA = 0;
+        Value = default;
+        _index = _hotIndex = 0;
+        _lastAddedValue = 0;
+    }
+
+    public TValue Update(TValue input) {
+        if (!input.IsHot && input.IsNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) {
+            Value = new TValue(input.Time, _lastValidSMA, input.IsNew, _index > _period);
+            Pub?.Invoke(this, Value);
+            return Value;
+        }
+
+        if (input.IsNew) {
+            if (_buffer.Count == _buffer.Capacity) {
+                _sum -= _buffer[0];
+            }
+            _buffer.Add(input.Value, true);
+            _sum += input.Value;
+            _lastAddedValue = input.Value;
+            _index++;
+        } else {
+            _sum = _sum - _lastAddedValue + input.Value;
+            _buffer[_buffer.Count - 1] = input.Value;
+            _lastAddedValue = input.Value;
+        }
+
+        double sma = _sum / _buffer.Count;
+        _lastValidSMA = sma;
+
+        Value = new TValue(input.Time, sma, input.IsNew, _index > (_period + _hotIndex));
+        Pub?.Invoke(this, Value);
+        return Value;
+    }
+
+    public void Sub(object source, TValue arg) {
+        Update(arg);
+    }
+
+    public event Signal Pub;
+}
+
+#!csharp
+
+public class EMA
+{
+    private readonly int _period;
+    private int _index, _hotIndex;
+    public TValue Value { get; private set; }
+    public bool IsHot => _index > _period;
+    public int Period => Math.Min(_index, _period);
+    private double _k;
+    private double _lastEMA, _lastEMACandidate;
+
+    public EMA(int period) {
+        _period = period;
+        Init();
+    }
+
+    public EMA(object source, int period) : this(period) {
+        var sourceType = source.GetType();
+        var updateMethod = sourceType.GetMethod("Update", new[] { typeof(TValue) });
+        if (updateMethod != null) {
+            var pubEvent = sourceType.GetEvent("Pub");
+            if (pubEvent != null && pubEvent.EventHandlerType == typeof(Signal)) {
+                pubEvent.AddEventHandler(source, new Signal(Sub));
+            } else {
+                throw new ArgumentException("Source object must have a Pub event of type NewValue.");
+            }
+        } else {
+            throw new ArgumentException("Source object must have an Update(TValue) method.");
+        }
+    }
+
+    public void Init() {
+        Value = default;
+        _index = _hotIndex = 0;
+        _k = 2.0 / (_period + 1);
+        _lastEMA = 0;
+        _lastEMACandidate = 0;
+    }
+
+    public TValue Update(TValue input) {
+        if (!input.IsHot && input.IsNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) { 
+            Value = new TValue(input.Time, _lastEMA, input.IsNew, _index > _period);
+            Pub?.Invoke(this, Value);
+            return Value;
+        }
+        if (input.IsNew) {
+            if (_index < 1) { _lastEMA = input.Value; }
+            _lastEMACandidate = _lastEMA;
+            _index++;
+        } else {
+            if (_index <= 1) { _lastEMACandidate = input.Value; }
+            _lastEMA = _lastEMACandidate;
+        }
+
+        double kk = (_index <= _period) ? (2.0 / (_index + 1)) : _k;
+
+        double ema = (input.Value - _lastEMA) * kk + _lastEMA;
+        _lastEMA = ema;
+
+        Value = new TValue(input.Time, ema, input.IsNew, _index > (_period + _hotIndex));
+        Pub?.Invoke(this, Value);
+        return Value;
+    }
+
+    public void Sub(object source, TValue arg) {
+        Update(arg);
+    }
+
+    public event Signal Pub;
+}
+
+#!csharp
+
+EMA ma = new(3);
+SMA ma1 = new(ma, 3);
+Console.WriteLine($"{"Close",5}   {"MA()",10}");
+for (int i = 1; i < 10; i=i+1)
+{
+    TValue tv = new(DateTime.Now, 1000, IsNew: true);
+    ma.Update(tv);
+    tv = new(DateTime.Now, i, IsNew: false);
+    ma.Update(tv);
+    
+    Console.WriteLine($"{i} {(double)ma.Value,10:F2} {(double)ma1.Value,10:F2}   {ma1.Value.IsHot}");
+}
+
+#!csharp
+
+public class Emitter {
+    private Random random = new Random();
+    public event EventHandler<EventArg<TValue>> Pub;
+    public void Emit() {
+        DateTime now = DateTime.Now;
+        double randomValue = random.NextDouble() * 100; // Generates a random number between 0 and 100
+        TValue value = new TValue(now, randomValue);
+
+        EventArg<TValue> eventArg = new EventArg<TValue>(value, true, true);
+        OnValuePub(eventArg);
+    }
+    protected virtual void OnValuePub(EventArg<TValue> eventArg) {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+public class BarEmitter
+{
+    private Random random = new Random();
+    public event EventHandler<EventArg<TBar>> Pub;
+    private double lastClose = 100.0; // Starting price
+
+    public void Emit()
+    {
+        double open = lastClose;
+        double close = open * (1 + (random.NextDouble() - 0.5) * 0.02); // +/- 1% change
+        double high = Math.Max(open, close) * (1 + random.NextDouble() * 0.005); // Up to 0.5% higher
+        double low = Math.Min(open, close) * (1 - random.NextDouble() * 0.005); // Up to 0.5% lower
+        double volume = random.NextDouble() * 1000000; // Random volume between 0 and 1,000,000
+
+        TBar bar = new TBar(DateTime.Now, open, high, low, close, volume);
+        lastClose = close;
+
+        EventArg<TBar> eventArg = new EventArg<TBar>(bar, true, true);
+        OnBarPub(eventArg);
+    }
+
+    protected virtual void OnBarPub(EventArg<TBar> eventArg)
+    {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+
+public class Listener
+{
+    public void Sub(object sender, EventArgs e)
+    {
+        if (e is EventArg<TValue> tValueArg) {
+            Console.WriteLine($"TValue: {tValueArg.Data.Value:F2}");
+        } else if (e is EventArg<TBar> tBarArg) {
+            Console.WriteLine($"TBar: o={tBarArg.Data.Open:F2}, v={tBarArg.Data.Volume:F2}");
+        } else {
+            Console.WriteLine($"Unknown type: {e.GetType().Name}");
+        }
+    }
+}
+
+#!csharp
+
+Emitter em1 = new();
+BarEmitter em2 = new();
+Listener list = new();
+
+em1.Pub += list.Sub;
+em2.Pub += list.Sub;
+
+// Emit 5 random values
+for (int i = 0; i < 3; i++) {
+    em1.Emit();
+    em2.Emit();
+}
+
+#!csharp
+
+public abstract class Indicator {
+    protected Indicator() {
+        Init(); }
+    public virtual void Init() {}
+    public virtual TValue Calc(TValue input, bool isNew=true, bool isHot=true) {
+        return new TValue();
+    }
+}
+
+public class EMA : Indicator
+{
+    private double lastEma, lastEmaCandidate, k;
+    private int period, i;
+
+    public EMA(int period) {
+        Init(period);
+    }
+
+   public void Init(int period)
+    {
+        this.period = period;
+        this.k = 2.0 / (period + 1);
+        this.lastEma = this.lastEmaCandidate = double.NaN;
+        this.i = 0;
+    }
+
+    public override TValue Calc(TValue input, bool isNew = true, bool isHot = true) {
+        double ema;
+
+        if (double.IsNaN(lastEma)) { lastEma = lastEmaCandidate = input.Value; }
+
+        if (isNew) {
+            lastEma = lastEmaCandidate;
+            i++;
+        }
+
+        double kk = (i>=period)?k:(2.0/(i+1));
+        ema = lastEma + kk * (input.Value - lastEma);
+        lastEmaCandidate = ema;
+
+        return new TValue(input.Timestamp, ema);
+    }
+}
+
+#!csharp
+
+EMA ema = new(3);
+display(ema.Calc(100));
+display(ema.Calc(0,false));
+display(ema.Calc(100,false));
+display(ema.Calc(0));

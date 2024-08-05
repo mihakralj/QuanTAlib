@@ -26,71 +26,81 @@ Note:
 
 </summary> */
 
-public class OBV_Series : TSeries {
-	protected readonly int _period;
-	protected readonly bool _NaN;
-	protected readonly TBars _data;
-	private double _lastobv, _lastlastobv;
-	private double _lastclose, _lastlastclose;
+public class OBV_Series : TSeries
+{
+    protected readonly int _period;
+    protected readonly bool _NaN;
+    protected readonly TBars _data;
+    private double _lastobv, _lastlastobv;
+    private double _lastclose, _lastlastclose;
 
-	//core constructors
-	public OBV_Series(int period, bool useNaN) {
-		_period = period;
-		_NaN = useNaN;
-		Name = $"OBV({period})";
-		this._lastobv = this._lastlastobv = 0;
-		this._lastclose = this._lastlastclose = 0;
-	}
-	public OBV_Series(TBars source, int period, bool useNaN) : this(period, useNaN) {
-		_data = source;
-		Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
-		_data.Pub += Sub;
-		Add(data: _data);
-	}
-	public OBV_Series() : this(period: 2, useNaN: false) { }
-	public OBV_Series(int period) : this(period: period, useNaN: false) { }
-	public OBV_Series(TBars source) : this(source, period: 2, useNaN: false) { }
-	public OBV_Series(TBars source, int period) : this(source: source, period: period, useNaN: false) { }
+    //core constructors
+    public OBV_Series(int period, bool useNaN)
+    {
+        _period = period;
+        _NaN = useNaN;
+        Name = $"OBV({period})";
+        this._lastobv = this._lastlastobv = 0;
+        this._lastclose = this._lastlastclose = 0;
+    }
+    public OBV_Series(TBars source, int period, bool useNaN) : this(period, useNaN)
+    {
+        _data = source;
+        Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
+        _data.Pub += Sub;
+        Add(data: _data);
+    }
+    public OBV_Series() : this(period: 2, useNaN: false) { }
+    public OBV_Series(int period) : this(period: period, useNaN: false) { }
+    public OBV_Series(TBars source) : this(source, period: 2, useNaN: false) { }
+    public OBV_Series(TBars source, int period) : this(source: source, period: period, useNaN: false) { }
 
-	//////////////////
-	// core Add() algo
-	public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
+    //////////////////
+    // core Add() algo
+    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false)
+    {
 
-		if (update) {
-			this._lastobv = this._lastlastobv;
-			this._lastclose = this._lastlastclose;
-		}
+        if (update)
+        {
+            this._lastobv = this._lastlastobv;
+            this._lastclose = this._lastlastclose;
+        }
 
-		double _obv = this._lastobv;
-		if (TBar.c > this._lastclose) { _obv += TBar.v; }
-		if (TBar.c < this._lastclose) { _obv -= TBar.v; }
+        double _obv = this._lastobv;
+        if (TBar.c > this._lastclose) { _obv += TBar.v; }
+        if (TBar.c < this._lastclose) { _obv -= TBar.v; }
 
-		this._lastlastobv = this._lastobv;
-		this._lastobv = _obv;
+        this._lastlastobv = this._lastobv;
+        this._lastobv = _obv;
 
-		this._lastlastclose = this._lastclose;
-		this._lastclose = TBar.c;
+        this._lastlastclose = this._lastclose;
+        this._lastclose = TBar.c;
 
-		var res = (TBar.t, (this.Count < this._period && this._NaN) ? double.NaN : _obv);
-		return base.Add(res, update);
-	}
+        var res = (TBar.t, (this.Count < this._period && this._NaN) ? double.NaN : _obv);
+        return base.Add(res, update);
+    }
 
-	public new void Add(TBars data) {
-		foreach (var item in data) { Add(item, false); }
-	}
-	public (DateTime t, double v) Add(bool update) {
-		return this.Add(TBar: _data.Last, update: update);
-	}
-	public (DateTime t, double v) Add() {
-		return Add(TBar: _data.Last, update: false);
-	}
-	private new void Sub(object source, TSeriesEventArgs e) {
-		Add(TBar: _data.Last, update: e.update);
-	}
+    public new void Add(TBars data)
+    {
+        foreach (var item in data) { Add(item, false); }
+    }
+    public (DateTime t, double v) Add(bool update)
+    {
+        return this.Add(TBar: _data.Last, update: update);
+    }
+    public (DateTime t, double v) Add()
+    {
+        return Add(TBar: _data.Last, update: false);
+    }
+    private new void Sub(object source, TSeriesEventArgs e)
+    {
+        Add(TBar: _data.Last, update: e.update);
+    }
 
-	//reset calculation
-	public override void Reset() {
-		this._lastobv = this._lastlastobv = 0;
-		this._lastclose = this._lastlastclose = 0;
-	}
+    //reset calculation
+    public override void Reset()
+    {
+        this._lastobv = this._lastlastobv = 0;
+        this._lastclose = this._lastlastclose = 0;
+    }
 }

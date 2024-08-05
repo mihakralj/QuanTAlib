@@ -10,52 +10,52 @@ public class TBars_Test
     {
         TBars s = new() { (t: DateTime.Today, o: double.Epsilon, h: double.NaN, l: Double.MaxValue, c: Double.NegativeInfinity, v: Double.PositiveInfinity) };
         var tup = (t: DateTime.Today, o: double.Epsilon, h: double.NaN, l: Double.MaxValue,
-	        c: Double.NegativeInfinity, v: Double.PositiveInfinity);
+            c: Double.NegativeInfinity, v: Double.PositiveInfinity);
         Assert.Equal(tup, s[^1]);
     }
 
     [Fact]
     public void Casting_Parameters()
     {
-		TBars s = new()
-		{
-			{ DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1, false }
-		};
-		Assert.Equal(0.1, s[^1].o);
-			Assert.Equal(1.1, s[^1].h);
-			Assert.Equal(2.1, s[^1].l);
-			Assert.Equal(3.1, s[^1].c);
-			Assert.Equal(4.1, s[^1].v);
-			Assert.Equal(DateTime.Today, s[^1].t);
-			Assert.Single(s);
-  }
+        TBars s = new()
+        {
+            { DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1, false }
+        };
+        Assert.Equal(0.1, s[^1].o);
+        Assert.Equal(1.1, s[^1].h);
+        Assert.Equal(2.1, s[^1].l);
+        Assert.Equal(3.1, s[^1].c);
+        Assert.Equal(4.1, s[^1].v);
+        Assert.Equal(DateTime.Today, s[^1].t);
+        Assert.Single(s);
+    }
 
     [Fact]
     public void Updating_Value()
     {
-		TBars s = new()
-		{
-			{ DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1 }
-		};
-		s.Add(DateTime.Today, 1.0, 1.0, 1.0, 1.0, 1.0, update: false);
-			s.Add(DateTime.Today, 0.0, 0.0, 0.0, 0.0, 0.0, update: true);
-      Assert.Equal(0.0, s[^1].o);
-      Assert.Equal(0.0, s[^1].h);
-      Assert.Equal(0.0, s[^1].l);
-      Assert.Equal(0.0, s[^1].c);
-      Assert.Equal(0.0, s[^1].v);
-			Assert.Equal(2, s.Count);
+        TBars s = new()
+        {
+            { DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1 }
+        };
+        s.Add(DateTime.Today, 1.0, 1.0, 1.0, 1.0, 1.0, update: false);
+        s.Add(DateTime.Today, 0.0, 0.0, 0.0, 0.0, 0.0, update: true);
+        Assert.Equal(0.0, s[^1].o);
+        Assert.Equal(0.0, s[^1].h);
+        Assert.Equal(0.0, s[^1].l);
+        Assert.Equal(0.0, s[^1].c);
+        Assert.Equal(0.0, s[^1].v);
+        Assert.Equal(2, s.Count);
     }
     [Fact]
     public void Extracting_TSeries()
     {
-		TBars s = new()
-		{
-			{ DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1 },
-			{ DateTime.Today, 2.1, 3.1, 4.1, 5.1, 6.1 }
-		};
+        TBars s = new()
+        {
+            { DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1 },
+            { DateTime.Today, 2.1, 3.1, 4.1, 5.1, 6.1 }
+        };
 
-		TSeries t = s.Open;
+        TSeries t = s.Open;
         Assert.Equal(t.t, s.Open.t);
         Assert.Equal(t.v, s.Open.v);
 
@@ -91,22 +91,22 @@ public class TBars_Test
         Assert.Equal(t.t, s.HLC3.t);
         Assert.Equal(t.v, s.HLC3.v);
 
-				t = s.OHLC4;
-				Assert.Equal(t.t, s.OHLC4.t);
-				Assert.Equal(t.v, s.OHLC4.v);
+        t = s.OHLC4;
+        Assert.Equal(t.t, s.OHLC4.t);
+        Assert.Equal(t.v, s.OHLC4.v);
 
-				t = s.HLCC4;
-				Assert.Equal(t.t, s.HLCC4.t);
-				Assert.Equal(t.v, s.HLCC4.v);
-  }
+        t = s.HLCC4;
+        Assert.Equal(t.t, s.HLCC4.t);
+        Assert.Equal(t.v, s.HLCC4.v);
+    }
     [Fact]
     public void Broadcasting_Events()
     {
-      TBars s = new() { (DateTime.Today, 2.1, 3.1, 4.1, 5.1, 6.1) };
-      TSeries t = new();
-      s.Close.Pub += t.Sub;
-			s.Add(DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1, false);
-			Assert.Equal(s.Close.v, t.v);
-			Assert.Equal(s.Close.Count, t.Count);
-  }
+        TBars s = new() { (DateTime.Today, 2.1, 3.1, 4.1, 5.1, 6.1) };
+        TSeries t = new();
+        s.Close.Pub += t.Sub;
+        s.Add(DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1, false);
+        Assert.Equal(s.Close.v, t.v);
+        Assert.Equal(s.Close.Count, t.Count);
+    }
 }
