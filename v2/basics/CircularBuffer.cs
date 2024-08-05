@@ -14,7 +14,6 @@ public class CircularBuffer: IEnumerable<double>
 
     public CircularBuffer(int capacity)
     {
-
         _buffer = new double[capacity];
         _start = 0;
         _size = 0;

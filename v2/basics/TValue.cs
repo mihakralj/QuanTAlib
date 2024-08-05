@@ -7,6 +7,12 @@ public readonly record struct TValue(DateTime Time, double Value, bool IsNew = t
     public bool IsNew { get; init; } = IsNew;
     public bool IsHot { get; init; } = IsHot;
 
+    // Aliases
+    public DateTime t => Time;
+    public double v => Value;
+    public bool n => IsNew;
+    public bool h => IsHot;
+
     public TValue() : this(DateTime.UtcNow, 0) { }
     public TValue(double value) : this(DateTime.UtcNow, value) { }
     public TValue((DateTime time, double value) tuple) : this(tuple.time, tuple.value) { }
@@ -18,4 +24,9 @@ public readonly record struct TValue(DateTime Time, double Value, bool IsNew = t
     public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: {Value:F2}]";
 }
 
-public delegate void Signal(object source, TValue args);
+public delegate void Signal(object source, ValueEventArgs args);
+
+public class ValueEventArgs : EventArgs {
+    public TValue Tick { get; }
+    public ValueEventArgs(TValue value) { Tick = value; }
+}

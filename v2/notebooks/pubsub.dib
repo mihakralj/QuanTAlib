@@ -1,0 +1,209 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#load "../basics/CircularBuffer.cs"
+#load "../basics/TValue.cs"
+#load "../basics/TBar.cs"
+
+#!csharp
+
+public delegate void Signal(object source, TValue args);
+
+/// <summary>
+/// Template for indicators that use Signal and TValue as input and output
+/// </summary>
+public class Processor {
+    public TValue Tick { get; private set; }
+    public bool IsHot => _index > _period;
+    public int Period => Math.Min(_index, _period);
+    public event Signal Pub;
+
+    private readonly int _period;
+    private int _index, _hotIndex;
+
+    public Processor (int Period = 0) {
+        _period = Period;
+        Init();
+    }
+    public Processor (object Source) : this() {
+        var pubEvent = Source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(Source, new Signal(Sub));
+    }
+
+    public void Sub(object source, TValue input) {
+        Update(input);
+    }
+////////////
+// Init() //
+////////////
+    public void Init() {
+        Tick = default;
+        _index = _hotIndex = 0;
+    }
+//////////////
+// Update() //
+//////////////
+    public TValue Update(TValue input) {
+        if (!input.IsHot && input.IsNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) {
+            Tick = new TValue(input.Time, input.Value, input.IsNew, this.IsHot);
+            Pub?.Invoke(this, Tick);
+            return Tick;
+        }
+        if (input.IsNew) {
+            _index++;
+        } else {
+
+        }
+
+        // custom indicator code here
+        double calc = input.Value;
+
+        Tick = new TValue(input.t, calc, input.IsNew, this.IsHot);
+        Pub?.Invoke(this, Tick);
+        return Tick;
+    }
+}
+
+#!csharp
+
+public class Generator {
+    public List<double> Values { get; private set; }
+    public TValue Tick { get; private set; }
+    public event Signal Pub;
+
+    public Generator() {
+    }
+
+    public Generator(double[] input) : this() {
+        Tick = default;
+        Values = new List<double>();
+        foreach (var value in input) {
+            Values.Add(value);
+        }
+    }
+
+    public void Generate() {
+        Random random = new Random();
+
+        double randomValue1 = random.NextDouble();
+        double randomValue2 = random.NextDouble();
+        foreach (var value in Values) {
+            this.Update(randomValue1, true);
+            this.Update(randomValue2, false);
+            this.Update(value, false);
+        }
+    }
+
+    public TValue Update(double input, bool isNew) {
+        Tick = new TValue(DateTime.Now, input, isNew, false);
+        Pub?.Invoke(this, Tick);
+        return Tick;
+    }
+}
+
+public class Receiver {
+    public List<double> Values { get; private set; }
+
+    public Receiver (object source) : this() {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new Signal(Sub));
+    }
+
+    public Receiver() {
+        Values = new List<double>();
+    }
+
+    public void Sub(object source, TValue tick) {
+        if (tick.IsNew) {
+            Values.Add(tick.v);
+        } else {
+            Values[^1] = tick.v;
+        }
+        //Console.WriteLine($"{tick.v:F2}");
+    }
+}
+
+#!csharp
+
+public class SMA
+{
+    public TValue Tick { get; private set; }
+    public bool IsHot => _index > _period;
+    public int Period => Math.Min(_index, _period);
+    public event Signal Pub;
+
+    private double _sum;
+    private double _lastValidSMA;
+    private CircularBuffer _buffer;
+    private double _lastAddedValue;
+    private readonly int _period;
+    private int _index, _hotIndex;
+
+    public SMA(int period) {
+        _period = period;
+        Init();
+    }
+
+    public SMA(object source, int period) : this(period) {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new Signal(Sub));
+    }
+
+    public void Init()
+    {
+        _buffer = new CircularBuffer(_period);
+        _sum = 0;
+        _lastValidSMA = 0;
+        _lastAddedValue = 0;
+    }
+
+    public TValue Update(TValue input)
+    {
+        if (!input.IsHot && input.IsNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) {
+            Tick = new TValue(input.Time, _lastValidSMA, input.IsNew, IsHot);
+            Pub?.Invoke(this, Tick);
+            return Tick;
+        }
+
+        if (input.IsNew) {
+            if (_buffer.Count == _buffer.Capacity) {
+                _sum -= _buffer[0];
+            }
+            _buffer.Add(input.Value);
+            _sum += input.Value;
+            _lastAddedValue = input.Value;
+            _index++;
+        } else {
+            _sum = _sum - _lastAddedValue + input.Value;
+            _buffer[_buffer.Count - 1] = input.Value;
+            _lastAddedValue = input.Value;
+        }
+
+        double sma = _sum / _buffer.Count;
+        _lastValidSMA = sma;
+
+        Tick = new TValue(input.Time, sma, input.IsNew, IsHot);
+        Pub?.Invoke(this, Tick);
+        return Tick;
+    }
+
+    public void Sub(object source, TValue input) {
+        Update(input);
+    }
+}
+
+#!csharp
+
+Generator g = new([0,0,0,12,0,0,0,0,0,0]);
+SMA p1 = new(g,4);
+Receiver r = new(p1);
+
+g.Generate();
+r.Display();

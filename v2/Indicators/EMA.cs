@@ -39,7 +39,7 @@ public class EMA
     public TValue Update(TValue input) {
         if (!input.IsHot && input.IsNew) { _hotIndex++; }
 
-        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) { 
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) {
             Value = new TValue(input.Time, _lastEMA, input.IsNew, _index > _period);
             Pub?.Invoke(this, Value);
             return Value;
@@ -67,5 +67,5 @@ public class EMA
         Update(arg);
     }
 
-    public event Signal Pub;
+    public event Signal? Pub;
 }

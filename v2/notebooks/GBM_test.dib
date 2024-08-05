@@ -1,0 +1,34 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#load "./basics/CircularBuffer.cs"
+#load "./basics/TValue.cs"
+#load "./basics/TickPub.cs"
+#load "./basics/TBar.cs"
+#load "./GBM_Feed.cs"
+#load "./Indicators/SMA.cs"
+
+
+public class TickShow {
+
+    public static void Sub(object sender, ValueEventArgs e)
+    {
+        Console.WriteLine($"New item: {(double)e.Tick.v:F2}");
+    }
+}
+
+#!csharp
+
+var feed = new GBM_Feed(initialPrice: 100, mu: 0.05, sigma: 0.2);
+var sma1 = new SMA(feed, 4);
+var sma2 = new SMA(sma1, 2);
+
+sma2.Pub += TickShow.Sub;
+
+// Generate a new bar and trigger all events
+feed.Update();
+feed.Update();
+feed.Update();
