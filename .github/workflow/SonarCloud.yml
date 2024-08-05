@@ -10,7 +10,7 @@ permissions:
 jobs:
   Analysis:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -28,3 +28,4 @@ jobs:
             -Dsonar.organization=mihakralj
             -Dsonar.sources=.
             -Dsonar.verbose=false
+
