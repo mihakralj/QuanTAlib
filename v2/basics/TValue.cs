@@ -10,8 +10,6 @@ public readonly record struct TValue(DateTime Time, double Value, bool IsNew = t
     // Aliases
     public DateTime t => Time;
     public double v => Value;
-    public bool n => IsNew;
-    public bool h => IsHot;
 
     public TValue() : this(DateTime.UtcNow, 0) { }
     public TValue(double value) : this(DateTime.UtcNow, value) { }

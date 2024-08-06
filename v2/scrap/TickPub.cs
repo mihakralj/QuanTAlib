@@ -1,3 +1,4 @@
+/*
 public class TickPub
 {
     public event Signal? OnTick;
@@ -20,3 +21,4 @@ public class TickPub
         return tp.CurrentValue.v;
     }
 }
+*/

@@ -1,62 +1,79 @@
 public class WMA
 {
-    private CircularBuffer buffer = null!;
-    private CircularBuffer weights = null!;
-    private int period;
-    public TValue Value { get; private set; }
-    public bool IsHot { get; private set; }
+    public TValue Tick { get; private set; }
+    public int Period => Math.Min(_index, _period);
+    public event Signal Pub = delegate { };
+    private bool IsHot => _index > _period;
+    private CircularBuffer _buffer;
+    private double _lastValidWMA;
+    private double _lastAddedValue;
+    private readonly int _period;
+    private int _index, _hotIndex;
 
     public WMA(int period)
     {
-        Init(period);
+        _period = period;
+        _buffer = new CircularBuffer(period);
+        Init();
     }
 
-    public void Init(int period)
+    public WMA(object source, int period) : this(period)
     {
-        this.period = period;
-        this.buffer = new CircularBuffer(period);
-        this.weights = new CircularBuffer(period);
-        CalculateWeights();
-        this.IsHot = false;
-        this.Value = default;
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new Signal(Sub));
     }
 
-    public TValue Update(TValue input, bool IsNew = true)
+    public void Init()
     {
-        if (IsNew)
-        {
-            buffer.Add(input);
-        }
-        else if (buffer.Count > 0)
-        {
-            buffer[buffer.Count - 1] = input;
-        }
-        else
-        {
-            buffer.Add(input);
-        }
-
-        double wma = 0;
-        double totalWeights = 0;
-
-        for (int i = 0; i < buffer.Count; i++)
-        {
-            wma += buffer[i] * weights[i];
-            totalWeights += weights[i];
-        }
-
-        wma /= totalWeights;
-
-        IsHot = buffer.Count >= period;
-        Value = new TValue(input.Time, wma, IsNew, IsHot);
-        return Value;
+        _buffer = new CircularBuffer(_period);
+        _lastValidWMA = 0;
+        _lastAddedValue = 0;
+        _index = 0;
+        _hotIndex = 0;
     }
 
-    private void CalculateWeights()
+    public TValue Update(TValue input)
     {
-        for (int i = 1; i <= period; i++)
+        if (!input.IsHot && input.IsNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
         {
-            weights.Add(i);
+            Tick = new TValue(input.Time, _lastValidWMA, input.IsNew, IsHot);
+            Pub?.Invoke(this, new ValueEventArgs(Tick));
+            return Tick;
         }
+
+        _buffer.Add(input.Value, input.IsNew);
+        _lastAddedValue = input.Value;
+
+        if (input.IsNew)
+        {
+            _index++;
+        }
+
+        double wma = CalculateWMA();
+        _lastValidWMA = wma;
+
+        Tick = new TValue(input.Time, wma, input.IsNew, IsHot);
+        Pub?.Invoke(this, new ValueEventArgs(Tick));
+        return Tick;
+    }
+
+    private double CalculateWMA()
+    {
+        double sum = 0;
+        int weight = _buffer.Count;
+        int weightSum = (weight * (weight + 1)) / 2;
+
+        for (int i = 0; i < _buffer.Count; i++)
+        {
+            sum += _buffer[i] * (i + 1);
+        }
+
+        return sum / weightSum;
+    }
+
+    public void Sub(object source, ValueEventArgs args) {
+        Update(args.Tick);
     }
 }

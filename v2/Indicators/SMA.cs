@@ -1,11 +1,12 @@
-public delegate void Signal(object source, TValue args);
+//public delegate void Signal(object source, TValue args);
+using System.Reflection;
+
 public class SMA
 {
     public TValue Tick { get; private set; }
-    public bool IsHot => _index > _period;
     public int Period => Math.Min(_index, _period);
-    public event Signal Pub;
-
+    public event Signal Pub = delegate { };
+    private bool IsHot => _index > _period;
     private double _sum;
     private double _lastValidSMA;
     private CircularBuffer _buffer;
@@ -20,6 +21,7 @@ public class SMA
     }
 
     public SMA(object source, int period) : this(period) {
+        //Console.WriteLine($"{source.GetType()}");
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new Signal(Sub));
     }
@@ -38,7 +40,7 @@ public class SMA
 
         if (double.IsNaN(input.Value) || double.IsInfinity(input.Value)) {
             Tick = new TValue(input.Time, _lastValidSMA, input.IsNew, IsHot);
-            Pub?.Invoke(this, Tick);
+            Pub?.Invoke(this, new ValueEventArgs(Tick));
             return Tick;
         }
 
@@ -60,11 +62,13 @@ public class SMA
         _lastValidSMA = sma;
 
         Tick = new TValue(input.Time, sma, input.IsNew, IsHot);
-        Pub?.Invoke(this, Tick);
+        Pub?.Invoke(this, new ValueEventArgs(Tick));
         return Tick;
     }
 
-    public void Sub(object source, TValue input) {
-        Update(input);
+    public void Sub(object source, ValueEventArgs args) {
+        //Console.WriteLine($"SMA received event: {args.Tick.Value}");
+
+        Update(args.Tick);
     }
 }

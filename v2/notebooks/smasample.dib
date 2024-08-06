@@ -1,0 +1,60 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "nuget: Skender.Stock.Indicators, *"
+
+#!csharp
+
+#load "../basics/CircularBuffer.cs"
+#load "../basics/TValue.cs"
+#load "../basics/TBar.cs"
+#load "../feeds/GBM_Feed.cs"
+#load "../Indicators/SMA.cs"
+#load "../Indicators/EMA.cs"
+#load "../Indicators/WMA.cs"
+#load "../Indicators/DEMA.cs"
+
+#!csharp
+
+using Skender.Stock.Indicators;
+
+Random random = new Random();
+List<double> input = new List<double>();
+for (int i = 0; i < 5; i++) {
+    input.Add(random.NextDouble() * 100); // Generates a random double between 0 and 100
+}
+
+int period = 10;
+
+var quotes = input.Select((value, index) => new Quote {
+    Close = (decimal)value
+}).ToList();
+var skender_results = quotes.GetSma(period).Select(q => q.Sma).ToList();
+
+#!csharp
+
+List<double>  input = new();
+List<double> my = new();
+int period = 10;
+
+var feed = new GBM_Feed();
+var ma = new WMA(feed.Close, period);
+
+for (int i=0; i<50; i++) {
+    feed.Update(true);
+    feed.Update(false);
+    feed.Update(false);
+    input.Add(feed.Bar.Close);
+    my.Add(ma.Tick.v);
+}
+
+var quotes = input.Select((value, index) => new Quote { Close = (decimal)value }).ToList();
+var skender = quotes.GetWma(period).Select(q => q.Wma).ToList();
+
+
+for (int i=0; i< input.Count; i++ ) {
+    Console.WriteLine($"{i,3}  {input[i],10:F4}   {my[i],10:F4}   {skender[i],10:F4}  {skender[i]-my[i],7:F2}");
+}

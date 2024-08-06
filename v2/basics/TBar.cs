@@ -16,7 +16,6 @@ public readonly record struct TBar(DateTime Time, double Open, double High, doub
     public double l => Low;
     public double c => Close;
     public double v => Volume;
-    public bool n => IsNew;
 
     public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
     public TBar(double open, double high, double low, double close, double volume) : this(DateTime.UtcNow, open, high, low, close, volume) { }
