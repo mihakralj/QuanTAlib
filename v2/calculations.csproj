@@ -11,7 +11,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <QuantowerPath>D:\Quantower\TradingPlatform</QuantowerPath>
     <QuantowerVersion Condition="'$(QuantowerVersion)' == ''">v1.140.8</QuantowerVersion>

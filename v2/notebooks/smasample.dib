@@ -16,6 +16,104 @@
 #load "../Indicators/EMA.cs"
 #load "../Indicators/WMA.cs"
 #load "../Indicators/DEMA.cs"
+#load "../Indicators/TEMA.cs"
+
+#!csharp
+
+public class ZScore
+{
+    public TValue Tick { get; private set; }
+    public int Period => Math.Min(_index, _period);
+    public event Signal Pub = delegate { };
+    private bool IsHot => _index > _period;
+    private readonly int _period;
+    private int _index, _hotIndex;
+    private CircularBuffer _buffer;
+    private double _sum;
+    private double _sumSquared;
+    private double _lastValidZScore;
+    private double _lastAddedValue;
+
+    public ZScore(int period)
+    {
+        _period = period;
+        Init();
+    }
+
+    public ZScore(object source, int period) : this(period)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new Signal(Sub));
+    }
+
+    public void Init()
+    {
+        _buffer = new CircularBuffer(_period);
+        _sum = 0;
+        _sumSquared = 0;
+        _lastValidZScore = 0;
+        _lastAddedValue = 0;
+        _index = 0;
+        _hotIndex = 0;
+    }
+
+    public TValue Update(TValue input)
+    {
+        if (!input.IsHot && input.IsNew) { _hotIndex++; }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
+        {
+            Tick = new TValue(input.Time, _lastValidZScore, input.IsNew, IsHot);
+            Pub?.Invoke(this, new ValueEventArgs(Tick));
+            return Tick;
+        }
+
+        if (input.IsNew) {
+            if (_buffer.Count == _buffer.Capacity) {
+                _sum -= _buffer[0];
+                _sumSquared -= _buffer[0] * _buffer[0];
+            }
+            _buffer.Add(input.Value);
+            _sum += input.Value;
+            _sumSquared += input.Value * input.Value;
+            _lastAddedValue = input.Value;
+            _index++;
+        } else {
+            _sum = _sum - _lastAddedValue + input.Value;
+            _sumSquared = _sumSquared - (_lastAddedValue * _lastAddedValue) + (input.Value * input.Value);
+            _buffer[_buffer.Count - 1] = input.Value;
+            _lastAddedValue = input.Value;
+        }
+        double mean = _sum / _buffer.Count;
+
+
+        double varianceSum = 0;
+        for (int i = 0; i < _buffer.Count; i++) {
+            double diff = _buffer[i] - mean;
+            varianceSum += diff * diff;
+        }
+        double variance = varianceSum / _buffer.Count;
+                double stdDev = Math.Sqrt(Math.Max(0, variance));  // Ensure non-negative value under the sqrt
+
+        double zScore;
+        if (stdDev != 0) {
+            zScore = (input.Value - mean) / stdDev;
+        } else {
+            zScore = 0;  // When stdDev is 0, all values are equal to the mean, so z-score is 0
+        }
+
+        _lastValidZScore = zScore;
+
+        Tick = new TValue(input.Time, zScore, input.IsNew, IsHot);
+        Pub?.Invoke(this, new ValueEventArgs(Tick));
+        return Tick;
+    }
+
+    public void Sub(object source, ValueEventArgs args)
+    {
+        Update(args.Tick);
+    }
+}
 
 #!csharp
 
@@ -32,7 +130,6 @@ int period = 10;
 var quotes = input.Select((value, index) => new Quote {
     Close = (decimal)value
 }).ToList();
-var skender_results = quotes.GetSma(period).Select(q => q.Sma).ToList();
 
 #!csharp
 
@@ -41,7 +138,7 @@ List<double> my = new();
 int period = 10;
 
 var feed = new GBM_Feed();
-var ma = new WMA(feed.Close, period);
+var ma = new ZScore(feed.Close, period);
 
 for (int i=0; i<50; i++) {
     feed.Update(true);
@@ -52,7 +149,7 @@ for (int i=0; i<50; i++) {
 }
 
 var quotes = input.Select((value, index) => new Quote { Close = (decimal)value }).ToList();
-var skender = quotes.GetWma(period).Select(q => q.Wma).ToList();
+var skender = quotes.GetStdDev(period).Select(q => q.StdDev).ToList();
 
 
 for (int i=0; i< input.Count; i++ ) {
