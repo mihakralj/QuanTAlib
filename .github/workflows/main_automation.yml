@@ -159,7 +159,7 @@ jobs:
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push 'Calculations/bin/Release/QuanTAlib.*.nupkg'
+      run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
