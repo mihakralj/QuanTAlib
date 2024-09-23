@@ -19,22 +19,19 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
   </PropertyGroup>
   <ItemGroup>
       <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+      <PackageReference Include="GitVersion.MsBuild" Version="6.0.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      </PackageReference>
   </ItemGroup>
 
-  <!--PropertyGroup>
+  <PropertyGroup Condition="'$(IsLocalBuild)' == 'true'">
     <QuantowerRoot>D:\Quantower</QuantowerRoot>
     <QuantowerPath>$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="TradingPlatform.BusinessLayer">
-    <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
-    </Reference>
-    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
-      <Link>TradingPlatform.BusinessLayer.xml</Link>
-    </None>
-  </ItemGroup -->
 
 </Project>
