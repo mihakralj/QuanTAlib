@@ -1,6 +1,6 @@
 
 using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class SkewIndicator : IndicatorBase
 {

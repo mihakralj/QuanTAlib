@@ -82,9 +82,6 @@ public class Dema : AbstractBase
         ManageState(Input.IsNew);
 
         double result, _ema1, _ema2;
-
-        // dynamic k when within period; (index is zero-based, therefore +2)
-        //double _dk = (_index + 1 >= _period) ? _k : 2.0 / (_index + 2);
         // compensator for early ema values
         _e = (_e > 1e-10) ? (1 - _k) * _e : 0;
         double _invE = (_e > 1e-10) ? 1 / (1 - _e) : 1;

@@ -31,6 +31,9 @@
       Quantitative;Historical;Quotes;
     </PackageTags>
     <NoWarn>$(NoWarn);NU5104</NoWarn>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
   <PropertyGroup>
 		<PackageIcon>QuanTAlib2.png</PackageIcon>

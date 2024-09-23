@@ -1,5 +1,5 @@
 using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 public class PercentileIndicator : IndicatorBase
 {
     [InputParameter("Period", sortIndex: 1, 2, 2000, 1, 0)]

@@ -3,9 +3,10 @@ using TradingPlatform.BusinessLayer;
 using TradingPlatform.BusinessLayer.Chart;
 using System.Runtime.CompilerServices;
 using System.Drawing.Drawing2D;
-using QuanTAlib;
 using System.Collections;
 using TradingPlatform.BusinessLayer.TimeSync;
+
+namespace QuanTAlib;
 
 #pragma warning disable CA1416 // Validate platform compatibility
 public abstract class IndicatorBase : Indicator, IWatchlistIndicator

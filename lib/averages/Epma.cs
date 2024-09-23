@@ -77,9 +77,6 @@ public class Epma : AbstractBase
             kernel[i] /= weightSum;
         }
 
-        // Reverse the kernel for convolution
-        //Array.Reverse(kernel);
-
         return kernel;
     }
 }
