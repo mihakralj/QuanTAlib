@@ -135,6 +135,9 @@ jobs:
         tag_name: prerelease
         release_config: |
           lib/bin/Release/QuanTAlib.dll
+          quantower/Averages/bin/Release/Averages.dll
+          quantower/Statistics/bin/Release/Statistics.dll
+          SyntheticVendor/bin/Release/SyntheticVendor.dll
 
     - name: Push  package to myget.org
       run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg'
@@ -156,6 +159,9 @@ jobs:
         tag_name: latest
         release_config: |
            lib/bin/Release/QuanTAlib.dll
+           quantower/Averages/bin/Release/Averages.dll
+           quantower/Statistics/bin/Release/Statistics.dll
+           SyntheticVendor/bin/Release/SyntheticVendor.dll
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
