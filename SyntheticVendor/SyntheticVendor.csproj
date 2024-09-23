@@ -2,4 +2,14 @@
   <PropertyGroup>
     <AlgoType>Vendor</AlgoType>
   </PropertyGroup>
+
+    <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+    <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
 </Project>

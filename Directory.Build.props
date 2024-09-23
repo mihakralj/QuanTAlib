@@ -28,13 +28,13 @@
     <QuantowerRoot>D:\Quantower</QuantowerRoot>
     <QuantowerPath>$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
   </PropertyGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
-      <HintPath>$(QuantowerPath)\bin\TradingPlatform.BusinessLayer.dll</HintPath>
+    <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
-    <None Include="$(QuantowerPath)\bin\TradingPlatform.BusinessLayer.xml">
+    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
       <Link>TradingPlatform.BusinessLayer.xml</Link>
     </None>
-  </ItemGroup>
+  </ItemGroup -->
 
 </Project>
