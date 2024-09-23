@@ -15,4 +15,13 @@
     <Copy SourceFiles="$(OutputPath)\Statistics.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Statistics" />
   </Target>
 
+  <ItemGroup>
+    <Reference Include="TradingPlatform.BusinessLayer">
+    <HintPath>..\..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\..\.github\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
 </Project>
