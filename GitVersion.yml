@@ -3,11 +3,13 @@ branches:
   main:
     regex: ^main$
     is-release-branch: true
+    track-merge-target: false
+    tracks-release-branches: false
     increment: Patch
     source-branches: ['dev']
   dev:
-    regex: ^dev$
-    increment: Patch
+    regex: ^dev(elop)?(ment)?$
+    increment: Inherit
     track-merge-target: true
     source-branches: []
     tracks-release-branches: true
