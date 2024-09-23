@@ -1,0 +1,35 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "..\lib\obj\Debug\QuanTAlib.dll"
+
+using QuanTAlib;
+
+#!csharp
+
+Random rnd = new((int)DateTime.Now.Ticks);
+Ema ma1 = new(15, true);
+Ema ma2 = new(15, true);
+TSeries out1 = new(ma1);
+TSeries out2 = new(ma2);
+for (int i=0; i<500; i++) {
+    TValue item1 = new(Time: DateTime.Now, Value: rnd.Next(1,100), IsNew: true);
+    TValue item2 = item1;
+    ma1.Calc(item1);
+    for (int j=0; j<1000; j++) {
+        item2 = new(Time: DateTime.Now, Value: rnd.Next(1,100), IsNew: false);
+        ma1.Calc(item2);
+    }
+    ma2.Calc(new TValue(item2.Time, item2.Value, IsNew: true));
+}
+for (int i=0; i<out1.Length; i++) {
+    double res1 = out1[i].Value;
+    double res2 = out2[i].Value;
+    if (res1 != res2) {
+        Console.WriteLine($"{i,4}\t {out1[i].Value:F2}\t {out2[i].Value:F2}");
+    }
+}
+Console.WriteLine($"Done: {out1.Length}");

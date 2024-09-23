@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - '*'
+      - main
   pull_request:
     branches:
-      - '*'
+      - main
 
 jobs:
   build_test:
@@ -45,17 +45,6 @@ jobs:
         #configFilePath: GitVersion.yml
         updateAssemblyInfo: true
 
-############## Install Python
-
-    - name: Install pandas-ta
-      run: |
-        sudo apt install python3.10
-        sudo apt install python3.10-dev
-        pip3 install numpy
-        pip3 install pandas
-        pip3 install pandas-ta
-        python --version
-
 ############## Install more tools
 
     - name: Install JDK11 for Sonar Scanner
@@ -84,21 +73,23 @@ jobs:
 
     - name: Build Main branch of QuanTAlib DLL
       if: ${{ github.ref != 'refs/heads/dev' }}
-      run: dotnet build ./Calculations/Calculations.csproj --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
+      run: dotnet build ./lib/quantalib.csproj --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
     - name: Build dev branch of QuanTAlib DLL
       if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet build ./Calculations/Calculations.csproj --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.FullSemVer }}
-    - name: Build Indicators DLL
-      run: dotnet build ./Indicators/Indicators.csproj --configuration Release --nologo
-    - name: Build Strategies DLL
-      run: dotnet build ./Strategies/Strategies.csproj --configuration Release --nologo
+      run: dotnet build ./lib/quantalib.csproj --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.FullSemVer }}
+    - name: Build Averages DLL
+      run: dotnet build ./quantower/Averages/Averages.csproj --configuration Release --nologo
+    - name: Build Statistics DLL
+      run: dotnet build ./quantower/Statistics/Statistics.csproj --configuration Release --nologo
+    - name: Build SyntheticVendor DLL
+      run: dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
 
     - name: DotCover Test HTML
       if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
+      run: dotnet dotcover test tests/tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
     - name: DotCover Test XML
       if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
+      run: dotnet dotcover test tests/tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
     - name: Coverlet Test
       if: ${{ github.ref == 'refs/heads/dev' }}
       run: dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
@@ -145,12 +136,13 @@ jobs:
         release_name: ${{ steps.gitversion.outputs.SemVer }}
         tag_name: prerelease
         release_config: |
-          Calculations/bin/Release/net6.0/QuanTAlib.dll
-          Indicators/bin/Release/QuanTAlib_Indicators.dll
-          Strategies/bin/Release/QuanTAlib_Strategies.dll
+          lib/bin/Release/QuanTAlib.dll
+          quantower/Averages/bin/Release/Averages.dll
+          quantower/Statistics/bin/Release/Statistics.dll
+          SyntheticVendor/bin/Release/SyntheticVendor.dll
 
     - name: Push  package to myget.org
-      run: dotnet nuget push 'Calculations/bin/Release/QuanTAlib.*.nupkg'
+      run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg'
           --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
           --source https://www.myget.org/F/quantalib/api/v2/package
           --skip-duplicate
@@ -168,13 +160,14 @@ jobs:
         release_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
         tag_name: latest
         release_config: |
-          Calculations/bin/Release/net6.0/QuanTAlib.dll
-          Indicators/bin/Release/QuanTAlib_Indicators.dll
-          Strategies/bin/Release/QuanTAlib_Strategies.dll
+           lib/bin/Release/QuanTAlib.dll
+           quantower/Averages/bin/Release/Averages.dll
+           quantower/Statistics/bin/Release/Statistics.dll
+           SyntheticVendor/bin/Release/SyntheticVendor.dll
 
     - name: Push  package to nuget.org
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push 'Calculations/bin/Release/QuanTAlib.*.nupkg'
+      run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg'
           --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
