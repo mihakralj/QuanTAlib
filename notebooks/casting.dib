@@ -1,0 +1,919 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+using System.Collections;
+using System.Runtime.CompilerServices;
+using System.Numerics;
+
+public class CircularBuffer : IEnumerable<double>
+{
+    private readonly double[] _buffer;
+    private int _start = 0;
+    private int _size = 0;
+
+    public int Capacity { get; }
+    public int Count => _size;
+
+    public CircularBuffer(int capacity)
+    {
+        Capacity = capacity;
+        _buffer = GC.AllocateArray<double>(capacity, pinned: true);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(double item, bool isNew = true)
+    {
+        if (_size == 0 || isNew)
+        {
+            if (_size < Capacity)
+            {
+                _buffer[(_start + _size) % Capacity] = item;
+                _size++;
+            }
+            else
+            {
+                _buffer[_start] = item;
+                _start = (_start + 1) % Capacity;
+            }
+        }
+        else
+        {
+            _buffer[(_start + _size - 1) % Capacity] = item;
+        }
+    }
+
+    public double this[int index]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
+        {
+            index = index < 0 ? 0 : (index >= _size ? _size - 1 : index);
+            return _buffer[(_start + index) % Capacity];
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+            index = index < 0 ? 0 : (index >= _size ? _size - 1 : index);
+            _buffer[(_start + index) % Capacity] = value;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void ThrowArgumentOutOfRangeException()
+    {
+        throw new ArgumentOutOfRangeException("index", "Index is out of range.");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Newest()
+    {
+        if (_size == 0)
+            return 0;
+        return _buffer[(_start + _size - 1) % Capacity];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Oldest()
+    {
+        if (_size == 0)
+            ThrowInvalidOperationException();
+        return _buffer[_start];
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void ThrowInvalidOperationException()
+    {
+        throw new InvalidOperationException("Buffer is empty.");
+    }
+
+    public Enumerator GetEnumerator() => new(this);
+    IEnumerator<double> IEnumerable<double>.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public struct Enumerator : IEnumerator<double>
+    {
+        private readonly CircularBuffer _buffer;
+        private int _index;
+        private double _current;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Enumerator(CircularBuffer buffer)
+        {
+            _buffer = buffer;
+            _index = -1;
+            _current = default;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool MoveNext()
+        {
+            if (_index + 1 >= _buffer._size)
+                return false;
+
+            _index++;
+            _current = _buffer[_index];
+            return true;
+        }
+
+        public double Current => _current;
+        object IEnumerator.Current => Current;
+
+        public void Reset()
+        {
+            _index = -1;
+            _current = default;
+        }
+
+        public void Dispose() { }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopyTo(double[] destination, int destinationIndex)
+    {
+        if (_size == 0)
+            return;
+
+        if (_start + _size <= Capacity)
+        {
+            Array.Copy(_buffer, _start, destination, destinationIndex, _size);
+        }
+        else
+        {
+            int firstPartLength = Capacity - _start;
+            Array.Copy(_buffer, _start, destination, destinationIndex, firstPartLength);
+            Array.Copy(_buffer, 0, destination, destinationIndex + firstPartLength, _size - firstPartLength);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<double> GetSpan()
+    {
+        if (_size == 0)
+            return ReadOnlySpan<double>.Empty;
+
+        if (_start + _size <= Capacity)
+        {
+            return new ReadOnlySpan<double>(_buffer, _start, _size);
+        }
+        else
+        {
+            return new ReadOnlySpan<double>(ToArray());
+        }
+    }
+
+    public double[] InternalBuffer => _buffer;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<double> GetInternalSpan() => _buffer.AsSpan();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        Array.Clear(_buffer, 0, _buffer.Length);
+        _start = 0;
+        _size = 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Max()
+    {
+        if (_size == 0)
+            ThrowInvalidOperationException();
+
+        return MaxSimd();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Min()
+    {
+        if (_size == 0)
+            ThrowInvalidOperationException();
+
+        return MinSimd();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Sum()
+    {
+        return SumSimd();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Average()
+    {
+        if (_size == 0)
+            ThrowInvalidOperationException();
+
+        return SumSimd() / _size;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double MaxSimd()
+    {
+        var span = GetSpan();
+        var vectorSize = Vector<double>.Count;
+        var maxVector = new Vector<double>(double.MinValue);
+
+        int i = 0;
+        for (; i <= span.Length - vectorSize; i += vectorSize)
+        {
+            maxVector = Vector.Max(maxVector, new Vector<double>(span.Slice(i, vectorSize)));
+        }
+
+        double max = double.MinValue;
+        for (int j = 0; j < vectorSize; j++)
+        {
+            max = Math.Max(max, maxVector[j]);
+        }
+
+        for (; i < span.Length; i++)
+        {
+            max = Math.Max(max, span[i]);
+        }
+
+        return max;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double MinSimd()
+    {
+        var span = GetSpan();
+        var vectorSize = Vector<double>.Count;
+        var minVector = new Vector<double>(double.MaxValue);
+
+        int i = 0;
+        for (; i <= span.Length - vectorSize; i += vectorSize)
+        {
+            minVector = Vector.Min(minVector, new Vector<double>(span.Slice(i, vectorSize)));
+        }
+
+        double min = double.MaxValue;
+        for (int j = 0; j < vectorSize; j++)
+        {
+            min = Math.Min(min, minVector[j]);
+        }
+
+        for (; i < span.Length; i++)
+        {
+            min = Math.Min(min, span[i]);
+        }
+
+        return min;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double SumSimd()
+    {
+        var span = GetSpan();
+        var vectorSize = Vector<double>.Count;
+        var sumVector = Vector<double>.Zero;
+
+        int i = 0;
+        for (; i <= span.Length - vectorSize; i += vectorSize)
+        {
+            sumVector += new Vector<double>(span.Slice(i, vectorSize));
+        }
+
+        double sum = 0;
+        for (int j = 0; j < vectorSize; j++)
+        {
+            sum += sumVector[j];
+        }
+
+        for (; i < span.Length; i++)
+        {
+            sum += span[i];
+        }
+
+        return sum;
+    }
+
+    public double[] ToArray()
+    {
+        double[] array = new double[_size];
+        CopyTo(array, 0);
+        return array;
+    }
+
+    public void ParallelOperation(Func<double[], int, int, double> operation)
+    {
+        const int MinimumPartitionSize = 1024;
+
+        if (_size < MinimumPartitionSize)
+        {
+            var span = GetSpan();
+            var array = span.ToArray();
+            operation(array, 0, array.Length);
+            return;
+        }
+
+        int partitionCount = Environment.ProcessorCount;
+        int partitionSize = _size / partitionCount;
+
+        if (partitionSize < MinimumPartitionSize)
+        {
+            partitionCount = Math.Max(1, _size / MinimumPartitionSize);
+            partitionSize = _size / partitionCount;
+        }
+
+        var buffer = ToArray();
+        var results = new double[partitionCount];
+
+        Parallel.For(0, partitionCount, i =>
+        {
+            int start = i * partitionSize;
+            int length = (i == partitionCount - 1) ? _size - start : partitionSize;
+            results[i] = operation(buffer, start, length);
+        });
+
+    }
+
+}
+
+#!csharp
+
+public interface iTValue {
+    DateTime Time { get; }
+    double Value { get; }
+    bool IsNew { get; }
+    bool IsHot { get; }
+}
+
+public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : iTValue {
+    public DateTime Time { get; init; } = Time;
+    public double Value { get; init; } = Value;
+    public bool IsNew { get; init; } = IsNew;
+    public bool IsHot { get; init; } = IsHot;
+    public DateTime t => Time;
+    public double v => Value;
+
+    public TValue() : this(DateTime.UtcNow, 0) { }
+    public TValue(double value, bool isNew=true, bool isHot=true) : this(DateTime.UtcNow, value, IsNew:isNew, IsHot:isHot) { }
+    public static implicit operator double(TValue tv) => tv.Value;
+    public static implicit operator DateTime(TValue tv) => tv.Time;
+    public static implicit operator TValue(double value) => new TValue(DateTime.UtcNow, value);
+
+    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}, {Value:F2}, IsNew: {IsNew}, IsHot: {IsHot}]";
+}
+
+public delegate void ValueSignal(object source, in ValueEventArgs args);
+
+public class ValueEventArgs : EventArgs {
+    public TValue Tick { get; }
+    public ValueEventArgs(TValue value) { Tick = value; }
+}
+
+public class TSeries : List<TValue> {
+    private readonly TValue Default = new(DateTime.MinValue, double.NaN);
+    public IEnumerable<DateTime> t => this.Select(item => item.t);
+    public IEnumerable<double> v => this.Select(item => item.v);
+    public TValue Last => Count > 0 ? this[^1] : Default;
+    public TValue First => Count > 0 ? this[0] : Default;
+    public int Length => Count;
+    public string Name { get; set; }
+    public event ValueSignal Pub = delegate { };
+
+    public TSeries() { this.Name = "Data"; }
+
+    public TSeries (object source) : this() {
+		var pubEvent = source.GetType().GetEvent("Pub");
+        if (pubEvent != null) {
+            /*
+            var nameProperty = source.GetType().GetProperty("Name");
+            if (nameProperty != null) {
+                Name = nameProperty.GetValue(nameProperty)?.ToString()!;
+            }
+            */
+            pubEvent.AddEventHandler(source, new ValueSignal(Sub));
+        }
+	}
+    public static explicit operator List<double>(TSeries series) => series.Select(item => item.Value).ToList();
+    public static explicit operator double[](TSeries series) => series.Select(item => item.Value).ToArray();
+
+    public new virtual void Add(TValue tick) {
+        if (tick.IsNew) { base.Add(tick); }
+        else { this[^1] = tick; }
+		Pub?.Invoke(this, new ValueEventArgs(tick));
+    }
+    public virtual void Add(DateTime Time, double Value, bool IsNew=true, bool IsHot=true) => this.Add(new TValue(Time, Value, IsNew, IsHot));
+    public virtual void Add(double Value, bool IsNew=true, bool IsHot=true) => this.Add(new TValue(DateTime.UtcNow, Value, IsNew, IsHot));
+
+    public void Add(IEnumerable<double> values) {
+        var valueList = values.ToList();
+        int count = valueList.Count;
+        DateTime startTime = DateTime.UtcNow - TimeSpan.FromHours(count);
+
+        for (int i = 0; i < count; i++) {
+            this.Add(startTime, valueList[i]);
+            startTime = startTime.AddHours(1);
+        }
+    }
+   public void Add(TSeries series) {
+        if (series == this) {
+            // If adding itself, create a copy to avoid modification during enumeration
+            var copy = new TSeries { Name = this.Name };
+            copy.AddRange(this);
+            AddRange(copy);
+        } else {
+            AddRange(series);
+        }
+    }
+    public new virtual void AddRange(IEnumerable<TValue> collection) {
+        foreach (var item in collection) {
+            Add(item);
+        }
+    }
+    public void Sub(object source, in ValueEventArgs args) { Add(args.Tick); }
+}
+
+#!csharp
+
+TValue a = new(10.0);
+TSeries ll = new();
+ll.Add(a);
+ll.Add(10);
+TSeries ll1 = new();
+ll.Add(new double[]{1, 2, 3, 4});
+ll.Add(new List<double>{1, 2, 3, 4});
+ll.Add(ll);
+
+display((double[])ll);
+
+#!csharp
+
+public interface iTBar {
+    DateTime Time { get; }
+    double Open { get; }
+    double High { get; }
+    double Low { get; }
+    double Close { get; }
+    double Volume { get; }
+    bool IsNew { get; }
+}
+
+public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) :iTBar {
+    public DateTime Time { get; init; } = Time;
+    public double Open { get; init; } = Open;
+    public double High { get; init; } = High;
+    public double Low { get; init; } = Low;
+    public double Close { get; init; } = Close;
+    public double Volume { get; init; } = Volume;
+    public bool IsNew { get; init; } = IsNew;
+
+    public double HL2 => (High + Low) * 0.5;
+    public double OC2 => (Open + Close) * 0.5;
+    public double OHL3 => (Open + High + Low) /3;
+    public double HLC3 => (High + Low + Close) /3;
+    public double OHLC4 => (Open + High + Low + Close) * 0.25;
+    public double HLCC4 => (High + Low + Close + Close) * 0.25;
+
+    public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
+    public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
+
+    // when TBar casts to double, it returns its Close
+    public static implicit operator double(TBar bar) => bar.Close;
+    public static implicit operator DateTime(TBar tv) => tv.Time;
+
+    // castings for sloppy people - a single double injected into a TBar, and a single TValue injected into a TBar
+    public TBar (double value) : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) {}
+    public TBar (TValue value) : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) {}
+
+    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
+}
+
+public delegate void BarSignal(object source, in TBarEventArgs args);
+
+public class TBarEventArgs : EventArgs {
+    public TBar Bar { get; }
+    public TBarEventArgs(TBar bar) { Bar = bar; }
+}
+
+public class TBarSeries : List<TBar> {
+    private readonly TBar Default = new(DateTime.MinValue, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN);
+
+    public TSeries Open;
+    public TSeries High;
+    public TSeries Low;
+    public TSeries Close;
+    public TSeries Volume;
+
+
+    public TBar Last => Count > 0 ? this[^1] : Default;
+    public TBar First => Count > 0 ? this[0] : Default;
+    public int Length => Count;
+    public string Name { get; set; }
+    public event BarSignal Pub = delegate { };
+
+    public TBarSeries() {
+        this.Name = "Bar";
+        Open = new();
+        High = new();
+        Low = new();
+        Close = new();
+        Volume = new();
+        }
+    public TBarSeries (object source) : this() {
+		var pubEvent = source.GetType().GetEvent("Pub");
+		pubEvent?.AddEventHandler(source, new BarSignal(Sub));
+	}
+
+    public new virtual void Add(TBar bar) {
+        if (bar.IsNew) { base.Add(bar); }else { this[^1] = bar; }
+		Pub?.Invoke(this, new TBarEventArgs(bar));
+
+        Open.Add(bar.Time, bar.Open, IsNew: bar.IsNew, IsHot: true);
+        High.Add(bar.Time, bar.High, IsNew: bar.IsNew, IsHot: true);
+        Low.Add(bar.Time, bar.Low, IsNew: bar.IsNew, IsHot: true);
+        Close.Add(bar.Time, bar.Close, IsNew: bar.IsNew, IsHot: true);
+        Volume.Add(bar.Time, bar.Volume, IsNew: bar.IsNew, IsHot: true);
+    }
+    public void Add(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) =>
+        this.Add(new TBar(Time, Open, High, Low, Close, Volume, IsNew));
+
+    public void Add(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) =>
+        this.Add(new TBar(DateTime.Now, Open, High, Low, Close, Volume, IsNew));
+
+    public void Add(TBarSeries series) {
+        if (series == this) {
+            // If adding itself, create a copy to avoid modification during enumeration
+            var copy = new TBarSeries { Name = this.Name };
+            copy.AddRange(this);
+            AddRange(copy);
+        } else {
+            AddRange(series);
+        }
+    }
+    public new virtual void AddRange(IEnumerable<TBar> collection) {
+        foreach (var item in collection) {
+            Add(item);
+        }
+    }
+
+    public void Sub(object source, in TBarEventArgs args) {
+        Add(args.Bar);
+    }
+}
+
+#!csharp
+
+TBarSeries ll = new();
+ll.Add(1,2,3,4,5);
+ll.Add(1,2,3,4,5);
+ll.Add(1,2,3,4,5);
+ll.Add(ll);
+//ll.Add(a);
+//ll.Add(10);
+//TSeries ll1 = new();
+//ll.Add(new double[]{1, 2, 3, 4});
+//ll.Add(new List<double>{1, 2, 3, 4});
+//ll.Add(ll);
+
+display(ll.Open.Last.Value);
+
+#!csharp
+
+using System;
+using System.Collections.Generic;
+using System.CommandLine.Invocation;
+
+public abstract class AbstractBase : iTValue
+{
+    public DateTime Time { get; set; }
+    public double Value { get; set; }
+    public bool IsNew { get; set; }
+    public bool IsHot { get; set; }
+
+    public TValue Input { get; set; }
+
+    public TValue Tick => new(Time, Value, IsNew, IsHot); // Stores the current value of indicator
+    public event ValueSignal Pub = delegate { }; // Publisher of generated values
+
+    protected int _index; //tracking the position of output
+    protected double _lastValidValue;
+    // other _internal vars defined here
+
+    protected AbstractBase()
+    {  //add parameters into constructor
+    }
+
+    public void Sub(object source, in ValueEventArgs args) => Calc(args.Tick);
+
+    public virtual void Init()
+    {
+        _index = 0;
+        _lastValidValue = 0;
+    }
+
+    public virtual TValue Calc(TValue input)
+    {
+        Input = input;
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
+        {
+            return Process(new TValue(input.Time, GetLastValid(), input.IsNew, input.IsHot));
+        }
+        this.Value = Calculation();
+        return Process(new TValue(Time: Input.Time, Value: this.Value, IsNew: Input.IsNew, IsHot: this.IsHot));
+    }
+
+    protected virtual double GetLastValid()
+    {
+        // should return last valid value
+        return _lastValidValue;
+    }
+    protected abstract void ManageState(bool isNew);
+    protected abstract double Calculation();
+    protected virtual TValue Process(TValue value)
+    {
+        this.Time = value.Time;
+        this.Value = value.Value;
+        this.IsNew = value.IsNew;
+        this.IsHot = value.IsHot;
+        Pub?.Invoke(this, new ValueEventArgs(value));
+        return value;
+    }
+}
+
+#!csharp
+
+using System;
+
+    public class EmaCalc : AbstractBase
+    {
+        private readonly int _period;
+        private CircularBuffer _sma;
+        private double _lastEma, _p_lastEma;
+        private double _k, _e, _p_e;
+        private bool _isInitialized, _useSma;
+
+        public EmaCalc(int period, bool useSma = true) : base()
+        {
+            if (period < 1) {
+                throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
+            }
+            _period = period;
+            _useSma = useSma;
+            _sma = new(period);
+
+            Init();
+        }
+
+        public EmaCalc(object source, int period, bool useSma = true) : this(period, useSma)
+        {
+            var pubEvent = source.GetType().GetEvent("Pub");
+            pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+        }
+
+        public override void Init()
+        {
+            base.Init();
+            _k = 2.0 / (_period + 1);
+            _e = 1.0;
+            _lastEma = 0;
+            _isInitialized = false;
+            _sma = new(_period);
+        }
+
+        protected override void ManageState(bool isNew) {
+            if (isNew) {
+                _p_lastEma = _lastEma;
+                _p_e = _e;
+                _index++;
+            } else {
+                _lastEma = _p_lastEma;
+                _e = _p_e;
+            }
+        }
+
+        protected override double GetLastValid() {
+            return _lastEma;
+        }
+
+        protected override double Calculation() {
+            double result, _ema;
+            ManageState(Input.IsNew);
+
+            // when _UseSma == true, use SMA calculation until we have enough data points
+            if (!_isInitialized && _useSma) {
+                _sma.Add(Input.Value, Input.IsNew);
+                _ema = _sma.Average();
+                result = _ema;
+                if (_index >= _period) {
+                    _isInitialized = true;
+                }
+            } else {
+                // dunamic k when within period; (index is zero-based, therefore +2)
+                double _dk = (_index +1 >= _period) ? _k : 2.0 / (_index + 2);
+
+                // compensator for early ema values
+                _e = (_e > 1e-10) ? (1 - _dk) * _e : 0;
+
+                _ema = _dk * (Input.Value - _lastEma) + _lastEma;
+
+                // _useSma decides if we use compensator or not
+                result = (_useSma || _e == 0)? _ema : _ema / (1 - _e);
+            }
+
+            _lastEma = _ema;
+            IsHot = _index >= _period;
+            return result;
+        }
+    }
+
+#!csharp
+
+double[] input = new[]{1.0, 2,3,4,5};
+
+TSeries mm = new();
+mm.Add(input);
+mm.Display();
+
+#!csharp
+
+public class Convolution : AbstractBase
+    {
+        private readonly double[] _kernel;
+        private readonly int _kernelSize;
+        private CircularBuffer _buffer;
+        private double[] _normalizedKernel;
+
+        public Convolution(double[] kernel)
+        {
+            if (kernel == null || kernel.Length == 0)
+            {
+                throw new ArgumentException("Kernel must not be null or empty.", nameof(kernel));
+            }
+            _kernel = kernel;
+            _kernelSize = kernel.Length;
+            _buffer = new CircularBuffer(_kernelSize);
+            _normalizedKernel = new double[_kernelSize];
+            Init();
+        }
+
+        public Convolution(object source, double[] kernel) : this(kernel)
+        {
+            var pubEvent = source.GetType().GetEvent("Pub");
+            pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+        }
+
+        private void Init()
+        {
+            _index = 0;
+            _lastValidValue = 0;
+            Array.Copy(_kernel, _normalizedKernel, _kernelSize);
+        }
+
+        protected override void ManageState(bool isNew)
+        {
+            if (isNew)
+            {
+                _lastValidValue = Input.Value;
+                _index++;
+            }
+        }
+
+        protected override double GetLastValid()
+        {
+            return _lastValidValue;
+        }
+
+        protected override double Calculation()
+        {
+            ManageState(Input.IsNew);
+
+            _buffer.Add(Input.Value, Input.IsNew);
+
+            // Normalize kernel on each calculation until buffer is full
+            if (_index <= _kernelSize)
+            {
+                NormalizeKernel();
+            }
+
+            double result = ConvolveBuffer();
+            IsHot = _index >= _kernelSize;
+
+            return result;
+        }
+
+        private void NormalizeKernel()
+        {
+            int activeLength = Math.Min(_index, _kernelSize);
+            double sum = 0;
+
+            // Calculate the sum of the active kernel elements
+            for (int i = 0; i < activeLength; i++)
+            {
+                sum += _kernel[i];
+            }
+
+            // Normalize the kernel or set equal weights if the sum is zero
+            double normalizationFactor = (sum != 0) ? sum : activeLength;
+            for (int i = 0; i < activeLength; i++)
+            {
+                _normalizedKernel[i] = _kernel[i] / normalizationFactor;
+            }
+
+            // Set the rest of the normalized kernel to zero
+            Array.Clear(_normalizedKernel, activeLength, _kernelSize - activeLength);
+        }
+
+        private double ConvolveBuffer()
+        {
+            double sum = 0;
+            var bufferSpan = _buffer.GetSpan();
+            int activeLength = Math.Min(_index, _kernelSize);
+
+            for (int i = 0; i < activeLength; i++)
+            {
+                sum += bufferSpan[activeLength - 1 - i] * _normalizedKernel[i];
+            }
+
+            return sum;
+        }
+    }
+
+#!csharp
+
+public class Wma : AbstractBase
+    {
+        private readonly int _period;
+        private readonly Convolution _convolution;
+
+        public Wma(int period)
+        {
+            if (period < 1)
+            {
+                throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            }
+            _period = period;
+            _convolution = new Convolution(GenerateWmaKernel(_period));
+            Init();
+        }
+
+        public Wma(object source, int period) : this(period)
+        {
+            var pubEvent = source.GetType().GetEvent("Pub");
+            pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+        }
+
+        private static double[] GenerateWmaKernel(int period)
+        {
+            double[] kernel = new double[period];
+            double weightSum = period * (period + 1) / 2.0;
+
+            for (int i = 0; i < period; i++)
+            {
+                kernel[i] = (period - i) / weightSum;
+            }
+
+            return kernel;
+        }
+
+        private new void Init()
+        {
+            base.Init();
+            _convolution.Init();
+        }
+
+        protected override void ManageState(bool isNew)
+        {
+            if (isNew)
+            {
+                _lastValidValue = Input.Value;
+                _index++;
+            }
+        }
+
+        protected override double GetLastValid()
+        {
+            return _lastValidValue;
+        }
+
+        protected override double Calculation()
+        {
+            ManageState(Input.IsNew);
+
+            // Use Convolution for calculation
+            TValue convolutionResult = _convolution.Calc(Input);
+
+            double result = convolutionResult.Value;
+            IsHot = _index >= _period;
+
+            return result;
+        }
+    }
+
+#!csharp
+
+TSeries input = new();
+double[] kernel = new[]{4.0,3,2,1};
+
+Wma cc = new(input, 5);
+TSeries output = new(cc);
+
+input.Add(new double[]{1.0,2,3,4,5,6,7,8});
+
+
+display((double[])output);

@@ -1,0 +1,52 @@
+# Top 50 Fundamental Statistical Functions
+
+- Mean (Arithmetic Average)
+- Median
+- Mode
+- Range
+- Variance
+- Standard Deviation
+- Coefficient of Variation
+- Percentiles
+- Quartiles
+- Interquartile Range (IQR)
+- Skewness
+- Kurtosis
+- Covariance
+- Correlation Coefficient (Pearson)
+- Spearman's Rank Correlation
+- Mean Absolute Error (MAE)
+- Mean Squared Error (MSE)
+- Root Mean Square Error (RMSE)
+- Mean Absolute Percentage Error (MAPE)
+- R-squared (Coefficient of Determination)
+- Adjusted R-squared
+- Z-score (Standard Score)
+- T-score
+- F-statistic
+- Chi-square Statistic
+- P-value
+- Confidence Interval
+- Standard Error
+- Margin of Error
+- Effect Size (Cohen's d, Hedges' g)
+- Odds Ratio
+- Relative Risk
+- Poisson Distribution
+- Normal Distribution (Gaussian)
+- Binomial Distribution
+- Exponential Distribution
+- Weibull Distribution
+- Log-normal Distribution
+- Student's t-Distribution
+- F-Distribution
+- Beta Distribution
+- Gamma Distribution
+- Geometric Mean
+- Harmonic Mean
+- Moving Average
+- Exponential Moving Average
+- Weighted Average
+- Cumulative Sum
+- Autocorrelation Function (ACF)
+- Partial Autocorrelation Function (PACF)

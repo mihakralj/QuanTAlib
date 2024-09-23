@@ -1,0 +1,16 @@
+# Top-most EditorConfig file
+root = true
+
+[*.{cs,vb}]
+# Suppress S3776 (Cognitive Complexity)
+dotnet_diagnostic.S3776.severity = none
+# Suppress CA1416 (Platform Compatibility)
+dotnet_diagnostic.CA1416.severity = none
+dotnet_style_parentheses_in_control_flow_statements = always_for_clarity:suggestion
+csharp_new_line_before_open_brace = none
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_members_in_anonymous_types = false
+csharp_new_line_between_query_expression_clauses = false

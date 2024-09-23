@@ -1,0 +1,63 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "..\lib\obj\Debug\QuanTAlib.dll"
+using QuanTAlib;
+QuanTAlib.Formatters.Initialize();
+
+#!csharp
+
+public class Ema {
+    double lastema;
+    double k, extra;
+    int i, p;
+    public Ema(int p) {
+        k = 1/((double) p+1);
+        extra = 1;
+        lastema = 0;
+    }
+    public double Calc(double value) {
+        extra = (1 - k) * extra;
+        double ema = k * (value - lastema) + lastema;
+        lastema = ema;
+        return ema / (1 - extra);
+    }
+}
+
+#!csharp
+
+public class Ema {
+    private double smooth, k;
+    private double extra;
+    private int i, p;
+
+    public Ema(int period) {
+        p = period;
+        k = 1.0 / (p + 1);
+        extra = 1;
+        smooth = 0;
+        i = 0;
+    }
+
+    public double Calc(double value) {
+        i++;
+        k = 1/((double)Math.Min(p,i)+1);
+
+        extra *= (1-k);
+        smooth = k * (value - smooth) + smooth;
+        return extra < 1e-10 ? smooth : smooth / (1 - extra);
+
+    }
+}
+
+#!csharp
+
+Ema ma = new(3);
+double[] input = new[]{1.0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0};
+for (int i=0; i<input.Length; i++) {
+    double output = ma.Calc(input[i]);
+    Console.WriteLine($" {output:F3}");
+}

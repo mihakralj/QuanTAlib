@@ -1,74 +1,51 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.2.32210.308
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calculations", "Calculations\Calculations.csproj", "{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "quantalib", "lib\quantalib.csproj", "{584E06A9-CEB4-476A-85CC-6A8FF3974AE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{D85FEBB4-B651-466F-85CC-FD902378D4D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indicators", "Indicators\Indicators.csproj", "{43AD2D78-024C-4D96-A70B-915CF519965A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovingAverages", "quantower\averages\Averages.csproj", "{32CC09CC-26E3-4FCE-8932-C0513C4AD766}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Strategies", "Strategies\Strategies.csproj", "{FA526AF6-95BC-4AC0-8B46-A304FD06689D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyntheticVendor", "SyntheticVendor\SyntheticVendor.csproj", "{20B1B5F1-8C36-4668-B0AE-951C13AE197B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{47B6ACDB-F535-4FEB-9A0A-C427CAE8C28E}"
-	ProjectSection(SolutionItems) = preProject
-		docs\.nojekyll = docs\.nojekyll
-		docs\ALMA.md = docs\ALMA.md
-		docs\DEMA.md = docs\DEMA.md
-		docs\DWMA.md = docs\DWMA.md
-		docs\EMA.md = docs\EMA.md
-		docs\FMA.md = docs\FMA.md
-		docs\getting_started.ipynb = docs\getting_started.ipynb
-		docs\HEMA.md = docs\HEMA.md
-		docs\HMA.md = docs\HMA.md
-		docs\HWMA.md = docs\HWMA.md
-		docs\index.html = docs\index.html
-		docs\indicators.md = docs\indicators.md
-		docs\JMA.md = docs\JMA.md
-		docs\KAMA.md = docs\KAMA.md
-		docs\LICENSE = docs\LICENSE
-		docs\MAMA.md = docs\MAMA.md
-		docs\QA.md = docs\QA.md
-		docs\readme.md = docs\readme.md
-		docs\RMA.md = docs\RMA.md
-		docs\SMA.md = docs\SMA.md
-		docs\SMMA.md = docs\SMMA.md
-		docs\T3.md = docs\T3.md
-		docs\TEMA.md = docs\TEMA.md
-		docs\TRIMA.md = docs\TRIMA.md
-		docs\WMA.md = docs\WMA.md
-		docs\ZLEMA.md = docs\ZLEMA.md
-		docs\_sidebar.md = docs\_sidebar.md
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "quantower", "quantower", "{A8D9AE68-24E3-476C-BB98-244541BB4B43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Statistics", "quantower\Statistics\Statistics.csproj", "{B6D3EB11-63B6-430F-B526-E1981B3D8214}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAE21F8A-9BC2-4647-A9EB-4DC86C569080}.Release|Any CPU.Build.0 = Release|Any CPU
-		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{283EACC9-3AF6-4DAE-9C1C-0F7F8C8CD70D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{43AD2D78-024C-4D96-A70B-915CF519965A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{43AD2D78-024C-4D96-A70B-915CF519965A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{43AD2D78-024C-4D96-A70B-915CF519965A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{43AD2D78-024C-4D96-A70B-915CF519965A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA526AF6-95BC-4AC0-8B46-A304FD06689D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA526AF6-95BC-4AC0-8B46-A304FD06689D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA526AF6-95BC-4AC0-8B46-A304FD06689D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA526AF6-95BC-4AC0-8B46-A304FD06689D}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E5592DC2-0542-45B2-A0CF-C6B1EDC72B87}
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{584E06A9-CEB4-476A-85CC-6A8FF3974AE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{584E06A9-CEB4-476A-85CC-6A8FF3974AE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{584E06A9-CEB4-476A-85CC-6A8FF3974AE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{584E06A9-CEB4-476A-85CC-6A8FF3974AE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D85FEBB4-B651-466F-85CC-FD902378D4D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D85FEBB4-B651-466F-85CC-FD902378D4D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D85FEBB4-B651-466F-85CC-FD902378D4D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D85FEBB4-B651-466F-85CC-FD902378D4D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CC09CC-26E3-4FCE-8932-C0513C4AD766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CC09CC-26E3-4FCE-8932-C0513C4AD766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CC09CC-26E3-4FCE-8932-C0513C4AD766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CC09CC-26E3-4FCE-8932-C0513C4AD766}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20B1B5F1-8C36-4668-B0AE-951C13AE197B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20B1B5F1-8C36-4668-B0AE-951C13AE197B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20B1B5F1-8C36-4668-B0AE-951C13AE197B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20B1B5F1-8C36-4668-B0AE-951C13AE197B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B6D3EB11-63B6-430F-B526-E1981B3D8214} = {A8D9AE68-24E3-476C-BB98-244541BB4B43}
 	EndGlobalSection
 EndGlobal
