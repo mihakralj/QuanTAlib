@@ -1,0 +1,25 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "nuget: Trady.Analysis, 3.2.8"
+#r "nuget: Trady.Core, 3.2.8"
+
+#!csharp
+
+using Trady.Analysis.Indicator;
+using Trady.Core;
+
+double[] data = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+int period = 5;
+
+var candles = data.Select(price => new Candle(DateTime.Now, (decimal)price, (decimal)price, (decimal)price, (decimal)price, 0)).ToList();
+
+var ema = new ExponentialMovingAverage(candles, period).Compute().ToList();
+
+for (int i=0; i<data.Length-1; i++) {
+    double? TU = ema[i]?.Tick != null ? (double)ema[i].Tick.Value : double.NaN;
+   Console.WriteLine($"{TU:F2}");
+}

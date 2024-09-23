@@ -1,0 +1,29 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "nuget: Atypical.TechnicalAnalysis.Functions, 0.0.0-alpha.0.173"
+
+#!csharp
+
+using TechnicalAnalysis.Functions;
+
+double[] data = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+// Define the start and end indices
+int startIdx = 0;
+int endIdx = data.Length - 1;
+
+// Call the Sma method
+TechnicalAnalysis.TACore.Globals.Compatibility = TechnicalAnalysis.Common.Compatibility.Default;
+EmaResult result = TAMath.Ema(startIdx, endIdx, data, 8);
+
+for (int i=startIdx; i<endIdx; i++) {
+    double r = i<result.BegIdx?double.NaN:result.Real[i-result.BegIdx];
+   Console.WriteLine($"{data[i]}\t  {r}");
+}
+
+#!csharp
+
+result.BegIdx

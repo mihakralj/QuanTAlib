@@ -1,0 +1,28 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "nuget: Tulip.NETCore, 0.8.0.1"
+
+#!csharp
+
+using Tulip;
+
+double[] data = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+int period = 3;
+private double[] outdata = new double[data.Count()];
+
+double[][] arrin = new double[][] { data };
+double[][] arrout = new double[][] { outdata };
+Tulip.Indicators.ema.Run(inputs: arrin, options: new double[] { period }, outputs: arrout);
+
+for (int i=0; i<arrout[0].Length-1; i++) {
+    double TU = i<0?double.NaN:arrout[0][i];
+   Console.WriteLine($"{TU:F2}");
+}
+
+#!csharp
+
+arrout[0]

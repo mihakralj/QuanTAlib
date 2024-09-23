@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AlgoType>Vendor</AlgoType>
+  </PropertyGroup>
+</Project>
