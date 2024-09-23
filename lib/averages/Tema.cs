@@ -58,8 +58,7 @@ public class Tema : AbstractBase
     {
         double result, _ema1, _ema2, _ema3;
         ManageState(Input.IsNew);
-
-        //double _dk = (_index + 1 >= _period) ? _k : 2.0 / (_index + 2);
+        
         _e = (_e > 1e-10) ? (1 - _k) * _e : 0;
         double _invE = (_e > 1e-10) ? 1 / (1 - _e) : 1;
 

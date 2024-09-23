@@ -30,7 +30,6 @@ public class Sma : AbstractBase
 
     public override void Init()
     {
-        //_buffer.Clear();
         base.Init();
     }
 

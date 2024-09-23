@@ -1,4 +1,4 @@
-using QuanTAlib;
+namespace QuanTAlib;
 
 //https://user42.tuxfamily.org/chart/manual/Regularized-Exponential-Moving-Average.html
 

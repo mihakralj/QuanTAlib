@@ -81,6 +81,8 @@ jobs:
       run: dotnet build ./quantower/Averages/Averages.csproj --configuration Release --nologo
     - name: Build Statistics DLL
       run: dotnet build ./quantower/Statistics/Statistics.csproj --configuration Release --nologo
+    - name: Build SyntheticVendor DLL
+      run: dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
 
     - name: DotCover Test HTML
       if: ${{ github.ref == 'refs/heads/dev' }}

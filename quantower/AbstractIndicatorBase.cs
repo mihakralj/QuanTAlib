@@ -1,9 +1,9 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
 using TradingPlatform.BusinessLayer.Chart;
-using QuanTAlib;
 using System.Runtime.CompilerServices;
 using System.Drawing.Drawing2D;
+namespace QuanTAlib;
 
 #pragma warning disable CA1416 // Validate platform compatibility
 public abstract class AbstractIndicatorBase : Indicator
