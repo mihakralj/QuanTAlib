@@ -136,9 +136,8 @@ jobs:
         prerelease: true
         overwrite: true
         release_name: ${{ steps.gitversion.outputs.SemVer }}
-        tag_name: prerelease
+        tag_name: ${{ steps.gitversion.outputs.SemVer }}
         release_config: |
-          lib/bin/Release/QuanTAlib.dll
           quantower/Averages/bin/Release/Averages.dll
           quantower/Statistics/bin/Release/Statistics.dll
           SyntheticVendor/bin/Release/SyntheticVendor.dll
@@ -160,9 +159,8 @@ jobs:
         prerelease: false
         overwrite: true
         release_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
-        tag_name: latest
+        tag_name: ${{ steps.gitversion.outputs.SemVer }}
         release_config: |
-           lib/bin/Release/QuanTAlib.dll
            quantower/Averages/bin/Release/Averages.dll
            quantower/Statistics/bin/Release/Statistics.dll
            SyntheticVendor/bin/Release/SyntheticVendor.dll

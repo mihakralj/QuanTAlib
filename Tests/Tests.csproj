@@ -26,6 +26,7 @@
     <PackageReference Include="stocksharp.algo" Version="5.0.193" />
     <PackageReference Include="OoplesFinance.StockIndicators" Version="1.0.53" />
     -->
+
   </ItemGroup>
 
   <ItemGroup>
