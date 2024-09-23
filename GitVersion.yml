@@ -1,21 +1,37 @@
-mode: ContinuousDelivery
-branches:
-  main:
-    regex: ^main$
-    increment: Patch
-    is-release-branch: true
-    source-branches: ['dev']
-  dev:
-    regex: ^dev(elop)?(ment)?$
-    increment: Inherit
-    track-merge-target: true
-    source-branches: []
-    tracks-release-branches: true
-    label: dev
-ignore:
-  sha: []
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatch
+mode: ContinuousDeployment
+tag-prefix: '[vV]?'
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
 commit-message-incrementing: Enabled
+
+branches:
+  main:
+    regex: ^main$
+    mode: ContinuousDeployment
+    label: ''
+    increment: Patch
+    track-merge-target: false
+    source-branches: []
+    tracks-release-branches: false
+    is-release-branch: true
+    is-main-branch: true
+    pre-release-weight: 55000
+
+  dev:
+    regex: ^dev(elop)?(ment)?$
+    mode: ContinuousDelivery
+    label: dev
+    increment: Patch
+    track-merge-target: true
+    source-branches: ['main']
+    tracks-release-branches: true
+    is-release-branch: false
+    is-main-branch: false
+    pre-release-weight: 0
+
+ignore:
+  sha: []
