@@ -6,10 +6,10 @@ public class Kama : AbstractBase
 {
     private readonly int _period;
     private readonly double _scFast, _scSlow;
-    private readonly CircularBuffer? _buffer;
+    private CircularBuffer? _buffer;
     private double _lastKama, _p_lastKama;
 
-    public Kama(int period, int fast = 2, int slow = 30)
+    public Kama(int period, int fast = 2, int slow = 30) : base()
     {
         if (period < 1)
         {
@@ -20,7 +20,6 @@ public class Kama : AbstractBase
         _scSlow = 2.0 / (slow + 1);
         WarmupPeriod = period;
         Name = $"Kama({_period}, {fast}, {slow})";
-        _buffer = new CircularBuffer(_period + 1);
         Init();
     }
 
@@ -33,7 +32,7 @@ public class Kama : AbstractBase
     public override void Init()
     {
         base.Init();
-
+        _buffer = new CircularBuffer(_period + 1);
         _lastKama = 0;
     }
 

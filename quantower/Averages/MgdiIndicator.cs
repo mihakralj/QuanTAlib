@@ -15,7 +15,7 @@ public class MgdiIndicator : IndicatorBase
     public override string ShortName => $"MGDI {Period} : {kfactor:F2} : {SourceName}";
 
 
-    public MgdiIndicator()
+    public MgdiIndicator() : base()
     {
         Name = "MGDI - McGinley Dynamic Index";
     }
@@ -23,5 +23,6 @@ public class MgdiIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Mgdi(period: Period, kFactor: kfactor);
+        base.InitIndicator();
     }
 }

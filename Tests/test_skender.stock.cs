@@ -1,6 +1,6 @@
 using Xunit;
 using Skender.Stock.Indicators;
-namespace QuanTAlib;
+using QuanTAlib;
 
 public class SkenderTests
 {
@@ -284,6 +284,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
+            //period = rnd.Next(50) + 5;
             Mama ma = new(fastLimit: 0.5, slowLimit: 0.05);
             TSeries QL = new();
             foreach (TBar item in feed)

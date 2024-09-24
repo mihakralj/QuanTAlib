@@ -10,13 +10,13 @@ public class T3Indicator : IndicatorBase
     public double Vfactor { get; set; } = 0.62;
 
     [InputParameter("Use SMA for warmup", sortIndex: 3)]
-    public bool UseSma { get; set; }
+    public bool UseSma { get; set; } = false;
 
     private T3? ma;
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"T3 {Period} : {Vfactor:F2} : {SourceName}";
 
-    public T3Indicator()
+    public T3Indicator() : base()
     {
         Name = "T3 - Tillson T3 Moving Average";
     }
@@ -24,5 +24,6 @@ public class T3Indicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new T3(period: Period, vfactor: Vfactor, useSma: UseSma);
+        base.InitIndicator();
     }
 }

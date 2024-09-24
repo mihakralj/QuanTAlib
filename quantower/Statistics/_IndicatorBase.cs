@@ -28,7 +28,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
 
     [InputParameter("Show cold values", sortIndex: 20)]
     public bool ShowColdValues { get; set; } = true;
-    public int MinHistoryDepths { get; set; }
+    public int MinHistoryDepths;
 
     // LineSeries.LineSeries(string, Color, int, LineStyle)'
 
@@ -38,7 +38,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
 
     int IWatchlistIndicator.MinHistoryDepths => 0;
 
-    protected IndicatorBase()
+    protected IndicatorBase() : base()
     {
         OnBackGround = true;
         SeparateWindow = false;
@@ -46,14 +46,17 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
         Series = new(name: $"{Name}", color: Color.RoyalBlue, width: 2, style: LineStyle.Solid);
 
         AddLineSeries(Series);
+        InitIndicator();
     }
 
-    protected abstract void InitIndicator();
+    protected virtual void InitIndicator()
+    {
+        SourceName = GetName(Source);
+    }
 
     protected override void OnInit()
     {
         InitIndicator();
-        SourceName = GetName(Source);
         base.OnInit();
     }
 
@@ -93,7 +96,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         List<Point> allPoints = new List<Point>();
-        if (CurrentChart == null) { return; }
+        if (CurrentChart == null) return;
 
         Graphics gr = args.Graphics;
 
@@ -125,7 +128,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
 
     private void DrawSmoothCombinedCurve(Graphics gr, List<Point> allPoints, int hotCount)
     {
-        if (allPoints.Count < 2) { return; }
+        if (allPoints.Count < 2) return;
 
         using (Pen defaultPen = new(Series!.Color, Series.Width) { DashStyle = ConvertLineStyleToDashStyle(Series.Style) })
         using (Pen coldPen = new(Series!.Color, Series.Width) { DashStyle = DashStyle.Dot })
@@ -145,7 +148,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
             }
         }
     }
-    private static DashStyle ConvertLineStyleToDashStyle(LineStyle lineStyle)
+    private DashStyle ConvertLineStyleToDashStyle(LineStyle lineStyle)
     {
         return lineStyle switch
         {
@@ -156,7 +159,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
             _ => DashStyle.Solid,
         };
     }
-    protected static void DrawText(Graphics gr, string text, Rectangle clientRect)
+    protected void DrawText(Graphics gr, string text, Rectangle clientRect)
     {
         Font font = new Font("Inter", 8);
         SizeF textSize = gr.MeasureString(text, font);
@@ -166,7 +169,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
         gr.FillRectangle(SystemBrushes.ControlDarkDark, textRect);
         gr.DrawString(text, font, Brushes.White, new PointF(textRect.X + 6, textRect.Y + 5));
     }
-    protected static string GetName(int pType)
+    protected string GetName(int pType)
     {
         return pType switch
         {

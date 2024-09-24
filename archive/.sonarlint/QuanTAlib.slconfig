@@ -1,0 +1,19 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "mihakralj",
+    "Name": "Miha Kralj"
+  },
+  "ProjectKey": "mihakralj_QuanTAlib",
+  "ProjectName": "QuanTAlib",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AYBIHuVX3Y_jZnooaQv1",
+      "ProfileTimestamp": "2022-04-20T17:57:57Z"
+    },
+    "Secrets": {
+      "ProfileKey": "AYXoTKve9Ao2yLWbNVCT",
+      "ProfileTimestamp": "2023-01-25T09:40:14Z"
+    }
+  }
+}

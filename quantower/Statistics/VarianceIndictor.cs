@@ -7,12 +7,12 @@ public class VarianceIndicator : IndicatorBase
     public int Period { get; set; } = 20;
 
     [InputParameter("Population", sortIndex: 2)]
-    public bool IsPopulation { get; set; }
+    public bool IsPopulation { get; set; } = false;
 
     private Variance? variance;
     protected override AbstractBase QuanTAlib => variance!;
     public override string ShortName => $"VAR {Period} : {SourceName}";
-    public VarianceIndicator()
+    public VarianceIndicator() : base()
     {
         Name = "VAR - Variance";
         SeparateWindow = true;
@@ -23,5 +23,6 @@ public class VarianceIndicator : IndicatorBase
         SeparateWindow = true;
         variance = new(Period, IsPopulation);
         MinHistoryDepths = variance.WarmupPeriod;
+        base.InitIndicator();
     }
 }

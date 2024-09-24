@@ -12,7 +12,7 @@ public class PercentileIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => percentile!;
     public override string ShortName => $"PERCENTILE {Period} {Percent:F0}% : {SourceName}";
 
-    public PercentileIndicator()
+    public PercentileIndicator() : base()
     {
         Name = "PERCENTILE - n-th Percentile ";
         SeparateWindow = false;
@@ -22,6 +22,7 @@ public class PercentileIndicator : IndicatorBase
     {
         percentile = new(Period, Percent);
         MinHistoryDepths = percentile.WarmupPeriod;
+        base.InitIndicator();
     }
 
 }

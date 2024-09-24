@@ -12,7 +12,7 @@ public class MamaIndicator : IndicatorBase
     public override string ShortName => $"MAMA : {Fast} : {Slow} : {SourceName}";
 
 
-    public MamaIndicator()
+    public MamaIndicator() : base()
     {
         Name = "MAMA - MESA Adaptive Moving Average";
     }
@@ -20,5 +20,6 @@ public class MamaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Mama(Fast, Slow);
+        base.InitIndicator();
     }
 }

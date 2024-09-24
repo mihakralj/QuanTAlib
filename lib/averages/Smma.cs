@@ -5,10 +5,10 @@ namespace QuanTAlib;
 public class Smma : AbstractBase
 {
     private readonly int _period;
-    private readonly CircularBuffer? _buffer;
+    private CircularBuffer? _buffer;
     private double _lastSmma, _p_lastSmma;
 
-    public Smma(int period)
+    public Smma(int period) : base()
     {
         if (period < 1)
         {
@@ -17,7 +17,6 @@ public class Smma : AbstractBase
         _period = period;
         WarmupPeriod = period;
         Name = $"Smma({_period})";
-        _buffer = new CircularBuffer(_period);
         Init();
     }
 
@@ -30,6 +29,7 @@ public class Smma : AbstractBase
     public override void Init()
     {
         base.Init();
+        _buffer = new CircularBuffer(_period);
         _lastSmma = 0;
     }
 

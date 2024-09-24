@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-namespace QuanTAlib;
+using QuanTAlib;
 
 public class EmaIndicator : IndicatorBase
 {
@@ -13,7 +13,7 @@ public class EmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"EMA {Period} : {SourceName}";
 
-    public EmaIndicator()
+    public EmaIndicator() : base()
     {
         Name = "EMA - Exponential Moving Average";
         Description = "Exponential Moving Average";
@@ -21,6 +21,7 @@ public class EmaIndicator : IndicatorBase
 
     protected override void InitIndicator()
     {
+        base.InitIndicator();
         ma = new Ema(period: Period, useSma: UseSma);
     }
 }

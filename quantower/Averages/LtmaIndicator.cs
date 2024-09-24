@@ -10,7 +10,7 @@ public class LtmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"Laguerre {Gamma:F2} : {SourceName}";
 
-    public LtmaIndicator()
+    public LtmaIndicator() : base()
     {
         Name = "LTMA - Laguerre Transform Moving Average";
     }
@@ -18,5 +18,6 @@ public class LtmaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Ltma(gamma: Gamma);
+        base.InitIndicator();
     }
 }

@@ -4,10 +4,10 @@ public class Sma : AbstractBase
 {
     // inherited _index
     // inherited _value
-    private readonly int Period;
-    private readonly CircularBuffer _buffer;
+    public readonly int Period;
+    private CircularBuffer _buffer;
 
-    public Sma(int period)
+    public Sma(int period) : base()
     {
         if (period < 1)
         {

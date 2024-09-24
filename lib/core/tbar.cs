@@ -54,11 +54,11 @@ public class TBarSeries : List<TBar>
 {
     private readonly TBar Default = new(DateTime.MinValue, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN);
 
-    public TSeries Open { get; set; }
-    public TSeries High { get; set; }
-    public TSeries Low { get; set; }
-    public TSeries Close { get; set; }
-    public TSeries Volume { get; set; }
+    public TSeries Open;
+    public TSeries High;
+    public TSeries Low;
+    public TSeries Close;
+    public TSeries Volume;
 
 
     public TBar Last => Count > 0 ? this[^1] : Default;

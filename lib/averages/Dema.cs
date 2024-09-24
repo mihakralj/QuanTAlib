@@ -28,7 +28,7 @@ public class Dema : AbstractBase
     private double _lastEma2, _p_lastEma2;
     private double _k, _e, _p_e;
 
-    public Dema(int period)
+    public Dema(int period) : base()
     {
         if (period < 1)
         {

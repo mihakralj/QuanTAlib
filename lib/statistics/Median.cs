@@ -6,9 +6,9 @@ namespace QuanTAlib
     public class Median : AbstractBase
     {
         public readonly int Period;
-        private readonly CircularBuffer _buffer;
+        private CircularBuffer _buffer;
 
-        public Median(int period)
+        public Median(int period) : base()
         {
             if (period < 1)
             {

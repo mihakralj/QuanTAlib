@@ -7,7 +7,7 @@ public class HtitIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"HTIT : {SourceName}";
 
-    public HtitIndicator()
+    public HtitIndicator() : base()
     {
         Name = "HTIT - Hilbert Transform Instantaneous Trendline";
     }
@@ -16,5 +16,6 @@ public class HtitIndicator : IndicatorBase
     {
         ma = new Htit();
         MinHistoryDepths = ma.WarmupPeriod;
+        base.InitIndicator();
     }
 }

@@ -1,0 +1,163 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "\bin\Debug\calculations.dll"
+using QuanTAlib;
+
+#!csharp
+
+TValue vv = new(10);
+display(vv.ToString());
+display(vv.IsHot);
+
+TBar bb = new(1,1,1,1,10);
+display(bb.ToString());
+display(bb.IsNew);
+
+#!csharp
+
+int i=10;
+SMA sma = new(i);
+Console.WriteLine($"{"Close",10}   {"SMA(" + i + ")",10}");
+for (int i = 0; i < 20; i++)
+{
+    TValue c =(double)i+1;
+    sma.Update(10000,true);
+    sma.Update(1,false);
+    sma.Update(-1000,false);
+    sma.Update(c,false);
+
+    Console.WriteLine($"{i+1}  {(double)c,10:F2}   {(double)sma.Value,10:F2}     {sma.Value.IsHot}");
+}
+
+#!csharp
+
+public class Emitter {
+    private Random random = new Random();
+    public event EventHandler<EventArg<TValue>> Pub;
+    public void Emit() {
+        DateTime now = DateTime.Now;
+        double randomValue = random.NextDouble() * 100; // Generates a random number between 0 and 100
+        TValue value = new TValue(now, randomValue);
+
+        EventArg<TValue> eventArg = new EventArg<TValue>(value, true, true);
+        OnValuePub(eventArg);
+    }
+    protected virtual void OnValuePub(EventArg<TValue> eventArg) {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+public class BarEmitter
+{
+    private Random random = new Random();
+    public event EventHandler<EventArg<TBar>> Pub;
+    private double lastClose = 100.0; // Starting price
+
+    public void Emit()
+    {
+        double open = lastClose;
+        double close = open * (1 + (random.NextDouble() - 0.5) * 0.02); // +/- 1% change
+        double high = Math.Max(open, close) * (1 + random.NextDouble() * 0.005); // Up to 0.5% higher
+        double low = Math.Min(open, close) * (1 - random.NextDouble() * 0.005); // Up to 0.5% lower
+        double volume = random.NextDouble() * 1000000; // Random volume between 0 and 1,000,000
+
+        TBar bar = new TBar(DateTime.Now, open, high, low, close, volume);
+        lastClose = close;
+
+        EventArg<TBar> eventArg = new EventArg<TBar>(bar, true, true);
+        OnBarPub(eventArg);
+    }
+
+    protected virtual void OnBarPub(EventArg<TBar> eventArg)
+    {
+        Pub?.Invoke(this, eventArg);
+    }
+}
+
+
+public class Listener
+{
+    public void Sub(object sender, EventArgs e)
+    {
+        if (e is EventArg<TValue> tValueArg) {
+            Console.WriteLine($"TValue: {tValueArg.Data.Value:F2}");
+        } else if (e is EventArg<TBar> tBarArg) {
+            Console.WriteLine($"TBar: o={tBarArg.Data.Open:F2}, v={tBarArg.Data.Volume:F2}");
+        } else {
+            Console.WriteLine($"Unknown type: {e.GetType().Name}");
+        }
+    }
+}
+
+#!csharp
+
+Emitter em1 = new();
+BarEmitter em2 = new();
+Listener list = new();
+
+em1.Pub += list.Sub;
+em2.Pub += list.Sub;
+
+// Emit 5 random values
+for (int i = 0; i < 3; i++) {
+    em1.Emit();
+    em2.Emit();
+}
+
+#!csharp
+
+public abstract class Indicator {
+    protected Indicator() {
+        Init(); }
+    public virtual void Init() {}
+    public virtual TValue Calc(TValue input, bool isNew=true, bool isHot=true) {
+        return new TValue();
+    }
+}
+
+public class EMA : Indicator
+{
+    private double lastEma, lastEmaCandidate, k;
+    private int period, i;
+
+    public EMA(int period) {
+        Init(period);
+    }
+
+   public void Init(int period)
+    {
+        this.period = period;
+        this.k = 2.0 / (period + 1);
+        this.lastEma = this.lastEmaCandidate = double.NaN;
+        this.i = 0;
+    }
+
+    public override TValue Calc(TValue input, bool isNew = true, bool isHot = true) {
+        double ema;
+
+        if (double.IsNaN(lastEma)) { lastEma = lastEmaCandidate = input.Value; }
+
+        if (isNew) {
+            lastEma = lastEmaCandidate;
+            i++;
+        }
+
+        double kk = (i>=period)?k:(2.0/(i+1));
+        ema = lastEma + kk * (input.Value - lastEma);
+        lastEmaCandidate = ema;
+
+        return new TValue(input.Timestamp, ema);
+    }
+}
+
+#!csharp
+
+EMA ema = new(3);
+display(ema.Calc(100));
+display(ema.Calc(0,false));
+display(ema.Calc(100,false));
+display(ema.Calc(0));

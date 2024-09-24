@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-namespace QuanTAlib;
+using QuanTAlib;
 
 public class EpmaIndicator : IndicatorBase
 {
@@ -10,13 +10,14 @@ public class EpmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"EPMA {Period} : {SourceName}";
 
-    public EpmaIndicator()
+    public EpmaIndicator() : base()
     {
         Name = "EPMA - Endpoint Moving Average";
     }
 
     protected override void InitIndicator()
     {
+        base.InitIndicator();
         ma = new Epma(period: Period);
     }
 }

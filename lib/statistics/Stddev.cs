@@ -7,9 +7,9 @@ namespace QuanTAlib
     {
         public readonly int Period;
         public readonly bool IsPopulation;
-        private readonly CircularBuffer _buffer;
+        private CircularBuffer _buffer;
 
-        public Stddev(int period, bool isPopulation = false)
+        public Stddev(int period, bool isPopulation = false) : base()
         {
             if (period < 2)
             {

@@ -15,7 +15,7 @@ public class Hwma : AbstractBase
     {
     }
 
-    public Hwma(int period, double nA, double nB, double nC)
+    public Hwma(int period, double nA, double nB, double nC) : base()
     {
         if (period < 1)
         {

@@ -3,9 +3,9 @@ namespace QuanTAlib;
 public class Mode : AbstractBase
 {
     public readonly int Period;
-    private readonly CircularBuffer _buffer;
+    private CircularBuffer _buffer;
 
-    public Mode(int period)
+    public Mode(int period) : base()
     {
         if (period < 1)
         {

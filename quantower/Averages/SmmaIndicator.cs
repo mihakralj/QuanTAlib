@@ -11,7 +11,7 @@ public class SmmaIndicator : IndicatorBase
     public override string ShortName => $"SMMA {Period} : {SourceName}";
 
 
-    public SmmaIndicator()
+    public SmmaIndicator() : base()
     {
         Name = "SMMA - Smoothed Moving Average";
     }
@@ -19,5 +19,6 @@ public class SmmaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Smma(Period);
+        base.InitIndicator();
     }
 }

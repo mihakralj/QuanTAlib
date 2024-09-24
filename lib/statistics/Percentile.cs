@@ -7,9 +7,9 @@ public class Percentile : AbstractBase
 {
     public readonly int Period;
     public readonly double Percent;
-    private readonly CircularBuffer _buffer;
+    private CircularBuffer _buffer;
 
-    public Percentile(int period, double percent)
+    public Percentile(int period, double percent) : base()
     {
         if (period < 2)
         {

@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-namespace QuanTAlib;
+using QuanTAlib;
 
 public class DwmaIndicator : IndicatorBase
 {
@@ -11,7 +11,7 @@ public class DwmaIndicator : IndicatorBase
     public override string ShortName => $"DWMA {Period} : {SourceName}";
 
 
-    public DwmaIndicator()
+    public DwmaIndicator() : base()
     {
         Name = "DWMA - Double Weighted Moving Average";
     }
@@ -19,5 +19,6 @@ public class DwmaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Dwma(Period);
+        base.InitIndicator();
     }
 }

@@ -11,7 +11,7 @@ public class WmaIndicator : IndicatorBase
     public override string ShortName => $"WMA {Period} : {SourceName}";
 
 
-    public WmaIndicator()
+    public WmaIndicator() : base()
     {
         Name = "WMA - Weighted Moving Average";
     }
@@ -19,5 +19,6 @@ public class WmaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Wma(Period);
+        base.InitIndicator();
     }
 }

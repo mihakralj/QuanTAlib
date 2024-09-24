@@ -7,9 +7,9 @@ using System.Linq;
 public class Entropy : AbstractBase
 {
     public readonly int Period;
-    private readonly CircularBuffer _buffer;
+    private CircularBuffer _buffer;
 
-    public Entropy(int period)
+    public Entropy(int period) : base()
     {
         if (period < 2)
         {

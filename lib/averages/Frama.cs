@@ -6,20 +6,14 @@ namespace QuanTAlib
     {
         private readonly int _period;
         private readonly double _fc;
-        private readonly CircularBuffer _buffer;
+        private CircularBuffer _buffer;
         private double _lastFrama;
         private double _prevLastFrama;
 
-        public Frama(int period, double fc = 0.5)
+        public Frama(int period, double fc = 0.5) : base()
         {
             if (period < 2)
-            {
                 throw new ArgumentException("Period must be at least 2", nameof(period));
-            }
-            if (fc <= 0 || fc >= 1)
-            {
-                throw new ArgumentException("Fc must be between 0 and 1", nameof(fc));
-            }
 
             _period = period;
             _fc = fc;
@@ -51,7 +45,7 @@ namespace QuanTAlib
         protected override double Calculation()
         {
             ManageState(Input.IsNew);
-
+            
             _buffer.Add(Input.Value, Input.IsNew);
 
             if (_buffer.Count < _period)
@@ -84,11 +78,11 @@ namespace QuanTAlib
             }
 
             double n1 = (hh - ll) / _period;
-            double n2 = (hh1 - ll1 + hh2 - ll2) / half;
+            double n2 = (hh1 - ll1 + hh2 - ll2) / (_period / 2);
 
-            double d = (Math.Log(n1 + double.Epsilon) - Math.Log(n2 + double.Epsilon)) / Math.Log(2);
+            double d = (Math.Log(n2 + double.Epsilon) - Math.Log(n1 + double.Epsilon)) / Math.Log(2);
 
-            double alpha = Math.Exp(-4.6 * (d - 1) * _fc);
+            double alpha = Math.Exp(-4.6 * (d - 1));
             alpha = Math.Max(Math.Min(alpha, 1), 0.01);  // Ensure alpha is between 0.01 and 1
 
             _lastFrama = alpha * (Input.Value - _lastFrama) + _lastFrama;

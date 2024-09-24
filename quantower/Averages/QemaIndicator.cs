@@ -16,7 +16,7 @@ public class QemaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"QEMA {k1:F2} : {k2:F2} : {k3:F2} : {k4:F2} :{SourceName}";
 
-    public QemaIndicator()
+    public QemaIndicator() : base()
     {
         Name = "QEMA - Quad Exponential Moving Average";
         Description = "Quad Exponential Moving Average";
@@ -24,6 +24,7 @@ public class QemaIndicator : IndicatorBase
 
     protected override void InitIndicator()
     {
+        base.InitIndicator();
         ma = new Qema(k1, k2, k3, k4);
     }
 }

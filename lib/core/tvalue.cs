@@ -52,6 +52,12 @@ public class TSeries : List<TValue>
         var pubEvent = source.GetType().GetEvent("Pub");
         if (pubEvent != null)
         {
+            /*
+            var nameProperty = source.GetType().GetProperty("Name");
+            if (nameProperty != null) {
+                Name = nameProperty.GetValue(nameProperty)?.ToString()!;
+            }
+            */
             pubEvent.AddEventHandler(source, new ValueSignal(Sub));
         }
     }

@@ -4,8 +4,8 @@ public class Convolution : AbstractBase
 {
     private readonly double[] _kernel;
     private readonly int _kernelSize;
-    private readonly CircularBuffer _buffer;
-    private readonly double[] _normalizedKernel;
+    private CircularBuffer _buffer;
+    private double[] _normalizedKernel;
 
     public Convolution(double[] kernel)
     {

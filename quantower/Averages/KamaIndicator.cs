@@ -15,7 +15,7 @@ public class KamaIndicator : IndicatorBase
     public override string ShortName => $"KAMA {Period} : {Fast} : {Slow} : {SourceName}";
 
 
-    public KamaIndicator()
+    public KamaIndicator() : base()
     {
         Name = "KAMA - Kaufman's Adaptive Moving Average";
     }
@@ -23,5 +23,6 @@ public class KamaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Kama(Period, Fast, Slow);
+        base.InitIndicator();
     }
 }

@@ -13,7 +13,7 @@ public class MaxIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"MAX {Period} : {Decay:F2} : {SourceName}";
 
-    public MaxIndicator()
+    public MaxIndicator() : base()
     {
         Name = "MAX - Maximum value (with decay) ";
     }
@@ -23,5 +23,6 @@ public class MaxIndicator : IndicatorBase
         ma = new Max(Period, Decay);
         MinHistoryDepths = ma.WarmupPeriod;
         Source = 2;
+        base.InitIndicator();
     }
 }

@@ -1,6 +1,6 @@
 using Xunit;
 using TALib;
-namespace QuanTAlib;
+using QuanTAlib;
 
 public class TAlibTests
 {
@@ -22,7 +22,7 @@ public class TAlibTests
         feed.Add(10000);
         iterations = 3;
         data = feed.Close.v.ToArray();
-        TALIB = new double[data.Length];
+        TALIB = new double[data.Count()];
 
     }
 
@@ -37,11 +37,11 @@ public class TAlibTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Sma(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
-            Assert.Equal(QL.Length, TALIB.Length);
+            Assert.Equal(QL.Length, TALIB.Count());
             for (int i = QL.Length - 1; i > period; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
-                Assert.InRange(TL - QL[i].Value, -range, range);
+                Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
             }
         }
     }
@@ -57,7 +57,7 @@ public class TAlibTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Ema(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
-            Assert.Equal(QL.Length, TALIB.Length);
+            Assert.Equal(QL.Length, TALIB.Count());
             for (int i = QL.Length - 1; i > period; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
@@ -77,7 +77,7 @@ public class TAlibTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Dema(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
-            Assert.Equal(QL.Length, TALIB.Length);
+            Assert.Equal(QL.Length, TALIB.Count());
             for (int i = QL.Length - 1; i > period*20; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
@@ -97,7 +97,7 @@ public class TAlibTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Tema(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
-            Assert.Equal(QL.Length, TALIB.Length);
+            Assert.Equal(QL.Length, TALIB.Count());
             for (int i = QL.Length - 1; i > period*20; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
@@ -105,6 +105,29 @@ public class TAlibTests
             }
         }
     }
+
+//TODO fix WMA
+/*
+    [Fact]
+    public void WMA()
+    {
+        for (int run = 0; run < iterations; run++)
+        {
+            period = rnd.Next(50) + 5;
+            Wma ma = new(period);
+            TSeries QL = new();
+            foreach (TBar item in feed)
+            { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
+            Core.Wma(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
+            Assert.Equal(QL.Length, TALIB.Count());
+            for (int i = QL.Length - 1; i > period*3; i--)
+            {
+                double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
+                Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
+            }
+        }
+    }
+    */
 
     [Fact]
     public void T3()
@@ -117,7 +140,7 @@ public class TAlibTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.T3(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _,  optInTimePeriod: period, optInVFactor: 0.7);
-            Assert.Equal(QL.Length, TALIB.Length);
+            Assert.Equal(QL.Length, TALIB.Count());
             for (int i = QL.Length - 1; i > period*20; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];

@@ -11,13 +11,14 @@ public class ZlemaIndicator : IndicatorBase
     public override string ShortName => $"ZLEMA {Period} : {SourceName}";
 
 
-    public ZlemaIndicator()
+    public ZlemaIndicator() : base()
     {
         Name = "ZLEMA - Weighted Moving Average";
     }
 
     protected override void InitIndicator()
     {
+        base.InitIndicator();
         ma = new Zlema(Period);
     }
 }

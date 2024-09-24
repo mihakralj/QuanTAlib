@@ -6,9 +6,9 @@ using System.Linq;
 public class Zscore : AbstractBase
 {
     public readonly int Period;
-    private readonly CircularBuffer _buffer;
+    private CircularBuffer _buffer;
 
-    public Zscore(int period)
+    public Zscore(int period) : base()
     {
         if (period < 2)
         {

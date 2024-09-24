@@ -11,7 +11,7 @@ public class HmaIndicator : IndicatorBase
     public override string ShortName => $"HMA {Period} : {SourceName}";
 
 
-    public HmaIndicator()
+    public HmaIndicator() : base()
     {
         Name = "HMA - Hull Moving Average";
     }
@@ -19,5 +19,6 @@ public class HmaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Hma(Period);
+        base.InitIndicator();
     }
 }
