@@ -6,12 +6,11 @@ namespace QuanTAlib;
 public class Zlema : AbstractBase
 {
     private readonly int _period;
-    private CircularBuffer? _buffer;
-    private double _alpha;
-    private int _lag;
+    private readonly CircularBuffer? _buffer;
+    private readonly double _alpha;
     private double _lastZLEMA, _p_lastZLEMA;
 
-    public Zlema(int period) : base()
+    public Zlema(int period)
     {
         if (period < 1)
         {
@@ -20,8 +19,8 @@ public class Zlema : AbstractBase
         _period = period;
         WarmupPeriod = period;
         _alpha = 2.0 / (_period + 1);
-        _lag = (_period - 1) / 2;
         Name = $"Zlema({_period})";
+        _buffer = new CircularBuffer(_period);
         Init();
     }
 
@@ -34,7 +33,6 @@ public class Zlema : AbstractBase
     public override void Init()
     {
         base.Init();
-        _buffer = new CircularBuffer(_period);
         _lastZLEMA = 0;
     }
 
@@ -55,7 +53,7 @@ public class Zlema : AbstractBase
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-        
+
         _buffer!.Add(Input.Value, Input.IsNew);
 
         int lag = Math.Max(Math.Min((int)((_period - 1) * 0.5), _buffer.Count - 1), 0) + 1;

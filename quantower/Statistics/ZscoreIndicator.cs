@@ -10,7 +10,7 @@ public class ZScoreIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => zScore!;
     public override string ShortName => $"ZSCORE {Period} : {SourceName}";
 
-    public ZScoreIndicator() : base()
+    public ZScoreIndicator()
     {
         Name = "ZSCORE - Standard Score";
         SeparateWindow = true;
@@ -20,7 +20,6 @@ public class ZScoreIndicator : IndicatorBase
     {
         zScore = new(Period);
         MinHistoryDepths = zScore.WarmupPeriod;
-        base.InitIndicator();
     }
 
 }

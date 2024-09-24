@@ -17,17 +17,13 @@ public class HwmaIndicator : IndicatorBase
     public override string ShortName => $"HWMA {nA:F2} : {nB:F2} : {nC:F2} : {SourceName}";
 
 
-    public HwmaIndicator() : base()
+    public HwmaIndicator()
     {
         Name = "HWMA - Holt-Winter Moving Average";
     }
 
     protected override void InitIndicator()
     {
-        //nA = 2 / (1 + (double)Period);
-        //nB = 1 / (double)Period;
-        //nC = 1 / (double)Period;
         ma = new Hwma(nA: nA, nB: nB, nC: nC);
-        base.InitIndicator();
     }
 }

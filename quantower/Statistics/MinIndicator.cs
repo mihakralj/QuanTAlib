@@ -12,7 +12,7 @@ public class MinIndicator : IndicatorBase
     private Min? mi;
     protected override AbstractBase QuanTAlib => mi!;
     public override string ShortName => $"MIN {Period} : {Decay:F2} : {SourceName}";
-    public MinIndicator() : base()
+    public MinIndicator()
     {
         Name = "MIN - Minimum value (with decay)";
     }
@@ -22,6 +22,5 @@ public class MinIndicator : IndicatorBase
         mi = new Min(Period, Decay);
         MinHistoryDepths = mi.WarmupPeriod;
         Source = 3;
-        base.InitIndicator();
     }
 }

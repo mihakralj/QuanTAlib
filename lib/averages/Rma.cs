@@ -5,11 +5,12 @@ namespace QuanTAlib {
 
 public class Rma : AbstractBase {
     private readonly int _period;
-    private double _alpha;
+    private readonly double _alpha;
     private double _lastRMA;
     private double _savedLastRMA;
 
-    public Rma(int period) : base() {
+    public Rma(int period)
+    {
         if (period < 1) {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }

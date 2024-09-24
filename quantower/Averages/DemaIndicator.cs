@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class DemaIndicator : IndicatorBase
 {
@@ -9,14 +9,13 @@ public class DemaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"DEMA {Period} : {SourceName}";
 
-    public DemaIndicator() : base()
+    public DemaIndicator()
     {
         Name = "DEMA - Double Exponential Moving Average";
     }
 
     protected override void InitIndicator()
     {
-        base.InitIndicator();
         ma = new Dema(period: Period);
     }
 }

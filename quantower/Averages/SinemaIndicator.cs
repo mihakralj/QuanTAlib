@@ -10,7 +10,7 @@ public class SinemaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"SINEMA {Period} : {SourceName}";
 
-    public SinemaIndicator() : base()
+    public SinemaIndicator()
     {
         Name = "SINEMA - Sine-Weighted Moving Average";
     }
@@ -18,6 +18,5 @@ public class SinemaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Sinema(Period);
-        base.InitIndicator();
     }
 }

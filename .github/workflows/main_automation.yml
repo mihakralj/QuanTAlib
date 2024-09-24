@@ -1,174 +1,137 @@
-name: Stage/build/test/release/publish
+name: CI/CD Pipeline
+
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main, dev]
   pull_request:
-    branches:
-      - main
+    branches: [main, dev]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  JAVA_VERSION: '11'
+  JAVA_DISTRIBUTION: 'zulu'
 
 jobs:
-  build_test:
-    #runs-on: windows-latest
+  build_test_publish:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-############## Install tools
-
-    - name: Create Quantower folder at root
+    - name: Setup environment
       run: |
         sudo mkdir -p /Quantower/
         sudo chmod -R 777 /Quantower
 
-    - name: Install .NET
+    - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.x'
-        dotnet-quality: 'preview'
+        dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: '6.x'
-        includePrerelease: true
-
-    - name: Determine Version
-      id:   gitversion
-      uses: gittools/actions/gitversion/execute@v0
-      with:
-        useConfigFile: true
-        #configFilePath: GitVersion.yml
-        updateAssemblyInfo: true
-
-############## Install more tools
-
-    - name: Install JDK11 for Sonar Scanner
+    - name: Setup Java
       uses: actions/setup-java@v3
       with:
-        java-version: 11
-        distribution: 'zulu'
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-    - name: Install JetBrains
-      run: dotnet tool install JetBrains.dotCover.GlobalTool --global
-    - name: Install Sonar Scanner
-      run: dotnet tool install dotnet-sonarscanner --global
-    - name: Install dotnet-coverage
-      run: dotnet tool install dotnet-coverage --global
+    - name: Install tools
+      run: |
+        dotnet tool install --global GitVersion.Tool
+        dotnet tool install --global dotnet-sonarscanner --version 8.0.3
+        dotnet tool install --global dotnet-coverage
 
-    - name: Sonar start
+    - name: Determine Version
+      id: gitversion
+      run: |
+        dotnet-gitversion
+        echo "::set-output name=MajorMinorPatch::$(dotnet-gitversion /output json /showvariable MajorMinorPatch)"
+        echo "::set-output name=FullSemVer::$(dotnet-gitversion /output json /showvariable FullSemVer)"
+        echo "::set-output name=SemVer::$(dotnet-gitversion /output json /showvariable SemVer)"
+
+    - name: Start Sonar analysis
+      if: github.ref == 'refs/heads/dev'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib"
-        /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-        /d:sonar.host.url="https://sonarcloud.io"
-        /d:sonar.cs.dotcover.reportsPaths=dotcover*
-
-############# Build and test
-
-    - name: Build Main branch of QuanTAlib DLL
-      if: ${{ github.ref != 'refs/heads/dev' }}
-      run: dotnet build ./lib/quantalib.csproj --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
-    - name: Build dev branch of QuanTAlib DLL
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet build ./lib/quantalib.csproj --configuration Release --nologo -p:PackageVersion=${{ steps.gitversion.outputs.FullSemVer }}
-    - name: Build Averages DLL
-      run: dotnet build ./quantower/Averages/Averages.csproj --configuration Release --nologo
-    - name: Build Statistics DLL
-      run: dotnet build ./quantower/Statistics/Statistics.csproj --configuration Release --nologo
-    - name: Build SyntheticVendor DLL
-      run: dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
-
-    - name: DotCover Test HTML
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test tests/tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
-    - name: DotCover Test XML
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet dotcover test tests/tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
-    - name: Coverlet Test
-      if: ${{ github.ref == 'refs/heads/dev' }}
-      run: dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
-
-############## Report to Sonar/CodeCov/Codacy
-
-    - name: Move coverage report to project root
-      if: ${{ github.ref == 'refs/heads/dev' }}
       run: |
-        report=$(find . -name '*coverage.cobertura.xml' | head -1)
-        mv "$report" ./coverage.cobertura.xml
+        dotnet sonarscanner begin /o:"mihakralj" /k:"mihakralj_QuanTAlib" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.scanner.scanAll=false \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.opencover.xml" \
+          /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
 
-    - name: Upload to Codacy
-      if: ${{ github.ref == 'refs/heads/dev' }}
+
+    - name: Build projects
+      run: |
+        dotnet build ./lib/quantalib.csproj --configuration Release --nologo \
+          -p:PackageVersion=${{ github.ref == 'refs/heads/dev' && steps.gitversion.outputs.FullSemVer || steps.gitversion.outputs.MajorMinorPatch }}
+        dotnet build ./quantower/Averages/Averages.csproj --configuration Release --nologo
+        dotnet build ./quantower/Statistics/Statistics.csproj --configuration Release --nologo
+        dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
+
+    - name: Run tests with coverage
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="./TestResults/"
+        dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+
+    - name: Generate and process coverage report
+      if: github.ref == 'refs/heads/dev'
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.1.26
+      with:
+        reports: '**/TestResults/coverage.opencover.xml'
+        targetdir: 'coveragereport'
+        reporttypes: 'HtmlInline;Cobertura'
+
+    - name: Upload coverage to Codacy
+      if: github.ref == 'refs/heads/dev'
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: "*cover*.xml"
+        coverage-reports: "coveragereport/Cobertura.xml"
 
-    - name: Upload to Codecov
-      if: ${{ github.ref == 'refs/heads/dev' }}
+    - name: Upload coverage to Codecov
+      if: github.ref == 'refs/heads/dev'
       uses: codecov/codecov-action@v3
       with:
-        files: cover*
+        files: coveragereport/Cobertura.xml
         verbose: true
 
-    - name: Upload to Sonar
-      if: ${{ github.ref == 'refs/heads/dev' }}
+    - name: Finish Sonar analysis
+      if: github.ref == 'refs/heads/dev'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-############## Publish dev release
-
-    - name: Publish dev release assets
-      if: ${{ github.ref == 'refs/heads/dev' }}
+    - name: Publish release assets
       uses: SourceSprint/upload-multiple-releases@1.0.7
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        prerelease: true
+        prerelease: ${{ github.ref == 'refs/heads/dev' }}
         overwrite: true
-        release_name: ${{ steps.gitversion.outputs.SemVer }}
-        tag_name: prerelease
+        release_name: ${{ github.ref == 'refs/heads/dev' && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
+        tag_name: ${{ steps.gitversion.outputs.SemVer }}
         release_config: |
-          lib/bin/Release/QuanTAlib.dll
           quantower/Averages/bin/Release/Averages.dll
           quantower/Statistics/bin/Release/Statistics.dll
           SyntheticVendor/bin/Release/SyntheticVendor.dll
 
-    - name: Push  package to myget.org
-      run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg'
-          --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
-          --source https://www.myget.org/F/quantalib/api/v2/package
+    - name: Push package to myget.org
+      run: |
+        dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+          --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }} \
+          --source https://www.myget.org/F/quantalib/api/v2/package \
           --skip-duplicate
 
-############## Publish main release
-
-    - name: Publish main release assets
-      if: ${{ github.ref == 'refs/heads/main' }}
-      uses: SourceSprint/upload-multiple-releases@1.0.7
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        prerelease: false
-        overwrite: true
-        release_name: ${{ steps.gitversion.outputs.MajorMinorPatch }}
-        tag_name: latest
-        release_config: |
-           lib/bin/Release/QuanTAlib.dll
-           quantower/Averages/bin/Release/Averages.dll
-           quantower/Statistics/bin/Release/Statistics.dll
-           SyntheticVendor/bin/Release/SyntheticVendor.dll
-
-    - name: Push  package to nuget.org
-      if: ${{ github.ref == 'refs/heads/main' }}
-      run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg'
-          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
-          --source https://api.nuget.org/v3/index.json
+    - name: Push package to nuget.org
+      if: github.ref == 'refs/heads/main'
+      run: |
+        dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+          --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }} \
+          --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
-

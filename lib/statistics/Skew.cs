@@ -6,9 +6,9 @@ using System.Linq;
 public class Skew : AbstractBase
 {
     public readonly int Period;
-    private CircularBuffer _buffer;
+    private readonly CircularBuffer _buffer;
 
-    public Skew(int period) : base()
+    public Skew(int period)
     {
         if (period < 3)
         {

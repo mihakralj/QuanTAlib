@@ -22,15 +22,15 @@ public class Alma : AbstractBase
     private readonly int _period;
     private readonly double _offset;
     private readonly double _sigma;
-    private CircularBuffer? _buffer;
-    private CircularBuffer? _weight;
+    private readonly CircularBuffer? _buffer;
+    private readonly CircularBuffer? _weight;
     private double _norm;
 
     /// <param name="period">The number of data points used in the ALMA calculation.</param>
     /// <param name="offset">Controls the smoothness and high-frequency filtering. Default is 0.85.</param>
     /// <param name="sigma">Controls the shape of the Gaussian distribution. Default is 6.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
-    public Alma(int period, double offset = 0.85, double sigma = 6) : base()
+    public Alma(int period, double offset = 0.85, double sigma = 6)
     {
         if (period < 1)
         {
@@ -41,6 +41,8 @@ public class Alma : AbstractBase
         _sigma = sigma;
         WarmupPeriod = period;
         Name = "Alma";
+        _buffer = new CircularBuffer(_period);
+        _weight = new CircularBuffer(_period);
         Init();
     }
 
@@ -57,8 +59,6 @@ public class Alma : AbstractBase
     public override void Init()
     {
         base.Init();
-        _buffer = new CircularBuffer(_period);
-        _weight = new CircularBuffer(_period);
         _norm = 0;
     }
 

@@ -1,8 +1,9 @@
 namespace QuanTAlib;
 
+//TODO fix WMA - passing Talib test
+
 public class Wma : AbstractBase
 {
-    private readonly int _period;
     private readonly Convolution _convolution;
 
     public Wma(int period)
@@ -11,10 +12,9 @@ public class Wma : AbstractBase
         {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _period = period;
-        _convolution = new Convolution(GenerateWmaKernel(_period));
+        _convolution = new Convolution(GenerateWmaKernel(period));
         Name = "Wma";
-        WarmupPeriod = _period;
+        WarmupPeriod = period;
         Init();
     }
 

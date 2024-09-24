@@ -2,21 +2,15 @@ namespace QuanTAlib;
 
 public class Qema : AbstractBase
 {
-    private readonly double _k1, _k2, _k3, _k4;
     private readonly Ema _ema1, _ema2, _ema3, _ema4;
     private double _lastQema, _p_lastQema;
 
-    public Qema(double k1=0.2, double k2=0.2, double k3=0.2, double k4=0.2) : base()
+    public Qema(double k1 = 0.2, double k2 = 0.2, double k3 = 0.2, double k4 = 0.2)
     {
-        if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0 )
+        if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0)
         {
-            throw new ArgumentOutOfRangeException("All k values must be in the range (0, 1].");
+            throw new ArgumentOutOfRangeException(nameof(k1), "All k values must be in the range (0, 1].");
         }
-
-        _k1 = k1;
-        _k2 = k2;
-        _k3 = k3;
-        _k4 = k4;
 
         _ema1 = new Ema(k1);
         _ema2 = new Ema(k2);
@@ -24,9 +18,9 @@ public class Qema : AbstractBase
         _ema4 = new Ema(k4);
 
         Name = $"QEMA ({k1:F2},{k2:F2},{k3:F2},{k4:F2})";
-        double smK = Math.Min(Math.Min(_k1, _k2), Math.Min(_k3, _k4));
+        double smK = Math.Min(Math.Min(k1, k2), Math.Min(k3, k4));
 
-        WarmupPeriod = (int) ((2 - smK) / smK);
+        WarmupPeriod = (int)((2 - smK) / smK);
         Init();
     }
 

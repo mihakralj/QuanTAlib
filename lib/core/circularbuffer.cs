@@ -7,8 +7,8 @@ namespace QuanTAlib;
 public class CircularBuffer : IEnumerable<double>
 {
     private readonly double[] _buffer;
-    private int _start = 0;
-    private int _size = 0;
+    private int _start;
+    private int _size;
 
     public int Capacity { get; }
     public int Count => _size;
@@ -69,7 +69,9 @@ public class CircularBuffer : IEnumerable<double>
     public double Newest()
     {
         if (_size == 0)
+        {
             return 0;
+        }
         return _buffer[(_start + _size - 1) % Capacity];
     }
 
@@ -77,7 +79,9 @@ public class CircularBuffer : IEnumerable<double>
     public double Oldest()
     {
         if (_size == 0)
+        {
             ThrowInvalidOperationException();
+        }
         return _buffer[_start];
     }
 
@@ -109,7 +113,9 @@ public class CircularBuffer : IEnumerable<double>
         public bool MoveNext()
         {
             if (_index + 1 >= _buffer._size)
+            {
                 return false;
+            }
 
             _index++;
             _current = _buffer[_index];
@@ -125,7 +131,9 @@ public class CircularBuffer : IEnumerable<double>
             _current = default;
         }
 
-        public void Dispose() { }
+        public void Dispose() {
+            // not implemented
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

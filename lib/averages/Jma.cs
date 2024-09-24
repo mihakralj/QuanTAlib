@@ -1,37 +1,34 @@
-using QuanTAlib;
+namespace QuanTAlib;
 //TODO consistency test
 public class Jma : AbstractBase
 {
-    public readonly int Period;
+    private readonly int Period;
     private readonly double _phase;
-    private readonly int _vshort, _vlong;
-    private CircularBuffer _values;
-    private CircularBuffer _voltyShort;
-    private CircularBuffer _vsumBuff;
-    private CircularBuffer _avoltyBuff;
+    private readonly CircularBuffer _values;
+    private readonly CircularBuffer _voltyShort;
+    private readonly CircularBuffer _vsumBuff;
 
     private double _beta, _len1, _pow1;
     private double _upperBand, _lowerBand, _prevMa1, _prevDet0, _prevDet1, _prevJma;
     private double _p_UpperBand, _p_LowerBand, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
 
-    public Jma(int period, double phase = 0, int vshort = 10) : base()
+    public Jma(int period, double phase = 0, int vshort = 10)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
         Period = period;
-        _vshort = vshort;
-        _vlong = 65;
+        int _vshort = vshort;
+        int _vlong = 65;
         _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
         _values = new CircularBuffer(period);
-        _voltyShort = new CircularBuffer(vshort);
+        _voltyShort = new CircularBuffer(_vshort);
         _vsumBuff = new CircularBuffer(_vlong);
-        _avoltyBuff = new CircularBuffer(2);
 
         Name = "JMA";
-        WarmupPeriod = period * 2;
+        WarmupPeriod = 65;
         Init();
     }
 
@@ -42,9 +39,6 @@ public class Jma : AbstractBase
         _beta = 0.45 * (Period - 1) / (0.45 * (Period - 1) + 2);
         _len1 = Math.Max((Math.Log(Math.Sqrt(Period - 1)) / Math.Log(2.0)) + 2.0, 0);
         _pow1 = Math.Max(_len1 - 2.0, 0.5);
-        _avoltyBuff.Clear();
-        _avoltyBuff.Add(0, true);
-        _avoltyBuff.Add(0, true);
         base.Init();
     }
 
@@ -97,9 +91,9 @@ public class Jma : AbstractBase
         double vsum = _vsumBuff.Newest() + 0.1 * (volty - _voltyShort.Oldest());
         _vsumBuff.Add(vsum, Input.IsNew);
 
-        double prevAvolty = _avoltyBuff.Newest();
-        double avolty = prevAvolty + 2.0 / (Math.Max(4.0 * Period, 30) + 1.0) * (vsum - prevAvolty);
-        _avoltyBuff.Add(avolty, Input.IsNew);
+        double avolty = 0;
+        for (int i = 0; i < _vsumBuff.Count; i++) { avolty += _vsumBuff[i]; }
+        avolty /= _vsumBuff.Count;
 
         double dVolty = (avolty > 0) ? volty / avolty : 0;
         dVolty = Math.Min(Math.Max(dVolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));

@@ -10,14 +10,13 @@ public class MmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"MMA {Period} : {SourceName}";
 
-    public MmaIndicator() : base()
+    public MmaIndicator()
     {
         Name = "MMA - Modified Moving Average";
     }
 
     protected override void InitIndicator()
     {
-        base.InitIndicator();
         ma = new Mma(period: Period);
     }
 }

@@ -9,7 +9,7 @@ namespace QuanTAlib
         private readonly CircularBuffer _buffer;
         private double _lastMma;
 
-        public Mma(int period) : base()
+        public Mma(int period) 
         {
             if (period < 2)
             {

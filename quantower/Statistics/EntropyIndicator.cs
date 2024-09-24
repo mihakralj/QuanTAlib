@@ -10,7 +10,7 @@ public class EntropyIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => entropy!;
     public override string ShortName => $"ENTROPY {Period} : {SourceName}";
 
-    public EntropyIndicator() : base()
+    public EntropyIndicator()
     {
         Name = "ENTROPY - Entropy";
         SeparateWindow = true;
@@ -20,6 +20,5 @@ public class EntropyIndicator : IndicatorBase
     {
         entropy = new(Period);
         MinHistoryDepths = entropy.WarmupPeriod;
-        base.InitIndicator();
     }
 }

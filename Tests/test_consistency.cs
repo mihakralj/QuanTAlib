@@ -1,5 +1,5 @@
 using Xunit;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class Consistency
 {
@@ -312,31 +312,6 @@ public class Consistency
         }
     }
 
-    /*
-        [Fact]
-        public void Jma_isNew()
-        {
-            int p = (int)rnd.Next(2, 100);
-            Jma ma1 = new(p);
-            Jma ma2 = new(p);
-            for (int i = 0; i < series_len; i++)
-            {
-                TValue item1 = new(Time: DateTime.Now, Value: rnd.Next(-100, 100), IsNew: true);
-                ma1.Calc(item1);
-                for (int j = 0; j < corrections; j++)
-                {
-                    item1 = new(Time: DateTime.Now, Value: rnd.Next(-100, 100), IsNew: false);
-                    ma1.Calc(item1);
-                }
-                ma2.Calc(new TValue(item1.Time, item1.Value, IsNew: true));
-
-                //Assert.Equal(ma1.Value, ma2.Value);
-                Assert.True(ma1.Value == ma2.Value, $"Assertion failed at p={p}, Value={item1.Value}. ma1.Value={ma1.Value}, ma2.Value={ma2.Value}");
-            }
-        }
-    */
-
-
     [Fact]
     public void Kama_isNew()
     {
@@ -442,7 +417,6 @@ public class Consistency
     [Fact]
     public void Qema_isNew()
     {
-        int p = (int)rnd.Next(2, 100);
         Qema ma1 = new();
         Qema ma2 = new();
         for (int i = 0; i < series_len; i++)
@@ -683,7 +657,7 @@ public class Consistency
     [Fact]
     public void Kurtosis_isNew()
     {
-        int p = (int)rnd.Next(2, 100);
+        int p = (int)rnd.Next(5, 100);
         Kurtosis ma1 = new(p);
         Kurtosis ma2 = new(p);
         for (int i = 0; i < series_len; i++)

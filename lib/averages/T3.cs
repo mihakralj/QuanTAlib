@@ -3,30 +3,27 @@ namespace QuanTAlib;
 public class T3 : AbstractBase
 {
     private readonly int _period;
-    private readonly double _vfactor;
     private readonly bool _useSma;
-    private readonly double _k, _k1m, _c1, _c2, _c3, _c4;
+    private readonly double _k, _c1, _c2, _c3, _c4;
     private readonly CircularBuffer _buffer1, _buffer2, _buffer3, _buffer4, _buffer5, _buffer6;
     private double _lastEma1, _lastEma2, _lastEma3, _lastEma4, _lastEma5, _lastEma6;
     private double _p_lastEma1, _p_lastEma2, _p_lastEma3, _p_lastEma4, _p_lastEma5, _p_lastEma6;
 
-    public T3(int period, double vfactor = 0.7, bool useSma = true) : base()
+    public T3(int period, double vfactor = 0.7, bool useSma = true)
     {
         if (period < 1)
         {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
-        _vfactor = vfactor;
         _useSma = useSma;
         WarmupPeriod = period;
 
         _k = 2.0 / (_period + 1);
-        _k1m = 1.0 - _k;
-        _c1 = -_vfactor * _vfactor * _vfactor;
-        _c2 = 3 * _vfactor * _vfactor + 3 * _vfactor * _vfactor * _vfactor;
-        _c3 = -6 * _vfactor * _vfactor - 3 * _vfactor - 3 * _vfactor * _vfactor * _vfactor;
-        _c4 = 1 + 3 * _vfactor + _vfactor * _vfactor * _vfactor + 3 * _vfactor * _vfactor;
+        _c1 = -vfactor * vfactor * vfactor;
+        _c2 = 3 * vfactor * vfactor + 3 * vfactor * vfactor * vfactor;
+        _c3 = -6 * vfactor * vfactor - 3 * vfactor - 3 * vfactor * vfactor * vfactor;
+        _c4 = 1 + 3 * vfactor + vfactor * vfactor * vfactor + 3 * vfactor * vfactor;
 
         _buffer1 = new(period);
         _buffer2 = new(period);
@@ -36,7 +33,7 @@ public class T3 : AbstractBase
         _buffer6 = new(period);
 
 
-        Name = $"T3({_period}, {_vfactor})";
+        Name = $"T3({_period}, {vfactor})";
         Init();
     }
 

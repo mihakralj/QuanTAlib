@@ -13,14 +13,13 @@ public class RemaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"REMA {Period} : {Lambda:F2} : {SourceName}";
 
-    public RemaIndicator() : base()
+    public RemaIndicator()
     {
         Name = "REMA - Regularized Exponential Moving Average";
     }
 
     protected override void InitIndicator()
     {
-        base.InitIndicator();
         ma = new Rema(period: Period, lambda: Lambda);
     }
 }

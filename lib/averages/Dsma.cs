@@ -10,7 +10,7 @@ namespace QuanTAlib;
 /// Sensitivity:    ★★★★☆ (4/5)
 /// Overshooting:   ★★★★☆ (4/5)
 /// Lag:            ★★★★☆ (4/5)
-/// 
+///
 /// The DSMA uses a SuperSmoother filter to reduce noise and a dynamic alpha calculation based on the
 /// scaled deviation of the input data. This allows it to adapt to changing market conditions.
 ///
@@ -28,7 +28,7 @@ public class Dsma : AbstractBase
 {
     private readonly int _period;
     private readonly CircularBuffer _buffer;
-    private readonly double _a1, _b1, _c1, _c2, _c3;
+    private readonly double _c1, _c2, _c3;
     private double _lastDsma, _p_lastDsma;
     private double _filt, _filt1, _filt2, _zeros, _zeros1;
     private double _p_filt, _p_filt1, _p_filt2, _p_zeros, _p_zeros1;
@@ -39,7 +39,7 @@ public class Dsma : AbstractBase
     /// </summary>
     /// <param name="period">The number of data points used in the DSMA calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
-    public Dsma(int period) : base()
+    public Dsma(int period)
     {
         if (period < 1)
         {
@@ -49,8 +49,8 @@ public class Dsma : AbstractBase
         _buffer = new CircularBuffer(period);
 
         // SuperSmoother filter coefficients
-        _a1 = Math.Exp(-1.414 * Math.PI / (0.5 * period));
-        _b1 = 2 * _a1 * Math.Cos(1.414 * Math.PI / (0.5 * period));
+        double _a1 = Math.Exp(-1.414 * Math.PI / (0.5 * period));
+        double _b1 = 2 * _a1 * Math.Cos(1.414 * Math.PI / (0.5 * period));
         _c2 = _b1;
         _c3 = -_a1 * _a1;
         _c1 = 1 - _c2 - _c3;

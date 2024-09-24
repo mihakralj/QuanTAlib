@@ -10,10 +10,12 @@ public class Ltma : AbstractBase
 
     public double Gamma => _gamma;
 
-    public Ltma(double gamma = 0.1) : base()
+    public Ltma(double gamma = 0.1)
     {
         if (gamma < 0 || gamma > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(gamma), "Gamma must be between 0 and 1.");
+        }
         _gamma = gamma;
         Name = $"Laguerre({gamma:F2})";
         WarmupPeriod = 4; // Minimum number of samples needed

@@ -7,9 +7,9 @@ namespace QuanTAlib
     {
         public readonly int Period;
         public readonly bool IsPopulation;
-        private CircularBuffer _buffer;
+        private readonly CircularBuffer _buffer;
 
-        public Variance(int period, bool isPopulation = false) : base()
+        public Variance(int period, bool isPopulation = false)
         {
             if (period < 2)
             {

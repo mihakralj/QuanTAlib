@@ -21,7 +21,7 @@ public abstract class AbstractIndicatorBase : Indicator
     public PriceType SourcePrice { get; set; } = PriceType.Close;
 
     [InputParameter(name: "Line smoothing", sortIndex: 19, minimum: 0.0, maximum: 1.0, increment: 0.1, decimalPlaces: 2)]
-    public double Tension = 0.2;
+    public double Tension { get; set; } = 0.2;
 
     [InputParameter("Show cold values", sortIndex: 20)]
     public bool ShowColdValues { get; set; } = true;
@@ -31,14 +31,12 @@ public abstract class AbstractIndicatorBase : Indicator
     protected LineSeries? Series;
     protected abstract AbstractBase MovingAverage { get; }
 
-    protected AbstractIndicatorBase() : base()
+    protected AbstractIndicatorBase()
     {
         OnBackGround = true;
         SeparateWindow = false;
         Series = new(name: $"Name", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
-
-        InitIndicator();
     }
 
     protected virtual void InitIndicator()
@@ -71,7 +69,10 @@ public abstract class AbstractIndicatorBase : Indicator
     {
         base.OnPaintChart(args);
         List<Point> allPoints = new List<Point>();
-        if (CurrentChart == null) return;
+        if (CurrentChart == null)
+        {
+            return;
+        }
 
         Graphics gr = args.Graphics;
         var mainWindow = CurrentChart.MainWindow;
@@ -102,7 +103,7 @@ public abstract class AbstractIndicatorBase : Indicator
 
     private void DrawSmoothCombinedCurve(Graphics gr, List<Point> allPoints, int hotCount)
     {
-        if (allPoints.Count < 2) return;
+        if (allPoints.Count < 2) { return; }
 
         using (Pen defaultPen = new(Series!.Color, Series.Width) { DashStyle = ConvertLineStyleToDashStyle(Series.Style) })
         using (Pen coldPen = new(Series!.Color, Series.Width) { DashStyle = DashStyle.Dot })

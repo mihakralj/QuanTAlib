@@ -5,12 +5,12 @@ namespace QuanTAlib
     public class Max : AbstractBase
     {
         public readonly int Period;
-        private CircularBuffer _buffer;
+        private readonly CircularBuffer _buffer;
         private readonly double _halfLife;
         private double _currentMax, _p_currentMax;
         private int _timeSinceNewMax, _p_timeSinceNewMax;
 
-        public Max(int period, double decay = 0) : base()
+        public Max(int period, double decay = 0)
         {
             if (period < 1)
             {
