@@ -79,7 +79,9 @@ public class CircularBuffer : IEnumerable<double>
     public double Oldest()
     {
         if (_size == 0)
+        {
             ThrowInvalidOperationException();
+        }
         return _buffer[_start];
     }
 
@@ -129,7 +131,9 @@ public class CircularBuffer : IEnumerable<double>
             _current = default;
         }
 
-        public void Dispose() { }
+        public void Dispose() {
+            // not implemented
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

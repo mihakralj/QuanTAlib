@@ -37,8 +37,6 @@ public abstract class AbstractIndicatorBase : Indicator
         SeparateWindow = false;
         Series = new(name: $"Name", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
-
-        InitIndicator();
     }
 
     protected virtual void InitIndicator()
