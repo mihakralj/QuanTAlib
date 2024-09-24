@@ -4,8 +4,8 @@ public class Sma : AbstractBase
 {
     // inherited _index
     // inherited _value
-    public readonly int Period;
-    private CircularBuffer _buffer;
+    private readonly int Period;
+    private readonly CircularBuffer _buffer;
 
     public Sma(int period)
     {

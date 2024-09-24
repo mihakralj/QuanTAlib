@@ -1,3 +1,4 @@
+semantic-version-format: Loose
 mode: ContinuousDelivery
 branches:
   main:

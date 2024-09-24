@@ -30,10 +30,12 @@ public class Ema : AbstractBase
     // inherited _index
     // inherited _value
     private readonly int _period;
-    private CircularBuffer _sma;
+    private readonly CircularBuffer _sma;
     private double _lastEma, _p_lastEma;
-    private double _k, _e, _p_e;
-    private bool _isInit, _p_isInit, _useSma;
+    private double _e, _p_e;
+    private readonly double _k;
+    private bool _isInit, _p_isInit;
+    private readonly bool _useSma;
 
     public Ema(int period, bool useSma = true)
     {
@@ -50,13 +52,14 @@ public class Ema : AbstractBase
         Init();
     }
 
-    public Ema(double alpha) : base()
+    public Ema(double alpha)
     {
         _k = alpha;
         _useSma = false;
         _sma = new(1);
         _period = 1;
         WarmupPeriod = (int)Math.Ceiling(Math.Log(0.05) / Math.Log(1 - _k)); //95th percentile
+        _sma = new(_period);
         Init();
     }
 
@@ -74,7 +77,6 @@ public class Ema : AbstractBase
         _lastEma = 0;
         _isInit = false;
         _p_isInit = false;
-        _sma = new(_period);
     }
 
     protected override void ManageState(bool isNew)

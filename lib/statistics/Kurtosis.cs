@@ -4,9 +4,9 @@ namespace QuanTAlib;
 public class Kurtosis : AbstractBase
 {
     public readonly int Period;
-    private CircularBuffer _buffer;
+    private readonly CircularBuffer _buffer;
 
-    public Kurtosis(int period) : base()
+    public Kurtosis(int period)
     {
         if (period < 4)
         {

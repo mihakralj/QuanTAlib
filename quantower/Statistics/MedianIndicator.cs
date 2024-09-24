@@ -9,7 +9,7 @@ public class MedianIndicator : IndicatorBase
     private Median? med;
     protected override AbstractBase QuanTAlib => med!;
     public override string ShortName => $"MEDIAN {Period} : {SourceName}";
-    public MedianIndicator() : base()
+    public MedianIndicator()
     {
         Name = "MEDIAN - Median historical value";
     }
@@ -18,6 +18,5 @@ public class MedianIndicator : IndicatorBase
     {
         med = new Median(Period);
         MinHistoryDepths = med.WarmupPeriod;
-        base.InitIndicator();
     }
 }

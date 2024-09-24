@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class DsmaIndicator : IndicatorBase
 {
@@ -10,7 +10,7 @@ public class DsmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"DSMA {Period} : {SourceName}";
 
-    public DsmaIndicator() : base()
+    public DsmaIndicator()
     {
         Name = "DSMA - Deviation Scaled Moving Average";
     }
@@ -19,6 +19,5 @@ public class DsmaIndicator : IndicatorBase
     {
         ma = new Dsma(Period);
         MinHistoryDepths = ma.WarmupPeriod;
-        base.InitIndicator();
     }
 }

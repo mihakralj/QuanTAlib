@@ -10,10 +10,10 @@ public class Vidya : AbstractBase
     private readonly int _longPeriod;
     private readonly double _alpha;
     private double _lastVIDYA, _p_lastVIDYA;
-    private CircularBuffer? _shortBuffer;
-    private CircularBuffer? _longBuffer;
+    private readonly CircularBuffer? _shortBuffer;
+    private readonly CircularBuffer? _longBuffer;
 
-    public Vidya(int shortPeriod, int longPeriod = 0, double alpha = 0.2) 
+    public Vidya(int shortPeriod, int longPeriod = 0, double alpha = 0.2)
     {
         if (shortPeriod < 1)
         {
@@ -24,6 +24,8 @@ public class Vidya : AbstractBase
         _alpha = alpha;
         WarmupPeriod = _longPeriod;
         Name = $"Vidya({_shortPeriod},{_longPeriod})";
+        _shortBuffer = new CircularBuffer(_shortPeriod);
+        _longBuffer = new CircularBuffer(_longPeriod);
         Init();
     }
 
@@ -38,8 +40,6 @@ public class Vidya : AbstractBase
     {
         base.Init();
         _lastVIDYA = 0;
-        _shortBuffer = new CircularBuffer(_shortPeriod);
-        _longBuffer = new CircularBuffer(_longPeriod);
     }
 
     protected override void ManageState(bool isNew)
@@ -83,7 +83,7 @@ public class Vidya : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double CalculateStdDev(CircularBuffer buffer)
+    private static double CalculateStdDev(CircularBuffer buffer)
     {
         double mean = buffer.Average();
         double sumSquaredDiff = buffer.Sum(x => Math.Pow(x - mean, 2));

@@ -1,6 +1,6 @@
 using Xunit;
 using Tulip;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class TulipTests
 {
@@ -23,7 +23,7 @@ public class TulipTests
         iterations = 3;
         skip = 500;
         data = feed.Close.v.ToArray();
-        outdata = new double[data.Count()];
+        outdata = new double[data.Length];
     }
 
     [Fact]
@@ -66,12 +66,11 @@ public class TulipTests
             double[][] arrout = [outdata];
             Tulip.Indicators.ema.Run(inputs: arrin, options: [period], outputs: arrout);
 
-            Assert.Equal(QL.Length, arrout[0].Count());
+            Assert.Equal(QL.Length, arrout[0].Length);
             for (int i = QL.Length - 1; i > skip*2; i--)  //Initial Tulip Ema value is (wrongly) set to the first input value - therefore large skip
             {
                 double QL_item = QL[i].Value;
                 double TU = arrout[0][i];
-                //Assert.InRange(TU - QL_item, -range, range);
                 Assert.True(Math.Abs(TU - QL_item) <= range, $"Assertion failed at index {i} for period {period}: TU = {TU}, QL_item = {QL_item}, delta = {TU-QL_item}");
 
             }

@@ -11,7 +11,7 @@ public class TrimaIndicator : IndicatorBase
     public override string ShortName => $"TRIMA {Period} : {SourceName}";
 
 
-    public TrimaIndicator() : base()
+    public TrimaIndicator()
     {
         Name = "TRIMA - Triangular Moving Average";
     }
@@ -19,6 +19,5 @@ public class TrimaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Trima(Period);
-        base.InitIndicator();
     }
 }

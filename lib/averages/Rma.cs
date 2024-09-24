@@ -5,7 +5,7 @@ namespace QuanTAlib {
 
 public class Rma : AbstractBase {
     private readonly int _period;
-    private double _alpha;
+    private readonly double _alpha;
     private double _lastRMA;
     private double _savedLastRMA;
 

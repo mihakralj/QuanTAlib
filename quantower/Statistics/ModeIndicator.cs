@@ -9,7 +9,7 @@ public class ModeIndicator : IndicatorBase
     private Mode? mode;
     protected override AbstractBase QuanTAlib => mode!;
     public override string ShortName => $"MODE {Period} : {SourceName}";
-    public ModeIndicator() : base()
+    public ModeIndicator()
     {
         Name = "MODE - Most frequent historical value";
     }
@@ -18,6 +18,5 @@ public class ModeIndicator : IndicatorBase
     {
         mode = new Mode(Period);
         MinHistoryDepths = mode.WarmupPeriod;
-        base.InitIndicator();
     }
 }

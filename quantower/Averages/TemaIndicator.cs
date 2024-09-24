@@ -10,14 +10,13 @@ public class TemaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"TEMA {Period} : {SourceName}";
 
-    public TemaIndicator() : base()
+    public TemaIndicator()
     {
         Name = "TEMA - Triple Exponential Moving Average";
     }
 
     protected override void InitIndicator()
     {
-        base.InitIndicator();
         ma = new Tema(period: Period);
     }
 }

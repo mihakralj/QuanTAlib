@@ -7,12 +7,12 @@ public class StddevIndicator : IndicatorBase
     public int Period { get; set; } = 20;
 
     [InputParameter("Population", sortIndex: 2)]
-    public bool IsPopulation { get; set; } = false;
+    public bool IsPopulation { get; set; }
 
     private Stddev? stddev;
     protected override AbstractBase QuanTAlib => stddev!;
     public override string ShortName => $"STDDEV {Period} : {SourceName}";
-    public StddevIndicator() : base()
+    public StddevIndicator()
     {
         Name = "STDDEV - Standard Deviation";
         SeparateWindow = true;
@@ -22,6 +22,5 @@ public class StddevIndicator : IndicatorBase
     {
         stddev = new(Period, IsPopulation);
         MinHistoryDepths = stddev.WarmupPeriod;
-        base.InitIndicator();
     }
 }

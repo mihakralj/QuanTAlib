@@ -1,7 +1,7 @@
 //not working yet
 //TODO consistency test
 
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class Htit : AbstractBase
 {
@@ -18,8 +18,8 @@ public class Htit : AbstractBase
     private readonly CircularBuffer _sdBuffer = new(2);
     private readonly CircularBuffer _itBuffer = new(4);
 
-    private double _lastPd = 0;
-    private double _p_lastPd = 0;
+    private double _lastPd;
+    private double _p_lastPd;
 
     public Htit()
     {

@@ -11,7 +11,7 @@ public class RmaIndicator : IndicatorBase
     public override string ShortName => $"RMA {Period} : {SourceName}";
 
 
-    public RmaIndicator() : base()
+    public RmaIndicator()
     {
         Name = "RMA - wildeR Moving Average";
     }
@@ -19,6 +19,5 @@ public class RmaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Rma(Period);
-        base.InitIndicator();
     }
 }

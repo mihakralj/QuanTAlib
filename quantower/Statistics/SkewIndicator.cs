@@ -11,7 +11,7 @@ public class SkewIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => skew!;
     public override string ShortName => $"SKEW {Period} : {SourceName}";
 
-    public SkewIndicator() : base()
+    public SkewIndicator()
     {
         Name = "SKEW - Skewness";
         SeparateWindow = true;
@@ -21,6 +21,5 @@ public class SkewIndicator : IndicatorBase
     {
         skew = new(Period);
         MinHistoryDepths = skew.WarmupPeriod;
-        base.InitIndicator();
     }
 }

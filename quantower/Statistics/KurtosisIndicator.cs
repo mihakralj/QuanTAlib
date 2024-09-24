@@ -10,7 +10,7 @@ public class KurtosisIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => kurtosis!;
     public override string ShortName => $"KURTOSIS {Period} : {SourceName}";
 
-    public KurtosisIndicator() : base()
+    public KurtosisIndicator()
     {
         Name = "KURTOSIS - Relative Flatness";
         SeparateWindow = true;
@@ -20,6 +20,5 @@ public class KurtosisIndicator : IndicatorBase
     {
         kurtosis = new(Period);
         MinHistoryDepths = kurtosis.WarmupPeriod;
-        base.InitIndicator();
     }
 }

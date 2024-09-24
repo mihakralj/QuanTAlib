@@ -22,8 +22,8 @@ public class Alma : AbstractBase
     private readonly int _period;
     private readonly double _offset;
     private readonly double _sigma;
-    private CircularBuffer? _buffer;
-    private CircularBuffer? _weight;
+    private readonly CircularBuffer? _buffer;
+    private readonly CircularBuffer? _weight;
     private double _norm;
 
     /// <param name="period">The number of data points used in the ALMA calculation.</param>
@@ -41,6 +41,8 @@ public class Alma : AbstractBase
         _sigma = sigma;
         WarmupPeriod = period;
         Name = "Alma";
+        _buffer = new CircularBuffer(_period);
+        _weight = new CircularBuffer(_period);
         Init();
     }
 
@@ -57,8 +59,6 @@ public class Alma : AbstractBase
     public override void Init()
     {
         base.Init();
-        _buffer = new CircularBuffer(_period);
-        _weight = new CircularBuffer(_period);
         _norm = 0;
     }
 

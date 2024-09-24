@@ -2,7 +2,7 @@ using Xunit;
 using Trady.Analysis.Indicator;
 using Trady.Core;
 using Trady.Core.Infrastructure;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class TradyTests
 {

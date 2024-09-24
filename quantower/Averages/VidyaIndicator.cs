@@ -15,7 +15,7 @@ public class VidyaIndicator : IndicatorBase
     public override string ShortName => $"VIDYA {Period} : {SourceName}";
 
 
-    public VidyaIndicator() : base()
+    public VidyaIndicator()
     {
         Name = "VIDYA - Variable Index Dynamic Average";
     }
@@ -23,6 +23,5 @@ public class VidyaIndicator : IndicatorBase
     protected override void InitIndicator()
     {
         ma = new Vidya(Period, LPeriod, Alpha);
-        base.InitIndicator();
     }
 }

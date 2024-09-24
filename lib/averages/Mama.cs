@@ -1,17 +1,17 @@
-using QuanTAlib;
-using System;
+namespace QuanTAlib;
+
 
 public class Mama : AbstractBase
 {
     private readonly double _fastLimit, _slowLimit;
-    private CircularBuffer _pr, _sm, _dt, _i1, _q1, _i2, _q2, _re, _im, _pd, _ph;
+    private readonly CircularBuffer _pr, _sm, _dt, _i1, _q1, _i2, _q2, _re, _im, _pd, _ph;
     private double _mama, _fama;
     private double _prevMama, _prevFama, _sumPr;
     private double _p_prevMama, _p_prevFama, _p_sumPr;
 
     public TValue Fama { get; private set; }
 
-    public Mama(double fastLimit = 0.5, double slowLimit = 0.05) 
+    public Mama(double fastLimit = 0.5, double slowLimit = 0.05)
     {
         Fama = new TValue();
         Name = $"Mama({_fastLimit:F2}, {_slowLimit:F2})";

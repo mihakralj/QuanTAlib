@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Security.Cryptography;
 using TradingPlatform.BusinessLayer;
 using TradingPlatform.BusinessLayer.Integration;
 
@@ -73,31 +74,50 @@ namespace SyntheticVendorNamespace
                 CreateMessageSymbol("W17", "2 Geometric Brownian motion", "QT", "USD",  SymbolType.Synthetic)
             };
 
-/*
-    Bond,
-    CFD,
-        Crypto,
-    Debentures,
-    Equities,
-        ETF,
-    FixedIncome,
-        Forex,
-    Forward,
-    Futures,
-        Indexes,
-    Options,
-    Spot,
-        Synthetic,
-    Swap,
-    Warrants,
+            /*
+                Bond,
+                CFD,
+                    Crypto,
+                Debentures,
+                Equities,
+                    ETF,
+                FixedIncome,
+                    Forex,
+                Forward,
+                Futures,
+                    Indexes,
+                Options,
+                Spot,
+                    Synthetic,
+                Swap,
+                Warrants,
 
-*/
+            */
 
 
 
         }
 
-        private MessageSymbol CreateMessageSymbol(
+        public static VendorMetaData GetVendorMetaData()
+        {
+            return new VendorMetaData
+            {
+                VendorName = "Synthetic Vendor",
+                VendorDescription = "A synthetic vendor for testing and demonstration purposes",
+                GetDefaultConnections = () =>
+                {
+                    var defaultConnection = Vendor.CreateDefaultConnectionInfo(
+                        "Synthetic Connection",
+                        "Synthetic Vendor",
+                        "", // Replace with actual path if you have a logo
+                        allowCreateCustomConnections: true
+                    );
+                    return new List<ConnectionInfo> { defaultConnection };
+                }
+            };
+        }
+
+        private static MessageSymbol CreateMessageSymbol(
             string id,
             string name,
             string exchangeId,
@@ -127,27 +147,7 @@ namespace SyntheticVendorNamespace
             return messageSymbol;
         }
 
-        public static VendorMetaData GetVendorMetaData()
-        {
-            return new VendorMetaData()
-            {
-                VendorName = "Synthetic Vendor",
-                VendorDescription = "A synthetic vendor for testing and demonstration purposes",
-                GetDefaultConnections = () =>
-                {
-                    var defaultConnection = Vendor.CreateDefaultConnectionInfo(
-                        "Synthetic Connection",
-                        "Synthetic Vendor",
-                        "", // Replace with actual path if you have a logo
-                        allowCreateCustomConnections: true
-                    );
-                    return new List<ConnectionInfo> { defaultConnection };
-                }
-            };
-        }
-
-
-        private MessageSymbol CreateMessageSymbol(string id, string name, string exchangeId, string assetId, SymbolType type)
+        private static MessageSymbol CreateMessageSymbol(string id, string name, string exchangeId, string assetId, SymbolType type)
         {
             return new MessageSymbol(id)
             {
@@ -173,26 +173,26 @@ namespace SyntheticVendorNamespace
                 LotStep = 0.01,
                 MaxLot = 1000000,
                 SymbolType = type
-/*
-    SymbolType.Unknown,
-    [EnumMember] Forex,
-    [EnumMember] Equities,
-    [EnumMember] CFD,
-    [EnumMember] Indexes,
-    [EnumMember] Futures,
-    [EnumMember] Options,
-    [EnumMember] ETF,
-    [EnumMember] Crypto,
-    [EnumMember] Synthetic,
-    [EnumMember] Spot,
-    [EnumMember] Forward,
-    [EnumMember] FixedIncome,
-    [EnumMember] Warrants,
+                /*
+                    SymbolType.Unknown,
+                    [EnumMember] Forex,
+                    [EnumMember] Equities,
+                    [EnumMember] CFD,
+                    [EnumMember] Indexes,
+                    [EnumMember] Futures,
+                    [EnumMember] Options,
+                    [EnumMember] ETF,
+                    [EnumMember] Crypto,
+                    [EnumMember] Synthetic,
+                    [EnumMember] Spot,
+                    [EnumMember] Forward,
+                    [EnumMember] FixedIncome,
+                    [EnumMember] Warrants,
 
-    [EnumMember] Debentures,
-    [EnumMember] Bond,
-    [EnumMember] Swap,
-*/
+                    [EnumMember] Debentures,
+                    [EnumMember] Bond,
+                    [EnumMember] Swap,
+                */
             };
         }
 
@@ -213,7 +213,7 @@ namespace SyntheticVendorNamespace
 
         public override PingResult Ping()
         {
-        return new PingResult()
+            return new PingResult
             {
                 State = PingEnum.Connected,
                 PingTime = TimeSpan.FromMilliseconds(2),
@@ -226,12 +226,7 @@ namespace SyntheticVendorNamespace
 
         public override void OnConnected(CancellationToken token)
         {
-            // This method is called after a successful connection
-            // You can initialize resources or start any necessary processes here
-            base.OnConnected(token);
-
-            // For example, you might want to push some initial messages or data
-           // PushMessage(new MessageVendorEvent("SyntheticVendor connected successfully"));
+            throw new NotImplementedException();
         }
 
 
@@ -267,7 +262,10 @@ namespace SyntheticVendorNamespace
             var historyItems = new List<IHistoryItem>();
             var symbolId = requestParameters.SymbolId;
 
-            if (string.IsNullOrEmpty(symbolId)) return historyItems;
+            if (string.IsNullOrEmpty(symbolId))
+            {
+                return historyItems;
+            }
 
             DateTime from = requestParameters.FromTime;
             DateTime to = requestParameters.ToTime;
@@ -284,7 +282,9 @@ namespace SyntheticVendorNamespace
             {
                 DateTime intervalEnd = currentTime.AddTicks(periodTimeSpan.Ticks * MAX_ITEMS_PER_REQUEST);
                 if (intervalEnd > to)
+                {
                     intervalEnd = to;
+                }
 
                 while (currentTime <= intervalEnd)
                 {
@@ -293,7 +293,10 @@ namespace SyntheticVendorNamespace
 
                     currentTime = currentTime.Add(periodTimeSpan);
 
-                    if (requestParameters.CancellationToken.IsCancellationRequested) return historyItems;
+                    if (requestParameters.CancellationToken.IsCancellationRequested)
+                    {
+                        return historyItems;
+                    }
                 }
 
                 currentTime = intervalEnd;
@@ -306,7 +309,6 @@ namespace SyntheticVendorNamespace
         {
             switch (symbolId)
             {
-                //case "W0": return GenerateConstant;
                 case "W1": return GenerateSpike;
                 case "W2": return GenerateDiracDelta;
                 case "W3": return GenerateSquareWave;
@@ -331,7 +333,7 @@ namespace SyntheticVendorNamespace
 
         public override HistoryMetadata GetHistoryMetadata(CancellationToken cancellationToken)
         {
-            return new HistoryMetadata()
+            return new HistoryMetadata
             {
                 AllowedHistoryTypes = new HistoryType[]
                 {
@@ -360,71 +362,58 @@ namespace SyntheticVendorNamespace
         }
 
 
-/*******************************************************************************************************************************************/
-/*******************************************************************************************************************************************/
-/*******************************************************************************************************************************************/
-/*******************************************************************************************************************************************/
-/*******************************************************************************************************************************************/
-/*******************************************************************************************************************************************/
-/*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
+        /*******************************************************************************************************************************************/
 
-    private HistoryItemBar GenerateSpike(DateTime time, TimeSpan slice)
-    {
-        // Ensure we're working with UTC time
-        DateTime utcTime = time.ToUniversalTime();
-
-        // Calculate the number of hours since the epoch
-        double hoursSinceEpoch = (utcTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalHours;
-
-        // Calculate the position within the 25-hour cycle
-        int cyclePosition = (int)Math.Floor(hoursSinceEpoch % 25);
-
-        // Determine if this is a spike hour (hour 24 in the cycle) or the hour after
-        bool isSpike = cyclePosition == 24;
-        bool isAfterSpike = cyclePosition == 0;
-
-        double openValue, closeValue;
-        if (isSpike)
+        private HistoryItemBar GenerateSpike(DateTime time, TimeSpan slice)
         {
-            openValue = 0;
-            closeValue = 100;
+            // Ensure we're working with UTC time
+            DateTime utcTime = time.ToUniversalTime();
+
+            // Calculate the number of hours since the epoch
+            double hoursSinceEpoch = (utcTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalHours;
+
+            // Calculate the position within the 25-hour cycle
+            int cyclePosition = (int)Math.Floor(hoursSinceEpoch % 25);
+
+            // Determine if this is a spike hour (hour 24 in the cycle) or the hour after
+            bool isSpike = cyclePosition == 24;
+            bool isAfterSpike = cyclePosition == 0;
+
+            double openValue, closeValue;
+            if (isSpike)
+            {
+                openValue = 0;
+                closeValue = 100;
+            }
+            else if (isAfterSpike)
+            {
+                openValue = 100;
+                closeValue = 0;
+            }
+            else
+            {
+                openValue = closeValue = 0.000001;
+            }
+
+            return new HistoryItemBar
+            {
+                TicksLeft = time.Ticks,
+                TicksRight = time.Add(slice).Ticks - 1,
+                Open = openValue,
+                High = Math.Max(openValue, closeValue),
+                Low = Math.Min(openValue, closeValue),
+                Close = closeValue,
+                Volume = Math.Abs(closeValue - openValue),
+                Ticks = time.Add(slice).Ticks - time.Ticks
+            };
         }
-        else if (isAfterSpike)
-        {
-            openValue = 100;
-            closeValue = 0;
-        }
-        else
-        {
-            openValue = closeValue = 0.000001;
-        }
 
-        return new HistoryItemBar
-        {
-            TicksLeft = time.Ticks,
-            TicksRight = time.Add(slice).Ticks - 1,
-            Open = openValue,
-            High = Math.Max(openValue, closeValue),
-            Low = Math.Min(openValue, closeValue),
-            Close = closeValue,
-            Volume = Math.Abs(closeValue - openValue),
-            Ticks = time.Add(slice).Ticks - time.Ticks
-        };
-    }
-
-
-
-
-        private static readonly double[] distributionValues = new double[]
-        {
-            0.010,  // Extreme left tail
-            0.050,  // Left tail
-            0.200,  // Left of center
-            0.480,  // Center (peak)
-            0.200,  // Right of center
-            0.050,  // Right tail
-            0.010   // Extreme right tail
-        };
 
         private HistoryItemBar GenerateDiracDelta(DateTime time, TimeSpan slice)
         {
@@ -497,7 +486,7 @@ namespace SyntheticVendorNamespace
             double value = 50 + 50 * Math.Sin(cyclePosition * frequency); // Oscillate between 0 and 100
             double nextValue = 50 + 50 * Math.Sin((cyclePosition + slice.TotalMinutes) * frequency);
 
-            double factor = 0.6 * Math.Abs (nextValue - value);
+            double factor = 0.6 * Math.Abs(nextValue - value);
 
             return new HistoryItemBar
             {
@@ -505,8 +494,8 @@ namespace SyntheticVendorNamespace
                 TicksRight = time.Add(slice).Ticks - 1,
                 Open = value,
 
-                High = Math.Max(value, nextValue)+factor,
-                Low =  Math.Min(value, nextValue)-factor,
+                High = Math.Max(value, nextValue) + factor,
+                Low = Math.Min(value, nextValue) - factor,
 
                 Close = nextValue,
                 Volume = Math.Abs(nextValue - value) * 100, // Volume proportional to price change
@@ -602,26 +591,6 @@ namespace SyntheticVendorNamespace
                 High = Math.Max(value, nextValue),
                 Low = Math.Min(value, nextValue),
                 Close = nextValue,
-                Volume = 100,
-                Ticks = 100
-            };
-        }
-
-        private HistoryItemBar GeneratePulseWave(DateTime time, TimeSpan slice)
-        {
-            double hours = (time - DateTime.UnixEpoch).TotalHours;
-            double period = 24; // 24-hour period
-            double position = hours % period;
-            double value = position < period / 5 ? 100 : -100; // 20% duty cycle
-
-            return new HistoryItemBar
-            {
-                TicksLeft = time.Ticks,
-                TicksRight = time.Add(slice).Ticks - 1,
-                Open = value,
-                High = 100,
-                Low = -100,
-                Close = value,
                 Volume = 100,
                 Ticks = 100
             };
@@ -787,9 +756,6 @@ namespace SyntheticVendorNamespace
             double period = 12.0;
             double frequency = 2 * Math.PI / period; // Frequency for a 5-hour period
 
-            // Determine the start of the current 5-hour cycle
-            double cycleStartTime = Math.Floor(hours / period) * period;
-
             // Calculate the phase of the signal within the current 5-hour cycle
             double phase = frequency * (hours % period);
 
@@ -824,8 +790,8 @@ namespace SyntheticVendorNamespace
 
 
         private double currentFrequency = Math.PI / 220.0; // Initial frequency
-        private double accumulatedPhase = 0;
-        private double lastCloseValue = 0; // To store the last close value
+        private double accumulatedPhase;
+        private double lastCloseValue; // To store the last close value
 
         private HistoryItemBar GenerateFMSignal(DateTime time, TimeSpan slice)
         {
@@ -915,81 +881,81 @@ namespace SyntheticVendorNamespace
 
 
 
-private double previousClose = 50;
-private const double meanPrice = 50;
+        private double previousClose = 50;
+        private const double meanPrice = 50;
 
-private HistoryItemBar GeneratePinkNoise(DateTime time, TimeSpan slice)
-{
-    double volatility = 2;
-    double meanReversionStrength = 0.1;
-
-    // Generate open price
-    double openNoise = GeneratePinkNoiseValue();
-    double open = previousClose + volatility * openNoise + meanReversionStrength * (meanPrice - previousClose);
-
-    // Generate close price
-    double closeNoise = GeneratePinkNoiseValue();
-    double close = open + volatility * closeNoise + meanReversionStrength * (meanPrice - open);
-
-    // Determine High and Low
-    double high = Math.Max(open, close);
-    double low = Math.Min(open, close);
-
-    // Add variation to High and Low
-    double highNoise = Math.Abs(GeneratePinkNoiseValue());
-    high += volatility * highNoise;
-
-    double lowNoise = Math.Abs(GeneratePinkNoiseValue());
-    low -= volatility * lowNoise;
-
-    double volume = Math.Abs(GeneratePinkNoiseValue()) * 1000 + 100;
-
-    // Update previous close for the next iteration
-    previousClose = close;
-
-    return new HistoryItemBar
-    {
-        TicksLeft = time.Ticks,
-        TicksRight = time.Add(slice).Ticks - 1,
-        Open = open,
-        High = high,
-        Low = low,
-        Close = close,
-        Volume = volume,
-        Ticks = slice.Ticks
-    };
-}
-
-
-    private const int NumOctaves = 6;
-    private double[] pinkNoiseState = new double[NumOctaves];
-    private double GeneratePinkNoiseValue()
-    {
-        double total = 0;
-
-        for (int i = 0; i < NumOctaves; i++)
+        private HistoryItemBar GeneratePinkNoise(DateTime time, TimeSpan slice)
         {
-            double white = random.NextDouble() * 2 - 1;
-            pinkNoiseState[i] = (pinkNoiseState[i] + white) * 0.5;
-            total += pinkNoiseState[i] * Math.Pow(2, -i);
+            double volatility = 2;
+            double meanReversionStrength = 0.1;
+
+            // Generate open price
+            double openNoise = GeneratePinkNoiseValue();
+            double open = previousClose + volatility * openNoise + meanReversionStrength * (meanPrice - previousClose);
+
+            // Generate close price
+            double closeNoise = GeneratePinkNoiseValue();
+            double close = open + volatility * closeNoise + meanReversionStrength * (meanPrice - open);
+
+            // Determine High and Low
+            double high = Math.Max(open, close);
+            double low = Math.Min(open, close);
+
+            // Add variation to High and Low
+            double highNoise = Math.Abs(GeneratePinkNoiseValue());
+            high += volatility * highNoise;
+
+            double lowNoise = Math.Abs(GeneratePinkNoiseValue());
+            low -= volatility * lowNoise;
+
+            double volume = Math.Abs(GeneratePinkNoiseValue()) * 1000 + 100;
+
+            // Update previous close for the next iteration
+            previousClose = close;
+
+            return new HistoryItemBar
+            {
+                TicksLeft = time.Ticks,
+                TicksRight = time.Add(slice).Ticks - 1,
+                Open = open,
+                High = high,
+                Low = low,
+                Close = close,
+                Volume = volume,
+                Ticks = slice.Ticks
+            };
         }
 
-        // Normalize
-        return total / NumOctaves;
-    }
+
+        private const int NumOctaves = 6;
+        private readonly double[] pinkNoiseState = new double[NumOctaves];
+        private double GeneratePinkNoiseValue()
+        {
+            double total = 0;
+
+            for (int i = 0; i < NumOctaves; i++)
+            {
+                double white = random.NextDouble() * 2 - 1;
+                pinkNoiseState[i] = (pinkNoiseState[i] + white) * 0.5;
+                total += pinkNoiseState[i] * Math.Pow(2, -i);
+            }
+
+            // Normalize
+            return total / NumOctaves;
+        }
 
 
 
-private double lastValue = 0;
+        private double lastValue;
 
-private HistoryItemBar GenerateBrownNoise(DateTime time, TimeSpan slice)
-{
-    double dt = slice.TotalDays / 365.0; // Time step in years
-    double sigma = 25.0; // Annual volatility
+        private HistoryItemBar GenerateBrownNoise(DateTime time, TimeSpan slice)
+        {
+            double dt = slice.TotalDays / 365.0; // Time step in years
+            double sigma = 25.0; // Annual volatility
 
-    double increment = GenerateGaussian(0, sigma * Math.Sqrt(dt));
-    double open = lastValue * (1 + GenerateGaussian(0, 0.05));
-    double close = open + increment;
+            double increment = GenerateGaussian(0, sigma * Math.Sqrt(dt));
+            double open = lastValue * (1 + GenerateGaussian(0, 0.05));
+            double close = open + increment;
 
             // Simulate intra-period high and low
             double high = Math.Max(open, close);
@@ -997,81 +963,81 @@ private HistoryItemBar GenerateBrownNoise(DateTime time, TimeSpan slice)
             double low = Math.Min(open, close);
             low -= low * Math.Abs(GenerateGaussian(0, 0.06));
 
-    lastValue = close;
+            lastValue = close;
 
-    return new HistoryItemBar
-    {
-        TicksLeft = time.Ticks,
-        TicksRight = time.Add(slice).Ticks - 1,
-        Open = open,
-        High = high,
-        Low = low,
-        Close = close,
-        Volume = Math.Abs(close - open) * 1000, // Simplified volume calculation
-        Ticks = slice.Ticks
-    };
-}
-// Helper method to generate Gaussian distributed random numbers
-private double GenerateGaussian(double mean, double stdDev)
-{
-    double u1 = 1.0 - random.NextDouble(); // Uniform(0,1] random doubles
-    double u2 = 1.0 - random.NextDouble();
-    double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-    return mean + stdDev * randStdNormal;
-}
+            return new HistoryItemBar
+            {
+                TicksLeft = time.Ticks,
+                TicksRight = time.Add(slice).Ticks - 1,
+                Open = open,
+                High = high,
+                Low = low,
+                Close = close,
+                Volume = Math.Abs(close - open) * 1000, // Simplified volume calculation
+                Ticks = slice.Ticks
+            };
+        }
+        // Helper method to generate Gaussian distributed random numbers
+        private double GenerateGaussian(double mean, double stdDev)
+        {
+            double u1 = 1.0 - random.NextDouble(); // Uniform(0,1] random doubles
+            double u2 = 1.0 - random.NextDouble();
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+            return mean + stdDev * randStdNormal;
+        }
 
 
 
-private double GBMLastClose = 100; // Starting price
-private readonly double GBMMu = 0.05; // Annual drift
-private readonly double GBMSigma = 0.2; // Annual volatility
+        private double GBMLastClose = 100; // Starting price
+        private readonly double GBMMu = 0.05; // Annual drift
+        private readonly double GBMSigma = 0.2; // Annual volatility
 
-private HistoryItemBar GenerateGBM(DateTime time, TimeSpan slice)
-{
-    // Convert time slice to years
-    double dt = slice.TotalDays / 365.0;
+        private HistoryItemBar GenerateGBM(DateTime time, TimeSpan slice)
+        {
+            // Convert time slice to years
+            double dt = slice.TotalDays / 365.0;
 
-    // Generate a random normal variable for the main price movement
-    double epsilon = GenerateGaussian(0, 1);
+            // Generate a random normal variable for the main price movement
+            double epsilon = GenerateGaussian(0, 1);
 
-    // Calculate the price movement using GBM equation
-    double drift = (GBMMu - 0.5 * GBMSigma * GBMSigma) * dt;
-    double diffusion = GBMSigma * Math.Sqrt(dt) * epsilon;
-    double returnValue = Math.Exp(drift + diffusion);
+            // Calculate the price movement using GBM equation
+            double drift = (GBMMu - 0.5 * GBMSigma * GBMSigma) * dt;
+            double diffusion = GBMSigma * Math.Sqrt(dt) * epsilon;
+            double returnValue = Math.Exp(drift + diffusion);
 
-    // Add variability between previous close and current open
-    double openVariability = GBMLastClose * GBMSigma * Math.Sqrt(dt) * GenerateGaussian(0, 1) * 0.1;
-    double open = GBMLastClose + openVariability;
+            // Add variability between previous close and current open
+            double openVariability = GBMLastClose * GBMSigma * Math.Sqrt(dt) * GenerateGaussian(0, 1) * 0.1;
+            double open = GBMLastClose + openVariability;
 
-    // Calculate new close price
-    double close = open * returnValue;
+            // Calculate new close price
+            double close = open * returnValue;
 
-    // Generate High and Low values
-    double highLowRange = Math.Max(Math.Abs(close - open), GBMLastClose * GBMSigma * Math.Sqrt(dt) * Math.Abs(GenerateGaussian(0, 1)));
-    double high = Math.Max(open, close) + highLowRange * 0.5;
-    double low = Math.Min(open, close) - highLowRange * 0.5;
+            // Generate High and Low values
+            double highLowRange = Math.Max(Math.Abs(close - open), GBMLastClose * GBMSigma * Math.Sqrt(dt) * Math.Abs(GenerateGaussian(0, 1)));
+            double high = Math.Max(open, close) + highLowRange * 0.5;
+            double low = Math.Min(open, close) - highLowRange * 0.5;
 
-    // Generate volume (you may want to adjust this based on your needs)
-    double volume = Math.Max(100, 1000 * Math.Abs(close - open) + 500 * GenerateGaussian(0, 1));
+            // Generate volume (you may want to adjust this based on your needs)
+            double volume = Math.Max(100, 1000 * Math.Abs(close - open) + 500 * GenerateGaussian(0, 1));
 
-    // Update last close for next iteration
-    GBMLastClose = close;
+            // Update last close for next iteration
+            GBMLastClose = close;
 
-    return new HistoryItemBar
-    {
-        TicksLeft = time.Ticks,
-        TicksRight = time.Add(slice).Ticks - 1,
-        Open = open,
-        High = high,
-        Low = low,
-        Close = close,
-        Volume = volume,
-        Ticks = slice.Ticks
-    };
-}
+            return new HistoryItemBar
+            {
+                TicksLeft = time.Ticks,
+                TicksRight = time.Add(slice).Ticks - 1,
+                Open = open,
+                High = high,
+                Low = low,
+                Close = close,
+                Volume = volume,
+                Ticks = slice.Ticks
+            };
+        }
 
         private double FBMLastClose = 100; // Starting price
-        private double FBMHurst = 0.85; // Hurst parameter (0.5 < H < 1 for persistent fBm)
+        private readonly double FBMHurst = 0.85; // Hurst parameter (0.5 < H < 1 for persistent fBm)
         private readonly double FBMSigma = 0.25; // Volatility parameter
         private readonly double FBMDrift = 0.001; // drift
 
