@@ -14,12 +14,12 @@
 |HLCC4 - Weighted Price|`️.HLCC4`||`WclPrice`||
 |<br>||||
 |**AVERAGES & TRENDS**|**QuanTALib**|Skender.Stock|TALib.NETCore|Tulip.NETCore|Trady|
-|AFIRMA - Autoregressive Finite Impulse Response Moving Average|||||
+|AFIRMA - Autoregressive Finite Impulse Response Moving Average|`✔️`||||
 |ALMA - Arnaud Legoux Moving Average|`Alma`|`✔️`|||
 |⭐DEMA - Double EMA Average|`Dema`|`⭐`|`⭐`|`⭐`||
 |DSMA - Deviation Scaled Moving Average|`Dsma`||||
 |DWMA - Double WMA Average|`Dwma`||||
-|⭐EMA - Exponential Moving Average|[`Ema`](indicators/averages/ema/ema.md)|`⭐`|`⭐`|`⭐`|`⭐`|
+|⭐EMA - Exponential Moving Average|`Ema`|`⭐`|`⭐`|`⭐`|`⭐`|
 |EPMA - Endpoint Moving Average|`Epma`|`✔️`|||
 |FRAMA - Fractal Adaptive Moving Average|`Frama`||||
 |FWMA - Fibonacci Weighted Moving Average|`Fwma`||||
@@ -42,7 +42,7 @@
 |QEMA - Quad Exponential Moving Average|`Qema`||||
 |RMA - WildeR's Moving Average|`Rma`||||
 |SINEMA - Sine Weighted Moving Average|`Sinema`||||
-|⭐SMA - Simple Moving Average|[`Sma`](indicators/averages/sma/sma.md)|`⭐`|`⭐`|`⭐`|`⭐`|
+|⭐SMA - Simple Moving Average|`Sma`|`⭐`|`⭐`|`⭐`|`⭐`|
 |SMMA - Smoothed Moving Average|`Smma`|`✔️`|||
 |SSF - Ehler's Super Smoother Filter|||||
 |SUPERTREND - Supertrend||`✔️`|||

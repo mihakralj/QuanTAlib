@@ -6,11 +6,6 @@ namespace QuanTAlib;
 /// It aims to be more responsive during trending periods and more stable during ranging periods.
 /// </summary>
 /// <remarks>
-/// Smoothness:     ★★★★☆ (4/5)
-/// Sensitivity:    ★★★★☆ (4/5)
-/// Overshooting:   ★★★★☆ (4/5)
-/// Lag:            ★★★★☆ (4/5)
-///
 /// The DSMA uses a SuperSmoother filter to reduce noise and a dynamic alpha calculation based on the
 /// scaled deviation of the input data. This allows it to adapt to changing market conditions.
 ///
@@ -29,6 +24,7 @@ public class Dsma : AbstractBase
     private readonly int _period;
     private readonly CircularBuffer _buffer;
     private readonly double _c1, _c2, _c3;
+    private readonly double _scaleFactor;
     private double _lastDsma, _p_lastDsma;
     private double _filt, _filt1, _filt2, _zeros, _zeros1;
     private double _p_filt, _p_filt1, _p_filt2, _p_zeros, _p_zeros1;
@@ -39,13 +35,18 @@ public class Dsma : AbstractBase
     /// </summary>
     /// <param name="period">The number of data points used in the DSMA calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
-    public Dsma(int period)
+    public Dsma(int period, double scaleFactor = 0.9)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
+        if (scaleFactor <= 0 || scaleFactor > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(scaleFactor), "Scale factor must be between 0 and 1 (exclusive).");
+        }
         _period = period;
+        _scaleFactor = scaleFactor;
         _buffer = new CircularBuffer(period);
 
         // SuperSmoother filter coefficients
@@ -56,11 +57,11 @@ public class Dsma : AbstractBase
         _c1 = 1 - _c2 - _c3;
 
         Name = "Dsma";
-        WarmupPeriod = period * 2; // A conservative estimate
+        WarmupPeriod = (int) (period * 1.5); // A conservative estimate
         Init();
     }
 
-    public Dsma(object source, int period) : this(period)
+    public Dsma(object source, int period, double scaleFactor = 0.9) : this(period, scaleFactor)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
@@ -127,7 +128,8 @@ public class Dsma : AbstractBase
         double scaledFilt = rms != 0 ? _filt / rms : 0;
 
         // Calculate adaptive alpha
-        double alpha = Math.Abs(scaledFilt) * 5 / _period;
+        double alpha = _scaleFactor * Math.Abs(scaledFilt) * 5 / _period;
+        alpha = Math.Max(0.1, Math.Min(1.0, alpha));
 
         // DSMA calculation
         double dsma = alpha * Input.Value + (1 - alpha) * _lastDsma;

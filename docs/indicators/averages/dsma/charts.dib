@@ -43,18 +43,19 @@ Dictionary<string, double[]> Data = new Dictionary<string, double[]>
 
 String Name = "DSMA";
 int p = 10;
-Func<int, AbstractBase> Indicator = period => new Dsma(period);
+double scale = 0.5;
+Func<int, double, AbstractBase> Indicator = (period, scale) => new Dsma(period, scale);
 
 foreach (var item in Data) {
     string Signal = item.Key;
     double[] Input = item.Value;
     TSeries Output = new();
-    var ma = Indicator(p);
+    var ma = Indicator(p, scale);
     foreach (var value in Input) { Output.Add(ma.Calc(value)); }
     Plot plt = new();
     var p1a = plt.Add.Signal(Input[24..]); p1a.Color = ScottPlot.Colors.Red; p1a.LineWidth = 2;
     var p1b = plt.Add.Signal(Output.v.ToArray()[24..]); p1b.Color = ScottPlot.Colors.Blue; p1b.LineWidth = 4;
-    plt.Title($"{Signal} - {Name}({p})");
+    plt.Title($"{Signal} - {Name}({p}, {scale:F2})");
     plt.Display();
     plt.SaveSvg($"img/{Name}{p}_{Signal}.svg", 450, 300);
 }

@@ -6,11 +6,6 @@ namespace QuanTAlib;
 /// previous EMA value. The weight of the new datapoint (alpha) is alpha = 2 / (period + 1)
 /// </summary>
 /// <remarks>
-/// Smoothness:     ★★★☆☆ (3/5)
-/// Sensitivity:    ★★★★☆ (4/5)
-/// Overshooting:   ★★★★★ (5/5)
-/// Lag:            ★★★☆☆ (3/5)
-///
 /// Key characteristics:
 /// - Uses no buffer, relying only on the previous EMA value.
 /// - The weight of new data points is calculated as alpha = 2 / (period + 1).

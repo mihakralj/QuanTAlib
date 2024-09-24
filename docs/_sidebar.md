@@ -1,24 +1,20 @@
 * [QuanTAlib](/)
-* Library Structure
-   * Basic types
-      * Tvalue & TSeries
-      * TBar & TBarSeries
-   * Usage
-* Using in Quantower
 * [Indicators](indicators/indicators.md)
    * Averages & Trends
-      * ALMA - Arnaud Legoux Moving Average
-         * [Charts](indicators/averages/alma/charts.md)
-      * DEMA - Double Exponential Moving Average
-         * [Charts](indicators/averages/dema/charts.md)
-      * DSMA - Deviation Scaled Moving Average
-         * [Charts](indicators/averages/dsma/charts.md)
+      * [AFIRMA - Adaptive Filtering Integrated Recursive Moving Average](indicators/averages/afirma/afirma.md)
+         * [AFIRMA Charts](indicators/averages/afirma/charts.md)
+      * [ALMA - Arnaud Legoux Moving Average](indicators/averages/alma/alma.md)
+         * [ALMA Charts](indicators/averages/alma/charts.md)
+      * [DEMA - Double Exponential Moving Average](indicators/averages/dema/dema.md)
+         * [DEMA Charts](indicators/averages/dema/charts.md)
+      * [DSMA - Deviation Scaled Moving Average](indicators/averages/dsma/dsma.md)
+         * [DSMA Charts](indicators/averages/dsma/charts.md)
       * DWMA - Double Weighted Moving Average
-         * [Charts](indicators/averages/dwma/charts.md)
+         * [DWMA Charts](indicators/averages/dwma/charts.md)
       * [EMA - Exponential Moving Average](indicators/averages/ema/ema.md)
          * [Calculation](indicators/averages/ema/calculation.md)
          * [Quality](indicators/averages/ema/quality.md)
-         * [Charts](indicators/averages/ema/charts.md)
+         * [EMA Charts](indicators/averages/ema/charts.md)
       * EPMA - Endpoint Moving Average
       * FRAMA - Fractal Adaptive Moving Average
       * FWMA - Fibonacci-Weighted Moving Average

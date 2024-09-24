@@ -8,11 +8,6 @@ namespace QuanTAlib;
 /// of the data in conjunction with smoothing to reduce noise.
 /// </summary>
 /// <remarks>
-/// Smoothness:     ★★★★☆ (4/5)
-/// Sensitivity:    ★★★★☆ (4/5)
-/// Overshooting:   ★★★★☆ (4/5)
-/// Lag:            ★★★★★ (5/5)
-///
 /// Validation:
 ///    Skender.Stock.Indicators
 /// </remarks>
