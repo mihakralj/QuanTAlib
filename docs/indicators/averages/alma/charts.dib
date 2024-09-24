@@ -43,7 +43,9 @@ Dictionary<string, double[]> Data = new Dictionary<string, double[]>
 
 String Name = "ALMA";
 int p = 10;
-Func<int, AbstractBase> Indicator = period => new Alma(period);
+double offset = 0.85;
+double sigma = 6.0;
+Func<int, AbstractBase> Indicator = period => new Alma(period, offset: offset, sigma: sigma);
 
 foreach (var item in Data) {
     string Signal = item.Key;
@@ -54,7 +56,7 @@ foreach (var item in Data) {
     Plot plt = new();
     var p1a = plt.Add.Signal(Input[24..]); p1a.Color = ScottPlot.Colors.Red; p1a.LineWidth = 2;
     var p1b = plt.Add.Signal(Output.v.ToArray()[24..]); p1b.Color = ScottPlot.Colors.Blue; p1b.LineWidth = 4;
-    plt.Title($"{Signal} - {Name}({p})");
+    plt.Title($"{Signal} - {Name}({p}, {offset:F2}, {sigma:F2})");
     plt.Display();
     plt.SaveSvg($"img/{Name}{p}_{Signal}.svg", 450, 300);
 }

@@ -1,6 +1,6 @@
 # QuanTAlib - quantitative technical indicators for Quantower
 
-## (and other C#-based trading platorms)
+### (and other C#-based trading platorms)
 
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=mihakralj_QuanTAlib&metric=ncloc)](https://sonarcloud.io/summary/overall?id=mihakralj_QuanTAlib)
 [![Codacy grade](https://img.shields.io/codacy/grade/b1f9109222234c87bce45f1fd4c63aee?style=flat-square)](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard)
@@ -21,6 +21,13 @@
 - Prioritize **real-time data analysis**: As new data items arrives, indicators don't have to re-calculate the entire history and can generate a result directly from the last item
 - **Allow updates/corrections** of the last quote - QuanTAlib is re-calculating the last value as many times as required before continuing to the new bar
 - **Calculate early data right** - calculated data is as valid as mathematically possible from the first value onwards - no blackout or warming-up periods. All indicators return data from the first bar, alongside with a flag `isHot` - defining if calculation is already stable.
+
+## Installation to Quantower
+
+- `<Quantower_root>` is the directory where Quantower is installed - where `Start.lnk` launcher is
+- Copy `Averages.dll` from Releases to `<Quantower_root>\Settings\Scripts\Indicators\Averages\Averages.dll`
+- Copy `Statistics.dll` from Releases to `<Quantower_root>\Settings\Scripts\Indicators\Statistics\Statistics.dll`
+- Copy `SyntheticVendor.dll` from Releases to `<Quantower_root>\Settings\Scripts\Vendors\SyntheticVendor\SyntheticVendor.dll`
 
 ![Alt text](./img/quotes.gif)
 
