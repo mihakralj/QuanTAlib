@@ -14,7 +14,7 @@
 |HLCC4 - Weighted Price|`️.HLCC4`||`WclPrice`||
 |<br>||||
 |**AVERAGES & TRENDS**|**QuanTALib**|Skender.Stock|TALib.NETCore|Tulip.NETCore|Trady|
-|AFIRMA - Autoregressive Finite Impulse Response Moving Average|`✔️`||||
+|AFIRMA - Autoregressive Finite Impulse Response Moving Average|`Afirma`||||
 |ALMA - Arnaud Legoux Moving Average|`Alma`|`✔️`|||
 |⭐DEMA - Double EMA Average|`Dema`|`⭐`|`⭐`|`⭐`||
 |DSMA - Deviation Scaled Moving Average|`Dsma`||||

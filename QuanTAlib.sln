@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -14,6 +14,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "quantower", "quantower", "{A8D9AE68-24E3-476C-BB98-244541BB4B43}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Statistics", "quantower\Statistics\Statistics.csproj", "{B6D3EB11-63B6-430F-B526-E1981B3D8214}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark", "benchmark\benchmark.csproj", "{6629C6D2-FC34-4BDF-AEF4-A5859E05981E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,9 +46,12 @@ Global
 		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6D3EB11-63B6-430F-B526-E1981B3D8214}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6629C6D2-FC34-4BDF-AEF4-A5859E05981E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6629C6D2-FC34-4BDF-AEF4-A5859E05981E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6629C6D2-FC34-4BDF-AEF4-A5859E05981E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6629C6D2-FC34-4BDF-AEF4-A5859E05981E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B6D3EB11-63B6-430F-B526-E1981B3D8214} = {A8D9AE68-24E3-476C-BB98-244541BB4B43}
 	EndGlobalSection
 EndGlobal
-
