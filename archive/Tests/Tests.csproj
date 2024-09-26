@@ -28,7 +28,7 @@
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Skender.Stock.Indicators" Version="3.0.0-preview1014-0015" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.3.23174.8" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Calculations\Calculations.csproj" />
