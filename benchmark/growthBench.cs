@@ -38,9 +38,9 @@ public class EmaBenchmark
     }
 
     [Benchmark]
-    public void Afirma_bench()
+    public void Ema_bench()
     {
-        Afirma ma1 = new(Period);
+        Ema ma1 = new(Period);
         for (int i = 0; i < Length; i++)
         {
             TValue item = gbm.Generate(DateTime.Now).Close;
@@ -64,17 +64,6 @@ public class EmaBenchmark
     public void Dema_bench()
     {
         Dema ma1 = new(Period);
-        for (int i = 0; i < Length; i++)
-        {
-            TValue item = gbm.Generate(DateTime.Now).Close;
-            ma1.Calc(item);
-        }
-    }
-
-    [Benchmark]
-    public void Ema_bench()
-    {
-        Ema ma1 = new(Period);
         for (int i = 0; i < Length; i++)
         {
             TValue item = gbm.Generate(DateTime.Now).Close;
