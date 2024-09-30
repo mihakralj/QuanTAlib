@@ -159,6 +159,7 @@ jobs:
            lib/bin/Release/QuanTAlib.dll
            quantower/Averages/bin/Release/Averages.dll
            quantower/Statistics/bin/Release/Statistics.dll
+           quantower/Volatility/bin/Release/Volatility.dll
            SyntheticVendor/bin/Release/SyntheticVendor.dll
 
     - name: Push  package to nuget.org
