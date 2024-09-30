@@ -6,6 +6,7 @@ namespace QuanTAlib;
 
 public class Vidya : AbstractBase
 {
+
     private readonly int _longPeriod;
     private readonly double _alpha;
     private double _lastVIDYA, _p_lastVIDYA;
