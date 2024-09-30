@@ -6,7 +6,6 @@ namespace QuanTAlib;
 
 public class Vidya : AbstractBase
 {
-    private readonly int _shortPeriod;
     private readonly int _longPeriod;
     private readonly double _alpha;
     private double _lastVIDYA, _p_lastVIDYA;
@@ -19,11 +18,12 @@ public class Vidya : AbstractBase
         {
             throw new ArgumentException("Short period must be greater than or equal to 1.", nameof(shortPeriod));
         }
-        _shortPeriod = shortPeriod;
         _longPeriod = (longPeriod == 0) ? shortPeriod * 4 : longPeriod;
         _alpha = alpha;
         WarmupPeriod = _longPeriod;
-        Name = $"Vidya({_shortPeriod},{_longPeriod})";
+        Name = $"Vidya({shortPeriod},{_longPeriod})";
+        _shortBuffer = new CircularBuffer(shortPeriod);
+        _longBuffer = new CircularBuffer(_longPeriod);
         Init();
     }
 

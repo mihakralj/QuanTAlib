@@ -1,3 +1,3 @@
-# AFIRMA Charts
+# AFIRMA: Charts
 
-![](img/AFIRMA10_Spike.svg) ![](img/AFIRMA10_Impulse.svg) ![](img/AFIRMA10_Triangle.svg) ![](img/AFIRMA10_Sawtooth.svg) ![](img/AFIRMA10_Sine.svg) ![](img/AFIRMA10_Chirp.svg) ![](img/AFIRMA10_White.svg) ![](img/AFIRMA10_Gauss.svg) ![](img/AFIRMA10_B.svg) ![](img/AFIRMA10_HF.svg) ![](img/AFIRMA10_ImpulseHF.svg) ![](img/AFIRMA10_SawtoothHF.svg) ![](img/AFIRMA10_SineG.svg) ![](img/AFIRMA10_ChirpG.svg) ![](img/AFIRMA10_Complex.svg) ![](img/AFIRMA10_Market.svg)
+![](img/AFIRMA6_Spike.svg) ![](img/AFIRMA6_Impulse.svg) ![](img/AFIRMA6_Triangle.svg) ![](img/AFIRMA6_Sawtooth.svg) ![](img/AFIRMA6_Sine.svg) ![](img/AFIRMA6_Chirp.svg) ![](img/AFIRMA6_White.svg) ![](img/AFIRMA6_Gauss.svg) ![](img/AFIRMA6_B.svg) ![](img/AFIRMA6_HF.svg) ![](img/AFIRMA6_ImpulseHF.svg) ![](img/AFIRMA6_SawtoothHF.svg) ![](img/AFIRMA6_SineG.svg) ![](img/AFIRMA6_ChirpG.svg) ![](img/AFIRMA6_Complex.svg) ![](img/AFIRMA6_Market.svg)

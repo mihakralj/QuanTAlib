@@ -1,20 +1,36 @@
 * [QuanTAlib](/)
+   * [Historical vs Real-time analysis](essays/realtime.md)
 * [Indicators](indicators/indicators.md)
    * Averages & Trends
       * [AFIRMA - Adaptive Filtering Integrated Recursive Moving Average](indicators/averages/afirma/afirma.md)
-         * [AFIRMA Charts](indicators/averages/afirma/charts.md)
+         * [Calculation](indicators/averages/afirma/calc.md)
+         * [Analysis](indicators/averages/afirma/analysis.md)
+         * [Charts](indicators/averages/afirma/charts.md)
       * [ALMA - Arnaud Legoux Moving Average](indicators/averages/alma/alma.md)
-         * [ALMA Charts](indicators/averages/alma/charts.md)
+         * [Calculation](indicators/averages/alma/calc.md)
+         * [Analysis](indicators/averages/alma/analysis.md)
+         * [Charts](indicators/averages/alma/charts.md)
+      * [AMA - Adaptive Moving Average](indicators/averages/ama/ama.md)
+         * [Calculation](indicators/averages/ama/calc.md)
+         * [Analysis](indicators/averages/ama/analysis.md)
+         * [Charts](indicators/averages/ama/charts.md)
+      * [Convolutiuon]
       * [DEMA - Double Exponential Moving Average](indicators/averages/dema/dema.md)
-         * [DEMA Charts](indicators/averages/dema/charts.md)
+         * [Calculation](indicators/averages/dema/calc.md)
+         * [Analysis](indicators/averages/dema/analysis.md)
+         * [Charts](indicators/averages/dema/charts.md)
       * [DSMA - Deviation Scaled Moving Average](indicators/averages/dsma/dsma.md)
-         * [DSMA Charts](indicators/averages/dsma/charts.md)
-      * DWMA - Double Weighted Moving Average
-         * [DWMA Charts](indicators/averages/dwma/charts.md)
+         * [Calculation](indicators/averages/dsma/calculation.md)
+         * [Quality](indicators/averages/dsma/quality.md)
+         * [Charts](indicators/averages/dsma/charts.md)
+      * [DWMA - Double Weighted Moving Average](indicators/averages/dwma/calculation.md)
+         * [Calculation](indicators/averages/dwma/calculation.md)
+         * [Quality](indicators/averages/dwma/quality.md)
+         * [Charts](indicators/averages/dwma/charts.md)
       * [EMA - Exponential Moving Average](indicators/averages/ema/ema.md)
          * [Calculation](indicators/averages/ema/calculation.md)
          * [Quality](indicators/averages/ema/quality.md)
-         * [EMA Charts](indicators/averages/ema/charts.md)
+         * [Charts](indicators/averages/ema/charts.md)
       * EPMA - Endpoint Moving Average
       * FRAMA - Fractal Adaptive Moving Average
       * FWMA - Fibonacci-Weighted Moving Average
@@ -37,7 +53,10 @@
          * [Charts](indicators/averages/sma/charts.md)
       * SMMA - Smoothed Moving Average
       * T3 - Tillson T3 Moving Average
-      * TEMA - Triple Exponential Moving Average
+      * [TEMA - Triple Exponential Moving Average](indicators/averages/tema/tema.md)
+         * [Calculation](indicators/averages/tema/calc.md)
+         * [Analysis](indicators/averages/tema/analysis.md)
+         * [Charts](indicators/averages/tema/charts.md)
       * TRIMA - Triangular Moving Average
       * VIDYA - Variable Index Dynamic Average
       * WMA - Weighted Moving Average

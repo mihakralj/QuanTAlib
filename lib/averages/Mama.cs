@@ -40,7 +40,6 @@ public class Mama : AbstractBase
     public override void Init()
     {
         Fama = new TValue();
-        base.Init();
     }
 
     protected override void ManageState(bool isNew)

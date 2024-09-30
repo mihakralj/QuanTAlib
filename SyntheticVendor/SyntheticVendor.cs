@@ -551,6 +551,10 @@ namespace SyntheticVendorNamespace
                 openValue = 0.0001;
                 closeValue = 100;
             }
+            else
+            {
+                // No action
+            }
 
             return new HistoryItemBar
             {
@@ -778,8 +782,10 @@ namespace SyntheticVendorNamespace
             };
         }
 
-
-        Random random = new Random();
+#pragma warning disable S2245
+        // NOSONAR
+        readonly Random random = new Random();
+#pragma warning restore S2245
         private double currentAmplitude = 100;
         private HistoryItemBar GenerateAMSignal(DateTime time, TimeSpan slice)
         {

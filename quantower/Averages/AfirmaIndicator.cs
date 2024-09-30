@@ -3,23 +3,35 @@ namespace QuanTAlib;
 
 public class AfirmaIndicator : IndicatorBase
 {
-    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Period { get; set; } = 10;
+    [InputParameter("Taps (number of weights)", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Taps { get; set; } = 6;
 
-    [InputParameter("Alpha", sortIndex: 2, 0.01, 0.99, 0.01, 2)]
-    public double Alpha { get; set; } = 0.1;
+    [InputParameter("Periods for lowpass cutoff", sortIndex: 2, 1, 2000, 1, 0)]
+    public int Periods { get; set; } = 6;
+
+
+
+    [InputParameter("Window Type", sortIndex: 3, variants: [
+        "Rectangular", Afirma.WindowType.Rectangular,
+        "Hanning", Afirma.WindowType.Hanning1,
+        "Hamming", Afirma.WindowType.Hanning2,
+        "Blackman", Afirma.WindowType.Blackman,
+        "Blackman-Harris", Afirma.WindowType.BlackmanHarris
+    ])]
+    public Afirma.WindowType Window { get; set; } = Afirma.WindowType.Hanning1;
+
     private Afirma? ma;
     protected override AbstractBase QuanTAlib => ma!;
-    public override string ShortName => $"AFIRMA {Period} : {SourceName}";
+    public override string ShortName => $"AFIRMA {Taps}:{Periods}:{Window} : {SourceName}";
 
     public AfirmaIndicator()
     {
-        Name = "AFIRMA - Adaptive Filtering Integrated Recursive Moving Average";
-        Description = "Adaptive Filtering Integrated Recursive Moving Average";
+        Name = "AFIRMA - Adaptive Finite Impulse Response Moving Average";
+        Description = "Adaptive Finite Impulse Response Moving Average with ARMA component";
     }
 
     protected override void InitIndicator()
     {
-        ma = new Afirma(period: Period, alpha: Alpha);
+        ma = new Afirma(periods: Periods, taps: Taps, window: Window);
     }
 }

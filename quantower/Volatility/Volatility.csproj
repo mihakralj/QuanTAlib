@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AlgoType>Indicator</AlgoType>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
+    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
+    <GenerateGitVersionInformation>true</GenerateGitVersionInformation>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <Compile Include="..\..\lib\**\*.cs" Exclude="..\..\lib\obj\**">
+        <Link>lib\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild"  Condition="'$(IsLocalBuild)' == 'true'">
+    <Copy SourceFiles="$(OutputPath)\Volatility.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Volatility" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\*.cs">
+      <Link>%(Filename)%(Extension)</Link>
+    </Compile>
+    <Reference Include="TradingPlatform.BusinessLayer">
+    <HintPath>..\..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\..\.github\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
+</Project>

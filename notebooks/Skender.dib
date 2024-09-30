@@ -1,0 +1,45 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "nuget:Skender.Stock.Indicators"
+#r "..\lib\obj\Debug\QuanTAlib.dll"
+
+#!csharp
+
+using Skender.Stock.Indicators;
+using QuanTAlib;
+
+GbmFeed gbm = new();
+Atr atr = new(gbm, 5);
+TSeries res = new(atr);
+gbm.Add(100);
+
+IEnumerable<Quote> quotes = gbm.Select(item => new Quote { Date = item.Time, Open = (decimal)item.Open,
+    High = (decimal)item.High, Low = (decimal)item.Low, Close = (decimal)item.Close, Volume = (decimal)item.Volume });
+var SkResults = quotes.GetAtr(5).Select(i => i.Atr.Null2NaN()!);
+for (int i=0; i< gbm.Length; i++) {
+    Console.WriteLine($"{gbm.High[i].Value,6:F2} {gbm.Low[i].Value,6:F2} {gbm.Close[i].Value,6:F2}\t\t{res[i].Value,10:F4} {SkResults.ElementAt(i),10:F4}");
+}
+
+#!csharp
+
+Random rnd = new((int)DateTime.Now.Ticks);
+GbmFeed feed = new(sigma: 0.5, mu: 0.0);
+TBarSeries bars = new(feed);
+feed.Add(20);
+IEnumerable<Quote> quotes;
+
+int period = rnd.Next(5) + 2;
+Atr ma = new(period: period);
+TSeries QL = new();
+foreach (TBar item in bars) {
+    Console.WriteLine($"{ma.Calc(item)}");
+    //QL.Add(ma.Calc(item));
+}
+
+#!csharp
+
+bars
