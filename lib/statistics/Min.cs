@@ -4,7 +4,7 @@ namespace QuanTAlib
 {
     public class Min : AbstractBase
     {
-        public readonly int Period;
+        private readonly int Period;
         private readonly CircularBuffer _buffer;
         private readonly double _halfLife;
         private double _currentMin, _p_currentMin;

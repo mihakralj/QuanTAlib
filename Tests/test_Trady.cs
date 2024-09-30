@@ -8,11 +8,11 @@ public class TradyTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private Random rnd;
+    private readonly Random rnd;
     private readonly double range;
-    private int period, iterations;
-    private int skip;
-     private IEnumerable<IOhlcv> Candles;
+    private readonly int period, iterations;
+    private readonly int skip;
+     private readonly IEnumerable<IOhlcv> Candles;
 
     public TradyTests()
     {

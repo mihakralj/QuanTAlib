@@ -5,7 +5,7 @@ using System.Linq;
 
 public class Skew : AbstractBase
 {
-    public readonly int Period;
+    private readonly int Period;
     private readonly CircularBuffer _buffer;
 
     public Skew(int period)

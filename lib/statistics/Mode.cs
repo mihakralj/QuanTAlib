@@ -2,7 +2,7 @@ namespace QuanTAlib;
 
 public class Mode : AbstractBase
 {
-    public readonly int Period;
+    private readonly int Period;
     private readonly CircularBuffer _buffer;
 
     public Mode(int period)

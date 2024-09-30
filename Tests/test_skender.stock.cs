@@ -6,7 +6,7 @@ public class SkenderTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private Random rnd;
+    private readonly Random rnd;
     private readonly double range;
     private int period, iterations;
     private readonly IEnumerable<Quote> quotes;

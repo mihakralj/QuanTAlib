@@ -6,7 +6,7 @@ using System.Linq;
 // Shannon's Entropy calculation
 public class Entropy : AbstractBase
 {
-    public readonly int Period;
+    private readonly int Period;
     private readonly CircularBuffer _buffer;
 
     public Entropy(int period)

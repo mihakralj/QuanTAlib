@@ -6,9 +6,10 @@ public class TAlibTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private Random rnd;
+    private readonly Random rnd;
     private readonly double range;
-    private int period, iterations;
+    private int period;
+    private int readonly iterations;
     private readonly double[] data;
     private readonly double[] TALIB;
 
@@ -78,7 +79,7 @@ public class TAlibTests
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Dema(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
             Assert.Equal(QL.Length, TALIB.Length);
-            for (int i = QL.Length - 1; i > period*20; i--)
+            for (int i = QL.Length - 1; i > period * 20; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
                 Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
@@ -98,7 +99,7 @@ public class TAlibTests
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Tema(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
             Assert.Equal(QL.Length, TALIB.Length);
-            for (int i = QL.Length - 1; i > period*20; i--)
+            for (int i = QL.Length - 1; i > period * 20; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
                 Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
@@ -116,9 +117,9 @@ public class TAlibTests
             TSeries QL = new();
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
-            Core.T3(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _,  optInTimePeriod: period, optInVFactor: 0.7);
+            Core.T3(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, optInTimePeriod: period, optInVFactor: 0.7);
             Assert.Equal(QL.Length, TALIB.Length);
-            for (int i = QL.Length - 1; i > period*20; i--)
+            for (int i = QL.Length - 1; i > period * 20; i--)
             {
                 double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
                 Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);

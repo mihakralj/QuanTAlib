@@ -5,8 +5,8 @@ namespace QuanTAlib
 {
     public class Stddev : AbstractBase
     {
-        public readonly int Period;
-        public readonly bool IsPopulation;
+        private readonly int Period;
+        private readonly bool IsPopulation;
         private readonly CircularBuffer _buffer;
 
         public Stddev(int period, bool isPopulation = false)

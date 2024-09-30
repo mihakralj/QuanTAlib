@@ -3,7 +3,7 @@ namespace QuanTAlib;
 // Excess kurtosis calculated with Sheskin Algorithm
 public class Kurtosis : AbstractBase
 {
-    public readonly int Period;
+    private readonly int Period;
     private readonly CircularBuffer _buffer;
 
     public Kurtosis(int period)

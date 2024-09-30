@@ -5,7 +5,7 @@ namespace QuanTAlib
 {
     public class Median : AbstractBase
     {
-        public readonly int Period;
+        private readonly int Period;
         private readonly CircularBuffer _buffer;
 
         public Median(int period)
