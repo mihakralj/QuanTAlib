@@ -14,7 +14,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
 
     [InputParameter("Show cold values", sortIndex: 20)]
     public bool ShowColdValues { get; set; } = true;
-    public int MinHistoryDepths;
+    public int MinHistoryDepths { get; set; }
 
     // LineSeries.LineSeries(string, Color, int, LineStyle)'
 
@@ -30,13 +30,9 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
         Series = new(name: $"{Name}", color: Color.RoyalBlue, width: 2, style: LineStyle.Solid);
 
         AddLineSeries(Series);
-        InitIndicator();
     }
 
-    protected virtual void InitIndicator()
-    {
-        SourceName = GetName(Source);
-    }
+    protected abstract void InitIndicator();
 
     protected override void OnInit()
     {
@@ -64,7 +60,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         List<Point> allPoints = new List<Point>();
-        if (CurrentChart == null) return;
+        if (CurrentChart == null) { return; }
 
         Graphics gr = args.Graphics;
 
@@ -96,7 +92,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
 
     private void DrawSmoothCombinedCurve(Graphics gr, List<Point> allPoints, int hotCount)
     {
-        if (allPoints.Count < 2) return;
+        if (allPoints.Count < 2) { return; }
 
         using (Pen defaultPen = new(Series!.Color, Series.Width) { DashStyle = ConvertLineStyleToDashStyle(Series.Style) })
         using (Pen coldPen = new(Series!.Color, Series.Width) { DashStyle = DashStyle.Dot })
@@ -116,7 +112,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
             }
         }
     }
-    private DashStyle ConvertLineStyleToDashStyle(LineStyle lineStyle)
+    private static DashStyle ConvertLineStyleToDashStyle(LineStyle lineStyle)
     {
         return lineStyle switch
         {
@@ -127,7 +123,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
             _ => DashStyle.Solid,
         };
     }
-    protected void DrawText(Graphics gr, string text, Rectangle clientRect)
+    protected static void DrawText(Graphics gr, string text, Rectangle clientRect)
     {
         Font font = new Font("Inter", 8);
         SizeF textSize = gr.MeasureString(text, font);
