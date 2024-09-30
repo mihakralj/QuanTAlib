@@ -84,7 +84,8 @@ public class TBarSeries : List<TBar>
 
     public new virtual void Add(TBar bar)
     {
-        if (bar.IsNew) { base.Add(bar); } else { this[^1] = bar; }
+        if (bar.IsNew || base.Count == 0) { base.Add(bar); }
+        else { this[^1] = bar; }
         Pub?.Invoke(this, new TBarEventArgs(bar));
 
         Open.Add(bar.Time, bar.Open, IsNew: bar.IsNew, IsHot: true);

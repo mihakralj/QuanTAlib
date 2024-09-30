@@ -8,7 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-    <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.21459.1" />
     <Compile Include="..\..\lib\**\*.cs" Exclude="..\..\lib\obj\**">
         <Link>lib\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>

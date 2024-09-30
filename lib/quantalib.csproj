@@ -23,7 +23,6 @@
   <ItemGroup>
     <None Include="readme.md" Pack="true" PackagePath=""/>
     <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath=""/>
-    <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.24229.4" />
     <PackageReference Include="System.Text.Json" Version="9.0.0-rc.1.24431.7" />
   </ItemGroup>
 

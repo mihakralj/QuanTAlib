@@ -16,17 +16,14 @@
 
 **Quan**titative **TA** **lib**rary (QuanTAlib) is a C# library of classess and methods for quantitative technical analysis useful for analyzing quotes with [Quantower](https://www.quantower.com/) and other C#-based trading platforms.
 
-[**Visit documentation pages**](https://mihakralj.github.io/QuanTAlib/#/)
+[**Visit documentation pages**](https://mihakralj.github.io/QuanTAlib/#/)<br>
+[**List of indicators - implemented and planned**](indicators/indicators.md)
 
 **QuanTAlib** is a C# library written with some specific design criteria in mind. Here is why there is '_yet another C# TA library_':
 
 - QuanTAlib focuses on **[real-time data analysis](essays/realtime.md)**: As new data items arrives, indicators don't have to re-calculate the entire history and can generate a result directly from the last item
 - **Allow updates/corrections** of the last quote - QuanTAlib is re-calculating the last value as many times as required before continuing to the new bar
 - **Calculate early data right** - calculated data is as valid as mathematically possible from the first value onwards - no blackout or warming-up periods. All indicators return data from the first bar, alongside with a flag `isHot` - defining if calculation is already stable.
-
-### Coverage
-
-[List of indicators - implemented and planned](indicators/indicators.md)
 
 ## Installation to Quantower
 

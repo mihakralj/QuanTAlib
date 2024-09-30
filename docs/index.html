@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css" integrity="sha384-G+RAlt+LEfAH/nY+DZh3+XIhRboypMI32hiJ9BwnmjF41May5BWQKyrDrEkNdV/i" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css" integrity="sha384-3UiQGuEI4TTMaFmGIZumfRPtfKQ3trwQE2JgosJxCnGmQpL/lJdjpcHkaaFwHlcI" crossorigin="anonymous">
+
   <style>
     .markdown-section {
       max-width: none !important;
@@ -18,7 +19,7 @@
       font-size: 12px;
     }
     .markdown-section table tbody td {
-    padding: 4px 1px;
+      padding: 4px 1px;
     }
     :root {
       --sidebar-width: 350px;
@@ -32,7 +33,34 @@
     .sidebar-toggle {
       width: var(--sidebar-width);
     }
+    /* Updated styles for partially expandable sidebar */
+    .sidebar-nav ul ul ul ul {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease-out;
+    }
+    .sidebar-nav ul ul ul li:hover > ul {
+      max-height: 1000px;
+      transition: max-height 0.3s ease-in;
+    }
+    .sidebar-nav .collapse.level-4 > ul {
+      max-height: 0 !important;
+    }
+    .sidebar-nav .collapse.level-4:hover > ul {
+      max-height: 1000px !important;
+    }
+    .sidebar-nav .folder > .app-sub-sidebar {
+      display: block !important;
+    }
+    /* Ensure levels 1, 2, and 3 are always visible */
+    .sidebar-nav > ul,
+    .sidebar-nav > ul > li > ul,
+    .sidebar-nav > ul > li > ul > li > ul {
+      max-height: none !important;
+      overflow: visible !important;
+    }
   </style>
+
 </head>
 <body>
   <div id="app"></div>
@@ -40,10 +68,10 @@
     window.$docsify = {
       homepage: 'readme.md',
       loadSidebar: true,
-      subMaxLevel: 1,
+      subMaxLevel: 4, // Increased to allow for level 4+ items
       name: '',
       repo: '',
-      sidebarDisplayLevel: 2,
+      sidebarDisplayLevel: 3, // Changed to keep levels 1, 2, and 3 expanded
       themeable: {
         readyTransition: true,
         responsiveTables: true

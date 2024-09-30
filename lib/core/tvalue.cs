@@ -60,7 +60,7 @@ public class TSeries : List<TValue>
 
     public new virtual void Add(TValue tick)
     {
-        if (tick.IsNew) { base.Add(tick); }
+        if (tick.IsNew || base.Count==0) { base.Add(tick); }
         else { this[^1] = tick; }
         Pub?.Invoke(this, new ValueEventArgs(tick));
     }

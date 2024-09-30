@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild"  Condition="'$(IsLocalBuild)' == 'true'">
-    <Copy SourceFiles="$(OutputPath)\Statistics.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Statistics" />
+    <Copy SourceFiles="$(OutputPath)\Volatility.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Volatility" />
   </Target>
 
   <ItemGroup>

@@ -1,0 +1,13 @@
+{
+    "sonarlint.connectedMode.connections.sonarcloud": [
+        {
+            "organizationKey": "mihakralj",
+            "token": "6df7cd62a17dc4e1c5532df1da2f49d5a977dd50",
+            "connectionId": "mihakralj"
+        }
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "mihakralj",
+        "projectKey": "mihakralj_QuanTAlib"
+    }
+}

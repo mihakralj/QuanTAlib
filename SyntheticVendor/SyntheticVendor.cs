@@ -540,7 +540,10 @@ namespace SyntheticVendorNamespace
                 openValue = 0.0001;
                 closeValue = 100;
             }
-            else { }
+            else
+            {
+                // No action
+            }
 
             return new HistoryItemBar
             {

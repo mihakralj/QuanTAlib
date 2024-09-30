@@ -1,7 +1,6 @@
 namespace QuanTAlib;
 
-public class T3 : AbstractBase
-{
+public class T3 : AbstractBase {
     private readonly int _period;
     private readonly bool _useSma;
     private readonly double _k, _c1, _c2, _c3, _c4;
@@ -9,10 +8,8 @@ public class T3 : AbstractBase
     private double _lastEma1, _lastEma2, _lastEma3, _lastEma4, _lastEma5, _lastEma6;
     private double _p_lastEma1, _p_lastEma2, _p_lastEma3, _p_lastEma4, _p_lastEma5, _p_lastEma6;
 
-    public T3(int period, double vfactor = 0.7, bool useSma = true)
-    {
-        if (period < 1)
-        {
+    public T3(int period, double vfactor = 0.7, bool useSma = true) {
+        if (period < 1) {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
@@ -37,15 +34,12 @@ public class T3 : AbstractBase
         Init();
     }
 
-    public T3(object source, int period, double vfactor = 0.7, bool useSma = true) : this(period, vfactor, useSma)
-    {
+    public T3(object source, int period, double vfactor = 0.7, bool useSma = true) : this(period, vfactor, useSma) {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    public override void Init()
-    {
-        base.Init();
+    public override void Init() {
         _lastEma1 = _lastEma2 = _lastEma3 = _lastEma4 = _lastEma5 = _lastEma6 = 0;
         _buffer1.Clear();
         _buffer2.Clear();
@@ -55,10 +49,8 @@ public class T3 : AbstractBase
         _buffer6.Clear();
     }
 
-    protected override void ManageState(bool isNew)
-    {
-        if (isNew)
-        {
+    protected override void ManageState(bool isNew) {
+        if (isNew) {
             _lastValidValue = Input.Value;
             _index++;
             _p_lastEma1 = _lastEma1;
@@ -67,9 +59,7 @@ public class T3 : AbstractBase
             _p_lastEma4 = _lastEma4;
             _p_lastEma5 = _lastEma5;
             _p_lastEma6 = _lastEma6;
-        }
-        else
-        {
+        } else {
             _lastEma1 = _p_lastEma1;
             _lastEma2 = _p_lastEma2;
             _lastEma3 = _p_lastEma3;
@@ -80,18 +70,14 @@ public class T3 : AbstractBase
     }
 
 
-    protected override double Calculation()
-    {
+    protected override double Calculation() {
         ManageState(Input.IsNew);
 
         double ema1, ema2, ema3, ema4, ema5, ema6;
 
-        if (_index == 1)
-        {
+        if (_index == 1) {
             ema1 = ema2 = ema3 = ema4 = ema5 = ema6 = Input.Value;
-        }
-        else if (_index <= _period && _useSma)
-        {
+        } else if (_index <= _period && _useSma) {
             _buffer1.Add(Input.Value, Input.IsNew);
             ema1 = _buffer1.Average();
             _buffer2.Add(ema1, Input.IsNew);
@@ -104,9 +90,7 @@ public class T3 : AbstractBase
             ema5 = _buffer5.Average();
             _buffer6.Add(ema5, Input.IsNew);
             ema6 = _buffer6.Average();
-        }
-        else
-        {
+        } else {
             ema1 = _k * (Input.Value - _lastEma1) + _lastEma1;
             ema2 = _k * (ema1 - _lastEma2) + _lastEma2;
             ema3 = _k * (ema2 - _lastEma3) + _lastEma3;
