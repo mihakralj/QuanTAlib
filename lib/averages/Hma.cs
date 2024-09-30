@@ -2,7 +2,6 @@ namespace QuanTAlib;
 
 public class Hma : AbstractBase
 {
-    private readonly int _period, _sqrtPeriod;
     private readonly Convolution _wmaHalf, _wmaFull, _wmaFinal;
 
     public Hma(int period)
@@ -11,13 +10,12 @@ public class Hma : AbstractBase
         {
             throw new ArgumentException("Period must be greater than or equal to 2.", nameof(period));
         }
-        _period = period;
-        _sqrtPeriod = (int)Math.Sqrt(period);
+        int _sqrtPeriod = (int)Math.Sqrt(period);
         _wmaHalf = new Convolution(GenerateWmaKernel(period / 2));
         _wmaFull = new Convolution(GenerateWmaKernel(period));
         _wmaFinal = new Convolution(GenerateWmaKernel(_sqrtPeriod));
         Name = "Hma";
-        WarmupPeriod = _period + _sqrtPeriod - 1;
+        WarmupPeriod = period + _sqrtPeriod - 1;
         Init();
     }
 

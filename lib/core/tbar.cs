@@ -30,15 +30,11 @@ public readonly record struct TBar(DateTime Time, double Open, double High, doub
 
     public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
     public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
-
-    // when TBar casts to double, it returns its Close
-    public static implicit operator double(TBar bar) => bar.Close;
-    public static implicit operator DateTime(TBar tv) => tv.Time;
-
-    // castings for sloppy people - a single double injected into a TBar, and a single TValue injected into a TBar
     public TBar(double value) : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
     public TBar(TValue value) : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
 
+    public static implicit operator double(TBar bar) => bar.Close;
+    public static implicit operator DateTime(TBar tv) => tv.Time;
     public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
 }
 
@@ -70,11 +66,8 @@ public class TBarSeries : List<TBar>
     public TBarSeries()
     {
         this.Name = "Bar";
-        Open = new();
-        High = new();
-        Low = new();
-        Close = new();
-        Volume = new();
+        (Open, High, Low, Close, Volume) = ([], [], [], [], []);
+
     }
     public TBarSeries(object source) : this()
     {

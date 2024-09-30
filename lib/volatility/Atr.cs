@@ -2,7 +2,6 @@ namespace QuanTAlib;
 
 public class Atr : AbstractBarBase
 {
-    private readonly int _period;
     private readonly Ema _ma;
     private double _prevClose, _p_prevClose;
 
@@ -12,10 +11,9 @@ public class Atr : AbstractBarBase
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        _period = period;
         _ma = new(1.0/period);
         WarmupPeriod = _ma.WarmupPeriod;
-        Name = $"ATR({_period})";
+        Name = $"ATR({period})";
     }
 
     public Atr(object source, int period) : this(period)

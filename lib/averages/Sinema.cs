@@ -2,7 +2,6 @@ namespace QuanTAlib;
 
 public class Sinema : AbstractBase
 {
-    private readonly int _period;
     private readonly Convolution _convolution;
 
     public Sinema(int period)
@@ -11,8 +10,7 @@ public class Sinema : AbstractBase
         {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _period = period;
-        _convolution = new Convolution(GenerateKernel(_period));
+        _convolution = new Convolution(GenerateKernel(period));
         Name = "Sinema";
         WarmupPeriod = period;
         Init();

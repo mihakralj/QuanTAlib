@@ -18,6 +18,7 @@ namespace QuanTAlib
         [
             new Ema(period: 10, useSma: true),
             new Alma(period: 14, offset: 0.85, sigma: 6),
+            new Afirma(periods: 4, taps: 4, window: Afirma.WindowType.Blackman),
             new Convolution(new double[] { 1.0, 2, 3, 2, 1 }),
             new Dema(period: 14),
             new Dsma(period: 14),

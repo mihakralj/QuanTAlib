@@ -27,11 +27,6 @@ namespace QuanTAlib
             pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
         }
 
-        public override void Init()
-        {
-            base.Init();
-        }
-
         protected override void ManageState(bool isNew)
         {
             if (isNew)

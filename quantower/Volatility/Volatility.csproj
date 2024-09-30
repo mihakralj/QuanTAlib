@@ -18,6 +18,9 @@
   </Target>
 
   <ItemGroup>
+    <Compile Include="..\*.cs">
+      <Link>%(Filename)%(Extension)</Link>
+    </Compile>
     <Reference Include="TradingPlatform.BusinessLayer">
     <HintPath>..\..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

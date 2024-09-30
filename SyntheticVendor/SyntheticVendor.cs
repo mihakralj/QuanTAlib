@@ -751,8 +751,10 @@ namespace SyntheticVendorNamespace
             };
         }
 
-
+#pragma warning disable S2245
+        // NOSONAR
         readonly Random random = new Random();
+#pragma warning restore S2245
         private double currentAmplitude = 100;
         private HistoryItemBar GenerateAMSignal(DateTime time, TimeSpan slice)
         {
