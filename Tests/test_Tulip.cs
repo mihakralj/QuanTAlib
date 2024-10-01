@@ -9,7 +9,7 @@ public class TulipTests
     private readonly Random rnd;
     private readonly double range;
     private int period;
-    private int readonly iterations;
+    private readonly int iterations;
     private readonly double[] data;
     private readonly double[] outdata;
     private readonly int skip;
