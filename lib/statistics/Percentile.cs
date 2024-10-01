@@ -5,9 +5,9 @@ using System.Linq;
 
 public class Percentile : AbstractBase
 {
-    public readonly int Period;
-    public readonly double Percent;
-    private CircularBuffer _buffer;
+    private readonly int Period;
+    private readonly double Percent;
+    private readonly CircularBuffer _buffer;
 
     public Percentile(int period, double percent) : base()
     {

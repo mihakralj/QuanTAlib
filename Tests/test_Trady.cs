@@ -8,11 +8,12 @@ public class TradyTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private Random rnd;
+    private readonly Random rnd;
     private readonly double range;
-    private int period, iterations;
-    private int skip;
-     private IEnumerable<IOhlcv> Candles;
+    private readonly int iterations;
+    private int period;
+    private readonly int skip;
+    private readonly IEnumerable<IOhlcv> Candles;
 
     public TradyTests()
     {
@@ -44,20 +45,20 @@ public class TradyTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
 
-           var Trady = new SimpleMovingAverage(Candles, period)
-                .Compute()
-                .Select(result => new
-                {
-                    Date = result.DateTime,
-                    Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
-                })
-                .ToList();
+            var Trady = new SimpleMovingAverage(Candles, period)
+                 .Compute()
+                 .Select(result => new
+                 {
+                     Date = result.DateTime,
+                     Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
+                 })
+                 .ToList();
 
             Assert.Equal(QL.Length, Trady.Count);
             for (int i = QL.Length - 1; i > skip; i--)
             {
                 double QL_item = QL[i].Value;
-                double Tr_item =  Trady[i].Value;
+                double Tr_item = Trady[i].Value;
                 Assert.InRange(Tr_item - QL_item, -range, range);
             }
         }
@@ -74,20 +75,20 @@ public class TradyTests
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
 
-           var Trady = new ExponentialMovingAverage(Candles, period)
-                .Compute()
-                .Select(result => new
-                {
-                    Date = result.DateTime,
-                    Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
-                })
-                .ToList();
+            var Trady = new ExponentialMovingAverage(Candles, period)
+                 .Compute()
+                 .Select(result => new
+                 {
+                     Date = result.DateTime,
+                     Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
+                 })
+                 .ToList();
 
             Assert.Equal(QL.Length, Trady.Count);
-            for (int i = QL.Length - 1; i > skip*2; i--)
+            for (int i = QL.Length - 1; i > skip * 2; i--)
             {
                 double QL_item = QL[i].Value;
-                double Tr_item =  Trady[i].Value;
+                double Tr_item = Trady[i].Value;
                 Assert.InRange(Tr_item - QL_item, -range, range);
             }
         }

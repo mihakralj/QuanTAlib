@@ -5,9 +5,9 @@ namespace QuanTAlib
 {
     public class Variance : AbstractBase
     {
-        public readonly int Period;
-        public readonly bool IsPopulation;
-        private CircularBuffer _buffer;
+        private readonly int Period;
+        private readonly bool IsPopulation;
+        private readonly CircularBuffer _buffer;
 
         public Variance(int period, bool isPopulation = false) : base()
         {

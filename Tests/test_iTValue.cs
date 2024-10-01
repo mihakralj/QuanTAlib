@@ -5,7 +5,7 @@ namespace QuanTAlib
 {
     public class IndicatorTests
     {
-        private Random rnd;
+        private readonly Random rnd;
         private const int SeriesLen = 1000;
         private const int Corrections = 100;
 

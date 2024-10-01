@@ -5,8 +5,8 @@ using System.Linq;
 
 public class Zscore : AbstractBase
 {
-    public readonly int Period;
-    private CircularBuffer _buffer;
+    private readonly int Period;
+    private readonly CircularBuffer _buffer;
 
     public Zscore(int period) : base()
     {

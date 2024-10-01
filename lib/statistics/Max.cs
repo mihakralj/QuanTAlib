@@ -4,8 +4,8 @@ namespace QuanTAlib
 {
     public class Max : AbstractBase
     {
-        public readonly int Period;
-        private CircularBuffer _buffer;
+        private readonly int Period;
+        private readonly CircularBuffer _buffer;
         private readonly double _halfLife;
         private double _currentMax, _p_currentMax;
         private int _timeSinceNewMax, _p_timeSinceNewMax;
