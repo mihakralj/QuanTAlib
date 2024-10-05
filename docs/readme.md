@@ -27,9 +27,10 @@
 
 ## Installation to Quantower
 
-- `<Quantower_root>` is the directory where Quantower is installed - where `Start.lnk` launcher is
+- `<Quantower_root>` is the directory where Quantower is installed - where `Start.lnk` launcher is. Copy any or all `dll` files as below:
 - Copy `Averages.dll` from Releases to `<Quantower_root>\Settings\Scripts\Indicators\Averages\Averages.dll`
 - Copy `Statistics.dll` from Releases to `<Quantower_root>\Settings\Scripts\Indicators\Statistics\Statistics.dll`
+- Copy `Volatility.dll` from Releases to `<Quantower_root>\Settings\Scripts\Indicators\Volatility\Volatility.dll`
 - Copy `SyntheticVendor.dll` from Releases to `<Quantower_root>\Settings\Scripts\Vendors\SyntheticVendor\SyntheticVendor.dll`
 
 
