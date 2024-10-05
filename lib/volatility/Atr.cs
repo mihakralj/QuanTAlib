@@ -19,7 +19,7 @@ public class Atr : AbstractBarBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1.
     /// </exception>
-    public Atr(int period) : base() {
+    public Atr(int period) {
         if (period < 1) {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }

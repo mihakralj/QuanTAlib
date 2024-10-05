@@ -8,8 +8,7 @@ public class TAlibTests
     private readonly GbmFeed feed;
     private readonly Random rnd;
     private readonly double range;
-    private int period;
-    private readonly int iterations;
+        private readonly int iterations;
     private readonly double[] data;
     private readonly double[] TALIB;
 
@@ -32,7 +31,7 @@ public class TAlibTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Sma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -52,7 +51,7 @@ public class TAlibTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Ema ma = new(period, useSma: true);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -72,7 +71,7 @@ public class TAlibTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Dema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -92,7 +91,7 @@ public class TAlibTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Tema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -135,7 +134,7 @@ public class TAlibTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             T3 ma = new(period, vfactor: 0.7, useSma: false);
             TSeries QL = new();
             foreach (TBar item in feed)
