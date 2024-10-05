@@ -1,5 +1,5 @@
 # Backlog and done
 
-|**QT**|**Cht**|Cmnt|Docs|isNew|Valid|
+|**QT**|**Chart**|Cmnt|Docs|isNew|Validation|
 |--|:--:|:--:|:--:|:--:|:--:|
 |AFIRMA|✔️|||||

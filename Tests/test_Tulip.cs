@@ -8,7 +8,6 @@ public class TulipTests
     private readonly GbmFeed feed;
     private readonly Random rnd;
     private readonly double range;
-    private int period;
     private readonly int iterations;
     private readonly double[] data;
     private readonly double[] outdata;
@@ -32,7 +31,7 @@ public class TulipTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Sma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -56,8 +55,7 @@ public class TulipTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
-            period = 20;
+            int period = rnd.Next(30) + 5;
             Ema ma = new(period, useSma: false);
             TSeries QL = new();
             foreach (TBar item in feed)

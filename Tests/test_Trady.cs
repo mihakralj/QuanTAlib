@@ -11,7 +11,6 @@ public class TradyTests
     private readonly Random rnd;
     private readonly double range;
     private readonly int iterations;
-    private int period;
     private readonly int skip;
     private readonly IEnumerable<IOhlcv> Candles;
 
@@ -39,7 +38,7 @@ public class TradyTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Sma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -69,7 +68,7 @@ public class TradyTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = rnd.Next(50) + 5;
             Ema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
