@@ -8,9 +8,9 @@ public class QemaIndicator : IndicatorBase
 
     [InputParameter("alpha 2", sortIndex: 2, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
     public double k2 { get; set; } = 0.3;
-        [InputParameter("alpha 3", sortIndex: 3, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
+    [InputParameter("alpha 3", sortIndex: 3, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
     public double k3 { get; set; } = 0.4;
-        [InputParameter("alpha 4", sortIndex: 4, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
+    [InputParameter("alpha 4", sortIndex: 4, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
     public double k4 { get; set; } = 0.5;
     private Qema? ma;
     protected override AbstractBase QuanTAlib => ma!;

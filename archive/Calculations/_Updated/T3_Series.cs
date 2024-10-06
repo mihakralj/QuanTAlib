@@ -14,8 +14,7 @@ Sources:
     http://www.binarytribune.com/forex-trading-indicators/t3-moving-average-indicator/
 </summary> */
 
-public class T3_Series : TSeries
-{
+public class T3_Series : TSeries {
     private readonly double _k, _k1m, _c1, _c2, _c3, _c4;
     private readonly System.Collections.Generic.List<double> _buffer1 = new();
     private readonly System.Collections.Generic.List<double> _buffer2 = new();
@@ -32,8 +31,7 @@ public class T3_Series : TSeries
     protected readonly TSeries _data;
 
     //core constructors
-    public T3_Series(int period, double vfactor, bool useSMA, bool useNaN)
-    {
+    public T3_Series(int period, double vfactor, bool useSMA, bool useNaN) {
         _period = period;
         _len = 0;
         _NaN = useNaN;
@@ -49,8 +47,7 @@ public class T3_Series : TSeries
         _k1m = 1.0 - _k;
         _lastema1 = _llastema1 = _lastema2 = _llastema2 = _lastema3 = _llastema3 = _lastema4 = _llastema4 = _lastema5 = _llastema5 = _lastema5 = _llastema5 = 0;
     }
-    public T3_Series(TSeries source, int period, double vfactor, bool useSMA, bool useNaN) : this(period, vfactor, useSMA, useNaN)
-    {
+    public T3_Series(TSeries source, int period, double vfactor, bool useSMA, bool useNaN) : this(period, vfactor, useSMA, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -71,22 +68,18 @@ public class T3_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
         double _ema1, _ema2, _ema3, _ema4, _ema5, _ema6;
-        if (double.IsNaN(TValue.v))
-        {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
 
-        if (update) { _lastema1 = _llastema1; _lastema2 = _llastema2; _lastema3 = _llastema3; _lastema4 = _llastema4; _lastema5 = _llastema5; _lastema6 = _llastema6; }
-        else { _llastema1 = _lastema1; _llastema2 = _lastema2; _llastema3 = _lastema3; _llastema4 = _lastema4; _llastema5 = _lastema5; _llastema6 = _lastema6; }
+        if (update) { _lastema1 = _llastema1; _lastema2 = _llastema2; _lastema3 = _llastema3; _lastema4 = _llastema4; _lastema5 = _llastema5; _lastema6 = _llastema6; } else { _llastema1 = _lastema1; _llastema2 = _lastema2; _llastema3 = _lastema3; _llastema4 = _lastema4; _llastema5 = _lastema5; _llastema6 = _lastema6; }
 
         if (_len == 0) { _lastema1 = _lastema2 = _lastema3 = _lastema4 = _lastema5 = _lastema6 = TValue.v; }
 
 
-        if ((_len < _period) && _useSMA)
-        {
+        if ((_len < _period) && _useSMA) {
             BufferTrim(_buffer1, TValue.v, _period, update);
             _ema1 = 0;
             for (int i = 0; i < _buffer1.Count; i++) { _ema1 += _buffer1[i]; }
@@ -116,9 +109,7 @@ public class T3_Series : TSeries
             _ema6 = 0;
             for (int i = 0; i < _buffer6.Count; i++) { _ema6 += _buffer6[i]; }
             _ema6 /= _buffer6.Count;
-        }
-        else
-        {
+        } else {
             _ema1 = (TValue.v * this._k) + (this._lastema1 * this._k1m);
             _ema2 = (_ema1 * this._k) + (this._lastema2 * this._k1m);
             _ema3 = (_ema2 * this._k) + (this._lastema3 * this._k1m);
@@ -139,28 +130,23 @@ public class T3_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _lastema1 = _llastema1 = _lastema2 = _llastema2 = _lastema3 = _llastema3 = _lastema4 = _llastema4 = _lastema5 = _llastema5 = _lastema5 = _llastema5 = 0;
         _buffer1.Clear();
         _buffer2.Clear();

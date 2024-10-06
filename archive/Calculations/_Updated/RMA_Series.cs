@@ -20,8 +20,7 @@ Issues:
 
 </summary> */
 
-public class RMA_Series : TSeries
-{
+public class RMA_Series : TSeries {
     private double _k;
     private double _lastrma, _oldrma;
     private double _sum, _oldsum;
@@ -32,8 +31,7 @@ public class RMA_Series : TSeries
     protected readonly TSeries _data;
 
     //core constructor
-    public RMA_Series(int period, bool useNaN, bool useSMA)
-    {
+    public RMA_Series(int period, bool useNaN, bool useSMA) {
         _period = period;
         _NaN = useNaN;
         _useSMA = useSMA;
@@ -51,8 +49,7 @@ public class RMA_Series : TSeries
     public RMA_Series(TBars source, int period, bool useNaN) : this(source.Close, period, useNaN) { }
     public RMA_Series(TSeries source, int period) : this(source, period, false, true) { }
     public RMA_Series(TSeries source, int period, bool useNaN) : this(source, period, useNaN, true) { }
-    public RMA_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA)
-    {
+    public RMA_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -60,42 +57,31 @@ public class RMA_Series : TSeries
     }
 
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (update)
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (update) {
             _lastrma = _oldrma;
             _sum = _oldsum;
-        }
-        else
-        {
+        } else {
             _oldrma = _lastrma;
             _oldsum = _sum;
             _len++;
         }
 
         double _rma = 0;
-        if (_period == 0)
-        {
+        if (_period == 0) {
             _k = 1.0 / (double)(this._len);
         }
 
-        if (Count == 0)
-        {
+        if (Count == 0) {
             _rma = _sum = TValue.v;
 
-        }
-        else if (_len <= _period && _useSMA && _period != 0)
-        {
+        } else if (_len <= _period && _useSMA && _period != 0) {
             _sum += TValue.v;
-            if (_period != 0 && _len > _period)
-            {
+            if (_period != 0 && _len > _period) {
                 _sum -= _data[Count - _period - (update ? 1 : 0)].v;
             }
             _rma = _sum / Math.Min(_len, _period);
-        }
-        else
-        {
+        } else {
             _rma = _k * (TValue.v - _lastrma) + _lastrma;
         }
 
@@ -105,28 +91,23 @@ public class RMA_Series : TSeries
     }
 
     //variation of Add()
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _sum = _oldsum = _lastrma = _oldrma = 0;
         _len = 0;
     }

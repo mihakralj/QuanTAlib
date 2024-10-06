@@ -21,8 +21,7 @@ Issues:
 
 </summary> */
 
-public class JMA_Series : TSeries
-{
+public class JMA_Series : TSeries {
     protected readonly int _period;
     protected readonly bool _NaN;
     protected readonly TSeries _data;
@@ -35,8 +34,7 @@ public class JMA_Series : TSeries
     private readonly int _voltyS, _voltyL;
 
     //core constructors
-    public JMA_Series(int period, double phase, int vshort, int vlong, bool useNaN)
-    {
+    public JMA_Series(int period, double phase, int vshort, int vlong, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"JMA({period})";
@@ -48,8 +46,7 @@ public class JMA_Series : TSeries
         _voltyL = vlong;
     }
 
-    public JMA_Series(TSeries source, int period, double phase, int vshort, int vlong, bool useNaN) : this(period, phase, vshort, vlong, useNaN)
-    {
+    public JMA_Series(TSeries source, int period, double phase, int vshort, int vlong, bool useNaN) : this(period, phase, vshort, vlong, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -66,11 +63,9 @@ public class JMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
         if (this.Count == 0) { prev_ma1 = prev_jma = TValue.v; }
-        if (update)
-        {
+        if (update) {
             upperBand = p_upperBand;
             lowerBand = p_lowerBand;
             Kv = p_Kv;
@@ -79,9 +74,7 @@ public class JMA_Series : TSeries
             prev_det0 = p_prev_det0;
             prev_det1 = p_prev_det1;
             prev_jma = p_prev_jma;
-        }
-        else
-        {
+        } else {
             p_upperBand = upperBand;
             p_lowerBand = lowerBand;
             p_Kv = Kv;
@@ -92,8 +85,7 @@ public class JMA_Series : TSeries
             p_prev_jma = prev_jma;
         }
 
-        if (double.IsNaN(TValue.v))
-        {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, double.NaN), update);
         }
 
@@ -107,13 +99,11 @@ public class JMA_Series : TSeries
                      Math.Abs(0.5 * (del1 + del2)));
 
         //// from volty to avolty
-        if (update) { volty_short[volty_short.Count - 1] = volty; }
-        else { volty_short.Add(volty); }
+        if (update) { volty_short[volty_short.Count - 1] = volty; } else { volty_short.Add(volty); }
         if (volty_short.Count > _voltyS) { volty_short.RemoveAt(0); }
         vsum = prev_vsum + 0.1 * (volty - volty_short.First());
         prev_vsum = vsum;
-        if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; }
-        else { vsum_buff.Add(vsum); }
+        if (update) { vsum_buff[vsum_buff.Count - 1] = vsum; } else { vsum_buff.Add(vsum); }
         if (vsum_buff.Count > _voltyL) { vsum_buff.RemoveAt(0); }
         double avolty = 0;
         for (int i = 0; i < vsum_buff.Count; i++) { avolty += vsum_buff[i]; }
@@ -149,28 +139,23 @@ public class JMA_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         upperBand = lowerBand = prev_ma1 = prev_det0 = prev_det1 = prev_vsum = prev_jma = Kv = 0.0;
     }
 }

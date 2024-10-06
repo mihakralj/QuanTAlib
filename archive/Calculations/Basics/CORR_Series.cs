@@ -15,10 +15,8 @@ Sources:
 
 </summary> */
 
-public class CORR_Series : Pair_TSeries_Indicator
-{
-    public CORR_Series(TSeries d1, TSeries d2, int period, bool useNaN = false) : base(d1, d2, period, useNaN)
-    {
+public class CORR_Series : Pair_TSeries_Indicator {
+    public CORR_Series(TSeries d1, TSeries d2, int period, bool useNaN = false) : base(d1, d2, period, useNaN) {
         if (base._d1.Count > 0 && base._d2.Count > 0) { for (int i = 0; i < base._d1.Count; i++) { this.Add(base._d1[i], base._d2[i], false); } }
     }
 
@@ -28,8 +26,7 @@ public class CORR_Series : Pair_TSeries_Indicator
     private readonly System.Collections.Generic.List<double> _yy = new();
     private readonly System.Collections.Generic.List<double> _xy = new();
 
-    public override void Add((System.DateTime t, double v) TValue1, (System.DateTime t, double v) TValue2, bool update)
-    {
+    public override void Add((System.DateTime t, double v) TValue1, (System.DateTime t, double v) TValue2, bool update) {
         Add_Replace_Trim(_x, TValue1.v, _p, update);
         Add_Replace_Trim(_xx, TValue1.v * TValue1.v, _p, update);
         Add_Replace_Trim(_y, TValue2.v, _p, update);

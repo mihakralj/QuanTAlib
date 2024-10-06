@@ -6,7 +6,7 @@ public class MaafIndicator : IndicatorBase
     [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 39;
 
-    [InputParameter("Threshold", sortIndex: 5, minimum: 0, maximum: 1, increment: 0.001, decimalPlaces:3)]
+    [InputParameter("Threshold", sortIndex: 5, minimum: 0, maximum: 1, increment: 0.001, decimalPlaces: 3)]
     public double Threshold = 0.002;
 
     private Maaf? ma;

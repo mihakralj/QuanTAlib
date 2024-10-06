@@ -9,14 +9,11 @@ Random Bars generator - used for testing, validation and fun
     
 </summary> */
 
-public class RND_Feed : TBars
-{
-    public RND_Feed(int Bars, double Volatility = 0.05, double Startvalue = 100.0)
-    {
+public class RND_Feed : TBars {
+    public RND_Feed(int Bars, double Volatility = 0.05, double Startvalue = 100.0) {
         Random rnd = new();
         double c = Startvalue;
-        for (int i = 0; i < Bars; i++)
-        {
+        for (int i = 0; i < Bars; i++) {
             double o = Math.Round(c + (c * (((Volatility * 0.1) * rnd.NextDouble()) - 0.005)), 2);
             double h = Math.Round(o + (c * Volatility * rnd.NextDouble()), 2);
             double l = Math.Round(o - (c * Volatility * rnd.NextDouble()), 2);

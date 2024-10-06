@@ -55,7 +55,7 @@ public class Zlema : AbstractBase
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-        
+
         _buffer!.Add(Input.Value, Input.IsNew);
 
         int lag = Math.Max(Math.Min((int)((_period - 1) * 0.5), _buffer.Count - 1), 0) + 1;

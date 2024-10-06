@@ -12,10 +12,8 @@ Yahoo Finance - Free API feed to collect daily market quotes
 
 </summary> 
 */
-public class Yahoo_Feed : TBars
-{
-    public Yahoo_Feed(string Symbol = "IBM", int Period = 252)
-    {
+public class Yahoo_Feed : TBars {
+    public Yahoo_Feed(string Symbol = "IBM", int Period = 252) {
         Period = (int)(Period * 1.45);
         string requestUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" +
             Symbol + "?interval=1d&period1=" +
@@ -36,8 +34,7 @@ public class Yahoo_Feed : TBars
         json[0].TryGetProperty("close", out JsonElement close);
         json[0].TryGetProperty("volume", out JsonElement volume);
 
-        for (int i = 0; i < datetime.GetArrayLength(); i++)
-        {
+        for (int i = 0; i < datetime.GetArrayLength(); i++) {
             DateTime d = DateTimeOffset.FromUnixTimeSeconds(long.Parse(datetime[i].GetRawText())).DateTime;
             double o = Math.Round(double.Parse(open[i].GetRawText()), 3);
             double h = Math.Round(double.Parse(high[i].GetRawText()), 3);

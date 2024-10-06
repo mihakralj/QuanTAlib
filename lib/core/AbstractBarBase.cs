@@ -8,7 +8,8 @@ namespace QuanTAlib;
 /// and methods used by inheriting indicator types. It handles the basic flow of
 /// receiving bar data, performing calculations, and publishing results.
 /// </remarks>
-public abstract class AbstractBarBase : iTValue {
+public abstract class AbstractBarBase : iTValue
+{
     public DateTime Time { get; set; }
     public double Value { get; set; }
     public bool IsNew { get; set; }
@@ -20,7 +21,8 @@ public abstract class AbstractBarBase : iTValue {
     public event ValueSignal Pub = delegate { };
     protected int _index;
     protected double _lastValidValue;
-    protected AbstractBarBase() {
+    protected AbstractBarBase()
+    {
         // Add parameters into constructor if needed
     }
 
@@ -34,7 +36,8 @@ public abstract class AbstractBarBase : iTValue {
     /// <summary>
     /// Initializes the indicator's state.
     /// </summary>
-    public virtual void Init() {
+    public virtual void Init()
+    {
         _index = 0;
         _lastValidValue = 0;
     }
@@ -44,9 +47,11 @@ public abstract class AbstractBarBase : iTValue {
     /// </summary>
     /// <param name="input">The input bar data.</param>
     /// <returns>A TValue containing the calculated result.</returns>
-    public virtual TValue Calc(TBar input) {
+    public virtual TValue Calc(TBar input)
+    {
         Input = input;
-        if (double.IsNaN(input.Close) || double.IsInfinity(input.Close)) {
+        if (double.IsNaN(input.Close) || double.IsInfinity(input.Close))
+        {
             return Process(new TValue(Time: input.Time, Value: GetLastValid(), IsNew: input.IsNew, IsHot: true));
         }
         this.Value = Calculation();
@@ -57,7 +62,8 @@ public abstract class AbstractBarBase : iTValue {
     /// Retrieves the last valid calculated value.
     /// </summary>
     /// <returns>The last valid value of the indicator.</returns>
-    protected virtual double GetLastValid() {
+    protected virtual double GetLastValid()
+    {
         return this.Value;
     }
 
@@ -79,7 +85,8 @@ public abstract class AbstractBarBase : iTValue {
     /// </summary>
     /// <param name="value">The calculated TValue to process.</param>
     /// <returns>The processed TValue.</returns>
-    protected virtual TValue Process(TValue value) {
+    protected virtual TValue Process(TValue value)
+    {
         this.Time = value.Time;
         this.Value = value.Value;
         this.IsNew = value.IsNew;

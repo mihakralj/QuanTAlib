@@ -3,11 +3,9 @@ using System;
 using QuanTAlib;
 
 namespace Bars;
-public class TBars_Test
-{
+public class TBars_Test {
     [Fact]
-    public void InsertingTuple()
-    {
+    public void InsertingTuple() {
         TBars s = new() { (t: DateTime.Today, o: double.Epsilon, h: double.NaN, l: Double.MaxValue, c: Double.NegativeInfinity, v: Double.PositiveInfinity) };
         var tup = (t: DateTime.Today, o: double.Epsilon, h: double.NaN, l: Double.MaxValue,
             c: Double.NegativeInfinity, v: Double.PositiveInfinity);
@@ -15,8 +13,7 @@ public class TBars_Test
     }
 
     [Fact]
-    public void Casting_Parameters()
-    {
+    public void Casting_Parameters() {
         TBars s = new()
         {
             { DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1, false }
@@ -31,8 +28,7 @@ public class TBars_Test
     }
 
     [Fact]
-    public void Updating_Value()
-    {
+    public void Updating_Value() {
         TBars s = new()
         {
             { DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1 }
@@ -47,8 +43,7 @@ public class TBars_Test
         Assert.Equal(2, s.Count);
     }
     [Fact]
-    public void Extracting_TSeries()
-    {
+    public void Extracting_TSeries() {
         TBars s = new()
         {
             { DateTime.Today, 0.1, 1.1, 2.1, 3.1, 4.1 },
@@ -100,8 +95,7 @@ public class TBars_Test
         Assert.Equal(t.v, s.HLCC4.v);
     }
     [Fact]
-    public void Broadcasting_Events()
-    {
+    public void Broadcasting_Events() {
         TBars s = new() { (DateTime.Today, 2.1, 3.1, 4.1, 5.1, 6.1) };
         TSeries t = new();
         s.Close.Pub += t.Sub;

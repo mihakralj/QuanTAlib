@@ -16,8 +16,7 @@ Remark:
     implementation, but it does allow incremental additions of inputs and real-time calculations of SMA()
 
 </summary> */
-public class SMA_Series : TSeries
-{
+public class SMA_Series : TSeries {
     private readonly System.Collections.Generic.List<double> _buffer = new();
 
     private double _sum, _oldsum;
@@ -26,15 +25,13 @@ public class SMA_Series : TSeries
     protected readonly bool _NaN;
 
     //core constructor
-    public SMA_Series(int period, bool useNaN)
-    {
+    public SMA_Series(int period, bool useNaN) {
         _period = Math.Max(0, period);
         _NaN = useNaN;
         Name = $"SMA({period})";
         _sum = _oldsum = 0;
     }
-    public SMA_Series(TSeries source, int period, bool useNaN) : this(period, useNaN)
-    {
+    public SMA_Series(TSeries source, int period, bool useNaN) : this(period, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -50,29 +47,21 @@ public class SMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return (TValue.t, double.NaN);
-        }
-        else
-        {
-            if (update && _buffer.Count > 0)
-            {
+        } else {
+            if (update && _buffer.Count > 0) {
                 _sum -= _buffer[^1];
                 _buffer[^1] = TValue.v;
                 _oldsum = _sum;
-            }
-            else
-            {
+            } else {
                 _buffer.Add(TValue.v);
                 _oldsum = _sum;
             }
 
             _sum += TValue.v;
-            if (_period != 0 && _buffer.Count > _period)
-            {
+            if (_period != 0 && _buffer.Count > _period) {
                 _sum -= _buffer[0];
                 _buffer.RemoveAt(0);
             }
@@ -83,29 +72,24 @@ public class SMA_Series : TSeries
         var res = (TValue.t, Count < _period - 1 && _NaN ? double.NaN : _sma);
         return base.Add(res, update);
     }
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _sum = _oldsum = 0;
         _buffer.Clear();
     }

@@ -8,7 +8,8 @@ namespace QuanTAlib;
 /// statistical measures such as intercept, standard deviation, R-squared, and the last
 /// point on the regression line. It uses the least squares method for calculation.
 /// </remarks>
-public class Slope : AbstractBase {
+public class Slope : AbstractBase
+{
     private readonly int _period;
     private readonly CircularBuffer _buffer;
     private readonly CircularBuffer _timeBuffer;
@@ -24,8 +25,10 @@ public class Slope : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than or equal to 1.
     /// </exception>
-    public Slope(int period) {
-        if (period <= 1) {
+    public Slope(int period)
+    {
+        if (period <= 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), period,
                 "Period must be greater than 1 for Slope/Linear Regression.");
         }
@@ -43,7 +46,8 @@ public class Slope : AbstractBase {
     /// </summary>
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the slope.</param>
-    public Slope(object source, int period) : this(period) {
+    public Slope(object source, int period) : this(period)
+    {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
@@ -51,7 +55,8 @@ public class Slope : AbstractBase {
     /// <summary>
     /// Initializes the Slope instance by clearing buffers and resetting calculated values.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _buffer.Clear();
         _timeBuffer.Clear();
@@ -65,8 +70,10 @@ public class Slope : AbstractBase {
     /// Manages the state of the Slope instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _lastValidValue = Input.Value;
             _index++;
         }
@@ -84,7 +91,8 @@ public class Slope : AbstractBase {
     /// If there are fewer than 2 data points, or if the sum of squared x deviations is 0,
     /// the method returns 0 and sets the additional properties to null.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
 
         _buffer.Add(Input.Value, Input.IsNew);
@@ -92,7 +100,8 @@ public class Slope : AbstractBase {
 
         double slope = 0;
 
-        if (_buffer.Count < 2) {
+        if (_buffer.Count < 2)
+        {
             return slope; // Return 0 when there are fewer than 2 points
         }
 
@@ -101,7 +110,8 @@ public class Slope : AbstractBase {
 
         // Calculate averages
         double sumX = 0, sumY = 0;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             sumX += i + 1;
             sumY += values[i];
         }
@@ -110,7 +120,8 @@ public class Slope : AbstractBase {
 
         // Least squares method
         double sumSqX = 0, sumSqY = 0, sumSqXY = 0;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             double devX = (i + 1) - avgX;
             double devY = values[i] - avgY;
             sumSqX += devX * devX;
@@ -118,7 +129,8 @@ public class Slope : AbstractBase {
             sumSqXY += devX * devY;
         }
 
-        if (sumSqX > 0) {
+        if (sumSqX > 0)
+        {
             slope = sumSqXY / sumSqX;
             Intercept = avgY - (slope * avgX);
 
@@ -127,14 +139,17 @@ public class Slope : AbstractBase {
             double stdDevY = Math.Sqrt(sumSqY / count);
             StdDev = stdDevY;
 
-            if (stdDevX * stdDevY != 0) {
+            if (stdDevX * stdDevY != 0)
+            {
                 double r = sumSqXY / (stdDevX * stdDevY) / count;
                 RSquared = r * r;
             }
 
             // Calculate last Line value (y = mx + b)
             Line = (slope * count) + Intercept;
-        } else {
+        }
+        else
+        {
             Intercept = null;
             StdDev = null;
             RSquared = null;

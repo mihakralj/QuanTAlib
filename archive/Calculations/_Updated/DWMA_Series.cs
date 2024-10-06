@@ -11,8 +11,7 @@ DWMA: Double Weighted Moving Average
 
 </summary> */
 
-public class DWMA_Series : TSeries
-{
+public class DWMA_Series : TSeries {
     private readonly List<double> _buffer = new();
     private List<double> _weights;
     protected readonly int _period;
@@ -21,8 +20,7 @@ public class DWMA_Series : TSeries
     protected int _len;
 
     //core constructors
-    public DWMA_Series(int period, bool useNaN)
-    {
+    public DWMA_Series(int period, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"DWMA({period})";
@@ -30,45 +28,36 @@ public class DWMA_Series : TSeries
         _weights = CalculateWeights(_period);
     }
 
-    public DWMA_Series(TSeries source, int period, bool useNaN) : this(period, useNaN)
-    {
+    public DWMA_Series(TSeries source, int period, bool useNaN) : this(period, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
         Add(_data);
     }
 
-    public DWMA_Series() : this(0, false)
-    {
+    public DWMA_Series() : this(0, false) {
     }
 
-    public DWMA_Series(int period) : this(period, false)
-    {
+    public DWMA_Series(int period) : this(period, false) {
     }
 
-    public DWMA_Series(TBars source) : this(source.Close, 0, false)
-    {
+    public DWMA_Series(TBars source) : this(source.Close, 0, false) {
     }
 
-    public DWMA_Series(TBars source, int period) : this(source.Close, period, false)
-    {
+    public DWMA_Series(TBars source, int period) : this(source.Close, period, false) {
     }
 
-    public DWMA_Series(TBars source, int period, bool useNaN) : this(source.Close, period, useNaN)
-    {
+    public DWMA_Series(TBars source, int period, bool useNaN) : this(source.Close, period, useNaN) {
     }
 
-    public DWMA_Series(TSeries source, int period) : this(source, period, false)
-    {
+    public DWMA_Series(TSeries source, int period) : this(source, period, false) {
     }
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
         BufferTrim(_buffer, TValue.v, _period, update);
-        if (_period == 0)
-        {
+        if (_period == 0) {
             _len++;
             _weights = CalculateWeights(_len);
         }
@@ -77,11 +66,9 @@ public class DWMA_Series : TSeries
         var bufferCount = _buffer.Count;
 
         var lockObj = new object();
-        Parallel.For(0, bufferCount, i =>
-        {
+        Parallel.For(0, bufferCount, i => {
             var temp = _buffer[i] * _weights[i];
-            lock (lockObj)
-            {
+            lock (lockObj) {
                 _dwma += temp;
                 _wsum += _weights[i];
             }
@@ -91,42 +78,34 @@ public class DWMA_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
-        if (data == null)
-        {
+    public override (DateTime t, double v) Add(TSeries data) {
+        if (data == null) {
             return (DateTime.Today, double.NaN);
         }
 
-        foreach (var item in data)
-        {
+        foreach (var item in data) {
             Add(item, false);
         }
 
         return _data.Last;
     }
 
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return Add(_data.Last, update);
     }
 
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(_data.Last, false);
     }
 
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(_data.Last, e.update);
     }
 
     //calculating weights
-    private static List<double> CalculateWeights(int period)
-    {
+    private static List<double> CalculateWeights(int period) {
         var weights = new List<double>(period);
-        for (var i = 0; i < period; i++)
-        {
+        for (var i = 0; i < period; i++) {
             weights.Add((i + 1) * (i + 1));
         }
 
@@ -134,8 +113,7 @@ public class DWMA_Series : TSeries
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _len = 0;
         _buffer.Clear();
         _weights = CalculateWeights(_period);
