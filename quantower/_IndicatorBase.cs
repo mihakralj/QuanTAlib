@@ -27,7 +27,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
 
     [InputParameter("Show cold values", sortIndex: 20)]
     public bool ShowColdValues { get; set; } = true;
-    public int MinHistoryDepths { get; set; };
+    public int MinHistoryDepths { get; set; }
 
     // LineSeries.LineSeries(string, Color, int, LineStyle)'
 
@@ -94,7 +94,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         List<Point> allPoints = new List<Point>();
-        if (CurrentChart == null) { return };
+        if (CurrentChart == null) { return; }
 
         Graphics gr = args.Graphics;
         var mainWindow = this.CurrentChart.Windows[args.WindowIndex];
@@ -125,7 +125,7 @@ public abstract class IndicatorBase : Indicator, IWatchlistIndicator
 
     private void DrawSmoothCombinedCurve(Graphics gr, List<Point> allPoints, int hotCount)
     {
-        if (allPoints.Count < 2) { return };
+        if (allPoints.Count < 2) { return; }
 
         using (Pen defaultPen = new(Series!.Color, Series.Width) { DashStyle = ConvertLineStyleToDashStyle(Series.Style) })
         using (Pen coldPen = new(Series!.Color, Series.Width) { DashStyle = DashStyle.Dot })

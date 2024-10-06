@@ -1,32 +1,48 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow integrates SecurityCodeScan with GitHub's Code Scanning feature
-# SecurityCodeScan is a vulnerability patterns detector for C# and VB.NET
-
-name: SecurityCodeScan
+name: Code Analysis
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "main" ]
-  schedule:
-    - cron: '23 14 * * 2'
+  push:         # Triggers on push events to any branch
+  pull_request: # Triggers on pull request events targeting any branch
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+permissions:
+  pull-requests: read  # Allows SonarCloud to decorate PRs with analysis results
 
 jobs:
-  SCS:
+  SonarCloud-Analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8.0 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=mihakralj_QuanTAlib
+            -Dsonar.organization=mihakralj
+          projectBaseDir: .
+
+  SecurityCodeScan:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nuget/setup-nuget@04b0c2b8d1b97922f67eca497d7cf0bf17b8ffe1
-      - uses: microsoft/setup-msbuild@v1.0.2
+      - uses: nuget/setup-nuget@v1
+      - uses: microsoft/setup-msbuild@v1
+
+      - name: Setup .NET 8.0 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
 
       - name: Set up projects for analysis
-        uses: security-code-scan/security-code-scan-add-action@f8ff4f2763ed6f229eded80b1f9af82ae7f32a0d
+        uses: security-code-scan/security-code-scan-add-action@v1
 
       - name: Restore dependencies
         run: dotnet restore
@@ -34,8 +50,8 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      - name: Convert sarif for uploading to GitHub
-        uses: security-code-scan/security-code-scan-results-action@cdb3d5e639054395e45bf401cba8688fcaf7a687
+      - name: Convert SARIF for uploading to GitHub
+        uses: security-code-scan/security-code-scan-results-action@v1
 
-      - name: Upload sarif
+      - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
