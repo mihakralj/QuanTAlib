@@ -12,7 +12,8 @@ public class SkenderTests
     private readonly GbmFeed feed;
     private readonly Random rnd;
     private readonly double range;
-    private int period, iterations;
+    private int period;
+    private readonly int iterations;
     private readonly IEnumerable<Quote> quotes;
 
 
@@ -338,7 +339,7 @@ public class SkenderTests
             var SK = quotes.GetAtr(lookbackPeriods: period).Select(i => i.Atr.Null2NaN()!);
             Assert.Equal(QL.Length, QL.Length);
 
-            for (int i = QL.Length - 1; i > period +500; i--)
+            for (int i = QL.Length - 1; i > period + 500; i--)
             {
                 Assert.InRange(SK.ElementAt(i) - QL[i].Value, -range, range);
             }

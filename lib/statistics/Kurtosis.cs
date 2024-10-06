@@ -16,7 +16,7 @@ public class Kurtosis : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the period is less than 4.
     /// </exception>
-    public Kurtosis(int period) : base()
+    public Kurtosis(int period)
     {
         if (period < 4)
         {

@@ -9,7 +9,7 @@ public static class Formatters
     const string pad = "18";
     public static void Initialize()
     {
-        Formatter.Register<iTValue>((tick, writer) =>
+        Formatter.Register<ITValue>((tick, writer) =>
         {
             var sb = new StringBuilder();
             sb.Append("<table style='border-collapse: collapse; text-align: left;'><tr>");

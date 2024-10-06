@@ -17,14 +17,14 @@ public class BarIndicatorTests
         rnd = new Random((int)DateTime.Now.Ticks);
     }
 
-    private static readonly iTValue[] indicators = new iTValue[]
+    private static readonly ITValue[] indicators = new ITValue[]
     {
             new Atr(period: 14),
     };
 
     [Theory]
     [MemberData(nameof(GetIndicators))]
-    public void IndicatorIsNew(iTValue indicator)
+    public void IndicatorIsNew(ITValue indicator)
     {
         var indicator1 = indicator;
         var indicator2 = indicator;
@@ -32,7 +32,7 @@ public class BarIndicatorTests
         MethodInfo calcMethod = indicator.GetType().GetMethod("Calc")!;
         if (calcMethod == null)
         {
-            throw new Exception($"Calc method not found for indicator type: {indicator.GetType().Name}");
+            throw new InvalidOperationException($"Calc method not found for indicator type: {indicator.GetType().Name}");
         }
 
         for (int i = 0; i < SeriesLen; i++)

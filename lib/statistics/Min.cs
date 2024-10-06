@@ -10,7 +10,8 @@ namespace QuanTAlib;
 /// efficiently. It also implements a decay mechanism to adjust the minimum value over
 /// time, allowing for a more responsive indicator in changing market conditions.
 /// </remarks>
-public class Min : AbstractBase {
+public class Min : AbstractBase
+{
     private readonly int Period;
     private readonly CircularBuffer _buffer;
     private readonly double _halfLife;
@@ -25,11 +26,14 @@ public class Min : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1 or decay is negative.
     /// </exception>
-    public Min(int period, double decay = 0) : base() {
-        if (period < 1) {
+    public Min(int period, double decay = 0)
+    {
+        if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        if (decay < 0) {
+        if (decay < 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(decay), "Half-life must be non-negative.");
         }
         Period = period;
@@ -46,7 +50,8 @@ public class Min : AbstractBase {
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the minimum value.</param>
     /// <param name="decay">The decay factor to apply to older values (default is 0).</param>
-    public Min(object source, int period, double decay = 0) : this(period, decay) {
+    public Min(object source, int period, double decay = 0) : this(period, decay)
+    {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
@@ -54,7 +59,8 @@ public class Min : AbstractBase {
     /// <summary>
     /// Initializes the Min instance by setting initial values.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _currentMin = double.MaxValue;
         _timeSinceNewMin = 0;
@@ -64,14 +70,18 @@ public class Min : AbstractBase {
     /// Manages the state of the Min instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _p_currentMin = _currentMin;
             _lastValidValue = Input.Value;
             _index++;
             _timeSinceNewMin++;
             _p_timeSinceNewMin = _timeSinceNewMin;
-        } else {
+        }
+        else
+        {
             _currentMin = _p_currentMin;
             _timeSinceNewMin = _p_timeSinceNewMin;
         }
@@ -87,17 +97,19 @@ public class Min : AbstractBase {
     /// The decay rate is calculated using an exponential function based on the time since
     /// the last new minimum and the specified half-life.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
         _buffer.Add(Input.Value, Input.IsNew);
 
-        if (Input.Value <= _currentMin) {
+        if (Input.Value <= _currentMin)
+        {
             _currentMin = Input.Value;
             _timeSinceNewMin = 0;
         }
 
         double decayRate = 1 - Math.Exp(-_halfLife * _timeSinceNewMin / Period);
-        _currentMin = _currentMin + decayRate * (_buffer.Average() - _currentMin);
+        _currentMin += decayRate * (_buffer.Average() - _currentMin);
         _currentMin = Math.Max(_currentMin, _buffer.Min());
 
         IsHot = true;

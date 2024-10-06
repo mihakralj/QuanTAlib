@@ -6,7 +6,7 @@ public class Qema : AbstractBase
     private readonly Ema _ema1, _ema2, _ema3, _ema4;
     private double _lastQema, _p_lastQema;
 
-    public Qema(double k1=0.2, double k2=0.2, double k3=0.2, double k4=0.2) : base()
+    public Qema(double k1=0.2, double k2=0.2, double k3=0.2, double k4=0.2)
     {
         if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0 )
         {

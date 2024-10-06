@@ -7,11 +7,11 @@ public class Zlema : AbstractBase
 {
     private readonly int _period;
     private CircularBuffer? _buffer;
-    private double _alpha;
-    private int _lag;
+    private readonly double _alpha;
+    private readonly int _lag;
     private double _lastZLEMA, _p_lastZLEMA;
 
-    public Zlema(int period) : base()
+    public Zlema(int period)
     {
         if (period < 1)
         {
@@ -55,7 +55,7 @@ public class Zlema : AbstractBase
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-        
+
         _buffer!.Add(Input.Value, Input.IsNew);
 
         int lag = Math.Max(Math.Min((int)((_period - 1) * 0.5), _buffer.Count - 1), 0) + 1;

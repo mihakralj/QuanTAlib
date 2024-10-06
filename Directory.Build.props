@@ -20,12 +20,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
-
-    <!-- GitVersion Properties -->
-    <Version>$(GitVersion_NuGetVersion)</Version>
-    <AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
-    <FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
-    <InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -50,10 +44,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.21459.1" />
   </ItemGroup>
 
@@ -63,5 +53,3 @@
   </PropertyGroup>
 
 </Project>
-
-

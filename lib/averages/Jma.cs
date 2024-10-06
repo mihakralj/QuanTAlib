@@ -1,20 +1,20 @@
-using QuanTAlib;
+namespace QuanTAlib;
 //TODO consistency test
 public class Jma : AbstractBase
 {
     public readonly int Period;
     private readonly double _phase;
     private readonly int _vshort, _vlong;
-    private CircularBuffer _values;
-    private CircularBuffer _voltyShort;
-    private CircularBuffer _vsumBuff;
-    private CircularBuffer _avoltyBuff;
+    private readonly CircularBuffer _values;
+    private readonly CircularBuffer _voltyShort;
+    private readonly CircularBuffer _vsumBuff;
+    private readonly CircularBuffer _avoltyBuff;
 
     private double _beta, _len1, _pow1;
     private double _upperBand, _lowerBand, _prevMa1, _prevDet0, _prevDet1, _prevJma;
     private double _p_UpperBand, _p_LowerBand, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
 
-    public Jma(int period, double phase = 0, int vshort = 10) : base()
+    public Jma(int period, double phase = 0, int vshort = 10)
     {
         if (period < 1)
         {

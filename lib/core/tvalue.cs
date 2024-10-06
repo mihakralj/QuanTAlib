@@ -1,6 +1,6 @@
 namespace QuanTAlib;
 
-public interface iTValue
+public interface ITValue
 {
     DateTime Time { get; }
     double Value { get; }
@@ -8,7 +8,7 @@ public interface iTValue
     bool IsHot { get; }
 }
 
-public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : iTValue
+public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : ITValue
 {
     public DateTime Time { get; init; } = Time;
     public double Value { get; init; } = Value;

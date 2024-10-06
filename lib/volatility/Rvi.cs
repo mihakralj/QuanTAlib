@@ -13,10 +13,11 @@ namespace QuanTAlib;
 /// This implementation uses a combination of Standard Deviation and Simple Moving Average
 /// calculations to compute the RVI.
 /// </remarks>
-public class Rvi : AbstractBase {
+public class Rvi : AbstractBase
+{
     private readonly int Period;
-    private Stddev _upStdDev, _downStdDev;
-    private Sma _upSma, _downSma;
+    private readonly Stddev _upStdDev, _downStdDev;
+    private readonly Sma _upSma, _downSma;
     private double _previousClose;
 
     /// <summary>
@@ -26,8 +27,10 @@ public class Rvi : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-    public Rvi(int period) : base() {
-        if (period < 2) {
+    public Rvi(int period)
+    {
+        if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
         }
         Period = period;
@@ -45,7 +48,8 @@ public class Rvi : AbstractBase {
     /// </summary>
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the RVI.</param>
-    public Rvi(object source, int period) : this(period) {
+    public Rvi(object source, int period) : this(period)
+    {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
@@ -53,7 +57,8 @@ public class Rvi : AbstractBase {
     /// <summary>
     /// Initializes the Rvi instance by setting up the initial state.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _previousClose = 0;
     }
@@ -62,8 +67,10 @@ public class Rvi : AbstractBase {
     /// Manages the state of the Rvi instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _lastValidValue = Value;
             _index++;
         }
@@ -84,7 +91,8 @@ public class Rvi : AbstractBase {
     /// 5. Compute the RVI as a percentage of up volatility to total volatility.
     /// The method returns 0 if the sum of up and down volatility is zero.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
 
         double close = Input.Value;
@@ -97,11 +105,7 @@ public class Rvi : AbstractBase {
         _downSma.Calc(_downStdDev.Calc(new TValue(Input.Time, downMove, Input.IsNew)));
 
         double rvi;
-        if (_upSma.Value + _downSma.Value != 0) {
-            rvi = 100 * _upSma.Value / (_upSma.Value + _downSma.Value);
-        } else {
-            rvi = 0;
-        }
+        rvi = (_upSma.Value + _downSma.Value != 0) ? 100 * _upSma.Value / (_upSma.Value + _downSma.Value) : 0;
 
         _previousClose = close;
         IsHot = _index >= WarmupPeriod;

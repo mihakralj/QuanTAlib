@@ -17,8 +17,8 @@ public class IndicatorTests
         rnd = new Random((int)DateTime.Now.Ticks);
     }
 
-    private static readonly iTValue[] indicators =
-    [
+    private static readonly ITValue[] indicators =
+    {
         new Ema(period: 10, useSma: true),
             new Alma(period: 14, offset: 0.85, sigma: 6),
             new Afirma(periods: 4, taps: 4, window: Afirma.WindowType.Blackman),
@@ -60,11 +60,11 @@ public class IndicatorTests
             new Variance(period: 14),
             new Zscore(period: 14)
 
-    ];
+    };
 
     [Theory]
     [MemberData(nameof(GetIndicators))]
-    public void IndicatorIsNew(iTValue indicator)
+    public void IndicatorIsNew(ITValue indicator)
     {
         var indicator1 = indicator;
         var indicator2 = indicator;
@@ -72,7 +72,7 @@ public class IndicatorTests
         MethodInfo calcMethod = indicator.GetType().GetMethod("Calc")!;
         if (calcMethod == null)
         {
-            throw new Exception($"Calc method not found for indicator type: {indicator.GetType().Name}");
+            throw new InvalidOperationException($"Calc method not found for indicator type: {indicator.GetType().Name}");
         }
 
         for (int i = 0; i < SeriesLen; i++)

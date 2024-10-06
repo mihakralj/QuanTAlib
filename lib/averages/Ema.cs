@@ -27,10 +27,12 @@ public class Ema : AbstractBase
     private readonly int _period;
     private CircularBuffer _sma;
     private double _lastEma, _p_lastEma;
-    private double _k, _e, _p_e;
-    private bool _isInit, _p_isInit, _useSma;
+    private double _e, _p_e;
+    private readonly double _k;
+    private bool _isInit, _p_isInit;
+    private readonly bool _useSma;
 
-    public Ema(int period, bool useSma = true) : base()
+    public Ema(int period, bool useSma = true)
     {
         if (period < 1)
         {
@@ -45,7 +47,7 @@ public class Ema : AbstractBase
         Init();
     }
 
-    public Ema(double alpha) : base()
+    public Ema(double alpha)
     {
         _k = alpha;
         _useSma = false;

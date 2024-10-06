@@ -5,7 +5,7 @@ public class Mgdi : AbstractBase
     private readonly int _period;
     private readonly double _kFactor;
     private double _prevMd, _p_prevMd;
-    public Mgdi(int period, double kFactor = 0.6) : base()
+    public Mgdi(int period, double kFactor = 0.6)
     {
         if (period <= 0)
         {

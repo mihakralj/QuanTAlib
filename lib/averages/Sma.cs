@@ -6,7 +6,7 @@ public class Sma : AbstractBase
     // inherited _value
     private readonly CircularBuffer _buffer;
 
-    public Sma(int period) : base()
+    public Sma(int period)
     {
         if (period < 1)
         {

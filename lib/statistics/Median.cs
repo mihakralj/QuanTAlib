@@ -16,7 +16,7 @@ public class Median : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the period is less than 1.
     /// </exception>
-    public Median(int period) : base()
+    public Median(int period)
     {
         if (period < 1)
         {
@@ -76,16 +76,7 @@ public class Median : AbstractBase
             Array.Sort(sortedValues);
             int middleIndex = sortedValues.Length / 2;
 
-            if (sortedValues.Length % 2 == 0)
-            {
-                // Even number of values: average of two middle values
-                median = (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2.0;
-            }
-            else
-            {
-                // Odd number of values: middle value
-                median = sortedValues[middleIndex];
-            }
+            median = (sortedValues.Length % 2 == 0) ? (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2.0 : sortedValues[middleIndex];
         }
         else
         {

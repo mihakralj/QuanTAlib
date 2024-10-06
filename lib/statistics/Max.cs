@@ -20,7 +20,7 @@ public class Max : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the period is less than 1 or decay is negative.
     /// </exception>
-    public Max(int period, double decay = 0) : base()
+    public Max(int period, double decay = 0)
     {
         if (period < 1)
         {
@@ -105,7 +105,7 @@ public class Max : AbstractBase
         }
 
         double decayRate = 1 - Math.Exp(-_halfLife * _timeSinceNewMax / Period);
-        _currentMax = _currentMax - decayRate * (_currentMax - _buffer.Average());
+        _currentMax -= decayRate * (_currentMax - _buffer.Average());
         _currentMax = Math.Min(_currentMax, _buffer.Max());
 
         IsHot = true;

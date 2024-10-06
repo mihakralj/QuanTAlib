@@ -12,7 +12,8 @@ namespace QuanTAlib;
 /// a fixed-size buffer of double values. It uses SIMD operations for improved performance
 /// on supported hardware.
 /// </remarks>
-public class CircularBuffer : IEnumerable<double> {
+public class CircularBuffer : IEnumerable<double>
+{
     private readonly double[] _buffer;
     private int _start = 0;
     private int _size = 0;
@@ -31,7 +32,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// Initializes a new instance of the CircularBuffer class with the specified capacity.
     /// </summary>
     /// <param name="capacity">The maximum number of elements the buffer can hold.</param>
-    public CircularBuffer(int capacity) {
+    public CircularBuffer(int capacity)
+    {
         Capacity = capacity;
         _buffer = GC.AllocateArray<double>(capacity, pinned: true);
     }
@@ -42,16 +44,23 @@ public class CircularBuffer : IEnumerable<double> {
     /// <param name="item">The item to add to the buffer.</param>
     /// <param name="isNew">Indicates whether the item is a new value or an update to the last added value.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(double item, bool isNew = true) {
-        if (_size == 0 || isNew) {
-            if (_size < Capacity) {
+    public void Add(double item, bool isNew = true)
+    {
+        if (_size == 0 || isNew)
+        {
+            if (_size < Capacity)
+            {
                 _buffer[(_start + _size) % Capacity] = item;
                 _size++;
-            } else {
+            }
+            else
+            {
                 _buffer[_start] = item;
                 _start = (_start + 1) % Capacity;
             }
-        } else {
+        }
+        else
+        {
             _buffer[(_start + _size - 1) % Capacity] = item;
         }
     }
@@ -61,15 +70,18 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <param name="index">The zero-based index of the element to get or set.</param>
     /// <returns>The element at the specified index.</returns>
-    public double this[Index index] {
+    public double this[Index index]
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get {
+        get
+        {
             int actualIndex = index.IsFromEnd ? _size - index.Value : index.Value;
             actualIndex = Math.Clamp(actualIndex, 0, _size - 1);
             return _buffer[(_start + actualIndex) % Capacity];
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set {
+        set
+        {
             int actualIndex = index.IsFromEnd ? _size - index.Value : index.Value;
             actualIndex = Math.Clamp(actualIndex, 0, _size - 1);
             _buffer[(_start + actualIndex) % Capacity] = value;
@@ -77,7 +89,8 @@ public class CircularBuffer : IEnumerable<double> {
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void ThrowArgumentOutOfRangeException() {
+    private static void ThrowArgumentOutOfRangeException()
+    {
         throw new ArgumentOutOfRangeException("index", "Index is out of range.");
     }
 
@@ -86,7 +99,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>The newest element in the buffer.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Newest() {
+    public double Newest()
+    {
         if (_size == 0)
             return 0;
         return _buffer[(_start + _size - 1) % Capacity];
@@ -97,14 +111,16 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>The oldest element in the buffer.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Oldest() {
+    public double Oldest()
+    {
         if (_size == 0)
             ThrowInvalidOperationException();
         return _buffer[_start];
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void ThrowInvalidOperationException() {
+    private static void ThrowInvalidOperationException()
+    {
         throw new InvalidOperationException("Buffer is empty.");
     }
 
@@ -119,13 +135,15 @@ public class CircularBuffer : IEnumerable<double> {
     /// <summary>
     /// Represents an enumerator for the CircularBuffer.
     /// </summary>
-    public struct Enumerator : IEnumerator<double> {
+    public struct Enumerator : IEnumerator<double>
+    {
         private readonly CircularBuffer _buffer;
         private int _index;
         private double _current;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Enumerator(CircularBuffer buffer) {
+        internal Enumerator(CircularBuffer buffer)
+        {
             _buffer = buffer;
             _index = -1;
             _current = default;
@@ -136,7 +154,8 @@ public class CircularBuffer : IEnumerable<double> {
         /// </summary>
         /// <returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool MoveNext() {
+        public bool MoveNext()
+        {
             if (_index + 1 >= _buffer._size)
                 return false;
 
@@ -154,7 +173,8 @@ public class CircularBuffer : IEnumerable<double> {
         /// <summary>
         /// Sets the enumerator to its initial position, which is before the first element in the buffer.
         /// </summary>
-        public void Reset() {
+        public void Reset()
+        {
             _index = -1;
             _current = default;
         }
@@ -171,13 +191,17 @@ public class CircularBuffer : IEnumerable<double> {
     /// <param name="destination">The one-dimensional array that is the destination of the elements copied from the buffer.</param>
     /// <param name="destinationIndex">The zero-based index in array at which copying begins.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyTo(double[] destination, int destinationIndex) {
+    public void CopyTo(double[] destination, int destinationIndex)
+    {
         if (_size == 0)
             return;
 
-        if (_start + _size <= Capacity) {
+        if (_start + _size <= Capacity)
+        {
             Array.Copy(_buffer, _start, destination, destinationIndex, _size);
-        } else {
+        }
+        else
+        {
             int firstPartLength = Capacity - _start;
             Array.Copy(_buffer, _start, destination, destinationIndex, firstPartLength);
             Array.Copy(_buffer, 0, destination, destinationIndex + firstPartLength, _size - firstPartLength);
@@ -189,15 +213,17 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>A read-only span over the buffer contents.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ReadOnlySpan<double> GetSpan() {
+    public ReadOnlySpan<double> GetSpan()
+    {
         if (_size == 0)
             return ReadOnlySpan<double>.Empty;
 
-        if (_start + _size <= Capacity) {
+        if (_start + _size <= Capacity)
+        {
             return new ReadOnlySpan<double>(_buffer, _start, _size);
-        } else {
-            return new ReadOnlySpan<double>(ToArray());
         }
+
+        return new ReadOnlySpan<double>(ToArray());
     }
 
     /// <summary>
@@ -216,7 +242,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// Removes all elements from the buffer.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() {
+    public void Clear()
+    {
         Array.Clear(_buffer, 0, _buffer.Length);
         _start = 0;
         _size = 0;
@@ -227,7 +254,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>The maximum value in the buffer.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Max() {
+    public double Max()
+    {
         if (_size == 0)
             ThrowInvalidOperationException();
 
@@ -239,7 +267,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>The minimum value in the buffer.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Min() {
+    public double Min()
+    {
         if (_size == 0)
             ThrowInvalidOperationException();
 
@@ -251,7 +280,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>The sum of all values in the buffer.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Sum() {
+    public double Sum()
+    {
         return SumSimd();
     }
 
@@ -260,7 +290,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// </summary>
     /// <returns>The average of all values in the buffer.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double Average() {
+    public double Average()
+    {
         if (_size == 0)
             ThrowInvalidOperationException();
 
@@ -268,22 +299,26 @@ public class CircularBuffer : IEnumerable<double> {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double MaxSimd() {
+    private double MaxSimd()
+    {
         var span = GetSpan();
         var vectorSize = Vector<double>.Count;
         var maxVector = new Vector<double>(double.MinValue);
 
         int i = 0;
-        for (; i <= span.Length - vectorSize; i += vectorSize) {
+        for (; i <= span.Length - vectorSize; i += vectorSize)
+        {
             maxVector = Vector.Max(maxVector, new Vector<double>(span.Slice(i, vectorSize)));
         }
 
         double max = double.MinValue;
-        for (int j = 0; j < vectorSize; j++) {
+        for (int j = 0; j < vectorSize; j++)
+        {
             max = Math.Max(max, maxVector[j]);
         }
 
-        for (; i < span.Length; i++) {
+        for (; i < span.Length; i++)
+        {
             max = Math.Max(max, span[i]);
         }
 
@@ -291,22 +326,26 @@ public class CircularBuffer : IEnumerable<double> {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double MinSimd() {
+    private double MinSimd()
+    {
         var span = GetSpan();
         var vectorSize = Vector<double>.Count;
         var minVector = new Vector<double>(double.MaxValue);
 
         int i = 0;
-        for (; i <= span.Length - vectorSize; i += vectorSize) {
+        for (; i <= span.Length - vectorSize; i += vectorSize)
+        {
             minVector = Vector.Min(minVector, new Vector<double>(span.Slice(i, vectorSize)));
         }
 
         double min = double.MaxValue;
-        for (int j = 0; j < vectorSize; j++) {
+        for (int j = 0; j < vectorSize; j++)
+        {
             min = Math.Min(min, minVector[j]);
         }
 
-        for (; i < span.Length; i++) {
+        for (; i < span.Length; i++)
+        {
             min = Math.Min(min, span[i]);
         }
 
@@ -314,22 +353,26 @@ public class CircularBuffer : IEnumerable<double> {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double SumSimd() {
+    private double SumSimd()
+    {
         var span = GetSpan();
         var vectorSize = Vector<double>.Count;
         var sumVector = Vector<double>.Zero;
 
         int i = 0;
-        for (; i <= span.Length - vectorSize; i += vectorSize) {
+        for (; i <= span.Length - vectorSize; i += vectorSize)
+        {
             sumVector += new Vector<double>(span.Slice(i, vectorSize));
         }
 
         double sum = 0;
-        for (int j = 0; j < vectorSize; j++) {
+        for (int j = 0; j < vectorSize; j++)
+        {
             sum += sumVector[j];
         }
 
-        for (; i < span.Length; i++) {
+        for (; i < span.Length; i++)
+        {
             sum += span[i];
         }
 
@@ -340,7 +383,8 @@ public class CircularBuffer : IEnumerable<double> {
     /// Copies the buffer elements to a new array.
     /// </summary>
     /// <returns>An array containing copies of the buffer elements.</returns>
-    public double[] ToArray() {
+    public double[] ToArray()
+    {
         double[] array = new double[_size];
         CopyTo(array, 0);
         return array;
@@ -350,10 +394,12 @@ public class CircularBuffer : IEnumerable<double> {
     /// Performs a parallel operation on the buffer elements.
     /// </summary>
     /// <param name="operation">The operation to perform on each partition of the buffer.</param>
-    public void ParallelOperation(Func<double[], int, int, double> operation) {
+    public void ParallelOperation(Func<double[], int, int, double> operation)
+    {
         const int MinimumPartitionSize = 1024;
 
-        if (_size < MinimumPartitionSize) {
+        if (_size < MinimumPartitionSize)
+        {
             var span = GetSpan();
             var array = span.ToArray();
             operation(array, 0, array.Length);
@@ -363,7 +409,8 @@ public class CircularBuffer : IEnumerable<double> {
         int partitionCount = Environment.ProcessorCount;
         int partitionSize = _size / partitionCount;
 
-        if (partitionSize < MinimumPartitionSize) {
+        if (partitionSize < MinimumPartitionSize)
+        {
             partitionCount = Math.Max(1, _size / MinimumPartitionSize);
             partitionSize = _size / partitionCount;
         }
@@ -371,7 +418,8 @@ public class CircularBuffer : IEnumerable<double> {
         var buffer = ToArray();
         var results = new double[partitionCount];
 
-        Parallel.For(0, partitionCount, i => {
+        Parallel.For(0, partitionCount, i =>
+        {
             int start = i * partitionSize;
             int length = (i == partitionCount - 1) ? _size - start : partitionSize;
             results[i] = operation(buffer, start, length);

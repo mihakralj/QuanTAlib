@@ -8,12 +8,13 @@ public class Maaf : AbstractBase
 {
     private readonly CircularBuffer _priceBuffer;
     private readonly CircularBuffer _smoothBuffer;
-    private double _prevFilter, _prevValue2, _threshold;
+    private double _prevFilter, _prevValue2;
+    private readonly double _threshold;
     private double _p_prevFilter, _p_prevValue2;
 
     private readonly int _period;
 
-    public Maaf(int Period = 39, double Threshold = 0.002) : base()
+    public Maaf(int Period = 39, double Threshold = 0.002)
     {
         _period = Period;
         _threshold = Threshold;

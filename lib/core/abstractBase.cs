@@ -8,7 +8,7 @@ namespace QuanTAlib;
 /// and methods used by inheriting indicator types. It handles the basic flow of
 /// receiving data, performing calculations, and publishing results.
 /// </remarks>
-public abstract class AbstractBase : iTValue
+public abstract class AbstractBase : ITValue
 {
     public DateTime Time { get; set; }
     public double Value { get; set; }
