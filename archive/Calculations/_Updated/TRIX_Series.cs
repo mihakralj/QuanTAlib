@@ -14,8 +14,7 @@ Sources:
 
 </summary> */
 
-public class TRIX_Series : TSeries
-{
+public class TRIX_Series : TSeries {
     private readonly double _k;
     private readonly System.Collections.Generic.List<double> _buffer1 = new();
     private readonly System.Collections.Generic.List<double> _buffer2 = new();
@@ -30,8 +29,7 @@ public class TRIX_Series : TSeries
 
     //core constructors
 
-    public TRIX_Series(int period, bool useNaN, bool useSMA)
-    {
+    public TRIX_Series(int period, bool useNaN, bool useSMA) {
         _period = period;
         _NaN = useNaN;
         _useSMA = useSMA;
@@ -40,8 +38,7 @@ public class TRIX_Series : TSeries
         _len = 0;
         _lastema1 = _llastema1 = _lastema2 = _llastema2 = _lastema3 = _llastema3 = 0;
     }
-    public TRIX_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA)
-    {
+    public TRIX_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -58,22 +55,17 @@ public class TRIX_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
         if (_len == 0) { _lastema1 = _lastema2 = _lastema3 = TValue.v; }
-        if (update) { _lastema1 = _llastema1; _lastema2 = _llastema2; _lastema3 = _llastema3; }
-        else
-        {
+        if (update) { _lastema1 = _llastema1; _lastema2 = _llastema2; _lastema3 = _llastema3; } else {
             _llastema1 = _lastema1; _llastema2 = _lastema2; _llastema3 = _lastema3; _len++;
         }
 
         double _ema1, _ema2, _ema3;
-        if ((this.Count < _period) && _useSMA)
-        {
+        if ((this.Count < _period) && _useSMA) {
             BufferTrim(_buffer1, TValue.v, _period, update);
             _ema1 = 0;
             for (int i = 0; i < _buffer1.Count; i++) { _ema1 += _buffer1[i]; }
@@ -88,9 +80,7 @@ public class TRIX_Series : TSeries
             _ema3 = 0;
             for (int i = 0; i < _buffer3.Count; i++) { _ema3 += _buffer3[i]; }
             _ema3 /= _buffer3.Count;
-        }
-        else
-        {
+        } else {
             _ema1 = (TValue.v - _lastema1) * _k + _lastema1;
             _ema2 = (_ema1 - _lastema2) * _k + _lastema2;
             _ema3 = (_ema2 - _lastema3) * _k + _lastema3;
@@ -105,28 +95,23 @@ public class TRIX_Series : TSeries
     }
 
     //variation of Add()
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _len = 0;
     }
 }

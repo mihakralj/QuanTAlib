@@ -18,27 +18,23 @@ GBM - Geometric Brownian Motion is a random simulator of market movement, return
 
 </summary> */
 
-public class GBM_Feed : TBars
-{
+public class GBM_Feed : TBars {
     private double seed;
     readonly double drift, volatility;
     readonly int precision;
-    public GBM_Feed(int Bars = 252, double Volatility = 1.0, double Drift = 0.05, double Seed = 100.0, int Precision = 2)
-    {
+    public GBM_Feed(int Bars = 252, double Volatility = 1.0, double Drift = 0.05, double Seed = 100.0, int Precision = 2) {
         this.seed = Seed;
         volatility = Volatility * 0.01;
         drift = Drift * 0.01;
         precision = Precision;
-        for (int i = 0; i < Bars; i++)
-        {
+        for (int i = 0; i < Bars; i++) {
             DateTime Timestamp = DateTime.Today.AddDays(i - Bars);
             this.Add(Timestamp);
         }
     }
 
     public void Add(bool update = false) { this.Add(DateTime.Now, update); }
-    public void Add(DateTime timestamp, bool update = false)
-    {
+    public void Add(DateTime timestamp, bool update = false) {
         double Open = GBM_value(seed, volatility * volatility, drift, precision);
         double Close = GBM_value(Open, volatility, drift, precision);
 
@@ -56,8 +52,7 @@ public class GBM_Feed : TBars
         seed = Close;
     }
 
-    private static double GBM_value(double Seed, double Volatility, double Drift, int precision)
-    {
+    private static double GBM_value(double Seed, double Volatility, double Drift, int precision) {
         Random rnd = new();
         double U1 = 1.0 - rnd.NextDouble();
         double U2 = 1.0 - rnd.NextDouble();

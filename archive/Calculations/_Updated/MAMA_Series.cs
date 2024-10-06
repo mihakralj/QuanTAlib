@@ -17,8 +17,7 @@ Sources:
 
 </summary> */
 
-public class MAMA_Series : TSeries
-{
+public class MAMA_Series : TSeries {
     private int _len;
     protected readonly int _period;
     protected readonly bool _NaN;
@@ -33,8 +32,7 @@ public class MAMA_Series : TSeries
 
     //core constructors
 
-    public MAMA_Series(double fastlimit, double slowlimit, bool useNaN)
-    {
+    public MAMA_Series(double fastlimit, double slowlimit, bool useNaN) {
         _period = (int)(2 / fastlimit) - 1;
         fastl = fastlimit;
         slowl = slowlimit;
@@ -43,8 +41,7 @@ public class MAMA_Series : TSeries
         Name = $"MAMA({_period})";
         _len = 0;
     }
-    public MAMA_Series(TSeries source, double fastlimit, double slowlimit, bool useNaN = false) : this(fastlimit, slowlimit, useNaN)
-    {
+    public MAMA_Series(TSeries source, double fastlimit, double slowlimit, bool useNaN = false) : this(fastlimit, slowlimit, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -52,8 +49,7 @@ public class MAMA_Series : TSeries
     }
     public MAMA_Series() : this(period: 0, useNaN: false) { }
     public MAMA_Series(int period) : this(period, useNaN: false) { }
-    public MAMA_Series(int period, bool useNaN) : this(fastlimit: 2 / (period + 1), slowlimit: 0.2 / (period + 1), useNaN)
-    {
+    public MAMA_Series(int period, bool useNaN) : this(fastlimit: 2 / (period + 1), slowlimit: 0.2 / (period + 1), useNaN) {
         _period = period;
     }
     public MAMA_Series(TBars source) : this(source.Close, period: 0, useNaN: false) { }
@@ -65,14 +61,11 @@ public class MAMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
-        if (!update)
-        {
+        if (!update) {
             // roll forward (oldx = x)
             pr.io = pr.i6; pr.i6 = pr.i5; pr.i5 = pr.i4; pr.i4 = pr.i3; pr.i3 = pr.i2; pr.i2 = pr.i1; pr.i1 = pr.i;
             i1.io = i1.i6; i1.i6 = i1.i5; i1.i5 = i1.i4; i1.i4 = i1.i3; i1.i3 = i1.i2; i1.i2 = i1.i1; i1.i1 = i1.i;
@@ -87,20 +80,17 @@ public class MAMA_Series : TSeries
             fama.i1 = fama.i;
             _len++;
         }
-        if (_period == 0)
-        {
+        if (_period == 0) {
             fastl = 2 / (double)_len;
             slowl = fastl * 0.1;
         }
-        if (_period == 1)
-        {
+        if (_period == 1) {
             fastl = 1;
             slowl = 1;
         }
         var i = _len - 1;
         pr.i = TValue.v;
-        if (i > 5)
-        {
+        if (i > 5) {
             var adj = 0.075 * pd.i1 + 0.54;
 
             // smooth and detrender
@@ -153,19 +143,14 @@ public class MAMA_Series : TSeries
             // final indicators
             mama.i = alpha * (pr.i - mama.i1) + mama.i1;
             fama.i = 0.5d * alpha * (mama.i - fama.i1) + fama.i1;
-        }
-        else
-        {
+        } else {
             sumPr += pr.i;
             pd.i = sm.i = dt.i = i1.i = q1.i = i2.i = q2.i = re.i = im.i = ph.i = 0;
             mama.i = fama.i = sumPr / (i + 1);
 
-            if (_len == 1)
-            {
+            if (_len == 1) {
                 mamaseed = famaseed = TValue.v;
-            }
-            else
-            {
+            } else {
                 mamaseed = fastl * (TValue.v - mamaseed) + mamaseed;
                 famaseed = slowl * (TValue.v - famaseed) + famaseed;
             }
@@ -180,28 +165,23 @@ public class MAMA_Series : TSeries
     }
 
     //variation of Add()
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _len = 0;
     }
 }

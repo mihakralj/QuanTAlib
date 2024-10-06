@@ -15,19 +15,16 @@ Sources:
 
 </summary> */
 
-public class ADL_Series : TSeries
-{
+public class ADL_Series : TSeries {
     protected readonly TBars _data;
     private double _lastadl, _lastlastadl;
 
     //core constructors
-    public ADL_Series()
-    {
+    public ADL_Series() {
         Name = $"ADL()";
         _lastadl = _lastlastadl = 0;
     }
-    public ADL_Series(TBars source)
-    {
+    public ADL_Series(TBars source) {
         _data = source;
         Name = $"ADL({(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _lastadl = _lastlastadl = 0;
@@ -37,15 +34,12 @@ public class ADL_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false)
-    {
-        if (update) { this._lastadl = this._lastlastadl; }
-        else { this._lastlastadl = this._lastadl; }
+    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
+        if (update) { this._lastadl = this._lastlastadl; } else { this._lastlastadl = this._lastadl; }
 
         double _adl = 0;
         double tmp = TBar.h - TBar.l;
-        if (tmp > 0.0)
-        {
+        if (tmp > 0.0) {
             _adl = _lastadl + ((2 * TBar.c - TBar.l - TBar.h) / tmp * TBar.v);
         }
         _lastadl = _adl;
@@ -54,26 +48,21 @@ public class ADL_Series : TSeries
         return base.Add(ret, update);
     }
 
-    public new void Add(TBars data)
-    {
+    public new void Add(TBars data) {
         foreach (var item in data) { Add(item, false); }
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TBar: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TBar: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TBar: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _lastadl = _lastlastadl = 0;
     }
 }

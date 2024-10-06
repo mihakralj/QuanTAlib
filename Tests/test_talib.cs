@@ -12,7 +12,7 @@ public class TAlibTests
     private readonly GbmFeed feed;
     private readonly Random rnd;
     private readonly double range;
-        private readonly int iterations;
+    private readonly int iterations;
     private readonly double[] data;
     private readonly double[] TALIB;
 
@@ -110,28 +110,28 @@ public class TAlibTests
         }
     }
 
-//TODO fix WMA
-/*
-    [Fact]
-    public void WMA()
-    {
-        for (int run = 0; run < iterations; run++)
+    //TODO fix WMA
+    /*
+        [Fact]
+        public void WMA()
         {
-            period = rnd.Next(50) + 5;
-            Wma ma = new(period);
-            TSeries QL = new();
-            foreach (TBar item in feed)
-            { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
-            Core.Wma(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
-            Assert.Equal(QL.Length, TALIB.Count());
-            for (int i = QL.Length - 1; i > period*3; i--)
+            for (int run = 0; run < iterations; run++)
             {
-                double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
-                Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
+                period = rnd.Next(50) + 5;
+                Wma ma = new(period);
+                TSeries QL = new();
+                foreach (TBar item in feed)
+                { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
+                Core.Wma(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
+                Assert.Equal(QL.Length, TALIB.Count());
+                for (int i = QL.Length - 1; i > period*3; i--)
+                {
+                    double TL = i < outBegIdx ? double.NaN : TALIB[i - outBegIdx];
+                    Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
+                }
             }
         }
-    }
-    */
+        */
 
     [Fact]
     public void T3()

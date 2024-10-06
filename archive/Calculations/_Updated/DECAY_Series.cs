@@ -13,8 +13,7 @@ DECAY:
 
 </summary> */
 
-public class DECAY_Series : TSeries
-{
+public class DECAY_Series : TSeries {
     protected readonly int _period;
     protected readonly bool _NaN;
     protected readonly TSeries _data;
@@ -23,8 +22,7 @@ public class DECAY_Series : TSeries
     private readonly double _dfactor;
 
     //core constructors
-    public DECAY_Series(int period, bool exponential, bool useNaN)
-    {
+    public DECAY_Series(int period, bool exponential, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"DECAY({period})";
@@ -32,8 +30,7 @@ public class DECAY_Series : TSeries
         _dfactor = (_exp) ? 1.0 - 1.0 / (double)_period : 1 / (double)_period;
         _pdecay = _ppdecay = 0;
     }
-    public DECAY_Series(TSeries source, int period, bool exponential, bool useNaN) : this(period, exponential, useNaN)
-    {
+    public DECAY_Series(TSeries source, int period, bool exponential, bool useNaN) : this(period, exponential, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -50,14 +47,11 @@ public class DECAY_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
-        if (update) { _pdecay = _ppdecay; }
-        else { _ppdecay = _pdecay; }
+        if (update) { _pdecay = _ppdecay; } else { _ppdecay = _pdecay; }
 
         if (this.Count == 0) { _pdecay = TValue.v; }
         double _decay = Math.Max(TValue.v, Math.Max((_exp) ? _pdecay * _dfactor : _pdecay - _dfactor, 0));
@@ -66,28 +60,23 @@ public class DECAY_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _pdecay = _ppdecay = 0;
     }
 }

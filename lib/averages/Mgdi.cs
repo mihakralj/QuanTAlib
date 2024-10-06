@@ -40,7 +40,9 @@ public class Mgdi : AbstractBase
         {
             _p_prevMd = _prevMd;
             _index++;
-        } else {
+        }
+        else
+        {
             _prevMd = _p_prevMd;
         }
     }
@@ -50,7 +52,8 @@ public class Mgdi : AbstractBase
         ManageState(Input.IsNew);
 
         double value = Input.Value;
-        if (_index < 2){
+        if (_index < 2)
+        {
             _prevMd = value;
         }
         else

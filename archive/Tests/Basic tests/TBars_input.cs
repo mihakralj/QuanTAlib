@@ -5,8 +5,7 @@ using QuanTAlib;
 
 namespace Basics;
 #nullable disable
-public class TBars
-{
+public class TBars {
     private static Type[] maSeriesTypes = new Type[]
     {
     typeof(ATR_Series),
@@ -21,8 +20,7 @@ public class TBars
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Name_exists(Type classType)
-    {
+    public void Name_exists(Type classType) {
         GBM_Feed data = new(10);
 
         var MA_Series = Activator.CreateInstance(classType, data) as TSeries;
@@ -31,8 +29,7 @@ public class TBars
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Series_Length(Type classType)
-    {
+    public void Series_Length(Type classType) {
         GBM_Feed data = new(1000);
 
         var MA_Series = Activator.CreateInstance(classType, data) as TSeries;
@@ -41,8 +38,7 @@ public class TBars
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Return_data(Type classType)
-    {
+    public void Return_data(Type classType) {
         GBM_Feed data = new(10);
         var MA_Series = Activator.CreateInstance(classType, data) as TSeries;
         var result = MA_Series.Add((DateTime.Today, 1, 2, 3, 4, 5));
@@ -51,8 +47,7 @@ public class TBars
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Update(Type classType)
-    {
+    public void Update(Type classType) {
         GBM_Feed data = new(10);
         var MA_Series = Activator.CreateInstance(classType, data) as TSeries;
         var pre_update = MA_Series.Last;
@@ -67,8 +62,7 @@ public class TBars
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Reset(Type classType)
-    {
+    public void Reset(Type classType) {
         GBM_Feed data = new(10);
         var MA_Series = Activator.CreateInstance(classType, data) as TSeries;
         MA_Series.Reset();
@@ -78,18 +72,15 @@ public class TBars
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Period_default(Type classType)
-    {
+    public void Period_default(Type classType) {
         GBM_Feed data = new(100);
 
         var MA_Series = Activator.CreateInstance(classType, data) as TSeries;
         Assert.False(double.IsNaN(MA_Series.Last.v));
     }
 
-    public static IEnumerable<object[]> MASeriesData()
-    {
-        foreach (var type in maSeriesTypes)
-        {
+    public static IEnumerable<object[]> MASeriesData() {
+        foreach (var type in maSeriesTypes) {
             yield return new object[] { type };
         }
     }

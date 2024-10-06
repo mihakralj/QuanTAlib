@@ -24,8 +24,7 @@ Remark:
 
 </summary> */
 
-public class KAMA_Series : TSeries
-{
+public class KAMA_Series : TSeries {
     private readonly System.Collections.Generic.List<double> _buffer = new();
     private double _lastkama, _lastlastkama;
     private readonly double _scFast, _scSlow;
@@ -34,8 +33,7 @@ public class KAMA_Series : TSeries
     protected readonly TSeries _data;
 
     //core constructors
-    public KAMA_Series(int period, int fast, int slow, bool useNaN)
-    {
+    public KAMA_Series(int period, int fast, int slow, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         _scFast = 2.0 / (((period < fast) ? period : fast) + 1);
@@ -43,8 +41,7 @@ public class KAMA_Series : TSeries
         _lastkama = _lastlastkama = 0;
         Name = $"KAMA({period})";
     }
-    public KAMA_Series(TSeries source, int period, int fast, int slow, bool useNaN) : this(period, fast, slow, useNaN)
-    {
+    public KAMA_Series(TSeries source, int period, int fast, int slow, bool useNaN) : this(period, fast, slow, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -63,21 +60,16 @@ public class KAMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
 
-        if (update) { _lastkama = _lastlastkama; }
-        else { _lastlastkama = _lastkama; }
+        if (update) { _lastkama = _lastlastkama; } else { _lastlastkama = _lastkama; }
         BufferTrim(buffer: _buffer, value: TValue.v, period: _period + 1, update: update);
 
         double _kama = 0;
-        if (this.Count < _period) { _kama = TValue.v; }
-        else
-        {
+        if (this.Count < _period) { _kama = TValue.v; } else {
             double _change = Math.Abs(_buffer[^1] - _buffer[(_buffer.Count > _period + 1) ? 1 : 0]);
             double _sumpv = 0;
             for (int i = 1; i < _buffer.Count; i++) { _sumpv += Math.Abs(_buffer[(_buffer.Count > 0) ? i : 0] - _buffer[i - 1]); }
@@ -90,28 +82,23 @@ public class KAMA_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _buffer.Clear();
         _lastkama = _lastlastkama = 0;
     }
