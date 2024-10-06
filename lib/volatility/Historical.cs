@@ -9,7 +9,8 @@ namespace QuanTAlib;
 /// both annualized and non-annualized volatility measures. The calculation uses a sample
 /// standard deviation formula and assumes 252 trading days in a year for annualization.
 /// </remarks>
-public class Historical : AbstractBase {
+public class Historical : AbstractBase
+{
     private readonly int Period;
     private readonly bool IsAnnualized;
     private readonly CircularBuffer _buffer;
@@ -24,8 +25,10 @@ public class Historical : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-    public Historical(int period, bool isAnnualized = true) : base() {
-        if (period < 2) {
+    public Historical(int period, bool isAnnualized = true) : base()
+    {
+        if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
         }
         Period = period;
@@ -43,7 +46,8 @@ public class Historical : AbstractBase {
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate historical volatility.</param>
     /// <param name="isAnnualized">Whether to annualize the volatility (default is true).</param>
-    public Historical(object source, int period, bool isAnnualized = true) : this(period, isAnnualized) {
+    public Historical(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
+    {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
@@ -51,7 +55,8 @@ public class Historical : AbstractBase {
     /// <summary>
     /// Initializes the Historical instance by clearing buffers and resetting the previous close value.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _buffer.Clear();
         _logReturns.Clear();
@@ -62,8 +67,10 @@ public class Historical : AbstractBase {
     /// Manages the state of the Historical instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _lastValidValue = Input.Value;
             _index++;
         }
@@ -82,19 +89,23 @@ public class Historical : AbstractBase {
     /// 3. If annualized, multiply by the square root of 252 (assumed trading days in a year).
     /// The method returns 0 until enough data points are available for the calculation.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
 
         _buffer.Add(Input.Value, Input.IsNew);
 
         double volatility = 0;
-        if (_buffer.Count > 1) {
-            if (_previousClose != 0) {
+        if (_buffer.Count > 1)
+        {
+            if (_previousClose != 0)
+            {
                 double logReturn = Math.Log(Input.Value / _previousClose);
                 _logReturns.Add(logReturn, Input.IsNew);
             }
 
-            if (_logReturns.Count == Period) {
+            if (_logReturns.Count == Period)
+            {
                 var returns = _logReturns.GetSpan().ToArray();
                 double mean = returns.Average();
                 double sumOfSquaredDifferences = returns.Sum(x => Math.Pow(x - mean, 2));
@@ -102,7 +113,8 @@ public class Historical : AbstractBase {
                 double variance = sumOfSquaredDifferences / (Period - 1);  // Using sample standard deviation
                 volatility = Math.Sqrt(variance);
 
-                if (IsAnnualized) {
+                if (IsAnnualized)
+                {
                     // Assuming 252 trading days in a year. Adjust as needed.
                     volatility *= Math.Sqrt(252);
                 }

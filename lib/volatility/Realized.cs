@@ -9,7 +9,8 @@ namespace QuanTAlib;
 /// both annualized and non-annualized volatility measures. The calculation uses a rolling
 /// sum of squared returns for efficiency and assumes 252 trading days in a year for annualization.
 /// </remarks>
-public class Realized : AbstractBase {
+public class Realized : AbstractBase
+{
     private readonly int Period;
     private readonly bool IsAnnualized;
     private readonly CircularBuffer _returns;
@@ -24,8 +25,10 @@ public class Realized : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-    public Realized(int period, bool isAnnualized = true) : base() {
-        if (period < 2) {
+    public Realized(int period, bool isAnnualized = true) : base()
+    {
+        if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
         }
         Period = period;
@@ -39,7 +42,8 @@ public class Realized : AbstractBase {
     /// <summary>
     /// Initializes the Realized instance by clearing buffers and resetting calculation variables.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _returns.Clear();
         _previousClose = 0;
@@ -50,8 +54,10 @@ public class Realized : AbstractBase {
     /// Manages the state of the Realized instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _lastValidValue = Input.Value;
             _index++;
         }
@@ -72,14 +78,17 @@ public class Realized : AbstractBase {
     /// 5. If annualized, multiply by the square root of 252 (assumed trading days in a year).
     /// The method returns 0 until enough data points are available for the calculation.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
 
         double volatility = 0;
-        if (_previousClose != 0) {
+        if (_previousClose != 0)
+        {
             double logReturn = Math.Log(Input.Value / _previousClose);
 
-            if (_returns.Count == Period) {
+            if (_returns.Count == Period)
+            {
                 // Remove the oldest squared return from the sum
                 _sumSquaredReturns -= Math.Pow(_returns[0], 2);
             }
@@ -87,11 +96,13 @@ public class Realized : AbstractBase {
             _returns.Add(logReturn, Input.IsNew);
             _sumSquaredReturns += Math.Pow(logReturn, 2);
 
-            if (_returns.Count == Period) {
+            if (_returns.Count == Period)
+            {
                 double variance = _sumSquaredReturns / Period;
                 volatility = Math.Sqrt(variance);
 
-                if (IsAnnualized) {
+                if (IsAnnualized)
+                {
                     // Assuming 252 trading days in a year. Adjust as needed.
                     volatility *= Math.Sqrt(252);
                 }

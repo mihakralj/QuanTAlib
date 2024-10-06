@@ -10,7 +10,8 @@ namespace QuanTAlib;
 /// between two data points. Before the specified period is reached, it returns the
 /// average of the available values as an approximation.
 /// </remarks>
-public class Percentile : AbstractBase {
+public class Percentile : AbstractBase
+{
     private readonly int Period;
     private readonly double Percent;
     private readonly CircularBuffer _buffer;
@@ -23,11 +24,14 @@ public class Percentile : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2 or percent is not between 0 and 100.
     /// </exception>
-    public Percentile(int period, double percent) : base() {
-        if (period < 2) {
+    public Percentile(int period, double percent) : base()
+    {
+        if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2 for percentile calculation.");
         }
-        if (percent < 0 || percent > 100) {
+        if (percent < 0 || percent > 100)
+        {
             throw new ArgumentOutOfRangeException(nameof(percent), "Percent must be between 0 and 100.");
         }
         Period = period;
@@ -44,7 +48,8 @@ public class Percentile : AbstractBase {
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the percentile.</param>
     /// <param name="percent">The percentile to calculate (between 0 and 100).</param>
-    public Percentile(object source, int period, double percent) : this(period, percent) {
+    public Percentile(object source, int period, double percent) : this(period, percent)
+    {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
@@ -52,7 +57,8 @@ public class Percentile : AbstractBase {
     /// <summary>
     /// Initializes the Percentile instance by clearing the buffer.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _buffer.Clear();
     }
@@ -61,8 +67,10 @@ public class Percentile : AbstractBase {
     /// Manages the state of the Percentile instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _lastValidValue = Input.Value;
             _index++;
         }
@@ -80,12 +88,14 @@ public class Percentile : AbstractBase {
     /// as an approximation. Once the period is reached, it calculates the true percentile by
     /// sorting the values and interpolating as necessary.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
         _buffer.Add(Input.Value, Input.IsNew);
 
         double result;
-        if (_buffer.Count >= Period) {
+        if (_buffer.Count >= Period)
+        {
             var values = _buffer.GetSpan().ToArray();
             Array.Sort(values);
 
@@ -93,16 +103,21 @@ public class Percentile : AbstractBase {
             int lowerIndex = (int)Math.Floor(position);
             int upperIndex = (int)Math.Ceiling(position);
 
-            if (lowerIndex == upperIndex) {
+            if (lowerIndex == upperIndex)
+            {
                 result = values[lowerIndex];
-            } else {
+            }
+            else
+            {
                 // Interpolate between the two nearest values
                 double lowerValue = values[lowerIndex];
                 double upperValue = values[upperIndex];
                 double fraction = position - lowerIndex;
                 result = lowerValue + (upperValue - lowerValue) * fraction;
             }
-        } else {
+        }
+        else
+        {
             // Use average for insufficient data, like the Median class
             result = _buffer.Average();
         }

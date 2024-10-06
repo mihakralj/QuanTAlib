@@ -11,19 +11,19 @@ public interface iTValue
 public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : iTValue
 {
     public DateTime Time { get; init; } = Time;
-    public double Value { get; init; } = Value;
-    public bool IsNew { get; init; } = IsNew;
-    public bool IsHot { get; init; } = IsHot;
-    public DateTime t => Time;
-    public double v => Value;
+public double Value { get; init; } = Value;
+public bool IsNew { get; init; } = IsNew;
+public bool IsHot { get; init; } = IsHot;
+public DateTime t => Time;
+public double v => Value;
 
-    public TValue() : this(DateTime.UtcNow, 0) { }
-    public TValue(double value, bool isNew = true, bool isHot = true) : this(DateTime.UtcNow, value, IsNew: isNew, IsHot: isHot) { }
-    public static implicit operator double(TValue tv) => tv.Value;
-    public static implicit operator DateTime(TValue tv) => tv.Time;
-    public static implicit operator TValue(double value) => new TValue(DateTime.UtcNow, value);
+public TValue() : this(DateTime.UtcNow, 0) { }
+public TValue(double value, bool isNew = true, bool isHot = true) : this(DateTime.UtcNow, value, IsNew: isNew, IsHot: isHot) { }
+public static implicit operator double(TValue tv) => tv.Value;
+public static implicit operator DateTime(TValue tv) => tv.Time;
+public static implicit operator TValue(double value) => new TValue(DateTime.UtcNow, value);
 
-    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}, {Value:F2}, IsNew: {IsNew}, IsHot: {IsHot}]";
+public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}, {Value:F2}, IsNew: {IsNew}, IsHot: {IsHot}]";
 }
 
 public delegate void ValueSignal(object source, in ValueEventArgs args);
@@ -66,7 +66,7 @@ public class TSeries : List<TValue>
 
     public new virtual void Add(TValue tick)
     {
-        if (tick.IsNew || base.Count==0) { base.Add(tick); }
+        if (tick.IsNew || base.Count == 0) { base.Add(tick); }
         else { this[^1] = tick; }
         Pub?.Invoke(this, new ValueEventArgs(tick));
     }

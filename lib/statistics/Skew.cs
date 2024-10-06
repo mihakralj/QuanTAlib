@@ -10,7 +10,8 @@ namespace QuanTAlib;
 /// for sample skewness calculation. A minimum of 3 data points is required for the
 /// calculation.
 /// </remarks>
-public class Skew : AbstractBase {
+public class Skew : AbstractBase
+{
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
@@ -21,8 +22,10 @@ public class Skew : AbstractBase {
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 3.
     /// </exception>
-    public Skew(int period) : base() {
-        if (period < 3) {
+    public Skew(int period) : base()
+    {
+        if (period < 3)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 3 for skewness calculation.");
         }
         Period = period;
@@ -37,7 +40,8 @@ public class Skew : AbstractBase {
     /// </summary>
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the skewness.</param>
-    public Skew(object source, int period) : this(period) {
+    public Skew(object source, int period) : this(period)
+    {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
@@ -45,7 +49,8 @@ public class Skew : AbstractBase {
     /// <summary>
     /// Initializes the Skew instance by clearing the buffer.
     /// </summary>
-    public override void Init() {
+    public override void Init()
+    {
         base.Init();
         _buffer.Clear();
     }
@@ -54,8 +59,10 @@ public class Skew : AbstractBase {
     /// Manages the state of the Skew instance based on whether a new value is being processed.
     /// </summary>
     /// <param name="isNew">Indicates whether the current input is a new value.</param>
-    protected override void ManageState(bool isNew) {
-        if (isNew) {
+    protected override void ManageState(bool isNew)
+    {
+        if (isNew)
+        {
             _lastValidValue = Input.Value;
             _index++;
         }
@@ -73,13 +80,15 @@ public class Skew : AbstractBase {
     /// calculation. If there are fewer than 3 data points, or if the standard
     /// deviation is zero, the method returns 0.
     /// </remarks>
-    protected override double Calculation() {
+    protected override double Calculation()
+    {
         ManageState(Input.IsNew);
 
         _buffer.Add(Input.Value, Input.IsNew);
 
         double skew = 0;
-        if (_buffer.Count >= 3) {  // We need at least 3 data points for skewness
+        if (_buffer.Count >= 3)
+        {  // We need at least 3 data points for skewness
             var values = _buffer.GetSpan().ToArray();
             double mean = values.Average();
             double n = values.Length;
@@ -87,7 +96,8 @@ public class Skew : AbstractBase {
             double sumCubedDeviations = 0;
             double sumSquaredDeviations = 0;
 
-            foreach (var value in values) {
+            foreach (var value in values)
+            {
                 double deviation = value - mean;
                 sumCubedDeviations += Math.Pow(deviation, 3);
                 sumSquaredDeviations += Math.Pow(deviation, 2);
@@ -98,7 +108,8 @@ public class Skew : AbstractBase {
             double m2 = sumSquaredDeviations / n;
             double s3 = Math.Pow(m2, 1.5);
 
-            if (s3 != 0) {  // Avoid division by zero
+            if (s3 != 0)
+            {  // Avoid division by zero
                 skew = (Math.Sqrt(n * (n - 1)) / (n - 2)) * (m3 / s3);
             }
         }

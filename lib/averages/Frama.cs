@@ -45,7 +45,7 @@ namespace QuanTAlib
         protected override double Calculation()
         {
             ManageState(Input.IsNew);
-            
+
             _buffer.Add(Input.Value, Input.IsNew);
 
             if (_buffer.Count < _period)

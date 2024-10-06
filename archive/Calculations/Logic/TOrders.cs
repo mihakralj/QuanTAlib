@@ -6,8 +6,7 @@ using System.Data;
 using System.Linq;
 
 
-public enum OType
-{
+public enum OType {
     NIL = 0, // No position
     BTO = 1, // Buy to Open
     STC = 2, // Sell to Close
@@ -17,19 +16,15 @@ public enum OType
 }
 
 
-public class TOrders : List<(DateTime t, OType o)>
-{
+public class TOrders : List<(DateTime t, OType o)> {
 
-    public void Add((DateTime t, OType o) TOrder, bool update = false)
-    {
-        if (update) { this[^1] = TOrder; }
-        else { base.Add(TOrder); }
+    public void Add((DateTime t, OType o) TOrder, bool update = false) {
+        if (update) { this[^1] = TOrder; } else { base.Add(TOrder); }
         OnEvent(update);
     }
 
 
-    protected virtual void OnEvent(bool update = false)
-    {
+    protected virtual void OnEvent(bool update = false) {
         Pub?.Invoke(this, new TSeriesEventArgs { update = update });
     }
     public delegate void NewDataEventHandler(object source, TSeriesEventArgs args);

@@ -21,8 +21,7 @@ Issues:
 
 </summary> */
 
-public class EMA_Series : TSeries
-{
+public class EMA_Series : TSeries {
     private double _k;
     private double _lastema, _oldema;
     private double _sum, _oldsum;
@@ -34,8 +33,7 @@ public class EMA_Series : TSeries
 
     //core constructors
 
-    public EMA_Series(int period, bool useNaN, bool useSMA)
-    {
+    public EMA_Series(int period, bool useNaN, bool useSMA) {
         _period = period;
         _NaN = useNaN;
         _useSMA = useSMA;
@@ -44,8 +42,7 @@ public class EMA_Series : TSeries
         _len = 0;
         _sum = _oldsum = _lastema = _oldema = 0;
     }
-    public EMA_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA)
-    {
+    public EMA_Series(TSeries source, int period, bool useNaN, bool useSMA) : this(period, useNaN, useSMA) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -62,42 +59,31 @@ public class EMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (update)
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (update) {
             _lastema = _oldema;
             _sum = _oldsum;
-        }
-        else
-        {
+        } else {
             _oldema = _lastema;
             _oldsum = _sum;
             _len++;
         }
 
         double _ema = 0;
-        if (_period == 0)
-        {
+        if (_period == 0) {
             _k = 2.0 / (_len + 1);
         }
 
-        if (Count == 0)
-        {
+        if (Count == 0) {
             _ema = _sum = TValue.v;
-        }
-        else if (_len <= _period && _useSMA && _period != 0)
-        {
+        } else if (_len <= _period && _useSMA && _period != 0) {
             _sum += TValue.v;
-            if (_period != 0 && _len > _period)
-            {
+            if (_period != 0 && _len > _period) {
                 _sum -= _data[Count - _period - (update ? 1 : 0)].v;
             }
 
             _ema = _sum / Math.Min(_len, _period);
-        }
-        else
-        {
+        } else {
             _ema = _k * (TValue.v - _lastema) + _lastema;
         }
 
@@ -108,28 +94,23 @@ public class EMA_Series : TSeries
     }
 
     //variation of Add()
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _sum = _oldsum = _lastema = _oldema = 0;
         _len = 0;
     }

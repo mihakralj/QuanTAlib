@@ -4,8 +4,7 @@ using System.Linq;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
-public class MovingAverageSlope_chart : Indicator
-{
+public class MovingAverageSlope_chart : Indicator {
     #region Parameters
     [InputParameter("MA1: Type:", 0, variants: new object[]
         { "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FWMA", 7,  "DEMA", 8,  "TEMA", 9,
@@ -55,28 +54,24 @@ public class MovingAverageSlope_chart : Indicator
     private bool inLong, inShort;
     ///////
 
-    public MovingAverageSlope_chart()
-    {
+    public MovingAverageSlope_chart() {
         this.SeparateWindow = false;
         this.Name = "Slopes convergence";
         this.AddLineSeries("MA1", Color.DarkSlateGray, 2, LineStyle.Solid);
         this.AddLineSeries("MA2", Color.DarkSlateGray, 2, LineStyle.Solid);
     }
 
-    protected override void OnInit()
-    {
+    protected override void OnInit() {
         this.bars = new();
         this.History = this.Symbol.GetHistory(period: this.HistoricalData.Period, fromTime: HistoricalData.FromTime);
-        for (int i = this.History.Count - 1; i >= 0; i--)
-        {
+        for (int i = this.History.Count - 1; i >= 0; i--) {
             var rec = this.History[i, SeekOriginHistory.Begin];
             bars.Add(rec.TimeLeft, rec[PriceType.Open],
             rec[PriceType.High], rec[PriceType.Low],
             rec[PriceType.Close], rec[PriceType.Volume]);
         }
         this.Name = "Slopes convergence: [ ";
-        switch (MA1type)
-        {
+        switch (MA1type) {
             case 0:
                 MA1 = new SMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period, useNaN: false);
                 this.Name += $"SMA";
@@ -150,8 +145,7 @@ public class MovingAverageSlope_chart : Indicator
 
         this.Name = this.Name + $" ({MA1Period}:{TBars.SelectStr(this.MA1DataSource)}) : ";
 
-        switch (MA2type)
-        {
+        switch (MA2type) {
             case 0:
                 MA2 = new SMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period, useNaN: false);
                 this.Name += $"SMA";
@@ -239,8 +233,7 @@ public class MovingAverageSlope_chart : Indicator
         sig2.Keep = maxKeep;
     }
 
-    protected override void OnUpdate(UpdateArgs args)
-    {
+    protected override void OnUpdate(UpdateArgs args) {
         bool update = !(args.Reason == UpdateReason.NewBar ||
                                         args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.Open(), this.High(), this.Low(), this.Close(), this.Volume(), update);
@@ -253,46 +246,35 @@ public class MovingAverageSlope_chart : Indicator
         this.LinesSeries[0].SetMarker(0, s1Color);
         this.LinesSeries[1].SetMarker(0, s2Color);
 
-        if (sig1[^1].v > 0 || sig2[^1].v > 0)
-        {
-            if (sMA1[^1].v >= 0 && sMA2[^1].v >= 0 && LongTrades)
-            {
+        if (sig1[^1].v > 0 || sig2[^1].v > 0) {
+            if (sMA1[^1].v >= 0 && sMA2[^1].v >= 0 && LongTrades) {
                 inLong = true;
                 this.BeginCloud(0, 1, Color.FromArgb(127, Color.DarkGreen));
                 this.LinesSeries[(this.MA1[^1].v < this.MA2[^1].v) ? 0 : 1].SetMarker(0, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.UpArrow));
-            }
-            else
-            {
+            } else {
                 this.EndCloud(0, 1, Color.Empty);
-                if (inShort && this.Count > 1)
-                {
+                if (inShort && this.Count > 1) {
                     this.LinesSeries[(this.MA1[^1].v < this.MA2[^1].v) ? 1 : 0].SetMarker(1, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.DownArrow));
                     inShort = false;
                 }
             }
         }
 
-        if (sig1[^1].v < 0 || sig2[^1].v < 0)
-        {
-            if (sMA1[^1].v <= 0 && sMA2[^1].v <= 0 && ShortTrades)
-            {
+        if (sig1[^1].v < 0 || sig2[^1].v < 0) {
+            if (sMA1[^1].v <= 0 && sMA2[^1].v <= 0 && ShortTrades) {
                 inShort = true;
                 this.BeginCloud(0, 1, Color.FromArgb(100, Color.Red));
                 this.LinesSeries[(this.MA1[^1].v > this.MA2[^1].v) ? 0 : 1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.UpArrow));
-            }
-            else
-            {
+            } else {
                 this.EndCloud(0, 1, Color.Empty);
-                if (inLong && this.Count > 1)
-                {
+                if (inLong && this.Count > 1) {
                     LinesSeries[(this.MA1[^1].v > this.MA2[^1].v) ? 1 : 0].SetMarker(1, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
                     inLong = false;
                 }
             }
         }
     }
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
+    public override void OnPaintChart(PaintChartEventArgs args) {
         base.OnPaintChart(args);
         if (this.CurrentChart == null) { return; }
         Graphics graphics = args.Graphics;

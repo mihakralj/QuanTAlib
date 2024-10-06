@@ -31,8 +31,7 @@ HWMA[i] = F[i] + V[i] + 0.5 * A[i]
 
 </summary> */
 
-public class HWMA_Series : TSeries
-{
+public class HWMA_Series : TSeries {
     private int _len;
     protected readonly int _period;
     protected readonly bool _NaN;
@@ -43,8 +42,7 @@ public class HWMA_Series : TSeries
 
     //core constructors
 
-    public HWMA_Series(double nA, double nB, double nC, bool useNaN)
-    {
+    public HWMA_Series(double nA, double nB, double nC, bool useNaN) {
         _period = (int)((2 - nA) / nA);
         _nA = nA;
         _nB = nB;
@@ -53,8 +51,7 @@ public class HWMA_Series : TSeries
         Name = $"HWMA({_period})";
         _len = 0;
     }
-    public HWMA_Series(TSeries source, double nA, double nB, double nC, bool useNaN = false) : this(nA, nB, nC, useNaN)
-    {
+    public HWMA_Series(TSeries source, double nA, double nB, double nC, bool useNaN = false) : this(nA, nB, nC, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -62,8 +59,7 @@ public class HWMA_Series : TSeries
     }
     public HWMA_Series() : this(period: 0, useNaN: false) { }
     public HWMA_Series(int period) : this(period, useNaN: false) { }
-    public HWMA_Series(int period, bool useNaN) : this(nA: 2 / (1 + (double)period), nB: 1 / (double)period, nC: 1 / (double)period, useNaN)
-    {
+    public HWMA_Series(int period, bool useNaN) : this(nA: 2 / (1 + (double)period), nB: 1 / (double)period, nC: 1 / (double)period, useNaN) {
         _period = period;
     }
     public HWMA_Series(TBars source) : this(source.Close, period: 0, useNaN: false) { }
@@ -74,32 +70,26 @@ public class HWMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
         double _F, _V, _A;
         if (_len == 0) { _pF = TValue.v; _pA = _pV = 0; }
 
-        if (update) { _pF = _ppF; _pV = _ppV; _pA = _ppA; }
-        else
-        {
+        if (update) { _pF = _ppF; _pV = _ppV; _pA = _ppA; } else {
             _ppF = _pF;
             _ppV = _pV;
             _ppA = _pA;
             _len++;
         }
 
-        if (_period == 0)
-        {
+        if (_period == 0) {
             _nA = 2 / (1 + (double)_len);
             _nB = 1 / (double)_len;
             _nC = 1 / (double)_len;
         }
-        if (_period == 1)
-        {
+        if (_period == 1) {
             _nA = 1;
             _nB = 0;
             _nC = 0;
@@ -119,28 +109,23 @@ public class HWMA_Series : TSeries
     }
 
     //variation of Add()
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _len = 0;
     }
 }

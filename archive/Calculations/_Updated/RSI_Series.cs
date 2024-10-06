@@ -15,8 +15,7 @@ Sources:
 
 </summary> */
 
-public class RSI_Series : TSeries
-{
+public class RSI_Series : TSeries {
     private readonly System.Collections.Generic.List<double> _gain = new();
     private readonly System.Collections.Generic.List<double> _loss = new();
     protected readonly int _period;
@@ -27,15 +26,13 @@ public class RSI_Series : TSeries
     private int i;
 
     //core constructors
-    public RSI_Series(int period, bool useNaN)
-    {
+    public RSI_Series(int period, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"RSI({period})";
         i = 0;
     }
-    public RSI_Series(TSeries source, int period, bool useNaN) : this(period, useNaN)
-    {
+    public RSI_Series(TSeries source, int period, bool useNaN) : this(period, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -51,18 +48,14 @@ public class RSI_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
 
         double _rsi = 0;
-        if (update)
-        {
+        if (update) {
             _lastValue = _lastValue_o;
             _avgGain = _avgGain_o;
             _avgLoss = _avgLoss_o;
-        }
-        else
-        {
+        } else {
             _lastValue_o = _lastValue;
             _avgGain_o = _avgGain;
             _avgLoss_o = _avgLoss;
@@ -77,20 +70,16 @@ public class RSI_Series : TSeries
         _lastValue = TValue.v;
 
         // calculate RSI
-        if (i > _period && _period != 0)
-        {
+        if (i > _period && _period != 0) {
             _avgGain = ((_avgGain * (_period - 1)) + _gain[^1]) / _period;
             _avgLoss = ((_avgLoss * (_period - 1)) + _loss[^1]) / _period;
-            if (_avgLoss > 0)
-            {
+            if (_avgLoss > 0) {
                 double rs = _avgGain / _avgLoss;
                 _rsi = 100 - (100 / (1 + rs));
-            }
-            else { _rsi = 100; }
+            } else { _rsi = 100; }
         }
         // initialize average gain
-        else
-        {
+        else {
             double _sumGain = 0;
             for (int p = 0; p < _gain.Count; p++) { _sumGain += _gain[p]; }
             double _sumLoss = 0;
@@ -107,28 +96,23 @@ public class RSI_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         i = 0;
     }
 }

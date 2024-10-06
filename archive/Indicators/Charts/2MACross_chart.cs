@@ -4,8 +4,7 @@ using System.Linq;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
-public class MovingAverage_chart : Indicator
-{
+public class MovingAverage_chart : Indicator {
     #region Parameters
     [InputParameter("MA1: Type:", 0, variants: new object[]
         { "SMA", 0, "EMA", 1,  "WMA", 2,  "T3", 3,  "SMMA", 4,  "TRIMA", 5, "DWMA", 6,  "FWMA", 7,  "DEMA", 8,  "TEMA", 9,
@@ -51,28 +50,24 @@ public class MovingAverage_chart : Indicator
 
     ///////
 
-    public MovingAverage_chart()
-    {
+    public MovingAverage_chart() {
         this.SeparateWindow = false;
         this.Name = "MAs Crossover";
         this.AddLineSeries("MA1", Color.LimeGreen, 2, LineStyle.Solid);
         this.AddLineSeries("MA2", Color.OrangeRed, 2, LineStyle.Solid);
     }
 
-    protected override void OnInit()
-    {
+    protected override void OnInit() {
         this.bars = new();
         this.History = this.Symbol.GetHistory(period: this.HistoricalData.Period, fromTime: HistoricalData.FromTime);
-        for (int i = this.History.Count - 1; i >= 0; i--)
-        {
+        for (int i = this.History.Count - 1; i >= 0; i--) {
             var rec = this.History[i, SeekOriginHistory.Begin];
             bars.Add(rec.TimeLeft, rec[PriceType.Open],
             rec[PriceType.High], rec[PriceType.Low],
             rec[PriceType.Close], rec[PriceType.Volume]);
         }
         this.Name = "MAs Cross: [ ";
-        switch (MA1type)
-        {
+        switch (MA1type) {
             case 0:
                 MA1 = new SMA_Series(source: bars.Select(this.MA1DataSource), period: this.MA1Period, useNaN: false);
                 this.Name += $"SMA";
@@ -146,8 +141,7 @@ public class MovingAverage_chart : Indicator
 
         this.Name = this.Name + $" ({MA1Period}:{TBars.SelectStr(this.MA1DataSource)}) : ";
 
-        switch (MA2type)
-        {
+        switch (MA2type) {
             case 0:
                 MA2 = new SMA_Series(source: bars.Select(this.MA2DataSource), period: this.MA2Period, useNaN: false);
                 this.Name += $"SMA";
@@ -230,8 +224,7 @@ public class MovingAverage_chart : Indicator
         trades = new(MA1, MA2);
     }
 
-    protected override void OnUpdate(UpdateArgs args)
-    {
+    protected override void OnUpdate(UpdateArgs args) {
         bool update = !(args.Reason == UpdateReason.NewBar ||
                                         args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
@@ -242,35 +235,28 @@ public class MovingAverage_chart : Indicator
         this.SetValue(this.MA1[^1].v, lineIndex: 0);
         this.SetValue(this.MA2[^1].v, lineIndex: 1);
 
-        if (trades[^1].v == 1)
-        {
+        if (trades[^1].v == 1) {
             this.EndCloud(0, 1, Color.Empty);
-            if (LongTrades)
-            {
+            if (LongTrades) {
                 this.LinesSeries[0].SetMarker(0, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.UpArrow));
                 this.BeginCloud(0, 1, Color.FromArgb(127, Color.Green));
             }
-            if (ShortTrades)
-            {
+            if (ShortTrades) {
                 this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.DownArrow));
             }
         }
-        if (trades[^1].v == -1)
-        {
+        if (trades[^1].v == -1) {
             this.EndCloud(0, 1, Color.Empty);
-            if (ShortTrades)
-            {
+            if (ShortTrades) {
                 this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.OrangeRed, upperIcon: IndicatorLineMarkerIconType.UpArrow));
                 this.BeginCloud(0, 1, Color.FromArgb(127, Color.Red));
             }
-            if (LongTrades)
-            {
+            if (LongTrades) {
                 this.LinesSeries[0].SetMarker(0, new IndicatorLineMarker(Color.LimeGreen, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
             }
         }
     }
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
+    public override void OnPaintChart(PaintChartEventArgs args) {
         base.OnPaintChart(args);
         if (this.CurrentChart == null) { return; }
         Graphics graphics = args.Graphics;

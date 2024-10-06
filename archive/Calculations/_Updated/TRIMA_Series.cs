@@ -15,8 +15,7 @@ Remark:
 
 </summary> */
 
-public class TRIMA_Series : TSeries
-{
+public class TRIMA_Series : TSeries {
     private readonly int _p1a, _p1b;
     private readonly SMA_Series sma, trima;
     protected readonly int _period;
@@ -24,8 +23,7 @@ public class TRIMA_Series : TSeries
     protected readonly TSeries _data;
 
     //core constructors
-    public TRIMA_Series(int period, bool useNaN)
-    {
+    public TRIMA_Series(int period, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"xMA({period})";
@@ -35,8 +33,7 @@ public class TRIMA_Series : TSeries
         trima = new(_p1b);
 
     }
-    public TRIMA_Series(TSeries source, int period, bool useNaN) : this(period, useNaN)
-    {
+    public TRIMA_Series(TSeries source, int period, bool useNaN) : this(period, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -52,10 +49,8 @@ public class TRIMA_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
-        if (double.IsNaN(TValue.v))
-        {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
+        if (double.IsNaN(TValue.v)) {
             return base.Add((TValue.t, Double.NaN), update);
         }
 
@@ -66,28 +61,23 @@ public class TRIMA_Series : TSeries
         return base.Add(res, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         sma.Reset();
         trima.Reset();
     }
