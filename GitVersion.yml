@@ -18,19 +18,28 @@ branches:
     source-branches: []
     tracks-release-branches: false
     is-release-branch: true
-    is-main-branch: true
     pre-release-weight: 55000
 
   dev:
-    regex: ^dev(elop)?(ment)?$
+    regex: ^dev$
     mode: ContinuousDelivery
-    label: dev
+    label: ''
     increment: Patch
     track-merge-target: true
     source-branches: ['main']
     tracks-release-branches: true
     is-release-branch: false
-    is-main-branch: false
+    pre-release-weight: 0
+
+  develop:
+    regex: ^develop$
+    mode: ContinuousDelivery
+    label: ''
+    increment: Patch
+    track-merge-target: true
+    source-branches: ['main']
+    tracks-release-branches: true
+    is-release-branch: false
     pre-release-weight: 0
 
 ignore:

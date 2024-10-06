@@ -1,6 +1,10 @@
 using Xunit;
 using Skender.Stock.Indicators;
-using QuanTAlib;
+using System.Diagnostics.CodeAnalysis;
+
+namespace QuanTAlib;
+
+[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
 
 public class SkenderTests
 {

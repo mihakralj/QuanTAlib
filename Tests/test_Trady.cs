@@ -2,7 +2,11 @@ using Xunit;
 using Trady.Analysis.Indicator;
 using Trady.Core;
 using Trady.Core.Infrastructure;
-using QuanTAlib;
+using System.Diagnostics.CodeAnalysis;
+
+namespace QuanTAlib;
+
+[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
 
 public class TradyTests
 {

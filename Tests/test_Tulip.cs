@@ -1,7 +1,10 @@
 using Xunit;
 using Tulip;
-using QuanTAlib;
+using System.Diagnostics.CodeAnalysis;
 
+namespace QuanTAlib;
+
+[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
 public class TulipTests
 {
     private readonly TBarSeries bars;
@@ -71,10 +74,7 @@ public class TulipTests
                 double QL_item = QL[i].Value;
                 double TU = arrout[0][i];
                 Assert.True(Math.Abs(TU - QL_item) <= range, $"Assertion failed at index {i} for period {period}: TU = {TU}, QL_item = {QL_item}, delta = {TU - QL_item}");
-
             }
         }
     }
-
-
 }
