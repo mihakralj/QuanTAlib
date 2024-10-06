@@ -1,12 +1,6 @@
 name: Stage/build/test/release/publish
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build_test:

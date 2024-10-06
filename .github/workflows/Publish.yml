@@ -48,9 +48,10 @@ jobs:
           dotnet sonarscanner begin \
             /k:"mihakralj_QuanTAlib" \
             /o:"mihakralj" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.dotcover.reportsPaths=dotcover*
+            /d:sonar.cs.dotcover.reportsPaths=dotcover* \
+            /d:sonar.scanner.scanAll=false
 
       - name: Build
         run: |

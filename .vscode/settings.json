@@ -6,9 +6,9 @@
             "connectionId": "mihakralj"
         }
     ],
+    "sarif-viewer.connectToGithubCodeScanning": "on",
     "sonarlint.connectedMode.project": {
         "connectionId": "mihakralj",
         "projectKey": "mihakralj_QuanTAlib"
-    },
-    "sarif-viewer.connectToGithubCodeScanning": "on"
+    }
 }
