@@ -10,15 +10,19 @@ QuanTAlib.Formatters.Initialize();
 
 #!csharp
 
-Sma ma1 = new(6);
-Gmean ma2 = new (6);
-Hmean ma3 = new (6);
+TSeries input = new();
+Sma ma1 = new (6);
+Sma ma2 = new (input, 6);
 
-double[] input = new[]{1.0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12,13,14,15,16,17,18,19,20};
-for (int i=0; i<input.Length; i++) {
-    double out1 = ma1.Calc(input[i]);
-    double out2 = ma2.Calc(input[i]);
-    double out3 = ma3.Calc(input[i]);
+Random random = new Random();
 
-    Console.WriteLine($"{input[i]:F2}\t {out1:F2}\t {out2:F2}\t {out3:F2}");
+for (int i = 0; i < 100; i++) {
+    double randomValue = random.NextDouble() * 100;
+    input.Add(randomValue);
+    ma1.Calc(randomValue);
 }
+
+#!csharp
+
+display(ma1);
+display(ma2);

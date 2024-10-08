@@ -1,11 +1,12 @@
 <Project>
   <PropertyGroup>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
-    <LangVersion>preview</LangVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>

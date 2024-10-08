@@ -5,20 +5,24 @@ namespace QuanTAlib;
 public class Frama : AbstractBase
 {
     private readonly int _period;
-    private readonly double _fc;
     private readonly CircularBuffer _buffer;
     private double _lastFrama;
     private double _prevLastFrama;
 
-    public Frama(int period, double fc = 0.5)
+    public Frama(int period)
     {
         if (period < 2)
             throw new ArgumentException("Period must be at least 2", nameof(period));
 
         _period = period;
-        _fc = fc;
         _buffer = new CircularBuffer(period);
         WarmupPeriod = period;
+    }
+
+    public Frama(object source, int period) : this(period)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
     public override void Init()

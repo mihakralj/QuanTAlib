@@ -35,6 +35,12 @@ public class Jma : AbstractBase
         Init();
     }
 
+    public Jma(object source, int period, double phase = 0, int vshort = 10) : this(period, phase, vshort)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+    }
+
     public override void Init()
     {
         _upperBand = _lowerBand = _prevMa1 = _prevDet0 = _prevDet1 = _prevJma = 0.0;

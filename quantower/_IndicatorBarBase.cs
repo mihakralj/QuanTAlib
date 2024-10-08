@@ -19,7 +19,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
     // LineSeries.LineSeries(string, Color, int, LineStyle)'
 
     protected LineSeries? Series;
-    protected abstract AbstractBarBase QuanTAlib { get; }
+    protected abstract AbstractBase QuanTAlib { get; }
 
     int IWatchlistIndicator.MinHistoryDepths => 0;
 
@@ -80,7 +80,7 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
             int barX = (int)converter.GetChartX(Time(i));
             int barY = (int)converter.GetChartY(Series![i]);
             int halfBarWidth = CurrentChart.BarsWidth / 2;
-            Point point = new Point(barX + halfBarWidth, barY);
+            Point point = new(barX + halfBarWidth, barY);
             allPoints.Add(point);
         }
 
@@ -94,22 +94,21 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
     {
         if (allPoints.Count < 2) { return; }
 
-        using (Pen defaultPen = new(Series!.Color, Series.Width) { DashStyle = ConvertLineStyleToDashStyle(Series.Style) })
-        using (Pen coldPen = new(Series!.Color, Series.Width) { DashStyle = DashStyle.Dot })
-        {
-            // Draw the hot part
-            if (hotCount > 0)
-            {
-                var hotPoints = allPoints.Take(Math.Min(hotCount + 1, allPoints.Count)).ToArray();
-                gr.DrawCurve(defaultPen, hotPoints, 0, hotPoints.Length - 1, (float)0.1);
-            }
+        using Pen defaultPen = new(Series!.Color, Series.Width) { DashStyle = ConvertLineStyleToDashStyle(Series.Style) };
+        using Pen coldPen = new(Series!.Color, Series.Width) { DashStyle = DashStyle.Dot };
 
-            // Draw the cold part
-            if (ShowColdValues && hotCount < allPoints.Count)
-            {
-                var coldPoints = allPoints.Skip(Math.Max(0, hotCount)).ToArray();
-                gr.DrawCurve(coldPen, coldPoints, 0, coldPoints.Length - 1, (float)0.1);
-            }
+        // Draw the hot part
+        if (hotCount > 0)
+        {
+            var hotPoints = allPoints.Take(Math.Min(hotCount + 1, allPoints.Count)).ToArray();
+            gr.DrawCurve(defaultPen, hotPoints, 0, hotPoints.Length - 1, (float)0.1);
+        }
+
+        // Draw the cold part
+        if (ShowColdValues && hotCount < allPoints.Count)
+        {
+            var coldPoints = allPoints.Skip(Math.Max(0, hotCount)).ToArray();
+            gr.DrawCurve(coldPen, coldPoints, 0, coldPoints.Length - 1, (float)0.1);
         }
     }
     private static DashStyle ConvertLineStyleToDashStyle(LineStyle lineStyle)
@@ -125,9 +124,9 @@ public abstract class IndicatorBarBase : Indicator, IWatchlistIndicator
     }
     protected static void DrawText(Graphics gr, string text, Rectangle clientRect)
     {
-        Font font = new Font("Inter", 8);
+        Font font = new("Inter", 8);
         SizeF textSize = gr.MeasureString(text, font);
-        RectangleF textRect = new RectangleF(clientRect.Left + 5,
+        RectangleF textRect = new(clientRect.Left + 5,
             clientRect.Bottom - textSize.Height - 10,
             textSize.Width + 10, textSize.Height + 10);
         gr.FillRectangle(SystemBrushes.ControlDarkDark, textRect);

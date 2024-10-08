@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>QuanTAlib.Tests</RootNamespace>
     <AssemblyName>QuanTAlib.Tests</AssemblyName>
   </PropertyGroup>
