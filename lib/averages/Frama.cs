@@ -83,10 +83,10 @@ public class Frama : AbstractBase
 
 <<<<<<< HEAD
         protected override double Calculation()
-        {
-            ManageState(Input.IsNew);
+    {
+        ManageState(Input.IsNew);
 
-            _buffer.Add(Input.Value, Input.IsNew);
+        _buffer.Add(Input.Value, Input.IsNew);
 =======
         double n1 = (hh - ll) / _period;
         double n2 = (hh1 - ll1 + hh2 - ll2) / (_period / 2);
