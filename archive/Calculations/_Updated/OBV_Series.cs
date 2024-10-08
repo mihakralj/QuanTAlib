@@ -26,8 +26,7 @@ Note:
 
 </summary> */
 
-public class OBV_Series : TSeries
-{
+public class OBV_Series : TSeries {
     protected readonly int _period;
     protected readonly bool _NaN;
     protected readonly TBars _data;
@@ -35,16 +34,14 @@ public class OBV_Series : TSeries
     private double _lastclose, _lastlastclose;
 
     //core constructors
-    public OBV_Series(int period, bool useNaN)
-    {
+    public OBV_Series(int period, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"OBV({period})";
         this._lastobv = this._lastlastobv = 0;
         this._lastclose = this._lastlastclose = 0;
     }
-    public OBV_Series(TBars source, int period, bool useNaN) : this(period, useNaN)
-    {
+    public OBV_Series(TBars source, int period, bool useNaN) : this(period, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -57,11 +54,9 @@ public class OBV_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
 
-        if (update)
-        {
+        if (update) {
             this._lastobv = this._lastlastobv;
             this._lastclose = this._lastlastclose;
         }
@@ -80,26 +75,21 @@ public class OBV_Series : TSeries
         return base.Add(res, update);
     }
 
-    public new void Add(TBars data)
-    {
+    public new void Add(TBars data) {
         foreach (var item in data) { Add(item, false); }
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TBar: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TBar: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TBar: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         this._lastobv = this._lastlastobv = 0;
         this._lastclose = this._lastlastclose = 0;
     }

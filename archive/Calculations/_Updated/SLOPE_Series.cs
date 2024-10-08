@@ -22,8 +22,7 @@ Sources:
 
 </summary> */
 
-public class SLOPE_Series : TSeries
-{
+public class SLOPE_Series : TSeries {
     protected readonly int _period;
     protected readonly bool _NaN;
     protected readonly TSeries _data;
@@ -35,14 +34,12 @@ public class SLOPE_Series : TSeries
     public TSeries RSquared => p_RSquared;
     public TSeries StdDev => p_StdDev;
     //core constructors
-    public SLOPE_Series(int period, bool useNaN)
-    {
+    public SLOPE_Series(int period, bool useNaN) {
         _period = period;
         _NaN = useNaN;
         Name = $"SLOPE({period})";
     }
-    public SLOPE_Series(TSeries source, int period, bool useNaN) : this(period, useNaN)
-    {
+    public SLOPE_Series(TSeries source, int period, bool useNaN) : this(period, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _data.Pub += Sub;
@@ -58,8 +55,7 @@ public class SLOPE_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
         BufferTrim(buffer: _buffer, value: TValue.v, period: _period, update: update);
 
         int _len = this._buffer.Count;
@@ -68,8 +64,7 @@ public class SLOPE_Series : TSeries
         double sumX = 0;
         double sumY = 0;
 
-        for (int p = 0; p < _len; p++)
-        {
+        for (int p = 0; p < _len; p++) {
             sumX += this.Count - _len + 2 + p;
             sumY += _buffer[p];
         }
@@ -81,8 +76,7 @@ public class SLOPE_Series : TSeries
         double sumSqY = 0;
         double sumSqXY = 0;
 
-        for (int p = 0; p < _len; p++)
-        {
+        for (int p = 0; p < _len; p++) {
             double devX = this.Count - _len + 2 + p - avgX;
             double devY = _buffer[p] - avgY;
 
@@ -115,16 +109,14 @@ public class SLOPE_Series : TSeries
         return base.Add(ret, update);
     }
 
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item, false); }
         return _data.Last;
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _buffer.Clear();
     }
 }

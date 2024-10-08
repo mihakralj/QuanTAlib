@@ -27,7 +27,11 @@ public class Rvi : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
+<<<<<<< HEAD
+    public Rvi(int period) : base()
+=======
     public Rvi(int period)
+>>>>>>> dev
     {
         if (period < 2)
         {
@@ -105,7 +109,18 @@ public class Rvi : AbstractBase
         _downSma.Calc(_downStdDev.Calc(new TValue(Input.Time, downMove, Input.IsNew)));
 
         double rvi;
+<<<<<<< HEAD
+        if (_upSma.Value + _downSma.Value != 0)
+        {
+            rvi = 100 * _upSma.Value / (_upSma.Value + _downSma.Value);
+        }
+        else
+        {
+            rvi = 0;
+        }
+=======
         rvi = (_upSma.Value + _downSma.Value != 0) ? 100 * _upSma.Value / (_upSma.Value + _downSma.Value) : 0;
+>>>>>>> dev
 
         _previousClose = close;
         IsHot = _index >= WarmupPeriod;

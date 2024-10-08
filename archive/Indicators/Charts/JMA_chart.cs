@@ -6,8 +6,7 @@ using TradingPlatform.BusinessLayer;
 using TradingPlatform.BusinessLayer.Chart;
 namespace QuanTAlib;
 
-public class JMA_chart : Indicator
-{
+public class JMA_chart : Indicator {
     #region Parameters
 
     [InputParameter("Data source", 0, variants: new object[]
@@ -39,8 +38,7 @@ public class JMA_chart : Indicator
     protected int firstOnScreenBarIndex, lastOnScreenBarIndex;
     protected HistoricalData History;
     protected int HistPeriod;
-    public JMA_chart()
-    {
+    public JMA_chart() {
         Name = "JMA - Jurik Moving Avg";
         Description = "Jurik Moving Average description";
         AddLineSeries(lineName: "JMA", lineColor: Color.Yellow, lineWidth: 3, lineStyle: LineStyle.Solid);
@@ -49,8 +47,7 @@ public class JMA_chart : Indicator
     }
 
 
-    protected override void OnInit()
-    {
+    protected override void OnInit() {
         base.OnInit();
         bars = new();
         var dur1 = this.HistoricalData.FromTime;
@@ -58,8 +55,7 @@ public class JMA_chart : Indicator
 
         this.History = this.Symbol.GetHistory(period: this.HistoricalData.Period, fromTime: HistoricalData.FromTime);
 
-        for (int i = this.History.Count - 1; i >= 0; i--)
-        {
+        for (int i = this.History.Count - 1; i >= 0; i--) {
 
             var rec = this.History[i, SeekOriginHistory.Begin];
 
@@ -72,8 +68,7 @@ public class JMA_chart : Indicator
         indicator.Keep = Math.Max(Period, 100);
     }
 
-    protected override void OnUpdate(UpdateArgs args)
-    {
+    protected override void OnUpdate(UpdateArgs args) {
         base.OnUpdate(args);
         bars.Add(Time(), GetPrice(PriceType.Open),
             GetPrice(PriceType.High),
@@ -84,11 +79,9 @@ public class JMA_chart : Indicator
 
         this.SetValue(indicator[^1].v, lineIndex: 0);
     }
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
+    public override void OnPaintChart(PaintChartEventArgs args) {
         base.OnPaintChart(args);
-        if (this.CurrentChart == null)
-        {
+        if (this.CurrentChart == null) {
             return;
         }
 

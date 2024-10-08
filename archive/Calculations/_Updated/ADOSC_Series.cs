@@ -14,23 +14,20 @@ Sources:
 
 </summary> */
 
-public class ADOSC_Series : TSeries
-{
+public class ADOSC_Series : TSeries {
     protected readonly TBars _data;
     private readonly double _k1, _k2;
     private double _lastema1, _lastlastema1, _lastema2, _lastlastema2;
     private double _lastadl, _lastlastadl;
 
     //core constructors
-    public ADOSC_Series(int shortPeriod, int longPeriod, bool useNaN = false)
-    {
+    public ADOSC_Series(int shortPeriod, int longPeriod, bool useNaN = false) {
         Name = $"ADOSC()";
         _k1 = 2.0 / (shortPeriod + 1);
         _k2 = 2.0 / (longPeriod + 1);
         _lastadl = _lastlastadl = _lastema1 = _lastlastema1 = _lastema2 = _lastlastema2 = 0;
     }
-    public ADOSC_Series(TBars source, int shortPeriod, int longPeriod, bool useNaN = false) : this(shortPeriod, longPeriod, useNaN)
-    {
+    public ADOSC_Series(TBars source, int shortPeriod, int longPeriod, bool useNaN = false) : this(shortPeriod, longPeriod, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         _lastadl = _lastlastadl = 0;
@@ -44,11 +41,9 @@ public class ADOSC_Series : TSeries
 
     //////////////////
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
 
-        if (update)
-        {
+        if (update) {
             _lastadl = _lastlastadl;
             _lastema1 = _lastlastema1;
             _lastema2 = _lastlastema2;
@@ -75,26 +70,21 @@ public class ADOSC_Series : TSeries
         return base.Add(ret, update);
     }
 
-    public new void Add(TBars data)
-    {
+    public new void Add(TBars data) {
         foreach (var item in data) { Add(item, false); }
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TBar: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TBar: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TBar: _data.Last, update: e.update);
     }
 
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         _lastadl = _lastlastadl = _lastema1 = _lastlastema1 = _lastema2 = _lastlastema2 = 0;
     }
 }

@@ -26,7 +26,11 @@ public class Variance : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
+<<<<<<< HEAD
+    public Variance(int period, bool isPopulation = false) : base()
+=======
     public Variance(int period, bool isPopulation = false)
+>>>>>>> dev
     {
         if (period < 2)
         {

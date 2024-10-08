@@ -81,8 +81,16 @@ public class Frama : AbstractBase
             }
         }
 
+<<<<<<< HEAD
+        protected override double Calculation()
+    {
+        ManageState(Input.IsNew);
+
+        _buffer.Add(Input.Value, Input.IsNew);
+=======
         double n1 = (hh - ll) / _period;
         double n2 = (hh1 - ll1 + hh2 - ll2) / (_period / 2);
+>>>>>>> dev
 
         double d = (Math.Log(n2 + double.Epsilon) - Math.Log(n1 + double.Epsilon)) / Math.Log(2);
 

@@ -26,8 +26,7 @@ Note:
 
 </summary> */
 
-public class BBANDS_Series : TSeries
-{
+public class BBANDS_Series : TSeries {
     protected readonly int _period;
     protected readonly double _multiplier;
     protected readonly bool _NaN;
@@ -41,15 +40,13 @@ public class BBANDS_Series : TSeries
     private readonly SDEV_Series _sdev;
 
     //core constructors
-    public BBANDS_Series(int period, double multiplier, bool useNaN)
-    {
+    public BBANDS_Series(int period, double multiplier, bool useNaN) {
         _period = period;
         _multiplier = multiplier;
         _NaN = useNaN;
         Name = $"BBANDS({period})";
     }
-    public BBANDS_Series(TSeries source, int period, double multiplier, bool useNaN) : this(period, multiplier, useNaN)
-    {
+    public BBANDS_Series(TSeries source, int period, double multiplier, bool useNaN) : this(period, multiplier, useNaN) {
         _data = source;
         Name = Name.Substring(0, Name.IndexOf(")")) + $", {(string.IsNullOrEmpty(_data.Name) ? "data" : _data.Name)})";
         Upper = new("BB_Up");
@@ -75,8 +72,7 @@ public class BBANDS_Series : TSeries
     public BBANDS_Series(TSeries source, int period, bool useNaN) : this(source: source, period: period, multiplier: 2.0, useNaN: useNaN) { }
 
     // core Add() algo
-    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false)
-    {
+    public override (DateTime t, double v) Add((DateTime t, double v) TValue, bool update = false) {
         var _mid = Mid.Add(TValue, update);
         var _sd = this._sdev.Add(TValue, update);
         var _upper = Upper.Add((TValue.t, _mid.v + _sd.v * _multiplier), update);
@@ -92,27 +88,22 @@ public class BBANDS_Series : TSeries
     }
 
     //variation of Add()
-    public override (DateTime t, double v) Add(TSeries data)
-    {
+    public override (DateTime t, double v) Add(TSeries data) {
         if (data == null) { return (DateTime.Today, Double.NaN); }
         foreach (var item in data) { Add(item); }
         return _data.Last;
     }
-    public (DateTime t, double v) Add(bool update)
-    {
+    public (DateTime t, double v) Add(bool update) {
         return this.Add(TValue: _data.Last, update: update);
     }
-    public (DateTime t, double v) Add()
-    {
+    public (DateTime t, double v) Add() {
         return Add(TValue: _data.Last, update: false);
     }
-    private new void Sub(object source, TSeriesEventArgs e)
-    {
+    private new void Sub(object source, TSeriesEventArgs e) {
         Add(TValue: _data.Last, update: e.update);
     }
     //reset calculation
-    public override void Reset()
-    {
+    public override void Reset() {
         Mid.Clear();
         _sdev.Clear();
         Upper.Clear();

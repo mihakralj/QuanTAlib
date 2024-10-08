@@ -7,8 +7,7 @@ using Python.Runtime;
 
 namespace Validations;
 
-public class PandasTA : IDisposable
-{
+public class PandasTA : IDisposable {
     private bool disposed = false;
     private readonly GBM_Feed bars;
     private readonly Random rnd = new();
@@ -19,8 +18,7 @@ public class PandasTA : IDisposable
     private readonly dynamic pd;
     private readonly dynamic df;
 
-    public PandasTA()
-    {
+    public PandasTA() {
         bars = new GBM_Feed(5000, 0.8, 0.0);
         period = rnd.Next(28) + 3;
         skip = period + 50;
@@ -36,8 +34,7 @@ public class PandasTA : IDisposable
 
         string[] cols = { "open", "high", "low", "close", "volume" };
         var ary = new double[bars.Count, 5];
-        for (var i = 0; i < bars.Count; i++)
-        {
+        for (var i = 0; i < bars.Count; i++) {
             ary[i, 0] = bars.Open[i].v;
             ary[i, 1] = bars.High[i].v;
             ary[i, 2] = bars.Low[i].v;
@@ -48,33 +45,27 @@ public class PandasTA : IDisposable
         df = ta.DataFrame(data: np.array(ary), index: np.array(bars.Close.t), columns: np.array(cols));
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         Dispose(true);
         PythonEngine.Shutdown();
         GC.SuppressFinalize(this);
     }
 
-    ~PandasTA()
-    {
+    ~PandasTA() {
         Dispose(false);
     }
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposed)
-        {
+    protected virtual void Dispose(bool disposing) {
+        if (!disposed) {
             disposed = true;
         }
     }
 
     [Fact]
-    private void ADL()
-    {
+    private void ADL() {
         ADL_Series QL = new(bars);
         var pta = df.ta.ad(high: df.high, low: df.low, close: df.close, volume: df.volume);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -82,12 +73,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void BBANDS()
-    {
+    private void BBANDS() {
         BBANDS_Series QL = new(bars.Close, period);
         var pta = df.ta.bbands(close: df.close, length: period).to_numpy();
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL.Lower[i].v;
             var PanTA_item = (double)pta[i][0]; //lower
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -101,12 +90,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void BIAS()
-    {
+    private void BIAS() {
         BIAS_Series QL = new(bars.Close, period, false);
         var pta = df.ta.bias(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -114,12 +101,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void CCI()
-    {
+    private void CCI() {
         CCI_Series QL = new(bars, period, false);
         var pta = df.ta.cci(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -127,12 +112,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void DEMA()
-    {
+    private void DEMA() {
         DEMA_Series QL = new(bars.Close, period, false);
         var pta = df.ta.dema(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -140,12 +123,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void EMA()
-    {
+    private void EMA() {
         EMA_Series QL = new(bars.Close, period, false);
         var pta = df.ta.ema(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -153,12 +134,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void ENTROPY()
-    {
+    private void ENTROPY() {
         ENTROPY_Series QL = new(bars.Close, period, false);
         var pta = df.ta.entropy(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -166,11 +145,9 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void HL2()
-    {
+    private void HL2() {
         var pta = df.ta.hl2(high: df.high, low: df.low);
-        for (var i = bars.HL2.Length - 1; i > skip; i--)
-        {
+        for (var i = bars.HL2.Length - 1; i > skip; i--) {
             var QL_item = bars.HL2[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -178,11 +155,9 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void HLC3()
-    {
+    private void HLC3() {
         var pta = df.ta.hlc3(high: df.high, low: df.low, close: df.close);
-        for (var i = bars.HLC3.Length; i > skip; i--)
-        {
+        for (var i = bars.HLC3.Length; i > skip; i--) {
             var QL_item = bars.HLC3[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -190,12 +165,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void HMA()
-    {
+    private void HMA() {
         HMA_Series QL = new(bars.Close, period, false);
         var pta = df.ta.hma(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -203,12 +176,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void KURTOSIS()
-    {
+    private void KURTOSIS() {
         KURTOSIS_Series QL = new(bars.Close, period, false);
         var pta = df.ta.kurtosis(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -216,12 +187,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void MACD()
-    {
+    private void MACD() {
         MACD_Series QL = new(bars.Close, 26, 12, 9, false);
         var pta = df.ta.macd(close: df.close).to_numpy();
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1][0];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -232,12 +201,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void MAD()
-    {
+    private void MAD() {
         MAD_Series QL = new(bars.Close, period, false);
         var pta = df.ta.mad(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -245,12 +212,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void MEDIAN()
-    {
+    private void MEDIAN() {
         MEDIAN_Series QL = new(bars.Close, period);
         var pta = df.ta.median(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -258,12 +223,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void OBV()
-    {
+    private void OBV() {
         OBV_Series QL = new(bars);
         var pta = df.ta.obv(close: df.close, volume: df.volume);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -271,11 +234,9 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void OHLC4()
-    {
+    private void OHLC4() {
         var pta = df.ta.ohlc4(open: df.open, high: df.high, low: df.low, close: df.close);
-        for (var i = bars.OHLC4.Length; i > skip; i--)
-        {
+        for (var i = bars.OHLC4.Length; i > skip; i--) {
             var QL_item = bars.OHLC4[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -283,12 +244,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void SDEV()
-    {
+    private void SDEV() {
         SDEV_Series QL = new(bars.Close, period, false);
         var pta = df.ta.stdev(close: df.close, length: period, ddof: 0);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -296,12 +255,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void SMA()
-    {
+    private void SMA() {
         SMA_Series QL = new(bars.Close, period, false);
         var pta = df.ta.sma(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -309,12 +266,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void SSDEV()
-    {
+    private void SSDEV() {
         SSDEV_Series QL = new(bars.Close, period, false);
         var pta = df.ta.stdev(close: df.close, length: period, ddof: 1);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -322,12 +277,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void SVARIANCE()
-    {
+    private void SVARIANCE() {
         SVAR_Series QL = new(bars.Close, period);
         var pta = df.ta.variance(close: df.close, length: period, ddof: 1);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -335,12 +288,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void TEMA()
-    {
+    private void TEMA() {
         TEMA_Series QL = new(bars.Close, period, false);
         var pta = df.ta.tema(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -348,12 +299,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void TR()
-    {
+    private void TR() {
         TR_Series QL = new(bars);
         var pta = df.ta.true_range(high: df.high, low: df.low, close: df.close);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -361,13 +310,11 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void TRIMA()
-    {
+    private void TRIMA() {
         // TODO: return length to variable length (period) when Pandas-TA fixes trima to calculate even periods right
         TRIMA_Series QL = new(bars.Close, 11);
         var pta = df.ta.trima(close: df.close, length: 11);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -375,12 +322,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void VARIANCE()
-    {
+    private void VARIANCE() {
         VAR_Series QL = new(bars.Close, period);
         var pta = df.ta.variance(close: df.close, length: period, ddof: 0);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -388,12 +333,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void WMA()
-    {
+    private void WMA() {
         WMA_Series QL = new(bars.Close, period, false);
         var pta = df.ta.wma(close: df.close, length: period);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -401,12 +344,10 @@ public class PandasTA : IDisposable
     }
 
     [Fact]
-    private void ZSCORE()
-    {
+    private void ZSCORE() {
         ZSCORE_Series QL = new(bars.Close, period, false);
         var pta = df.ta.zscore(close: df.close, length: period, ddof: 0);
-        for (var i = QL.Length - 1; i > skip; i--)
-        {
+        for (var i = QL.Length - 1; i > skip; i--) {
             var QL_item = QL[i - 1].v;
             var PanTA_item = (double)pta[i - 1];
             Assert.InRange(PanTA_item! - QL_item, -Math.Exp(-digits), Math.Exp(-digits));
@@ -414,22 +355,15 @@ public class PandasTA : IDisposable
     }
 }
 
-public static class PythonLibrary
-{
-    public static string Locate()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
+public static class PythonLibrary {
+    public static string Locate() {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
             string[] paths = Environment.GetEnvironmentVariable("PATH")?.Split(';') ?? Array.Empty<string>();
-            foreach (string path in paths)
-            {
+            foreach (string path in paths) {
                 string[] pythonDLLs = Directory.GetFiles(path, "python3*.dll");
-                if (pythonDLLs.Length > 0)
-                {
-                    foreach (string item in pythonDLLs)
-                    {
-                        if (!item.EndsWith("python3.dll", StringComparison.OrdinalIgnoreCase))
-                        {
+                if (pythonDLLs.Length > 0) {
+                    foreach (string item in pythonDLLs) {
+                        if (!item.EndsWith("python3.dll", StringComparison.OrdinalIgnoreCase)) {
                             return item;
                         }
                     }
@@ -437,9 +371,7 @@ public static class PythonLibrary
                 }
             }
             throw new FileNotFoundException("Python library not found in PATH");
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
             return "/usr/lib/x86_64-linux-gnu/libpython3.10.so";
             /*
                         List<string> pythonLibraries = new List<string>();
@@ -454,28 +386,17 @@ public static class PythonLibrary
                             throw new FileNotFoundException("Python library not found");
                         }
             */
-        }
-
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
             throw new NotSupportedException("Not supported yet");
-        }
-
-        else { throw new NotSupportedException("Unsupported operating system"); }
+        } else { throw new NotSupportedException("Unsupported operating system"); }
     }
-    static void SearchFiles(List<string> directoriesToSearch, string filePattern, List<string> foundFiles)
-    {
-        foreach (string directory in directoriesToSearch)
-        {
-            if (Directory.Exists(directory))
-            {
-                try
-                {
+    static void SearchFiles(List<string> directoriesToSearch, string filePattern, List<string> foundFiles) {
+        foreach (string directory in directoriesToSearch) {
+            if (Directory.Exists(directory)) {
+                try {
                     string[] files = Directory.GetFiles(directory, filePattern, SearchOption.AllDirectories);
                     foundFiles.AddRange(files);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     Console.WriteLine("Error searching in directory: " + directory + " - " + e.Message);
                 }
             }

@@ -10,8 +10,7 @@ TBars class - includes all series for common data used in indicators and other c
 
 </summary> */
 
-public class TBars : System.Collections.Generic.List<(DateTime t, double o, double h, double l, double c, double v)>
-{
+public class TBars : System.Collections.Generic.List<(DateTime t, double o, double h, double l, double c, double v)> {
     public string Name { get; set; }
     private readonly TSeries _open = new("open");
     private readonly TSeries _high = new("high");
@@ -39,23 +38,19 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
 
     public TBars() { }
 
-    public TBars(string Name)
-    {
+    public TBars(string Name) {
         this.Name = Name;
     }
 
     public (DateTime t, double o, double h, double l, double c, double v) Last => this[^1];
-    public TBars Tail(int count = 10)
-    {
+    public TBars Tail(int count = 10) {
         TBars outBars = new();
         if (count > this.Count) { count = this.Count; }
         for (int i = this.Count - count; i < this.Count; i++) { outBars.Add(this[i]); }
         return outBars;
     }
-    public TSeries Select(int source)
-    {
-        return source switch
-        {
+    public TSeries Select(int source) {
+        return source switch {
             0 => _open,
             1 => _high,
             2 => _low,
@@ -68,10 +63,8 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
             _ => _hlcc4,
         };
     }
-    public static string SelectStr(int source)
-    {
-        return source switch
-        {
+    public static string SelectStr(int source) {
+        return source switch {
             0 => "Open",
             1 => "High",
             2 => "Low",
@@ -94,8 +87,7 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
     public virtual (DateTime t, double v) Add(DateTime t, double o, double h, double l, double c, double v, bool update = false) =>
         this.Add((t, o, h, l, c, v), update);
 
-    public virtual (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false)
-    {
+    public virtual (DateTime t, double v) Add((DateTime t, double o, double h, double l, double c, double v) TBar, bool update = false) {
         if (update) { this[^1] = TBar; } else { base.Add(TBar); }
 
         _open.Add((TBar.t, TBar.o), update);
@@ -116,38 +108,29 @@ public class TBars : System.Collections.Generic.List<(DateTime t, double o, doub
 
     public delegate void NewDataEventHandler(object source, TSeriesEventArgs args);
     public event NewDataEventHandler Pub;
-    protected virtual void OnEvent(bool update = false)
-    {
-        if (Pub != null && Pub.Target != this)
-        {
+    protected virtual void OnEvent(bool update = false) {
+        if (Pub != null && Pub.Target != this) {
             Pub(this, new TSeriesEventArgs { update = update });
         }
     }
 
-    public void Sub(object source, TSeriesEventArgs e)
-    {
-        TBars ss = (TBars)source; if (ss.Count > 1)
-        {
+    public void Sub(object source, TSeriesEventArgs e) {
+        TBars ss = (TBars)source; if (ss.Count > 1) {
             for (int i = 0; i < ss.Count; i++) { this.Add(ss[i]); }
-        }
-        else
-        {
+        } else {
             this.Add(ss[^1], e.update);
         }
     }
 
     /// common helpers
-    public static void BufferTrim(System.Collections.Generic.List<double> buffer, double value, int period, bool update)
-    {
-        if (!update)
-        {
+    public static void BufferTrim(System.Collections.Generic.List<double> buffer, double value, int period, bool update) {
+        if (!update) {
             buffer.Add(value);
             if (buffer.Count > period && period > 0) { buffer.RemoveAt(0); }
             return;
         }
         buffer[^1] = value;
     }
-    public virtual void Reset()
-    {
+    public virtual void Reset() {
     }
 }

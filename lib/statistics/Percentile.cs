@@ -24,7 +24,11 @@ public class Percentile : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2 or percent is not between 0 and 100.
     /// </exception>
+<<<<<<< HEAD
+    public Percentile(int period, double percent) : base()
+=======
     public Percentile(int period, double percent)
+>>>>>>> dev
     {
         if (period < 2)
         {

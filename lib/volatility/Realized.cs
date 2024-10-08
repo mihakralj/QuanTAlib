@@ -25,7 +25,11 @@ public class Realized : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
+<<<<<<< HEAD
+    public Realized(int period, bool isAnnualized = true) : base()
+=======
     public Realized(int period, bool isAnnualized = true)
+>>>>>>> dev
     {
         if (period < 2)
         {

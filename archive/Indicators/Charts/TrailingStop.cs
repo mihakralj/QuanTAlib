@@ -5,8 +5,7 @@ using System.Linq;
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
-public class TrailingStop_chart : Indicator
-{
+public class TrailingStop_chart : Indicator {
     #region Parameters
 
     [InputParameter("Period", 0, 1, 100, 1, 1)]
@@ -31,8 +30,7 @@ public class TrailingStop_chart : Indicator
 
     ///////
 
-    public TrailingStop_chart()
-    {
+    public TrailingStop_chart() {
         Name = $"ATR Trailing Stop";
         AddLineSeries(lineName: "TrailingATR Long", lineColor: Color.Yellow, lineWidth: 1, lineStyle: LineStyle.Dot);
         AddLineSeries(lineName: "Ratchet Long", lineColor: Color.Yellow, lineWidth: 3, lineStyle: LineStyle.Solid);
@@ -44,14 +42,12 @@ public class TrailingStop_chart : Indicator
     }
 
 
-    protected override void OnInit()
-    {
+    protected override void OnInit() {
         this.Name = $"Trailing Stop (ATR:{_period}, Mult:{_factor:f2})";
         this.bars = new();
 
         this.History = this.Symbol.GetHistory(period: this.HistoricalData.Period, fromTime: HistoricalData.FromTime);
-        for (int i = this.History.Count - 1; i >= 0; i--)
-        {
+        for (int i = this.History.Count - 1; i >= 0; i--) {
             var rec = this.History[i, SeekOriginHistory.Begin];
             bars.Add(rec.TimeLeft, rec[PriceType.Open],
             rec[PriceType.High], rec[PriceType.Low],
@@ -67,8 +63,7 @@ public class TrailingStop_chart : Indicator
         this.LinesSeries[3].Visible = _ShortTS;
     }
 
-    protected override void OnUpdate(UpdateArgs args)
-    {
+    protected override void OnUpdate(UpdateArgs args) {
         bool update = !(args.Reason == UpdateReason.NewBar ||
                                 args.Reason == UpdateReason.HistoricalBar);
         this.bars.Add(this.Time(), this.GetPrice(PriceType.Open),
@@ -79,16 +74,14 @@ public class TrailingStop_chart : Indicator
 
         _tslineL = bars.High[^1].v - (_factor * _atr[^1].v);
         _ratchetL = Math.Max(_tslineL, _ratchetL);
-        if (_ratchetL > bars.Low[^1].v)
-        {
+        if (_ratchetL > bars.Low[^1].v) {
             this.LinesSeries[1].SetMarker(0, new IndicatorLineMarker(Color.Yellow, bottomIcon: IndicatorLineMarkerIconType.DownArrow));
             _ratchetL = _tslineL;
         }
 
         _tslineS = bars.High[^1].v + (_factor * _atr[^1].v);
         _ratchetS = Math.Min(_tslineS, _ratchetS);
-        if (_ratchetS < bars.High[^1].v)
-        {
+        if (_ratchetS < bars.High[^1].v) {
             this.LinesSeries[3].SetMarker(0, new IndicatorLineMarker(Color.Yellow, upperIcon: IndicatorLineMarkerIconType.UpArrow));
             _ratchetS = _tslineS;
         }

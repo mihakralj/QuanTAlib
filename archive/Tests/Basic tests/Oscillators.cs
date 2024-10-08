@@ -5,8 +5,7 @@ using QuanTAlib;
 
 namespace Basics;
 #nullable disable
-public class Oscillators
-{
+public class Oscillators {
     private static Type[] maSeriesTypes = new[]
     {
     typeof(BIAS_Series),
@@ -37,8 +36,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Name_exists(Type classType)
-    {
+    public void Name_exists(Type classType) {
         TSeries data = new("Data") { 1, 2, 3 };
 
         var MA_Series = Activator.CreateInstance(classType, data, 5, false) as TSeries;
@@ -47,8 +45,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Series_Length(Type classType)
-    {
+    public void Series_Length(Type classType) {
         GBM_Feed feed = new(1000);
         TSeries data = feed.OHLC4;
 
@@ -58,8 +55,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Return_data(Type classType)
-    {
+    public void Return_data(Type classType) {
         TSeries data = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
         var MA_Series = Activator.CreateInstance(classType, data, 5, false) as TSeries;
@@ -69,8 +65,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Update(Type classType)
-    {
+    public void Update(Type classType) {
         TSeries data = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
         var MA_Series = Activator.CreateInstance(classType, data, 5, false) as TSeries;
@@ -86,8 +81,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Period_zero(Type classType)
-    {
+    public void Period_zero(Type classType) {
         GBM_Feed feed = new(100);
         TSeries data = feed.OHLC4;
 
@@ -98,8 +92,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Reset(Type classType)
-    {
+    public void Reset(Type classType) {
         GBM_Feed feed = new(10);
         TSeries data = feed.OHLC4;
         var MA_Series = Activator.CreateInstance(classType, data, 10, false) as TSeries;
@@ -110,8 +103,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Period_one(Type classType)
-    {
+    public void Period_one(Type classType) {
         GBM_Feed feed = new(100);
         TSeries data = feed.OHLC4;
 
@@ -121,8 +113,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void NaN_test(Type classType)
-    {
+    public void NaN_test(Type classType) {
         GBM_Feed feed = new(100);
         TSeries data = feed.OHLC4;
 
@@ -134,8 +125,7 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void Edge_numbers(Type classType)
-    {
+    public void Edge_numbers(Type classType) {
         TSeries data = new() { double.Epsilon, double.PositiveInfinity, double.MaxValue, double.NegativeInfinity };
         var MA_Series = Activator.CreateInstance(classType, data, 10, true) as TSeries;
         Assert.Equal(4, MA_Series.Count);
@@ -143,17 +133,14 @@ public class Oscillators
 
     [Theory]
     [MemberData(nameof(MASeriesData))]
-    public void handling_NaN(Type classType)
-    {
+    public void handling_NaN(Type classType) {
         TSeries data = new("Name") { 1, 2, 3, 4, 5, 6, double.NaN, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
         var MA_Series = Activator.CreateInstance(classType, data, 10, true) as TSeries;
         Assert.False(double.IsNaN(MA_Series.Last.v));
     }
 
-    public static IEnumerable<object[]> MASeriesData()
-    {
-        foreach (var type in maSeriesTypes)
-        {
+    public static IEnumerable<object[]> MASeriesData() {
+        foreach (var type in maSeriesTypes) {
             yield return new object[] { type };
         }
     }

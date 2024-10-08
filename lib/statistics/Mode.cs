@@ -21,7 +21,11 @@ public class Mode : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1.
     /// </exception>
+<<<<<<< HEAD
+    public Mode(int period) : base()
+=======
     public Mode(int period)
+>>>>>>> dev
     {
         if (period < 1)
         {

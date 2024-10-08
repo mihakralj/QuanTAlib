@@ -52,13 +52,13 @@ public class Dsma : AbstractBase
         // SuperSmoother filter coefficients
         double _a1 = Math.Exp(-1.414 * Math.PI / (0.5 * period));
         double _b1 = 2 * _a1 * Math.Cos(1.414 * Math.PI / (0.5 * period));
-        
+
         _c2 = _b1;
         _c3 = -_a1 * _a1;
         _c1 = 1 - _c2 - _c3;
 
         Name = "Dsma";
-        WarmupPeriod = (int) (period * 1.5); // A conservative estimate
+        WarmupPeriod = (int)(period * 1.5); // A conservative estimate
         Init();
     }
 

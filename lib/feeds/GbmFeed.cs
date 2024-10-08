@@ -8,7 +8,11 @@ public class GbmFeed : TBarSeries
     private readonly Random _random;
     private double _lastClose, _lastHigh, _lastLow;
 
+<<<<<<< HEAD
+    public GbmFeed(double initialPrice = 100.0, double mu = 0.05, double sigma = 0.2) : base()
+=======
     public GbmFeed(double initialPrice = 100.0, double mu = 0.05, double sigma = 0.2)
+>>>>>>> dev
     {
         _lastClose = _lastHigh = _lastLow = initialPrice;
         _mu = mu;

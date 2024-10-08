@@ -3,11 +3,9 @@ using System;
 using QuanTAlib;
 
 namespace Pairs;
-public class ADD_Test
-{
+public class ADD_Test {
     [Fact]
-    public void ADDSeriesSeries_Test()
-    {
+    public void ADDSeriesSeries_Test() {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
         ADD_Series c = new(a, b);
@@ -15,24 +13,21 @@ public class ADD_Test
     }
 
     [Fact]
-    public void ADDSeriesDouble_Test()
-    {
+    public void ADDSeriesDouble_Test() {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         ADD_Series c = new(a, 10.0);
         Assert.Equal(15, c.Last().v);
     }
 
     [Fact]
-    public void ADDDoubleSeries_Test()
-    {
+    public void ADDDoubleSeries_Test() {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         ADD_Series c = new(10.0, a);
         Assert.Equal(15, c.Last().v);
     }
 
     [Fact]
-    public void ADDEventing_Test()
-    {
+    public void ADDEventing_Test() {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
         ADD_Series c = new(a, b);
@@ -42,8 +37,7 @@ public class ADD_Test
     }
 
     [Fact]
-    public void ADDUpdateDouble_Test()
-    {
+    public void ADDUpdateDouble_Test() {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         double b = 10;
         ADD_Series c = new(a, b);
@@ -52,8 +46,7 @@ public class ADD_Test
     }
 
     [Fact]
-    public void ADDUpdating_Test()
-    {
+    public void ADDUpdating_Test() {
         TSeries a = new() { 0, 1, 2, 3, 4, 5 };
         TSeries b = new() { 5, 4, 3, 2, 1, 0 };
         ADD_Series c = new(a, b);
