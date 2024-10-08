@@ -89,9 +89,9 @@ public class CircularBuffer : IEnumerable<double>
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void ThrowArgumentOutOfRangeException()
+    private static void ThrowArgumentOutOfRangeException(string paramName)
     {
-        throw new ArgumentOutOfRangeException("index", "Index is out of range.");
+        throw new ArgumentOutOfRangeException(paramName, "Index is out of range.");
     }
 
     /// <summary>
@@ -221,13 +221,6 @@ public class CircularBuffer : IEnumerable<double>
         if (_start + _size <= Capacity)
         {
             return new ReadOnlySpan<double>(_buffer, _start, _size);
-<<<<<<< HEAD
-        }
-        else
-        {
-            return new ReadOnlySpan<double>(ToArray());
-=======
->>>>>>> dev
         }
 
         return new ReadOnlySpan<double>(ToArray());

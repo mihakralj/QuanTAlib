@@ -1,45 +1,29 @@
 using System;
-using System.Runtime.CompilerServices;
 
-<<<<<<< HEAD
-namespace QuanTAlib
-{
-
-    public class Rma : AbstractBase
-    {
-        private readonly int _period;
-        private double _alpha;
-        private double _lastRMA;
-        private double _savedLastRMA;
-
-        public Rma(int period) : base()
-        {
-            if (period < 1)
-            {
-                throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
-            }
-            _period = period;
-            WarmupPeriod = period * 2;
-            _alpha = 1.0 / _period;  // Wilder's smoothing factor
-            Name = $"Rma({_period})";
-            Init();
-        }
-
-        public Rma(object source, int period) : this(period)
-        {
-            var pubEvent = source.GetType().GetEvent("Pub");
-            pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
-        }
-=======
 namespace QuanTAlib;
-
-
+/// <summary>
+/// RMA: Relative Moving Average (also known as Wilder's Moving Average)
+/// RMA is similar to EMA but uses a different smoothing factor.
+/// </summary>
+/// <remarks>
+/// Key characteristics:
+/// - Uses no buffer, relying only on the previous RMA value.
+/// - The weight of new data points (alpha) is calculated as 1 / period.
+/// - Provides a smoother curve compared to SMA and EMA, reacting more slowly to price changes.
+///
+/// Calculation method:
+/// RMA = (Previous RMA * (period - 1) + New Data) / period
+///
+/// Sources:
+/// - https://www.tradingview.com/pine-script-reference/v5/#fun_ta{dot}rma
+/// - https://www.investopedia.com/terms/w/wilders-smoothing.asp
+/// </remarks>
 public class Rma : AbstractBase
 {
     private readonly int _period;
+    private double _lastRma;
     private readonly double _alpha;
-    private double _lastRMA;
-    private double _savedLastRMA;
+    private double _savedLastRma;
 
     public Rma(int period)
     {
@@ -63,21 +47,22 @@ public class Rma : AbstractBase
     public override void Init()
     {
         base.Init();
-        _lastRMA = 0;
-        _savedLastRMA = 0;
+        _lastRma = 0;
+        _savedLastRma = 0;
     }
 
     protected override void ManageState(bool isNew)
     {
-        if (!isNew)
+        if (isNew)
         {
-            _lastRMA = _savedLastRMA;
-            return;
+            _savedLastRma = _lastRma;
+            _lastValidValue = Input.Value;
+            _index++;
         }
-
-        _savedLastRMA = _lastRMA;
-        _lastValidValue = Input.Value;
-        _index++;
+        else
+        {
+            _lastRma = _savedLastRma;
+        }
     }
 
     protected override double Calculation()
@@ -88,73 +73,22 @@ public class Rma : AbstractBase
 
         if (_index == 1)
         {
-            return Input.Value;
+            rma = Input.Value;
         }
-
-        if (_index <= _period)
+        else if (_index <= _period)
         {
             // Simple average during initial period
-            return (_lastRMA * (_index - 1) + Input.Value) / _index;
+            rma = (_lastRma * (_index - 1) + Input.Value) / _index;
+        }
+        else
+        {
+            // Wilder's smoothing method
+            rma = _alpha * (_lastRma -  Input.Value) + _lastRma;
         }
 
-        // Wilder's smoothing method
-        return _alpha * (Input.Value - _lastRMA) + _lastRMA;
-    }
-
-    _lastRMA = rma;
+        _lastRma = rma;
         IsHot = _index >= WarmupPeriod;
->>>>>>> dev
 
-        public override void Init()
-        {
-            base.Init();
-            _lastRMA = 0;
-            _savedLastRMA = 0;
-        }
-
-        protected override void ManageState(bool isNew)
-        {
-            if (isNew)
-            {
-                _savedLastRMA = _lastRMA;
-                _lastValidValue = Input.Value;
-                _index++;
-            }
-            else
-            {
-                _lastRMA = _savedLastRMA;
-            }
-        }
-
-        protected override double Calculation()
-        {
-            ManageState(Input.IsNew);
-
-            double rma;
-
-            if (_index == 1)
-            {
-                rma = Input.Value;
-            }
-            else if (_index <= _period)
-            {
-                // Simple average during initial period
-                rma = (_lastRMA * (_index - 1) + Input.Value) / _index;
-            }
-            else
-            {
-                // Wilder's smoothing method
-                rma = _alpha * (Input.Value - _lastRMA) + _lastRMA;
-            }
-
-            _lastRMA = rma;
-            IsHot = _index >= WarmupPeriod;
-
-            return rma;
-        }
+        return rma;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> dev

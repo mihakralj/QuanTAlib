@@ -13,9 +13,8 @@ public class SkenderTests
     private readonly Random rnd;
     private readonly double range;
     private int period;
-    private readonly int iterations;
+    private readonly int iterations = 3; // Initialized directly at declaration
     private readonly IEnumerable<Quote> quotes;
-
 
     public SkenderTests()
     {
@@ -24,7 +23,6 @@ public class SkenderTests
         bars = new(feed);
         range = 1e-9;
         feed.Add(10000);
-        iterations = 3;
         quotes = bars.Select(q => new Quote
         {
             Date = q.Time,
@@ -338,11 +336,7 @@ public class SkenderTests
             var atrValues = quotes.GetAtr(lookbackPeriods: period).Select(i => i.Atr.Null2NaN()!);
             const int AdditionalPeriods = 500;
 
-<<<<<<< HEAD
-            for (int i = QL.Length - 1; i > period + 500; i--)
-=======
             for (int i = QL.Length - 1; i > period + AdditionalPeriods; i--)
->>>>>>> dev
             {
                 Assert.InRange(atrValues.ElementAt(i) - QL[i].Value, -range, range);
             }

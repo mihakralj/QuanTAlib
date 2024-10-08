@@ -11,7 +11,6 @@ namespace QuanTAlib;
 /// </remarks>
 public class Variance : AbstractBase
 {
-    private readonly int Period;
     private readonly bool IsPopulation;
     private readonly CircularBuffer _buffer;
 
@@ -26,17 +25,12 @@ public class Variance : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-<<<<<<< HEAD
-    public Variance(int period, bool isPopulation = false) : base()
-=======
     public Variance(int period, bool isPopulation = false)
->>>>>>> dev
     {
         if (period < 2)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
         }
-        Period = period;
         IsPopulation = isPopulation;
         WarmupPeriod = 0;
         _buffer = new CircularBuffer(period);

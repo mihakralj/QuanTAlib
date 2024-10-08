@@ -8,11 +8,7 @@ namespace QuanTAlib;
 /// of the true range. The true range is the greatest of: current high - current low,
 /// absolute value of current high - previous close, or absolute value of current low - previous close.
 /// </remarks>
-<<<<<<< HEAD
-public class Atr : AbstractBarBase
-=======
 public class Atr : AbstractBase
->>>>>>> dev
 {
     private readonly Ema _ma;
     private double _prevClose, _p_prevClose;
@@ -86,11 +82,7 @@ public class Atr : AbstractBase
     /// </remarks>
     protected override double Calculation()
     {
-<<<<<<< HEAD
-        ManageState(Input.IsNew);
-=======
         ManageState(BarInput.IsNew);
->>>>>>> dev
 
         double trueRange = Math.Max(
             Math.Max(
@@ -101,11 +93,7 @@ public class Atr : AbstractBase
         );
         if (_index < 2)
         {
-<<<<<<< HEAD
-            trueRange = Input.High - Input.Low;
-=======
             trueRange = BarInput.High - BarInput.Low;
->>>>>>> dev
         }
 
         TValue emaTrueRange = _ma.Calc(new TValue(Input.Time, trueRange, Input.IsNew));

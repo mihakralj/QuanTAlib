@@ -8,11 +8,7 @@ public class GbmFeed : TBarSeries
     private readonly Random _random;
     private double _lastClose, _lastHigh, _lastLow;
 
-<<<<<<< HEAD
-    public GbmFeed(double initialPrice = 100.0, double mu = 0.05, double sigma = 0.2) : base()
-=======
     public GbmFeed(double initialPrice = 100.0, double mu = 0.05, double sigma = 0.2)
->>>>>>> dev
     {
         _lastClose = _lastHigh = _lastLow = initialPrice;
         _mu = mu;
@@ -26,7 +22,6 @@ public class GbmFeed : TBarSeries
     public void Add(int count)
     {
         DateTime startTime = DateTime.UtcNow - TimeSpan.FromHours(count);
-        TBar lastBar = new();
         for (int i = 0; i < count; i++)
         {
             Add(startTime, true);
