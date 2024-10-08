@@ -1,6 +1,6 @@
 # This workflow integrates SonarCloud analysis, coverage reporting,
 # CodeQL analysis, SecurityCodeScan, and Codacy Security Scan
-# for code scanning and vulnerability detection.
+# for code scanning and vulnerability detection - and if they all pass, publish
 
 name: Publish Workflow
 
@@ -150,42 +150,42 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-# converting SARIF action not working yet.
-  #SecurityCodeScan:
-  #  runs-on: windows-latest
-  #  steps:
-  #    - name: Checkout repository
-  #      uses: actions/checkout@v4
-  #      with:
-  #        fetch-depth: 0
-#
-  #    - name: Setup NuGet
-  #      uses: nuget/setup-nuget@v1
-#
-  #    - name: Setup MSBuild
-  #      uses: microsoft/setup-msbuild@v1
-#
-  #    - name: Setup .NET SDK
-  #      uses: actions/setup-dotnet@v3
-  #      with:
-  #        dotnet-version: |
-  #          8.x
-  #          3.1.x
-  #        dotnet-quality: 'preview'
-#
-  #    - name: Set up projects for analysis
-  #      uses: security-code-scan/security-code-scan-add-action@v1
-#
-  #    - name: Build
-  #      run: |
-  #        dotnet restore
-  #        dotnet build --no-restore --configuration Debug
-#
-  #    - name: Convert SARIF for uploading to GitHub
-  #      uses: security-code-scan/security-code-scan-results-action@v1
-#
-  #    - name: Upload SARIF
-  #      uses: github/codeql-action/upload-sarif@v3
+
+  SecurityCodeScan:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            8.x
+            3.1.x
+          dotnet-quality: 'preview'
+
+      - name: Set up projects for analysis
+        uses: security-code-scan/security-code-scan-add-action@v1
+
+      - name: Build
+        run: |
+          dotnet restore
+          dotnet build --no-restore --configuration Debug
+
+      - name: Convert SARIF for uploading to GitHub
+        uses: security-code-scan/security-code-scan-results-action@v1
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
 
   Codacy_Scan:
     runs-on: ubuntu-latest
@@ -304,7 +304,8 @@ jobs:
 
       - name: Push release package to nuget.org
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+        run: |
+          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate \
             --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
