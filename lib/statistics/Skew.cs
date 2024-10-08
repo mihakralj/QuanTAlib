@@ -22,7 +22,11 @@ public class Skew : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 3.
     /// </exception>
+<<<<<<< HEAD
     public Skew(int period) : base()
+=======
+    public Skew(int period)
+>>>>>>> dev
     {
         if (period < 3)
         {

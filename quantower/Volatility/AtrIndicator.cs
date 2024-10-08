@@ -7,7 +7,7 @@ public class AtrIndicator : IndicatorBarBase
     public int Period { get; set; } = 20;
 
     private Atr? atr;
-    protected override AbstractBarBase QuanTAlib => atr!;
+    protected override AbstractBase QuanTAlib => atr!;
     public override string ShortName => $"ATR {Period}";
     public AtrIndicator()
     {

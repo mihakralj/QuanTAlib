@@ -25,7 +25,7 @@ public class Alma : AbstractBase
     /// <param name="offset">Controls the smoothness and high-frequency filtering. Default is 0.85.</param>
     /// <param name="sigma">Controls the shape of the Gaussian distribution. Default is 6.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
-    public Alma(int period, double offset = 0.85, double sigma = 6) : base()
+    public Alma(int period, double offset = 0.85, double sigma = 6)
     {
         if (period < 1)
         {

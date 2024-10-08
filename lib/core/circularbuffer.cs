@@ -221,11 +221,16 @@ public class CircularBuffer : IEnumerable<double>
         if (_start + _size <= Capacity)
         {
             return new ReadOnlySpan<double>(_buffer, _start, _size);
+<<<<<<< HEAD
         }
         else
         {
             return new ReadOnlySpan<double>(ToArray());
+=======
+>>>>>>> dev
         }
+
+        return new ReadOnlySpan<double>(ToArray());
     }
 
     /// <summary>

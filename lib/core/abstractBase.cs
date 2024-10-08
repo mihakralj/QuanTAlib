@@ -8,13 +8,16 @@ namespace QuanTAlib;
 /// and methods used by inheriting indicator types. It handles the basic flow of
 /// receiving data, performing calculations, and publishing results.
 /// </remarks>
-public abstract class AbstractBase : iTValue
+public abstract class AbstractBase : ITValue
 {
     public DateTime Time { get; set; }
     public double Value { get; set; }
     public bool IsNew { get; set; }
     public bool IsHot { get; set; }
     public TValue Input { get; set; }
+    public TValue Input2 { get; set; }
+    public TBar BarInput { get; set; }
+    public TBar BarInput2 { get; set; }
     public String Name { get; set; } = "";
     public int WarmupPeriod { get; set; }
     public TValue Tick => new(Time, Value, IsNew, IsHot);
@@ -34,6 +37,11 @@ public abstract class AbstractBase : iTValue
     /// <param name="args">The argument containing the new data point.</param>
     public void Sub(object source, in ValueEventArgs args) => Calc(args.Tick);
 
+    public void Sub(object source1, object source2, in ValueEventArgs args1, in ValueEventArgs args2) =>
+        Calc(args1.Tick, args2.Tick);
+
+    public void Sub(object source, in TBarEventArgs args) => Calc(args.Bar);
+
     /// <summary>
     /// Initializes the indicator's state.
     /// </summary>
@@ -43,24 +51,75 @@ public abstract class AbstractBase : iTValue
         _lastValidValue = 0;
     }
 
-    /// <summary>
-    /// Calculates the indicator value based on the input.
-    /// </summary>
-    /// <param name="input">The input value for the calculation.</param>
-    /// <returns>A TValue representing the calculated indicator value.</returns>
-    /// <remarks>
-    /// This method calls the specific Calculation() method where the actual implementation is.
-    /// If the input value is NaN or infinity, it returns the last valid value instead.
-    /// </remarks>
     public virtual TValue Calc(TValue input)
     {
         Input = input;
-        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
+        Input2 = new(Time: Input.Time, Value: double.NaN, IsNew: Input.IsNew, IsHot: Input.IsHot);
+        return HandleErrorCalculations(input.Value, input.Time, input.IsNew);
+    }
+
+    public virtual TValue Calc(TBar barInput)
+    {
+        BarInput = barInput;
+        return HandleErrorCalculations(barInput.Close, barInput.Time, barInput.IsNew);
+    }
+
+    public virtual TValue Calc(TValue input1, TValue input2)
+    {
+        Input = input1;
+        Input2 = input2;
+        return HandleErrorCalculations(input1.Value, input2.Value, input1.Time, input1.IsNew);
+    }
+
+    public virtual TValue Calc(TBar input1, TBar input2)
+    {
+        BarInput = input1;
+        BarInput2 = input2;
+        return HandleErrorCalculations(input1.Close, input2.Close, input1.Time, input1.IsNew);
+    }
+
+    /// <summary>
+    /// Handles error calculations and invalid input values.
+    /// </summary>
+    /// <param name="value">The primary input value to check.</param>
+    /// <param name="time">The timestamp of the input.</param>
+    /// <param name="isNew">Indicates if the input is new.</param>
+    /// <returns>A TValue object with the calculated or last valid value.</returns>
+    /// <remarks>
+    /// This method checks for NaN or infinity in the input value. If an invalid value is detected,
+    /// it returns the last valid value. Otherwise, it proceeds with the calculation.
+    /// </remarks>
+    protected virtual TValue HandleErrorCalculations(double value, DateTime time, bool isNew)
+    {
+        if (double.IsNaN(value) || double.IsInfinity(value))
         {
-            return Process(new TValue(input.Time, GetLastValid(), input.IsNew, input.IsHot));
+            return Process(new TValue(time, GetLastValid(), isNew, this.IsHot));
         }
         this.Value = Calculation();
-        return Process(new TValue(Time: Input.Time, Value: this.Value, IsNew: Input.IsNew, IsHot: this.IsHot));
+        return Process(new TValue(Time: time, Value: this.Value, IsNew: isNew, IsHot: this.IsHot));
+    }
+
+    /// <summary>
+    /// Handles error calculations for inputs with two values.
+    /// </summary>
+    /// <param name="value1">The first input value to check.</param>
+    /// <param name="value2">The second input value to check.</param>
+    /// <param name="time">The timestamp of the input.</param>
+    /// <param name="isNew">Indicates if the input is new.</param>
+    /// <returns>A TValue object with the calculated or last valid value.</returns>
+    /// <remarks>
+    /// This method checks for NaN or infinity in both input values. If any invalid value is detected,
+    /// it returns the last valid value. Otherwise, it proceeds with the calculation.
+    /// </remarks>
+    protected virtual TValue HandleErrorCalculations(double value1, double value2, DateTime time, bool isNew)
+    {
+        if (double.IsNaN(value1) || double.IsInfinity(value1) ||
+            double.IsNaN(value2) || double.IsInfinity(value2))
+        {
+            return Process(new TValue(time, GetLastValid(), isNew, this.IsHot));
+        }
+        this.Value = Calculation();
+        return Process(new TValue(Time: time, Value: this.Value, IsNew: isNew, IsHot: this.IsHot));
     }
 
     /// <summary>

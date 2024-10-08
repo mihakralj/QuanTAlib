@@ -8,7 +8,7 @@ public class Tema : AbstractBase
     private double _lastEma3, _p_lastEma3;
     private double _k, _e, _p_e;
 
-    public Tema(int period) : base()
+    public Tema(int period)
     {
         if (period < 1)
         {

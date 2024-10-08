@@ -12,7 +12,7 @@ public class Rema : AbstractBase
     public int Period => _period;
     public double Lambda => _lambda;
 
-    public Rema(int period, double lambda = 0.5) : base()
+    public Rema(int period, double lambda = 0.5)
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
@@ -25,7 +25,11 @@ public class Rema : AbstractBase
         WarmupPeriod = period;
         Init();
     }
-
+    public Rema(object source, int period, double lambda = 0.5) : this(period, lambda)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+    }
     public override void Init()
     {
         base.Init();

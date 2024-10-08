@@ -1,6 +1,6 @@
 namespace QuanTAlib;
 
-public interface iTBar
+public interface ITBar
 {
     DateTime Time { get; }
     double Open { get; }
@@ -11,7 +11,7 @@ public interface iTBar
     bool IsNew { get; }
 }
 
-public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : iTBar
+public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : ITBar
 {
     public DateTime Time { get; init; } = Time;
 public double Open { get; init; } = Open;

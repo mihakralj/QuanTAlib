@@ -16,7 +16,7 @@ public class Entropy : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the period is less than 2.
     /// </exception>
-    public Entropy(int period) : base()
+    public Entropy(int period)
     {
         if (period < 2)
         {

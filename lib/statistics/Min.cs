@@ -26,7 +26,11 @@ public class Min : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1 or decay is negative.
     /// </exception>
+<<<<<<< HEAD
     public Min(int period, double decay = 0) : base()
+=======
+    public Min(int period, double decay = 0)
+>>>>>>> dev
     {
         if (period < 1)
         {
@@ -109,7 +113,7 @@ public class Min : AbstractBase
         }
 
         double decayRate = 1 - Math.Exp(-_halfLife * _timeSinceNewMin / Period);
-        _currentMin = _currentMin + decayRate * (_buffer.Average() - _currentMin);
+        _currentMin += decayRate * (_buffer.Average() - _currentMin);
         _currentMin = Math.Max(_currentMin, _buffer.Min());
 
         IsHot = true;

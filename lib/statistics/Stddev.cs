@@ -26,7 +26,11 @@ public class Stddev : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
+<<<<<<< HEAD
     public Stddev(int period, bool isPopulation = false) : base()
+=======
+    public Stddev(int period, bool isPopulation = false)
+>>>>>>> dev
     {
         if (period < 2)
         {

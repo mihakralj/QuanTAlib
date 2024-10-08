@@ -26,7 +26,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.x'
 
       - name: Install JDK11 for Sonar Scanner
         uses: actions/setup-java@v3
@@ -79,7 +79,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.x'
 
       - name: Install dotnet tools
         run: |
@@ -134,7 +134,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.x'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -150,39 +150,42 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-  SecurityCodeScan:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup NuGet
-        uses: nuget/setup-nuget@v1
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '3.1.x'
-
-      - name: Set up projects for analysis
-        uses: security-code-scan/security-code-scan-add-action@v1
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --no-restore --configuration Debug
-
-      - name: Convert SARIF for uploading to GitHub
-        uses: security-code-scan/security-code-scan-results-action@v1
-
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+# converting SARIF action not working yet.
+  #SecurityCodeScan:
+  #  runs-on: windows-latest
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v4
+  #      with:
+  #        fetch-depth: 0
+#
+  #    - name: Setup NuGet
+  #      uses: nuget/setup-nuget@v1
+#
+  #    - name: Setup MSBuild
+  #      uses: microsoft/setup-msbuild@v1
+#
+  #    - name: Setup .NET SDK
+  #      uses: actions/setup-dotnet@v3
+  #      with:
+  #        dotnet-version: |
+  #          8.x
+  #          3.1.x
+  #        dotnet-quality: 'preview'
+#
+  #    - name: Set up projects for analysis
+  #      uses: security-code-scan/security-code-scan-add-action@v1
+#
+  #    - name: Build
+  #      run: |
+  #        dotnet restore
+  #        dotnet build --no-restore --configuration Debug
+#
+  #    - name: Convert SARIF for uploading to GitHub
+  #      uses: security-code-scan/security-code-scan-results-action@v1
+#
+  #    - name: Upload SARIF
+  #      uses: github/codeql-action/upload-sarif@v3
 
   Codacy_Scan:
     runs-on: ubuntu-latest
@@ -212,7 +215,7 @@ jobs:
           sarif_file: results.sarif
 
   build_publish:
-    needs: [SonarCloud, Code_Coverage, CodeQL, SecurityCodeScan, Codacy_Scan]
+    needs: [SonarCloud, Code_Coverage, CodeQL, Codacy_Scan]
     if: success()
     runs-on: ubuntu-latest
     steps:
@@ -224,7 +227,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.x'
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0

@@ -1,6 +1,6 @@
 namespace QuanTAlib;
 
-public interface iTValue
+public interface ITValue
 {
     DateTime Time { get; }
     double Value { get; }
@@ -8,7 +8,7 @@ public interface iTValue
     bool IsHot { get; }
 }
 
-public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : iTValue
+public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : ITValue
 {
     public DateTime Time { get; init; } = Time;
 public double Value { get; init; } = Value;
@@ -52,12 +52,13 @@ public class TSeries : List<TValue>
         var pubEvent = source.GetType().GetEvent("Pub");
         if (pubEvent != null)
         {
-            /*
+
             var nameProperty = source.GetType().GetProperty("Name");
-            if (nameProperty != null) {
+            if (nameProperty != null)
+            {
                 Name = nameProperty.GetValue(nameProperty)?.ToString()!;
             }
-            */
+
             pubEvent.AddEventHandler(source, new ValueSignal(Sub));
         }
     }

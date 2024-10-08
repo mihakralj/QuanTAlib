@@ -7,11 +7,11 @@ public class Zlema : AbstractBase
 {
     private readonly int _period;
     private CircularBuffer? _buffer;
-    private double _alpha;
-    private int _lag;
+    private readonly double _alpha;
+    private readonly int _lag;
     private double _lastZLEMA, _p_lastZLEMA;
 
-    public Zlema(int period) : base()
+    public Zlema(int period)
     {
         if (period < 1)
         {

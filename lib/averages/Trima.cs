@@ -30,14 +30,7 @@ public class Trima : AbstractBase
 
         for (int i = 0; i < period; i++)
         {
-            if (i < halfPeriod)
-            {
-                kernel[i] = i + 1;
-            }
-            else
-            {
-                kernel[i] = period - i;
-            }
+            kernel[i] = i < halfPeriod ? i + 1 : period - i;
             weightSum += kernel[i];
         }
 
