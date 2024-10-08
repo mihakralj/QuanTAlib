@@ -26,8 +26,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.x'
-          dotnet-quality: 'preview'
+          dotnet-version: '8.x'
 
       - name: Install JDK11 for Sonar Scanner
         uses: actions/setup-java@v3
@@ -80,8 +79,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.x'
-          dotnet-quality: 'preview'
+          dotnet-version: '8.x'
 
       - name: Install dotnet tools
         run: |
@@ -136,8 +134,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.x'
-          dotnet-quality: 'preview'
+          dotnet-version: '8.x'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -153,6 +150,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
+# converting SARIF action not working yet.
   #SecurityCodeScan:
   #  runs-on: windows-latest
   #  steps:
@@ -171,7 +169,7 @@ jobs:
   #      uses: actions/setup-dotnet@v3
   #      with:
   #        dotnet-version: |
-  #          9.x
+  #          8.x
   #          3.1.x
   #        dotnet-quality: 'preview'
 #
@@ -229,8 +227,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.x'
-          dotnet-quality: 'preview'
+          dotnet-version: '8.x'
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0

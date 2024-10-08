@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <PackageReference Include="xunit" Version="2.4.1" />
     <ProjectReference Include="..\lib\quantalib.csproj" />
   </ItemGroup>
 

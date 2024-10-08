@@ -289,7 +289,6 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            //period = rnd.Next(50) + 5;
             Mama ma = new(fastLimit: 0.5, slowLimit: 0.05);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -336,12 +335,12 @@ public class SkenderTests
             TSeries QL = new();
             foreach (TBar item in bars) { QL.Add(ma.Calc(item)); }
 
-            var SK = quotes.GetAtr(lookbackPeriods: period).Select(i => i.Atr.Null2NaN()!);
-            Assert.Equal(QL.Length, QL.Length);
+            var atrValues = quotes.GetAtr(lookbackPeriods: period).Select(i => i.Atr.Null2NaN()!);
+            const int AdditionalPeriods = 500;
 
-            for (int i = QL.Length - 1; i > period + 500; i--)
+            for (int i = QL.Length - 1; i > period + AdditionalPeriods; i--)
             {
-                Assert.InRange(SK.ElementAt(i) - QL[i].Value, -range, range);
+                Assert.InRange(atrValues.ElementAt(i) - QL[i].Value, -range, range);
             }
         }
     }

@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace QuanTAlib;
 
 public class EventingTests
