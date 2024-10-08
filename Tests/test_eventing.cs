@@ -53,22 +53,22 @@ public class EventingTests
             };
 
         // Generate 200 random values and feed them to both direct and event-based indicators
-        for (int i = 0; i < 200; i++)
+        for (int i = 0; i< 200; i++)
         {
             double randomValue = random.NextDouble() * 100;
-            input.Add(randomValue);
+    input.Add(randomValue);
 
             // Calculate direct indicators
             foreach (var (direct, _) in indicators)
             {
                 direct.Calc(randomValue);
             }
-        }
+}
 
-        // Compare the results of direct and event-based calculations
-        foreach (var (direct, eventBased) in indicators)
-        {
-            Assert.Equal(direct.Value, eventBased.Value, 9);
-        }
+// Compare the results of direct and event-based calculations
+foreach (var (direct, eventBased) in indicators)
+{
+    Assert.Equal(direct.Value, eventBased.Value, 9);
+}
     }
 }

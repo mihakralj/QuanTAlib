@@ -6,9 +6,9 @@ public class Qema : AbstractBase
     private readonly Ema _ema1, _ema2, _ema3, _ema4;
     private double _lastQema, _p_lastQema;
 
-    public Qema(double k1=0.2, double k2=0.2, double k3=0.2, double k4=0.2)
+    public Qema(double k1 = 0.2, double k2 = 0.2, double k3 = 0.2, double k4 = 0.2)
     {
-        if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0 )
+        if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0)
         {
             throw new ArgumentOutOfRangeException("All k values must be in the range (0, 1].");
         }
@@ -26,7 +26,7 @@ public class Qema : AbstractBase
         Name = $"QEMA ({k1:F2},{k2:F2},{k3:F2},{k4:F2})";
         double smK = Math.Min(Math.Min(_k1, _k2), Math.Min(_k3, _k4));
 
-        WarmupPeriod = (int) ((2 - smK) / smK);
+        WarmupPeriod = (int)((2 - smK) / smK);
         Init();
     }
 
