@@ -83,7 +83,7 @@ public class Rma : AbstractBase
         else
         {
             // Wilder's smoothing method
-            rma = _alpha * (_lastRma -  Input.Value) + _lastRma;
+            rma = _alpha * (_lastRma - Input.Value) + _lastRma;
         }
 
         _lastRma = rma;
