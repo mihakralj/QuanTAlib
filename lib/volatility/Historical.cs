@@ -25,11 +25,7 @@ public class Historical : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-<<<<<<< HEAD
-    public Historical(int period, bool isAnnualized = true) : base()
-=======
     public Historical(int period, bool isAnnualized = true)
->>>>>>> dev
     {
         if (period < 2)
         {

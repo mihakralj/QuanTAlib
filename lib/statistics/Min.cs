@@ -26,11 +26,7 @@ public class Min : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1 or decay is negative.
     /// </exception>
-<<<<<<< HEAD
-    public Min(int period, double decay = 0) : base()
-=======
     public Min(int period, double decay = 0)
->>>>>>> dev
     {
         if (period < 1)
         {

@@ -21,11 +21,7 @@ public class Zscore : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-<<<<<<< HEAD
-    public Zscore(int period) : base()
-=======
     public Zscore(int period)
->>>>>>> dev
     {
         if (period < 2)
         {
