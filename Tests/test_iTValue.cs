@@ -1,19 +1,27 @@
 using Xunit;
 using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 
 namespace QuanTAlib;
 
-[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
 public class IndicatorTests
 {
-    private readonly Random rnd;
+    private readonly RandomNumberGenerator rng;
     private const int SeriesLen = 1000;
     private const int Corrections = 100;
 
     public IndicatorTests()
     {
-        rnd = new Random((int)DateTime.Now.Ticks);
+        rng = RandomNumberGenerator.Create();
+    }
+
+    private int GetRandomNumber(int minValue, int maxValue)
+    {
+        byte[] randomBytes = new byte[4];
+        rng.GetBytes(randomBytes);
+        int randomInt = BitConverter.ToInt32(randomBytes, 0);
+        return Math.Abs(randomInt % (maxValue - minValue)) + minValue;
     }
 
     // skipcq: CS-R1055
@@ -83,12 +91,12 @@ public class IndicatorTests
 
         for (int i = 0; i < SeriesLen; i++)
         {
-            TValue item1 = new(Time: DateTime.Now, Value: rnd.Next(-100, 100), IsNew: true);
+            TValue item1 = new(Time: DateTime.Now, Value: GetRandomNumber(-100, 100), IsNew: true);
             InvokeCalc(indicator1, calcMethod, item1);
 
             for (int j = 0; j < Corrections; j++)
             {
-                item1 = new(Time: DateTime.Now, Value: rnd.Next(-100, 100), IsNew: false);
+                item1 = new(Time: DateTime.Now, Value: GetRandomNumber(-100, 100), IsNew: false);
                 InvokeCalc(indicator1, calcMethod, item1);
             }
 

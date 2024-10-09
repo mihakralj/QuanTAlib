@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>preview</LangVersion>
-
+    <NoWarn>$(NoWarn);NU1903;NU5104</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
@@ -49,6 +49,8 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsLocalBuild)' == 'true'">
+
+<!-- Set the correct path to Quantower here -->
     <QuantowerRoot>D:\Quantower</QuantowerRoot>
     <QuantowerPath>$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
   </PropertyGroup>

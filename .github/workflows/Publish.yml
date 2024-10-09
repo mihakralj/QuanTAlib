@@ -215,7 +215,7 @@ jobs:
           sarif_file: results.sarif
 
   build_publish:
-    needs: [SonarCloud, Code_Coverage, CodeQL, Codacy_Scan]
+    needs: [SonarCloud, Code_Coverage, CodeQL, Codacy_Scan, SecurityCodeScan]
     if: success()
     runs-on: ubuntu-latest
     steps:
