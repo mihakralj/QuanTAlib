@@ -1,5 +1,5 @@
 //not working yet
-//TODO consistency test
+//TODO fails consistency test
 
 namespace QuanTAlib;
 

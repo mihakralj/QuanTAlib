@@ -22,7 +22,7 @@ public class Mgdi : AbstractBase
         Init();
     }
 
-    public Mgdi(object source, int period, double kFactor = 1.0) : this(period, kFactor)
+    public Mgdi(object source, int period, double kFactor = 0.6) : this(period, kFactor)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
@@ -58,8 +58,9 @@ public class Mgdi : AbstractBase
         }
         else
         {
+            double ratio = _prevMd != 0 ? value / _prevMd : 1;
             double md = _prevMd + ((value - _prevMd) /
-                (_kFactor * _period * Math.Pow(value / _prevMd, 4)));
+                (_kFactor * _period * Math.Pow(ratio, 4)));
             _prevMd = md;
         }
 
