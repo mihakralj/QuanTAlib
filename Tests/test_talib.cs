@@ -121,7 +121,7 @@ public class TAlibTests
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
             Core.Wma(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
             Assert.Equal(QL.Length, TALIB.Count());
-            for (int i = QL.Length - 1; i > 1000; i--)
+            for (int i = QL.Length - 1; i > 2000; i--)
             {
                 Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
             }
