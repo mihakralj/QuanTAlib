@@ -18,36 +18,24 @@
     <DebugType>full</DebugType>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageTags>
+    <PackageIcon>QuanTAlib2.png</PackageIcon>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageTags>
       Indicators;Stock;Market;Technical;Analysis;Algorithmic;Trading;Trade;Trend;Momentum;Finance;Algorithm;Algo;
       AlgoTrading;Financial;Strategy;Chart;Charting;Oscillator;Overlay;Equity;Bitcoin;Crypto;Cryptocurrency;Forex;
       Quantitative;Historical;Quotes;
-    </PackageTags>
-    <NoWarn>$(NoWarn);NU5104</NoWarn>
-    <PackageIcon>QuanTAlib2.png</PackageIcon>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-    <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <PackageTags>
-    Indicators;Stock;Market;Technical;Analysis;Algorithmic;Trading;Trade;Trend;Momentum;Finance;Algorithm;Algo;
-    AlgoTrading;Financial;Strategy;Chart;Charting;Oscillator;Overlay;Equity;Bitcoin;Crypto;Cryptocurrency;Forex;
-    Quantitative;Historical;Quotes;
     </PackageTags>
     <PackageIcon>QuanTAlib2.png</PackageIcon>
 		<PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
-  <PropertyGroup>
-		<PackageIcon>QuanTAlib2.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
-		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-	</PropertyGroup>
+
   <ItemGroup>
     <None Include="..\docs\readme.md" Pack="true" PackagePath=""/>
     <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath=""/>
-    <PackageReference Include="System.Text.Json" Version="9.0.0-rc.1.24431.7" />
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
     <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
