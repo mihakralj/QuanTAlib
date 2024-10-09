@@ -1,16 +1,16 @@
 using Xunit;
 using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 
 namespace QuanTAlib;
 
 /// <summary>
 /// Contains unit tests for bar-based indicators in QuanTAlib.
 /// </summary>
-[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
 public class BarIndicatorTests
 {
-    private readonly Random rnd;
+    private readonly RandomNumberGenerator rng;
     private const int SeriesLen = 1000;
     private const int Corrections = 100;
 
@@ -19,7 +19,7 @@ public class BarIndicatorTests
     /// </summary>
     public BarIndicatorTests()
     {
-        rnd = new Random((int)DateTime.Now.Ticks);
+        rng = RandomNumberGenerator.Create();
     }
 
     private static readonly ITValue[] indicators = new ITValue[]
@@ -124,13 +124,38 @@ public class BarIndicatorTests
     /// <returns>A randomly generated TBar.</returns>
     private TBar GenerateRandomBar(bool isNew)
     {
-        double open = rnd.NextDouble() * 200 - 100;
-        double close = rnd.NextDouble() * 200 - 100;
-        double high = Math.Max(open, close) + rnd.NextDouble() * 10;
-        double low = Math.Min(open, close) - rnd.NextDouble() * 10;
-        long volume = rnd.Next(0, 10000);
+        double open = GetRandomDouble() * 200 - 100;
+        double close = GetRandomDouble() * 200 - 100;
+        double high = Math.Max(open, close) + GetRandomDouble() * 10;
+        double low = Math.Min(open, close) - GetRandomDouble() * 10;
+        long volume = GetRandomNumber(0, 10000);
 
         return new TBar(Time: DateTime.Now, Open: open, High: high, Low: low, Close: close, Volume: volume, IsNew: isNew);
+    }
+
+    /// <summary>
+    /// Generates a random double between 0 and 1.
+    /// </summary>
+    /// <returns>A random double between 0 and 1.</returns>
+    private double GetRandomDouble()
+    {
+        byte[] bytes = new byte[8];
+        rng.GetBytes(bytes);
+        return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue;
+    }
+
+    /// <summary>
+    /// Generates a random integer between minValue (inclusive) and maxValue (exclusive).
+    /// </summary>
+    /// <param name="minValue">The minimum value (inclusive).</param>
+    /// <param name="maxValue">The maximum value (exclusive).</param>
+    /// <returns>A random integer between minValue and maxValue.</returns>
+    private int GetRandomNumber(int minValue, int maxValue)
+    {
+        byte[] randomBytes = new byte[4];
+        rng.GetBytes(randomBytes);
+        int randomInt = BitConverter.ToInt32(randomBytes, 0);
+        return Math.Abs(randomInt % (maxValue - minValue)) + minValue;
     }
 
     /// <summary>

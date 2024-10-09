@@ -1,11 +1,11 @@
-using System.CommandLine.Rendering.Views;
+using System.Security.Cryptography;
 
 namespace QuanTAlib;
 
 public class GbmFeed : TBarSeries
 {
     private readonly double _mu, _sigma;
-    private readonly Random _random;
+    private readonly RandomNumberGenerator _rng;
     private double _lastClose, _lastHigh, _lastLow;
 
     public GbmFeed(double initialPrice = 100.0, double mu = 0.05, double sigma = 0.2)
@@ -13,7 +13,7 @@ public class GbmFeed : TBarSeries
         _lastClose = _lastHigh = _lastLow = initialPrice;
         _mu = mu;
         _sigma = sigma;
-        _random = new Random((int)DateTime.Now.Ticks);
+        _rng = RandomNumberGenerator.Create();
         this.Name = $"GBM({_sigma:F2})";
     }
 
@@ -39,9 +39,9 @@ public class GbmFeed : TBarSeries
         double newClose = _lastClose * Math.Exp(drift + diffusion);
 
         double open = _lastClose;
-        double high = Math.Max(_lastHigh, Math.Max(open, newClose) * (1 + _random.NextDouble() * 0.01));
-        double low = Math.Min(_lastLow, Math.Min(open, newClose) * (1 - _random.NextDouble() * 0.01));
-        double volume = 1000 + _random.NextDouble() * 1000;
+        double high = Math.Max(_lastHigh, Math.Max(open, newClose) * (1 + GenerateRandomDouble() * 0.01));
+        double low = Math.Min(_lastLow, Math.Min(open, newClose) * (1 - GenerateRandomDouble() * 0.01));
+        double volume = 1000 + GenerateRandomDouble() * 1000;
 
         if (isNew)
         {
@@ -62,8 +62,15 @@ public class GbmFeed : TBarSeries
     private double GenerateNormalRandom()
     {
         // Box-Muller transform to generate standard normal random variable
-        double u1 = 1.0 - _random.NextDouble(); // Uniform(0,1] random doubles
-        double u2 = 1.0 - _random.NextDouble();
+        double u1 = 1.0 - GenerateRandomDouble(); // Uniform(0,1] random doubles
+        double u2 = 1.0 - GenerateRandomDouble();
         return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+    }
+
+    private double GenerateRandomDouble()
+    {
+        byte[] bytes = new byte[8];
+        _rng.GetBytes(bytes);
+        return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue;
     }
 }

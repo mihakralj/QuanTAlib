@@ -3,16 +3,16 @@ using Trady.Analysis.Indicator;
 using Trady.Core;
 using Trady.Core.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 
 namespace QuanTAlib;
 
 [SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
-
 public class TradyTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private readonly Random rnd;
+    private readonly RandomNumberGenerator rng;
     private readonly double range;
     private readonly int iterations;
     private readonly int skip;
@@ -20,7 +20,7 @@ public class TradyTests
 
     public TradyTests()
     {
-        rnd = new((int)DateTime.Now.Ticks);
+        rng = RandomNumberGenerator.Create();
         feed = new(sigma: 0.5, mu: 0.0);
         bars = new(feed);
         range = 1e-9;
@@ -37,12 +37,20 @@ public class TradyTests
         )).ToList();
     }
 
+    private int GetRandomNumber(int minValue, int maxValue)
+    {
+        byte[] randomBytes = new byte[4];
+        rng.GetBytes(randomBytes);
+        int randomInt = BitConverter.ToInt32(randomBytes, 0);
+        return Math.Abs(randomInt % (maxValue - minValue)) + minValue;
+    }
+
     [Fact]
     public void SMA()
     {
         for (int run = 0; run < iterations; run++)
         {
-            int period = rnd.Next(50) + 5;
+            int period = GetRandomNumber(5, 55);
             Sma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -72,7 +80,7 @@ public class TradyTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            int period = rnd.Next(50) + 5;
+            int period = GetRandomNumber(5, 55);
             Ema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -96,6 +104,4 @@ public class TradyTests
             }
         }
     }
-
-
 }
