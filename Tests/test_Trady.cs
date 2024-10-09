@@ -5,9 +5,10 @@ using Trady.Core.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
+#pragma warning disable S1944, S2053, S2222, S2259, S2583, S2589, S3329, S3655, S3900, S3949, S3966, S4158, S4347, S5773, S6781
+
 namespace QuanTAlib;
 
-[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
 public class TradyTests
 {
     private readonly TBarSeries bars;

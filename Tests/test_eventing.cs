@@ -1,6 +1,8 @@
 using Xunit;
 using System.Security.Cryptography;
 
+#pragma warning disable S1944, S2053, S2222, S2259, S2583, S2589, S3329, S3655, S3900, S3949, S3966, S4158, S4347, S5773, S6781
+
 namespace QuanTAlib;
 
 public class EventingTests
@@ -70,10 +72,10 @@ public class EventingTests
         }
     }
 
-    private static double GetRandomDouble(RandomNumberGenerator rng)
-    {
-        byte[] bytes = new byte[8];
-        rng.GetBytes(bytes);
-        return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue;
-    }
+private static double GetRandomDouble(RandomNumberGenerator rng)
+{
+    byte[] bytes = new byte[8];
+    rng.GetBytes(bytes);
+    return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue;
+}
 }
