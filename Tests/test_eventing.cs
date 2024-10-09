@@ -51,7 +51,7 @@ public class EventingTests
         };
 
         // Generate 200 random values and feed them to both direct and event-based indicators
-        for (int i = 0; i < 200; i++)
+        for (int i = 0; i< 200; i++)
         {
             double randomValue = GetRandomDouble(rng) * 100;
 <<<<<<< HEAD
@@ -65,23 +65,23 @@ public class EventingTests
             {
                 direct.Calc(randomValue);
             }
-        }
+}
 
-        // Compare the results of direct and event-based calculations
-        foreach (var (direct, eventBased) in indicators)
-        {
-            Assert.Equal(direct.Value, eventBased.Value, 9);
-        }
+// Compare the results of direct and event-based calculations
+foreach (var (direct, eventBased) in indicators)
+{
+    Assert.Equal(direct.Value, eventBased.Value, 9);
+}
     }
 
     private static double GetRandomDouble(RandomNumberGenerator rng)
-    {
-        byte[] bytes = new byte[8];
-        rng.GetBytes(bytes);
-        return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue;
-    }
+{
+    byte[] bytes = new byte[8];
+    rng.GetBytes(bytes);
+    return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue;
+}
 
-    private static double GetRandomDouble(RandomNumberGenerator rng)
+private static double GetRandomDouble(RandomNumberGenerator rng)
 {
     byte[] bytes = new byte[8];
     rng.GetBytes(bytes);
