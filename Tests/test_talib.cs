@@ -123,7 +123,7 @@ public class TAlibTests
             Assert.Equal(QL.Length, TALIB.Count());
             for (int i = QL.Length - 1; i > 2000; i--)
             {
-                Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
+                Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -1e-8, 1e-8);
             }
         }
     }
