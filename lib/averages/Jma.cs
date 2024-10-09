@@ -1,5 +1,5 @@
 namespace QuanTAlib;
-//TODO consistency test
+//TODO fails consistency test
 public class Jma : AbstractBase
 {
     public readonly int Period;

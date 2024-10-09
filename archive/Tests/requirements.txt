@@ -1,6 +1,0 @@
-pytz
-six
-python-dateutil
-numpy
-pandas
-pandas-ta
