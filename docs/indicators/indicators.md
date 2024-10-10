@@ -72,7 +72,7 @@
 |MGDI - McGinley Dynamic Indicator|`Mgdi`|`✔️`|||
 |MMA - Modified Moving Average|`Mma`||||
 |PPMA - Pivot Point Moving Average|||||
-|PWMA - Pascal's Weighted Moving Average|||||
+|PWMA - Pascal's Weighted Moving Average|`Pwma`||||
 |QEMA - Quad Exponential Moving Average|`Qema`||||
 |RMA - WildeR's Moving Average|`Rma`||||
 |SINEMA - Sine Weighted Moving Average|`Sinema`||||

@@ -35,6 +35,7 @@ public class IndicatorTests
         new Dsma(period: 14),
         new Dwma(period: 14),
         new Epma(period: 14),
+        new Pwma(period: 14),
         new Frama(period: 14),
         new Fwma(period: 14),
         new Gma(period: 14),

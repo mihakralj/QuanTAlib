@@ -28,6 +28,7 @@ public class EventingTests
             ("Dwma", new Dwma(p), new Dwma(input, p)),
             ("Ema", new Ema(p), new Ema(input, p)),
             ("Epma", new Epma(p), new Epma(input, p)),
+            ("Pwma", new Pwma(p), new Pwma(input, p)),
             ("Frama", new Frama(p), new Frama(input, p)),
             ("Fwma", new Fwma(p), new Fwma(input, p)),
             ("Gma", new Gma(p), new Gma(input, p)),
