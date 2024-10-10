@@ -7,7 +7,7 @@ public class HtitIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"HTIT : {SourceName}";
 
-    public HtitIndicator() : base()
+    public HtitIndicator()
     {
         Name = "HTIT - Hilbert Transform Instantaneous Trendline";
     }

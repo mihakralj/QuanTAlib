@@ -11,7 +11,7 @@ public class ZlemaIndicator : IndicatorBase
     public override string ShortName => $"ZLEMA {Period} : {SourceName}";
 
 
-    public ZlemaIndicator() : base()
+    public ZlemaIndicator()
     {
         Name = "ZLEMA - Weighted Moving Average";
     }

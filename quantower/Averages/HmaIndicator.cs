@@ -11,7 +11,7 @@ public class HmaIndicator : IndicatorBase
     public override string ShortName => $"HMA {Period} : {SourceName}";
 
 
-    public HmaIndicator() : base()
+    public HmaIndicator()
     {
         Name = "HMA - Hull Moving Average";
     }

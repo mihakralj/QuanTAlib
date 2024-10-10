@@ -1,157 +1,114 @@
 using Xunit;
-using System.Reflection;
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace QuanTAlib;
 
-public class IndicatorTests
+public class test_iTValue
 {
     private readonly RandomNumberGenerator rng;
-    private const int SeriesLen = 1000;
-    private const int Corrections = 100;
+    private const int RandomInputs = 50;
+    private const double ReferenceInput = 100.0;
 
-    public IndicatorTests()
+    public test_iTValue()
     {
         rng = RandomNumberGenerator.Create();
     }
 
-    private int GetRandomNumber(int minValue, int maxValue)
+    private double GetRandomDouble(double minValue, double maxValue)
     {
-        byte[] randomBytes = new byte[4];
+        byte[] randomBytes = new byte[8];
         rng.GetBytes(randomBytes);
-        int randomInt = BitConverter.ToInt32(randomBytes, 0);
-        return Math.Abs(randomInt % (maxValue - minValue)) + minValue;
+        return minValue + (BitConverter.ToDouble(randomBytes, 0) % (maxValue - minValue));
     }
-
-    // skipcq: CS-R1055
-    private static readonly ITValue[] indicators =
-    {
-        new Ema(period: 10, useSma: true),
-        new Alma(period: 14, offset: 0.85, sigma: 6),
-        new Afirma(periods: 4, taps: 4, window: Afirma.WindowType.Blackman),
-        new Convolution(new[] { 1.0, 2, 3, 2, 1 }),
-        new Dema(period: 14),
-        new Dsma(period: 14),
-        new Dwma(period: 14),
-        new Epma(period: 14),
-        new Frama(period: 14),
-        new Fwma(period: 14),
-        new Gma(period: 14),
-        new Hma(period: 14),
-        new Hwma(period: 14),
-        new Kama(period: 14),
-        new Mama(fastLimit: 0.5, slowLimit: 0.05),
-        new Mgdi(period: 14),
-        new Mma(period: 14),
-        new Qema(),
-        new Rema(period: 14),
-        new Rma(period: 14),
-        new Sinema(period: 14),
-        new Sma(period: 14),
-        new Smma(period: 14),
-        new T3(period: 14),
-        new Tema(period: 14),
-        new Trima(period: 14),
-        new Vidya(shortPeriod: 14, longPeriod: 30, alpha: 0.2),
-        new Wma(period: 14),
-        new Zlema(period: 14),
-
-        new Curvature(period: 14),
-        new Entropy(period: 14),
-        new Kurtosis(period: 14),
-        new Max(period: 14, decay: 0.01),
-        new Median(period: 14),
-        new Min(period: 14, decay: 0.01),
-        new Median(period: 14),
-        new Mode(period: 14),
-        new Percentile(period: 14, percent: 50),
-        new Skew(period: 14),
-        new Slope(period: 14),
-        new Stddev(period: 14),
-        new Variance(period: 14),
-        new Zscore(period: 14),
-
-        new Historical(period: 14),
-        new Realized(period: 14)
-    };
 
     [Theory]
-    [MemberData(nameof(GetIndicators))]
-    public void IndicatorIsNew(ITValue indicator)
+    [MemberData(nameof(GetAllIndicators))]
+    public void TestIndicatorStateControl(string name, AbstractBase indicator)
     {
-        var indicator1 = indicator;
-        var indicator2 = indicator;
+        // Feed the reference input with IsNew=true
+        var initialInput = new TValue(DateTime.Now, ReferenceInput, true);
+        indicator.Calc(initialInput);
+        double initialOutput = indicator.Value;
 
-        MethodInfo calcMethod = FindCalcMethod(indicator.GetType());
-        if (calcMethod == null)
+        // Feed 50 random numbers with IsNew=false
+        for (int i = 0; i < RandomInputs; i++)
         {
-            throw new InvalidOperationException($"Calc method not found for indicator type: {indicator.GetType().Name}");
+            var randomInput = new TValue(DateTime.Now, GetRandomDouble(-100, 100), false);
+            indicator.Calc(randomInput);
         }
 
-        for (int i = 0; i < SeriesLen; i++)
+        // Feed the reference input again with IsNew=false
+        var finalInput = new TValue(DateTime.Now, ReferenceInput, false);
+        indicator.Calc(finalInput);
+        double finalOutput = indicator.Value;
+
+        // Compare the initial and final outputs
+        try
         {
-            TValue item1 = new(Time: DateTime.Now, Value: GetRandomNumber(-100, 100), IsNew: true);
-            InvokeCalc(indicator1, calcMethod, item1);
-
-            for (int j = 0; j < Corrections; j++)
-            {
-                item1 = new(Time: DateTime.Now, Value: GetRandomNumber(-100, 100), IsNew: false);
-                InvokeCalc(indicator1, calcMethod, item1);
-            }
-
-            var item2 = new TValue(item1.Time, item1.Value, IsNew: true);
-            InvokeCalc(indicator2, calcMethod, item2);
-
-            Assert.Equal(indicator1.Value, indicator2.Value);
+            Assert.Equal(initialOutput, finalOutput, 1e-6);
+        }
+        catch (Exception)
+        {
+            Debug.WriteLine($"Assertion failed for {name}:");
+            Debug.WriteLine($"  Initial output: {initialOutput}");
+            Debug.WriteLine($"  Final output: {finalOutput}");
+            Debug.WriteLine($"  Difference: {Math.Abs(initialOutput - finalOutput)}");
+            throw;
         }
     }
 
-    private static MethodInfo FindCalcMethod(Type type)
+    public static IEnumerable<object[]> GetAllIndicators()
     {
-        while (type != null && type != typeof(object))
+        var indicators = new List<(string Name, AbstractBase Indicator)>
         {
-            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                              .Where(m => m.Name == "Calc")
-                              .ToList();
+            ("Ema", new Ema(period: 10, useSma: true)),
+            ("Alma", new Alma(period: 14, offset: 0.85, sigma: 6)),
+            ("Afirma", new Afirma(periods: 4, taps: 4, window: Afirma.WindowType.Blackman)),
+            ("Convolution", new Convolution(new[] { 1.0, 2, 3, 2, 1 })),
+            ("Dema", new Dema(period: 14)),
+            ("Dsma", new Dsma(period: 14)),
+            ("Dwma", new Dwma(period: 14)),
+            ("Epma", new Epma(period: 14)),
+            ("Frama", new Frama(period: 14)),
+            ("Fwma", new Fwma(period: 14)),
+            ("Gma", new Gma(period: 14)),
+            ("Hma", new Hma(period: 14)),
+            ("Hwma", new Hwma(period: 14)),
+            ("Kama", new Kama(period: 14)),
+            ("Ltma", new Ltma(gamma: 0.1)),
+            ("Mama", new Mama(fastLimit: 0.5, slowLimit: 0.05)),
+            ("Mgdi", new Mgdi(period: 14)),
+            ("Mma", new Mma(period: 14)),
+            ("Qema", new Qema()),
+            ("Rema", new Rema(period: 14)),
+            ("Rma", new Rma(period: 14)),
+            ("Sinema", new Sinema(period: 14)),
+            ("Sma", new Sma(period: 14)),
+            ("Smma", new Smma(period: 14)),
+            ("T3", new T3(period: 14)),
+            ("Tema", new Tema(period: 14)),
+            ("Trima", new Trima(period: 14)),
+            ("Vidya", new Vidya(shortPeriod: 14, longPeriod: 30, alpha: 0.2)),
+            ("Wma", new Wma(period: 14)),
+            ("Zlema", new Zlema(period: 14)),
+            ("Curvature", new Curvature(period: 14)),
+            ("Entropy", new Entropy(period: 14)),
+            ("Kurtosis", new Kurtosis(period: 14)),
+            ("Max", new Max(period: 14, decay: 0.01)),
+            ("Median", new Median(period: 14)),
+            ("Min", new Min(period: 14, decay: 0.01)),
+            ("Mode", new Mode(period: 14)),
+            ("Percentile", new Percentile(period: 14, percent: 50)),
+            ("Skew", new Skew(period: 14)),
+            ("Slope", new Slope(period: 14)),
+            ("Stddev", new Stddev(period: 14)),
+            ("Variance", new Variance(period: 14)),
+            ("Zscore", new Zscore(period: 14)),
+            ("Historical", new Historical(period: 14)),
+            ("Realized", new Realized(period: 14))
+        };
 
-            if (methods.Count > 0)
-            {
-                // Prefer the method with TValue parameter
-                var method = methods.FirstOrDefault(m =>
-                {
-                    var parameters = m.GetParameters();
-                    return parameters.Length == 1 && parameters[0].ParameterType == typeof(TValue);
-                });
-
-                // If not found, return the first method
-                return method ?? methods.First();
-            }
-
-            type = type.BaseType!;
-        }
-        return null!;
-    }
-
-    private static void InvokeCalc(ITValue indicator, MethodInfo calcMethod, TValue input)
-    {
-        var parameters = calcMethod.GetParameters();
-        if (parameters.Length == 1)
-        {
-            calcMethod.Invoke(indicator, new object[] { input });
-        }
-        else if (parameters.Length == 2)
-        {
-            calcMethod.Invoke(indicator, new object[] { input, double.NaN });
-        }
-        else
-        {
-            throw new InvalidOperationException($"Invalid number of parameters for Calc method in indicator type: {indicator.GetType().Name}");
-        }
-    }
-
-    public static IEnumerable<object[]> GetIndicators()
-    {
-        return indicators.Select(indicator => new object[] { indicator });
+        return indicators.Select(i => new object[] { i.Name, i.Indicator });
     }
 }
