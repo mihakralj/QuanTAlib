@@ -13,7 +13,7 @@ public class JmaIndicator : IndicatorBase
     public override string ShortName => $"JMA {Period} : {Phase} : {SourceName}";
 
 
-    public JmaIndicator() : base()
+    public JmaIndicator()
     {
         Name = "JMA - Jurik Moving Average";
     }

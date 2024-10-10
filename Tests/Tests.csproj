@@ -13,7 +13,7 @@
     <PackageReference Include="xunit.runner.console" Version="2.9.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-  </PackageReference>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
@@ -34,6 +34,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\lib\quantalib.csproj" />
+     <ProjectReference Include="..\quantower\**\*.csproj" />
+
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
+    </None>
   </ItemGroup>
 
 </Project>

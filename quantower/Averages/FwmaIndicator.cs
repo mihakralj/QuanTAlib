@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class FwmaIndicator : IndicatorBase
 {
@@ -11,7 +11,7 @@ public class FwmaIndicator : IndicatorBase
     public override string ShortName => $"FWMA {Period} : {SourceName}";
 
 
-    public FwmaIndicator() : base()
+    public FwmaIndicator()
     {
         Name = "FWMA - Fibonacci-Weighted Moving Average";
     }
