@@ -8,10 +8,23 @@ namespace QuanTAlib;
 /// The Stddev class calculates either the population standard deviation or the sample
 /// standard deviation based on the isPopulation parameter. It uses a circular buffer
 /// to efficiently manage the data points within the specified period.
+///
+/// In financial analysis, standard deviation is important for:
+/// - Measuring volatility of financial instruments or portfolios.
+/// - Assessing risk in investments.
+/// - Calculating Sharpe ratios and other risk-adjusted performance measures.
+/// - Identifying potential outliers or unusual market behavior.
 /// </remarks>
 public class Stddev : AbstractBase
 {
+    /// <summary>
+    /// Indicates whether to calculate population (true) or sample (false) standard deviation.
+    /// </summary>
     private readonly bool IsPopulation;
+
+    /// <summary>
+    /// Circular buffer to store the most recent data points.
+    /// </summary>
     private readonly CircularBuffer _buffer;
 
     /// <summary>
@@ -87,6 +100,11 @@ public class Stddev : AbstractBase
     /// sqrt(sum((x - mean)^2) / (n - 1)) for sample,
     /// where x is each value, mean is the average of all values, and n is the number of values.
     /// If there's only one value in the buffer, the method returns 0.
+    ///
+    /// Interpretation of results:
+    /// - A low standard deviation indicates that the values tend to be close to the mean.
+    /// - A high standard deviation indicates that the values are spread out over a wider range.
+    /// - In financial contexts, higher standard deviation often implies higher volatility or risk.
     /// </remarks>
     protected override double Calculation()
     {

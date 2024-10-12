@@ -12,6 +12,7 @@ public class MedianIndicator : IndicatorBase
     public MedianIndicator() : base()
     {
         Name = "MEDIAN - Median historical value";
+        Description = "Calculates the middle value of price data over a specified period, less affected by outliers than mean.";
     }
 
     protected override void InitIndicator()

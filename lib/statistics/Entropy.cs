@@ -4,8 +4,20 @@ namespace QuanTAlib;
 /// Measures the unpredictability of data using Shannon's Entropy.
 /// Provides insights into the randomness or information content of the time series.
 /// </summary>
+/// <remarks>
+/// Shannon's Entropy quantifies the average amount of information contained in a message.
+/// In the context of time series analysis, it can be used to:
+/// - Detect regime changes or structural breaks in the data.
+/// - Assess the complexity or predictability of price movements.
+/// - Identify periods of high uncertainty or information flow in the market.
+/// The entropy value is normalized between 0 and 1, where 1 indicates maximum randomness
+/// and 0 indicates perfect predictability.
+/// </remarks>
 public class Entropy : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the entropy calculation.
+    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
@@ -24,7 +36,7 @@ public class Entropy : AbstractBase
                 "Period must be greater than or equal to 2 for entropy calculation.");
         }
         Period = period;
-        WarmupPeriod = 2;
+        WarmupPeriod = 2; // Minimum number of points needed for entropy calculation
         _buffer = new CircularBuffer(period);
         Name = $"Entropy(period={period})";
         Init();

@@ -13,6 +13,7 @@ public class SinemaIndicator : IndicatorBase
     public SinemaIndicator() : base()
     {
         Name = "SINEMA - Sine-Weighted Moving Average";
+        Description = "Moving average using sine function for weighting, balancing recent and historical price data.";
     }
 
     protected override void InitIndicator()

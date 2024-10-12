@@ -13,6 +13,7 @@ public class EntropyIndicator : IndicatorBase
     public EntropyIndicator() : base()
     {
         Name = "ENTROPY - Entropy";
+        Description = "Measures the randomness or uncertainty in price movements, useful for identifying market phases.";
         SeparateWindow = true;
     }
 

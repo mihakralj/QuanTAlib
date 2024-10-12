@@ -8,9 +8,17 @@ namespace QuanTAlib;
 /// The Mode class uses a circular buffer to store values and calculates the mode
 /// efficiently. Before the specified period is reached, it returns the average of
 /// the available values as an approximation.
+///
+/// In financial analysis, the mode can be useful for:
+/// - Identifying the most common price levels, which could indicate support or resistance.
+/// - Analyzing the distribution of returns or other financial metrics.
+/// - Detecting patterns in trading volume or other discrete financial data.
 /// </remarks>
 public class Mode : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the mode calculation.
+    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
@@ -43,6 +51,15 @@ public class Mode : AbstractBase
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+    }
+
+    /// <summary>
+    /// Resets the Mode indicator to its initial state.
+    /// </summary>
+    public override void Init()
+    {
+        base.Init();
+        _buffer.Clear();
     }
 
     /// <summary>

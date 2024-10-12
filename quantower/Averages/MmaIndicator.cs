@@ -13,6 +13,7 @@ public class MmaIndicator : IndicatorBase
     public MmaIndicator() : base()
     {
         Name = "MMA - Modified Moving Average";
+        Description = "Variation of EMA that reduces lag and smooths price action, balancing responsiveness and stability.";
     }
 
     protected override void InitIndicator()

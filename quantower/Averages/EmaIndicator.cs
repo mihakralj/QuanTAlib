@@ -16,7 +16,7 @@ public class EmaIndicator : IndicatorBase
     public EmaIndicator() : base()
     {
         Name = "EMA - Exponential Moving Average";
-        Description = "Exponential Moving Average";
+        Description = "Moving average that gives more weight to recent prices, reducing lag in trend following.";
     }
 
     protected override void InitIndicator()

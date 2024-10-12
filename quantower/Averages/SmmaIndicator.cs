@@ -10,10 +10,10 @@ public class SmmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"SMMA {Period} : {SourceName}";
 
-
     public SmmaIndicator() : base()
     {
         Name = "SMMA - Smoothed Moving Average";
+        Description = "Moving average that gives more weight to recent data while retaining all historical data.";
     }
 
     protected override void InitIndicator()

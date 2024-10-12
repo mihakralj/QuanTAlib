@@ -13,6 +13,7 @@ public class EpmaIndicator : IndicatorBase
     public EpmaIndicator() : base()
     {
         Name = "EPMA - Endpoint Moving Average";
+        Description = "Moving average that emphasizes the most recent data point, useful for identifying trend changes.";
     }
 
     protected override void InitIndicator()

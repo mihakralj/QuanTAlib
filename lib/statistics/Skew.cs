@@ -9,9 +9,21 @@ namespace QuanTAlib;
 /// efficiently. It uses the adjusted Fisher-Pearson standardized moment coefficient
 /// for sample skewness calculation. A minimum of 3 data points is required for the
 /// calculation.
+///
+/// In financial analysis, skewness is important for:
+/// - Assessing the asymmetry of returns distribution.
+/// - Evaluating the risk of extreme events in either direction.
+/// - Complementing other risk measures like standard deviation.
+/// - Informing investment decisions and risk management strategies.
+///
+/// Positive skewness indicates a longer tail on the right side of the distribution,
+/// while negative skewness indicates a longer tail on the left side.
 /// </remarks>
 public class Skew : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the skewness calculation.
+    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
@@ -79,6 +91,11 @@ public class Skew : AbstractBase
     /// to calculate the sample skewness. It requires at least 3 data points for the
     /// calculation. If there are fewer than 3 data points, or if the standard
     /// deviation is zero, the method returns 0.
+    ///
+    /// Interpretation of results:
+    /// - Positive values indicate right-skewed distribution (longer tail on the right side).
+    /// - Negative values indicate left-skewed distribution (longer tail on the left side).
+    /// - Values close to 0 suggest a relatively symmetric distribution.
     /// </remarks>
     protected override double Calculation()
     {

@@ -8,7 +8,7 @@ namespace QuanTAlib;
 public class EventingTests
 {
     [Fact]
-    public void VerifyEventBasedCalculations()
+    public void EventBasedCalculations()
     {
         // Create a cryptographically secure random number generator
         using var rng = RandomNumberGenerator.Create();
@@ -50,7 +50,24 @@ public class EventingTests
             ("Rma", new Rma(p), new Rma(input, p)),
             ("Tema", new Tema(p), new Tema(input, p)),
             ("Kama", new Kama(2, 30, 6), new Kama(input, 2, 30, 6)),
-            ("Zlema", new Zlema(p), new Zlema(input, p))
+            ("Zlema", new Zlema(p), new Zlema(input, p)),
+            // error classes
+            ("Mae", new Mae(p), new Mae(input, p)),
+            ("Mapd", new Mapd(p), new Mapd(input, p)),
+            ("Mape", new Mape(p), new Mape(input, p)),
+            ("Mase", new Mase(p), new Mase(input, p)),
+            ("Mda", new Mda(p), new Mda(input, p)),
+            ("Me", new Me(p), new Me(input, p)),
+            ("Mpe", new Mpe(p), new Mpe(input, p)),
+            ("Mse", new Mse(p), new Mse(input, p)),
+            ("Msle", new Msle(p), new Msle(input, p)),
+            ("Rae", new Rae(p), new Rae(input, p)),
+            ("Rmse", new Rmse(p), new Rmse(input, p)),
+            ("Rmsle", new Rmsle(p), new Rmsle(input, p)),
+            ("Rse", new Rse(p), new Rse(input, p)),
+            ("Smape", new Smape(p), new Smape(input, p)),
+            ("Rsquared", new Rsquared(p), new Rsquared(input, p)),
+            ("Huberloss", new Huberloss(p), new Huberloss(input, p))
         };
 
         // Generate 200 random values and feed them to both direct and event-based indicators

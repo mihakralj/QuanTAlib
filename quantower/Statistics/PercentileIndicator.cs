@@ -14,7 +14,8 @@ public class PercentileIndicator : IndicatorBase
 
     public PercentileIndicator() : base()
     {
-        Name = "PERCENTILE - n-th Percentile ";
+        Name = "PERCENTILE - n-th Percentile";
+        Description = "Calculates the value below which a given percentage of observations falls within a specified period.";
         SeparateWindow = false;
     }
 
@@ -24,5 +25,4 @@ public class PercentileIndicator : IndicatorBase
         MinHistoryDepths = percentile.WarmupPeriod;
         base.InitIndicator();
     }
-
 }

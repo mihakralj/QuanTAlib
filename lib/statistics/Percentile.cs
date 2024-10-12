@@ -9,11 +9,25 @@ namespace QuanTAlib;
 /// percentile efficiently. It uses linear interpolation when the percentile falls
 /// between two data points. Before the specified period is reached, it returns the
 /// average of the available values as an approximation.
+///
+/// In financial analysis, percentiles are useful for:
+/// - Assessing the relative standing of a value within a distribution.
+/// - Identifying outliers or extreme values in financial data.
+/// - Creating risk measures, such as Value at Risk (VaR) calculations.
+/// - Analyzing the distribution of returns, trading volumes, or other financial metrics.
 /// </remarks>
 public class Percentile : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the percentile calculation.
+    /// </summary>
     private readonly int Period;
+
+    /// <summary>
+    /// The percentile to calculate (between 0 and 100).
+    /// </summary>
     private readonly double Percent;
+
     private readonly CircularBuffer _buffer;
 
     /// <summary>
@@ -36,7 +50,7 @@ public class Percentile : AbstractBase
         }
         Period = period;
         Percent = percent;
-        WarmupPeriod = 2;
+        WarmupPeriod = 2; // Minimum number of points needed for percentile calculation
         _buffer = new CircularBuffer(period);
         Name = $"Percentile(period={period}, percent={percent})";
         Init();

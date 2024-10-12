@@ -16,6 +16,7 @@ public class RemaIndicator : IndicatorBase
     public RemaIndicator() : base()
     {
         Name = "REMA - Regularized Exponential Moving Average";
+        Description = "EMA variant with regularization to reduce noise and improve stability in volatile markets.";
     }
 
     protected override void InitIndicator()

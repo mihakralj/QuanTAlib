@@ -19,6 +19,7 @@ public class T3Indicator : IndicatorBase
     public T3Indicator() : base()
     {
         Name = "T3 - Tillson T3 Moving Average";
+        Description = "Triple exponential moving average with reduced lag and smoothing, adjustable via volume factor.";
     }
 
     protected override void InitIndicator()

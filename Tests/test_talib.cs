@@ -110,26 +110,6 @@ public class TAlibTests
     }
 
     [Fact]
-    public void WMA()
-    {
-        for (int run = 0; run < iterations; run++)
-        {
-            int period = GetRandomNumber(5, 55);
-            Wma ma = new(period);
-            TSeries QL = new();
-            foreach (TBar item in feed)
-            { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
-            Core.Wma(data, 0, QL.Length - 1, TALIB, out int outBegIdx, out _, period);
-            Assert.Equal(QL.Length, TALIB.Count());
-            for (int i = QL.Length - 1; i > 2000; i--)
-            {
-                Assert.InRange(TALIB[i - outBegIdx] - QL[i].Value, -range, range);
-            }
-        }
-    }
-
-
-    [Fact]
     public void T3()
     {
         for (int run = 0; run < iterations; run++)

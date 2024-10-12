@@ -10,10 +10,10 @@ public class SmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"SMA {Period} : {SourceName}";
 
-
     public SmaIndicator() : base()
     {
         Name = "SMA - Simple Moving Average";
+        Description = "Basic moving average that calculates the arithmetic mean of prices over a specified period.";
     }
 
     protected override void InitIndicator()

@@ -14,10 +14,10 @@ public class KamaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"KAMA {Period} : {Fast} : {Slow} : {SourceName}";
 
-
     public KamaIndicator() : base()
     {
         Name = "KAMA - Kaufman's Adaptive Moving Average";
+        Description = "Adaptive moving average that adjusts to market volatility, reducing lag in trending markets.";
     }
 
     protected override void InitIndicator()

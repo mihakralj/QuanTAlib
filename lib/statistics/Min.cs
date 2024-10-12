@@ -9,20 +9,52 @@ namespace QuanTAlib;
 /// The Min class uses a circular buffer to store values and calculates the minimum
 /// efficiently. It also implements a decay mechanism to adjust the minimum value over
 /// time, allowing for a more responsive indicator in changing market conditions.
+///
+/// The decay factor allows the indicator to "forget" old minimum values gradually,
+/// which can be useful in adapting to new price trends or market regimes.
 /// </remarks>
 public class Min : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the minimum calculation.
+    /// </summary>
     private readonly int Period;
+
+    /// <summary>
+    /// Circular buffer to store the most recent data points.
+    /// </summary>
     private readonly CircularBuffer _buffer;
+
+    /// <summary>
+    /// The half-life decay factor used to gradually forget old minimums.
+    /// </summary>
     private readonly double _halfLife;
-    private double _currentMin, _p_currentMin;
-    private int _timeSinceNewMin, _p_timeSinceNewMin;
+
+    /// <summary>
+    /// The current minimum value.
+    /// </summary>
+    private double _currentMin;
+
+    /// <summary>
+    /// The previous minimum value.
+    /// </summary>
+    private double _p_currentMin;
+
+    /// <summary>
+    /// The number of periods since a new minimum was set.
+    /// </summary>
+    private int _timeSinceNewMin;
+
+    /// <summary>
+    /// The previous value of _timeSinceNewMin.
+    /// </summary>
+    private int _p_timeSinceNewMin;
 
     /// <summary>
     /// Initializes a new instance of the Min class with the specified period and decay.
     /// </summary>
     /// <param name="period">The period over which to calculate the minimum value.</param>
-    /// <param name="decay">The decay factor to apply to older values (default is 0).</param>
+    /// <param name="decay">The decay factor to apply to older values. Higher values cause faster forgetting of old minimums. Default is 0 (no decay).</param>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1 or decay is negative.
     /// </exception>
@@ -49,7 +81,7 @@ public class Min : AbstractBase
     /// </summary>
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the minimum value.</param>
-    /// <param name="decay">The decay factor to apply to older values (default is 0).</param>
+    /// <param name="decay">The decay factor to apply to older values. Higher values cause faster forgetting of old minimums. Default is 0 (no decay).</param>
     public Min(object source, int period, double decay = 0) : this(period, decay)
     {
         var pubEvent = source.GetType().GetEvent("Pub");

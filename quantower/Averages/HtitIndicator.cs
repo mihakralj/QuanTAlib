@@ -10,6 +10,7 @@ public class HtitIndicator : IndicatorBase
     public HtitIndicator() : base()
     {
         Name = "HTIT - Hilbert Transform Instantaneous Trendline";
+        Description = "Uses Hilbert Transform to identify the dominant cycle and generate a smooth, lag-free trendline.";
     }
 
     protected override void InitIndicator()

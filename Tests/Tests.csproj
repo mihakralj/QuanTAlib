@@ -13,7 +13,7 @@
     <PackageReference Include="xunit.runner.console" Version="2.9.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-  </PackageReference>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
@@ -25,15 +25,19 @@
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
     <PackageReference Include="Trady.Analysis" Version="3.2.8" />
-    <!--
-    <PackageReference Include="quantconnect.indicators" Version="2.5.16573" />
-    <PackageReference Include="stocksharp.algo" Version="5.0.193" />
-    <PackageReference Include="OoplesFinance.StockIndicators" Version="1.0.53" />
-    -->
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib\quantalib.csproj" />
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\quantower\**\*.csproj" />
   </ItemGroup>
 
 </Project>

@@ -15,7 +15,8 @@ public class MaxIndicator : IndicatorBase
 
     public MaxIndicator() : base()
     {
-        Name = "MAX - Maximum value (with decay) ";
+        Name = "MAX - Maximum value (with decay)";
+        Description = "Tracks the maximum value over a period, with a decay factor to gradually adjust to new highs.";
     }
 
     protected override void InitIndicator()

@@ -13,6 +13,7 @@ public class LtmaIndicator : IndicatorBase
     public LtmaIndicator() : base()
     {
         Name = "LTMA - Laguerre Transform Moving Average";
+        Description = "Moving average using Laguerre polynomials, offering adjustable smoothing and lag reduction.";
     }
 
     protected override void InitIndicator()

@@ -14,18 +14,18 @@ public class Maaf : AbstractBase
 
     private readonly int _period;
 
-    public Maaf(int Period = 39, double Threshold = 0.002)
+    public Maaf(int period = 39, double threshold = 0.002)
     {
-        _period = Period;
-        _threshold = Threshold;
+        _period = period;
+        _threshold = threshold;
         _priceBuffer = new CircularBuffer(4);
-        _smoothBuffer = new CircularBuffer(Period);
+        _smoothBuffer = new CircularBuffer(period);
         Name = "MAAF";
-        WarmupPeriod = Period;
+        WarmupPeriod = period;
         Init();
     }
 
-    public Maaf(object source, int Period = 39, double Threshold = 0.002) : this(Period, Threshold)
+    public Maaf(object source, int period = 39, double threshold = 0.002) : this(period, threshold)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));

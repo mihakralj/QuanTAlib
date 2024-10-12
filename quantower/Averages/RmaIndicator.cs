@@ -10,10 +10,10 @@ public class RmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"RMA {Period} : {SourceName}";
 
-
     public RmaIndicator() : base()
     {
-        Name = "RMA - wildeR Moving Average";
+        Name = "RMA - Wilder's Moving Average";
+        Description = "Smoothed moving average that reduces whipsaws, commonly used in RSI calculations.";
     }
 
     protected override void InitIndicator()

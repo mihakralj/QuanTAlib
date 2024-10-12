@@ -19,7 +19,7 @@ public class QemaIndicator : IndicatorBase
     public QemaIndicator() : base()
     {
         Name = "QEMA - Quad Exponential Moving Average";
-        Description = "Quad Exponential Moving Average";
+        Description = "Combines four EMAs with different smoothing factors to reduce lag and improve trend following.";
     }
 
     protected override void InitIndicator()

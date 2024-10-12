@@ -9,15 +9,14 @@ public class MgdiIndicator : IndicatorBase
     [InputParameter("k Factor", sortIndex: 2, minimum: 0.0, maximum: 1.0, increment: 0.1, decimalPlaces: 2)]
     public double kfactor { get; set; } = 0.6;
 
-
     private Mgdi? ma;
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"MGDI {Period} : {kfactor:F2} : {SourceName}";
 
-
     public MgdiIndicator() : base()
     {
         Name = "MGDI - McGinley Dynamic Index";
+        Description = "Adaptive moving average that adjusts to market speed, reducing whipsaws in trending markets.";
     }
 
     protected override void InitIndicator()

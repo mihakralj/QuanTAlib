@@ -12,10 +12,10 @@ public class JmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"JMA {Period} : {Phase} : {SourceName}";
 
-
     public JmaIndicator() : base()
     {
         Name = "JMA - Jurik Moving Average";
+        Description = "Adaptive moving average with reduced lag and noise, adjustable smoothness and phase shift.";
     }
 
     protected override void InitIndicator()

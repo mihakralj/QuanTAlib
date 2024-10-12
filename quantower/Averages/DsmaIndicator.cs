@@ -15,6 +15,7 @@ public class DsmaIndicator : IndicatorBase
     public DsmaIndicator() : base()
     {
         Name = "DSMA - Deviation Scaled Moving Average";
+        Description = "A moving average that adjusts its responsiveness based on price deviations from the mean.";
     }
 
     protected override void InitIndicator()

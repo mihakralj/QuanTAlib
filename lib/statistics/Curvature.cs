@@ -4,15 +4,36 @@ namespace QuanTAlib;
 /// Calculates the rate of change of the slope over a specified period.
 /// Provides insights into trend acceleration or deceleration.
 /// </summary>
+/// <remarks>
+/// Curvature is a second-order derivative that measures how quickly the slope (first-order derivative) is changing.
+/// Positive curvature indicates accelerating uptrends or decelerating downtrends.
+/// Negative curvature indicates decelerating uptrends or accelerating downtrends.
+/// This indicator can be useful for identifying potential trend reversals or confirming trend strength.
+/// </remarks>
 public class Curvature : AbstractBase
 {
     private readonly int _period;
     private readonly Slope _slopeCalculator;
     private readonly CircularBuffer _slopeBuffer;
 
+    /// <summary>
+    /// Gets the y-intercept of the curvature line.
+    /// </summary>
     public double? Intercept { get; private set; }
+
+    /// <summary>
+    /// Gets the standard deviation of the slope values used in the curvature calculation.
+    /// </summary>
     public double? StdDev { get; private set; }
+
+    /// <summary>
+    /// Gets the R-squared value, indicating the goodness of fit of the curvature line.
+    /// </summary>
     public double? RSquared { get; private set; }
+
+    /// <summary>
+    /// Gets the last calculated point on the curvature line.
+    /// </summary>
     public double? Line { get; private set; }
 
     /// <summary>

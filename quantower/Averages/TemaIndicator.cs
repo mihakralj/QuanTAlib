@@ -13,6 +13,7 @@ public class TemaIndicator : IndicatorBase
     public TemaIndicator() : base()
     {
         Name = "TEMA - Triple Exponential Moving Average";
+        Description = "Moving average that applies EMA three times to reduce lag and improve responsiveness to trends.";
     }
 
     protected override void InitIndicator()

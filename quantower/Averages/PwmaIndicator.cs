@@ -13,6 +13,7 @@ public class PwmaIndicator : IndicatorBase
     public PwmaIndicator() : base()
     {
         Name = "PWMA - Pascal's Weighted Moving Average";
+        Description = "Moving average using Pascal's triangle coefficients, emphasizing recent data with smooth transitions.";
     }
 
     protected override void InitIndicator()

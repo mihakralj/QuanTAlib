@@ -18,6 +18,8 @@ public class AlmaIndicator : IndicatorBase
     public AlmaIndicator() : base()
     {
         Name = "ALMA - Arnaud Legoux Moving Average";
+        Description = "Arnaud Legoux Moving Average";
+
     }
 
     protected override void InitIndicator()

@@ -10,10 +10,10 @@ public class FwmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"FWMA {Period} : {SourceName}";
 
-
     public FwmaIndicator() : base()
     {
         Name = "FWMA - Fibonacci-Weighted Moving Average";
+        Description = "Moving average that uses Fibonacci sequence for weighting, emphasizing recent and key historical prices.";
     }
 
     protected override void InitIndicator()
