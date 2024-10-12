@@ -13,6 +13,7 @@ public class SlopeIndicator : IndicatorBase
     public SlopeIndicator()
     {
         Name = "SLOPE - Trend Slope";
+        Description = "Measures the rate of change in price over a specified period, indicating trend strength and direction.";
         SeparateWindow = true;
     }
 

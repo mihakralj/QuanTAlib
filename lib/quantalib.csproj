@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
- 		<Title>QuanTAlib</Title>
-		<Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
-		<Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
+    <Title>QuanTAlib</Title>
+    <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
+    <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mihakralj/QuanTAlib</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -14,7 +14,7 @@
     <AssemblyName>QuanTAlib</AssemblyName>
     <IsPublishable>True</IsPublishable>
     <PlatformTarget>AnyCPU</PlatformTarget>
-		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -27,9 +27,14 @@
       Quantitative;Historical;Quotes;
     </PackageTags>
     <PackageIcon>QuanTAlib2.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
-		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\docs\readme.md" Pack="true" PackagePath=""/>
@@ -38,7 +43,7 @@
 
   <ItemGroup>
     <Reference Include="TradingPlatform.BusinessLayer">
-    <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+      <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
     <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
       <Link>TradingPlatform.BusinessLayer.xml</Link>

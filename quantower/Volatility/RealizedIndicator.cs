@@ -16,6 +16,7 @@ public class RealizedIndicator : IndicatorBase
     public RealizedIndicator() : base()
     {
         Name = "RV - Realized Volatility";
+        Description = "Measures actual price volatility over a specific period, useful for risk assessment and forecasting.";
         SeparateWindow = true;
     }
 

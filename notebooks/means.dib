@@ -11,8 +11,8 @@ QuanTAlib.Formatters.Initialize();
 #!csharp
 
 TSeries input = new();
-Sma ma1 = new (6);
-Sma ma2 = new (input, 6);
+Beta ma1 = new (6);
+Beta ma2 = new (input, 6);
 
 Random random = new Random();
 

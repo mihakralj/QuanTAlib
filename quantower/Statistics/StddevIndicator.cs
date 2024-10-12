@@ -15,6 +15,7 @@ public class StddevIndicator : IndicatorBase
     public StddevIndicator() : base()
     {
         Name = "STDDEV - Standard Deviation";
+        Description = "Measures price volatility by calculating the dispersion of prices from their average over a period.";
         SeparateWindow = true;
     }
 

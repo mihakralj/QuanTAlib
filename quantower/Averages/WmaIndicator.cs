@@ -10,10 +10,10 @@ public class WmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"WMA {Period} : {SourceName}";
 
-
     public WmaIndicator() : base()
     {
         Name = "WMA - Weighted Moving Average";
+        Description = "Moving average that assigns higher weights to recent data points for improved responsiveness.";
     }
 
     protected override void InitIndicator()

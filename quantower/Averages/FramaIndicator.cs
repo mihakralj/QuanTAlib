@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class FramaIndicator : IndicatorBase
 {
@@ -10,10 +10,10 @@ public class FramaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"FRAMA {Period} : {SourceName}";
 
-
     public FramaIndicator() : base()
     {
         Name = "FRAMA - Fractal Adaptive Moving Average";
+        Description = "Adaptive moving average that adjusts its smoothing based on market fractal dimension.";
     }
 
     protected override void InitIndicator()

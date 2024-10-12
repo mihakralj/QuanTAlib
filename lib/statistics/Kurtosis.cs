@@ -4,8 +4,25 @@ namespace QuanTAlib;
 /// Calculates excess kurtosis using the Sheskin Algorithm.
 /// Measures the "tailedness" of the probability distribution of a real-valued random variable.
 /// </summary>
+/// <remarks>
+/// Kurtosis is a measure of the combined weight of a distribution's tails relative to the center of the distribution.
+/// In financial time series analysis, kurtosis can provide insights into:
+/// - The frequency and magnitude of extreme returns.
+/// - The potential for outliers or "black swan" events.
+/// - The shape of the return distribution compared to a normal distribution.
+///
+/// Interpretation:
+/// - Excess kurtosis > 0: Heavy-tailed distribution (more extreme values than a normal distribution)
+/// - Excess kurtosis = 0: Normal distribution
+/// - Excess kurtosis < 0: Light-tailed distribution (fewer extreme values than a normal distribution)
+///
+/// High kurtosis in financial returns may indicate a higher risk of extreme events.
+/// </remarks>
 public class Kurtosis : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the kurtosis calculation.
+    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
@@ -73,6 +90,11 @@ public class Kurtosis : AbstractBase
     /// <remarks>
     /// Uses the Sheskin Algorithm for kurtosis calculation.
     /// Requires at least 4 data points for a valid calculation.
+    ///
+    /// Interpretation of results:
+    /// - Positive values indicate a distribution with heavier tails and a higher peak compared to a normal distribution.
+    /// - Negative values indicate a distribution with lighter tails and a lower peak compared to a normal distribution.
+    /// - A value close to 0 suggests a distribution similar to a normal distribution in terms of tailedness.
     /// </remarks>
     protected override double Calculation()
     {

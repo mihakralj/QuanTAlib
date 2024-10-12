@@ -15,6 +15,7 @@ public class MinIndicator : IndicatorBase
     public MinIndicator() : base()
     {
         Name = "MIN - Minimum value (with decay)";
+        Description = "Tracks the minimum value over a period, with a decay factor to gradually adjust to new lows.";
     }
 
     protected override void InitIndicator()

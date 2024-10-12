@@ -12,6 +12,7 @@ public class ModeIndicator : IndicatorBase
     public ModeIndicator() : base()
     {
         Name = "MODE - Most frequent historical value";
+        Description = "Identifies the most frequently occurring price value over a specified period, indicating price clusters.";
     }
 
     protected override void InitIndicator()

@@ -4,19 +4,57 @@ namespace QuanTAlib;
 /// Calculates the maximum value over a specified period, with an optional decay factor.
 /// Useful for tracking the highest point in a time series with the ability to gradually forget old peaks.
 /// </summary>
+/// <remarks>
+/// The Max indicator is particularly useful in financial analysis for:
+/// - Identifying resistance levels in price charts.
+/// - Tracking the highest price over a given period.
+/// - Implementing trailing stop-loss strategies.
+///
+/// The decay factor allows the indicator to adapt to changing market conditions by
+/// gradually reducing the influence of older maximum values.
+/// </remarks>
 public class Max : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the maximum calculation.
+    /// </summary>
     private readonly int Period;
+
+    /// <summary>
+    /// Circular buffer to store the most recent data points.
+    /// </summary>
     private readonly CircularBuffer _buffer;
+
+    /// <summary>
+    /// The half-life decay factor used to gradually forget old peaks.
+    /// </summary>
     private readonly double _halfLife;
-    private double _currentMax, _p_currentMax;
-    private int _timeSinceNewMax, _p_timeSinceNewMax;
+
+    /// <summary>
+    /// The current maximum value.
+    /// </summary>
+    private double _currentMax;
+
+    /// <summary>
+    /// The previous maximum value.
+    /// </summary>
+    private double _p_currentMax;
+
+    /// <summary>
+    /// The number of periods since a new maximum was set.
+    /// </summary>
+    private int _timeSinceNewMax;
+
+    /// <summary>
+    /// The previous value of _timeSinceNewMax.
+    /// </summary>
+    private int _p_timeSinceNewMax;
 
     /// <summary>
     /// Initializes a new instance of the Max class.
     /// </summary>
     /// <param name="period">The number of data points to consider. Must be at least 1.</param>
-    /// <param name="decay">Half-life decay factor. Set to 0 for no decay, higher for faster forgetting. Default is 0.</param>
+    /// <param name="decay">Half-life decay factor. Set to 0 for no decay, higher for faster forgetting of old peaks. Default is 0.</param>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the period is less than 1 or decay is negative.
     /// </exception>

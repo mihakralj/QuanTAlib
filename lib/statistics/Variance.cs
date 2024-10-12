@@ -8,10 +8,23 @@ namespace QuanTAlib;
 /// The Variance class calculates either the population variance or the sample
 /// variance based on the isPopulation parameter. It uses a circular buffer
 /// to efficiently manage the data points within the specified period.
+///
+/// In financial analysis, variance is important for:
+/// - Measuring the dispersion of returns around the mean.
+/// - Assessing risk and volatility in financial instruments or portfolios.
+/// - Serving as a basis for other risk measures like standard deviation and beta.
+/// - Contributing to portfolio optimization techniques, such as Modern Portfolio Theory.
 /// </remarks>
 public class Variance : AbstractBase
 {
+    /// <summary>
+    /// Indicates whether to calculate population (true) or sample (false) variance.
+    /// </summary>
     private readonly bool IsPopulation;
+
+    /// <summary>
+    /// Circular buffer to store the most recent data points.
+    /// </summary>
     private readonly CircularBuffer _buffer;
 
     /// <summary>
@@ -87,6 +100,12 @@ public class Variance : AbstractBase
     /// sum((x - mean)^2) / (n - 1) for sample,
     /// where x is each value, mean is the average of all values, and n is the number of values.
     /// If there's only one value in the buffer, the method returns 0.
+    ///
+    /// Interpretation of results:
+    /// - A low variance indicates that the values tend to be close to the mean and to each other.
+    /// - A high variance indicates that the values are spread out over a wider range.
+    /// - In financial contexts, higher variance often implies higher volatility or risk.
+    /// - Variance is always non-negative, and its units are squared units of the original data.
     /// </remarks>
     protected override double Calculation()
     {

@@ -16,17 +16,14 @@ public class HwmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"HWMA {nA:F2} : {nB:F2} : {nC:F2} : {SourceName}";
 
-
     public HwmaIndicator() : base()
     {
         Name = "HWMA - Holt-Winter Moving Average";
+        Description = "Triple exponential moving average that accounts for level, trend, and seasonal components.";
     }
 
     protected override void InitIndicator()
     {
-        //nA = 2 / (1 + (double)Period);
-        //nB = 1 / (double)Period;
-        //nC = 1 / (double)Period;
         ma = new Hwma(nA: nA, nB: nB, nC: nC);
         base.InitIndicator();
     }

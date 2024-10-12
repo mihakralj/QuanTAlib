@@ -13,12 +13,9 @@ public class RviIndicator : IndicatorBase
     public RviIndicator() : base()
     {
         Name = "RVI - Relative Volatility Index";
+        Description = "Measures the direction of volatility, helping to identify overbought or oversold conditions in price.";
         SeparateWindow = true;
-
-        // Adding upper and lower reference lines
-        //AddLineSeries("UpperLevel", 80, System.Drawing.Color.Gray, 1, LineStyle.Dot);
-        //AddLineSeries("LowerLevel", 20, System.Drawing.Color.Gray, 1, LineStyle.Dot);
-    }
+ }
 
     protected override void InitIndicator()
     {

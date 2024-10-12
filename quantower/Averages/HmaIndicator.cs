@@ -10,10 +10,10 @@ public class HmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"HMA {Period} : {SourceName}";
 
-
     public HmaIndicator() : base()
     {
         Name = "HMA - Hull Moving Average";
+        Description = "Responsive moving average that reduces lag while maintaining smoothness in price action.";
     }
 
     protected override void InitIndicator()

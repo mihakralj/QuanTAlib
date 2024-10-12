@@ -12,6 +12,7 @@ public class AtrIndicator : IndicatorBarBase
     public AtrIndicator()
     {
         Name = "ATR - Average True Range";
+        Description = "Measures market volatility by calculating the average range between high and low prices.";
         SeparateWindow = true;
     }
 

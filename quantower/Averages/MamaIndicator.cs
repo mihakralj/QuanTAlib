@@ -11,10 +11,10 @@ public class MamaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"MAMA : {Fast} : {Slow} : {SourceName}";
 
-
     public MamaIndicator() : base()
     {
         Name = "MAMA - MESA Adaptive Moving Average";
+        Description = "Adaptive moving average using MESA algorithm to adjust to market cycles and reduce lag.";
     }
 
     protected override void InitIndicator()

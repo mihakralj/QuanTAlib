@@ -10,10 +10,10 @@ public class ZlemaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"ZLEMA {Period} : {SourceName}";
 
-
     public ZlemaIndicator() : base()
     {
-        Name = "ZLEMA - Weighted Moving Average";
+        Name = "ZLEMA - Zero-Lag Exponential Moving Average";
+        Description = "EMA variant that reduces lag by using linear extrapolation, providing faster response to price changes.";
     }
 
     protected override void InitIndicator()

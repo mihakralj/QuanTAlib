@@ -1,4 +1,3 @@
-
 using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
@@ -14,6 +13,7 @@ public class SkewIndicator : IndicatorBase
     public SkewIndicator() : base()
     {
         Name = "SKEW - Skewness";
+        Description = "Measures the asymmetry of price distribution, indicating potential trend direction or reversal.";
         SeparateWindow = true;
     }
 

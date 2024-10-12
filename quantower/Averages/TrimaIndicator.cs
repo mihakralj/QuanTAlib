@@ -10,10 +10,10 @@ public class TrimaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"TRIMA {Period} : {SourceName}";
 
-
     public TrimaIndicator() : base()
     {
         Name = "TRIMA - Triangular Moving Average";
+        Description = "Weighted moving average giving more importance to the middle of the period for smoother output.";
     }
 
     protected override void InitIndicator()

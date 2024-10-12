@@ -7,7 +7,7 @@ public class MaafIndicator : IndicatorBase
     public int Period { get; set; } = 39;
 
     [InputParameter("Threshold", sortIndex: 5, minimum: 0, maximum: 1, increment: 0.001, decimalPlaces: 3)]
-    public double Threshold = 0.002;
+    private double Threshold { get; set; } = 0.002;
 
     private Maaf? ma;
     protected override AbstractBase QuanTAlib => ma!;
@@ -16,11 +16,12 @@ public class MaafIndicator : IndicatorBase
     public MaafIndicator() : base()
     {
         Name = "MAAF - Median-Average Adaptive Filter";
+        Description = "Adaptive filter combining median and average, reducing noise while preserving trend responsiveness.";
     }
 
     protected override void InitIndicator()
     {
         base.InitIndicator();
-        ma = new Maaf(Period: Period, Threshold: Threshold);
+        ma = new Maaf(period: Period, threshold: Threshold);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using TradingPlatform.BusinessLayer;
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class GmaIndicator : IndicatorBase
 {
@@ -10,10 +10,10 @@ public class GmaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"GMA {Period} : {SourceName}";
 
-
     public GmaIndicator() : base()
     {
         Name = "GMA - Gaussian-Weighted Moving Average";
+        Description = "Moving average using Gaussian distribution for weighting, balancing recent and historical data.";
     }
 
     protected override void InitIndicator()

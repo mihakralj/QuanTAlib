@@ -13,6 +13,7 @@ public class CurvatureIndicator : IndicatorBase
     public CurvatureIndicator()
     {
         Name = "CURVATURE - Rate of Change of Slope";
+        Description = "Measures the rate of change of the slope, indicating acceleration or deceleration in price movement.";
         SeparateWindow = true;
     }
 

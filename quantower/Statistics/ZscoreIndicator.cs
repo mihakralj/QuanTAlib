@@ -13,6 +13,7 @@ public class ZScoreIndicator : IndicatorBase
     public ZScoreIndicator() : base()
     {
         Name = "ZSCORE - Standard Score";
+        Description = "Measures how many standard deviations a price is from the mean, indicating overbought/oversold levels.";
         SeparateWindow = true;
     }
 
@@ -22,5 +23,4 @@ public class ZScoreIndicator : IndicatorBase
         MinHistoryDepths = zScore.WarmupPeriod;
         base.InitIndicator();
     }
-
 }

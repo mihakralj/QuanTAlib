@@ -13,6 +13,7 @@ public class KurtosisIndicator : IndicatorBase
     public KurtosisIndicator() : base()
     {
         Name = "KURTOSIS - Relative Flatness";
+        Description = "Measures the 'tailedness' of price distribution, indicating potential for extreme market movements.";
         SeparateWindow = true;
     }
 

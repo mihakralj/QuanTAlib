@@ -14,10 +14,10 @@ public class VidyaIndicator : IndicatorBase
     protected override AbstractBase QuanTAlib => ma!;
     public override string ShortName => $"VIDYA {Period} : {SourceName}";
 
-
     public VidyaIndicator() : base()
     {
         Name = "VIDYA - Variable Index Dynamic Average";
+        Description = "Adaptive moving average that adjusts based on market volatility for improved trend following.";
     }
 
     protected override void InitIndicator()

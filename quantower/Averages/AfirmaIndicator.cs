@@ -9,8 +9,6 @@ public class AfirmaIndicator : IndicatorBase
     [InputParameter("Periods for lowpass cutoff", sortIndex: 2, 1, 2000, 1, 0)]
     public int Periods { get; set; } = 6;
 
-
-
     [InputParameter("Window Type", sortIndex: 3, variants: [
         "Rectangular", Afirma.WindowType.Rectangular,
         "Hanning", Afirma.WindowType.Hanning1,
@@ -32,6 +30,8 @@ public class AfirmaIndicator : IndicatorBase
 
     protected override void InitIndicator()
     {
+        base.InitIndicator();
         ma = new Afirma(periods: Periods, taps: Taps, window: Window);
     }
+
 }

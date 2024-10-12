@@ -15,6 +15,7 @@ public class VarianceIndicator : IndicatorBase
     public VarianceIndicator() : base()
     {
         Name = "VAR - Variance";
+        Description = "Measures the spread of price data around its mean, indicating volatility and potential trend changes.";
         SeparateWindow = true;
     }
 

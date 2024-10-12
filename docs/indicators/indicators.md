@@ -13,7 +13,7 @@
 |OHLC4 - Average Price|`️.OHLC4`|CandlePart.OHLC4|AvgPrice||
 |HLCC4 - Weighted Price|`️.HLCC4`||WclPrice||
 |<br>||||
-|**STATISTICS AND NUMERICAL ANALYSIS**|**QuanTALib**|Skender.Stock|TALib.NETCore|Tulip.NETCore|Trady|
+|**STATISTICS, ERRORS AND NUMERICAL ANALYSIS**|**QuanTALib**|Skender.Stock|TALib.NETCore|Tulip.NETCore|Trady|
 |BETA - Beta coefficient|||||
 |CORR - Correlation Coefficient|||||
 |CURVATURE - Rate of Change in Direction or Slope|`Curvature`||||
@@ -21,28 +21,28 @@
 |KURTOSIS - Measure of Tails/Peakedness|`Kurtosis`||||
 |HUBER - Huber Loss|||||
 |MAX - Maximum with exponential decay|`Max`||||
-|MAE - Mean Absolute Error|||||
-|MAPD - Mean Absolute Percentage Deviation|||||
-|MAPE - Mean Absolute Percentage Error|||||
-|MASE - Mean Absolute Scaled Error|||||
+|MAE - Mean Absolute Error|`Mae`||||
+|MAPD - Mean Absolute Percentage Deviation|`Mapd`||||
+|MAPE - Mean Absolute Percentage Error|`Mape`||||
+|MASE - Mean Absolute Scaled Error|`Mase`||||
 |MDA - Mean Directional Accuracy|||||
-|ME - Mean Error|||||
+|ME - Mean Error|`Me`||||
 |MEDIAN - Middle value|`Median`||||
 |MIN - Minimum with exponential decay|`Min`||||
 |MODE - Most Frequent Value|`Mode`||||
-|MPE - Pean Percentage Error|||||
-|MSE - Mean Squared Error|||||
-|MSLE - Mean Squared Logarithmic Error|||||
+|MPE - Pean Percentage Error|`Mpe`||||
+|MSE - Mean Squared Error|`Mse`||||
+|MSLE - Mean Squared Logarithmic Error|`Msle`||||
 |PERCENTILE - Rank Order|`Percentile`||||
 |RSQUARED - Coefficient of Determination R-Squared|||||
-|RAE - Relative Absolute Error|||||
-|RMSE - Root Mean Squared Error|||||
-|RSE - Relateive Squared Error|||||
-|RMSLE - Root Mean Squared Logarithmic Error|||||
+|RAE - Relative Absolute Error|`Rae`||||
+|RMSE - Root Mean Squared Error|`Rmse`||||
+|RSE - Relateive Squared Error|`Rse`||||
+|RMSLE - Root Mean Squared Logarithmic Error|`Rmsle`||||
 |SKEW - Skewness, asymmetry of distribution|`Skew`||||
 |SLOPE - Rate of Change, Linear Regression|`Slope`||||
-|SMAPE - Symmetric Mean Absolute Percentage Error|||||
-|STDDEV - Standard Deviation, Measure of Spread|||||
+|SMAPE - Symmetric Mean Absolute Percentage Error|`Smape`||||
+|STDDEV - Standard Deviation, Measure of Spread|`Stddev`||||
 |THEIL - Theil's U Statistics|||||
 |VARIANCE - Average of Squared Deviations|`Variance`||||
 |ZSCORE - Standardized Score|`Zscore`||||
@@ -72,7 +72,7 @@
 |MGDI - McGinley Dynamic Indicator|`Mgdi`|`✔️`|||
 |MMA - Modified Moving Average|`Mma`||||
 |PPMA - Pivot Point Moving Average|||||
-|PWMA - Pascal's Weighted Moving Average|||||
+|PWMA - Pascal's Weighted Moving Average|`Pwma`||||
 |QEMA - Quad Exponential Moving Average|`Qema`||||
 |RMA - WildeR's Moving Average|`Rma`||||
 |SINEMA - Sine Weighted Moving Average|`Sinema`||||
@@ -87,7 +87,7 @@
 |TSF - Time Series Forecast|||`✔️`|`✔️`|
 |VIDYA - Variable Index Dynamic Average|`Vidya`|||`✔️`|
 |VORTEX - Vortex Indicator||`✔️`|||
-|WMA - Weighted Moving Average|`Wma`|`✔️`|`✔️`|`✔️`|
+|WMA - Weighted Moving Average|`Wma`|`✔️`||`✔️`|
 |ZLEMA - Zero Lag EMA Average|`Zlema`|||`✔️`|
 |<br>||||
 |**VOLATILITY INDICATORS**|**QuanTALib**|Skender.Stock|TALib.NETCore|Tulip.NETCore|Trady|

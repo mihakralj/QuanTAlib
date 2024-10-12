@@ -4,8 +4,20 @@ namespace QuanTAlib;
 /// Calculates the median value over a specified period.
 /// Provides a measure of central tendency that is robust to outliers.
 /// </summary>
+/// <remarks>
+/// The Median indicator is particularly useful in financial analysis for:
+/// - Providing a robust measure of central tendency that is less affected by extreme values than the mean.
+/// - Identifying the middle value in a dataset, which can be helpful in understanding price distributions.
+/// - Serving as a basis for other indicators or trading strategies that require a stable reference point.
+///
+/// Unlike the mean, the median is not influenced by extreme outliers, making it valuable
+/// in markets with occasional large price swings or in the presence of data anomalies.
+/// </remarks>
 public class Median : AbstractBase
 {
+    /// <summary>
+    /// The number of data points to consider for the median calculation.
+    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
@@ -39,6 +51,15 @@ public class Median : AbstractBase
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+    }
+
+    /// <summary>
+    /// Resets the Median indicator to its initial state.
+    /// </summary>
+    public override void Init()
+    {
+        base.Init();
+        _buffer.Clear();
     }
 
     /// <summary>

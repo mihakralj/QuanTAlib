@@ -16,6 +16,7 @@ public class HistoricalIndicator : IndicatorBase
     public HistoricalIndicator() : base()
     {
         Name = "HV - Historical Volatility";
+        Description = "Measures price fluctuations over time, indicating market volatility based on past price movements.";
         SeparateWindow = true;
     }
 
