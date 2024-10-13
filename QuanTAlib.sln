@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -7,15 +6,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "quantalib", "lib\quantalib.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "quantower", "quantower", "{1B9AC248-76F8-44DD-958D-F1DC08EE1E87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Statistics", "quantower\Statistics\Statistics.csproj", "{2E9427C7-144F-488E-A29D-789ACC1C32AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Statistics", "quantower\Statistics\_Statistics.csproj", "{2E9427C7-144F-488E-A29D-789ACC1C32AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Averages", "quantower\Averages\Averages.csproj", "{6BE10C39-4127-446C-818B-7976FCDD51D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Averages", "quantower\Averages\_Averages.csproj", "{6BE10C39-4127-446C-818B-7976FCDD51D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Volatility", "quantower\Volatility\Volatility.csproj", "{B7DC44F7-D3A3-4C70-9025-513E0182B646}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Volatility", "quantower\Volatility\_Volatility.csproj", "{B7DC44F7-D3A3-4C70-9025-513E0182B646}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyntheticVendor", "SyntheticVendor\SyntheticVendor.csproj", "{1CF111D9-33E6-4A11-8FEC-F23300A78D15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{E204F173-5840-4AA3-BED1-98C8D2F813E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{2D97C971-20BF-40DB-94AA-3279F787D3CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,15 +40,16 @@ Global
 		{B7DC44F7-D3A3-4C70-9025-513E0182B646}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B7DC44F7-D3A3-4C70-9025-513E0182B646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7DC44F7-D3A3-4C70-9025-513E0182B646}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7DC44F7-D3A3-4C70-9025-513E0182B646}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E204F173-5840-4AA3-BED1-98C8D2F813E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E204F173-5840-4AA3-BED1-98C8D2F813E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E204F173-5840-4AA3-BED1-98C8D2F813E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E204F173-5840-4AA3-BED1-98C8D2F813E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7DC44F7-D3A3-4C70-9025-513E0182B646}.Release | Any CPU.ActiveCfg = Release | Any CPU
+		{B7DC44F7-D3A3-4C70-9025-513E0182B646}.Release | Any CPU.Build.0 = Release | Any CPU
+		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Debug | Any CPU.ActiveCfg = Debug | Any CPU
+		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Debug | Any CPU.Build.0 = Debug | Any CPU
+		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Release | Any CPU.ActiveCfg = Release | Any CPU
+		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Release | Any CPU.Build.0 = Release | Any CPU
+		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2E9427C7-144F-488E-A29D-789ACC1C32AE} = {1B9AC248-76F8-44DD-958D-F1DC08EE1E87}

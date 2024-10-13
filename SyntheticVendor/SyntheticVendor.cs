@@ -5,10 +5,7 @@ using TradingPlatform.BusinessLayer;
 using TradingPlatform.BusinessLayer.Integration;
 using System.Diagnostics.CodeAnalysis;
 
-
 namespace SyntheticVendorNamespace;
-[SuppressMessage("Security", "SCS0005:Weak random number generator.", Justification = "Acceptable for tests")]
-
 
 public class SyntheticVendor : Vendor
 {
@@ -101,6 +98,25 @@ public class SyntheticVendor : Vendor
 
     }
 
+    public static VendorMetaData GetVendorMetaData()
+    {
+        return new VendorMetaData()
+        {
+            VendorName = "Synthetic Vendor",
+            VendorDescription = "A synthetic vendor for testing and demonstration purposes",
+            GetDefaultConnections = () =>
+            {
+                var defaultConnection = Vendor.CreateDefaultConnectionInfo(
+                    "Synthetic Connection",
+                    "Synthetic Vendor",
+                    "", // Replace with actual path if you have a logo
+                    allowCreateCustomConnections: true
+                );
+                return new List<ConnectionInfo> { defaultConnection };
+            }
+        };
+    }
+
     private MessageSymbol CreateMessageSymbol(
         string id,
         string name,
@@ -131,24 +147,7 @@ public class SyntheticVendor : Vendor
         return messageSymbol;
     }
 
-    public static VendorMetaData GetVendorMetaData()
-    {
-        return new VendorMetaData()
-        {
-            VendorName = "Synthetic Vendor",
-            VendorDescription = "A synthetic vendor for testing and demonstration purposes",
-            GetDefaultConnections = () =>
-            {
-                var defaultConnection = Vendor.CreateDefaultConnectionInfo(
-                    "Synthetic Connection",
-                    "Synthetic Vendor",
-                    "", // Replace with actual path if you have a logo
-                    allowCreateCustomConnections: true
-                );
-                return new List<ConnectionInfo> { defaultConnection };
-            }
-        };
-    }
+
 
 
     private MessageSymbol CreateMessageSymbol(string id, string name, string exchangeId, string assetId, SymbolType type)
@@ -226,20 +225,6 @@ public class SyntheticVendor : Vendor
     }
 
 
-
-
-    public override void OnConnected(CancellationToken token)
-    {
-        // This method is called after a successful connection
-        // You can initialize resources or start any necessary processes here
-        base.OnConnected(token);
-
-        // For example, you might want to push some initial messages or data
-        // PushMessage(new MessageVendorEvent("SyntheticVendor connected successfully"));
-    }
-
-
-
     public override IList<MessageExchange> GetExchanges(CancellationToken token)
     {
         return exchanges;
@@ -310,7 +295,6 @@ public class SyntheticVendor : Vendor
     {
         switch (symbolId)
         {
-            //case "W0": return GenerateConstant;
             case "W1": return GenerateSpike;
             case "W2": return GenerateDiracDelta;
             case "W3": return GenerateSquareWave;
@@ -333,36 +317,52 @@ public class SyntheticVendor : Vendor
         }
     }
 
+/*
     public override HistoryMetadata GetHistoryMetadata(CancellationToken cancellationToken)
     {
-        return new HistoryMetadata()
+        return new HistoryMetadata
         {
-            AllowedHistoryTypes = new HistoryType[]
+            AllowedAggregations = new string[] { "Time", "Tick" },
+            AllowedPeriodsHistoryAggregationTime = new Period[]
             {
-                    HistoryType.Bid,
-                    HistoryType.Ask,
-                    HistoryType.Midpoint,
-                    HistoryType.Last,
-                    HistoryType.BidAsk,
-                    HistoryType.Mark,
+            Period.SECOND1, Period.SECOND5, Period.SECOND10, Period.SECOND15, Period.SECOND30,
+            Period.MIN1, Period.MIN2, Period.MIN3, Period.MIN4, Period.MIN5,
+            Period.MIN10, Period.MIN15, Period.MIN30,
+            Period.HOUR1, Period.HOUR2, Period.HOUR3, Period.HOUR4,
+            Period.HOUR6, Period.HOUR8, Period.HOUR12,
+            Period.DAY1,
+            Period.WEEK1,
+            Period.MONTH1,
+            Period.YEAR1
             },
-            AllowedPeriods = new Period[]
+            AllowedBasePeriodsHistoryAggregationTime = new BasePeriod[]
             {
-                Period.TICK1,
-                Period.SECOND1, Period.SECOND5, Period.SECOND10, Period.SECOND15, Period.SECOND30,
-                Period.MIN1, Period.MIN2, Period.MIN3, Period.MIN4, Period.MIN5,
-                Period.MIN10, Period.MIN15, Period.MIN30,
-                Period.HOUR1, Period.HOUR2, Period.HOUR3, Period.HOUR4,
-                Period.HOUR6, Period.HOUR8, Period.HOUR12,
-                Period.DAY1,
-                Period.WEEK1,
-                Period.MONTH1,
-                Period.YEAR1
+            BasePeriod.Second, BasePeriod.Minute, BasePeriod.Hour, BasePeriod.Day, BasePeriod.Week, BasePeriod.Month, BasePeriod.Year
             },
-            UseHistoryLocalCache = false
+            AllowedHistoryTypesHistoryAggregationTime = new HistoryType[]
+            {
+            HistoryType.Bid,
+            HistoryType.Ask,
+            HistoryType.Midpoint,
+            HistoryType.Last,
+            HistoryType.BidAsk,
+            HistoryType.Mark
+            },
+            AllowedHistoryTypesHistoryAggregationTick = new HistoryType[]
+            {
+            HistoryType.Bid,
+            HistoryType.Ask,
+            HistoryType.Midpoint,
+            HistoryType.Last,
+            HistoryType.BidAsk,
+            HistoryType.Mark
+            },
+            DegreeOfParallelism = 1,
+            UseHistoryLocalCache = false,
+            BuildUncompletedBars = true
         };
     }
-
+*/
 
     /*******************************************************************************************************************************************/
     /*******************************************************************************************************************************************/
@@ -417,18 +417,6 @@ public class SyntheticVendor : Vendor
     }
 
 
-
-
-    private static readonly double[] distributionValues = new double[]
-    {
-            0.010,  // Extreme left tail
-            0.050,  // Left tail
-            0.200,  // Left of center
-            0.480,  // Center (peak)
-            0.200,  // Right of center
-            0.050,  // Right tail
-            0.010   // Extreme right tail
-    };
 
     private HistoryItemBar GenerateDiracDelta(DateTime time, TimeSpan slice)
     {
@@ -972,7 +960,7 @@ public class SyntheticVendor : Vendor
 
 
     private const int NumOctaves = 6;
-    private double[] pinkNoiseState = new double[NumOctaves];
+    private readonly double[] pinkNoiseState = new double[NumOctaves];
     private double GeneratePinkNoiseValue()
     {
         double total = 0;
@@ -1033,8 +1021,8 @@ public class SyntheticVendor : Vendor
 
 
     private double GBMLastClose = 100; // Starting price
-    private double GBMMu = 0.05; // Annual drift
-    private double GBMSigma = 0.2; // Annual volatility
+    private readonly double GBMMu = 0.05; // Annual drift
+    private readonly double GBMSigma = 0.2; // Annual volatility
 
     private HistoryItemBar GenerateGBM(DateTime time, TimeSpan slice)
     {
@@ -1081,9 +1069,9 @@ public class SyntheticVendor : Vendor
     }
 
     private double FBMLastClose = 100; // Starting price
-    private double FBMHurst = 0.85; // Hurst parameter (0.5 < H < 1 for persistent fBm)
-    private double FBMSigma = 0.25; // Volatility parameter
-    private double FBMDrift = 0.001; // drift
+    private readonly double FBMHurst = 0.85; // Hurst parameter (0.5 < H < 1 for persistent fBm)
+    private readonly double FBMSigma = 0.25; // Volatility parameter
+    private readonly double FBMDrift = 0.001; // drift
 
     private HistoryItemBar GenerateFBM(DateTime time, TimeSpan slice)
     {

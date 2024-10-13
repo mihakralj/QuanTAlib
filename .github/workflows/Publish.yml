@@ -43,15 +43,28 @@ jobs:
 
       - name: SonarCloud Scanner Start
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            PR_PARAMS="/d:sonar.pullrequest.key=${{ github.event.pull_request.number }} \
+                        /d:sonar.pullrequest.branch=${{ github.head_ref }} \
+                        /d:sonar.pullrequest.base=${{ github.base_ref }}"
+          elif [[ ${{ github.event_name }} == 'push' ]]; then
+            BRANCH_PARAMS="/d:sonar.branch.name=${{ github.ref_name }}"
+          else
+            BRANCH_PARAMS="/d:sonar.branch.name=${{ github.ref_name }}"
+          fi
+
           dotnet sonarscanner begin \
             /k:"mihakralj_QuanTAlib" \
             /o:"mihakralj" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.dotcover.reportsPaths=dotcover* \
-            /d:sonar.scanner.scanAll=false
+            /d:sonar.scanner.scanAll=false \
+            /d:sonar.scm.provider=git \
+            $PR_PARAMS $BRANCH_PARAMS
 
       - name: Build
         run: |
@@ -216,7 +229,10 @@ jobs:
 
   build_publish:
     needs: [SonarCloud, Code_Coverage, CodeQL, Codacy_Scan, SecurityCodeScan]
-    if: success()
+    if: |
+      success() &&
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

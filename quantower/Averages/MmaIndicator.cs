@@ -1,24 +1,58 @@
-﻿using TradingPlatform.BusinessLayer;
+using System.Drawing;
+using TradingPlatform.BusinessLayer;
+
 namespace QuanTAlib;
 
-public class MmaIndicator : IndicatorBase
+public class MmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Period { get; set; } = 10;
+    [InputParameter("Periods", sortIndex: 1, 2, 1000, 1, 0)]
+    public int Periods { get; set; } = 14;
+
+    [InputParameter("Data source", sortIndex: 2, variants: [
+        "Open", SourceType.Open,
+        "High", SourceType.High,
+        "Low", SourceType.Low,
+        "Close", SourceType.Close,
+        "HL/2 (Median)", SourceType.HL2,
+        "OC/2 (Midpoint)", SourceType.OC2,
+        "OHL/3 (Mean)", SourceType.OHL3,
+        "HLC/3 (Typical)", SourceType.HLC3,
+        "OHLC/4 (Average)", SourceType.OHLC4,
+        "HLCC/4 (Weighted)", SourceType.HLCC4
+    ])]
+    public SourceType Source { get; set; } = SourceType.Close;
 
     private Mma? ma;
-    protected override AbstractBase QuanTAlib => ma!;
-    public override string ShortName => $"MMA {Period} : {SourceName}";
+    protected LineSeries? Series;
+    protected string? SourceName;
+    public int MinHistoryDepths => Periods;
+    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public MmaIndicator() : base()
+    public MmaIndicator()
     {
+        OnBackGround = true;
+        SeparateWindow = false;
+        SourceName = Source.ToString();
         Name = "MMA - Modified Moving Average";
-        Description = "Variation of EMA that reduces lag and smooths price action, balancing responsiveness and stability.";
+        Description = "Modified Moving Average";
+        Series = new(name: $"MMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        AddLineSeries(Series);
     }
 
-    protected override void InitIndicator()
+    protected override void OnInit()
     {
-        base.InitIndicator();
-        ma = new Mma(period: Period);
+        ma = new Mma(Periods);
+        SourceName = Source.ToString();
+        base.OnInit();
     }
+
+    protected override void OnUpdate(UpdateArgs args)
+    {
+        TValue input = this.GetInputValue(args, Source);
+        TValue result = ma!.Calc(input);
+
+        Series!.SetValue(result.Value);
+    }
+
+    public override string ShortName => $"MMA {Periods}:{SourceName}";
 }
