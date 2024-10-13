@@ -88,7 +88,6 @@ public static class IndicatorExtensions
 
         if (allPoints.Count > 1)
         {
-
             if (allPoints.Count < 2) return;
 
             using (Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) })
@@ -140,7 +139,6 @@ public static class IndicatorExtensions
             _ => DashStyle.Solid,
         };
     }
-
 }
 
 

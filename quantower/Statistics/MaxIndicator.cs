@@ -28,7 +28,7 @@ public class MaxIndicator : Indicator, IWatchlistIndicator
     private Max? ma;
     protected LineSeries? MaxSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 0;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public MaxIndicator()

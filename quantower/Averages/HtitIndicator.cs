@@ -19,11 +19,16 @@ public class HtitIndicator : Indicator, IWatchlistIndicator
     ])]
     public SourceType Source { get; set; } = SourceType.Close;
 
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
     private Htit? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => 12; // Based on WarmupPeriod in Htit
+    public static int MinHistoryDepths => 12; // Based on WarmupPeriod in Htit
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
+
+    public override string ShortName => $"HTIT:{SourceName}";
 
     public HtitIndicator()
     {
@@ -49,7 +54,13 @@ public class HtitIndicator : Indicator, IWatchlistIndicator
         TValue result = ma!.Calc(input);
 
         Series!.SetValue(result.Value);
+        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
 
-    public override string ShortName => $"HTIT:{SourceName}";
+    public override void OnPaintChart(PaintChartEventArgs args)
+    {
+        base.OnPaintChart(args);
+        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.DrawText(args, Description);
+    }
 }

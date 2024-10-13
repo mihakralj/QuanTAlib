@@ -27,7 +27,6 @@ public class TestIndicator : Indicator, IWatchlistIndicator
 
     private Sma? ma;
     protected LineSeries? Series;
-    //protected string? SourceName;
     public int MinHistoryDepths { get; set; }
     int IWatchlistIndicator.MinHistoryDepths => 0; //QuanTAlib indicators generate value immediately
 

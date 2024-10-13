@@ -28,7 +28,7 @@ public class MinIndicator : Indicator, IWatchlistIndicator
     private Min? mi;
     protected LineSeries? MinSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 0;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public MinIndicator()

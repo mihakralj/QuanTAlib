@@ -6,10 +6,7 @@ namespace QuanTAlib;
 public class GmaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Periods", sortIndex: 1, 1, 1000, 1, 0)]
-    public int Periods { get; set; } = 14;
-
-    [InputParameter("Sigma", sortIndex: 2, 0.1, 10, 0.1, 1)]
-    public double Sigma { get; set; } = 1.0;
+    public int Periods { get; set; } = 10;
 
     [InputParameter("Data source", sortIndex: 3, variants: [
         "Open", SourceType.Open,
@@ -25,11 +22,16 @@ public class GmaIndicator : Indicator, IWatchlistIndicator
     ])]
     public SourceType Source { get; set; } = SourceType.Close;
 
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
     private Gma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
     public int MinHistoryDepths => Periods;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
+
+    public override string ShortName => $"GMA {Periods}:{SourceName}";
 
     public GmaIndicator()
     {
@@ -55,7 +57,13 @@ public class GmaIndicator : Indicator, IWatchlistIndicator
         TValue result = ma!.Calc(input);
 
         Series!.SetValue(result.Value);
+        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
 
-    public override string ShortName => $"GMA {Periods}:{Sigma}:{SourceName}";
+    public override void OnPaintChart(PaintChartEventArgs args)
+    {
+        base.OnPaintChart(args);
+        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.DrawText(args, Description);
+    }
 }

@@ -25,7 +25,7 @@ public class SkewIndicator : Indicator, IWatchlistIndicator
     private Skew? skew;
     protected LineSeries? SkewSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 3;
+    public static int MinHistoryDepths => 3;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public SkewIndicator()

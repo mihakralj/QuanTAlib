@@ -34,6 +34,8 @@ public class AfirmaIndicator : Indicator, IWatchlistIndicator
     ])]
     public SourceType Source { get; set; } = SourceType.Close;
 
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
     private Afirma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
@@ -47,6 +49,7 @@ public class AfirmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "AFIRMA - Adaptive Finite Impulse Response Moving Average";
         Description = "Adaptive Finite Impulse Response Moving Average with ARMA component";
+
         Series = new(name: $"AFIRMA {Taps}:{Periods}:{Window}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
@@ -63,9 +66,17 @@ public class AfirmaIndicator : Indicator, IWatchlistIndicator
         TValue input = this.GetInputValue(args, Source);
         TValue result = ma!.Calc(input);
 
+        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
         Series!.SetValue(result.Value);
     }
 
     public override string ShortName => $"AFIRMA {Taps}:{Periods}:{Window}:{SourceName}";
+
+    public override void OnPaintChart(PaintChartEventArgs args)
+    {
+        base.OnPaintChart(args);
+        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.DrawText(args, Description);
+    }
 }
 
