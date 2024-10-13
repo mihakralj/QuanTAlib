@@ -28,7 +28,7 @@ public class VarianceIndicator : Indicator, IWatchlistIndicator
     private Variance? variance;
     protected LineSeries? VarianceSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 2;
+    public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public VarianceIndicator()

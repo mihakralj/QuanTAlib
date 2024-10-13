@@ -31,11 +31,16 @@ public class QemaIndicator : Indicator, IWatchlistIndicator
     ])]
     public SourceType Source { get; set; } = SourceType.Close;
 
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
     private Qema? ma;
     protected LineSeries? Series;
     protected string? SourceName;
     public int MinHistoryDepths => (int)((2 - Math.Min(Math.Min(K1, K2), Math.Min(K3, K4))) / Math.Min(Math.Min(K1, K2), Math.Min(K3, K4)));
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
+
+    public override string ShortName => $"QEMA {K1},{K2},{K3},{K4}:{SourceName}";
 
     public QemaIndicator()
     {
@@ -61,7 +66,13 @@ public class QemaIndicator : Indicator, IWatchlistIndicator
         TValue result = ma!.Calc(input);
 
         Series!.SetValue(result.Value);
+        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
 
-    public override string ShortName => $"QEMA {K1},{K2},{K3},{K4}:{SourceName}";
+    public override void OnPaintChart(PaintChartEventArgs args)
+    {
+        base.OnPaintChart(args);
+        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.DrawText(args, Description);
+    }
 }

@@ -10,7 +10,7 @@ public class AtrIndicator : Indicator, IWatchlistIndicator
 
     private Atr? atr;
     protected LineSeries? AtrSeries;
-    public int MinHistoryDepths => 2;
+    public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public AtrIndicator()

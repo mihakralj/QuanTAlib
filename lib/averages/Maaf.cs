@@ -1,8 +1,8 @@
-//TODO: fails consistency test
-
 namespace QuanTAlib;
 
 // https://efs.kb.esignal.com/hc/en-us/articles/6362791434395-2005-Mar-The-Secret-Behind-The-Filter-MedianAdaptiveFilter-efs
+
+//TODO Fix initial values
 
 public class Maaf : AbstractBase
 {
@@ -69,6 +69,7 @@ public class Maaf : AbstractBase
 
         double smooth = (_priceBuffer[^1] + (2 * _priceBuffer[^2]) + (2 * _priceBuffer[^3]) + _priceBuffer[^4]) / 6;
         _smoothBuffer.Add(smooth, Input.IsNew);
+
 
         if (_smoothBuffer.Count < _period)
         {
