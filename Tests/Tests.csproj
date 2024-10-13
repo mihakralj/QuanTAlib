@@ -37,7 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\quantower\**\*.csproj" />
+    <ProjectReference Include="..\lib\*.csproj" />
+    <ProjectReference Include="..\quantower\Volatility\_Volatility.csproj" Aliases="volatility" />
+    <ProjectReference Include="..\quantower\Averages\_Averages.csproj" Aliases="averages" />
+    <ProjectReference Include="..\quantower\Statistics\_Statistics.csproj" Aliases="statistics" />
   </ItemGroup>
 
 </Project>

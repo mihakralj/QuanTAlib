@@ -1,30 +1,67 @@
-﻿using TradingPlatform.BusinessLayer;
+using System.Drawing;
+using TradingPlatform.BusinessLayer;
+
 namespace QuanTAlib;
 
-public class QemaIndicator : IndicatorBase
+public class QemaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("alpha 1", sortIndex: 1, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
-    public double k1 { get; set; } = 0.2;
+    [InputParameter("K1", sortIndex: 1, 0.01, 1, 0.01, 2)]
+    public double K1 { get; set; } = 0.2;
 
-    [InputParameter("alpha 2", sortIndex: 2, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
-    public double k2 { get; set; } = 0.3;
-    [InputParameter("alpha 3", sortIndex: 3, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
-    public double k3 { get; set; } = 0.4;
-    [InputParameter("alpha 4", sortIndex: 4, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
-    public double k4 { get; set; } = 0.5;
+    [InputParameter("K2", sortIndex: 2, 0.01, 1, 0.01, 2)]
+    public double K2 { get; set; } = 0.2;
+
+    [InputParameter("K3", sortIndex: 3, 0.01, 1, 0.01, 2)]
+    public double K3 { get; set; } = 0.2;
+
+    [InputParameter("K4", sortIndex: 4, 0.01, 1, 0.01, 2)]
+    public double K4 { get; set; } = 0.2;
+
+    [InputParameter("Data source", sortIndex: 5, variants: [
+        "Open", SourceType.Open,
+        "High", SourceType.High,
+        "Low", SourceType.Low,
+        "Close", SourceType.Close,
+        "HL/2 (Median)", SourceType.HL2,
+        "OC/2 (Midpoint)", SourceType.OC2,
+        "OHL/3 (Mean)", SourceType.OHL3,
+        "HLC/3 (Typical)", SourceType.HLC3,
+        "OHLC/4 (Average)", SourceType.OHLC4,
+        "HLCC/4 (Weighted)", SourceType.HLCC4
+    ])]
+    public SourceType Source { get; set; } = SourceType.Close;
+
     private Qema? ma;
-    protected override AbstractBase QuanTAlib => ma!;
-    public override string ShortName => $"QEMA {k1:F2} : {k2:F2} : {k3:F2} : {k4:F2} :{SourceName}";
+    protected LineSeries? Series;
+    protected string? SourceName;
+    public int MinHistoryDepths => (int)((2 - Math.Min(Math.Min(K1, K2), Math.Min(K3, K4))) / Math.Min(Math.Min(K1, K2), Math.Min(K3, K4)));
+    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public QemaIndicator() : base()
+    public QemaIndicator()
     {
-        Name = "QEMA - Quad Exponential Moving Average";
-        Description = "Combines four EMAs with different smoothing factors to reduce lag and improve trend following.";
+        OnBackGround = true;
+        SeparateWindow = false;
+        SourceName = Source.ToString();
+        Name = "QEMA - Quadruple Exponential Moving Average";
+        Description = "Quadruple Exponential Moving Average";
+        Series = new(name: $"QEMA {K1},{K2},{K3},{K4}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        AddLineSeries(Series);
     }
 
-    protected override void InitIndicator()
+    protected override void OnInit()
     {
-        base.InitIndicator();
-        ma = new Qema(k1, k2, k3, k4);
+        ma = new Qema(K1, K2, K3, K4);
+        SourceName = Source.ToString();
+        base.OnInit();
     }
+
+    protected override void OnUpdate(UpdateArgs args)
+    {
+        TValue input = this.GetInputValue(args, Source);
+        TValue result = ma!.Calc(input);
+
+        Series!.SetValue(result.Value);
+    }
+
+    public override string ShortName => $"QEMA {K1},{K2},{K3},{K4}:{SourceName}";
 }

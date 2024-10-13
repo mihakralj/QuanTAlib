@@ -12,6 +12,7 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RootNamespace>QuanTAlib</RootNamespace>
     <AssemblyName>QuanTAlib</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <IsPublishable>True</IsPublishable>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>

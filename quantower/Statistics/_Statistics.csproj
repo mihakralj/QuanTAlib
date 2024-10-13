@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Statistics</AssemblyName>
     <AlgoType>Indicator</AlgoType>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
     <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
@@ -14,7 +16,7 @@
   <ItemGroup>
     <Compile Include="..\*.cs" />
     <Compile Include="*.cs" />
-    <ProjectReference Include="..\..\lib\quantalib.csproj" Private="true" IncludeAssets="all" />
+    <Compile Include="..\..\lib\**\*.cs" Exclude="..\..\lib\bin\**;..\..\lib\obj\**" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
@@ -24,7 +26,7 @@
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(IsLocalBuild)' == 'true'">
-    <Copy SourceFiles="$(OutputPath)\Volatility.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Volatility" />
+    <Copy SourceFiles="$(OutputPath)\Statistics.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Statistics" />
   </Target>
 
 </Project>

@@ -1,27 +1,63 @@
-﻿using TradingPlatform.BusinessLayer;
+using System.Drawing;
+using TradingPlatform.BusinessLayer;
+
 namespace QuanTAlib;
 
-public class DsmaIndicator : IndicatorBase
+public class DsmaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 10;
+
     [InputParameter("Scale factor", sortIndex: 2, minimum: 0.01, maximum: 1.0, increment: 0.01, decimalPlaces: 2)]
     public double Scale { get; set; } = 0.5;
 
-    private Dsma? ma;
-    protected override AbstractBase QuanTAlib => ma!;
-    public override string ShortName => $"DSMA {Period} : {Scale:F2} : {SourceName}";
+    [InputParameter("Data source", sortIndex: 3, variants: [
+        "Open", SourceType.Open,
+            "High", SourceType.High,
+            "Low", SourceType.Low,
+            "Close", SourceType.Close,
+            "HL/2 (Median)", SourceType.HL2,
+            "OC/2 (Midpoint)", SourceType.OC2,
+            "OHL/3 (Mean)", SourceType.OHL3,
+            "HLC/3 (Typical)", SourceType.HLC3,
+            "OHLC/4 (Average)", SourceType.OHLC4,
+            "HLCC/4 (Weighted)", SourceType.HLCC4
+    ])]
+    public SourceType Source { get; set; } = SourceType.Close;
 
-    public DsmaIndicator() : base()
+    private Dsma? ma;
+    protected LineSeries? Series;
+    protected string? SourceName;
+    public int MinHistoryDepths { get; private set; }
+    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
+
+    public DsmaIndicator()
     {
+        OnBackGround = true;
+        SeparateWindow = false;
+        SourceName = Source.ToString();
         Name = "DSMA - Deviation Scaled Moving Average";
         Description = "A moving average that adjusts its responsiveness based on price deviations from the mean.";
+        Series = new(name: $"DSMA {Period}:{Scale:F2}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        AddLineSeries(Series);
     }
 
-    protected override void InitIndicator()
+    protected override void OnInit()
     {
         ma = new Dsma(Period, Scale);
         MinHistoryDepths = ma.WarmupPeriod;
-        base.InitIndicator();
+        SourceName = Source.ToString();
+        base.OnInit();
     }
+
+    protected override void OnUpdate(UpdateArgs args)
+    {
+        TValue input = this.GetInputValue(args, Source);
+        TValue result = ma!.Calc(input);
+
+        Series!.SetValue(result.Value);
+    }
+
+    public override string ShortName => $"DSMA {Period}:{Scale:F2}:{SourceName}";
 }
+

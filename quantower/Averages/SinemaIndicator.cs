@@ -1,24 +1,58 @@
-﻿using TradingPlatform.BusinessLayer;
+using System.Drawing;
+using TradingPlatform.BusinessLayer;
+
 namespace QuanTAlib;
 
-public class SinemaIndicator : IndicatorBase
+public class SinemaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Period { get; set; } = 10;
+    [InputParameter("Periods", sortIndex: 1, 1, 1000, 1, 0)]
+    public int Periods { get; set; } = 14;
+
+    [InputParameter("Data source", sortIndex: 2, variants: [
+        "Open", SourceType.Open,
+        "High", SourceType.High,
+        "Low", SourceType.Low,
+        "Close", SourceType.Close,
+        "HL/2 (Median)", SourceType.HL2,
+        "OC/2 (Midpoint)", SourceType.OC2,
+        "OHL/3 (Mean)", SourceType.OHL3,
+        "HLC/3 (Typical)", SourceType.HLC3,
+        "OHLC/4 (Average)", SourceType.OHLC4,
+        "HLCC/4 (Weighted)", SourceType.HLCC4
+    ])]
+    public SourceType Source { get; set; } = SourceType.Close;
 
     private Sinema? ma;
-    protected override AbstractBase QuanTAlib => ma!;
-    public override string ShortName => $"SINEMA {Period} : {SourceName}";
+    protected LineSeries? Series;
+    protected string? SourceName;
+    public int MinHistoryDepths => Periods;
+    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public SinemaIndicator() : base()
+    public SinemaIndicator()
     {
+        OnBackGround = true;
+        SeparateWindow = false;
+        SourceName = Source.ToString();
         Name = "SINEMA - Sine-Weighted Moving Average";
-        Description = "Moving average using sine function for weighting, balancing recent and historical price data.";
+        Description = "Sine-Weighted Moving Average";
+        Series = new(name: $"SINEMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        AddLineSeries(Series);
     }
 
-    protected override void InitIndicator()
+    protected override void OnInit()
     {
-        ma = new Sinema(Period);
-        base.InitIndicator();
+        ma = new Sinema(Periods);
+        SourceName = Source.ToString();
+        base.OnInit();
     }
+
+    protected override void OnUpdate(UpdateArgs args)
+    {
+        TValue input = this.GetInputValue(args, Source);
+        TValue result = ma!.Calc(input);
+
+        Series!.SetValue(result.Value);
+    }
+
+    public override string ShortName => $"SINEMA {Periods}:{SourceName}";
 }

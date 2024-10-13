@@ -1,7 +1,13 @@
+extern alias volatility;
+extern alias averages;
+extern alias statistics;
+
 using Xunit;
-using System;
 using System.Reflection;
 using TradingPlatform.BusinessLayer;
+using statistics::QuanTAlib;
+using averages::QuanTAlib;
+using volatility::QuanTAlib;
 
 namespace QuanTAlib
 {
@@ -83,7 +89,7 @@ namespace QuanTAlib
         [Fact] public void Slope() => TestIndicator<SlopeIndicator>("slope");
         [Fact] public void Stddev() => TestIndicator<StddevIndicator>("stddev");
         [Fact] public void Variance() => TestIndicator<VarianceIndicator>("variance");
-        [Fact] public void Zscore() => TestIndicator<ZScoreIndicator>("zScore");
+        [Fact] public void Zscore() => TestIndicator<ZscoreIndicator>("zScore");
 
         // Volatility Indicators
         [Fact] public void Atr() => TestIndicator<AtrIndicator>("atr");

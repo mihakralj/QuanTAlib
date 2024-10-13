@@ -377,21 +377,6 @@
             Mediates a history meta data with available data types and intervals on vendor side
             </summary>
         </member>
-        <member name="P:TradingPlatform.BusinessLayer.Integration.HistoryMetadata.AllowedHistoryTypes">
-            <summary>
-            History data types
-            </summary>
-        </member>
-        <member name="P:TradingPlatform.BusinessLayer.Integration.HistoryMetadata.AllowedBasePeriods">
-            <summary>
-            History intervals
-            </summary>
-        </member>
-        <member name="P:TradingPlatform.BusinessLayer.Integration.HistoryMetadata.AllowedPeriods">
-            <summary>
-            History intervals
-            </summary>
-        </member>
         <member name="P:TradingPlatform.BusinessLayer.Integration.MessageAsset.Id">
             <summary>
             Asset id bearer
@@ -1948,7 +1933,7 @@
             <param name="toTime"></param>
             <returns></returns>
         </member>
-        <member name="M:TradingPlatform.BusinessLayer.Symbol.GetHistory(TradingPlatform.BusinessLayer.HistoryAggregation,TradingPlatform.BusinessLayer.HistoryType,System.DateTime,System.DateTime)">
+        <member name="M:TradingPlatform.BusinessLayer.Symbol.GetHistory(TradingPlatform.BusinessLayer.HistoryAggregation,System.DateTime,System.DateTime)">
             <summary>
             Gets historical data according to aggregation and other parameters
             </summary>
@@ -2965,19 +2950,9 @@
             Gets HistoricalData symbol
             </summary>
         </member>
-        <member name="P:TradingPlatform.BusinessLayer.HistoricalData.Period">
-            <summary>
-            Gets HistoricalData Period
-            </summary>
-        </member>
         <member name="P:TradingPlatform.BusinessLayer.HistoricalData.Aggregation">
             <summary>
             Gets HistoricalData aggregation
-            </summary>
-        </member>
-        <member name="P:TradingPlatform.BusinessLayer.HistoricalData.HistoryType">
-            <summary>
-            Gets HistoricalData history type
             </summary>
         </member>
         <member name="P:TradingPlatform.BusinessLayer.HistoricalData.FromTime">

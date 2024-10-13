@@ -1,46 +1,17 @@
-mode: ContinuousDeployment
-assembly-versioning-scheme: MajorMinorPatch
-assembly-file-versioning-scheme: MajorMinorPatch
-tag-prefix: '[vV]?'
+mode: ContinuousDelivery
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
-commit-message-incrementing: Enabled
-
 branches:
   main:
     regex: ^main$
-    mode: ContinuousDeployment
-    label: ''
+    mode: ContinuousDelivery
     increment: Patch
-    track-merge-target: false
-    source-branches: []
-    tracks-release-branches: false
-    is-release-branch: true
-    pre-release-weight: 55000
-
   dev:
-    regex: ^dev$
-    mode: ContinuousDelivery
-    label: ''
-    increment: Patch
-    track-merge-target: true
-    source-branches: ['main']
-    tracks-release-branches: true
-    is-release-branch: false
-    pre-release-weight: 0
-
-  develop:
-    regex: ^develop$
-    mode: ContinuousDelivery
-    label: ''
-    increment: Patch
-    track-merge-target: true
-    source-branches: ['main']
-    tracks-release-branches: true
-    is-release-branch: false
-    pre-release-weight: 0
-
+    regex: ^dev(elop)?(ment)?$
+    mode: ContinuousDeployment
+    increment: Inherit
 ignore:
   sha: []
+merge-message-formats: {}
