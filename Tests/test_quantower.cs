@@ -95,6 +95,8 @@ namespace QuanTAlib
 
         // Volatility Indicators
         [Fact] public void Atr() => TestIndicator<AtrIndicator>("atr");
+        [Fact] public void Jvolty() => TestIndicator<JvoltyIndicator>("jvolty");
+
         [Fact] public void Historical() => TestIndicator<HistoricalIndicator>("historical");
         [Fact] public void Realized() => TestIndicator<RealizedIndicator>("realized");
         [Fact] public void Rvi() => TestIndicator<RviIndicator>("rvi");

@@ -15,72 +15,6 @@ permissions:
   security-events: write  # Required for CodeQL analysis and uploading SARIF results
 
 jobs:
-  SonarCloud:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.x'
-
-      - name: Install JDK11 for Sonar Scanner
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'zulu'
-
-      - name: Install dotnet-sonarscanner
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet tool install JetBrains.dotCover.GlobalTool --global
-          dotnet tool install dotnet-coverage --global
-          dotnet restore
-
-      - name: SonarCloud Scanner Start
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            PR_PARAMS="/d:sonar.pullrequest.key=${{ github.event.pull_request.number }} \
-                        /d:sonar.pullrequest.branch=${{ github.head_ref }} \
-                        /d:sonar.pullrequest.base=${{ github.base_ref }}"
-          elif [[ ${{ github.event_name }} == 'push' ]]; then
-            BRANCH_PARAMS="/d:sonar.branch.name=${{ github.ref_name }}"
-          else
-            BRANCH_PARAMS="/d:sonar.branch.name=${{ github.ref_name }}"
-          fi
-
-          dotnet sonarscanner begin \
-            /k:"mihakralj_QuanTAlib" \
-            /o:"mihakralj" \
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.dotcover.reportsPaths=dotcover* \
-            /d:sonar.scanner.scanAll=false \
-            /d:sonar.scm.provider=git \
-            $PR_PARAMS $BRANCH_PARAMS
-
-      - name: Build
-        run: |
-          dotnet build --no-restore --configuration Debug
-          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
-          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
-          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
-          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
-          dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
-
-      - name: SonarCloud Scanner End
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
   Code_Coverage:
     runs-on: ubuntu-latest
     steps:
@@ -135,6 +69,20 @@ jobs:
         with:
           files: 'cover*'
           verbose: true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=mihakralj_QuanTAlib
+            -Dsonar.organization=mihakralj
+            -Dsonar.sources=.
+            -Dsonar.cs.opencover.reportsPaths=**/*cover*.xml
+            -Dsonar.cs.dotcover.reportsPaths=**/dotcover.xml
+            -Dsonar.coverage.exclusions=**Tests.cs
 
   CodeQL:
     runs-on: ubuntu-latest
@@ -228,7 +176,7 @@ jobs:
           sarif_file: results.sarif
 
   build_publish:
-    needs: [SonarCloud, Code_Coverage, CodeQL, Codacy_Scan, SecurityCodeScan]
+    needs: [Code_Coverage, CodeQL, Codacy_Scan, SecurityCodeScan]
     if: |
       success() &&
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
