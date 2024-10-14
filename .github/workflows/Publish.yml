@@ -108,8 +108,23 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Debug
 
+      - name: Run Codacy Analysis CLI
+        uses: codacy/codacy-analysis-cli-action@v4
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          verbose: true
+          output: results.sarif
+          format: sarif
+          gh-code-scanning-compat: true
+          max-allowed-issues: 2147483647
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
 
 
   SecurityCodeScan:
@@ -148,35 +163,9 @@ jobs:
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
 
-  Codacy_Scan:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Codacy Analysis CLI
-        uses: codacy/codacy-analysis-cli-action@v4
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          verbose: true
-          output: results.sarif
-          format: sarif
-          gh-code-scanning-compat: true
-          max-allowed-issues: 2147483647
-
-      - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
 
   build_publish:
-    needs: [Code_Coverage, CodeQL, Codacy_Scan, SecurityCodeScan]
+    needs: [Code_Coverage, CodeQL, SecurityCodeScan]
     if: |
       success() &&
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
