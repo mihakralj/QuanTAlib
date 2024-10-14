@@ -3,8 +3,6 @@ using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
-#pragma warning disable S1944, S2053, S2222, S2259, S2583, S2589, S3329, S3655, S3900, S3949, S3966, S4158, S4347, S5773, S6781
-
 namespace QuanTAlib;
 
 /// <summary>
@@ -27,6 +25,7 @@ public class BarIndicatorTests
     private static readonly ITValue[] indicators = new ITValue[]
     {
         new Atr(period: 14),
+        new Jvolty(period: 14)
         // Add other TBar-based indicators here
     };
 

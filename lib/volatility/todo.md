@@ -2,7 +2,7 @@
 
 ## Single Value Input (Typically Closing Prices)
 
-- Jurik Volatility (Volty)
+- **Jurik Volatility (Volty)**
 - **Standard Deviation**
 - **Relative Volatility Index (RVI)**
 - Ulcer Index
