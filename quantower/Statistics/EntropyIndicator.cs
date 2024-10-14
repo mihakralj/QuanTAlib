@@ -25,7 +25,7 @@ public class EntropyIndicator : Indicator, IWatchlistIndicator
     private Entropy? entropy;
     protected LineSeries? EntropySeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 2;
+    public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public EntropyIndicator()

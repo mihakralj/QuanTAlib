@@ -28,7 +28,7 @@ public class PercentileIndicator : Indicator, IWatchlistIndicator
     private Percentile? percentile;
     protected LineSeries? PercentileSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 2;
+    public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public PercentileIndicator()

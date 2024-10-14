@@ -25,11 +25,16 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
     ])]
     public SourceType Source { get; set; } = SourceType.Close;
 
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
     private Dsma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
     public int MinHistoryDepths { get; private set; }
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
+
+    public override string ShortName => $"DSMA {Period}:{Scale:F2}:{SourceName}";
 
     public DsmaIndicator()
     {
@@ -56,8 +61,13 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
         TValue result = ma!.Calc(input);
 
         Series!.SetValue(result.Value);
+        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
 
-    public override string ShortName => $"DSMA {Period}:{Scale:F2}:{SourceName}";
+    public override void OnPaintChart(PaintChartEventArgs args)
+    {
+        base.OnPaintChart(args);
+        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.DrawText(args, Description);
+    }
 }
-

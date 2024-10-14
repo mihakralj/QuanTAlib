@@ -55,41 +55,45 @@ public abstract class AbstractBase : ITValue
     {
         Input = input;
         Input2 = new(Time: Input.Time, Value: double.NaN, IsNew: Input.IsNew, IsHot: Input.IsHot);
-        return HandleErrorCalculations(input.Value, input.Time, input.IsNew);
+        return Process(input.Value, input.Time, input.IsNew);
     }
 
     public virtual TValue Calc(TBar barInput)
     {
         BarInput = barInput;
-        return HandleErrorCalculations(barInput.Close, barInput.Time, barInput.IsNew);
+        return Process(barInput.Close, barInput.Time, barInput.IsNew);
     }
 
     public virtual TValue Calc(TValue input1, TValue input2)
     {
         Input = input1;
         Input2 = input2;
-        return HandleErrorCalculations(input1.Value, input2.Value, input1.Time, input1.IsNew);
+        return Process(input1.Value, input2.Value, input1.Time, input1.IsNew);
     }
 
     public virtual TValue Calc(TBar input1, TBar input2)
     {
         BarInput = input1;
         BarInput2 = input2;
-        return HandleErrorCalculations(input1.Close, input2.Close, input1.Time, input1.IsNew);
+        return Process(input1.Close, input2.Close, input1.Time, input1.IsNew);
+    }
+
+    public virtual TValue Calc(double value1, double value2)
+    {
+        DateTime now = DateTime.Now;
+        Input = new TValue(now, value1, true, true);
+        Input2 = new TValue(now, value2, true, true);
+        return Process(value1, value2, now, true);
     }
 
     /// <summary>
-    /// Handles error calculations and invalid input values.
+    /// Processes the input values, performs error checking, and calculates the indicator value.
     /// </summary>
-    /// <param name="value">The primary input value to check.</param>
+    /// <param name="value">The primary input value to process.</param>
     /// <param name="time">The timestamp of the input.</param>
     /// <param name="isNew">Indicates if the input is new.</param>
     /// <returns>A TValue object with the calculated or last valid value.</returns>
-    /// <remarks>
-    /// This method checks for NaN or infinity in the input value. If an invalid value is detected,
-    /// it returns the last valid value. Otherwise, it proceeds with the calculation.
-    /// </remarks>
-    protected virtual TValue HandleErrorCalculations(double value, DateTime time, bool isNew)
+    protected virtual TValue Process(double value, DateTime time, bool isNew)
     {
         if (double.IsNaN(value) || double.IsInfinity(value))
         {
@@ -100,18 +104,14 @@ public abstract class AbstractBase : ITValue
     }
 
     /// <summary>
-    /// Handles error calculations for inputs with two values.
+    /// Processes two input values, performs error checking, and calculates the indicator value.
     /// </summary>
-    /// <param name="value1">The first input value to check.</param>
-    /// <param name="value2">The second input value to check.</param>
+    /// <param name="value1">The first input value to process.</param>
+    /// <param name="value2">The second input value to process.</param>
     /// <param name="time">The timestamp of the input.</param>
     /// <param name="isNew">Indicates if the input is new.</param>
     /// <returns>A TValue object with the calculated or last valid value.</returns>
-    /// <remarks>
-    /// This method checks for NaN or infinity in both input values. If any invalid value is detected,
-    /// it returns the last valid value. Otherwise, it proceeds with the calculation.
-    /// </remarks>
-    protected virtual TValue HandleErrorCalculations(double value1, double value2, DateTime time, bool isNew)
+    protected virtual TValue Process(double value1, double value2, DateTime time, bool isNew)
     {
         if (double.IsNaN(value1) || double.IsInfinity(value1) ||
             double.IsNaN(value2) || double.IsInfinity(value2))
@@ -121,7 +121,21 @@ public abstract class AbstractBase : ITValue
         this.Value = Calculation();
         return Process(new TValue(Time: time, Value: this.Value, IsNew: isNew, IsHot: this.IsHot));
     }
-
+    /// <summary>
+    /// Processes the calculated value, updates the indicator's own state,
+    /// and publishes the result through an event.
+    /// </summary>
+    /// <param name="value">The calculated TValue to process.</param>
+    /// <returns>The processed TValue.</returns>
+    protected virtual TValue Process(TValue value)
+    {
+        this.Time = value.Time;
+        this.Value = value.Value;
+        this.IsNew = value.IsNew;
+        this.IsHot = value.IsHot;
+        Pub?.Invoke(this, new ValueEventArgs(value));
+        return value;
+    }
     /// <summary>
     /// Retrieves the last valid calculated value.
     /// </summary>
@@ -143,19 +157,5 @@ public abstract class AbstractBase : ITValue
     /// <returns>The calculated indicator value.</returns>
     protected abstract double Calculation();
 
-    /// <summary>
-    /// Processes the calculated value, updates the indicator's own state,
-    /// and publishes the result through an event.
-    /// </summary>
-    /// <param name="value">The calculated TValue to process.</param>
-    /// <returns>The processed TValue.</returns>
-    protected virtual TValue Process(TValue value)
-    {
-        this.Time = value.Time;
-        this.Value = value.Value;
-        this.IsNew = value.IsNew;
-        this.IsHot = value.IsHot;
-        Pub?.Invoke(this, new ValueEventArgs(value));
-        return value;
-    }
+
 }

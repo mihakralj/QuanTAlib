@@ -28,7 +28,7 @@ public class StddevIndicator : Indicator, IWatchlistIndicator
     private Stddev? stddev;
     protected LineSeries? StddevSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => 2;
+    public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public StddevIndicator()

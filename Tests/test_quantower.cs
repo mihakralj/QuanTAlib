@@ -21,6 +21,8 @@ namespace QuanTAlib
                 var onInitMethod = typeof(T).GetMethod("OnInit", BindingFlags.NonPublic | BindingFlags.Instance);
                 Assert.NotNull(onInitMethod);
                 onInitMethod.Invoke(indicator, null);
+                var onUpdateMethod = typeof(T).GetMethod("OnUpdate", BindingFlags.NonPublic | BindingFlags.Instance);
+                Assert.NotNull(onUpdateMethod);
 
                 var field = typeof(T).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
                 Assert.NotNull(field);

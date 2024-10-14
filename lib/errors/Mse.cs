@@ -34,16 +34,16 @@ public class Mse : AbstractBase
     }
 
     /// <summary>
-    /// Initializes a new instance of the Mape class with the specified source and period.
+    /// Initializes a new instance of the Mse class with the specified source and period.
     /// </summary>
     /// <param name="source">The source object to subscribe to for value updates.</param>
-    /// <param name="period">The period over which to calculate the Mean Absolute Percentage Error.</param>
+    /// <param name="period">The period over which to calculate the Mean Squared Error.</param>
     public Mse(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
-    
+
     /// <summary>
     /// Initializes the Mse instance by clearing the buffers.
     /// </summary>
@@ -53,7 +53,6 @@ public class Mse : AbstractBase
         _actualBuffer.Clear();
         _predictedBuffer.Clear();
     }
-
 
     /// <summary>
     /// Manages the state of the Mse instance based on whether new values are being processed.
@@ -107,18 +106,5 @@ public class Mse : AbstractBase
 
         IsHot = _index >= WarmupPeriod;
         return mse;
-    }
-
-    /// <summary>
-    /// Calculates the Mean Squared Error for the given actual and predicted values.
-    /// </summary>
-    /// <param name="actual">The actual value.</param>
-    /// <param name="predicted">The predicted value.</param>
-    /// <returns>The calculated Mean Squared Error.</returns>
-    public double Calc(double actual, double predicted)
-    {
-        Input = new TValue(DateTime.Now, actual);
-        _lastValidValue = predicted;
-        return Calculation();
     }
 }
