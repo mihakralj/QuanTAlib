@@ -18,11 +18,11 @@
 
 ## OHLC Input (Open, High, Low, Close)
 
+- **Average True Range (ATR) (High, Low, Close)**
 - Garman-Klass Volatility
 - Rogers-Satchell Volatility
 - Yang-Zhang Volatility
 - Parkinson Volatility (High, Low)
-- Average True Range (ATR) (High, Low, Close)
 - Chaikin Volatility (High, Low)
 - Keltner Channels (typically Close, High, Low)
 - High-Low Volatility (High, Low)

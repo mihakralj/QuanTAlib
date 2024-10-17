@@ -13,7 +13,7 @@ namespace QuanTAlib
 {
     public class QuantowerTests
     {
-        private void TestIndicator<T>(string fieldName = "ma") where T : Indicator, new()
+        private static void TestIndicator<T>(string fieldName = "ma") where T : Indicator, new()
         {
             var indicator = new T();
             try
@@ -95,7 +95,6 @@ namespace QuanTAlib
 
         // Volatility Indicators
         [Fact] public void Atr() => TestIndicator<AtrIndicator>("atr");
-        [Fact] public void Jvolty() => TestIndicator<JvoltyIndicator>("jvolty");
 
         [Fact] public void Historical() => TestIndicator<HistoricalIndicator>("historical");
         [Fact] public void Realized() => TestIndicator<RealizedIndicator>("realized");

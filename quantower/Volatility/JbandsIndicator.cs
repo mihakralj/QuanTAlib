@@ -3,13 +3,13 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class JvoltyIndicator : Indicator, IWatchlistIndicator
+public class JbandsIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Periods", sortIndex: 1, 1, 2000, 1, 0)]
     public int Periods { get; set; } = 14;
 
     [InputParameter("Data source", sortIndex: 5, variants: [
-        "Open", SourceType.Open,
+           "Open", SourceType.Open,
         "High", SourceType.High,
         "Low", SourceType.Low,
         "Close", SourceType.Close,
@@ -19,29 +19,35 @@ public class JvoltyIndicator : Indicator, IWatchlistIndicator
         "HLC/3 (Typical)", SourceType.HLC3,
         "OHLC/4 (Average)", SourceType.OHLC4,
         "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+       ])]
     public SourceType Source { get; set; } = SourceType.Close;
 
-    private Jma? jma;
-    protected LineSeries? JvoltySeries;
+    [InputParameter("vShort", sortIndex: 6, -100, 100, 1, 0)]
+    public int Phase { get; set; } = 10;
+
+        private Jma? jma;
+    protected LineSeries? UbSeries;
+    protected LineSeries? LbSeries;
+    protected string? SourceName;
     public static int MinHistoryDepths => 2;
-
-
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public JvoltyIndicator()
+    public JbandsIndicator()
     {
-        Name = "JVOLTY - Mark Jurik's Volatility";
-        Description = "Measures market volatility according to Mark Jurik.";
-        SeparateWindow = true;
+        Name = "JBANDS - Mark Jurik's Bands";
+        Description = "Upper and Lower Bands.";
+        SeparateWindow = false;
 
-        JvoltySeries = new("JVOLTY", Color.Blue, 2, LineStyle.Solid);
-        AddLineSeries(JvoltySeries);
+        UbSeries = new("UB", Color.Blue, 2, LineStyle.Solid);
+        LbSeries = new("LB", Color.Red, 2, LineStyle.Solid);
+        AddLineSeries(UbSeries);
+        AddLineSeries(LbSeries);
     }
 
     protected override void OnInit()
     {
-        jma = new(Periods);
+        jma = new(Periods, phase: Phase);
+        SourceName = Source.ToString();
         base.OnInit();
     }
 
@@ -50,9 +56,9 @@ public class JvoltyIndicator : Indicator, IWatchlistIndicator
         TValue input = this.GetInputValue(args, Source);
         jma!.Calc(input);
 
-        JvoltySeries!.SetValue(jma.Volty);
-
+        UbSeries!.SetValue(jma.UpperBand);
+        LbSeries!.SetValue(jma.LowerBand);
     }
 
-    public override string ShortName => $"JVOLTY ({Periods})";
+    public override string ShortName => $"JBands ({Periods}:{Phase})";
 }

@@ -58,21 +58,6 @@ public class VolatilityUpdateTests
     }
 
     [Fact]
-    public void Jvolty_Update()
-    {
-        var indicator = new Jvolty(period: 14);
-        double initialValue = indicator.Calc(new TBar(DateTime.Now, ReferenceValue, ReferenceValue, ReferenceValue, ReferenceValue, 1000, IsNew: true));
-
-        for (int i = 0; i < RandomUpdates; i++)
-        {
-            indicator.Calc(GetRandomBar(false));
-        }
-        double finalValue = indicator.Calc(new TBar(DateTime.Now, ReferenceValue, ReferenceValue, ReferenceValue, ReferenceValue, 1000, IsNew: false));
-
-        Assert.Equal(initialValue, finalValue, precision);
-    }
-
-    [Fact]
     public void Realized_Update()
     {
         var indicator = new Realized(period: 14);

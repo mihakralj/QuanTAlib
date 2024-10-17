@@ -25,7 +25,7 @@ public class BarIndicatorTests
     private static readonly ITValue[] indicators = new ITValue[]
     {
         new Atr(period: 14),
-        new Jvolty(period: 14)
+
         // Add other TBar-based indicators here
     };
 
@@ -80,14 +80,14 @@ public class BarIndicatorTests
             if (methods.Count > 0)
             {
                 // Prefer the method with TBar parameter
-                var method = methods.FirstOrDefault(m =>
+                var method = methods.Find(m =>
                 {
                     var parameters = m.GetParameters();
                     return parameters.Length == 1 && parameters[0].ParameterType == typeof(TBar);
                 });
 
                 // If not found, return the first method
-                return method ?? methods.First();
+                return method ?? methods[0];
             }
 
             type = type.BaseType!;

@@ -9,7 +9,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     public int Periods { get; set; } = 10;
 
     [InputParameter("Phase", sortIndex: 2, -100, 100, 1, 0)]
-    public double Phase { get; set; } = 0;
+    public int Phase { get; set; } = 0;
 
     [InputParameter("Data source", sortIndex: 4, variants: [
         "Open", SourceType.Open,
