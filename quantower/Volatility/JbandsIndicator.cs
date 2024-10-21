@@ -25,7 +25,8 @@ public class JbandsIndicator : Indicator, IWatchlistIndicator
     [InputParameter("vShort", sortIndex: 6, -100, 100, 1, 0)]
     public int Phase { get; set; } = 10;
 
-        private Jma? jma;
+        private Jma? jmaUp;
+        private Jma? jmaLo;
     protected LineSeries? UbSeries;
     protected LineSeries? LbSeries;
     protected string? SourceName;
@@ -46,18 +47,20 @@ public class JbandsIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        jma = new(Periods, phase: Phase);
+        jmaUp = new(Periods, phase: Phase);
+        jmaLo = new(Periods, phase: Phase);
         SourceName = Source.ToString();
         base.OnInit();
     }
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        jma!.Calc(input);
+        TBar input = IndicatorExtensions.GetInputBar(this, args);
+        jmaUp!.Calc(input.High);
+        jmaLo!.Calc(input.Low);
 
-        UbSeries!.SetValue(jma.UpperBand);
-        LbSeries!.SetValue(jma.LowerBand);
+        UbSeries!.SetValue(jmaUp.UpperBand);
+        LbSeries!.SetValue(jmaLo.LowerBand);
     }
 
     public override string ShortName => $"JBands ({Periods}:{Phase})";

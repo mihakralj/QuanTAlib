@@ -59,14 +59,35 @@ public static class IndicatorExtensions
 
 #pragma warning disable CA1416 // Validate platform compatibility
 
+    public static void PaintHLine(this Indicator indicator, PaintChartEventArgs args, double value, Pen pen)
+    {
+        if (indicator.CurrentChart == null)
+            return;
+
+        Graphics gr = args.Graphics;
+        var mainWindow = indicator.CurrentChart.Windows[args.WindowIndex];
+        var converter = mainWindow.CoordinatesConverter;
+        var clientRect = mainWindow.ClientRectangle;
+        gr.SetClip(clientRect);
+        int leftX = clientRect.Left;
+        int rightX = clientRect.Right;
+        int Y = (int)converter.GetChartY(value);
+        using (pen)
+        {
+            gr.DrawLine(pen, new Point(leftX, Y), new Point(rightX, Y));
+        }
+    }
+
     public static void PaintSmoothCurve(this Indicator indicator, PaintChartEventArgs args, LineSeries series, int warmupPeriod, bool showColdValues = true, double tension = 0.2)
     {
         if (!series.Visible || indicator.CurrentChart == null)
             return;
 
         Graphics gr = args.Graphics;
-        var mainWindow = indicator.CurrentChart.MainWindow;
+        gr.SmoothingMode = SmoothingMode.AntiAlias;
+        var mainWindow = indicator.CurrentChart.Windows[args.WindowIndex];
         var converter = mainWindow.CoordinatesConverter;
+
         var clientRect = mainWindow.ClientRectangle;
 
         gr.SetClip(clientRect);

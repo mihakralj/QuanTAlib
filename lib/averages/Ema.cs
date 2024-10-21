@@ -90,6 +90,7 @@ public class Ema : AbstractBase
         _k = alpha;
         _useSma = false;
         _sma = new(1);
+        Name = "Ema";
         _period = 1;
         WarmupPeriod = (int)Math.Ceiling(Math.Log(0.05) / Math.Log(1 - _k)); //95th percentile
         Init();

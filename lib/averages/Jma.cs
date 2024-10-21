@@ -6,7 +6,7 @@ namespace QuanTAlib;
 
 public class Jma : AbstractBase
 {
-    private readonly int _period;
+    private readonly double _period;
     private readonly double _phase;
     private readonly CircularBuffer _vsumBuff;
     private readonly CircularBuffer _avoltyBuff;
@@ -22,6 +22,7 @@ public class Jma : AbstractBase
     public double UpperBand { get; set; }
     public double LowerBand { get; set; }
     public double Volty { get; set; }
+    public double Factor { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the Jma class with the specified parameters.
@@ -31,18 +32,19 @@ public class Jma : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1.
     /// </exception>
-    public Jma(int period, int phase = 0)
+    public Jma(int period, int phase = 0, double factor = 0.45)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
+        Factor = factor;
         _period = period;
         _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
         _vsumBuff = new CircularBuffer(10);
         _avoltyBuff = new CircularBuffer(65);
-        _beta = 0.45 * (period - 1) / (0.45 * (period - 1) + 2);
+        _beta = factor * (_period - 1) / (factor * (_period - 1) + 2);
 
         WarmupPeriod = period * 2;
         Name = $"JMA({period})";
@@ -114,9 +116,10 @@ public class Jma : AbstractBase
         ManageState(Input.IsNew);
 
         double price = Input.Value;
-        if (_index == 1)
+        if (_index <= 1)
         {
             _upperBand = _lowerBand = price;
+            _prevMa1 = _prevJma = price;
         }
 
         double del1 = price - _upperBand;
@@ -124,7 +127,7 @@ public class Jma : AbstractBase
         double volty = Math.Max(Math.Abs(del1), Math.Abs(del2));
 
         _vsumBuff.Add(volty, Input.IsNew);
-        _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / 10;
+        _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / _vsumBuff.Count;
         _avoltyBuff.Add(_vSum, Input.IsNew);
         double avgvolty = _avoltyBuff.Average();
 
@@ -137,15 +140,15 @@ public class Jma : AbstractBase
         _upperBand = (del1 >= 0) ? price : price - (Kv * del1);
         _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
-        double alpha = Math.Pow(_beta, pow2);
-        double ma1 = (1 - alpha) * Input.Value + alpha * _prevMa1;
+        double _alpha = Math.Pow(_beta, pow2);
+        double ma1 = Input.Value + _alpha * (_prevMa1 - Input.Value);  //original: (1 - _alpha) * Input.Value + _alpha * _prevMa1;
         _prevMa1 = ma1;
 
-        double det0 = (price - ma1) * (1 - _beta) + _beta * _prevDet0;
+        double det0 = price + _beta * (_prevDet0 - price + ma1) - ma1; //original: (price - ma1) * (1 - _beta) + _beta * _prevDet0;
         _prevDet0 = det0;
         double ma2 = ma1 + _phase * det0;
 
-        double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha) ) + (alpha * alpha * _prevDet1);
+        double det1 = ((ma2 - _prevJma) * (1 - _alpha) * (1 - _alpha) ) + (_alpha * _alpha * _prevDet1);
         _prevDet1 = det1;
         double jma = _prevJma + det1;
         _prevJma = jma;

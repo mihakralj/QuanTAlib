@@ -11,6 +11,9 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Phase", sortIndex: 2, -100, 100, 1, 0)]
     public int Phase { get; set; } = 0;
 
+    [InputParameter("Beta factor", sortIndex: 3, minimum: 0, maximum:5 , increment: 0.01, decimalPlaces: 2)]
+    public double Factor { get; set; } = 0.45;
+
     [InputParameter("Data source", sortIndex: 4, variants: [
         "Open", SourceType.Open,
         "High", SourceType.High,
@@ -34,7 +37,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     public int MinHistoryDepths => Math.Max(65,Periods * 2);
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"JMA {Periods}:{Phase}:{SourceName}";
+    public override string ShortName => $"JMA {Periods}:{Phase}:{Factor:F2}:{SourceName}";
 
     public JmaIndicator()
     {
@@ -49,7 +52,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        ma = new Jma(Periods, Phase);
+        ma = new Jma(period: Periods, phase: Phase, factor: Factor);
         SourceName = Source.ToString();
         base.OnInit();
     }
