@@ -19,7 +19,7 @@
 |CURVATURE - Rate of Change in Direction or Slope|`Curvature`||||
 |ENTROPY - Measure of Uncertainty or Disorder|`Entropy`||||
 |KURTOSIS - Measure of Tails/Peakedness|`Kurtosis`||||
-|HUBER - Huber Loss|||||
+|HUBER - Huber Loss|`Huberloss`||||
 |MAX - Maximum with exponential decay|`Max`||||
 |MAE - Mean Absolute Error|`Mae`||||
 |MAPD - Mean Absolute Percentage Deviation|`Mapd`||||
@@ -80,7 +80,6 @@
 |SMMA - Smoothed Moving Average|`Smma`|`✔️`|||
 |SSF - Ehler's Super Smoother Filter|||||
 |SUPERTREND - Supertrend||`✔️`|||
-|SWMA - Symmetric Weighted Moving Average|||||
 |T3 - Tillson T3 Moving Average|`T3`|`✔️`|`✔️`||
 |TEMA - Triple EMA Average|`Tema`|`✔️`|`✔️`|`✔️`|
 |TRIMA - Triangular Moving Average|`Trima`|`✔️`||`✔️`|

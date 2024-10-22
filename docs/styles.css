@@ -97,7 +97,7 @@
     --table-row-odd-background: var(--mono-shade2);
 
     /* Layout */
-    --content-max-width: 55em;
+    --content-max-width: 100em;
 
     /* Cover */
     --cover-margin: 0 auto;

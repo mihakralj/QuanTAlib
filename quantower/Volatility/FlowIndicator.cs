@@ -53,7 +53,15 @@ public class FlowIndicator : Indicator, IWatchlistIndicator
             int barX2 = barX1 + width;
             int barY2 = (int)converter.GetChartY(this.HistoricalData.Close(i));
             using (Brush transparentBrush = new SolidBrush(Color.FromArgb(250, 70, 70, 70)))
+            {
                 gr.FillRectangle(transparentBrush, barX1, barYHigh - 1, CurrentChart.BarsWidth, Math.Abs(barYLow - barYHigh) + 2);
+            }
+            using (Brush circ = new SolidBrush(Color.FromArgb(100, 255, 255, 0)))
+            {
+                int size = 3;
+                gr.FillEllipse(circ, barX1 - size, barY1 - size, 2 * size, 2 * size);
+                gr.FillEllipse(circ, barX2 - size, barY2 - size, 2 * size, 2 * size);
+            }
             using (Pen defaultPen = new(Color.Yellow, 3))
             {
                 defaultPen.StartCap = LineCap.Round;
@@ -69,8 +77,8 @@ public class FlowIndicator : Indicator, IWatchlistIndicator
                     dottedPen.DashStyle = DashStyle.Dot;
                     gr.DrawLine(dottedPen, barX2, barY2, barX0, barY0);
                 }
-
             }
+
 
         }
     }

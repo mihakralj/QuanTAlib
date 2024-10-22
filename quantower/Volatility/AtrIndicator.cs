@@ -41,6 +41,7 @@ public class AtrIndicator : Indicator, IWatchlistIndicator
         AtrSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
 
     }
+#pragma warning disable CA1416 // Validate platform compatibility
 
     public override string ShortName => $"ATR ({Periods})";
 
