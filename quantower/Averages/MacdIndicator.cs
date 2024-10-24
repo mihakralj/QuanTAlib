@@ -1,5 +1,6 @@
 using System.Diagnostics.Metrics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
@@ -38,8 +39,11 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
     private Ema? slow_ma;
     private Ema? fast_ma;
     private Ema? signal_ma;
+    private Slope? histSlope;
     protected LineSeries? MainSeries;
-        protected LineSeries? SignalSeries;
+    protected LineSeries? SignalSeries;
+    protected LineSeries? HistogramSeries;
+    protected LineSeries? HistSlopeSeries;
 
     protected string? SourceName;
     public int MinHistoryDepths => Slow;
@@ -54,11 +58,16 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MACD - Moving Average Convergence Divergence";
         Description = "MACD";
-        MainSeries = new(name: $"MAIN", color: Color.Yellow, width: 2, style: LineStyle.Solid);
-        SignalSeries = new(name: $"SIGNAL", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        MainSeries = new(name: $"MAIN", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        SignalSeries = new(name: $"SIGNAL", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        HistogramSeries = new(name: $"HISTOGRAM", color: Color.White, width: 2, style: LineStyle.Solid);
+        HistSlopeSeries = new(name: $"SLOPE", color: Color.Transparent, width: 2, style: LineStyle.Solid);
+
 
         AddLineSeries(MainSeries);
         AddLineSeries(SignalSeries);
+        AddLineSeries(HistogramSeries);
+        AddLineSeries(HistSlopeSeries);
     }
 
     protected override void OnInit()
@@ -66,6 +75,7 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         slow_ma = new(Slow, useSma: UseSMA);
         fast_ma = new(Fast, useSma: UseSMA);
         signal_ma = new(Signal, useSma: UseSMA);
+        histSlope = new(2);
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -76,20 +86,64 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         slow_ma!.Calc(input);
         fast_ma!.Calc(input);
         double main = fast_ma.Value - slow_ma.Value;
-        signal_ma!.Calc(main);
+        double signal = signal_ma!.Calc(main);
+        double histogram = main - signal;
+        histSlope!.Calc(histogram);
 
         MainSeries!.SetValue(main);
         MainSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-        SignalSeries!.SetValue(signal_ma.Value);
+        SignalSeries!.SetValue(signal);
         SignalSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+        HistogramSeries!.SetValue(histogram);
+        HistogramSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+        HistSlopeSeries!.SetValue(histSlope.Value);
+        HistSlopeSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
+#pragma warning disable CA1416 // Validate platform compatibility
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, MainSeries!, slow_ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+
+        Graphics gr = args.Graphics;
+        gr.SmoothingMode = SmoothingMode.AntiAlias;
+        var mainWindow = this.CurrentChart.Windows[args.WindowIndex];
+        var converter = mainWindow.CoordinatesConverter;
+        var clientRect = mainWindow.ClientRectangle;
+
+        gr.SetClip(clientRect);
+        DateTime leftTime = new[] { converter.GetTime(clientRect.Left), this.HistoricalData.Time(this!.Count - 1) }.Max();
+        DateTime rightTime = new[] { converter.GetTime(clientRect.Right), this.HistoricalData.Time(0) }.Min();
+        int leftIndex = (int)this.HistoricalData.GetIndexByTime(leftTime.Ticks) + 1;
+        int rightIndex = (int)this.HistoricalData.GetIndexByTime(rightTime.Ticks);
+
+        for (int i = rightIndex; i < leftIndex; i++)
+        {
+            int barX = (int)converter.GetChartX(this.HistoricalData.Time(i));
+            int barY = (int)converter.GetChartY(HistogramSeries![i]);
+            int barY0 = (int)converter.GetChartY(0);
+            int HistBarWidth = this.CurrentChart.BarsWidth - 2;
+
+            Brush lowGreen = new SolidBrush(Color.FromArgb(255, 0, 100, 0));
+            Brush highGreen = new SolidBrush(Color.FromArgb(255, 50, 255, 50));
+            Brush lowRed = new SolidBrush(Color.FromArgb(255, 100, 0, 0));
+            Brush highRed = new SolidBrush(Color.FromArgb(255, 255, 50, 50));
+
+            if (HistogramSeries[i] > 0)
+            {
+                Brush col = HistSlopeSeries![i] > 0 ? highGreen : lowGreen;
+                gr.FillRectangle(col, barX, barY, HistBarWidth, Math.Abs(barY - barY0));
+            }
+            else
+            {
+                Brush col = HistSlopeSeries![i] < 0 ? highRed : lowRed;
+                gr.FillRectangle(col, barX, barY0, HistBarWidth, Math.Abs(barY0 - barY));
+            }
+
+        }
+
+        this.PaintSmoothCurve(args, MainSeries!, slow_ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.3);
         this.PaintSmoothCurve(args, SignalSeries!, slow_ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
+        base.OnPaintChart(args);
     }
 }
 

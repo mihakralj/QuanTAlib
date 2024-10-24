@@ -4,7 +4,12 @@
 
 - **Jurik Volatility (Volty)**
 - **Standard Deviation**
-- **Relative Volatility Index (RVI)**
+- **RVI Relative Volatility Index**
+- **CMO Chande Momentum Oscillator**
+- **Historical Volatility**
+- **Average True Range (ATR) (High, Low, Close)**
+
+- Normalized ATR
 - Ulcer Index
 - ARCH/GARCH Models
 - Exponential Weighted Moving Average (EWMA) Volatility
@@ -15,10 +20,6 @@
 - Volatility Cone
 - Bollinger Bands
 - Stochastic Volatility: Typically modeled using closing prices, but can incorporate other price information
-
-## OHLC Input (Open, High, Low, Close)
-
-- **Average True Range (ATR) (High, Low, Close)**
 - Garman-Klass Volatility
 - Rogers-Satchell Volatility
 - Yang-Zhang Volatility

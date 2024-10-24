@@ -8,6 +8,12 @@ public enum SourceType
 {
     Open, High, Low, Close, HL2, OC2, OHL3, HLC3, OHLC4, HLCC4
 }
+
+public enum MaType
+{
+    Alma, Dema, Dsma, Dwma, Ema, Epma, Frama, Fwma, Gma, Hma, Hwma, Jma, Kama, Maaf, Mgdi, MMa, Pwma, Rema, Rma, Sinema, Sma, Smma, T3, Tema, Trima, Vidya, Wma, Zlema
+}
+
 public static class IndicatorExtensions
 {
     public static TValue GetInputValue(this Indicator indicator, UpdateArgs args, SourceType source)
@@ -131,6 +137,53 @@ public static class IndicatorExtensions
             }
         }
     }
+
+    public static void PaintHistogram(this Indicator indicator, PaintChartEventArgs args, LineSeries series, int warmupPeriod, bool showColdValues = true)
+    {
+        if (!series.Visible || indicator.CurrentChart == null)
+            return;
+
+        Graphics gr = args.Graphics;
+        gr.SmoothingMode = SmoothingMode.AntiAlias;
+        var mainWindow = indicator.CurrentChart.Windows[args.WindowIndex];
+        var converter = mainWindow.CoordinatesConverter;
+        var clientRect = mainWindow.ClientRectangle;
+
+        gr.SetClip(clientRect);
+        DateTime leftTime = new[] { converter.GetTime(clientRect.Left), indicator.HistoricalData.Time(indicator!.Count - 1) }.Max();
+        DateTime rightTime = new[] { converter.GetTime(clientRect.Right), indicator.HistoricalData.Time(0) }.Min();
+        int leftIndex = (int)indicator.HistoricalData.GetIndexByTime(leftTime.Ticks) + 1;
+        int rightIndex = (int)indicator.HistoricalData.GetIndexByTime(rightTime.Ticks);
+
+        for (int i = rightIndex; i < leftIndex; i++)
+        {
+            int barX = (int)converter.GetChartX(indicator.HistoricalData.Time(i));
+            int barY = (int)converter.GetChartY(series[i]);
+            int barY0 = (int)converter.GetChartY(0);
+            int HistBarWidth = indicator.CurrentChart.BarsWidth - 2;
+
+            if (series[i] > 0)
+            {
+                using (Brush hist = new SolidBrush(Color.FromArgb(150, 0, 255, 0)))
+                {
+                    gr.FillRectangle(hist, barX, barY, HistBarWidth, Math.Abs(barY - barY0));
+
+                }
+            }
+            else
+            {
+                using (Brush hist = new SolidBrush(Color.FromArgb(150, 255, 0, 0)))
+                {
+                    gr.FillRectangle(hist, barX, barY0, HistBarWidth, Math.Abs(barY0 - barY));
+
+                }
+            }
+
+        }
+
+    }
+
+
     public static void DrawText(this Indicator indicator, PaintChartEventArgs args, string text)
     {
         if (indicator.CurrentChart == null)

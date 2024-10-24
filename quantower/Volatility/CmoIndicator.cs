@@ -65,8 +65,8 @@ public class CmoIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintHLine(args, 0, new Pen(Color.DarkGray, width: 1));
-        this.PaintHLine(args, 50, new Pen(Color.DarkRed, width: 1));
-        this.PaintHLine(args, -50, new Pen(Color.DarkGreen, width: 1));
+        this.PaintHLine(args, 50, new Pen(Color.Blue, width: 1));
+        this.PaintHLine(args, -50, new Pen(Color.Blue, width: 1));
         this.PaintSmoothCurve(args, CmoSeries!, cmo!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }

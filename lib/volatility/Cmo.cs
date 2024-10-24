@@ -8,8 +8,6 @@ namespace QuanTAlib;
 /// </summary>
 public class Cmo : AbstractBase
 {
-    private readonly int _period;
-    private readonly CircularBuffer _diffBuffer;
     private readonly CircularBuffer _sumH;
     private readonly CircularBuffer _sumL;
     private double _prevValue, _p_prevValue;
@@ -18,9 +16,6 @@ public class Cmo : AbstractBase
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period));
-
-        _period = period;
-        _diffBuffer = new(period);
         _sumH = new(period);
         _sumL = new(period);
 
