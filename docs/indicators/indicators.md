@@ -23,7 +23,7 @@
 |KEL - Keltner Channels||GetKeltner|||
 |NATR - Normalized Average True Range||GetAtr|||
 |CHN - Price Channel Indicator|||||
-|RSI - Relative Strength Index||GetRsi|||
+|RSI - Relative Strength Index|`Rsi`|GetRsi|||
 |SAR - Parabolic Stop and Reverse||GetParabolicSar|||
 |SRSI - Stochastic RSI||GetStochRsi|||
 |STARC - Starc Bands||GetStarcBands|||

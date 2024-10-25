@@ -32,7 +32,7 @@ public class Jma : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1.
     /// </exception>
-    public Jma(int period, int phase = 0, double factor = 0.45)
+    public Jma(int period, int phase = 0, double factor = 0.45, int buffer = 10)
     {
         if (period < 1)
         {
@@ -42,7 +42,7 @@ public class Jma : AbstractBase
         _period = period;
         _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
-        _vsumBuff = new CircularBuffer(10);
+        _vsumBuff = new CircularBuffer(buffer);
         _avoltyBuff = new CircularBuffer(65);
         _beta = factor * (_period - 1) / (factor * (_period - 1) + 2);
 
@@ -56,7 +56,7 @@ public class Jma : AbstractBase
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate the Jvolty.</param>
     /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
-    public Jma(object source, int period, int phase = 0) : this(period, phase)
+    public Jma(object source, int period, int phase = 0, double factor = 0.45, int buffer = 10) : this(period, phase, factor, buffer)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
@@ -148,7 +148,7 @@ public class Jma : AbstractBase
         _prevDet0 = det0;
         double ma2 = ma1 + _phase * det0;
 
-        double det1 = ((ma2 - _prevJma) * (1 - _alpha) * (1 - _alpha) ) + (_alpha * _alpha * _prevDet1);
+        double det1 = ((ma2 - _prevJma) * (1 - _alpha) * (1 - _alpha)) + (_alpha * _alpha * _prevDet1);
         _prevDet1 = det1;
         double jma = _prevJma + det1;
         _prevJma = jma;

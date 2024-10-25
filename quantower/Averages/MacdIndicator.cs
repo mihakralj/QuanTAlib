@@ -62,7 +62,7 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         SignalSeries = new(name: $"SIGNAL", color: Color.Yellow, width: 2, style: LineStyle.Solid);
         HistogramSeries = new(name: $"HISTOGRAM", color: Color.White, width: 2, style: LineStyle.Solid);
         HistSlopeSeries = new(name: $"SLOPE", color: Color.Transparent, width: 2, style: LineStyle.Solid);
-
+        HistSlopeSeries.Visible = false;
 
         AddLineSeries(MainSeries);
         AddLineSeries(SignalSeries);
@@ -119,7 +119,7 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         for (int i = rightIndex; i < leftIndex; i++)
         {
             int barX = (int)converter.GetChartX(this.HistoricalData.Time(i));
-            int barY = (int)converter.GetChartY(HistogramSeries![i]);
+            int barY = (int)converter.GetChartY(HistogramSeries![i]*2.0);
             int barY0 = (int)converter.GetChartY(0);
             int HistBarWidth = this.CurrentChart.BarsWidth - 2;
 
