@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
@@ -70,6 +70,20 @@ jobs:
           files: 'cover*'
           verbose: true
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=mihakralj_QuanTAlib
+            -Dsonar.organization=mihakralj-quantalib
+            -Dsonar.sources=.
+            -Dsonar.cs.opencover.reportsPaths=**/*cover*.xml
+            -Dsonar.cs.dotcover.reportsPaths=**/dotcover.xml
+            -Dsonar.coverage.exclusions=**Tests.cs
+
   CodeQL:
     runs-on: ubuntu-latest
     steps:
@@ -79,7 +93,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
@@ -112,7 +126,6 @@ jobs:
         with:
           sarif_file: results.sarif
 
-
   SecurityCodeScan:
     runs-on: windows-latest
     steps:
@@ -128,7 +141,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             8.x
@@ -164,7 +177,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 

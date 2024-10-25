@@ -1,6 +1,5 @@
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
-
 namespace QuanTAlib;
 
 public class EntropyIndicator : Indicator, IWatchlistIndicator
