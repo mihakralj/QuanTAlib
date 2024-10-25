@@ -78,7 +78,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=mihakralj_QuanTAlib
-            -Dsonar.organization=mihakralj
+            -Dsonar.organization=mihakralj-quantalib
             -Dsonar.sources=.
             -Dsonar.cs.opencover.reportsPaths=**/*cover*.xml
             -Dsonar.cs.dotcover.reportsPaths=**/dotcover.xml
