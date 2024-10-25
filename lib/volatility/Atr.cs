@@ -4,13 +4,14 @@ namespace QuanTAlib;
 /// Represents an Average True Range (ATR) calculator, a measure of market volatility.
 /// </summary>
 /// <remarks>
-/// The ATR class calculates the average true range using an Exponential Moving Average (EMA)
+/// The ATR class calculates the average true range using a Relative Moving Average (RMA)
 /// of the true range. The true range is the greatest of: current high - current low,
 /// absolute value of current high - previous close, or absolute value of current low - previous close.
 /// </remarks>
 public class Atr : AbstractBase
 {
-    private readonly Ema _ma;
+    public double Tr { get; private set; }
+    private readonly Rma _ma;
     private double _prevClose, _p_prevClose;
 
     /// <summary>
@@ -26,7 +27,7 @@ public class Atr : AbstractBase
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        _ma = new(1.0 / period);
+        _ma = new(period, useSma: true);
         WarmupPeriod = _ma.WarmupPeriod;
         Name = $"ATR({period})";
     }
@@ -50,6 +51,7 @@ public class Atr : AbstractBase
         base.Init();
         _ma.Init();
         _prevClose = double.NaN;
+        Tr = 0;
     }
 
     /// <summary>
@@ -76,7 +78,7 @@ public class Atr : AbstractBase
     /// The calculated ATR value for the current bar.
     /// </returns>
     /// <remarks>
-    /// This method calculates the true range for the current bar and then uses an EMA
+    /// This method calculates the true range for the current bar and then uses an RMA
     /// to smooth the true range values. For the first bar, it uses the high-low range
     /// as the true range.
     /// </remarks>
@@ -84,22 +86,25 @@ public class Atr : AbstractBase
     {
         ManageState(BarInput.IsNew);
 
-        double trueRange = Math.Max(
-            Math.Max(
-                BarInput.High - BarInput.Low,
-                Math.Abs(BarInput.High - _prevClose)
-            ),
-            Math.Abs(BarInput.Low - _prevClose)
-        );
-        if (_index < 2)
+        if (_index == 1)
         {
-            trueRange = BarInput.High - BarInput.Low;
+            Tr = BarInput.High - BarInput.Low;
+            _prevClose = BarInput.Close;
         }
+        else
+        {
+            Tr = Math.Max(
+                BarInput.High - BarInput.Low,
+                Math.Max(
+                    Math.Abs(BarInput.High - _prevClose),
+                    Math.Abs(BarInput.Low - _prevClose)
+                )
+            );
+        }
+        _ma.Calc(new TValue(Input.Time, Tr, BarInput.IsNew));
 
-        TValue emaTrueRange = _ma.Calc(new TValue(Input.Time, trueRange, Input.IsNew));
         IsHot = _ma.IsHot;
         _prevClose = BarInput.Close;
-
-        return emaTrueRange.Value;
+        return _ma.Value;
     }
 }

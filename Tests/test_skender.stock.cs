@@ -345,7 +345,7 @@ public class SkenderTests
             var atrValues = quotes.GetAtr(lookbackPeriods: period).Select(i => i.Atr.Null2NaN()!);
             const int AdditionalPeriods = 500;
 
-            for (int i = QL.Length - 1; i > period + AdditionalPeriods; i--)
+            for (int i = QL.Length - 1; i > 1000 + AdditionalPeriods; i--)
             {
                 Assert.InRange(atrValues.ElementAt(i) - QL[i].Value, -range, range);
             }

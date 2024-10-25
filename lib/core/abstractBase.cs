@@ -57,6 +57,12 @@ public abstract class AbstractBase : ITValue
         Input2 = new(Time: Input.Time, Value: double.NaN, IsNew: Input.IsNew, IsHot: Input.IsHot);
         return Process(input.Value, input.Time, input.IsNew);
     }
+    public virtual TValue Calc(double value, bool IsNew)
+    {
+        Input = new(this.Time, Value: value, IsNew: IsNew, IsHot: false);
+        Input2 = new(this.Time, double.NaN, false, false);
+        return Process(Input.Value, Input.Time, Input.IsNew);
+    }
 
     public virtual TValue Calc(TBar barInput)
     {

@@ -32,6 +32,8 @@ public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
 public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
 public TBar(double value) : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
 public TBar(TValue value) : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
+public TBar(TBar v) : this(Time: v.Time, Open: v.Open, High: v.High, Low: v.Low, Close: v.Close, Volume: v.Volume, IsNew: true) { }
+
 
 public static implicit operator double(TBar bar) => bar.Close;
 public static implicit operator DateTime(TBar tv) => tv.Time;

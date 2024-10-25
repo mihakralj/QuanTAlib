@@ -2,76 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Document</title>
+  <title>QuanTAlib Documentation</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="description" content="Description">
+  <meta name="description" content="Documentation for QuanTAlib, a quantitative technical analysis library">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css" integrity="sha384-G+RAlt+LEfAH/nY+DZh3+XIhRboypMI32hiJ9BwnmjF41May5BWQKyrDrEkNdV/i" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css" integrity="sha384-3UiQGuEI4TTMaFmGIZumfRPtfKQ3trwQE2JgosJxCnGmQpL/lJdjpcHkaaFwHlcI" crossorigin="anonymous">
-
-  <style>
-    .markdown-section {
-      max-width: none !important;
-      width: 100% !important;
-    }
-    .sidebar-nav {
-      line-height: 1.5;
-      font-size: 12px;
-    }
-    .markdown-section table tbody td {
-      padding: 4px 1px;
-    }
-    :root {
-      --sidebar-width: 350px;
-      --sidebar-nav-link-padding: 2px 0;
-      --sidebar-nav-pagelink-padding: 2px 0 2px 12px;
-      --sidebar-nav-indent: 12px;
-    }
-    .content {
-      left: var(--sidebar-width);
-    }
-    .sidebar-toggle {
-      width: var(--sidebar-width);
-    }
-    /* Updated styles for partially expandable sidebar */
-    .sidebar-nav ul ul ul ul {
-      overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.3s ease-out;
-    }
-    .sidebar-nav ul ul ul li:hover > ul {
-      max-height: 1000px;
-      transition: max-height 0.3s ease-in;
-    }
-    .sidebar-nav .collapse.level-4 > ul {
-      max-height: 0 !important;
-    }
-    .sidebar-nav .collapse.level-4:hover > ul {
-      max-height: 1000px !important;
-    }
-    .sidebar-nav .folder > .app-sub-sidebar {
-      display: block !important;
-    }
-    /* Ensure levels 1, 2, and 3 are always visible */
-    .sidebar-nav > ul,
-    .sidebar-nav > ul > li > ul,
-    .sidebar-nav > ul > li > ul > li > ul {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-  </style>
-
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="app"></div>
   <script>
     window.$docsify = {
+      name: 'QuanTAlib',
+      repo: 'https://github.com/mihakralj/quantalib',
       homepage: 'readme.md',
       loadSidebar: true,
-      subMaxLevel: 4, // Increased to allow for level 4+ items
-      name: '',
-      repo: '',
-      sidebarDisplayLevel: 3, // Changed to keep levels 1, 2, and 3 expanded
+      auto2top: true,
+      mergeNavbar: true,
+      sidebarDisplayLevel: 0, // Add this line to collapse all sidebar items initially
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Type to search',
+        noData: 'No Results!',
+        depth: 6,
+        hideOtherSidebarContent: false,
+      },
+      pagination: {
+        previousText: 'Previous',
+        nextText: 'Next',
+        crossChapter: true,
+        crossChapterText: true,
+      },
       themeable: {
         readyTransition: true,
         responsiveTables: true
@@ -79,18 +41,33 @@
       latex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['$$', '$$']],
-      }
+      },
+      executeScript: true,
+      externalLinkTarget: '_blank',
+      cornerExternalLinkTarget: '_blank',
+      relativePath: false,
+      toc: {
+        scope: '.markdown-section',
+        headings: 'h1, h2, h3, h4, h5, h6',
+        title: 'Table of Contents',
+      },
+      copyCode: {
+        buttonText: 'Copy to clipboard',
+        errorText: 'Error',
+        successText: 'Copied'
+      },
+      plugins: [
+      ]
     };
   </script>
-  <!-- plugins -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js" integrity="sha384-lMHOyuqf3B/T/BgfYxUKprN0bdRf8KhVTE11w76Tvtze86XHVSDYzxqNGDGgIi9I" crossorigin="anonymous"></script>
-  <!-- Docsify v4 -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js" integrity="sha384-KaHhgnx/OTLoJ4J33SSJsF4x1pk4I7q3s5ZOfIDHJYl6IG7Oyn2vNDsHiWJe46fD" crossorigin="anonymous"></script>
-  <!-- docsify-themeable -->
   <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js" integrity="sha384-ibjVZCUwWPrRrNc9BNkbbJvtYmTh8GYDNQgj+2jQVNDudOFgSQWs+Es6JhdoTIvf" crossorigin="anonymous"></script>
-  <!-- KaTeX -->
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.js" integrity="sha384-G0zcxDFp5LWZtDuRMnBkk3EphCK1lhEf4UEyEM693ka574TZGwo4IWwS6QLzM/2t" crossorigin="anonymous"></script>
-  <!-- docsify-katex plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js" integrity="sha384-lMHOyuqf3B/T/BgfYxUKprN0bdRf8KhVTE11w76Tvtze86XHVSDYzxqNGDGgIi9I" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs/dist/docsify-tabs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify-katex@1.4.3/dist/docsify-katex.js" integrity="sha384-M76M/x5vGyeoej1covQQifl7T945mY+qgzNVrM/urHMCYjP8tnMsx5WCdeLZ74UE" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -7,17 +7,25 @@ namespace QuanTAlib;
 public class Jvolty : AbstractBase
 {
     private readonly int _period;
-    private readonly CircularBuffer _values;
-    private readonly CircularBuffer _voltyShort;
+    private readonly double _phase;
     private readonly CircularBuffer _vsumBuff;
     private readonly CircularBuffer _avoltyBuff;
 
     private double _len1;
     private double _pow1;
-    private double _upperBand;
-    private double _lowerBand;
-    private double _p_upperBand;
-    private double _p_lowerBand;
+    private readonly double _beta;
+    private double _upperBand, _lowerBand, _p_upperBand, _p_lowerBand;
+    private double _prevMa1, _prevDet0, _prevDet1, _prevJma, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
+    private double _vSum, _p_vSum;
+
+
+    public double UpperBand { get; set; }
+    public double LowerBand { get; set; }
+    public double Volty { get; set; }
+    public double VSum { get; set; }
+    public double Jma { get; set; }
+    public double AvgVolty { get; set; }
+
 
     /// <summary>
     /// Initializes a new instance of the Jvolty class with the specified parameters.
@@ -28,22 +36,21 @@ public class Jvolty : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 1.
     /// </exception>
-    public Jvolty(int period, int vshort = 10)
+    public Jvolty(int period, int phase = 0)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
         _period = period;
-        int _vlong = 65;
+        _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
-        _values = new CircularBuffer(period);
-        _voltyShort = new CircularBuffer(vshort);
-        _vsumBuff = new CircularBuffer(_vlong);
-        _avoltyBuff = new CircularBuffer(2);
+        _vsumBuff = new CircularBuffer(10);
+        _avoltyBuff = new CircularBuffer(65);
+        _beta = 0.45 * (period - 1) / (0.45 * (period - 1) + 2);
 
         WarmupPeriod = period * 2;
-        Name = $"JVOLTY({period},{vshort})";
+        Name = $"JVOLTY({period})";
     }
 
     /// <summary>
@@ -53,7 +60,7 @@ public class Jvolty : AbstractBase
     /// <param name="period">The period over which to calculate the Jvolty.</param>
     /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
     /// <param name="vshort">The short-term volatility period.</param>
-    public Jvolty(object source, int period, int vshort = 10) : this(period, vshort)
+    public Jvolty(object source, int period, int phase = 0) : this(period, phase)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new BarSignal(Sub));
@@ -70,8 +77,7 @@ public class Jvolty : AbstractBase
         _len1 = Math.Max((Math.Log(Math.Sqrt(_period - 1)) / Math.Log(2.0)) + 2.0, 0);
         _pow1 = Math.Max(_len1 - 2.0, 0.5);
         _avoltyBuff.Clear();
-        _avoltyBuff.Add(0, true);
-        _avoltyBuff.Add(0, true);
+        _vsumBuff.Clear();
     }
 
     /// <summary>
@@ -85,11 +91,21 @@ public class Jvolty : AbstractBase
             _index++;
             _p_upperBand = _upperBand;
             _p_lowerBand = _lowerBand;
+            _p_vSum = _vSum;
+            _p_prevMa1 = _prevMa1;
+            _p_prevDet0 = _prevDet0;
+            _p_prevDet1 = _prevDet1;
+            _p_prevJma = _prevJma;
         }
         else
         {
             _upperBand = _p_upperBand;
             _lowerBand = _p_lowerBand;
+            _vSum = _p_vSum;
+            _prevMa1 = _p_prevMa1;
+            _prevDet0 = _p_prevDet0;
+            _prevDet1 = _p_prevDet1;
+            _prevJma = _p_prevJma;
         }
     }
 
@@ -101,41 +117,57 @@ public class Jvolty : AbstractBase
     /// </returns>
     protected override double Calculation()
     {
-        ManageState(BarInput.IsNew);
+        ManageState(Input.IsNew);
 
-        _values.Add(BarInput.Close, BarInput.IsNew);
-
+        double price = Input.Value;
         if (_index == 1)
         {
-            return 0;
+            _upperBand = _lowerBand = price;
         }
 
-        double hprice = _values.Max();
-        double lprice = _values.Min();
-
-        double del1 = hprice - _upperBand;
-        double del2 = lprice - _lowerBand;
+        double del1 = price - _upperBand;
+        double del2 = price - _lowerBand;
         double volty = Math.Max(Math.Abs(del1), Math.Abs(del2));
 
-        _voltyShort.Add(volty, BarInput.IsNew);
-        double vsum = _vsumBuff.Newest() + 0.1 * (volty - _voltyShort.Oldest());
-        _vsumBuff.Add(vsum, BarInput.IsNew);
+        _vsumBuff.Add(volty, Input.IsNew);
+        _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / 10;
+        _avoltyBuff.Add(_vSum, Input.IsNew);
+        double avgvolty = _avoltyBuff.Average();
 
-        double prevAvolty = _avoltyBuff.Newest();
-        double avolty = prevAvolty + 2.0 / (Math.Max(4.0 * _period, 30) + 1.0) * (vsum - prevAvolty);
-        _avoltyBuff.Add(avolty, BarInput.IsNew);
+        double rvolty = (avgvolty > 0) ? volty / avgvolty : 1;
+        rvolty = Math.Min(Math.Max(rvolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
 
-        double dVolty = (avolty > 0) ? volty / avolty : 0;
-        dVolty = Math.Min(Math.Max(dVolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
+        double pow2 = Math.Pow(rvolty, _pow1);
+        double Kv = Math.Pow(_beta, Math.Sqrt(pow2));
 
-        double pow2 = Math.Pow(dVolty, _pow1);
-        double len2 = Math.Sqrt(0.5 * (_period - 1)) * _len1;
-        double Kv = Math.Pow(len2 / (len2 + 1), Math.Sqrt(pow2));
+        _upperBand = (del1 >= 0) ? price : price - (Kv * del1);
+        _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
-        _upperBand = (del1 > 0) ? hprice : hprice - (Kv * del1);
-        _lowerBand = (del2 < 0) ? lprice : lprice - (Kv * del2);
+
+
+        double alpha = Math.Pow(_beta, pow2);
+        double ma1 = (1 - alpha) * Input.Value + alpha * _prevMa1;
+        _prevMa1 = ma1;
+
+        double det0 = (price - ma1) * (1 - _beta) + _beta * _prevDet0;
+        _prevDet0 = det0;
+        double ma2 = ma1 + _phase * det0;
+
+        double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha) ) + (alpha * alpha * _prevDet1);
+        _prevDet1 = det1;
+        double jma = _prevJma + det1;
+        _prevJma = jma;
+
+        UpperBand = _upperBand;
+        LowerBand = _lowerBand;
+        Volty = volty;
+        VSum = _vSum;
+        AvgVolty = avgvolty;
+        Jma = jma;
 
         IsHot = _index >= WarmupPeriod;
         return volty;
     }
 }
+
+

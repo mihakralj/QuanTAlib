@@ -1,68 +1,93 @@
+/// <summary>
+/// Represents a Jurik Moving Average, based on known and reverse-engineered insights
+/// </summary>
+
 namespace QuanTAlib;
-//TODO fails consistency test
+
 public class Jma : AbstractBase
 {
-    public readonly int Period;
+    private readonly double _period;
     private readonly double _phase;
-    private readonly int _vshort, _vlong;
-    private readonly CircularBuffer _values;
-    private readonly CircularBuffer _voltyShort;
     private readonly CircularBuffer _vsumBuff;
     private readonly CircularBuffer _avoltyBuff;
 
-    private double _beta, _len1, _pow1;
-    private double _upperBand, _lowerBand, _prevMa1, _prevDet0, _prevDet1, _prevJma;
-    private double _p_UpperBand, _p_LowerBand, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
+    private double _len1;
+    private double _pow1;
+    private readonly double _beta;
+    private double _upperBand, _lowerBand, _p_upperBand, _p_lowerBand;
+    private double _prevMa1, _prevDet0, _prevDet1, _prevJma, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
+    private double _vSum, _p_vSum;
 
-    public Jma(int period, double phase = 0, int vshort = 10)
+
+    public double UpperBand { get; set; }
+    public double LowerBand { get; set; }
+    public double Volty { get; set; }
+    public double Factor { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the Jma class with the specified parameters.
+    /// </summary>
+    /// <param name="period">The period over which to calculate the Jvolty.</param>
+    /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when period is less than 1.
+    /// </exception>
+    public Jma(int period, int phase = 0, double factor = 0.45, int buffer = 10)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        Period = period;
-        _vshort = vshort;
-        _vlong = 65;
+        Factor = factor;
+        _period = period;
         _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
-        _values = new CircularBuffer(period);
-        _voltyShort = new CircularBuffer(vshort);
-        _vsumBuff = new CircularBuffer(_vlong);
-        _avoltyBuff = new CircularBuffer(2);
+        _vsumBuff = new CircularBuffer(buffer);
+        _avoltyBuff = new CircularBuffer(65);
+        _beta = factor * (_period - 1) / (factor * (_period - 1) + 2);
 
-        Name = "JMA";
         WarmupPeriod = period * 2;
-        Init();
+        Name = $"JMA({period})";
     }
 
-    public Jma(object source, int period, double phase = 0, int vshort = 10) : this(period, phase, vshort)
+    /// <summary>
+    /// Initializes a new instance of the Jvolty class with the specified source and parameters.
+    /// </summary>
+    /// <param name="source">The source object to subscribe to for value updates.</param>
+    /// <param name="period">The period over which to calculate the Jvolty.</param>
+    /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
+    public Jma(object source, int period, int phase = 0, double factor = 0.45, int buffer = 10) : this(period, phase, factor, buffer)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    /// <summary>
+    /// Initializes the Jma instance by setting up the initial state.
+    /// </summary>
     public override void Init()
     {
-        _upperBand = _lowerBand = _prevMa1 = _prevDet0 = _prevDet1 = _prevJma = 0.0;
-        _p_UpperBand = _p_LowerBand = _p_prevMa1 = _p_prevDet0 = _p_prevDet1 = _p_prevJma = 0.0;
-        _beta = 0.45 * (Period - 1) / (0.45 * (Period - 1) + 2);
-        _len1 = Math.Max((Math.Log(Math.Sqrt(Period - 1)) / Math.Log(2.0)) + 2.0, 0);
+        base.Init();
+        _upperBand = _lowerBand = 0.0;
+        _p_upperBand = _p_lowerBand = 0.0;
+        _len1 = Math.Max((Math.Log(Math.Sqrt(_period - 1)) / Math.Log(2.0)) + 2.0, 0);
         _pow1 = Math.Max(_len1 - 2.0, 0.5);
         _avoltyBuff.Clear();
-        _avoltyBuff.Add(0, true);
-        _avoltyBuff.Add(0, true);
-        base.Init();
+        _vsumBuff.Clear();
     }
 
+    /// <summary>
+    /// Manages the state of the Jma instance based on whether a new value is being processed.
+    /// </summary>
+    /// <param name="isNew">Indicates whether the current input is a new value.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
         {
-            _lastValidValue = Input.Value;
             _index++;
-            // Save current state
-            _p_UpperBand = _upperBand;
-            _p_LowerBand = _lowerBand;
+            _p_upperBand = _upperBand;
+            _p_lowerBand = _lowerBand;
+            _p_vSum = _vSum;
             _p_prevMa1 = _prevMa1;
             _p_prevDet0 = _prevDet0;
             _p_prevDet1 = _prevDet1;
@@ -70,65 +95,67 @@ public class Jma : AbstractBase
         }
         else
         {
-            // Restore previous state
-            _upperBand = _p_UpperBand;
-            _lowerBand = _p_LowerBand;
+            _upperBand = _p_upperBand;
+            _lowerBand = _p_lowerBand;
+            _vSum = _p_vSum;
             _prevMa1 = _p_prevMa1;
             _prevDet0 = _p_prevDet0;
             _prevDet1 = _p_prevDet1;
             _prevJma = _p_prevJma;
-
         }
     }
+
+    /// <summary>
+    /// Performs the Jma calculation for the current value.
+    /// </summary>
+    /// <returns>
+    /// The calculated Jma value for the current input.
+    /// </returns>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
-        _values.Add(Input.Value, Input.IsNew);
-
-        if (_index == 1)
+        double price = Input.Value;
+        if (_index <= 1)
         {
-            _prevMa1 = _prevJma = Input.Value;
-            return Input.Value;
+            _upperBand = _lowerBand = price;
+            _prevMa1 = _prevJma = price;
         }
 
-        double hprice = _values.Max();
-        double lprice = _values.Min();
-
-        double del1 = hprice - _upperBand;
-        double del2 = lprice - _lowerBand;
+        double del1 = price - _upperBand;
+        double del2 = price - _lowerBand;
         double volty = Math.Max(Math.Abs(del1), Math.Abs(del2));
 
-        _voltyShort.Add(volty, Input.IsNew);
-        double vsum = _vsumBuff.Newest() + 0.1 * (volty - _voltyShort.Oldest());
-        _vsumBuff.Add(vsum, Input.IsNew);
+        _vsumBuff.Add(volty, Input.IsNew);
+        _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / _vsumBuff.Count;
+        _avoltyBuff.Add(_vSum, Input.IsNew);
+        double avgvolty = _avoltyBuff.Average();
 
-        double prevAvolty = _avoltyBuff.Newest();
-        double avolty = prevAvolty + 2.0 / (Math.Max(4.0 * Period, 30) + 1.0) * (vsum - prevAvolty);
-        _avoltyBuff.Add(avolty, Input.IsNew);
+        double rvolty = (avgvolty > 0) ? volty / avgvolty : 1;
+        rvolty = Math.Min(Math.Max(rvolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
 
-        double dVolty = (avolty > 0) ? volty / avolty : 0;
-        dVolty = Math.Min(Math.Max(dVolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
+        double pow2 = Math.Pow(rvolty, _pow1);
+        double Kv = Math.Pow(_beta, Math.Sqrt(pow2));
 
-        double pow2 = Math.Pow(dVolty, _pow1);
-        double len2 = Math.Sqrt(0.5 * (Period - 1)) * _len1;
-        double _Kv = Math.Pow(len2 / (len2 + 1), Math.Sqrt(pow2));
+        _upperBand = (del1 >= 0) ? price : price - (Kv * del1);
+        _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
-        _upperBand = (del1 > 0) ? hprice : hprice - (_Kv * del1);
-        _lowerBand = (del2 < 0) ? lprice : lprice - (_Kv * del2);
-
-        double alpha = Math.Pow(_beta, pow2);
-        double ma1 = (1 - alpha) * Input.Value + alpha * _prevMa1;
+        double _alpha = Math.Pow(_beta, pow2);
+        double ma1 = Input.Value + _alpha * (_prevMa1 - Input.Value);  //original: (1 - _alpha) * Input.Value + _alpha * _prevMa1;
         _prevMa1 = ma1;
 
-        double det0 = (1 - _beta) * (Input.Value - ma1) + _beta * _prevDet0;
+        double det0 = price + _beta * (_prevDet0 - price + ma1) - ma1; //original: (price - ma1) * (1 - _beta) + _beta * _prevDet0;
         _prevDet0 = det0;
-        double ma2 = ma1 + (_phase + 1) * det0;
+        double ma2 = ma1 + _phase * det0;
 
-        double det1 = ((1 - alpha) * (1 - alpha) * (ma2 - _prevJma)) + (alpha * alpha * _prevDet1);
+        double det1 = ((ma2 - _prevJma) * (1 - _alpha) * (1 - _alpha)) + (_alpha * _alpha * _prevDet1);
         _prevDet1 = det1;
         double jma = _prevJma + det1;
         _prevJma = jma;
+
+        UpperBand = _upperBand;
+        LowerBand = _lowerBand;
+        Volty = volty;
 
         IsHot = _index >= WarmupPeriod;
         return jma;

@@ -1,7 +1,34 @@
-* [QuanTAlib](/)
+
+* [Home](/)
+* Introduction
+   * [Overview]()
+   * [Features]()
    * [Historical vs Real-time analysis](essays/realtime.md)
-* [Indicators](indicators/indicators.md)
-   * Averages & Trends
+
+*  Core Concepts
+   * [Time Series Data Handling]()
+   * [Calculation classes]()
+   * [Presentation Classes]()
+
+* QuanTAlib C# Library
+   * [Installation]()
+   * [Quick Start Guide]()
+   * [Usage Examples]()
+   * [Tests and Validation]()
+
+* Quantower Charts
+   * [Installation]()
+   * [Quick Start Guide]()
+   * [Using VS Code for QuanTower coding](setup/vscode.md)
+   * [Using DotPeek](setup/dotpeek.md)
+   * [Creating Custom Indicators]()
+   * [Inspecting Quantower Internals]()
+
+* [Available Indicators](indicators/indicators.md)
+   * Basic Transforms
+   * Numerical Analysis
+   * Errors
+   * Moving Averages
       * [AFIRMA - Adaptive Filtering Integrated Recursive Moving Average](indicators/averages/afirma/afirma.md)
          * [Calculation](indicators/averages/afirma/calc.md)
          * [Analysis](indicators/averages/afirma/analysis.md)
@@ -14,7 +41,6 @@
          * [Calculation](indicators/averages/ama/calc.md)
          * [Analysis](indicators/averages/ama/analysis.md)
          * [Charts](indicators/averages/ama/charts.md)
-      * [Convolutiuon]
       * [DEMA - Double Exponential Moving Average](indicators/averages/dema/dema.md)
          * [Calculation](indicators/averages/dema/calc.md)
          * [Analysis](indicators/averages/dema/analysis.md)
@@ -61,11 +87,9 @@
       * VIDYA - Variable Index Dynamic Average
       * WMA - Weighted Moving Average
       * ZLEMA - Weighted Moving Average
-   * Basic Data Transforms
-   * [Statistics & Numerical Analysis](indicators/statistics/list.md)
+      * Trends
+   * Momentum
+   * Oscillators
    * Volatility
    * Volume
-   * Momentum & Oscillators
-* Development
-   * [VS Code](setup/vscode.md)
-   * [DotPeek](setup/dotpeek.md)
+
