@@ -1,25 +1,82 @@
+using System.Drawing;
 using TradingPlatform.BusinessLayer;
+
 namespace QuanTAlib;
 
-public class AfirmaIndicator : IndicatorBase
+public class AfirmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Period { get; set; } = 10;
+    [InputParameter("Taps (number of weights)", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Taps { get; set; } = 6;
 
-    [InputParameter("Alpha", sortIndex: 2, 0.01, 0.99, 0.01, 2)]
-    public double Alpha { get; set; } = 0.1;
+    [InputParameter("Periods for lowpass cutoff", sortIndex: 2, 1, 2000, 1, 0)]
+    public int Periods { get; set; } = 6;
+
+    [InputParameter("Window Type", sortIndex: 3, variants: [
+        "Rectangular", Afirma.WindowType.Rectangular,
+            "Hanning", Afirma.WindowType.Hanning1,
+            "Hamming", Afirma.WindowType.Hanning2,
+            "Blackman", Afirma.WindowType.Blackman,
+            "Blackman-Harris", Afirma.WindowType.BlackmanHarris
+    ])]
+    public Afirma.WindowType Window { get; set; } = Afirma.WindowType.Hanning1;
+
+    [InputParameter("Data source", sortIndex: 4, variants: [
+        "Open", SourceType.Open,
+            "High", SourceType.High,
+            "Low", SourceType.Low,
+            "Close", SourceType.Close,
+            "HL/2 (Median)", SourceType.HL2,
+            "OC/2 (Midpoint)", SourceType.OC2,
+            "OHL/3 (Mean)", SourceType.OHL3,
+            "HLC/3 (Typical)", SourceType.HLC3,
+            "OHLC/4 (Average)", SourceType.OHLC4,
+            "HLCC/4 (Weighted)", SourceType.HLCC4
+    ])]
+    public SourceType Source { get; set; } = SourceType.Close;
+
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
     private Afirma? ma;
-    protected override AbstractBase QuanTAlib => ma!;
-    public override string ShortName => $"AFIRMA {Period} : {SourceName}";
+    protected LineSeries? Series;
+    protected string? SourceName;
+    public int MinHistoryDepths => Periods + Taps;
+    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public AfirmaIndicator()
     {
-        Name = "AFIRMA - Adaptive Filtering Integrated Recursive Moving Average";
-        Description = "Adaptive Filtering Integrated Recursive Moving Average";
+        OnBackGround = true;
+        SeparateWindow = false;
+        SourceName = Source.ToString();
+        Name = "AFIRMA - Adaptive Finite Impulse Response Moving Average";
+        Description = "Adaptive Finite Impulse Response Moving Average with ARMA component";
+
+        Series = new(name: $"AFIRMA {Taps}:{Periods}:{Window}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        AddLineSeries(Series);
     }
 
-    protected override void InitIndicator()
+    protected override void OnInit()
     {
-        ma = new Afirma(period: Period, alpha: Alpha);
+        ma = new Afirma(periods: Periods, taps: Taps, window: Window);
+        SourceName = Source.ToString();
+        base.OnInit();
+    }
+
+    protected override void OnUpdate(UpdateArgs args)
+    {
+        TValue input = this.GetInputValue(args, Source);
+        TValue result = ma!.Calc(input);
+
+        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+        Series!.SetValue(result.Value);
+    }
+
+    public override string ShortName => $"AFIRMA {Taps}:{Periods}:{Window}:{SourceName}";
+
+    public override void OnPaintChart(PaintChartEventArgs args)
+    {
+        base.OnPaintChart(args);
+        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.DrawText(args, Description);
     }
 }
+

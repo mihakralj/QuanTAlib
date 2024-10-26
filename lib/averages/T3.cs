@@ -10,7 +10,7 @@ public class T3 : AbstractBase
     private double _lastEma1, _lastEma2, _lastEma3, _lastEma4, _lastEma5, _lastEma6;
     private double _p_lastEma1, _p_lastEma2, _p_lastEma3, _p_lastEma4, _p_lastEma5, _p_lastEma6;
 
-    public T3(int period, double vfactor = 0.7, bool useSma = true) : base()
+    public T3(int period, double vfactor = 0.7, bool useSma = true)
     {
         if (period < 1)
         {
@@ -48,7 +48,6 @@ public class T3 : AbstractBase
 
     public override void Init()
     {
-        base.Init();
         _lastEma1 = _lastEma2 = _lastEma3 = _lastEma4 = _lastEma5 = _lastEma6 = 0;
         _buffer1.Clear();
         _buffer2.Clear();

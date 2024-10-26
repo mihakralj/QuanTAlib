@@ -1,11 +1,35 @@
 namespace QuanTAlib;
 
+/// <summary>
+/// Represents a mode calculator that determines the most frequent value in a specified period.
+/// If multiple values have the same highest frequency, it returns their average.
+/// </summary>
+/// <remarks>
+/// The Mode class uses a circular buffer to store values and calculates the mode
+/// efficiently. Before the specified period is reached, it returns the average of
+/// the available values as an approximation.
+///
+/// In financial analysis, the mode can be useful for:
+/// - Identifying the most common price levels, which could indicate support or resistance.
+/// - Analyzing the distribution of returns or other financial metrics.
+/// - Detecting patterns in trading volume or other discrete financial data.
+/// </remarks>
 public class Mode : AbstractBase
 {
-    public readonly int Period;
-    private CircularBuffer _buffer;
+    /// <summary>
+    /// The number of data points to consider for the mode calculation.
+    /// </summary>
+    private readonly int Period;
+    private readonly CircularBuffer _buffer;
 
-    public Mode(int period) : base()
+    /// <summary>
+    /// Initializes a new instance of the Mode class with the specified period.
+    /// </summary>
+    /// <param name="period">The period over which to calculate the mode.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when period is less than 1.
+    /// </exception>
+    public Mode(int period)
     {
         if (period < 1)
         {
@@ -18,17 +42,30 @@ public class Mode : AbstractBase
         Init();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the Mode class with the specified source and period.
+    /// </summary>
+    /// <param name="source">The source object to subscribe to for value updates.</param>
+    /// <param name="period">The period over which to calculate the mode.</param>
     public Mode(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    /// <summary>
+    /// Resets the Mode indicator to its initial state.
+    /// </summary>
     public override void Init()
     {
         base.Init();
+        _buffer.Clear();
     }
 
+    /// <summary>
+    /// Manages the state of the Mode instance based on whether a new value is being processed.
+    /// </summary>
+    /// <param name="isNew">Indicates whether the current input is a new value.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -38,6 +75,18 @@ public class Mode : AbstractBase
         }
     }
 
+    /// <summary>
+    /// Performs the mode calculation for the current period.
+    /// </summary>
+    /// <returns>
+    /// The calculated mode (most frequent value) for the current period.
+    /// If multiple values have the same highest frequency, returns their average.
+    /// </returns>
+    /// <remarks>
+    /// Before the specified period is reached, this method returns the average of
+    /// the available values as an approximation of the mode. Once the period is
+    /// reached, it calculates the true mode by grouping and counting the values.
+    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);

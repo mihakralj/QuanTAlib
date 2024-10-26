@@ -8,7 +8,7 @@ public class Smma : AbstractBase
     private CircularBuffer? _buffer;
     private double _lastSmma, _p_lastSmma;
 
-    public Smma(int period) : base()
+    public Smma(int period)
     {
         if (period < 1)
         {

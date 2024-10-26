@@ -1,6 +1,6 @@
 namespace QuanTAlib;
 
-public interface iTBar
+public interface ITBar
 {
     DateTime Time { get; }
     double Open { get; }
@@ -11,35 +11,33 @@ public interface iTBar
     bool IsNew { get; }
 }
 
-public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : iTBar
+public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : ITBar
 {
     public DateTime Time { get; init; } = Time;
-    public double Open { get; init; } = Open;
-    public double High { get; init; } = High;
-    public double Low { get; init; } = Low;
-    public double Close { get; init; } = Close;
-    public double Volume { get; init; } = Volume;
-    public bool IsNew { get; init; } = IsNew;
+public double Open { get; init; } = Open;
+public double High { get; init; } = High;
+public double Low { get; init; } = Low;
+public double Close { get; init; } = Close;
+public double Volume { get; init; } = Volume;
+public bool IsNew { get; init; } = IsNew;
 
-    public double HL2 => (High + Low) * 0.5;
-    public double OC2 => (Open + Close) * 0.5;
-    public double OHL3 => (Open + High + Low) / 3;
-    public double HLC3 => (High + Low + Close) / 3;
-    public double OHLC4 => (Open + High + Low + Close) * 0.25;
-    public double HLCC4 => (High + Low + Close + Close) * 0.25;
+public double HL2 => (High + Low) * 0.5;
+public double OC2 => (Open + Close) * 0.5;
+public double OHL3 => (Open + High + Low) / 3;
+public double HLC3 => (High + Low + Close) / 3;
+public double OHLC4 => (Open + High + Low + Close) * 0.25;
+public double HLCC4 => (High + Low + Close + Close) * 0.25;
 
-    public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
-    public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
+public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
+public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
+public TBar(double value) : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
+public TBar(TValue value) : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
+public TBar(TBar v) : this(Time: v.Time, Open: v.Open, High: v.High, Low: v.Low, Close: v.Close, Volume: v.Volume, IsNew: true) { }
 
-    // when TBar casts to double, it returns its Close
-    public static implicit operator double(TBar bar) => bar.Close;
-    public static implicit operator DateTime(TBar tv) => tv.Time;
 
-    // castings for sloppy people - a single double injected into a TBar, and a single TValue injected into a TBar
-    public TBar(double value) : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
-    public TBar(TValue value) : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
-
-    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
+public static implicit operator double(TBar bar) => bar.Close;
+public static implicit operator DateTime(TBar tv) => tv.Time;
+public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
 }
 
 public delegate void BarSignal(object source, in TBarEventArgs args);
@@ -70,11 +68,8 @@ public class TBarSeries : List<TBar>
     public TBarSeries()
     {
         this.Name = "Bar";
-        Open = new();
-        High = new();
-        Low = new();
-        Close = new();
-        Volume = new();
+        (Open, High, Low, Close, Volume) = ([], [], [], [], []);
+
     }
     public TBarSeries(object source) : this()
     {
@@ -84,7 +79,8 @@ public class TBarSeries : List<TBar>
 
     public new virtual void Add(TBar bar)
     {
-        if (bar.IsNew) { base.Add(bar); } else { this[^1] = bar; }
+        if (bar.IsNew || base.Count == 0) { base.Add(bar); }
+        else { this[^1] = bar; }
         Pub?.Invoke(this, new TBarEventArgs(bar));
 
         Open.Add(bar.Time, bar.Open, IsNew: bar.IsNew, IsHot: true);

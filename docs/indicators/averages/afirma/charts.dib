@@ -42,20 +42,22 @@ Dictionary<string, double[]> Data = new Dictionary<string, double[]>
 #!csharp
 
 String Name = "AFIRMA";
-int p = 10;
-double alpha = 0.5;
-Func<int, AbstractBase> Indicator = period => new Afirma(period,alpha);
+int taps = 6;
+int periods = 6;
+Afirma.WindowType window = Afirma.WindowType.BlackmanHarris;
+
+Func<int, int, Afirma.WindowType, AbstractBase> Indicator = (taps, periods, windows) => new Afirma(taps: taps, periods: periods, window: window);
 
 foreach (var item in Data) {
     string Signal = item.Key;
     double[] Input = item.Value;
     TSeries Output = new();
-    var ma = Indicator(p);
+    var ma = Indicator(taps, periods, window);
     foreach (var value in Input) { Output.Add(ma.Calc(value)); }
     Plot plt = new();
     var p1a = plt.Add.Signal(Input[24..]); p1a.Color = ScottPlot.Colors.Red; p1a.LineWidth = 2;
     var p1b = plt.Add.Signal(Output.v.ToArray()[24..]); p1b.Color = ScottPlot.Colors.Blue; p1b.LineWidth = 4;
-    plt.Title($"{Signal} - {Name}({p}, {alpha})");
+    plt.Title($"{Signal} - {Name}({taps}, {periods}, {window.ToString()})");
     plt.Display();
-    plt.SaveSvg($"img/{Name}{p}_{Signal}.svg", 450, 300);
+    plt.SaveSvg($"img/{Name}{taps}_{Signal}.svg", 450, 300);
 }

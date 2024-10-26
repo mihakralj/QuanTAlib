@@ -1,35 +1,46 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>QuanTAlib.Tests</RootNamespace>
     <AssemblyName>QuanTAlib.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.35">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="xunit.runner.console" Version="2.9.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
 
-
     <PackageReference Include="Skender.Stock.Indicators" Version="2.5.0" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
     <PackageReference Include="Trady.Analysis" Version="3.2.8" />
-    <!--
-    <PackageReference Include="quantconnect.indicators" Version="2.5.16573" />
-    <PackageReference Include="stocksharp.algo" Version="5.0.193" />
-    <PackageReference Include="OoplesFinance.StockIndicators" Version="1.0.53" />
-    -->
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib\quantalib.csproj" />
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\lib\*.csproj" />
+    <ProjectReference Include="..\quantower\Volatility\_Volatility.csproj" Aliases="volatility" />
+    <ProjectReference Include="..\quantower\Averages\_Averages.csproj" Aliases="averages" />
+    <ProjectReference Include="..\quantower\Statistics\_Statistics.csproj" Aliases="statistics" />
   </ItemGroup>
 
 </Project>

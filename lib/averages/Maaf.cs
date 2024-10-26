@@ -1,30 +1,31 @@
-//TODO: consistency test
-
 namespace QuanTAlib;
 
 // https://efs.kb.esignal.com/hc/en-us/articles/6362791434395-2005-Mar-The-Secret-Behind-The-Filter-MedianAdaptiveFilter-efs
+
+//TODO Fix initial values
 
 public class Maaf : AbstractBase
 {
     private readonly CircularBuffer _priceBuffer;
     private readonly CircularBuffer _smoothBuffer;
-    private double _prevFilter, _prevValue2, _threshold;
+    private double _prevFilter, _prevValue2;
+    private readonly double _threshold;
     private double _p_prevFilter, _p_prevValue2;
 
     private readonly int _period;
 
-    public Maaf(int Period = 39, double Threshold = 0.002) : base()
+    public Maaf(int period = 39, double threshold = 0.002)
     {
-        _period = Period;
-        _threshold = Threshold;
+        _period = period;
+        _threshold = threshold;
         _priceBuffer = new CircularBuffer(4);
-        _smoothBuffer = new CircularBuffer(Period);
+        _smoothBuffer = new CircularBuffer(period);
         Name = "MAAF";
-        WarmupPeriod = Period;
+        WarmupPeriod = period;
         Init();
     }
 
-    public Maaf(object source, int Period = 39, double Threshold = 0.002) : this(Period, Threshold)
+    public Maaf(object source, int period = 39, double threshold = 0.002) : this(period, threshold)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
@@ -68,6 +69,7 @@ public class Maaf : AbstractBase
 
         double smooth = (_priceBuffer[^1] + (2 * _priceBuffer[^2]) + (2 * _priceBuffer[^3]) + _priceBuffer[^4]) / 6;
         _smoothBuffer.Add(smooth, Input.IsNew);
+
 
         if (_smoothBuffer.Count < _period)
         {

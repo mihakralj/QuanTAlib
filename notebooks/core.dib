@@ -4,7 +4,7 @@
 
 #!csharp
 
-#r "..\src\obj\Debug\QuanTAlib.dll"
+#r "..\lib\obj\Debug\QuanTAlib.dll"
 
 #r "nuget:Skender.Stock.Indicators"
 using Skender.Stock.Indicators;
@@ -13,113 +13,56 @@ QuanTAlib.Formatters.Initialize();
 
 #!csharp
 
+Atr ma = new(10);
 GbmFeed gbm = new();
-EmaCalc ema1 = new(gbm.Close, 10, useSma: false);
-EmaCalc ema2 = new(gbm.Close, 10, useSma: true);
-TValSeries res1 = new(ema1);
-TValSeries res2 = new(ema2);
-gbm.Add(50);
-List<double> mse1 = new();
-List<double> mse2 = new();
-
-
+gbm.Add(30);
+IEnumerable<Quote> quotes = gbm.Select(item => new Quote { Date = item.Time, Open = (decimal)item.Open, High = (decimal)item.High, Low = (decimal)item.Low, Close = (decimal)item.Close, Volume = (decimal)item.Volume });
+var SkResults = quotes.GetAtr(10).Select(i => i.Atr.Null2NaN()!);
 for (int i=0; i< gbm.Length; i++) {
-    double v= gbm.Close[i].Value;
-    double e1 = res1[i].Value;
-    mse1.Add((e1-v)*(e1-v));
-    double e2 = res2[i].Value;
-    mse2.Add((e2-v)*(e2-v));
-
-    //Console.WriteLine($"{i,3}  {mse1.Average(),10:F4} {mse2.Average(),10:F4}");
+    ma.Calc(gbm[i]);
+    Console.WriteLine($"{i,3} {ma.Value,10:F3} \t {SkResults.ElementAt(i):F3}");
 }
 
-    Console.WriteLine($"{mse2.Average()-mse1.Average(),10:F8}");
-
 #!csharp
 
-display(res1);
-
-#!csharp
-
+Atr ma = new(10);
 GbmFeed gbm = new();
-EmaCalc ema1 = new(gbm.Close, 10, useSma: false);
-EmaCalc ema2 = new(gbm.Close, 10, useSma: true);
-TValSeries res1 = new(ema1);
-TValSeries res2 = new(ema2);
+gbm.Add(30);
+IEnumerable<Quote> quotes = gbm.Select(item => new Quote { Date = item.Time, Open = (decimal)item.Open, High = (decimal)item.High, Low = (decimal)item.Low, Close = (decimal)item.Close, Volume = (decimal)item.Volume });
+var SkResults = quotes.GetTr().Select(i => i.Tr.Null2NaN()!);
+for (int i=0; i< gbm.Length; i++) {
+    ma.Calc(new TBar(gbm[i]));
+
+    Console.WriteLine($"{gbm.High[i].Value,6:F4} \t{gbm.Low[i].Value,6:F4} \t{gbm.Close[i].Value,6:F4} \t{ma.Tr,10:F4} \t{SkResults.ElementAt(i),10:F4}");
+}
+
+#!csharp
+
+//ATR test
+GbmFeed gbm = new();
+TBarSeries feed = new(gbm);
+
+Atr ma1 = new(gbm, 10);
+TSeries res1 = new(ma1);
+gbm.Add(30);
+IEnumerable<Quote> quotes = gbm.Select(item => new Quote { Date = item.Time, Open = (decimal)item.Open, High = (decimal)item.High, Low = (decimal)item.Low, Close = (decimal)item.Close, Volume = (decimal)item.Volume });
+var SkResults = quotes.GetAtr(10).Select(i => i.Atr.Null2NaN()!);
+for (int i=0; i< gbm.Length; i++) {
+    double delta = Math.Round(res1[i].Value, 10) - Math.Round(SkResults.ElementAt(i), 10);
+    //Console.WriteLine($"{i,3}  {gbm.High[i].Value,6:F2} {gbm.Low[i].Value,6:F2} {gbm.Close[i].Value,6:F2} {res1[i].Value,10:F4} {SkResults.ElementAt(i),10:F4}\t{delta}");
+    Console.WriteLine($"{i,3}  h:{gbm.High[i].Value,6:F2} l:{gbm.Low[i].Value,6:F2} c:{gbm.Close[i].Value,6:F2} {res1[i].Atr,10:F4} {SkResults.ElementAt(i),10:F4}\t{delta}");
+}
+
+#!csharp
+
+//EMA test
+GbmFeed gbm = new();
+Ema ema1 = new(gbm.Close, 10, useSma: true);
+TSeries res1 = new(ema1);
 gbm.Add(30);
 IEnumerable<Quote> quotes = gbm.Close.Select(item => new Quote { Date = item.Time, Close = (decimal)item.Value });
 var SkResults = quotes.GetEma(10).Select(i => i.Ema.Null2NaN()!);
 for (int i=0; i< gbm.Length; i++) {
-    Console.WriteLine($"{i,3}  {gbm.Close[i].Value,6:F2} {res1[i].Value,10:F4} {res2[i].Value,10:F4} {SkResults.ElementAt(i),10:F4}");
+    double delta = Math.Round(res1[i].Value, 10) - Math.Round(SkResults.ElementAt(i), 10);
+    Console.WriteLine($"{i,3}  {gbm.Close[i].Value,6:F2} {res1[i].Value,10:F4} {SkResults.ElementAt(i),10:F4}\t{delta}");
 }
-
-#!csharp
-
-TValSeries test = new();
-
-EmaCalc ma1 = new(test, 7, true);
-TValSeries res1 = new(ma1);
-
-EmaCalc ma2 = new(test, 7, false);
-TValSeries res2 = new(ma2);
-
-test.Add(new[]{1.0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0});
-
-for (int i=0; i<res1.Count; i++) {
-    Console.WriteLine($"{i,2} {test[i].Value,7:F4} {res1[i].Value,7:F4} {res2[i].Value,7:F4}");
-}
-
-#!csharp
-
-TValSeries test = new();
-EmaCalc ma = new(test,3);
-TValSeries result = new();
-
-for (int i=1; i<10; i++) {
-    test.Add(new TValue(DateTime.Now, (double)i, true, true));
-    result.Add(ma.Tick);
-}
-display(result);
-
-#!csharp
-
-TValSeries test = new();
-SmaCalc ma = new(test,7);
-TValSeries result = new(ma);
-test.Add(new[]{81.59, 81.06, 82.87, 83.00, 83.61, 83.15, 82.84, 83.99, 84.55, 84.36, 85.53, 86.54, 86.89, 87.77, 87.29});
-//test.Add(new[]{1.0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0});
-
-display(result);
-
-#!csharp
-
-TValue test = new(DateTime.Today, 100, IsHot: false);
-TValSeries pub = new();
-TValSeries sub = new(pub);
-pub.Add(test);
-pub.Add(test);
-pub.Add(2, true);
-pub.Add(DateTime.Today, 123.1234214234, IsHot: true);
-
-
-display(sub);
-display(test);
-
-#!csharp
-
-TBar test = new(DateTime.Now, double.NaN,1,2,3,400.1234);
-
-TBarSeries source = new();
-TValSeries target = new(source.Close);
-
-source.Add(new TBar(DateTime.Now,1,2,3,4,125, true));
-source.Add(new TBar(DateTime.Now,2,1,5,2,1312, true));
-source.Add(test);
-source.Name = "MSFT";
-display(source);
-display(test)
-
-#!csharp
-
-#r "nuget:Skender.Stock.Indicators"
-using Skender.Stock.Indicators;

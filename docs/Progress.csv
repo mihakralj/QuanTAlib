@@ -1,0 +1,134 @@
+AC,Acceleration Oscillator
+AD,Chaikin A/D Line
+ADOSC,Chaikin A/D Oscillator
+ADL,Accumulation / Distribution Line
+ADX,Average Directional Movement Index
+ADXR,Average Directional Movement Index Rating
+Alligator,Alligator Indicator
+ALMA,Arnaud Legoux Moving Average
+AO,Awesome Oscillator
+APO,Absolute Price Oscillator
+AROON,Aroon Indicator
+AROONOSC,Aroon Oscillator
+ATS,ATR Trailing Stop
+ATR,Average True Range
+AVGPRICE,Average Price
+BB,Bollinger Bands
+BBF,Bollinger Bands Flat
+BBP,Bull and Bear Power
+BC,Beta Coefficient
+BETA,Beta
+BOP,Balance of Power
+CCI,Commodity Channel Index
+CE,Chandelier Exit
+Channel,Price Channel
+CI,Choppiness Index
+CMF,Chaikin Money Flow
+CMO,Chande Momentum Oscillator
+CORREL,Pearson's Correlation Coefficient
+CRSI,ConnorsRSI
+DC,Donchian Channels
+DCP,Dominant Cycle Periods
+DEMA,Double Exponential Moving Average
+DMI,Directional Movement Index
+DPO,Detrended Price Oscillator
+DX,Directional Movement Index
+EMA,Exponential Moving Average
+EPMA,Endpoint Moving Average
+ERI,Elder-ray Index
+FCB,Fractal Chaos Bands
+FI,Force Index
+GO,Gator Oscillator
+HE,Hurst Exponent
+HMA,Hull Moving Average
+HT_TRENDLINE,Hilbert Transform - Instantaneous Trendline
+HT_TRENDMODE,Hilbert Transform - Trend vs Cycle Mode
+HV,Historical Volatility
+IC,Ichimoku Cloud
+KAMA,Kaufman Adaptive Moving Average
+KDJ,KDJ Index
+Keltner,Keltner Channel
+KVO,Klinger Volume Oscillator
+LINEARREG,Linear Regression
+LINEARREG_ANGLE,Linear Regression Angle
+LINEARREG_INTERCEPT,Linear Regression Intercept
+LINEARREG_SLOPE,Linear Regression Slope
+LSMA,Least Squares Moving Average
+LWMA,Linearly Weighted Moving Average
+MACDEXT,MACD with controllable MA type
+MACDFIX,Moving Average Convergence Divergence Fix 12/26
+MAD,Mean absolute deviation
+MAE,Moving Average Envelope
+MAMA,MESA Adaptive Moving Average
+MAPE,Mean absolute percentage error
+MAX,Highest value over a specified period
+MAXINDEX,Index of highest value over a specified period
+MD,McGinley Dynamic
+MEDPRICE,Median Price
+MFI,Money Flow Index
+MIN,Lowest value over a specified period
+MININDEX,Index of lowest value over a specified period
+MINMAX,Lowest and highest values over a specified period
+MINMAXINDEX,Indexes of lowest and highest values over a period
+MMA,Modified Moving Average
+MOM,Momentum
+MSE,Mean square error
+NATR,Normalized Average True Range
+OBV,On Balance Volume
+OsMA,Moving Average of Oscillator
+PAZ,Price Action Zones
+Pivots,Pivots
+PMO,Price Momentum Oscillator
+PP,Pivot Points
+PPO,Percentage Price Oscillator
+PPMA,Pivot Point Moving Average
+PRS,Price Relative Strength
+PVI,Positive Volume Index
+PVO,Percentage Volume Oscillator
+Qstick,Qstick Indicator
+R2,R-Squared (Coefficient of Determination)
+Regression,Regression Line Indicator
+RLW,%R Larry Williams
+RMA,Running Moving Average
+ROC,Rate of Change
+ROCB,ROC with Bands
+RPP,Rolling Pivot Points
+RRA,Rescaled Range Analysis
+RSI,Relative Strength Index
+SAR,Parabolic SAR
+SAREXT,Parabolic SAR - Extended
+SDC,Standard Deviation Channels
+SI,Swing Index
+SLR,Slope and Linear Regression
+SMA,Simple Moving Average
+SMI,Stochastic Momentum Index
+SMMA,Smoothed Moving Average
+ST,SuperTrend
+STARC,STARC Bands
+STC,Schaff Trend Cycle
+STDDEV,Standard Deviation
+STOCH,Stochastic
+STOCHF,Stochastic Fast
+STOCHRSI,Stochastic Relative Strength Index
+SUM,Summation
+T3,Triple Exponential Moving Average (T3)
+TEMA,Triple Exponential Moving Average
+TRANGE,True Range
+TRIMA,Triangular Moving Average
+TRIX,1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
+TSI,True Strength Index
+TYPPRICE,Typical Price
+UI,Ulcer Index
+ULTOSC,Ultimate Oscillator
+VAR,Variance
+VI,Vortex Indicator
+Volume,Volume Indicator
+VS,Volatility Stop
+VWAP,Volume Weighted Average Price
+VWMA,Volume Weighted Moving Average
+WA,Williams Alligator
+WCLPRICE,Weighted Close Price
+WF,Williams Fractal
+WMA,Weighted Moving Average
+ZS,Z-Score
+ZZ,ZigZag Indicator

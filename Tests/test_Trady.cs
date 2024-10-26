@@ -2,21 +2,26 @@ using Xunit;
 using Trady.Analysis.Indicator;
 using Trady.Core;
 using Trady.Core.Infrastructure;
-using QuanTAlib;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+
+#pragma warning disable S1944, S2053, S2222, S2259, S2583, S2589, S3329, S3655, S3900, S3949, S3966, S4158, S4347, S5773, S6781
+
+namespace QuanTAlib;
 
 public class TradyTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private Random rnd;
+    private readonly RandomNumberGenerator rng;
     private readonly double range;
-    private int period, iterations;
-    private int skip;
-     private IEnumerable<IOhlcv> Candles;
+    private readonly int iterations;
+    private readonly int skip;
+    private readonly IEnumerable<IOhlcv> Candles;
 
     public TradyTests()
     {
-        rnd = new((int)DateTime.Now.Ticks);
+        rng = RandomNumberGenerator.Create();
         feed = new(sigma: 0.5, mu: 0.0);
         bars = new(feed);
         range = 1e-9;
@@ -33,31 +38,39 @@ public class TradyTests
         )).ToList();
     }
 
+    private int GetRandomNumber(int minValue, int maxValue)
+    {
+        byte[] randomBytes = new byte[4];
+        rng.GetBytes(randomBytes);
+        int randomInt = BitConverter.ToInt32(randomBytes, 0);
+        return Math.Abs(randomInt % (maxValue - minValue)) + minValue;
+    }
+
     [Fact]
     public void SMA()
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = GetRandomNumber(5, 55);
             Sma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
 
-           var Trady = new SimpleMovingAverage(Candles, period)
-                .Compute()
-                .Select(result => new
-                {
-                    Date = result.DateTime,
-                    Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
-                })
-                .ToList();
+            var Trady = new SimpleMovingAverage(Candles, period)
+                 .Compute()
+                 .Select(result => new
+                 {
+                     Date = result.DateTime,
+                     Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
+                 })
+                 .ToList();
 
             Assert.Equal(QL.Length, Trady.Count);
             for (int i = QL.Length - 1; i > skip; i--)
             {
                 double QL_item = QL[i].Value;
-                double Tr_item =  Trady[i].Value;
+                double Tr_item = Trady[i].Value;
                 Assert.InRange(Tr_item - QL_item, -range, range);
             }
         }
@@ -68,30 +81,28 @@ public class TradyTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            int period = GetRandomNumber(5, 55);
             Ema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
             { QL.Add(ma.Calc(new TValue(item.Time, item.Close))); }
 
-           var Trady = new ExponentialMovingAverage(Candles, period)
-                .Compute()
-                .Select(result => new
-                {
-                    Date = result.DateTime,
-                    Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
-                })
-                .ToList();
+            var Trady = new ExponentialMovingAverage(Candles, period)
+                 .Compute()
+                 .Select(result => new
+                 {
+                     Date = result.DateTime,
+                     Value = result.Tick.HasValue ? (double)result.Tick.Value : double.NaN
+                 })
+                 .ToList();
 
             Assert.Equal(QL.Length, Trady.Count);
-            for (int i = QL.Length - 1; i > skip*2; i--)
+            for (int i = QL.Length - 1; i > skip * 2; i--)
             {
                 double QL_item = QL[i].Value;
-                double Tr_item =  Trady[i].Value;
+                double Tr_item = Trady[i].Value;
                 Assert.InRange(Tr_item - QL_item, -range, range);
             }
         }
     }
-
-
 }

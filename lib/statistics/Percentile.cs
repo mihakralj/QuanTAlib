@@ -1,15 +1,44 @@
 namespace QuanTAlib;
 
-using System;
-using System.Linq;
-
+/// <summary>
+/// Represents a percentile calculator that determines the value at a specified percentile
+/// in a given period of data points.
+/// </summary>
+/// <remarks>
+/// The Percentile class uses a circular buffer to store values and calculates the
+/// percentile efficiently. It uses linear interpolation when the percentile falls
+/// between two data points. Before the specified period is reached, it returns the
+/// average of the available values as an approximation.
+///
+/// In financial analysis, percentiles are useful for:
+/// - Assessing the relative standing of a value within a distribution.
+/// - Identifying outliers or extreme values in financial data.
+/// - Creating risk measures, such as Value at Risk (VaR) calculations.
+/// - Analyzing the distribution of returns, trading volumes, or other financial metrics.
+/// </remarks>
 public class Percentile : AbstractBase
 {
-    public readonly int Period;
-    public readonly double Percent;
-    private CircularBuffer _buffer;
+    /// <summary>
+    /// The number of data points to consider for the percentile calculation.
+    /// </summary>
+    private readonly int Period;
 
-    public Percentile(int period, double percent) : base()
+    /// <summary>
+    /// The percentile to calculate (between 0 and 100).
+    /// </summary>
+    private readonly double Percent;
+
+    private readonly CircularBuffer _buffer;
+
+    /// <summary>
+    /// Initializes a new instance of the Percentile class with the specified period and percentile.
+    /// </summary>
+    /// <param name="period">The period over which to calculate the percentile.</param>
+    /// <param name="percent">The percentile to calculate (between 0 and 100).</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when period is less than 2 or percent is not between 0 and 100.
+    /// </exception>
+    public Percentile(int period, double percent)
     {
         if (period < 2)
         {
@@ -21,24 +50,37 @@ public class Percentile : AbstractBase
         }
         Period = period;
         Percent = percent;
-        WarmupPeriod = 2;
+        WarmupPeriod = 2; // Minimum number of points needed for percentile calculation
         _buffer = new CircularBuffer(period);
         Name = $"Percentile(period={period}, percent={percent})";
         Init();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the Percentile class with the specified source, period, and percentile.
+    /// </summary>
+    /// <param name="source">The source object to subscribe to for value updates.</param>
+    /// <param name="period">The period over which to calculate the percentile.</param>
+    /// <param name="percent">The percentile to calculate (between 0 and 100).</param>
     public Percentile(object source, int period, double percent) : this(period, percent)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    /// <summary>
+    /// Initializes the Percentile instance by clearing the buffer.
+    /// </summary>
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
+    /// <summary>
+    /// Manages the state of the Percentile instance based on whether a new value is being processed.
+    /// </summary>
+    /// <param name="isNew">Indicates whether the current input is a new value.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -48,7 +90,19 @@ public class Percentile : AbstractBase
         }
     }
 
-protected override double Calculation()
+    /// <summary>
+    /// Performs the percentile calculation for the current period.
+    /// </summary>
+    /// <returns>
+    /// The calculated percentile value for the current period.
+    /// </returns>
+    /// <remarks>
+    /// This method uses linear interpolation when the percentile falls between two data points.
+    /// Before the specified period is reached, it returns the average of the available values
+    /// as an approximation. Once the period is reached, it calculates the true percentile by
+    /// sorting the values and interpolating as necessary.
+    /// </remarks>
+    protected override double Calculation()
     {
         ManageState(Input.IsNew);
         _buffer.Add(Input.Value, Input.IsNew);

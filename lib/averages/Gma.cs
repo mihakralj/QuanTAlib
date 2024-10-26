@@ -2,7 +2,6 @@ namespace QuanTAlib;
 
 public class Gma : AbstractBase
 {
-    private readonly int _period;
     private readonly Convolution _convolution;
 
     public Gma(int period)
@@ -11,8 +10,7 @@ public class Gma : AbstractBase
         {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _period = period;
-        _convolution = new Convolution(GenerateKernel(_period));
+        _convolution = new Convolution(GenerateKernel(period));
         Name = "Gma";
         WarmupPeriod = period;
         Init();

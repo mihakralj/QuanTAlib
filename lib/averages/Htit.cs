@@ -1,7 +1,7 @@
 //not working yet
-//TODO consistency test
+//TODO fails consistency test
 
-using QuanTAlib;
+namespace QuanTAlib;
 
 public class Htit : AbstractBase
 {
@@ -21,7 +21,7 @@ public class Htit : AbstractBase
     private double _lastPd = 0;
     private double _p_lastPd = 0;
 
-    public Htit() : base()
+    public Htit()
     {
         Name = "Htit";
         WarmupPeriod = 12;
@@ -138,9 +138,7 @@ public class Htit : AbstractBase
         {
             return ((4 * _itBuffer[0]) + (3 * _itBuffer[1]) + (2 * _itBuffer[2]) + _itBuffer[3]) / 10;
         }
-        else
-        {
-            return pr;
-        }
+
+        return pr;
     }
 }

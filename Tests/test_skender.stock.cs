@@ -1,25 +1,29 @@
 using Xunit;
 using Skender.Stock.Indicators;
-using QuanTAlib;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+
+#pragma warning disable S1944, S2053, S2222, S2259, S2583, S2589, S3329, S3655, S3900, S3949, S3966, S4158, S4347, S5773, S6781
+
+namespace QuanTAlib.Tests;
 
 public class SkenderTests
 {
     private readonly TBarSeries bars;
     private readonly GbmFeed feed;
-    private Random rnd;
+    private readonly RandomNumberGenerator rng;
     private readonly double range;
-    private int period, iterations;
+    private int period;
+    private readonly int iterations = 3; // Initialized directly at declaration
     private readonly IEnumerable<Quote> quotes;
-
 
     public SkenderTests()
     {
-        rnd = new((int)DateTime.Now.Ticks);
+        rng = RandomNumberGenerator.Create();
         feed = new(sigma: 0.5, mu: 0.0);
         bars = new(feed);
         range = 1e-9;
         feed.Add(10000);
-        iterations = 3;
         quotes = bars.Select(q => new Quote
         {
             Date = q.Time,
@@ -31,12 +35,20 @@ public class SkenderTests
         });
     }
 
+    private int GetRandomNumber(int minValue, int maxValue)
+    {
+        byte[] randomBytes = new byte[4];
+        rng.GetBytes(randomBytes);
+        int randomInt = BitConverter.ToInt32(randomBytes, 0);
+        return Math.Abs(randomInt % (maxValue - minValue)) + minValue;
+    }
+
     [Fact]
     public void SMA()
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Sma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -55,7 +67,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Ema ma = new(period, useSma: true);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -74,7 +86,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Ema ma = new(period, useSma: false);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -93,7 +105,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Dema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -112,7 +124,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Tema ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -131,7 +143,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             double[] kernel = Enumerable.Repeat(1.0, period).ToArray();
             Convolution ma = new(kernel);
             TSeries QL = new();
@@ -151,7 +163,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Wma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -170,7 +182,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Hma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -189,7 +201,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Epma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -208,7 +220,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Alma ma = new(period, offset: 0.85, sigma: 6);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -227,7 +239,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             T3 ma = new(period, vfactor: 0.7, useSma: false);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -246,7 +258,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Smma ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -265,7 +277,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Kama ma = new(period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -284,7 +296,6 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            //period = rnd.Next(50) + 5;
             Mama ma = new(fastLimit: 0.5, slowLimit: 0.05);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -305,7 +316,7 @@ public class SkenderTests
     {
         for (int run = 0; run < iterations; run++)
         {
-            period = rnd.Next(50) + 5;
+            period = GetRandomNumber(5, 55);
             Mgdi ma = new(period: period);
             TSeries QL = new();
             foreach (TBar item in feed)
@@ -321,4 +332,23 @@ public class SkenderTests
         }
     }
 
+    [Fact]
+    public void ATR()
+    {
+        for (int run = 0; run < iterations; run++)
+        {
+            period = GetRandomNumber(5, 55);
+            Atr ma = new(period: period);
+            TSeries QL = new();
+            foreach (TBar item in bars) { QL.Add(ma.Calc(item)); }
+
+            var atrValues = quotes.GetAtr(lookbackPeriods: period).Select(i => i.Atr.Null2NaN()!);
+            const int AdditionalPeriods = 500;
+
+            for (int i = QL.Length - 1; i > 1000 + AdditionalPeriods; i--)
+            {
+                Assert.InRange(atrValues.ElementAt(i) - QL[i].Value, -range, range);
+            }
+        }
+    }
 }

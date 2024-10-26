@@ -6,24 +6,25 @@ namespace QuanTAlib;
 
 public class Vidya : AbstractBase
 {
-    private readonly int _shortPeriod;
+
     private readonly int _longPeriod;
     private readonly double _alpha;
     private double _lastVIDYA, _p_lastVIDYA;
-    private CircularBuffer? _shortBuffer;
-    private CircularBuffer? _longBuffer;
+    private readonly CircularBuffer? _shortBuffer;
+    private readonly CircularBuffer? _longBuffer;
 
-    public Vidya(int shortPeriod, int longPeriod = 0, double alpha = 0.2) : base()
+    public Vidya(int shortPeriod, int longPeriod = 0, double alpha = 0.2)
     {
         if (shortPeriod < 1)
         {
             throw new ArgumentException("Short period must be greater than or equal to 1.", nameof(shortPeriod));
         }
-        _shortPeriod = shortPeriod;
         _longPeriod = (longPeriod == 0) ? shortPeriod * 4 : longPeriod;
         _alpha = alpha;
         WarmupPeriod = _longPeriod;
-        Name = $"Vidya({_shortPeriod},{_longPeriod})";
+        Name = $"Vidya({shortPeriod},{_longPeriod})";
+        _shortBuffer = new CircularBuffer(shortPeriod);
+        _longBuffer = new CircularBuffer(_longPeriod);
         Init();
     }
 
@@ -38,8 +39,6 @@ public class Vidya : AbstractBase
     {
         base.Init();
         _lastVIDYA = 0;
-        _shortBuffer = new CircularBuffer(_shortPeriod);
-        _longBuffer = new CircularBuffer(_longPeriod);
     }
 
     protected override void ManageState(bool isNew)
@@ -59,7 +58,7 @@ public class Vidya : AbstractBase
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-        
+
         _shortBuffer!.Add(Input.Value, Input.IsNew);
         _longBuffer!.Add(Input.Value, Input.IsNew);
 
@@ -83,7 +82,7 @@ public class Vidya : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double CalculateStdDev(CircularBuffer buffer)
+    private static double CalculateStdDev(CircularBuffer buffer)
     {
         double mean = buffer.Average();
         double sumSquaredDiff = buffer.Sum(x => Math.Pow(x - mean, 2));

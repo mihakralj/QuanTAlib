@@ -1,5 +1,3 @@
-using System;
-
 namespace QuanTAlib;
 
 public class Kama : AbstractBase
@@ -9,7 +7,7 @@ public class Kama : AbstractBase
     private CircularBuffer? _buffer;
     private double _lastKama, _p_lastKama;
 
-    public Kama(int period, int fast = 2, int slow = 30) : base()
+    public Kama(int period, int fast = 2, int slow = 30)
     {
         if (period < 1)
         {

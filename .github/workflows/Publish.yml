@@ -1,0 +1,254 @@
+# This workflow integrates SonarCloud analysis, coverage reporting,
+# CodeQL analysis, SecurityCodeScan, and Codacy Security Scan
+# for code scanning and vulnerability detection - and if they all pass, publish
+
+name: Publish Workflow
+
+on:
+  push:         # Triggers on push events to any branch
+  pull_request: # Triggers on pull request events targeting any branch
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+permissions:
+  contents: write
+  pull-requests: read     # Allows SonarCloud to decorate PRs with analysis results
+  security-events: write  # Required for CodeQL analysis and uploading SARIF results
+
+jobs:
+  Code_Coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install dotnet tools
+        run: |
+          dotnet tool install JetBrains.dotCover.GlobalTool --global
+          dotnet tool install dotnet-sonarscanner --global
+          dotnet tool install dotnet-coverage --global
+          dotnet tool install --global coverlet.console
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          dotnet restore
+
+      - name: Build Projects
+        run: |
+          dotnet build --no-restore --configuration Debug
+          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
+          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
+          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
+          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
+          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
+
+      - name: Run Tests with Coverage
+        run: |
+          dotnet test --no-build --configuration Debug /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+          dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+          dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
+          dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
+          dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
+
+      - name: Generate Coverage Report
+        run: |
+          reportgenerator -reports:*cover*.xml -targetdir:.
+
+      - name: Upload Coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: '*cover*.xml'
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: 'cover*'
+          verbose: true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=mihakralj_QuanTAlib
+            -Dsonar.organization=mihakralj-quantalib
+            -Dsonar.sources=.
+            -Dsonar.cs.opencover.reportsPaths=**/*cover*.xml
+            -Dsonar.cs.dotcover.reportsPaths=**/dotcover.xml
+            -Dsonar.coverage.exclusions=**Tests.cs
+
+  CodeQL:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'csharp'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Debug
+
+      - name: Run Codacy Analysis CLI
+        uses: codacy/codacy-analysis-cli-action@v4
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          verbose: true
+          output: results.sarif
+          format: sarif
+          gh-code-scanning-compat: true
+          max-allowed-issues: 2147483647
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+  SecurityCodeScan:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
+            3.1.x
+          dotnet-quality: 'preview'
+
+      - name: Set up projects for analysis
+        uses: security-code-scan/security-code-scan-add-action@v1
+
+      - name: Build
+        run: |
+          dotnet restore
+          dotnet build --no-restore --configuration Debug
+
+      - name: Convert SARIF for uploading to GitHub
+        uses: security-code-scan/security-code-scan-results-action@v1
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+
+
+  build_publish:
+    needs: [Code_Coverage, CodeQL, SecurityCodeScan]
+    if: |
+      success() &&
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: '6.x'
+          includePrerelease: true
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+          updateAssemblyInfo: true
+
+      - name: Build projects
+        run: |
+          dotnet build ./lib/quantalib.csproj --configuration Release --nologo \
+            -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
+          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
+          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
+          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
+          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
+
+############# Publish dev release
+
+      - name: Create or Update Development Release
+        if: github.ref == 'refs/heads/dev'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete development --yes || true
+          gh release create development \
+            --title "Development Build" \
+            --notes "Latest development build from commit ${{ github.sha }}" \
+            --prerelease \
+            --target ${{ github.sha }} \
+            lib/bin/Release/QuanTAlib.dll \
+            quantower/Averages/bin/Release/Averages.dll \
+            quantower/Statistics/bin/Release/Statistics.dll \
+            quantower/Volatility/bin/Release/Volatility.dll \
+            SyntheticVendor/bin/Release/SyntheticVendor.dll
+
+      - name: Push prerelease package to myget.org
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+          --source https://www.myget.org/F/quantalib/api/v3/index.json \
+          --force-english-output \
+          --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
+
+############## Publish main release
+
+      - name: Create GitHub Release
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
+            --title "Release ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            --notes "Release notes for version ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            quantower/Averages/bin/Release/Averages.dll \
+            quantower/Statistics/bin/Release/Statistics.dll \
+            quantower/Volatility/bin/Release/Volatility.dll \
+            SyntheticVendor/bin/Release/SyntheticVendor.dll
+
+      - name: Push release package to nuget.org
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate \
+            --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}

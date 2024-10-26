@@ -6,11 +6,6 @@ namespace QuanTAlib;
 /// The weights are decreasing over the period with p^2 decay, and the most recent data has the heaviest weight.
 /// </summary>
 /// <remarks>
-/// Smoothness:     ★★★★★ (5/5)
-/// Sensitivity:    ★★★☆☆ (3/5)
-/// Overshooting:   ★★★★☆ (4/5)
-/// Lag:            ★★☆☆☆ (2/5)
-///
 /// The DWMA is calculated by applying two WMAs in sequence:
 /// 1. An inner WMA is applied to the input data.
 /// 2. An outer WMA is then applied to the result of the inner WMA.
@@ -28,7 +23,6 @@ namespace QuanTAlib;
 
 public class Dwma : AbstractBase
 {
-    private readonly int _period;
     private readonly Wma _innerWma;
     private readonly Wma _outerWma;
 
@@ -38,11 +32,10 @@ public class Dwma : AbstractBase
         {
             throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _period = period;
         _innerWma = new Wma(period);
         _outerWma = new Wma(period);
         Name = "Wma";
-        WarmupPeriod = 2 * _period - 1;
+        WarmupPeriod = 2 * period - 1;
         Init();
     }
 

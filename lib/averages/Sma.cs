@@ -4,16 +4,14 @@ public class Sma : AbstractBase
 {
     // inherited _index
     // inherited _value
-    public readonly int Period;
-    private CircularBuffer _buffer;
+    private readonly CircularBuffer _buffer;
 
-    public Sma(int period) : base()
+    public Sma(int period)
     {
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        Period = period;
         WarmupPeriod = period;
         _buffer = new CircularBuffer(period);
         Name = "Sma";
@@ -27,11 +25,6 @@ public class Sma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
     //inhereted public void Sub(object source, in ValueEventArgs args)
-
-    public override void Init()
-    {
-        base.Init();
-    }
 
     protected override void ManageState(bool isNew)
     {
