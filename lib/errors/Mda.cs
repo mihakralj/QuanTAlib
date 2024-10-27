@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -30,13 +30,15 @@ namespace QuanTAlib;
 ///     "Evaluating Forecasting Performance" - International Journal of Forecasting
 /// </remarks>
 
-public class Mda : AbstractBase
+[SkipLocalsInit]
+public sealed class Mda : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
     /// <param name="period">The number of points over which to calculate the MDA.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mda(int period)
     {
         if (period < 1)
@@ -52,12 +54,14 @@ public class Mda : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the MDA.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mda(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -65,6 +69,7 @@ public class Mda : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -74,6 +79,13 @@ public class Mda : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static int CompareDirections(double current, double previous)
+    {
+        return Math.Sign(current - previous);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -88,18 +100,18 @@ public class Mda : AbstractBase
         double mda = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumDirectionalAccuracy = 0;
-            for (int i = 1; i < _actualBuffer.Count; i++)
+            for (int i = 1; i < actualValues.Length; i++)
             {
-                double actualDirection = Math.Sign(actualValues[i] - actualValues[i - 1]);
-                double predictedDirection = Math.Sign(predictedValues[i] - predictedValues[i - 1]);
+                int actualDirection = CompareDirections(actualValues[i], actualValues[i - 1]);
+                int predictedDirection = CompareDirections(predictedValues[i], predictedValues[i - 1]);
                 sumDirectionalAccuracy += (actualDirection == predictedDirection) ? 1 : 0;
             }
 
-            mda = sumDirectionalAccuracy / (_actualBuffer.Count - 1);
+            mda = sumDirectionalAccuracy / (actualValues.Length - 1);
         }
 
         IsHot = _index >= WarmupPeriod;

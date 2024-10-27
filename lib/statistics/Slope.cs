@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -43,11 +42,14 @@ namespace QuanTAlib;
 /// Note: Provides additional regression statistics (R², intercept)
 /// </remarks>
 
-public class Slope : AbstractBase
+[SkipLocalsInit]
+public sealed class Slope : AbstractBase
 {
     private readonly int _period;
     private readonly CircularBuffer _buffer;
     private readonly CircularBuffer _timeBuffer;
+    private const double Epsilon = 1e-10;
+    private const int MinimumPoints = 2;
 
     /// <summary>Gets the y-intercept of the regression line.</summary>
     public double? Intercept { get; private set; }
@@ -63,6 +65,7 @@ public class Slope : AbstractBase
 
     /// <param name="period">The number of points to consider for slope calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than or equal to 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Slope(int period)
     {
         if (period <= 1)
@@ -80,12 +83,14 @@ public class Slope : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for slope calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Slope(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -97,6 +102,7 @@ public class Slope : AbstractBase
         Line = null;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -106,33 +112,22 @@ public class Slope : AbstractBase
         }
     }
 
-    protected override double Calculation()
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double sumX, double sumY) CalculateSums(ReadOnlySpan<double> values, int count)
     {
-        ManageState(Input.IsNew);
-
-        _buffer.Add(Input.Value, Input.IsNew);
-        _timeBuffer.Add(Input.Time.Ticks, Input.IsNew);
-
-        double slope = 0;
-        if (_buffer.Count < 2)
-        {
-            return slope; // Need at least 2 points
-        }
-
-        int count = Math.Min(_buffer.Count, _period);
-        var values = _buffer.GetSpan().ToArray();
-
-        // Calculate averages
         double sumX = 0, sumY = 0;
         for (int i = 0; i < count; i++)
         {
             sumX += i + 1;
             sumY += values[i];
         }
-        double avgX = sumX / count;
-        double avgY = sumY / count;
+        return (sumX, sumY);
+    }
 
-        // Least squares regression
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double sumSqX, double sumSqY, double sumSqXY) CalculateSquaredSums(
+        ReadOnlySpan<double> values, int count, double avgX, double avgY)
+    {
         double sumSqX = 0, sumSqY = 0, sumSqXY = 0;
         for (int i = 0; i < count; i++)
         {
@@ -142,8 +137,35 @@ public class Slope : AbstractBase
             sumSqY += devY * devY;
             sumSqXY += devX * devY;
         }
+        return (sumSqX, sumSqY, sumSqXY);
+    }
 
-        if (sumSqX > 0)
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    protected override double Calculation()
+    {
+        ManageState(Input.IsNew);
+
+        _buffer.Add(Input.Value, Input.IsNew);
+        _timeBuffer.Add(Input.Time.Ticks, Input.IsNew);
+
+        double slope = 0;
+        if (_buffer.Count < MinimumPoints)
+        {
+            return slope; // Need at least 2 points
+        }
+
+        int count = Math.Min(_buffer.Count, _period);
+        ReadOnlySpan<double> values = _buffer.GetSpan();
+
+        // Calculate averages
+        var (sumX, sumY) = CalculateSums(values, count);
+        double avgX = sumX / count;
+        double avgY = sumY / count;
+
+        // Least squares regression
+        var (sumSqX, sumSqY, sumSqXY) = CalculateSquaredSums(values, count, avgX, avgY);
+
+        if (sumSqX > Epsilon)
         {
             // Calculate slope and related statistics
             slope = sumSqXY / sumSqX;
@@ -154,9 +176,10 @@ public class Slope : AbstractBase
             double stdDevY = Math.Sqrt(sumSqY / count);
             StdDev = stdDevY;
 
-            if (stdDevX * stdDevY != 0)
+            double stdDevProduct = stdDevX * stdDevY;
+            if (stdDevProduct > Epsilon)
             {
-                double r = sumSqXY / (stdDevX * stdDevY) / count;
+                double r = sumSqXY / stdDevProduct / count;
                 RSquared = r * r;
             }
 

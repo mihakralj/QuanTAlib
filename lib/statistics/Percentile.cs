@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -41,20 +40,24 @@ namespace QuanTAlib;
 /// Note: Particularly useful for risk metrics like VaR
 /// </remarks>
 
-public class Percentile : AbstractBase
+[SkipLocalsInit]
+public sealed class Percentile : AbstractBase
 {
     private readonly int Period;
     private readonly double Percent;
     private readonly CircularBuffer _buffer;
+    private const double Epsilon = 1e-10;
+    private const int MinimumPoints = 2;
 
     /// <param name="period">The number of points to consider for percentile calculation.</param>
     /// <param name="percent">The percentile to calculate (0-100).</param>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2 or percent is not between 0 and 100.
     /// </exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Percentile(int period, double percent)
     {
-        if (period < 2)
+        if (period < MinimumPoints)
         {
             throw new ArgumentOutOfRangeException(nameof(period),
                 "Period must be greater than or equal to 2 for percentile calculation.");
@@ -66,7 +69,7 @@ public class Percentile : AbstractBase
         }
         Period = period;
         Percent = percent;
-        WarmupPeriod = 2; // Minimum number of points needed for percentile calculation
+        WarmupPeriod = MinimumPoints; // Minimum number of points needed for percentile calculation
         _buffer = new CircularBuffer(period);
         Name = $"Percentile(period={period}, percent={percent})";
         Init();
@@ -75,18 +78,21 @@ public class Percentile : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for percentile calculation.</param>
     /// <param name="percent">The percentile to calculate (0-100).</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Percentile(object source, int period, double percent) : this(period, percent)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -96,6 +102,56 @@ public class Percentile : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static void QuickSort(Span<double> arr, int left, int right)
+    {
+        if (left < right)
+        {
+            int pivotIndex = Partition(arr, left, right);
+            QuickSort(arr, left, pivotIndex - 1);
+            QuickSort(arr, pivotIndex + 1, right);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static int Partition(Span<double> arr, int left, int right)
+    {
+        double pivot = arr[right];
+        int i = left - 1;
+
+        for (int j = left; j < right; j++)
+        {
+            if (arr[j] <= pivot)
+            {
+                i++;
+                (arr[i], arr[j]) = (arr[j], arr[i]);
+            }
+        }
+
+        (arr[i + 1], arr[right]) = (arr[right], arr[i + 1]);
+        return i + 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculatePercentile(Span<double> sortedValues)
+    {
+        double position = (Percent / 100.0) * (sortedValues.Length - 1);
+        int lowerIndex = (int)Math.Floor(position);
+        int upperIndex = (int)Math.Ceiling(position);
+
+        if (lowerIndex == upperIndex)
+        {
+            return sortedValues[lowerIndex];
+        }
+
+        // Linear interpolation between adjacent values
+        double lowerValue = sortedValues[lowerIndex];
+        double upperValue = sortedValues[upperIndex];
+        double fraction = position - lowerIndex;
+        return lowerValue + (upperValue - lowerValue) * fraction;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -104,26 +160,12 @@ public class Percentile : AbstractBase
         double result;
         if (_buffer.Count >= Period)
         {
-            // Sort values and calculate percentile position
-            var values = _buffer.GetSpan().ToArray();
-            Array.Sort(values);
+            // Create a temporary buffer on the stack and sort values
+            Span<double> values = stackalloc double[Period];
+            _buffer.GetSpan().CopyTo(values);
+            QuickSort(values, 0, values.Length - 1);
 
-            double position = (Percent / 100.0) * (values.Length - 1);
-            int lowerIndex = (int)Math.Floor(position);
-            int upperIndex = (int)Math.Ceiling(position);
-
-            if (lowerIndex == upperIndex)
-            {
-                result = values[lowerIndex];
-            }
-            else
-            {
-                // Linear interpolation between adjacent values
-                double lowerValue = values[lowerIndex];
-                double upperValue = values[upperIndex];
-                double fraction = position - lowerIndex;
-                result = lowerValue + (upperValue - lowerValue) * fraction;
-            }
+            result = CalculatePercentile(values);
         }
         else
         {

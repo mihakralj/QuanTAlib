@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,6 +29,7 @@ public class Rema : AbstractBase
 {
     private readonly int _period;
     private readonly double _lambda;
+    private readonly double _lambdaPlus1Recip;  // 1/(1 + lambda)
     private double _lastRema, _prevRema;
     private double _savedLastRema, _savedPrevRema;
 
@@ -48,12 +49,13 @@ public class Rema : AbstractBase
     public Rema(int period, double lambda = 0.5)
     {
         if (period < 1)
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
+            throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         if (lambda < 0)
-            throw new ArgumentOutOfRangeException(nameof(lambda), "Lambda must be non-negative.");
+            throw new System.ArgumentOutOfRangeException(nameof(lambda), "Lambda must be non-negative.");
 
         _period = period;
         _lambda = lambda;
+        _lambdaPlus1Recip = 1.0 / (1.0 + lambda);
         Name = $"REMA({period},{lambda:F2})";
         WarmupPeriod = period;
         Init();
@@ -68,6 +70,7 @@ public class Rema : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -77,6 +80,7 @@ public class Rema : AbstractBase
         _savedPrevRema = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -92,15 +96,28 @@ public class Rema : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateAlpha()
+    {
+        return 2.0 / (System.Math.Min(_period, _index) + 1);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateRema(double alpha, double input)
+    {
+        double standardTerm = _lastRema + alpha * (input - _lastRema);
+        double regularizationTerm = _lastRema + (_lastRema - _prevRema);
+        return (standardTerm + _lambda * regularizationTerm) * _lambdaPlus1Recip;
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
-        double alpha = 2.0 / (Math.Min(_period, _index) + 1);
-
         if (_index > 2)
         {
-            double rema = (_lastRema + alpha * (Input.Value - _lastRema) + _lambda * (_lastRema + (_lastRema - _prevRema))) / (1 + _lambda);
+            double alpha = CalculateAlpha();
+            double rema = CalculateRema(alpha, Input.Value);
             _prevRema = _lastRema;
             _lastRema = rema;
         }
@@ -110,7 +127,7 @@ public class Rema : AbstractBase
             _lastRema = Input.Value;
         }
         else
-        { // _index == 1
+        {
             _lastRema = Input.Value;
         }
 

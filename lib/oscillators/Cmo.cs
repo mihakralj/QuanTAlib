@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -34,14 +34,18 @@ namespace QuanTAlib;
 /// Note: Similar to RSI but with different scaling and calculation method
 /// </remarks>
 
-public class Cmo : AbstractBase
+[SkipLocalsInit]
+public sealed class Cmo : AbstractBase
 {
     private readonly CircularBuffer _sumH;
     private readonly CircularBuffer _sumL;
     private double _prevValue, _p_prevValue;
+    private const double Epsilon = 1e-10;
+    private const double ScalingFactor = 100.0;
 
     /// <param name="period">The number of periods used in the CMO calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Cmo(int period)
     {
         if (period < 1)
@@ -55,12 +59,14 @@ public class Cmo : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods used in the CMO calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Cmo(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -74,6 +80,20 @@ public class Cmo : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double up, double down) CalculateMovements(double diff)
+    {
+        return diff > 0 ? (diff, 0) : (0, -diff);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateCmo(double sumH, double sumL)
+    {
+        double divisor = sumH + sumL;
+        return (Math.Abs(divisor) > Epsilon) ? ScalingFactor * ((sumH - sumL) / divisor) : 0.0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -88,25 +108,11 @@ public class Cmo : AbstractBase
         _prevValue = Input.Value;
 
         // Separate upward and downward movements
-        if (diff > 0)
-        {
-            _sumH.Add(diff, Input.IsNew);
-            _sumL.Add(0, Input.IsNew);
-        }
-        else
-        {
-            _sumH.Add(0, Input.IsNew);
-            _sumL.Add(-diff, Input.IsNew);
-        }
+        var (up, down) = CalculateMovements(diff);
+        _sumH.Add(up, Input.IsNew);
+        _sumL.Add(down, Input.IsNew);
 
-        // Calculate sums for the specified period
-        double sumH = _sumH.Sum();
-        double sumL = _sumL.Sum();
-        double divisor = sumH + sumL;
-
-        // Calculate CMO value
-        return (Math.Abs(divisor) > double.Epsilon) ?
-            100.0 * ((sumH - sumL) / divisor) :
-            0.0;
+        // Calculate sums and CMO value
+        return CalculateCmo(_sumH.Sum(), _sumL.Sum());
     }
 }

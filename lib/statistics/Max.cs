@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -40,7 +40,8 @@ namespace QuanTAlib;
 /// Note: Decay factor allows for adaptive peak tracking
 /// </remarks>
 
-public class Max : AbstractBase
+[SkipLocalsInit]
+public sealed class Max : AbstractBase
 {
     private readonly int Period;
     private readonly CircularBuffer _buffer;
@@ -49,11 +50,15 @@ public class Max : AbstractBase
     private double _p_currentMax;
     private int _timeSinceNewMax;
     private int _p_timeSinceNewMax;
+    private const double DefaultDecay = 0.0;
+    private const double DecayScaleFactor = 0.1;
+    private const double Epsilon = 1e-10;
 
     /// <param name="period">The number of points to consider for maximum calculation.</param>
     /// <param name="decay">Half-life decay factor (0 for no decay, higher for faster forgetting).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1 or decay is negative.</exception>
-    public Max(int period, double decay = 0)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Max(int period, double decay = DefaultDecay)
     {
         if (period < 1)
         {
@@ -68,7 +73,7 @@ public class Max : AbstractBase
         Period = period;
         WarmupPeriod = 0;
         _buffer = new CircularBuffer(period);
-        _halfLife = decay * 0.1;
+        _halfLife = decay * DecayScaleFactor;
         Name = $"Max(period={period}, halfLife={decay:F2})";
         Init();
     }
@@ -76,12 +81,14 @@ public class Max : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for maximum calculation.</param>
     /// <param name="decay">Half-life decay factor (default 0).</param>
-    public Max(object source, int period, double decay = 0) : this(period, decay)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Max(object source, int period, double decay = DefaultDecay) : this(period, decay)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -89,6 +96,7 @@ public class Max : AbstractBase
         _timeSinceNewMax = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -106,6 +114,27 @@ public class Max : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculateDecayRate()
+    {
+        return 1 - Math.Exp(-_halfLife * _timeSinceNewMax / Period);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double FindMaxValue(ReadOnlySpan<double> values)
+    {
+        double max = double.MinValue;
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (values[i] > max)
+            {
+                max = values[i];
+            }
+        }
+        return max;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -119,11 +148,12 @@ public class Max : AbstractBase
         }
 
         // Apply decay based on time since last maximum
-        double decayRate = 1 - Math.Exp(-_halfLife * _timeSinceNewMax / Period);
+        double decayRate = CalculateDecayRate();
         _currentMax -= decayRate * (_currentMax - _buffer.Average());
 
         // Ensure maximum doesn't exceed current period's highest value
-        _currentMax = Math.Min(_currentMax, _buffer.Max());
+        ReadOnlySpan<double> values = _buffer.GetSpan();
+        _currentMax = Math.Min(_currentMax, FindMaxValue(values));
 
         IsHot = true;
         return _currentMax;

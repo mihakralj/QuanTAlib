@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -40,7 +40,8 @@ namespace QuanTAlib;
 /// Note: Decay factor allows for adaptive low tracking
 /// </remarks>
 
-public class Min : AbstractBase
+[SkipLocalsInit]
+public sealed class Min : AbstractBase
 {
     private readonly int Period;
     private readonly CircularBuffer _buffer;
@@ -49,11 +50,15 @@ public class Min : AbstractBase
     private double _p_currentMin;
     private int _timeSinceNewMin;
     private int _p_timeSinceNewMin;
+    private const double DefaultDecay = 0.0;
+    private const double DecayScaleFactor = 0.1;
+    private const double Epsilon = 1e-10;
 
     /// <param name="period">The number of points to consider for minimum calculation.</param>
     /// <param name="decay">Half-life decay factor (0 for no decay, higher for faster forgetting).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1 or decay is negative.</exception>
-    public Min(int period, double decay = 0)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Min(int period, double decay = DefaultDecay)
     {
         if (period < 1)
         {
@@ -66,7 +71,7 @@ public class Min : AbstractBase
         Period = period;
         WarmupPeriod = 0;
         _buffer = new CircularBuffer(period);
-        _halfLife = decay * 0.1;
+        _halfLife = decay * DecayScaleFactor;
         Name = $"Min(period={period}, halfLife={decay:F2})";
         Init();
     }
@@ -74,12 +79,14 @@ public class Min : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for minimum calculation.</param>
     /// <param name="decay">Half-life decay factor (default 0).</param>
-    public Min(object source, int period, double decay = 0) : this(period, decay)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Min(object source, int period, double decay = DefaultDecay) : this(period, decay)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -87,6 +94,7 @@ public class Min : AbstractBase
         _timeSinceNewMin = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -104,6 +112,27 @@ public class Min : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculateDecayRate()
+    {
+        return 1 - Math.Exp(-_halfLife * _timeSinceNewMin / Period);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double FindMinValue(ReadOnlySpan<double> values)
+    {
+        double min = double.MaxValue;
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (values[i] < min)
+            {
+                min = values[i];
+            }
+        }
+        return min;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -117,11 +146,12 @@ public class Min : AbstractBase
         }
 
         // Apply decay based on time since last minimum
-        double decayRate = 1 - Math.Exp(-_halfLife * _timeSinceNewMin / Period);
+        double decayRate = CalculateDecayRate();
         _currentMin += decayRate * (_buffer.Average() - _currentMin);
 
         // Ensure minimum doesn't fall below current period's lowest value
-        _currentMin = Math.Max(_currentMin, _buffer.Min());
+        ReadOnlySpan<double> values = _buffer.GetSpan();
+        _currentMin = Math.Max(_currentMin, FindMinValue(values));
 
         IsHot = true;
         return _currentMin;

@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -41,31 +41,37 @@ namespace QuanTAlib;
 /// Note: Proprietary enhancement of volatility measurement
 /// </remarks>
 
-public class Jvolty : AbstractBase
+[SkipLocalsInit]
+public sealed class Jvolty : AbstractBase
 {
     private readonly int _period;
     private readonly double _phase;
     private readonly CircularBuffer _vsumBuff;
     private readonly CircularBuffer _avoltyBuff;
+    private readonly double _beta;
+    private const double Epsilon = 1e-10;
+    private const int DefaultPhase = 0;
+    private const int VsumBufferSize = 10;
+    private const int AvoltyBufferSize = 65;
 
     private double _len1;
     private double _pow1;
-    private readonly double _beta;
     private double _upperBand, _lowerBand, _p_upperBand, _p_lowerBand;
     private double _prevMa1, _prevDet0, _prevDet1, _prevJma, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
     private double _vSum, _p_vSum;
 
-    public double UpperBand { get; set; }
-    public double LowerBand { get; set; }
-    public double Volty { get; set; }
-    public double VSum { get; set; }
-    public double Jma { get; set; }
-    public double AvgVolty { get; set; }
+    public double UpperBand { get; private set; }
+    public double LowerBand { get; private set; }
+    public double Volty { get; private set; }
+    public double VSum { get; private set; }
+    public double Jma { get; private set; }
+    public double AvgVolty { get; private set; }
 
     /// <param name="period">The number of periods for volatility calculation.</param>
     /// <param name="phase">Phase parameter for JMA smoothing (default 0).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
-    public Jvolty(int period, int phase = 0)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Jvolty(int period, int phase = DefaultPhase)
     {
         if (period < 1)
         {
@@ -75,8 +81,8 @@ public class Jvolty : AbstractBase
         _period = period;
         _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
-        _vsumBuff = new CircularBuffer(10);
-        _avoltyBuff = new CircularBuffer(65);
+        _vsumBuff = new CircularBuffer(VsumBufferSize);
+        _avoltyBuff = new CircularBuffer(AvoltyBufferSize);
         _beta = 0.45 * (period - 1) / (0.45 * (period - 1) + 2);
 
         WarmupPeriod = period * 2;
@@ -86,12 +92,14 @@ public class Jvolty : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods for volatility calculation.</param>
     /// <param name="phase">Phase parameter for JMA smoothing (default 0).</param>
-    public Jvolty(object source, int period, int phase = 0) : this(period, phase)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Jvolty(object source, int period, int phase = DefaultPhase) : this(period, phase)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new BarSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -103,6 +111,7 @@ public class Jvolty : AbstractBase
         _vsumBuff.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -128,6 +137,37 @@ public class Jvolty : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateVolatility(double price, double upperBand, double lowerBand)
+    {
+        double del1 = price - upperBand;
+        double del2 = price - lowerBand;
+        return Math.Max(Math.Abs(del1), Math.Abs(del2));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculateNormalizedVolatility(double volty, double avgVolty)
+    {
+        double rvolty = (avgVolty > Epsilon) ? volty / avgVolty : 1;
+        return Math.Min(Math.Max(rvolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculateJma(double price, double alpha, double ma1)
+    {
+        double det0 = (price - ma1) * (1 - _beta) + _beta * _prevDet0;
+        _prevDet0 = det0;
+        double ma2 = ma1 + _phase * det0;
+
+        double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha)) + (alpha * alpha * _prevDet1);
+        _prevDet1 = det1;
+        double jma = _prevJma + det1;
+        _prevJma = jma;
+
+        return jma;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -139,40 +179,31 @@ public class Jvolty : AbstractBase
         }
 
         // Calculate volatility from band distances
-        double del1 = price - _upperBand;
-        double del2 = price - _lowerBand;
-        double volty = Math.Max(Math.Abs(del1), Math.Abs(del2));
+        double volty = CalculateVolatility(price, _upperBand, _lowerBand);
 
         // Calculate moving averages of volatility
         _vsumBuff.Add(volty, Input.IsNew);
-        _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / 10;
+        _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / VsumBufferSize;
         _avoltyBuff.Add(_vSum, Input.IsNew);
         double avgvolty = _avoltyBuff.Average();
 
         // Normalize and adjust volatility
-        double rvolty = (avgvolty > 0) ? volty / avgvolty : 1;
-        rvolty = Math.Min(Math.Max(rvolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
-
+        double rvolty = CalculateNormalizedVolatility(volty, avgvolty);
         double pow2 = Math.Pow(rvolty, _pow1);
         double Kv = Math.Pow(_beta, Math.Sqrt(pow2));
 
         // Update adaptive bands
+        double del1 = price - _upperBand;
+        double del2 = price - _lowerBand;
         _upperBand = (del1 >= 0) ? price : price - (Kv * del1);
         _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
         // Apply JMA smoothing
         double alpha = Math.Pow(_beta, pow2);
-        double ma1 = (1 - alpha) * Input.Value + alpha * _prevMa1;
+        double ma1 = (1 - alpha) * price + alpha * _prevMa1;
         _prevMa1 = ma1;
 
-        double det0 = (price - ma1) * (1 - _beta) + _beta * _prevDet0;
-        _prevDet0 = det0;
-        double ma2 = ma1 + _phase * det0;
-
-        double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha)) + (alpha * alpha * _prevDet1);
-        _prevDet1 = det1;
-        double jma = _prevJma + det1;
-        _prevJma = jma;
+        double jma = CalculateJma(price, alpha, ma1);
 
         // Update public properties
         UpperBand = _upperBand;

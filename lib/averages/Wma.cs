@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -31,6 +31,7 @@ public class Wma : AbstractBase
 {
     private readonly int _period;
     private readonly Convolution _convolution;
+    private readonly double[] _kernel;
 
     /// <param name="period">The number of data points used in the WMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -38,10 +39,11 @@ public class Wma : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
-        _convolution = new Convolution(GenerateWmaKernel(_period));
+        _kernel = GenerateWmaKernel(_period);
+        _convolution = new Convolution(_kernel);
         Name = "Wma";
         WarmupPeriod = _period;
         Init();
@@ -60,25 +62,29 @@ public class Wma : AbstractBase
     /// </summary>
     /// <param name="period">The period for which to generate the kernel.</param>
     /// <returns>An array of normalized linearly decreasing weights for the convolution operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double[] GenerateWmaKernel(int period)
     {
         double[] kernel = new double[period];
-        double weightSum = period * (period + 1) / 2.0;
+        double weightSum = period * (period + 1) * 0.5;  // Multiply by 0.5 instead of dividing by 2
+        double invWeightSum = 1.0 / weightSum;
 
         for (int i = 0; i < period; i++)
         {
-            kernel[i] = (period - i) / weightSum;
+            kernel[i] = (period - i) * invWeightSum;
         }
 
         return kernel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private new void Init()
     {
         base.Init();
         _convolution.Init();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -93,11 +99,9 @@ public class Wma : AbstractBase
         ManageState(Input.IsNew);
 
         // Use Convolution for calculation
-        TValue convolutionResult = _convolution.Calc(Input);
-
-        double result = convolutionResult.Value;
+        var convolutionResult = _convolution.Calc(Input);
         IsHot = _index >= WarmupPeriod;
 
-        return result;
+        return convolutionResult.Value;
     }
 }

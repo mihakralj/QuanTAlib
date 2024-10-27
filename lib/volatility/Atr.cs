@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -42,7 +42,8 @@ namespace QuanTAlib;
 /// Note: Higher ATR indicates higher volatility
 /// </remarks>
 
-public class Atr : AbstractBase
+[SkipLocalsInit]
+public sealed class Atr : AbstractBase
 {
     public double Tr { get; private set; }
     private readonly Rma _ma;
@@ -50,6 +51,7 @@ public class Atr : AbstractBase
 
     /// <param name="period">The number of periods for ATR calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Atr(int period)
     {
         if (period < 1)
@@ -64,12 +66,14 @@ public class Atr : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods for ATR calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Atr(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new BarSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -78,6 +82,7 @@ public class Atr : AbstractBase
         Tr = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -91,6 +96,17 @@ public class Atr : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateTrueRange(double high, double low, double prevClose)
+    {
+        double highLowRange = high - low;
+        double highPrevCloseRange = Math.Abs(high - prevClose);
+        double lowPrevCloseRange = Math.Abs(low - prevClose);
+
+        return Math.Max(highLowRange, Math.Max(highPrevCloseRange, lowPrevCloseRange));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(BarInput.IsNew);
@@ -104,13 +120,7 @@ public class Atr : AbstractBase
         else
         {
             // Calculate True Range as maximum of three measures
-            Tr = Math.Max(
-                BarInput.High - BarInput.Low,
-                Math.Max(
-                    Math.Abs(BarInput.High - _prevClose),
-                    Math.Abs(BarInput.Low - _prevClose)
-                )
-            );
+            Tr = CalculateTrueRange(BarInput.High, BarInput.Low, _prevClose);
         }
 
         // Apply RMA smoothing to True Range

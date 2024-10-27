@@ -1,5 +1,4 @@
-using System;
-
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -28,6 +27,11 @@ namespace QuanTAlib;
 public class Frama : AbstractBase
 {
     private readonly int _period;
+    private readonly int _halfPeriod;
+    private readonly double _periodRecip;
+    private readonly double _halfPeriodRecip;
+    private readonly double _log2 = System.Math.Log(2);
+    private readonly double _epsilon = double.Epsilon;
     private readonly CircularBuffer _buffer;
     private double _lastFrama;
     private double _prevLastFrama;
@@ -37,9 +41,12 @@ public class Frama : AbstractBase
     public Frama(int period)
     {
         if (period < 2)
-            throw new ArgumentException("Period must be at least 2", nameof(period));
+            throw new System.ArgumentException("Period must be at least 2", nameof(period));
 
         _period = period;
+        _halfPeriod = period / 2;
+        _periodRecip = 1.0 / period;
+        _halfPeriodRecip = 1.0 / _halfPeriod;
         _buffer = new CircularBuffer(period);
         WarmupPeriod = period;
     }
@@ -52,6 +59,7 @@ public class Frama : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -60,6 +68,7 @@ public class Frama : AbstractBase
         _prevLastFrama = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -71,6 +80,26 @@ public class Frama : AbstractBase
         {
             _lastFrama = _prevLastFrama;
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateMinMax(double price, ref double high, ref double low)
+    {
+        high = System.Math.Max(high, price);
+        low = System.Math.Min(low, price);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateAlpha(double dimension)
+    {
+        double alpha = System.Math.Exp(-4.6 * (dimension - 1));
+        return System.Math.Clamp(alpha, 0.01, 1.0);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override double GetLastValid()
+    {
+        return _lastFrama;
     }
 
     protected override double Calculation()
@@ -85,7 +114,6 @@ public class Frama : AbstractBase
             return _lastFrama;
         }
 
-        int half = _period / 2;
         double hh = double.MinValue, ll = double.MaxValue;
         double hh1 = double.MinValue, ll1 = double.MaxValue;
         double hh2 = double.MinValue, ll2 = double.MaxValue;
@@ -93,37 +121,27 @@ public class Frama : AbstractBase
         for (int i = 0; i < _period; i++)
         {
             double price = _buffer[i];
-            hh = Math.Max(hh, price);
-            ll = Math.Min(ll, price);
+            UpdateMinMax(price, ref hh, ref ll);
 
-            if (i < half)
+            if (i < _halfPeriod)
             {
-                hh1 = Math.Max(hh1, price);
-                ll1 = Math.Min(ll1, price);
+                UpdateMinMax(price, ref hh1, ref ll1);
             }
             else
             {
-                hh2 = Math.Max(hh2, price);
-                ll2 = Math.Min(ll2, price);
+                UpdateMinMax(price, ref hh2, ref ll2);
             }
         }
 
-        double n1 = (hh - ll) / _period;
-        double n2 = (hh1 - ll1 + hh2 - ll2) / (_period / 2);
+        double n1 = (hh - ll) * _periodRecip;
+        double n2 = (hh1 - ll1 + hh2 - ll2) * _halfPeriodRecip;
 
-        double d = (Math.Log(n2 + double.Epsilon) - Math.Log(n1 + double.Epsilon)) / Math.Log(2);
-
-        double alpha = Math.Exp(-4.6 * (d - 1));
-        alpha = Math.Max(Math.Min(alpha, 1), 0.01);  // Ensure alpha is between 0.01 and 1
+        double dimension = (System.Math.Log(n2 + _epsilon) - System.Math.Log(n1 + _epsilon)) / _log2;
+        double alpha = CalculateAlpha(dimension);
 
         _lastFrama = alpha * (Input.Value - _lastFrama) + _lastFrama;
 
         IsHot = _index >= WarmupPeriod;
-        return _lastFrama;
-    }
-
-    protected override double GetLastValid()
-    {
         return _lastFrama;
     }
 }

@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -30,13 +30,16 @@ namespace QuanTAlib;
 /// Note: More stable than MAPE when actual values are close to zero
 /// </remarks>
 
-public class Smape : AbstractBase
+[SkipLocalsInit]
+public sealed class Smape : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
+    private const double Epsilon = 1e-10;
 
     /// <param name="period">The number of points over which to calculate the SMAPE.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Smape(int period)
     {
         if (period < 1)
@@ -52,12 +55,14 @@ public class Smape : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the SMAPE.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Smape(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -65,6 +70,7 @@ public class Smape : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -74,6 +80,14 @@ public class Smape : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateSymmetricError(double actual, double predicted)
+    {
+        double denominator = Math.Abs(actual) + Math.Abs(predicted);
+        return denominator > Epsilon ? Math.Abs(actual - predicted) / denominator : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -88,18 +102,18 @@ public class Smape : AbstractBase
         double smape = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumSymmetricAbsolutePercentageError = 0;
             int validCount = 0;
 
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
-                double denominator = Math.Abs(actualValues[i]) + Math.Abs(predictedValues[i]);
-                if (denominator != 0)
+                double error = CalculateSymmetricError(actualValues[i], predictedValues[i]);
+                if (error > 0)
                 {
-                    sumSymmetricAbsolutePercentageError += Math.Abs(actualValues[i] - predictedValues[i]) / denominator;
+                    sumSymmetricAbsolutePercentageError += error;
                     validCount++;
                 }
             }

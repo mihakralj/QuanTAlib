@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -30,13 +30,15 @@ namespace QuanTAlib;
 /// Note: Also known as MAPE (Mean Absolute Percentage Error) in some contexts
 /// </remarks>
 
-public class Mapd : AbstractBase
+[SkipLocalsInit]
+public sealed class Mapd : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
     /// <param name="period">The number of points over which to calculate the MAPD.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mapd(int period)
     {
         if (period < 1)
@@ -52,12 +54,14 @@ public class Mapd : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the MAPD.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mapd(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -65,6 +69,7 @@ public class Mapd : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -74,6 +79,13 @@ public class Mapd : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculatePercentageDeviation(double actual, double predicted)
+    {
+        return actual != 0 ? Math.Abs((actual - predicted) / actual) : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -88,19 +100,16 @@ public class Mapd : AbstractBase
         double mapd = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumAbsolutePercentageDeviation = 0;
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
-                if (actualValues[i] != 0)
-                {
-                    sumAbsolutePercentageDeviation += Math.Abs((actualValues[i] - predictedValues[i]) / actualValues[i]);
-                }
+                sumAbsolutePercentageDeviation += CalculatePercentageDeviation(actualValues[i], predictedValues[i]);
             }
 
-            mapd = sumAbsolutePercentageDeviation / _actualBuffer.Count;
+            mapd = sumAbsolutePercentageDeviation / actualValues.Length;
         }
 
         IsHot = _index >= WarmupPeriod;

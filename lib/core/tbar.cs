@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace QuanTAlib;
 
 public interface ITBar
@@ -11,53 +13,74 @@ public interface ITBar
     bool IsNew { get; }
 }
 
+[SkipLocalsInit]
 public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : ITBar
 {
     public DateTime Time { get; init; } = Time;
-public double Open { get; init; } = Open;
-public double High { get; init; } = High;
-public double Low { get; init; } = Low;
-public double Close { get; init; } = Close;
-public double Volume { get; init; } = Volume;
-public bool IsNew { get; init; } = IsNew;
+    public double Open { get; init; } = Open;
+    public double High { get; init; } = High;
+    public double Low { get; init; } = Low;
+    public double Close { get; init; } = Close;
+    public double Volume { get; init; } = Volume;
+    public bool IsNew { get; init; } = IsNew;
 
-public double HL2 => (High + Low) * 0.5;
-public double OC2 => (Open + Close) * 0.5;
-public double OHL3 => (Open + High + Low) / 3;
-public double HLC3 => (High + Low + Close) / 3;
-public double OHLC4 => (Open + High + Low + Close) * 0.25;
-public double HLCC4 => (High + Low + Close + Close) * 0.25;
+    public double HL2 => (High + Low) * 0.5;
+    public double OC2 => (Open + Close) * 0.5;
+    public double OHL3 => (Open + High + Low) / 3;
+    public double HLC3 => (High + Low + Close) / 3;
+    public double OHLC4 => (Open + High + Low + Close) * 0.25;
+    public double HLCC4 => (High + Low + Close + Close) * 0.25;
 
-public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
-public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
-public TBar(double value) : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
-public TBar(TValue value) : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
-public TBar(TBar v) : this(Time: v.Time, Open: v.Open, High: v.High, Low: v.Low, Close: v.Close, Volume: v.Volume, IsNew: true) { }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true)
+        : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
 
-public static implicit operator double(TBar bar) => bar.Close;
-public static implicit operator DateTime(TBar tv) => tv.Time;
-public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBar(double value)
+        : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBar(TValue value)
+        : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBar(TBar v)
+        : this(Time: v.Time, Open: v.Open, High: v.High, Low: v.Low, Close: v.Close, Volume: v.Volume, IsNew: true) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator double(TBar bar) => bar.Close;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator DateTime(TBar tv) => tv.Time;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
 }
 
 public delegate void BarSignal(object source, in TBarEventArgs args);
 
-public class TBarEventArgs : EventArgs
+[SkipLocalsInit]
+public sealed class TBarEventArgs : EventArgs
 {
-    public TBar Bar { get; }
-    public TBarEventArgs(TBar bar) { Bar = bar; }
+    public readonly TBar Bar;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBarEventArgs(TBar bar) => Bar = bar;
 }
 
+[SkipLocalsInit]
 public class TBarSeries : List<TBar>
 {
-    private readonly TBar Default = new(DateTime.MinValue, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN);
+    private static readonly TBar Default = new(DateTime.MinValue, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN);
 
-    public TSeries Open;
-    public TSeries High;
-    public TSeries Low;
-    public TSeries Close;
-    public TSeries Volume;
-
+    public readonly TSeries Open;
+    public readonly TSeries High;
+    public readonly TSeries Low;
+    public readonly TSeries Close;
+    public readonly TSeries Volume;
 
     public TBar Last => Count > 0 ? this[^1] : Default;
     public TBar First => Count > 0 ? this[0] : Default;
@@ -65,22 +88,36 @@ public class TBarSeries : List<TBar>
     public string Name { get; set; }
     public event BarSignal Pub = delegate { };
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBarSeries()
     {
-        this.Name = "Bar";
-        (Open, High, Low, Close, Volume) = ([], [], [], [], []);
-
+        Name = "Bar";
+        Open = new TSeries();
+        High = new TSeries();
+        Low = new TSeries();
+        Close = new TSeries();
+        Volume = new TSeries();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBarSeries(object source) : this()
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new BarSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public new virtual void Add(TBar bar)
     {
-        if (bar.IsNew || base.Count == 0) { base.Add(bar); }
-        else { this[^1] = bar; }
+        if (bar.IsNew || base.Count == 0)
+        {
+            base.Add(bar);
+        }
+        else
+        {
+            this[^1] = bar;
+        }
+
         Pub?.Invoke(this, new TBarEventArgs(bar));
 
         Open.Add(bar.Time, bar.Open, IsNew: bar.IsNew, IsHot: true);
@@ -89,18 +126,22 @@ public class TBarSeries : List<TBar>
         Close.Add(bar.Time, bar.Close, IsNew: bar.IsNew, IsHot: true);
         Volume.Add(bar.Time, bar.Volume, IsNew: bar.IsNew, IsHot: true);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) =>
-        this.Add(new TBar(Time, Open, High, Low, Close, Volume, IsNew));
+        Add(new TBar(Time, Open, High, Low, Close, Volume, IsNew));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) =>
-        this.Add(new TBar(DateTime.Now, Open, High, Low, Close, Volume, IsNew));
+        Add(new TBar(DateTime.Now, Open, High, Low, Close, Volume, IsNew));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(TBarSeries series)
     {
         if (series == this)
         {
             // If adding itself, create a copy to avoid modification during enumeration
-            var copy = new TBarSeries { Name = this.Name };
+            var copy = new TBarSeries { Name = Name };
             copy.AddRange(this);
             AddRange(copy);
         }
@@ -109,6 +150,8 @@ public class TBarSeries : List<TBar>
             AddRange(series);
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public new virtual void AddRange(IEnumerable<TBar> collection)
     {
         foreach (var item in collection)
@@ -117,6 +160,7 @@ public class TBarSeries : List<TBar>
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Sub(object source, in TBarEventArgs args)
     {
         Add(args.Bar);

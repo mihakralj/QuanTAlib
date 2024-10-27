@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,6 +29,7 @@ public class Mgdi : AbstractBase
 {
     private readonly int _period;
     private readonly double _kFactor;
+    private readonly double _kFactorPeriod;  // Precalculated k * period
     private double _prevMd, _p_prevMd;
 
     /// <param name="period">The number of periods used in the MGDI calculation.</param>
@@ -38,14 +39,15 @@ public class Mgdi : AbstractBase
     {
         if (period <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0.");
+            throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0.");
         }
         if (kFactor <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(kFactor), "K-Factor must be greater than 0.");
+            throw new System.ArgumentOutOfRangeException(nameof(kFactor), "K-Factor must be greater than 0.");
         }
         _period = period;
         _kFactor = kFactor;
+        _kFactorPeriod = kFactor * period;
         Name = "Mgdi";
         WarmupPeriod = period;
         Init();
@@ -60,12 +62,14 @@ public class Mgdi : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _prevMd = _p_prevMd = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -79,6 +83,18 @@ public class Mgdi : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateRatio(double value)
+    {
+        return _prevMd != 0 ? value / _prevMd : 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateMd(double value, double ratio)
+    {
+        return _prevMd + ((value - _prevMd) / (_kFactorPeriod * System.Math.Pow(ratio, 4)));
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -90,10 +106,8 @@ public class Mgdi : AbstractBase
         }
         else
         {
-            double ratio = _prevMd != 0 ? value / _prevMd : 1;
-            double md = _prevMd + ((value - _prevMd) /
-                (_kFactor * _period * Math.Pow(ratio, 4)));
-            _prevMd = md;
+            double ratio = CalculateRatio(value);
+            _prevMd = CalculateMd(value, ratio);
         }
 
         IsHot = _index >= _period;

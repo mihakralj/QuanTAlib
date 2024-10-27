@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,6 +29,11 @@ namespace QuanTAlib;
 public class Hma : AbstractBase
 {
     private readonly Convolution _wmaHalf, _wmaFull, _wmaFinal;
+    private readonly int _period;
+    private readonly int _sqrtPeriod;
+    private readonly double[] _kernelHalf;
+    private readonly double[] _kernelFull;
+    private readonly double[] _kernelFinal;
 
     /// <param name="period">The number of data points used in the HMA calculation. Must be at least 2.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 2.</exception>
@@ -36,12 +41,21 @@ public class Hma : AbstractBase
     {
         if (period < 2)
         {
-            throw new ArgumentException("Period must be greater than or equal to 2.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 2.", nameof(period));
         }
-        int _sqrtPeriod = (int)Math.Sqrt(period);
-        _wmaHalf = new Convolution(GenerateWmaKernel(period / 2));
-        _wmaFull = new Convolution(GenerateWmaKernel(period));
-        _wmaFinal = new Convolution(GenerateWmaKernel(_sqrtPeriod));
+        _period = period;
+        _sqrtPeriod = (int)System.Math.Sqrt(period);
+
+        // Generate all kernels once
+        _kernelHalf = GenerateWmaKernel(period / 2);
+        _kernelFull = GenerateWmaKernel(period);
+        _kernelFinal = GenerateWmaKernel(_sqrtPeriod);
+
+        // Initialize convolutions with pre-generated kernels
+        _wmaHalf = new Convolution(_kernelHalf);
+        _wmaFull = new Convolution(_kernelFull);
+        _wmaFinal = new Convolution(_kernelFinal);
+
         Name = "Hma";
         WarmupPeriod = period + _sqrtPeriod - 1;
         Init();
@@ -60,19 +74,22 @@ public class Hma : AbstractBase
     /// </summary>
     /// <param name="period">The period for which to generate the kernel.</param>
     /// <returns>An array of linearly weighted values for the convolution operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double[] GenerateWmaKernel(int period)
     {
         double[] kernel = new double[period];
-        double weightSum = period * (period + 1) / 2.0;
+        double weightSum = period * (period + 1) * 0.5; // Multiply by 0.5 instead of dividing by 2
+        double invWeightSum = 1.0 / weightSum;
 
         for (int i = 0; i < period; i++)
         {
-            kernel[i] = (period - i) / weightSum;
+            kernel[i] = (period - i) * invWeightSum;
         }
 
         return kernel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private new void Init()
     {
         base.Init();
@@ -81,6 +98,7 @@ public class Hma : AbstractBase
         _wmaFinal.Init();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -99,10 +117,11 @@ public class Hma : AbstractBase
         double wmaFullResult = _wmaFull.Calc(Input).Value;
 
         // Calculate 2*WMA(n/2) - WMA(n)
-        double intermediateResult = 2 * wmaHalfResult - wmaFullResult;
+        double intermediateResult = 2.0 * wmaHalfResult - wmaFullResult;
 
         // Calculate final WMA
-        double result = _wmaFinal.Calc(new TValue(Input.Time, intermediateResult, Input.IsNew)).Value;
+        var finalInput = new TValue(Input.Time, intermediateResult, Input.IsNew);
+        double result = _wmaFinal.Calc(finalInput).Value;
 
         IsHot = _index >= WarmupPeriod;
         return result;

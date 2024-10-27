@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -42,16 +41,20 @@ namespace QuanTAlib;
 /// Note: Returns excess kurtosis (normal distribution = 0)
 /// </remarks>
 
-public class Kurtosis : AbstractBase
+[SkipLocalsInit]
+public sealed class Kurtosis : AbstractBase
 {
     private readonly int Period;
     private readonly CircularBuffer _buffer;
+    private const double Epsilon = 1e-10;
+    private const int MinimumPoints = 4;
 
     /// <param name="period">The number of points to consider for kurtosis calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 4.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Kurtosis(int period)
     {
-        if (period < 4)
+        if (period < MinimumPoints)
         {
             throw new ArgumentOutOfRangeException(nameof(period),
                 "Period must be greater than or equal to 4 for kurtosis calculation.");
@@ -65,18 +68,21 @@ public class Kurtosis : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for kurtosis calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Kurtosis(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -86,6 +92,48 @@ public class Kurtosis : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateMean(ReadOnlySpan<double> values)
+    {
+        double sum = 0;
+        for (int i = 0; i < values.Length; i++)
+        {
+            sum += values[i];
+        }
+        return sum / values.Length;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double s2, double s4) CalculateDeviations(ReadOnlySpan<double> values, double mean)
+    {
+        double s2 = 0;  // Sum of squared deviations
+        double s4 = 0;  // Sum of fourth power deviations
+
+        for (int i = 0; i < values.Length; i++)
+        {
+            double diff = values[i] - mean;
+            double diff2 = diff * diff;
+            s2 += diff2;
+            s4 += diff2 * diff2;
+        }
+
+        return (s2, s4);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateSheskinKurtosis(double s2, double s4, int n)
+    {
+        double variance = s2 / (n - 1);
+        double variance2 = variance * variance;
+
+        if (variance2 < Epsilon)
+            return 0;
+
+        return (n * (n + 1) * s4) / (variance2 * (n - 3) * (n - 1) * (n - 2))
+               - (3 * (n - 1) * (n - 1) / ((n - 2) * (n - 3)));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -93,28 +141,12 @@ public class Kurtosis : AbstractBase
         _buffer.Add(Input.Value, Input.IsNew);
 
         double kurtosis = 0;
-        if (_buffer.Count > 3)  // Need at least 4 points for valid calculation
+        if (_buffer.Count > MinimumPoints - 1)  // Need at least 4 points for valid calculation
         {
-            var values = _buffer.GetSpan().ToArray();
-            double mean = values.Average();
-            double n = values.Length;
-
-            // Calculate squared and fourth power deviations
-            double s2 = 0;  // Sum of squared deviations
-            double s4 = 0;  // Sum of fourth power deviations
-
-            for (int i = 0; i < values.Length; i++)
-            {
-                double diff = values[i] - mean;
-                s2 += diff * diff;
-                s4 += diff * diff * diff * diff;
-            }
-
-            double variance = s2 / (n - 1);
-
-            // Sheskin Algorithm for excess kurtosis
-            kurtosis = (n * (n + 1) * s4) / (variance * variance * (n - 3) * (n - 1) * (n - 2))
-                       - (3 * (n - 1) * (n - 1) / ((n - 2) * (n - 3)));
+            ReadOnlySpan<double> values = _buffer.GetSpan();
+            double mean = CalculateMean(values);
+            var (s2, s4) = CalculateDeviations(values, mean);
+            kurtosis = CalculateSheskinKurtosis(s2, s4, values.Length);
         }
 
         IsHot = _buffer.Count >= Period;

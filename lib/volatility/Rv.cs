@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -43,18 +43,23 @@ namespace QuanTAlib;
 /// Note: Efficient implementation using rolling sums
 /// </remarks>
 
-public class Rv : AbstractBase
+[SkipLocalsInit]
+public sealed class Rv : AbstractBase
 {
     private readonly int Period;
     private readonly bool IsAnnualized;
     private readonly CircularBuffer _returns;
     private double _previousClose;
     private double _sumSquaredReturns;
+    private const int TradingDaysPerYear = 252;
+    private const double Epsilon = 1e-10;
+    private const bool DefaultIsAnnualized = true;
 
     /// <param name="period">The number of periods for volatility calculation.</param>
     /// <param name="isAnnualized">Whether to annualize the result (default true).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
-    public Rv(int period, bool isAnnualized = true)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rv(int period, bool isAnnualized = DefaultIsAnnualized)
     {
         if (period < 2)
         {
@@ -72,12 +77,14 @@ public class Rv : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods for volatility calculation.</param>
     /// <param name="isAnnualized">Whether to annualize the result (default true).</param>
-    public Rv(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rv(object source, int period, bool isAnnualized = DefaultIsAnnualized) : this(period, isAnnualized)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -86,6 +93,7 @@ public class Rv : AbstractBase
         _sumSquaredReturns = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -95,36 +103,46 @@ public class Rv : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateLogReturn(double currentPrice, double previousPrice)
+    {
+        return previousPrice > Epsilon ? Math.Log(currentPrice / previousPrice) : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateVolatility(double sumSquaredReturns, int period, bool isAnnualized)
+    {
+        double variance = sumSquaredReturns / period;
+        double volatility = Math.Sqrt(variance);
+        return isAnnualized ? volatility * Math.Sqrt(TradingDaysPerYear) : volatility;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
         double volatility = 0;
-        if (_previousClose != 0)
+        if (_previousClose > Epsilon)
         {
             // Calculate log return
-            double logReturn = Math.Log(Input.Value / _previousClose);
+            double logReturn = CalculateLogReturn(Input.Value, _previousClose);
 
             if (_returns.Count == Period)
             {
                 // Maintain rolling sum by removing oldest squared return
-                _sumSquaredReturns -= Math.Pow(_returns[0], 2);
+                double oldReturn = _returns[0];
+                _sumSquaredReturns -= oldReturn * oldReturn;
             }
 
             // Add new return and update sum
             _returns.Add(logReturn, Input.IsNew);
-            _sumSquaredReturns += Math.Pow(logReturn, 2);
+            _sumSquaredReturns += logReturn * logReturn;
 
             if (_returns.Count == Period)
             {
                 // Calculate realized volatility
-                double variance = _sumSquaredReturns / Period;
-                volatility = Math.Sqrt(variance);
-
-                if (IsAnnualized)
-                {
-                    volatility *= Math.Sqrt(252); // Annualize using trading days
-                }
+                volatility = CalculateVolatility(_sumSquaredReturns, Period, IsAnnualized);
             }
         }
 

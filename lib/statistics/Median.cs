@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -40,13 +39,15 @@ namespace QuanTAlib;
 /// Note: More robust than mean for non-normal distributions
 /// </remarks>
 
-public class Median : AbstractBase
+[SkipLocalsInit]
+public sealed class Median : AbstractBase
 {
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
     /// <param name="period">The number of points to consider for median calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Median(int period)
     {
         if (period < 1)
@@ -63,18 +64,21 @@ public class Median : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for median calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Median(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -84,6 +88,46 @@ public class Median : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static void QuickSort(Span<double> arr, int left, int right)
+    {
+        if (left < right)
+        {
+            int pivotIndex = Partition(arr, left, right);
+            QuickSort(arr, left, pivotIndex - 1);
+            QuickSort(arr, pivotIndex + 1, right);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static int Partition(Span<double> arr, int left, int right)
+    {
+        double pivot = arr[right];
+        int i = left - 1;
+
+        for (int j = left; j < right; j++)
+        {
+            if (arr[j] <= pivot)
+            {
+                i++;
+                (arr[i], arr[j]) = (arr[j], arr[i]);
+            }
+        }
+
+        (arr[i + 1], arr[right]) = (arr[right], arr[i + 1]);
+        return i + 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateMedian(Span<double> sortedValues)
+    {
+        int middleIndex = sortedValues.Length / 2;
+        return (sortedValues.Length % 2 == 0)
+            ? (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2.0
+            : sortedValues[middleIndex];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -92,15 +136,15 @@ public class Median : AbstractBase
         double median;
         if (_index >= Period)
         {
-            // Get sorted copy of values
-            var sortedValues = _buffer.GetSpan().ToArray();
-            Array.Sort(sortedValues);
-            int middleIndex = sortedValues.Length / 2;
+            // Create a temporary buffer on the stack
+            Span<double> values = stackalloc double[Period];
+            _buffer.GetSpan().CopyTo(values);
+
+            // Sort values in-place
+            QuickSort(values, 0, values.Length - 1);
 
             // Calculate median based on odd/even count
-            median = (sortedValues.Length % 2 == 0)
-                ? (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2.0
-                : sortedValues[middleIndex];
+            median = CalculateMedian(values);
         }
         else
         {

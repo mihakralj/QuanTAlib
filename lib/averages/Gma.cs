@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -27,6 +27,7 @@ namespace QuanTAlib;
 public class Gma : AbstractBase
 {
     private readonly Convolution _convolution;
+    private readonly double[] _kernel;
 
     /// <param name="period">The number of data points used in the GMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -34,9 +35,10 @@ public class Gma : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _convolution = new Convolution(GenerateKernel(period));
+        _kernel = GenerateKernel(period);
+        _convolution = new Convolution(_kernel);
         Name = "Gma";
         WarmupPeriod = period;
         Init();
@@ -56,34 +58,41 @@ public class Gma : AbstractBase
     /// <param name="period">The period for which to generate the kernel.</param>
     /// <param name="sigma">The standard deviation parameter controlling the spread of the Gaussian curve. Default is 1.0.</param>
     /// <returns>An array of normalized Gaussian-based weights for the convolution operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double[] GenerateKernel(int period, double sigma = 1.0)
     {
         double[] kernel = new double[period];
         double weightSum = 0;
         int center = period / 2;
+        double centerRecip = 1.0 / center;
+        double sigmaSquared2 = 2.0 * sigma * sigma;
 
+        // Calculate weights and sum in one pass
         for (int i = 0; i < period; i++)
         {
-            double x = (i - center) / (double)center;
-            kernel[i] = Math.Exp(-(x * x) / (2 * sigma * sigma));
+            double x = (i - center) * centerRecip;
+            kernel[i] = System.Math.Exp(-(x * x) / sigmaSquared2);
             weightSum += kernel[i];
         }
 
-        // Normalize the kernel
+        // Normalize using multiplication instead of division
+        double invWeightSum = 1.0 / weightSum;
         for (int i = 0; i < period; i++)
         {
-            kernel[i] /= weightSum;
+            kernel[i] *= invWeightSum;
         }
 
         return kernel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private new void Init()
     {
         base.Init();
         _convolution.Init();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -98,11 +107,9 @@ public class Gma : AbstractBase
         ManageState(Input.IsNew);
 
         // Use Convolution for calculation
-        TValue convolutionResult = _convolution.Calc(Input);
-
-        double result = convolutionResult.Value;
+        var convolutionResult = _convolution.Calc(Input);
         IsHot = _index >= WarmupPeriod;
 
-        return result;
+        return convolutionResult.Value;
     }
 }

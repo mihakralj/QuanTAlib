@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -22,43 +23,14 @@ namespace QuanTAlib;
 /// </remarks>
 public class Ema : AbstractBase
 {
-    // inherited _index
-    // inherited _value
-
-    /// <summary>
-    /// The period for the EMA calculation.
-    /// </summary>
     private readonly int _period;
-
-    /// <summary>
-    /// Circular buffer for SMA calculation.
-    /// </summary>
-    private CircularBuffer _sma;
-
-    /// <summary>
-    /// The last calculated EMA value.
-    /// </summary>
-    private double _lastEma, _p_lastEma;
-
-    /// <summary>
-    /// Compensator for early EMA values.
-    /// </summary>
-    private double _e, _p_e;
-
-    /// <summary>
-    /// The smoothing factor for EMA calculation.
-    /// </summary>
     private readonly double _k;
-
-    /// <summary>
-    /// Flags to track initialization status.
-    /// </summary>
-    private bool _isInit, _p_isInit;
-
-    /// <summary>
-    /// Flag to determine whether to use SMA for initial values.
-    /// </summary>
     private readonly bool _useSma;
+    private readonly double _epsilon = 1e-10;
+    private CircularBuffer _sma;
+    private double _lastEma, _p_lastEma;
+    private double _e, _p_e;
+    private bool _isInit, _p_isInit;
 
     /// <summary>
     /// Initializes a new instance of the Ema class with a specified period.
@@ -70,14 +42,14 @@ public class Ema : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
+            throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
         _period = period;
         _k = 2.0 / (_period + 1);
         _useSma = useSma;
-        _sma = new(period);
+        _sma = new(_period);
         Name = "Ema";
-        WarmupPeriod = (int)Math.Ceiling(Math.Log(0.05) / Math.Log(1 - _k)); //95th percentile
+        WarmupPeriod = (int)System.Math.Ceiling(System.Math.Log(0.05) / System.Math.Log(1 - _k)); //95th percentile
         Init();
     }
 
@@ -92,7 +64,7 @@ public class Ema : AbstractBase
         _sma = new(1);
         Name = "Ema";
         _period = 1;
-        WarmupPeriod = (int)Math.Ceiling(Math.Log(0.05) / Math.Log(1 - _k)); //95th percentile
+        WarmupPeriod = (int)System.Math.Ceiling(System.Math.Log(0.05) / System.Math.Log(1 - _k)); //95th percentile
         Init();
     }
 
@@ -108,9 +80,7 @@ public class Ema : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Ema instance.
-    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -121,10 +91,7 @@ public class Ema : AbstractBase
         _sma = new(_period);
     }
 
-    /// <summary>
-    /// Manages the state of the Ema instance.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the input is new.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -142,21 +109,27 @@ public class Ema : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the EMA calculation.
-    /// </summary>
-    /// <returns>The calculated EMA value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateEma(double input, double lastEma)
+    {
+        return _k * (input - lastEma) + lastEma;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CompensateEma(double ema)
+    {
+        return (_useSma || _e <= _epsilon) ? ema : ema / (1 - _e);
+    }
+
     protected override double Calculation()
     {
-        double result, _ema;
         ManageState(Input.IsNew);
 
-        // when _UseSma == true, use SMA calculation until we have enough data points
+        double ema;
         if (!_isInit && _useSma)
         {
             _sma.Add(Input.Value, Input.IsNew);
-            _ema = _sma.Average();
-            result = _ema;
+            ema = _sma.Average();
             if (_index >= _period)
             {
                 _isInit = true;
@@ -164,16 +137,14 @@ public class Ema : AbstractBase
         }
         else
         {
-            // compensator for early ema values
-            _e = (_e > 1e-10) ? (1 - _k) * _e : 0;
-
-            _ema = _k * (Input.Value - _lastEma) + _lastEma;
-
-            // _useSma decides if we use compensator or not
-            result = (_useSma || _e <= double.Epsilon) ? _ema : _ema / (1 - _e);
+            // Compensator for early EMA values
+            _e = (_e > _epsilon) ? (1 - _k) * _e : 0;
+            ema = CalculateEma(Input.Value, _lastEma);
+            ema = CompensateEma(ema);
         }
-        _lastEma = _ema;
+
+        _lastEma = ema;
         IsHot = _index >= WarmupPeriod;
-        return result;
+        return ema;
     }
 }

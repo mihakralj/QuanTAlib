@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
-
 namespace QuanTAlib;
 
 /// <summary>
@@ -33,9 +30,9 @@ public class Vidya : AbstractBase
 {
     private readonly int _longPeriod;
     private readonly double _alpha;
+    private readonly CircularBuffer _shortBuffer;
+    private readonly CircularBuffer _longBuffer;
     private double _lastVIDYA, _p_lastVIDYA;
-    private readonly CircularBuffer? _shortBuffer;
-    private readonly CircularBuffer? _longBuffer;
 
     /// <param name="shortPeriod">The number of periods for short-term volatility calculation.</param>
     /// <param name="longPeriod">The number of periods for long-term volatility calculation (default is 4x shortPeriod).</param>
@@ -45,14 +42,14 @@ public class Vidya : AbstractBase
     {
         if (shortPeriod < 1)
         {
-            throw new ArgumentException("Short period must be greater than or equal to 1.", nameof(shortPeriod));
+            throw new System.ArgumentException("Short period must be greater than or equal to 1.", nameof(shortPeriod));
         }
         _longPeriod = (longPeriod == 0) ? shortPeriod * 4 : longPeriod;
         _alpha = alpha;
-        WarmupPeriod = _longPeriod;
-        Name = $"Vidya({shortPeriod},{_longPeriod})";
         _shortBuffer = new CircularBuffer(shortPeriod);
         _longBuffer = new CircularBuffer(_longPeriod);
+        WarmupPeriod = _longPeriod;
+        Name = $"Vidya({shortPeriod},{_longPeriod})";
         Init();
     }
 
@@ -67,12 +64,14 @@ public class Vidya : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _lastVIDYA = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -87,12 +86,35 @@ public class Vidya : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CalculateStdDev(CircularBuffer buffer)
+    {
+        double mean = buffer.Average();
+        double sumSquaredDiff = 0;
+        var span = buffer.GetSpan();
+
+        for (int i = 0; i < buffer.Count; i++)
+        {
+            double diff = span[i] - mean;
+            sumSquaredDiff += diff * diff;
+        }
+
+        return System.Math.Sqrt(sumSquaredDiff / buffer.Count);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateVidya(double shortStdDev, double longStdDev)
+    {
+        double s = _alpha * (shortStdDev / longStdDev);
+        return (s * Input.Value) + ((1.0 - s) * _lastVIDYA);
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
-        _shortBuffer!.Add(Input.Value, Input.IsNew);
-        _longBuffer!.Add(Input.Value, Input.IsNew);
+        _shortBuffer.Add(Input.Value, Input.IsNew);
+        _longBuffer.Add(Input.Value, Input.IsNew);
 
         double vidya;
         if (_index <= _longPeriod)
@@ -103,26 +125,12 @@ public class Vidya : AbstractBase
         {
             double shortStdDev = CalculateStdDev(_shortBuffer);
             double longStdDev = CalculateStdDev(_longBuffer);
-            double s = _alpha * (shortStdDev / longStdDev);
-            vidya = (s * Input.Value) + ((1 - s) * _lastVIDYA);
+            vidya = CalculateVidya(shortStdDev, longStdDev);
         }
 
         _lastVIDYA = vidya;
         IsHot = _index >= WarmupPeriod;
 
         return vidya;
-    }
-
-    /// <summary>
-    /// Calculates the standard deviation of values in a circular buffer.
-    /// </summary>
-    /// <param name="buffer">The circular buffer containing the values.</param>
-    /// <returns>The standard deviation of the values in the buffer.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double CalculateStdDev(CircularBuffer buffer)
-    {
-        double mean = buffer.Average();
-        double sumSquaredDiff = buffer.Sum(x => Math.Pow(x - mean, 2));
-        return Math.Sqrt(sumSquaredDiff / buffer.Count);
     }
 }

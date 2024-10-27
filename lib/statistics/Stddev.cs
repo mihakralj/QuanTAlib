@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -44,17 +43,21 @@ namespace QuanTAlib;
 /// Note: Foundation for many volatility-based indicators
 /// </remarks>
 
-public class Stddev : AbstractBase
+[SkipLocalsInit]
+public sealed class Stddev : AbstractBase
 {
     private readonly bool IsPopulation;
     private readonly CircularBuffer _buffer;
+    private const double Epsilon = 1e-10;
+    private const int MinimumPoints = 2;
 
     /// <param name="period">The number of points to consider for standard deviation calculation.</param>
     /// <param name="isPopulation">True for population stddev, false for sample stddev (default).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Stddev(int period, bool isPopulation = false)
     {
-        if (period < 2)
+        if (period < MinimumPoints)
         {
             throw new ArgumentOutOfRangeException(nameof(period),
                 "Period must be greater than or equal to 2.");
@@ -69,18 +72,21 @@ public class Stddev : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for standard deviation calculation.</param>
     /// <param name="isPopulation">True for population stddev, false for sample stddev (default).</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Stddev(object source, int period, bool isPopulation = false) : this(period, isPopulation)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -90,6 +96,30 @@ public class Stddev : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateMean(ReadOnlySpan<double> values)
+    {
+        double sum = 0;
+        for (int i = 0; i < values.Length; i++)
+        {
+            sum += values[i];
+        }
+        return sum / values.Length;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateSumSquaredDeviations(ReadOnlySpan<double> values, double mean)
+    {
+        double sum = 0;
+        for (int i = 0; i < values.Length; i++)
+        {
+            double diff = values[i] - mean;
+            sum += diff * diff;
+        }
+        return sum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -98,11 +128,9 @@ public class Stddev : AbstractBase
         double stddev = 0;
         if (_buffer.Count > 1)
         {
-            var values = _buffer.GetSpan().ToArray();
-            double mean = values.Average();
-
-            // Calculate sum of squared deviations
-            double sumOfSquaredDifferences = values.Sum(x => Math.Pow(x - mean, 2));
+            ReadOnlySpan<double> values = _buffer.GetSpan();
+            double mean = CalculateMean(values);
+            double sumOfSquaredDifferences = CalculateSumSquaredDeviations(values, mean);
 
             // Use appropriate divisor based on population/sample calculation
             double divisor = IsPopulation ? _buffer.Count : _buffer.Count - 1;

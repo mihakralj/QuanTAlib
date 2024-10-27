@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,6 +29,8 @@ namespace QuanTAlib;
 public class Ltma : AbstractBase
 {
     private readonly double _gamma;
+    private readonly double _oneMinusGamma;
+    private readonly double _invSix = 1.0 / 6.0;  // Precalculated constant for final averaging
     private double _prevL0, _prevL1, _prevL2, _prevL3;
     private double _p_prevL0, _p_prevL1, _p_prevL2, _p_prevL3;
 
@@ -42,8 +44,9 @@ public class Ltma : AbstractBase
     public Ltma(double gamma = 0.1)
     {
         if (gamma < 0 || gamma > 1)
-            throw new ArgumentOutOfRangeException(nameof(gamma), "Gamma must be between 0 and 1.");
+            throw new System.ArgumentOutOfRangeException(nameof(gamma), "Gamma must be between 0 and 1.");
         _gamma = gamma;
+        _oneMinusGamma = 1.0 - gamma;
         Name = $"Laguerre({gamma:F2})";
         WarmupPeriod = 4; // Minimum number of samples needed
         Init();
@@ -57,12 +60,14 @@ public class Ltma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _prevL0 = _prevL1 = _prevL2 = _prevL3 = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -82,24 +87,37 @@ public class Ltma : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateLaguerreStage(double input, double prev, double prevPrev)
+    {
+        return -_gamma * input + prev + _gamma * prevPrev;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CombineOutputs(double l0, double l1, double l2, double l3)
+    {
+        return (l0 + 2.0 * (l1 + l2) + l3) * _invSix;
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
-        // Laguerre filter calculation
-        double _l0 = (1 - _gamma) * Input.Value + _gamma * _prevL0;
-        double _l1 = -_gamma * _l0 + _prevL0 + _gamma * _prevL1;
-        double _l2 = -_gamma * _l1 + _prevL1 + _gamma * _prevL2;
-        double _l3 = -_gamma * _l2 + _prevL2 + _gamma * _prevL3;
-        _prevL0 = _l0;
-        _prevL1 = _l1;
-        _prevL2 = _l2;
-        _prevL3 = _l3;
+        // First stage
+        double l0 = _oneMinusGamma * Input.Value + _gamma * _prevL0;
 
-        double filteredValue = (_l0 + 2 * _l1 + 2 * _l2 + _l3) / 6;
+        // Subsequent stages using helper method
+        double l1 = CalculateLaguerreStage(l0, _prevL0, _prevL1);
+        double l2 = CalculateLaguerreStage(l1, _prevL1, _prevL2);
+        double l3 = CalculateLaguerreStage(l2, _prevL2, _prevL3);
+
+        // Store values for next iteration
+        _prevL0 = l0;
+        _prevL1 = l1;
+        _prevL2 = l2;
+        _prevL3 = l3;
 
         IsHot = _index >= WarmupPeriod;
-
-        return filteredValue;
+        return CombineOutputs(l0, l1, l2, l3);
     }
 }

@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -32,6 +32,8 @@ public class Hwma : AbstractBase
 {
     private readonly int _period;
     private readonly double _nA, _nB, _nC;
+    private readonly double _oneMinusNa, _oneMinusNb, _oneMinusNc;
+    private readonly double _halfA = 0.5;
     private double _pF, _pV, _pA;
     private double _ppF, _ppV, _ppA;
 
@@ -56,12 +58,15 @@ public class Hwma : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
         _nA = nA;
         _nB = nB;
         _nC = nC;
+        _oneMinusNa = 1.0 - nA;
+        _oneMinusNb = 1.0 - nB;
+        _oneMinusNc = 1.0 - nC;
         WarmupPeriod = period;
         Name = $"Hwma({_period})";
         Init();
@@ -75,6 +80,7 @@ public class Hwma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -82,6 +88,7 @@ public class Hwma : AbstractBase
         _ppF = _ppV = _ppA = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -100,6 +107,24 @@ public class Hwma : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateLevel(double input)
+    {
+        return _oneMinusNa * (_pF + _pV + _halfA * _pA) + _nA * input;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateVelocity(double F)
+    {
+        return _oneMinusNb * (_pV + _pA) + _nB * (F - _pF);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateAcceleration(double V)
+    {
+        return _oneMinusNc * _pA + _nC * (V - _pV);
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -108,27 +133,25 @@ public class Hwma : AbstractBase
         {
             _pF = Input.Value;
             _pA = _pV = 0;
+            return Input.Value;
         }
 
-        double nA = _nA, nB = _nB, nC = _nC;
         if (_period == 1)
         {
-            nA = 1;
-            nB = 0;
-            nC = 0;
+            _pF = Input.Value;
+            _pV = _pA = 0;
+            return Input.Value;
         }
 
-        double F = (1 - nA) * (_pF + _pV + 0.5 * _pA) + nA * Input.Value;
-        double V = (1 - nB) * (_pV + _pA) + nB * (F - _pF);
-        double A = (1 - nC) * _pA + nC * (V - _pV);
-
-        double hwma = F + V + 0.5 * A;
+        double F = CalculateLevel(Input.Value);
+        double V = CalculateVelocity(F);
+        double A = CalculateAcceleration(V);
 
         _pF = F;
         _pV = V;
         _pA = A;
 
         IsHot = _index >= WarmupPeriod;
-        return hwma;
+        return F + V + _halfA * A;
     }
 }

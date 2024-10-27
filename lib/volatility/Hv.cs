@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -44,17 +43,21 @@ namespace QuanTAlib;
 /// Note: Assumes 252 trading days for annualization
 /// </remarks>
 
-public class Hv : AbstractBase
+[SkipLocalsInit]
+public sealed class Hv : AbstractBase
 {
     private readonly int Period;
     private readonly bool IsAnnualized;
     private readonly CircularBuffer _buffer;
     private readonly CircularBuffer _logReturns;
     private double _previousClose;
+    private const int TradingDaysPerYear = 252;
+    private const double Epsilon = 1e-10;
 
     /// <param name="period">The number of periods for volatility calculation.</param>
     /// <param name="isAnnualized">Whether to annualize the result (default true).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Hv(int period, bool isAnnualized = true)
     {
         if (period < 2)
@@ -74,12 +77,14 @@ public class Hv : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods for volatility calculation.</param>
     /// <param name="isAnnualized">Whether to annualize the result (default true).</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Hv(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -88,6 +93,7 @@ public class Hv : AbstractBase
         _previousClose = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -97,6 +103,36 @@ public class Hv : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateLogReturn(double currentPrice, double previousPrice)
+    {
+        return previousPrice > Epsilon ? Math.Log(currentPrice / previousPrice) : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateMean(ReadOnlySpan<double> values)
+    {
+        double sum = 0;
+        for (int i = 0; i < values.Length; i++)
+        {
+            sum += values[i];
+        }
+        return sum / values.Length;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateVariance(ReadOnlySpan<double> values, double mean, int degreesOfFreedom)
+    {
+        double sumSquaredDiff = 0;
+        for (int i = 0; i < values.Length; i++)
+        {
+            double diff = values[i] - mean;
+            sumSquaredDiff += diff * diff;
+        }
+        return sumSquaredDiff / degreesOfFreedom;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -106,26 +142,23 @@ public class Hv : AbstractBase
         if (_buffer.Count > 1)
         {
             // Calculate log return if we have previous close
-            if (_previousClose != 0)
+            if (_previousClose > Epsilon)
             {
-                double logReturn = Math.Log(Input.Value / _previousClose);
+                double logReturn = CalculateLogReturn(Input.Value, _previousClose);
                 _logReturns.Add(logReturn, Input.IsNew);
             }
 
             // Calculate volatility when we have enough returns
             if (_logReturns.Count == Period)
             {
-                var returns = _logReturns.GetSpan().ToArray();
-                double mean = returns.Average();
-                double sumOfSquaredDifferences = returns.Sum(x => Math.Pow(x - mean, 2));
-
-                // Sample standard deviation
-                double variance = sumOfSquaredDifferences / (Period - 1);
+                ReadOnlySpan<double> returns = _logReturns.GetSpan();
+                double mean = CalculateMean(returns);
+                double variance = CalculateVariance(returns, mean, Period - 1);
                 volatility = Math.Sqrt(variance);
 
                 if (IsAnnualized)
                 {
-                    volatility *= Math.Sqrt(252); // Annualize using trading days
+                    volatility *= Math.Sqrt(TradingDaysPerYear);
                 }
             }
         }

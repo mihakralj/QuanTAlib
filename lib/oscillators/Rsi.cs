@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -35,15 +35,19 @@ namespace QuanTAlib;
 /// Note: Default period of 14 was recommended by Wilder
 /// </remarks>
 
-public class Rsi : AbstractBase
+[SkipLocalsInit]
+public sealed class Rsi : AbstractBase
 {
     private readonly Rma _avgGain;
     private readonly Rma _avgLoss;
     private double _prevValue, _p_prevValue;
+    private const double ScalingFactor = 100.0;
+    private const int DefaultPeriod = 14;
 
     /// <param name="period">The number of periods used in the RSI calculation (default 14).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
-    public Rsi(int period = 14)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rsi(int period = DefaultPeriod)
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period));
@@ -56,12 +60,14 @@ public class Rsi : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods used in the RSI calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rsi(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,6 +81,19 @@ public class Rsi : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double gain, double loss) CalculateGainLoss(double change)
+    {
+        return (Math.Max(change, 0), Math.Max(-change, 0));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateRsi(double avgGain, double avgLoss)
+    {
+        return avgLoss > 0 ? ScalingFactor - (ScalingFactor / (1 + (avgGain / avgLoss))) : ScalingFactor;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -86,17 +105,14 @@ public class Rsi : AbstractBase
 
         // Calculate price change and separate gains/losses
         double change = Input.Value - _prevValue;
-        double gain = Math.Max(change, 0);
-        double loss = Math.Max(-change, 0);
+        var (gain, loss) = CalculateGainLoss(change);
         _prevValue = Input.Value;
 
         // Calculate smoothed averages using Wilder's method
-        _avgGain.Calc(gain, IsNew: Input.IsNew);
-        _avgLoss.Calc(loss, IsNew: Input.IsNew);
+        _avgGain.Calc(gain, Input.IsNew);
+        _avgLoss.Calc(loss, Input.IsNew);
 
         // Calculate RSI
-        double rsi = (_avgLoss.Value > 0) ? 100 - (100 / (1 + (_avgGain.Value / _avgLoss.Value))) : 100;
-
-        return rsi;
+        return CalculateRsi(_avgGain.Value, _avgLoss.Value);
     }
 }

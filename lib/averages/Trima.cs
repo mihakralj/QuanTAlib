@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,6 +29,7 @@ namespace QuanTAlib;
 public class Trima : AbstractBase
 {
     private readonly Convolution _convolution;
+    private readonly double[] _kernel;
 
     /// <param name="period">The number of data points used in the TRIMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -36,9 +37,10 @@ public class Trima : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _convolution = new Convolution(GenerateKernel(period));
+        _kernel = GenerateKernel(period);
+        _convolution = new Convolution(_kernel);
         Name = "Trima";
         WarmupPeriod = period;
         Init();
@@ -57,33 +59,38 @@ public class Trima : AbstractBase
     /// </summary>
     /// <param name="period">The period for which to generate the kernel.</param>
     /// <returns>An array of normalized triangular weights for the convolution operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double[] GenerateKernel(int period)
     {
         double[] kernel = new double[period];
         int halfPeriod = (period + 1) / 2;
         double weightSum = 0;
 
+        // Calculate weights and sum in one pass
         for (int i = 0; i < period; i++)
         {
             kernel[i] = i < halfPeriod ? i + 1 : period - i;
             weightSum += kernel[i];
         }
 
-        // Normalize the kernel
+        // Normalize using multiplication instead of division
+        double invWeightSum = 1.0 / weightSum;
         for (int i = 0; i < period; i++)
         {
-            kernel[i] /= weightSum;
+            kernel[i] *= invWeightSum;
         }
 
         return kernel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private new void Init()
     {
         base.Init();
         _convolution.Init();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -98,11 +105,9 @@ public class Trima : AbstractBase
         ManageState(Input.IsNew);
 
         // Use Convolution for calculation
-        TValue convolutionResult = _convolution.Calc(Input);
-
-        double result = convolutionResult.Value;
+        var convolutionResult = _convolution.Calc(Input);
         IsHot = _index >= WarmupPeriod;
 
-        return result;
+        return convolutionResult.Value;
     }
 }

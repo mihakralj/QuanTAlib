@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -41,7 +41,7 @@ public class Qema : AbstractBase
     {
         if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(k1), "All k values must be in the range (0, 1].");
+            throw new System.ArgumentOutOfRangeException(nameof(k1), "All k values must be in the range (0, 1].");
         }
 
         _ema1 = new Ema(k1);
@@ -50,8 +50,7 @@ public class Qema : AbstractBase
         _ema4 = new Ema(k4);
 
         Name = $"QEMA ({k1:F2},{k2:F2},{k3:F2},{k4:F2})";
-        double smK = Math.Min(Math.Min(k1, k2), Math.Min(k3, k4));
-
+        double smK = System.Math.Min(System.Math.Min(k1, k2), System.Math.Min(k3, k4));
         WarmupPeriod = (int)((2 - smK) / smK);
         Init();
     }
@@ -68,6 +67,7 @@ public class Qema : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -75,6 +75,7 @@ public class Qema : AbstractBase
         _p_lastQema = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -88,16 +89,25 @@ public class Qema : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateEma(Ema ema, double value)
+    {
+        var tempValue = new TValue(Input.Time, value, Input.IsNew);
+        return ema.Calc(tempValue).Value;
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
-        double ema1 = _ema1.Calc(new TValue(Input.Time, Input.Value, Input.IsNew));
-        double ema2 = _ema2.Calc(new TValue(Input.Time, ema1, Input.IsNew));
-        double ema3 = _ema3.Calc(new TValue(Input.Time, ema2, Input.IsNew));
-        double ema4 = _ema4.Calc(new TValue(Input.Time, ema3, Input.IsNew));
+        // Calculate EMAs in sequence
+        double ema1 = CalculateEma(_ema1, Input.Value);
+        double ema2 = CalculateEma(_ema2, ema1);
+        double ema3 = CalculateEma(_ema3, ema2);
+        double ema4 = CalculateEma(_ema4, ema3);
 
-        _lastQema = 4 * ema1 - 6 * ema2 + 4 * ema3 - ema4;
+        // Combine EMAs using optimized formula
+        _lastQema = 4.0 * (ema1 + ema3) - (6.0 * ema2 + ema4);
 
         IsHot = _index >= WarmupPeriod;
         return _lastQema;

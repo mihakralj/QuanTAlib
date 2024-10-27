@@ -1,5 +1,5 @@
-using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -40,13 +40,18 @@ namespace QuanTAlib;
 /// Note: Particularly useful for price level analysis
 /// </remarks>
 
-public class Mode : AbstractBase
+[SkipLocalsInit]
+public sealed class Mode : AbstractBase
 {
     private readonly int Period;
     private readonly CircularBuffer _buffer;
+    private readonly Dictionary<double, int> _frequencies;
+    private readonly List<double> _modes;
+    private const double Epsilon = 1e-10;
 
     /// <param name="period">The number of points to consider for mode calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mode(int period)
     {
         if (period < 1)
@@ -56,24 +61,31 @@ public class Mode : AbstractBase
         Period = period;
         WarmupPeriod = period;
         _buffer = new CircularBuffer(period);
+        _frequencies = new Dictionary<double, int>();
+        _modes = new List<double>();
         Name = $"Mode(period={period})";
         Init();
     }
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for mode calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mode(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
+        _frequencies.Clear();
+        _modes.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -83,6 +95,49 @@ public class Mode : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private void CountFrequencies(ReadOnlySpan<double> values)
+    {
+        _frequencies.Clear();
+        for (int i = 0; i < values.Length; i++)
+        {
+            _frequencies[values[i]] = _frequencies.TryGetValue(values[i], out int count) ? count + 1 : 1;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private void FindModes()
+    {
+        _modes.Clear();
+        int maxCount = 0;
+
+        foreach (var kvp in _frequencies)
+        {
+            if (kvp.Value > maxCount)
+            {
+                maxCount = kvp.Value;
+                _modes.Clear();
+                _modes.Add(kvp.Key);
+            }
+            else if (kvp.Value == maxCount)
+            {
+                _modes.Add(kvp.Key);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculateAverageMode()
+    {
+        double sum = 0;
+        for (int i = 0; i < _modes.Count; i++)
+        {
+            sum += _modes[i];
+        }
+        return sum / _modes.Count;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -91,21 +146,10 @@ public class Mode : AbstractBase
         double mode;
         if (_index >= Period)
         {
-            // Group values by frequency and order by count
-            var values = _buffer.GetSpan().ToArray();
-            var groupedValues = values.GroupBy(v => v)
-                                    .OrderByDescending(g => g.Count())
-                                    .ThenBy(g => g.Key)
-                                    .ToList();
-
-            // Find all values with highest frequency
-            int maxCount = groupedValues.First().Count();
-            var modes = groupedValues.TakeWhile(g => g.Count() == maxCount)
-                                   .Select(g => g.Key)
-                                   .ToList();
-
-            // Average multiple modes if present
-            mode = modes.Average();
+            ReadOnlySpan<double> values = _buffer.GetSpan();
+            CountFrequencies(values);
+            FindModes();
+            mode = CalculateAverageMode();
         }
         else
         {

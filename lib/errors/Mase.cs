@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,7 +29,8 @@ namespace QuanTAlib;
 ///     https://robjhyndman.com/papers/another-look-at-measures-of-forecast-accuracy/
 /// </remarks>
 
-public class Mase : AbstractBase
+[SkipLocalsInit]
+public sealed class Mase : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
@@ -37,6 +38,7 @@ public class Mase : AbstractBase
 
     /// <param name="period">The number of points over which to calculate the MASE.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mase(int period)
     {
         if (period < 1)
@@ -53,12 +55,14 @@ public class Mase : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the MASE.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Mase(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -67,6 +71,7 @@ public class Mase : AbstractBase
         _naiveBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -76,6 +81,7 @@ public class Mase : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -103,6 +109,7 @@ public class Mase : AbstractBase
     /// Calculates the MASE value by comparing forecast error to naive forecast error.
     /// </summary>
     /// <returns>The calculated MASE value, or positive infinity if naive error is zero.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private double CalculateMase()
     {
         if (_actualBuffer.Count <= 1) return 0;
@@ -112,14 +119,15 @@ public class Mase : AbstractBase
         ReadOnlySpan<double> naiveValues = _naiveBuffer.GetSpan();
 
         double sumAbsoluteError = CalculateSumAbsoluteError(actualValues, predictedValues);
-        double _naiveForecastError = CalculateNaiveForecastError(actualValues, naiveValues);
+        double naiveForecastError = CalculateNaiveForecastError(actualValues, naiveValues);
 
-        return _naiveForecastError != 0 ? (sumAbsoluteError / _actualBuffer.Count) / _naiveForecastError : double.PositiveInfinity;
+        return naiveForecastError != 0 ? (sumAbsoluteError / _actualBuffer.Count) / naiveForecastError : double.PositiveInfinity;
     }
 
     /// <summary>
     /// Calculates the sum of absolute errors between actual and predicted values.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double CalculateSumAbsoluteError(ReadOnlySpan<double> actualValues, ReadOnlySpan<double> predictedValues)
     {
         double sum = 0;
@@ -133,6 +141,7 @@ public class Mase : AbstractBase
     /// <summary>
     /// Calculates the naive forecast error using the previous value as prediction.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double CalculateNaiveForecastError(ReadOnlySpan<double> actualValues, ReadOnlySpan<double> naiveValues)
     {
         double sum = 0;

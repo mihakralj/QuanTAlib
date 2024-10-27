@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -28,7 +28,9 @@ namespace QuanTAlib;
 public class Smma : AbstractBase
 {
     private readonly int _period;
-    private CircularBuffer? _buffer;
+    private readonly double _periodRecip;  // 1/period
+    private readonly double _periodMinusOne;  // period-1
+    private readonly CircularBuffer _buffer;
     private double _lastSmma, _p_lastSmma;
 
     /// <param name="period">The number of data points used in the SMMA calculation.</param>
@@ -37,9 +39,12 @@ public class Smma : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
+        _periodRecip = 1.0 / period;
+        _periodMinusOne = period - 1;
+        _buffer = new CircularBuffer(period);
         WarmupPeriod = period;
         Name = $"Smma({_period})";
         Init();
@@ -53,13 +58,15 @@ public class Smma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
-        _buffer = new CircularBuffer(_period);
+        _buffer.Clear();
         _lastSmma = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -74,18 +81,21 @@ public class Smma : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateSmma(double input)
+    {
+        return (_lastSmma * _periodMinusOne + input) * _periodRecip;
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-
-        _buffer!.Add(Input.Value, Input.IsNew);
+        _buffer.Add(Input.Value, Input.IsNew);
 
         double smma;
-
         if (_index <= _period)
         {
             smma = _buffer.Average();
-
             if (_index == _period)
             {
                 _lastSmma = smma; // Initialize _lastSmma for the transition
@@ -93,7 +103,7 @@ public class Smma : AbstractBase
         }
         else
         {
-            smma = ((_lastSmma * (_period - 1)) + Input.Value) / _period;
+            smma = CalculateSmma(Input.Value);
         }
 
         _lastSmma = smma;

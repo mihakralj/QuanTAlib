@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -30,15 +30,18 @@ namespace QuanTAlib;
 ///     https://projecteuclid.org/euclid.aoms/1177703732
 /// </remarks>
 
-public class Huber : AbstractBase
+[SkipLocalsInit]
+public sealed class Huber : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
     private readonly double _delta;
+    private readonly double _halfDelta;
 
     /// <param name="period">The number of points over which to calculate the loss.</param>
     /// <param name="delta">The threshold between squared and linear loss (default 1.0).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1 or delta is not positive.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Huber(int period, double delta = 1.0)
     {
         if (period < 1)
@@ -53,6 +56,7 @@ public class Huber : AbstractBase
         _actualBuffer = new CircularBuffer(period);
         _predictedBuffer = new CircularBuffer(period);
         _delta = delta;
+        _halfDelta = delta * 0.5;
         Name = $"Huberloss(period={period}, delta={delta})";
         Init();
     }
@@ -60,12 +64,14 @@ public class Huber : AbstractBase
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the loss.</param>
     /// <param name="delta">The threshold between squared and linear loss (default 1.0).</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Huber(object source, int period, double delta = 1.0) : this(period, delta)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -73,6 +79,7 @@ public class Huber : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -82,6 +89,20 @@ public class Huber : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private double CalculateHuberLoss(double error)
+    {
+        double absError = Math.Abs(error);
+        if (absError <= _delta)
+        {
+            // Squared error for small deviations
+            return 0.5 * error * error;
+        }
+        // Linear error for large deviations
+        return _delta * (absError - _halfDelta);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -96,28 +117,17 @@ public class Huber : AbstractBase
         double huberloss = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumLoss = 0;
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
                 double error = actualValues[i] - predictedValues[i];
-                double absError = Math.Abs(error);
-
-                if (absError <= _delta)
-                {
-                    // Squared error for small deviations
-                    sumLoss += 0.5 * error * error;
-                }
-                else
-                {
-                    // Linear error for large deviations
-                    sumLoss += _delta * (absError - 0.5 * _delta);
-                }
+                sumLoss += CalculateHuberLoss(error);
             }
 
-            huberloss = sumLoss / _actualBuffer.Count;
+            huberloss = sumLoss / actualValues.Length;
         }
 
         IsHot = _index >= WarmupPeriod;

@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -34,24 +34,34 @@ namespace QuanTAlib;
 /// Note: Proprietary enhancement of RSI using JMA technology
 /// </remarks>
 
-public class Rsx : AbstractBase
+[SkipLocalsInit]
+public sealed class Rsx : AbstractBase
 {
     private readonly Rma _avgGain;
     private readonly Rma _avgLoss;
     private readonly Jma _rsx;
     private double _prevValue, _p_prevValue;
+    private const double ScalingFactor = 100.0;
+    private const int DefaultPeriod = 14;
+    private const int DefaultPhase = 0;
+    private const double DefaultFactor = 0.55;
+    private const int JmaPeriod = 8;
+    private const int JmaPower = 100;
+    private const double JmaPhase = 0.25;
+    private const int JmaExtra = 3;
 
     /// <param name="period">The number of periods for RSI calculation (default 14).</param>
     /// <param name="phase">The phase parameter for JMA smoothing (default 0).</param>
     /// <param name="factor">The factor parameter for smoothing control (default 0.55).</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
-    public Rsx(int period = 14, int phase = 0, double factor = 0.55)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rsx(int period = DefaultPeriod, int phase = DefaultPhase, double factor = DefaultFactor)
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period));
         _avgGain = new(period);
         _avgLoss = new(period);
-        _rsx = new(8, 100, 0.25, 3);
+        _rsx = new(JmaPeriod, JmaPower, JmaPhase, JmaExtra);
         _index = 0;
         WarmupPeriod = period + 1;
         Name = $"RSX({period})";
@@ -61,12 +71,14 @@ public class Rsx : AbstractBase
     /// <param name="period">The number of periods for RSI calculation.</param>
     /// <param name="phase">The phase parameter for JMA smoothing.</param>
     /// <param name="factor">The factor parameter for smoothing control.</param>
-    public Rsx(object source, int period, int phase = 0, double factor = 0.55) : this(period, phase, factor)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rsx(object source, int period, int phase = DefaultPhase, double factor = DefaultFactor) : this(period, phase, factor)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -80,6 +92,19 @@ public class Rsx : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double gain, double loss) CalculateGainLoss(double change)
+    {
+        return (Math.Max(change, 0), Math.Max(-change, 0));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateRsi(double avgGain, double avgLoss)
+    {
+        return avgLoss > 0 ? ScalingFactor - (ScalingFactor / (1 + (avgGain / avgLoss))) : ScalingFactor;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -91,18 +116,17 @@ public class Rsx : AbstractBase
 
         // Calculate RSI components
         double change = Input.Value - _prevValue;
-        double gain = Math.Max(change, 0);
-        double loss = Math.Max(-change, 0);
+        var (gain, loss) = CalculateGainLoss(change);
         _prevValue = Input.Value;
 
         // Calculate RSI
-        _avgGain.Calc(gain, IsNew: Input.IsNew);
-        _avgLoss.Calc(loss, IsNew: Input.IsNew);
-        double rsi = (_avgLoss.Value > 0) ? 100 - (100 / (1 + (_avgGain.Value / _avgLoss.Value))) : 100;
+        _avgGain.Calc(gain, Input.IsNew);
+        _avgLoss.Calc(loss, Input.IsNew);
+        double rsi = CalculateRsi(_avgGain.Value, _avgLoss.Value);
 
         // Apply JMA smoothing
-        double rsx = _rsx.Calc(rsi, Input.IsNew);
+        _rsx.Calc(rsi, Input.IsNew);
 
-        return rsx;
+        return _rsx.Value;
     }
 }

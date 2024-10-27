@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -29,7 +29,8 @@ public class Kama : AbstractBase
 {
     private readonly int _period;
     private readonly double _scFast, _scSlow;
-    private CircularBuffer? _buffer;
+    private readonly double _scDiff;  // Precalculated (_scFast - _scSlow)
+    private readonly CircularBuffer _buffer;
     private double _lastKama, _p_lastKama;
 
     /// <param name="period">The number of periods used to calculate the Efficiency Ratio.</param>
@@ -40,11 +41,13 @@ public class Kama : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
         _scFast = 2.0 / (((period < fast) ? period : fast) + 1);
         _scSlow = 2.0 / (slow + 1);
+        _scDiff = _scFast - _scSlow;
+        _buffer = new CircularBuffer(_period + 1);
         WarmupPeriod = period;
         Name = $"Kama({_period}, {fast}, {slow})";
         Init();
@@ -60,13 +63,15 @@ public class Kama : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
-        _buffer = new CircularBuffer(_period + 1);
+        _buffer.Clear();
         _lastKama = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -81,36 +86,50 @@ public class Kama : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateVolatility()
+    {
+        double volatility = 0;
+        for (int i = 1; i < _buffer.Count; i++)
+        {
+            volatility += System.Math.Abs(_buffer[i] - _buffer[i - 1]);
+        }
+        return volatility;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateEfficiencyRatio(double change, double volatility)
+    {
+        return volatility != 0 ? change / volatility : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateSmoothingConstant(double er)
+    {
+        double sc = (er * _scDiff) + _scSlow;
+        return sc * sc; // Square the smoothing constant
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
-        _buffer!.Add(Input.Value, Input.IsNew);
+        _buffer.Add(Input.Value, Input.IsNew);
 
-        double kama;
         if (_index <= _period)
         {
-            kama = Input.Value;
-        }
-        else
-        {
-            double change = Math.Abs(_buffer[^1] - _buffer[0]);
-            double volatility = 0;
-            for (int i = 1; i < _buffer.Count; i++)
-            {
-                volatility += Math.Abs(_buffer[i] - _buffer[i - 1]);
-            }
-
-            double er = volatility != 0 ? change / volatility : 0;
-            double sc = (er * (_scFast - _scSlow)) + _scSlow;
-            sc *= sc; // Square the smoothing constant
-
-            kama = _lastKama + (sc * (Input.Value - _lastKama));
+            _lastKama = Input.Value;
+            return Input.Value;
         }
 
-        _lastKama = kama;
+        double change = System.Math.Abs(_buffer[^1] - _buffer[0]);
+        double volatility = CalculateVolatility();
+        double er = CalculateEfficiencyRatio(change, volatility);
+        double sc = CalculateSmoothingConstant(er);
+
+        _lastKama += sc * (Input.Value - _lastKama);
         IsHot = _index >= WarmupPeriod;
 
-        return kama;
+        return _lastKama;
     }
 }

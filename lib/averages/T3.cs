@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -31,8 +31,10 @@ public class T3 : AbstractBase
     private readonly int _period;
     private readonly double _vfactor;
     private readonly bool _useSma;
-    private readonly double _k, _k1m, _c1, _c2, _c3, _c4;
+    private readonly double _k;
+    private readonly double _c1, _c2, _c3, _c4;
     private readonly CircularBuffer _buffer1, _buffer2, _buffer3, _buffer4, _buffer5, _buffer6;
+
     private double _lastEma1, _lastEma2, _lastEma3, _lastEma4, _lastEma5, _lastEma6;
     private double _p_lastEma1, _p_lastEma2, _p_lastEma3, _p_lastEma4, _p_lastEma5, _p_lastEma6;
 
@@ -44,7 +46,7 @@ public class T3 : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
         _vfactor = vfactor;
@@ -52,11 +54,14 @@ public class T3 : AbstractBase
         WarmupPeriod = period;
 
         _k = 2.0 / (_period + 1);
-        _k1m = 1.0 - _k;
-        _c1 = -_vfactor * _vfactor * _vfactor;
-        _c2 = 3 * _vfactor * _vfactor + 3 * _vfactor * _vfactor * _vfactor;
-        _c3 = -6 * _vfactor * _vfactor - 3 * _vfactor - 3 * _vfactor * _vfactor * _vfactor;
-        _c4 = 1 + 3 * _vfactor + _vfactor * _vfactor * _vfactor + 3 * _vfactor * _vfactor;
+
+        // Precalculate coefficients
+        double v2 = vfactor * vfactor;
+        double v3 = v2 * vfactor;
+        _c1 = -v3;
+        _c2 = 3.0 * (v2 + v3);
+        _c3 = -3.0 * (2.0 * v2 + vfactor + v3);
+        _c4 = 1.0 + 3.0 * vfactor + v3 + 3.0 * v2;
 
         _buffer1 = new(period);
         _buffer2 = new(period);
@@ -79,6 +84,7 @@ public class T3 : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         _lastEma1 = _lastEma2 = _lastEma3 = _lastEma4 = _lastEma5 = _lastEma6 = 0;
@@ -90,6 +96,7 @@ public class T3 : AbstractBase
         _buffer6.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -112,6 +119,18 @@ public class T3 : AbstractBase
             _lastEma5 = _p_lastEma5;
             _lastEma6 = _p_lastEma6;
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateEma(double input, double lastEma)
+    {
+        return _k * (input - lastEma) + lastEma;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateT3(double ema3, double ema4, double ema5, double ema6)
+    {
+        return _c1 * ema6 + _c2 * ema5 + _c3 * ema4 + _c4 * ema3;
     }
 
     protected override double Calculation()
@@ -141,12 +160,12 @@ public class T3 : AbstractBase
         }
         else
         {
-            ema1 = _k * (Input.Value - _lastEma1) + _lastEma1;
-            ema2 = _k * (ema1 - _lastEma2) + _lastEma2;
-            ema3 = _k * (ema2 - _lastEma3) + _lastEma3;
-            ema4 = _k * (ema3 - _lastEma4) + _lastEma4;
-            ema5 = _k * (ema4 - _lastEma5) + _lastEma5;
-            ema6 = _k * (ema5 - _lastEma6) + _lastEma6;
+            ema1 = CalculateEma(Input.Value, _lastEma1);
+            ema2 = CalculateEma(ema1, _lastEma2);
+            ema3 = CalculateEma(ema2, _lastEma3);
+            ema4 = CalculateEma(ema3, _lastEma4);
+            ema5 = CalculateEma(ema4, _lastEma5);
+            ema6 = CalculateEma(ema5, _lastEma6);
         }
 
         _lastEma1 = ema1;
@@ -156,9 +175,7 @@ public class T3 : AbstractBase
         _lastEma5 = ema5;
         _lastEma6 = ema6;
 
-        double t3 = _c1 * ema6 + _c2 * ema5 + _c3 * ema4 + _c4 * ema3;
-
         IsHot = _index >= WarmupPeriod;
-        return t3;
+        return CalculateT3(ema3, ema4, ema5, ema6);
     }
 }

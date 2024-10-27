@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -31,13 +31,15 @@ namespace QuanTAlib;
 /// Note: Square root of MSE, making it more interpretable in original units
 /// </remarks>
 
-public class Rmse : AbstractBase
+[SkipLocalsInit]
+public sealed class Rmse : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
     /// <param name="period">The number of points over which to calculate the RMSE.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rmse(int period)
     {
         if (period < 1)
@@ -53,12 +55,14 @@ public class Rmse : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the RMSE.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rmse(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -66,6 +70,7 @@ public class Rmse : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,6 +80,14 @@ public class Rmse : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateSquaredError(double actual, double predicted)
+    {
+        double error = actual - predicted;
+        return error * error;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -89,17 +102,16 @@ public class Rmse : AbstractBase
         double rmse = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumSquaredError = 0;
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
-                double error = actualValues[i] - predictedValues[i];
-                sumSquaredError += error * error;
+                sumSquaredError += CalculateSquaredError(actualValues[i], predictedValues[i]);
             }
 
-            rmse = Math.Sqrt(sumSquaredError / _actualBuffer.Count);
+            rmse = Math.Sqrt(sumSquaredError / actualValues.Length);
         }
 
         IsHot = _index >= WarmupPeriod;

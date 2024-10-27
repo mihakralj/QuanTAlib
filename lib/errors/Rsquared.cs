@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -31,13 +30,15 @@ namespace QuanTAlib;
 /// Note: Can be negative if predictions are worse than using the mean
 /// </remarks>
 
-public class Rsquared : AbstractBase
+[SkipLocalsInit]
+public sealed class Rsquared : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
     /// <param name="period">The number of points over which to calculate the R-squared value.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rsquared(int period)
     {
         if (period < 1)
@@ -53,12 +54,14 @@ public class Rsquared : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the R-squared value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rsquared(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -66,6 +69,7 @@ public class Rsquared : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,6 +79,15 @@ public class Rsquared : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double squaredResidual, double squaredTotal) CalculateSquaredErrors(double actual, double predicted, double meanActual)
+    {
+        double deviation = actual - meanActual;
+        double error = actual - predicted;
+        return (error * error, deviation * deviation);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -89,25 +102,21 @@ public class Rsquared : AbstractBase
         double rsquared = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
-            double meanActual = actualValues.Average();
+            double meanActual = _actualBuffer.Average();
             double sumSquaredTotal = 0;
             double sumSquaredResidual = 0;
 
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
-                double deviation = actualValues[i] - meanActual;
-                sumSquaredTotal += deviation * deviation;
-                double error = actualValues[i] - predictedValues[i];
-                sumSquaredResidual += error * error;
+                var (squaredResidual, squaredTotal) = CalculateSquaredErrors(actualValues[i], predictedValues[i], meanActual);
+                sumSquaredResidual += squaredResidual;
+                sumSquaredTotal += squaredTotal;
             }
 
-            if (sumSquaredTotal != 0)
-            {
-                rsquared = 1 - (sumSquaredResidual / sumSquaredTotal);
-            }
+            rsquared = sumSquaredTotal != 0 ? 1 - (sumSquaredResidual / sumSquaredTotal) : 0;
         }
 
         IsHot = _index >= WarmupPeriod;

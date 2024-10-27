@@ -1,5 +1,5 @@
-using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -41,41 +41,52 @@ namespace QuanTAlib;
 /// Note: Normalized to [0,1] for easier interpretation
 /// </remarks>
 
-public class Entropy : AbstractBase
+[SkipLocalsInit]
+public sealed class Entropy : AbstractBase
 {
     private readonly int Period;
     private readonly CircularBuffer _buffer;
+    private readonly Dictionary<double, int> _valueCounts;
+    private const double Epsilon = 1e-10;
+    private const double DefaultEntropy = 1.0;
+    private const int MinimumPoints = 2;
 
     /// <param name="period">The number of points to consider for entropy calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Entropy(int period)
     {
-        if (period < 2)
+        if (period < MinimumPoints)
         {
             throw new ArgumentOutOfRangeException(nameof(period),
                 "Period must be greater than or equal to 2 for entropy calculation.");
         }
         Period = period;
-        WarmupPeriod = 2; // Minimum number of points needed for entropy calculation
+        WarmupPeriod = MinimumPoints; // Minimum number of points needed for entropy calculation
         _buffer = new CircularBuffer(period);
+        _valueCounts = new Dictionary<double, int>();
         Name = $"Entropy(period={period})";
         Init();
     }
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points to consider for entropy calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Entropy(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
+        _valueCounts.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -85,38 +96,49 @@ public class Entropy : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static void CountValues(ReadOnlySpan<double> values, Dictionary<double, int> counts)
+    {
+        counts.Clear();
+        for (int i = 0; i < values.Length; i++)
+        {
+            counts[values[i]] = counts.TryGetValue(values[i], out int count) ? count + 1 : 1;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateShannonsEntropy(Dictionary<double, int> counts, int totalCount)
+    {
+        double entropy = 0;
+        foreach (var count in counts.Values)
+        {
+            double probability = (double)count / totalCount;
+            entropy -= probability * Math.Log2(probability);
+        }
+        return entropy;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
         _buffer.Add(Input.Value, Input.IsNew);
 
-        double entropy = 0;
-        if (_index > 1)  // Need at least two data points for entropy calculation
+        if (_index <= 1)  // Need at least two data points for entropy calculation
         {
-            var values = _buffer.GetSpan().ToArray();
-            int n = values.Length;
-
-            // Calculate probabilities for each unique value
-            var groupedValues = values.GroupBy(x => x).Select(g => new { Value = g.Key, Count = g.Count() });
-
-            // Calculate Shannon's entropy
-            foreach (var group in groupedValues)
-            {
-                double probability = (double)group.Count / n;
-                entropy -= probability * Math.Log2(probability);
-            }
-
-            // Normalize by maximum possible entropy for current unique values
-            int uniqueValueCount = groupedValues.Count();
-            double maxEntropy = Math.Log2(uniqueValueCount);
-
-            entropy = entropy == 0 ? 1 : entropy / maxEntropy;
+            return DefaultEntropy;
         }
-        else
-        {
-            entropy = 1; // Maximum entropy when insufficient data
-        }
+
+        ReadOnlySpan<double> values = _buffer.GetSpan();
+        CountValues(values, _valueCounts);
+
+        // Calculate Shannon's entropy
+        double entropy = CalculateShannonsEntropy(_valueCounts, values.Length);
+
+        // Normalize by maximum possible entropy for current unique values
+        double maxEntropy = Math.Log2(_valueCounts.Count);
+        entropy = maxEntropy < Epsilon ? DefaultEntropy : entropy / maxEntropy;
 
         IsHot = _buffer.Count >= Period;
         return entropy;

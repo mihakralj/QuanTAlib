@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -42,14 +42,18 @@ namespace QuanTAlib;
 /// Note: Similar concept to RSI but using volatility
 /// </remarks>
 
-public class Rvi : AbstractBase
+[SkipLocalsInit]
+public sealed class Rvi : AbstractBase
 {
     private readonly Stddev _upStdDev, _downStdDev;
     private readonly Sma _upSma, _downSma;
     private double _previousClose;
+    private const double ScalingFactor = 100.0;
+    private const double Epsilon = 1e-10;
 
     /// <param name="period">The number of periods for RVI calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rvi(int period)
     {
         if (period < 2)
@@ -57,30 +61,32 @@ public class Rvi : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(period),
                 "Period must be greater than or equal to 2.");
         }
-        int Period = period;
         WarmupPeriod = period;
         Name = $"RVI(period={period})";
-        _upStdDev = new Stddev(Period);
-        _downStdDev = new Stddev(Period);
-        _upSma = new(Period);
-        _downSma = new(Period);
+        _upStdDev = new Stddev(period);
+        _downStdDev = new Stddev(period);
+        _upSma = new(period);
+        _downSma = new(period);
         Init();
     }
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of periods for RVI calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rvi(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _previousClose = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -90,6 +96,20 @@ public class Rvi : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double upMove, double downMove) CalculateMoves(double change)
+    {
+        return (Math.Max(change, 0), Math.Max(-change, 0));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateRvi(double upSma, double downSma)
+    {
+        double totalSma = upSma + downSma;
+        return totalSma > Epsilon ? ScalingFactor * upSma / totalSma : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -98,18 +118,14 @@ public class Rvi : AbstractBase
         double change = close - _previousClose;
 
         // Separate into up and down moves
-        double upMove = Math.Max(change, 0);
-        double downMove = Math.Max(-change, 0);
+        var (upMove, downMove) = CalculateMoves(change);
 
         // Calculate standard deviations and apply smoothing
         _upSma.Calc(_upStdDev.Calc(new TValue(Input.Time, upMove, Input.IsNew)));
         _downSma.Calc(_downStdDev.Calc(new TValue(Input.Time, downMove, Input.IsNew)));
 
         // Calculate RVI ratio
-        double rvi;
-        rvi = (_upSma.Value + _downSma.Value != 0)
-            ? 100 * _upSma.Value / (_upSma.Value + _downSma.Value)
-            : 0;
+        double rvi = CalculateRvi(_upSma.Value, _downSma.Value);
 
         _previousClose = close;
         IsHot = _index >= WarmupPeriod;

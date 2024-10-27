@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -17,6 +17,7 @@ public class Convolution : AbstractBase
     private readonly int _kernelSize;
     private readonly CircularBuffer _buffer;
     private readonly double[] _normalizedKernel;
+    private int _activeLength;
 
     /// <param name="kernel">Array of weights defining the convolution operation. The length of this array determines the filter's window size.</param>
     /// <exception cref="ArgumentException">Thrown when kernel is null or empty.</exception>
@@ -41,22 +42,27 @@ public class Convolution : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private new void Init()
     {
         base.Init();
         _buffer.Clear();
-        Array.Copy(_kernel, _normalizedKernel, _kernelSize);
+        System.Array.Copy(_kernel, _normalizedKernel, _kernelSize);
+        _activeLength = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
         {
             _lastValidValue = Input.Value;
             _index++;
+            _activeLength = System.Math.Min(_index, _kernelSize);
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override double GetLastValid()
     {
         return _lastValidValue;
@@ -65,7 +71,6 @@ public class Convolution : AbstractBase
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-
         _buffer.Add(Input.Value, Input.IsNew);
 
         // Normalize kernel on each calculation until buffer is full
@@ -80,37 +85,56 @@ public class Convolution : AbstractBase
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void NormalizeKernel()
     {
-        int activeLength = Math.Min(_index, _kernelSize);
         double sum = 0;
 
         // Calculate the sum of the active kernel elements
-        for (int i = 0; i < activeLength; i++)
+        for (int i = 0; i < _activeLength; i++)
         {
             sum += _kernel[i];
         }
 
         // Normalize the kernel or set equal weights if the sum is zero
-        double normalizationFactor = (sum != 0) ? sum : activeLength;
-        for (int i = 0; i < activeLength; i++)
+        double normalizationFactor = (sum != 0) ? sum : _activeLength;
+        double invNormFactor = 1.0 / normalizationFactor;
+
+        for (int i = 0; i < _activeLength; i++)
         {
-            _normalizedKernel[i] = _kernel[i] / normalizationFactor;
+            _normalizedKernel[i] = _kernel[i] * invNormFactor;
         }
 
         // Set the rest of the normalized kernel to zero
-        Array.Clear(_normalizedKernel, activeLength, _kernelSize - activeLength);
+        if (_activeLength < _kernelSize)
+        {
+            System.Array.Clear(_normalizedKernel, _activeLength, _kernelSize - _activeLength);
+        }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double ConvolveBuffer()
     {
         double sum = 0;
         var bufferSpan = _buffer.GetSpan();
-        int activeLength = Math.Min(_index, _kernelSize);
+        int offset = _activeLength - 1;
 
-        for (int i = 0; i < activeLength; i++)
+        // Unroll the loop for better performance when possible
+        int i = 0;
+        while (i <= offset - 3)
         {
-            sum += bufferSpan[activeLength - 1 - i] * _normalizedKernel[i];
+            sum += bufferSpan[offset - i] * _normalizedKernel[i] +
+                  bufferSpan[offset - (i + 1)] * _normalizedKernel[i + 1] +
+                  bufferSpan[offset - (i + 2)] * _normalizedKernel[i + 2] +
+                  bufferSpan[offset - (i + 3)] * _normalizedKernel[i + 3];
+            i += 4;
+        }
+
+        // Handle remaining elements
+        while (i < _activeLength)
+        {
+            sum += bufferSpan[offset - i] * _normalizedKernel[i];
+            i++;
         }
 
         return sum;

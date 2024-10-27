@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -27,6 +27,7 @@ namespace QuanTAlib;
 public class Fwma : AbstractBase
 {
     private readonly Convolution _convolution;
+    private readonly double[] _kernel;
 
     /// <param name="period">The number of data points used in the FWMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -34,9 +35,10 @@ public class Fwma : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _convolution = new Convolution(GenerateKernel(period));
+        _kernel = GenerateKernel(period);
+        _convolution = new Convolution(_kernel);
         Name = "Fwma";
         WarmupPeriod = period;
         Init();
@@ -55,41 +57,42 @@ public class Fwma : AbstractBase
     /// </summary>
     /// <param name="period">The period for which to generate the kernel.</param>
     /// <returns>An array of normalized Fibonacci-based weights for the convolution operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double[] GenerateKernel(int period)
     {
         double[] kernel = new double[period];
         double[] fibSeries = new double[period];
-        double weightSum = 0;
 
-        // Generate Fibonacci series
+        // Generate Fibonacci series with running sum
         fibSeries[0] = fibSeries[1] = 1;
+        double weightSum = 2.0; // Initial sum for first two Fibonacci numbers
+
         for (int i = 2; i < period; i++)
         {
             fibSeries[i] = fibSeries[i - 1] + fibSeries[i - 2];
+            weightSum += fibSeries[i];
         }
 
-        // Reverse the series to give more weight to recent prices
-        for (int i = 0; i < period; i++)
-        {
-            kernel[i] = fibSeries[period - 1 - i];
-            weightSum += kernel[i];
-        }
+        // Calculate inverse of weight sum for normalization
+        double invWeightSum = 1.0 / weightSum;
 
-        // Normalize the kernel
+        // Reverse and normalize the series in one pass
         for (int i = 0; i < period; i++)
         {
-            kernel[i] /= weightSum;
+            kernel[i] = fibSeries[period - 1 - i] * invWeightSum;
         }
 
         return kernel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private new void Init()
     {
         base.Init();
         _convolution.Init();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -104,11 +107,9 @@ public class Fwma : AbstractBase
         ManageState(Input.IsNew);
 
         // Use Convolution for calculation
-        TValue convolutionResult = _convolution.Calc(Input);
-
-        double result = convolutionResult.Value;
+        var convolutionResult = _convolution.Calc(Input);
         IsHot = _index >= WarmupPeriod;
 
-        return result;
+        return convolutionResult.Value;
     }
 }

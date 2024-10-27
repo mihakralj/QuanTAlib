@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -32,13 +32,15 @@ namespace QuanTAlib;
 /// Note: Square root of MSLE, useful for data with exponential growth
 /// </remarks>
 
-public class Rmsle : AbstractBase
+[SkipLocalsInit]
+public sealed class Rmsle : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
     /// <param name="period">The number of points over which to calculate the RMSLE.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rmsle(int period)
     {
         if (period < 1)
@@ -54,12 +56,14 @@ public class Rmsle : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the RMSLE.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rmsle(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -67,6 +71,7 @@ public class Rmsle : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -76,6 +81,16 @@ public class Rmsle : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateSquaredLogError(double actual, double predicted)
+    {
+        double logActual = Math.Log(actual + 1);
+        double logPredicted = Math.Log(predicted + 1);
+        double error = logActual - logPredicted;
+        return error * error;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -90,19 +105,16 @@ public class Rmsle : AbstractBase
         double rmsle = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumSquaredLogError = 0;
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
-                double logActual = Math.Log(actualValues[i] + 1);
-                double logPredicted = Math.Log(predictedValues[i] + 1);
-                double error = logActual - logPredicted;
-                sumSquaredLogError += error * error;
+                sumSquaredLogError += CalculateSquaredLogError(actualValues[i], predictedValues[i]);
             }
 
-            rmsle = Math.Sqrt(sumSquaredLogError / _actualBuffer.Count);
+            rmsle = Math.Sqrt(sumSquaredLogError / actualValues.Length);
         }
 
         IsHot = _index >= WarmupPeriod;

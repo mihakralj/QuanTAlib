@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -31,13 +30,15 @@ namespace QuanTAlib;
 /// Note: Values less than 1 indicate predictions better than using mean
 /// </remarks>
 
-public class Rse : AbstractBase
+[SkipLocalsInit]
+public sealed class Rse : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
     /// <param name="period">The number of points over which to calculate the RSE.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rse(int period)
     {
         if (period < 1)
@@ -53,12 +54,14 @@ public class Rse : AbstractBase
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The number of points over which to calculate the RSE.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rse(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -66,6 +69,7 @@ public class Rse : AbstractBase
         _predictedBuffer.Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,6 +79,15 @@ public class Rse : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double squaredError, double squaredDeviation) CalculateErrors(double actual, double predicted, double meanActual)
+    {
+        double error = actual - predicted;
+        double deviation = actual - meanActual;
+        return (error * error, deviation * deviation);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -89,22 +102,21 @@ public class Rse : AbstractBase
         double rse = 0;
         if (_actualBuffer.Count > 0)
         {
-            var actualValues = _actualBuffer.GetSpan().ToArray();
-            var predictedValues = _predictedBuffer.GetSpan().ToArray();
+            ReadOnlySpan<double> actualValues = _actualBuffer.GetSpan();
+            ReadOnlySpan<double> predictedValues = _predictedBuffer.GetSpan();
 
             double sumSquaredError = 0;
             double sumSquaredActual = 0;
-            double meanActual = actualValues.Average();
+            double meanActual = _actualBuffer.Average();
 
-            for (int i = 0; i < _actualBuffer.Count; i++)
+            for (int i = 0; i < actualValues.Length; i++)
             {
-                double error = actualValues[i] - predictedValues[i];
-                sumSquaredError += error * error;
-                double deviation = actualValues[i] - meanActual;
-                sumSquaredActual += deviation * deviation;
+                var (squaredError, squaredDeviation) = CalculateErrors(actualValues[i], predictedValues[i], meanActual);
+                sumSquaredError += squaredError;
+                sumSquaredActual += squaredDeviation;
             }
 
-            rse = Math.Sqrt(sumSquaredError / sumSquaredActual);
+            rse = sumSquaredActual > 0 ? Math.Sqrt(sumSquaredError / sumSquaredActual) : 0;
         }
 
         IsHot = _index >= WarmupPeriod;
