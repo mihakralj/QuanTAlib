@@ -1,8 +1,45 @@
-/// <summary>
-/// Represents a Jurik Volatility (Jvolty) calculator, a measure of market volatility based on Jurik Moving Average (JMA) concepts.
-/// </summary>
-
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// JVOLTY: Jurik Volatility
+/// An advanced volatility measure developed by Mark Jurik that combines adaptive
+/// bands with JMA smoothing. JVOLTY provides a sophisticated approach to measuring
+/// market volatility with reduced noise and better responsiveness.
+/// </summary>
+/// <remarks>
+/// The JVOLTY calculation process:
+/// 1. Calculates adaptive price bands
+/// 2. Measures volatility from band distances
+/// 3. Applies volatility normalization
+/// 4. Uses JMA-style smoothing
+/// 5. Provides multiple outputs
+///
+/// Key characteristics:
+/// - Adaptive measurement
+/// - Noise reduction
+/// - Multiple timeframe analysis
+/// - Price band integration
+/// - Volatility normalization
+///
+/// Formula:
+/// volty = max(|price - upperBand|, |price - lowerBand|)
+/// bands = adaptive calculation using Jurik's methods
+/// final = JMA smoothing of normalized volatility
+///
+/// Market Applications:
+/// - Dynamic position sizing
+/// - Adaptive stop placement
+/// - Volatility breakout systems
+/// - Risk management
+/// - Market regime detection
+///
+/// Sources:
+///     Mark Jurik Research
+///     https://www.jurikresearch.com/
+///
+/// Note: Proprietary enhancement of volatility measurement
+/// </remarks>
 
 public class Jvolty : AbstractBase
 {
@@ -18,7 +55,6 @@ public class Jvolty : AbstractBase
     private double _prevMa1, _prevDet0, _prevDet1, _prevJma, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
     private double _vSum, _p_vSum;
 
-
     public double UpperBand { get; set; }
     public double LowerBand { get; set; }
     public double Volty { get; set; }
@@ -26,21 +62,15 @@ public class Jvolty : AbstractBase
     public double Jma { get; set; }
     public double AvgVolty { get; set; }
 
-
-    /// <summary>
-    /// Initializes a new instance of the Jvolty class with the specified parameters.
-    /// </summary>
-    /// <param name="period">The period over which to calculate the Jvolty.</param>
-    /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
-    /// <param name="vshort">The short-term volatility period.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when period is less than 1.
-    /// </exception>
+    /// <param name="period">The number of periods for volatility calculation.</param>
+    /// <param name="phase">Phase parameter for JMA smoothing (default 0).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Jvolty(int period, int phase = 0)
     {
         if (period < 1)
         {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
+            throw new ArgumentOutOfRangeException(nameof(period),
+                "Period must be greater than or equal to 1.");
         }
         _period = period;
         _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
@@ -53,22 +83,15 @@ public class Jvolty : AbstractBase
         Name = $"JVOLTY({period})";
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Jvolty class with the specified source and parameters.
-    /// </summary>
-    /// <param name="source">The source object to subscribe to for bar updates.</param>
-    /// <param name="period">The period over which to calculate the Jvolty.</param>
-    /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
-    /// <param name="vshort">The short-term volatility period.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods for volatility calculation.</param>
+    /// <param name="phase">Phase parameter for JMA smoothing (default 0).</param>
     public Jvolty(object source, int period, int phase = 0) : this(period, phase)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new BarSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Jvolty instance by setting up the initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
@@ -80,10 +103,6 @@ public class Jvolty : AbstractBase
         _vsumBuff.Clear();
     }
 
-    /// <summary>
-    /// Manages the state of the Jvolty instance based on whether a new bar is being processed.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the current input is a new bar.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -109,12 +128,6 @@ public class Jvolty : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the Jvolty calculation for the current bar.
-    /// </summary>
-    /// <returns>
-    /// The calculated Jvolty value for the current bar.
-    /// </returns>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -125,26 +138,29 @@ public class Jvolty : AbstractBase
             _upperBand = _lowerBand = price;
         }
 
+        // Calculate volatility from band distances
         double del1 = price - _upperBand;
         double del2 = price - _lowerBand;
         double volty = Math.Max(Math.Abs(del1), Math.Abs(del2));
 
+        // Calculate moving averages of volatility
         _vsumBuff.Add(volty, Input.IsNew);
         _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / 10;
         _avoltyBuff.Add(_vSum, Input.IsNew);
         double avgvolty = _avoltyBuff.Average();
 
+        // Normalize and adjust volatility
         double rvolty = (avgvolty > 0) ? volty / avgvolty : 1;
         rvolty = Math.Min(Math.Max(rvolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
 
         double pow2 = Math.Pow(rvolty, _pow1);
         double Kv = Math.Pow(_beta, Math.Sqrt(pow2));
 
+        // Update adaptive bands
         _upperBand = (del1 >= 0) ? price : price - (Kv * del1);
         _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
-
-
+        // Apply JMA smoothing
         double alpha = Math.Pow(_beta, pow2);
         double ma1 = (1 - alpha) * Input.Value + alpha * _prevMa1;
         _prevMa1 = ma1;
@@ -153,11 +169,12 @@ public class Jvolty : AbstractBase
         _prevDet0 = det0;
         double ma2 = ma1 + _phase * det0;
 
-        double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha) ) + (alpha * alpha * _prevDet1);
+        double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha)) + (alpha * alpha * _prevDet1);
         _prevDet1 = det1;
         double jma = _prevJma + det1;
         _prevJma = jma;
 
+        // Update public properties
         UpperBand = _upperBand;
         LowerBand = _lowerBand;
         Volty = volty;
@@ -169,5 +186,3 @@ public class Jvolty : AbstractBase
         return volty;
     }
 }
-
-

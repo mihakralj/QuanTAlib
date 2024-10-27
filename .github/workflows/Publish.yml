@@ -1,7 +1,3 @@
-# This workflow integrates SonarCloud analysis, coverage reporting,
-# CodeQL analysis, SecurityCodeScan, and Codacy Security Scan
-# for code scanning and vulnerability detection - and if they all pass, publish
-
 name: Publish Workflow
 
 on:
@@ -82,7 +78,10 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.cs.opencover.reportsPaths=**/*cover*.xml
             -Dsonar.cs.dotcover.reportsPaths=**/dotcover.xml
-            -Dsonar.coverage.exclusions=**Tests.cs
+            -Dsonar.coverage.exclusions=**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*
+            -Dsonar.exclusions=**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*
+            -Dsonar.cpd.exclusions=**Tests.cs
+            -Dsonar.test.exclusions=**Tests.cs
 
   CodeQL:
     runs-on: ubuntu-latest

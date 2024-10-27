@@ -1,4 +1,15 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// Convolution: A fundamental signal processing operation that combines two signals to form a third signal
+/// Applies a custom kernel (weight array) to the input data through convolution, allowing for flexible
+/// filtering operations. The kernel is automatically normalized to ensure consistent output scaling.
+/// </summary>
+/// <remarks>
+/// Implementation:
+///     Based on standard discrete convolution principles from signal processing
+/// </remarks>
 
 public class Convolution : AbstractBase
 {
@@ -7,6 +18,8 @@ public class Convolution : AbstractBase
     private readonly CircularBuffer _buffer;
     private readonly double[] _normalizedKernel;
 
+    /// <param name="kernel">Array of weights defining the convolution operation. The length of this array determines the filter's window size.</param>
+    /// <exception cref="ArgumentException">Thrown when kernel is null or empty.</exception>
     public Convolution(double[] kernel)
     {
         if (kernel == null || kernel.Length == 0)
@@ -20,6 +33,8 @@ public class Convolution : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="kernel">Array of weights defining the convolution operation.</param>
     public Convolution(object source, double[] kernel) : this(kernel)
     {
         var pubEvent = source.GetType().GetEvent("Pub");

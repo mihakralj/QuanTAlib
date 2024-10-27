@@ -1,63 +1,58 @@
+using System;
 namespace QuanTAlib;
 
 /// <summary>
-/// Calculates the maximum value over a specified period, with an optional decay factor.
-/// Useful for tracking the highest point in a time series with the ability to gradually forget old peaks.
+/// MAX: Maximum Value with Decay
+/// A statistical measure that tracks the highest value over a specified period,
+/// with an optional decay factor to gradually reduce the influence of older peaks.
+/// This adaptive approach allows the indicator to respond to changing market conditions.
 /// </summary>
 /// <remarks>
-/// The Max indicator is particularly useful in financial analysis for:
-/// - Identifying resistance levels in price charts.
-/// - Tracking the highest price over a given period.
-/// - Implementing trailing stop-loss strategies.
+/// The MAX calculation process:
+/// 1. Tracks highest value in current period
+/// 2. Applies exponential decay to old peaks
+/// 3. Adjusts decay based on time since last peak
+/// 4. Caps result at current period's maximum
 ///
-/// The decay factor allows the indicator to adapt to changing market conditions by
-/// gradually reducing the influence of older maximum values.
+/// Key characteristics:
+/// - Tracks absolute highest values
+/// - Optional decay for adaptivity
+/// - Maintains historical context
+/// - Smooth transitions with decay
+/// - Period-based windowing
+///
+/// Formula:
+/// decay = 1 - e^(-halfLife * timeSinceMax / period)
+/// max = max - decay * (max - periodAverage)
+/// max = min(max, periodMaximum)
+///
+/// Market Applications:
+/// - Identify resistance levels
+/// - Track price peaks
+/// - Implement trailing stops
+/// - Monitor price extremes
+/// - Adaptive trend following
+///
+/// Sources:
+///     Technical Analysis of Financial Markets
+///     https://www.investopedia.com/terms/r/resistance.asp
+///
+/// Note: Decay factor allows for adaptive peak tracking
 /// </remarks>
+
 public class Max : AbstractBase
 {
-    /// <summary>
-    /// The number of data points to consider for the maximum calculation.
-    /// </summary>
     private readonly int Period;
-
-    /// <summary>
-    /// Circular buffer to store the most recent data points.
-    /// </summary>
     private readonly CircularBuffer _buffer;
-
-    /// <summary>
-    /// The half-life decay factor used to gradually forget old peaks.
-    /// </summary>
     private readonly double _halfLife;
-
-    /// <summary>
-    /// The current maximum value.
-    /// </summary>
     private double _currentMax;
-
-    /// <summary>
-    /// The previous maximum value.
-    /// </summary>
     private double _p_currentMax;
-
-    /// <summary>
-    /// The number of periods since a new maximum was set.
-    /// </summary>
     private int _timeSinceNewMax;
-
-    /// <summary>
-    /// The previous value of _timeSinceNewMax.
-    /// </summary>
     private int _p_timeSinceNewMax;
 
-    /// <summary>
-    /// Initializes a new instance of the Max class.
-    /// </summary>
-    /// <param name="period">The number of data points to consider. Must be at least 1.</param>
-    /// <param name="decay">Half-life decay factor. Set to 0 for no decay, higher for faster forgetting of old peaks. Default is 0.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when the period is less than 1 or decay is negative.
-    /// </exception>
+    /// <param name="period">The number of points to consider for maximum calculation.</param>
+    /// <param name="decay">Half-life decay factor (0 for no decay, higher for faster forgetting).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1 or decay is negative.</exception>
     public Max(int period, double decay = 0)
     {
         if (period < 1)
@@ -78,21 +73,15 @@ public class Max : AbstractBase
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Max class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The number of data points to consider.</param>
-    /// <param name="decay">Half-life decay factor. Default is 0.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points to consider for maximum calculation.</param>
+    /// <param name="decay">Half-life decay factor (default 0).</param>
     public Max(object source, int period, double decay = 0) : this(period, decay)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Resets the Max indicator to its initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
@@ -100,10 +89,6 @@ public class Max : AbstractBase
         _timeSinceNewMax = 0;
     }
 
-    /// <summary>
-    /// Manages the state of the indicator.
-    /// </summary>
-    /// <param name="isNew">Indicates if the current data point is new.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -121,29 +106,23 @@ public class Max : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the max calculation.
-    /// </summary>
-    /// <returns>
-    /// The current maximum value, potentially adjusted by the decay factor.
-    /// </returns>
-    /// <remarks>
-    /// Uses a decay factor to gradually forget old peaks. The max value is always
-    /// capped by the highest value in the current period.
-    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
         _buffer.Add(Input.Value, Input.IsNew);
 
+        // Update maximum if new value is higher
         if (Input.Value >= _currentMax)
         {
             _currentMax = Input.Value;
             _timeSinceNewMax = 0;
         }
 
+        // Apply decay based on time since last maximum
         double decayRate = 1 - Math.Exp(-_halfLife * _timeSinceNewMax / Period);
         _currentMax -= decayRate * (_currentMax - _buffer.Average());
+
+        // Ensure maximum doesn't exceed current period's highest value
         _currentMax = Math.Min(_currentMax, _buffer.Max());
 
         IsHot = true;

@@ -1,10 +1,39 @@
+using System;
+using System.Linq;
 namespace QuanTAlib;
+
+/// <summary>
+/// PWMA: Pascal Weighted Moving Average
+/// A moving average that uses Pascal's triangle coefficients as weights, providing
+/// a natural distribution of weights that increases towards the center of the period.
+/// This creates a smooth average with balanced emphasis on central values.
+/// </summary>
+/// <remarks>
+/// The PWMA calculation process:
+/// 1. Generates weights using Pascal's triangle coefficients
+/// 2. Normalizes the weights to sum to 1
+/// 3. Applies the weights through convolution
+/// 4. Adjusts for partial periods during warmup
+///
+/// Key characteristics:
+/// - Natural weight distribution from Pascal's triangle
+/// - Symmetric weighting around the center
+/// - Smooth response to price changes
+/// - Balanced between recent and historical data
+/// - Implemented using efficient convolution operations
+///
+/// Implementation:
+///     Based on Pascal's triangle principles for weight generation
+///     Uses convolution for efficient calculation
+/// </remarks>
 
 public class Pwma : AbstractBase
 {
     private readonly int _period;
     private readonly Convolution _convolution;
 
+    /// <param name="period">The number of data points used in the PWMA calculation.</param>
+    /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
     public Pwma(int period)
     {
         if (period < 1)
@@ -18,6 +47,8 @@ public class Pwma : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of data points used in the PWMA calculation.</param>
     public Pwma(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -60,6 +91,11 @@ public class Pwma : AbstractBase
         return result;
     }
 
+    /// <summary>
+    /// Generates the Pascal's triangle-based convolution kernel for the PWMA calculation.
+    /// </summary>
+    /// <param name="period">The period for which to generate the kernel.</param>
+    /// <returns>An array of normalized Pascal's triangle-based weights for the convolution operation.</returns>
     public static double[] GenerateKernel(int period)
     {
         double[] kernel = new double[period];

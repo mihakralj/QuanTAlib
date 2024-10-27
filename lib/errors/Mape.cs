@@ -1,10 +1,42 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// MAPE: Mean Absolute Percentage Error
+/// A percentage-based error metric that measures the average absolute percentage
+/// difference between predicted and actual values. MAPE expresses accuracy as a
+/// percentage, making it scale-independent and easy to interpret.
+/// </summary>
+/// <remarks>
+/// The MAPE calculation process:
+/// 1. Calculates absolute percentage error for each point
+/// 2. Sums all absolute percentage errors
+/// 3. Divides by the number of observations
+///
+/// Key characteristics:
+/// - Scale-independent (percentage-based)
+/// - Easy to interpret (0-100% range)
+/// - Useful for comparing different scales
+/// - Cannot handle zero actual values
+/// - Asymmetric (treats over/under predictions differently)
+///
+/// Formula:
+/// MAPE = (1/n) * Σ|((actual - predicted) / actual)| * 100%
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
+///     https://www.statisticshowto.com/mean-absolute-percentage-error-mape/
+///
+/// Note: Also known as MAPD (Mean Absolute Percentage Deviation) in some contexts
+/// </remarks>
 
 public class Mape : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
+    /// <param name="period">The number of points over which to calculate the MAPE.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Mape(int period)
     {
         if (period < 1)
@@ -18,6 +50,8 @@ public class Mape : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points over which to calculate the MAPE.</param>
     public Mape(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -47,6 +81,7 @@ public class Mape : AbstractBase
         double actual = Input.Value;
         _actualBuffer.Add(actual, Input.IsNew);
 
+        // If no predicted value provided, use mean of actual values
         double predicted = double.IsNaN(Input2.Value) ? _actualBuffer.Average() : Input2.Value;
         _predictedBuffer.Add(predicted, Input.IsNew);
 

@@ -1,7 +1,31 @@
-//not working yet
-//TODO fails consistency test
-
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// HTIT: Hilbert Transform Instantaneous Trendline
+/// A sophisticated moving average that uses the Hilbert Transform to identify the dominant cycle
+/// period in price data and create a smooth trend line. It adapts to the market's natural cycles
+/// and provides a dynamic moving average.
+/// </summary>
+/// <remarks>
+/// The HTIT calculation process:
+/// 1. Uses a Hilbert Transform to decompose price into in-phase and quadrature components
+/// 2. Employs a homodyne discriminator to determine the dominant cycle period
+/// 3. Applies smoothing based on the detected cycle period
+/// 4. Creates a trend line that automatically adapts to market cycles
+///
+/// Key characteristics:
+/// - Automatically adapts to market cycles
+/// - Reduces lag by using cycle analysis
+/// - Complex signal processing for better trend identification
+/// - Combines multiple digital signal processing techniques
+///
+/// Sources:
+///     John Ehlers - "Cycle Analytics for Traders"
+///
+/// Note: This implementation is currently under development and may not pass
+/// all consistency tests.
+/// </remarks>
 
 public class Htit : AbstractBase
 {
@@ -21,12 +45,19 @@ public class Htit : AbstractBase
     private double _lastPd = 0;
     private double _p_lastPd = 0;
 
+    /// <summary>
+    /// Initializes a new instance of the Htit class.
+    /// </summary>
     public Htit()
     {
         Name = "Htit";
         WarmupPeriod = 12;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the Htit class with a specified source.
+    /// </summary>
+    /// <param name="source">The data source object that publishes updates.</param>
     public Htit(object source) : this()
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -45,6 +76,7 @@ public class Htit : AbstractBase
             _lastPd = _p_lastPd;
         }
     }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);

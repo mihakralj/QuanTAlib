@@ -1,6 +1,29 @@
+using System;
 namespace QuanTAlib;
 
-//https://user42.tuxfamily.org/chart/manual/Regularized-Exponential-Moving-Average.html
+/// <summary>
+/// REMA: Regularized Exponential Moving Average
+/// A modified exponential moving average that includes a regularization term to reduce
+/// noise and improve trend following. The regularization helps to smooth the output
+/// while maintaining responsiveness to significant price movements.
+/// </summary>
+/// <remarks>
+/// The REMA calculation process:
+/// 1. Uses standard EMA smoothing with adaptive alpha
+/// 2. Adds regularization term based on previous values
+/// 3. Balances new and regularized terms using lambda parameter
+/// 4. Provides smoother output than standard EMA
+///
+/// Key characteristics:
+/// - Improved noise reduction through regularization
+/// - Better trend following than standard EMA
+/// - Adjustable regularization via lambda parameter
+/// - Adaptive alpha based on period
+/// - Reduced whipsaws in choppy markets
+///
+/// Sources:
+///     https://user42.tuxfamily.org/chart/manual/Regularized-Exponential-Moving-Average.html
+/// </remarks>
 
 public class Rema : AbstractBase
 {
@@ -9,9 +32,19 @@ public class Rema : AbstractBase
     private double _lastRema, _prevRema;
     private double _savedLastRema, _savedPrevRema;
 
+    /// <summary>
+    /// Gets the period used in the REMA calculation.
+    /// </summary>
     public int Period => _period;
+
+    /// <summary>
+    /// Gets the lambda (regularization) parameter value.
+    /// </summary>
     public double Lambda => _lambda;
 
+    /// <param name="period">The number of periods used in the REMA calculation.</param>
+    /// <param name="lambda">The regularization parameter (default 0.5). Higher values increase smoothing.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1 or lambda is negative.</exception>
     public Rema(int period, double lambda = 0.5)
     {
         if (period < 1)
@@ -25,11 +58,16 @@ public class Rema : AbstractBase
         WarmupPeriod = period;
         Init();
     }
+
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods used in the REMA calculation.</param>
+    /// <param name="lambda">The regularization parameter (default 0.5).</param>
     public Rema(object source, int period, double lambda = 0.5) : this(period, lambda)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
+
     public override void Init()
     {
         base.Init();

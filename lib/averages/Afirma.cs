@@ -1,8 +1,18 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// AFIRMA: Adaptive FIR Moving Average
+/// A finite impulse response (FIR) filter that combines windowing functions with sinc-based filtering.
+/// Provides superior noise reduction while maintaining signal fidelity through adaptive filtering.
+/// </summary>
+/// <remarks>
+/// Implementation:
+///     Original implementation based on FIR filter design principles
+/// </remarks>
 
 public class Afirma : AbstractBase
 {
-
     public enum WindowType
     {
         Rectangular,
@@ -22,6 +32,10 @@ public class Afirma : AbstractBase
     private readonly int _n;
     private readonly double _sx2, _sx3, _sx4, _sx5, _sx6, _den;
 
+    /// <param name="periods">The number of periods for the sinc filter calculation.</param>
+    /// <param name="taps">The number of filter taps (filter length). Must be odd number.</param>
+    /// <param name="window">The type of window function to apply (Rectangular, Hanning1, Hanning2, Blackman, or BlackmanHarris).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when periods or taps is less than 1.</exception>
     public Afirma(int periods, int taps, WindowType window)
     {
         if (periods < 1)
@@ -54,6 +68,10 @@ public class Afirma : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="periods">The number of periods for the sinc filter calculation.</param>
+    /// <param name="taps">The number of filter taps (filter length). Must be odd number.</param>
+    /// <param name="window">The type of window function to apply (Rectangular, Hanning1, Hanning2, Blackman, or BlackmanHarris).</param>
     public Afirma(object source, int periods, int taps, WindowType window) : this(periods, taps, window)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -147,5 +165,4 @@ public class Afirma : AbstractBase
         }
         return wsum;
     }
-
 }

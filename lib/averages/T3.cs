@@ -1,4 +1,30 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// T3: Tillson T3 Moving Average
+/// A sophisticated moving average developed by Tim Tillson that applies six EMAs
+/// in sequence with optimized coefficients. The T3 provides excellent smoothing
+/// while maintaining responsiveness and minimal lag.
+/// </summary>
+/// <remarks>
+/// The T3 calculation process:
+/// 1. Applies six EMAs in sequence
+/// 2. Uses volume factor to determine optimal coefficients
+/// 3. Combines EMAs using specific formula: c1*EMA6 + c2*EMA5 + c3*EMA4 + c4*EMA3
+/// 4. Coefficients are based on the volume factor parameter
+///
+/// Key characteristics:
+/// - Excellent smoothing with minimal lag
+/// - Adjustable via volume factor parameter
+/// - No overshooting like triple EMA
+/// - Better noise reduction than traditional EMAs
+/// - Maintains responsiveness to significant moves
+///
+/// Sources:
+///     Tim Tillson - "Better Moving Averages"
+///     TASC Magazine, 1998
+/// </remarks>
 
 public class T3 : AbstractBase
 {
@@ -10,6 +36,10 @@ public class T3 : AbstractBase
     private double _lastEma1, _lastEma2, _lastEma3, _lastEma4, _lastEma5, _lastEma6;
     private double _p_lastEma1, _p_lastEma2, _p_lastEma3, _p_lastEma4, _p_lastEma5, _p_lastEma6;
 
+    /// <param name="period">The number of periods used in each EMA calculation.</param>
+    /// <param name="vfactor">Volume factor controlling smoothing (default 0.7).</param>
+    /// <param name="useSma">Whether to use SMA for initial values (default true).</param>
+    /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
     public T3(int period, double vfactor = 0.7, bool useSma = true)
     {
         if (period < 1)
@@ -35,11 +65,14 @@ public class T3 : AbstractBase
         _buffer5 = new(period);
         _buffer6 = new(period);
 
-
         Name = $"T3({_period}, {_vfactor})";
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods used in each EMA calculation.</param>
+    /// <param name="vfactor">Volume factor controlling smoothing (default 0.7).</param>
+    /// <param name="useSma">Whether to use SMA for initial values (default true).</param>
     public T3(object source, int period, double vfactor = 0.7, bool useSma = true) : this(period, vfactor, useSma)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -80,7 +113,6 @@ public class T3 : AbstractBase
             _lastEma6 = _p_lastEma6;
         }
     }
-
 
     protected override double Calculation()
     {

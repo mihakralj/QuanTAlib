@@ -1,33 +1,52 @@
+using System;
+using System.Linq;
 namespace QuanTAlib;
 
 /// <summary>
-/// Calculates the median value over a specified period.
-/// Provides a measure of central tendency that is robust to outliers.
+/// Median: Central Tendency Measure
+/// A robust statistical measure that finds the middle value in a sorted dataset.
+/// The median is less sensitive to outliers than the mean, making it particularly
+/// useful for analyzing price data with extreme values.
 /// </summary>
 /// <remarks>
-/// The Median indicator is particularly useful in financial analysis for:
-/// - Providing a robust measure of central tendency that is less affected by extreme values than the mean.
-/// - Identifying the middle value in a dataset, which can be helpful in understanding price distributions.
-/// - Serving as a basis for other indicators or trading strategies that require a stable reference point.
+/// The Median calculation process:
+/// 1. Collects values over specified period
+/// 2. Sorts values in ascending order
+/// 3. Finds middle value(s)
+/// 4. Averages two middle values if even count
 ///
-/// Unlike the mean, the median is not influenced by extreme outliers, making it valuable
-/// in markets with occasional large price swings or in the presence of data anomalies.
+/// Key characteristics:
+/// - Robust to outliers
+/// - Always represents actual data point
+/// - Splits dataset in half
+/// - More stable than mean
+/// - Maintains data scale
+///
+/// Formula:
+/// For odd n: median = value at position (n+1)/2
+/// For even n: median = (value at n/2 + value at (n/2)+1) / 2
+///
+/// Market Applications:
+/// - Price distribution analysis
+/// - Trend identification
+/// - Outlier detection
+/// - Support/resistance levels
+/// - Filter extreme movements
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Median
+///     "Statistics for Trading" - Technical Analysis of Financial Markets
+///
+/// Note: More robust than mean for non-normal distributions
 /// </remarks>
+
 public class Median : AbstractBase
 {
-    /// <summary>
-    /// The number of data points to consider for the median calculation.
-    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
-    /// <summary>
-    /// Initializes a new instance of the Median class.
-    /// </summary>
-    /// <param name="period">The number of data points to consider. Must be at least 1.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when the period is less than 1.
-    /// </exception>
+    /// <param name="period">The number of points to consider for median calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Median(int period)
     {
         if (period < 1)
@@ -42,30 +61,20 @@ public class Median : AbstractBase
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Median class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The number of data points to consider.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points to consider for median calculation.</param>
     public Median(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Resets the Median indicator to its initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
-    /// <summary>
-    /// Manages the state of the indicator.
-    /// </summary>
-    /// <param name="isNew">Indicates if the current data point is new.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,16 +84,6 @@ public class Median : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the median calculation.
-    /// </summary>
-    /// <returns>
-    /// The current median value of the dataset.
-    /// </returns>
-    /// <remarks>
-    /// Uses a sorting approach to find the median. If there's not enough data,
-    /// it uses the average as a temporary measure.
-    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -93,11 +92,15 @@ public class Median : AbstractBase
         double median;
         if (_index >= Period)
         {
+            // Get sorted copy of values
             var sortedValues = _buffer.GetSpan().ToArray();
             Array.Sort(sortedValues);
             int middleIndex = sortedValues.Length / 2;
 
-            median = (sortedValues.Length % 2 == 0) ? (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2.0 : sortedValues[middleIndex];
+            // Calculate median based on odd/even count
+            median = (sortedValues.Length % 2 == 0)
+                ? (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2.0
+                : sortedValues[middleIndex];
         }
         else
         {

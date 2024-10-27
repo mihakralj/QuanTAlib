@@ -1,6 +1,30 @@
+using System;
 namespace QuanTAlib;
 
-// https://www.mesasoftware.com/papers/TimeWarp.pdf
+/// <summary>
+/// LTMA: Laguerre Time Moving Average
+/// A sophisticated moving average that uses Laguerre polynomials to create a time-based
+/// filter. This approach provides excellent noise reduction while maintaining
+/// responsiveness to price changes.
+/// </summary>
+/// <remarks>
+/// The LTMA calculation process:
+/// 1. Applies a cascade of four Laguerre filters
+/// 2. Each filter stage provides additional smoothing
+/// 3. Combines the filtered outputs with optimal weights
+/// 4. Produces a smooth output with minimal lag
+///
+/// Key characteristics:
+/// - Time-based filtering using Laguerre polynomials
+/// - Excellent noise reduction
+/// - Maintains good responsiveness
+/// - Single parameter (gamma) controls smoothing
+/// - Computationally efficient
+///
+/// Sources:
+///     John Ehlers - "Time Warp - Without Space Travel"
+///     https://www.mesasoftware.com/papers/TimeWarp.pdf
+/// </remarks>
 
 public class Ltma : AbstractBase
 {
@@ -8,8 +32,13 @@ public class Ltma : AbstractBase
     private double _prevL0, _prevL1, _prevL2, _prevL3;
     private double _p_prevL0, _p_prevL1, _p_prevL2, _p_prevL3;
 
+    /// <summary>
+    /// Gets the gamma parameter value used in the Laguerre filter.
+    /// </summary>
     public double Gamma => _gamma;
 
+    /// <param name="gamma">The damping factor (0 to 1) controlling the smoothing. Lower values provide more smoothing.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when gamma is not between 0 and 1.</exception>
     public Ltma(double gamma = 0.1)
     {
         if (gamma < 0 || gamma > 1)
@@ -20,6 +49,8 @@ public class Ltma : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="gamma">The damping factor (0 to 1) controlling the smoothing.</param>
     public Ltma(object source, double gamma = 0.1) : this(gamma)
     {
         var pubEvent = source.GetType().GetEvent("Pub");

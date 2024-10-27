@@ -1,10 +1,40 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// MAE: Mean Absolute Error
+/// A straightforward error metric that measures the average magnitude of errors
+/// between predicted and actual values, without considering their direction.
+/// MAE treats all individual differences equally in the average.
+/// </summary>
+/// <remarks>
+/// The MAE calculation process:
+/// 1. Calculates absolute difference between each actual and predicted value
+/// 2. Sums all absolute differences
+/// 3. Divides by the number of observations
+///
+/// Key characteristics:
+/// - Linear scale (all differences weighted equally)
+/// - Robust to outliers compared to MSE
+/// - Easy to interpret (same units as data)
+/// - Constant gradient for optimization
+/// - Less sensitive to large errors than MSE
+///
+/// Formula:
+/// MAE = (1/n) * Σ|actual - predicted|
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Mean_absolute_error
+///     https://www.statisticshowto.com/absolute-error/
+/// </remarks>
 
 public class Mae : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
+    /// <param name="period">The number of points over which to calculate the MAE.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Mae(int period)
     {
         if (period < 1)
@@ -18,6 +48,8 @@ public class Mae : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points over which to calculate the MAE.</param>
     public Mae(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -47,6 +79,7 @@ public class Mae : AbstractBase
         double actual = Input.Value;
         _actualBuffer.Add(actual, Input.IsNew);
 
+        // If no predicted value provided, use mean of actual values
         double predicted = double.IsNaN(Input2.Value) ? _actualBuffer.Average() : Input2.Value;
         _predictedBuffer.Add(predicted, Input.IsNew);
 
@@ -68,5 +101,4 @@ public class Mae : AbstractBase
         IsHot = _index >= WarmupPeriod;
         return mae;
     }
-
 }

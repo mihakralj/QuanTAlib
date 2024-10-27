@@ -1,38 +1,54 @@
+using System;
+using System.Linq;
 namespace QuanTAlib;
 
 /// <summary>
-/// Calculates excess kurtosis using the Sheskin Algorithm.
-/// Measures the "tailedness" of the probability distribution of a real-valued random variable.
+/// Kurtosis: Distribution Tail Weight Measure
+/// A statistical measure that quantifies the "tailedness" of a distribution using
+/// the Sheskin Algorithm. Kurtosis indicates whether data has heavy tails (more
+/// outliers) or light tails (fewer outliers) compared to a normal distribution.
 /// </summary>
 /// <remarks>
-/// Kurtosis is a measure of the combined weight of a distribution's tails relative to the center of the distribution.
-/// In financial time series analysis, kurtosis can provide insights into:
-/// - The frequency and magnitude of extreme returns.
-/// - The potential for outliers or "black swan" events.
-/// - The shape of the return distribution compared to a normal distribution.
+/// The Kurtosis calculation process:
+/// 1. Calculates mean of the data
+/// 2. Computes squared and fourth power deviations
+/// 3. Applies Sheskin Algorithm for excess kurtosis
+/// 4. Adjusts for sample size bias
 ///
-/// Interpretation:
-/// - Excess kurtosis > 0: Heavy-tailed distribution (more extreme values than a normal distribution)
-/// - Excess kurtosis = 0: Normal distribution
-/// - Excess kurtosis < 0: Light-tailed distribution (fewer extreme values than a normal distribution)
+/// Key characteristics:
+/// - Measures tail weight relative to normal distribution
+/// - Positive values indicate heavy tails
+/// - Negative values indicate light tails
+/// - Zero indicates normal distribution
+/// - Sensitive to extreme values
 ///
-/// High kurtosis in financial returns may indicate a higher risk of extreme events.
+/// Formula:
+/// K = [n(n+1)Σ(x-μ)⁴] / [s⁴(n-1)(n-2)(n-3)] - [3(n-1)²]/[(n-2)(n-3)]
+/// where:
+/// n = sample size
+/// μ = mean
+/// s = standard deviation
+///
+/// Market Applications:
+/// - Identify potential for extreme moves
+/// - Assess risk of "black swan" events
+/// - Compare return distributions
+/// - Risk management tool
+///
+/// Sources:
+///     David J. Sheskin - "Handbook of Parametric and Nonparametric Statistical Procedures"
+///     https://en.wikipedia.org/wiki/Kurtosis
+///
+/// Note: Returns excess kurtosis (normal distribution = 0)
 /// </remarks>
+
 public class Kurtosis : AbstractBase
 {
-    /// <summary>
-    /// The number of data points to consider for the kurtosis calculation.
-    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
-    /// <summary>
-    /// Initializes a new instance of the Kurtosis class.
-    /// </summary>
-    /// <param name="period">The number of data points to consider for calculation.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when the period is less than 4.
-    /// </exception>
+    /// <param name="period">The number of points to consider for kurtosis calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 4.</exception>
     public Kurtosis(int period)
     {
         if (period < 4)
@@ -47,30 +63,20 @@ public class Kurtosis : AbstractBase
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Kurtosis class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The number of data points to consider.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points to consider for kurtosis calculation.</param>
     public Kurtosis(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Resets the Kurtosis indicator to its initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
-    /// <summary>
-    /// Manages the state of the indicator.
-    /// </summary>
-    /// <param name="isNew">Indicates if the current data point is new.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -80,22 +86,6 @@ public class Kurtosis : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the kurtosis calculation.
-    /// </summary>
-    /// <returns>
-    /// The calculated excess kurtosis. Positive for heavy-tailed distributions,
-    /// negative for light-tailed distributions.
-    /// </returns>
-    /// <remarks>
-    /// Uses the Sheskin Algorithm for kurtosis calculation.
-    /// Requires at least 4 data points for a valid calculation.
-    ///
-    /// Interpretation of results:
-    /// - Positive values indicate a distribution with heavier tails and a higher peak compared to a normal distribution.
-    /// - Negative values indicate a distribution with lighter tails and a lower peak compared to a normal distribution.
-    /// - A value close to 0 suggests a distribution similar to a normal distribution in terms of tailedness.
-    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -103,14 +93,15 @@ public class Kurtosis : AbstractBase
         _buffer.Add(Input.Value, Input.IsNew);
 
         double kurtosis = 0;
-        if (_buffer.Count > 3)
+        if (_buffer.Count > 3)  // Need at least 4 points for valid calculation
         {
             var values = _buffer.GetSpan().ToArray();
             double mean = values.Average();
             double n = values.Length;
 
-            double s2 = 0;
-            double s4 = 0;
+            // Calculate squared and fourth power deviations
+            double s2 = 0;  // Sum of squared deviations
+            double s4 = 0;  // Sum of fourth power deviations
 
             for (int i = 0; i < values.Length; i++)
             {
@@ -121,7 +112,7 @@ public class Kurtosis : AbstractBase
 
             double variance = s2 / (n - 1);
 
-            // Sheskin Algorithm
+            // Sheskin Algorithm for excess kurtosis
             kurtosis = (n * (n + 1) * s4) / (variance * variance * (n - 3) * (n - 1) * (n - 2))
                        - (3 * (n - 1) * (n - 1) / ((n - 2) * (n - 3)));
         }

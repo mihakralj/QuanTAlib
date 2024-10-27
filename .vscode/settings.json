@@ -7,9 +7,9 @@
         }
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",
-    "dotnet.dotnetPath": "C:/Program Files/dotnet",
+    "dotnet.dotnetPath": "/opt/homebrew/bin/",
     "omnisharp.useModernNet": true,
-    "omnisharp.sdkPath": "C:/Program Files/dotnet/sdk",
+    "omnisharp.sdkPath": "/opt/homebrew/bin/dotnet",
     "sonarlint.connectedMode.project": {
         "connectionId": "mihakralj",
         "projectKey": "mihakralj_QuanTAlib"

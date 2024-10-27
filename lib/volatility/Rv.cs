@@ -1,14 +1,48 @@
+using System;
 namespace QuanTAlib;
 
 /// <summary>
-/// Represents a realized volatility calculator that measures the actual price fluctuations
-/// observed in the market over a specific period.
+/// RV: Realized Volatility
+/// A precise volatility measure that captures actual observed price fluctuations
+/// using high-frequency returns. RV provides a more accurate assessment of true
+/// market volatility compared to traditional estimators.
 /// </summary>
 /// <remarks>
-/// The Realized class calculates volatility based on logarithmic returns. It can provide
-/// both annualized and non-annualized volatility measures. The calculation uses a rolling
-/// sum of squared returns for efficiency and assumes 252 trading days in a year for annualization.
+/// The RV calculation process:
+/// 1. Computes log returns
+/// 2. Squares each return
+/// 3. Maintains rolling sum
+/// 4. Takes square root of average
+/// 5. Optionally annualizes
+///
+/// Key characteristics:
+/// - Model-free measurement
+/// - High-frequency capable
+/// - Rolling calculation
+/// - Memory efficient
+/// - Optional annualization
+///
+/// Formula:
+/// RV = √(Σ(ln(P[t]/P[t-1]))²/n) * √252
+/// where:
+/// P = price
+/// n = number of observations
+/// 252 = trading days per year
+///
+/// Market Applications:
+/// - High-frequency trading
+/// - Options pricing
+/// - Risk forecasting
+/// - Market microstructure
+/// - Volatility trading
+///
+/// Sources:
+///     Andersen, Bollerslev - "Answering the Skeptics"
+///     https://en.wikipedia.org/wiki/Realized_volatility
+///
+/// Note: Efficient implementation using rolling sums
 /// </remarks>
+
 public class Rv : AbstractBase
 {
     private readonly int Period;
@@ -17,43 +51,33 @@ public class Rv : AbstractBase
     private double _previousClose;
     private double _sumSquaredReturns;
 
-    /// <summary>
-    /// Initializes a new instance of the Realized class with the specified period and annualization flag.
-    /// </summary>
-    /// <param name="period">The period over which to calculate realized volatility.</param>
-    /// <param name="isAnnualized">Whether to annualize the volatility (default is true).</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when period is less than 2.
-    /// </exception>
+    /// <param name="period">The number of periods for volatility calculation.</param>
+    /// <param name="isAnnualized">Whether to annualize the result (default true).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
     public Rv(int period, bool isAnnualized = true)
     {
         if (period < 2)
         {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
+            throw new ArgumentOutOfRangeException(nameof(period),
+                "Period must be greater than or equal to 2.");
         }
         Period = period;
         IsAnnualized = isAnnualized;
-        WarmupPeriod = period + 1;  // We need one extra data point to calculate the first return
+        WarmupPeriod = period + 1;  // Need extra point for first return
         _returns = new CircularBuffer(period);
         Name = $"Realized(period={period}, annualized={isAnnualized})";
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Realized class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The period over which to calculate realized volatility.</param>
-    /// <param name="isAnnualized">Whether to annualize the volatility (default is true).</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods for volatility calculation.</param>
+    /// <param name="isAnnualized">Whether to annualize the result (default true).</param>
     public Rv(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Realized instance by clearing buffers and resetting calculation variables.
-    /// </summary>
     public override void Init()
     {
         base.Init();
@@ -62,10 +86,6 @@ public class Rv : AbstractBase
         _sumSquaredReturns = 0;
     }
 
-    /// <summary>
-    /// Manages the state of the Realized instance based on whether a new value is being processed.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the current input is a new value.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,21 +95,6 @@ public class Rv : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the realized volatility calculation for the current period.
-    /// </summary>
-    /// <returns>
-    /// The calculated realized volatility value for the current period.
-    /// </returns>
-    /// <remarks>
-    /// This method calculates the volatility using the following steps:
-    /// 1. Compute logarithmic returns.
-    /// 2. Maintain a rolling sum of squared returns.
-    /// 3. Calculate the variance using the sum of squared returns.
-    /// 4. Take the square root of the variance to get volatility.
-    /// 5. If annualized, multiply by the square root of 252 (assumed trading days in a year).
-    /// The method returns 0 until enough data points are available for the calculation.
-    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -97,26 +102,28 @@ public class Rv : AbstractBase
         double volatility = 0;
         if (_previousClose != 0)
         {
+            // Calculate log return
             double logReturn = Math.Log(Input.Value / _previousClose);
 
             if (_returns.Count == Period)
             {
-                // Remove the oldest squared return from the sum
+                // Maintain rolling sum by removing oldest squared return
                 _sumSquaredReturns -= Math.Pow(_returns[0], 2);
             }
 
+            // Add new return and update sum
             _returns.Add(logReturn, Input.IsNew);
             _sumSquaredReturns += Math.Pow(logReturn, 2);
 
             if (_returns.Count == Period)
             {
+                // Calculate realized volatility
                 double variance = _sumSquaredReturns / Period;
                 volatility = Math.Sqrt(variance);
 
                 if (IsAnnualized)
                 {
-                    // Assuming 252 trading days in a year. Adjust as needed.
-                    volatility *= Math.Sqrt(252);
+                    volatility *= Math.Sqrt(252); // Annualize using trading days
                 }
             }
         }

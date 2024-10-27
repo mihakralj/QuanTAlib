@@ -1,15 +1,41 @@
+using System;
+using System.Linq;
 namespace QuanTAlib;
 
 /// <summary>
-/// Calculates the rate of change of the slope over a specified period.
-/// Provides insights into trend acceleration or deceleration.
+/// Curvature: Second Derivative Rate of Change
+/// A statistical measure that calculates the rate of change of the slope over time.
+/// Curvature provides insights into trend acceleration or deceleration by measuring
+/// how quickly the slope (first derivative) is changing.
 /// </summary>
 /// <remarks>
-/// Curvature is a second-order derivative that measures how quickly the slope (first-order derivative) is changing.
-/// Positive curvature indicates accelerating uptrends or decelerating downtrends.
-/// Negative curvature indicates decelerating uptrends or accelerating downtrends.
-/// This indicator can be useful for identifying potential trend reversals or confirming trend strength.
+/// The Curvature calculation process:
+/// 1. Calculates slope values over the specified period
+/// 2. Applies least squares regression to slope values
+/// 3. Provides slope of slopes (curvature)
+/// 4. Includes additional statistical measures (R², StdDev)
+///
+/// Key characteristics:
+/// - Measures trend acceleration/deceleration
+/// - Positive values indicate accelerating uptrends or decelerating downtrends
+/// - Negative values indicate decelerating uptrends or accelerating downtrends
+/// - Helps identify potential trend reversals
+/// - Provides trend momentum information
+///
+/// Formula:
+/// Curvature = Σ((x - x̄)(y - ȳ)) / Σ((x - x̄)²)
+/// where:
+/// x = time points
+/// y = slope values
+/// x̄, ȳ = respective means
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Curvature
+///     https://www.sciencedirect.com/topics/mathematics/curve-fitting
+///
+/// Note: Second-order derivative providing acceleration insights
 /// </remarks>
+
 public class Curvature : AbstractBase
 {
     private readonly int _period;
@@ -36,13 +62,8 @@ public class Curvature : AbstractBase
     /// </summary>
     public double? Line { get; private set; }
 
-    /// <summary>
-    /// Initializes a new instance of the Curvature class.
-    /// </summary>
-    /// <param name="period">The number of data points to consider for calculation.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when the period is 2 or less.
-    /// </exception>
+    /// <param name="period">The number of points to consider for calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is 2 or less.</exception>
     public Curvature(int period)
     {
         if (period <= 2)
@@ -59,20 +80,14 @@ public class Curvature : AbstractBase
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Curvature class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The number of data points to consider.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points to consider for calculation.</param>
     public Curvature(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Resets the Curvature indicator to its initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
@@ -83,10 +98,6 @@ public class Curvature : AbstractBase
         Line = null;
     }
 
-    /// <summary>
-    /// Manages the state of the indicator.
-    /// </summary>
-    /// <param name="isNew">Indicates if the current data point is new.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -96,16 +107,6 @@ public class Curvature : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the curvature calculation.
-    /// </summary>
-    /// <returns>
-    /// The calculated curvature value. Positive for increasing slope, negative for decreasing.
-    /// </returns>
-    /// <remarks>
-    /// Uses least squares method for optimal calculation. Also computes additional statistics
-    /// such as Intercept, Standard Deviation, R-Squared, and Line value.
-    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);

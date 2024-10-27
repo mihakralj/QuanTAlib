@@ -1,33 +1,53 @@
+using System;
+using System.Linq;
 namespace QuanTAlib;
 
 /// <summary>
-/// Measures the unpredictability of data using Shannon's Entropy.
-/// Provides insights into the randomness or information content of the time series.
+/// Entropy: Information Content Measure
+/// A statistical measure that quantifies the unpredictability or randomness in
+/// a time series using Shannon's Entropy. Higher entropy indicates more randomness
+/// and uncertainty in the data.
 /// </summary>
 /// <remarks>
-/// Shannon's Entropy quantifies the average amount of information contained in a message.
-/// In the context of time series analysis, it can be used to:
-/// - Detect regime changes or structural breaks in the data.
-/// - Assess the complexity or predictability of price movements.
-/// - Identify periods of high uncertainty or information flow in the market.
-/// The entropy value is normalized between 0 and 1, where 1 indicates maximum randomness
-/// and 0 indicates perfect predictability.
+/// The Entropy calculation process:
+/// 1. Groups values to calculate probabilities
+/// 2. Applies Shannon's entropy formula
+/// 3. Normalizes result to 0-1 range
+/// 4. Adjusts for number of unique values
+///
+/// Key characteristics:
+/// - Range from 0 (predictable) to 1 (random)
+/// - Measures information content
+/// - Detects regime changes
+/// - Identifies market uncertainty
+/// - Scale-independent measure
+///
+/// Formula:
+/// H = -Σ(p(x) * log₂(p(x))) / log₂(n)
+/// where:
+/// p(x) = probability of value x
+/// n = number of unique values
+///
+/// Applications:
+/// - Detect market regime changes
+/// - Assess price movement predictability
+/// - Identify periods of high uncertainty
+/// - Measure information flow in markets
+///
+/// Sources:
+///     Claude Shannon - "A Mathematical Theory of Communication" (1948)
+///     https://en.wikipedia.org/wiki/Entropy_(information_theory)
+///
+/// Note: Normalized to [0,1] for easier interpretation
 /// </remarks>
+
 public class Entropy : AbstractBase
 {
-    /// <summary>
-    /// The number of data points to consider for the entropy calculation.
-    /// </summary>
     private readonly int Period;
     private readonly CircularBuffer _buffer;
 
-    /// <summary>
-    /// Initializes a new instance of the Entropy class.
-    /// </summary>
-    /// <param name="period">The number of data points to consider for calculation.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when the period is less than 2.
-    /// </exception>
+    /// <param name="period">The number of points to consider for entropy calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
     public Entropy(int period)
     {
         if (period < 2)
@@ -42,30 +62,20 @@ public class Entropy : AbstractBase
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Entropy class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The number of data points to consider.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points to consider for entropy calculation.</param>
     public Entropy(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Resets the Entropy indicator to its initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
         _buffer.Clear();
     }
 
-    /// <summary>
-    /// Manages the state of the indicator.
-    /// </summary>
-    /// <param name="isNew">Indicates if the current data point is new.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,17 +85,6 @@ public class Entropy : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the entropy calculation.
-    /// </summary>
-    /// <returns>
-    /// The calculated entropy value, normalized between 0 and 1.
-    /// 1 indicates maximum randomness, 0 indicates perfect predictability.
-    /// </returns>
-    /// <remarks>
-    /// Uses Shannon's Entropy formula and normalizes the result based on the
-    /// number of unique values in the current period.
-    /// </remarks>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -93,22 +92,22 @@ public class Entropy : AbstractBase
         _buffer.Add(Input.Value, Input.IsNew);
 
         double entropy = 0;
-        if (_index > 1)  // We need at least two data points for entropy calculation
+        if (_index > 1)  // Need at least two data points for entropy calculation
         {
             var values = _buffer.GetSpan().ToArray();
             int n = values.Length;
 
-            // Calculate probabilities
+            // Calculate probabilities for each unique value
             var groupedValues = values.GroupBy(x => x).Select(g => new { Value = g.Key, Count = g.Count() });
 
-            // Use the actual count of values for probability calculation
+            // Calculate Shannon's entropy
             foreach (var group in groupedValues)
             {
                 double probability = (double)group.Count / n;
                 entropy -= probability * Math.Log2(probability);
             }
 
-            // Normalize the entropy based on the current number of unique values
+            // Normalize by maximum possible entropy for current unique values
             int uniqueValueCount = groupedValues.Count();
             double maxEntropy = Math.Log2(uniqueValueCount);
 
@@ -116,7 +115,7 @@ public class Entropy : AbstractBase
         }
         else
         {
-            entropy = 1; // Default to maximum entropy when insufficient data
+            entropy = 1; // Maximum entropy when insufficient data
         }
 
         IsHot = _buffer.Count >= Period;

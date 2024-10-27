@@ -1,10 +1,39 @@
 using System;
-
 namespace QuanTAlib;
 
 /// <summary>
-/// Jurik's superior replacement for RSI
+/// RSX: Relative Strength eXtended
+/// An enhanced version of RSI developed by Mark Jurik that applies JMA (Jurik Moving
+/// Average) smoothing to the RSI calculation. RSX provides smoother signals with
+/// less noise while maintaining responsiveness to significant price movements.
 /// </summary>
+/// <remarks>
+/// The RSX calculation process:
+/// 1. Calculates traditional RSI values
+/// 2. Applies JMA smoothing to RSI output
+/// 3. Uses optimized parameters for noise reduction
+/// 4. Maintains RSI's 0-100 scale
+///
+/// Key characteristics:
+/// - Smoother than traditional RSI
+/// - Better noise reduction
+/// - Maintains responsiveness to significant moves
+/// - Same interpretation as RSI (0-100 scale)
+/// - Fewer false signals than RSI
+///
+/// Formula:
+/// RSX = JMA(RSI(price))
+/// where:
+/// RSI = standard Relative Strength Index
+/// JMA = Jurik Moving Average with optimized parameters
+///
+/// Sources:
+///     Mark Jurik - "The Jurik RSX"
+///     https://www.jurikresearch.com/
+///
+/// Note: Proprietary enhancement of RSI using JMA technology
+/// </remarks>
+
 public class Rsx : AbstractBase
 {
     private readonly Rma _avgGain;
@@ -12,6 +41,10 @@ public class Rsx : AbstractBase
     private readonly Jma _rsx;
     private double _prevValue, _p_prevValue;
 
+    /// <param name="period">The number of periods for RSI calculation (default 14).</param>
+    /// <param name="phase">The phase parameter for JMA smoothing (default 0).</param>
+    /// <param name="factor">The factor parameter for smoothing control (default 0.55).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Rsx(int period = 14, int phase = 0, double factor = 0.55)
     {
         if (period < 1)
@@ -24,13 +57,10 @@ public class Rsx : AbstractBase
         Name = $"RSX({period})";
     }
 
-    /// <summary>
-    /// Initializes a new instance of the RSX class with a data source.
-    /// </summary>
-    /// <param name="source">The source object that publishes data.</param>
-    /// <param name="period">The number of data points to consider.</param>
-    /// <param name="phase">The phase parameter.</param>
-    /// <param name="factor">The factor parameter.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods for RSI calculation.</param>
+    /// <param name="phase">The phase parameter for JMA smoothing.</param>
+    /// <param name="factor">The factor parameter for smoothing control.</param>
     public Rsx(object source, int period, int phase = 0, double factor = 0.55) : this(period, phase, factor)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -59,15 +89,18 @@ public class Rsx : AbstractBase
             _prevValue = Input.Value;
         }
 
+        // Calculate RSI components
         double change = Input.Value - _prevValue;
         double gain = Math.Max(change, 0);
         double loss = Math.Max(-change, 0);
         _prevValue = Input.Value;
 
+        // Calculate RSI
         _avgGain.Calc(gain, IsNew: Input.IsNew);
         _avgLoss.Calc(loss, IsNew: Input.IsNew);
-
         double rsi = (_avgLoss.Value > 0) ? 100 - (100 / (1 + (_avgGain.Value / _avgLoss.Value))) : 100;
+
+        // Apply JMA smoothing
         double rsx = _rsx.Calc(rsi, Input.IsNew);
 
         return rsx;

@@ -1,9 +1,37 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// HMA: Hull Moving Average
+/// A moving average designed by Alan Hull to reduce lag while maintaining smoothness.
+/// It combines weighted moving averages of different periods to achieve better
+/// responsiveness to price changes while minimizing noise.
+/// </summary>
+/// <remarks>
+/// The HMA calculation process:
+/// 1. Calculate WMA with period n/2
+/// 2. Calculate WMA with period n
+/// 3. Calculate difference: 2*WMA(n/2) - WMA(n)
+/// 4. Apply final WMA with period sqrt(n) to the difference
+///
+/// Key characteristics:
+/// - Significantly reduced lag compared to traditional moving averages
+/// - Maintains smoothness despite the reduced lag
+/// - Responds more quickly to price changes
+/// - Better at identifying trend changes
+/// - Uses weighted moving averages for all calculations
+///
+/// Sources:
+///     Alan Hull - "Better Trading with Hull Moving Average"
+///     https://alanhull.com/hull-moving-average
+/// </remarks>
 
 public class Hma : AbstractBase
 {
     private readonly Convolution _wmaHalf, _wmaFull, _wmaFinal;
 
+    /// <param name="period">The number of data points used in the HMA calculation. Must be at least 2.</param>
+    /// <exception cref="ArgumentException">Thrown when period is less than 2.</exception>
     public Hma(int period)
     {
         if (period < 2)
@@ -19,12 +47,19 @@ public class Hma : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of data points used in the HMA calculation.</param>
     public Hma(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    /// <summary>
+    /// Generates the weighted moving average kernel for the HMA calculation.
+    /// </summary>
+    /// <param name="period">The period for which to generate the kernel.</param>
+    /// <returns>An array of linearly weighted values for the convolution operation.</returns>
     private static double[] GenerateWmaKernel(int period)
     {
         double[] kernel = new double[period];

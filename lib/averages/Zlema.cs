@@ -3,6 +3,31 @@ using System.Runtime.CompilerServices;
 
 namespace QuanTAlib
 {
+    /// <summary>
+    /// ZLEMA: Zero Lag Exponential Moving Average
+    /// A modified exponential moving average designed to reduce lag by incorporating
+    /// error correction based on predicted values. It estimates and removes lag by
+    /// extrapolating the trend using the difference between current and lagged prices.
+    /// </summary>
+    /// <remarks>
+    /// The ZLEMA calculation process:
+    /// 1. Calculates lag period as (period - 1) / 2
+    /// 2. Gets error correction term: 2 * price - lag_price
+    /// 3. Applies EMA to error-corrected price
+    /// 4. Results in reduced lag compared to standard EMA
+    ///
+    /// Key characteristics:
+    /// - Significantly reduced lag compared to EMA
+    /// - More responsive to price changes
+    /// - Uses error correction mechanism
+    /// - Maintains smoothness despite reduced lag
+    /// - Better trend following capabilities
+    ///
+    /// Sources:
+    ///     John Ehlers and Ric Way - "Zero Lag (Well, Almost)"
+    ///     Technical Analysis of Stocks and Commodities, 2010
+    /// </remarks>
+
     public class Zlema : AbstractBase
     {
         private readonly CircularBuffer _buffer;
@@ -10,6 +35,8 @@ namespace QuanTAlib
         private readonly Ema _ema;
         private double _lastZLEMA, _p_lastZLEMA;
 
+        /// <param name="period">The number of periods used in the ZLEMA calculation.</param>
+        /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
         public Zlema(int period)
         {
             if (period < 1)
@@ -24,6 +51,8 @@ namespace QuanTAlib
             Init();
         }
 
+        /// <param name="source">The data source object that publishes updates.</param>
+        /// <param name="period">The number of periods used in the ZLEMA calculation.</param>
         public Zlema(object source, int period) : this(period)
         {
             var pubEvent = source.GetType().GetEvent("Pub");
@@ -59,8 +88,11 @@ namespace QuanTAlib
 
             _buffer.Add(Input.Value, Input.IsNew);
 
+            // Get lagged value and calculate error correction
             double lagValue = _buffer[Math.Max(0, _buffer.Count - 1 - _lag)];
             double errorCorrection = 2 * Input.Value - lagValue;
+
+            // Apply EMA to error-corrected value
             double zlema = _ema.Calc(new TValue(errorCorrection, Input.IsNew)).Value;
 
             _lastZLEMA = zlema;

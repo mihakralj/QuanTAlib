@@ -1,11 +1,42 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// QEMA: Quadruple Exponential Moving Average
+/// A sophisticated moving average that applies four exponential moving averages in sequence
+/// and combines them using a specific formula to reduce lag while maintaining smoothness.
+/// The final combination is: 4*EMA1 - 6*EMA2 + 4*EMA3 - EMA4
+/// </summary>
+/// <remarks>
+/// The QEMA calculation process:
+/// 1. Applies first EMA to price data
+/// 2. Applies second EMA to result of first EMA
+/// 3. Applies third EMA to result of second EMA
+/// 4. Applies fourth EMA to result of third EMA
+/// 5. Combines results using the formula: 4*EMA1 - 6*EMA2 + 4*EMA3 - EMA4
+///
+/// Key characteristics:
+/// - Multiple EMA smoothing stages
+/// - Reduced lag through combination formula
+/// - Customizable smoothing factors for each EMA
+/// - Better noise reduction than single EMA
+/// - Maintains responsiveness to significant moves
+///
+/// Implementation:
+///     Based on quadruple exponential smoothing principles
+///     with optimized combination formula
+/// </remarks>
 
 public class Qema : AbstractBase
 {
-
     private readonly Ema _ema1, _ema2, _ema3, _ema4;
     private double _lastQema, _p_lastQema;
 
+    /// <param name="k1">Smoothing factor for first EMA (default 0.2).</param>
+    /// <param name="k2">Smoothing factor for second EMA (default 0.2).</param>
+    /// <param name="k3">Smoothing factor for third EMA (default 0.2).</param>
+    /// <param name="k4">Smoothing factor for fourth EMA (default 0.2).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when any k value is less than or equal to 0.</exception>
     public Qema(double k1 = 0.2, double k2 = 0.2, double k3 = 0.2, double k4 = 0.2)
     {
         if (k1 <= 0 || k2 <= 0 || k3 <= 0 || k4 <= 0)
@@ -25,6 +56,11 @@ public class Qema : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="k1">Smoothing factor for first EMA.</param>
+    /// <param name="k2">Smoothing factor for second EMA.</param>
+    /// <param name="k3">Smoothing factor for third EMA.</param>
+    /// <param name="k4">Smoothing factor for fourth EMA.</param>
     public Qema(object source, double k1, double k2, double k3, double k4)
         : this(k1, k2, k3, k4)
     {

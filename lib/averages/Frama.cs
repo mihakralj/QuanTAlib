@@ -2,6 +2,29 @@ using System;
 
 namespace QuanTAlib;
 
+/// <summary>
+/// FRAMA: Fractal Adaptive Moving Average
+/// An adaptive moving average that adjusts its smoothing factor based on the fractal dimension
+/// of the price series. FRAMA automatically adapts to market conditions, becoming more responsive
+/// during trends and more stable during sideways markets.
+/// </summary>
+/// <remarks>
+/// The FRAMA algorithm works by:
+/// 1. Calculating the fractal dimension of the price series
+/// 2. Using this dimension to determine the optimal alpha (smoothing factor)
+/// 3. Applying an EMA with the adaptive alpha
+///
+/// Key characteristics:
+/// - Self-adaptive to market conditions
+/// - Reduces lag during trending periods
+/// - Increases smoothing during sideways markets
+/// - Uses fractal geometry principles for market analysis
+///
+/// Sources:
+///     John Ehlers - "FRAMA: A Trend-Following Indicator"
+///     https://www.mesasoftware.com/papers/FRAMA.pdf
+/// </remarks>
+
 public class Frama : AbstractBase
 {
     private readonly int _period;
@@ -9,6 +32,8 @@ public class Frama : AbstractBase
     private double _lastFrama;
     private double _prevLastFrama;
 
+    /// <param name="period">The number of periods used for fractal dimension calculation. Must be at least 2.</param>
+    /// <exception cref="ArgumentException">Thrown when period is less than 2.</exception>
     public Frama(int period)
     {
         if (period < 2)
@@ -19,6 +44,8 @@ public class Frama : AbstractBase
         WarmupPeriod = period;
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods used for fractal dimension calculation.</param>
     public Frama(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");

@@ -1,10 +1,43 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// RMSE: Root Mean Square Error
+/// A widely used error metric that measures the square root of the average squared
+/// differences between predicted and actual values. RMSE provides error measurements
+/// in the same units as the original data.
+/// </summary>
+/// <remarks>
+/// The RMSE calculation process:
+/// 1. Calculates error (actual - predicted) for each point
+/// 2. Squares each error value
+/// 3. Averages the squared errors
+/// 4. Takes the square root of the average
+///
+/// Key characteristics:
+/// - Same units as input data (unlike MSE)
+/// - Penalizes large errors more than small ones
+/// - Always non-negative
+/// - More interpretable than MSE
+/// - Commonly used in regression problems
+///
+/// Formula:
+/// RMSE = √((1/n) * Σ(actual - predicted)²)
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Root-mean-square_deviation
+///     https://www.statisticshowto.com/probability-and-statistics/regression-analysis/rmse-root-mean-square-error/
+///
+/// Note: Square root of MSE, making it more interpretable in original units
+/// </remarks>
 
 public class Rmse : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
+    /// <param name="period">The number of points over which to calculate the RMSE.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Rmse(int period)
     {
         if (period < 1)
@@ -18,6 +51,8 @@ public class Rmse : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points over which to calculate the RMSE.</param>
     public Rmse(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -47,6 +82,7 @@ public class Rmse : AbstractBase
         double actual = Input.Value;
         _actualBuffer.Add(actual, Input.IsNew);
 
+        // If no predicted value provided, use mean of actual values
         double predicted = double.IsNaN(Input2.Value) ? _actualBuffer.Average() : Input2.Value;
         _predictedBuffer.Add(predicted, Input.IsNew);
 

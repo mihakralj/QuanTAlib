@@ -1,4 +1,29 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// KAMA: Kaufman's Adaptive Moving Average
+/// An adaptive moving average that adjusts its smoothing based on market efficiency.
+/// KAMA responds quickly during trending periods and becomes more stable during
+/// sideways or choppy markets.
+/// </summary>
+/// <remarks>
+/// The KAMA calculation process:
+/// 1. Calculates the Efficiency Ratio (ER) to measure market noise
+/// 2. Uses ER to determine the optimal smoothing between fast and slow constants
+/// 3. Applies the adaptive smoothing to create the moving average
+///
+/// Key characteristics:
+/// - Self-adaptive to market conditions
+/// - Fast response during trends
+/// - Stable during sideways markets
+/// - Uses market efficiency for smoothing adjustment
+/// - Reduces whipsaws in choppy markets
+///
+/// Sources:
+///     Perry Kaufman - "Smarter Trading"
+///     https://www.investopedia.com/terms/k/kaufmansadaptivemovingaverage.asp
+/// </remarks>
 
 public class Kama : AbstractBase
 {
@@ -7,6 +32,10 @@ public class Kama : AbstractBase
     private CircularBuffer? _buffer;
     private double _lastKama, _p_lastKama;
 
+    /// <param name="period">The number of periods used to calculate the Efficiency Ratio.</param>
+    /// <param name="fast">The number of periods for the fastest EMA response (default 2).</param>
+    /// <param name="slow">The number of periods for the slowest EMA response (default 30).</param>
+    /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
     public Kama(int period, int fast = 2, int slow = 30)
     {
         if (period < 1)
@@ -21,6 +50,10 @@ public class Kama : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods used to calculate the Efficiency Ratio.</param>
+    /// <param name="fast">The number of periods for the fastest EMA response (default 2).</param>
+    /// <param name="slow">The number of periods for the slowest EMA response (default 30).</param>
     public Kama(object source, int period, int fast = 2, int slow = 30) : this(period, fast, slow)
     {
         var pubEvent = source.GetType().GetEvent("Pub");

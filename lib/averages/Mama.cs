@@ -1,4 +1,31 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// MAMA: MESA Adaptive Moving Average
+/// A highly sophisticated adaptive moving average that uses the MESA (Maximum Entropy
+/// Spectral Analysis) algorithm to detect market cycles and adjust its smoothing
+/// accordingly. MAMA provides both a faster (MAMA) and slower (FAMA) moving average.
+/// </summary>
+/// <remarks>
+/// The MAMA calculation process:
+/// 1. Uses Hilbert Transform to decompose price into phase and amplitude
+/// 2. Calculates the dominant cycle period using phase analysis
+/// 3. Determines phase position and rate of change
+/// 4. Adapts smoothing based on phase changes
+/// 5. Generates both MAMA and FAMA (Following Adaptive Moving Average)
+///
+/// Key characteristics:
+/// - Highly adaptive to market conditions
+/// - Provides two synchronized moving averages
+/// - Uses cycle analysis for adaptation
+/// - Excellent at identifying trend changes
+/// - Combines multiple signal processing techniques
+///
+/// Sources:
+///     John Ehlers - "MESA Adaptive Moving Averages"
+///     https://www.mesasoftware.com/papers/MAMA.pdf
+/// </remarks>
 
 public class Mama : AbstractBase
 {
@@ -8,8 +35,13 @@ public class Mama : AbstractBase
     private double _prevMama, _prevFama, _sumPr;
     private double _p_prevMama, _p_prevFama, _p_sumPr;
 
+    /// <summary>
+    /// Gets the Following Adaptive Moving Average (FAMA) value.
+    /// </summary>
     public TValue Fama { get; private set; }
 
+    /// <param name="fastLimit">The maximum adaptation speed (default 0.5).</param>
+    /// <param name="slowLimit">The minimum adaptation speed (default 0.05).</param>
     public Mama(double fastLimit = 0.5, double slowLimit = 0.05)
     {
         Fama = new TValue();
@@ -30,6 +62,9 @@ public class Mama : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="fastLimit">The maximum adaptation speed (default 0.5).</param>
+    /// <param name="slowLimit">The minimum adaptation speed (default 0.05).</param>
     public Mama(object source, double fastLimit = 0.5, double slowLimit = 0.05) : this(fastLimit, slowLimit)
     {
         var pubEvent = source.GetType().GetEvent("Pub");

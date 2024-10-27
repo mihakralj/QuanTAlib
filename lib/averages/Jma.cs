@@ -1,8 +1,30 @@
-/// <summary>
-/// Represents a Jurik Moving Average, based on known and reverse-engineered insights
-/// </summary>
-
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// JMA: Jurik Moving Average
+/// A sophisticated moving average that combines adaptive volatility measurement with
+/// phase-shifted smoothing. JMA provides excellent noise reduction while maintaining
+/// responsiveness to significant price movements.
+/// </summary>
+/// <remarks>
+/// The JMA calculation process:
+/// 1. Calculates adaptive volatility bands
+/// 2. Uses volatility to adjust smoothing parameters
+/// 3. Applies phase-shifted smoothing for lag reduction
+/// 4. Combines multiple smoothing stages for final output
+///
+/// Key characteristics:
+/// - Adaptive smoothing based on price volatility
+/// - Phase-shifting to reduce lag
+/// - Excellent noise reduction
+/// - Maintains responsiveness to significant moves
+/// - Provides volatility bands as additional outputs
+///
+/// Implementation:
+///     Based on known and reverse-engineered insights from Jurik Research
+///     Original work by Mark Jurik
+/// </remarks>
 
 public class Jma : AbstractBase
 {
@@ -18,7 +40,6 @@ public class Jma : AbstractBase
     private double _prevMa1, _prevDet0, _prevDet1, _prevJma, _p_prevMa1, _p_prevDet0, _p_prevDet1, _p_prevJma;
     private double _vSum, _p_vSum;
 
-
     public double UpperBand { get; set; }
     public double LowerBand { get; set; }
     public double Volty { get; set; }
@@ -27,11 +48,11 @@ public class Jma : AbstractBase
     /// <summary>
     /// Initializes a new instance of the Jma class with the specified parameters.
     /// </summary>
-    /// <param name="period">The period over which to calculate the Jvolty.</param>
-    /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when period is less than 1.
-    /// </exception>
+    /// <param name="period">The period over which to calculate the JMA.</param>
+    /// <param name="phase">The phase parameter (-100 to +100) controlling lag compensation.</param>
+    /// <param name="factor">The factor controlling volatility adaptation (default 0.45).</param>
+    /// <param name="buffer">The size of the volatility buffer (default 10).</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Jma(int period, int phase = 0, double factor = 0.45, int buffer = 10)
     {
         if (period < 1)
@@ -51,20 +72,19 @@ public class Jma : AbstractBase
     }
 
     /// <summary>
-    /// Initializes a new instance of the Jvolty class with the specified source and parameters.
+    /// Initializes a new instance of the Jma class with a specified source.
     /// </summary>
-    /// <param name="source">The source object to subscribe to for value updates.</param>
-    /// <param name="period">The period over which to calculate the Jvolty.</param>
-    /// <param name="phase">The phase parameter for the JMA-style calculation.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The period over which to calculate the JMA.</param>
+    /// <param name="phase">The phase parameter (-100 to +100) controlling lag compensation.</param>
+    /// <param name="factor">The factor controlling volatility adaptation (default 0.45).</param>
+    /// <param name="buffer">The size of the volatility buffer (default 10).</param>
     public Jma(object source, int period, int phase = 0, double factor = 0.45, int buffer = 10) : this(period, phase, factor, buffer)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Jma instance by setting up the initial state.
-    /// </summary>
     public override void Init()
     {
         base.Init();
@@ -76,10 +96,6 @@ public class Jma : AbstractBase
         _vsumBuff.Clear();
     }
 
-    /// <summary>
-    /// Manages the state of the Jma instance based on whether a new value is being processed.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the current input is a new value.</param>
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -105,12 +121,6 @@ public class Jma : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the Jma calculation for the current value.
-    /// </summary>
-    /// <returns>
-    /// The calculated Jma value for the current input.
-    /// </returns>
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -141,10 +151,10 @@ public class Jma : AbstractBase
         _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
         double _alpha = Math.Pow(_beta, pow2);
-        double ma1 = Input.Value + _alpha * (_prevMa1 - Input.Value);  //original: (1 - _alpha) * Input.Value + _alpha * _prevMa1;
+        double ma1 = Input.Value + _alpha * (_prevMa1 - Input.Value);
         _prevMa1 = ma1;
 
-        double det0 = price + _beta * (_prevDet0 - price + ma1) - ma1; //original: (price - ma1) * (1 - _beta) + _beta * _prevDet0;
+        double det0 = price + _beta * (_prevDet0 - price + ma1) - ma1;
         _prevDet0 = det0;
         double ma2 = ma1 + _phase * det0;
 

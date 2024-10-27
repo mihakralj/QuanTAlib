@@ -1,10 +1,43 @@
+using System;
+using System.Linq;
 namespace QuanTAlib;
+
+/// <summary>
+/// R-squared: Coefficient of Determination
+/// A statistical measure that represents the proportion of variance in the dependent
+/// variable that is predictable from the independent variable. R-squared provides
+/// a measure of how well the predictions approximate the actual data.
+/// </summary>
+/// <remarks>
+/// The R-squared calculation process:
+/// 1. Calculates total sum of squares (variance from mean)
+/// 2. Calculates residual sum of squares (prediction errors)
+/// 3. Computes 1 - (residual SS / total SS)
+///
+/// Key characteristics:
+/// - Range is typically 0 to 1
+/// - 1 indicates perfect prediction
+/// - 0 indicates prediction no better than mean
+/// - Scale-independent
+/// - Widely used in regression analysis
+///
+/// Formula:
+/// R² = 1 - (Σ(actual - predicted)² / Σ(actual - mean(actual))²)
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Coefficient_of_determination
+///     https://www.statisticshowto.com/probability-and-statistics/coefficient-of-determination-r-squared/
+///
+/// Note: Can be negative if predictions are worse than using the mean
+/// </remarks>
 
 public class Rsquared : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
 
+    /// <param name="period">The number of points over which to calculate the R-squared value.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     public Rsquared(int period)
     {
         if (period < 1)
@@ -18,6 +51,8 @@ public class Rsquared : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points over which to calculate the R-squared value.</param>
     public Rsquared(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -47,6 +82,7 @@ public class Rsquared : AbstractBase
         double actual = Input.Value;
         _actualBuffer.Add(actual, Input.IsNew);
 
+        // If no predicted value provided, use mean of actual values
         double predicted = double.IsNaN(Input2.Value) ? _actualBuffer.Average() : Input2.Value;
         _predictedBuffer.Add(predicted, Input.IsNew);
 

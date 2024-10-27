@@ -1,4 +1,32 @@
+using System;
 namespace QuanTAlib;
+
+/// <summary>
+/// HWMA: Holt-Winters Moving Average
+/// A triple exponential smoothing method that incorporates level (F), velocity (V), and
+/// acceleration (A) components to create a responsive yet smooth moving average. This
+/// implementation uses optimized smoothing factors for each component.
+/// </summary>
+/// <remarks>
+/// The HWMA calculation process:
+/// 1. Updates the level (F) component using alpha smoothing
+/// 2. Updates the velocity (V) component using beta smoothing
+/// 3. Updates the acceleration (A) component using gamma smoothing
+/// 4. Combines all components for final value: F + V + 0.5A
+///
+/// Key characteristics:
+/// - Adapts to both trends and acceleration in price movement
+/// - Three separate smoothing factors for fine-tuned control
+/// - More responsive to changes than simple moving averages
+/// - Handles both linear and non-linear trends
+///
+/// Implementation:
+///     Based on Holt-Winters triple exponential smoothing principles
+///     with optimized default parameters:
+///     - Alpha (nA) = 2/(period + 1)
+///     - Beta (nB) = 1/period
+///     - Gamma (nC) = 1/period
+/// </remarks>
 
 public class Hwma : AbstractBase
 {
@@ -7,14 +35,23 @@ public class Hwma : AbstractBase
     private double _pF, _pV, _pA;
     private double _ppF, _ppV, _ppA;
 
+    /// <param name="period">The number of data points used in the HWMA calculation.</param>
     public Hwma(int period) : this(period, 2.0 / (1 + period), 1.0 / period, 1.0 / period)
     {
     }
 
+    /// <param name="nA">Alpha smoothing factor for the level component.</param>
+    /// <param name="nB">Beta smoothing factor for the velocity component.</param>
+    /// <param name="nC">Gamma smoothing factor for the acceleration component.</param>
     public Hwma(double nA, double nB, double nC) : this((int)((2 - nA) / nA), nA, nB, nC)
     {
     }
 
+    /// <param name="period">The number of data points used in the HWMA calculation.</param>
+    /// <param name="nA">Alpha smoothing factor for the level component.</param>
+    /// <param name="nB">Beta smoothing factor for the velocity component.</param>
+    /// <param name="nC">Gamma smoothing factor for the acceleration component.</param>
+    /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
     public Hwma(int period, double nA, double nB, double nC)
     {
         if (period < 1)
@@ -30,6 +67,8 @@ public class Hwma : AbstractBase
         Init();
     }
 
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of data points used in the HWMA calculation.</param>
     public Hwma(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
@@ -58,7 +97,6 @@ public class Hwma : AbstractBase
             _pF = _ppF;
             _pV = _ppV;
             _pA = _ppA;
-
         }
     }
 
