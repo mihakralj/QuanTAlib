@@ -51,9 +51,7 @@
     <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.21459.1" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(IsLocalBuild)' == 'true'">
-
-<!-- Set the correct path to Quantower here -->
+  <PropertyGroup Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
     <QuantowerRoot>D:\Quantower</QuantowerRoot>
     <QuantowerPath>$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
   </PropertyGroup>

@@ -26,7 +26,8 @@
     </None>
   </ItemGroup>
 
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(IsLocalBuild)' == 'true'">
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild"
+        Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
     <Copy SourceFiles="$(OutputPath)\Volatility.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Volatility" />
   </Target>
 

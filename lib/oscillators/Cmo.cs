@@ -20,6 +20,17 @@ public class Cmo : AbstractBase
         Name = $"CMO({period})";
     }
 
+    /// <summary>
+    /// Initializes a new instance of the CMO class with a data source.
+    /// </summary>
+    /// <param name="source">The source object that publishes data.</param>
+    /// <param name="period">The number of data points to consider.</param>
+    public Cmo(object source, int period) : this(period)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
+    }
+
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -54,7 +65,6 @@ public class Cmo : AbstractBase
         {
             _sumH.Add(0, Input.IsNew);
             _sumL.Add(-diff, Input.IsNew);
-
         }
 
         // Calculate sums for the specified period only
@@ -67,4 +77,3 @@ public class Cmo : AbstractBase
             0.0;
     }
 }
-

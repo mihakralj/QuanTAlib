@@ -9,7 +9,7 @@ namespace QuanTAlib;
 /// both annualized and non-annualized volatility measures. The calculation uses a sample
 /// standard deviation formula and assumes 252 trading days in a year for annualization.
 /// </remarks>
-public class Historical : AbstractBase
+public class Hv : AbstractBase
 {
     private readonly int Period;
     private readonly bool IsAnnualized;
@@ -25,7 +25,7 @@ public class Historical : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-    public Historical(int period, bool isAnnualized = true)
+    public Hv(int period, bool isAnnualized = true)
     {
         if (period < 2)
         {
@@ -46,7 +46,7 @@ public class Historical : AbstractBase
     /// <param name="source">The source object to subscribe to for value updates.</param>
     /// <param name="period">The period over which to calculate historical volatility.</param>
     /// <param name="isAnnualized">Whether to annualize the volatility (default is true).</param>
-    public Historical(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
+    public Hv(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));

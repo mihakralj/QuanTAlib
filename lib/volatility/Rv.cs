@@ -9,7 +9,7 @@ namespace QuanTAlib;
 /// both annualized and non-annualized volatility measures. The calculation uses a rolling
 /// sum of squared returns for efficiency and assumes 252 trading days in a year for annualization.
 /// </remarks>
-public class Realized : AbstractBase
+public class Rv : AbstractBase
 {
     private readonly int Period;
     private readonly bool IsAnnualized;
@@ -25,7 +25,7 @@ public class Realized : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when period is less than 2.
     /// </exception>
-    public Realized(int period, bool isAnnualized = true)
+    public Rv(int period, bool isAnnualized = true)
     {
         if (period < 2)
         {
@@ -37,6 +37,18 @@ public class Realized : AbstractBase
         _returns = new CircularBuffer(period);
         Name = $"Realized(period={period}, annualized={isAnnualized})";
         Init();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the Realized class with a data source.
+    /// </summary>
+    /// <param name="source">The source object that publishes data.</param>
+    /// <param name="period">The period over which to calculate realized volatility.</param>
+    /// <param name="isAnnualized">Whether to annualize the volatility (default is true).</param>
+    public Rv(object source, int period, bool isAnnualized = true) : this(period, isAnnualized)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
     /// <summary>

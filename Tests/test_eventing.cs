@@ -51,6 +51,12 @@ public class EventingTests
             ("Tema", new Tema(p), new Tema(input, p)),
             ("Kama", new Kama(2, 30, 6), new Kama(input, 2, 30, 6)),
             ("Zlema", new Zlema(p), new Zlema(input, p)),
+            // oscillators
+            ("Rsi", new Rsi(p), new Rsi(input, p)),
+            ("Rsx", new Rsx(p), new Rsx(input, p)),
+            ("Cmo", new Cmo(p), new Cmo(input, p)),
+            // volatility
+            ("Rv", new Rv(p), new Rv(input, p)),
             // error classes
             ("Mae", new Mae(p), new Mae(input, p)),
             ("Mapd", new Mapd(p), new Mapd(input, p)),
@@ -67,7 +73,7 @@ public class EventingTests
             ("Rse", new Rse(p), new Rse(input, p)),
             ("Smape", new Smape(p), new Smape(input, p)),
             ("Rsquared", new Rsquared(p), new Rsquared(input, p)),
-            ("Huberloss", new Huberloss(p), new Huberloss(input, p))
+            ("Huber", new Huber(p), new Huber(input, p))
         };
 
         // Generate 200 random values and feed them to both direct and event-based indicators

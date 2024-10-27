@@ -1,12 +1,12 @@
 namespace QuanTAlib;
 
-public class Huberloss : AbstractBase
+public class Huber : AbstractBase
 {
     private readonly CircularBuffer _actualBuffer;
     private readonly CircularBuffer _predictedBuffer;
     private readonly double _delta;
 
-    public Huberloss(int period, double delta = 1.0)
+    public Huber(int period, double delta = 1.0)
     {
         if (period < 1)
         {
@@ -24,7 +24,7 @@ public class Huberloss : AbstractBase
         Init();
     }
 
-    public Huberloss(object source, int period, double delta = 1.0) : this(period, delta)
+    public Huber(object source, int period, double delta = 1.0) : this(period, delta)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));

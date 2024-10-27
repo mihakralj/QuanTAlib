@@ -3,23 +3,38 @@ using System;
 namespace QuanTAlib;
 
 /// <summary>
-/// Represents a Relative Strength Index (RSI) calculator following Wilder's algorithm.
+/// Jurik's superior replacement for RSI
 /// </summary>
-public class Rsi : AbstractBase
+public class Rsx : AbstractBase
 {
     private readonly Rma _avgGain;
     private readonly Rma _avgLoss;
+    private readonly Jma _rsx;
     private double _prevValue, _p_prevValue;
 
-    public Rsi(int period = 14)
+    public Rsx(int period = 14, int phase = 0, double factor = 0.55)
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period));
-        _avgGain = new(period, useSma: true);
-        _avgLoss = new(period, useSma: true);
+        _avgGain = new(period);
+        _avgLoss = new(period);
+        _rsx = new(8, 100, 0.25, 3);
         _index = 0;
         WarmupPeriod = period + 1;
-        Name = $"RSI({period})";
+        Name = $"RSX({period})";
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the RSX class with a data source.
+    /// </summary>
+    /// <param name="source">The source object that publishes data.</param>
+    /// <param name="period">The number of data points to consider.</param>
+    /// <param name="phase">The phase parameter.</param>
+    /// <param name="factor">The factor parameter.</param>
+    public Rsx(object source, int period, int phase = 0, double factor = 0.55) : this(period, phase, factor)
+    {
+        var pubEvent = source.GetType().GetEvent("Pub");
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
     protected override void ManageState(bool isNew)
@@ -53,10 +68,8 @@ public class Rsi : AbstractBase
         _avgLoss.Calc(loss, IsNew: Input.IsNew);
 
         double rsi = (_avgLoss.Value > 0) ? 100 - (100 / (1 + (_avgGain.Value / _avgLoss.Value))) : 100;
-        
+        double rsx = _rsx.Calc(rsi, Input.IsNew);
 
-        return rsi;
-
-
+        return rsx;
     }
 }

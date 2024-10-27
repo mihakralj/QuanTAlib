@@ -45,7 +45,7 @@ public class VolatilityUpdateTests
     [Fact]
     public void Historical_Update()
     {
-        var indicator = new Historical(period: 14);
+        var indicator = new Hv(period: 14);
         double initialValue = indicator.Calc(new TBar(DateTime.Now, ReferenceValue, ReferenceValue, ReferenceValue, ReferenceValue, 1000, IsNew: true));
 
         for (int i = 0; i < RandomUpdates; i++)
@@ -60,7 +60,7 @@ public class VolatilityUpdateTests
     [Fact]
     public void Realized_Update()
     {
-        var indicator = new Realized(period: 14);
+        var indicator = new Rv(period: 14);
         double initialValue = indicator.Calc(new TBar(DateTime.Now, ReferenceValue, ReferenceValue, ReferenceValue, ReferenceValue, 1000, IsNew: true));
 
         for (int i = 0; i < RandomUpdates; i++)
