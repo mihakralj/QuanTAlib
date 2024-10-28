@@ -96,7 +96,7 @@ public sealed class Jvolty : AbstractBase
     public Jvolty(object source, int period, int phase = DefaultPhase) : this(period, phase)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
-        pubEvent?.AddEventHandler(source, new BarSignal(Sub));
+        pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

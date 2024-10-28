@@ -1,6 +1,6 @@
-ADX - Average Directional Movement Index
-ADXR - Average Directional Movement Index
-APO - Absolute Price Oscillator
+✔️ ADX - Average Directional Movement Index
+✔️ ADXR - Average Directional Movement Index Rating
+✔️ APO - Absolute Price Oscillator
 DMI - Directional Movement Index
 DMX - Jurik Directional Movement Index
 DPO - Detrended Price Oscillator
