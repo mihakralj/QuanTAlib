@@ -1,52 +1,71 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Represents a slope calculator that performs linear regression on a series of data points.
+/// SLOPE: Linear Regression Trend Measure
+/// A statistical measure that calculates the rate of change using linear regression.
+/// Slope indicates the direction and steepness of a trend, providing insights into
+/// momentum and potential trend changes.
 /// </summary>
 /// <remarks>
-/// The Slope class calculates the slope of a linear regression line, along with other
-/// statistical measures such as intercept, standard deviation, R-squared, and the last
-/// point on the regression line. It uses the least squares method for calculation.
+/// The Slope calculation process:
+/// 1. Calculates means of x and y values
+/// 2. Computes deviations from means
+/// 3. Applies least squares method
+/// 4. Provides additional regression statistics
 ///
-/// In financial analysis, slope is important for:
-/// - Identifying trends in price movements or other financial metrics.
-/// - Measuring the rate of change in a financial time series.
-/// - Assessing the strength and direction of relationships between variables.
-/// - Supporting technical analysis indicators and trading strategies.
+/// Key characteristics:
+/// - Measures trend direction and strength
+/// - Provides rate of change
+/// - Scale-dependent measure
+/// - Includes regression statistics
+/// - Time-weighted calculation
+///
+/// Formula:
+/// slope = Σ((x - x̄)(y - ȳ)) / Σ((x - x̄)²)
+/// where:
+/// x = time points
+/// y = price values
+/// x̄, ȳ = respective means
+///
+/// Market Applications:
+/// - Trend identification
+/// - Momentum measurement
+/// - Support/resistance angles
+/// - Price target projection
+/// - Trend strength analysis
+///
+/// Sources:
+///     https://en.wikipedia.org/wiki/Simple_linear_regression
+///     "Technical Analysis of Financial Markets" - John J. Murphy
+///
+/// Note: Provides additional regression statistics (R², intercept)
 /// </remarks>
-public class Slope : AbstractBase
+
+[SkipLocalsInit]
+public sealed class Slope : AbstractBase
 {
     private readonly int _period;
     private readonly CircularBuffer _buffer;
     private readonly CircularBuffer _timeBuffer;
+    private const double Epsilon = 1e-10;
+    private const int MinimumPoints = 2;
 
-    /// <summary>
-    /// Gets the y-intercept of the regression line.
-    /// </summary>
+    /// <summary>Gets the y-intercept of the regression line.</summary>
     public double? Intercept { get; private set; }
 
-    /// <summary>
-    /// Gets the standard deviation of the y-values.
-    /// </summary>
+    /// <summary>Gets the standard deviation of the y-values.</summary>
     public double? StdDev { get; private set; }
 
-    /// <summary>
-    /// Gets the R-squared value, indicating the goodness of fit of the regression line.
-    /// </summary>
+    /// <summary>Gets the R-squared value, indicating regression fit quality.</summary>
     public double? RSquared { get; private set; }
 
-    /// <summary>
-    /// Gets the y-value of the last point on the regression line.
-    /// </summary>
+    /// <summary>Gets the last point on the regression line.</summary>
     public double? Line { get; private set; }
 
-    /// <summary>
-    /// Initializes a new instance of the Slope class with the specified period.
-    /// </summary>
-    /// <param name="period">The period over which to calculate the slope.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when period is less than or equal to 1.
-    /// </exception>
+    /// <param name="period">The number of points to consider for slope calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than or equal to 1.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Slope(int period)
     {
         if (period <= 1)
@@ -59,24 +78,19 @@ public class Slope : AbstractBase
         _buffer = new CircularBuffer(period);
         _timeBuffer = new CircularBuffer(period);
         Name = $"Slope(period={period})";
-
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Slope class with the specified source and period.
-    /// </summary>
-    /// <param name="source">The source object to subscribe to for value updates.</param>
-    /// <param name="period">The period over which to calculate the slope.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of points to consider for slope calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Slope(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Slope instance by clearing buffers and resetting calculated values.
-    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -88,10 +102,7 @@ public class Slope : AbstractBase
         Line = null;
     }
 
-    /// <summary>
-    /// Manages the state of the Slope instance based on whether a new value is being processed.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the current input is a new value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -101,53 +112,22 @@ public class Slope : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the slope calculation using linear regression for the current period.
-    /// </summary>
-    /// <returns>
-    /// The calculated slope value for the current period.
-    /// </returns>
-    /// <remarks>
-    /// This method uses the least squares method to calculate the slope of the regression line.
-    /// It also calculates and updates the Intercept, StdDev, RSquared, and Line properties.
-    /// If there are fewer than 2 data points, or if the sum of squared x deviations is 0,
-    /// the method returns 0 and sets the additional properties to null.
-    ///
-    /// Interpretation of results:
-    /// - Positive slope: Indicates an upward trend in the data.
-    /// - Negative slope: Indicates a downward trend in the data.
-    /// - Slope close to 0: Indicates a relatively flat or no clear trend in the data.
-    /// The magnitude of the slope represents the rate of change in the dependent variable
-    /// (y) for each unit change in the independent variable (x).
-    /// </remarks>
-    protected override double Calculation()
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double sumX, double sumY) CalculateSums(ReadOnlySpan<double> values, int count)
     {
-        ManageState(Input.IsNew);
-
-        _buffer.Add(Input.Value, Input.IsNew);
-        _timeBuffer.Add(Input.Time.Ticks, Input.IsNew);
-
-        double slope = 0;
-
-        if (_buffer.Count < 2)
-        {
-            return slope; // Return 0 when there are fewer than 2 points
-        }
-
-        int count = Math.Min(_buffer.Count, _period);
-        var values = _buffer.GetSpan().ToArray();
-
-        // Calculate averages
         double sumX = 0, sumY = 0;
         for (int i = 0; i < count; i++)
         {
             sumX += i + 1;
             sumY += values[i];
         }
-        double avgX = sumX / count;
-        double avgY = sumY / count;
+        return (sumX, sumY);
+    }
 
-        // Least squares method
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double sumSqX, double sumSqY, double sumSqXY) CalculateSquaredSums(
+        ReadOnlySpan<double> values, int count, double avgX, double avgY)
+    {
         double sumSqX = 0, sumSqY = 0, sumSqXY = 0;
         for (int i = 0; i < count; i++)
         {
@@ -157,9 +137,37 @@ public class Slope : AbstractBase
             sumSqY += devY * devY;
             sumSqXY += devX * devY;
         }
+        return (sumSqX, sumSqY, sumSqXY);
+    }
 
-        if (sumSqX > 0)
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    protected override double Calculation()
+    {
+        ManageState(Input.IsNew);
+
+        _buffer.Add(Input.Value, Input.IsNew);
+        _timeBuffer.Add(Input.Time.Ticks, Input.IsNew);
+
+        double slope = 0;
+        if (_buffer.Count < MinimumPoints)
         {
+            return slope; // Need at least 2 points
+        }
+
+        int count = Math.Min(_buffer.Count, _period);
+        ReadOnlySpan<double> values = _buffer.GetSpan();
+
+        // Calculate averages
+        var (sumX, sumY) = CalculateSums(values, count);
+        double avgX = sumX / count;
+        double avgY = sumY / count;
+
+        // Least squares regression
+        var (sumSqX, sumSqY, sumSqXY) = CalculateSquaredSums(values, count, avgX, avgY);
+
+        if (sumSqX > Epsilon)
+        {
+            // Calculate slope and related statistics
             slope = sumSqXY / sumSqX;
             Intercept = avgY - (slope * avgX);
 
@@ -168,13 +176,14 @@ public class Slope : AbstractBase
             double stdDevY = Math.Sqrt(sumSqY / count);
             StdDev = stdDevY;
 
-            if (stdDevX * stdDevY != 0)
+            double stdDevProduct = stdDevX * stdDevY;
+            if (stdDevProduct > Epsilon)
             {
-                double r = sumSqXY / (stdDevX * stdDevY) / count;
+                double r = sumSqXY / stdDevProduct / count;
                 RSquared = r * r;
             }
 
-            // Calculate last Line value (y = mx + b)
+            // Calculate regression line endpoint
             Line = (slope * count) + Intercept;
         }
         else

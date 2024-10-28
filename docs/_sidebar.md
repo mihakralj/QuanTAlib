@@ -1,5 +1,8 @@
 
 * [Home](/)
+
+[JMA](indicators/averages/jma/calc.md)
+
 * Introduction
    * [Overview]()
    * [Features]()

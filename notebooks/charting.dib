@@ -4,7 +4,7 @@
 
 #!csharp
 
-#r "..\lib\obj\Debug\QuanTAlib.dll"
+#r "../lib/obj/Debug/QuanTAlib.dll"
 using QuanTAlib;
 QuanTAlib.Formatters.Initialize();
 
@@ -40,14 +40,14 @@ Formatter.Register(typeof(ScottPlot.Plot), (p, w) =>
 
 TSeries ma1 = Spike;
 TSeries out1 = new();
-Ema calc1 = new(10);
+Jma calc1 = new(period: 7, phase: 0, factor: 0.30, buffer: 2);
 foreach (var value in ma1) { out1.Add(calc1.Calc(value)); }
 double[] gma1 = ma1.v.ToArray()[52..];
 double[] gsig1 = out1.v.ToArray()[52..];
 
 TSeries ma2 = Impulse;
 TSeries out2 = new();
-Ema calc2 = new(10);
+Jma calc2 = new(period: 7, phase: 0, factor: 0.20, buffer: 2);
 foreach (var value in ma2) { out2.Add(calc2.Calc(value)); }
 double[] gma2 = ma2.v.ToArray()[52..];
 double[] gsig2 = out2.v.ToArray()[52..];
@@ -57,12 +57,12 @@ double[] gsig2 = out2.v.ToArray()[52..];
 Plot plt1 = new();
 var p1a = plt1.Add.Signal(gma1); p1a.Color = ScottPlot.Colors.Red; p1a.LineWidth = 2;
 var p1b = plt1.Add.Signal(gsig1); p1b.Color = ScottPlot.Colors.Blue; p1b.LineWidth = 3;
-plt1.Title("Spike - EMA(10)");
+plt1.Title("Spike - JMA(10)");
 
 Plot plt2 = new();
 var p2a = plt2.Add.Signal(gma2); p2a.Color = ScottPlot.Colors.Red; p2a.LineWidth = 2;
 var p2b = plt2.Add.Signal(gsig2); p2b.Color = ScottPlot.Colors.Blue; p2b.LineWidth = 3;
-plt2.Title("Impulse - EMA(10)");
+plt2.Title("Impulse - JMA(10)");
 
 plt1.Display();
 plt2.Display();

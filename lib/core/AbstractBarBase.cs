@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -10,17 +11,21 @@ namespace QuanTAlib;
 /// </remarks>
 public abstract class AbstractBarBase : ITValue
 {
-    public DateTime Time { get; set; }
+    public System.DateTime Time { get; set; }
     public double Value { get; set; }
     public bool IsNew { get; set; }
     public bool IsHot { get; set; }
     public TBar Input { get; set; }
-    public String Name { get; set; } = "";
+    public string Name { get; set; } = "";
     public int WarmupPeriod { get; set; }
+
     public TValue Tick => new(Time, Value, IsNew, IsHot);
+
     public event ValueSignal Pub = delegate { };
+
     protected int _index;
     protected double _lastValidValue;
+
     protected AbstractBarBase()
     {
         // Add parameters into constructor if needed
@@ -31,15 +36,39 @@ public abstract class AbstractBarBase : ITValue
     /// </summary>
     /// <param name="source">The source of the bar data.</param>
     /// <param name="args">The event arguments containing the bar data.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Sub(object source, in TBarEventArgs args) => Calc(args.Bar);
 
     /// <summary>
     /// Initializes the indicator's state.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Init()
     {
         _index = 0;
         _lastValidValue = 0;
+    }
+
+    /// <summary>
+    /// Checks if the input value is valid (not NaN or Infinity).
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <returns>True if the value is valid, false otherwise.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static bool IsValidValue(double value)
+    {
+        return !double.IsNaN(value) && !double.IsInfinity(value);
+    }
+
+    /// <summary>
+    /// Creates a new TValue with the current state.
+    /// </summary>
+    /// <param name="value">The value to use.</param>
+    /// <returns>A new TValue instance.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected TValue CreateTValue(double value)
+    {
+        return new TValue(Time: Input.Time, Value: value, IsNew: Input.IsNew, IsHot: IsHot);
     }
 
     /// <summary>
@@ -50,21 +79,23 @@ public abstract class AbstractBarBase : ITValue
     public virtual TValue Calc(TBar input)
     {
         Input = input;
-        if (double.IsNaN(input.Close) || double.IsInfinity(input.Close))
+        if (!IsValidValue(input.Close))
         {
-            return Process(new TValue(Time: input.Time, Value: GetLastValid(), IsNew: input.IsNew, IsHot: true));
+            return Process(CreateTValue(GetLastValid()));
         }
-        this.Value = Calculation();
-        return Process(new TValue(Time: Input.Time, Value: this.Value, IsNew: Input.IsNew, IsHot: this.IsHot));
+
+        Value = Calculation();
+        return Process(CreateTValue(Value));
     }
 
     /// <summary>
     /// Retrieves the last valid calculated value.
     /// </summary>
     /// <returns>The last valid value of the indicator.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual double GetLastValid()
     {
-        return this.Value;
+        return Value;
     }
 
     /// <summary>
@@ -85,12 +116,13 @@ public abstract class AbstractBarBase : ITValue
     /// </summary>
     /// <param name="value">The calculated TValue to process.</param>
     /// <returns>The processed TValue.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual TValue Process(TValue value)
     {
-        this.Time = value.Time;
-        this.Value = value.Value;
-        this.IsNew = value.IsNew;
-        this.IsHot = value.IsHot;
+        Time = value.Time;
+        Value = value.Value;
+        IsNew = value.IsNew;
+        IsHot = value.IsHot;
         Pub?.Invoke(this, new ValueEventArgs(value));
         return value;
     }

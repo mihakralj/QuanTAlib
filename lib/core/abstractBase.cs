@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -10,7 +11,7 @@ namespace QuanTAlib;
 /// </remarks>
 public abstract class AbstractBase : ITValue
 {
-    public DateTime Time { get; set; }
+    public System.DateTime Time { get; set; }
     public double Value { get; set; }
     public bool IsNew { get; set; }
     public bool IsHot { get; set; }
@@ -18,7 +19,7 @@ public abstract class AbstractBase : ITValue
     public TValue Input2 { get; set; }
     public TBar BarInput { get; set; }
     public TBar BarInput2 { get; set; }
-    public String Name { get; set; } = "";
+    public string Name { get; set; } = "";
     public int WarmupPeriod { get; set; }
     public TValue Tick => new(Time, Value, IsNew, IsHot);
     public event ValueSignal Pub = delegate { };
@@ -31,45 +32,64 @@ public abstract class AbstractBase : ITValue
     }
 
     /// <summary>
-    /// Subscribes to a data source and triggers calculations on new data.
+    /// Checks if the input value is valid (not NaN or Infinity).
     /// </summary>
-    /// <param name="source">The class publishing the data.</param>
-    /// <param name="args">The argument containing the new data point.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static bool IsValidValue(double value)
+    {
+        return !double.IsNaN(value) && !double.IsInfinity(value);
+    }
+
+    /// <summary>
+    /// Creates a new TValue with the current state.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected TValue CreateTValue(System.DateTime time, double value, bool isNew, bool isHot = false)
+    {
+        return new TValue(time, value, isNew, isHot);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Sub(object source, in ValueEventArgs args) => Calc(args.Tick);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Sub(object source1, object source2, in ValueEventArgs args1, in ValueEventArgs args2) =>
         Calc(args1.Tick, args2.Tick);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Sub(object source, in TBarEventArgs args) => Calc(args.Bar);
 
-    /// <summary>
-    /// Initializes the indicator's state.
-    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Init()
     {
         _index = 0;
         _lastValidValue = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual TValue Calc(TValue input)
     {
         Input = input;
-        Input2 = new(Time: Input.Time, Value: double.NaN, IsNew: Input.IsNew, IsHot: Input.IsHot);
+        Input2 = CreateTValue(input.Time, double.NaN, input.IsNew, input.IsHot);
         return Process(input.Value, input.Time, input.IsNew);
     }
-    public virtual TValue Calc(double value, bool IsNew)
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual TValue Calc(double value, bool isNew)
     {
-        Input = new(this.Time, Value: value, IsNew: IsNew, IsHot: false);
-        Input2 = new(this.Time, double.NaN, false, false);
+        Input = CreateTValue(Time, value, isNew);
+        Input2 = CreateTValue(Time, double.NaN, false);
         return Process(Input.Value, Input.Time, Input.IsNew);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual TValue Calc(TBar barInput)
     {
         BarInput = barInput;
         return Process(barInput.Close, barInput.Time, barInput.IsNew);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual TValue Calc(TValue input1, TValue input2)
     {
         Input = input1;
@@ -77,6 +97,7 @@ public abstract class AbstractBase : ITValue
         return Process(input1.Value, input2.Value, input1.Time, input1.IsNew);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual TValue Calc(TBar input1, TBar input2)
     {
         BarInput = input1;
@@ -84,84 +105,55 @@ public abstract class AbstractBase : ITValue
         return Process(input1.Close, input2.Close, input1.Time, input1.IsNew);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual TValue Calc(double value1, double value2)
     {
-        DateTime now = DateTime.Now;
-        Input = new TValue(now, value1, true, true);
-        Input2 = new TValue(now, value2, true, true);
+        var now = System.DateTime.Now;
+        Input = CreateTValue(now, value1, true, true);
+        Input2 = CreateTValue(now, value2, true, true);
         return Process(value1, value2, now, true);
     }
 
-    /// <summary>
-    /// Processes the input values, performs error checking, and calculates the indicator value.
-    /// </summary>
-    /// <param name="value">The primary input value to process.</param>
-    /// <param name="time">The timestamp of the input.</param>
-    /// <param name="isNew">Indicates if the input is new.</param>
-    /// <returns>A TValue object with the calculated or last valid value.</returns>
-    protected virtual TValue Process(double value, DateTime time, bool isNew)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual TValue Process(double value, System.DateTime time, bool isNew)
     {
-        if (double.IsNaN(value) || double.IsInfinity(value))
+        if (!IsValidValue(value))
         {
-            return Process(new TValue(time, GetLastValid(), isNew, this.IsHot));
+            return Process(CreateTValue(time, GetLastValid(), isNew, IsHot));
         }
-        this.Value = Calculation();
-        return Process(new TValue(Time: time, Value: this.Value, IsNew: isNew, IsHot: this.IsHot));
+        Value = Calculation();
+        return Process(CreateTValue(time, Value, isNew, IsHot));
     }
 
-    /// <summary>
-    /// Processes two input values, performs error checking, and calculates the indicator value.
-    /// </summary>
-    /// <param name="value1">The first input value to process.</param>
-    /// <param name="value2">The second input value to process.</param>
-    /// <param name="time">The timestamp of the input.</param>
-    /// <param name="isNew">Indicates if the input is new.</param>
-    /// <returns>A TValue object with the calculated or last valid value.</returns>
-    protected virtual TValue Process(double value1, double value2, DateTime time, bool isNew)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual TValue Process(double value1, double value2, System.DateTime time, bool isNew)
     {
-        if (double.IsNaN(value1) || double.IsInfinity(value1) ||
-            double.IsNaN(value2) || double.IsInfinity(value2))
+        if (!IsValidValue(value1) || !IsValidValue(value2))
         {
-            return Process(new TValue(time, GetLastValid(), isNew, this.IsHot));
+            return Process(CreateTValue(time, GetLastValid(), isNew, IsHot));
         }
-        this.Value = Calculation();
-        return Process(new TValue(Time: time, Value: this.Value, IsNew: isNew, IsHot: this.IsHot));
+        Value = Calculation();
+        return Process(CreateTValue(time, Value, isNew, IsHot));
     }
-    /// <summary>
-    /// Processes the calculated value, updates the indicator's own state,
-    /// and publishes the result through an event.
-    /// </summary>
-    /// <param name="value">The calculated TValue to process.</param>
-    /// <returns>The processed TValue.</returns>
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual TValue Process(TValue value)
     {
-        this.Time = value.Time;
-        this.Value = value.Value;
-        this.IsNew = value.IsNew;
-        this.IsHot = value.IsHot;
+        Time = value.Time;
+        Value = value.Value;
+        IsNew = value.IsNew;
+        IsHot = value.IsHot;
         Pub?.Invoke(this, new ValueEventArgs(value));
         return value;
     }
-    /// <summary>
-    /// Retrieves the last valid calculated value.
-    /// </summary>
-    /// <returns>The last valid value of the indicator.</returns>
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual double GetLastValid()
     {
-        return this.Value;
+        return Value;
     }
 
-    /// <summary>
-    /// Manages the state of the indicator based on whether a new data point is being processed.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the current input is a new data point.</param>
     protected abstract void ManageState(bool isNew);
 
-    /// <summary>
-    /// Performs the actual calculation of the indicator value.
-    /// </summary>
-    /// <returns>The calculated indicator value.</returns>
     protected abstract double Calculation();
-
-
 }

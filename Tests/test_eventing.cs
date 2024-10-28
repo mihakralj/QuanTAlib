@@ -51,6 +51,37 @@ public class EventingTests
             ("Tema", new Tema(p), new Tema(input, p)),
             ("Kama", new Kama(2, 30, 6), new Kama(input, 2, 30, 6)),
             ("Zlema", new Zlema(p), new Zlema(input, p)),
+            // Added missing averages
+            ("Sinema", new Sinema(p), new Sinema(input, p)),
+            ("Smma", new Smma(p), new Smma(input, p)),
+            ("T3", new T3(p), new T3(input, p)),
+            ("Trima", new Trima(p), new Trima(input, p)),
+            ("Vidya", new Vidya(p), new Vidya(input, p)),
+            // momentum indicators
+            ("Apo", new Apo(12, 26), new Apo(input, 12, 26)),
+            // oscillators
+            ("Rsi", new Rsi(p), new Rsi(input, p)),
+            ("Rsx", new Rsx(p), new Rsx(input, p)),
+            ("Cmo", new Cmo(p), new Cmo(input, p)),
+            // statistics
+            ("Curvature", new Curvature(p), new Curvature(input, p)),
+            ("Entropy", new Entropy(p), new Entropy(input, p)),
+            ("Kurtosis", new Kurtosis(p), new Kurtosis(input, p)),
+            ("Max", new Max(p), new Max(input, p)),
+            ("Median", new Median(p), new Median(input, p)),
+            ("Min", new Min(p), new Min(input, p)),
+            ("Mode", new Mode(p), new Mode(input, p)),
+            ("Percentile", new Percentile(p, 0.5), new Percentile(input, p, 0.5)),
+            ("Skew", new Skew(p), new Skew(input, p)),
+            ("Slope", new Slope(p), new Slope(input, p)),
+            ("Stddev", new Stddev(p), new Stddev(input, p)),
+            ("Variance", new Variance(p), new Variance(input, p)),
+            ("Zscore", new Zscore(p), new Zscore(input, p)),
+            // volatility
+            ("Hv", new Hv(p), new Hv(input, p)),
+            ("Jvolty", new Jvolty(p), new Jvolty(input, p)),
+            ("Rv", new Rv(p), new Rv(input, p)),
+            ("Rvi", new Rvi(p), new Rvi(input, p)),
             // error classes
             ("Mae", new Mae(p), new Mae(input, p)),
             ("Mapd", new Mapd(p), new Mapd(input, p)),
@@ -67,7 +98,7 @@ public class EventingTests
             ("Rse", new Rse(p), new Rse(input, p)),
             ("Smape", new Smape(p), new Smape(input, p)),
             ("Rsquared", new Rsquared(p), new Rsquared(input, p)),
-            ("Huberloss", new Huberloss(p), new Huberloss(input, p))
+            ("Huber", new Huber(p), new Huber(input, p))
         };
 
         // Generate 200 random values and feed them to both direct and event-based indicators

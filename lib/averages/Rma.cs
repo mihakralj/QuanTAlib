@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -20,43 +21,16 @@ namespace QuanTAlib;
 /// </remarks>
 public class Rma : AbstractBase
 {
-    // inherited _index
-    // inherited _value
-
-    /// <summary>
-    /// The period for the RMA calculation.
-    /// </summary>
     private readonly int _period;
-
-    /// <summary>
-    /// Circular buffer for SMA calculation.
-    /// </summary>
+    private readonly double _k;  // Wilder's smoothing factor
+    private readonly double _oneMinusK;  // 1 - k
+    private readonly double _epsilon = 1e-10;
+    private readonly bool _useSma;
     private CircularBuffer _sma;
 
-    /// <summary>
-    /// The last calculated RMA value.
-    /// </summary>
     private double _lastRma, _p_lastRma;
-
-    /// <summary>
-    /// Compensator for early RMA values.
-    /// </summary>
     private double _e, _p_e;
-
-    /// <summary>
-    /// The smoothing factor for RMA calculation.
-    /// </summary>
-    private readonly double _k;
-
-    /// <summary>
-    /// Flags to track initialization status.
-    /// </summary>
     private bool _isInit, _p_isInit;
-
-    /// <summary>
-    /// Flag to determine whether to use SMA for initial values.
-    /// </summary>
-    private readonly bool _useSma;
 
     /// <summary>
     /// Initializes a new instance of the Rma class with a specified period.
@@ -68,14 +42,15 @@ public class Rma : AbstractBase
     {
         if (period < 1)
         {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
+            throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
         _period = period;
-        _k = 1.0 / _period;  // Wilder's smoothing factor
+        _k = 1.0 / period;
+        _oneMinusK = 1.0 - _k;
         _useSma = useSma;
         _sma = new(period);
         Name = "Rma";
-        WarmupPeriod = _period * 2;  // RMA typically needs more warmup periods
+        WarmupPeriod = period * 2;  // RMA typically needs more warmup periods
         Init();
     }
 
@@ -91,9 +66,7 @@ public class Rma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Rma instance.
-    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -104,10 +77,7 @@ public class Rma : AbstractBase
         _sma = new(_period);
     }
 
-    /// <summary>
-    /// Manages the state of the Rma instance.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the input is new.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -125,21 +95,30 @@ public class Rma : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the RMA calculation.
-    /// </summary>
-    /// <returns>The calculated RMA value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateRma(double input)
+    {
+        return _k * input + _oneMinusK * _lastRma;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CompensateRma(double rma)
+    {
+        _e = (_e > _epsilon) ? _oneMinusK * _e : 0;
+        return (_useSma || _e <= double.Epsilon) ? rma : rma / (1.0 - _e);
+    }
+
     protected override double Calculation()
     {
-        double result, _rma;
         ManageState(Input.IsNew);
 
-        // when _UseSma == true, use SMA calculation until we have enough data points
+        double result;
         if (!_isInit && _useSma)
         {
             _sma.Add(Input.Value, Input.IsNew);
-            _rma = _sma.Average();
-            result = _rma;
+            _lastRma = _sma.Average();
+            result = _lastRma;
+
             if (_index >= _period)
             {
                 _isInit = true;
@@ -147,15 +126,10 @@ public class Rma : AbstractBase
         }
         else
         {
-            // compensator for early rma values
-            _e = (_e > 1e-10) ? (1 - _k) * _e : 0;
-
-            _rma = _k * Input.Value + (1 - _k) * _lastRma;
-
-            // _useSma decides if we use compensator or not
-            result = (_useSma || _e <= double.Epsilon) ? _rma : _rma / (1 - _e);
+            _lastRma = CalculateRma(Input.Value);
+            result = CompensateRma(_lastRma);
         }
-        _lastRma = _rma;
+
         IsHot = _index >= WarmupPeriod;
         return result;
     }

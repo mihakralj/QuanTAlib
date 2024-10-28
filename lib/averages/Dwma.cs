@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -25,16 +26,18 @@ public class Dwma : AbstractBase
 {
     private readonly Wma _innerWma;
     private readonly Wma _outerWma;
+    private readonly int _period;
 
     public Dwma(int period)
     {
         if (period < 1)
         {
-            throw new ArgumentException("Period must be greater than or equal to 1.", nameof(period));
+            throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
+        _period = period;
         _innerWma = new Wma(period);
         _outerWma = new Wma(period);
-        Name = "Wma";
+        Name = "Dwma";
         WarmupPeriod = 2 * period - 1;
         Init();
     }
@@ -45,6 +48,7 @@ public class Dwma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -52,6 +56,7 @@ public class Dwma : AbstractBase
         _outerWma.Init();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -61,19 +66,23 @@ public class Dwma : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override double GetLastValid()
+    {
+        return _lastValidValue;
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
 
         // Calculate inner WMA
-        TValue innerResult = _innerWma.Calc(Input);
+        var innerResult = _innerWma.Calc(Input);
 
         // Calculate outer WMA using the result of inner WMA
-        TValue outerResult = _outerWma.Calc(innerResult);
+        var outerResult = _outerWma.Calc(innerResult);
 
-        double result = outerResult.Value;
         IsHot = _index >= WarmupPeriod;
-
-        return result;
+        return outerResult.Value;
     }
 }
