@@ -1,3 +1,5 @@
+# Statistics indicators
+
 BETA - Beta coefficient
 CORR - Correlation Coefficient
 ✔️ CURVATURE - Rate of Change in Direction or Slope
