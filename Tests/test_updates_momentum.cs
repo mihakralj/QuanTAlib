@@ -88,4 +88,129 @@ public class MomentumUpdateTests
 
         Assert.Equal(initialValue, finalValue, precision);
     }
+
+    [Fact]
+    public void Dmx_Update()
+    {
+        var indicator = new Dmx(period: 14);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Pmo_Update()
+    {
+        var indicator = new Pmo(period1: 35, period2: 20);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Po_Update()
+    {
+        var indicator = new Po(fastPeriod: 10, slowPeriod: 21);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Ppo_Update()
+    {
+        var indicator = new Ppo(fastPeriod: 12, slowPeriod: 26);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Prs_Update()
+    {
+        var indicator = new Prs();
+        indicator.SetBenchmark(ReferenceValue);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.SetBenchmark(GetRandomDouble() + 100); // Ensure positive benchmark
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+
+        indicator.SetBenchmark(ReferenceValue);
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Roc_Update()
+    {
+        var indicator = new Roc(period: 12);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble() + 100, IsNew: false)); // Ensure positive prices
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Mom_Update()
+    {
+        var indicator = new Mom(period: 10);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Vel_Update()
+    {
+        var indicator = new Vel(period: 10);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
 }

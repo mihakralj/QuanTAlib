@@ -1,9 +1,11 @@
-ADL - Chaikin Accumulation Distribution Line
-ADOSC - Chaikin Accumulation Distribution Oscillator
-AOBV - Archer On-Balance Volume
-CMF - Chaikin Money Flow
-EOM - Ease of Movement
-KVO - Klinger Volume Oscillator
+# Volume indicators
+
+✔️ ADL - Chaikin Accumulation Distribution Line
+✔️ ADOSC - Chaikin Accumulation Distribution Oscillator
+✔️ AOBV - Archer On-Balance Volume
+✔️ CMF - Chaikin Money Flow
+✔️ EOM - Ease of Movement
+✔️ KVO - Klinger Volume Oscillator
 MFI - Money Flow Index
 NVI - Negative Volume Index
 OBV - On-Balance Volume

@@ -1,3 +1,5 @@
+# Volatility indicators
+
 ADR - Average Daily Range
 AP - Andrew's Pitchfork
 ✔️ ATR - Average True Range
@@ -22,7 +24,7 @@ PSAR - Parabolic Stop and Reverse
 PV - Parkinson Volatility
 RSV - Rogers-Satchell Volatility
 ✔️ RV - Realized Volatility
-RVI - Relative Volatility Index
+✔️ RVI - Relative Volatility Index
 STARC - Starc Bands
 SV - Stochastic Volatility
 TR - True Range
