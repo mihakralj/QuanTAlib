@@ -1,4 +1,5 @@
 # Momentum indicators
+Done: 12, Todo: 5
 
 ✔️ ADX - Average Directional Movement Index
 ✔️ ADXR - Average Directional Movement Index Rating
@@ -13,6 +14,7 @@ MACD - Moving Average Convergence/Divergence
 ✔️ PPO - Percentage Price Oscillator
 ✔️ PRS - Price Relative Strength
 ✔️ ROC - Rate of Change
-TRIX - 1-day ROC of TEMA
+TSI - True Strength Index
+✔️ TRIX - 1-day ROC of TEMA
 ✔️ VEL - Jurik Signal Velocity
 VORTEX - Vortex Indicator

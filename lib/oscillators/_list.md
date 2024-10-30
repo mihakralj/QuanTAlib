@@ -1,8 +1,9 @@
 # Oscillators indicators
+Done: 6, Todo: 23
 
 ✔️ AC - Acceleration Oscillator
 ✔️ AO - Awesome Oscillator
-AROON - Aroon oscillator
+✔️ AROON - Aroon oscillator
 BOP - Balance of Power
 CCI - Commodity Channel Index
 CFO - Chande Forcast Oscillator

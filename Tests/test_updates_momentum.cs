@@ -200,6 +200,21 @@ public class MomentumUpdateTests
     }
 
     [Fact]
+    public void Trix_Update()
+    {
+        var indicator = new Trix(period: 18);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble() + 100, IsNew: false)); // Ensure positive prices
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
     public void Vel_Update()
     {
         var indicator = new Vel(period: 10);

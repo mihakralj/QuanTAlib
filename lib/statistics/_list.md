@@ -1,4 +1,5 @@
 # Statistics indicators
+Done: 13, Todo: 6
 
 BETA - Beta coefficient
 CORR - Correlation Coefficient

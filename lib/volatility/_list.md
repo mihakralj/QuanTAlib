@@ -1,4 +1,5 @@
 # Volatility indicators
+Done: 6, Todo: 25
 
 ADR - Average Daily Range
 AP - Andrew's Pitchfork

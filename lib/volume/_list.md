@@ -1,4 +1,5 @@
 # Volume indicators
+Done: 6, Todo: 12
 
 ✔️ ADL - Chaikin Accumulation Distribution Line
 ✔️ ADOSC - Chaikin Accumulation Distribution Oscillator
