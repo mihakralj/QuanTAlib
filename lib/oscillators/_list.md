@@ -1,7 +1,7 @@
 # Oscillators indicators
 
-AC - Acceleration Oscillator
-AO - Awesome Oscillator
+✔️ AC - Acceleration Oscillator
+✔️ AO - Awesome Oscillator
 AROON - Aroon oscillator
 BOP - Balance of Power
 CCI - Commodity Channel Index
