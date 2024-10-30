@@ -1,3 +1,5 @@
+# Averages indicators
+
 ✔️ AFIRMA - Adaptive FIR Moving Average
 ✔️ ALMA - Arnaud Legoux Moving Average
 ✔️ DEMA - Double Exponential Moving Average
@@ -15,7 +17,7 @@
 ✔️ KAMA - Kaufman Adaptive Moving Average
 ✔️ LTMA - Linear Time Moving Average
 ✔️ MAAF - Moving Average Adaptive Filter
-✔️ MAMA - MESA Adaptive Moving Average
+✔️ *MAMA - MESA Adaptive Moving Average (MAMA, FAMA)
 ✔️ MGDI - McGinley Dynamic Indicator
 ✔️ MMA - Modified Moving Average
 ✔️ PWMA - Parabolic Weighted Moving Average

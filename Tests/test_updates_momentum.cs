@@ -106,6 +106,21 @@ public class MomentumUpdateTests
     }
 
     [Fact]
+    public void Dpo_Update()
+    {
+        var indicator = new Dpo(period: 20);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
     public void Pmo_Update()
     {
         var indicator = new Pmo(period1: 35, period2: 20);
@@ -215,6 +230,21 @@ public class MomentumUpdateTests
     }
 
     [Fact]
+    public void Tsi_Update()
+    {
+        var indicator = new Tsi(firstPeriod: 25, secondPeriod: 13);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble() + 100, IsNew: false)); // Ensure positive prices
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
     public void Vel_Update()
     {
         var indicator = new Vel(period: 10);
@@ -225,6 +255,22 @@ public class MomentumUpdateTests
             indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
         }
         double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Vortex_Update()
+    {
+        var indicator = new Vortex(period: 14);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
 
         Assert.Equal(initialValue, finalValue, precision);
     }
