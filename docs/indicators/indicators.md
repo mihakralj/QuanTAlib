@@ -14,7 +14,7 @@
 - Total: 116 of 175 indicators implemented (66%)
 
 
-|BASIC TRANSFORMS|Class Name|
+|**BASIC TRANSFORMS**|**Class Name**|
 |---|:--:|
 |OC2 - Midpoint price|`.OC2`|
 |HL2 - Median Price|`.HL2`|
@@ -22,8 +22,9 @@
 |OHL3 - Mean Price|`.OHL3`|
 |OHLC4 - Average Price|`.OHLC4`|
 |HLCC4 - Weighted Price|`.HLCC4`|
-<br>
+
 |**AVERAGES & TRENDS**|**Class Name**|
+|--|:--:|
 |AFIRMA - Adaptive FIR Moving Average|`Afirma`|
 |ALMA - Arnaud Legoux Moving Average|`Alma`|
 |DEMA - Double Exponential Moving Average|`Dema`|

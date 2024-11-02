@@ -58,6 +58,7 @@ public class EventingTests
             ("Trima", new Trima(p), new Trima(input, p)),
             ("Vidya", new Vidya(p), new Vidya(input, p)),
             ("Apo", new Apo(12, 26), new Apo(input, 12, 26)),
+            ("Macd", new Macd(12, 26, 9), new Macd(input, 12, 26, 9)),
             ("Rsi", new Rsi(p), new Rsi(input, p)),
             ("Rsx", new Rsx(p), new Rsx(input, p)),
             ("Cmo", new Cmo(p), new Cmo(input, p)),

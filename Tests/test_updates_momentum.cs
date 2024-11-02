@@ -121,6 +121,21 @@ public class MomentumUpdateTests
     }
 
     [Fact]
+    public void Macd_Update()
+    {
+        var indicator = new Macd(fastPeriod: 12, slowPeriod: 26, signalPeriod: 9);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble() + 100, IsNew: false)); // Ensure positive prices
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
     public void Pmo_Update()
     {
         var indicator = new Pmo(period1: 35, period2: 20);
