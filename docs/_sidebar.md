@@ -1,22 +1,24 @@
-
 * [Home](/)
-* Introduction
+
+* [List of Indicators](indicators/indicators.md)
+
+* 🚧 Introduction
    * [Overview]()
    * [Features]()
    * [Historical vs Real-time analysis](essays/realtime.md)
 
-*  Core Concepts
+* 🚧 Core Concepts
    * [Time Series Data Handling]()
    * [Calculation classes]()
    * [Presentation Classes]()
 
-* QuanTAlib C# Library
+* 🚧 QuanTAlib C# Library
    * [Installation]()
    * [Quick Start Guide]()
    * [Usage Examples]()
    * [Tests and Validation]()
 
-* Quantower Charts
+* 🚧 Quantower Charts
    * [Installation]()
    * [Quick Start Guide]()
    * [Using VS Code for QuanTower coding](setup/vscode.md)
@@ -24,7 +26,24 @@
    * [Creating Custom Indicators]()
    * [Inspecting Quantower Internals]()
 
-* [Available Indicators](indicators/indicators.md)
+* [🚧 Available Indicators](indicators/indicators.md)
+   * Momentum
+      * [ADX - Average Directional Index](indicators/momentum/adx/description.md)
+      * [ADXR - Average Directional Index Rating](indicators/momentum/adxr/description.md)
+      * [APO - Absolute Price Oscillator](indicators/momentum/apo/description.md)
+      * [DMI - Directional Movement Index](indicators/momentum/dmi/description.md)
+      * [DMX - Directional Movement Extended](indicators/momentum/dmx/description.md)
+      * [DPO - Detrended Price Oscillator](indicators/momentum/dpo/description.md)
+      * [MOM - Momentum](indicators/momentum/mom/description.md)
+      * [PMO - Price Momentum Oscillator](indicators/momentum/pmo/description.md)
+      * [PO - Price Oscillator](indicators/momentum/po/description.md)
+      * [PPO - Percentage Price Oscillator](indicators/momentum/ppo/description.md)
+      * [PRS - Price Relative Strength](indicators/momentum/prs/description.md)
+      * [ROC - Rate of Change](indicators/momentum/roc/description.md)
+      * [TRIX - Triple Exponential](indicators/momentum/trix/description.md)
+      * [TSI - True Strength Index](indicators/momentum/tsi/description.md)
+      * [VEL - Velocity](indicators/momentum/vel/description.md)
+      * [VORTEX - Vortex Indicator](indicators/momentum/vortex/description.md)
    * Basic Transforms
    * Numerical Analysis
    * Errors
@@ -92,4 +111,3 @@
    * Oscillators
    * Volatility
    * Volume
-

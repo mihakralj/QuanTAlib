@@ -26,7 +26,7 @@ public class ZlemaIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Zlema? ma;
-    private Huberloss? err;
+    private Huber? err;
     protected LineSeries? Series;
     protected string? SourceName;
     public int MinHistoryDepths => Periods;

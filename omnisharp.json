@@ -1,0 +1,19 @@
+{
+    "RoslynExtensionsOptions": {
+        "enableAnalyzersSupport": true,
+        "enableDecompilationSupport": true
+    },
+    "FormattingOptions": {
+        "enableEditorConfigSupport": true
+    },
+    "Telemetry": {
+        "enableTelemetry": false
+    },
+    "fileOptions": {
+        "systemExcludeSearchPatterns": [
+            "**/node_modules/**/*",
+            "**/bin/**/*",
+            "**/obj/**/*"
+        ]
+    }
+}

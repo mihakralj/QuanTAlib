@@ -13,12 +13,13 @@ public class EventingTests
         // Create a cryptographically secure random number generator
         using var rng = RandomNumberGenerator.Create();
 
-        // Create an input series to hold our random values
+        // Create input series to hold our random values
         var input = new TSeries();
+        var barInput = new TBarSeries();
         int p = 10;
 
-        // Create a list of indicator pairs (direct calculation and event-based) with names
-        var indicators = new List<(string Name, AbstractBase Direct, AbstractBase EventBased)>
+        // Create a list of value-based indicator pairs
+        var valueIndicators = new List<(string Name, AbstractBase Direct, AbstractBase EventBased)>
         {
             ("Afirma", new Afirma(p,p,Afirma.WindowType.BlackmanHarris), new Afirma(input, p,p,Afirma.WindowType.BlackmanHarris)),
             ("Alma", new Alma(p), new Alma(input, p)),
@@ -51,7 +52,36 @@ public class EventingTests
             ("Tema", new Tema(p), new Tema(input, p)),
             ("Kama", new Kama(2, 30, 6), new Kama(input, 2, 30, 6)),
             ("Zlema", new Zlema(p), new Zlema(input, p)),
-            // error classes
+            ("Sinema", new Sinema(p), new Sinema(input, p)),
+            ("Smma", new Smma(p), new Smma(input, p)),
+            ("T3", new T3(p), new T3(input, p)),
+            ("Trima", new Trima(p), new Trima(input, p)),
+            ("Vidya", new Vidya(p), new Vidya(input, p)),
+            ("Apo", new Apo(12, 26), new Apo(input, 12, 26)),
+            ("Macd", new Macd(12, 26, 9), new Macd(input, 12, 26, 9)),
+            ("Rsi", new Rsi(p), new Rsi(input, p)),
+            ("Rsx", new Rsx(p), new Rsx(input, p)),
+            ("Cmo", new Cmo(p), new Cmo(input, p)),
+            ("Cog", new Cog(p), new Cog(input, p)),
+            ("Curvature", new Curvature(p), new Curvature(input, p)),
+            ("Entropy", new Entropy(p), new Entropy(input, p)),
+            ("Kurtosis", new Kurtosis(p), new Kurtosis(input, p)),
+            ("Max", new Max(p), new Max(input, p)),
+            ("Median", new Median(p), new Median(input, p)),
+            ("Min", new Min(p), new Min(input, p)),
+            ("Mode", new Mode(p), new Mode(input, p)),
+            ("Percentile", new Percentile(p, 0.5), new Percentile(input, p, 0.5)),
+            ("Skew", new Skew(p), new Skew(input, p)),
+            ("Slope", new Slope(p), new Slope(input, p)),
+            ("Stddev", new Stddev(p), new Stddev(input, p)),
+            ("Variance", new Variance(p), new Variance(input, p)),
+            ("Zscore", new Zscore(p), new Zscore(input, p)),
+            // Volatility indicators (value-based)
+            ("Hv", new Hv(p), new Hv(input, p)),
+            ("Jvolty", new Jvolty(p), new Jvolty(input, p)),
+            ("Rv", new Rv(p), new Rv(input, p)),
+            ("Rvi", new Rvi(p), new Rvi(input, p)),
+            // Error classes
             ("Mae", new Mae(p), new Mae(input, p)),
             ("Mapd", new Mapd(p), new Mapd(input, p)),
             ("Mape", new Mape(p), new Mape(input, p)),
@@ -67,29 +97,71 @@ public class EventingTests
             ("Rse", new Rse(p), new Rse(input, p)),
             ("Smape", new Smape(p), new Smape(input, p)),
             ("Rsquared", new Rsquared(p), new Rsquared(input, p)),
-            ("Huberloss", new Huberloss(p), new Huberloss(input, p))
+            ("Huber", new Huber(p), new Huber(input, p))
         };
 
-        // Generate 200 random values and feed them to both direct and event-based indicators
+        // Create a list of bar-based indicator pairs
+        var barIndicators = new List<(string Name, AbstractBase Direct, AbstractBase EventBased)>
+        {
+            // Volume indicators
+            ("Adl", new Adl(), new Adl(barInput)),
+            ("Adosc", new Adosc(3, 10), new Adosc(barInput, 3, 10)),
+            ("Aobv", new Aobv(), new Aobv(barInput)),
+            ("Cmf", new Cmf(20), new Cmf(barInput, 20)),
+            ("Eom", new Eom(14), new Eom(barInput, 14)),
+            ("Kvo", new Kvo(34, 55), new Kvo(barInput, 34, 55)),
+            // Volatility indicators (bar-based)
+            ("Atr", new Atr(14), new Atr(barInput, 14)),
+            // Oscillators (bar-based)
+            ("Chop", new Chop(14), new Chop(barInput, 14))
+        };
+
+        // Generate 200 random values and feed them to indicators
         for (int i = 0; i < 200; i++)
         {
+            // Generate random value for value-based indicators
             double randomValue = GetRandomDouble(rng) * 100;
             input.Add(randomValue);
 
-            // Calculate direct indicators
-            foreach (var (_, direct, _) in indicators)
+            // Calculate value-based indicators
+            foreach (var (_, direct, _) in valueIndicators)
             {
                 direct.Calc(randomValue);
             }
+
+            // Generate random bar for bar-based indicators
+            var bar = new TBar(
+                DateTime.Now,
+                randomValue,
+                randomValue + Math.Abs(GetRandomDouble(rng) * 10),
+                randomValue - Math.Abs(GetRandomDouble(rng) * 10),
+                randomValue + GetRandomDouble(rng) * 5,
+                Math.Abs(GetRandomDouble(rng) * 1000),
+                true
+            );
+            barInput.Add(bar);
+
+            // Calculate bar-based indicators
+            foreach (var (_, direct, _) in barIndicators)
+            {
+                direct.Calc(bar);
+            }
         }
 
-        // Compare the results of direct and event-based calculations
-        for (int i = 0; i < indicators.Count; i++)
+        // Compare the results for value-based indicators
+        foreach (var (name, direct, eventBased) in valueIndicators)
         {
-            var (name, direct, eventBased) = indicators[i];
             bool areEqual = (double.IsNaN(direct.Value) && double.IsNaN(eventBased.Value)) ||
                             Math.Abs(direct.Value - eventBased.Value) < 1e-9;
-            Assert.True(areEqual, $"Indicator {name} failed: Expected {direct.Value}, Actual {eventBased.Value}");
+            Assert.True(areEqual, $"Value indicator {name} failed: Expected {direct.Value}, Actual {eventBased.Value}");
+        }
+
+        // Compare the results for bar-based indicators
+        foreach (var (name, direct, eventBased) in barIndicators)
+        {
+            bool areEqual = (double.IsNaN(direct.Value) && double.IsNaN(eventBased.Value)) ||
+                            Math.Abs(direct.Value - eventBased.Value) < 1e-9;
+            Assert.True(areEqual, $"Bar indicator {name} failed: Expected {direct.Value}, Actual {eventBased.Value}");
         }
     }
 

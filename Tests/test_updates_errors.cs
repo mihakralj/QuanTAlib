@@ -20,7 +20,7 @@ public class UpdateTests
     [Fact]
     public void Huberloss_Update()
     {
-        var indicator = new Huberloss(period: 14);
+        var indicator = new Huber(period: 14);
         double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
 
         for (int i = 0; i < RandomUpdates; i++)

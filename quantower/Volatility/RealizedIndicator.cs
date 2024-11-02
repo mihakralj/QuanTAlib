@@ -11,7 +11,7 @@ public class RealizedIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Annualized", sortIndex: 2)]
     public bool IsAnnualized { get; set; } = true;
 
-    private Realized? realized;
+    private Rv? realized;
     protected LineSeries? RvSeries;
     public int MinHistoryDepths => Periods;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -28,7 +28,7 @@ public class RealizedIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        realized = new Realized(Periods, IsAnnualized);
+        realized = new(Periods, IsAnnualized);
         base.OnInit();
     }
 

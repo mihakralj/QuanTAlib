@@ -7,11 +7,17 @@
         }
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",
-    "dotnet.dotnetPath": "C:/Program Files/dotnet",
     "omnisharp.useModernNet": true,
-    "omnisharp.sdkPath": "C:/Program Files/dotnet/sdk",
     "sonarlint.connectedMode.project": {
         "connectionId": "mihakralj",
         "projectKey": "mihakralj_QuanTAlib"
-    }
+    },
+    "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "fullSolution",
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "dotnetAcquisitionExtension.enableTelemetry": false,
+    "dotnet-test-explorer.testProjectPath": "Tests",
+    "dotnet-test-explorer.autoWatch": true,
+    "dotnet-test-explorer.showCodeLens": true,
+    "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.cobertura.xml"
+
 }

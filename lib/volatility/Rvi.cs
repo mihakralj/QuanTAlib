@@ -1,71 +1,92 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Represents a Relative Volatility Index (RVI) calculator, which measures the direction
-/// of volatility in relation to price movements.
+/// RVI: Relative Volatility Index
+/// A technical indicator developed by Donald Dorsey that measures the direction
+/// of volatility by comparing upward and downward price movements. RVI helps
+/// identify whether volatility is increasing more in up or down moves.
 /// </summary>
 /// <remarks>
-/// The RVI was introduced by Donald Dorsey in the 1993 issue of Technical Analysis
-/// of Stocks &amp; Commodities Magazine. It focuses on the direction of price movements
-/// in relation to volatility. The indicator uses standard deviation calculations
-/// to determine whether volatility is increasing more in up moves or down moves.
+/// The RVI calculation process:
+/// 1. Separates price changes into up/down moves
+/// 2. Calculates standard deviation for each
+/// 3. Applies moving average smoothing
+/// 4. Computes relative strength ratio
+/// 5. Scales to percentage (0-100)
 ///
-/// This implementation uses a combination of Standard Deviation and Simple Moving Average
-/// calculations to compute the RVI.
+/// Key characteristics:
+/// - Oscillator (0-100 range)
+/// - Directional volatility measure
+/// - Combines volatility and momentum
+/// - Uses standard deviation
+/// - Smoothed output
+///
+/// Formula:
+/// RVI = 100 * SMA(StdDev(upMoves)) / (SMA(StdDev(upMoves)) + SMA(StdDev(downMoves)))
+/// where:
+/// upMove = max(close - prevClose, 0)
+/// downMove = max(prevClose - close, 0)
+///
+/// Market Applications:
+/// - Trend confirmation
+/// - Divergence analysis
+/// - Volatility breakouts
+/// - Market reversals
+/// - Overbought/oversold levels
+///
+/// Sources:
+///     Donald Dorsey - "Technical Analysis of Stocks & Commodities" (1993)
+///     https://www.investopedia.com/terms/r/relative_volatility_index.asp
+///
+/// Note: Similar concept to RSI but using volatility
 /// </remarks>
-public class Rvi : AbstractBase
+
+[SkipLocalsInit]
+public sealed class Rvi : AbstractBase
 {
     private readonly Stddev _upStdDev, _downStdDev;
     private readonly Sma _upSma, _downSma;
     private double _previousClose;
+    private const double ScalingFactor = 100.0;
+    private const double Epsilon = 1e-10;
 
-    /// <summary>
-    /// Initializes a new instance of the Rvi class with the specified period.
-    /// </summary>
-    /// <param name="period">The period over which to calculate the RVI.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when period is less than 2.
-    /// </exception>
+    /// <param name="period">The number of periods for RVI calculation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 2.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rvi(int period)
     {
         if (period < 2)
         {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
+            throw new ArgumentOutOfRangeException(nameof(period),
+                "Period must be greater than or equal to 2.");
         }
-        int Period = period;
         WarmupPeriod = period;
         Name = $"RVI(period={period})";
-        _upStdDev = new Stddev(Period);
-        _downStdDev = new Stddev(Period);
-        _upSma = new(Period);
-        _downSma = new(Period);
+        _upStdDev = new Stddev(period);
+        _downStdDev = new Stddev(period);
+        _upSma = new(period);
+        _downSma = new(period);
         Init();
     }
 
-    /// <summary>
-    /// Initializes a new instance of the Rvi class with the specified source and period.
-    /// </summary>
-    /// <param name="source">The source object to subscribe to for value updates.</param>
-    /// <param name="period">The period over which to calculate the RVI.</param>
+    /// <param name="source">The data source object that publishes updates.</param>
+    /// <param name="period">The number of periods for RVI calculation.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rvi(object source, int period) : this(period)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
-    /// <summary>
-    /// Initializes the Rvi instance by setting up the initial state.
-    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
         _previousClose = 0;
     }
 
-    /// <summary>
-    /// Manages the state of the Rvi instance based on whether a new value is being processed.
-    /// </summary>
-    /// <param name="isNew">Indicates whether the current input is a new value.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -75,21 +96,20 @@ public class Rvi : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Performs the RVI calculation for the current input.
-    /// </summary>
-    /// <returns>
-    /// The calculated RVI value for the current input.
-    /// </returns>
-    /// <remarks>
-    /// This method calculates the RVI using the following steps:
-    /// 1. Calculate the change in price from the previous close.
-    /// 2. Determine the up move and down move based on the change.
-    /// 3. Calculate standard deviations of up and down moves.
-    /// 4. Apply a simple moving average to the standard deviations.
-    /// 5. Compute the RVI as a percentage of up volatility to total volatility.
-    /// The method returns 0 if the sum of up and down volatility is zero.
-    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static (double upMove, double downMove) CalculateMoves(double change)
+    {
+        return (Math.Max(change, 0), Math.Max(-change, 0));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static double CalculateRvi(double upSma, double downSma)
+    {
+        double totalSma = upSma + downSma;
+        return totalSma > Epsilon ? ScalingFactor * upSma / totalSma : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -97,14 +117,15 @@ public class Rvi : AbstractBase
         double close = Input.Value;
         double change = close - _previousClose;
 
-        double upMove = Math.Max(change, 0);
-        double downMove = Math.Max(-change, 0);
+        // Separate into up and down moves
+        var (upMove, downMove) = CalculateMoves(change);
 
+        // Calculate standard deviations and apply smoothing
         _upSma.Calc(_upStdDev.Calc(new TValue(Input.Time, upMove, Input.IsNew)));
         _downSma.Calc(_downStdDev.Calc(new TValue(Input.Time, downMove, Input.IsNew)));
 
-        double rvi;
-        rvi = (_upSma.Value + _downSma.Value != 0) ? 100 * _upSma.Value / (_upSma.Value + _downSma.Value) : 0;
+        // Calculate RVI ratio
+        double rvi = CalculateRvi(_upSma.Value, _downSma.Value);
 
         _previousClose = close;
         IsHot = _index >= WarmupPeriod;

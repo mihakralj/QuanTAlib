@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
@@ -25,6 +26,10 @@ public class Dsma : AbstractBase
     private readonly CircularBuffer _buffer;
     private readonly double _c1, _c2, _c3;
     private readonly double _scaleFactor;
+    private readonly double _periodRecip;  // 1/_period
+    private readonly double _scaleByPeriod; // 5/_period
+    private readonly double _c1Half;  // _c1/2
+
     private double _lastDsma, _p_lastDsma;
     private double _filt, _filt1, _filt2, _zeros, _zeros1;
     private double _p_filt, _p_filt1, _p_filt2, _p_zeros, _p_zeros1;
@@ -46,16 +51,20 @@ public class Dsma : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(scaleFactor), "Scale factor must be between 0 and 1 (exclusive).");
         }
         _period = period;
+        _periodRecip = 1.0 / period;
         _scaleFactor = scaleFactor;
         _buffer = new CircularBuffer(period);
 
         // SuperSmoother filter coefficients
-        double _a1 = Math.Exp(-1.414 * Math.PI / (0.5 * period));
-        double _b1 = 2 * _a1 * Math.Cos(1.414 * Math.PI / (0.5 * period));
+        double halfPeriod = 0.5 * period;
+        double a1 = System.Math.Exp(-1.414 * System.Math.PI / halfPeriod);
+        double b1 = 2.0 * a1 * System.Math.Cos(1.414 * System.Math.PI / halfPeriod);
 
-        _c2 = _b1;
-        _c3 = -_a1 * _a1;
-        _c1 = 1 - _c2 - _c3;
+        _c2 = b1;
+        _c3 = -a1 * a1;
+        _c1 = 1.0 - _c2 - _c3;
+        _c1Half = _c1 * 0.5;
+        _scaleByPeriod = 5.0 / period;
 
         Name = "Dsma";
         WarmupPeriod = (int)(period * 1.5); // A conservative estimate
@@ -68,6 +77,7 @@ public class Dsma : AbstractBase
         pubEvent?.AddEventHandler(source, new ValueSignal(Sub));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Init()
     {
         base.Init();
@@ -77,6 +87,7 @@ public class Dsma : AbstractBase
         _isInit = false;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ManageState(bool isNew)
     {
         if (isNew)
@@ -102,6 +113,19 @@ public class Dsma : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateSuperSmootherFilter()
+    {
+        return _c1Half * (_zeros + _zeros1) + _c2 * _filt1 + _c3 * _filt2;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateAdaptiveAlpha(double scaledFilt)
+    {
+        double alpha = _scaleFactor * System.Math.Abs(scaledFilt) * _scaleByPeriod;
+        return System.Math.Clamp(alpha, 0.1, 1.0);
+    }
+
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
@@ -117,20 +141,18 @@ public class Dsma : AbstractBase
         _zeros = Input.Value - _lastDsma;
 
         // SuperSmoother Filter
-        _filt = _c1 * (_zeros + _zeros1) / 2 + _c2 * _filt1 + _c3 * _filt2;
+        _filt = CalculateSuperSmootherFilter();
 
         // Update buffer for RMS calculation
-        _buffer.Add(_filt * _filt, Input.IsNew);
+        double filtSquared = _filt * _filt;
+        _buffer.Add(filtSquared, Input.IsNew);
 
         // Compute RMS (Root Mean Square)
-        double rms = Math.Sqrt(_buffer.Sum() / _period);
+        double rms = System.Math.Sqrt(_buffer.Sum() * _periodRecip);
 
-        // Rescale Filt in terms of Standard Deviations
-        double scaledFilt = rms != 0 ? _filt / rms : 0;
-
-        // Calculate adaptive alpha
-        double alpha = _scaleFactor * Math.Abs(scaledFilt) * 5 / _period;
-        alpha = Math.Max(0.1, Math.Min(1.0, alpha));
+        // Rescale Filt in terms of Standard Deviations and calculate adaptive alpha
+        double scaledFilt = rms > 0 ? _filt / rms : 0;
+        double alpha = CalculateAdaptiveAlpha(scaledFilt);
 
         // DSMA calculation
         double dsma = alpha * Input.Value + (1 - alpha) * _lastDsma;

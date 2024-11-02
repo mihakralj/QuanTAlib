@@ -11,7 +11,7 @@ public class HistoricalIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Annualized", sortIndex: 2)]
     public bool IsAnnualized { get; set; } = true;
 
-    private Historical? historical;
+    private Hv? historical;
     protected LineSeries? HvSeries;
     public int MinHistoryDepths => Periods;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -28,7 +28,7 @@ public class HistoricalIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        historical = new Historical(Periods, IsAnnualized);
+        historical = new(Periods, IsAnnualized);
         base.OnInit();
     }
 

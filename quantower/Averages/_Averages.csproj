@@ -26,8 +26,10 @@
     </None>
   </ItemGroup>
 
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(IsLocalBuild)' == 'true'">
-    <Copy SourceFiles="$(OutputPath)\Averages.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Averages" />
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild"
+        Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
+    <Copy SourceFiles="$(OutputPath)\Averages.dll"
+        DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Averages" />
   </Target>
 
 </Project>
