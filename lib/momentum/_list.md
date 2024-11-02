@@ -7,7 +7,7 @@ Done: 15, Todo: 2
 ✔️ *DMI - Directional Movement Index (DI+, DI-)
 ✔️ DMX - Jurik Directional Movement Index
 ✔️ DPO - Detrended Price Oscillator
-*MACD - Moving Average Convergence/Divergence (MACD, Signal, Histogram)
+✔️ *MACD - Moving Average Convergence/Divergence (MACD, Signal, Histogram)
 ✔️ MOM - Momentum
 ✔️ PMO - Price Momentum Oscillator
 ✔️ PO - Price Oscillator

@@ -5,13 +5,13 @@
 **Implementation Status:**
 - Basic Transforms: 6 of 6 complete
 - Averages & Trends: 33 of 33 complete
-- Momentum: 16 of 17 complete
-- Oscillators: 6 of 29 complete
+- Momentum: 17 of 17 complete
+- Oscillators: 11 of 29 complete
 - Volatility: 11 of 35 complete
 - Volume: 15 of 19 complete
 - Numerical Analysis: 13 of 20 complete
 - Errors: 16 of 16 complete
-- Total: 116 of 175 indicators implemented (66%)
+- Total: 122 of 175 indicators implemented (70%)
 
 
 |**BASIC TRANSFORMS**|**Class Name**|
@@ -67,7 +67,7 @@
 |DMI* - Directional Movement Index (DI+, DI-)|`Dmi`|
 |DMX - Jurik Directional Movement Index|`Dmx`|
 |DPO - Detrended Price Oscillator|`Dpo`|
-|🚧  MACD* - Moving Average Convergence/Divergence|`Macd`|
+|MACD* - Moving Average Convergence/Divergence|`Macd`|
 |MOM - Momentum|`Mom`|
 |PMO - Price Momentum Oscillator|`Pmo`|
 |PO - Price Oscillator|`Po`|
@@ -85,11 +85,11 @@
 |AO - Awesome Oscillator|`Ao`|
 |AROON* - Aroon oscillator (Up, Down)|`Aroon`|
 |🚧  BOP - Balance of Power|`Bop`|
-|🚧  CCI - Commodity Channel Index|`Cci`|
-|🚧  CFO - Chande Forcast Oscillator|`Cfo`|
+|CCI - Commodity Channel Index|`Cci`|
+|CFO - Chande Forcast Oscillator|`Cfo`|
 |CMO - Chande Momentum Oscillator|`Cmo`|
-|🚧  CHOP - Choppiness Index|`Chop`|
-|🚧  COG - Ehler's Center of Gravity|`Cog`|
+|CHOP - Choppiness Index|`Chop`|
+|COG - Ehler's Center of Gravity|`Cog`|
 |🚧  COPPOCK - Coppock Curve|`Coppock`|
 |🚧  CRSI - Connor RSI|`Crsi`|
 |🚧  CTI - Ehler's Correlation Trend Indicator|`Cti`|

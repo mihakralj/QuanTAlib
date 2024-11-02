@@ -62,6 +62,7 @@ public class EventingTests
             ("Rsi", new Rsi(p), new Rsi(input, p)),
             ("Rsx", new Rsx(p), new Rsx(input, p)),
             ("Cmo", new Cmo(p), new Cmo(input, p)),
+            ("Cog", new Cog(p), new Cog(input, p)),
             ("Curvature", new Curvature(p), new Curvature(input, p)),
             ("Entropy", new Entropy(p), new Entropy(input, p)),
             ("Kurtosis", new Kurtosis(p), new Kurtosis(input, p)),
@@ -110,7 +111,9 @@ public class EventingTests
             ("Eom", new Eom(14), new Eom(barInput, 14)),
             ("Kvo", new Kvo(34, 55), new Kvo(barInput, 34, 55)),
             // Volatility indicators (bar-based)
-            ("Atr", new Atr(14), new Atr(barInput, 14))
+            ("Atr", new Atr(14), new Atr(barInput, 14)),
+            // Oscillators (bar-based)
+            ("Chop", new Chop(14), new Chop(barInput, 14))
         };
 
         // Generate 200 random values and feed them to indicators

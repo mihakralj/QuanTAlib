@@ -1,15 +1,15 @@
 # Oscillators indicators
-Done: 6, Todo: 23
+Done: 11, Todo: 18
 
 ✔️ AC - Acceleration Oscillator
 ✔️ AO - Awesome Oscillator
 ✔️ *AROON - Aroon oscillator (Up, Down)
-, 
-CCI - Commodity Channel Index
-CFO - Chande Forcast Oscillator
+BOP - Balance of Power
+✔️ CCI - Commodity Channel Index
+✔️ CFO - Chande Forcast Oscillator
 ✔️ CMO - Chande Momentum Oscillator
-CHOP - Choppiness Index
-COG - Ehler's Center of Gravity
+✔️ CHOP - Choppiness Index
+✔️ COG - Ehler's Center of Gravity
 COPPOCK - Coppock Curve
 CRSI - Connor RSI
 CTI - Ehler's Correlation Trend Indicator
