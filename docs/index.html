@@ -3,57 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <title>QuanTAlib Documentation</title>
+
+  <!-- Basic meta tags -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="description" content="Documentation for QuanTAlib, a quantitative technical analysis library">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css" integrity="sha384-3UiQGuEI4TTMaFmGIZumfRPtfKQ3trwQE2JgosJxCnGmQpL/lJdjpcHkaaFwHlcI" crossorigin="anonymous">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css"
+        integrity="sha384-3UiQGuEI4TTMaFmGIZumfRPtfKQ3trwQE2JgosJxCnGmQpL/lJdjpcHkaaFwHlcI"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css">
+  <style>
+    /* Target strong elements within tables */
+    table strong {
+      font-size: 120%;
+      display: inline-block;  /* This helps with vertical alignment */
+      padding: 4px 0;        /* Add some vertical padding for better spacing */
+    }
+
+    /* Optional: If you want to target just the section headers more specifically */
+    table tr:first-child strong,
+    table tr strong:first-child {
+      font-size: 120%;
+      color: #42b983;  /* Optional: matches Docsify's default theme color */
+    }
+
+    /* Hide github corner */
+    .github-corner {
+      display: none !important;
+    }
+    .github-corner svg {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
+
+  <!-- Docsify Configuration -->
   <script>
     window.$docsify = {
+      // Basic settings
       name: 'QuanTAlib',
-      repo: 'https://github.com/mihakralj/quantalib',
       homepage: 'readme.md',
+      noCorner: true,
+
+      // Navigation settings
       loadSidebar: true,
       auto2top: true,
       mergeNavbar: true,
       sidebarDisplayLevel: 0,
+
+      // Performance settings
       maxAge: 86400000,
       paths: 'auto',
+
+      // Search settings
       placeholder: 'Type to search',
       noData: 'No Results!',
       depth: 6,
       hideOtherSidebarContent: false,
+
+      // Theme settings
       themeable: {
         readyTransition: true,
         responsiveTables: true
       },
+
+      // Math settings
       latex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['$$', '$$']]
       },
+
+      // Markdown settings
+      markdown: {
+        smartypants: true,
+        renderer: {
+          table: function(header, body) {
+            if (header) return '<table class="docTable"><thead>' + header + '</thead><tbody>' + body + '</tbody></table>'
+            return '<table class="docTable"><tbody>' + body + '</tbody></table>'
+          }
+        }
+      },
+
+      // Content settings
       executeScript: true,
       externalLinkTarget: '_blank',
       cornerExternalLinkTarget: '_blank',
       relativePath: false,
+
+      // Table of Contents settings
       toc: {
         scope: '.markdown-section',
         headings: 'h1, h2, h3, h4, h5, h6',
         title: 'Table of Contents'
       },
+
       plugins: []
     };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js" integrity="sha384-KaHhgnx/OTLoJ4J33SSJsF4x1pk4I7q3s5ZOfIDHJYl6IG7Oyn2vNDsHiWJe46fD" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js" integrity="sha384-ibjVZCUwWPrRrNc9BNkbbJvtYmTh8GYDNQgj+2jQVNDudOFgSQWs+Es6JhdoTIvf" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js" integrity="sha384-lMHOyuqf3B/T/BgfYxUKprN0bdRf8KhVTE11w76Tvtze86XHVSDYzxqNGDGgIi9I" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js" integrity="sha384-LthJPBJ4RGco78kBY+EmKz5rmISZ5vrtAu3+l2ALQ2mrZHOe6Wyf6knyKjeC4cL6" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js" integrity="sha384-Vu4LjJ210wltbg1I3zl1f5n8qLSDr9GE7ij2JfiMbV64UCFP2RgFtG8W2Gh6Khwe" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js" integrity="sha384-uFEp18/1vv2dYlO64J2lOcnbhirAQZPtruqAZZ7PZYoXenm5c+tIs3AqSMjVMRe8" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js" integrity="sha384-fYBaBAsdPMjWt1AuA+txMoztHnl+zLgObSvwddIabbfUp+36gf/vNOKx88f37zix" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs/dist/docsify-tabs.min.js" integrity="sha384-QA3IVKzXq6xcKR8yQJHgDbI1FcJiQ137Cuetl1VWzUxJ6BQ7ew0MMq5fg2HbFK1o" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@1.4.3/dist/docsify-katex.js" integrity="sha384-M76M/x5vGyeoej1covQQifl7T945mY+qgzNVrM/urHMCYjP8tnMsx5WCdeLZ74UE" crossorigin="anonymous"></script>
+
+  <!-- Core Docsify -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"
+          integrity="sha384-KaHhgnx/OTLoJ4J33SSJsF4x1pk4I7q3s5ZOfIDHJYl6IG7Oyn2vNDsHiWJe46fD"
+          crossorigin="anonymous"></script>
+
+  <!-- Added marked.js for better markdown parsing -->
+  <script src="//cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"
+          integrity="sha384-ibjVZCUwWPrRrNc9BNkbbJvtYmTh8GYDNQgj+2jQVNDudOFgSQWs+Es6JhdoTIvf"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"
+          integrity="sha384-lMHOyuqf3B/T/BgfYxUKprN0bdRf8KhVTE11w76Tvtze86XHVSDYzxqNGDGgIi9I"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"
+          integrity="sha384-LthJPBJ4RGco78kBY+EmKz5rmISZ5vrtAu3+l2ALQ2mrZHOe6Wyf6knyKjeC4cL6"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"
+          integrity="sha384-Vu4LjJ210wltbg1I3zl1f5n8qLSDr9GE7ij2JfiMbV64UCFP2RgFtG8W2Gh6Khwe"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"
+          integrity="sha384-uFEp18/1vv2dYlO64J2lOcnbhirAQZPtruqAZZ7PZYoXenm5c+tIs3AqSMjVMRe8"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"
+          integrity="sha384-fYBaBAsdPMjWt1AuA+txMoztHnl+zLgObSvwddIabbfUp+36gf/vNOKx88f37zix"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs/dist/docsify-tabs.min.js"
+          integrity="sha384-QA3IVKzXq6xcKR8yQJHgDbI1FcJiQ137Cuetl1VWzUxJ6BQ7ew0MMq5fg2HbFK1o"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@1.4.3/dist/docsify-katex.js"
+          integrity="sha384-M76M/x5vGyeoej1covQQifl7T945mY+qgzNVrM/urHMCYjP8tnMsx5WCdeLZ74UE"
+          crossorigin="anonymous"></script>
 </body>
 </html>

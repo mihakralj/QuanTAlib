@@ -4,7 +4,7 @@ Done: 11, Todo: 18
 ✔️ AC - Acceleration Oscillator
 ✔️ AO - Awesome Oscillator
 ✔️ *AROON - Aroon oscillator (Up, Down)
-BOP - Balance of Power
+✔️ BOP - Balance of Power
 ✔️ CCI - Commodity Channel Index
 ✔️ CFO - Chande Forcast Oscillator
 ✔️ CMO - Chande Momentum Oscillator

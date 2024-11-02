@@ -1,24 +1,24 @@
 * [Home](/)
 
-* [Available Indicators](indicators/indicators.md)
+* [List of Indicators](indicators/indicators.md)
 
-* Introduction
+* 🚧 Introduction
    * [Overview]()
    * [Features]()
    * [Historical vs Real-time analysis](essays/realtime.md)
 
-*  Core Concepts
+* 🚧 Core Concepts
    * [Time Series Data Handling]()
    * [Calculation classes]()
    * [Presentation Classes]()
 
-* QuanTAlib C# Library
+* 🚧 QuanTAlib C# Library
    * [Installation]()
    * [Quick Start Guide]()
    * [Usage Examples]()
    * [Tests and Validation]()
 
-* Quantower Charts
+* 🚧 Quantower Charts
    * [Installation]()
    * [Quick Start Guide]()
    * [Using VS Code for QuanTower coding](setup/vscode.md)
@@ -26,7 +26,7 @@
    * [Creating Custom Indicators]()
    * [Inspecting Quantower Internals]()
 
-* [Available Indicators](indicators/indicators.md)
+* [🚧 Available Indicators](indicators/indicators.md)
    * Momentum
       * [ADX - Average Directional Index](indicators/momentum/adx/description.md)
       * [ADXR - Average Directional Index Rating](indicators/momentum/adxr/description.md)

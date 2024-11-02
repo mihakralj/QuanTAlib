@@ -1,11 +1,11 @@
 # Volatility indicators
-Done: 11, Todo: 24
+Done: 15, Todo: 20
 
-ADR - Average Daily Range
-AP - Andrew's Pitchfork
+✔️ ADR - Average Daily Range
+✔️ AP - Andrew's Pitchfork
 ✔️ ATR - Average True Range
-ATRP - Average True Range Percent
-ATRS - ATR Trailing Stop
+✔️ ATRP - Average True Range Percent
+✔️ ATRS - ATR Trailing Stop
 *BB - Bollinger Bands® (Upper, Middle, Lower)
 CCV - Close-to-Close Volatility
 CE - Chandelier Exit

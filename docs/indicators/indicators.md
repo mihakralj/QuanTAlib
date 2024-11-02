@@ -1,30 +1,27 @@
 # Indicators in QuanTAlib
 
-\* = Returns multiple values
+| **Category** | **Status** | **Completion** |
+|--------------|:----------:|:--------------:|
+| Basic Transforms | 6 of 6 | 100% |
+| Averages & Trends | 33 of 33 | 100% |
+| Momentum | 17 of 17 | 100% |
+| Oscillators | 12 of 29 | 41% |
+| Volatility | 15 of 35 | 43% |
+| Volume | 19 of 19 | 100% |
+| Numerical Analysis | 13 of 20 | 65% |
+| Errors | 16 of 16 | 100% |
+| **Total** | **131 of 175** | **75%** |
 
-**Implementation Status:**
-- Basic Transforms: 6 of 6 complete
-- Averages & Trends: 33 of 33 complete
-- Momentum: 17 of 17 complete
-- Oscillators: 11 of 29 complete
-- Volatility: 11 of 35 complete
-- Volume: 15 of 19 complete
-- Numerical Analysis: 13 of 20 complete
-- Errors: 16 of 16 complete
-- Total: 122 of 175 indicators implemented (70%)
-
-
-|**BASIC TRANSFORMS**|**Class Name**|
-|---|:--:|
+|Technical Indicator Name| Class Name|
+|-----------|:----------:|
+|**BASIC TRANSFORMS**||
 |OC2 - Midpoint price|`.OC2`|
 |HL2 - Median Price|`.HL2`|
 |HLC3 - Typical Price|`.HLC3`|
 |OHL3 - Mean Price|`.OHL3`|
 |OHLC4 - Average Price|`.OHLC4`|
 |HLCC4 - Weighted Price|`.HLCC4`|
-
-|**AVERAGES & TRENDS**|**Class Name**|
-|--|:--:|
+|**AVERAGES & TRENDS**||
 |AFIRMA - Adaptive FIR Moving Average|`Afirma`|
 |ALMA - Arnaud Legoux Moving Average|`Alma`|
 |DEMA - Double Exponential Moving Average|`Dema`|
@@ -58,9 +55,7 @@
 |VIDYA - Variable Index Dynamic Average|`Vidya`|
 |WMA - Weighted Moving Average|`Wma`|
 |ZLEMA - Zero-Lag Exponential Moving Average|`Zlema`|
-
-|**MOMENTUM INDICATORS**|**Class Name**|
-|--|:--:|
+|**MOMENTUM INDICATORS**||
 |ADX - Average Directional Movement Index|`Adx`|
 |ADXR - Average Directional Movement Index Rating|`Adxr`|
 |APO - Absolute Price Oscillator|`Apo`|
@@ -78,79 +73,73 @@
 |TRIX - 1-day ROC of TEMA|`Trix`|
 |VEL - Jurik Signal Velocity|`Vel`|
 |VORTEX* - Vortex Indicator (VI+, VI-)|`Vortex`|
-
-|**OSCILLATORS**|**Class Name**|
-|--|:--:|
+|**OSCILLATORS**||
 |AC - Acceleration Oscillator|`Ac`|
 |AO - Awesome Oscillator|`Ao`|
 |AROON* - Aroon oscillator (Up, Down)|`Aroon`|
-|🚧  BOP - Balance of Power|`Bop`|
+|BOP - Balance of Power|`Bop`|
 |CCI - Commodity Channel Index|`Cci`|
 |CFO - Chande Forcast Oscillator|`Cfo`|
 |CMO - Chande Momentum Oscillator|`Cmo`|
 |CHOP - Choppiness Index|`Chop`|
 |COG - Ehler's Center of Gravity|`Cog`|
-|🚧  COPPOCK - Coppock Curve|`Coppock`|
-|🚧  CRSI - Connor RSI|`Crsi`|
-|🚧  CTI - Ehler's Correlation Trend Indicator|`Cti`|
-|🚧  DOSC - Derivative Oscillator|`Dosc`|
-|🚧  EFI - Elder Ray's Force Index|`Efi`|
-|🚧  FISHER - Fisher Transform|`Fisher`|
-|🚧  FOSC - Forecast Oscillator|`Fosc`|
-|🚧  GATOR* - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)|`Gator`|
-|🚧  KDJ* - KDJ Indicator (K, D, J lines)|`Kdj`|
-|🚧  KRI - Kairi Relative Index|`Kri`|
+|🚧 COPPOCK - Coppock Curve|`Coppock`|
+|🚧 CRSI - Connor RSI|`Crsi`|
+|🚧 CTI - Ehler's Correlation Trend Indicator|`Cti`|
+|🚧 DOSC - Derivative Oscillator|`Dosc`|
+|🚧 EFI - Elder Ray's Force Index|`Efi`|
+|🚧 FISHER - Fisher Transform|`Fisher`|
+|🚧 FOSC - Forecast Oscillator|`Fosc`|
+|🚧 GATOR* - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)|`Gator`|
+|🚧 KDJ* - KDJ Indicator (K, D, J lines)|`Kdj`|
+|🚧 KRI - Kairi Relative Index|`Kri`|
 |RSI - Relative Strength Index|`Rsi`|
 |RSX - Jurik Trend Strength Index|`Rsx`|
-|🚧  RVGI* - Relative Vigor Index (RVGI, Signal)|`Rvgi`|
-|🚧  SMI - Stochastic Momentum Index|`Smi`|
-|🚧  SRSI* - Stochastic RSI (SRSI, Signal)|`Srsi`|
-|🚧  STC - Schaff Trend Cycle|`Stc`|
-|🚧  STOCH* - Stochastic Oscillator (%K, %D)|`Stoch`|
-|🚧  TSI - True Strength Index|`Tsi`|
-|🚧  UO - Ultimate Oscillator|`Uo`|
-|🚧  WILLR - Larry Williams' %R|`Willr`|
-
-|**VOLATILITY INDICATORS**|**Class Name**|
-|--|:--:|
-|🚧  ADR - Average Daily Range|`Adr`|
-|🚧  AP - Andrew's Pitchfork|`Ap`|
+|🚧 RVGI* - Relative Vigor Index (RVGI, Signal)|`Rvgi`|
+|🚧 SMI - Stochastic Momentum Index|`Smi`|
+|🚧 SRSI* - Stochastic RSI (SRSI, Signal)|`Srsi`|
+|🚧 STC - Schaff Trend Cycle|`Stc`|
+|🚧 STOCH* - Stochastic Oscillator (%K, %D)|`Stoch`|
+|🚧 TSI - True Strength Index|`Tsi`|
+|🚧 UO - Ultimate Oscillator|`Uo`|
+|🚧 WILLR - Larry Williams' %R|`Willr`|
+|**VOLATILITY INDICATORS**||
+|ADR - Average Daily Range|`Adr`|
+|AP - Andrew's Pitchfork|`Ap`|
 |ATR - Average True Range|`Atr`|
-|🚧  ATRP - Average True Range Percent|`Atrp`|
-|🚧  ATRS - ATR Trailing Stop|`Atrs`|
-|🚧  BB* - Bollinger Bands® (Upper, Middle, Lower)|`Bb`|
-|🚧  CCV - Close-to-Close Volatility|`Ccv`|
-|🚧  CE - Chandelier Exit|`Ce`|
-|🚧  CV - Conditional Volatility (ARCH/GARCH)|`Cv`|
-|🚧  CVI - Chaikin's Volatility|`Cvi`|
-|🚧  DC* - Donchian Channels (Upper, Middle, Lower)|`Dc`|
-|🚧  EWMA - Exponential Weighted Moving Average Volatility|`Ewma`|
-|🚧  FCB - Fractal Chaos Bands|`Fcb`|
-|🚧  GKV - Garman-Klass Volatility|`Gkv`|
-|🚧  HLV - High-Low Volatility|`Hlv`|
+|ATRP - Average True Range Percent|`Atrp`|
+|ATRS - ATR Trailing Stop|`Atrs`|
+|🚧 BB* - Bollinger Bands® (Upper, Middle, Lower)|`Bb`|
+|🚧 CCV - Close-to-Close Volatility|`Ccv`|
+|🚧 CE - Chandelier Exit|`Ce`|
+|🚧 CV - Conditional Volatility (ARCH/GARCH)|`Cv`|
+|🚧 CVI - Chaikin's Volatility|`Cvi`|
+|🚧 DC* - Donchian Channels (Upper, Middle, Lower)|`Dc`|
+|🚧 EWMA - Exponential Weighted Moving Average Volatility|`Ewma`|
+|🚧 FCB - Fractal Chaos Bands|`Fcb`|
+|🚧 GKV - Garman-Klass Volatility|`Gkv`|
+|🚧 HLV - High-Low Volatility|`Hlv`|
 |HV - Historical Volatility|`Hv`|
-|🚧  ICH* - Ichimoku Cloud (Conversion, Base, Leading Span A, Leading Span B, Lagging Span)|`Ich`|
+|🚧 ICH* - Ichimoku Cloud (Conversion, Base, Leading Span A, Leading Span B, Lagging Span)|`Ich`|
 |JVOLTY - Jurik Volatility|`Jvolty`|
-|🚧  KC* - Keltner Channels (Upper, Middle, Lower)|`Kc`|
-|🚧  NATR - Normalized Average True Range|`Natr`|
-|🚧  PCH - Price Channel Indicator|`Pch`|
-|🚧  PSAR* - Parabolic Stop and Reverse (Value, Trend)|`Psar`|
-|🚧  PV - Parkinson Volatility|`Pv`|
-|🚧  RSV - Rogers-Satchell Volatility|`Rsv`|
+|🚧 KC* - Keltner Channels (Upper, Middle, Lower)|`Kc`|
+|🚧 NATR - Normalized Average True Range|`Natr`|
+|🚧 PCH - Price Channel Indicator|`Pch`|
+|🚧 PSAR* - Parabolic Stop and Reverse (Value, Trend)|`Psar`|
+|🚧 PV - Parkinson Volatility|`Pv`|
+|🚧 RSV - Rogers-Satchell Volatility|`Rsv`|
 |RV - Realized Volatility|`Rv`|
 |RVI - Relative Volatility Index|`Rvi`|
-|🚧  STARC* - Starc Bands (Upper, Middle, Lower)|`Starc`|
-|🚧  SV - Stochastic Volatility|`Sv`|
+|🚧 STARC* - Starc Bands (Upper, Middle, Lower)|`Starc`|
+|🚧 SV - Stochastic Volatility|`Sv`|
 |TR - True Range|`Tr`|
 |UI - Ulcer Index|`Ui`|
 |VC* - Volatility Cone (Mean, Upper Bound, Lower Bound)|`Vc`|
 |VOV - Volatility of Volatility|`Vov`|
 |VR - Volatility Ratio|`Vr`|
 |VS* - Volatility Stop (Long Stop, Short Stop)|`Vs`|
-|🚧  YZV - Yang-Zhang Volatility|`Yzv`|
-
-|**VOLUME INDICATORS**|**Class Name**|
-|--|:--:|
+|🚧 YZV - Yang-Zhang Volatility|`Yzv`|
+|**VOLUME INDICATORS**||
 |ADL - Chaikin Accumulation Distribution Line|`Adl`|
 |ADOSC - Chaikin Accumulation Distribution Oscillator|`Adosc`|
 |AOBV - Archer On-Balance Volume|`Aobv`|
@@ -166,36 +155,32 @@
 |PVR - Price Volume Rank|`Pvr`|
 |PVT - Price Volume Trend|`Pvt`|
 |TVI - Trade Volume Index|`Tvi`|
-|🚧  VF - Volume Force|`Vf`|
-|🚧  VP - Volume Profile|`Vp`|
-|🚧  VWAP - Volume Weighted Average Price|`Vwap`|
-|🚧  VWMA - Volume Weighted Moving Average|`Vwma`|
-
-|**NUMERICAL ANALYSIS**|**Class Name**|
-|--|:--:|
-|🚧  BETA* - Beta coefficient (Beta, R-squared)|`Beta`|
-|🚧  CORR* - Correlation Coefficient (Correlation, P-value)|`Corr`|
+|VF - Volume Force|`Vf`|
+|VP - Volume Profile|`Vp`|
+|VWAP - Volume Weighted Average Price|`Vwap`|
+|VWMA - Volume Weighted Moving Average|`Vwma`|
+|**NUMERICAL ANALYSIS**||
+|🚧 BETA* - Beta coefficient (Beta, R-squared)|`Beta`|
+|🚧 CORR* - Correlation Coefficient (Correlation, P-value)|`Corr`|
 |CURVATURE - Rate of Change in Direction or Slope|`Curvature`|
 |ENTROPY - Measure of Uncertainty or Disorder|`Entropy`|
-|🚧  HUBER - Huber Loss|`Huber`|
-|🚧  HURST - Hurst Exponent|`Hurst`|
+|🚧 HUBER - Huber Loss|`Huber`|
+|🚧 HURST - Hurst Exponent|`Hurst`|
 |KURTOSIS - Measure of Tails/Peakedness|`Kurtosis`|
 |MAX - Maximum with exponential decay|`Max`|
 |MEDIAN - Middle value|`Median`|
 |MIN - Minimum with exponential decay|`Min`|
 |MODE - Most Frequent Value|`Mode`|
 |PERCENTILE - Rank Order|`Percentile`|
-|🚧  RSQUARED* - Coefficient of Determination (R-squared, Adjusted R-squared)|`Rsquared`|
+|🚧 RSQUARED* - Coefficient of Determination (R-squared, Adjusted R-squared)|`Rsquared`|
 |SKEW - Skewness, asymmetry of distribution|`Skew`|
 |SLOPE - Rate of Change, Linear Regression|`Slope`|
 |STDDEV - Standard Deviation, Measure of Spread|`Stddev`|
-|🚧  THEIL* - Theil's U Statistics (U1, U2)|`Theil`|
-|🚧  TSF* - Time Series Forecast (Forecast, Confidence Interval)|`Tsf`|
+|🚧 THEIL* - Theil's U Statistics (U1, U2)|`Theil`|
+|🚧 TSF* - Time Series Forecast (Forecast, Confidence Interval)|`Tsf`|
 |VARIANCE - Average of Squared Deviations|`Variance`|
 |ZSCORE - Standardized Score|`Zscore`|
-
-|**ERRORS**|**Class Name**|
-|--|:--:|
+|**ERRORS**||
 |HUBER - Huber Loss|`Huber`|
 |MAE - Mean Absolute Error|`Mae`|
 |MAPD - Mean Absolute Percentage Deviation|`Mapd`|
