@@ -319,4 +319,68 @@ public class VolumeUpdateTests
 
         Assert.Equal(initialValue, finalValue, precision);
     }
+
+    [Fact]
+    public void Vf_Update()
+    {
+        var indicator = new Vf(period: 13);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Vp_Update()
+    {
+        var indicator = new Vp(period: 14);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Vwap_Update()
+    {
+        var indicator = new Vwap();
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Vwma_Update()
+    {
+        var indicator = new Vwma(period: 20);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
 }

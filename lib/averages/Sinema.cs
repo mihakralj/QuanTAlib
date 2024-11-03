@@ -29,7 +29,6 @@ namespace QuanTAlib;
 public class Sinema : AbstractBase
 {
     private readonly Convolution _convolution;
-    private readonly double[] _kernel;
 
     /// <param name="period">The number of data points used in the SINEMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -39,7 +38,7 @@ public class Sinema : AbstractBase
         {
             throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _kernel = GenerateKernel(period);
+        double[] _kernel = GenerateKernel(period);
         _convolution = new Convolution(_kernel);
         Name = "Sinema";
         WarmupPeriod = period;

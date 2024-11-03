@@ -12,7 +12,7 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RootNamespace>QuanTAlib</RootNamespace>
     <AssemblyName>QuanTAlib</AssemblyName>
-    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
     <IsPublishable>True</IsPublishable>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>full</DebugType>

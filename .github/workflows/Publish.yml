@@ -61,6 +61,7 @@ jobs:
             /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
             /d:sonar.cpd.exclusions="**Tests.cs" `
+            /d:sonar.scanner.scanAll="false" `
             /d:sonar.cs.roslyn.ignoreIssues="false" `
             /d:sonar.issue.ignore.multicriteria="e1" `
             /d:sonar.issue.ignore.multicriteria.e1.ruleKey="csharpsquid:S1944,csharpsquid:S2053,csharpsquid:S2222,csharpsquid:S2259,csharpsquid:S2583,csharpsquid:S2589,csharpsquid:S3329,csharpsquid:S3655,csharpsquid:S3900,csharpsquid:S3949,csharpsquid:S3966,csharpsquid:S4158,csharpsquid:S4347,csharpsquid:S5773,csharpsquid:S6781" `
@@ -102,7 +103,7 @@ jobs:
           coverage-reports: '*cover*.xml'
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: 'cover*'
           verbose: true
@@ -158,7 +159,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup NuGet
-        uses: nuget/setup-nuget@v1
+        uses: nuget/setup-nuget@v2
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1

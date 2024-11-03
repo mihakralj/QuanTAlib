@@ -22,7 +22,6 @@ namespace QuanTAlib;
 
 public class Dsma : AbstractBase
 {
-    private readonly int _period;
     private readonly CircularBuffer _buffer;
     private readonly double _c1, _c2, _c3;
     private readonly double _scaleFactor;
@@ -50,7 +49,6 @@ public class Dsma : AbstractBase
         {
             throw new ArgumentOutOfRangeException(nameof(scaleFactor), "Scale factor must be between 0 and 1 (exclusive).");
         }
-        _period = period;
         _periodRecip = 1.0 / period;
         _scaleFactor = scaleFactor;
         _buffer = new CircularBuffer(period);

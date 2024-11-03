@@ -29,11 +29,6 @@ namespace QuanTAlib;
 public class Hma : AbstractBase
 {
     private readonly Convolution _wmaHalf, _wmaFull, _wmaFinal;
-    private readonly int _period;
-    private readonly int _sqrtPeriod;
-    private readonly double[] _kernelHalf;
-    private readonly double[] _kernelFull;
-    private readonly double[] _kernelFinal;
 
     /// <param name="period">The number of data points used in the HMA calculation. Must be at least 2.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 2.</exception>
@@ -43,13 +38,12 @@ public class Hma : AbstractBase
         {
             throw new System.ArgumentException("Period must be greater than or equal to 2.", nameof(period));
         }
-        _period = period;
-        _sqrtPeriod = (int)System.Math.Sqrt(period);
+        int _sqrtPeriod = (int)System.Math.Sqrt(period);
 
         // Generate all kernels once
-        _kernelHalf = GenerateWmaKernel(period / 2);
-        _kernelFull = GenerateWmaKernel(period);
-        _kernelFinal = GenerateWmaKernel(_sqrtPeriod);
+        double[] _kernelHalf = GenerateWmaKernel(period / 2);
+        double[] _kernelFull = GenerateWmaKernel(period);
+        double[] _kernelFinal = GenerateWmaKernel(_sqrtPeriod);
 
         // Initialize convolutions with pre-generated kernels
         _wmaHalf = new Convolution(_kernelHalf);
