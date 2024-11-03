@@ -26,6 +26,15 @@ public class StatisticsUpdateTests
         return new TBar(DateTime.Now, open, high, low, close, 1000, IsNew);
     }
 
+    private TBar GetRandomBar(bool IsNew)
+    {
+        double open = GetRandomDouble();
+        double high = open + Math.Abs(GetRandomDouble());
+        double low = open - Math.Abs(GetRandomDouble());
+        double close = low + (high - low) * GetRandomDouble();
+        return new TBar(DateTime.Now, open, high, low, close, 1000, IsNew);
+    }
+
     [Fact]
     public void Curvature_Update()
     {
