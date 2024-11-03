@@ -31,7 +31,6 @@ namespace QuanTAlib;
 ///
 /// Note: Square root of MSLE, useful for data with exponential growth
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rmsle : AbstractBase
 {

@@ -17,7 +17,6 @@ public class SyntheticVendor : Vendor
     {
         exchanges = new List<MessageExchange>
             {
-
                 //Spike,
                 //Impulse,
                 //Triangle,
@@ -46,7 +45,6 @@ public class SyntheticVendor : Vendor
         assets = new List<MessageAsset>
             {
                 new MessageAsset { Id = "USD", Name = "USD" },
-
             };
 
         symbols = new List<MessageSymbol>
@@ -93,9 +91,6 @@ public class SyntheticVendor : Vendor
             Warrants,
 
         */
-
-
-
     }
 
     public static VendorMetaData GetVendorMetaData()
@@ -211,7 +206,6 @@ public class SyntheticVendor : Vendor
     {
         // Simulating disconnection process
         Thread.Sleep(500); // Simulate some disconnection delay
-
     }
 
     public override PingResult Ping()

@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Particularly useful for risk metrics like VaR
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Percentile : AbstractBase
 {

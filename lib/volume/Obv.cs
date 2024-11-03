@@ -44,7 +44,6 @@ namespace QuanTAlib;
 ///
 /// Note: Rising OBV suggests buying pressure, while falling OBV suggests selling pressure
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Obv : AbstractBase
 {

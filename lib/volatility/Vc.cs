@@ -38,7 +38,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns three values: mean volatility and its upper/lower bounds
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vc : AbstractBase
 {

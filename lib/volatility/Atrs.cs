@@ -35,7 +35,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns stop level based on current trend
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Atrs : AbstractBase
 {

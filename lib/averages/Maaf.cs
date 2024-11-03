@@ -27,7 +27,6 @@ namespace QuanTAlib;
 ///
 /// Note: Initial values handling is currently under development.
 /// </remarks>
-
 public class Maaf : AbstractBase
 {
     private readonly CircularBuffer _priceBuffer;

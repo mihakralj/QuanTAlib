@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Proprietary enhancement of RSI using JMA technology
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rsx : AbstractBase
 {

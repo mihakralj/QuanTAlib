@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Alan Hull - "Better Trading with Hull Moving Average"
 ///     https://alanhull.com/hull-moving-average
 /// </remarks>
-
 public class Hma : AbstractBase
 {
     private readonly Convolution _wmaHalf, _wmaFull, _wmaFinal;

@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Values above zero indicate buying pressure, while values below zero indicate selling pressure
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cmf : AbstractBase
 {

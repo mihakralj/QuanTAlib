@@ -24,7 +24,6 @@ namespace QuanTAlib;
 ///     https://www.investopedia.com/terms/s/sma.asp
 ///     https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
 /// </remarks>
-
 public class Sma : AbstractBase
 {
     private readonly CircularBuffer _buffer;

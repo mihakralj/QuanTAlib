@@ -37,7 +37,6 @@ namespace QuanTAlib;
 ///
 /// Note: Rising PVT suggests buying pressure, while falling PVT suggests selling pressure
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Pvt : AbstractBase
 {

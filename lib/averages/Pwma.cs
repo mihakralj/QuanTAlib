@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Based on Pascal's triangle principles for weight generation
 ///     Uses convolution for efficient calculation
 /// </remarks>
-
 public class Pwma : AbstractBase
 {
     private readonly int _period;

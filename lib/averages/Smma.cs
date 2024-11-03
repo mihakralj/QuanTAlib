@@ -24,7 +24,6 @@ namespace QuanTAlib;
 ///     Based on smoothed moving average principles with
 ///     initial SMA seeding for stability
 /// </remarks>
-
 public class Smma : AbstractBase
 {
     private readonly int _period;

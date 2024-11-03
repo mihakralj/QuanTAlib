@@ -46,7 +46,6 @@ namespace QuanTAlib;
 ///
 /// Note: Values above 80 indicate overbought conditions, while values below 20 indicate oversold conditions
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mfi : AbstractBase
 {

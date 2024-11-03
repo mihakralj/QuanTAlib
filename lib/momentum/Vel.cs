@@ -27,7 +27,6 @@ namespace QuanTAlib;
 ///     Enhanced with JMA smoothing by Mark Jurik
 ///     Technical Analysis of Financial Markets by John J. Murphy
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vel : AbstractBase
 {

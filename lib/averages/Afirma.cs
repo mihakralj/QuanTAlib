@@ -10,7 +10,6 @@ namespace QuanTAlib;
 /// Implementation:
 ///     Original implementation based on FIR filter design principles
 /// </remarks>
-
 public class Afirma : AbstractBase
 {
     public enum WindowType

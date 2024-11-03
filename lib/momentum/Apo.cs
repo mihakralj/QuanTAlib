@@ -32,7 +32,6 @@ namespace QuanTAlib;
 ///
 /// Note: Default periods are 12 and 26, similar to MACD
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Apo : AbstractBase
 {

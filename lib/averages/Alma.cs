@@ -11,7 +11,6 @@ namespace QuanTAlib;
 /// Validation:
 ///    Skender.Stock.Indicators
 /// </remarks>
-
 public class Alma : AbstractBase
 {
     private readonly int _period;

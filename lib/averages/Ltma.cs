@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     John Ehlers - "Time Warp - Without Space Travel"
 ///     https://www.mesasoftware.com/papers/TimeWarp.pdf
 /// </remarks>
-
 public class Ltma : AbstractBase
 {
     private readonly double _gamma;

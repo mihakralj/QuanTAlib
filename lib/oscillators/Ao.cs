@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     Bill Williams - "Trading Chaos" (1995)
 ///     https://www.investopedia.com/terms/a/awesomeoscillator.asp
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ao : AbstractBase
 {

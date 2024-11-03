@@ -32,7 +32,6 @@ namespace QuanTAlib;
 ///     Original DMI by J. Welles Wilder Jr. - "New Concepts in Technical Trading Systems" (1978)
 ///     Enhanced with JMA smoothing by Mark Jurik
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Dmx : AbstractBarBase
 {

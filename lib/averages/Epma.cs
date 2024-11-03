@@ -22,7 +22,6 @@ namespace QuanTAlib;
 /// Implementation:
 ///     Original implementation based on convolution principles
 /// </remarks>
-
 public class Epma : AbstractBase
 {
     private readonly int _period;

@@ -32,7 +32,6 @@ namespace QuanTAlib;
 ///
 /// Note: Higher values indicate more unstable volatility conditions
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vov : AbstractBase
 {

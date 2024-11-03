@@ -28,7 +28,6 @@ namespace QuanTAlib;
 ///     Technical Analysis of Financial Markets by John J. Murphy
 ///     StockCharts.com Technical Indicators
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ppo : AbstractBase
 {

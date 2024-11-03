@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Particularly useful for price level analysis
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mode : AbstractBase
 {

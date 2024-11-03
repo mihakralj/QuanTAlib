@@ -19,7 +19,6 @@ namespace QuanTAlib;
 /// Source:
 ///    https://www.mesasoftware.com/papers/DEVIATION%20SCALED%20MOVING%20AVERAGE.pdf
 /// </remarks>
-
 public class Dsma : AbstractBase
 {
     private readonly int _period;

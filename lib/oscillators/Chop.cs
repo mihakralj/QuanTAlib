@@ -35,7 +35,6 @@ namespace QuanTAlib;
 ///
 /// Note: Default period is 14
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Chop : AbstractBase
 {

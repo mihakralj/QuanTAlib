@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     Bill Williams - "Trading Chaos" (1995)
 ///     https://www.investopedia.com/terms/a/ac.asp
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ac : AbstractBase
 {

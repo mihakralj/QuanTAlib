@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Assumes approximately normal distribution
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Zscore : AbstractBase
 {

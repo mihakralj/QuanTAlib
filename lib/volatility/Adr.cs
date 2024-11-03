@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Simpler alternative to ATR, doesn't consider gaps
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Adr : AbstractBase
 {

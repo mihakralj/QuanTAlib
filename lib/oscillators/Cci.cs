@@ -30,7 +30,6 @@ namespace QuanTAlib;
 ///     Donald Lambert (1980)
 ///     https://www.investopedia.com/terms/c/commoditychannelindex.asp
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cci : AbstractBase
 {

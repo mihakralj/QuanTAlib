@@ -167,7 +167,6 @@ public static class IndicatorExtensions
                 using (Brush hist = new SolidBrush(Color.FromArgb(150, 0, 255, 0)))
                 {
                     gr.FillRectangle(hist, barX, barY, HistBarWidth, Math.Abs(barY - barY0));
-
                 }
             }
             else
@@ -175,12 +174,9 @@ public static class IndicatorExtensions
                 using (Brush hist = new SolidBrush(Color.FromArgb(150, 255, 0, 0)))
                 {
                     gr.FillRectangle(hist, barX, barY0, HistBarWidth, Math.Abs(barY0 - barY));
-
                 }
             }
-
         }
-
     }
 
 

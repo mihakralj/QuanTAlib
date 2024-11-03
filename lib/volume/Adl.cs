@@ -40,7 +40,6 @@ namespace QuanTAlib;
 ///
 /// Note: Focuses on the relationship between price and volume
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Adl : AbstractBase
 {

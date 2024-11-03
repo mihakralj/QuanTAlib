@@ -28,7 +28,6 @@ namespace QuanTAlib;
 ///     Developed by Carl Swenlin
 ///     Technical Analysis of Stocks and Commodities magazine
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Pmo : AbstractBase
 {

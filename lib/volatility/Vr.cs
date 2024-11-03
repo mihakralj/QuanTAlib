@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Values significantly different from 1 indicate changing market conditions
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vr : AbstractBase
 {

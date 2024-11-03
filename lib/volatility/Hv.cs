@@ -42,7 +42,6 @@ namespace QuanTAlib;
 ///
 /// Note: Assumes 252 trading days for annualization
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Hv : AbstractBase
 {

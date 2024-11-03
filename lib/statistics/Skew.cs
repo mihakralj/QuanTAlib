@@ -42,7 +42,6 @@ namespace QuanTAlib;
 ///
 /// Note: Requires minimum of 3 data points for calculation
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Skew : AbstractBase
 {

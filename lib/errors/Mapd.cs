@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Also known as MAPE (Mean Absolute Percentage Error) in some contexts
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mapd : AbstractBase
 {

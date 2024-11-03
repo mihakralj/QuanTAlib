@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns Point of Control (price level with highest volume)
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vp : AbstractBase
 {

@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Also known as Mean Bias Error (MBE) or Mean Signed Difference (MSD)
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Me : AbstractBase
 {

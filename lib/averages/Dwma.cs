@@ -21,7 +21,6 @@ namespace QuanTAlib;
 ///
 /// Where WMA is the Weighted Moving Average function and 'period' is the number of data points used in each WMA calculation.
 /// </remarks>
-
 public class Dwma : AbstractBase
 {
     private readonly Wma _innerWma;

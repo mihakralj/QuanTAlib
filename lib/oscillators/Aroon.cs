@@ -32,7 +32,6 @@ namespace QuanTAlib;
 ///
 /// Note: Default period of 25 was recommended by Chande
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Aroon : AbstractBarBase
 {

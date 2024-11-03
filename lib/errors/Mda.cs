@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///     https://www.sciencedirect.com/science/article/abs/pii/S0169207016000121
 ///     "Evaluating Forecasting Performance" - International Journal of Forecasting
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mda : AbstractBase
 {

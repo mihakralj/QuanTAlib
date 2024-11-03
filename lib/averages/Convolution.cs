@@ -10,7 +10,6 @@ namespace QuanTAlib;
 /// Implementation:
 ///     Based on standard discrete convolution principles from signal processing
 /// </remarks>
-
 public class Convolution : AbstractBase
 {
     private readonly double[] _kernel;

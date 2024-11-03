@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Rising NVI suggests smart money is buying, while falling NVI suggests smart money is selling
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Nvi : AbstractBase
 {

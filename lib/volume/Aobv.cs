@@ -49,7 +49,6 @@ namespace QuanTAlib;
 ///
 /// Note: Provides a more detailed analysis of volume flow than traditional OBV
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Aobv : AbstractBase
 {

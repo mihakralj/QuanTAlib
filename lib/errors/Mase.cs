@@ -28,7 +28,6 @@ namespace QuanTAlib;
 ///     Rob J. Hyndman - "Another Look at Forecast-Accuracy Metrics for Intermittent Demand"
 ///     https://robjhyndman.com/papers/another-look-at-measures-of-forecast-accuracy/
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mase : AbstractBase
 {

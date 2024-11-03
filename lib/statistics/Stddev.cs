@@ -42,7 +42,6 @@ namespace QuanTAlib;
 ///
 /// Note: Foundation for many volatility-based indicators
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Stddev : AbstractBase
 {

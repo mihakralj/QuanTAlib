@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Higher values indicate stronger volume force
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vf : AbstractBase
 {

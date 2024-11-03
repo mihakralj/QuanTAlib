@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Values less than 1 indicate predictions better than using mean
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rse : AbstractBase
 {

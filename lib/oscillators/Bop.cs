@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Igor Livshin (1990s)
 ///     https://www.investopedia.com/terms/b/bop.asp
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Bop : AbstractBase
 {

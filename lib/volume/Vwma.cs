@@ -34,7 +34,6 @@ namespace QuanTAlib;
 ///
 /// Note: More responsive to high-volume price movements
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vwma : AbstractBase
 {

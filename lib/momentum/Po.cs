@@ -27,7 +27,6 @@ namespace QuanTAlib;
 /// Sources:
 ///     Technical Analysis of Financial Markets by John J. Murphy
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Po : AbstractBase
 {

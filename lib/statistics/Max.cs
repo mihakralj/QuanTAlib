@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Decay factor allows for adaptive peak tracking
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Max : AbstractBase
 {

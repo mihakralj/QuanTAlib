@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Decay factor allows for adaptive low tracking
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Min : AbstractBase
 {

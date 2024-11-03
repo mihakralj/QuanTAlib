@@ -37,7 +37,6 @@ namespace QuanTAlib;
 ///
 /// Note: Commonly used by institutional traders
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vwap : AbstractBase
 {

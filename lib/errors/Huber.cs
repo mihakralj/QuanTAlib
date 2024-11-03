@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///     Peter J. Huber - "Robust Estimation of a Location Parameter"
 ///     https://projecteuclid.org/euclid.aoms/1177703732
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Huber : AbstractBase
 {

@@ -47,7 +47,6 @@ namespace QuanTAlib;
 ///
 /// Note: Values above +25 indicate overbought conditions, while values below -25 indicate oversold conditions
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Tsi : AbstractBase
 {

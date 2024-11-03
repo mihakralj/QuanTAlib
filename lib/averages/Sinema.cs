@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Based on sine function principles for weight generation
 ///     Uses convolution for efficient calculation
 /// </remarks>
-
 public class Sinema : AbstractBase
 {
     private readonly Convolution _convolution;

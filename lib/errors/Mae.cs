@@ -27,7 +27,6 @@ namespace QuanTAlib;
 ///     https://en.wikipedia.org/wiki/Mean_absolute_error
 ///     https://www.statisticshowto.com/absolute-error/
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mae : AbstractBase
 {

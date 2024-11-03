@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Similar concept to RSI but using volatility
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rvi : AbstractBase
 {

@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Patrick Mulloy - "Smoothing Data with Faster Moving Averages"
 ///     Technical Analysis of Stocks and Commodities, 1994
 /// </remarks>
-
 public class Tema : AbstractBase
 {
     private readonly int _period;

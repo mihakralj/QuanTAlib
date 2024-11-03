@@ -78,9 +78,6 @@ public class FlowIndicator : Indicator, IWatchlistIndicator
                     gr.DrawLine(dottedPen, barX2, barY2, barX0, barY0);
                 }
             }
-
-
         }
     }
-
 }

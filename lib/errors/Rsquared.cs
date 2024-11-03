@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Can be negative if predictions are worse than using the mean
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rsquared : AbstractBase
 {

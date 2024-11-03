@@ -30,7 +30,6 @@ namespace QuanTAlib;
 ///
 /// Note: Similar to MAPE but allows error cancellation
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mpe : AbstractBase
 {
