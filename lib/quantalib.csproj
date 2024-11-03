@@ -1,36 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Title>QuanTAlib</Title>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mihakralj/QuanTAlib</RepositoryUrl>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Authors>Miha Kralj</Authors>
     <Copyright>Miha Kralj</Copyright>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RootNamespace>QuanTAlib</RootNamespace>
     <AssemblyName>QuanTAlib</AssemblyName>
-    <AssemblyVersion>0.0.0.1</AssemblyVersion>
     <IsPublishable>True</IsPublishable>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>full</DebugType>
-    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIcon>QuanTAlib2.png</PackageIcon>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>
       Indicators;Stock;Market;Technical;Analysis;Algorithmic;Trading;Trade;Trend;Momentum;Finance;Algorithm;Algo;
       AlgoTrading;Financial;Strategy;Chart;Charting;Oscillator;Overlay;Equity;Bitcoin;Crypto;Cryptocurrency;Forex;
       Quantitative;Historical;Quotes;
     </PackageTags>
-    <PackageIcon>QuanTAlib2.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <NoWarn>$(NoWarn);NU1903;NU5104</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

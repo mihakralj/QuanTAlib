@@ -2,65 +2,65 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// CVI: Chaikin's Volatility
-/// A technical indicator developed by Marc Chaikin that measures the volatility of a financial instrument by comparing the spread between the high and low prices.
+/// CVI: Chaikin's Volatility Index
+/// Measures the rate of change of a moving average of the difference
+/// between high and low prices, indicating volatility expansion/contraction.
 /// </summary>
 /// <remarks>
 /// The CVI calculation process:
-/// 1. Calculates the difference between the high and low prices.
-/// 2. Applies an exponential moving average (EMA) to the differences.
-/// 3. Computes the percentage change in the EMA over a specified period.
+/// 1. Calculate High-Low difference
+/// 2. Take EMA of High-Low difference
+/// 3. Calculate ROC of the EMA over specified period
 ///
 /// Key characteristics:
-/// - Measures volatility
-/// - Uses high and low prices
-/// - Percentage-based
-/// - EMA smoothing
+/// - Measures volatility expansion/contraction
+/// - Default period is 10 days
+/// - Default smoothing period is 10 days
+/// - Positive values indicate expanding volatility
+/// - Negative values indicate contracting volatility
 ///
 /// Formula:
-/// CVI = (EMA(high - low, period) - EMA(high - low, period, offset)) / EMA(high - low, period, offset) * 100
+/// HL = High - Low
+/// Smoothed = EMA(HL, smoothPeriod)
+/// CVI = ((Smoothed - Smoothed[period]) / Smoothed[period]) * 100
 ///
 /// Market Applications:
-/// - Volatility assessment
-/// - Trend confirmation
-/// - Risk management
-/// - Entry/exit timing
+/// - Volatility measurement
+/// - Trend strength analysis
+/// - Market regime identification
+/// - Trading range analysis
+/// - Breakout confirmation
 ///
 /// Sources:
-///     Marc Chaikin - Original development
-///     https://www.investopedia.com/terms/c/chaikins-volatility.asp
+///     Marc Chaikin
+///     https://www.investopedia.com/terms/c/chaikinvolatility.asp
 ///
-/// Note: Higher CVI values indicate higher volatility
+/// Note: Returns percentage change in volatility
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Cvi : AbstractBase
 {
     private readonly int _period;
-    private readonly Ema _ema;
-    private readonly CircularBuffer _buffer;
-    private double _prevEma;
+    private readonly int _smoothPeriod;
+    private readonly CircularBuffer _smoothed;
+    private readonly double _alpha;
+    private double _ema;
 
-    /// <param name="period">The number of periods for CVI calculation.</param>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Cvi(int period)
+    public Cvi(int period = 10, int smoothPeriod = 10)
     {
-        if (period < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period),
-                "Period must be greater than or equal to 1.");
-        }
         _period = period;
-        _ema = new Ema(period);
-        _buffer = new CircularBuffer(period);
-        WarmupPeriod = period;
-        Name = $"CVI({period})";
+        _smoothPeriod = smoothPeriod;
+        _alpha = 2.0 / (_smoothPeriod + 1);
+        WarmupPeriod = _period + _smoothPeriod;
+        Name = $"CVI({_period},{_smoothPeriod})";
+        _smoothed = new CircularBuffer(_period);
+        Init();
     }
 
     /// <param name="source">The data source object that publishes updates.</param>
-    /// <param name="period">The number of periods for CVI calculation.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Cvi(object source, int period) : this(period)
+    public Cvi(object source, int period = 10, int smoothPeriod = 10) : this(period, smoothPeriod)
     {
         var pubEvent = source.GetType().GetEvent("Pub");
         pubEvent?.AddEventHandler(source, new BarSignal(Sub));
@@ -70,9 +70,8 @@ public sealed class Cvi : AbstractBase
     public override void Init()
     {
         base.Init();
-        _ema.Init();
-        _buffer.Clear();
-        _prevEma = 0;
+        _ema = 0;
+        _smoothed.Clear();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,6 +79,7 @@ public sealed class Cvi : AbstractBase
     {
         if (isNew)
         {
+            _lastValidValue = Value;
             _index++;
         }
     }
@@ -89,20 +89,32 @@ public sealed class Cvi : AbstractBase
     {
         ManageState(BarInput.IsNew);
 
-        double highLowDiff = BarInput.High - BarInput.Low;
-        _buffer.Add(highLowDiff, BarInput.IsNew);
+        // Calculate High-Low difference
+        double hl = BarInput.High - BarInput.Low;
 
-        double ema = _ema.Calc(new TValue(Input.Time, highLowDiff, BarInput.IsNew)).Value;
-
-        double cvi = 0;
-        if (_index >= _period)
+        // Calculate EMA of High-Low difference
+        if (_index == 1)
         {
-            double prevEma = _buffer[_buffer.Count - _period];
-            cvi = (ema - prevEma) / prevEma * 100;
+            _ema = hl;
+        }
+        else
+        {
+            _ema = (_alpha * hl) + ((1 - _alpha) * _ema);
         }
 
-        _prevEma = ema;
+        // Add smoothed value to buffer
+        _smoothed.Add(_ema);
+
+        // Need enough values for calculation
+        if (_index <= _period)
+        {
+            return 0;
+        }
+
+        // Calculate rate of change
+        double roc = ((_ema - _smoothed[_period - 1]) / _smoothed[_period - 1]) * 100;
+
         IsHot = _index >= WarmupPeriod;
-        return cvi;
+        return roc;
     }
 }

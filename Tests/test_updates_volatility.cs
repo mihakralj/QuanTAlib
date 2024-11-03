@@ -91,6 +91,134 @@ public class VolatilityUpdateTests
     }
 
     [Fact]
+    public void Bband_Update()
+    {
+        var indicator = new Bband(period: 20, multiplier: 2.0);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Ccv_Update()
+    {
+        var indicator = new Ccv(period: 20);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Ce_Update()
+    {
+        var indicator = new Ce(period: 22, multiplier: 3.0);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Cv_Update()
+    {
+        var indicator = new Cv(period: 20);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Cvi_Update()
+    {
+        var indicator = new Cvi(period: 10, smoothPeriod: 10);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Ewma_Update()
+    {
+        var indicator = new Ewma(period: 20, lambda: 0.94);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Fcb_Update()
+    {
+        var indicator = new Fcb(period: 20, smoothing: 0.5);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Gkv_Update()
+    {
+        var indicator = new Gkv(period: 20);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
     public void Historical_Update()
     {
         var indicator = new Hv(period: 14);
@@ -101,6 +229,22 @@ public class VolatilityUpdateTests
             indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
         }
         double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Hlv_Update()
+    {
+        var indicator = new Hlv(period: 20);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
 
         Assert.Equal(initialValue, finalValue, precision);
     }
@@ -146,22 +290,6 @@ public class VolatilityUpdateTests
             indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
         }
         double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
-
-        Assert.Equal(initialValue, finalValue, precision);
-    }
-
-    [Fact]
-    public void Cvi_Update()
-    {
-        var indicator = new Cvi(period: 14);
-        TBar r = GetRandomBar(true);
-        double initialValue = indicator.Calc(r);
-
-        for (int i = 0; i < RandomUpdates; i++)
-        {
-            indicator.Calc(GetRandomBar(IsNew: false));
-        }
-        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
 
         Assert.Equal(initialValue, finalValue, precision);
     }
