@@ -27,7 +27,6 @@ namespace QuanTAlib;
 public class Sma : AbstractBase
 {
     private readonly CircularBuffer _buffer;
-    private readonly int _period;
 
     /// <param name="period">The number of data points used in the SMA calculation.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
@@ -37,7 +36,6 @@ public class Sma : AbstractBase
         {
             throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        _period = period;
         _buffer = new CircularBuffer(period);
         Name = "Sma";
         WarmupPeriod = period;

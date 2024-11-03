@@ -28,7 +28,6 @@ namespace QuanTAlib;
 public class T3 : AbstractBase
 {
     private readonly int _period;
-    private readonly double _vfactor;
     private readonly bool _useSma;
     private readonly double _k;
     private readonly double _c1, _c2, _c3, _c4;
@@ -48,7 +47,6 @@ public class T3 : AbstractBase
             throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
-        _vfactor = vfactor;
         _useSma = useSma;
         WarmupPeriod = period;
 
@@ -69,7 +67,7 @@ public class T3 : AbstractBase
         _buffer5 = new(period);
         _buffer6 = new(period);
 
-        Name = $"T3({_period}, {_vfactor})";
+        Name = $"T3({_period}, {vfactor})";
         Init();
     }
 

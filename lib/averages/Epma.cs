@@ -26,7 +26,6 @@ public class Epma : AbstractBase
 {
     private readonly int _period;
     private readonly Convolution _convolution;
-    private readonly double[] _baseKernel;
 
     /// <param name="period">The number of data points used in the EPMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -37,7 +36,7 @@ public class Epma : AbstractBase
             throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
-        _baseKernel = GenerateKernel(_period);
+        double[] _baseKernel = GenerateKernel(_period);
         _convolution = new Convolution(_baseKernel);
         Name = "Epma";
         WarmupPeriod = period;

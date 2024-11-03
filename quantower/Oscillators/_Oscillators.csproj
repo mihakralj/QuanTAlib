@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Oscillators</AssemblyName>
     <AlgoType>Indicator</AlgoType>
-    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
     <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
