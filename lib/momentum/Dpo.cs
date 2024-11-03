@@ -46,7 +46,7 @@ public sealed class Dpo : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Dpo(int period = 20)
     {
-        _shift = period / 2 + 1;
+        _shift = (period / 2) + 1;
         WarmupPeriod = period + _shift;
         Name = $"DPO({period})";
         _prices = new CircularBuffer(WarmupPeriod);

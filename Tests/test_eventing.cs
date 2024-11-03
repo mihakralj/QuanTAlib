@@ -135,7 +135,7 @@ public class EventingTests
                 randomValue,
                 randomValue + Math.Abs(GetRandomDouble(rng) * 10),
                 randomValue - Math.Abs(GetRandomDouble(rng) * 10),
-                randomValue + GetRandomDouble(rng) * 5,
+                randomValue + (GetRandomDouble(rng) * 5),
                 Math.Abs(GetRandomDouble(rng) * 1000),
                 true
             );

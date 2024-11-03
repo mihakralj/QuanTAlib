@@ -60,8 +60,8 @@ public class T3 : AbstractBase
         double v3 = v2 * vfactor;
         _c1 = -v3;
         _c2 = 3.0 * (v2 + v3);
-        _c3 = -3.0 * (2.0 * v2 + vfactor + v3);
-        _c4 = 1.0 + 3.0 * vfactor + v3 + 3.0 * v2;
+        _c3 = -3.0 * ((2.0 * v2) + vfactor + v3);
+        _c4 = 1.0 + (3.0 * vfactor) + v3 + (3.0 * v2);
 
         _buffer1 = new(period);
         _buffer2 = new(period);
@@ -124,13 +124,13 @@ public class T3 : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateEma(double input, double lastEma)
     {
-        return _k * (input - lastEma) + lastEma;
+        return (_k * (input - lastEma)) + lastEma;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateT3(double ema3, double ema4, double ema5, double ema6)
     {
-        return _c1 * ema6 + _c2 * ema5 + _c3 * ema4 + _c4 * ema3;
+        return (_c1 * ema6) + (_c2 * ema5) + (_c3 * ema4) + (_c4 * ema3);
     }
 
     protected override double Calculation()

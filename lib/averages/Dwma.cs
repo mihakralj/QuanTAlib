@@ -38,7 +38,7 @@ public class Dwma : AbstractBase
         _innerWma = new Wma(period);
         _outerWma = new Wma(period);
         Name = "Dwma";
-        WarmupPeriod = 2 * period - 1;
+        WarmupPeriod = (2 * period) - 1;
         Init();
     }
 

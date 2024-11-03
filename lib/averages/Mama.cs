@@ -100,13 +100,13 @@ public class Mama : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateSmooth()
     {
-        return (4.0 * _pr[^1] + 3.0 * _pr[^2] + 2.0 * _pr[^3] + _pr[^4]) * 0.1;
+        return ((4.0 * _pr[^1]) + (3.0 * _pr[^2]) + (2.0 * _pr[^3]) + _pr[^4]) * 0.1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateHilbertTransform(CircularBuffer buffer, double adj)
     {
-        return (0.0962 * (buffer[^1] - buffer[^7]) + 0.5769 * (buffer[^3] - buffer[^5])) * adj;
+        return ((0.0962 * (buffer[^1] - buffer[^7])) + (0.5769 * (buffer[^3] - buffer[^5]))) * adj;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,7 +121,7 @@ public class Mama : AbstractBase
     {
         period = System.Math.Clamp(period, 0.67 * _pd[^2], 1.5 * _pd[^2]);
         period = System.Math.Clamp(period, 6.0, 50.0);
-        return _alpha02 * period + _alpha08 * _pd[^2];
+        return (_alpha02 * period) + (_alpha08 * _pd[^2]);
     }
 
     protected override double Calculation()
@@ -132,7 +132,7 @@ public class Mama : AbstractBase
 
         if (_index > 6)
         {
-            double adj = 0.075 * _pd[^1] + 0.54;
+            double adj = (0.075 * _pd[^1]) + 0.54;
 
             // Smooth and Detrender
             _sm.Add(CalculateSmooth(), Input.IsNew);
@@ -151,16 +151,16 @@ public class Mama : AbstractBase
             double q2 = _q1[^1] + jI;
             _i2.Add(i2, Input.IsNew);
             _q2.Add(q2, Input.IsNew);
-            _i2[^1] = _alpha02 * _i2[^1] + _alpha08 * _i2[^2];
-            _q2[^1] = _alpha02 * _q2[^1] + _alpha08 * _q2[^2];
+            _i2[^1] = (_alpha02 * _i2[^1]) + (_alpha08 * _i2[^2]);
+            _q2[^1] = (_alpha02 * _q2[^1]) + (_alpha08 * _q2[^2]);
 
             // Homodyne discriminator
-            double re = _i2[^1] * _i2[^2] + _q2[^1] * _q2[^2];
-            double im = _i2[^1] * _q2[^2] - _q2[^1] * _i2[^2];
+            double re = (_i2[^1] * _i2[^2]) + (_q2[^1] * _q2[^2]);
+            double im = (_i2[^1] * _q2[^2]) - (_q2[^1] * _i2[^2]);
             _re.Add(re, Input.IsNew);
             _im.Add(im, Input.IsNew);
-            _re[^1] = _alpha02 * _re[^1] + _alpha08 * _re[^2];
-            _im[^1] = _alpha02 * _im[^1] + _alpha08 * _im[^2];
+            _re[^1] = (_alpha02 * _re[^1]) + (_alpha08 * _re[^2]);
+            _im[^1] = (_alpha02 * _im[^1]) + (_alpha08 * _im[^2]);
 
             // Calculate and adjust period
             double period = CalculatePeriod(_im[^1], _re[^1]);
@@ -176,8 +176,8 @@ public class Mama : AbstractBase
             double alpha = System.Math.Clamp(_fastLimit / delta, _slowLimit, _fastLimit);
 
             // Final indicators
-            _mama = alpha * (_pr[^1] - _prevMama) + _prevMama;
-            _fama = _famaAlpha * alpha * (_mama - _prevFama) + _prevFama;
+            _mama = (alpha * (_pr[^1] - _prevMama)) + _prevMama;
+            _fama = (_famaAlpha * alpha * (_mama - _prevFama)) + _prevFama;
 
             _prevMama = _mama;
             _prevFama = _fama;

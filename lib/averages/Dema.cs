@@ -75,7 +75,7 @@ public class Dema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateEma(double input, double lastEma)
     {
-        return _k * (input - lastEma) + lastEma;
+        return (_k * (input - lastEma)) + lastEma;
     }
 
     protected override double Calculation()
@@ -96,7 +96,7 @@ public class Dema : AbstractBase
         _lastEma2 = ema2;
 
         // Calculate final DEMA
-        double result = 2 * compensatedEma1 - (ema2 * invE);
+        double result = (2 * compensatedEma1) - (ema2 * invE);
 
         IsHot = _index >= WarmupPeriod;
         return result;

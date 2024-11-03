@@ -61,7 +61,7 @@ public class Jma : AbstractBase
 
         _vsumBuff = new CircularBuffer(buffer);
         _avoltyBuff = new CircularBuffer(65);
-        _beta = factor * (period - 1) / (factor * (period - 1) + 2);
+        _beta = factor * (period - 1) / ((factor * (period - 1)) + 2);
 
         _len1 = System.Math.Max((System.Math.Log(System.Math.Sqrt(period - 1)) / System.Math.Log(2.0)) + 2.0, 0);
         _pow1 = System.Math.Max(_len1 - 2.0, 0.5);
@@ -160,12 +160,12 @@ public class Jma : AbstractBase
         _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
         double alpha = System.Math.Pow(_beta, pow2);
-        double ma1 = price + alpha * (_prevMa1 - price);
+        double ma1 = price + (alpha * (_prevMa1 - price));
         _prevMa1 = ma1;
 
-        double det0 = price + _beta * (_prevDet0 - price + ma1) - ma1;
+        double det0 = price + (_beta * (_prevDet0 - price + ma1)) - ma1;
         _prevDet0 = det0;
-        double ma2 = ma1 + _phase * det0;
+        double ma2 = ma1 + (_phase * det0);
 
         double det1 = ((ma2 - _prevJma) * _oneMinusAlphaSquared) + (_alphaSquared * _prevDet1);
         _prevDet1 = det1;

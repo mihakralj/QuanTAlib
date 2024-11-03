@@ -32,7 +32,7 @@ public class GbmFeed : TBarSeries
     public TBar Generate(DateTime time, bool isNew = true)
     {
         double dt = 1.0 / 252;
-        double drift = (_mu - 0.5 * _sigma * _sigma) * dt;
+        double drift = (_mu - (0.5 * _sigma * _sigma)) * dt;
         double diffusion = _sigma * Math.Sqrt(dt) * GenerateNormalRandom();
 
         double open = _lastClose;
@@ -40,8 +40,8 @@ public class GbmFeed : TBarSeries
 
         // Generate intra-bar price movements
         double maxMove = Math.Abs(close - open) * 1.5; // Allow for some extra movement within the bar
-        double high = Math.Max(open, close) + maxMove * GenerateRandomDouble();
-        double low = Math.Min(open, close) - maxMove * GenerateRandomDouble();
+        double high = Math.Max(open, close) + (maxMove * GenerateRandomDouble());
+        double low = Math.Min(open, close) - (maxMove * GenerateRandomDouble());
 
         // Ensure high is always greater than or equal to both open and close
         high = Math.Max(high, Math.Max(open, close));
@@ -49,7 +49,7 @@ public class GbmFeed : TBarSeries
         // Ensure low is always less than or equal to both open and close
         low = Math.Min(low, Math.Min(open, close));
 
-        double volume = 1000 + GenerateRandomDouble() * 1000;
+        double volume = 1000 + (GenerateRandomDouble() * 1000);
 
         if (isNew)
         {

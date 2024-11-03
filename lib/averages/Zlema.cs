@@ -86,7 +86,7 @@ public class Zlema : AbstractBase
     private double CalculateErrorCorrection()
     {
         double lagValue = _buffer[System.Math.Max(0, _buffer.Count - 1 - _lag)];
-        return 2.0 * Input.Value - lagValue;
+        return (2.0 * Input.Value) - lagValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

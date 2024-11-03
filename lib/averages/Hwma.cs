@@ -110,19 +110,19 @@ public class Hwma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateLevel(double input)
     {
-        return _oneMinusNa * (_pF + _pV + _halfA * _pA) + _nA * input;
+        return (_oneMinusNa * (_pF + _pV + (_halfA * _pA))) + (_nA * input);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateVelocity(double F)
     {
-        return _oneMinusNb * (_pV + _pA) + _nB * (F - _pF);
+        return (_oneMinusNb * (_pV + _pA)) + (_nB * (F - _pF));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateAcceleration(double V)
     {
-        return _oneMinusNc * _pA + _nC * (V - _pV);
+        return (_oneMinusNc * _pA) + (_nC * (V - _pV));
     }
 
     protected override double Calculation()
@@ -152,6 +152,6 @@ public class Hwma : AbstractBase
         _pA = A;
 
         IsHot = _index >= WarmupPeriod;
-        return F + V + _halfA * A;
+        return F + V + (_halfA * A);
     }
 }

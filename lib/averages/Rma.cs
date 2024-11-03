@@ -98,7 +98,7 @@ public class Rma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateRma(double input)
     {
-        return _k * input + _oneMinusK * _lastRma;
+        return (_k * input) + (_oneMinusK * _lastRma);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

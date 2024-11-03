@@ -148,7 +148,7 @@ public sealed class Percentile : AbstractBase
         double lowerValue = sortedValues[lowerIndex];
         double upperValue = sortedValues[upperIndex];
         double fraction = position - lowerIndex;
-        return lowerValue + (upperValue - lowerValue) * fraction;
+        return lowerValue + ((upperValue - lowerValue) * fraction);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
