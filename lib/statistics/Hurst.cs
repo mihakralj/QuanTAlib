@@ -46,7 +46,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns a value between 0 and 1
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Hurst : AbstractBase
 {
@@ -184,7 +183,7 @@ public sealed class Hurst : AbstractBase
         double hurst = 0.5; // Default to random walk
         if (numPoints > 1)
         {
-            double slope = (numPoints * sumXY - sumX * sumY) / (numPoints * sumX2 - sumX * sumX);
+            double slope = ((numPoints * sumXY) - (sumX * sumY)) / ((numPoints * sumX2) - (sumX * sumX));
             hurst = Math.Max(0, Math.Min(1, slope)); // Clamp between 0 and 1
         }
 

@@ -38,7 +38,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns three values: upper, middle, and lower bands
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Fcb : AbstractBase
 {
@@ -134,8 +133,8 @@ public sealed class Fcb : AbstractBase
         }
 
         // Apply smoothing to bands
-        _upperBand = _smoothing * _upperEma + (1 - _smoothing) * BarInput.High;
-        _lowerBand = _smoothing * _lowerEma + (1 - _smoothing) * BarInput.Low;
+        _upperBand = (_smoothing * _upperEma) + ((1 - _smoothing) * BarInput.High);
+        _lowerBand = (_smoothing * _lowerEma) + ((1 - _smoothing) * BarInput.Low);
         _middleBand = (_upperBand + _lowerBand) / 2;
 
         IsHot = _index >= WarmupPeriod;
