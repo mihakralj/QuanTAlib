@@ -82,13 +82,13 @@ public class Htit : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateSmoothedPrice(double p0, double p1, double p2, double p3)
     {
-        return (4.0 * p0 + 3.0 * p1 + 2.0 * p2 + p3) * 0.1;
+        return ((4.0 * p0) + (3.0 * p1) + (2.0 * p2) + p3) * 0.1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateHilbertTransform(double b0, double b2, double b4, double b6, double adj)
     {
-        return (0.0962 * (b0 - b6) + 0.5769 * (b2 - b4)) * adj;
+        return ((0.0962 * (b0 - b6)) + (0.5769 * (b2 - b4))) * adj;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +122,7 @@ public class Htit : AbstractBase
             return pr;
         }
 
-        double adj = 0.075 * _lastPd + 0.54;
+        double adj = (0.075 * _lastPd) + 0.54;
 
         // Smooth and detrender
         double sp = CalculateSmoothedPrice(_priceBuffer[0], _priceBuffer[1], _priceBuffer[2], _priceBuffer[3]);
@@ -143,15 +143,15 @@ public class Htit : AbstractBase
         double jQ = CalculateHilbertTransform(_q1Buffer[0], _q1Buffer[2], _q1Buffer[4], _q1Buffer[6], adj);
 
         // Phasor addition for 3-bar averaging
-        double i2 = ALPHA * (i1 - jQ) + BETA * _i2Buffer[0];
-        double q2 = ALPHA * (q1 + jI) + BETA * _q2Buffer[0];
+        double i2 = (ALPHA * (i1 - jQ)) + (BETA * _i2Buffer[0]);
+        double q2 = (ALPHA * (q1 + jI)) + (BETA * _q2Buffer[0]);
 
         _i2Buffer.Add(i2, Input.IsNew);
         _q2Buffer.Add(q2, Input.IsNew);
 
         // Homodyne discriminator
-        double re = ALPHA * (i2 * _i2Buffer[1] + q2 * _q2Buffer[1]) + BETA * _reBuffer[0];
-        double im = ALPHA * (i2 * _q2Buffer[1] - q2 * _i2Buffer[1]) + BETA * _imBuffer[0];
+        double re = (ALPHA * ((i2 * _i2Buffer[1]) + (q2 * _q2Buffer[1]))) + (BETA * _reBuffer[0]);
+        double im = (ALPHA * ((i2 * _q2Buffer[1]) - (q2 * _i2Buffer[1]))) + (BETA * _imBuffer[0]);
 
         _reBuffer.Add(re, Input.IsNew);
         _imBuffer.Add(im, Input.IsNew);
@@ -159,10 +159,10 @@ public class Htit : AbstractBase
         // Calculate period
         double pd = (im != 0 && re != 0) ? TWO_PI / System.Math.Atan(im / re) : 0;
         pd = ClampPeriod(pd, _lastPd);
-        pd = ALPHA * pd + BETA * _lastPd;
+        pd = (ALPHA * pd) + (BETA * _lastPd);
         _pdBuffer.Add(pd, Input.IsNew);
 
-        double sd = 0.33 * pd + 0.67 * _sdBuffer[0];
+        double sd = (0.33 * pd) + (0.67 * _sdBuffer[0]);
         _sdBuffer.Add(sd, Input.IsNew);
 
         // Smooth dominant cycle period

@@ -74,7 +74,7 @@ public sealed class Curvature : AbstractBase
                 "Period must be greater than 2 for Curvature calculation.");
         }
         _period = period;
-        WarmupPeriod = period * 2 - 1; // Number of points needed for period number of slopes
+        WarmupPeriod = (period * 2) - 1; // Number of points needed for period number of slopes
         _slopeCalculator = new Slope(period);
         _slopeBuffer = new CircularBuffer(period);
         Name = $"Curvature(period={period})";

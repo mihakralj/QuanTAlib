@@ -123,10 +123,10 @@ public class Convolution : AbstractBase
         int i = 0;
         while (i <= offset - 3)
         {
-            sum += bufferSpan[offset - i] * _normalizedKernel[i] +
-                  bufferSpan[offset - (i + 1)] * _normalizedKernel[i + 1] +
-                  bufferSpan[offset - (i + 2)] * _normalizedKernel[i + 2] +
-                  bufferSpan[offset - (i + 3)] * _normalizedKernel[i + 3];
+            sum += (bufferSpan[offset - i] * _normalizedKernel[i]) +
+                  (bufferSpan[offset - (i + 1)] * _normalizedKernel[i + 1]) +
+                  (bufferSpan[offset - (i + 2)] * _normalizedKernel[i + 2]) +
+                  (bufferSpan[offset - (i + 3)] * _normalizedKernel[i + 3]);
             i += 4;
         }
 

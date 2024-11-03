@@ -115,6 +115,6 @@ public sealed class Ap : AbstractBase
 
         // Project median line to current bar
         double currentX = _index - p0.x;
-        return p0.y + slope * currentX;
+        return p0.y + (slope * currentX);
     }
 }

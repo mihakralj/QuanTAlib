@@ -75,8 +75,8 @@ public class Epma : AbstractBase
     {
         // Using arithmetic sequence sum formula: n(a1 + an)/2
         // where a1 = (2p-1) and an = (2p-1) - 3(n-1)
-        double firstTerm = 2 * period - 1;
-        double lastTerm = firstTerm - 3 * (period - 1);
+        double firstTerm = (2 * period) - 1;
+        double lastTerm = firstTerm - (3 * (period - 1));
         return period * (firstTerm + lastTerm) * 0.5;
     }
 
@@ -109,11 +109,11 @@ public class Epma : AbstractBase
         double[] kernel = new double[period];
         double weightSum = CalculateKernelSum(period);
         double invWeightSum = 1.0 / weightSum;
-        double baseWeight = 2 * period - 1;
+        double baseWeight = (2 * period) - 1;
 
         for (int i = 0; i < period; i++)
         {
-            kernel[i] = (baseWeight - 3 * i) * invWeightSum;
+            kernel[i] = (baseWeight - (3 * i)) * invWeightSum;
         }
 
         return kernel;

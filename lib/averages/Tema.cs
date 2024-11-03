@@ -93,7 +93,7 @@ public class Tema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateEma(double input, double lastEma, double invE)
     {
-        return _k * (input * invE - lastEma) + lastEma;
+        return (_k * ((input * invE) - lastEma)) + lastEma;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,7 +120,7 @@ public class Tema : AbstractBase
         _lastEma3 = ema3;
 
         // Calculate final TEMA with compensation
-        double result = (3.0 * ema1 - 3.0 * ema2 + ema3) * invE;
+        double result = ((3.0 * ema1) - (3.0 * ema2) + ema3) * invE;
 
         IsHot = _index >= WarmupPeriod;
         return result;

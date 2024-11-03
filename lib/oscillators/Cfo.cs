@@ -86,11 +86,11 @@ public sealed class Cfo : AbstractBase
         var n = (double)count;
 
         // Calculate linear regression coefficients
-        var slope = (n * _sumXY - _sumX * _sumY) / (n * _sumX2 - _sumX * _sumX);
-        var intercept = (_sumY - slope * _sumX) / n;
+        var slope = ((n * _sumXY) - (_sumX * _sumY)) / ((n * _sumX2) - (_sumX * _sumX));
+        var intercept = (_sumY - (slope * _sumX)) / n;
 
         // Calculate forecast for next period
-        return intercept + slope * count;
+        return intercept + (slope * count);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

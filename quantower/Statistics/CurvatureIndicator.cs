@@ -26,7 +26,7 @@ public class CurvatureIndicator : Indicator, IWatchlistIndicator
     protected LineSeries? CurvatureSeries;
     protected LineSeries? LineSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => Periods * 2 - 1;
+    public int MinHistoryDepths => (Periods * 2) - 1;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public CurvatureIndicator()

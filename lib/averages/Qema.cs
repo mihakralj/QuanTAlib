@@ -107,7 +107,7 @@ public class Qema : AbstractBase
         double ema4 = CalculateEma(_ema4, ema3);
 
         // Combine EMAs using optimized formula
-        _lastQema = 4.0 * (ema1 + ema3) - (6.0 * ema2 + ema4);
+        _lastQema = (4.0 * (ema1 + ema3)) - ((6.0 * ema2) + ema4);
 
         IsHot = _index >= WarmupPeriod;
         return _lastQema;

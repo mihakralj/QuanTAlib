@@ -14,7 +14,7 @@ public class MomentumUpdateTests
     {
         byte[] bytes = new byte[8];
         rng.GetBytes(bytes);
-        return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue * 200 - 100; // Range: -100 to 100
+        return ((double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue * 200) - 100; // Range: -100 to 100
     }
 
     private TBar GetRandomBar(bool IsNew)
@@ -22,7 +22,7 @@ public class MomentumUpdateTests
         double open = GetRandomDouble();
         double high = open + Math.Abs(GetRandomDouble());
         double low = open - Math.Abs(GetRandomDouble());
-        double close = low + (high - low) * GetRandomDouble();
+        double close = low + ((high - low) * GetRandomDouble());
         return new TBar(DateTime.Now, open, high, low, close, 1000, IsNew);
     }
 

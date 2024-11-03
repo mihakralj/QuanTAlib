@@ -51,7 +51,7 @@ public class Mma : AbstractBase
         _weights = new double[period];
         for (int i = 0; i < period; i++)
         {
-            _weights[i] = (period - (2 * i + 1)) * 0.5;
+            _weights[i] = (period - ((2 * i) + 1)) * 0.5;
         }
 
         Name = "Mma";

@@ -60,12 +60,12 @@ public class Afirma : AbstractBase
         _n = (Taps - 1) / 2;
 
         // Precalculate least squares coefficients
-        _sx2 = (2 * _n + 1) / 3.0;
+        _sx2 = ((2 * _n) + 1) / 3.0;
         _sx3 = _n * (_n + 1) / 2.0;
-        _sx4 = _sx2 * (3 * _n * _n + 3 * _n - 1) / 5.0;
-        _sx5 = _sx3 * (2 * _n * _n + 2 * _n - 1) / 3.0;
-        _sx6 = _sx2 * (3 * Math.Pow(_n, 3) * (_n + 2) - 3 * _n + 1) / 7.0;
-        _den = _sx6 * _sx4 / _sx5 - _sx5;
+        _sx4 = _sx2 * ((3 * _n * _n) + (3 * _n) - 1) / 5.0;
+        _sx5 = _sx3 * ((2 * _n * _n) + (2 * _n) - 1) / 3.0;
+        _sx6 = _sx2 * ((3 * Math.Pow(_n, 3) * (_n + 2)) - (3 * _n) + 1) / 7.0;
+        _den = (_sx6 * _sx4 / _sx5) - _sx5;
 
         Name = "Afirma";
         Init();
@@ -105,15 +105,15 @@ public class Afirma : AbstractBase
             case WindowType.Rectangular:
                 return 1.0;
             case WindowType.Hanning1:
-                return 0.50 - 0.50 * Math.Cos(_twoPi * k / tapsMinusOne);
+                return 0.50 - (0.50 * Math.Cos(_twoPi * k / tapsMinusOne));
             case WindowType.Hanning2:
-                return 0.54 - 0.46 * Math.Cos(_twoPi * k / tapsMinusOne);
+                return 0.54 - (0.46 * Math.Cos(_twoPi * k / tapsMinusOne));
             case WindowType.Blackman:
-                return 0.42 - 0.50 * Math.Cos(_twoPi * k / tapsMinusOne) + 0.08 * Math.Cos(_fourPi * k / tapsMinusOne);
+                return 0.42 - (0.50 * Math.Cos(_twoPi * k / tapsMinusOne)) + (0.08 * Math.Cos(_fourPi * k / tapsMinusOne));
             case WindowType.BlackmanHarris:
-                return 0.35875 - 0.48829 * Math.Cos(_twoPi * k / tapsMinusOne) +
-                       0.14128 * Math.Cos(_fourPi * k / tapsMinusOne) -
-                       0.01168 * Math.Cos(_sixPi * k / tapsMinusOne);
+                return 0.35875 - (0.48829 * Math.Cos(_twoPi * k / tapsMinusOne)) +
+                       (0.14128 * Math.Cos(_fourPi * k / tapsMinusOne)) -
+                       (0.01168 * Math.Cos(_sixPi * k / tapsMinusOne));
             default:
                 return 1.0;
         }
@@ -156,15 +156,15 @@ public class Afirma : AbstractBase
 
         sx2y = 2.0 * sx2y / _n / (_n + 1);
         sx3y = 2.0 * sx3y / _n / (_n + 1);
-        double p = sx2y - a0 * _sx2 - a1 * _sx3;
-        double q = sx3y - a0 * _sx3 - a1 * _sx4;
-        double a2 = (p * _sx6 / _sx5 - q) / _den;
-        double a3 = (q * _sx4 / _sx5 - p) / _den;
+        double p = sx2y - (a0 * _sx2) - (a1 * _sx3);
+        double q = sx3y - (a0 * _sx3) - (a1 * _sx4);
+        double a2 = ((p * _sx6 / _sx5) - q) / _den;
+        double a3 = ((q * _sx4 / _sx5) - p) / _den;
 
         for (int k = 0; k <= _n; k++)
         {
             double k2 = k * k;
-            _armaBuffer[_n - k] = a0 + k * a1 + k2 * a2 + k2 * k * a3;
+            _armaBuffer[_n - k] = a0 + (k * a1) + (k2 * a2) + (k2 * k * a3);
         }
     }
 

@@ -96,6 +96,6 @@ public sealed class Cog : AbstractBase
             return 0.0;
 
         // Calculate center of gravity and normalize
-        return -((numerator / denominator) - (_period + 1.0) / 2.0);
+        return -((numerator / denominator) - ((_period + 1.0) / 2.0));
     }
 }

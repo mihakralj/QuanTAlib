@@ -90,13 +90,13 @@ public class Ltma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateLaguerreStage(double input, double prev, double prevPrev)
     {
-        return -_gamma * input + prev + _gamma * prevPrev;
+        return (-_gamma * input) + prev + (_gamma * prevPrev);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CombineOutputs(double l0, double l1, double l2, double l3)
     {
-        return (l0 + 2.0 * (l1 + l2) + l3) * _invSix;
+        return (l0 + (2.0 * (l1 + l2)) + l3) * _invSix;
     }
 
     protected override double Calculation()
@@ -104,7 +104,7 @@ public class Ltma : AbstractBase
         ManageState(Input.IsNew);
 
         // First stage
-        double l0 = _oneMinusGamma * Input.Value + _gamma * _prevL0;
+        double l0 = (_oneMinusGamma * Input.Value) + (_gamma * _prevL0);
 
         // Subsequent stages using helper method
         double l1 = CalculateLaguerreStage(l0, _prevL0, _prevL1);

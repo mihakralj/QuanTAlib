@@ -93,7 +93,7 @@ public class Maaf : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateSmooth()
     {
-        return (_priceBuffer[^1] + 2.0 * (_priceBuffer[^2] + _priceBuffer[^3]) + _priceBuffer[^4]) * _invSix;
+        return (_priceBuffer[^1] + (2.0 * (_priceBuffer[^2] + _priceBuffer[^3])) + _priceBuffer[^4]) * _invSix;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,7 +141,7 @@ public class Maaf : AbstractBase
         {
             double alpha = CalculateAlpha(length);
             double value1 = GetMedian(length);
-            value2 = alpha * (smooth - _prevValue2) + _prevValue2;
+            value2 = (alpha * (smooth - _prevValue2)) + _prevValue2;
 
             if (value1 != 0)
             {
@@ -153,7 +153,7 @@ public class Maaf : AbstractBase
 
         length = System.Math.Max(length, 3);
         double finalAlpha = CalculateAlpha(length);
-        double filter = finalAlpha * (smooth - _prevFilter) + _prevFilter;
+        double filter = (finalAlpha * (smooth - _prevFilter)) + _prevFilter;
 
         _prevFilter = filter;
         _prevValue2 = value2;

@@ -112,7 +112,7 @@ public class Ema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateEma(double input, double lastEma)
     {
-        return _k * (input - lastEma) + lastEma;
+        return (_k * (input - lastEma)) + lastEma;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

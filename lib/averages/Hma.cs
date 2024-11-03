@@ -117,7 +117,7 @@ public class Hma : AbstractBase
         double wmaFullResult = _wmaFull.Calc(Input).Value;
 
         // Calculate 2*WMA(n/2) - WMA(n)
-        double intermediateResult = 2.0 * wmaHalfResult - wmaFullResult;
+        double intermediateResult = (2.0 * wmaHalfResult) - wmaFullResult;
 
         // Calculate final WMA
         var finalInput = new TValue(Input.Time, intermediateResult, Input.IsNew);

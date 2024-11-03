@@ -14,7 +14,7 @@ public class StatisticsUpdateTests
     {
         byte[] bytes = new byte[8];
         rng.GetBytes(bytes);
-        return (double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue * 200 - 100; // Range: -100 to 100
+        return ((double)BitConverter.ToUInt64(bytes, 0) / ulong.MaxValue * 200) - 100; // Range: -100 to 100
     }
 
     [Fact]

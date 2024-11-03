@@ -83,7 +83,7 @@ public sealed class Jvolty : AbstractBase
 
         _vsumBuff = new CircularBuffer(VsumBufferSize);
         _avoltyBuff = new CircularBuffer(AvoltyBufferSize);
-        _beta = 0.45 * (period - 1) / (0.45 * (period - 1) + 2);
+        _beta = 0.45 * (period - 1) / ((0.45 * (period - 1)) + 2);
 
         WarmupPeriod = period * 2;
         Name = $"JVOLTY({period})";
@@ -155,9 +155,9 @@ public sealed class Jvolty : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private double CalculateJma(double price, double alpha, double ma1)
     {
-        double det0 = (price - ma1) * (1 - _beta) + _beta * _prevDet0;
+        double det0 = ((price - ma1) * (1 - _beta)) + (_beta * _prevDet0);
         _prevDet0 = det0;
-        double ma2 = ma1 + _phase * det0;
+        double ma2 = ma1 + (_phase * det0);
 
         double det1 = ((ma2 - _prevJma) * (1 - alpha) * (1 - alpha)) + (alpha * alpha * _prevDet1);
         _prevDet1 = det1;
@@ -200,7 +200,7 @@ public sealed class Jvolty : AbstractBase
 
         // Apply JMA smoothing
         double alpha = Math.Pow(_beta, pow2);
-        double ma1 = (1 - alpha) * price + alpha * _prevMa1;
+        double ma1 = ((1 - alpha) * price) + (alpha * _prevMa1);
         _prevMa1 = ma1;
 
         double jma = CalculateJma(price, alpha, ma1);

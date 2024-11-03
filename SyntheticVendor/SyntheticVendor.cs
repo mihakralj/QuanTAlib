@@ -486,8 +486,8 @@ public class SyntheticVendor : Vendor
 
         // Calculate the sine wave values
         double frequency = 2 * Math.PI / 1500; // Complete cycle over 25 hours
-        double value = 50 + 50 * Math.Sin(cyclePosition * frequency); // Oscillate between 0 and 100
-        double nextValue = 50 + 50 * Math.Sin((cyclePosition + slice.TotalMinutes) * frequency);
+        double value = 50 + (50 * Math.Sin(cyclePosition * frequency)); // Oscillate between 0 and 100
+        double nextValue = 50 + (50 * Math.Sin((cyclePosition + slice.TotalMinutes) * frequency));
 
         double factor = 0.6 * Math.Abs(nextValue - value);
 
@@ -537,7 +537,7 @@ public class SyntheticVendor : Vendor
             openValue = 100;
             closeValue = 0.0001;
         }
-        else if (hoursInDay < slice.TotalHours / 2 || hoursInDay > 24 - slice.TotalHours / 2)
+        else if (hoursInDay < slice.TotalHours / 2 || hoursInDay > 24 - (slice.TotalHours / 2))
         {
             // Transition from 0 to 100 at midnight
             openValue = 0.0001;
@@ -566,8 +566,8 @@ public class SyntheticVendor : Vendor
         double hours = (time - DateTime.UnixEpoch).TotalHours;
         double period = 24; // 24-hour period
         double position = hours % period;
-        double value = 200 * (position / period) - 100;
-        double nextValue = 200 * ((position + slice.TotalHours) % period / period) - 100;
+        double value = (200 * (position / period)) - 100;
+        double nextValue = (200 * (((position + slice.TotalHours) % period) / period)) - 100;
 
         return new HistoryItemBar
         {
@@ -588,7 +588,7 @@ public class SyntheticVendor : Vendor
         double period = 24; // 24-hour period
         double position = hours % period;
         double value = 100 - (200 * (position / period));
-        double nextValue = 100 - (200 * ((position + slice.TotalHours) % period / period));
+        double nextValue = 100 - (200 * (((position + slice.TotalHours) % period) / period));
 
         return new HistoryItemBar
         {
@@ -628,8 +628,8 @@ public class SyntheticVendor : Vendor
         double hours = (time - DateTime.UnixEpoch).TotalHours;
         double period = 24;
         double position = hours % period;
-        double value = 200 * (Math.Abs(position / period - 0.5) - 0.25) * 100;
-        double nextValue = 200 * (Math.Abs(((position + slice.TotalHours) % period) / period - 0.5) - 0.25) * 100;
+        double value = 200 * (Math.Abs((position / period) - 0.5) - 0.25) * 100;
+        double nextValue = 200 * (Math.Abs((((position + slice.TotalHours) % period) / period) - 0.5) - 0.25) * 100;
 
         return new HistoryItemBar
         {
@@ -651,7 +651,7 @@ public class SyntheticVendor : Vendor
         double frequency = 2 * Math.PI / period; // Full cycle over 24 hours
 
         // Adjust time to center the main peak at 12 hours
-        double t = minutes % period - period / 2;
+        double t = (minutes % period) - (period / 2);
 
         // Scale factor
         double scaleFactor = 7.0;
@@ -661,7 +661,7 @@ public class SyntheticVendor : Vendor
         double sincValue = x != 0 ? 100 * Math.Sin(x) / x : 100;
 
         // Calculate next value
-        double nextT = ((minutes + slice.TotalMinutes) % period) - period / 2;
+        double nextT = ((minutes + slice.TotalMinutes) % period) - (period / 2);
         double nextX = scaleFactor * frequency * nextT;
         double nextSincValue = nextX != 0 ? 100 * Math.Sin(nextX) / nextX : 100;
 
@@ -701,7 +701,7 @@ public class SyntheticVendor : Vendor
         double value;
         if (position < pulsePeriod)
         {
-            value = amplitude * Math.Exp(-Math.Pow(position - center, 2) / (2 * Math.Pow(width, 2))) + baselineValue;
+            value = (amplitude * Math.Exp(-Math.Pow(position - center, 2) / (2 * Math.Pow(width, 2)))) + baselineValue;
         }
         else
         {
@@ -713,7 +713,7 @@ public class SyntheticVendor : Vendor
         double nextValue;
         if (nextPosition < pulsePeriod)
         {
-            nextValue = amplitude * Math.Exp(-Math.Pow(nextPosition - center, 2) / (2 * Math.Pow(width, 2))) + baselineValue;
+            nextValue = (amplitude * Math.Exp(-Math.Pow(nextPosition - center, 2) / (2 * Math.Pow(width, 2)))) + baselineValue;
         }
         else
         {
@@ -875,9 +875,9 @@ public class SyntheticVendor : Vendor
         double meanReversionStrength = 0.1;
 
         double openNoise = random.NextDouble();
-        double open = previousClose + volatility * openNoise + meanReversionStrength * (meanPrice - previousClose);
+        double open = previousClose + (volatility * openNoise) + (meanReversionStrength * (meanPrice - previousClose));
         double closeNoise = random.NextDouble();
-        double close = open + volatility * closeNoise + meanReversionStrength * (meanPrice - open);
+        double close = open + (volatility * closeNoise) + (meanReversionStrength * (meanPrice - open));
 
         // Determine High and Low
         double high = Math.Max(open, close);
@@ -890,7 +890,7 @@ public class SyntheticVendor : Vendor
         double lowNoise = Math.Abs(random.NextDouble());
         low -= volatility * lowNoise;
 
-        double volume = Math.Abs(random.NextDouble()) * 1000 + 100;
+        double volume = (Math.Abs(random.NextDouble()) * 1000) + 100;
 
         previousClose = close;
 
@@ -923,11 +923,11 @@ public class SyntheticVendor : Vendor
 
         // Generate open price
         double openNoise = GeneratePinkNoiseValue();
-        double open = previousClose + volatility * openNoise + meanReversionStrength * (meanPrice - previousClose);
+        double open = previousClose + (volatility * openNoise) + (meanReversionStrength * (meanPrice - previousClose));
 
         // Generate close price
         double closeNoise = GeneratePinkNoiseValue();
-        double close = open + volatility * closeNoise + meanReversionStrength * (meanPrice - open);
+        double close = open + (volatility * closeNoise) + (meanReversionStrength * (meanPrice - open));
 
         // Determine High and Low
         double high = Math.Max(open, close);
@@ -940,7 +940,7 @@ public class SyntheticVendor : Vendor
         double lowNoise = Math.Abs(GeneratePinkNoiseValue());
         low -= volatility * lowNoise;
 
-        double volume = Math.Abs(GeneratePinkNoiseValue()) * 1000 + 100;
+        double volume = (Math.Abs(GeneratePinkNoiseValue()) * 1000) + 100;
 
         // Update previous close for the next iteration
         previousClose = close;
@@ -967,7 +967,7 @@ public class SyntheticVendor : Vendor
 
         for (int i = 0; i < NumOctaves; i++)
         {
-            double white = random.NextDouble() * 2 - 1;
+            double white = (random.NextDouble() * 2) - 1;
             pinkNoiseState[i] = (pinkNoiseState[i] + white) * 0.5;
             total += pinkNoiseState[i] * Math.Pow(2, -i);
         }
@@ -1015,7 +1015,7 @@ public class SyntheticVendor : Vendor
         double u1 = 1.0 - random.NextDouble(); // Uniform(0,1] random doubles
         double u2 = 1.0 - random.NextDouble();
         double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-        return mean + stdDev * randStdNormal;
+        return mean + (stdDev * randStdNormal);
     }
 
 
@@ -1033,7 +1033,7 @@ public class SyntheticVendor : Vendor
         double epsilon = GenerateGaussian(0, 1);
 
         // Calculate the price movement using GBM equation
-        double drift = (GBMMu - 0.5 * GBMSigma * GBMSigma) * dt;
+        double drift = (GBMMu - (0.5 * GBMSigma * GBMSigma)) * dt;
         double diffusion = GBMSigma * Math.Sqrt(dt) * epsilon;
         double returnValue = Math.Exp(drift + diffusion);
 
@@ -1046,11 +1046,11 @@ public class SyntheticVendor : Vendor
 
         // Generate High and Low values
         double highLowRange = Math.Max(Math.Abs(close - open), GBMLastClose * GBMSigma * Math.Sqrt(dt) * Math.Abs(GenerateGaussian(0, 1)));
-        double high = Math.Max(open, close) + highLowRange * 0.5;
-        double low = Math.Min(open, close) - highLowRange * 0.5;
+        double high = Math.Max(open, close) + (highLowRange * 0.5);
+        double low = Math.Min(open, close) - (highLowRange * 0.5);
 
         // Generate volume (you may want to adjust this based on your needs)
-        double volume = Math.Max(100, 1000 * Math.Abs(close - open) + 500 * GenerateGaussian(0, 1));
+        double volume = Math.Max(100, (1000 * Math.Abs(close - open)) + (500 * GenerateGaussian(0, 1)));
 
         // Update last close for next iteration
         GBMLastClose = close;
@@ -1089,11 +1089,11 @@ public class SyntheticVendor : Vendor
 
         double highLowRange = Math.Max(Math.Abs(close - open),
             FBMLastClose * FBMSigma * Math.Pow(dt, FBMHurst) * Math.Abs(GenerateFractionalGaussianNoise(FBMHurst)) * 2);
-        double high = Math.Max(open, close) + highLowRange * 0.5;
-        double low = Math.Min(open, close) - highLowRange * 0.5;
+        double high = Math.Max(open, close) + (highLowRange * 0.5);
+        double low = Math.Min(open, close) - (highLowRange * 0.5);
 
-        double volume = Math.Max(100, 2000 * Math.Abs(close - open) +
-            1000 * Math.Abs(GenerateFractionalGaussianNoise(FBMHurst)));
+        double volume = Math.Max(100, (2000 * Math.Abs(close - open)) +
+            (1000 * Math.Abs(GenerateFractionalGaussianNoise(FBMHurst))));
 
         FBMLastClose = close;
 

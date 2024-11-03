@@ -105,9 +105,9 @@ public class Rema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateRema(double alpha, double input)
     {
-        double standardTerm = _lastRema + alpha * (input - _lastRema);
+        double standardTerm = _lastRema + (alpha * (input - _lastRema));
         double regularizationTerm = _lastRema + (_lastRema - _prevRema);
-        return (standardTerm + _lambda * regularizationTerm) * _lambdaPlus1Recip;
+        return (standardTerm + (_lambda * regularizationTerm)) * _lambdaPlus1Recip;
     }
 
     protected override double Calculation()

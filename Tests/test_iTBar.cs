@@ -125,10 +125,10 @@ public class BarIndicatorTests
     /// <returns>A randomly generated TBar.</returns>
     private TBar GenerateRandomBar(bool isNew)
     {
-        double open = GetRandomDouble() * 200 - 100;
-        double close = GetRandomDouble() * 200 - 100;
-        double high = Math.Max(open, close) + GetRandomDouble() * 10;
-        double low = Math.Min(open, close) - GetRandomDouble() * 10;
+        double open = (GetRandomDouble() * 200) - 100;
+        double close = (GetRandomDouble() * 200) - 100;
+        double high = Math.Max(open, close) + (GetRandomDouble() * 10);
+        double low = Math.Min(open, close) - (GetRandomDouble() * 10);
         long volume = GetRandomNumber(0, 10000);
 
         return new TBar(Time: DateTime.Now, Open: open, High: high, Low: low, Close: close, Volume: volume, IsNew: isNew);

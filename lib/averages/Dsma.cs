@@ -116,7 +116,7 @@ public class Dsma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateSuperSmootherFilter()
     {
-        return _c1Half * (_zeros + _zeros1) + _c2 * _filt1 + _c3 * _filt2;
+        return (_c1Half * (_zeros + _zeros1)) + (_c2 * _filt1) + (_c3 * _filt2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -155,7 +155,7 @@ public class Dsma : AbstractBase
         double alpha = CalculateAdaptiveAlpha(scaledFilt);
 
         // DSMA calculation
-        double dsma = alpha * Input.Value + (1 - alpha) * _lastDsma;
+        double dsma = (alpha * Input.Value) + ((1 - alpha) * _lastDsma);
 
         // Update state variables
         _zeros1 = _zeros;

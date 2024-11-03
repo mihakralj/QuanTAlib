@@ -84,7 +84,7 @@ public class Smma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateSmma(double input)
     {
-        return (_lastSmma * _periodMinusOne + input) * _periodRecip;
+        return ((_lastSmma * _periodMinusOne) + input) * _periodRecip;
     }
 
     protected override double Calculation()

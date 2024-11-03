@@ -139,7 +139,7 @@ public class Frama : AbstractBase
         double dimension = (System.Math.Log(n2 + _epsilon) - System.Math.Log(n1 + _epsilon)) / _log2;
         double alpha = CalculateAlpha(dimension);
 
-        _lastFrama = alpha * (Input.Value - _lastFrama) + _lastFrama;
+        _lastFrama = (alpha * (Input.Value - _lastFrama)) + _lastFrama;
 
         IsHot = _index >= WarmupPeriod;
         return _lastFrama;
