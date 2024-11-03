@@ -603,25 +603,6 @@ public class SyntheticVendor : Vendor
         };
     }
 
-    private HistoryItemBar GeneratePulseWave(DateTime time, TimeSpan slice)
-    {
-        double hours = (time - DateTime.UnixEpoch).TotalHours;
-        double period = 24; // 24-hour period
-        double position = hours % period;
-        double value = position < period / 5 ? 100 : -100; // 20% duty cycle
-
-        return new HistoryItemBar
-        {
-            TicksLeft = time.Ticks,
-            TicksRight = time.Add(slice).Ticks - 1,
-            Open = value,
-            High = 100,
-            Low = -100,
-            Close = value,
-            Volume = 100,
-            Ticks = 100
-        };
-    }
 
     private HistoryItemBar GenerateTriangleWave(DateTime time, TimeSpan slice)
     {

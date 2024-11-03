@@ -23,7 +23,7 @@ namespace QuanTAlib;
 public class Dsma : AbstractBase
 {
     private readonly CircularBuffer _buffer;
-    private readonly double _c1, _c2, _c3;
+    private readonly double _c2, _c3;
     private readonly double _scaleFactor;
     private readonly double _periodRecip;  // 1/_period
     private readonly double _scaleByPeriod; // 5/_period
@@ -60,7 +60,7 @@ public class Dsma : AbstractBase
 
         _c2 = b1;
         _c3 = -a1 * a1;
-        _c1 = 1.0 - _c2 - _c3;
+        double _c1 = 1.0 - _c2 - _c3;
         _c1Half = _c1 * 0.5;
         _scaleByPeriod = 5.0 / period;
 
