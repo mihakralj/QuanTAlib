@@ -1,21 +1,21 @@
 # Volatility indicators
-Done: 15, Todo: 20
+Done: 24, Todo: 11
 
 ✔️ ADR - Average Daily Range
 ✔️ AP - Andrew's Pitchfork
 ✔️ ATR - Average True Range
 ✔️ ATRP - Average True Range Percent
 ✔️ ATRS - ATR Trailing Stop
-*BB - Bollinger Bands® (Upper, Middle, Lower)
-CCV - Close-to-Close Volatility
-CE - Chandelier Exit
-CV - Conditional Volatility (ARCH/GARCH)
-CVI - Chaikin's Volatility
+✔️ BBAND - Bollinger Bands® (Upper, Middle, Lower)
+✔️ CCV - Close-to-Close Volatility
+✔️ CE - Chandelier Exit
+✔️ CV - Conditional Volatility (ARCH/GARCH)
+✔️ CVI - Chaikin's Volatility
 *DC - Donchian Channels (Upper, Middle, Lower)
-EWMA - Exponential Weighted Moving Average Volatility
-FCB - Fractal Chaos Bands
-GKV - Garman-Klass Volatility
-HLV - High-Low Volatility
+✔️ EWMA - Exponential Weighted Moving Average Volatility
+✔️ FCB - Fractal Chaos Bands
+✔️ GKV - Garman-Klass Volatility
+✔️ HLV - High-Low Volatility
 ✔️ HV - Historical Volatility
 *ICH - Ichimoku Cloud (Conversion, Base, Leading Span A, Leading Span B, Lagging Span)
 ✔️ JVOLTY - Jurik Volatility
