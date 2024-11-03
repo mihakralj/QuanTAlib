@@ -40,7 +40,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns excess kurtosis (normal distribution = 0)
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Kurtosis : AbstractBase
 {

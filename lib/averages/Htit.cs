@@ -26,7 +26,6 @@ namespace QuanTAlib;
 /// Note: This implementation is currently under development and may not pass
 /// all consistency tests.
 /// </remarks>
-
 public class Htit : AbstractBase
 {
     private readonly CircularBuffer _priceBuffer = new(7);

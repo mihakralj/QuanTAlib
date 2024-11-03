@@ -24,7 +24,6 @@ namespace QuanTAlib;
 ///     Perry Kaufman - "Smarter Trading"
 ///     https://www.investopedia.com/terms/k/kaufmansadaptivemovingaverage.asp
 /// </remarks>
-
 public class Kama : AbstractBase
 {
     private readonly int _period;

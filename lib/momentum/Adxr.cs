@@ -31,7 +31,6 @@ namespace QuanTAlib;
 ///
 /// Note: Default period of 14 was recommended by Wilder
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Adxr : AbstractBarBase
 {

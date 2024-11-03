@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Similar to RSI but with different scaling and calculation method
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cmo : AbstractBase
 {

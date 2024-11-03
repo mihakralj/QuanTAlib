@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Provides additional regression statistics (R², intercept)
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Slope : AbstractBase
 {

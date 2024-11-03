@@ -34,7 +34,6 @@ namespace QuanTAlib;
 ///
 /// Note: Second-order derivative providing acceleration insights
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Curvature : AbstractBase
 {

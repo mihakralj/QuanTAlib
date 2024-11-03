@@ -103,7 +103,6 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
-
         Graphics gr = args.Graphics;
         gr.SmoothingMode = SmoothingMode.AntiAlias;
         var mainWindow = this.CurrentChart.Windows[args.WindowIndex];
@@ -138,7 +137,6 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
                 Brush col = HistSlopeSeries![i] < 0 ? highRed : lowRed;
                 gr.FillRectangle(col, barX, barY0, HistBarWidth, Math.Abs(barY0 - barY));
             }
-
         }
 
         this.PaintSmoothCurve(args, MainSeries!, slow_ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.3);

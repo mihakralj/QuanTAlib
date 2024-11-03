@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     John Ehlers - "MESA Adaptive Moving Averages"
 ///     https://www.mesasoftware.com/papers/MAMA.pdf
 /// </remarks>
-
 public class Mama : AbstractBase
 {
     private readonly double _fastLimit, _slowLimit;

@@ -24,7 +24,6 @@ namespace QuanTAlib;
 /// Sources:
 ///     https://user42.tuxfamily.org/chart/manual/Regularized-Exponential-Moving-Average.html
 /// </remarks>
-
 public class Rema : AbstractBase
 {
     private readonly int _period;

@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Often used in optimization due to its mathematical properties
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mse : AbstractBase
 {

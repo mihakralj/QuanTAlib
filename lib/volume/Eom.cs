@@ -44,7 +44,6 @@ namespace QuanTAlib;
 /// Note: Positive values suggest prices are rising with light volume (bullish),
 /// while negative values suggest prices are falling with light volume (bearish)
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Eom : AbstractBase
 {

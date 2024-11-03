@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: More stable than MAPE when actual values are close to zero
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Smape : AbstractBase
 {

@@ -30,7 +30,6 @@ namespace QuanTAlib;
 ///
 /// Note: Often used in cases where target values follow exponential growth
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Msle : AbstractBase
 {

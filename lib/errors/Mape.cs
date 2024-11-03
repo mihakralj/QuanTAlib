@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Also known as MAPD (Mean Absolute Percentage Deviation) in some contexts
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mape : AbstractBase
 {

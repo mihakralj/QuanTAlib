@@ -27,7 +27,6 @@ namespace QuanTAlib;
 ///     Jack Hutson - "Technical Analysis of Stocks and Commodities" magazine, 1983
 ///     John J. Murphy - "Technical Analysis of the Financial Markets"
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Trix : AbstractBase
 {

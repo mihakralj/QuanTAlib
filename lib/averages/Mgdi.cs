@@ -24,7 +24,6 @@ namespace QuanTAlib;
 /// Implementation:
 ///     Based on geometric decay principles with ratio-based modification
 /// </remarks>
-
 public class Mgdi : AbstractBase
 {
     private readonly int _period;

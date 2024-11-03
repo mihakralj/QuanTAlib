@@ -55,7 +55,6 @@ public class CmoIndicator : Indicator, IWatchlistIndicator
 
         CmoSeries!.SetValue(cmo.Value);
         CmoSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-
     }
 
     public override string ShortName => $"CMO ({Periods}:{SourceName})";

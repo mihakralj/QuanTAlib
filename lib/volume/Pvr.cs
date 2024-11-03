@@ -36,7 +36,6 @@ namespace QuanTAlib;
 ///
 /// Note: Higher absolute values indicate more significant price moves with volume support
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Pvr : AbstractBase
 {

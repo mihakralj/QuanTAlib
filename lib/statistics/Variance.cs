@@ -42,7 +42,6 @@ namespace QuanTAlib;
 ///
 /// Note: Basis for Modern Portfolio Theory and risk models
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Variance : AbstractBase
 {

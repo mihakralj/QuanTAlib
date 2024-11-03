@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Tim Tillson - "Better Moving Averages"
 ///     TASC Magazine, 1998
 /// </remarks>
-
 public class T3 : AbstractBase
 {
     private readonly int _period;

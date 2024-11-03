@@ -27,7 +27,6 @@ namespace QuanTAlib;
 ///     - Beta (nB) = 1/period
 ///     - Gamma (nC) = 1/period
 /// </remarks>
-
 public class Hwma : AbstractBase
 {
     private readonly int _period;

@@ -30,7 +30,6 @@ namespace QuanTAlib;
 ///
 /// Note: Square root of MSE, making it more interpretable in original units
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rmse : AbstractBase
 {

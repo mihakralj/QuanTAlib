@@ -37,7 +37,6 @@ namespace QuanTAlib;
 /// Note: High positive values indicate strong upward momentum with volume support,
 /// while high negative values indicate strong downward momentum with volume support
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Pvol : AbstractBase
 {

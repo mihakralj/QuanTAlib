@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Higher ATR indicates higher volatility
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Atr : AbstractBase
 {

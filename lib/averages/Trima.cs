@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     https://www.investopedia.com/terms/t/triangularaverage.asp
 ///     Technical Analysis of Stocks & Commodities magazine
 /// </remarks>
-
 public class Trima : AbstractBase
 {
     private readonly Convolution _convolution;

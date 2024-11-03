@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     Technical Analysis of Financial Markets by John J. Murphy
 ///     Technical Analysis Using Multiple Timeframes by Brian Shannon
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Mom : AbstractBase
 {

@@ -32,7 +32,6 @@ namespace QuanTAlib;
 ///
 /// Note: Higher CVI values indicate higher volatility
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cvi : AbstractBase
 {

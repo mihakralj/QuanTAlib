@@ -40,7 +40,6 @@ namespace QuanTAlib;
 ///
 /// Note: Normalized to [0,1] for easier interpretation
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Entropy : AbstractBase
 {

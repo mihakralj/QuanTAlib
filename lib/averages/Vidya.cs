@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Tushar Chande - "Beyond Technical Analysis"
 ///     https://www.investopedia.com/terms/v/vidya.asp
 /// </remarks>
-
 public class Vidya : AbstractBase
 {
     private readonly int _longPeriod;

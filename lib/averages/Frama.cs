@@ -23,7 +23,6 @@ namespace QuanTAlib;
 ///     John Ehlers - "FRAMA: A Trend-Following Indicator"
 ///     https://www.mesasoftware.com/papers/FRAMA.pdf
 /// </remarks>
-
 public class Frama : AbstractBase
 {
     private readonly int _period;

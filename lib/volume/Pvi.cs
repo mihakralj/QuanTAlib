@@ -40,7 +40,6 @@ namespace QuanTAlib;
 ///
 /// Note: Rising PVI suggests public buying pressure, while falling PVI suggests public selling pressure
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Pvi : AbstractBase
 {

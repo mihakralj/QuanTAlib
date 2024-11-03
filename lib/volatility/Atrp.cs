@@ -32,7 +32,6 @@ namespace QuanTAlib;
 ///
 /// Note: More suitable for comparing different instruments than raw ATR
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Atrp : AbstractBase
 {

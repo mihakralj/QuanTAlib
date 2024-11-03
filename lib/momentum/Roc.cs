@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     Technical Analysis of Financial Markets by John J. Murphy
 ///     Technical Analysis of Stock Trends by Robert D. Edwards and John Magee
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Roc : AbstractBase
 {

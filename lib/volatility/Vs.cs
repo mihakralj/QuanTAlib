@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns two values: long stop and short stop levels
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vs : AbstractBase
 {

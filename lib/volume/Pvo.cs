@@ -37,7 +37,6 @@ namespace QuanTAlib;
 ///
 /// Note: Positive values indicate higher short-term volume, while negative values indicate higher long-term volume
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Pvo : AbstractBase
 {

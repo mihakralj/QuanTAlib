@@ -33,7 +33,6 @@ namespace QuanTAlib;
 ///
 /// Note: Default period is 10
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cog : AbstractBase
 {

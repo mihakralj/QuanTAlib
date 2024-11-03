@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Rising TVI suggests accumulation, while falling TVI suggests distribution
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Tvi : AbstractBase
 {

@@ -23,7 +23,6 @@ namespace QuanTAlib;
 /// Implementation:
 ///     Based on Gaussian distribution principles from statistics
 /// </remarks>
-
 public class Gma : AbstractBase
 {
     private readonly Convolution _convolution;

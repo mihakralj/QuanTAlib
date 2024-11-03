@@ -38,7 +38,6 @@ namespace QuanTAlib;
 ///
 /// Note: More robust than mean for non-normal distributions
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Median : AbstractBase
 {

@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     John Ehlers and Ric Way - "Zero Lag (Well, Almost)"
 ///     Technical Analysis of Stocks and Commodities, 2010
 /// </remarks>
-
 public class Zlema : AbstractBase
 {
     private readonly CircularBuffer _buffer;

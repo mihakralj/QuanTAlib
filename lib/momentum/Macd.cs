@@ -31,7 +31,6 @@ namespace QuanTAlib;
 ///     https://www.investopedia.com/terms/m/macd.asp
 ///     https://school.stockcharts.com/doku.php?id=technical_indicators:macd
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Macd : AbstractBase
 {

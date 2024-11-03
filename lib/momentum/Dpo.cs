@@ -35,7 +35,6 @@ namespace QuanTAlib;
 ///
 /// Note: DPO helps identify cycles by removing the trend component from the price data
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Dpo : AbstractBase
 {

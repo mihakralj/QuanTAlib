@@ -25,7 +25,6 @@ namespace QuanTAlib;
 ///     Based on known and reverse-engineered insights from Jurik Research
 ///     Original work by Mark Jurik
 /// </remarks>
-
 public class Jma : AbstractBase
 {
     private readonly double _period;

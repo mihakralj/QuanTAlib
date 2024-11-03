@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     Based on quadruple exponential smoothing principles
 ///     with optimized combination formula
 /// </remarks>
-
 public class Qema : AbstractBase
 {
     private readonly Ema _ema1, _ema2, _ema3, _ema4;

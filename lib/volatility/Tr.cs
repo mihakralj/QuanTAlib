@@ -37,7 +37,6 @@ namespace QuanTAlib;
 ///
 /// Note: True Range accounts for gaps between periods, making it more accurate than simple high-low range
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Tr : AbstractBase
 {

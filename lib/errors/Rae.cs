@@ -29,7 +29,6 @@ namespace QuanTAlib;
 ///
 /// Note: Values greater than 1 indicate predictions worse than using zero
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rae : AbstractBase
 {

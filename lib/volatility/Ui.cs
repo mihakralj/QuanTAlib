@@ -37,7 +37,6 @@ namespace QuanTAlib;
 ///
 /// Note: Higher values indicate higher risk due to deeper or more frequent drawdowns
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ui : AbstractBase
 {

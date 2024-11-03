@@ -46,7 +46,6 @@ namespace QuanTAlib;
 ///
 /// Note: When +VI crosses above -VI, it signals a potential uptrend, and vice versa
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Vortex : AbstractBase
 {

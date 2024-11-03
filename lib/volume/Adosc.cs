@@ -42,7 +42,6 @@ namespace QuanTAlib;
 ///
 /// Note: Positive values indicate buying pressure, while negative values indicate selling pressure
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Adosc : AbstractBase
 {

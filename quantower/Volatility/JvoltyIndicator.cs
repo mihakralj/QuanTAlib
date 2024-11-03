@@ -51,7 +51,6 @@ public class JvoltyIndicator : Indicator, IWatchlistIndicator
         jma!.Calc(input);
 
         JvoltySeries!.SetValue(jma.Volty);
-
     }
 
     public override string ShortName => $"JVOLTY ({Periods})";

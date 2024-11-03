@@ -42,7 +42,6 @@ namespace QuanTAlib;
 ///
 /// Note: Efficient implementation using rolling sums
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Rv : AbstractBase
 {

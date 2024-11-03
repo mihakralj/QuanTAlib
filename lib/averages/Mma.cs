@@ -24,7 +24,6 @@ namespace QuanTAlib;
 ///     Based on modified moving average principles combining
 ///     simple and weighted components for optimal smoothing
 /// </remarks>
-
 public class Mma : AbstractBase
 {
     private readonly int _period;

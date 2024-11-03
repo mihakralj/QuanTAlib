@@ -26,7 +26,6 @@ namespace QuanTAlib;
 ///     https://www.investopedia.com/articles/technical/060401.asp
 ///     https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:weighted_moving_average
 /// </remarks>
-
 public class Wma : AbstractBase
 {
     private readonly int _period;

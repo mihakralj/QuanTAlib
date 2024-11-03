@@ -40,7 +40,6 @@ namespace QuanTAlib;
 ///
 /// Note: Proprietary enhancement of volatility measurement
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Jvolty : AbstractBase
 {

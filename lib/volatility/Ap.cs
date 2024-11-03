@@ -39,7 +39,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns median line value for current price level
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ap : AbstractBase
 {

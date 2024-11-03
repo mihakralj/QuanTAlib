@@ -28,7 +28,6 @@ namespace QuanTAlib;
 ///     Tushar Chande (1990s)
 ///     Technical Analysis of Stocks and Commodities magazine
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cfo : AbstractBase
 {

@@ -23,7 +23,6 @@ namespace QuanTAlib;
 /// Implementation:
 ///     Original implementation based on Fibonacci sequence principles
 /// </remarks>
-
 public class Fwma : AbstractBase
 {
     private readonly Convolution _convolution;
