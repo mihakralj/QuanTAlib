@@ -41,7 +41,6 @@ namespace QuanTAlib;
 public sealed class Cvi : AbstractBase
 {
     private readonly int _period;
-    private readonly int _smoothPeriod;
     private readonly CircularBuffer _smoothed;
     private readonly double _alpha;
     private double _ema;
@@ -50,10 +49,9 @@ public sealed class Cvi : AbstractBase
     public Cvi(int period = 10, int smoothPeriod = 10)
     {
         _period = period;
-        _smoothPeriod = smoothPeriod;
-        _alpha = 2.0 / (_smoothPeriod + 1);
-        WarmupPeriod = _period + _smoothPeriod;
-        Name = $"CVI({_period},{_smoothPeriod})";
+        _alpha = 2.0 / (smoothPeriod + 1);
+        WarmupPeriod = _period + smoothPeriod;
+        Name = $"CVI({_period},{smoothPeriod})";
         _smoothed = new CircularBuffer(_period);
         Init();
     }

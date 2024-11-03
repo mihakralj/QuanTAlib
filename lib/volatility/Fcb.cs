@@ -42,7 +42,6 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Fcb : AbstractBase
 {
-    private readonly int _period;
     private readonly double _smoothing;
     private readonly CircularBuffer _highs;
     private readonly CircularBuffer _lows;
@@ -56,11 +55,10 @@ public sealed class Fcb : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Fcb(int period = 20, double smoothing = 0.5)
     {
-        _period = period;
         _smoothing = smoothing;
-        _alpha = 2.0 / (_period + 1);
+        _alpha = 2.0 / (period + 1);
         WarmupPeriod = period + 4;  // Need extra periods for fractal identification
-        Name = $"FCB({_period},{_smoothing})";
+        Name = $"FCB({period},{_smoothing})";
         _highs = new CircularBuffer(period);
         _lows = new CircularBuffer(period);
         Init();
@@ -116,16 +114,14 @@ public sealed class Fcb : AbstractBase
         bool isFractalHigh = false;
         bool isFractalLow = false;
 
-        if (_index >= 5)
-        {
-            // Fractal high: current high is higher than 2 bars before and after
-            isFractalHigh = _highs[2] > _highs[0] && _highs[2] > _highs[1] &&
-                           _highs[2] > _highs[3] && _highs[2] > _highs[4];
+        // Fractal high: current high is higher than 2 bars before and after
+        isFractalHigh = _highs[2] > _highs[0] && _highs[2] > _highs[1] &&
+                       _highs[2] > _highs[3] && _highs[2] > _highs[4];
 
-            // Fractal low: current low is lower than 2 bars before and after
-            isFractalLow = _lows[2] < _lows[0] && _lows[2] < _lows[1] &&
-                          _lows[2] < _lows[3] && _lows[2] < _lows[4];
-        }
+        // Fractal low: current low is lower than 2 bars before and after
+        isFractalLow = _lows[2] < _lows[0] && _lows[2] < _lows[1] &&
+                      _lows[2] < _lows[3] && _lows[2] < _lows[4];
+
 
         // Update EMAs with fractal points
         if (isFractalHigh)

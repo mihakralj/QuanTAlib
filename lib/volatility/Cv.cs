@@ -53,7 +53,6 @@ public sealed class Cv : AbstractBase
     private readonly double _omega;
     private double _prevClose;
     private double _prevVariance;
-    private double _longTermVariance;
     private bool _isInitialized;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,7 +81,6 @@ public sealed class Cv : AbstractBase
         base.Init();
         _prevClose = 0;
         _prevVariance = 0;
-        _longTermVariance = 0;
         _isInitialized = false;
     }
 
@@ -116,7 +114,7 @@ public sealed class Cv : AbstractBase
         // Initialize with first available data if not done
         if (!_isInitialized && _index > _period)
         {
-            _longTermVariance = squaredReturn;  // Use current squared return as initial estimate
+            double _longTermVariance = squaredReturn;  // Use current squared return as initial estimate
             _prevVariance = _longTermVariance;
             _isInitialized = true;
         }
