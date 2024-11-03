@@ -18,7 +18,6 @@ namespace QuanTAlib;
 /// </remarks>
 public class Dema : AbstractBase
 {
-    private readonly int _period;
     private readonly double _k;
     private readonly double _epsilon = 1e-10;
     private double _lastEma1, _p_lastEma1;
@@ -31,8 +30,7 @@ public class Dema : AbstractBase
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        _period = period;
-        _k = 2.0 / (_period + 1);
+        _k = 2.0 / (period + 1);
         Name = "Dema";
         double percentile = 0.85; //targeting 85th percentile of correctness of converging EMA
         WarmupPeriod = (int)System.Math.Ceiling(-period * System.Math.Log(1 - percentile));

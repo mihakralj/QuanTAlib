@@ -8,7 +8,6 @@
     <Deterministic>true</Deterministic>
     <NeutralLanguage>en-US</NeutralLanguage>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -21,6 +20,9 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
+    <GenerateGitVersionInformation>true</GenerateGitVersionInformation>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -49,6 +51,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.21459.1" />
+    <PackageReference Include="GitVersion.MsBuild" Version="6.0.0-beta.7" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
