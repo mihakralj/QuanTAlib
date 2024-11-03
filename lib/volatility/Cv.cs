@@ -43,7 +43,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns annualized volatility as a percentage
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Cv : AbstractBase
 {
@@ -126,7 +125,7 @@ public sealed class Cv : AbstractBase
         }
 
         // Update variance estimate using GARCH(1,1)
-        double variance = _omega + _alpha * squaredReturn + _beta * _prevVariance;
+        double variance = _omega + (_alpha * squaredReturn) + (_beta * _prevVariance);
         _prevVariance = variance;
 
         // Calculate annualized volatility as percentage

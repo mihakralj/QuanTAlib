@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns three values: upper, middle, and lower bands
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Bband : AbstractBase
 {

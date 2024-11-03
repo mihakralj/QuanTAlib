@@ -38,7 +38,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns two values: long exit and short exit levels
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ce : AbstractBase
 {

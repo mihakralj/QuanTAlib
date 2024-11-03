@@ -38,7 +38,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns annualized volatility as a percentage
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Gkv : AbstractBase
 {
@@ -97,7 +96,7 @@ public sealed class Gkv : AbstractBase
         c = c * c;
 
         // Combine components with optimal weights
-        double component = 0.5 * u - (2 * _ln2 - 1) * c;
+        double component = (0.5 * u) - (((2 * _ln2) - 1) * c);
         _components.Add(component);
 
         // Need enough values for calculation
