@@ -62,8 +62,28 @@ public sealed class Stc : AbstractBase
                int slowPeriod = DefaultSlowPeriod, int d1Period = DefaultD1Period,
                int stcPeriod = DefaultStcPeriod)
     {
-        if (cyclePeriod < 1 || fastPeriod < 1 || slowPeriod < 1 || d1Period < 1 || stcPeriod < 1)
-            throw new ArgumentOutOfRangeException(nameof(cyclePeriod), "All periods must be greater than 0");
+        string err = "All periods must be greater than 0";
+
+        if (cyclePeriod < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(cyclePeriod), err);
+        }
+        if (fastPeriod < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fastPeriod), err);
+        }
+        if (slowPeriod < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slowPeriod), err);
+        }
+        if (d1Period < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(d1Period), err);
+        }
+        if (stcPeriod < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(stcPeriod), err);
+        }
         if (fastPeriod >= slowPeriod)
         {
             throw new ArgumentOutOfRangeException(nameof(fastPeriod), "Fast period must be less than slow period");

@@ -194,7 +194,7 @@ jobs:
           languages: 'csharp'
           queries: security-and-quality
           config-file: ./.github/codeql/codeql-config.yml
-          tools: latest
+          tools: linked
 
       - name: Restore dependencies
         run: dotnet restore
@@ -263,13 +263,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0
         with:
@@ -281,12 +274,19 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: true
-          updateAssemblyInfo: true
+          updateAssemblyInfo: false
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
 
       - name: Build projects
         run: |
-          dotnet build ./lib/quantalib.csproj --configuration Release --nologo \
-            -p:PackageVersion=${{ steps.gitversion.outputs.MajorMinorPatch }}
+          dotnet restore
+          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
           dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
           dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
           dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
@@ -325,8 +325,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
-            --title "Release ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
-            --notes "Release notes for version ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            --title "Release from commit ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            --notes "Release notes for this version." \
             quantower/Averages/bin/Release/Averages.dll \
             quantower/Statistics/bin/Release/Statistics.dll \
             quantower/Volatility/bin/Release/Volatility.dll \
