@@ -305,4 +305,20 @@ public class OscillatorsUpdateTests
 
         Assert.Equal(initialValue, finalValue, precision);
     }
+
+    [Fact]
+    public void Dosc_Update()
+    {
+        var indicator = new Dosc();
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
 }
