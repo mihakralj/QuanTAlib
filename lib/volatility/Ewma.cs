@@ -41,7 +41,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns annualized volatility as a percentage
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ewma : AbstractBase
 {
@@ -121,7 +120,7 @@ public sealed class Ewma : AbstractBase
         }
 
         // Update EWMA
-        _ewma = _lambda * _ewma + (1 - _lambda) * squaredReturn;
+        _ewma = (_lambda * _ewma) + ((1 - _lambda) * squaredReturn);
 
         // Calculate volatility
         double volatility = Math.Sqrt(_ewma);

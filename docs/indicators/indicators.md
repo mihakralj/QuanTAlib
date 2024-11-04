@@ -1,18 +1,16 @@
 # Indicators in QuanTAlib
 
-
-
 | **Category** | **Status** | **Completion** |
 |--------------|:----------:|:--------------:|
 | Basic Transforms | 6 of 6 | 100% |
 | Averages & Trends | 33 of 33 | 100% |
-| Momentum | 17 of 17 | 100% |
-| Oscillators | 11 of 29 | 38% |
+| Momentum | 16 of 16 | 100% |
+| Oscillators | 20 of 29 | 69% |
 | Volatility | 24 of 35 | 69% |
 | Volume | 15 of 19 | 79% |
 | Numerical Analysis | 13 of 19 | 68% |
 | Errors | 16 of 16 | 100% |
-| **Total** | **135 of 174** | **78%** |
+| **Total** | **143 of 173** | **83%** |
 
 |Technical Indicator Name| Class Name|
 |-----------|:----------:|
@@ -71,7 +69,6 @@
 |PPO - Percentage Price Oscillator|`Ppo`|
 |PRS - Price Relative Strength|`Prs`|
 |ROC - Rate of Change|`Roc`|
-|TSI - True Strength Index|`Tsi`|
 |TRIX - 1-day ROC of TEMA|`Trix`|
 |VEL - Jurik Signal Velocity|`Vel`|
 |VORTEX* - Vortex Indicator (VI+, VI-)|`Vortex`|
@@ -85,8 +82,8 @@
 |CMO - Chande Momentum Oscillator|`Cmo`|
 |CHOP - Choppiness Index|`Chop`|
 |COG - Ehler's Center of Gravity|`Cog`|
-|🚧 COPPOCK - Coppock Curve|`Coppock`|
-|🚧 CRSI - Connor RSI|`Crsi`|
+|COPPOCK - Coppock Curve|`Coppock`|
+|CRSI - Connor RSI|`Crsi`|
 |🚧 CTI - Ehler's Correlation Trend Indicator|`Cti`|
 |🚧 DOSC - Derivative Oscillator|`Dosc`|
 |🚧 EFI - Elder Ray's Force Index|`Efi`|
@@ -98,13 +95,13 @@
 |RSI - Relative Strength Index|`Rsi`|
 |RSX - Jurik Trend Strength Index|`Rsx`|
 |🚧 RVGI* - Relative Vigor Index (RVGI, Signal)|`Rvgi`|
-|🚧 SMI - Stochastic Momentum Index|`Smi`|
-|🚧 SRSI* - Stochastic RSI (SRSI, Signal)|`Srsi`|
-|🚧 STC - Schaff Trend Cycle|`Stc`|
-|🚧 STOCH* - Stochastic Oscillator (%K, %D)|`Stoch`|
-|🚧 TSI - True Strength Index|`Tsi`|
-|🚧 UO - Ultimate Oscillator|`Uo`|
-|🚧 WILLR - Larry Williams' %R|`Willr`|
+|SMI - Stochastic Momentum Index|`Smi`|
+|SRSI* - Stochastic RSI (SRSI, Signal)|`Srsi`|
+|STC - Schaff Trend Cycle|`Stc`|
+|STOCH* - Stochastic Oscillator (%K, %D)|`Stoch`|
+|TSI - True Strength Index|`Tsi`|
+|UO - Ultimate Oscillator|`Uo`|
+|WILLR - Larry Williams' %R|`Willr`|
 |**VOLATILITY INDICATORS**||
 |ADR - Average Daily Range|`Adr`|
 |AP - Andrew's Pitchfork|`Ap`|
@@ -122,7 +119,7 @@
 |GKV - Garman-Klass Volatility|`Gkv`|
 |HLV - High-Low Volatility|`Hlv`|
 |HV - Historical Volatility|`Hv`|
-|🚧 ICH* - Ichimoku Cloud (Conversion, Base, Leading Span A, Leading Span B, Lagging Span)|`Ich`|
+|🚧 ICH* - Ichimoku Cloud (Conversion, Base, Span A, Span B, Lagging Span)|`Ich`|
 |JVOLTY - Jurik Volatility|`Jvolty`|
 |🚧 KC* - Keltner Channels (Upper, Middle, Lower)|`Kc`|
 |🚧 NATR - Normalized Average True Range|`Natr`|
