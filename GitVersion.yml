@@ -1,24 +1,39 @@
-mode: ContinuousDelivery
+workflow: GitHubFlow/v1
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatch
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
 tag-prefix: '[vV]'
+semantic-version-format: Strict
 
 branches:
   main:
+    label: ''
     regex: ^main$
     mode: ContinuousDelivery
     increment: Patch
-    track-merge-target: true
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-target: false
+    track-merge-message: true
     is-release-branch: true
+    pre-release-weight: 55000
+
+
   dev:
+    label: beta
     regex: ^dev(elop)?(ment)?$
     mode: ContinuousDelivery
-    increment: Minor
+    increment: Patch
+    prevent-increment:
+      when-current-commit-tagged: false
     track-merge-target: true
     is-release-branch: false
     source-branches: ['main']
+    pre-release-weight: 30000
+
 ignore:
   sha: []
 merge-message-formats: {}
