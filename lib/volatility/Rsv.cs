@@ -84,7 +84,7 @@ public sealed class Rsv : AbstractBase
         double lnLO = Math.Log(BarInput.Low / BarInput.Open);
 
         // Calculate Rogers-Satchell term
-        double rs = lnHC * lnHO + lnLC * lnLO;
+        double rs = (lnHC * lnHO) + (lnLC * lnLO);
 
         // Apply moving average and take square root
         _prevValue = Math.Sqrt(_ma.Calc(rs, true));

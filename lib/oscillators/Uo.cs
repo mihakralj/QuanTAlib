@@ -174,6 +174,6 @@ public sealed class Uo : AbstractBase
 
         // Calculate weighted sum
         double weightSum = _weight1 + _weight2 + _weight3;
-        return ScalingFactor * ((_weight1 * avg1 + _weight2 * avg2 + _weight3 * avg3) / weightSum);
+        return ScalingFactor * (((_weight1 * avg1) + (_weight2 * avg2) + (_weight3 * avg3)) / weightSum);
     }
 }

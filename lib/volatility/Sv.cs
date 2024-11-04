@@ -96,7 +96,7 @@ public sealed class Sv : AbstractBase
         double squaredReturn = logReturn * logReturn;
 
         // Update variance estimate
-        _prevVariance = _lambda * _prevVariance + (1.0 - _lambda) * squaredReturn;
+        _prevVariance = (_lambda * _prevVariance) + ((1.0 - _lambda) * squaredReturn);
 
         // Apply smoothing and take square root
         _prevValue = Math.Sqrt(_ma.Calc(_prevVariance, true));

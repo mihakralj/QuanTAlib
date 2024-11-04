@@ -103,11 +103,11 @@ public sealed class Yzv : AbstractBase
         double lnHO = Math.Log(BarInput.High / BarInput.Open);
         double lnLC = Math.Log(BarInput.Low / BarInput.Close);
         double lnLO = Math.Log(BarInput.Low / BarInput.Open);
-        double rs = lnHC * lnHO + lnLC * lnLO;
+        double rs = (lnHC * lnHO) + (lnLC * lnLO);
         double vrs = _maRs.Calc(rs, true);
 
         // Combine components with optimal weights
-        _prevValue = Math.Sqrt(vo + K * vc + (1.0 - K) * vrs);
+        _prevValue = Math.Sqrt(vo + (K * vc) + ((1.0 - K) * vrs));
         return _prevValue;
     }
 }
