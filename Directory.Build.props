@@ -20,9 +20,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
-    <GenerateGitVersionInformation>true</GenerateGitVersionInformation>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -46,13 +43,14 @@
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     
   </PropertyGroup>
-    <PropertyGroup>
+
+  <PropertyGroup>
     <NoWarn>S1944,S2053,S2222,S2259,S2583,S2589,S3329,S3655,S3900,S3949,S3966,S4158,S4347,S5773,S6781</NoWarn>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.21459.1" />
-    <PackageReference Include="GitVersion.MsBuild" Version="6.0.0-beta.7" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">

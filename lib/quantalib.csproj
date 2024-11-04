@@ -10,8 +10,8 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RootNamespace>QuanTAlib</RootNamespace>
     <AssemblyName>QuanTAlib</AssemblyName>
-    <IsPublishable>True</IsPublishable>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IsPublishable>true</IsPublishable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageIcon>QuanTAlib2.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>
@@ -30,6 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="6.0.4" PrivateAssets="All" />
     <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
   </ItemGroup>
 
