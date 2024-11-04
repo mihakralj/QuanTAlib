@@ -5,8 +5,7 @@ Done: 13, Todo: 6
 *CORR - Correlation Coefficient (Correlation, P-value)
 ✔️ CURVATURE - Rate of Change in Direction or Slope
 ✔️ ENTROPY - Measure of Uncertainty or Disorder
-HUBER - Huber Loss
-HURST - Hurst Exponent
+✔️ HURST - Hurst Exponent
 ✔️ KURTOSIS - Measure of Tails/Peakedness
 ✔️ MAX - Maximum with exponential decay
 ✔️ MEDIAN - Middle value
