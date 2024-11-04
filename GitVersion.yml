@@ -1,18 +1,24 @@
-next-version: 0.6.1
 mode: ContinuousDelivery
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
+tag-prefix: '[vV]'
+
 branches:
   main:
     regex: ^main$
     mode: ContinuousDelivery
     increment: Patch
+    track-merge-target: true
+    is-release-branch: true
   dev:
     regex: ^dev(elop)?(ment)?$
-    mode: ContinuousDeployment
-    increment: Inherit
+    mode: ContinuousDelivery
+    increment: Minor
+    track-merge-target: true
+    is-release-branch: false
+    source-branches: ['main']
 ignore:
   sha: []
 merge-message-formats: {}
