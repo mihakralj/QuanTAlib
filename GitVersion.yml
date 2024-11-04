@@ -12,14 +12,14 @@ branches:
   main:
     label: ''
     regex: ^main$
-    mode: ContinuousDelivery
+    mode: ContinuousDeployment
     increment: Patch
     prevent-increment:
       of-merged-branch: true
     track-merge-target: false
     track-merge-message: true
     is-release-branch: true
-    pre-release-weight: 55000
+    pre-release-weight: 0
 
 
   dev:
