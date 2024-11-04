@@ -22,6 +22,11 @@
     <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Version>$(GitVersion_MajorMinorPatch)</Version>
+    <PackageVersion>$(GitVersion_MajorMinorPatch)</PackageVersion>
+    <AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
+    <FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
+    <InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>

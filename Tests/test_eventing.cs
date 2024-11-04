@@ -113,7 +113,8 @@ public class EventingTests
             // Volatility indicators (bar-based)
             ("Atr", new Atr(14), new Atr(barInput, 14)),
             // Oscillators (bar-based)
-            ("Chop", new Chop(14), new Chop(barInput, 14))
+            ("Chop", new Chop(14), new Chop(barInput, 14)),
+            ("Dosc", new Dosc(), new Dosc(barInput))
         };
 
         // Generate 200 random values and feed them to indicators

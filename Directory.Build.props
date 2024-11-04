@@ -41,6 +41,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    
   </PropertyGroup>
 
   <PropertyGroup>
