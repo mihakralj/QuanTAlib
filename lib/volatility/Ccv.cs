@@ -36,7 +36,6 @@ namespace QuanTAlib;
 ///
 /// Note: Returns annualized volatility as a percentage
 /// </remarks>
-
 [SkipLocalsInit]
 public sealed class Ccv : AbstractBase
 {
