@@ -5,12 +5,12 @@
 | Basic Transforms | 6 of 6 | 100% |
 | Averages & Trends | 33 of 33 | 100% |
 | Momentum | 16 of 16 | 100% |
-| Oscillators | 20 of 29 | 69% |
+| Oscillators | 21 of 29 | 72% |
 | Volatility | 24 of 35 | 69% |
 | Volume | 15 of 19 | 79% |
 | Numerical Analysis | 13 of 19 | 68% |
 | Errors | 16 of 16 | 100% |
-| **Total** | **143 of 173** | **83%** |
+| **Total** | **144 of 173** | **83%** |
 
 |Technical Indicator Name| Class Name|
 |-----------|:----------:|
@@ -85,7 +85,6 @@
 |COPPOCK - Coppock Curve|`Coppock`|
 |CRSI - Connor RSI|`Crsi`|
 |🚧 CTI - Ehler's Correlation Trend Indicator|`Cti`|
-|🚧 DOSC - Derivative Oscillator|`Dosc`|
 |🚧 EFI - Elder Ray's Force Index|`Efi`|
 |🚧 FISHER - Fisher Transform|`Fisher`|
 |🚧 FOSC - Forecast Oscillator|`Fosc`|
@@ -102,6 +101,7 @@
 |TSI - True Strength Index|`Tsi`|
 |UO - Ultimate Oscillator|`Uo`|
 |WILLR - Larry Williams' %R|`Willr`|
+|DOSC - Derivative Oscillator|`Dosc`|
 |**VOLATILITY INDICATORS**||
 |ADR - Average Daily Range|`Adr`|
 |AP - Andrew's Pitchfork|`Ap`|

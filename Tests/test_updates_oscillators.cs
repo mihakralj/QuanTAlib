@@ -20,8 +20,8 @@ public class OscillatorsUpdateTests
     private TBar GetRandomBar(bool IsNew)
     {
         double open = GetRandomDouble();
-        double high = open + Math.Abs(GetRandomDouble());
-        double low = open - Math.Abs(GetRandomDouble());
+        double high = open + Math.abs(GetRandomDouble());
+        double low = open - Math.abs(GetRandomDouble());
         double close = low + ((high - low) * GetRandomDouble());
         return new TBar(DateTime.Now, open, high, low, close, 1000, IsNew);
     }
@@ -294,6 +294,22 @@ public class OscillatorsUpdateTests
     public void Willr_Update()
     {
         var indicator = new Willr(period: 14);
+        TBar r = GetRandomBar(true);
+        double initialValue = indicator.Calc(r);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TBar(r.Time, r.Open, r.High, r.Low, r.Close, r.Volume, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Dosc_Update()
+    {
+        var indicator = new Dosc();
         TBar r = GetRandomBar(true);
         double initialValue = indicator.Calc(r);
 
