@@ -263,6 +263,19 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: '6.x'
+          includePrerelease: true
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+          updateAssemblyInfo: false
+
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -311,9 +324,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+<<<<<<<
           gh release create v${{ github.sha }} \
             --title "Release from commit ${{ github.sha }}" \
             --notes "Release notes for this version." \
+=======
+          gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
+            --title "Release from commit ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            --notes "Release notes for this version." \
+>>>>>>>
             quantower/Averages/bin/Release/Averages.dll \
             quantower/Statistics/bin/Release/Statistics.dll \
             quantower/Volatility/bin/Release/Volatility.dll \
