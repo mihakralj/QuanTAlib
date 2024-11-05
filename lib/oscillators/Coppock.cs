@@ -51,12 +51,9 @@ public sealed class Coppock : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Coppock(int roc1Period = DefaultRoc1Period, int roc2Period = DefaultRoc2Period, int wmaPeriod = DefaultWmaPeriod)
     {
-        if (roc1Period < 1)
-            throw new ArgumentOutOfRangeException(nameof(roc1Period), "ROC1 period must be greater than 0");
-        if (roc2Period < 1)
-            throw new ArgumentOutOfRangeException(nameof(roc2Period), "ROC2 period must be greater than 0");
-        if (wmaPeriod < 1)
-            throw new ArgumentOutOfRangeException(nameof(wmaPeriod), "WMA period must be greater than 0");
+        ArgumentOutOfRangeException.ThrowIfLessThan(roc1Period, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(roc2Period, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(wmaPeriod, 1);
 
         _roc1Period = roc1Period;
         _roc2Period = roc2Period;

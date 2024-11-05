@@ -76,6 +76,8 @@ public class EventingTests
             ("Stddev", new Stddev(p), new Stddev(input, p)),
             ("Variance", new Variance(p), new Variance(input, p)),
             ("Zscore", new Zscore(p), new Zscore(input, p)),
+            ("Beta", new Beta(p), new Beta(input, p)),
+            ("Corr", new Corr(p), new Corr(input, p)),
             // Volatility indicators (value-based)
             ("Hv", new Hv(p), new Hv(input, p)),
             ("Jvolty", new Jvolty(p), new Jvolty(input, p)),

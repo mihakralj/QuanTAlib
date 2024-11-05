@@ -57,12 +57,9 @@ public sealed class Smi : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Smi(int period = DefaultPeriod, int smooth1 = DefaultSmooth1, int smooth2 = DefaultSmooth2)
     {
-        if (period < 1)
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");
-        if (smooth1 < 1)
-            throw new ArgumentOutOfRangeException(nameof(smooth1), "Smooth1 must be greater than 0");
-        if (smooth2 < 1)
-            throw new ArgumentOutOfRangeException(nameof(smooth2), "Smooth2 must be greater than 0");
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(smooth1, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(smooth2, 1);
 
         _highs = new(period);
         _lows = new(period);

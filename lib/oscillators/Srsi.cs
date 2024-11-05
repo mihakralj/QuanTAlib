@@ -40,7 +40,6 @@ public sealed class Srsi : AbstractBase
     private readonly CircularBuffer _srsiValues;
     private readonly Sma _signal;
     private readonly int _rsiPeriod;
-    private readonly int _stochPeriod;
     private const int DefaultRsiPeriod = 14;
     private const int DefaultStochPeriod = 14;
     private const int DefaultSmoothK = 3;
@@ -56,25 +55,12 @@ public sealed class Srsi : AbstractBase
     public Srsi(int rsiPeriod = DefaultRsiPeriod, int stochPeriod = DefaultStochPeriod,
                 int smoothK = DefaultSmoothK, int smoothD = DefaultSmoothD)
     {
-        if (rsiPeriod < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(rsiPeriod), "Period must be greater than 0");
-        }
-        if (stochPeriod < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(stochPeriod), "Period must be greater than 0");
-        }
-        if (smoothK < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(smoothK), "Period must be greater than 0");
-        }
-        if (smoothD < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(smoothD), "Period must be greater than 0");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(rsiPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(stochPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(smoothK, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(smoothD, 1);
 
         _rsiPeriod = rsiPeriod;
-        _stochPeriod = stochPeriod;
         _rsi = new(rsiPeriod);
         _rsiValues = new(stochPeriod);
         _srsiValues = new(smoothK);

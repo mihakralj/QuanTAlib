@@ -48,8 +48,7 @@ public sealed class Rsi : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rsi(int period = DefaultPeriod)
     {
-        if (period < 1)
-            throw new ArgumentOutOfRangeException(nameof(period));
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
         _avgGain = new(period, useSma: true);
         _avgLoss = new(period, useSma: true);
         _index = 0;

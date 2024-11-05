@@ -62,32 +62,17 @@ public sealed class Stc : AbstractBase
                int slowPeriod = DefaultSlowPeriod, int d1Period = DefaultD1Period,
                int stcPeriod = DefaultStcPeriod)
     {
-        string err = "All periods must be greater than 0";
+        ArgumentOutOfRangeException.ThrowIfLessThan(cyclePeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(fastPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slowPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(d1Period, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(stcPeriod, 1);
 
-        if (cyclePeriod < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(cyclePeriod), err);
-        }
-        if (fastPeriod < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(fastPeriod), err);
-        }
-        if (slowPeriod < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(slowPeriod), err);
-        }
-        if (d1Period < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(d1Period), err);
-        }
-        if (stcPeriod < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(stcPeriod), err);
-        }
         if (fastPeriod >= slowPeriod)
         {
             throw new ArgumentOutOfRangeException(nameof(fastPeriod), "Fast period must be less than slow period");
         }
+
         _fastEma = new(fastPeriod);
         _slowEma = new(slowPeriod);
         _macdValues = new(cyclePeriod);

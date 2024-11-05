@@ -6,11 +6,12 @@
 | Averages & Trends | 33 of 33 | 100% |
 | Momentum | 16 of 16 | 100% |
 | Oscillators | 22 of 29 | 76% |
-| Volatility | 24 of 35 | 69% |
-| Volume | 15 of 19 | 79% |
-| Numerical Analysis | 13 of 19 | 68% |
+| Volatility | 29 of 35 | 83% |
+| Volume | 19 of 19 | 100% |
+| Numerical Analysis | 15 of 19 | 79% |
 | Errors | 16 of 16 | 100% |
-| **Total** | **145 of 173** | **84%** |
+| Patterns | 0 of 8 | 0% |
+| **Total** | **156 of 181** | **86%** |
 
 |Technical Indicator Name| Class Name|
 |-----------|:----------:|
@@ -85,9 +86,10 @@
 |COPPOCK - Coppock Curve|`Coppock`|
 |CRSI - Connor RSI|`Crsi`|
 |🚧 CTI - Ehler's Correlation Trend Indicator|`Cti`|
+|DOSC - Derivative Oscillator|`Dosc`|
+|EFI - Elder Ray's Force Index|`Efi`|
 |🚧 FISHER - Fisher Transform|`Fisher`|
 |🚧 FOSC - Forecast Oscillator|`Fosc`|
-|EFI - Elder Ray's Force Index|`Efi`|
 |🚧 GATOR* - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)|`Gator`|
 |🚧 KDJ* - KDJ Indicator (K, D, J lines)|`Kdj`|
 |🚧 KRI - Kairi Relative Index|`Kri`|
@@ -101,7 +103,15 @@
 |TSI - True Strength Index|`Tsi`|
 |UO - Ultimate Oscillator|`Uo`|
 |WILLR - Larry Williams' %R|`Willr`|
-|DOSC - Derivative Oscillator|`Dosc`|
+|**PATTERNS**||
+|🚧 DOJI - Doji Candlestick Pattern|`Doji`|
+|🚧 ER* - Elder Ray Pattern (Bull Power, Bear Power)|`Er`|
+|🚧 MARU - Marubozu Candlestick Pattern|`Maru`|
+|🚧 PIV* - Pivot Points (Support 1-3, Pivot, Resistance 1-3)|`Piv`|
+|🚧 PP* - Price Pivots (Support 1-3, Pivot, Resistance 1-3)|`Pp`|
+|🚧 RPP* - Rolling Pivot Points (Support 1-3, Pivot, Resistance 1-3)|`Rpp`|
+|🚧 WF - Williams Fractal|`Wf`|
+|🚧 ZZ - Zig Zag Pattern|`Zz`|
 |**VOLATILITY INDICATORS**||
 |ADR - Average Daily Range|`Adr`|
 |AP - Andrew's Pitchfork|`Ap`|
@@ -159,12 +169,12 @@
 |VWAP - Volume Weighted Average Price|`Vwap`|
 |VWMA - Volume Weighted Moving Average|`Vwma`|
 |**NUMERICAL ANALYSIS**||
-|🚧 BETA* - Beta coefficient (Beta, R-squared)|`Beta`|
-|🚧 CORR* - Correlation Coefficient (Correlation, P-value)|`Corr`|
+|BETA* - Beta coefficient (Beta, R-squared)|`Beta`|
+|CORR* - Correlation Coefficient (Correlation, P-value)|`Corr`|
 |CURVATURE - Rate of Change in Direction or Slope|`Curvature`|
 |ENTROPY - Measure of Uncertainty or Disorder|`Entropy`|
-|🚧 HUBER - Huber Loss|`Huber`|
-|🚧 HURST - Hurst Exponent|`Hurst`|
+|HUBER - Huber Loss|`Huber`|
+|HURST - Hurst Exponent|`Hurst`|
 |KURTOSIS - Measure of Tails/Peakedness|`Kurtosis`|
 |MAX - Maximum with exponential decay|`Max`|
 |MEDIAN - Middle value|`Median`|

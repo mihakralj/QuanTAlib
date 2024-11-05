@@ -27,6 +27,39 @@ public class StatisticsUpdateTests
     }
 
     [Fact]
+    public void Beta_Update()
+    {
+        var indicator = new Beta(period: 14);
+        TBar marketBar = GetRandomBar(true);
+        TBar assetBar = GetRandomBar(true);
+        double initialValue = indicator.Calc(marketBar, assetBar);
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(GetRandomBar(false), GetRandomBar(false));
+        }
+        double finalValue = indicator.Calc(new TBar(marketBar.Time, marketBar.Open, marketBar.High, marketBar.Low, marketBar.Close, marketBar.Volume, false),
+                                           new TBar(assetBar.Time, assetBar.Open, assetBar.High, assetBar.Low, assetBar.Close, assetBar.Volume, false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
+    public void Corr_Update()
+    {
+        var indicator = new Corr(period: 14);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true), new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false), new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false), new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
+
+    [Fact]
     public void Curvature_Update()
     {
         var indicator = new Curvature(period: 14);
