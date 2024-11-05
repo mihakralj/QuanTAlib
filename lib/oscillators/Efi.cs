@@ -41,9 +41,7 @@ public sealed class Efi : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Efi(int period = DefaultPeriod)
     {
-        if (period < 1)
-            throw new ArgumentOutOfRangeException(nameof(period));
-
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
         _ema = new(period);
         WarmupPeriod = period + 1;
         Name = $"EFI({period})";
