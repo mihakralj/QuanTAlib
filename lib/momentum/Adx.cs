@@ -56,8 +56,7 @@ public sealed class Adx : AbstractBarBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Adx(int period = DefaultPeriod)
     {
-        if (period < 1)
-            throw new ArgumentOutOfRangeException(nameof(period));
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
         _smoothedTr = new(period, useSma: true);
         _smoothedPlusDm = new(period, useSma: true);
         _smoothedMinusDm = new(period, useSma: true);

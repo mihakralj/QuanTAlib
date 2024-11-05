@@ -27,7 +27,6 @@ namespace QuanTAlib;
 /// </remarks>
 public class Tema : AbstractBase
 {
-    private readonly int _period;
     private readonly double _k;
     private readonly double _oneMinusK;
     private readonly double _epsilon = 1e-10;
@@ -44,8 +43,7 @@ public class Tema : AbstractBase
         {
             throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
-        _period = period;
-        _k = 2.0 / (_period + 1);
+        _k = 2.0 / (period + 1);
         _oneMinusK = 1.0 - _k;
         Name = "Tema";
         double percentile = 0.85; //targeting 85th percentile of correctness of converging EMA

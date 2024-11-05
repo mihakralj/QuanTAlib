@@ -142,15 +142,15 @@ public class Maaf : AbstractBase
             double value1 = GetMedian(length);
             value2 = (alpha * (smooth - _prevValue2)) + _prevValue2;
 
-            if (value1 != 0)
+            if (value1 >= double.Epsilon)
             {
-                value3 = System.Math.Abs(value1 - value2) / value1;
+                value3 = Math.Abs(value1 - value2) / value1;
             }
 
             length -= 2;
         }
 
-        length = System.Math.Max(length, 3);
+        length = Math.Max(length, 3);
         double finalAlpha = CalculateAlpha(length);
         double filter = (finalAlpha * (smooth - _prevFilter)) + _prevFilter;
 

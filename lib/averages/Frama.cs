@@ -82,14 +82,14 @@ public class Frama : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UpdateMinMax(double price, ref double high, ref double low)
+    private static void UpdateMinMax(double price, ref double high, ref double low)
     {
         high = System.Math.Max(high, price);
         low = System.Math.Min(low, price);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double CalculateAlpha(double dimension)
+    private static double CalculateAlpha(double dimension)
     {
         double alpha = System.Math.Exp(-4.6 * (dimension - 1));
         return System.Math.Clamp(alpha, 0.01, 1.0);

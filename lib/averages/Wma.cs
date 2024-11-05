@@ -28,9 +28,7 @@ namespace QuanTAlib;
 /// </remarks>
 public class Wma : AbstractBase
 {
-    private readonly int _period;
     private readonly Convolution _convolution;
-    private readonly double[] _kernel;
 
     /// <param name="period">The number of data points used in the WMA calculation.</param>
     /// <exception cref="ArgumentException">Thrown when period is less than 1.</exception>
@@ -40,11 +38,10 @@ public class Wma : AbstractBase
         {
             throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _period = period;
-        _kernel = GenerateWmaKernel(_period);
+        double[] _kernel = GenerateWmaKernel(period);
         _convolution = new Convolution(_kernel);
         Name = "Wma";
-        WarmupPeriod = _period;
+        WarmupPeriod = period;
         Init();
     }
 

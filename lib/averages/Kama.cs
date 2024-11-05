@@ -27,7 +27,7 @@ namespace QuanTAlib;
 public class Kama : AbstractBase
 {
     private readonly int _period;
-    private readonly double _scFast, _scSlow;
+    private readonly double _scSlow;
     private readonly double _scDiff;  // Precalculated (_scFast - _scSlow)
     private readonly CircularBuffer _buffer;
     private double _lastKama, _p_lastKama;
@@ -43,7 +43,7 @@ public class Kama : AbstractBase
             throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
         _period = period;
-        _scFast = 2.0 / (((period < fast) ? period : fast) + 1);
+        double _scFast = 2.0 / (((period < fast) ? period : fast) + 1);
         _scSlow = 2.0 / (slow + 1);
         _scDiff = _scFast - _scSlow;
         _buffer = new CircularBuffer(_period + 1);
@@ -97,9 +97,9 @@ public class Kama : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double CalculateEfficiencyRatio(double change, double volatility)
+    private static double CalculateEfficiencyRatio(double change, double volatility)
     {
-        return volatility != 0 ? change / volatility : 0;
+        return volatility >= double.Epsilon ? change / volatility : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

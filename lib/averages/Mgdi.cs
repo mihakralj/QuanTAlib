@@ -27,7 +27,6 @@ namespace QuanTAlib;
 public class Mgdi : AbstractBase
 {
     private readonly int _period;
-    private readonly double _kFactor;
     private readonly double _kFactorPeriod;  // Precalculated k * period
     private double _prevMd, _p_prevMd;
 
@@ -45,7 +44,6 @@ public class Mgdi : AbstractBase
             throw new System.ArgumentOutOfRangeException(nameof(kFactor), "K-Factor must be greater than 0.");
         }
         _period = period;
-        _kFactor = kFactor;
         _kFactorPeriod = kFactor * period;
         Name = "Mgdi";
         WarmupPeriod = period;
@@ -85,7 +83,7 @@ public class Mgdi : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateRatio(double value)
     {
-        return _prevMd != 0 ? value / _prevMd : 1;
+        return _prevMd >= double.Epsilon ? value / _prevMd : 1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
