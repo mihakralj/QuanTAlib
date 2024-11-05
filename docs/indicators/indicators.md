@@ -5,12 +5,12 @@
 | Basic Transforms | 6 of 6 | 100% |
 | Averages & Trends | 33 of 33 | 100% |
 | Momentum | 16 of 16 | 100% |
-| Oscillators | 21 of 29 | 72% |
+| Oscillators | 22 of 29 | 76% |
 | Volatility | 24 of 35 | 69% |
 | Volume | 15 of 19 | 79% |
 | Numerical Analysis | 13 of 19 | 68% |
 | Errors | 16 of 16 | 100% |
-| **Total** | **144 of 173** | **83%** |
+| **Total** | **145 of 173** | **84%** |
 
 |Technical Indicator Name| Class Name|
 |-----------|:----------:|
@@ -85,9 +85,9 @@
 |COPPOCK - Coppock Curve|`Coppock`|
 |CRSI - Connor RSI|`Crsi`|
 |🚧 CTI - Ehler's Correlation Trend Indicator|`Cti`|
-|🚧 EFI - Elder Ray's Force Index|`Efi`|
 |🚧 FISHER - Fisher Transform|`Fisher`|
 |🚧 FOSC - Forecast Oscillator|`Fosc`|
+|EFI - Elder Ray's Force Index|`Efi`|
 |🚧 GATOR* - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)|`Gator`|
 |🚧 KDJ* - KDJ Indicator (K, D, J lines)|`Kdj`|
 |🚧 KRI - Kairi Relative Index|`Kri`|
