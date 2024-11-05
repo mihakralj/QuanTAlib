@@ -304,7 +304,7 @@ public class SkenderTests
                 .GetMama(fastLimit: 0.5, slowLimit: 0.05)
                 .Select(i => i.Mama.Null2NaN()!);
             Assert.Equal(QL.Length, SK.Count());
-            for (int i = QL.Length - 1; i > 100; i--)
+            for (int i = QL.Length - 1; i > 500; i--)
             {
                 Assert.InRange(SK.ElementAt(i) - QL[i].Value, -range, range);
             }

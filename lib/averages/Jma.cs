@@ -27,14 +27,12 @@ namespace QuanTAlib;
 /// </remarks>
 public class Jma : AbstractBase
 {
-    private readonly double _period;
     private readonly double _phase;
     private readonly CircularBuffer _vsumBuff;
     private readonly CircularBuffer _avoltyBuff;
     private readonly double _beta;
     private readonly double _len1;
     private readonly double _pow1;
-    private readonly double _oneMinusAlpha;
     private readonly double _oneMinusAlphaSquared;
     private readonly double _alphaSquared;
 
@@ -55,19 +53,18 @@ public class Jma : AbstractBase
             throw new System.ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
         }
         Factor = factor;
-        _period = period;
-        _phase = System.Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
+        _phase = Math.Clamp((phase * 0.01) + 1.5, 0.5, 2.5);
 
         _vsumBuff = new CircularBuffer(buffer);
         _avoltyBuff = new CircularBuffer(65);
         _beta = factor * (period - 1) / ((factor * (period - 1)) + 2);
 
-        _len1 = System.Math.Max((System.Math.Log(System.Math.Sqrt(period - 1)) / System.Math.Log(2.0)) + 2.0, 0);
-        _pow1 = System.Math.Max(_len1 - 2.0, 0.5);
+        _len1 = Math.Max((Math.Log(Math.Sqrt(period - 1)) / Math.Log(2.0)) + 2.0, 0);
+        _pow1 = Math.Max(_len1 - 2.0, 0.5);
 
         // Precalculate constants for alpha-based calculations
-        double alpha = System.Math.Pow(_beta, _pow1);
-        _oneMinusAlpha = 1.0 - alpha;
+        double alpha = Math.Pow(_beta, _pow1);
+        double _oneMinusAlpha = 1.0 - alpha;
         _oneMinusAlphaSquared = _oneMinusAlpha * _oneMinusAlpha;
         _alphaSquared = alpha * alpha;
 
@@ -120,7 +117,7 @@ public class Jma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateVolatility(double price, double del1, double del2)
     {
-        double volty = System.Math.Max(System.Math.Abs(del1), System.Math.Abs(del2));
+        double volty = Math.Max(Math.Abs(del1), Math.Abs(del2));
         _vsumBuff.Add(volty, Input.IsNew);
         _vSum += (_vsumBuff[^1] - _vsumBuff[0]) / _vsumBuff.Count;
         _avoltyBuff.Add(_vSum, Input.IsNew);
@@ -131,7 +128,7 @@ public class Jma : AbstractBase
     private double CalculateRelativeVolatility(double volty, double avgVolty)
     {
         double rvolty = (avgVolty > 0) ? volty / avgVolty : 1;
-        return System.Math.Min(System.Math.Max(rvolty, 1.0), System.Math.Pow(_len1, 1.0 / _pow1));
+        return Math.Min(Math.Max(rvolty, 1.0), Math.Pow(_len1, 1.0 / _pow1));
     }
 
     protected override double Calculation()
@@ -152,13 +149,13 @@ public class Jma : AbstractBase
         double avgVolty = _avoltyBuff.Average();
 
         double rvolty = CalculateRelativeVolatility(volty, avgVolty);
-        double pow2 = System.Math.Pow(rvolty, _pow1);
-        double Kv = System.Math.Pow(_beta, System.Math.Sqrt(pow2));
+        double pow2 = Math.Pow(rvolty, _pow1);
+        double Kv = Math.Pow(_beta, Math.Sqrt(pow2));
 
         _upperBand = (del1 >= 0) ? price : price - (Kv * del1);
         _lowerBand = (del2 <= 0) ? price : price - (Kv * del2);
 
-        double alpha = System.Math.Pow(_beta, pow2);
+        double alpha = Math.Pow(_beta, pow2);
         double ma1 = price + (alpha * (_prevMa1 - price));
         _prevMa1 = ma1;
 

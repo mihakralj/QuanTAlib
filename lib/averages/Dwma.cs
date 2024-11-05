@@ -25,7 +25,6 @@ public class Dwma : AbstractBase
 {
     private readonly Wma _innerWma;
     private readonly Wma _outerWma;
-    private readonly int _period;
 
     public Dwma(int period)
     {
@@ -33,7 +32,6 @@ public class Dwma : AbstractBase
         {
             throw new System.ArgumentException("Period must be greater than or equal to 1.", nameof(period));
         }
-        _period = period;
         _innerWma = new Wma(period);
         _outerWma = new Wma(period);
         Name = "Dwma";

@@ -81,7 +81,7 @@ public sealed class Mapd : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double CalculatePercentageDeviation(double actual, double predicted)
     {
-        return actual != 0 ? Math.Abs((actual - predicted) / actual) : 0;
+        return actual >= double.Epsilon ? Math.Abs((actual - predicted) / actual) : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
