@@ -96,7 +96,7 @@ public class Convolution : AbstractBase
         }
 
         // Normalize the kernel or set equal weights if the sum is zero
-        double normalizationFactor = (sum != 0) ? sum : _activeLength;
+        double normalizationFactor = (sum >= double.Epsilon) ? sum : _activeLength;
         double invNormFactor = 1.0 / normalizationFactor;
 
         for (int i = 0; i < _activeLength; i++)

@@ -120,7 +120,7 @@ public sealed class Mase : AbstractBase
         double sumAbsoluteError = CalculateSumAbsoluteError(actualValues, predictedValues);
         double naiveForecastError = CalculateNaiveForecastError(actualValues, naiveValues);
 
-        return naiveForecastError != 0 ? (sumAbsoluteError / _actualBuffer.Count) / naiveForecastError : double.PositiveInfinity;
+        return naiveForecastError >= double.Epsilon ? (sumAbsoluteError / _actualBuffer.Count) / naiveForecastError : double.PositiveInfinity;
     }
 
     /// <summary>

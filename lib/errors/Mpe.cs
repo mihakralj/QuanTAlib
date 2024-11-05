@@ -82,7 +82,7 @@ public sealed class Mpe : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double CalculatePercentageError(double actual, double predicted)
     {
-        return actual != 0 ? (actual - predicted) / actual : 0;
+        return actual >= double.Epsilon ? (actual - predicted) / actual : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

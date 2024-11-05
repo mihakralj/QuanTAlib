@@ -81,7 +81,7 @@ public sealed class Mape : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double CalculatePercentageError(double actual, double predicted)
     {
-        return actual != 0 ? Math.Abs((actual - predicted) / actual) : 0;
+        return actual >= double.Epsilon ? Math.Abs((actual - predicted) / actual) : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

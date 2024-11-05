@@ -156,7 +156,7 @@ public class Htit : AbstractBase
         _imBuffer.Add(im, Input.IsNew);
 
         // Calculate period
-        double pd = (im != 0 && re != 0) ? TWO_PI / System.Math.Atan(im / re) : 0;
+        double pd = (im >= double.Epsilon && re >= double.Epsilon) ? TWO_PI / System.Math.Atan(im / re) : 0;
         pd = ClampPeriod(pd, _lastPd);
         pd = (ALPHA * pd) + (BETA * _lastPd);
         _pdBuffer.Add(pd, Input.IsNew);

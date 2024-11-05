@@ -44,7 +44,7 @@ public abstract class AbstractBase : ITValue
     /// Creates a new TValue with the current state.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected TValue CreateTValue(System.DateTime time, double value, bool isNew, bool isHot = false)
+    protected static TValue CreateTValue(System.DateTime time, double value, bool isNew, bool isHot = false)
     {
         return new TValue(time, value, isNew, isHot);
     }

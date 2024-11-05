@@ -115,7 +115,7 @@ public sealed class Rsquared : AbstractBase
                 sumSquaredTotal += squaredTotal;
             }
 
-            rsquared = sumSquaredTotal != 0 ? 1 - (sumSquaredResidual / sumSquaredTotal) : 0;
+            rsquared = sumSquaredTotal >= double.Epsilon ? 1 - (sumSquaredResidual / sumSquaredTotal) : 0;
         }
 
         IsHot = _index >= WarmupPeriod;
