@@ -111,7 +111,7 @@ public class Mama : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculatePeriod(double im, double re)
     {
-        if (im == 0 || re == 0) return _pd[^2];
+        if (System.Math.Abs(im) <= double.Epsilon || System.Math.Abs(re) <= double.Epsilon) return _pd[^2];
         return _twoPi / System.Math.Atan(im / re);
     }
 
@@ -167,7 +167,7 @@ public class Mama : AbstractBase
             _pd[^1] = AdjustPeriod(_pd[^1]);
 
             // Phase calculation
-            double phase = _i1[^1] != 0 ? System.Math.Atan(_q1[^1] / _i1[^1]) * _radToDeg : _ph[^2];
+            double phase = Math.Abs(_i1[^1]) >= double.Epsilon ? System.Math.Atan(_q1[^1] / _i1[^1]) * _radToDeg : _ph[^2];
             _ph.Add(phase, Input.IsNew);
 
             // Adaptive alpha
