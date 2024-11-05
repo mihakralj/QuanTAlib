@@ -1,5 +1,5 @@
 # Oscillators indicators
-Done: 21, Todo: 8
+Done: 22, Todo: 7
 
 ✔️ AC - Acceleration Oscillator
 ✔️ AO - Awesome Oscillator
@@ -14,7 +14,7 @@ Done: 21, Todo: 8
 ✔️ CRSI - Connor RSI
 CTI - Ehler's Correlation Trend Indicator
 ✔️ DOSC - Derivative Oscillator
-EFI - Elder Ray's Force Index
+✔️ EFI - Elder Ray's Force Index
 FISHER - Fisher Transform
 FOSC - Forecast Oscillator
 *GATOR - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)
