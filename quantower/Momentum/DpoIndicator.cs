@@ -25,7 +25,7 @@ public class DpoIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 3)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Dpo? Dpo;
+    private Dpo? dpo;
     protected LineSeries? DpoSeries;
     public int MinHistoryDepths => Period * 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -42,14 +42,14 @@ public class DpoIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        Dpo = new Dpo(Period);
+        dpo = new Dpo(Period);
         base.OnInit();
     }
 
     protected override void OnUpdate(UpdateArgs args)
     {
         TBar input = this.GetInputBar(args);
-        TValue result = Dpo!.Calc(input);
+        TValue result = dpo!.Calc(input);
 
         DpoSeries!.SetValue(result.Value);
         DpoSeries!.SetMarker(0, Color.Transparent);
@@ -62,6 +62,6 @@ public class DpoIndicator : Indicator, IWatchlistIndicator
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, DpoSeries!, Dpo!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.PaintSmoothCurve(args, DpoSeries!, dpo!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }
