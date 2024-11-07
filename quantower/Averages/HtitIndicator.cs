@@ -37,7 +37,7 @@ public class HtitIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "HTIT - Hilbert Transform Instantaneous Trendline";
         Description = "Hilbert Transform Instantaneous Trendline (Note: This indicator may not be fully functional)";
-        Series = new(name: "HTIT", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: "HTIT", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

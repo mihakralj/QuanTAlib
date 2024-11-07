@@ -35,7 +35,7 @@ public class KurtosisIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        KurtosisSeries = new("Kurtosis", Color.Blue, 2, LineStyle.Solid);
+        KurtosisSeries = new("Kurtosis", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(KurtosisSeries);
     }
 

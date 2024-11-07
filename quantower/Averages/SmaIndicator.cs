@@ -39,7 +39,7 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "SMA - Simple Moving Average";
         Description = "Simple Moving Average";
-        Series = new(name: $"SMA {Period}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"SMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

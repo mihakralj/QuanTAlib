@@ -36,7 +36,7 @@ public class CurvatureIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        CurvatureSeries = new("Curvature", Color.Blue, 2, LineStyle.Solid);
+        CurvatureSeries = new("Curvature", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(CurvatureSeries);
     }
 

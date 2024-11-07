@@ -40,7 +40,7 @@ public class RmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "RMA - Relative Moving Average (Wilder's Moving Average)";
         Description = "Relative Moving Average, also known as Wilder's Moving Average";
-        Series = new(name: $"RMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"RMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

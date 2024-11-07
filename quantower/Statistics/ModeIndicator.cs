@@ -35,7 +35,7 @@ public class ModeIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         SourceName = Source.ToString();
 
-        ModeSeries = new("Mode", Color.Blue, 2, LineStyle.Solid);
+        ModeSeries = new("Mode", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(ModeSeries);
     }
 

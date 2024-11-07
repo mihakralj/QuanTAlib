@@ -40,7 +40,7 @@ public class DemaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "DEMA - Double Exponential Moving Average";
         Description = "A faster-responding moving average that reduces lag by applying the EMA twice.";
-        Series = new(name: $"DEMA {Period}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"DEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

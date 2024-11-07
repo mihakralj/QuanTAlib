@@ -49,7 +49,7 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "HWMA - Holt-Winter Moving Average";
         Description = "Holt-Winter Moving Average";
-        Series = new(name: $"HWMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"HWMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

@@ -40,7 +40,7 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "WMA - Weighted Moving Average";
         Description = "Weighted Moving Average";
-        Series = new(name: $"WMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"WMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

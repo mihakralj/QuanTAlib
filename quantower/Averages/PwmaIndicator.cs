@@ -40,7 +40,7 @@ public class PwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "PWMA - Pascal's Weighted Moving Average";
         Description = "Pascal's Weighted Moving Average";
-        Series = new(name: $"PWMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"PWMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

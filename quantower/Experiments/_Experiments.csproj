@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Volume</AssemblyName>
+    <AssemblyName>Experiments</AssemblyName>
     <AlgoType>Indicator</AlgoType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -24,7 +24,7 @@
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild"
         Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
-    <Copy SourceFiles="$(OutputPath)\Volume.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Volume" />
+    <Copy SourceFiles="$(OutputPath)\Experiments.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Experiments" />
   </Target>
 
 </Project>

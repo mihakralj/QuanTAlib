@@ -35,7 +35,7 @@ public class JvoltyIndicator : Indicator, IWatchlistIndicator
         Description = "Measures market volatility according to Mark Jurik.";
         SeparateWindow = true;
 
-        JvoltySeries = new("JVOLTY", Color.Blue, 2, LineStyle.Solid);
+        JvoltySeries = new("JVOLTY", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(JvoltySeries);
     }
 

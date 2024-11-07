@@ -40,7 +40,7 @@ public class GmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "GMA - Gaussian Moving Average";
         Description = "Gaussian Moving Average";
-        Series = new(name: $"GMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"GMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

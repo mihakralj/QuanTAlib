@@ -38,7 +38,7 @@ public class PercentileIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         SourceName = Source.ToString();
 
-        PercentileSeries = new("Percentile", Color.Blue, 2, LineStyle.Solid);
+        PercentileSeries = new("Percentile", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(PercentileSeries);
     }
 

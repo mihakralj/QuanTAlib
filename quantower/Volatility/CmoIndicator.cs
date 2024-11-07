@@ -38,7 +38,7 @@ public class CmoIndicator : Indicator, IWatchlistIndicator
         Description = "Measures the momentum of price changes using the difference between the sum of recent gains and the sum of recent losses.";
         SeparateWindow = true;
         SourceName = Source.ToString();
-        CmoSeries = new($"CMO {Periods}", Color.Blue, 2, LineStyle.Solid);
+        CmoSeries = new($"CMO {Periods}", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(CmoSeries);
     }
 

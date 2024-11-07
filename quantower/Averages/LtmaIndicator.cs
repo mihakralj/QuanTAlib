@@ -40,7 +40,7 @@ public class LtmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "LTMA - Laguerre Time Moving Average";
         Description = "Laguerre Time Moving Average";
-        Series = new(name: $"LTMA {Gamma}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"LTMA {Gamma}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

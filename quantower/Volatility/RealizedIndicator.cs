@@ -22,7 +22,7 @@ public class RealizedIndicator : Indicator, IWatchlistIndicator
         Description = "Measures actual price volatility over a specific period, useful for risk assessment and forecasting.";
         SeparateWindow = true;
 
-        RvSeries = new("RV", Color.Blue, 2, LineStyle.Solid);
+        RvSeries = new("RV", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(RvSeries);
     }
 

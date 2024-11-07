@@ -35,7 +35,7 @@ public class SkewIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        SkewSeries = new("Skew", Color.Blue, 2, LineStyle.Solid);
+        SkewSeries = new("Skew", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(SkewSeries);
     }
 

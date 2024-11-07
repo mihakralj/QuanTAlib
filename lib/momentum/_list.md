@@ -1,5 +1,4 @@
 # Momentum indicators
-Done: 15, Todo: 2
 
 ✔️ ADX - Average Directional Movement Index
 ✔️ ADXR - Average Directional Movement Index Rating

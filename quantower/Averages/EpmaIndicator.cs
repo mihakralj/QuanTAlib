@@ -40,7 +40,7 @@ public class EpmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "EPMA - Exponential Percentage Moving Average";
         Description = "Exponential Percentage Moving Average";
-        Series = new(name: $"EPMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"EPMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

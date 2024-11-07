@@ -47,7 +47,7 @@ public class AtrIndicator : Indicator, IWatchlistIndicator
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintHLine(args, 0.05, new Pen(Color.DarkRed, width: 2));
+        this.PaintHLine(args, 0.05, new Pen(color: IndicatorExtensions.Volatility, width: 2));
         this.PaintSmoothCurve(args, AtrSeries!, atr!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }

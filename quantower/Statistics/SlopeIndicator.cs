@@ -36,7 +36,7 @@ public class SlopeIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        SlopeSeries = new("Slope", Color.Blue, 2, LineStyle.Solid);
+        SlopeSeries = new("Slope", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         LineSeries = new("Regression Line", Color.Red, 1, LineStyle.Solid);
         AddLineSeries(SlopeSeries);
         AddLineSeries(LineSeries);

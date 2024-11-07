@@ -38,7 +38,7 @@ public class MinIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         SourceName = Source.ToString();
 
-        MinSeries = new("Min", Color.Blue, 2, LineStyle.Solid);
+        MinSeries = new("Min", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(MinSeries);
     }
 

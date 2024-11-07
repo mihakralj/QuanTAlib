@@ -22,7 +22,7 @@ public class CviIndicator : Indicator, IWatchlistIndicator
         Description = "Measures the volatility of a financial instrument by comparing the spread between the high and low prices.";
         SeparateWindow = true;
 
-        CviSeries = new($"CVI {Periods}", Color.Blue, 2, LineStyle.Solid);
+        CviSeries = new($"CVI {Periods}", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(CviSeries);
     }
 
@@ -48,7 +48,7 @@ public class CviIndicator : Indicator, IWatchlistIndicator
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintHLine(args, 0.05, new Pen(Color.DarkRed, width: 2));
+        this.PaintHLine(args, 0.05, new Pen(color: IndicatorExtensions.Volatility, width: 2));
         this.PaintSmoothCurve(args, CviSeries!, cvi!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }

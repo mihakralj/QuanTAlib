@@ -36,9 +36,7 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Ema? slow_ma;
-    private Ema? fast_ma;
-    private Ema? signal_ma;
+    private Macd? macd;
     private Slope? histSlope;
     protected LineSeries? MainSeries;
     protected LineSeries? SignalSeries;
@@ -58,8 +56,8 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MACD - Moving Average Convergence Divergence";
         Description = "MACD";
-        MainSeries = new(name: $"MAIN", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        SignalSeries = new(name: $"SIGNAL", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        MainSeries = new(name: $"MAIN", color: Color.RoyalBlue, width: 2, style: LineStyle.Solid);
+        SignalSeries = new(name: $"SIGNAL", color: Color.Red, width: 2, style: LineStyle.Solid);
         HistogramSeries = new(name: $"HISTOGRAM", color: Color.White, width: 2, style: LineStyle.Solid);
         HistSlopeSeries = new(name: $"SLOPE", color: Color.Transparent, width: 2, style: LineStyle.Solid);
         HistSlopeSeries.Visible = false;
@@ -72,9 +70,7 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        slow_ma = new(Slow, useSma: UseSMA);
-        fast_ma = new(Fast, useSma: UseSMA);
-        signal_ma = new(Signal, useSma: UseSMA);
+        macd = new(fastPeriod: Fast, slowPeriod: Slow, signalPeriod: Signal);
         histSlope = new(2);
         SourceName = Source.ToString();
         base.OnInit();
@@ -83,19 +79,22 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         TValue input = this.GetInputValue(args, Source);
-        slow_ma!.Calc(input);
-        fast_ma!.Calc(input);
-        double main = fast_ma.Value - slow_ma.Value;
-        double signal = signal_ma!.Calc(main);
-        double histogram = main - signal;
+        macd!.Calc(input);
+
+        double main = macd.MacdLine;
+        double signal = macd.SignalLine;
+        double histogram = macd.Value;
         histSlope!.Calc(histogram);
 
         MainSeries!.SetValue(main);
         MainSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+
         SignalSeries!.SetValue(signal);
         SignalSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+
         HistogramSeries!.SetValue(histogram);
         HistogramSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+
         HistSlopeSeries!.SetValue(histSlope.Value);
         HistSlopeSeries!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
@@ -118,7 +117,7 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
         for (int i = rightIndex; i < leftIndex; i++)
         {
             int barX = (int)converter.GetChartX(this.HistoricalData.Time(i));
-            int barY = (int)converter.GetChartY(HistogramSeries![i]*2.0);
+            int barY = (int)converter.GetChartY(HistogramSeries![i] * 2.0);
             int barY0 = (int)converter.GetChartY(0);
             int HistBarWidth = this.CurrentChart.BarsWidth - 2;
 
@@ -139,8 +138,8 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
             }
         }
 
-        this.PaintSmoothCurve(args, MainSeries!, slow_ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.3);
-        this.PaintSmoothCurve(args, SignalSeries!, slow_ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.PaintSmoothCurve(args, MainSeries!, macd!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.3);
+        this.PaintSmoothCurve(args, SignalSeries!, macd!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
         base.OnPaintChart(args);
     }
 }

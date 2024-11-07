@@ -43,7 +43,7 @@ public class RemaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "REMA - Regularized Exponential Moving Average";
         Description = "Regularized Exponential Moving Average";
-        Series = new(name: $"REMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"REMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
