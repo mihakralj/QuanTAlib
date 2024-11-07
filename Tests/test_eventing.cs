@@ -25,7 +25,7 @@ public class EventingTests
         ("Fwma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Gma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Hma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
-        ("Htit", new object[] { }, new object[] { new TSeries() }),
+        ("Htit", System.Array.Empty<object>(), new object[] { new TSeries() }),
         ("Hwma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Jma", new object[] { DefaultPeriod, 0, 0.45, 10 }, new object[] { new TSeries(), DefaultPeriod, 0, 0.45, 10 }),
         ("Kama", new object[] { DefaultPeriod, 2, 30 }, new object[] { new TSeries(), DefaultPeriod, 2, 30 }),
@@ -91,15 +91,15 @@ public class EventingTests
 
     private static readonly (string Name, object[] DirectParams, object[] EventParams)[] BarIndicators = new[]
     {
-        ("Adl", new object[] { }, new object[] { new TBarSeries() }),
+        ("Adl", System.Array.Empty<object>(), new object[] { new TBarSeries() }),
         ("Adosc", new object[] { 3, 10 }, new object[] { new TBarSeries(), 3, 10 }),
-        ("Aobv", new object[] { }, new object[] { new TBarSeries() }),
+        ("Aobv", System.Array.Empty<object>(), new object[] { new TBarSeries() }),
         ("Cmf", new object[] { 20 }, new object[] { new TBarSeries(), 20 }),
         ("Eom", new object[] { 14 }, new object[] { new TBarSeries(), 14 }),
         ("Kvo", new object[] { 34, 55 }, new object[] { new TBarSeries(), 34, 55 }),
         ("Atr", new object[] { 14 }, new object[] { new TBarSeries(), 14 }),
         ("Chop", new object[] { 14 }, new object[] { new TBarSeries(), 14 }),
-        ("Dosc", new object[] { }, new object[] { new TBarSeries() })
+        ("Dosc", System.Array.Empty<object>(), new object[] { new TBarSeries() })
     };
 
     public static IEnumerable<object[]> GetValueIndicatorData()
