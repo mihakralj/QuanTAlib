@@ -82,7 +82,6 @@ public sealed class Dpo : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
-
         ManageState(BarInput.IsNew);
 
         // Add current price to buffer
