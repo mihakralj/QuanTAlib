@@ -128,8 +128,8 @@ public sealed class Tsf : AbstractBase
             sumX2 += x * x;
         }
 
-        double slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-        double intercept = (sumY - slope * sumX) / n;
+        double slope = ((n * sumXY) - (sumX * sumY)) / ((n * sumX2) - (sumX * sumX));
+        double intercept = (sumY - (slope * sumX)) / n;
 
         return (slope, intercept);
     }
@@ -144,7 +144,7 @@ public sealed class Tsf : AbstractBase
         {
             double x = i + 1;
             double y = values[i];
-            double predicted = slope * x + intercept;
+            double predicted = (slope * x) + intercept;
             double residual = y - predicted;
             sumSquaredResiduals += residual * residual;
         }
@@ -166,14 +166,14 @@ public sealed class Tsf : AbstractBase
             var (slope, intercept) = CalculateLinearRegression(values);
 
             // Calculate forecast for the next period
-            Forecast = slope * (Period + 1) + intercept;
+            Forecast = (slope * (Period + 1)) + intercept;
 
             // Calculate standard error
             double standardError = CalculateStandardError(values, slope, intercept);
 
             // Calculate confidence interval (using t-distribution with n-2 degrees of freedom)
             double tValue = 1.96; // Approximation for 95% confidence interval
-            double marginOfError = tValue * standardError * Math.Sqrt(1 + 1.0 / Period);
+            double marginOfError = tValue * standardError * Math.Sqrt(1 + (1.0 / Period));
 
             LowerBound = Forecast - marginOfError;
             UpperBound = Forecast + marginOfError;
