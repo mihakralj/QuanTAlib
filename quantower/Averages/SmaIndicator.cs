@@ -5,7 +5,7 @@ namespace QuanTAlib;
 
 public class SmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 1000, 1, 0)]
+    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
 
     [InputParameter("Data source", sortIndex: 2, variants: [
@@ -67,6 +67,5 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, error!.Value.ToString());
     }
 }

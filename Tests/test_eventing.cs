@@ -21,6 +21,7 @@ public class EventingTests
         ("Ema", new object[] { DefaultPeriod, true }, new object[] { new TSeries(), DefaultPeriod, true }),
         ("Epma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Pwma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
+        ("Fisher", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Frama", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Fwma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Gma", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),

@@ -22,6 +22,8 @@ public static class IndicatorExtensions
     public static readonly Color Statistics = Color.FromArgb(128, 128, 255);  // #8080FF - Blue
     public static readonly Color Oscillators = Color.FromArgb(255, 128, 255); // #FF80FF - Magenta
     public static readonly Color Momentum = Color.FromArgb(128, 255, 255);    // #80FFFF - Cyan
+    public static readonly Color Experiments = Color.FromArgb(255, 165, 0);   // #FFA500 - Orange
+
     public static TValue GetInputValue(this Indicator indicator, UpdateArgs args, SourceType source)
     {
         var historicalData = indicator.HistoricalData;

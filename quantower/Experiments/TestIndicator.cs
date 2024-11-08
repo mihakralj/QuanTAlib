@@ -59,7 +59,5 @@ public class TestIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }
-

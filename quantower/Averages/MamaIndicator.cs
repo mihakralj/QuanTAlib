@@ -73,6 +73,5 @@ public class MamaIndicator : Indicator, IWatchlistIndicator
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, MamaSeries!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
         this.PaintSmoothCurve(args, FamaSeries!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

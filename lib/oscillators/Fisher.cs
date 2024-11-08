@@ -31,7 +31,6 @@ public sealed class Fisher : AbstractBase
     private readonly int _period;
     private readonly double[] _prices;
     private double _prevFisher;
-    private double _prevValue;
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The calculation period (default: 10)</param>

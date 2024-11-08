@@ -55,7 +55,7 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        if (NA == 0 && NB == 0 && NC == 0)
+        if ((NA, NB, NC) == (0, 0, 0))
         {
             ma = new Hwma(Periods);
         }
@@ -80,6 +80,5 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

@@ -152,5 +152,13 @@ namespace QuanTAlib
         [Fact] public void Dmx() => TestIndicator<momentum::QuanTAlib.DmxIndicator>("dmx");
         [Fact] public void Dpo() => TestIndicator<momentum::QuanTAlib.DpoIndicator>("dpo");
         [Fact] public void Macd() => TestIndicator<momentum::QuanTAlib.MacdIndicator>("macd");
+        [Fact] public void Mom() => TestIndicator<momentum::QuanTAlib.MomIndicator>("Series");
+        [Fact] public void Pmo() => TestIndicator<momentum::QuanTAlib.PmoIndicator>("Series");
+        [Fact] public void Po() => TestIndicator<momentum::QuanTAlib.PoIndicator>("Series");
+        [Fact] public void Ppo() => TestIndicator<momentum::QuanTAlib.PpoIndicator>("Series");
+        [Fact] public void Roc() => TestIndicator<momentum::QuanTAlib.RocIndicator>("Series");
+        [Fact] public void Trix() => TestIndicator<momentum::QuanTAlib.TrixIndicator>("Series");
+        [Fact] public void Vel() => TestIndicator<momentum::QuanTAlib.VelIndicator>("Series");
+        [Fact] public void Vortex() => TestIndicatorMultipleFields<momentum::QuanTAlib.VortexIndicator>(new[] { "PlusLine", "MinusLine" });
     }
 }

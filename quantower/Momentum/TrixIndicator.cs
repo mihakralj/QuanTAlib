@@ -3,15 +3,12 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class MaafIndicator : Indicator, IWatchlistIndicator
+public class TrixIndicator : Indicator
 {
-    [InputParameter("Periods", sortIndex: 1, 3, 1000, 1, 0)]
-    public int Periods { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, minimum: 1, maximum: 2000, increment: 1)]
+    public int Period { get; set; } = 18;
 
-    [InputParameter("Threshold", sortIndex: 2, 0.0001, 0.1, 0.0001, 4)]
-    public double Threshold { get; set; } = 0.002;
-
-    [InputParameter("Data source", sortIndex: 3, variants: [
+    [InputParameter("Data source", sortIndex: 2, variants: [
         "Open", SourceType.Open,
         "High", SourceType.High,
         "Low", SourceType.Low,
@@ -28,28 +25,27 @@ public class MaafIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Maaf? ma;
+    private Trix? trix;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => Periods;
-    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"MAAF {Periods}:{Threshold}:{SourceName}";
+    public override string ShortName => $"TRIX({Period})";
 
-    public MaafIndicator()
+    public TrixIndicator()
     {
         OnBackGround = true;
-        SeparateWindow = false;
+        SeparateWindow = true;
         SourceName = Source.ToString();
-        Name = "MAAF - Median Adaptive Averaging Filter";
-        Description = "Median Adaptive Averaging Filter (Note: This indicator may have consistency issues)";
-        Series = new(name: $"MAAF {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Name = "TRIX - Triple Exponential Average Rate of Change";
+        Description = "A momentum oscillator that shows the percentage rate of change of a triple exponentially smoothed moving average";
+
+        Series = new(name: $"TRIX({Period})", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Maaf(Periods, Threshold);
+        trix = new Trix(period: Period);
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -57,15 +53,15 @@ public class MaafIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         TValue input = this.GetInputValue(args, Source);
-        TValue result = ma!.Calc(input);
+        TValue result = trix!.Calc(input);
 
         Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+        Series!.SetMarker(0, Color.Transparent);
     }
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.PaintSmoothCurve(args, Series!, trix!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }
