@@ -63,7 +63,7 @@ public sealed class Fisher : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double NormalizePrice(double price, double min, double max)
     {
-        return 2 * ((price - min) / (max - min) - 0.5);
+        return 2 * (((price - min) / (max - min)) - 0.5);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
