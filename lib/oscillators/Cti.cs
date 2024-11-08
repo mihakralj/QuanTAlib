@@ -96,12 +96,12 @@ public sealed class Cti : AbstractBase
         }
 
         // Check for numerical stability
-        double denomX = points * sxx - sx * sx;
-        double denomY = points * syy - sy * sy;
+        double denomX = (points * sxx) - (sx * sx);
+        double denomY = (points * syy) - (sy * sy);
 
         if (denomX > 0 && denomY > 0)
         {
-            return (points * sxy - sx * sy) / Math.Sqrt(denomX * denomY);
+            return ((points * sxy) - (sx * sy)) / Math.Sqrt(denomX * denomY);
         }
 
         return 0;
