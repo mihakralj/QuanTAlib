@@ -11,7 +11,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Phase", sortIndex: 2, -100, 100, 1, 0)]
     public int Phase { get; set; } = 0;
 
-    [InputParameter("Beta factor", sortIndex: 3, minimum: 0, maximum:5 , increment: 0.01, decimalPlaces: 2)]
+    [InputParameter("Beta factor", sortIndex: 3, minimum: 0, maximum: 5, increment: 0.01, decimalPlaces: 2)]
     public double Factor { get; set; } = 0.45;
 
     [InputParameter("Data source", sortIndex: 4, variants: [
@@ -34,7 +34,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     private Jma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => Math.Max(65,Periods * 2);
+    public int MinHistoryDepths => Math.Max(65, Periods * 2);
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"JMA {Periods}:{Phase}:{Factor:F2}:{SourceName}";
@@ -46,7 +46,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "JMA - Jurik Moving Average";
         Description = "Jurik Moving Average (Note: This indicator may have consistency issues)";
-        Series = new(name: $"JMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"JMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

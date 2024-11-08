@@ -60,14 +60,14 @@ public sealed class Macd : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Macd(int fastPeriod = DefaultFastPeriod, int slowPeriod = DefaultSlowPeriod, int signalPeriod = DefaultSignalPeriod)
     {
-        if (fastPeriod < 1)
-            throw new ArgumentOutOfRangeException(nameof(fastPeriod));
-        if (slowPeriod < 1)
-            throw new ArgumentOutOfRangeException(nameof(slowPeriod));
-        if (signalPeriod < 1)
-            throw new ArgumentOutOfRangeException(nameof(signalPeriod));
+        ArgumentOutOfRangeException.ThrowIfLessThan(fastPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slowPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(signalPeriod, 1);
+
         if (fastPeriod >= slowPeriod)
-            throw new ArgumentException("Fast period must be less than slow period");
+        {
+            throw new ArgumentOutOfRangeException(nameof(fastPeriod), "Fast period must be less than slow period");
+        }
 
         _fastEma = new(fastPeriod);
         _slowEma = new(slowPeriod);

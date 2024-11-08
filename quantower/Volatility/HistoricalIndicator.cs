@@ -22,7 +22,7 @@ public class HistoricalIndicator : Indicator, IWatchlistIndicator
         Description = "Measures price fluctuations over time, indicating market volatility based on past price movements.";
         SeparateWindow = true;
 
-        HvSeries = new("HV", Color.Blue, 2, LineStyle.Solid);
+        HvSeries = new("HV", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(HvSeries);
     }
 

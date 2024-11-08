@@ -1,10 +1,9 @@
 # Momentum indicators
-Done: 15, Todo: 2
 
 ✔️ ADX - Average Directional Movement Index
 ✔️ ADXR - Average Directional Movement Index Rating
 ✔️ APO - Absolute Price Oscillator
-✔️ *DMI - Directional Movement Index (DI+, DI-)
+✔️ DMI - Directional Movement Index (DI+, DI-)
 ✔️ DMX - Jurik Directional Movement Index
 ✔️ DPO - Detrended Price Oscillator
 ✔️ *MACD - Moving Average Convergence/Divergence (MACD, Signal, Histogram)

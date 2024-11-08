@@ -46,7 +46,7 @@ public class AlmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "ALMA - Arnaud Legoux Moving Average";
         Description = "Arnaud Legoux Moving Average";
-        Series = new(name: $"ALMA {Period}:{Offset:F2}:{Sigma:F0}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"ALMA {Period}:{Offset:F2}:{Sigma:F0}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

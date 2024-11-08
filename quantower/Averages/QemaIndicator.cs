@@ -49,7 +49,7 @@ public class QemaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "QEMA - Quadruple Exponential Moving Average";
         Description = "Quadruple Exponential Moving Average";
-        Series = new(name: $"QEMA {K1},{K2},{K3},{K4}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"QEMA {K1},{K2},{K3},{K4}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

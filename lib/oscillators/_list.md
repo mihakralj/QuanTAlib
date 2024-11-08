@@ -14,8 +14,8 @@ Done: 22, Todo: 7
 ✔️ CRSI - Connor RSI
 CTI - Ehler's Correlation Trend Indicator
 ✔️ DOSC - Derivative Oscillator
-EFI - Elder Ray's Force Index
 ✔️ FISHER - Fisher Transform
+✔️ EFI - Elder Ray's Force Index
 FOSC - Forecast Oscillator
 *GATOR - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)
 *KDJ - KDJ Indicator (K, D, J lines)

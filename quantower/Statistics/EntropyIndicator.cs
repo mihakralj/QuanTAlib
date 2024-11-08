@@ -34,7 +34,7 @@ public class EntropyIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        EntropySeries = new("Entropy", Color.Blue, 2, LineStyle.Solid);
+        EntropySeries = new("Entropy", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(EntropySeries);
     }
 

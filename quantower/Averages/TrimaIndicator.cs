@@ -40,7 +40,7 @@ public class TrimaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "TRIMA - Triangular Moving Average";
         Description = "Triangular Moving Average";
-        Series = new(name: $"TRIMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"TRIMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

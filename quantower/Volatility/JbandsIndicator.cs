@@ -39,8 +39,8 @@ public class JbandsIndicator : Indicator, IWatchlistIndicator
         Description = "Upper and Lower Bands.";
         SeparateWindow = false;
 
-        UbSeries = new("UB", Color.Blue, 2, LineStyle.Solid);
-        LbSeries = new("LB", Color.Red, 2, LineStyle.Solid);
+        UbSeries = new("UB", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
+        LbSeries = new("LB", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(UbSeries);
         AddLineSeries(LbSeries);
     }

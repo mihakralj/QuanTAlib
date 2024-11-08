@@ -40,7 +40,7 @@ public class SmmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "SMMA - Smoothed Moving Average";
         Description = "Smoothed Moving Average";
-        Series = new(name: $"SMMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"SMMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

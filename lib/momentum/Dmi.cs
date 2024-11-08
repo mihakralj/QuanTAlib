@@ -24,10 +24,13 @@ namespace QuanTAlib;
 ///
 /// Formula:
 /// TR = max(high-low, abs(high-prevClose), abs(low-prevClose))
-/// +DM = if(high-prevHigh > prevLow-low) then max(high-prevHigh, 0) else 0
-/// -DM = if(prevLow-low > high-prevHigh) then max(prevLow-low, 0) else 0
-/// +DI = 100 * smoothed(+DM) / smoothed(TR)
-/// -DI = 100 * smoothed(-DM) / smoothed(TR)
+/// +DM = if(high-prevHigh > prevLow-low && high-prevHigh > 0) then high-prevHigh else 0
+/// -DM = if(prevLow-low > high-prevHigh && prevLow-low > 0) then prevLow-low else 0
+/// Smoothed TR = Wilder's smoothing of TR (ATR)
+/// Smoothed +DM = Wilder's smoothing of +DM
+/// Smoothed -DM = Wilder's smoothing of -DM
+/// +DI = 100 * Smoothed(+DM) / Smoothed(TR)
+/// -DI = 100 * Smoothed(-DM) / Smoothed(TR)
 ///
 /// Sources:
 ///     J. Welles Wilder Jr. - "New Concepts in Technical Trading Systems" (1978)
@@ -36,49 +39,41 @@ namespace QuanTAlib;
 /// Note: Default period of 14 was recommended by Wilder
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Dmi : AbstractBarBase
+public sealed class Dmi : AbstractBase
 {
-    private readonly Rma _smoothedTr;
+    private readonly Atr _atr;
     private readonly Rma _smoothedPlusDm;
     private readonly Rma _smoothedMinusDm;
-    private double _prevHigh, _prevLow, _prevClose;
-    private double _p_prevHigh, _p_prevLow, _p_prevClose;
+    private double _prevHigh, _prevLow;
+    private double _p_prevHigh, _p_prevLow;
     private double _plusDi, _minusDi;
     private const double ScalingFactor = 100.0;
     private const int DefaultPeriod = 14;
 
-    /// <summary>
-    /// Gets the most recent +DI value
-    /// </summary>
     public double PlusDI => _plusDi;
-
-    /// <summary>
-    /// Gets the most recent -DI value
-    /// </summary>
     public double MinusDI => _minusDi;
 
-    /// <param name="period">The number of periods used in the DMI calculation (default 14).</param>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when period is less than 1.</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Dmi(int period = DefaultPeriod)
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period));
-        _smoothedTr = new(period, useSma: true);
-        _smoothedPlusDm = new(period, useSma: true);
-        _smoothedMinusDm = new(period, useSma: true);
-        _index = 0;
+        _atr = new(period);
+        _smoothedPlusDm = new(period);
+        _smoothedMinusDm = new(period);
         WarmupPeriod = period + 1;
         Name = $"DMI({period})";
     }
 
-    /// <param name="source">The data source object that publishes updates.</param>
-    /// <param name="period">The number of periods used in the DMI calculation.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Dmi(object source, int period) : this(period)
+    public override void Init()
     {
-        var pubEvent = source.GetType().GetEvent("Pub");
-        pubEvent?.AddEventHandler(source, new BarSignal(Sub));
+        base.Init();
+        _atr.Init();
+        _smoothedPlusDm.Init();
+        _smoothedMinusDm.Init();
+        _prevHigh = _prevLow = double.NaN;
+        _p_prevHigh = _p_prevLow = double.NaN;
+        _plusDi = _minusDi = 0;
+        _index = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,23 +84,12 @@ public sealed class Dmi : AbstractBarBase
             _index++;
             _p_prevHigh = _prevHigh;
             _p_prevLow = _prevLow;
-            _p_prevClose = _prevClose;
         }
         else
         {
             _prevHigh = _p_prevHigh;
             _prevLow = _p_prevLow;
-            _prevClose = _p_prevClose;
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    private static double CalculateTrueRange(double high, double low, double prevClose)
-    {
-        double hl = high - low;
-        double hpc = Math.Abs(high - prevClose);
-        double lpc = Math.Abs(low - prevClose);
-        return Math.Max(hl, Math.Max(hpc, lpc));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -115,13 +99,8 @@ public sealed class Dmi : AbstractBarBase
         double upMove = high - prevHigh;
         double downMove = prevLow - low;
 
-        double plusDm = 0.0;
-        double minusDm = 0.0;
-
-        if (upMove > downMove && upMove > 0)
-            plusDm = upMove;
-        else if (downMove > upMove && downMove > 0)
-            minusDm = downMove;
+        double plusDm = (upMove > downMove && upMove > 0) ? upMove : 0;
+        double minusDm = (downMove > upMove && downMove > 0) ? downMove : 0;
 
         return (plusDm, minusDm);
     }
@@ -129,38 +108,36 @@ public sealed class Dmi : AbstractBarBase
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected override double Calculation()
     {
-        ManageState(Input.IsNew);
+        ManageState(BarInput.IsNew);
 
-        if (_index == 1)
+        if (double.IsNaN(_prevHigh))
         {
-            _prevHigh = Input.High;
-            _prevLow = Input.Low;
-            _prevClose = Input.Close;
+            _prevHigh = BarInput.High;
+            _prevLow = BarInput.Low;
             return 0.0;
         }
 
-        // Calculate True Range and Directional Movement
-        double tr = CalculateTrueRange(Input.High, Input.Low, _prevClose);
+        // Calculate ATR
+        double atr = _atr.Calc(BarInput).Value;
+
+        // Calculate Directional Movement
         var (plusDm, minusDm) = CalculateDirectionalMovement(
-            Input.High, Input.Low, _prevHigh, _prevLow);
+            BarInput.High, BarInput.Low, _prevHigh, _prevLow);
 
-        // Update previous values
-        _prevHigh = Input.High;
-        _prevLow = Input.Low;
-        _prevClose = Input.Close;
+        // Update previous values for next calculation
+        _prevHigh = BarInput.High;
+        _prevLow = BarInput.Low;
 
-        // Smooth the indicators using Wilder's method
-        _smoothedTr.Calc(tr, Input.IsNew);
-        _smoothedPlusDm.Calc(plusDm, Input.IsNew);
-        _smoothedMinusDm.Calc(minusDm, Input.IsNew);
+        // Smooth DM values using Wilder's method
+        double smoothedPlusDm = _smoothedPlusDm.Calc(plusDm, BarInput.IsNew).Value;
+        double smoothedMinusDm = _smoothedMinusDm.Calc(minusDm, BarInput.IsNew).Value;
 
-        // Calculate +DI and -DI
-        double smoothedTr = _smoothedTr.Value;
-        if (smoothedTr > 0)
+        // Calculate DI values
+        if (atr > 0)
         {
-            _plusDi = ScalingFactor * _smoothedPlusDm.Value / smoothedTr;
-            _minusDi = ScalingFactor * _smoothedMinusDm.Value / smoothedTr;
-            return _plusDi - _minusDi;  // Return the difference as main value
+            _plusDi = ScalingFactor * smoothedPlusDm / atr;
+            _minusDi = ScalingFactor * smoothedMinusDm / atr;
+            return _plusDi - _minusDi;
         }
 
         _plusDi = 0.0;

@@ -43,7 +43,7 @@ public class MgdiIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MGDI - McGinley Dynamic Indicator";
         Description = "McGinley Dynamic Indicator";
-        Series = new(name: $"MGDI {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"MGDI {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

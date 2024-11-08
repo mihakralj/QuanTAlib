@@ -38,7 +38,7 @@ public class StddevIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        StddevSeries = new("StdDev", Color.Blue, 2, LineStyle.Solid);
+        StddevSeries = new("StdDev", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(StddevSeries);
     }
 

@@ -46,7 +46,7 @@ public class VidyaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "VIDYA - Variable Index Dynamic Average";
         Description = "Variable Index Dynamic Average";
-        Series = new(name: $"VIDYA {ShortPeriod}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"VIDYA {ShortPeriod}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

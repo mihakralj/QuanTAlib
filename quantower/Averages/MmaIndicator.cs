@@ -40,7 +40,7 @@ public class MmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MMA - Modified Moving Average";
         Description = "Modified Moving Average";
-        Series = new(name: $"MMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"MMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

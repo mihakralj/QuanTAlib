@@ -50,7 +50,7 @@ public class AfirmaIndicator : Indicator, IWatchlistIndicator
         Name = "AFIRMA - Adaptive Finite Impulse Response Moving Average";
         Description = "Adaptive Finite Impulse Response Moving Average with ARMA component";
 
-        Series = new(name: $"AFIRMA {Taps}:{Periods}:{Window}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"AFIRMA {Taps}:{Periods}:{Window}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
