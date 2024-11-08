@@ -43,7 +43,7 @@ public class MaafIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MAAF - Median Adaptive Averaging Filter";
         Description = "Median Adaptive Averaging Filter (Note: This indicator may have consistency issues)";
-        Series = new(name: $"MAAF {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"MAAF {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -67,6 +67,5 @@ public class MaafIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

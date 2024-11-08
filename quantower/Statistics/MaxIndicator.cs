@@ -38,7 +38,7 @@ public class MaxIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         SourceName = Source.ToString();
 
-        MaxSeries = new("Max", Color.Blue, 2, LineStyle.Solid);
+        MaxSeries = new("Max", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(MaxSeries);
     }
 

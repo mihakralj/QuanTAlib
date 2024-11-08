@@ -19,7 +19,7 @@ public class RviIndicator : Indicator, IWatchlistIndicator
         Description = "Measures the direction of volatility, helping to identify overbought or oversold conditions in price.";
         SeparateWindow = true;
 
-        RviSeries = new("RVI", Color.Blue, 2, LineStyle.Solid);
+        RviSeries = new("RVI", color: IndicatorExtensions.Volatility, 2, LineStyle.Solid);
         AddLineSeries(RviSeries);
     }
 

@@ -85,9 +85,9 @@ public sealed class Dpo : AbstractBase
         ManageState(BarInput.IsNew);
 
         // Add current price to buffer
-        _prices.Add(BarInput.Close);
-
+        _prices.Add(BarInput.Close, BarInput.IsNew);
         // Need enough prices for the shifted SMA calculation
+
         if (_index <= _shift)
         {
             return 0;
@@ -95,12 +95,6 @@ public sealed class Dpo : AbstractBase
 
         // Add price from shift periods ago to SMA buffer
         _sma.Add(_prices[_shift]);
-
-        // Need enough prices for full calculation
-        if (_index <= WarmupPeriod)
-        {
-            return 0;
-        }
 
         // Calculate DPO
         double dpo = BarInput.Close - _sma.Average();

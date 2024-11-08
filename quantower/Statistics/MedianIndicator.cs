@@ -35,7 +35,7 @@ public class MedianIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         SourceName = Source.ToString();
 
-        MedianSeries = new("Median", Color.Blue, 2, LineStyle.Solid);
+        MedianSeries = new("Median", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(MedianSeries);
     }
 

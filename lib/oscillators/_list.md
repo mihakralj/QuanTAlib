@@ -1,5 +1,5 @@
 # Oscillators indicators
-Done: 21, Todo: 8
+Done: 24, Todo: 5
 
 ✔️ AC - Acceleration Oscillator
 ✔️ AO - Awesome Oscillator
@@ -12,10 +12,10 @@ Done: 21, Todo: 8
 ✔️ COG - Ehler's Center of Gravity
 ✔️ COPPOCK - Coppock Curve
 ✔️ CRSI - Connor RSI
-CTI - Ehler's Correlation Trend Indicator
+✔️ CTI - Ehler's Correlation Trend Indicator
 ✔️ DOSC - Derivative Oscillator
-EFI - Elder Ray's Force Index
-FISHER - Fisher Transform
+✔️ FISHER - Fisher Transform
+✔️ EFI - Elder Ray's Force Index
 FOSC - Forecast Oscillator
 *GATOR - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)
 *KDJ - KDJ Indicator (K, D, J lines)

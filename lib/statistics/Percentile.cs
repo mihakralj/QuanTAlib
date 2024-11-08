@@ -45,7 +45,6 @@ public sealed class Percentile : AbstractBase
     private readonly int Period;
     private readonly double Percent;
     private readonly CircularBuffer _buffer;
-    private const double Epsilon = 1e-10;
     private const int MinimumPoints = 2;
 
     /// <param name="period">The number of points to consider for percentile calculation.</param>
@@ -56,16 +55,10 @@ public sealed class Percentile : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Percentile(int period, double percent)
     {
-        if (period < MinimumPoints)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period),
-                "Period must be greater than or equal to 2 for percentile calculation.");
-        }
-        if (percent < 0 || percent > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(percent),
-                "Percent must be between 0 and 100.");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, MinimumPoints);
+        ArgumentOutOfRangeException.ThrowIfLessThan(percent, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(percent, 100);
+
         Period = period;
         Percent = percent;
         WarmupPeriod = MinimumPoints; // Minimum number of points needed for percentile calculation

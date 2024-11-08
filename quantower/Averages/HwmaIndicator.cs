@@ -49,13 +49,13 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "HWMA - Holt-Winter Moving Average";
         Description = "Holt-Winter Moving Average";
-        Series = new(name: $"HWMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"HWMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        if (NA == 0 && NB == 0 && NC == 0)
+        if ((NA, NB, NC) == (0, 0, 0))
         {
             ma = new Hwma(Periods);
         }
@@ -80,6 +80,5 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

@@ -40,7 +40,7 @@ public class DwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "DWMA - Double Weighted Moving Average";
         Description = "A moving average that applies double weighting to recent prices for increased responsiveness.";
-        Series = new(name: $"DWMA {Period}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"DWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -64,6 +64,5 @@ public class DwmaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

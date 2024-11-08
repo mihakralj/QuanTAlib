@@ -43,7 +43,7 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "DSMA - Deviation Scaled Moving Average";
         Description = "A moving average that adjusts its responsiveness based on price deviations from the mean.";
-        Series = new(name: $"DSMA {Period}:{Scale:F2}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"DSMA {Period}:{Scale:F2}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -68,6 +68,5 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

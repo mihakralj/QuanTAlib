@@ -38,7 +38,7 @@ public class VarianceIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        VarianceSeries = new("Variance", Color.Blue, 2, LineStyle.Solid);
+        VarianceSeries = new("Variance", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(VarianceSeries);
     }
 

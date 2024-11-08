@@ -16,6 +16,14 @@ public enum MaType
 
 public static class IndicatorExtensions
 {
+    public static readonly Color Averages = Color.FromArgb(255, 255, 128);    // #FFFF80 - Yellow
+    public static readonly Color Volume = Color.FromArgb(128, 255, 128);      // #80FF80 - Green
+    public static readonly Color Volatility = Color.FromArgb(255, 128, 128);  // #FF8080 - Red
+    public static readonly Color Statistics = Color.FromArgb(128, 128, 255);  // #8080FF - Blue
+    public static readonly Color Oscillators = Color.FromArgb(255, 128, 255); // #FF80FF - Magenta
+    public static readonly Color Momentum = Color.FromArgb(128, 255, 255);    // #80FFFF - Cyan
+    public static readonly Color Experiments = Color.FromArgb(255, 165, 0);   // #FFA500 - Orange
+
     public static TValue GetInputValue(this Indicator indicator, UpdateArgs args, SourceType source)
     {
         var historicalData = indicator.HistoricalData;
@@ -179,7 +187,6 @@ public static class IndicatorExtensions
         }
     }
 
-
     public static void DrawText(this Indicator indicator, PaintChartEventArgs args, string text)
     {
         if (indicator.CurrentChart == null)
@@ -210,7 +217,3 @@ public static class IndicatorExtensions
         };
     }
 }
-
-
-
-

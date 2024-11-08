@@ -40,7 +40,7 @@ public class TemaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "TEMA - Triple Exponential Moving Average";
         Description = "Triple Exponential Moving Average";
-        Series = new(name: $"TEMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"TEMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -64,6 +64,5 @@ public class TemaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

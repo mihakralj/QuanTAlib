@@ -52,12 +52,9 @@ public sealed class Stoch : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Stoch(int period = DefaultPeriod, int smoothK = DefaultSmoothK, int smoothD = DefaultSmoothD)
     {
-        if (period < 1)
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");
-        if (smoothK < 1)
-            throw new ArgumentOutOfRangeException(nameof(smoothK), "%K smoothing period must be greater than 0");
-        if (smoothD < 1)
-            throw new ArgumentOutOfRangeException(nameof(smoothD), "%D smoothing period must be greater than 0");
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(smoothK, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(smoothD, 1);
 
         _highs = new(period);
         _lows = new(period);

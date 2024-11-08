@@ -41,7 +41,7 @@ public class ZlemaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "ZLEMA - Zero Lag Exponential Moving Average";
         Description = "Zero Lag Exponential Moving Average";
-        Series = new(name: $"ZLEMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"ZLEMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -67,6 +67,5 @@ public class ZlemaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, err!.Value.ToString());
     }
 }

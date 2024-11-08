@@ -44,7 +44,7 @@ public class MamaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MAMA - MESA Adaptive Moving Average";
         Description = "MESA Adaptive Moving Average";
-        MamaSeries = new(name: "MAMA", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        MamaSeries = new(name: "MAMA", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         FamaSeries = new(name: "FAMA", color: Color.Red, width: 2, style: LineStyle.Solid);
         AddLineSeries(MamaSeries);
         AddLineSeries(FamaSeries);
@@ -73,6 +73,5 @@ public class MamaIndicator : Indicator, IWatchlistIndicator
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, MamaSeries!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
         this.PaintSmoothCurve(args, FamaSeries!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

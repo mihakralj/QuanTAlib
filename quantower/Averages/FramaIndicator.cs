@@ -40,7 +40,7 @@ public class FramaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "FRAMA - Fractal Adaptive Moving Average";
         Description = "Fractal Adaptive Moving Average";
-        Series = new(name: $"FRAMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"FRAMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -64,6 +64,5 @@ public class FramaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

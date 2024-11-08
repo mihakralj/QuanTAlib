@@ -43,7 +43,7 @@ public class MgdiIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MGDI - McGinley Dynamic Indicator";
         Description = "McGinley Dynamic Indicator";
-        Series = new(name: $"MGDI {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"MGDI {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -67,6 +67,5 @@ public class MgdiIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

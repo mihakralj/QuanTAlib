@@ -43,14 +43,9 @@ public sealed class Huber : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Huber(int period, double delta = 1.0)
     {
-        if (period < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 1.");
-        }
-        if (delta <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(delta), "Delta must be greater than 0.");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(delta, 0);
+
         WarmupPeriod = period;
         _actualBuffer = new CircularBuffer(period);
         _predictedBuffer = new CircularBuffer(period);

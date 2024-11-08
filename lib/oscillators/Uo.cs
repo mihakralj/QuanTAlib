@@ -67,30 +67,12 @@ public sealed class Uo : AbstractBase
     public Uo(int period1 = DefaultPeriod1, int period2 = DefaultPeriod2, int period3 = DefaultPeriod3,
              double weight1 = DefaultWeight1, double weight2 = DefaultWeight2, double weight3 = DefaultWeight3)
     {
-        if (period1 < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period1), "Period1 must be greater than 0");
-        }
-        if (period2 < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period2), "Period2 must be greater than 0");
-        }
-        if (period3 < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(period3), "Period3 must be greater than 0");
-        }
-        if (weight1 <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(weight1), "Weight1 must be greater than 0");
-        }
-        if (weight2 <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(weight2), "Weight2 must be greater than 0");
-        }
-        if (weight3 <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(weight3), "Weight3 must be greater than 0");
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(period1, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(period2, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(period3, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(weight1, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(weight2, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(weight3, 0);
 
         _weight1 = weight1;
         _weight2 = weight2;

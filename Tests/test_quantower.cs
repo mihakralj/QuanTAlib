@@ -1,6 +1,10 @@
 extern alias volatility;
 extern alias averages;
 extern alias statistics;
+extern alias momentum;
+extern alias oscillators;
+extern alias volume;
+extern alias experiments;
 
 using Xunit;
 using System.Reflection;
@@ -8,6 +12,10 @@ using TradingPlatform.BusinessLayer;
 using statistics::QuanTAlib;
 using averages::QuanTAlib;
 using volatility::QuanTAlib;
+using momentum::QuanTAlib;
+using oscillators::QuanTAlib;
+using volume::QuanTAlib;
+using experiments::QuanTAlib;
 
 namespace QuanTAlib
 {
@@ -28,6 +36,39 @@ namespace QuanTAlib
                 Assert.NotNull(field);
                 var fieldValue = field.GetValue(indicator);
                 Assert.NotNull(fieldValue);
+
+                Assert.NotNull(indicator.ShortName);
+                Assert.NotEmpty(indicator.ShortName);
+                Assert.NotNull(indicator.Name);
+                Assert.NotEmpty(indicator.Name);
+                Assert.NotNull(indicator.Description);
+                Assert.NotEmpty(indicator.Description);
+                Assert.IsAssignableFrom<Indicator>(indicator);
+            }
+            catch (Exception ex)
+            {
+                throw new Xunit.Sdk.XunitException($"Test failed for {typeof(T).Name}: {ex.Message}");
+            }
+        }
+
+        private static void TestIndicatorMultipleFields<T>(string[] fieldNames) where T : Indicator, new()
+        {
+            var indicator = new T();
+            try
+            {
+                var onInitMethod = typeof(T).GetMethod("OnInit", BindingFlags.NonPublic | BindingFlags.Instance);
+                Assert.NotNull(onInitMethod);
+                onInitMethod.Invoke(indicator, null);
+                var onUpdateMethod = typeof(T).GetMethod("OnUpdate", BindingFlags.NonPublic | BindingFlags.Instance);
+                Assert.NotNull(onUpdateMethod);
+
+                foreach (var fieldName in fieldNames)
+                {
+                    var field = typeof(T).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+                    Assert.NotNull(field);
+                    var fieldValue = field.GetValue(indicator);
+                    Assert.NotNull(fieldValue);
+                }
 
                 Assert.NotNull(indicator.ShortName);
                 Assert.NotEmpty(indicator.ShortName);
@@ -95,9 +136,32 @@ namespace QuanTAlib
 
         // Volatility Indicators
         [Fact] public void Atr() => TestIndicator<AtrIndicator>("atr");
-
+        [Fact] public void Cmo() => TestIndicator<CmoIndicator>("cmo");
+        [Fact] public void Cvi() => TestIndicator<CviIndicator>("cvi");
         [Fact] public void Historical() => TestIndicator<HistoricalIndicator>("historical");
+        [Fact] public void Jbands() => TestIndicatorMultipleFields<JbandsIndicator>(new[] { "jmaUp", "jmaLo" });
+        [Fact] public void Jvolty() => TestIndicator<JvoltyIndicator>("jma");
         [Fact] public void Realized() => TestIndicator<RealizedIndicator>("realized");
         [Fact] public void Rvi() => TestIndicator<RviIndicator>("rvi");
+
+        // Momentum Indicators
+        [Fact] public void Adx() => TestIndicator<momentum::QuanTAlib.AdxIndicator>("adx");
+        [Fact] public void Adxr() => TestIndicator<momentum::QuanTAlib.AdxrIndicator>("adxr");
+        [Fact] public void Apo() => TestIndicator<momentum::QuanTAlib.ApoIndicator>("apo");
+        [Fact] public void Dmi() => TestIndicator<momentum::QuanTAlib.DmiIndicator>("dmi");
+        [Fact] public void Dmx() => TestIndicator<momentum::QuanTAlib.DmxIndicator>("dmx");
+        [Fact] public void Dpo() => TestIndicator<momentum::QuanTAlib.DpoIndicator>("dpo");
+        [Fact] public void Macd() => TestIndicator<momentum::QuanTAlib.MacdIndicator>("macd");
+        [Fact] public void Mom() => TestIndicator<momentum::QuanTAlib.MomIndicator>("Series");
+        [Fact] public void Pmo() => TestIndicator<momentum::QuanTAlib.PmoIndicator>("Series");
+        [Fact] public void Po() => TestIndicator<momentum::QuanTAlib.PoIndicator>("Series");
+        [Fact] public void Ppo() => TestIndicator<momentum::QuanTAlib.PpoIndicator>("Series");
+        [Fact] public void Roc() => TestIndicator<momentum::QuanTAlib.RocIndicator>("Series");
+        [Fact] public void Trix() => TestIndicator<momentum::QuanTAlib.TrixIndicator>("Series");
+        [Fact] public void Vel() => TestIndicator<momentum::QuanTAlib.VelIndicator>("Series");
+        [Fact] public void Vortex() => TestIndicatorMultipleFields<momentum::QuanTAlib.VortexIndicator>(new[] { "PlusLine", "MinusLine" });
+
+        // Oscillators Indicators
+        [Fact] public void Cti() => TestIndicator<oscillator::QuanTAlib.CtiIndicator>("Series");
     }
 }

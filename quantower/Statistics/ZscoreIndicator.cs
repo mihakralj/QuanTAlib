@@ -35,7 +35,7 @@ public class ZscoreIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         SourceName = Source.ToString();
 
-        ZscoreSeries = new("Z-Score", Color.Blue, 2, LineStyle.Solid);
+        ZscoreSeries = new("Z-Score", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
         AddLineSeries(ZscoreSeries);
     }
 

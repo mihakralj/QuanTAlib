@@ -37,7 +37,7 @@ public class TestIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "TEST";
         Description = "test and test and test and more test.";
-        Series = new(name: $"{Name}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"{Name}", color: IndicatorExtensions.Volatility, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -59,7 +59,5 @@ public class TestIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }
-

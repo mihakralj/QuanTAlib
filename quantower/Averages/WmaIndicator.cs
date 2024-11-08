@@ -40,7 +40,7 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "WMA - Weighted Moving Average";
         Description = "Weighted Moving Average";
-        Series = new(name: $"WMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"WMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -59,11 +59,11 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
         Series!.SetValue(result.Value);
         Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
+#pragma warning disable CA1416 // Validate platform compatibility
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }

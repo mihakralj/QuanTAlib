@@ -40,7 +40,7 @@ public class PwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "PWMA - Pascal's Weighted Moving Average";
         Description = "Pascal's Weighted Moving Average";
-        Series = new(name: $"PWMA {Periods}", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"PWMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -64,6 +64,5 @@ public class PwmaIndicator : Indicator, IWatchlistIndicator
     {
         base.OnPaintChart(args);
         this.PaintSmoothCurve(args, Series!, ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-        this.DrawText(args, Description);
     }
 }
