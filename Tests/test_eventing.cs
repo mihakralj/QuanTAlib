@@ -87,7 +87,8 @@ public class EventingTests
         ("Rse", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Smape", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
         ("Rsquared", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod }),
-        ("Huber", new object[] { DefaultPeriod, 1.0 }, new object[] { new TSeries(), DefaultPeriod, 1.0 })
+        ("Huber", new object[] { DefaultPeriod, 1.0 }, new object[] { new TSeries(), DefaultPeriod, 1.0 }),
+        ("Cti", new object[] { DefaultPeriod }, new object[] { new TSeries(), DefaultPeriod })
     };
 
     private static readonly (string Name, object[] DirectParams, object[] EventParams)[] BarIndicators = new[]
@@ -121,10 +122,10 @@ public class EventingTests
         return new TBar(
             DateTime.Now,
             baseValue,
-            baseValue + Math.Abs(GetRandomDouble(rng) * 10),
-            baseValue - Math.Abs(GetRandomDouble(rng) * 10),
+            baseValue + Math.abs(GetRandomDouble(rng) * 10),
+            baseValue - Math.abs(GetRandomDouble(rng) * 10),
             baseValue + (GetRandomDouble(rng) * 5),
-            Math.Abs(GetRandomDouble(rng) * 1000),
+            Math.abs(GetRandomDouble(rng) * 1000),
             true
         );
     }
@@ -150,7 +151,7 @@ public class EventingTests
         }
 
         bool areEqual = (double.IsNaN(directIndicator.Value) && double.IsNaN(eventIndicator.Value)) ||
-                        Math.Abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
+                        Math.abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
 
         Assert.True(areEqual, $"Value indicator {indicatorName} failed: Expected {directIndicator.Value}, Actual {eventIndicator.Value}");
     }
@@ -176,7 +177,7 @@ public class EventingTests
         }
 
         bool areEqual = (double.IsNaN(directIndicator.Value) && double.IsNaN(eventIndicator.Value)) ||
-                        Math.Abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
+                        Math.abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
 
         Assert.True(areEqual, $"Bar indicator {indicatorName} failed: Expected {directIndicator.Value}, Actual {eventIndicator.Value}");
     }

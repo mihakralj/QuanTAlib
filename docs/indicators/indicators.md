@@ -5,13 +5,13 @@
 | Basic Transforms | 6 of 6 | 100% |
 | Averages & Trends | 33 of 33 | 100% |
 | Momentum | 16 of 16 | 100% |
-| Oscillators | 22 of 29 | 76% |
+| Oscillators | 24 of 29 | 83% |
 | Volatility | 29 of 35 | 83% |
 | Volume | 19 of 19 | 100% |
 | Numerical Analysis | 15 of 19 | 79% |
 | Errors | 16 of 16 | 100% |
 | Patterns | 0 of 8 | 0% |
-| **Total** | **156 of 181** | **86%** |
+| **Total** | **158 of 181** | **87%** |
 
 |Technical Indicator Name| Class Name|
 |-----------|:----------:|

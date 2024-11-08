@@ -172,4 +172,11 @@ public class OscillatorsUpdateTests : UpdateTestBase
 
         Assert.Equal(initialValue, finalValue, precision);
     }
+
+    [Fact]
+    public void Cti_Update()
+    {
+        var indicator = new Cti(period: 20);
+        TestTValueUpdate(indicator, indicator.Calc);
+    }
 }

@@ -160,5 +160,9 @@ namespace QuanTAlib
         [Fact] public void Trix() => TestIndicator<momentum::QuanTAlib.TrixIndicator>("Series");
         [Fact] public void Vel() => TestIndicator<momentum::QuanTAlib.VelIndicator>("Series");
         [Fact] public void Vortex() => TestIndicatorMultipleFields<momentum::QuanTAlib.VortexIndicator>(new[] { "PlusLine", "MinusLine" });
+
+        // Oscillators Indicators
+        [Fact] public void Cti() => TestIndicator<oscillator::QuanTAlib.CtiIndicator>("Series");
+
     }
 }

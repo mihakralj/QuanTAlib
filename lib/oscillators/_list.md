@@ -1,5 +1,5 @@
 # Oscillators indicators
-Done: 22, Todo: 7
+Done: 24, Todo: 5
 
 ✔️ AC - Acceleration Oscillator
 ✔️ AO - Awesome Oscillator
@@ -12,7 +12,7 @@ Done: 22, Todo: 7
 ✔️ COG - Ehler's Center of Gravity
 ✔️ COPPOCK - Coppock Curve
 ✔️ CRSI - Connor RSI
-CTI - Ehler's Correlation Trend Indicator
+✔️ CTI - Ehler's Correlation Trend Indicator
 ✔️ DOSC - Derivative Oscillator
 ✔️ FISHER - Fisher Transform
 ✔️ EFI - Elder Ray's Force Index
