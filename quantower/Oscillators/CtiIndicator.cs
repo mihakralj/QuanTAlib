@@ -3,10 +3,10 @@ using System.Drawing;
 
 namespace QuanTAlib
 {
-    public class CtiIndicator : Indicator
+    public class CtiIndicator : Indicator, IWatchlistIndicator
     {
         [InputParameter("Period", 0, 1, 100, 1, 0)]
-        public int Period = 20;
+        public int Period { get; set; } = 20;
 
         [InputParameter("Source Type", 1, variants: new object[]
         {
@@ -21,46 +21,51 @@ namespace QuanTAlib
             "OHLC4", SourceType.OHLC4,
             "HLCC4", SourceType.HLCC4
         })]
-        public SourceType SourceType = SourceType.Close;
+        public SourceType Source { get; set; } = SourceType.Close;
 
         [InputParameter("Show Cold Values", 2)]
-        public bool ShowColdValues = false;
+        public bool ShowColdValues { get; set; } = true;
 
-        private Cti cti;
-        protected LineSeries? CtiSeries;
+        private Cti? cti;
+        protected LineSeries? Series;
+        protected string? SourceName;
         public int MinHistoryDepths => Period + 1;
         int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
         public CtiIndicator()
         {
+            OnBackGround = false;
+            SeparateWindow = true;
             this.Name = "CTI - Ehler's Correlation Trend Indicator";
+            SourceName = Source.ToString();
             this.Description = "A momentum oscillator that measures the correlation between the price and a lagged version of the price.";
-            CtiSeries = new($"CTI {Period}", Color: IndicatorExtensions.Oscillators, 2, LineStyle.Solid);
-            AddLineSeries(CtiSeries);
+            Series = new($"CTI {Period}", color: IndicatorExtensions.Oscillators, width: 2, LineStyle.Solid);
+            AddLineSeries(Series);
         }
 
         protected override void OnInit()
         {
             cti = new Cti(this.Period);
+            SourceName = Source.ToString();
             base.OnInit();
         }
 
         protected override void OnUpdate(UpdateArgs args)
         {
             TValue input = this.GetInputValue(args, Source);
-            cti.Calc(value);
+            TValue result = cti!.Calc(input);
 
-            CtiSeries!.SetValue(cti.Value);
-            CtiSeries!.SetMarker(0, Color.Transparent);
+            Series!.SetValue(result);
+            Series!.SetMarker(0, Color.Transparent);
         }
 
-    public override string ShortName => $"CTI ({Period}:{SourceName})";
+        public override string ShortName => $"CTI ({Period}:{SourceName})";
 
 #pragma warning disable CA1416 // Validate platform compatibility
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, CtiSeries!, cti!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
-    }
+        public override void OnPaintChart(PaintChartEventArgs args)
+        {
+            base.OnPaintChart(args);
+            this.PaintSmoothCurve(args, Series!, cti!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.0);
+        }
     }
 }

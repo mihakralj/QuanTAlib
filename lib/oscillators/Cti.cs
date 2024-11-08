@@ -3,32 +3,37 @@ namespace QuanTAlib;
 
 /// <summary>
 /// CTI: Ehler's Correlation Trend Indicator
-/// A momentum oscillator that measures the correlation between the price and a lagged version of the price.
+/// Measures the correlation between price and an ideal trend line.
 /// </summary>
 /// <remarks>
 /// The CTI calculation process:
-/// 1. Calculate the correlation between the price and a lagged version of the price over a specified period.
-/// 2. Normalize the correlation values to oscillate between -1 and 1.
-/// 3. Use the normalized correlation values to calculate the CTI.
+/// 1. Correlates price curve with an ideal trend line (negative count due to backwards data storage)
+/// 2. Uses Spearman's correlation algorithm
+/// 3. Returns values between -1 and 1
 ///
 /// Key characteristics:
 /// - Oscillates between -1 and 1
-/// - Positive values indicate bullish momentum
-/// - Negative values indicate bearish momentum
+/// - Positive values indicate price follows uptrend
+/// - Negative values indicate price follows downtrend
 ///
 /// Formula:
-/// CTI = 2 * (Correlation - 0.5)
+/// CTI = (n∑xy - ∑x∑y) / sqrt((n∑x² - (∑x)²)(n∑y² - (∑y)²))
+/// where:
+/// x = price curve
+/// y = -count (ideal trend line)
+/// n = period length
 ///
 /// Sources:
 ///     John Ehlers - "Cybernetic Analysis for Stocks and Futures" (2004)
-///     https://www.investopedia.com/terms/c/correlation-trend-indicator.asp
+///     John Ehlers, Correlation Trend Indicator, Stocks & Commodities May-2020
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Cti : AbstractBase
 {
     private readonly int _period;
     private readonly CircularBuffer _priceBuffer;
-    private readonly Corr _correlation;
+    private readonly double[] _trendLine;
+    private const int MinimumPoints = 2;  // Minimum points needed for correlation
 
     /// <param name="source">The data source object that publishes updates.</param>
     /// <param name="period">The calculation period (default: 20)</param>
@@ -44,7 +49,14 @@ public sealed class Cti : AbstractBase
     {
         _period = period;
         _priceBuffer = new CircularBuffer(period);
-        _correlation = new Corr(period);
+
+        // Pre-calculate trend line values since they're static
+        _trendLine = new double[period];
+        for (int i = 0; i < period; i++)
+        {
+            _trendLine[i] = -i; // negative count for backwards data
+        }
+
         WarmupPeriod = period;
         Name = "CTI";
     }
@@ -62,15 +74,36 @@ public sealed class Cti : AbstractBase
     protected override double Calculation()
     {
         ManageState(Input.IsNew);
-
         _priceBuffer.Add(Input.Value, Input.IsNew);
-        var laggedPrice = _index >= _period ? _priceBuffer[_index - _period] : double.NaN;
 
-        _correlation.Calc(new TValue(Input.Time, Input.Value, Input.IsNew), new TValue(Input.Time, laggedPrice, Input.IsNew));
+        // Use available points for early calculations
+        int points = Math.Min(_index + 1, _period);
+        if (points < MinimumPoints) return 0;  // Need at least 2 points for correlation
 
-        if (_index < _period - 1) return double.NaN;
+        double sx = 0, sy = 0, sxx = 0, sxy = 0, syy = 0;
 
-        var correlation = _correlation.Value;
-        return 2 * (correlation - 0.5);
+        // Calculate correlation components using available points
+        for (int i = 0; i < points; i++)
+        {
+            double x = _priceBuffer[i];        // price curve
+            double y = _trendLine[i];          // pre-calculated trend line
+
+            sx += x;
+            sy += y;
+            sxx += x * x;
+            sxy += x * y;
+            syy += y * y;
+        }
+
+        // Check for numerical stability
+        double denomX = points * sxx - sx * sx;
+        double denomY = points * syy - sy * sy;
+
+        if (denomX > 0 && denomY > 0)
+        {
+            return (points * sxy - sx * sy) / Math.Sqrt(denomX * denomY);
+        }
+
+        return 0;
     }
 }

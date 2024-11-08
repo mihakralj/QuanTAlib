@@ -122,10 +122,10 @@ public class EventingTests
         return new TBar(
             DateTime.Now,
             baseValue,
-            baseValue + Math.abs(GetRandomDouble(rng) * 10),
-            baseValue - Math.abs(GetRandomDouble(rng) * 10),
+            baseValue + Math.Abs(GetRandomDouble(rng) * 10),
+            baseValue - Math.Abs(GetRandomDouble(rng) * 10),
             baseValue + (GetRandomDouble(rng) * 5),
-            Math.abs(GetRandomDouble(rng) * 1000),
+            Math.Abs(GetRandomDouble(rng) * 1000),
             true
         );
     }
@@ -151,7 +151,7 @@ public class EventingTests
         }
 
         bool areEqual = (double.IsNaN(directIndicator.Value) && double.IsNaN(eventIndicator.Value)) ||
-                        Math.abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
+                        Math.Abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
 
         Assert.True(areEqual, $"Value indicator {indicatorName} failed: Expected {directIndicator.Value}, Actual {eventIndicator.Value}");
     }
@@ -177,7 +177,7 @@ public class EventingTests
         }
 
         bool areEqual = (double.IsNaN(directIndicator.Value) && double.IsNaN(eventIndicator.Value)) ||
-                        Math.abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
+                        Math.Abs(directIndicator.Value - eventIndicator.Value) < Tolerance;
 
         Assert.True(areEqual, $"Bar indicator {indicatorName} failed: Expected {directIndicator.Value}, Actual {eventIndicator.Value}");
     }

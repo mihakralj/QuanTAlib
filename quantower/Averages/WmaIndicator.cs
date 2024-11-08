@@ -59,6 +59,7 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
         Series!.SetValue(result.Value);
         Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
+#pragma warning disable CA1416 // Validate platform compatibility
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
