@@ -163,6 +163,5 @@ namespace QuanTAlib
 
         // Oscillators Indicators
         [Fact] public void Cti() => TestIndicator<oscillator::QuanTAlib.CtiIndicator>("Series");
-
     }
 }
