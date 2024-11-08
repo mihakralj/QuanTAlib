@@ -157,4 +157,19 @@ public class OscillatorsUpdateTests : UpdateTestBase
         var indicator = new Efi(period: 13);
         TestTBarUpdate(indicator, indicator.Calc);
     }
+
+    [Fact]
+    public void Fisher_Update()
+    {
+        var indicator = new Fisher(period: 10);
+        double initialValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: true));
+
+        for (int i = 0; i < RandomUpdates; i++)
+        {
+            indicator.Calc(new TValue(DateTime.Now, GetRandomDouble(), IsNew: false));
+        }
+        double finalValue = indicator.Calc(new TValue(DateTime.Now, ReferenceValue, IsNew: false));
+
+        Assert.Equal(initialValue, finalValue, precision);
+    }
 }
