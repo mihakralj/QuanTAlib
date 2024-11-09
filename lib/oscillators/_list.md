@@ -16,13 +16,8 @@ Done: 24, Todo: 5
 ✔️ DOSC - Derivative Oscillator
 ✔️ FISHER - Fisher Transform
 ✔️ EFI - Elder Ray's Force Index
-FOSC - Forecast Oscillator
-*GATOR - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)
-*KDJ - KDJ Indicator (K, D, J lines)
-KRI - Kairi Relative Index
 ✔️ RSI - Relative Strength Index
 ✔️ RSX - Jurik Trend Strength Index
-*RVGI - Relative Vigor Index (RVGI, Signal)
 ✔️ SMI - Stochastic Momentum Index
 ✔️ SRSI - Stochastic RSI (SRSI, Signal)
 ✔️ STC - Schaff Trend Cycle
@@ -30,3 +25,8 @@ KRI - Kairi Relative Index
 ✔️ TSI - True Strength Index
 ✔️ UO - Ultimate Oscillator
 ✔️ WILLR - Larry Williams' %R
+FOSC - Forecast Oscillator
+GATOR - Williams Alliator Oscillator (Upper Jaw, Lower Jaw, Teeth)
+KDJ - KDJ Indicator (K, D, J lines)
+KRI - Kairi Relative Index
+RVGI - Relative Vigor Index (RVGI, Signal)
