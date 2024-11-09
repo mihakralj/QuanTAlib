@@ -126,7 +126,7 @@ public sealed class Spearman : AbstractBase
             }
 
             // Average rank for ties
-            double rank = (i + j) / 2.0 + 1;
+            double rank = ((i + j) / 2.0) + 1;
             for (int k = i; k <= j; k++)
             {
                 ranks[validPairs[k].index] = rank;
