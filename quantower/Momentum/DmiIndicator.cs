@@ -5,8 +5,8 @@ namespace QuanTAlib;
 
 public class DmiIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Periods { get; set; } = 14;
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Period { get; set; } = 14;
 
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
@@ -14,7 +14,7 @@ public class DmiIndicator : Indicator, IWatchlistIndicator
     private Dmi? dmi;
     protected LineSeries? PlusDiSeries;
     protected LineSeries? MinusDiSeries;
-    public int MinHistoryDepths => Math.Max(5, Periods * 2);
+    public int MinHistoryDepths => Math.Max(5, Period * 2);
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public DmiIndicator()
@@ -23,22 +23,22 @@ public class DmiIndicator : Indicator, IWatchlistIndicator
         Description = "Identifies the directional movement of a price by comparing successive highs and lows.";
         SeparateWindow = true;
 
-        PlusDiSeries = new($"+DI {Periods}", color: Color.Red, 2, LineStyle.Solid);
-        MinusDiSeries = new($"-DI {Periods}", color: Color.Blue, 2, LineStyle.Solid);
+        PlusDiSeries = new($"+DI {Period}", color: Color.Red, 2, LineStyle.Solid);
+        MinusDiSeries = new($"-DI {Period}", color: Color.Blue, 2, LineStyle.Solid);
         AddLineSeries(PlusDiSeries);
         AddLineSeries(MinusDiSeries);
     }
 
     protected override void OnInit()
     {
-        dmi = new Dmi(Periods);
+        dmi = new Dmi(Period);
         base.OnInit();
     }
 
     protected override void OnUpdate(UpdateArgs args)
     {
         TBar input = IndicatorExtensions.GetInputBar(this, args);
-        var result = dmi!.Calc(input);
+        dmi!.Calc(input);
 
         PlusDiSeries!.SetValue(dmi.PlusDI);
         MinusDiSeries!.SetValue(dmi.MinusDI);
@@ -48,7 +48,7 @@ public class DmiIndicator : Indicator, IWatchlistIndicator
 
 #pragma warning disable CA1416 // Validate platform compatibility
 
-    public override string ShortName => $"DMI ({Periods})";
+    public override string ShortName => $"DMI ({Period})";
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {

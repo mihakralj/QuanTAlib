@@ -5,21 +5,10 @@ namespace QuanTAlib;
 
 public class HmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 2, 1000, 1, 0)]
-    public int Periods { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, 2, 1000, 1, 0)]
+    public int Period { get; set; } = 10;
 
-    [InputParameter("Data source", sortIndex: 2, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     [InputParameter("Show cold values", sortIndex: 21)]
@@ -28,10 +17,10 @@ public class HmaIndicator : Indicator, IWatchlistIndicator
     private Hma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => Periods + (int)Math.Sqrt(Periods) - 1;
+    public int MinHistoryDepths => Period + (int)Math.Sqrt(Period) - 1;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"HMA {Periods}:{SourceName}";
+    public override string ShortName => $"HMA {Period}:{SourceName}";
 
     public HmaIndicator()
     {
@@ -40,13 +29,13 @@ public class HmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "HMA - Hull Moving Average";
         Description = "Hull Moving Average";
-        Series = new(name: $"HMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"HMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Hma(Periods);
+        ma = new Hma(Period);
         SourceName = Source.ToString();
         base.OnInit();
     }

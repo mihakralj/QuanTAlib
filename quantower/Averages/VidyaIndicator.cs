@@ -13,19 +13,8 @@ public class VidyaIndicator : Indicator, IWatchlistIndicator
 
     [InputParameter("Alpha", sortIndex: 3, 0.01, 1, 0.01, 2)]
     public double Alpha { get; set; } = 0.2;
-
-    [InputParameter("Data source", sortIndex: 4, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     [InputParameter("Show cold values", sortIndex: 21)]

@@ -5,12 +5,12 @@ namespace QuanTAlib;
 
 public class RviIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 2, 100, 1, 0)]
-    public int Periods { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, 2, 100, 1, 0)]
+    public int Period { get; set; } = 10;
 
     private Rvi? rvi;
     protected LineSeries? RviSeries;
-    public int MinHistoryDepths => Periods;
+    public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public RviIndicator()
@@ -25,7 +25,7 @@ public class RviIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        rvi = new Rvi(Periods);
+        rvi = new Rvi(Period);
         base.OnInit();
     }
 
@@ -37,5 +37,5 @@ public class RviIndicator : Indicator, IWatchlistIndicator
         RviSeries!.SetValue(result.Value);
     }
 
-    public override string ShortName => $"RVI ({Periods})";
+    public override string ShortName => $"RVI ({Period})";
 }

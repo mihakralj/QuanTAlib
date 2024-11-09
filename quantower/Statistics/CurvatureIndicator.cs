@@ -5,28 +5,17 @@ namespace QuanTAlib;
 
 public class CurvatureIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 3, 1000, 1, 0)]
-    public int Periods { get; set; } = 20;
+    [InputParameter("Period", sortIndex: 1, 3, 1000, 1, 0)]
+    public int Period { get; set; } = 20;
 
-    [InputParameter("Data source", sortIndex: 2, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     private Curvature? curvature;
     protected LineSeries? CurvatureSeries;
     protected LineSeries? LineSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => (Periods * 2) - 1;
+    public int MinHistoryDepths => (Period * 2) - 1;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public CurvatureIndicator()
@@ -37,12 +26,14 @@ public class CurvatureIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
 
         CurvatureSeries = new("Curvature", color: IndicatorExtensions.Statistics, 2, LineStyle.Solid);
+        LineSeries = new("Line", color: Color.Red, 1, LineStyle.Solid);
         AddLineSeries(CurvatureSeries);
+        AddLineSeries(LineSeries);
     }
 
     protected override void OnInit()
     {
-        curvature = new Curvature(Periods);
+        curvature = new Curvature(Period);
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -59,5 +50,5 @@ public class CurvatureIndicator : Indicator, IWatchlistIndicator
         }
     }
 
-    public override string ShortName => $"Curvature ({Periods}:{SourceName})";
+    public override string ShortName => $"Curvature ({Period}:{SourceName})";
 }

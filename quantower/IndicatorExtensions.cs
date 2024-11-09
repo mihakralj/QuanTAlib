@@ -24,6 +24,26 @@ public static class IndicatorExtensions
     public static readonly Color Momentum = Color.FromArgb(128, 255, 255);    // #80FFFF - Cyan
     public static readonly Color Experiments = Color.FromArgb(255, 165, 0);   // #FFA500 - Orange
 
+    [AttributeUsage(AttributeTargets.Property)]
+    public class DataSourceInputAttribute : InputParameterAttribute
+    {
+        public DataSourceInputAttribute(string label = "Data source", int sortIndex = 20)
+            : base(label, sortIndex, variants: new object[]
+            {
+                "Open", SourceType.Open,
+                "High", SourceType.High,
+                "Low", SourceType.Low,
+                "Close", SourceType.Close,
+                "HL/2 (Median)", SourceType.HL2,
+                "OC/2 (Midpoint)", SourceType.OC2,
+                "OHL/3 (Mean)", SourceType.OHL3,
+                "HLC/3 (Typical)", SourceType.HLC3,
+                "OHLC/4 (Average)", SourceType.OHLC4,
+                "HLCC/4 (Weighted)", SourceType.HLCC4
+            })
+        { }
+    }
+
     public static TValue GetInputValue(this Indicator indicator, UpdateArgs args, SourceType source)
     {
         var historicalData = indicator.HistoricalData;

@@ -5,23 +5,12 @@ namespace QuanTAlib;
 
 public class EmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 1000, 1, 0)]
-    public int Periods { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
+    public int Period { get; set; } = 10;
     [InputParameter("Use SMA for warmup period", sortIndex: 2)]
     public bool UseSMA { get; set; } = false;
 
-    [InputParameter("Data source", sortIndex: 3, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     [InputParameter("Show cold values", sortIndex: 21)]
@@ -30,10 +19,10 @@ public class EmaIndicator : Indicator, IWatchlistIndicator
     private Ema? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => Periods;
+    public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"EMA {Periods}:{SourceName}";
+    public override string ShortName => $"EMA {Period}:{SourceName}";
 
     public EmaIndicator()
     {
@@ -42,13 +31,13 @@ public class EmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "EMA - Exponential Moving Average";
         Description = "Exponential Moving Average";
-        Series = new(name: $"EMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"EMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Ema(Periods, useSma: UseSMA);
+        ma = new Ema(Period, useSma: UseSMA);
         SourceName = Source.ToString();
         base.OnInit();
     }

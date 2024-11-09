@@ -5,8 +5,8 @@ namespace QuanTAlib;
 
 public class VortexIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Periods { get; set; } = 14;
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Period { get; set; } = 14;
 
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
@@ -16,7 +16,7 @@ public class VortexIndicator : Indicator, IWatchlistIndicator
     protected LineSeries? PlusLine;
     protected LineSeries? MinusLine;
     protected LineSeries? ZeroLine;
-    public int MinHistoryDepths => Math.Max(5, Periods * 2);
+    public int MinHistoryDepths => Math.Max(5, Period * 2);
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public VortexIndicator()
@@ -25,9 +25,9 @@ public class VortexIndicator : Indicator, IWatchlistIndicator
         Description = "A technical indicator consisting of two oscillating lines that identify trend reversals";
         SeparateWindow = true;
 
-        ValueSeries = new($"VORTEX({Periods})", color: IndicatorExtensions.Momentum, 2, LineStyle.Solid);
-        PlusLine = new($"VI+({Periods})", color: Color.Green, 2, LineStyle.Solid);
-        MinusLine = new($"VI-({Periods})", color: Color.Red, 2, LineStyle.Solid);
+        ValueSeries = new($"VORTEX({Period})", color: IndicatorExtensions.Momentum, 2, LineStyle.Solid);
+        PlusLine = new($"VI+({Period})", color: Color.Green, 2, LineStyle.Solid);
+        MinusLine = new($"VI-({Period})", color: Color.Red, 2, LineStyle.Solid);
         ZeroLine = new("Zero", Color.Gray, 1, LineStyle.Dot);
 
         AddLineSeries(ValueSeries);
@@ -38,7 +38,7 @@ public class VortexIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        vortex = new Vortex(Periods);
+        vortex = new Vortex(Period);
         base.OnInit();
     }
 
@@ -59,7 +59,7 @@ public class VortexIndicator : Indicator, IWatchlistIndicator
 
 #pragma warning disable CA1416 // Validate platform compatibility
 
-    public override string ShortName => $"VORTEX({Periods})";
+    public override string ShortName => $"VORTEX({Period})";
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {

@@ -5,15 +5,15 @@ namespace QuanTAlib;
 
 public class HistoricalIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Periods { get; set; } = 20;
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Period { get; set; } = 20;
 
     [InputParameter("Annualized", sortIndex: 2)]
     public bool IsAnnualized { get; set; } = true;
 
     private Hv? historical;
     protected LineSeries? HvSeries;
-    public int MinHistoryDepths => Periods;
+    public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public HistoricalIndicator()
@@ -28,7 +28,7 @@ public class HistoricalIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        historical = new(Periods, IsAnnualized);
+        historical = new(Period, IsAnnualized);
         base.OnInit();
     }
 
@@ -40,5 +40,5 @@ public class HistoricalIndicator : Indicator, IWatchlistIndicator
         HvSeries!.SetValue(result.Value);
     }
 
-    public override string ShortName => $"HV ({Periods}{(IsAnnualized ? " - Annualized" : "")})";
+    public override string ShortName => $"HV ({Period}{(IsAnnualized ? " - Annualized" : "")})";
 }

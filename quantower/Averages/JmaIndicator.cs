@@ -5,8 +5,8 @@ namespace QuanTAlib;
 
 public class JmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 1000, 1, 0)]
-    public int Periods { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
+    public int Period { get; set; } = 10;
 
     [InputParameter("Phase", sortIndex: 2, -100, 100, 1, 0)]
     public int Phase { get; set; } = 0;
@@ -14,18 +14,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Beta factor", sortIndex: 3, minimum: 0, maximum: 5, increment: 0.01, decimalPlaces: 2)]
     public double Factor { get; set; } = 0.45;
 
-    [InputParameter("Data source", sortIndex: 4, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     [InputParameter("Show cold values", sortIndex: 21)]
@@ -34,10 +23,10 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     private Jma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => Math.Max(65, Periods * 2);
+    public int MinHistoryDepths => Math.Max(65, Period * 2);
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"JMA {Periods}:{Phase}:{Factor:F2}:{SourceName}";
+    public override string ShortName => $"JMA {Period}:{Phase}:{Factor:F2}:{SourceName}";
 
     public JmaIndicator()
     {
@@ -46,13 +35,13 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "JMA - Jurik Moving Average";
         Description = "Jurik Moving Average (Note: This indicator may have consistency issues)";
-        Series = new(name: $"JMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"JMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Jma(period: Periods, phase: Phase, factor: Factor);
+        ma = new Jma(period: Period, phase: Phase, factor: Factor);
         SourceName = Source.ToString();
         base.OnInit();
     }

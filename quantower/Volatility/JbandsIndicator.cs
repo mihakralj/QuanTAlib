@@ -5,21 +5,10 @@ namespace QuanTAlib;
 
 public class JbandsIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Periods { get; set; } = 14;
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Period { get; set; } = 14;
 
-    [InputParameter("Data source", sortIndex: 5, variants: [
-           "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-       ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     [InputParameter("vShort", sortIndex: 6, -100, 100, 1, 0)]
@@ -47,8 +36,8 @@ public class JbandsIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        jmaUp = new(Periods, phase: Phase);
-        jmaLo = new(Periods, phase: Phase);
+        jmaUp = new(Period, phase: Phase);
+        jmaLo = new(Period, phase: Phase);
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -63,5 +52,5 @@ public class JbandsIndicator : Indicator, IWatchlistIndicator
         LbSeries!.SetValue(jmaLo.LowerBand);
     }
 
-    public override string ShortName => $"JBands ({Periods}:{Phase})";
+    public override string ShortName => $"JBands ({Period}:{Phase})";
 }

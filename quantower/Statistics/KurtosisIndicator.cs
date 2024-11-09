@@ -5,27 +5,16 @@ namespace QuanTAlib;
 
 public class KurtosisIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 4, 1000, 1, 0)]
-    public int Periods { get; set; } = 20;
+    [InputParameter("Period", sortIndex: 1, 4, 1000, 1, 0)]
+    public int Period { get; set; } = 20;
 
-    [InputParameter("Data source", sortIndex: 2, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     private Kurtosis? kurtosis;
     protected LineSeries? KurtosisSeries;
     protected string? SourceName;
-    public int MinHistoryDepths => Periods - 1;
+    public int MinHistoryDepths => Period - 1;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public KurtosisIndicator()
@@ -41,7 +30,7 @@ public class KurtosisIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        kurtosis = new Kurtosis(Periods);
+        kurtosis = new Kurtosis(Period);
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -54,5 +43,5 @@ public class KurtosisIndicator : Indicator, IWatchlistIndicator
         KurtosisSeries!.SetValue(result.Value);
     }
 
-    public override string ShortName => $"Kurtosis ({Periods}:{SourceName})";
+    public override string ShortName => $"Kurtosis ({Period}:{SourceName})";
 }

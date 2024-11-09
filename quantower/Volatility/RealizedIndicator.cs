@@ -5,15 +5,15 @@ namespace QuanTAlib;
 
 public class RealizedIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 1, 2000, 1, 0)]
-    public int Periods { get; set; } = 20;
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
+    public int Period { get; set; } = 20;
 
     [InputParameter("Annualized", sortIndex: 2)]
     public bool IsAnnualized { get; set; } = true;
 
     private Rv? realized;
     protected LineSeries? RvSeries;
-    public int MinHistoryDepths => Periods;
+    public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public RealizedIndicator()
@@ -28,7 +28,7 @@ public class RealizedIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        realized = new(Periods, IsAnnualized);
+        realized = new(Period, IsAnnualized);
         base.OnInit();
     }
 
@@ -40,5 +40,5 @@ public class RealizedIndicator : Indicator, IWatchlistIndicator
         RvSeries!.SetValue(result.Value);
     }
 
-    public override string ShortName => $"RV ({Periods}{(IsAnnualized ? " - Annualized" : "")})";
+    public override string ShortName => $"RV ({Period}{(IsAnnualized ? " - Annualized" : "")})";
 }

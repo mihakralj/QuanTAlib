@@ -5,11 +5,11 @@ namespace QuanTAlib;
 
 public class DmxIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("DMI Periods", sortIndex: 1, 1, 2000, 1, 0)]
-    public int DmiPeriods { get; set; } = 14;
+    [InputParameter("DMI Period", sortIndex: 1, 1, 2000, 1, 0)]
+    public int DmiPeriod { get; set; } = 14;
 
-    [InputParameter("JMA Smoothing Periods", sortIndex: 2, 1, 2000, 1, 0)]
-    public int JmaPeriods { get; set; } = 12;
+    [InputParameter("JMA Smoothing Period", sortIndex: 2, 1, 2000, 1, 0)]
+    public int JmaPeriod { get; set; } = 12;
 
     [InputParameter("JMA Phase", sortIndex: 3, -100, 100, 1, 0)]
     public int JmaPhase { get; set; } = 100;
@@ -23,7 +23,7 @@ public class DmxIndicator : Indicator, IWatchlistIndicator
     private Dmx? dmx;
     protected LineSeries? PlusDiSeries;
     protected LineSeries? MinusDiSeries;
-    public int MinHistoryDepths => Math.Max(5, (DmiPeriods + JmaPeriods) * 2);
+    public int MinHistoryDepths => Math.Max(5, (DmiPeriod + JmaPeriod) * 2);
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public DmxIndicator()
@@ -32,22 +32,22 @@ public class DmxIndicator : Indicator, IWatchlistIndicator
         Description = "An enhanced version of DMI using JMA smoothing for better noise reduction and responsiveness.";
         SeparateWindow = true;
 
-        PlusDiSeries = new($"+DI {DmiPeriods}", color: Color.Red, 2, LineStyle.Solid);
-        MinusDiSeries = new($"-DI {DmiPeriods}", color: Color.Blue, 2, LineStyle.Solid);
+        PlusDiSeries = new($"+DI {DmiPeriod}", color: Color.Red, 2, LineStyle.Solid);
+        MinusDiSeries = new($"-DI {DmiPeriod}", color: Color.Blue, 2, LineStyle.Solid);
         AddLineSeries(PlusDiSeries);
         AddLineSeries(MinusDiSeries);
     }
 
     protected override void OnInit()
     {
-        dmx = new Dmx(DmiPeriods, JmaPeriods, JmaPhase, JmaFactor);
+        dmx = new Dmx(DmiPeriod, JmaPeriod, JmaPhase, JmaFactor);
         base.OnInit();
     }
 
     protected override void OnUpdate(UpdateArgs args)
     {
         TBar input = IndicatorExtensions.GetInputBar(this, args);
-        var result = dmx!.Calc(input);
+        dmx!.Calc(input);
 
         PlusDiSeries!.SetValue(dmx.PlusDI);
         MinusDiSeries!.SetValue(dmx.MinusDI);
@@ -57,7 +57,7 @@ public class DmxIndicator : Indicator, IWatchlistIndicator
 
 #pragma warning disable CA1416 // Validate platform compatibility
 
-    public override string ShortName => $"DMX ({DmiPeriods})";
+    public override string ShortName => $"DMX ({DmiPeriod})";
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {

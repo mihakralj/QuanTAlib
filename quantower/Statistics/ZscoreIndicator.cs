@@ -5,21 +5,10 @@ namespace QuanTAlib;
 
 public class ZscoreIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods", sortIndex: 1, 2, 2000, 1, 0)]
-    public int Periods { get; set; } = 20;
+    [InputParameter("Period", sortIndex: 1, 2, 2000, 1, 0)]
+    public int Period { get; set; } = 20;
 
-    [InputParameter("Data source", sortIndex: 2, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     private Zscore? zScore;
@@ -41,7 +30,7 @@ public class ZscoreIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnInit()
     {
-        zScore = new Zscore(Periods);
+        zScore = new Zscore(Period);
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -54,5 +43,5 @@ public class ZscoreIndicator : Indicator, IWatchlistIndicator
         ZscoreSeries!.SetValue(result.Value);
     }
 
-    public override string ShortName => $"Z-Score ({Periods}:{SourceName})";
+    public override string ShortName => $"Z-Score ({Period}:{SourceName})";
 }

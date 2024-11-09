@@ -5,8 +5,8 @@ namespace QuanTAlib;
 
 public class HwmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Periods (only when nA=nB=nC=0)", sortIndex: 1, 1, 1000, 1, 0)]
-    public int Periods { get; set; } = 10;
+    [InputParameter("Period (only when nA=nB=nC=0)", sortIndex: 1, 1, 1000, 1, 0)]
+    public int Period { get; set; } = 10;
 
     [InputParameter("nA", sortIndex: 2, 0, 1, 0.01, 2)]
     public double NA { get; set; } = 0;
@@ -17,18 +17,7 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("nC", sortIndex: 4, 0, 1, 0.01, 2)]
     public double NC { get; set; } = 0;
 
-    [InputParameter("Data source", sortIndex: 5, variants: [
-        "Open", SourceType.Open,
-        "High", SourceType.High,
-        "Low", SourceType.Low,
-        "Close", SourceType.Close,
-        "HL/2 (Median)", SourceType.HL2,
-        "OC/2 (Midpoint)", SourceType.OC2,
-        "OHL/3 (Mean)", SourceType.OHL3,
-        "HLC/3 (Typical)", SourceType.HLC3,
-        "OHLC/4 (Average)", SourceType.OHLC4,
-        "HLCC/4 (Weighted)", SourceType.HLCC4
-    ])]
+    [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
 
     [InputParameter("Show cold values", sortIndex: 21)]
@@ -37,10 +26,10 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
     private Hwma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    public int MinHistoryDepths => Periods;
+    public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"HWMA {Periods}:{NA}:{NB}:{NC}:{SourceName}";
+    public override string ShortName => $"HWMA {Period}:{NA}:{NB}:{NC}:{SourceName}";
 
     public HwmaIndicator()
     {
@@ -49,7 +38,7 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "HWMA - Holt-Winter Moving Average";
         Description = "Holt-Winter Moving Average";
-        Series = new(name: $"HWMA {Periods}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new(name: $"HWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -57,11 +46,11 @@ public class HwmaIndicator : Indicator, IWatchlistIndicator
     {
         if ((NA, NB, NC) == (0, 0, 0))
         {
-            ma = new Hwma(Periods);
+            ma = new Hwma(Period);
         }
         else
         {
-            ma = new Hwma(Periods, NA, NB, NC);
+            ma = new Hwma(Period, NA, NB, NC);
         }
         SourceName = Source.ToString();
         base.OnInit();
