@@ -19,6 +19,13 @@ public class StatisticsUpdateTests : UpdateTestBase
     }
 
     [Fact]
+    public void Covar_Update()
+    {
+        var indicator = new Covar(period: 14);
+        TestDualTValueUpdate(indicator, indicator.Calc);
+    }
+
+    [Fact]
     public void Curvature_Update()
     {
         var indicator = new Curvature(period: 14);
@@ -37,6 +44,13 @@ public class StatisticsUpdateTests : UpdateTestBase
     {
         var indicator = new Hurst(period: 100, minLength: 10);
         TestTBarUpdate(indicator, indicator.Calc);
+    }
+
+    [Fact]
+    public void Kendall_Update()
+    {
+        var indicator = new Kendall(period: 14);
+        TestDualTValueUpdate(indicator, indicator.Calc);
     }
 
     [Fact]
@@ -93,6 +107,13 @@ public class StatisticsUpdateTests : UpdateTestBase
     {
         var indicator = new Slope(period: 14);
         TestTValueUpdate(indicator, indicator.Calc);
+    }
+
+    [Fact]
+    public void Spearman_Update()
+    {
+        var indicator = new Spearman(period: 14);
+        TestDualTValueUpdate(indicator, indicator.Calc);
     }
 
     [Fact]
