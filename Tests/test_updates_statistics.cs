@@ -40,6 +40,13 @@ public class StatisticsUpdateTests : UpdateTestBase
     }
 
     [Fact]
+    public void Granger_Update()
+    {
+        var indicator = new Granger(lags: 5);
+        TestDualTValueUpdate(indicator, indicator.Calc);
+    }
+
+    [Fact]
     public void Hurst_Update()
     {
         var indicator = new Hurst(period: 100, minLength: 10);

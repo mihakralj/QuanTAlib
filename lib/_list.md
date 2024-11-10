@@ -8,9 +8,9 @@
 | Momentum   | 17   | 0    | 17    |
 | Oscillators| 24   | 5    | 29    |
 | Patterns   | 0    | 8    | 8     |
-| Statistics | 21   | 2    | 23    |
+| Statistics | 22   | 1    | 23    |
 | Volatility | 31   | 4    | 35    |
-| Total      | 126  | 19   | 145   |
+| Total      | 127  | 18   | 145   |
 
 ## Indicators by Category
 
@@ -110,12 +110,13 @@ RPP - Rolling Pivot Points (Support 1-3, Pivot, Resistance 1-3)
 WF - Williams Fractal
 ZZ - Zig Zag Pattern
 
-### Statistics (21/23)
+### Statistics (22/23)
 ✔️ BETA - Beta coefficient measuring volatility relative to market
 ✔️ CORR - Correlation coefficient between two series
 ✔️ COVAR - Covariance between two series
 ✔️ CURVATURE - Curvature of a time series
 ✔️ ENTROPY - Information entropy of a series
+✔️ GRANGER - Granger causality test
 ✔️ HURST - Hurst exponent for trend strength
 ✔️ KENDALL - Kendall rank correlation
 ✔️ KURTOSIS - Kurtosis measuring tail extremity
@@ -133,7 +134,6 @@ ZZ - Zig Zag Pattern
 ✔️ VARIANCE - Statistical variance
 ✔️ ZSCORE - Z-score standardization
 COINTEGRATION - Test for cointegrated series
-GRANGER - Granger causality test
 
 ### Volatility (31/35)
 ✔️ ADR - Average Daily Range

@@ -20,8 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum", "quantower\Momen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experiments", "quantower\Experiments\_Experiments.csproj", "{F7F1F8D3-DAC0-4E9F-1FB2-F88D5F0E0E04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyntheticVendor", "SyntheticVendor\SyntheticVendor.csproj", "{1CF111D9-33E6-4A11-8FEC-F23300A78D15}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{2D97C971-20BF-40DB-94AA-3279F787D3CB}"
 EndProject
 Global
@@ -65,10 +63,6 @@ Global
 		{F7F1F8D3-DAC0-4E9F-1FB2-F88D5F0E0E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7F1F8D3-DAC0-4E9F-1FB2-F88D5F0E0E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7F1F8D3-DAC0-4E9F-1FB2-F88D5F0E0E04}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1CF111D9-33E6-4A11-8FEC-F23300A78D15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D97C971-20BF-40DB-94AA-3279F787D3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU

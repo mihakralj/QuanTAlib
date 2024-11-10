@@ -1,11 +1,12 @@
 # Statistics indicators
-Done: 21, Todo: 2
+Done: 22, Todo: 1
 
 ✔️ BETA - Beta coefficient measuring volatility relative to market
 ✔️ CORR - Correlation coefficient between two series
 ✔️ COVAR - Covariance between two series
 ✔️ CURVATURE - Curvature of a time series
 ✔️ ENTROPY - Information entropy of a series
+✔️ GRANGER - Granger causality test
 ✔️ HURST - Hurst exponent for trend strength
 ✔️ KENDALL - Kendall rank correlation
 ✔️ KURTOSIS - Kurtosis measuring tail extremity
@@ -23,4 +24,3 @@ Done: 21, Todo: 2
 ✔️ VARIANCE - Statistical variance
 ✔️ ZSCORE - Z-score standardization
 COINTEGRATION - Test for cointegrated series
-GRANGER - Granger causality test

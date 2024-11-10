@@ -4,7 +4,7 @@
 
 #!csharp
 
-#r "..\lib\obj\Debug\QuanTAlib.dll"
+#r "../lib/obj/Debug/QuanTAlib.dll"
 using QuanTAlib;
 QuanTAlib.Formatters.Initialize();
 

@@ -1,0 +1,27 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":"csharp"}]}}
+
+#!csharp
+
+#r "../lib/obj/Debug/QuanTAlib.dll"
+using QuanTAlib;
+QuanTAlib.Formatters.Initialize();
+
+#!csharp
+
+#r "nuget: ScottPlot"
+
+using ScottPlot;
+using Microsoft.DotNet.Interactive.Formatting;
+Formatter.Register(typeof(ScottPlot.Plot), (p, w) =>
+    w.Write(((ScottPlot.Plot)p).GetSvgXml(600, 300)), HtmlFormatter.MimeType);
+
+#!csharp
+
+GbmFeed feed = new();
+TSeries data = new(feed.Close);
+Ccv ma = new(feed,5);
+TSeries result = new(ma);
+feed.Add(12);
+display(result);
