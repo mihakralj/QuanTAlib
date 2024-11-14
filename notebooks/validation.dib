@@ -25,3 +25,19 @@ Ccv ma = new(feed,5);
 TSeries result = new(ma);
 feed.Add(12);
 display(result);
+
+#!markdown
+
+```mermaid
+graph TD
+    A[QuanTAlib] --> B[lib]
+    B --> C[core]
+    B --> D[averages]
+    B --> E[momentum]
+    B --> F[oscillators]
+    B --> G[errors]
+    B --> H[feeds]
+    B --> I[patterns]
+    B --> J[statistics]
+    B --> K[volatility]
+    B --> L[volume]

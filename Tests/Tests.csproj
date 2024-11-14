@@ -9,6 +9,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.42">
@@ -24,9 +25,9 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
 
-    <PackageReference Include="Skender.Stock.Indicators" Version="2.5.0" />
+    <PackageReference Include="Skender.Stock.Indicators" Version="2.5.1" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
     <PackageReference Include="Trady.Analysis" Version="3.2.8" />
