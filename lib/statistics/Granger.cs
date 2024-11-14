@@ -122,7 +122,7 @@ public sealed class Granger : AbstractBase
             X[i, 0] = 1.0; // Constant term
             for (int j = 1; j < k; j++)
             {
-                X[i, j] = x[i * (k - 1) + (j - 1)];
+                X[i, j] = x[(i * (k - 1)) + (j - 1)];
             }
         }
 
@@ -190,7 +190,7 @@ public sealed class Granger : AbstractBase
     {
         // Calculate F-statistic
         double numerator = (rss1 - rss2) / p;
-        double denominator = rss2 / (n - 2 * p - 1);
+        double denominator = rss2 / (n - (2 * p) - 1);
         return numerator / denominator;
     }
 
@@ -199,7 +199,7 @@ public sealed class Granger : AbstractBase
     {
         // Approximate p-value from F-distribution
         // Using a simplified approximation for performance
-        double v = df2 / (df2 + df1 * f);
+        double v = df2 / (df2 + (df1 * f));
         return Math.Pow(v, df2 / 2.0);
     }
 
@@ -216,7 +216,7 @@ public sealed class Granger : AbstractBase
         if (_xValues.Count >= WarmupPeriod && _yValues.Count >= WarmupPeriod)
         {
             int n = _xValues.Count - Lags;
-            if (n > 2 * Lags + 1)
+            if (n > (2 * Lags) + 1)
             {
                 ReadOnlySpan<double> x = _xValues.GetSpan();
                 ReadOnlySpan<double> y = _yValues.GetSpan();
@@ -224,7 +224,7 @@ public sealed class Granger : AbstractBase
                 // Prepare data for regression
                 var yData = y.Slice(Lags, n).ToArray();
                 var restricted = new double[Lags + 1];
-                var unrestricted = new double[2 * Lags + 1];
+                var unrestricted = new double[(2 * Lags) + 1];
 
                 // Fit restricted model (only Y lags)
                 FitOLS(yData, y.Slice(0, n), restricted);
@@ -261,7 +261,7 @@ public sealed class Granger : AbstractBase
                 if (rss2 > Epsilon)
                 {
                     double f = CalculateFStatistic(rss1, rss2, n, Lags);
-                    pValue = FDistributionPValue(f, Lags, n - 2 * Lags - 1);
+                    pValue = FDistributionPValue(f, Lags, n - (2 * Lags) - 1);
                 }
             }
         }
