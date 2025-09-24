@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <NoWarn>$(NoWarn);NU1903;NU5104;NETSDK1057</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -50,11 +50,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.24563.1" />
+    <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.25323.1" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
-    <QuantowerRoot>D:\Quantower</QuantowerRoot>
+    <QuantowerRoot>Z:\Quantower</QuantowerRoot>
     <QuantowerPath>$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
   </PropertyGroup>
 

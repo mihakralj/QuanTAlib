@@ -1,23 +1,10 @@
 {
-    "sonarlint.connectedMode.connections.sonarcloud": [
-        {
-            "organizationKey": "mihakralj",
-            "token": "6df7cd62a17dc4e1c5532df1da2f49d5a977dd50",
-            "connectionId": "mihakralj"
-        }
-    ],
-    "sarif-viewer.connectToGithubCodeScanning": "on",
-    "omnisharp.useModernNet": true,
-    "sonarlint.connectedMode.project": {
-        "connectionId": "mihakralj",
-        "projectKey": "mihakralj_QuanTAlib"
-    },
-    "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "fullSolution",
-    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
-    "dotnetAcquisitionExtension.enableTelemetry": false,
-    "dotnet-test-explorer.testProjectPath": "Tests",
-    "dotnet-test-explorer.autoWatch": true,
-    "dotnet-test-explorer.showCodeLens": true,
-    "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.cobertura.xml"
-
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    }
+  },
+  "terminal.integrated.shellIntegration.enabled": true
 }

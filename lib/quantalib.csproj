@@ -30,9 +30,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.0.5" PrivateAssets="all" />
     <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="10.0.0-rc.1.25451.107" />
   </ItemGroup>
 
   <ItemGroup>
