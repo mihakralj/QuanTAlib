@@ -8,6 +8,7 @@ extern alias experiments;
 
 using Xunit;
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 using TradingPlatform.BusinessLayer;
 using statistics::QuanTAlib;
 using averages::QuanTAlib;
@@ -21,7 +22,7 @@ namespace QuanTAlib
 {
     public class QuantowerTests
     {
-        private static void TestIndicator<T>(string fieldName = "ma") where T : Indicator, new()
+        private static void TestIndicator<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.NonPublicMethods | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(string fieldName = "ma") where T : Indicator, new()
         {
             var indicator = new T();
             try
@@ -51,7 +52,7 @@ namespace QuanTAlib
             }
         }
 
-        private static void TestIndicatorMultipleFields<T>(string[] fieldNames) where T : Indicator, new()
+        private static void TestIndicatorMultipleFields<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.NonPublicMethods | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(string[] fieldNames) where T : Indicator, new()
         {
             var indicator = new T();
             try

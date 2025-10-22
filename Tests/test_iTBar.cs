@@ -69,7 +69,9 @@ public class BarIndicatorTests
     /// </summary>
     /// <param name="type">The type of the indicator.</param>
     /// <returns>The MethodInfo for the Calc method.</returns>
-    private static MethodInfo FindCalcMethod(Type type)
+    [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.",
+        Justification = "BaseType will have the same dynamic access requirements as the derived type in this reflection scenario.")]
+    private static MethodInfo FindCalcMethod([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)] Type type)
     {
         while (type != null && type != typeof(object))
         {
