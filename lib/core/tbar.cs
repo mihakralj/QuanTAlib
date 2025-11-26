@@ -2,60 +2,79 @@ using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
 
-public interface ITBar
-{
-    DateTime Time { get; }
-    double Open { get; }
-    double High { get; }
-    double Low { get; }
-    double Close { get; }
-    double Volume { get; }
-    bool IsNew { get; }
-}
-
+/// <summary>
+/// A lightweight struct representing an OHLCV bar.
+/// Pure data type: 48 bytes (long + 5 doubles).
+/// </summary>
 [SkipLocalsInit]
-public readonly record struct TBar(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) : ITBar
+public readonly struct TBar : IEquatable<TBar>
 {
-    public DateTime Time { get; init; } = Time;
-    public double Open { get; init; } = Open;
-    public double High { get; init; } = High;
-    public double Low { get; init; } = Low;
-    public double Close { get; init; } = Close;
-    public double Volume { get; init; } = Volume;
-    public bool IsNew { get; init; } = IsNew;
+    public readonly long Time;
+    public readonly double Open;
+    public readonly double High;
+    public readonly double Low;
+    public readonly double Close;
+    public readonly double Volume;
 
+    public DateTime AsDateTime => new(Time, DateTimeKind.Utc);
+
+    // TValue conversions (Zero-copy / lightweight creation)
+    public TValue O { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(Time, Open); }
+    public TValue H { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(Time, High); }
+    public TValue L { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(Time, Low); }
+    public TValue C { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(Time, Close); }
+    public TValue V { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(Time, Volume); }
+
+    // Computed properties (calculated on demand, no storage overhead)
     public double HL2 => (High + Low) * 0.5;
     public double OC2 => (Open + Close) * 0.5;
-    public double OHL3 => (Open + High + Low) / 3;
-    public double HLC3 => (High + Low + Close) / 3;
+    public double OHL3 => (Open + High + Low) / 3.0;
+    public double HLC3 => (High + Low + Close) / 3.0;
     public double OHLC4 => (Open + High + Low + Close) * 0.25;
     public double HLCC4 => (High + Low + Close + Close) * 0.25;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar() : this(DateTime.UtcNow, 0, 0, 0, 0, 0) { }
+    public TBar(long time, double open, double high, double low, double close, double volume)
+    {
+        Time = time;
+        Open = open;
+        High = high;
+        Low = low;
+        Close = close;
+        Volume = volume;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(double Open, double High, double Low, double Close, double Volume, bool IsNew = true)
-        : this(DateTime.UtcNow, Open, High, Low, Close, Volume, IsNew) { }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(double value)
-        : this(Time: DateTime.UtcNow, Open: value, High: value, Low: value, Close: value, Volume: value, IsNew: true) { }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(TValue value)
-        : this(Time: value.Time, Open: value.Value, High: value.Value, Low: value.Value, Close: value.Value, Volume: value.Value, IsNew: value.IsNew) { }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(TBar v)
-        : this(Time: v.Time, Open: v.Open, High: v.High, Low: v.Low, Close: v.Close, Volume: v.Volume, IsNew: true) { }
+    public TBar(DateTime time, double open, double high, double low, double close, double volume)
+    {
+        Time = time.Ticks;
+        Open = open;
+        High = high;
+        Low = low;
+        Close = close;
+        Volume = volume;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator double(TBar bar) => bar.Close;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator DateTime(TBar tv) => tv.Time;
+    public static implicit operator DateTime(TBar bar) => new(bar.Time, DateTimeKind.Utc);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
+    public override string ToString() => $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(TBar other) =>
+        Time == other.Time &&
+        Open == other.Open &&
+        High == other.High &&
+        Low == other.Low &&
+        Close == other.Close &&
+        Volume == other.Volume;
+
+    public override bool Equals(object? obj) => obj is TBar other && Equals(other);
+    public override int GetHashCode() => HashCode.Combine(Time, Open, High, Low, Close, Volume);
+    public static bool operator ==(TBar left, TBar right) => left.Equals(right);
+    public static bool operator !=(TBar left, TBar right) => !left.Equals(right);
 }

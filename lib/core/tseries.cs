@@ -1,122 +1,146 @@
+using System.Collections;
 using System.Runtime.CompilerServices;
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
-public delegate void ValueSignal(object source, in ValueEventArgs args);
-
-[SkipLocalsInit]
-public sealed class ValueEventArgs : EventArgs
+/// <summary>
+/// A high-performance time series implementation using Structure of Arrays (SoA) layout.
+/// Stores Time (long) and Value (double) in separate contiguous arrays for SIMD efficiency.
+/// Supports "New Bar" vs "Update Last" streaming semantics.
+/// </summary>
+public class TSeries : IReadOnlyList<TValue>
 {
-    public readonly TValue Tick;
+    // Internal storage: SoA layout
+    // We use List<T> for dynamic sizing but access internal arrays via CollectionsMarshal for speed
+    protected readonly List<long> _t;
+    protected readonly List<double> _v;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ValueEventArgs(TValue value) => Tick = value;
-}
+    public string Name { get; set; } = "Data";
 
-[SkipLocalsInit]
-public class TSeries : List<TValue>
-{
-    private static readonly TValue Default = new(DateTime.MinValue, double.NaN);
+    // Event optimization: Use Action<TValue> to avoid EventArgs allocation
+    // Note: Events are generally discouraged in the hot path of this high-perf design, 
+    // but kept for compatibility/chaining.
+    public event Action<TValue>? Pub;
 
-    public IEnumerable<DateTime> t => this.Select(item => item.t);
-    public IEnumerable<double> v => this.Select(item => item.v);
-    public TValue Last => Count > 0 ? this[^1] : Default;
-    public TValue First => Count > 0 ? this[0] : Default;
-    public int Length => Count;
-    public string Name { get; set; }
+    public TSeries() 
+    {
+        _t = new List<long>();
+        _v = new List<double>();
+    }
 
     /// <summary>
-    /// Event that publishes value updates to subscribers. This event is used in the pub/sub pattern
-    /// where TSeries instances can subscribe to updates from other data sources through the Sub method,
-    /// and publish their own updates to downstream subscribers.
+    /// Constructor with capacity hint to avoid List growth overhead.
     /// </summary>
-    [SuppressMessage("Minor Code Smell", "S3264:Events should be invoked", Justification = "Event is invoked through delegate")]
-    public event ValueSignal Pub = delegate { };
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TSeries()
+    public TSeries(int capacity) 
     {
-        Name = "Data";
+        _t = new List<long>(capacity);
+        _v = new List<double>(capacity);
+    }
+
+    /// <summary>
+    /// Constructor for wrapping existing lists (e.g. from TBarSeries).
+    /// </summary>
+    public TSeries(List<long> time, List<double> values)
+    {
+        _t = time;
+        _v = values;
+    }
+
+    public int Count
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _v.Count;
+    }
+
+    public TValue this[int index]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => new(_t[index], _v[index]);
+    }
+
+    public TValue Last
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _v.Count > 0 ? new(_t[^1], _v[^1]) : default;
+    }
+
+    public double LastValue
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _v.Count > 0 ? _v[^1] : double.NaN;
+    }
+
+    public long LastTime
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _t.Count > 0 ? _t[^1] : 0;
+    }
+
+    /// <summary>
+    /// Direct access to the underlying Value array as a Span for SIMD operations.
+    /// </summary>
+    public ReadOnlySpan<double> Values
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_v);
+    }
+
+    /// <summary>
+    /// Direct access to the underlying Time array as a Span.
+    /// </summary>
+    public ReadOnlySpan<long> Times
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_t);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TSeries(object source) : this()
+    public virtual void Add(TValue value, bool isNew)
     {
-        var pubEvent = source.GetType().GetEvent("Pub");
-        if (pubEvent != null)
+        if (isNew || _v.Count == 0)
         {
-            pubEvent.AddEventHandler(source, new ValueSignal(Sub));
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static explicit operator List<double>(TSeries series) => series.Select(item => item.Value).ToList();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static explicit operator double[](TSeries series) => series.Select(item => item.Value).ToArray();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public new virtual void Add(TValue tick)
-    {
-        if (tick.IsNew || base.Count == 0)
-        {
-            base.Add(tick);
+            _t.Add(value.Time);
+            _v.Add(value.Value);
         }
         else
         {
-            this[^1] = tick;
+            // Update last bar
+            int lastIdx = _v.Count - 1;
+            _t[lastIdx] = value.Time;
+            _v[lastIdx] = value.Value;
         }
-        Pub?.Invoke(this, new ValueEventArgs(tick));
+        Pub?.Invoke(value);
     }
 
+    // Overload for backward compatibility (assumes isNew=true)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Add(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) =>
-        Add(new TValue(Time, Value, IsNew, IsHot));
+    public virtual void Add(TValue value) => Add(value, true);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Add(double Value, bool IsNew = true, bool IsHot = true) =>
-        Add(new TValue(DateTime.UtcNow, Value, IsNew, IsHot));
+    public void Add(long time, double value, bool isNew = true) => Add(new TValue(time, value), isNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(DateTime time, double value, bool isNew = true) => Add(new TValue(time.Ticks, value), isNew);
+
     public void Add(IEnumerable<double> values)
     {
-        var valueList = values.ToList();
-        int count = valueList.Count;
-        DateTime startTime = DateTime.UtcNow - TimeSpan.FromHours(count);
-
-        for (int i = 0; i < count; i++)
+        long t = DateTime.UtcNow.Ticks;
+        foreach (var v in values)
         {
-            Add(startTime, valueList[i]);
-            startTime = startTime.AddHours(1);
+            Add(new TValue(t, v), isNew: true);
+            t += TimeSpan.TicksPerMinute; // Dummy time increment
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(TSeries series)
+    // IEnumerable implementation
+    public IEnumerator<TValue> GetEnumerator()
     {
-        if (series == this)
+        for (int i = 0; i < _v.Count; i++)
         {
-            // If adding itself, create a copy to avoid modification during enumeration
-            var copy = new TSeries { Name = Name };
-            copy.AddRange(this);
-            AddRange(copy);
-        }
-        else
-        {
-            AddRange(series);
+            yield return new TValue(_t[i], _v[i]);
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public new virtual void AddRange(IEnumerable<TValue> collection)
-    {
-        foreach (var item in collection)
-        {
-            Add(item);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Sub(object source, in ValueEventArgs args) => Add(args.Tick);
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

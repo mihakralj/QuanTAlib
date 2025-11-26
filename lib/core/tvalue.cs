@@ -2,40 +2,56 @@ using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
 
-public interface ITValue
-{
-    DateTime Time { get; }
-    double Value { get; }
-    bool IsNew { get; }
-    bool IsHot { get; }
-}
-
+/// <summary>
+/// A lightweight struct representing a time-value pair.
+/// Pure data type: 16 bytes (long + double).
+/// </summary>
 [SkipLocalsInit]
-public readonly record struct TValue(DateTime Time, double Value, bool IsNew = true, bool IsHot = true) : ITValue
+public readonly struct TValue : IEquatable<TValue>
 {
-    public DateTime Time { get; init; } = Time;
-    public double Value { get; init; } = Value;
-    public bool IsNew { get; init; } = IsNew;
-    public bool IsHot { get; init; } = IsHot;
-    public DateTime t => Time;
-    public double v => Value;
+    /// <summary>
+    /// Time in ticks (UTC).
+    /// </summary>
+    public readonly long Time;
+
+    /// <summary>
+    /// The value.
+    /// </summary>
+    public readonly double Value;
+
+    /// <summary>
+    /// Convenience property to get DateTime from Ticks.
+    /// </summary>
+    public DateTime AsDateTime => new(Time, DateTimeKind.Utc);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue() : this(DateTime.UtcNow, 0) { }
+    public TValue(long time, double value)
+    {
+        Time = time;
+        Value = value;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue(double value, bool isNew = true, bool isHot = true)
-        : this(DateTime.UtcNow, value, IsNew: isNew, IsHot: isHot) { }
+    public TValue(DateTime time, double value)
+    {
+        Time = time.Ticks;
+        Value = value;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator double(TValue tv) => tv.Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator DateTime(TValue tv) => tv.Time;
+    public static implicit operator DateTime(TValue tv) => new(tv.Time, DateTimeKind.Utc);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator TValue(double value) => new TValue(DateTime.UtcNow, value);
+    public override string ToString() => $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}, {Value:F2}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => $"[{Time:yyyy-MM-dd HH:mm:ss}, {Value:F2}, IsNew: {IsNew}, IsHot: {IsHot}]";
+    public bool Equals(TValue other) => Time == other.Time && Value == other.Value;
+
+    public override bool Equals(object? obj) => obj is TValue other && Equals(other);
+    public override int GetHashCode() => HashCode.Combine(Time, Value);
+    public static bool operator ==(TValue left, TValue right) => left.Equals(right);
+    public static bool operator !=(TValue left, TValue right) => !left.Equals(right);
 }

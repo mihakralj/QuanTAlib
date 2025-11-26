@@ -1,110 +1,147 @@
+using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
-public delegate void BarSignal(object source, in TBarEventArgs args);
-
-[SkipLocalsInit]
-public sealed class TBarEventArgs : EventArgs
+/// <summary>
+/// A high-performance OHLCV time series implementation using Structure of Arrays (SoA) layout.
+/// Stores Time, Open, High, Low, Close, Volume in separate contiguous arrays for SIMD efficiency.
+/// Exposes TSeries views for each component that share the underlying Time array.
+/// </summary>
+public class TBarSeries : IReadOnlyList<TBar>
 {
-    public readonly TBar Bar;
+    // Internal storage: SoA layout
+    protected readonly List<long> _t = new();
+    protected readonly List<double> _o = new();
+    protected readonly List<double> _h = new();
+    protected readonly List<double> _l = new();
+    protected readonly List<double> _c = new();
+    protected readonly List<double> _v = new();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBarEventArgs(TBar bar) => Bar = bar;
-}
+    public string Name { get; set; } = "Bar";
+    public event Action<TBar>? Pub;
 
-[SkipLocalsInit]
-public class TBarSeries : List<TBar>
-{
-    private static readonly TBar Default = new(DateTime.MinValue, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN);
+    // Public properties are Views into the main data
+    public TSeries Open { get; }
+    public TSeries High { get; }
+    public TSeries Low { get; }
+    public TSeries Close { get; }
+    public TSeries Volume { get; }
 
-    public TSeries Open { get; init; }
-    public TSeries High { get; init; }
-    public TSeries Low { get; init; }
-    public TSeries Close { get; init; }
-    public TSeries Volume { get; init; }
+    // Aliases for convenience
+    public TSeries O => Open;
+    public TSeries H => High;
+    public TSeries L => Low;
+    public TSeries C => Close;
+    public TSeries V => Volume;
 
-    public TBar Last => Count > 0 ? this[^1] : Default;
-    public TBar First => Count > 0 ? this[0] : Default;
-    public int Length => Count;
-    public string Name { get; set; }
-    public event BarSignal Pub = delegate { };
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBarSeries()
     {
-        Name = "Bar";
-        Open = new TSeries();
-        High = new TSeries();
-        Low = new TSeries();
-        Close = new TSeries();
-        Volume = new TSeries();
+        // Initialize views sharing the same Time list but different Value lists
+        Open = new TSeries(_t, _o) { Name = "Open" };
+        High = new TSeries(_t, _h) { Name = "High" };
+        Low = new TSeries(_t, _l) { Name = "Low" };
+        Close = new TSeries(_t, _c) { Name = "Close" };
+        Volume = new TSeries(_t, _v) { Name = "Volume" };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBarSeries(object source) : this()
+    /// <summary>
+    /// Constructor with capacity hint to avoid List growth overhead.
+    /// </summary>
+    public TBarSeries(int capacity)
     {
-        var pubEvent = source.GetType().GetEvent("Pub");
-        pubEvent?.AddEventHandler(source, new BarSignal(Sub));
+        _t = new List<long>(capacity);
+        _o = new List<double>(capacity);
+        _h = new List<double>(capacity);
+        _l = new List<double>(capacity);
+        _c = new List<double>(capacity);
+        _v = new List<double>(capacity);
+
+        // Initialize views sharing the same Time list but different Value lists
+        Open = new TSeries(_t, _o) { Name = "Open" };
+        High = new TSeries(_t, _h) { Name = "High" };
+        Low = new TSeries(_t, _l) { Name = "Low" };
+        Close = new TSeries(_t, _c) { Name = "Close" };
+        Volume = new TSeries(_t, _v) { Name = "Volume" };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public new virtual void Add(TBar bar)
+    public int Count
     {
-        if (bar.IsNew || base.Count == 0)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _c.Count;
+    }
+
+    public TBar this[int index]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => new(_t[index], _o[index], _h[index], _l[index], _c[index], _v[index]);
+    }
+
+    public TBar Last
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _c.Count > 0 ? new(_t[^1], _o[^1], _h[^1], _l[^1], _c[^1], _v[^1]) : default;
+    }
+
+    public long LastTime { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _t.Count > 0 ? _t[^1] : 0; }
+    public double LastOpen { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _o.Count > 0 ? _o[^1] : double.NaN; }
+    public double LastHigh { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _h.Count > 0 ? _h[^1] : double.NaN; }
+    public double LastLow { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _l.Count > 0 ? _l[^1] : double.NaN; }
+    public double LastClose { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _c.Count > 0 ? _c[^1] : double.NaN; }
+    public double LastVolume { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _v.Count > 0 ? _v[^1] : double.NaN; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(TBar bar, bool isNew = true)
+    {
+        if (isNew || _c.Count == 0)
         {
-            base.Add(bar);
+            _t.Add(bar.Time);
+            _o.Add(bar.Open);
+            _h.Add(bar.High);
+            _l.Add(bar.Low);
+            _c.Add(bar.Close);
+            _v.Add(bar.Volume);
         }
         else
         {
-            this[^1] = bar;
+            int lastIdx = _c.Count - 1;
+            _t[lastIdx] = bar.Time;
+            _o[lastIdx] = bar.Open;
+            _h[lastIdx] = bar.High;
+            _l[lastIdx] = bar.Low;
+            _c[lastIdx] = bar.Close;
+            _v[lastIdx] = bar.Volume;
         }
 
-        Pub?.Invoke(this, new TBarEventArgs(bar));
-
-        Open.Add(bar.Time, bar.Open, IsNew: bar.IsNew, IsHot: true);
-        High.Add(bar.Time, bar.High, IsNew: bar.IsNew, IsHot: true);
-        Low.Add(bar.Time, bar.Low, IsNew: bar.IsNew, IsHot: true);
-        Close.Add(bar.Time, bar.Close, IsNew: bar.IsNew, IsHot: true);
-        Volume.Add(bar.Time, bar.Volume, IsNew: bar.IsNew, IsHot: true);
+        Pub?.Invoke(bar);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(DateTime Time, double Open, double High, double Low, double Close, double Volume, bool IsNew = true) =>
-        Add(new TBar(Time, Open, High, Low, Close, Volume, IsNew));
+    public void Add(long time, double open, double high, double low, double close, double volume, bool isNew = true) =>
+        Add(new TBar(time, open, high, low, close, volume), isNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(double Open, double High, double Low, double Close, double Volume, bool IsNew = true) =>
-        Add(new TBar(DateTime.Now, Open, High, Low, Close, Volume, IsNew));
+    public void Add(DateTime time, double open, double high, double low, double close, double volume, bool isNew = true) =>
+        Add(new TBar(time.Ticks, open, high, low, close, volume), isNew);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(TBarSeries series)
+    public void Add(IEnumerable<long> t, IEnumerable<double> o, IEnumerable<double> h, IEnumerable<double> l, IEnumerable<double> c, IEnumerable<double> v)
     {
-        if (series == this)
+        _t.AddRange(t);
+        _o.AddRange(o);
+        _h.AddRange(h);
+        _l.AddRange(l);
+        _c.AddRange(c);
+        _v.AddRange(v);
+    }
+
+    public IEnumerator<TBar> GetEnumerator()
+    {
+        for (int i = 0; i < _c.Count; i++)
         {
-            // If adding itself, create a copy to avoid modification during enumeration
-            var copy = new TBarSeries { Name = Name };
-            copy.AddRange(this);
-            AddRange(copy);
-        }
-        else
-        {
-            AddRange(series);
+            yield return new TBar(_t[i], _o[i], _h[i], _l[i], _c[i], _v[i]);
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public new virtual void AddRange(IEnumerable<TBar> collection)
-    {
-        foreach (var item in collection)
-        {
-            Add(item);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Sub(object source, in TBarEventArgs args)
-    {
-        Add(args.Bar);
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
