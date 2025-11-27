@@ -34,7 +34,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="obj\**\*.cs" />
+    <Compile Include="**\*.cs" Exclude="**\*.Tests.cs;**\*.Benchmarks.cs;**\*.benchmark.cs;obj\**\*.cs" />
     <PackageReference Include="System.Text.Encodings.Web" Version="10.0.0-rc.1.25451.107" />
   </ItemGroup>
 

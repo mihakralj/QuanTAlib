@@ -26,12 +26,12 @@ public readonly struct TBar : IEquatable<TBar>
     public TValue V { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => new(Time, Volume); }
 
     // Computed properties (calculated on demand, no storage overhead)
-    public double HL2 => (High + Low) * 0.5;
-    public double OC2 => (Open + Close) * 0.5;
-    public double OHL3 => (Open + High + Low) / 3.0;
-    public double HLC3 => (High + Low + Close) / 3.0;
-    public double OHLC4 => (Open + High + Low + Close) * 0.25;
-    public double HLCC4 => (High + Low + Close + Close) * 0.25;
+    public double HL2 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low) * 0.5; }
+    public double OC2 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + Close) * 0.5; }
+    public double OHL3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low) / 3.0; }
+    public double HLC3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close) / 3.0; }
+    public double OHLC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low + Close) * 0.25; }
+    public double HLCC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close + Close) * 0.25; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBar(long time, double open, double high, double low, double close, double volume)
@@ -57,6 +57,9 @@ public readonly struct TBar : IEquatable<TBar>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator double(TBar bar) => bar.Close;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator TValue(TBar bar) => new(bar.Time, bar.Close);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator DateTime(TBar bar) => new(bar.Time, DateTimeKind.Utc);

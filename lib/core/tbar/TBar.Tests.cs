@@ -60,5 +60,17 @@ namespace QuanTAlib.Tests
             var bar = new TBar(0, 100, 110, 90, 100, 1000);
             Assert.Equal(100.0, bar.HLCC4); // (110 + 90 + 100 + 100) / 4
         }
+
+        [Fact]
+        public void ImplicitConversion_ToTValue_ReturnsClosePriceWithTime()
+        {
+            long time = DateTime.UtcNow.Ticks;
+            var bar = new TBar(time, 100, 110, 90, 105, 1000);
+            
+            TValue tv = bar;
+            
+            Assert.Equal(time, tv.Time);
+            Assert.Equal(105.0, tv.Value);
+        }
     }
 }

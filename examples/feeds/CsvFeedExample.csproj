@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="GbmExample.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="daily_IBM.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
