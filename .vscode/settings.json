@@ -160,16 +160,17 @@
   
   "dotnet.defaultSolution": "QuanTAlib.sln",
   "dotnet.testController.enabled": true,
-  "dotnet.testExplorer.enabled": true,
-  "dotnet-test-explorer.autoExpandTree": true,
-  "dotnet-test-explorer.autoWatch": false,
-  "dotnet-test-explorer.runAfterBuild": false,
+  "dotnet.unitTests.runSettingsPath": "",
   "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
   "dotnet.server.useOmnisharp": false,
   
   "testing.automaticallyOpenPeekView": "never",
   "testing.openTesting": "neverOpen",
-  "testing.automaticallyOpenTestResults": "neverOpen"
+  "testing.automaticallyOpenTestResults": "neverOpen",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "mihakralj-quantalib",
+    "projectKey": "mihakralj_QuanTAlib"
+  }
 
   // ???????????????????????????????????????????????????????????????????
   // Keyboard Shortcuts Reference

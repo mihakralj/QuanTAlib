@@ -1,4 +1,5 @@
 {
     "sonarCloudOrganization": "mihakralj-quantalib",
-    "projectKey": "mihakralj_QuanTAlib"
+    "projectKey": "mihakralj_QuanTAlib",
+    "region": "EU"
 }

@@ -119,14 +119,18 @@ public class EmaVector
                 // res = ema / (1 - E)
                 var vecCompensated = vecEma / (vecOne - vecE);
 
-                // Check warmup condition: E > 1e-10
-                var warmupMask = Vector.GreaterThan(vecE, vecEpsilon);
+                // Check warmup condition: E <= 1e-10 means "hot" (use raw EMA)
+                // Vector.LessThanOrEqual returns Vector<long> with all-1s for true, all-0s for false
+                // We reinterpret as Vector<double> for use with ConditionalSelect
+                var isHotMask = Vector.LessThanOrEqual(vecE, vecEpsilon);
                 
-                // Select result
-                // Vector.ConditionalSelect requires Vector<T> mask. 
-                // Vector.GreaterThan returns Vector<long> for double.
-                // We cast Vector<long> to Vector<double> to use as mask.
-                var vecResult = Vector.ConditionalSelect(Vector.AsVectorDouble(warmupMask), vecCompensated, vecEma);
+                // Select result: if hot (E <= epsilon), use raw EMA; otherwise use compensated
+                // ConditionalSelect: mask=true -> first arg, mask=false -> second arg
+                var vecResult = Vector.ConditionalSelect(
+                    Vector.AsVectorDouble(isHotMask),
+                    vecEma,          // Hot: use raw EMA
+                    vecCompensated   // Cold: use compensated
+                );
 
                 // Store state
                 vecEma.CopyTo(_emas, i);
@@ -210,8 +214,16 @@ public class EmaVector
                     vecE *= (vecOne - vecAlpha);
                     
                     var vecCompensated = vecEma / (vecOne - vecE);
-                    var warmupMask = Vector.GreaterThan(vecE, vecEpsilon);
-                    var vecResult = Vector.ConditionalSelect(Vector.AsVectorDouble(warmupMask), vecCompensated, vecEma);
+                    
+                    // Check warmup condition: E <= 1e-10 means "hot" (use raw EMA)
+                    var isHotMask = Vector.LessThanOrEqual(vecE, vecEpsilon);
+                    
+                    // Select result: if hot, use raw EMA; otherwise use compensated
+                    var vecResult = Vector.ConditionalSelect(
+                        Vector.AsVectorDouble(isHotMask),
+                        vecEma,          // Hot: use raw EMA
+                        vecCompensated   // Cold: use compensated
+                    );
 
                     vecEma.CopyTo(_emas, i);
                     vecE.CopyTo(_Es, i);

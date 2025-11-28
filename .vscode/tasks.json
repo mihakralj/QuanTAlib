@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "test",
-        "${workspaceFolder}/tests/QuanTAlib.Tests/QuanTAlib.Tests.csproj",
+        "${workspaceFolder}/lib/QuanTAlib.Tests.csproj",
         "--framework",
         "net10.0"
       ],
@@ -27,7 +27,7 @@
       "type": "process",
       "args": [
         "test",
-        "${workspaceFolder}/tests/QuanTAlib.Tests/QuanTAlib.Tests.csproj"
+        "${workspaceFolder}/lib/QuanTAlib.Tests.csproj"
       ],
       "problemMatcher": "$msCompile",
       "group": "test",
