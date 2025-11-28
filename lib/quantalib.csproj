@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <Title>QuanTAlib</Title>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
@@ -8,7 +8,6 @@
     <RepositoryUrl>https://github.com/mihakralj/QuanTAlib</RepositoryUrl>
     <Authors>Miha Kralj</Authors>
     <Copyright>Miha Kralj</Copyright>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <RootNamespace>QuanTAlib</RootNamespace>
     <AssemblyName>QuanTAlib</AssemblyName>
     <IsPublishable>true</IsPublishable>
@@ -34,12 +33,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="**\*.Tests.cs;**\*.Benchmarks.cs;**\*.benchmark.cs;obj\**\*.cs" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="10.0.0-rc.1.25451.107" />
+    <Compile Include="**\*.cs" Exclude="**\*.Tests.cs;**\*.Quantower.cs;obj\**\*.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\docs\readme.md" Pack="true" PackagePath="" />
     <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 

@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -9,6 +10,7 @@
     <EnableMicrosoftTestingPlatform>false</EnableMicrosoftTestingPlatform>
     <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
     <NoWarn>$(NoWarn);CS8892</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,15 +29,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\quantalib.csproj" />
+    <ProjectReference Include="quantalib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\lib\**\*.Tests.cs" LinkBase="LibraryTests" />
+    <Compile Include="**\*.Tests.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\lib\feeds\csv\daily_IBM.csv">
+    <None Include="feeds\csv\daily_IBM.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>daily_IBM.csv</Link>
     </None>

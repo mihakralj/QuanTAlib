@@ -1,0 +1,84 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"name":"csharp"},{"name":"fsharp","languageName":"F#","aliases":["f#","fs"]},{"name":"html","languageName":"HTML"},{"name":"http","languageName":"HTTP"},{"name":"javascript","languageName":"JavaScript","aliases":["js"]},{"name":"mermaid","languageName":"Mermaid"},{"name":"pwsh","languageName":"PowerShell","aliases":["powershell"]},{"name":"value"}]}}
+
+#!markdown
+
+# TSeries Examples
+
+This notebook demonstrates the usage of `TSeries`, the high-performance time series container in QuanTAlib.
+
+For detailed documentation, see [TSeries.md](TSeries.md).
+
+#!csharp
+
+// Reference the library
+#r "..\..\bin\QuanTAlib.dll"
+
+using System;
+using QuanTAlib;
+
+#!markdown
+
+## Creating and Adding Data
+
+`TSeries` supports adding data via `DateTime` or `ticks`.
+
+#!csharp
+
+var series = new TSeries();
+var now = DateTime.UtcNow;
+
+// Add new values
+series.Add(now, 10.0);
+series.Add(now.AddMinutes(1), 11.0);
+series.Add(now.AddMinutes(2), 12.0);
+
+Console.WriteLine($"Count: {series.Count}");
+Console.WriteLine($"Last Value: {series.Last.Value}");
+
+#!markdown
+
+## Streaming Updates (`isNew`)
+
+In real-time scenarios, you often receive updates for the *current* bar before it closes. `TSeries` handles this via the `isNew` parameter.
+
+#!csharp
+
+var streamSeries = new TSeries();
+long t = DateTime.UtcNow.Ticks;
+
+// 1. New Bar
+streamSeries.Add(t, 100.0, isNew: true);
+Console.WriteLine($"New Bar: Count={streamSeries.Count}, Last={streamSeries.Last.Value}");
+
+// 2. Update Current Bar (Price moves to 101.0)
+streamSeries.Add(t, 101.0, isNew: false);
+Console.WriteLine($"Update:  Count={streamSeries.Count}, Last={streamSeries.Last.Value}");
+
+// 3. Update Current Bar (Price moves to 100.5)
+streamSeries.Add(t, 100.5, isNew: false);
+Console.WriteLine($"Update:  Count={streamSeries.Count}, Last={streamSeries.Last.Value}");
+
+// 4. New Bar (Next minute)
+streamSeries.Add(t + TimeSpan.TicksPerMinute, 102.0, isNew: true);
+Console.WriteLine($"New Bar: Count={streamSeries.Count}, Last={streamSeries.Last.Value}");
+
+#!markdown
+
+## Zero-Copy Access (Spans)
+
+You can access the underlying data arrays directly as `ReadOnlySpan<T>` for high-performance processing.
+
+#!csharp
+
+// Access Values as Span
+Console.WriteLine("Values in Span:");
+foreach (var v in series.Values)
+{
+    Console.Write($"{v} ");
+}
+Console.WriteLine();
+
+// Access Times as Span
+Console.WriteLine($"First Time: {new DateTime(series.Times[0])}");

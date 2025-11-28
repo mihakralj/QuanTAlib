@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <NoWarn>$(NoWarn);NU1903;NU5104;NETSDK1057</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
