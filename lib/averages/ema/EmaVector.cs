@@ -9,6 +9,7 @@ namespace QuanTAlib;
 /// <summary>
 /// Multi-Alpha Exponential Moving Average (EMA) - SIMD optimized.
 /// Calculates multiple EMAs with different periods/alphas for the same input series in parallel.
+/// Uses last-value substitution for invalid inputs (NaN/Infinity).
 /// </summary>
 public class EmaVector
 {
@@ -16,7 +17,8 @@ public class EmaVector
     private readonly double[] _emas;
     private readonly double[] _Es;
     private readonly int _count;
-    
+    private double _lastValidValue;
+
     /// <summary>
     /// Current EMA values for all periods.
     /// </summary>
@@ -33,7 +35,7 @@ public class EmaVector
         _emas = new double[_count];
         _Es = new double[_count];
         Values = new TValue[_count];
-        
+
         for (int i = 0; i < _count; i++)
         {
             if (periods[i] <= 0) throw new ArgumentException("Period must be greater than 0", nameof(periods));
@@ -53,7 +55,7 @@ public class EmaVector
         _emas = new double[_count];
         _Es = new double[_count];
         Values = new TValue[_count];
-        
+
         for (int i = 0; i < _count; i++)
         {
             if (alphas[i] <= 0 || alphas[i] > 1) throw new ArgumentException("Alpha must be between 0 and 1", nameof(alphas));
@@ -69,6 +71,20 @@ public class EmaVector
     }
 
     /// <summary>
+    /// Gets a valid input value, using last-value substitution for non-finite inputs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double GetValidValue(double input)
+    {
+        if (double.IsFinite(input))
+        {
+            _lastValidValue = input;
+            return input;
+        }
+        return _lastValidValue;
+    }
+
+    /// <summary>
     /// Resets all EMA states.
     /// </summary>
     public void Reset()
@@ -77,23 +93,27 @@ public class EmaVector
         {
             ResetAt(i);
         }
+        _lastValidValue = 0;
         Array.Clear(Values);
     }
 
     /// <summary>
     /// Updates EMAs with the given value.
+    /// Uses last-value substitution: invalid inputs (NaN/Infinity) are replaced with
+    /// the last known good value, providing continuity in the output series.
     /// </summary>
     /// <param name="input">Input value</param>
     /// <returns>Array of compensated EMA values</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue[] Update(TValue input)
     {
-        double val = input.Value;
-        
+        // Last-value substitution: replace non-finite inputs with last valid value
+        double val = GetValidValue(input.Value);
+
         // SIMD Loop
         int vecCount = Vector<double>.Count;
         int i = 0;
-        
+
         if (Vector.IsHardwareAccelerated && _count >= vecCount)
         {
             var vecInput = new Vector<double>(val);
@@ -110,7 +130,7 @@ public class EmaVector
                 // Update EMA
                 // ema += alpha * (input - ema)
                 vecEma += vecAlpha * (vecInput - vecEma);
-                
+
                 // Update E (warmup factor)
                 // E *= (1 - alpha)
                 vecE *= (vecOne - vecAlpha);
@@ -123,7 +143,7 @@ public class EmaVector
                 // Vector.LessThanOrEqual returns Vector<long> with all-1s for true, all-0s for false
                 // We reinterpret as Vector<double> for use with ConditionalSelect
                 var isHotMask = Vector.LessThanOrEqual(vecE, vecEpsilon);
-                
+
                 // Select result: if hot (E <= epsilon), use raw EMA; otherwise use compensated
                 // ConditionalSelect: mask=true -> first arg, mask=false -> second arg
                 var vecResult = Vector.ConditionalSelect(
@@ -149,7 +169,7 @@ public class EmaVector
         {
             double alpha = _alphas[i];
             _emas[i] += alpha * (val - _emas[i]);
-            
+
             double result = _emas[i];
             if (_Es[i] > 1e-10)
             {
@@ -159,7 +179,7 @@ public class EmaVector
                     result = _emas[i] / (1.0 - _Es[i]);
                 }
             }
-            
+
             Values[i] = new TValue(input.Time, result);
         }
 
@@ -175,7 +195,7 @@ public class EmaVector
     {
         int len = source.Count;
         var resultSeries = new TSeries[_count];
-        
+
         // Pre-allocate lists
         var tLists = new List<long>[_count];
         var vLists = new List<double>[_count];
@@ -190,7 +210,7 @@ public class EmaVector
 
         var sourceValues = source.Values;
         var sourceTimes = source.Times;
-        
+
         int vecCount = Vector<double>.Count;
         var vecOne = Vector<double>.One;
         var vecEpsilon = new Vector<double>(1e-10);
@@ -199,6 +219,10 @@ public class EmaVector
         {
             double val = sourceValues[t];
             long time = sourceTimes[t];
+
+            // Last-value substitution: replace non-finite inputs with last valid value
+            val = GetValidValue(val);
+
             var vecInput = new Vector<double>(val);
 
             int i = 0;
@@ -212,12 +236,12 @@ public class EmaVector
 
                     vecEma += vecAlpha * (vecInput - vecEma);
                     vecE *= (vecOne - vecAlpha);
-                    
+
                     var vecCompensated = vecEma / (vecOne - vecE);
-                    
+
                     // Check warmup condition: E <= 1e-10 means "hot" (use raw EMA)
                     var isHotMask = Vector.LessThanOrEqual(vecE, vecEpsilon);
-                    
+
                     // Select result: if hot, use raw EMA; otherwise use compensated
                     var vecResult = Vector.ConditionalSelect(
                         Vector.AsVectorDouble(isHotMask),
@@ -241,7 +265,7 @@ public class EmaVector
             {
                 double alpha = _alphas[i];
                 _emas[i] += alpha * (val - _emas[i]);
-                
+
                 double result = _emas[i];
                 if (_Es[i] > 1e-10)
                 {
@@ -251,7 +275,7 @@ public class EmaVector
                         result = _emas[i] / (1.0 - _Es[i]);
                     }
                 }
-                
+
                 CollectionsMarshal.AsSpan(tLists[i])[t] = time;
                 CollectionsMarshal.AsSpan(vLists[i])[t] = result;
             }

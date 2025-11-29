@@ -10,13 +10,62 @@ namespace QuanTAlib;
 public static class SimdExtensions
 {
     /// <summary>
+    /// Checks if span contains any non-finite values (NaN or Infinity).
+    /// Returns true if any non-finite value is found.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool ContainsNonFinite(this ReadOnlySpan<double> span)
+    {
+        if (span.IsEmpty) return false;
+
+        if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
+        {
+            int vectorSize = Vector<double>.Count;
+            int i = 0;
+
+            for (; i <= span.Length - vectorSize; i += vectorSize)
+            {
+                var vector = new Vector<double>(span.Slice(i, vectorSize));
+                // Check for NaN: NaN != NaN is true
+                // Check for Infinity: IsInfinity
+                for (int j = 0; j < vectorSize; j++)
+                {
+                    if (!double.IsFinite(vector[j]))
+                        return true;
+                }
+            }
+
+            // Check remaining elements
+            for (; i < span.Length; i++)
+            {
+                if (!double.IsFinite(span[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        // Scalar fallback
+        for (int i = 0; i < span.Length; i++)
+        {
+            if (!double.IsFinite(span[i]))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Calculates sum using SIMD vectorization when available.
     /// 4-8x faster than scalar loop on AVX2/AVX-512 hardware.
+    /// Returns NaN if any input value is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double SumSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty) return 0.0;
+
+        // Guard against non-finite inputs
+        if (span.ContainsNonFinite()) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -53,12 +102,16 @@ public static class SimdExtensions
     /// <summary>
     /// Calculates minimum value using SIMD vectorization when available.
     /// 4-6x faster than scalar loop on AVX2/AVX-512 hardware.
+    /// Returns NaN if any input value is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double MinSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty) return double.NaN;
         if (span.Length == 1) return span[0];
+
+        // Guard against non-finite inputs
+        if (span.ContainsNonFinite()) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -104,12 +157,16 @@ public static class SimdExtensions
     /// <summary>
     /// Calculates maximum value using SIMD vectorization when available.
     /// 4-6x faster than scalar loop on AVX2/AVX-512 hardware.
+    /// Returns NaN if any input value is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double MaxSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty) return double.NaN;
         if (span.Length == 1) return span[0];
+
+        // Guard against non-finite inputs
+        if (span.ContainsNonFinite()) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -155,24 +212,33 @@ public static class SimdExtensions
     /// <summary>
     /// Calculates average using SIMD vectorization when available.
     /// 4-8x faster than scalar loop on AVX2/AVX-512 hardware.
+    /// Returns NaN if any input value is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double AverageSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty) return double.NaN;
+        // SumSIMD already guards against non-finite, which will propagate NaN
         return span.SumSIMD() / span.Length;
     }
 
     /// <summary>
     /// Calculates variance using SIMD vectorization (Welford's online algorithm adapted).
     /// More numerically stable than naive two-pass algorithm.
+    /// Returns NaN if any input value is non-finite or if mean is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double VarianceSIMD(this ReadOnlySpan<double> span, double? mean = null)
     {
         if (span.Length < 2) return double.NaN;
 
+        // Guard against non-finite inputs
+        if (span.ContainsNonFinite()) return double.NaN;
+
         double m = mean ?? span.AverageSIMD();
+
+        // Guard against non-finite mean (could be passed in or computed from non-finite values)
+        if (!double.IsFinite(m)) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -216,22 +282,28 @@ public static class SimdExtensions
 
     /// <summary>
     /// Calculates standard deviation using SIMD vectorization.
+    /// Returns NaN if any input value is non-finite or if mean is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double StdDevSIMD(this ReadOnlySpan<double> span, double? mean = null)
     {
+        // VarianceSIMD already guards against non-finite, which will propagate NaN through Sqrt
         return Math.Sqrt(span.VarianceSIMD(mean));
     }
 
     /// <summary>
     /// Finds both min and max in a single pass using SIMD vectorization.
     /// More efficient than calling MinSIMD and MaxSIMD separately.
+    /// Returns (NaN, NaN) if any input value is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (double Min, double Max) MinMaxSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty) return (double.NaN, double.NaN);
         if (span.Length == 1) return (span[0], span[0]);
+
+        // Guard against non-finite inputs
+        if (span.ContainsNonFinite()) return (double.NaN, double.NaN);
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {

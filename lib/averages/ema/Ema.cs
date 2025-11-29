@@ -6,9 +6,9 @@ namespace QuanTAlib;
 
 public struct EmaState
 {
-    public double Ema;
-    public double E;
-    public bool IsHot;
+    public double Ema { get; set; }
+    public double E { get; set; }
+    public bool IsHot { get; set; }
 
     public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false };
 }
@@ -26,6 +26,7 @@ public class Ema
     private readonly double _alpha;
     private EmaState _state = EmaState.New();
     private EmaState _p_state = EmaState.New();
+    private double _lastValidValue;
 
     /// <summary>
     /// Creates EMA with specified period.
@@ -36,7 +37,7 @@ public class Ema
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
-        
+
         _alpha = 2.0 / (period + 1);
     }
 
@@ -48,7 +49,7 @@ public class Ema
     {
         if (alpha <= 0 || alpha > 1)
             throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
-        
+
         _alpha = alpha;
     }
 
@@ -63,21 +64,41 @@ public class Ema
     public bool IsHot => _state.IsHot;
 
     /// <summary>
+    /// Gets a valid input value, using last-value substitution for non-finite inputs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double GetValidValue(double input)
+    {
+        if (double.IsFinite(input))
+        {
+            _lastValidValue = input;
+            return input;
+        }
+        return _lastValidValue;
+    }
+
+    /// <summary>
     /// Core EMA calculation kernel.
+    /// Assumes input has already been validated via GetValidValue().
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Compute(double input, double alpha, ref EmaState state)
     {
         state.Ema += alpha * (input - state.Ema);
 
+        double result;
         if (!state.IsHot)
         {
             state.E *= (1.0 - alpha);
             state.IsHot = state.E <= 1e-10;
-            return state.Ema / (1.0 - state.E);
+            result = state.Ema / (1.0 - state.E);
         }
-        
-        return state.Ema;
+        else
+        {
+            result = state.Ema;
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -98,7 +119,9 @@ public class Ema
             _state = _p_state;
         }
 
-        double val = Compute(input.Value, _alpha, ref _state);
+        // Last-value substitution: replace non-finite inputs with last valid value
+        double val = GetValidValue(input.Value);
+        val = Compute(val, _alpha, ref _state);
         Value = new TValue(input.Time, val);
         return Value;
     }
@@ -123,10 +146,12 @@ public class Ema
 
         // Local state for batch processing
         EmaState state = _state;
-        
+
         for (int i = 0; i < len; i++)
         {
-            double val = Compute(sourceValues[i], _alpha, ref state);
+            // Last-value substitution: replace non-finite inputs with last valid value
+            double val = GetValidValue(sourceValues[i]);
+            val = Compute(val, _alpha, ref state);
             tSpan[i] = sourceTimes[i];
             vSpan[i] = val;
         }
@@ -158,6 +183,7 @@ public class Ema
     {
         _state = EmaState.New();
         _p_state = _state;
+        _lastValidValue = 0;
         Value = default;
     }
 }

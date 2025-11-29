@@ -399,3 +399,9 @@ FodyWeavers.xsd
 
 # Cline Memory Bank - exclude from git
 memory-bank/
+
+# macOS resource forks and metadata
+._*
+.DS_Store
+.AppleDouble
+.LSOverride

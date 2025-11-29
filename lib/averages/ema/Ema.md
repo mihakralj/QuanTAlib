@@ -103,6 +103,35 @@ TSeries source = ...;
 TSeries[] seriesResults = emaVector.Calculate(source);
 ```
 
+### Handling Invalid Values (NaN/Infinity)
+
+Both `Ema` and `EmaVector` use **last-value substitution** for handling invalid inputs:
+
+```csharp
+var ema = new Ema(10);
+
+// Valid values establish baseline
+ema.Update(new TValue(time, 100));
+ema.Update(new TValue(time, 110));
+
+// NaN or Infinity inputs are replaced with last valid value (110)
+var result = ema.Update(new TValue(time, double.NaN));
+Console.WriteLine(double.IsFinite(result.Value)); // true
+
+// Works identically for batch operations
+var series = new TSeries();
+series.Add(time, 100);
+series.Add(time + 1, double.NaN);  // Will use 100
+series.Add(time + 2, 120);
+var results = ema.Update(series);  // All values are finite
+```
+
+**Behavior:**
+- When `NaN`, `PositiveInfinity`, or `NegativeInfinity` is encountered, the last valid value is substituted
+- This provides output continuity instead of propagating invalid values
+- Both scalar (`Ema`) and SIMD (`EmaVector`) implementations use identical logic
+- `Reset()` clears the last valid value, so the next valid input establishes a new baseline
+
 ### Performance Characteristics
 
 * **O(1) Complexity:** The calculation time is constant regardless of the period length.

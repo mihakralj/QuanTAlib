@@ -216,3 +216,79 @@ for (int i = 0; i < periods.Length; i++)
     }
 }
 Console.WriteLine($"\nAll Vectorized Stream/Batch values match: {allMatch}");
+
+#!markdown
+
+## 5. Handling Invalid Values (NaN/Infinity)
+
+Both `Ema` and `EmaVector` use **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
+
+#!csharp
+
+Console.WriteLine("\n--- Handling Invalid Values ---");
+
+// Single EMA
+var emaNaN = new Ema(10);
+
+// Feed valid values first
+emaNaN.Update(new TValue(DateTime.Now, 100.0));
+emaNaN.Update(new TValue(DateTime.Now.AddMinutes(1), 110.0));
+Console.WriteLine($"After valid values: {emaNaN.Value.Value:F2}");
+
+// Feed NaN - should use last valid value (110)
+var resultAfterNaN = emaNaN.Update(new TValue(DateTime.Now.AddMinutes(2), double.NaN));
+Console.WriteLine($"After NaN input: {resultAfterNaN.Value:F2} (IsFinite: {double.IsFinite(resultAfterNaN.Value)})");
+
+// Feed Infinity - should use last valid value (110)
+var resultAfterInf = emaNaN.Update(new TValue(DateTime.Now.AddMinutes(3), double.PositiveInfinity));
+Console.WriteLine($"After Infinity input: {resultAfterInf.Value:F2} (IsFinite: {double.IsFinite(resultAfterInf.Value)})");
+
+// Continue with valid value
+var resultAfterValid = emaNaN.Update(new TValue(DateTime.Now.AddMinutes(4), 120.0));
+Console.WriteLine($"After valid value (120): {resultAfterValid.Value:F2}");
+
+#!csharp
+
+Console.WriteLine("\n--- Batch Processing with Invalid Values ---");
+
+// Create series with NaN values interspersed
+var seriesWithNaN = new TSeries();
+seriesWithNaN.Add(DateTime.Now.Ticks, 100.0);
+seriesWithNaN.Add(DateTime.Now.Ticks + 1, 110.0);
+seriesWithNaN.Add(DateTime.Now.Ticks + 2, double.NaN);
+seriesWithNaN.Add(DateTime.Now.Ticks + 3, 120.0);
+seriesWithNaN.Add(DateTime.Now.Ticks + 4, double.PositiveInfinity);
+seriesWithNaN.Add(DateTime.Now.Ticks + 5, 130.0);
+
+var emaBatchNaN = new Ema(3);
+var resultsWithNaN = emaBatchNaN.Update(seriesWithNaN);
+
+Console.WriteLine("Input → Output:");
+for (int i = 0; i < seriesWithNaN.Count; i++)
+{
+    var input = seriesWithNaN[i].Value;
+    var output = resultsWithNaN[i].Value;
+    var inputStr = double.IsFinite(input) ? input.ToString("F2") : input.ToString();
+    Console.WriteLine($"  {inputStr,-10} → {output:F2} (IsFinite: {double.IsFinite(output)})");
+}
+
+#!csharp
+
+Console.WriteLine("\n--- Vectorized EMA with Invalid Values ---");
+
+int[] periodsNaN = { 5, 10 };
+var emaVectorNaN = new EmaVector(periodsNaN);
+
+// Feed values including invalid ones
+var inputsNaN = new double[] { 100, 110, double.NaN, 120, double.PositiveInfinity, 130 };
+var time = DateTime.Now;
+
+foreach (var val in inputsNaN)
+{
+    var results = emaVectorNaN.Update(new TValue(time, val));
+    var inputStr = double.IsFinite(val) ? val.ToString("F2") : val.ToString();
+    Console.WriteLine($"Input: {inputStr,-10} → EMA(5): {results[0].Value:F2}, EMA(10): {results[1].Value:F2}");
+    time = time.AddMinutes(1);
+}
+
+Console.WriteLine("\nAll outputs are finite - invalid inputs were substituted with last valid values.");

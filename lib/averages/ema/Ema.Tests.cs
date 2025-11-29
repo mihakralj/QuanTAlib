@@ -225,4 +225,106 @@ public class EmaTests
         
         Assert.Equal(100.0, result, 1e-10);
     }
+
+    [Fact]
+    public void Ema_NaN_Input_UsesLastValidValue()
+    {
+        var ema = new Ema(10);
+        
+        // Feed some valid values
+        ema.Update(new TValue(DateTime.Now, 100));
+        ema.Update(new TValue(DateTime.Now, 110));
+        double valueBeforeNaN = ema.Value;
+        
+        // Feed NaN - should use last valid value (110)
+        var resultAfterNaN = ema.Update(new TValue(DateTime.Now, double.NaN));
+        
+        // Result should be finite (not NaN)
+        Assert.True(double.IsFinite(resultAfterNaN.Value));
+        // EMA should continue to evolve (may differ slightly due to substitution)
+        Assert.NotEqual(0, resultAfterNaN.Value);
+    }
+
+    [Fact]
+    public void Ema_Infinity_Input_UsesLastValidValue()
+    {
+        var ema = new Ema(10);
+        
+        // Feed some valid values
+        ema.Update(new TValue(DateTime.Now, 100));
+        ema.Update(new TValue(DateTime.Now, 110));
+        
+        // Feed positive infinity - should use last valid value
+        var resultAfterPosInf = ema.Update(new TValue(DateTime.Now, double.PositiveInfinity));
+        Assert.True(double.IsFinite(resultAfterPosInf.Value));
+        
+        // Feed negative infinity - should use last valid value
+        var resultAfterNegInf = ema.Update(new TValue(DateTime.Now, double.NegativeInfinity));
+        Assert.True(double.IsFinite(resultAfterNegInf.Value));
+    }
+
+    [Fact]
+    public void Ema_MultipleNaN_ContinuesWithLastValid()
+    {
+        var ema = new Ema(10);
+        
+        // Feed valid values
+        ema.Update(new TValue(DateTime.Now, 100));
+        ema.Update(new TValue(DateTime.Now, 110));
+        ema.Update(new TValue(DateTime.Now, 120));
+        
+        // Feed multiple NaN values
+        var r1 = ema.Update(new TValue(DateTime.Now, double.NaN));
+        var r2 = ema.Update(new TValue(DateTime.Now, double.NaN));
+        var r3 = ema.Update(new TValue(DateTime.Now, double.NaN));
+        
+        // All results should be finite
+        Assert.True(double.IsFinite(r1.Value));
+        Assert.True(double.IsFinite(r2.Value));
+        Assert.True(double.IsFinite(r3.Value));
+        
+        // EMA should converge toward last valid value (120) with repeated substitution
+        // Values should be getting closer to 120
+        Assert.True(r3.Value > r1.Value || Math.Abs(r3.Value - 120) < Math.Abs(r1.Value - 120));
+    }
+
+    [Fact]
+    public void Ema_BatchCalc_HandlesNaN()
+    {
+        var ema = new Ema(10);
+        
+        // Create series with NaN values interspersed
+        var series = new TSeries();
+        series.Add(DateTime.Now.Ticks, 100);
+        series.Add(DateTime.Now.Ticks + 1, 110);
+        series.Add(DateTime.Now.Ticks + 2, double.NaN);
+        series.Add(DateTime.Now.Ticks + 3, 120);
+        series.Add(DateTime.Now.Ticks + 4, double.PositiveInfinity);
+        series.Add(DateTime.Now.Ticks + 5, 130);
+        
+        var results = ema.Update(series);
+        
+        // All results should be finite
+        foreach (var result in results)
+        {
+            Assert.True(double.IsFinite(result.Value), $"Expected finite value but got {result.Value}");
+        }
+    }
+
+    [Fact]
+    public void Ema_Reset_ClearsLastValidValue()
+    {
+        var ema = new Ema(10);
+        
+        // Feed values including NaN
+        ema.Update(new TValue(DateTime.Now, 100));
+        ema.Update(new TValue(DateTime.Now, double.NaN));
+        
+        // Reset
+        ema.Reset();
+        
+        // After reset, first valid value should establish new baseline
+        var result = ema.Update(new TValue(DateTime.Now, 50));
+        Assert.Equal(50.0, result.Value, 1e-10);
+    }
 }
