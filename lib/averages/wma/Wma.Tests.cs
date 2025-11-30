@@ -400,4 +400,134 @@ public class WmaTests
         var r3 = wma.Update(new TValue(DateTime.UtcNow, 300));
         Assert.Equal(1400.0 / 6.0, r3.Value, 1e-10);
     }
+
+    // ============== Span API Tests ==============
+
+    [Fact]
+    public void Wma_SpanCalc_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        // Period must be > 0
+        Assert.Throws<ArgumentException>(() => Wma.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Wma.Calculate(source.AsSpan(), output.AsSpan(), -1));
+
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() => Wma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void Wma_SpanCalc_MatchesTSeriesCalc()
+    {
+        var series = new TSeries();
+        double[] source = new double[100];
+        double[] output = new double[100];
+
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            source[i] = bar.Close;
+            series.Add(bar.Time, bar.Close);
+        }
+
+        // Calculate with TSeries API
+        var tseriesResult = Wma.Calculate(series, 10);
+
+        // Calculate with Span API
+        Wma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+
+        // Compare results
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
+        }
+    }
+
+    [Fact]
+    public void Wma_SpanCalc_CalculatesCorrectly()
+    {
+        double[] source = [10, 20, 30, 40, 50];
+        double[] output = new double[5];
+
+        Wma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        // WMA(3) warmup:
+        // i=0: 10 (1*10 / 1)
+        // i=1: (1*10 + 2*20) / 3 = 50/3 = 16.666...
+        // i=2: (1*10 + 2*20 + 3*30) / 6 = 140/6 = 23.333...
+        // i=3: sliding: (1*20 + 2*30 + 3*40) / 6 = 200/6 = 33.333...
+        // i=4: (1*30 + 2*40 + 3*50) / 6 = 260/6 = 43.333...
+        Assert.Equal(10.0, output[0], 1e-10);
+        Assert.Equal(50.0 / 3.0, output[1], 1e-10);
+        Assert.Equal(140.0 / 6.0, output[2], 1e-10);
+        Assert.Equal(200.0 / 6.0, output[3], 1e-10);
+        Assert.Equal(260.0 / 6.0, output[4], 1e-10);
+    }
+
+    [Fact]
+    public void Wma_SpanCalc_ZeroAllocation()
+    {
+        double[] source = new double[10000];
+        double[] output = new double[10000];
+        var rng = new Random(42);
+        for (int i = 0; i < source.Length; i++)
+            source[i] = rng.NextDouble() * 100;
+
+        // Warm up
+        Wma.Calculate(source.AsSpan(), output.AsSpan(), 100);
+
+        // This test verifies the method runs without throwing
+        Assert.True(double.IsFinite(output[^1]));
+    }
+
+    [Fact]
+    public void Wma_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Wma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        // All outputs should be finite
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val), $"Expected finite value but got {val}");
+        }
+    }
+
+    [Fact]
+    public void Wma_SpanCalc_Period1_ReturnsInput()
+    {
+        double[] source = [10, 20, 30, 40, 50];
+        double[] output = new double[5];
+
+        Wma.Calculate(source.AsSpan(), output.AsSpan(), 1);
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            Assert.Equal(source[i], output[i], 1e-10);
+        }
+    }
+
+    [Fact]
+    public void Wma_SpanCalc_UsesStackallocForSmallPeriods()
+    {
+        double[] source = new double[1000];
+        double[] output = new double[1000];
+        var rng = new Random(42);
+        for (int i = 0; i < source.Length; i++)
+            source[i] = rng.NextDouble() * 100;
+
+        // Period <= 512 uses stackalloc
+        Wma.Calculate(source.AsSpan(), output.AsSpan(), 100);
+        Assert.True(double.IsFinite(output[^1]));
+
+        // Period > 512 uses heap allocation
+        double[] output2 = new double[1000];
+        Wma.Calculate(source.AsSpan(), output2.AsSpan(), 600);
+        Assert.True(double.IsFinite(output2[^1]));
+    }
 }

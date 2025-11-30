@@ -359,4 +359,111 @@ public class SmaTests
         Assert.Equal(200.0, sma.Update(new TValue(DateTime.UtcNow, 200)).Value, 1e-10);
         Assert.Equal(150.0, sma.Update(new TValue(DateTime.UtcNow, 150)).Value, 1e-10);
     }
+
+    // ============== Span API Tests ==============
+
+    [Fact]
+    public void Sma_SpanCalc_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        // Period must be > 0
+        Assert.Throws<ArgumentException>(() => Sma.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Sma.Calculate(source.AsSpan(), output.AsSpan(), -1));
+
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() => Sma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void Sma_SpanCalc_MatchesTSeriesCalc()
+    {
+        var series = new TSeries();
+        double[] source = new double[100];
+        double[] output = new double[100];
+
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            source[i] = bar.Close;
+            series.Add(bar.Time, bar.Close);
+        }
+
+        // Calculate with TSeries API
+        var tseriesResult = Sma.Calculate(series, 10);
+
+        // Calculate with Span API
+        Sma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+
+        // Compare results
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
+        }
+    }
+
+    [Fact]
+    public void Sma_SpanCalc_CalculatesCorrectly()
+    {
+        double[] source = [10, 20, 30, 40, 50];
+        double[] output = new double[5];
+
+        Sma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        // SMA(3) warmup: 10, (10+20)/2=15, (10+20+30)/3=20, then sliding: (20+30+40)/3=30, (30+40+50)/3=40
+        Assert.Equal(10.0, output[0], 1e-10);
+        Assert.Equal(15.0, output[1], 1e-10);
+        Assert.Equal(20.0, output[2], 1e-10);
+        Assert.Equal(30.0, output[3], 1e-10);
+        Assert.Equal(40.0, output[4], 1e-10);
+    }
+
+    [Fact]
+    public void Sma_SpanCalc_ZeroAllocation()
+    {
+        double[] source = new double[10000];
+        double[] output = new double[10000];
+        var rng = new Random(42);
+        for (int i = 0; i < source.Length; i++)
+            source[i] = rng.NextDouble() * 100;
+
+        // Warm up
+        Sma.Calculate(source.AsSpan(), output.AsSpan(), 100);
+
+        // This test verifies the method runs without throwing
+        // (allocation is measured by BenchmarkDotNet, not unit tests)
+        Assert.True(double.IsFinite(output[^1]));
+    }
+
+    [Fact]
+    public void Sma_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Sma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        // All outputs should be finite
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val), $"Expected finite value but got {val}");
+        }
+    }
+
+    [Fact]
+    public void Sma_SpanCalc_Period1_ReturnsInput()
+    {
+        double[] source = [10, 20, 30, 40, 50];
+        double[] output = new double[5];
+
+        Sma.Calculate(source.AsSpan(), output.AsSpan(), 1);
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            Assert.Equal(source[i], output[i], 1e-10);
+        }
+    }
 }

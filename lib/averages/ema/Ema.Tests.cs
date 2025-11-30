@@ -328,4 +328,144 @@ public class EmaTests
         var result = ema.Update(new TValue(DateTime.UtcNow, 50));
         Assert.Equal(50.0, result.Value, 1e-10);
     }
+
+    // ============== Span API Tests ==============
+
+    [Fact]
+    public void Ema_SpanCalc_Period_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        // Period must be > 0
+        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), -1));
+
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_Alpha_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+
+        // Alpha must be > 0 and <= 1
+        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), 0.0));
+        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), -0.1));
+        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), 1.1));
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_MatchesTSeriesCalc()
+    {
+        var series = new TSeries();
+        double[] source = new double[100];
+        double[] output = new double[100];
+
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            source[i] = bar.Close;
+            series.Add(bar.Time, bar.Close);
+        }
+
+        // Calculate with TSeries API
+        var tseriesResult = Ema.Calculate(series, 10);
+
+        // Calculate with Span API
+        Ema.Calculate(source.AsSpan(), output.AsSpan(), 10);
+
+        // Compare results - allow small tolerance due to bias correction differences
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(tseriesResult[i].Value, output[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_PeriodAndAlphaEquivalent()
+    {
+        double[] source = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+        double[] outputPeriod = new double[10];
+        double[] outputAlpha = new double[10];
+
+        int period = 5;
+        double alpha = 2.0 / (period + 1);
+
+        Ema.Calculate(source.AsSpan(), outputPeriod.AsSpan(), period);
+        Ema.Calculate(source.AsSpan(), outputAlpha.AsSpan(), alpha);
+
+        // Results should be identical
+        for (int i = 0; i < 10; i++)
+        {
+            Assert.Equal(outputPeriod[i], outputAlpha[i], 1e-10);
+        }
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_ZeroAllocation()
+    {
+        double[] source = new double[10000];
+        double[] output = new double[10000];
+        var rng = new Random(42);
+        for (int i = 0; i < source.Length; i++)
+            source[i] = rng.NextDouble() * 100;
+
+        // Warm up
+        Ema.Calculate(source.AsSpan(), output.AsSpan(), 100);
+
+        // This test verifies the method runs without throwing
+        Assert.True(double.IsFinite(output[^1]));
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Ema.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        // All outputs should be finite
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val), $"Expected finite value but got {val}");
+        }
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_BiasCorrection_Works()
+    {
+        double[] source = [100, 100, 100, 100, 100];
+        double[] output = new double[5];
+
+        Ema.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        // With bias correction, first value should equal input
+        Assert.Equal(100.0, output[0], 1e-10);
+
+        // All values should converge to 100 since input is constant
+        foreach (var val in output)
+        {
+            Assert.Equal(100.0, val, 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Ema_SpanCalc_Alpha_DirectUsage()
+    {
+        double[] source = [10, 20, 30, 40, 50];
+        double[] output = new double[5];
+
+        // Use alpha = 0.5 directly
+        Ema.Calculate(source.AsSpan(), output.AsSpan(), 0.5);
+
+        // Results should be finite and reasonable
+        Assert.True(double.IsFinite(output[^1]));
+        Assert.True(output[^1] > 10 && output[^1] <= 50);
+    }
 }

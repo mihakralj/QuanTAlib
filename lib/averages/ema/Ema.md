@@ -77,10 +77,43 @@ Console.WriteLine($"Current EMA: {result.Value}");
 // Access current value property
 Console.WriteLine($"Current Value: {ema.Value.Value}");
 
-// Batch calculation
+// Batch calculation (TSeries API)
 TSeries source = ...;
 TSeries results = Ema.Calculate(source, 10);
+
+// High-performance Span API (zero allocation)
+double[] prices = new double[10000];
+double[] output = new double[10000];
+Ema.Calculate(prices.AsSpan(), output.AsSpan(), period: 10);
+// Or with direct alpha:
+Ema.Calculate(prices.AsSpan(), output.AsSpan(), alpha: 0.1818);
 ```
+
+### Zero-Allocation Span API
+
+For performance-critical scenarios (backtesting, HFT), use the Span-based overload:
+
+```csharp
+// Allocate buffers once, reuse across calculations
+double[] source = new double[200000];
+double[] emaOutput = new double[200000];
+
+// Zero heap allocation during calculation - by period
+Ema.Calculate(source.AsSpan(), emaOutput.AsSpan(), period: 100);
+
+// Or by alpha for direct control
+Ema.Calculate(source.AsSpan(), emaOutput.AsSpan(), alpha: 0.02);
+
+// Results are written directly to output buffer
+Console.WriteLine($"Last EMA: {emaOutput[^1]}");
+```
+
+**Benefits:**
+
+* **Zero allocation**: No GC pressure during calculation
+* **Cache-friendly**: Sequential memory access patterns
+* **Hunter's bias correction**: Same accuracy as TSeries API
+* **Compatible** with `ArrayPool<T>` for buffer management
 
 ### Multi-Alpha EMA (`EmaVector`)
 

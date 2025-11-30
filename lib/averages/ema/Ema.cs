@@ -187,6 +187,61 @@ public class Ema
     }
 
     /// <summary>
+    /// Calculates EMA in-place using period, writing results to pre-allocated output span.
+    /// Zero-allocation method for maximum performance.
+    /// Alpha = 2 / (period + 1)
+    /// </summary>
+    /// <param name="source">Input values</param>
+    /// <param name="output">Output span (must be same length as source)</param>
+    /// <param name="period">EMA period (must be > 0)</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        double alpha = 2.0 / (period + 1);
+        Calculate(source, output, alpha);
+    }
+
+    /// <summary>
+    /// Calculates EMA in-place using alpha, writing results to pre-allocated output span.
+    /// Zero-allocation method for maximum performance.
+    /// </summary>
+    /// <param name="source">Input values</param>
+    /// <param name="output">Output span (must be same length as source)</param>
+    /// <param name="alpha">Smoothing factor (0 < alpha <= 1)</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
+    {
+        if (source.Length != output.Length)
+            throw new ArgumentException("Source and output must have the same length");
+        if (alpha <= 0 || alpha > 1)
+            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+
+        int len = source.Length;
+        double ema = 0;
+        double e = 1.0;
+        double lastValid = 0;
+        double oneMinusAlpha = 1.0 - alpha;
+
+        for (int i = 0; i < len; i++)
+        {
+            double val = source[i];
+            if (!double.IsFinite(val))
+                val = lastValid;
+            else
+                lastValid = val;
+
+            ema += alpha * (val - ema);
+            e *= oneMinusAlpha;
+
+            // Bias correction until warmed up
+            output[i] = e > 1e-10 ? ema / (1.0 - e) : ema;
+        }
+    }
+
+    /// <summary>
     /// Resets the EMA state.
     /// </summary>
     public void Reset()

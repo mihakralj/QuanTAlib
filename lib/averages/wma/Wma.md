@@ -82,10 +82,38 @@ Console.WriteLine($"Name: {wma.Name}");           // "Wma(10)"
 Console.WriteLine($"WarmupPeriod: {wma.WarmupPeriod}");  // 10
 Console.WriteLine($"IsHot: {wma.IsHot}");          // true when buffer is full
 
-// Batch calculation
+// Batch calculation (TSeries API)
 TSeries source = ...;
 TSeries results = Wma.Calculate(source, 10);
+
+// High-performance Span API (zero allocation)
+double[] prices = new double[10000];
+double[] output = new double[10000];
+Wma.Calculate(prices.AsSpan(), output.AsSpan(), period: 10);
 ```
+
+### Zero-Allocation Span API
+
+For performance-critical scenarios (backtesting, HFT), use the Span-based overload:
+
+```csharp
+// Allocate buffers once, reuse across calculations
+double[] source = new double[200000];
+double[] wmaOutput = new double[200000];
+
+// Zero heap allocation during calculation
+Wma.Calculate(source.AsSpan(), wmaOutput.AsSpan(), period: 100);
+
+// Results are written directly to output buffer
+Console.WriteLine($"Last WMA: {wmaOutput[^1]}");
+```
+
+**Benefits:**
+
+* **Zero allocation**: No GC pressure during calculation
+* **Cache-friendly**: Sequential memory access patterns
+* **O(1) per-bar** via dual running sums
+* **Compatible** with `ArrayPool<T>` for buffer management
 
 ### Multi-Period WMA (`WmaVector`)
 

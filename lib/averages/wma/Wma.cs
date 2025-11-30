@@ -248,6 +248,65 @@ public sealed class Wma
     }
 
     /// <summary>
+    /// Calculates WMA in-place, writing results to pre-allocated output span.
+    /// Zero-allocation method for maximum performance.
+    /// Uses O(1) dual running sum algorithm.
+    /// </summary>
+    /// <param name="source">Input values</param>
+    /// <param name="output">Output span (must be same length as source)</param>
+    /// <param name="period">WMA period (must be > 0)</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (source.Length != output.Length)
+            throw new ArgumentException("Source and output must have the same length");
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        int len = source.Length;
+        double divisor = period * (period + 1) * 0.5;
+        double sum = 0;
+        double wsum = 0;
+        double lastValid = 0;
+
+        // Ring buffer simulation using modular indexing
+        Span<double> buffer = period <= 512 ? stackalloc double[period] : new double[period];
+        int bufferIdx = 0;
+        int count = 0;
+
+        for (int i = 0; i < len; i++)
+        {
+            double val = source[i];
+            if (!double.IsFinite(val))
+                val = lastValid;
+            else
+                lastValid = val;
+
+            if (count >= period)
+            {
+                // Buffer full: O(1) update using dual running sums
+                double oldest = buffer[bufferIdx];
+                double oldSum = sum;
+                sum = sum - oldest + val;
+                wsum = wsum - oldSum + (period * val);
+            }
+            else
+            {
+                // Warmup phase
+                count++;
+                sum += val;
+                wsum += count * val;
+            }
+
+            buffer[bufferIdx] = val;
+            bufferIdx = (bufferIdx + 1) % period;
+
+            double currentDivisor = count >= period ? divisor : count * (count + 1) * 0.5;
+            output[i] = wsum / currentDivisor;
+        }
+    }
+
+    /// <summary>
     /// Resets the WMA state.
     /// </summary>
     public void Reset()

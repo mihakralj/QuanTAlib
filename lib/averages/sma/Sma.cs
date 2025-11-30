@@ -205,6 +205,47 @@ public sealed class Sma
     }
 
     /// <summary>
+    /// Calculates SMA in-place, writing results to pre-allocated output span.
+    /// Zero-allocation method for maximum performance.
+    /// </summary>
+    /// <param name="source">Input values</param>
+    /// <param name="output">Output span (must be same length as source)</param>
+    /// <param name="period">SMA period (must be > 0)</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (source.Length != output.Length)
+            throw new ArgumentException("Source and output must have the same length");
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        int len = source.Length;
+        double sum = 0;
+        double lastValid = 0;
+
+        for (int i = 0; i < len; i++)
+        {
+            double val = source[i];
+            if (!double.IsFinite(val))
+                val = lastValid;
+            else
+                lastValid = val;
+
+            if (i >= period)
+            {
+                double oldVal = source[i - period];
+                if (!double.IsFinite(oldVal))
+                    oldVal = lastValid; // Approximate - for exact behavior use instance method
+                sum -= oldVal;
+            }
+            sum += val;
+
+            int count = Math.Min(i + 1, period);
+            output[i] = sum / count;
+        }
+    }
+
+    /// <summary>
     /// Resets the SMA state.
     /// </summary>
     public void Reset()
