@@ -5,6 +5,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using QuanTAlib;
+using QuanTAlib.Benchmarks;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
@@ -19,6 +20,8 @@ var config = ManualConfig.Create(DefaultConfig.Instance)
 
 BenchmarkRunner.Run<IndicatorBenchmarks>(config);
 
+namespace QuanTAlib.Benchmarks;
+
 [MemoryDiagnoser]
 [MarkdownExporter, HtmlExporter]
 public class IndicatorBenchmarks
@@ -29,10 +32,10 @@ public class IndicatorBenchmarks
     private double[] _closeValues = null!;
     private TSeries _closeTseries = null!;
     private List<Quote> _quotes = null!;
-    
+
     // Pre-allocated outputs for TA-Lib
     private double[] _talibOutput = null!;
-    
+
     // Pre-allocated outputs for Tulip
     private double[][] _tulipSmaInputs = null!;
     private double[] _tulipSmaOptions = null!;
@@ -80,11 +83,11 @@ public class IndicatorBenchmarks
         _tulipSmaInputs = new[] { _closeValues };
         _tulipSmaOptions = new double[] { Period };
         _tulipSmaOutputs = new[] { new double[BarCount - smaLookback] };
-        
+
         _tulipEmaInputs = new[] { _closeValues };
         _tulipEmaOptions = new double[] { Period };
         _tulipEmaOutputs = new[] { new double[BarCount] };
-        
+
         _tulipWmaInputs = new[] { _closeValues };
         _tulipWmaOptions = new double[] { Period };
         _tulipWmaOutputs = new[] { new double[BarCount - smaLookback] };
