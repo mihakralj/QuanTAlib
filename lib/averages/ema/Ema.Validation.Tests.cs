@@ -15,7 +15,6 @@ public class EmaValidationTests
     private readonly TBarSeries _bars;
     private readonly TSeries _data;
     private readonly List<Quote> _skenderQuotes;
-    private readonly Random _rnd = new(42);
     private readonly ITestOutputHelper _output;
 
     public EmaValidationTests(ITestOutputHelper output)
@@ -25,7 +24,7 @@ public class EmaValidationTests
         // 1. Generate 1000 records using GBM feed
         var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2);
         _bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // 2. Extract Close TSeries
         _data = _bars.Close;
 
@@ -35,7 +34,7 @@ public class EmaValidationTests
         {
             _skenderQuotes.Add(new Quote
             {
-                Date = new DateTime(_bars.Open.Times[i]),
+                Date = new DateTime(_bars.Open.Times[i], DateTimeKind.Utc),
                 Open = (decimal)_bars.Open[i].Value,
                 High = (decimal)_bars.High[i].Value,
                 Low = (decimal)_bars.Low[i].Value,
@@ -60,7 +59,7 @@ public class EmaValidationTests
             var sResult = _skenderQuotes.GetEma(period).ToList();
 
             // Compare last 100 records
-            VerifyData(qResult, sResult, period);
+            VerifyData(qResult, sResult);
         }
         _output.WriteLine("EMA validated successfully against Skender");
     }
@@ -82,15 +81,15 @@ public class EmaValidationTests
 
             // Calculate TA-Lib EMA
             var retCode = TALib.Functions.Ema<double>(tData, 0..^0, output, out var outRange, period);
-            
+
             // Check success
             Assert.Equal(Core.RetCode.Success, retCode);
 
             // TA-Lib skips the lookback period, so output[0] corresponds to input[lookback]
             int lookback = TALib.Functions.EmaLookback(period);
-            
+
             // Compare last 100 records
-            VerifyData_Talib(qResult, output, outRange, lookback, period);
+            VerifyData_Talib(qResult, output, outRange, lookback);
         }
         _output.WriteLine("EMA validated successfully against TA-Lib");
     }
@@ -114,21 +113,21 @@ public class EmaValidationTests
             double[][] inputs = { tData };
             double[] options = { (double)period };
             double[][] outputs = { new double[tData.Length] };
-            
+
             emaIndicator.Run(inputs, options, outputs);
             var tResult = outputs[0];
 
             // Compare last 100 records
-            VerifyData(qResult, tResult.ToList(), period);
+            VerifyData(qResult, tResult.ToList());
         }
         _output.WriteLine("EMA validated successfully against Tulip");
     }
 
-    private void VerifyData(TSeries qSeries, List<double> tSeries, int period)
+    private static void VerifyData(TSeries qSeries, List<double> tSeries)
     {
         // Ensure we have enough data
         Assert.Equal(qSeries.Count, tSeries.Count);
-        
+
         int count = qSeries.Count;
         int skip = count - 100; // Last 100 records
 
@@ -136,17 +135,17 @@ public class EmaValidationTests
         {
             double qValue = qSeries[i].Value;
             double tValue = tSeries[i];
-            if (tValue == 0) continue;
+            if (Math.Abs(tValue) < 1e-10) continue;
 
             Assert.Equal(tValue, qValue, 1e-6);
         }
     }
 
-    private void VerifyData(TSeries qSeries, List<EmaResult> sSeries, int period)
+    private static void VerifyData(TSeries qSeries, List<EmaResult> sSeries)
     {
         // Ensure we have enough data
         Assert.Equal(qSeries.Count, sSeries.Count);
-        
+
         int count = qSeries.Count;
         int skip = count - 100; // Last 100 records
 
@@ -163,24 +162,24 @@ public class EmaValidationTests
         }
     }
 
-    private void VerifyData_Talib(TSeries qSeries, double[] tOutput, Range outRange, int lookback, int period)
+    private static void VerifyData_Talib(TSeries qSeries, double[] tOutput, Range outRange, int lookback)
     {
         int count = qSeries.Count;
         int skip = count - 100; // Last 100 records
 
         // outRange.End.Value is the number of elements written to tOutput
         int validCount = outRange.End.Value - outRange.Start.Value;
-        
+
         for (int i = skip; i < count; i++)
         {
             double qValue = qSeries[i].Value;
-            
+
             // Calculate index in tOutput
             // If i < lookback, we don't have a value from TA-Lib
             if (i < lookback) continue;
-            
+
             int tIndex = i - lookback;
-            
+
             // Check if tIndex is within valid range
             if (tIndex >= validCount) continue;
 

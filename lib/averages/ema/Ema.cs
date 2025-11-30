@@ -3,28 +3,39 @@ using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
-internal struct EmaState
-{
-    public double Ema { get; set; }
-    public double E { get; set; }
-    public bool IsHot { get; set; }
-
-    public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false };
-}
-
 /// <summary>
-/// Exponential Moving Average (EMA) - IIR filter with exponential warmup compensator.
-/// Provides valid output from first bar with O(1) complexity.
+/// EMA: Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// Algorithm uses exponential smoothing with compensator for immediate valid results.
-/// Reference: https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/ema.md
+/// EMA needs very short history buffer and calculates the EMA value using just the
+/// previous EMA value. The weight of the new datapoint (alpha) is alpha = 2 / (period + 1)
+///
+/// Key characteristics:
+/// - Uses no buffer, relying only on the previous EMA value.
+/// - The weight of new data points is calculated as alpha = 2 / (period + 1).
+/// - Provides a balance between responsiveness and smoothing. No overshooting. Significant lag
+///
+/// Calculation method:
+/// This implementation can use SMA for the first Period bars as a seeding value for EMA when useSma is true.
+///
+/// Sources:
+/// - https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
+/// - https://www.investopedia.com/ask/answers/122314/what-exponential-moving-average-ema-formula-and-how-ema-calculated.asp
+/// - https://blog.fugue88.ws/archives/2017-01/The-correct-way-to-start-an-Exponential-Moving-Average-EMA
 /// </remarks>
 public class Ema
 {
+    private struct State
+    {
+        public double Ema;
+        public double E;
+        public bool IsHot;
+        public static State New() => new() { Ema = 0, E = 1.0, IsHot = false };
+    }
+
     private readonly double _alpha;
-    private EmaState _state = EmaState.New();
-    private EmaState _p_state = EmaState.New();
+    private State _state = State.New();
+    private State _p_state = State.New();
     private double _lastValidValue;
 
     /// <summary>
@@ -81,7 +92,7 @@ public class Ema
     /// Assumes input has already been validated via GetValidValue().
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static double Compute(double input, double alpha, ref EmaState state)
+    private static double Compute(double input, double alpha, ref State state)
     {
         state.Ema += alpha * (input - state.Ema);
 
@@ -144,7 +155,7 @@ public class Ema
         var sourceTimes = source.Times;
 
         // Local state for batch processing
-        EmaState state = _state;
+        State state = _state;
 
         for (int i = 0; i < len; i++)
         {
@@ -180,7 +191,7 @@ public class Ema
     /// </summary>
     public void Reset()
     {
-        _state = EmaState.New();
+        _state = State.New();
         _p_state = _state;
         _lastValidValue = 0;
         Value = default;

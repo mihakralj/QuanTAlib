@@ -168,7 +168,7 @@ public class EmaVectorTests
 
         for (int i = 0; i < len; i++)
         {
-            var tVal = new TValue(new DateTime(t[i]), v[i]);
+            var tVal = new TValue(new DateTime(t[i], DateTimeKind.Utc), v[i]);
             var streamRes = emaVectorStream.Update(tVal);
 
             for (int j = 0; j < periods.Length; j++)

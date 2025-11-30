@@ -23,7 +23,9 @@ public class EmaVector
     /// <summary>
     /// Current EMA values for all periods.
     /// </summary>
-    public TValue[] Values { get; private set; }
+    public ReadOnlySpan<TValue> Values => _values;
+
+    private readonly TValue[] _values;
 
     /// <summary>
     /// Initializes EmaVector with specified periods.
@@ -37,7 +39,7 @@ public class EmaVector
         _Es = new double[_count];
         _p_emas = new double[_count];
         _p_Es = new double[_count];
-        Values = new TValue[_count];
+        _values = new TValue[_count];
 
         for (int i = 0; i < _count; i++)
         {
@@ -59,7 +61,7 @@ public class EmaVector
         _Es = new double[_count];
         _p_emas = new double[_count];
         _p_Es = new double[_count];
-        Values = new TValue[_count];
+        _values = new TValue[_count];
 
         for (int i = 0; i < _count; i++)
         {
@@ -100,7 +102,7 @@ public class EmaVector
             ResetAt(i);
         }
         _lastValidValue = 0;
-        Array.Clear(Values);
+        Array.Clear(_values);
     }
 
     /// <summary>
@@ -177,7 +179,7 @@ public class EmaVector
                 // Store result
                 for (int j = 0; j < vecCount; j++)
                 {
-                    Values[i + j] = new TValue(input.Time, vecResult[j]);
+                    _values[i + j] = new TValue(input.Time, vecResult[j]);
                 }
             }
         }
@@ -198,10 +200,10 @@ public class EmaVector
                 }
             }
 
-            Values[i] = new TValue(input.Time, result);
+            _values[i] = new TValue(input.Time, result);
         }
 
-        return Values;
+        return _values;
     }
 
     /// <summary>
@@ -305,7 +307,7 @@ public class EmaVector
             resultSeries[i] = new TSeries(tLists[i], vLists[i]);
             var lastT = CollectionsMarshal.AsSpan(tLists[i])[len - 1];
             var lastV = CollectionsMarshal.AsSpan(vLists[i])[len - 1];
-            Values[i] = new TValue(lastT, lastV);
+            _values[i] = new TValue(lastT, lastV);
         }
 
         return resultSeries;

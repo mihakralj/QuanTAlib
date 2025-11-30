@@ -48,7 +48,7 @@ public readonly struct TValue : IEquatable<TValue>
     public override string ToString() => $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}, {Value:F2}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(TValue other) => Time == other.Time && Value == other.Value;
+    public bool Equals(TValue other) => Time == other.Time && Math.Abs(Value - other.Value) < 1e-9;
 
     public override bool Equals(object? obj) => obj is TValue other && Equals(other);
     public override int GetHashCode() => HashCode.Combine(Time, Value);
