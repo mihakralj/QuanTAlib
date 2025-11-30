@@ -42,11 +42,16 @@ Where:
 
 This form is algebraically equivalent to the traditional EMA formula but offers better computational efficiency and numerical stability.
 
-> 🔍 **Technical Note:** The implementation uses a sophisticated warm-up compensation method that provides accurate EMA values from the first bar. The compensation works by tracking an error term that decays exponentially:
-> $$e_t = e_{t-1} \cdot (1 - \alpha)$$
+> 🔍 **Technical Note:** The implementation uses **Hunter's bias compensation** method, which provides mathematically correct EMA values from the very first data point. This technique, introduced by J.S. Hunter in 1986, corrects for the initialization bias that occurs when starting an EMA from zero rather than from an infinite history of data.
+>
+> The compensation works by tracking an error term $e$ that decays exponentially:
+> $$e_t = e_{t-1} \cdot (1 - \alpha), \quad e_0 = 1$$
 > $$Compensation = \frac{1}{1 - e_t}$$
 > $$EMA_{corrected} = Compensation \cdot EMA_{raw}$$
-> This compensation automatically adjusts during the warm-up phase and becomes negligible ($e \le 1e^{-10}$) once sufficient data has been processed, ensuring mathematically correct values throughout the entire data series without requiring a traditional warm-up period.
+>
+> **Why it works:** The standard EMA formula implicitly assumes all historical values before the first observation were zero. This creates a downward bias in early values. The compensation factor $\frac{1}{1 - (1-\alpha)^n}$ exactly corrects for this missing history, making the first output equal to the first input and ensuring all subsequent values are consistent with what a properly-seeded infinite EMA would produce.
+>
+> The compensation automatically diminishes as more data is processed and becomes negligible ($e \le 10^{-10}$) after approximately $\frac{23}{\alpha}$ observations, at which point the implementation switches to the raw EMA for efficiency.
 
 ## C# Implementation
 
@@ -159,6 +164,7 @@ EMAs work particularly well in trending markets but may generate false signals d
 
 ## References
 
-1. Murphy, J.J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
-2. Kaufman, P. (2013). *Trading Systems and Methods*, 5th Edition. Wiley Trading.
-3. Ehlers, J. (2001). *Rocket Science for Traders*. John Wiley & Sons.
+1. Hunter, J.S. (1986). "The Exponentially Weighted Moving Average." *Journal of Quality Technology*, 18(4), 203-210.
+2. Murphy, J.J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
+3. Kaufman, P. (2013). *Trading Systems and Methods*, 5th Edition. Wiley Trading.
+4. Ehlers, J. (2001). *Rocket Science for Traders*. John Wiley & Sons.
