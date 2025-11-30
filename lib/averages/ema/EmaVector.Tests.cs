@@ -13,7 +13,7 @@ public class EmaVectorTests
         int[] periods = { 10, 20 };
         var emaVector = new EmaVector(periods);
         
-        var res = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        var res = emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
         
         Assert.Equal(100.0, res[0].Value, 1e-9);
         Assert.Equal(100.0, res[1].Value, 1e-9);
@@ -25,7 +25,7 @@ public class EmaVectorTests
         double[] alphas = { 0.1, 0.2, 0.5 };
         var emaVector = new EmaVector(alphas);
         
-        var res = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        var res = emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
         
         Assert.Equal(3, res.Length);
         Assert.Equal(100.0, res[0].Value, 1e-9);
@@ -79,7 +79,7 @@ public class EmaVectorTests
         double[] alphas = { 0.1, 1.0, 0.5 };
         var emaVector = new EmaVector(alphas);
         
-        var res = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        var res = emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
         
         Assert.Equal(3, res.Length);
     }
@@ -92,7 +92,7 @@ public class EmaVectorTests
         var emaSingles = periods.Select(p => new Ema(p)).ToArray();
         
         var values = new double[] { 10, 20, 30, 40, 50, 40, 30, 20, 10 };
-        var time = DateTime.Now;
+        var time = DateTime.UtcNow;
 
         foreach (var val in values)
         {
@@ -120,7 +120,7 @@ public class EmaVectorTests
         int len = 100;
         var t = new System.Collections.Generic.List<long>(len);
         var v = new System.Collections.Generic.List<double>(len);
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         
         for (int i = 0; i < len; i++)
         {
@@ -154,7 +154,7 @@ public class EmaVectorTests
         int len = 100;
         var t = new System.Collections.Generic.List<long>(len);
         var v = new System.Collections.Generic.List<double>(len);
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         
         for (int i = 0; i < len; i++)
         {
@@ -186,7 +186,7 @@ public class EmaVectorTests
         int len = 50;
         var t = new System.Collections.Generic.List<long>(len);
         var v = new System.Collections.Generic.List<double>(len);
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         
         for (int i = 0; i < len; i++)
         {
@@ -217,10 +217,10 @@ public class EmaVectorTests
         int[] periods = { 10 };
         var emaVector = new EmaVector(periods);
         
-        emaVector.Update(new TValue(DateTime.Now, 100.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
         emaVector.Reset();
         
-        var res = emaVector.Update(new TValue(DateTime.Now, 200.0));
+        var res = emaVector.Update(new TValue(DateTime.UtcNow, 200.0));
         
         Assert.Equal(200.0, res[0].Value, 1e-9);
     }
@@ -231,10 +231,10 @@ public class EmaVectorTests
         int[] periods = { 10, 20 };
         var emaVector = new EmaVector(periods);
         
-        emaVector.Update(new TValue(DateTime.Now, 100.0));
-        emaVector.Update(new TValue(DateTime.Now, 110.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 110.0));
         
-        var resultAfterNaN = emaVector.Update(new TValue(DateTime.Now, double.NaN));
+        var resultAfterNaN = emaVector.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         foreach (var result in resultAfterNaN)
         {
@@ -248,16 +248,16 @@ public class EmaVectorTests
         int[] periods = { 10, 20 };
         var emaVector = new EmaVector(periods);
         
-        emaVector.Update(new TValue(DateTime.Now, 100.0));
-        emaVector.Update(new TValue(DateTime.Now, 110.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 110.0));
         
-        var resultAfterPosInf = emaVector.Update(new TValue(DateTime.Now, double.PositiveInfinity));
+        var resultAfterPosInf = emaVector.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         foreach (var result in resultAfterPosInf)
         {
             Assert.True(double.IsFinite(result.Value));
         }
         
-        var resultAfterNegInf = emaVector.Update(new TValue(DateTime.Now, double.NegativeInfinity));
+        var resultAfterNegInf = emaVector.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
         foreach (var result in resultAfterNegInf)
         {
             Assert.True(double.IsFinite(result.Value));
@@ -270,13 +270,13 @@ public class EmaVectorTests
         int[] periods = { 5, 10 };
         var emaVector = new EmaVector(periods);
         
-        emaVector.Update(new TValue(DateTime.Now, 100.0));
-        emaVector.Update(new TValue(DateTime.Now, 110.0));
-        emaVector.Update(new TValue(DateTime.Now, 120.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 110.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, 120.0));
         
-        var r1 = emaVector.Update(new TValue(DateTime.Now, double.NaN));
-        var r2 = emaVector.Update(new TValue(DateTime.Now, double.NaN));
-        var r3 = emaVector.Update(new TValue(DateTime.Now, double.NaN));
+        var r1 = emaVector.Update(new TValue(DateTime.UtcNow, double.NaN));
+        var r2 = emaVector.Update(new TValue(DateTime.UtcNow, double.NaN));
+        var r3 = emaVector.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         foreach (var result in r1) Assert.True(double.IsFinite(result.Value));
         foreach (var result in r2) Assert.True(double.IsFinite(result.Value));
@@ -291,7 +291,7 @@ public class EmaVectorTests
         
         var t = new System.Collections.Generic.List<long>();
         var v = new System.Collections.Generic.List<double>();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         
         t.Add(now.Ticks); v.Add(100.0);
         t.Add(now.AddMinutes(1).Ticks); v.Add(110.0);
@@ -318,12 +318,12 @@ public class EmaVectorTests
         int[] periods = { 10 };
         var emaVector = new EmaVector(periods);
         
-        emaVector.Update(new TValue(DateTime.Now, 100.0));
-        emaVector.Update(new TValue(DateTime.Now, double.NaN));
+        emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
+        emaVector.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         emaVector.Reset();
         
-        var result = emaVector.Update(new TValue(DateTime.Now, 50.0));
+        var result = emaVector.Update(new TValue(DateTime.UtcNow, 50.0));
         Assert.Equal(50.0, result[0].Value, 1e-9);
     }
 
@@ -335,7 +335,7 @@ public class EmaVectorTests
         var emaSingles = periods.Select(p => new Ema(p)).ToArray();
         
         var values = new double[] { 10, 20, double.NaN, 40, double.PositiveInfinity, 60, 70 };
-        var time = DateTime.Now;
+        var time = DateTime.UtcNow;
 
         foreach (var val in values)
         {
@@ -358,7 +358,7 @@ public class EmaVectorTests
         int[] periods = { 5, 10 };
         var emaVector = new EmaVector(periods);
         
-        var result = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        var result = emaVector.Update(new TValue(DateTime.UtcNow, 100.0));
         
         Assert.Equal(result[0].Value, emaVector.Values[0].Value);
         Assert.Equal(result[1].Value, emaVector.Values[1].Value);

@@ -34,7 +34,7 @@ public class EmaTests
         
         Assert.Equal(0, ema.Value.Value);
         
-        TValue result = ema.Update(new TValue(DateTime.Now, 100));
+        TValue result = ema.Update(new TValue(DateTime.UtcNow, 100));
         
         Assert.True(result.Value > 0);
         Assert.Equal(result.Value, ema.Value.Value);
@@ -45,10 +45,10 @@ public class EmaTests
     {
         var ema = new Ema(10);
         
-        ema.Update(new TValue(DateTime.Now, 100), isNew: true);
+        ema.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
         double value1 = ema.Value;
         
-        ema.Update(new TValue(DateTime.Now, 105), isNew: true);
+        ema.Update(new TValue(DateTime.UtcNow, 105), isNew: true);
         double value2 = ema.Value;
         
         // Values should change with new bars
@@ -60,11 +60,11 @@ public class EmaTests
     {
         var ema = new Ema(10);
         
-        ema.Update(new TValue(DateTime.Now, 100));
-        ema.Update(new TValue(DateTime.Now, 110), isNew: true);
+        ema.Update(new TValue(DateTime.UtcNow, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
         double beforeUpdate = ema.Value;
         
-        ema.Update(new TValue(DateTime.Now, 120), isNew: false);
+        ema.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
         double afterUpdate = ema.Value;
         
         // Update should change the value
@@ -76,8 +76,8 @@ public class EmaTests
     {
         var ema = new Ema(10);
         
-        ema.Update(new TValue(DateTime.Now, 100));
-        ema.Update(new TValue(DateTime.Now, 105));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 105));
         double valueBefore = ema.Value;
         
         ema.Reset();
@@ -85,7 +85,7 @@ public class EmaTests
         Assert.Equal(0, ema.Value.Value);
         
         // After reset, should accept new values
-        ema.Update(new TValue(DateTime.Now, 50));
+        ema.Update(new TValue(DateTime.UtcNow, 50));
         Assert.NotEqual(0, ema.Value.Value);
         Assert.NotEqual(valueBefore, ema.Value.Value);
     }
@@ -98,7 +98,7 @@ public class EmaTests
         Assert.Equal(0, ema.Value.Value);
         Assert.False(ema.IsHot);
         
-        ema.Update(new TValue(DateTime.Now, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
         
         Assert.NotEqual(0, ema.Value.Value);
     }
@@ -124,7 +124,7 @@ public class EmaTests
         int steps = 0;
         while (!ema.IsHot && steps < 1000)
         {
-            ema.Update(new TValue(DateTime.Now, 100));
+            ema.Update(new TValue(DateTime.UtcNow, 100));
             steps++;
         }
         
@@ -142,8 +142,8 @@ public class EmaTests
         var emaAlpha = new Ema(alpha);
         
         // Both should accept Calc calls and produce same result
-        TValue result1 = emaPeriod.Update(new TValue(DateTime.Now, 100));
-        TValue result2 = emaAlpha.Update(new TValue(DateTime.Now, 100));
+        TValue result1 = emaPeriod.Update(new TValue(DateTime.UtcNow, 100));
+        TValue result2 = emaAlpha.Update(new TValue(DateTime.UtcNow, 100));
         
         Assert.Equal(result1.Value, result2.Value, 1e-10);
     }
@@ -218,7 +218,7 @@ public class EmaTests
     public void Ema_Result_ImplicitConversionToDouble()
     {
         var ema = new Ema(10);
-        ema.Update(new TValue(DateTime.Now, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
         
         // This should compile and work because TValue has implicit conversion to double
         double result = ema.Value;
@@ -232,12 +232,12 @@ public class EmaTests
         var ema = new Ema(10);
         
         // Feed some valid values
-        ema.Update(new TValue(DateTime.Now, 100));
-        ema.Update(new TValue(DateTime.Now, 110));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 110));
         double valueBeforeNaN = ema.Value;
         
         // Feed NaN - should use last valid value (110)
-        var resultAfterNaN = ema.Update(new TValue(DateTime.Now, double.NaN));
+        var resultAfterNaN = ema.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         // Result should be finite (not NaN)
         Assert.True(double.IsFinite(resultAfterNaN.Value));
@@ -251,15 +251,15 @@ public class EmaTests
         var ema = new Ema(10);
         
         // Feed some valid values
-        ema.Update(new TValue(DateTime.Now, 100));
-        ema.Update(new TValue(DateTime.Now, 110));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 110));
         
         // Feed positive infinity - should use last valid value
-        var resultAfterPosInf = ema.Update(new TValue(DateTime.Now, double.PositiveInfinity));
+        var resultAfterPosInf = ema.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         Assert.True(double.IsFinite(resultAfterPosInf.Value));
         
         // Feed negative infinity - should use last valid value
-        var resultAfterNegInf = ema.Update(new TValue(DateTime.Now, double.NegativeInfinity));
+        var resultAfterNegInf = ema.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
         Assert.True(double.IsFinite(resultAfterNegInf.Value));
     }
 
@@ -269,14 +269,14 @@ public class EmaTests
         var ema = new Ema(10);
         
         // Feed valid values
-        ema.Update(new TValue(DateTime.Now, 100));
-        ema.Update(new TValue(DateTime.Now, 110));
-        ema.Update(new TValue(DateTime.Now, 120));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
+        ema.Update(new TValue(DateTime.UtcNow, 110));
+        ema.Update(new TValue(DateTime.UtcNow, 120));
         
         // Feed multiple NaN values
-        var r1 = ema.Update(new TValue(DateTime.Now, double.NaN));
-        var r2 = ema.Update(new TValue(DateTime.Now, double.NaN));
-        var r3 = ema.Update(new TValue(DateTime.Now, double.NaN));
+        var r1 = ema.Update(new TValue(DateTime.UtcNow, double.NaN));
+        var r2 = ema.Update(new TValue(DateTime.UtcNow, double.NaN));
+        var r3 = ema.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         // All results should be finite
         Assert.True(double.IsFinite(r1.Value));
@@ -295,12 +295,12 @@ public class EmaTests
         
         // Create series with NaN values interspersed
         var series = new TSeries();
-        series.Add(DateTime.Now.Ticks, 100);
-        series.Add(DateTime.Now.Ticks + 1, 110);
-        series.Add(DateTime.Now.Ticks + 2, double.NaN);
-        series.Add(DateTime.Now.Ticks + 3, 120);
-        series.Add(DateTime.Now.Ticks + 4, double.PositiveInfinity);
-        series.Add(DateTime.Now.Ticks + 5, 130);
+        series.Add(DateTime.UtcNow.Ticks, 100);
+        series.Add(DateTime.UtcNow.Ticks + 1, 110);
+        series.Add(DateTime.UtcNow.Ticks + 2, double.NaN);
+        series.Add(DateTime.UtcNow.Ticks + 3, 120);
+        series.Add(DateTime.UtcNow.Ticks + 4, double.PositiveInfinity);
+        series.Add(DateTime.UtcNow.Ticks + 5, 130);
         
         var results = ema.Update(series);
         
@@ -317,14 +317,14 @@ public class EmaTests
         var ema = new Ema(10);
         
         // Feed values including NaN
-        ema.Update(new TValue(DateTime.Now, 100));
-        ema.Update(new TValue(DateTime.Now, double.NaN));
+        ema.Update(new TValue(DateTime.UtcNow, 100));
+        ema.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         // Reset
         ema.Reset();
         
         // After reset, first valid value should establish new baseline
-        var result = ema.Update(new TValue(DateTime.Now, 50));
+        var result = ema.Update(new TValue(DateTime.UtcNow, 50));
         Assert.Equal(50.0, result.Value, 1e-10);
     }
 }
