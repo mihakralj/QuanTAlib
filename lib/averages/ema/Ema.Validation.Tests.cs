@@ -10,7 +10,7 @@ using QuanTAlib;
 
 namespace QuanTAlib.Tests;
 
-public class EmaValidationTests : IDisposable
+public class EmaValidationTests
 {
     private readonly TBarSeries _bars;
     private readonly TSeries _data;
@@ -43,11 +43,6 @@ public class EmaValidationTests : IDisposable
                 Volume = (decimal)_bars.Volume[i].Value
             });
         }
-    }
-
-    public void Dispose()
-    {
-        // Cleanup if needed
     }
 
     [Fact]
