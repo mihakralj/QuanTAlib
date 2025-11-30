@@ -45,13 +45,13 @@ public class EmaValidationTests
     }
 
     [Fact]
-    public void Validate_Skender()
+    public void Validate_Skender_Batch()
     {
         int[] periods = { 5, 10, 20, 50, 100 };
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib EMA
+            // Calculate QuanTAlib EMA (batch TSeries)
             var ema = new global::QuanTAlib.Ema(period);
             var qResult = ema.Update(_data);
 
@@ -59,13 +59,60 @@ public class EmaValidationTests
             var sResult = _skenderQuotes.GetEma(period).ToList();
 
             // Compare last 100 records
-            VerifyData(qResult, sResult);
+            VerifyData_Skender(qResult, sResult);
         }
-        _output.WriteLine("EMA validated successfully against Skender");
+        _output.WriteLine("EMA Batch(TSeries) validated successfully against Skender");
     }
 
     [Fact]
-    public void Validate_Talib()
+    public void Validate_Skender_Streaming()
+    {
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib EMA (streaming)
+            var ema = new global::QuanTAlib.Ema(period);
+            var qResults = new List<double>();
+            foreach (var item in _data)
+            {
+                qResults.Add(ema.Update(item).Value);
+            }
+
+            // Calculate Skender EMA
+            var sResult = _skenderQuotes.GetEma(period).ToList();
+
+            // Compare last 100 records
+            VerifyData_Skender_Streaming(qResults, sResult);
+        }
+        _output.WriteLine("EMA Streaming validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Validate_Skender_Span()
+    {
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        // Prepare data for Span API
+        double[] sourceData = _data.Select(x => x.Value).ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib EMA (Span API)
+            double[] qOutput = new double[sourceData.Length];
+            global::QuanTAlib.Ema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+
+            // Calculate Skender EMA
+            var sResult = _skenderQuotes.GetEma(period).ToList();
+
+            // Compare last 100 records
+            VerifyData_Skender_Span(qOutput, sResult);
+        }
+        _output.WriteLine("EMA Span validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Validate_Talib_Batch()
     {
         int[] periods = { 5, 10, 20, 50, 100 };
 
@@ -75,27 +122,82 @@ public class EmaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib EMA
+            // Calculate QuanTAlib EMA (batch TSeries)
             var ema = new global::QuanTAlib.Ema(period);
             var qResult = ema.Update(_data);
 
             // Calculate TA-Lib EMA
             var retCode = TALib.Functions.Ema<double>(tData, 0..^0, output, out var outRange, period);
-
-            // Check success
             Assert.Equal(Core.RetCode.Success, retCode);
 
-            // TA-Lib skips the lookback period, so output[0] corresponds to input[lookback]
             int lookback = TALib.Functions.EmaLookback(period);
 
             // Compare last 100 records
             VerifyData_Talib(qResult, output, outRange, lookback);
         }
-        _output.WriteLine("EMA validated successfully against TA-Lib");
+        _output.WriteLine("EMA Batch(TSeries) validated successfully against TA-Lib");
     }
 
     [Fact]
-    public void Validate_Tulip()
+    public void Validate_Talib_Streaming()
+    {
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        // Prepare data for TA-Lib (double[])
+        double[] tData = _data.Select(x => x.Value).ToArray();
+        double[] output = new double[tData.Length];
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib EMA (streaming)
+            var ema = new global::QuanTAlib.Ema(period);
+            var qResults = new List<double>();
+            foreach (var item in _data)
+            {
+                qResults.Add(ema.Update(item).Value);
+            }
+
+            // Calculate TA-Lib EMA
+            var retCode = TALib.Functions.Ema<double>(tData, 0..^0, output, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = TALib.Functions.EmaLookback(period);
+
+            // Compare last 100 records
+            VerifyData_Talib_Streaming(qResults, output, outRange, lookback);
+        }
+        _output.WriteLine("EMA Streaming validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Talib_Span()
+    {
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        // Prepare data
+        double[] sourceData = _data.Select(x => x.Value).ToArray();
+        double[] talibOutput = new double[sourceData.Length];
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib EMA (Span API)
+            double[] qOutput = new double[sourceData.Length];
+            global::QuanTAlib.Ema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+
+            // Calculate TA-Lib EMA
+            var retCode = TALib.Functions.Ema<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = TALib.Functions.EmaLookback(period);
+
+            // Compare last 100 records
+            VerifyData_Talib_Span(qOutput, talibOutput, outRange, lookback);
+        }
+        _output.WriteLine("EMA Span validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Tulip_Batch()
     {
         int[] periods = { 5, 10, 20, 50, 100 };
 
@@ -104,7 +206,7 @@ public class EmaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib EMA
+            // Calculate QuanTAlib EMA (batch TSeries)
             var ema = new global::QuanTAlib.Ema(period);
             var qResult = ema.Update(_data);
 
@@ -118,46 +220,125 @@ public class EmaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            VerifyData(qResult, tResult.ToList());
+            VerifyData_Tulip(qResult, tResult);
         }
-        _output.WriteLine("EMA validated successfully against Tulip");
+        _output.WriteLine("EMA Batch(TSeries) validated successfully against Tulip");
     }
 
-    private static void VerifyData(TSeries qSeries, List<double> tSeries)
+    [Fact]
+    public void Validate_Tulip_Streaming()
     {
-        // Ensure we have enough data
-        Assert.Equal(qSeries.Count, tSeries.Count);
+        int[] periods = { 5, 10, 20, 50, 100 };
 
-        int count = qSeries.Count;
-        int skip = count - 100; // Last 100 records
+        // Prepare data for Tulip (double[])
+        double[] tData = _data.Select(x => x.Value).ToArray();
 
-        for (int i = skip; i < count; i++)
+        foreach (var period in periods)
         {
-            double qValue = qSeries[i].Value;
-            double tValue = tSeries[i];
-            if (Math.Abs(tValue) < 1e-10) continue;
+            // Calculate QuanTAlib EMA (streaming)
+            var ema = new global::QuanTAlib.Ema(period);
+            var qResults = new List<double>();
+            foreach (var item in _data)
+            {
+                qResults.Add(ema.Update(item).Value);
+            }
 
-            Assert.Equal(tValue, qValue, 1e-6);
+            // Calculate Tulip EMA
+            var emaIndicator = Tulip.Indicators.ema;
+            double[][] inputs = { tData };
+            double[] options = { (double)period };
+            double[][] outputs = { new double[tData.Length] };
+
+            emaIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
+
+            // Compare last 100 records
+            VerifyData_Tulip_Streaming(qResults, tResult);
         }
+        _output.WriteLine("EMA Streaming validated successfully against Tulip");
     }
 
-    private static void VerifyData(TSeries qSeries, List<EmaResult> sSeries)
+    [Fact]
+    public void Validate_Tulip_Span()
     {
-        // Ensure we have enough data
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        // Prepare data
+        double[] sourceData = _data.Select(x => x.Value).ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib EMA (Span API)
+            double[] qOutput = new double[sourceData.Length];
+            global::QuanTAlib.Ema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+
+            // Calculate Tulip EMA
+            var emaIndicator = Tulip.Indicators.ema;
+            double[][] inputs = { sourceData };
+            double[] options = { (double)period };
+            double[][] outputs = { new double[sourceData.Length] };
+
+            emaIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
+
+            // Compare last 100 records
+            VerifyData_Tulip_Span(qOutput, tResult);
+        }
+        _output.WriteLine("EMA Span validated successfully against Tulip");
+    }
+
+    // ==================== Verification Helpers ====================
+
+    private static void VerifyData_Skender(TSeries qSeries, List<EmaResult> sSeries)
+    {
         Assert.Equal(qSeries.Count, sSeries.Count);
 
         int count = qSeries.Count;
-        int skip = count - 100; // Last 100 records
+        int skip = count - 100;
 
         for (int i = skip; i < count; i++)
         {
             double qValue = qSeries[i].Value;
             double? sValue = sSeries[i].Ema;
 
-            // Skip if Skender returns null (warmup period)
             if (!sValue.HasValue) continue;
 
-            // Assert equality with tolerance
+            Assert.Equal(sValue.Value, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Skender_Streaming(List<double> qResults, List<EmaResult> sSeries)
+    {
+        Assert.Equal(qResults.Count, sSeries.Count);
+
+        int count = qResults.Count;
+        int skip = count - 100;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qResults[i];
+            double? sValue = sSeries[i].Ema;
+
+            if (!sValue.HasValue) continue;
+
+            Assert.Equal(sValue.Value, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Skender_Span(double[] qOutput, List<EmaResult> sSeries)
+    {
+        Assert.Equal(qOutput.Length, sSeries.Count);
+
+        int count = qOutput.Length;
+        int skip = count - 100;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qOutput[i];
+            double? sValue = sSeries[i].Ema;
+
+            if (!sValue.HasValue) continue;
+
             Assert.Equal(sValue.Value, qValue, 1e-6);
         }
     }
@@ -165,27 +346,110 @@ public class EmaValidationTests
     private static void VerifyData_Talib(TSeries qSeries, double[] tOutput, Range outRange, int lookback)
     {
         int count = qSeries.Count;
-        int skip = count - 100; // Last 100 records
-
-        // outRange.End.Value is the number of elements written to tOutput
+        int skip = count - 100;
         int validCount = outRange.End.Value - outRange.Start.Value;
 
         for (int i = skip; i < count; i++)
         {
             double qValue = qSeries[i].Value;
 
-            // Calculate index in tOutput
-            // If i < lookback, we don't have a value from TA-Lib
             if (i < lookback) continue;
 
             int tIndex = i - lookback;
-
-            // Check if tIndex is within valid range
             if (tIndex >= validCount) continue;
 
             double tValue = tOutput[tIndex];
 
-            // Assert equality with tolerance
+            Assert.Equal(tValue, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Talib_Streaming(List<double> qResults, double[] tOutput, Range outRange, int lookback)
+    {
+        int count = qResults.Count;
+        int skip = count - 100;
+        int validCount = outRange.End.Value - outRange.Start.Value;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qResults[i];
+
+            if (i < lookback) continue;
+
+            int tIndex = i - lookback;
+            if (tIndex >= validCount) continue;
+
+            double tValue = tOutput[tIndex];
+
+            Assert.Equal(tValue, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Talib_Span(double[] qOutput, double[] tOutput, Range outRange, int lookback)
+    {
+        int count = qOutput.Length;
+        int skip = count - 100;
+        int validCount = outRange.End.Value - outRange.Start.Value;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qOutput[i];
+
+            if (i < lookback) continue;
+
+            int tIndex = i - lookback;
+            if (tIndex >= validCount) continue;
+
+            double tValue = tOutput[tIndex];
+
+            Assert.Equal(tValue, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Tulip(TSeries qSeries, double[] tOutput)
+    {
+        int count = qSeries.Count;
+        int skip = count - 100;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qSeries[i].Value;
+            double tValue = tOutput[i];
+
+            if (Math.Abs(tValue) < 1e-10) continue;
+
+            Assert.Equal(tValue, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Tulip_Streaming(List<double> qResults, double[] tOutput)
+    {
+        int count = qResults.Count;
+        int skip = count - 100;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qResults[i];
+            double tValue = tOutput[i];
+
+            if (Math.Abs(tValue) < 1e-10) continue;
+
+            Assert.Equal(tValue, qValue, 1e-6);
+        }
+    }
+
+    private static void VerifyData_Tulip_Span(double[] qOutput, double[] tOutput)
+    {
+        int count = qOutput.Length;
+        int skip = count - 100;
+
+        for (int i = skip; i < count; i++)
+        {
+            double qValue = qOutput[i];
+            double tValue = tOutput[i];
+
+            if (Math.Abs(tValue) < 1e-10) continue;
+
             Assert.Equal(tValue, qValue, 1e-6);
         }
     }
