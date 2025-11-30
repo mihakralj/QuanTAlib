@@ -127,12 +127,26 @@ public class TBarSeries : IReadOnlyList<TBar>
 
     public void Add(IEnumerable<long> t, IEnumerable<double> o, IEnumerable<double> h, IEnumerable<double> l, IEnumerable<double> c, IEnumerable<double> v)
     {
-        _t.AddRange(t);
-        _o.AddRange(o);
-        _h.AddRange(h);
-        _l.AddRange(l);
-        _c.AddRange(c);
-        _v.AddRange(v);
+        var tArr = t as long[] ?? t.ToArray();
+        var oArr = o as double[] ?? o.ToArray();
+        var hArr = h as double[] ?? h.ToArray();
+        var lArr = l as double[] ?? l.ToArray();
+        var cArr = c as double[] ?? c.ToArray();
+        var vArr = v as double[] ?? v.ToArray();
+
+        if (tArr.Length != oArr.Length || oArr.Length != hArr.Length ||
+            hArr.Length != lArr.Length || lArr.Length != cArr.Length ||
+            cArr.Length != vArr.Length)
+        {
+            throw new ArgumentException("All arrays must have the same length");
+        }
+
+        _t.AddRange(tArr);
+        _o.AddRange(oArr);
+        _h.AddRange(hArr);
+        _l.AddRange(lArr);
+        _c.AddRange(cArr);
+        _v.AddRange(vArr);
     }
 
     public IEnumerator<TBar> GetEnumerator()

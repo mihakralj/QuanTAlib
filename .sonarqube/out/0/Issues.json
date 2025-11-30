@@ -1,0 +1,897 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "5.0.0.0",
+        "fileVersion": "5.0.0-2.25523.111 (b0f34d51)",
+        "semanticVersion": "5.0.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tvalue/TValue.cs",
+                "region": {
+                  "startLine": 51,
+                  "startColumn": 69,
+                  "endLine": 51,
+                  "endColumn": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 73,
+                  "startColumn": 14,
+                  "endLine": 73,
+                  "endColumn": 16
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 74,
+                  "startColumn": 14,
+                  "endLine": 74,
+                  "endColumn": 16
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 75,
+                  "startColumn": 13,
+                  "endLine": 75,
+                  "endColumn": 15
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 76,
+                  "startColumn": 15,
+                  "endLine": 76,
+                  "endColumn": 17
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 16,
+                  "endLine": 77,
+                  "endColumn": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.SetClip(Rectangle)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 101,
+                  "startColumn": 9,
+                  "endLine": 101,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.DrawLine(Pen, Point, Point)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 108,
+                  "startColumn": 13,
+                  "endLine": 108,
+                  "endColumn": 72
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'DashStyle.Dot' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 232,
+                  "startColumn": 30,
+                  "endLine": 232,
+                  "endColumn": 43
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'DashStyle.Dash' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 231,
+                  "startColumn": 31,
+                  "endLine": 231,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'DashStyle.Solid' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 230,
+                  "startColumn": 32,
+                  "endLine": 230,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'DashStyle.Solid' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 234,
+                  "startColumn": 18,
+                  "endLine": 234,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'DashStyle.DashDot' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 233,
+                  "startColumn": 34,
+                  "endLine": 233,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.DrawString(string?, Font, Brush, PointF)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 223,
+                  "startColumn": 9,
+                  "endLine": 223,
+                  "endColumn": 93
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Brushes.White' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 223,
+                  "startColumn": 35,
+                  "endLine": 223,
+                  "endColumn": 48
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Brushes.DarkBlue' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 222,
+                  "startColumn": 26,
+                  "endLine": 222,
+                  "endColumn": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.FillRectangle(Brush, RectangleF)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 222,
+                  "startColumn": 9,
+                  "endLine": 222,
+                  "endColumn": 53
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.MeasureString(string?, Font)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 217,
+                  "startColumn": 26,
+                  "endLine": 217,
+                  "endColumn": 54
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Font' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 216,
+                  "startColumn": 21,
+                  "endLine": 216,
+                  "endColumn": 41
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.FillRectangle(Brush, int, int, int, int)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 196,
+                  "startColumn": 21,
+                  "endLine": 196,
+                  "endColumn": 93
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.SetClip(Rectangle)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 178,
+                  "startColumn": 9,
+                  "endLine": 178,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.FillRectangle(Brush, int, int, int, int)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 203,
+                  "startColumn": 21,
+                  "endLine": 203,
+                  "endColumn": 94
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'SolidBrush' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 194,
+                  "startColumn": 37,
+                  "endLine": 194,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.SmoothingMode' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 173,
+                  "startColumn": 9,
+                  "endLine": 173,
+                  "endColumn": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'SmoothingMode.AntiAlias' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 173,
+                  "startColumn": 28,
+                  "endLine": 173,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'SolidBrush' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 37,
+                  "endLine": 201,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.SetClip(Rectangle)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 123,
+                  "startColumn": 9,
+                  "endLine": 123,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Pen.DashStyle' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 146,
+                  "startColumn": 68,
+                  "endLine": 146,
+                  "endColumn": 77
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Pen.DashStyle' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 145,
+                  "startColumn": 71,
+                  "endLine": 145,
+                  "endColumn": 80
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.DrawCurve(Pen, Point[], int, int, float)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 161,
+                  "startColumn": 21,
+                  "endLine": 161,
+                  "endColumn": 96
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'SmoothingMode.AntiAlias' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 118,
+                  "startColumn": 28,
+                  "endLine": 118,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.SmoothingMode' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 118,
+                  "startColumn": 9,
+                  "endLine": 118,
+                  "endColumn": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'DashStyle.Dot' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 146,
+                  "startColumn": 80,
+                  "endLine": 146,
+                  "endColumn": 93
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Pen' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 145,
+                  "startColumn": 37,
+                  "endLine": 145,
+                  "endColumn": 126
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Graphics.DrawCurve(Pen, Point[], int, int, float)' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 154,
+                  "startColumn": 21,
+                  "endLine": 154,
+                  "endColumn": 97
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1416",
+          "level": "warning",
+          "message": "This call site is reachable on all platforms. 'Pen' is only supported on: 'windows' 6.1 and later.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs",
+                "region": {
+                  "startLine": 146,
+                  "startColumn": 34,
+                  "endLine": 146,
+                  "endColumn": 95
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        }
+      ],
+      "rules": {
+        "CA1416": {
+          "id": "CA1416",
+          "shortDescription": "Validate platform compatibility",
+          "fullDescription": "Using platform dependent API on a component makes the code no longer work across all platforms.",
+          "defaultLevel": "warning",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416",
+          "properties": {
+            "category": "Interoperability",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "S1244": {
+          "id": "S1244",
+          "shortDescription": "Floating point numbers should not be tested for equality",
+          "fullDescription": "Floating point numbers in C# (and in most other programming languages) are not precise. They are a binary approximation of the actual value. This means that even if two floating point numbers appear to be equal, they might not be due to the tiny differences in their binary representation.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-1244",
+          "properties": {
+            "category": "Major Bug",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

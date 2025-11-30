@@ -1,0 +1,13 @@
+Y
+N/Users/mihakralj/Github/QuanTAlib/quantower/obj/Debug/Averages.AssemblyInfo.csutf-8o
+d/Users/mihakralj/Github/QuanTAlib/quantower/obj/Debug/.NETCoreApp,Version=v8.0.AssemblyAttributes.csutf-8[
+P/Users/mihakralj/Github/QuanTAlib/quantower/obj/Debug/Averages.GlobalUsings.g.csutf-8U
+L/Users/mihakralj/Github/QuanTAlib/quantower/../lib/averages/ema/EmaVector.csutf-8Y
+P/Users/mihakralj/Github/QuanTAlib/quantower/../lib/averages/ema/Ema.Quantower.csutf-8O
+F/Users/mihakralj/Github/QuanTAlib/quantower/../lib/averages/ema/Ema.csutf-8Q
+H/Users/mihakralj/Github/QuanTAlib/quantower/../lib/core/tvalue/TValue.csutf-8S
+J/Users/mihakralj/Github/QuanTAlib/quantower/../lib/core/tseries/TSeries.csutf-8Y
+P/Users/mihakralj/Github/QuanTAlib/quantower/../lib/core/tbarseries/TBarSeries.csutf-8M
+D/Users/mihakralj/Github/QuanTAlib/quantower/../lib/core/tbar/TBar.csutf-8W
+N/Users/mihakralj/Github/QuanTAlib/quantower/../lib/core/simd/SimdExtensions.csutf-8K
+B/Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.csutf-8

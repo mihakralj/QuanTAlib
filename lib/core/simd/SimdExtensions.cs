@@ -82,6 +82,8 @@ public static class SimdExtensions
     /// <summary>
     /// Checks if span contains any non-finite values (NaN or Infinity).
     /// Returns true if any non-finite value is found.
+    /// Uses SIMD: NaN detected via v != v (NaN is the only value where this is true),
+    /// Infinity detected via |v| > MaxValue comparison.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool ContainsNonFinite(this ReadOnlySpan<double> span)
@@ -92,18 +94,25 @@ public static class SimdExtensions
         {
             int vectorSize = Vector<double>.Count;
             int i = 0;
+            var maxValue = new Vector<double>(double.MaxValue);
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
-                for (int j = 0; j < vectorSize; j++)
-                {
-                    if (!double.IsFinite(vector[j]))
-                        return true;
-                }
+
+                // NaN check: NaN != NaN, so Vector.Equals(v, v) will be false for NaN lanes
+                var nanCheck = Vector.Equals(vector, vector);
+                if (!nanCheck.Equals(Vector<long>.AllBitsSet))
+                    return true;
+
+                // Infinity check: |v| > MaxValue (Infinity has magnitude > MaxValue)
+                var absVec = Vector.Abs(vector);
+                var infCheck = Vector.GreaterThan(absVec, maxValue);
+                if (!infCheck.Equals(Vector<long>.Zero))
+                    return true;
             }
 
-            // Check remaining elements
+            // Check remaining elements with scalar
             for (; i < span.Length; i++)
             {
                 if (!double.IsFinite(span[i]))

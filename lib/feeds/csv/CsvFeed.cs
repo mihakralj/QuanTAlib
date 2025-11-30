@@ -12,7 +12,7 @@ namespace QuanTAlib;
 public class CsvFeed : IFeed
 {
     private readonly TBarSeries _data;
-    
+
     // Streaming state
     private int _currentIndex;
     private TBar _currentBar;
@@ -38,27 +38,36 @@ public class CsvFeed : IFeed
     /// <summary>
     /// Parses CSV file into TBarSeries.
     /// Expected format: timestamp,open,high,low,close,volume
+    /// Memory-efficient: reads lines into list, reverses in-place (no LINQ allocations).
     /// </summary>
     private static TBarSeries LoadFromCsv(string filePath)
     {
-        var lines = File.ReadAllLines(filePath);
-        
-        if (lines.Length == 0)
-            throw new InvalidDataException("CSV file is empty");
+        var dataLines = new List<string>();
+        using (var reader = new StreamReader(filePath))
+        {
+            var header = reader.ReadLine();
+            if (header is null)
+                throw new InvalidDataException("CSV file is empty");
 
-        // Skip header, reverse to chronological order (oldest first)
-        var dataLines = lines.Skip(1).Reverse().ToArray();
-        
-        if (dataLines.Length == 0)
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                if (!string.IsNullOrWhiteSpace(line))
+                    dataLines.Add(line);
+            }
+        }
+
+        if (dataLines.Count == 0)
             throw new InvalidDataException("CSV file contains only header, no data");
 
-        var series = new TBarSeries(dataLines.Length);
+        // Reverse in-place to chronological order (oldest first)
+        dataLines.Reverse();
 
-        for (int i = 0; i < dataLines.Length; i++)
+        var series = new TBarSeries(dataLines.Count);
+
+        for (int i = 0; i < dataLines.Count; i++)
         {
             var line = dataLines[i];
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
 
             var parts = line.Split(',');
             if (parts.Length != 6)
@@ -68,7 +77,7 @@ public class CsvFeed : IFeed
             {
                 // Parse timestamp (YYYY-MM-DD format, assume UTC midnight)
                 var timestamp = DateTime.ParseExact(parts[0].Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
-                
+
                 // Parse OHLCV values
                 double open = double.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
                 double high = double.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
@@ -142,7 +151,7 @@ public class CsvFeed : IFeed
             throw new ArgumentException("Count must be positive", nameof(count));
 
         var result = new TBarSeries(count);
-        
+
         // Find starting index
         int startIndex = 0;
         for (int i = 0; i < _data.Count; i++)
@@ -157,15 +166,15 @@ public class CsvFeed : IFeed
         // Collect bars matching interval
         long expectedTime = startTime;
         int collected = 0;
-        
+
         for (int i = startIndex; i < _data.Count && collected < count; i++)
         {
             var bar = _data[i];
-            
+
             // Check if bar time matches expected time (within tolerance)
             long timeDiff = Math.Abs(bar.Time - expectedTime);
             long tolerance = interval.Ticks / 2; // Allow 50% tolerance
-            
+
             if (timeDiff <= tolerance)
             {
                 result.Add(bar, isNew: true);
@@ -177,7 +186,7 @@ public class CsvFeed : IFeed
                 // Gap in data - skip forward
                 long gaps = (bar.Time - expectedTime) / interval.Ticks;
                 expectedTime += (gaps + 1) * interval.Ticks;
-                
+
                 if (Math.Abs(bar.Time - expectedTime + interval.Ticks) <= tolerance)
                 {
                     result.Add(bar, isNew: true);

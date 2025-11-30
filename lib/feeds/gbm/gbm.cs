@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
@@ -8,9 +7,10 @@ namespace QuanTAlib;
 /// Generates realistic price data for testing indicators and strategies.
 /// Stateless design - only maintains minimal state needed for price continuity.
 /// </summary>
+[SkipLocalsInit]
 public class GBM : IFeed
 {
-    private readonly Random _rnd = new();
+    private readonly Random _rnd;
 
     private double _lastPrice;
     private long _lastTime;
@@ -35,26 +35,32 @@ public class GBM : IFeed
     /// <summary>
     /// Creates a new GBM generator.
     /// </summary>
-    /// <param name="startPrice">Initial price (default: 100.0)</param>
+    /// <param name="startPrice">Initial price (default: 100.0, must be positive)</param>
     /// <param name="mu">Annual drift/return rate (default: 0.05 = 5%)</param>
-    /// <param name="sigma">Annual volatility (default: 0.2 = 20%)</param>
+    /// <param name="sigma">Annual volatility (default: 0.2 = 20%, must be non-negative)</param>
     /// <param name="defaultTimeframe">Default timeframe for bars (default: 1 minute)</param>
+    /// <param name="seed">Optional random seed for reproducibility (default: null for non-deterministic)</param>
     public GBM(
         double startPrice = 100.0,
         double mu = 0.05,
         double sigma = 0.2,
-        TimeSpan? defaultTimeframe = null)
+        TimeSpan? defaultTimeframe = null,
+        int? seed = null)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(startPrice);
+        ArgumentOutOfRangeException.ThrowIfNegative(sigma);
+
+        _rnd = seed.HasValue ? new Random(seed.Value) : new Random();
         _lastPrice = startPrice;
         _lastTime = DateTime.UtcNow.Ticks;
 
         _mu = mu;
         _sigma = sigma;
-        
+
         // Use provided timeframe or default to 1 minute
         var timeframe = defaultTimeframe ?? TimeSpan.FromMinutes(1);
         _defaultTimeStep = timeframe.Ticks;
-        
+
         // Calculate dt based on timeframe (assuming 252 trading days/year, 6.5 hours/day)
         double minutesPerYear = 252.0 * 6.5 * 60.0;
         _dt = timeframe.TotalMinutes / minutesPerYear;
@@ -94,12 +100,12 @@ public class GBM : IFeed
     public TBar Next(ref bool isNew)
     {
         // GBM always honors request - parameter unchanged
-        
+
         if (isNew || !_hasCurrentBar)
         {
             // Generate new bar
             long currentTime = _lastTime + _defaultTimeStep;
-            
+
             double z = NextNormal();
             double price = _lastPrice * Math.Exp(_drift + _vol * z);
             double volume = 1000 + _rnd.NextDouble() * 1000;
@@ -199,10 +205,10 @@ public class GBM : IFeed
         // Update internal state to continue from end of batch
         _lastPrice = currentPrice;
         _lastTime = currentTime - timeStep; // Last bar time, not next bar time
-        
+
         // Bulk add to series
         series.Add(t, o, h, l, c, v);
-        
+
         // Reset streaming state after batch
         _hasCurrentBar = false;
 

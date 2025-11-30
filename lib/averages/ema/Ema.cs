@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
-public struct EmaState
+internal struct EmaState
 {
     public double Ema { get; set; }
     public double E { get; set; }
@@ -81,7 +81,7 @@ public class Ema
     /// Assumes input has already been validated via GetValidValue().
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double Compute(double input, double alpha, ref EmaState state)
+    internal static double Compute(double input, double alpha, ref EmaState state)
     {
         state.Ema += alpha * (input - state.Ema);
 

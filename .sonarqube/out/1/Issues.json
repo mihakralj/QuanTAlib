@@ -1,0 +1,605 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "5.0.0.0",
+        "fileVersion": "5.0.0-2.25523.111 (b0f34d51)",
+        "semanticVersion": "5.0.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "S101",
+          "level": "warning",
+          "message": "Rename class 'GBM' to match pascal case naming rules, consider using 'Gbm'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/feeds/gbm/GBM.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 14,
+                  "endLine": 11,
+                  "endColumn": 17
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 42,
+                  "endLine": 16,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 42,
+                  "endLine": 16,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 42,
+                  "endLine": 18,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 42,
+                  "endLine": 18,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 42,
+                  "endLine": 17,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 42,
+                  "endLine": 17,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "S1450",
+          "level": "warning",
+          "message": "Remove the field '_dt' and declare it as a local variable in the relevant methods.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/feeds/gbm/GBM.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 29,
+                  "endLine": 20,
+                  "endColumn": 32
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 40,
+                  "endLine": 15,
+                  "endColumn": 43
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 40,
+                  "endLine": 15,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 42,
+                  "endLine": 19,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 42,
+                  "endLine": 19,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 42,
+                  "endLine": 20,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 42,
+                  "endLine": 20,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tseries/TSeries.cs",
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 14,
+                  "endLine": 28,
+                  "endColumn": 17
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tseries/TSeries.cs",
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 14,
+                  "endLine": 28,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0028",
+          "level": "note",
+          "message": "Collection initialization can be simplified",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tseries/TSeries.cs",
+                "region": {
+                  "startLine": 29,
+                  "startColumn": 14,
+                  "endLine": 29,
+                  "endColumn": 17
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tseries/TSeries.cs",
+                "region": {
+                  "startLine": 29,
+                  "startColumn": 14,
+                  "endLine": 29,
+                  "endColumn": 32
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "UseCollectionExpressionName": "UseCollectionExpressionName"
+            }
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tvalue/TValue.cs",
+                "region": {
+                  "startLine": 51,
+                  "startColumn": 69,
+                  "endLine": 51,
+                  "endColumn": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 73,
+                  "startColumn": 14,
+                  "endLine": 73,
+                  "endColumn": 16
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 74,
+                  "startColumn": 14,
+                  "endLine": 74,
+                  "endColumn": 16
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 75,
+                  "startColumn": 13,
+                  "endLine": 75,
+                  "endColumn": 15
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 76,
+                  "startColumn": 15,
+                  "endLine": 76,
+                  "endColumn": 17
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1244",
+          "level": "warning",
+          "message": "Do not check floating point equality with exact values, use a range instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs",
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 16,
+                  "endLine": 77,
+                  "endColumn": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2245",
+          "level": "warning",
+          "message": "Make sure that using this pseudorandom number generator is safe here.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/feeds/gbm/GBM.cs",
+                "region": {
+                  "startLine": 53,
+                  "startColumn": 32,
+                  "endLine": 53,
+                  "endColumn": 54
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2245",
+          "level": "warning",
+          "message": "Make sure that using this pseudorandom number generator is safe here.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///Users/mihakralj/Github/QuanTAlib/lib/feeds/gbm/GBM.cs",
+                "region": {
+                  "startLine": 53,
+                  "startColumn": 57,
+                  "endLine": 53,
+                  "endColumn": 69
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        }
+      ],
+      "rules": {
+        "IDE0028": {
+          "id": "IDE0028",
+          "shortDescription": "Simplify collection initialization",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0028",
+          "properties": {
+            "category": "Style",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnforceOnBuild_Recommended"
+            ]
+          }
+        },
+        "S101": {
+          "id": "S101",
+          "shortDescription": "Types should be named in PascalCase",
+          "fullDescription": "Shared naming conventions allow teams to collaborate efficiently.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-101",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S1244": {
+          "id": "S1244",
+          "shortDescription": "Floating point numbers should not be tested for equality",
+          "fullDescription": "Floating point numbers in C# (and in most other programming languages) are not precise. They are a binary approximation of the actual value. This means that even if two floating point numbers appear to be equal, they might not be due to the tiny differences in their binary representation.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-1244",
+          "properties": {
+            "category": "Major Bug",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S1450": {
+          "id": "S1450",
+          "shortDescription": "Private fields only used as local variables in methods should become local variables",
+          "fullDescription": "When the value of a private field is always assigned to in a class' methods before being read, then it is not being used to store class information. Therefore, it should become a local variable in the relevant methods to prevent any misunderstanding.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-1450",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S2245": {
+          "id": "S2245",
+          "shortDescription": "Using pseudorandom number generators (PRNGs) is security-sensitive",
+          "fullDescription": "PRNGs are algorithms that produce sequences of numbers that only approximate true randomness. While they are suitable for applications like simulations or modeling, they are not appropriate for security-sensitive contexts because their outputs can be predictable if the internal state is known.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-2245",
+          "properties": {
+            "category": "Critical Security Hotspot",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

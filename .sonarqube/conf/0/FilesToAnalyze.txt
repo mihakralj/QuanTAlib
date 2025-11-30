@@ -1,0 +1,10 @@
+﻿/Users/mihakralj/Github/QuanTAlib/quantower/IndicatorExtensions.cs
+/Users/mihakralj/Github/QuanTAlib/lib/core/simd/SimdExtensions.cs
+/Users/mihakralj/Github/QuanTAlib/lib/core/tbar/TBar.cs
+/Users/mihakralj/Github/QuanTAlib/lib/core/tbarseries/TBarSeries.cs
+/Users/mihakralj/Github/QuanTAlib/lib/core/tseries/TSeries.cs
+/Users/mihakralj/Github/QuanTAlib/lib/core/tvalue/TValue.cs
+/Users/mihakralj/Github/QuanTAlib/lib/averages/ema/Ema.cs
+/Users/mihakralj/Github/QuanTAlib/lib/averages/ema/Ema.Quantower.cs
+/Users/mihakralj/Github/QuanTAlib/lib/averages/ema/EmaVector.cs
+/Users/mihakralj/Github/QuanTAlib/.github/TradingPlatform.BusinessLayer.xml

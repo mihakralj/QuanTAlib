@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,11 +9,14 @@ namespace QuanTAlib;
 /// Calculates multiple EMAs with different periods/alphas for the same input series in parallel.
 /// Uses last-value substitution for invalid inputs (NaN/Infinity).
 /// </summary>
+[SkipLocalsInit]
 public class EmaVector
 {
     private readonly double[] _alphas;
     private readonly double[] _emas;
     private readonly double[] _Es;
+    private readonly double[] _p_emas;
+    private readonly double[] _p_Es;
     private readonly int _count;
     private double _lastValidValue;
 
@@ -34,11 +35,13 @@ public class EmaVector
         _alphas = new double[_count];
         _emas = new double[_count];
         _Es = new double[_count];
+        _p_emas = new double[_count];
+        _p_Es = new double[_count];
         Values = new TValue[_count];
 
         for (int i = 0; i < _count; i++)
         {
-            if (periods[i] <= 0) throw new ArgumentException("Period must be greater than 0", nameof(periods));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(periods[i], 0);
             _alphas[i] = 2.0 / (periods[i] + 1);
             ResetAt(i);
         }
@@ -54,11 +57,14 @@ public class EmaVector
         _alphas = new double[_count];
         _emas = new double[_count];
         _Es = new double[_count];
+        _p_emas = new double[_count];
+        _p_Es = new double[_count];
         Values = new TValue[_count];
 
         for (int i = 0; i < _count; i++)
         {
-            if (alphas[i] <= 0 || alphas[i] > 1) throw new ArgumentException("Alpha must be between 0 and 1", nameof(alphas));
+            if (alphas[i] <= 0 || alphas[i] > 1)
+                throw new ArgumentOutOfRangeException(nameof(alphas), alphas[i], "Alpha must be between 0 (exclusive) and 1 (inclusive)");
             _alphas[i] = alphas[i];
             ResetAt(i);
         }
@@ -103,10 +109,22 @@ public class EmaVector
     /// the last known good value, providing continuity in the output series.
     /// </summary>
     /// <param name="input">Input value</param>
+    /// <param name="isNew">True for new bar, false for update to current bar (default: true)</param>
     /// <returns>Array of compensated EMA values</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue[] Update(TValue input)
+    public TValue[] Update(TValue input, bool isNew = true)
     {
+        if (isNew)
+        {
+            Array.Copy(_emas, _p_emas, _count);
+            Array.Copy(_Es, _p_Es, _count);
+        }
+        else
+        {
+            Array.Copy(_p_emas, _emas, _count);
+            Array.Copy(_p_Es, _Es, _count);
+        }
+
         // Last-value substitution: replace non-finite inputs with last valid value
         double val = GetValidValue(input.Value);
 
