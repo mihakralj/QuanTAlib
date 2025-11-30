@@ -86,7 +86,7 @@ public class EmaValidationTests : IDisposable
             var qResult = ema.Update(_data);
 
             // Calculate TA-Lib EMA
-            var retCode = TALib.Functions.Ema(tData, 0..^0, output, out var outRange, period);
+            var retCode = TALib.Functions.Ema<double>(tData, 0..^0, output, out var outRange, period);
             
             // Check success
             Assert.Equal(Core.RetCode.Success, retCode);

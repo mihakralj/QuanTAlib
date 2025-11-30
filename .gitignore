@@ -405,3 +405,7 @@ memory-bank/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+
+#Ignore insiders AI rules
+.github/instructions/codacy.instructions.md

@@ -6,6 +6,79 @@ namespace QuanTAlib.Tests;
 
 public class SimdExtensionsTests
 {
+    // ContainsNonFinite tests
+    [Fact]
+    public void ContainsNonFinite_EmptySpan_ReturnsFalse()
+    {
+        var span = ReadOnlySpan<double>.Empty;
+        Assert.False(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_AllFinite_ReturnsFalse()
+    {
+        double[] data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.False(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_ContainsNaN_ReturnsTrue()
+    {
+        double[] data = [1.0, 2.0, double.NaN, 4.0, 5.0, 6.0, 7.0, 8.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_ContainsPositiveInfinity_ReturnsTrue()
+    {
+        double[] data = [1.0, 2.0, 3.0, double.PositiveInfinity, 5.0, 6.0, 7.0, 8.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_ContainsNegativeInfinity_ReturnsTrue()
+    {
+        double[] data = [1.0, 2.0, 3.0, 4.0, double.NegativeInfinity, 6.0, 7.0, 8.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_NonFiniteInRemainder_ReturnsTrue()
+    {
+        double[] data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, double.NaN];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_SingleNaN_ReturnsTrue()
+    {
+        double[] data = [double.NaN];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_TwoElements_AllFinite_ReturnsFalse()
+    {
+        double[] data = [1.0, 2.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.False(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_TwoElements_OneNaN_ReturnsTrue()
+    {
+        double[] data = [1.0, double.NaN];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    // SumSIMD tests
     [Fact]
     public void SumSIMD_EmptySpan_ReturnsZero()
     {
@@ -19,6 +92,14 @@ public class SimdExtensionsTests
         double[] data = [42.5];
         var span = new ReadOnlySpan<double>(data);
         Assert.Equal(42.5, span.SumSIMD());
+    }
+
+    [Fact]
+    public void SumSIMD_TwoElements_ReturnsSum()
+    {
+        double[] data = [1.5, 2.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(4.0, span.SumSIMD());
     }
 
     [Fact]
@@ -37,10 +118,35 @@ public class SimdExtensionsTests
             data[i] = i + 1.0;
         
         var span = new ReadOnlySpan<double>(data);
-        double expected = 1000.0 * 1001.0 / 2.0; // Sum of 1..1000
+        double expected = 1000.0 * 1001.0 / 2.0;
         Assert.Equal(expected, span.SumSIMD(), precision: 8);
     }
 
+    [Fact]
+    public void SumSIMD_ContainsNaN_ReturnsNaN()
+    {
+        double[] data = [1.0, 2.0, double.NaN, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.SumSIMD()));
+    }
+
+    [Fact]
+    public void SumSIMD_ContainsInfinity_ReturnsNaN()
+    {
+        double[] data = [1.0, 2.0, double.PositiveInfinity, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.SumSIMD()));
+    }
+
+    [Fact]
+    public void SumSIMD_NegativeValues_ReturnsCorrectSum()
+    {
+        double[] data = [-1.0, -2.0, -3.0, -4.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(-10.0, span.SumSIMD());
+    }
+
+    // MinSIMD tests
     [Fact]
     public void MinSIMD_EmptySpan_ReturnsNaN()
     {
@@ -57,6 +163,14 @@ public class SimdExtensionsTests
     }
 
     [Fact]
+    public void MinSIMD_TwoElements_ReturnsMinimum()
+    {
+        double[] data = [5.0, 2.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(2.0, span.MinSIMD());
+    }
+
+    [Fact]
     public void MinSIMD_MultipleElements_ReturnsMinimum()
     {
         double[] data = [5.0, 2.0, 8.0, 1.0, 9.0, 3.0, 7.0, 4.0];
@@ -64,6 +178,31 @@ public class SimdExtensionsTests
         Assert.Equal(1.0, span.MinSIMD());
     }
 
+    [Fact]
+    public void MinSIMD_ContainsNaN_ReturnsNaN()
+    {
+        double[] data = [5.0, 2.0, double.NaN, 1.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.MinSIMD()));
+    }
+
+    [Fact]
+    public void MinSIMD_MinInRemainder_ReturnsCorrectMin()
+    {
+        double[] data = [5.0, 2.0, 8.0, 6.0, 9.0, 3.0, 7.0, 4.0, 0.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(0.5, span.MinSIMD());
+    }
+
+    [Fact]
+    public void MinSIMD_NegativeValues_ReturnsMinimum()
+    {
+        double[] data = [-5.0, -2.0, -8.0, -1.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(-8.0, span.MinSIMD());
+    }
+
+    // MaxSIMD tests
     [Fact]
     public void MaxSIMD_EmptySpan_ReturnsNaN()
     {
@@ -80,6 +219,14 @@ public class SimdExtensionsTests
     }
 
     [Fact]
+    public void MaxSIMD_TwoElements_ReturnsMaximum()
+    {
+        double[] data = [5.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(9.0, span.MaxSIMD());
+    }
+
+    [Fact]
     public void MaxSIMD_MultipleElements_ReturnsMaximum()
     {
         double[] data = [5.0, 2.0, 8.0, 1.0, 9.0, 3.0, 7.0, 4.0];
@@ -88,10 +235,43 @@ public class SimdExtensionsTests
     }
 
     [Fact]
+    public void MaxSIMD_ContainsNaN_ReturnsNaN()
+    {
+        double[] data = [5.0, 2.0, double.NaN, 1.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.MaxSIMD()));
+    }
+
+    [Fact]
+    public void MaxSIMD_MaxInRemainder_ReturnsCorrectMax()
+    {
+        double[] data = [5.0, 2.0, 8.0, 6.0, 4.0, 3.0, 7.0, 1.0, 99.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(99.0, span.MaxSIMD());
+    }
+
+    [Fact]
+    public void MaxSIMD_NegativeValues_ReturnsMaximum()
+    {
+        double[] data = [-5.0, -2.0, -8.0, -1.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(-1.0, span.MaxSIMD());
+    }
+
+    // AverageSIMD tests
+    [Fact]
     public void AverageSIMD_EmptySpan_ReturnsNaN()
     {
         var span = ReadOnlySpan<double>.Empty;
         Assert.True(double.IsNaN(span.AverageSIMD()));
+    }
+
+    [Fact]
+    public void AverageSIMD_TwoElements_ReturnsAverage()
+    {
+        double[] data = [2.0, 4.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(3.0, span.AverageSIMD());
     }
 
     [Fact]
@@ -103,6 +283,15 @@ public class SimdExtensionsTests
     }
 
     [Fact]
+    public void AverageSIMD_ContainsNaN_ReturnsNaN()
+    {
+        double[] data = [1.0, double.NaN, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.AverageSIMD()));
+    }
+
+    // VarianceSIMD tests
+    [Fact]
     public void VarianceSIMD_LessThanTwoElements_ReturnsNaN()
     {
         double[] data = [42.5];
@@ -111,14 +300,81 @@ public class SimdExtensionsTests
     }
 
     [Fact]
+    public void VarianceSIMD_EmptySpan_ReturnsNaN()
+    {
+        var span = ReadOnlySpan<double>.Empty;
+        Assert.True(double.IsNaN(span.VarianceSIMD()));
+    }
+
+    [Fact]
+    public void VarianceSIMD_TwoElements_ReturnsCorrect()
+    {
+        double[] data = [1.0, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(2.0, span.VarianceSIMD(), precision: 10);
+    }
+
+    [Fact]
+    public void VarianceSIMD_ThreeElements_ReturnsCorrect()
+    {
+        double[] data = [1.0, 2.0, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(1.0, span.VarianceSIMD(), precision: 10);
+    }
+
+    [Fact]
     public void VarianceSIMD_MultipleElements_ReturnsCorrectVariance()
     {
         double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         var span = new ReadOnlySpan<double>(data);
         
-        // Expected variance: 4.571428... (sample variance)
         double variance = span.VarianceSIMD();
         Assert.True(Math.Abs(variance - 4.571428) < 0.0001);
+    }
+
+    [Fact]
+    public void VarianceSIMD_WithProvidedMean_UsesProvidedMean()
+    {
+        double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        
+        double mean = 5.0;
+        double variance = span.VarianceSIMD(mean);
+        
+        Assert.True(variance > 0);
+    }
+
+    [Fact]
+    public void VarianceSIMD_ContainsNaN_ReturnsNaN()
+    {
+        double[] data = [2.0, double.NaN, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.VarianceSIMD()));
+    }
+
+    [Fact]
+    public void VarianceSIMD_WithNaNMean_ReturnsNaN()
+    {
+        double[] data = [2.0, 4.0, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.VarianceSIMD(double.NaN)));
+    }
+
+    [Fact]
+    public void VarianceSIMD_WithInfinityMean_ReturnsNaN()
+    {
+        double[] data = [2.0, 4.0, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.VarianceSIMD(double.PositiveInfinity)));
+    }
+
+    // StdDevSIMD tests
+    [Fact]
+    public void StdDevSIMD_TwoElements_ReturnsCorrect()
+    {
+        double[] data = [1.0, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(Math.Abs(span.StdDevSIMD() - 1.414) < 0.01);
     }
 
     [Fact]
@@ -127,11 +383,29 @@ public class SimdExtensionsTests
         double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         var span = new ReadOnlySpan<double>(data);
         
-        // Expected std dev: sqrt(4.571428) ≈ 2.138
         double stdDev = span.StdDevSIMD();
         Assert.True(Math.Abs(stdDev - 2.138) < 0.01);
     }
 
+    [Fact]
+    public void StdDevSIMD_WithProvidedMean_Works()
+    {
+        double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        
+        double stdDev = span.StdDevSIMD(5.0);
+        Assert.True(stdDev > 0);
+    }
+
+    [Fact]
+    public void StdDevSIMD_ContainsNaN_ReturnsNaN()
+    {
+        double[] data = [2.0, double.NaN, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.StdDevSIMD()));
+    }
+
+    // MinMaxSIMD tests
     [Fact]
     public void MinMaxSIMD_EmptySpan_ReturnsBothNaN()
     {
@@ -152,6 +426,16 @@ public class SimdExtensionsTests
     }
 
     [Fact]
+    public void MinMaxSIMD_TwoElements_ReturnsCorrect()
+    {
+        double[] data = [5.0, 2.0];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = span.MinMaxSIMD();
+        Assert.Equal(2.0, min);
+        Assert.Equal(5.0, max);
+    }
+
+    [Fact]
     public void MinMaxSIMD_MultipleElements_ReturnsCorrectMinMax()
     {
         double[] data = [5.0, 2.0, 8.0, 1.0, 9.0, 3.0, 7.0, 4.0];
@@ -161,6 +445,37 @@ public class SimdExtensionsTests
         Assert.Equal(9.0, max);
     }
 
+    [Fact]
+    public void MinMaxSIMD_ContainsNaN_ReturnsBothNaN()
+    {
+        double[] data = [5.0, 2.0, double.NaN, 1.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = span.MinMaxSIMD();
+        Assert.True(double.IsNaN(min));
+        Assert.True(double.IsNaN(max));
+    }
+
+    [Fact]
+    public void MinMaxSIMD_MinMaxInRemainder_ReturnsCorrect()
+    {
+        double[] data = [5.0, 2.0, 8.0, 6.0, 4.0, 3.0, 7.0, 5.0, 0.1, 99.0];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = span.MinMaxSIMD();
+        Assert.Equal(0.1, min);
+        Assert.Equal(99.0, max);
+    }
+
+    [Fact]
+    public void MinMaxSIMD_NegativeValues_ReturnsCorrect()
+    {
+        double[] data = [-5.0, -2.0, -8.0, -1.0];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = span.MinMaxSIMD();
+        Assert.Equal(-8.0, min);
+        Assert.Equal(-1.0, max);
+    }
+
+    // Integration tests
     [Fact]
     public void SIMD_WorksWithTSeriesValues()
     {
@@ -179,7 +494,7 @@ public class SimdExtensionsTests
         double max = values.MaxSIMD();
         var (minAlt, maxAlt) = values.MinMaxSIMD();
 
-        Assert.Equal(5050.0, sum, precision: 8); // Sum of 1..100
+        Assert.Equal(5050.0, sum, precision: 8);
         Assert.Equal(50.5, avg, precision: 8);
         Assert.Equal(1.0, min);
         Assert.Equal(100.0, max);
@@ -211,17 +526,14 @@ public class SimdExtensionsTests
     [Fact]
     public void SIMD_PerformanceTest_LargeDataset()
     {
-        // Generate large dataset
         var gbm = new GBM(startPrice: 100.0);
         long startTime = DateTime.UtcNow.Ticks;
         var interval = TimeSpan.FromMinutes(1);
         var bars = gbm.Fetch(10000, startTime, interval);
         var closeValues = bars.Close.Values;
 
-        // Warm up
         _ = closeValues.SumSIMD();
 
-        // Test SIMD operations
         var sw = System.Diagnostics.Stopwatch.StartNew();
         
         double sum = closeValues.SumSIMD();
@@ -234,7 +546,6 @@ public class SimdExtensionsTests
         
         sw.Stop();
 
-        // Verify results are valid
         Assert.True(sum > 0);
         Assert.True(avg > 0);
         Assert.True(min > 0);
@@ -242,8 +553,178 @@ public class SimdExtensionsTests
         Assert.True(variance > 0);
         Assert.True(stdDev > 0);
         
-        // Performance should be sub-millisecond for 10k elements
         Assert.True(sw.ElapsedMilliseconds < 10, 
             $"SIMD operations took {sw.ElapsedMilliseconds}ms, expected < 10ms");
+    }
+
+    [Fact]
+    public void SIMD_ScalarFallback_SmallArray()
+    {
+        double[] data = [1.0, 2.0, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        
+        Assert.Equal(6.0, span.SumSIMD());
+        Assert.Equal(1.0, span.MinSIMD());
+        Assert.Equal(3.0, span.MaxSIMD());
+        Assert.Equal(2.0, span.AverageSIMD());
+        
+        var (min, max) = span.MinMaxSIMD();
+        Assert.Equal(1.0, min);
+        Assert.Equal(3.0, max);
+    }
+}
+
+// Tests for internal scalar implementations
+public class SimdScalarFallbackTests
+{
+    [Fact]
+    public void ContainsNonFiniteScalar_AllFinite_ReturnsFalse()
+    {
+        double[] data = [1.0, 2.0, 3.0, 4.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.False(SimdExtensions.ContainsNonFiniteScalar(span));
+    }
+
+    [Fact]
+    public void ContainsNonFiniteScalar_ContainsNaN_ReturnsTrue()
+    {
+        double[] data = [1.0, double.NaN, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(SimdExtensions.ContainsNonFiniteScalar(span));
+    }
+
+    [Fact]
+    public void ContainsNonFiniteScalar_ContainsInfinity_ReturnsTrue()
+    {
+        double[] data = [1.0, double.PositiveInfinity, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(SimdExtensions.ContainsNonFiniteScalar(span));
+    }
+
+    [Fact]
+    public void ContainsNonFiniteScalar_Empty_ReturnsFalse()
+    {
+        var span = ReadOnlySpan<double>.Empty;
+        Assert.False(SimdExtensions.ContainsNonFiniteScalar(span));
+    }
+
+    [Fact]
+    public void SumScalar_MultipleElements_ReturnsCorrectSum()
+    {
+        double[] data = [1.0, 2.0, 3.0, 4.0, 5.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(15.0, SimdExtensions.SumScalar(span));
+    }
+
+    [Fact]
+    public void SumScalar_NegativeValues_ReturnsCorrectSum()
+    {
+        double[] data = [-1.0, -2.0, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(0.0, SimdExtensions.SumScalar(span));
+    }
+
+    [Fact]
+    public void SumScalar_Empty_ReturnsZero()
+    {
+        var span = ReadOnlySpan<double>.Empty;
+        Assert.Equal(0.0, SimdExtensions.SumScalar(span));
+    }
+
+    [Fact]
+    public void MinScalar_MultipleElements_ReturnsMinimum()
+    {
+        double[] data = [5.0, 2.0, 8.0, 1.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(1.0, SimdExtensions.MinScalar(span));
+    }
+
+    [Fact]
+    public void MinScalar_NegativeValues_ReturnsMinimum()
+    {
+        double[] data = [-5.0, -2.0, -8.0, -1.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(-8.0, SimdExtensions.MinScalar(span));
+    }
+
+    [Fact]
+    public void MinScalar_SingleElement_ReturnsElement()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(42.5, SimdExtensions.MinScalar(span));
+    }
+
+    [Fact]
+    public void MaxScalar_MultipleElements_ReturnsMaximum()
+    {
+        double[] data = [5.0, 2.0, 8.0, 1.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(9.0, SimdExtensions.MaxScalar(span));
+    }
+
+    [Fact]
+    public void MaxScalar_NegativeValues_ReturnsMaximum()
+    {
+        double[] data = [-5.0, -2.0, -8.0, -1.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(-1.0, SimdExtensions.MaxScalar(span));
+    }
+
+    [Fact]
+    public void MaxScalar_SingleElement_ReturnsElement()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(42.5, SimdExtensions.MaxScalar(span));
+    }
+
+    [Fact]
+    public void VarianceScalar_MultipleElements_ReturnsCorrectVariance()
+    {
+        double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+        var span = new ReadOnlySpan<double>(data);
+        double mean = 5.0;
+        double variance = SimdExtensions.VarianceScalar(span, mean);
+        Assert.True(Math.Abs(variance - 4.571428) < 0.0001);
+    }
+
+    [Fact]
+    public void VarianceScalar_TwoElements_ReturnsCorrectVariance()
+    {
+        double[] data = [1.0, 3.0];
+        var span = new ReadOnlySpan<double>(data);
+        double mean = 2.0;
+        Assert.Equal(2.0, SimdExtensions.VarianceScalar(span, mean), precision: 10);
+    }
+
+    [Fact]
+    public void MinMaxScalar_MultipleElements_ReturnsCorrectMinMax()
+    {
+        double[] data = [5.0, 2.0, 8.0, 1.0, 9.0, 3.0, 7.0, 4.0];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = SimdExtensions.MinMaxScalar(span);
+        Assert.Equal(1.0, min);
+        Assert.Equal(9.0, max);
+    }
+
+    [Fact]
+    public void MinMaxScalar_NegativeValues_ReturnsCorrectMinMax()
+    {
+        double[] data = [-5.0, -2.0, -8.0, -1.0];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = SimdExtensions.MinMaxScalar(span);
+        Assert.Equal(-8.0, min);
+        Assert.Equal(-1.0, max);
+    }
+
+    [Fact]
+    public void MinMaxScalar_SingleElement_ReturnsSameValue()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        var (min, max) = SimdExtensions.MinMaxScalar(span);
+        Assert.Equal(42.5, min);
+        Assert.Equal(42.5, max);
     }
 }

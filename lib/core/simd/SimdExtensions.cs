@@ -9,6 +9,76 @@ namespace QuanTAlib;
 /// </summary>
 public static class SimdExtensions
 {
+    // Internal scalar implementations for testability
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool ContainsNonFiniteScalar(ReadOnlySpan<double> span)
+    {
+        for (int i = 0; i < span.Length; i++)
+        {
+            if (!double.IsFinite(span[i]))
+                return true;
+        }
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static double SumScalar(ReadOnlySpan<double> span)
+    {
+        double scalar = 0.0;
+        for (int i = 0; i < span.Length; i++)
+            scalar += span[i];
+        return scalar;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static double MinScalar(ReadOnlySpan<double> span)
+    {
+        double min = span[0];
+        for (int i = 1; i < span.Length; i++)
+        {
+            if (span[i] < min)
+                min = span[i];
+        }
+        return min;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static double MaxScalar(ReadOnlySpan<double> span)
+    {
+        double max = span[0];
+        for (int i = 1; i < span.Length; i++)
+        {
+            if (span[i] > max)
+                max = span[i];
+        }
+        return max;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static double VarianceScalar(ReadOnlySpan<double> span, double mean)
+    {
+        double sumSquares = 0.0;
+        for (int i = 0; i < span.Length; i++)
+        {
+            double diff = span[i] - mean;
+            sumSquares += diff * diff;
+        }
+        return sumSquares / (span.Length - 1);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static (double Min, double Max) MinMaxScalar(ReadOnlySpan<double> span)
+    {
+        double scalarMin = span[0];
+        double scalarMax = span[0];
+        for (int i = 1; i < span.Length; i++)
+        {
+            if (span[i] < scalarMin) scalarMin = span[i];
+            if (span[i] > scalarMax) scalarMax = span[i];
+        }
+        return (scalarMin, scalarMax);
+    }
+
     /// <summary>
     /// Checks if span contains any non-finite values (NaN or Infinity).
     /// Returns true if any non-finite value is found.
@@ -26,8 +96,6 @@ public static class SimdExtensions
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
-                // Check for NaN: NaN != NaN is true
-                // Check for Infinity: IsInfinity
                 for (int j = 0; j < vectorSize; j++)
                 {
                     if (!double.IsFinite(vector[j]))
@@ -45,13 +113,7 @@ public static class SimdExtensions
             return false;
         }
 
-        // Scalar fallback
-        for (int i = 0; i < span.Length; i++)
-        {
-            if (!double.IsFinite(span[i]))
-                return true;
-        }
-        return false;
+        return ContainsNonFiniteScalar(span);
     }
 
     /// <summary>
@@ -92,11 +154,7 @@ public static class SimdExtensions
             return result;
         }
 
-        // Scalar fallback
-        double scalar = 0.0;
-        for (int i = 0; i < span.Length; i++)
-            scalar += span[i];
-        return scalar;
+        return SumScalar(span);
     }
 
     /// <summary>
@@ -144,14 +202,7 @@ public static class SimdExtensions
             return result;
         }
 
-        // Scalar fallback
-        double min = span[0];
-        for (int i = 1; i < span.Length; i++)
-        {
-            if (span[i] < min)
-                min = span[i];
-        }
-        return min;
+        return MinScalar(span);
     }
 
     /// <summary>
@@ -199,14 +250,7 @@ public static class SimdExtensions
             return result;
         }
 
-        // Scalar fallback
-        double max = span[0];
-        for (int i = 1; i < span.Length; i++)
-        {
-            if (span[i] > max)
-                max = span[i];
-        }
-        return max;
+        return MaxScalar(span);
     }
 
     /// <summary>
@@ -270,14 +314,7 @@ public static class SimdExtensions
             return result / (span.Length - 1);
         }
 
-        // Scalar fallback
-        double sumSquares = 0.0;
-        for (int i = 0; i < span.Length; i++)
-        {
-            double diff = span[i] - m;
-            sumSquares += diff * diff;
-        }
-        return sumSquares / (span.Length - 1);
+        return VarianceScalar(span, m);
     }
 
     /// <summary>
@@ -339,14 +376,6 @@ public static class SimdExtensions
             return (min, max);
         }
 
-        // Scalar fallback
-        double scalarMin = span[0];
-        double scalarMax = span[0];
-        for (int i = 1; i < span.Length; i++)
-        {
-            if (span[i] < scalarMin) scalarMin = span[i];
-            if (span[i] > scalarMax) scalarMax = span[i];
-        }
-        return (scalarMin, scalarMax);
+        return MinMaxScalar(span);
     }
 }

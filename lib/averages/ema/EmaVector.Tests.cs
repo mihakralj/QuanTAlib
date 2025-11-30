@@ -13,16 +13,75 @@ public class EmaVectorTests
         int[] periods = { 10, 20 };
         var emaVector = new EmaVector(periods);
         
-        // We can't check private fields directly, but we can check results after 1 step
-        // Alpha = 2 / (P + 1)
-        // P=10 -> A=2/11
-        // P=20 -> A=2/21
+        var res = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        
+        Assert.Equal(100.0, res[0].Value, 1e-9);
+        Assert.Equal(100.0, res[1].Value, 1e-9);
+    }
+
+    [Fact]
+    public void Initialization_WithAlphas_Works()
+    {
+        double[] alphas = { 0.1, 0.2, 0.5 };
+        var emaVector = new EmaVector(alphas);
         
         var res = emaVector.Update(new TValue(DateTime.Now, 100.0));
         
-        // First value should be 100.0 due to compensation
+        Assert.Equal(3, res.Length);
         Assert.Equal(100.0, res[0].Value, 1e-9);
         Assert.Equal(100.0, res[1].Value, 1e-9);
+        Assert.Equal(100.0, res[2].Value, 1e-9);
+    }
+
+    [Fact]
+    public void Initialization_WithZeroPeriod_ThrowsArgumentException()
+    {
+        int[] periods = { 10, 0, 20 };
+        
+        Assert.Throws<ArgumentException>(() => new EmaVector(periods));
+    }
+
+    [Fact]
+    public void Initialization_WithNegativePeriod_ThrowsArgumentException()
+    {
+        int[] periods = { 10, -5, 20 };
+        
+        Assert.Throws<ArgumentException>(() => new EmaVector(periods));
+    }
+
+    [Fact]
+    public void Initialization_WithZeroAlpha_ThrowsArgumentException()
+    {
+        double[] alphas = { 0.1, 0.0, 0.5 };
+        
+        Assert.Throws<ArgumentException>(() => new EmaVector(alphas));
+    }
+
+    [Fact]
+    public void Initialization_WithNegativeAlpha_ThrowsArgumentException()
+    {
+        double[] alphas = { 0.1, -0.1, 0.5 };
+        
+        Assert.Throws<ArgumentException>(() => new EmaVector(alphas));
+    }
+
+    [Fact]
+    public void Initialization_WithAlphaGreaterThanOne_ThrowsArgumentException()
+    {
+        double[] alphas = { 0.1, 1.5, 0.5 };
+        
+        Assert.Throws<ArgumentException>(() => new EmaVector(alphas));
+    }
+
+    [Fact]
+    public void Initialization_WithAlphaEqualToOne_Works()
+    {
+        double[] alphas = { 0.1, 1.0, 0.5 };
+        var emaVector = new EmaVector(alphas);
+        
+        var res = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        
+        Assert.Equal(3, res.Length);
     }
 
     [Fact]
@@ -105,10 +164,8 @@ public class EmaVectorTests
         
         var series = new TSeries(t, v);
         
-        // Batch calculation
         var batchRes = emaVectorBatch.Calculate(series);
         
-        // Streaming calculation
         for (int i = 0; i < len; i++)
         {
             var tVal = new TValue(new DateTime(t[i]), v[i]);
@@ -117,6 +174,39 @@ public class EmaVectorTests
             for (int j = 0; j < periods.Length; j++)
             {
                 Assert.Equal(batchRes[j].Values[i], streamRes[j].Value, 1e-9);
+            }
+        }
+    }
+
+    [Fact]
+    public void Calculate_Static_MatchesInstanceMethod()
+    {
+        int[] periods = { 5, 10, 20 };
+        
+        int len = 50;
+        var t = new System.Collections.Generic.List<long>(len);
+        var v = new System.Collections.Generic.List<double>(len);
+        var now = DateTime.Now;
+        
+        for (int i = 0; i < len; i++)
+        {
+            t.Add(now.AddMinutes(i).Ticks);
+            v.Add(Math.Sin(i * 0.1) * 100);
+        }
+        
+        var series = new TSeries(t, v);
+        
+        var instanceEma = new EmaVector(periods);
+        var instanceRes = instanceEma.Calculate(series);
+        
+        var staticRes = EmaVector.Calculate(series, periods);
+        
+        for (int i = 0; i < periods.Length; i++)
+        {
+            Assert.Equal(instanceRes[i].Count, staticRes[i].Count);
+            for (int j = 0; j < len; j++)
+            {
+                Assert.Equal(instanceRes[i].Values[j], staticRes[i].Values[j], 1e-9);
             }
         }
     }
@@ -130,7 +220,6 @@ public class EmaVectorTests
         emaVector.Update(new TValue(DateTime.Now, 100.0));
         emaVector.Reset();
         
-        // After reset, next calculation should treat it as first value (warmup)
         var res = emaVector.Update(new TValue(DateTime.Now, 200.0));
         
         Assert.Equal(200.0, res[0].Value, 1e-9);
@@ -142,14 +231,11 @@ public class EmaVectorTests
         int[] periods = { 10, 20 };
         var emaVector = new EmaVector(periods);
         
-        // Feed some valid values
         emaVector.Update(new TValue(DateTime.Now, 100.0));
         emaVector.Update(new TValue(DateTime.Now, 110.0));
         
-        // Feed NaN - should use last valid value (110)
         var resultAfterNaN = emaVector.Update(new TValue(DateTime.Now, double.NaN));
         
-        // All results should be finite (not NaN)
         foreach (var result in resultAfterNaN)
         {
             Assert.True(double.IsFinite(result.Value), $"Expected finite value but got {result.Value}");
@@ -162,18 +248,15 @@ public class EmaVectorTests
         int[] periods = { 10, 20 };
         var emaVector = new EmaVector(periods);
         
-        // Feed some valid values
         emaVector.Update(new TValue(DateTime.Now, 100.0));
         emaVector.Update(new TValue(DateTime.Now, 110.0));
         
-        // Feed positive infinity - should use last valid value
         var resultAfterPosInf = emaVector.Update(new TValue(DateTime.Now, double.PositiveInfinity));
         foreach (var result in resultAfterPosInf)
         {
             Assert.True(double.IsFinite(result.Value));
         }
         
-        // Feed negative infinity - should use last valid value
         var resultAfterNegInf = emaVector.Update(new TValue(DateTime.Now, double.NegativeInfinity));
         foreach (var result in resultAfterNegInf)
         {
@@ -187,17 +270,14 @@ public class EmaVectorTests
         int[] periods = { 5, 10 };
         var emaVector = new EmaVector(periods);
         
-        // Feed valid values
         emaVector.Update(new TValue(DateTime.Now, 100.0));
         emaVector.Update(new TValue(DateTime.Now, 110.0));
         emaVector.Update(new TValue(DateTime.Now, 120.0));
         
-        // Feed multiple NaN values
         var r1 = emaVector.Update(new TValue(DateTime.Now, double.NaN));
         var r2 = emaVector.Update(new TValue(DateTime.Now, double.NaN));
         var r3 = emaVector.Update(new TValue(DateTime.Now, double.NaN));
         
-        // All results should be finite
         foreach (var result in r1) Assert.True(double.IsFinite(result.Value));
         foreach (var result in r2) Assert.True(double.IsFinite(result.Value));
         foreach (var result in r3) Assert.True(double.IsFinite(result.Value));
@@ -209,7 +289,6 @@ public class EmaVectorTests
         int[] periods = { 5, 10 };
         var emaVector = new EmaVector(periods);
         
-        // Create series with NaN values interspersed
         var t = new System.Collections.Generic.List<long>();
         var v = new System.Collections.Generic.List<double>();
         var now = DateTime.Now;
@@ -224,7 +303,6 @@ public class EmaVectorTests
         var series = new TSeries(t, v);
         var results = emaVector.Calculate(series);
         
-        // All results should be finite for all periods
         foreach (var periodResults in results)
         {
             foreach (var val in periodResults.Values)
@@ -240,14 +318,11 @@ public class EmaVectorTests
         int[] periods = { 10 };
         var emaVector = new EmaVector(periods);
         
-        // Feed values including NaN
         emaVector.Update(new TValue(DateTime.Now, 100.0));
         emaVector.Update(new TValue(DateTime.Now, double.NaN));
         
-        // Reset
         emaVector.Reset();
         
-        // After reset, first valid value should establish new baseline
         var result = emaVector.Update(new TValue(DateTime.Now, 50.0));
         Assert.Equal(50.0, result[0].Value, 1e-9);
     }
@@ -259,7 +334,6 @@ public class EmaVectorTests
         var emaVector = new EmaVector(periods);
         var emaSingles = periods.Select(p => new Ema(p)).ToArray();
         
-        // Data with NaN values
         var values = new double[] { 10, 20, double.NaN, 40, double.PositiveInfinity, 60, 70 };
         var time = DateTime.Now;
 
@@ -276,5 +350,33 @@ public class EmaVectorTests
             
             time = time.AddMinutes(1);
         }
+    }
+
+    [Fact]
+    public void Values_Property_UpdatesAfterUpdate()
+    {
+        int[] periods = { 5, 10 };
+        var emaVector = new EmaVector(periods);
+        
+        var result = emaVector.Update(new TValue(DateTime.Now, 100.0));
+        
+        Assert.Equal(result[0].Value, emaVector.Values[0].Value);
+        Assert.Equal(result[1].Value, emaVector.Values[1].Value);
+    }
+
+    [Fact]
+    public void Values_Property_UpdatesAfterCalculate()
+    {
+        int[] periods = { 5, 10 };
+        var emaVector = new EmaVector(periods);
+        
+        var t = new System.Collections.Generic.List<long> { 100, 200, 300 };
+        var v = new System.Collections.Generic.List<double> { 10.0, 20.0, 30.0 };
+        var series = new TSeries(t, v);
+        
+        var results = emaVector.Calculate(series);
+        
+        Assert.Equal(results[0].Last.Value, emaVector.Values[0].Value, 1e-9);
+        Assert.Equal(results[1].Last.Value, emaVector.Values[1].Value, 1e-9);
     }
 }

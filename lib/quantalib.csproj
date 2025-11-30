@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <Title>QuanTAlib</Title>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
@@ -31,6 +31,10 @@
     <LangVersion>latest</LangVersion>
     <UserSecretsId>6afc11a7-4355-4f5e-9fdf-22431e5b03cb</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="QuanTAlib.Tests" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="**\*.Tests.cs;**\*.Quantower.cs;obj\**\*.cs" />
