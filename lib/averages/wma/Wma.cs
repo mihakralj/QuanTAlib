@@ -56,11 +56,6 @@ public sealed class Wma
     public string Name { get; }
 
     /// <summary>
-    /// Number of data points needed for the indicator to become "hot".
-    /// </summary>
-    public int WarmupPeriod { get; }
-
-    /// <summary>
     /// Creates WMA with specified period.
     /// </summary>
     /// <param name="period">Number of values to average (must be > 0)</param>
@@ -73,7 +68,6 @@ public sealed class Wma
         _divisor = period * (period + 1) * 0.5;
         _buffer = new RingBuffer(period);
         Name = $"Wma({period})";
-        WarmupPeriod = period;
     }
 
     /// <summary>

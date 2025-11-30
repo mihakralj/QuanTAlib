@@ -48,11 +48,6 @@ public sealed class Sma
     public string Name { get; }
 
     /// <summary>
-    /// Number of data points needed for the indicator to become "hot".
-    /// </summary>
-    public int WarmupPeriod { get; }
-
-    /// <summary>
     /// Creates SMA with specified period.
     /// </summary>
     /// <param name="period">Number of values to average (must be > 0)</param>
@@ -64,7 +59,6 @@ public sealed class Sma
         _period = period;
         _buffer = new RingBuffer(period);
         Name = $"Sma({period})";
-        WarmupPeriod = period;
     }
 
     /// <summary>

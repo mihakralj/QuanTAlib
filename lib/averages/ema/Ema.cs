@@ -39,6 +39,11 @@ public class Ema
     private double _lastValidValue;
 
     /// <summary>
+    /// Display name for the indicator.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
     /// Creates EMA with specified period.
     /// Alpha = 2 / (period + 1)
     /// </summary>
@@ -49,6 +54,7 @@ public class Ema
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _alpha = 2.0 / (period + 1);
+        Name = $"Ema({period})";
     }
 
     /// <summary>
@@ -61,6 +67,7 @@ public class Ema
             throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
 
         _alpha = alpha;
+        Name = $"Ema(α={alpha:F4})";
     }
 
     /// <summary>
