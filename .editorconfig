@@ -1,0 +1,15 @@
+# EditorConfig for QuanTAlib
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.cs]
+# Suppress SonarQube S3776 - Cognitive Complexity
+# High-performance SIMD code intentionally has complex control flow
+dotnet_diagnostic.S3776.severity = none

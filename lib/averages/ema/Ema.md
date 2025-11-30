@@ -1,7 +1,5 @@
 # EMA: Exponential Moving Average
 
-[Pine Script Implementation of EMA](https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/ema.pine)
-
 ## Overview and Purpose
 
 The Exponential Moving Average (EMA) is a fundamental technical indicator that calculates the average price over a specific period while giving more weight to recent price data. Introduced in the 1950s, EMA has become one of the most widely used technical indicators in financial markets due to its balance of responsiveness and stability.
@@ -127,10 +125,11 @@ var results = ema.Update(series);  // All values are finite
 ```
 
 **Behavior:**
-- When `NaN`, `PositiveInfinity`, or `NegativeInfinity` is encountered, the last valid value is substituted
-- This provides output continuity instead of propagating invalid values
-- Both scalar (`Ema`) and SIMD (`EmaVector`) implementations use identical logic
-- `Reset()` clears the last valid value, so the next valid input establishes a new baseline
+
+* When `NaN`, `PositiveInfinity`, or `NegativeInfinity` is encountered, the last valid value is substituted
+* This provides output continuity instead of propagating invalid values
+* Both scalar (`Ema`) and SIMD (`EmaVector`) implementations use identical logic
+* `Reset()` clears the last valid value, so the next valid input establishes a new baseline
 
 ### Performance Characteristics
 
