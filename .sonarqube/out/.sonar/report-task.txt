@@ -1,7 +1,0 @@
-organization=mihakralj-quantalib
-projectKey=mihakralj_QuanTAlib
-serverUrl=https://sonarcloud.io
-serverVersion=8.0.0.76937
-dashboardUrl=https://sonarcloud.io/dashboard?id=mihakralj_QuanTAlib
-ceTaskId=AZrSNMLCeZsUkJLW-DRa
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZrSNMLCeZsUkJLW-DRa
