@@ -8,7 +8,9 @@ namespace QuanTAlib;
 /// Stateless design - only maintains minimal state needed for price continuity.
 /// </summary>
 [SkipLocalsInit]
+#pragma warning disable S101 // Types should be named in PascalCase - GBM is a standard acronym
 public class GBM : IFeed
+#pragma warning restore S101
 {
     private readonly Random _rnd;
 
@@ -17,7 +19,6 @@ public class GBM : IFeed
 
     private readonly double _mu;
     private readonly double _sigma;
-    private readonly double _dt;
 
     // Precomputed GBM constants
     private readonly double _drift;
@@ -63,10 +64,10 @@ public class GBM : IFeed
 
         // Calculate dt based on timeframe (assuming 252 trading days/year, 6.5 hours/day)
         double minutesPerYear = 252.0 * 6.5 * 60.0;
-        _dt = timeframe.TotalMinutes / minutesPerYear;
+        double dt = timeframe.TotalMinutes / minutesPerYear;
 
-        _drift = (mu - 0.5 * sigma * sigma) * _dt;
-        _vol = sigma * Math.Sqrt(_dt);
+        _drift = (mu - 0.5 * sigma * sigma) * dt;
+        _vol = sigma * Math.Sqrt(dt);
     }
 
     /// <summary>
@@ -81,8 +82,10 @@ public class GBM : IFeed
             return _cachedZ;
         }
 
+#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
         double u1 = 1.0 - _rnd.NextDouble();
         double u2 = 1.0 - _rnd.NextDouble();
+#pragma warning restore S2245
         double mag = Math.Sqrt(-2.0 * Math.Log(u1));
         double angle = 2.0 * Math.PI * u2;
 

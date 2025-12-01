@@ -396,6 +396,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/
+
+# SonarQube/SonarCloud
+.sonarqube/
 
 # Cline Memory Bank - exclude from git
 memory-bank/

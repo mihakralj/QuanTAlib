@@ -64,7 +64,6 @@ Console.WriteLine($"Current SMA: {result.Value}");
 
 // Access properties
 Console.WriteLine($"Name: {sma.Name}");           // "Sma(10)"
-Console.WriteLine($"WarmupPeriod: {sma.WarmupPeriod}");  // 10
 Console.WriteLine($"IsHot: {sma.IsHot}");          // true when buffer is full
 
 // Batch calculation (TSeries API)

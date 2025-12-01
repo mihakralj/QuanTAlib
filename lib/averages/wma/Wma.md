@@ -79,7 +79,6 @@ Console.WriteLine($"Current WMA: {result.Value}");
 
 // Access properties
 Console.WriteLine($"Name: {wma.Name}");           // "Wma(10)"
-Console.WriteLine($"WarmupPeriod: {wma.WarmupPeriod}");  // 10
 Console.WriteLine($"IsHot: {wma.IsHot}");          // true when buffer is full
 
 // Batch calculation (TSeries API)
