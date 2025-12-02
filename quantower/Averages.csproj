@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="*.cs" />
+    <Compile Include="IndicatorExtensions.cs" />
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
     <Compile Include="..\lib\averages\**\*.cs" Exclude="..\lib\averages\**\*.Tests.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">

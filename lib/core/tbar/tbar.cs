@@ -67,8 +67,8 @@ public readonly struct TBar : IEquatable<TBar>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable S1244 // Floating point equality is intentional for exact struct comparison
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(TBar other) =>
         Time == other.Time &&
         Open == other.Open &&
@@ -76,10 +76,10 @@ public readonly struct TBar : IEquatable<TBar>
         Low == other.Low &&
         Close == other.Close &&
         Volume == other.Volume;
-#pragma warning restore S1244
 
     public override bool Equals(object? obj) => obj is TBar other && Equals(other);
     public override int GetHashCode() => HashCode.Combine(Time, Open, High, Low, Close, Volume);
     public static bool operator ==(TBar left, TBar right) => left.Equals(right);
     public static bool operator !=(TBar left, TBar right) => !left.Equals(right);
+#pragma warning restore S1244
 }

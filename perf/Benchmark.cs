@@ -10,17 +10,23 @@ using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
 
-var config = ManualConfig.Create(DefaultConfig.Instance)
-    .AddJob(Job.ShortRun
-        .WithToolchain(InProcessNoEmitToolchain.Instance)
-        .WithId(".NET 10.0"))
-    .AddColumn(StatisticColumn.Mean)
-    .AddColumn(StatisticColumn.StdDev)
-    .HideColumns(Column.Job, Column.Error, Column.RatioSD);
-
-BenchmarkRunner.Run<IndicatorBenchmarks>(config);
-
 namespace QuanTAlib.Benchmarks;
+
+public static class Program
+{
+    public static void Main()
+    {
+        var config = ManualConfig.Create(DefaultConfig.Instance)
+            .AddJob(Job.ShortRun
+                .WithToolchain(InProcessNoEmitToolchain.Instance)
+                .WithId(".NET 10.0"))
+            .AddColumn(StatisticColumn.Mean)
+            .AddColumn(StatisticColumn.StdDev)
+            .HideColumns(Column.Job, Column.Error, Column.RatioSD);
+
+        BenchmarkRunner.Run<IndicatorBenchmarks>(config);
+    }
+}
 
 [MemoryDiagnoser]
 [MarkdownExporter, HtmlExporter]

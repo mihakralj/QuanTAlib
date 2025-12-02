@@ -402,7 +402,7 @@ FodyWeavers.xsd
 .sonarqube/
 
 # Cline Memory Bank - exclude from git
-memory-bank/
+ilspy/
 
 # macOS resource forks and metadata
 ._*
