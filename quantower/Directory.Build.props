@@ -1,4 +1,7 @@
 <Project>
+  <!-- Import parent Directory.Build.props first -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="Exists('$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildThisFileDirectory)../`))')" />
+
   <!-- Set project-specific intermediate output paths before SDK import -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Averages'">
     <BaseIntermediateOutputPath>obj\Averages\</BaseIntermediateOutputPath>

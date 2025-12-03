@@ -8,7 +8,7 @@ namespace QuanTAlib;
 /// Stateless design - only maintains minimal state needed for price continuity.
 /// </summary>
 [SkipLocalsInit]
-#pragma warning disable S101 // Types should be named in PascalCase - GBM is a standard acronym
+  // Types should be named in PascalCase - GBM is a standard acronym
 public class GBM : IFeed
 #pragma warning restore S101
 {
@@ -190,9 +190,11 @@ public class GBM : IFeed
             double open = currentPrice;
             double close = price;
 
+#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
             double rnd1 = _rnd.NextDouble();
             double rnd2 = _rnd.NextDouble();
             double rnd3 = _rnd.NextDouble();
+#pragma warning restore S2245
 
             t[i] = currentTime;
             o[i] = open;

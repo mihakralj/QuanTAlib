@@ -100,22 +100,17 @@ public class EmaTests
     }
 
     [Fact]
-    public void Ema_IsHot_BecomesTrueAfterWarmup()
+    public void Ema_IsHot_BecomesTrueAt95PercentCoverage()
     {
         var ema = new Ema(10);
 
         // Initially IsHot should be false
         Assert.False(ema.IsHot);
 
-        // Feed values until it warms up
-        // Warmup condition is state.E <= 1e-10
-        // state.E starts at 1.0 and decays by (1 - alpha) each step
-        // alpha = 2 / (10 + 1) = 2/11 ~= 0.1818
-        // (1 - alpha) ~= 0.8181
-        // 1.0 * (0.8181)^n <= 1e-10
-        // n * log(0.8181) <= log(1e-10)
-        // n * -0.200 <= -23.02
-        // n >= 115 steps roughly
+        // IsHot triggers at 95% coverage (E <= 0.05)
+        // E = (1 - alpha)^N where alpha = 2 / (period + 1)
+        // For period 10: alpha = 2/11 ≈ 0.1818, (1-alpha) ≈ 0.8182
+        // N = ln(0.05) / ln(0.8182) ≈ 14.93, so ~15 bars
 
         int steps = 0;
         while (!ema.IsHot && steps < 1000)
@@ -125,7 +120,46 @@ public class EmaTests
         }
 
         Assert.True(ema.IsHot);
-        Assert.True(steps > 0); // Should take some steps
+        Assert.True(steps > 0);
+        // For period 10, should become hot around 15 bars
+        Assert.InRange(steps, 14, 16);
+    }
+
+    [Fact]
+    public void Ema_IsHot_IsPeriodDependent()
+    {
+        // Test that different periods result in different warmup times
+        // Formula: N = ln(0.05) / ln((p-1)/(p+1))
+
+        int[] periods = [10, 20, 50, 100];
+        int[] expectedSteps = new int[periods.Length];
+
+        for (int i = 0; i < periods.Length; i++)
+        {
+            int period = periods[i];
+            var ema = new Ema(period);
+
+            int steps = 0;
+            while (!ema.IsHot && steps < 500)
+            {
+                ema.Update(new TValue(DateTime.UtcNow, 100));
+                steps++;
+            }
+
+            expectedSteps[i] = steps;
+        }
+
+        // Verify warmup times increase with period
+        // Period 10 → ~15 bars, Period 20 → ~30 bars, Period 50 → ~75 bars, Period 100 → ~150 bars
+        Assert.True(expectedSteps[0] < expectedSteps[1], $"Period 10 ({expectedSteps[0]}) should be less than Period 20 ({expectedSteps[1]})");
+        Assert.True(expectedSteps[1] < expectedSteps[2], $"Period 20 ({expectedSteps[1]}) should be less than Period 50 ({expectedSteps[2]})");
+        Assert.True(expectedSteps[2] < expectedSteps[3], $"Period 50 ({expectedSteps[2]}) should be less than Period 100 ({expectedSteps[3]})");
+
+        // Verify approximate expected values (N ≈ 1.5 * period for 95% coverage)
+        Assert.InRange(expectedSteps[0], 14, 17);  // Period 10 → ~15
+        Assert.InRange(expectedSteps[1], 28, 32);  // Period 20 → ~30
+        Assert.InRange(expectedSteps[2], 73, 78);  // Period 50 → ~75
+        Assert.InRange(expectedSteps[3], 147, 153); // Period 100 → ~150
     }
 
     [Fact]

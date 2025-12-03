@@ -28,19 +28,20 @@ public class Ema
     private struct State : IEquatable<State>
     {
         public double Ema;
-        public double E;
-        public bool IsHot;
+        public double E;          // Compensator: decays from 1.0 to 1e-10 for bias correction
+        public bool IsHot;          // True when 95% coverage reached (E <= 0.05)
+        public bool IsCompensated;  // True when compensator fully decayed (E <= 1e-10)
 
-        public static State New() => new() { Ema = 0, E = 1.0, IsHot = false };
+        public static State New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
 
         public readonly bool Equals(State other) =>
-            Ema == other.Ema && E == other.E && IsHot == other.IsHot;
+            Ema == other.Ema && E == other.E && IsHot == other.IsHot && IsCompensated == other.IsCompensated;
 
         public override readonly bool Equals(object? obj) =>
             obj is State other && Equals(other);
 
         public override readonly int GetHashCode() =>
-            HashCode.Combine(Ema, E, IsHot);
+            HashCode.Combine(Ema, E, IsHot, IsCompensated);
 
         public static bool operator ==(State left, State right) => left.Equals(right);
         public static bool operator !=(State left, State right) => !left.Equals(right);
@@ -107,9 +108,16 @@ public class Ema
         return _lastValidValue;
     }
 
+    // 95% coverage threshold: E = 1 - 0.95 = 0.05
+    private const double COVERAGE_THRESHOLD = 0.05;
+    // Compensator decay threshold for bias correction
+    private const double COMPENSATOR_THRESHOLD = 1e-10;
+
     /// <summary>
     /// Core EMA calculation kernel.
     /// Assumes input has already been validated via GetValidValue().
+    /// IsHot becomes true at 95% coverage (E &lt;= 0.05).
+    /// Bias correction continues until compensator decays to 1e-10.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Compute(double input, double alpha, ref State state)
@@ -117,11 +125,24 @@ public class Ema
         state.Ema += alpha * (input - state.Ema);
 
         double result;
-        if (!state.IsHot)
+        if (!state.IsCompensated)
         {
             state.E *= (1.0 - alpha);
-            state.IsHot = state.E <= 1e-10;
-            result = state.Ema / (1.0 - state.E);
+
+            // IsHot triggers at 95% coverage
+            if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+                state.IsHot = true;
+
+            // Continue bias correction until compensator fully decays
+            if (state.E <= COMPENSATOR_THRESHOLD)
+            {
+                state.IsCompensated = true;
+                result = state.Ema;
+            }
+            else
+            {
+                result = state.Ema / (1.0 - state.E);
+            }
         }
         else
         {
@@ -227,6 +248,7 @@ public class Ema
     /// <summary>
     /// Calculates EMA in-place using alpha, writing results to pre-allocated output span.
     /// Zero-allocation method for maximum performance.
+    /// Bias correction continues until compensator decays to 1e-10.
     /// </summary>
     /// <param name="source">Input values</param>
     /// <param name="output">Output span (must be same length as source)</param>
@@ -256,8 +278,8 @@ public class Ema
             ema += alpha * (val - ema);
             e *= oneMinusAlpha;
 
-            // Bias correction until warmed up
-            output[i] = e > 1e-10 ? ema / (1.0 - e) : ema;
+            // Bias correction until compensator fully decays
+            output[i] = e > COMPENSATOR_THRESHOLD ? ema / (1.0 - e) : ema;
         }
     }
 

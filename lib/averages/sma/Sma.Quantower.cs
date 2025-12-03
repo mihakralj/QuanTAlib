@@ -17,6 +17,7 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
     private Sma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
+    private int _warmupBarIndex = -1;
 
     public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -39,6 +40,7 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
     {
         ma = new Sma(Period);
         SourceName = Source.ToString();
+        _warmupBarIndex = -1;  // Reset warmup tracking when period changes
         base.OnInit();
     }
 
@@ -49,11 +51,16 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
         TValue result = ma!.Update(input, isNew);
         Series!.SetValue(result.Value);
         Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+
+        // Track when IsHot becomes true for the first time
+        if (_warmupBarIndex < 0 && ma!.IsHot)
+            _warmupBarIndex = Count;
     }
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, 0, showColdValues: ShowColdValues, tension: 0.2);
+        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
+        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }

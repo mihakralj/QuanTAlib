@@ -15,6 +15,7 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Wma? ma;
+    private int _warmupBarIndex = -1;
     protected LineSeries? Series;
     protected string? SourceName;
 
@@ -38,6 +39,7 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         ma = new Wma(Period);
+        _warmupBarIndex = -1;
         SourceName = Source.ToString();
         base.OnInit();
     }
@@ -47,6 +49,8 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
         TValue input = this.GetInputValue(args, Source);
         bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
         TValue result = ma!.Update(input, isNew);
+        if (_warmupBarIndex < 0 && ma!.IsHot)
+            _warmupBarIndex = Count;
         Series!.SetValue(result.Value);
         Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
     }
@@ -54,6 +58,6 @@ public class WmaIndicator : Indicator, IWatchlistIndicator
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, 0, showColdValues: ShowColdValues, tension: 0.2);
+        this.PaintSmoothCurve(args, Series!, _warmupBarIndex, showColdValues: ShowColdValues, tension: 0.2);
     }
 }
