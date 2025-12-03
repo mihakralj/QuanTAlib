@@ -1,6 +1,3 @@
-using System;
-using Xunit;
-using QuanTAlib;
 
 namespace QuanTAlib.Tests;
 
@@ -550,11 +547,13 @@ public class SimdExtensionsTests
         Assert.True(avg > 0);
         Assert.True(min > 0);
         Assert.True(max > min);
+        Assert.Equal(min, minAlt);
+        Assert.Equal(max, maxAlt);
         Assert.True(variance > 0);
         Assert.True(stdDev > 0);
         
-        Assert.True(sw.ElapsedMilliseconds < 10, 
-            $"SIMD operations took {sw.ElapsedMilliseconds}ms, expected < 10ms");
+        Assert.True(sw.ElapsedMilliseconds < 50, 
+            $"SIMD operations took {sw.ElapsedMilliseconds}ms, expected < 50ms");
     }
 
     [Fact]

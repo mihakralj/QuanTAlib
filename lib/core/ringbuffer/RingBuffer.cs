@@ -423,7 +423,7 @@ public sealed class RingBuffer : IEnumerable<double>
     /// <summary>
     /// High-performance enumerator for the RingBuffer.
     /// </summary>
-    public struct Enumerator : IEnumerator<double>
+    public struct Enumerator : IEnumerator<double>, IEquatable<Enumerator>
     {
         private readonly RingBuffer _buffer;
         private readonly int _start;
@@ -453,8 +453,8 @@ public sealed class RingBuffer : IEnumerable<double>
             return true;
         }
 
-        public double Current => _current;
-        object IEnumerator.Current => Current;
+        public readonly double Current => _current;
+        readonly object IEnumerator.Current => Current;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Reset()
@@ -463,6 +463,22 @@ public sealed class RingBuffer : IEnumerable<double>
             _current = default;
         }
 
-        public void Dispose() { }
+        public readonly void Dispose() { }
+
+        public readonly bool Equals(Enumerator other) =>
+            ReferenceEquals(_buffer, other._buffer) &&
+            _start == other._start &&
+            _count == other._count &&
+            _index == other._index &&
+            _current == other._current;
+
+        public override readonly bool Equals(object? obj) =>
+            obj is Enumerator other && Equals(other);
+
+        public override readonly int GetHashCode() =>
+            HashCode.Combine(RuntimeHelpers.GetHashCode(_buffer), _start, _count, _index, _current);
+
+        public static bool operator ==(Enumerator left, Enumerator right) => left.Equals(right);
+        public static bool operator !=(Enumerator left, Enumerator right) => !left.Equals(right);
     }
 }

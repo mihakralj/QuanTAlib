@@ -4,9 +4,7 @@ using System.Linq;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
-using Xunit;
 using Xunit.Abstractions;
-using QuanTAlib;
 
 namespace QuanTAlib.Tests;
 
@@ -213,7 +211,7 @@ public class SmaValidationTests
             // Calculate Tulip SMA
             var smaIndicator = Tulip.Indicators.sma;
             double[][] inputs = { tData };
-            double[] options = { (double)period };
+            double[] options = { period };
             int lookback = period - 1;
             double[][] outputs = { new double[tData.Length - lookback] };
 
@@ -247,7 +245,7 @@ public class SmaValidationTests
             // Calculate Tulip SMA
             var smaIndicator = Tulip.Indicators.sma;
             double[][] inputs = { tData };
-            double[] options = { (double)period };
+            double[] options = { period };
             int lookback = period - 1;
             double[][] outputs = { new double[tData.Length - lookback] };
 
@@ -277,7 +275,7 @@ public class SmaValidationTests
             // Calculate Tulip SMA
             var smaIndicator = Tulip.Indicators.sma;
             double[][] inputs = { sourceData };
-            double[] options = { (double)period };
+            double[] options = { period };
             int lookback = period - 1;
             double[][] outputs = { new double[sourceData.Length - lookback] };
 

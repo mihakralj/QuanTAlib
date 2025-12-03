@@ -25,12 +25,25 @@ namespace QuanTAlib;
 /// </remarks>
 public class Ema
 {
-    private struct State
+    private struct State : IEquatable<State>
     {
         public double Ema;
         public double E;
         public bool IsHot;
+
         public static State New() => new() { Ema = 0, E = 1.0, IsHot = false };
+
+        public readonly bool Equals(State other) =>
+            Ema == other.Ema && E == other.E && IsHot == other.IsHot;
+
+        public override readonly bool Equals(object? obj) =>
+            obj is State other && Equals(other);
+
+        public override readonly int GetHashCode() =>
+            HashCode.Combine(Ema, E, IsHot);
+
+        public static bool operator ==(State left, State right) => left.Equals(right);
+        public static bool operator !=(State left, State right) => !left.Equals(right);
     }
 
     private readonly double _alpha;
@@ -60,7 +73,7 @@ public class Ema
     /// <summary>
     /// Creates EMA with specified alpha smoothing factor.
     /// </summary>
-    /// <param name="alpha">Smoothing factor (0 < alpha <= 1)</param>
+    /// <param name="alpha">Smoothing factor (0 &lt; alpha &lt;= 1)</param>
     public Ema(double alpha)
     {
         if (alpha <= 0 || alpha > 1)
@@ -217,7 +230,7 @@ public class Ema
     /// </summary>
     /// <param name="source">Input values</param>
     /// <param name="output">Output span (must be same length as source)</param>
-    /// <param name="alpha">Smoothing factor (0 < alpha <= 1)</param>
+    /// <param name="alpha">Smoothing factor (0 &lt; alpha &lt;= 1)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {

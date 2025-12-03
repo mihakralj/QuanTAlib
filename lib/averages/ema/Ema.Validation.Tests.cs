@@ -4,9 +4,7 @@ using System.Linq;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
-using Xunit;
 using Xunit.Abstractions;
-using QuanTAlib;
 
 namespace QuanTAlib.Tests;
 
@@ -213,7 +211,7 @@ public class EmaValidationTests
             // Calculate Tulip EMA
             var emaIndicator = Tulip.Indicators.ema;
             double[][] inputs = { tData };
-            double[] options = { (double)period };
+            double[] options = { period };
             double[][] outputs = { new double[tData.Length] };
 
             emaIndicator.Run(inputs, options, outputs);
@@ -246,7 +244,7 @@ public class EmaValidationTests
             // Calculate Tulip EMA
             var emaIndicator = Tulip.Indicators.ema;
             double[][] inputs = { tData };
-            double[] options = { (double)period };
+            double[] options = { period };
             double[][] outputs = { new double[tData.Length] };
 
             emaIndicator.Run(inputs, options, outputs);
@@ -275,7 +273,7 @@ public class EmaValidationTests
             // Calculate Tulip EMA
             var emaIndicator = Tulip.Indicators.ema;
             double[][] inputs = { sourceData };
-            double[] options = { (double)period };
+            double[] options = { period };
             double[][] outputs = { new double[sourceData.Length] };
 
             emaIndicator.Run(inputs, options, outputs);

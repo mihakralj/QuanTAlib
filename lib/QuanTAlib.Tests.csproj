@@ -22,6 +22,8 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="QuanTAlib" />
+    <Using Include="System.Collections" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,96 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+
+#Enable inspections
+#include:
+#  - name: <SomeEnabledInspectionId>
+
+#Disable inspections
+exclude:
+  # Disable XML documentation comment validation (allows unescaped < > in comments)
+  - name: XmlDocAnalyzer
+  - name: InvalidXmlDocComment
+  # Library project - public API properties are intentionally unused internally
+  - name: UnusedAutoPropertyAccessor.Global
+  # Style preference - fully qualified names used intentionally for clarity
+  - name: RedundantNameQualifier
+  - name: RCS1036  # Roslyn: Remove redundant empty line
+  - name: IDE0001  # Simplify name
+  - name: IDE0002  # Simplify member access
+
+  # HIGH-PERFORMANCE LIBRARY EXCLUSIONS
+  # ------------------------------------
+  # Flat namespace structure is intentional for this library
+  - name: CheckNamespace
+
+  # Float comparisons are intentional in financial calculations (checking 0.0, NaN, sentinel values)
+  - name: CompareOfFloatsByEqualityOperator
+
+  # Explicit default args improve code clarity and self-documentation
+  - name: RedundantArgumentDefaultValue
+
+  # Platform-specific optimizations (SIMD, intrinsics) are intentional
+  - name: CA1416  # Validate platform compatibility
+
+  # Public API unused internally - this is a library
+  - name: UnusedMember.Global
+  - name: MemberCanBePrivate.Global
+  - name: ClassNeverInstantiated.Global
+  - name: UnusedType.Global
+
+  # Redundant using directives - managed by IDE/build, not critical for library
+  - name: RedundantUsingDirective
+  - name: IDE0005  # Remove unnecessary using directives
+  - name: CS8019  # Unnecessary using directive
+
+  # Nullable warning suppressions - used intentionally for null safety patterns
+  - name: RedundantSuppressNullableWarningExpression
+
+  # Redundant type specifications - explicit types used for clarity/documentation
+  - name: RedundantTypeArgumentsOfMethod
+  - name: RedundantCast
+  - name: RedundantExplicitArrayCreation
+
+  # Unused local variables - often used in test setup or placeholder code (includes false positives for tuple deconstruction)
+  - name: UnusedVariable
+  - name: UnusedVariable.Compiler  # False positive for tuple deconstruction
+  - name: CS0219  # Variable is assigned but never used
+
+  # Object initializer in using statement - false positive for simple property setters
+  - name: CA2000  # Dispose objects before losing scope (overly cautious for simple cases)
+  - name: UseObjectOrCollectionInitializerWhenPossible
+  - name: DoNotUseObjectInitializerForUsingVariable
+  - name: ObjectInitializerMightCauseException
+  - name: ObjectCreationAsStatement
+  - name: UseObjectOrCollectionInitializer
+  - name: UsingStatementResourceInitialization  # "Do not use object initializer for 'using' variable"
+
+  # Private field can be local variable - test fixtures often use fields for clarity/organization
+  - name: PrivateFieldCanBeConvertedToLocalVariable
+  - name: ConvertToLocalFunction
+
+  # Code coverage checks - SonarCloud handles coverage, Qodana coverage unreliable
+  - name: CoverageCheck
+  - name: ClassCoverageCheck
+  - name: MethodCoverageCheck
+  - name: CodeCoverageCheck
+
+#Execute shell command before Qodana execution (Applied in CI/CD pipeline)
+#bootstrap: sh ./prepare-qodana.sh
+
+#Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
+#plugins:
+#  - id: <plugin.id> #(plugin id can be found at https://plugins.jetbrains.com)
+
+#Specify Qodana linter for analysis (Applied in CI/CD pipeline)
+linter: qodana-dotnet
+
+# Use native mode instead of Docker (avoids Unix socket issues on Windows)
+withinDocker: false
