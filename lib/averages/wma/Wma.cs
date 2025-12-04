@@ -1,5 +1,8 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -49,6 +52,10 @@ public sealed class Wma
     private double _p_lastInput;    // Input that was added on last isNew=true
     private double _lastValidValue;
     private double _p_lastValidValue;
+    private int _tickCount;         // Counter for periodic sum resync
+
+    // Resync interval: recalculate sum from buffer every N ticks to prevent drift
+    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Display name for the indicator.
@@ -96,6 +103,51 @@ public sealed class Wma
     }
 
     /// <summary>
+    /// Updates internal state with a new value.
+    /// Shared logic for both streaming and batch-reconstruction.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateState(double val)
+    {
+        if (_buffer.IsFull)
+        {
+            // Buffer is full: O(1) update using dual running sums
+            double oldSum = _sum;  // Capture before update
+            double oldest = _buffer.Oldest;
+            _sum = _sum - oldest + val;
+            _wsum = _wsum - oldSum + (_period * val);
+        }
+        else
+        {
+            // Warmup phase: incrementally build sums
+            int count = _buffer.Count + 1;
+            _sum += val;
+            _wsum += count * val;
+        }
+
+        // Update buffer
+        _buffer.Add(val);
+
+        // Periodic resync: recalculate sums from scratch to eliminate floating-point drift
+        _tickCount++;
+        if (_buffer.IsFull && _tickCount >= ResyncInterval)
+        {
+            _tickCount = 0;
+            double recalcSum = 0;
+            double recalcWsum = 0;
+            int weight = 1;
+            foreach (double item in _buffer)
+            {
+                recalcSum += item;
+                recalcWsum += weight * item;
+                weight++;
+            }
+            _sum = recalcSum;
+            _wsum = recalcWsum;
+        }
+    }
+
+    /// <summary>
     /// Updates WMA with the given value.
     /// O(1) for both isNew=true and isNew=false.
     /// </summary>
@@ -110,24 +162,7 @@ public sealed class Wma
             // Get valid value (this may update _lastValidValue)
             double val = GetValidValue(input.Value);
 
-            if (_buffer.IsFull)
-            {
-                // Buffer is full: O(1) update using dual running sums
-                double oldSum = _sum;  // Capture before update
-                double oldest = _buffer.Oldest;
-                _sum = _sum - oldest + val;
-                _wsum = _wsum - oldSum + (_period * val);
-            }
-            else
-            {
-                // Warmup phase: incrementally build sums
-                int count = _buffer.Count + 1;
-                _sum += val;
-                _wsum += count * val;
-            }
-
-            // Update buffer
-            _buffer.Add(val);
+            UpdateState(val);
 
             // Save state AFTER this update for potential future corrections
             _p_sum = _sum;
@@ -173,6 +208,8 @@ public sealed class Wma
     /// <returns>WMA series</returns>
     public TSeries Update(TSeries source)
     {
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
@@ -184,46 +221,54 @@ public sealed class Wma
         var sourceValues = source.Values;
         var sourceTimes = source.Times;
 
-        // Use local state for batch processing
-        var localBuffer = new RingBuffer(_period);
-        double localSum = 0;
-        double localWsum = 0;
+        // 1. Fast Batch Calculation (SIMD optimized)
+        Calculate(sourceValues, vSpan, _period);
 
-        for (int i = 0; i < len; i++)
+        // 2. Copy Times
+        sourceTimes.CopyTo(tSpan);
+
+        // 3. Reconstruct State for subsequent updates
+        // We need to restore _buffer, _sum, _wsum, and _lastValidValue
+        
+        // Find the last valid value before the reconstruction window
+        int windowSize = Math.Min(len, _period);
+        int startIndex = len - windowSize;
+
+        // Restore _lastValidValue from before the window
+        if (startIndex > 0)
         {
-            // Last-value substitution: replace non-finite inputs with last valid value
-            double val = GetValidValue(sourceValues[i]);
-
-            if (localBuffer.IsFull)
+            // Scan backwards to find last valid value
+            for (int i = startIndex - 1; i >= 0; i--)
             {
-                // Buffer is full: O(1) update
-                double oldSum = localSum;
-                double oldest = localBuffer.Oldest;
-                localSum = localSum - oldest + val;
-                localWsum = localWsum - oldSum + (_period * val);
+                if (double.IsFinite(sourceValues[i]))
+                {
+                    _lastValidValue = sourceValues[i];
+                    break;
+                }
             }
-            else
-            {
-                // Warmup phase
-                int count = localBuffer.Count + 1;
-                localSum += val;
-                localWsum += count * val;
-            }
-
-            localBuffer.Add(val);
-
-            tSpan[i] = sourceTimes[i];
-            double currentDivisor = localBuffer.IsFull ? _divisor : localBuffer.Count * (localBuffer.Count + 1) * 0.5;
-            vSpan[i] = localWsum / currentDivisor;
+        }
+        else
+        {
+            _lastValidValue = 0; // Reset if starting from 0
         }
 
-        // Update instance state to the final state
-        _buffer.CopyFrom(localBuffer);
-        _sum = localSum;
-        _wsum = localWsum;
-        _p_sum = localSum;
-        _p_wsum = localWsum;
+        // Rebuild buffer and sums from last 'period' values using shared logic
+        _buffer.Clear();
+        _sum = 0;
+        _wsum = 0;
+        _tickCount = 0;
+
+        for (int i = startIndex; i < len; i++)
+        {
+            double val = GetValidValue(sourceValues[i]);
+            UpdateState(val);
+        }
+
+        // Save state for potential future corrections
+        _p_sum = _sum;
+        _p_wsum = _wsum;
         _p_lastInput = sourceValues[len - 1];
+        _p_lastValidValue = _lastValidValue;
 
         Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -245,6 +290,7 @@ public sealed class Wma
     /// Calculates WMA in-place, writing results to pre-allocated output span.
     /// Zero-allocation method for maximum performance.
     /// Uses O(1) dual running sum algorithm.
+    /// Automatically uses SIMD acceleration for large, clean datasets.
     /// </summary>
     /// <param name="source">Input values</param>
     /// <param name="output">Output span (must be same length as source)</param>
@@ -258,46 +304,356 @@ public sealed class Wma
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         int len = source.Length;
+        if (len == 0) return;
+
+        // Try SIMD path for large, clean datasets
+        // Requirements: AVX2 support, large enough dataset, no NaN values
+        const int SimdThreshold = 256;
+        if (Avx2.IsSupported && len >= SimdThreshold && !HasNonFiniteValues(source))
+        {
+            CalculateSimdCore(source, output, period);
+            return;
+        }
+
+        CalculateScalarCore(source, output, period);
+    }
+
+    /// <summary>
+    /// Scalar implementation with NaN handling via last-value substitution.
+    /// Uses circular buffer for sliding window calculation.
+    /// Optimized with split loops and periodic resync.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        int len = source.Length;
         double divisor = period * (period + 1) * 0.5;
         double sum = 0;
         double wsum = 0;
         double lastValid = 0;
 
-        // Ring buffer simulation using modular indexing
+        // Ring buffer simulation
         Span<double> buffer = period <= 512 ? stackalloc double[period] : new double[period];
         int bufferIdx = 0;
-        int count = 0;
+        int i = 0;
 
-        for (int i = 0; i < len; i++)
+        // Phase 1: Warmup (0 to period-1)
+        int warmupEnd = Math.Min(period, len);
+        for (; i < warmupEnd; i++)
         {
             double val = source[i];
-            if (!double.IsFinite(val))
-                val = lastValid;
-            else
+            if (double.IsFinite(val))
                 lastValid = val;
-
-            if (count >= period)
-            {
-                // Buffer full: O(1) update using dual running sums
-                double oldest = buffer[bufferIdx];
-                double oldSum = sum;
-                sum = sum - oldest + val;
-                wsum = wsum - oldSum + (period * val);
-            }
             else
-            {
-                // Warmup phase
-                count++;
-                sum += val;
-                wsum += count * val;
-            }
+                val = lastValid;
 
-            buffer[bufferIdx] = val;
-            bufferIdx = (bufferIdx + 1) % period;
+            sum += val;
+            wsum += (i + 1) * val;
+            buffer[i] = val;
 
-            double currentDivisor = count >= period ? divisor : count * (count + 1) * 0.5;
+            double currentDivisor = (i + 1) * (i + 2) * 0.5;
             output[i] = wsum / currentDivisor;
         }
+
+        // Phase 2: Hot loop (period to len)
+        int tickCount = 0;
+        for (; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValid = val;
+            else
+                val = lastValid;
+
+            // O(1) update using dual running sums
+            double oldSum = sum;
+            double oldest = buffer[bufferIdx];
+            sum = sum - oldest + val;
+            wsum = wsum - oldSum + (period * val);
+
+            buffer[bufferIdx] = val;
+            bufferIdx++;
+            if (bufferIdx >= period)
+                bufferIdx = 0;
+
+            output[i] = wsum / divisor;
+
+            // Periodic resync every 1000 ticks
+            tickCount++;
+            if (tickCount >= ResyncInterval)
+            {
+                tickCount = 0;
+                // Recalculate sums from buffer to prevent drift
+                double recalcSum = 0;
+                double recalcWsum = 0;
+                // Buffer contains values in order: [oldest ... newest] relative to current bufferIdx
+                // Actually buffer is circular.
+                // Oldest is at bufferIdx (which we just wrote to, so it's actually newest now? No, we incremented bufferIdx)
+                // bufferIdx points to the *next* overwrite location, which holds the *oldest* value.
+                // So buffer[bufferIdx] is oldest (weight 1).
+                // buffer[bufferIdx+1] is 2nd oldest (weight 2).
+                // ...
+                // buffer[bufferIdx-1] is newest (weight period).
+                
+                for (int k = 0; k < period; k++)
+                {
+                    int idx = (bufferIdx + k) % period; // Use modulo here for simplicity in resync (rare)
+                    // Wait, modulo is slow.
+                    if (idx >= period) idx -= period; // Manual modulo
+                    
+                    double v = buffer[idx];
+                    recalcSum += v;
+                    recalcWsum += (k + 1) * v;
+                }
+                sum = recalcSum;
+                wsum = recalcWsum;
+            }
+        }
+    }
+
+    /// <summary>
+    /// SIMD-optimized implementation for WMA calculation.
+    /// Uses double prefix-sum approach to vectorize the coupled recurrence.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static unsafe void CalculateSimdCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        int len = source.Length;
+        const int VectorWidth = 4;
+
+        fixed (double* srcPtr = source)
+        fixed (double* outPtr = output)
+        {
+            double divisor = period * (period + 1) * 0.5;
+            double invDivisor = 1.0 / divisor;
+
+            // Phase 1: Warmup - scalar
+            int warmupEnd = Math.Min(period, len);
+            double sum = 0;
+            double wsum = 0;
+            for (int i = 0; i < warmupEnd; i++)
+            {
+                double val = srcPtr[i];
+                sum += val;
+                wsum += (i + 1) * val;
+                double currentDivisor = (i + 1) * (i + 2) * 0.5;
+                outPtr[i] = wsum / currentDivisor;
+            }
+
+            if (len <= period)
+                return;
+
+            // Phase 2: SIMD hot loop
+            var vInvDivisor = Vector256.Create(invDivisor);
+            var vPeriod = Vector256.Create((double)period);
+            var vZero = Vector256<double>.Zero;
+            int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+            
+            // Initialize vector state
+            var vSumState = Vector256.Create(sum);
+            var vWsumState = Vector256.Create(wsum);
+
+            int idx = period;
+            while (idx < simdEnd)
+            {
+                int nextSync = Math.Min(simdEnd, idx + ResyncInterval);
+                
+                // Inner hot loop without branches
+                // Unrolled 2x (process 8 doubles per iteration)
+                // Optimized Parallel Execution:
+                // - Parallel prefix sums for DeltaS
+                // - Fast S_shifted calculation using (S - DeltaS)
+                // - Parallel prefix sums for U
+                int unrolledSync = nextSync - (2 * VectorWidth);
+                for (; idx <= unrolledSync; idx += 2 * VectorWidth)
+                {
+                    // Load data for both iterations
+                    var vNew1 = Avx.LoadVector256(srcPtr + idx);
+                    var vOld1 = Avx.LoadVector256(srcPtr + idx - period);
+                    var vNew2 = Avx.LoadVector256(srcPtr + idx + VectorWidth);
+                    var vOld2 = Avx.LoadVector256(srcPtr + idx + VectorWidth - period);
+
+                    // 1. Update Sum (S) - Parallel Prefix Sums
+                    var vDeltaS1 = Avx.Subtract(vNew1, vOld1);
+                    var vDeltaS2 = Avx.Subtract(vNew2, vOld2);
+
+                    // Prefix Sum DeltaS1
+                    var vShiftS1_1 = Avx2.Permute4x64(vDeltaS1.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vShiftS1_1 = Avx.Blend(vZero, vShiftS1_1, 0b_1110);
+                    var vPS_DeltaS1 = Avx.Add(vDeltaS1, vShiftS1_1);
+                    var vShiftS2_1 = Avx2.Permute4x64(vPS_DeltaS1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                    vShiftS2_1 = Avx.Blend(vZero, vShiftS2_1, 0b_1100);
+                    vPS_DeltaS1 = Avx.Add(vPS_DeltaS1, vShiftS2_1);
+
+                    // Prefix Sum DeltaS2
+                    var vShiftS1_2 = Avx2.Permute4x64(vDeltaS2.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vShiftS1_2 = Avx.Blend(vZero, vShiftS1_2, 0b_1110);
+                    var vPS_DeltaS2 = Avx.Add(vDeltaS2, vShiftS1_2);
+                    var vShiftS2_2 = Avx2.Permute4x64(vPS_DeltaS2.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                    vShiftS2_2 = Avx.Blend(vZero, vShiftS2_2, 0b_1100);
+                    vPS_DeltaS2 = Avx.Add(vPS_DeltaS2, vShiftS2_2);
+
+                    // Combine Sums
+                    var vSums1 = Avx.Add(vSumState, vPS_DeltaS1);
+                    var vLastS1 = Avx2.Permute4x64(vSums1.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                    var vSums2 = Avx.Add(vLastS1, vPS_DeltaS2);
+
+                    // 2. Update Weighted Sum (W)
+                    // Optimization: S_shifted = S - DeltaS
+                    // This avoids expensive Permute/Blend operations
+                    var vSumsShifted1 = Avx.Subtract(vSums1, vDeltaS1);
+                    var vSumsShifted2 = Avx.Subtract(vSums2, vDeltaS2);
+
+                    Vector256<double> vU1, vU2;
+                    if (Fma.IsSupported)
+                    {
+                        vU1 = Fma.MultiplySubtract(vPeriod, vNew1, vSumsShifted1);
+                        vU2 = Fma.MultiplySubtract(vPeriod, vNew2, vSumsShifted2);
+                    }
+                    else
+                    {
+                        vU1 = Avx.Subtract(Avx.Multiply(vPeriod, vNew1), vSumsShifted1);
+                        vU2 = Avx.Subtract(Avx.Multiply(vPeriod, vNew2), vSumsShifted2);
+                    }
+
+                    // Prefix Sum W1
+                    var vShiftW1_1 = Avx2.Permute4x64(vU1.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vShiftW1_1 = Avx.Blend(vZero, vShiftW1_1, 0b_1110);
+                    var vPW1_1 = Avx.Add(vU1, vShiftW1_1);
+                    var vShiftW2_1 = Avx2.Permute4x64(vPW1_1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                    vShiftW2_1 = Avx.Blend(vZero, vShiftW2_1, 0b_1100);
+                    var vPW2_1 = Avx.Add(vPW1_1, vShiftW2_1);
+
+                    // Prefix Sum W2
+                    var vShiftW1_2 = Avx2.Permute4x64(vU2.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vShiftW1_2 = Avx.Blend(vZero, vShiftW1_2, 0b_1110);
+                    var vPW1_2 = Avx.Add(vU2, vShiftW1_2);
+                    var vShiftW2_2 = Avx2.Permute4x64(vPW1_2.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                    vShiftW2_2 = Avx.Blend(vZero, vShiftW2_2, 0b_1100);
+                    var vPW2_2 = Avx.Add(vPW1_2, vShiftW2_2);
+
+                    // Combine Weighted Sums
+                    var vWsums1 = Avx.Add(vWsumState, vPW2_1);
+                    var vLastW1 = Avx2.Permute4x64(vWsums1.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                    var vWsums2 = Avx.Add(vLastW1, vPW2_2);
+
+                    // Store results
+                    Avx.Store(outPtr + idx, Avx.Multiply(vWsums1, vInvDivisor));
+                    Avx.Store(outPtr + idx + VectorWidth, Avx.Multiply(vWsums2, vInvDivisor));
+
+                    // Update state for next iteration
+                    vSumState = Avx2.Permute4x64(vSums2.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                    vWsumState = Avx2.Permute4x64(vWsums2.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                }
+
+                // Handle remaining vectors (if any)
+                for (; idx < nextSync; idx += VectorWidth)
+                {
+                    // Load 4 entering values and 4 leaving values
+                    var vNew = Avx.LoadVector256(srcPtr + idx);
+                    var vOld = Avx.LoadVector256(srcPtr + idx - period);
+
+                    // 1. Update Sum (S)
+                    // Delta S = New - Old
+                    var vDeltaS = Avx.Subtract(vNew, vOld);
+
+                    // Prefix sum of Delta S
+                    var vShiftS1 = Avx2.Permute4x64(vDeltaS.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vShiftS1 = Avx.Blend(vZero, vShiftS1, 0b_1110);
+                    var vPS1 = Avx.Add(vDeltaS, vShiftS1);
+
+                    var vShiftS2 = Avx2.Permute4x64(vPS1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                    vShiftS2 = Avx.Blend(vZero, vShiftS2, 0b_1100);
+                    var vPS2 = Avx.Add(vPS1, vShiftS2);
+
+                    // Add previous sum state
+                    var vSums = Avx.Add(vSumState, vPS2);
+
+                    // 2. Update Weighted Sum (W)
+                    // Shift vSums right and insert sum (S_t) at pos 0
+                    var vSumsShifted = Avx2.Permute4x64(vSums.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vSumsShifted = Avx.Blend(vSumState, vSumsShifted, 0b_1110);
+
+                    // U = (n * New) - S_shifted
+                    var vTerm1 = Avx.Multiply(vPeriod, vNew);
+                    var vU = Avx.Subtract(vTerm1, vSumsShifted);
+
+                    // Prefix sum of U
+                    var vShiftW1 = Avx2.Permute4x64(vU.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                    vShiftW1 = Avx.Blend(vZero, vShiftW1, 0b_1110);
+                    var vPW1 = Avx.Add(vU, vShiftW1);
+
+                    var vShiftW2 = Avx2.Permute4x64(vPW1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                    vShiftW2 = Avx.Blend(vZero, vShiftW2, 0b_1100);
+                    var vPW2 = Avx.Add(vPW1, vShiftW2);
+
+                    // Add previous wsum state
+                    var vWsums = Avx.Add(vWsumState, vPW2);
+
+                    // Store result
+                    var vResult = Avx.Multiply(vWsums, vInvDivisor);
+                    Avx.Store(outPtr + idx, vResult);
+
+                    // Update state for next iteration
+                    vSumState = Avx2.Permute4x64(vSums.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                    vWsumState = Avx2.Permute4x64(vWsums.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                }
+
+                // Periodic resync
+                if (idx < len)
+                {
+                    // Extract scalar state for resync logic
+                    sum = vSumState.GetElement(0);
+                    wsum = vWsumState.GetElement(0);
+
+                    // Recalculate sums from scratch
+                    int lastIdx = idx - 1;
+                    double recalcSum = 0;
+                    double recalcWsum = 0;
+                    for (int k = 0; k < period; k++)
+                    {
+                        double val = srcPtr[lastIdx - k];
+                        recalcSum += val;
+                        recalcWsum += (period - k) * val;
+                    }
+                    sum = recalcSum;
+                    wsum = recalcWsum;
+                    
+                    // Update vector state after resync
+                    vSumState = Vector256.Create(sum);
+                    vWsumState = Vector256.Create(wsum);
+                }
+            }
+            
+            // Extract final scalar state for tail
+            sum = vSumState.GetElement(0);
+            wsum = vWsumState.GetElement(0);
+
+            // Phase 3: Scalar tail
+            for (; idx < len; idx++)
+            {
+                double val = srcPtr[idx];
+                double oldSum = sum;
+                double oldest = srcPtr[idx - period];
+                sum = sum - oldest + val;
+                wsum = wsum - oldSum + (period * val);
+                outPtr[idx] = wsum * invDivisor;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Checks if span contains any non-finite values (NaN or Infinity).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool HasNonFiniteValues(ReadOnlySpan<double> span)
+    {
+        for (int idx = 0; idx < span.Length; idx++)
+        {
+            if (!double.IsFinite(span[idx]))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

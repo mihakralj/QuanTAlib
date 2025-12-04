@@ -48,6 +48,7 @@ public class Ema
     }
 
     private readonly double _alpha;
+    private readonly double _decay;  // Pre-calculated (1.0 - alpha) to avoid subtraction per tick
     private State _state = State.New();
     private State _p_state = State.New();
     private double _lastValidValue;
@@ -68,6 +69,7 @@ public class Ema
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _alpha = 2.0 / (period + 1);
+        _decay = 1.0 - _alpha;
         Name = $"Ema({period})";
     }
 
@@ -81,6 +83,7 @@ public class Ema
             throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
 
         _alpha = alpha;
+        _decay = 1.0 - alpha;
         Name = $"Ema(α={alpha:F4})";
     }
 
@@ -116,18 +119,18 @@ public class Ema
     /// <summary>
     /// Core EMA calculation kernel.
     /// Assumes input has already been validated via GetValidValue().
-    /// IsHot becomes true at 95% coverage (E &lt;= 0.05).
+    /// IsHot becomes true at 95% coverage (E <= 0.05).
     /// Bias correction continues until compensator decays to 1e-10.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double Compute(double input, double alpha, ref State state)
+    private static double Compute(double input, double alpha, double decay, ref State state)
     {
         state.Ema += alpha * (input - state.Ema);
 
         double result;
         if (!state.IsCompensated)
         {
-            state.E *= (1.0 - alpha);
+            state.E *= decay;
 
             // IsHot triggers at 95% coverage
             if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
@@ -153,6 +156,54 @@ public class Ema
     }
 
     /// <summary>
+    /// Core calculation kernel that handles both batch and streaming-continuation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalculateCore(ReadOnlySpan<double> source, Span<double> output, double alpha, ref State state, ref double lastValidValue)
+    {
+        int len = source.Length;
+        double decay = 1.0 - alpha;
+        int i = 0;
+
+        // Phase 1: Warmup with bias correction
+        // If state is already compensated, this loop is skipped
+        if (!state.IsCompensated)
+        {
+            for (; i < len && state.E > COMPENSATOR_THRESHOLD; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                    lastValidValue = val;
+                else
+                    val = lastValidValue;
+
+                state.Ema += alpha * (val - state.Ema);
+                state.E *= decay;
+
+                if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+                    state.IsHot = true;
+
+                output[i] = state.Ema / (1.0 - state.E);
+            }
+            if (state.E <= COMPENSATOR_THRESHOLD)
+                state.IsCompensated = true;
+        }
+
+        // Phase 2: Hot loop
+        for (; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValidValue = val;
+            else
+                val = lastValidValue;
+
+            state.Ema += alpha * (val - state.Ema);
+            output[i] = state.Ema;
+        }
+    }
+
+    /// <summary>
     /// Updates EMA with the given value.
     /// </summary>
     /// <param name="input">Input value</param>
@@ -172,18 +223,21 @@ public class Ema
 
         // Last-value substitution: replace non-finite inputs with last valid value
         double val = GetValidValue(input.Value);
-        val = Compute(val, _alpha, ref _state);
+        val = Compute(val, _alpha, _decay, ref _state);
         Value = new TValue(input.Time, val);
         return Value;
     }
 
     /// <summary>
     /// Updates EMA with the entire series.
+    /// Uses split-loop optimization: warmup phase with bias correction, then branchless hot loop.
     /// </summary>
     /// <param name="source">Input series</param>
     /// <returns>EMA series</returns>
     public TSeries Update(TSeries source)
     {
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
@@ -195,23 +249,23 @@ public class Ema
         var sourceValues = source.Values;
         var sourceTimes = source.Times;
 
-        // Local state for batch processing
+        // 1. Fast Batch Calculation
+        // Uses the unified CalculateCore to handle both new and continuing states
+        // Optimization: Copy state to locals to allow JIT register allocation
         State state = _state;
+        double lastValidValue = _lastValidValue;
 
-        for (int i = 0; i < len; i++)
-        {
-            // Last-value substitution: replace non-finite inputs with last valid value
-            double val = GetValidValue(sourceValues[i]);
-            val = Compute(val, _alpha, ref state);
-            tSpan[i] = sourceTimes[i];
-            vSpan[i] = val;
-        }
+        CalculateCore(sourceValues, vSpan, _alpha, ref state, ref lastValidValue);
 
-        // Update instance state to the final state
         _state = state;
-        _p_state = state; // Assume last point is committed
+        _lastValidValue = lastValidValue;
 
+        // Copy Times
+        sourceTimes.CopyTo(tSpan);
+        
+        _p_state = _state;
         Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        
         return new TSeries(t, v);
     }
 
@@ -249,10 +303,11 @@ public class Ema
     /// Calculates EMA in-place using alpha, writing results to pre-allocated output span.
     /// Zero-allocation method for maximum performance.
     /// Bias correction continues until compensator decays to 1e-10.
+    /// Uses split-loop optimization: warmup phase with bias correction, then branchless hot loop.
     /// </summary>
     /// <param name="source">Input values</param>
     /// <param name="output">Output span (must be same length as source)</param>
-    /// <param name="alpha">Smoothing factor (0 &lt; alpha &lt;= 1)</param>
+    /// <param name="alpha">Smoothing factor (0 < alpha <= 1)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
@@ -261,26 +316,13 @@ public class Ema
         if (alpha <= 0 || alpha > 1)
             throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
 
-        int len = source.Length;
-        double ema = 0;
-        double e = 1.0;
+        if (source.Length == 0) return;
+
+        // Initialize default state for static calculation
+        State state = State.New();
         double lastValid = 0;
-        double oneMinusAlpha = 1.0 - alpha;
 
-        for (int i = 0; i < len; i++)
-        {
-            double val = source[i];
-            if (!double.IsFinite(val))
-                val = lastValid;
-            else
-                lastValid = val;
-
-            ema += alpha * (val - ema);
-            e *= oneMinusAlpha;
-
-            // Bias correction until compensator fully decays
-            output[i] = e > COMPENSATOR_THRESHOLD ? ema / (1.0 - e) : ema;
-        }
+        CalculateCore(source, output, alpha, ref state, ref lastValid);
     }
 
     /// <summary>
