@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -466,7 +467,7 @@ public sealed class RingBuffer : IEnumerable<double>
             _start == other._start &&
             _count == other._count &&
             _index == other._index &&
-            _current == other._current;
+            _current.Equals(other._current);
 
         public override readonly bool Equals(object? obj) =>
             obj is Enumerator other && Equals(other);

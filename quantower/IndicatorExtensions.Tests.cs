@@ -96,6 +96,7 @@ public class IndicatorExtensionsTests
     }
 
     [Fact]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public void PaintMethods_DoNotThrow_WithValidGraphics()
     {
         // This test attempts to verify that paint methods don't crash.
@@ -144,5 +145,8 @@ public class IndicatorExtensionsTests
 
         // Test DrawText
         IndicatorExtensions.DrawText(indicator, args, "Test Text");
+
+        // Assert that we reached the end without throwing
+        Assert.True(true);
     }
 }

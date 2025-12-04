@@ -8,7 +8,7 @@ namespace QuanTAlib;
 /// Stateless design - only maintains minimal state needed for price continuity.
 /// </summary>
 [SkipLocalsInit]
-  // Types should be named in PascalCase - GBM is a standard acronym
+#pragma warning disable S101 // Rename class 'GBM' to match pascal case naming rules
 public class GBM : IFeed
 #pragma warning restore S101
 {

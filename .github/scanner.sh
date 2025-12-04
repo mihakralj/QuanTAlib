@@ -200,6 +200,12 @@ if [ "$SKIP_QODANA" = false ]; then
     if command -v qodana &> /dev/null; then
         log_info "Starting Qodana analysis..."
         
+        # Install dependencies required for Qodana (IntelliJ) on minimal Debian
+        if ! dpkg -s libfreetype6 fontconfig &> /dev/null; then
+            log_info "Installing missing dependencies (libfreetype6, fontconfig)..."
+            apt-get update && apt-get install -y libfreetype6 fontconfig
+        fi
+
         export CI=true
         qodana scan --within-docker=false -l qodana-dotnet --coverage-dir "$COVERAGE_DIR" || true
         

@@ -13,3 +13,13 @@ insert_final_newline = true
 # Suppress SonarQube S3776 - Cognitive Complexity
 # High-performance SIMD code intentionally has complex control flow
 dotnet_diagnostic.S3776.severity = none
+
+#### C# Coding Conventions ####
+
+# "var" preferences
+# Prefer explicit types for built-in types (e.g. int, double, string) - reduces noise in math-heavy code
+csharp_style_var_for_built_in_types = false:silent
+# Prefer var when the type is already mentioned on the right side (e.g. new List<int>())
+csharp_style_var_when_type_is_apparent = true:suggestion
+# Prefer explicit types in other cases to improve readability of math formulas
+csharp_style_var_elsewhere = false:silent

@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -300,6 +301,7 @@ public sealed class Sma
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+#pragma warning disable S6640 // Unsafe code is required for high-performance SIMD operations
     private static unsafe void CalculateSimdCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
@@ -370,6 +372,7 @@ public sealed class Sma
             }
         }
     }
+#pragma warning restore S6640
 
     /// <summary>
     /// Checks if span contains any non-finite values (NaN or Infinity).

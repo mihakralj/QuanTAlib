@@ -164,8 +164,6 @@
   "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
   "dotnet.server.useOmnisharp": false,
   
-  "testing.automaticallyOpenPeekView": "never",
-  "testing.openTesting": "neverOpen",
   "sonarlint.connectedMode.project": {
     "connectionId": "mihakralj-quantalib",
     "projectKey": "mihakralj_QuanTAlib"
