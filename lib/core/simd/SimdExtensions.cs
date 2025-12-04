@@ -112,7 +112,6 @@ public static class SimdExtensions
                     return true;
             }
 
-            // Check remaining elements with scalar
             for (; i < span.Length; i++)
             {
                 if (!double.IsFinite(span[i]))
@@ -144,19 +143,16 @@ public static class SimdExtensions
             int vectorSize = Vector<double>.Count;
             int i = 0;
 
-            // Process in vector chunks
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
                 sum += vector;
             }
 
-            // Horizontal sum of vector
             double result = 0.0;
             for (int j = 0; j < vectorSize; j++)
                 result += sum[j];
 
-            // Process remaining elements
             for (; i < span.Length; i++)
                 result += span[i];
 
@@ -186,14 +182,12 @@ public static class SimdExtensions
             var minVec = new Vector<double>(span.Slice(0, vectorSize));
             int i = vectorSize;
 
-            // Process in vector chunks
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
                 minVec = Vector.Min(minVec, vector);
             }
 
-            // Find minimum within vector
             double result = minVec[0];
             for (int j = 1; j < vectorSize; j++)
             {
@@ -201,7 +195,6 @@ public static class SimdExtensions
                     result = minVec[j];
             }
 
-            // Process remaining elements
             for (; i < span.Length; i++)
             {
                 if (span[i] < result)
@@ -234,14 +227,12 @@ public static class SimdExtensions
             var maxVec = new Vector<double>(span.Slice(0, vectorSize));
             int i = vectorSize;
 
-            // Process in vector chunks
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
                 maxVec = Vector.Max(maxVec, vector);
             }
 
-            // Find maximum within vector
             double result = maxVec[0];
             for (int j = 1; j < vectorSize; j++)
             {
@@ -249,7 +240,6 @@ public static class SimdExtensions
                     result = maxVec[j];
             }
 
-            // Process remaining elements
             for (; i < span.Length; i++)
             {
                 if (span[i] > result)
@@ -285,12 +275,17 @@ public static class SimdExtensions
     {
         if (span.Length < 2) return double.NaN;
 
-        // Guard against non-finite inputs
-        if (span.ContainsNonFinite()) return double.NaN;
+        double m;
+        if (mean.HasValue)
+        {
+            if (span.ContainsNonFinite()) return double.NaN;
+            m = mean.Value;
+        }
+        else
+        {
+            m = span.AverageSIMD();
+        }
 
-        double m = mean ?? span.AverageSIMD();
-
-        // Guard against non-finite mean (could be passed in or computed from non-finite values)
         if (!double.IsFinite(m)) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
@@ -300,7 +295,6 @@ public static class SimdExtensions
             int vectorSize = Vector<double>.Count;
             int i = 0;
 
-            // Process in vector chunks
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
@@ -308,12 +302,10 @@ public static class SimdExtensions
                 sumSq += diff * diff;
             }
 
-            // Horizontal sum of vector
             double result = 0.0;
             for (int j = 0; j < vectorSize; j++)
                 result += sumSq[j];
 
-            // Process remaining elements
             for (; i < span.Length; i++)
             {
                 double diff = span[i] - m;
@@ -358,7 +350,6 @@ public static class SimdExtensions
             var maxVec = minVec;
             int i = vectorSize;
 
-            // Process in vector chunks
             for (; i <= span.Length - vectorSize; i += vectorSize)
             {
                 var vector = new Vector<double>(span.Slice(i, vectorSize));
@@ -366,7 +357,6 @@ public static class SimdExtensions
                 maxVec = Vector.Max(maxVec, vector);
             }
 
-            // Find min/max within vectors
             double min = minVec[0];
             double max = maxVec[0];
             for (int j = 1; j < vectorSize; j++)
@@ -375,7 +365,6 @@ public static class SimdExtensions
                 if (maxVec[j] > max) max = maxVec[j];
             }
 
-            // Process remaining elements
             for (; i < span.Length; i++)
             {
                 if (span[i] < min) min = span[i];

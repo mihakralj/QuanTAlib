@@ -16,7 +16,7 @@ This notebook demonstrates:
 1.  **Manual Data Processing**: Understanding Batch vs. Streaming modes.
 2.  **Streaming with `isNew`**: Handling intra-bar updates.
 3.  **Large Dataset Processing**: Using Geometric Brownian Motion (GBM) generated data.
-4.  **Vectorized Operations**: Calculating multiple EMAs simultaneously.
+4.  **Handling Invalid Values**: Last-value substitution for NaN/Infinity.
 
 #!csharp
 
@@ -165,63 +165,9 @@ Console.WriteLine($"Streaming Last Value: {lastStreamVal.Value:F2}");
 
 #!markdown
 
-## 4. Vectorized EMA (Multiple Periods)
+## 4. Handling Invalid Values (NaN/Infinity)
 
-`EmaVector` allows calculating multiple EMAs (e.g., 9, 12, 26) simultaneously. This is optimized for performance using SIMD where available.
-
-### Vectorized Batch
-
-#!csharp
-
-int[] periods = { 9, 12, 26 };
-Console.WriteLine($"\n--- Vectorized Batch EMA (Periods: {string.Join(", ", periods)}) ---");
-
-var emaVectorBatch = new EmaVector(periods);
-var vectorBatchResults = emaVectorBatch.Calculate(closeSeries);
-
-for (int i = 0; i < periods.Length; i++)
-{
-    Console.WriteLine($"EMA({periods[i]}) Last Value: {vectorBatchResults[i].Last().Value:F2}");
-}
-
-#!markdown
-
-### Vectorized Streaming
-
-#!csharp
-
-Console.WriteLine($"\n--- Vectorized Streaming EMA (Periods: {string.Join(", ", periods)}) ---");
-
-var emaVectorStream = new EmaVector(periods);
-TValue[] lastVectorVal = null;
-
-foreach(var item in closeSeries)
-{
-    lastVectorVal = emaVectorStream.Update(item);
-}
-
-for (int i = 0; i < periods.Length; i++)
-{
-    Console.WriteLine($"EMA({periods[i]}) Last Value: {lastVectorVal[i].Value:F2}");
-}
-
-// Verification
-bool allMatch = true;
-for (int i = 0; i < periods.Length; i++)
-{
-    if (Math.Abs(vectorBatchResults[i].Last().Value - lastVectorVal[i].Value) > 1e-10)
-    {
-        allMatch = false;
-        break;
-    }
-}
-Console.WriteLine($"\nAll Vectorized Stream/Batch values match: {allMatch}");
-
-#!markdown
-
-## 5. Handling Invalid Values (NaN/Infinity)
-
-Both `Ema` and `EmaVector` use **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
+`Ema` uses **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
 
 #!csharp
 
@@ -271,24 +217,3 @@ for (int i = 0; i < seriesWithNaN.Count; i++)
     var inputStr = double.IsFinite(input) ? input.ToString("F2") : input.ToString();
     Console.WriteLine($"  {inputStr,-10} → {output:F2} (IsFinite: {double.IsFinite(output)})");
 }
-
-#!csharp
-
-Console.WriteLine("\n--- Vectorized EMA with Invalid Values ---");
-
-int[] periodsNaN = { 5, 10 };
-var emaVectorNaN = new EmaVector(periodsNaN);
-
-// Feed values including invalid ones
-var inputsNaN = new double[] { 100, 110, double.NaN, 120, double.PositiveInfinity, 130 };
-var time = DateTime.Now;
-
-foreach (var val in inputsNaN)
-{
-    var results = emaVectorNaN.Update(new TValue(time, val));
-    var inputStr = double.IsFinite(val) ? val.ToString("F2") : val.ToString();
-    Console.WriteLine($"Input: {inputStr,-10} → EMA(5): {results[0].Value:F2}, EMA(10): {results[1].Value:F2}");
-    time = time.AddMinutes(1);
-}
-
-Console.WriteLine("\nAll outputs are finite - invalid inputs were substituted with last valid values.");

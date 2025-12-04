@@ -99,33 +99,9 @@ Console.WriteLine($"Last SMA: {smaOutput[^1]}");
 * **2-3x faster** than TSeries API for large datasets
 * **Compatible** with `ArrayPool<T>` for buffer management
 
-### Multi-Period SMA (`SmaVector`)
-
-The `SmaVector` class calculates multiple SMAs with different periods on the same input series simultaneously.
-
-```csharp
-using QuanTAlib;
-
-// Initialize with multiple periods
-int[] periods = { 5, 10, 20 };
-var smaVector = new SmaVector(periods);
-
-// Streaming update
-TValue[] results = smaVector.Update(new TValue(time, price));
-
-// Access values
-Console.WriteLine($"SMA(5): {results[0].Value}");
-Console.WriteLine($"SMA(10): {results[1].Value}");
-Console.WriteLine($"SMA(20): {results[2].Value}");
-
-// Batch calculation
-TSeries source = ...;
-TSeries[] seriesResults = smaVector.Calculate(source);
-```
-
 ### Bar Correction (isNew Parameter)
 
-Both `Sma` and `SmaVector` support intra-bar updates for real-time trading systems:
+`Sma` supports intra-bar updates for real-time trading systems:
 
 ```csharp
 var sma = new Sma(10);
@@ -151,7 +127,7 @@ sma.Update(new TValue(time + 1, 101.2), isNew: true);
 
 ### Handling Invalid Values (NaN/Infinity)
 
-Both `Sma` and `SmaVector` use **last-value substitution** for handling invalid inputs:
+`Sma` uses **last-value substitution** for handling invalid inputs:
 
 ```csharp
 var sma = new Sma(10);

@@ -11,36 +11,25 @@ namespace QuanTAlib;
 /// </summary>
 public class TSeries : IReadOnlyList<TValue>
 {
-    // Internal storage: SoA layout
-    // We use List<T> for dynamic sizing but access internal arrays via CollectionsMarshal for speed
     protected readonly List<long> _t;
     protected readonly List<double> _v;
 
     public string Name { get; set; } = "Data";
 
-    // Event optimization: Use Action<TValue> to avoid EventArgs allocation
-    // Note: Events are generally discouraged in the hot path of this high-perf design, 
-    // but kept for compatibility/chaining.
     public event Action<TValue>? Pub;
 
-    public TSeries() 
+    public TSeries()
     {
         _t = new List<long>();
         _v = new List<double>();
     }
 
-    /// <summary>
-    /// Constructor with capacity hint to avoid List growth overhead.
-    /// </summary>
-    public TSeries(int capacity) 
+    public TSeries(int capacity)
     {
         _t = new List<long>(capacity);
         _v = new List<double>(capacity);
     }
 
-    /// <summary>
-    /// Constructor for wrapping existing lists (e.g. from TBarSeries).
-    /// </summary>
     public TSeries(List<long> time, List<double> values)
     {
         _t = time;
@@ -105,7 +94,6 @@ public class TSeries : IReadOnlyList<TValue>
         }
         else
         {
-            // Update last bar
             int lastIdx = _v.Count - 1;
             _t[lastIdx] = value.Time;
             _v[lastIdx] = value.Value;
@@ -129,7 +117,7 @@ public class TSeries : IReadOnlyList<TValue>
         foreach (var v in values)
         {
             Add(new TValue(t, v), isNew: true);
-            t += TimeSpan.TicksPerMinute; // Dummy time increment
+            t += TimeSpan.TicksPerMinute;
         }
     }
 

@@ -114,33 +114,9 @@ Console.WriteLine($"Last WMA: {wmaOutput[^1]}");
 * **O(1) per-bar** via dual running sums
 * **Compatible** with `ArrayPool<T>` for buffer management
 
-### Multi-Period WMA (`WmaVector`)
-
-The `WmaVector` class calculates multiple WMAs with different periods on the same input series simultaneously.
-
-```csharp
-using QuanTAlib;
-
-// Initialize with multiple periods
-int[] periods = { 5, 10, 20 };
-var wmaVector = new WmaVector(periods);
-
-// Streaming update
-TValue[] results = wmaVector.Update(new TValue(time, price));
-
-// Access values
-Console.WriteLine($"WMA(5): {results[0].Value}");
-Console.WriteLine($"WMA(10): {results[1].Value}");
-Console.WriteLine($"WMA(20): {results[2].Value}");
-
-// Batch calculation
-TSeries source = ...;
-TSeries[] seriesResults = wmaVector.Calculate(source);
-```
-
 ### Bar Correction (isNew Parameter)
 
-Both `Wma` and `WmaVector` support intra-bar updates for real-time trading systems:
+`Wma` supports intra-bar updates for real-time trading systems:
 
 ```csharp
 var wma = new Wma(10);
@@ -166,7 +142,7 @@ wma.Update(new TValue(time + 1, 101.2), isNew: true);
 
 ### Handling Invalid Values (NaN/Infinity)
 
-Both `Wma` and `WmaVector` use **last-value substitution** for handling invalid inputs:
+`Wma` uses **last-value substitution** for handling invalid inputs:
 
 ```csharp
 var wma = new Wma(10);

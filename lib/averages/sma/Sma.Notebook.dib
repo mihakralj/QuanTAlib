@@ -21,7 +21,8 @@ This notebook demonstrates:
 1.  **Manual Data Processing**: Understanding Batch vs. Streaming modes.
 2.  **Streaming with `isNew`**: Handling intra-bar updates.
 3.  **Large Dataset Processing**: Using Geometric Brownian Motion (GBM) generated data.
-4.  **Vectorized Operations**: Calculating multiple SMAs simultaneously.
+4.  **Handling Invalid Values**: Last-value substitution for NaN/Infinity.
+5.  **SMA vs EMA**: Comparing Simple and Exponential Moving Averages.
 
 #!csharp
 
@@ -189,63 +190,9 @@ Console.WriteLine($"Match: {Math.Abs(batchLargeResult.Last().Value - lastStreamV
 
 #!markdown
 
-## 4. Vectorized SMA (Multiple Periods)
+## 4. Handling Invalid Values (NaN/Infinity)
 
-`SmaVector` allows calculating multiple SMAs (e.g., 5, 10, 20) simultaneously. This is useful for comparing different timeframes.
-
-### Vectorized Batch
-
-#!csharp
-
-int[] periods = { 5, 10, 20 };
-Console.WriteLine($"\n--- Vectorized Batch SMA (Periods: {string.Join(", ", periods)}) ---");
-
-var smaVectorBatch = new SmaVector(periods);
-var vectorBatchResults = smaVectorBatch.Calculate(closeSeries);
-
-for (int i = 0; i < periods.Length; i++)
-{
-    Console.WriteLine($"SMA({periods[i]}) Last Value: {vectorBatchResults[i].Last().Value:F2}");
-}
-
-#!markdown
-
-### Vectorized Streaming
-
-#!csharp
-
-Console.WriteLine($"\n--- Vectorized Streaming SMA (Periods: {string.Join(", ", periods)}) ---");
-
-var smaVectorStream = new SmaVector(periods);
-TValue[] lastVectorVal = null;
-
-foreach(var item in closeSeries)
-{
-    lastVectorVal = smaVectorStream.Update(item);
-}
-
-for (int i = 0; i < periods.Length; i++)
-{
-    Console.WriteLine($"SMA({periods[i]}) Last Value: {lastVectorVal[i].Value:F2}");
-}
-
-// Verification
-bool allMatch = true;
-for (int i = 0; i < periods.Length; i++)
-{
-    if (Math.Abs(vectorBatchResults[i].Last().Value - lastVectorVal[i].Value) > 1e-10)
-    {
-        allMatch = false;
-        break;
-    }
-}
-Console.WriteLine($"\nAll Vectorized Stream/Batch values match: {allMatch}");
-
-#!markdown
-
-## 5. Handling Invalid Values (NaN/Infinity)
-
-Both `Sma` and `SmaVector` use **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
+`Sma` uses **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
 
 #!csharp
 
@@ -296,30 +243,9 @@ for (int i = 0; i < seriesWithNaN.Count; i++)
     Console.WriteLine($"  {inputStr,-10} → {output:F2} (IsFinite: {double.IsFinite(output)})");
 }
 
-#!csharp
-
-Console.WriteLine("\n--- Vectorized SMA with Invalid Values ---");
-
-int[] periodsNaN = { 5, 10 };
-var smaVectorNaN = new SmaVector(periodsNaN);
-
-// Feed values including invalid ones
-var inputsNaN = new double[] { 100, 110, double.NaN, 120, double.PositiveInfinity, 130 };
-var time = DateTime.Now;
-
-foreach (var val in inputsNaN)
-{
-    var results = smaVectorNaN.Update(new TValue(time, val));
-    var inputStr = double.IsFinite(val) ? val.ToString("F2") : val.ToString();
-    Console.WriteLine($"Input: {inputStr,-10} → SMA(5): {results[0].Value:F2}, SMA(10): {results[1].Value:F2}");
-    time = time.AddMinutes(1);
-}
-
-Console.WriteLine("\nAll outputs are finite - invalid inputs were substituted with last valid values.");
-
 #!markdown
 
-## 6. SMA vs EMA Comparison
+## 5. SMA vs EMA Comparison
 
 The SMA and EMA are both trend-following indicators, but they weight data differently:
 

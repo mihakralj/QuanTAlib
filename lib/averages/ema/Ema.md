@@ -115,33 +115,9 @@ Console.WriteLine($"Last EMA: {emaOutput[^1]}");
 * **Hunter's bias correction**: Same accuracy as TSeries API
 * **Compatible** with `ArrayPool<T>` for buffer management
 
-### Multi-Alpha EMA (`EmaVector`)
-
-The `EmaVector` class is a SIMD-optimized implementation for calculating multiple EMAs with different periods on the same input series simultaneously. It leverages hardware intrinsics (AVX/SSE) for high performance.
-
-```csharp
-using QuanTAlib;
-
-// Initialize with multiple periods
-int[] periods = { 9, 12, 26 };
-var emaVector = new EmaVector(periods);
-
-// Streaming update
-TValue[] results = emaVector.Update(new TValue(time, price));
-
-// Access values
-Console.WriteLine($"EMA(9): {results[0].Value}");
-Console.WriteLine($"EMA(12): {results[1].Value}");
-Console.WriteLine($"EMA(26): {results[2].Value}");
-
-// Batch calculation
-TSeries source = ...;
-TSeries[] seriesResults = emaVector.Calculate(source);
-```
-
 ### Handling Invalid Values (NaN/Infinity)
 
-Both `Ema` and `EmaVector` use **last-value substitution** for handling invalid inputs:
+`Ema` uses **last-value substitution** for handling invalid inputs:
 
 ```csharp
 var ema = new Ema(10);
@@ -166,13 +142,11 @@ var results = ema.Update(series);  // All values are finite
 
 * When `NaN`, `PositiveInfinity`, or `NegativeInfinity` is encountered, the last valid value is substituted
 * This provides output continuity instead of propagating invalid values
-* Both scalar (`Ema`) and SIMD (`EmaVector`) implementations use identical logic
 * `Reset()` clears the last valid value, so the next valid input establishes a new baseline
 
 ### Performance Characteristics
 
 * **O(1) Complexity:** The calculation time is constant regardless of the period length.
-* **SIMD Optimization:** `EmaVector` processes multiple periods in parallel using vector instructions, significantly reducing CPU cycles for multi-timeframe analysis.
 * **Zero Allocation:** The streaming `Update` method is designed to be allocation-free (excluding the return struct).
 
 ## Interpretation Details

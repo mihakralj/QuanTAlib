@@ -9,19 +9,9 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public readonly struct TValue : IEquatable<TValue>
 {
-    /// <summary>
-    /// Time in ticks (UTC).
-    /// </summary>
     public readonly long Time;
-
-    /// <summary>
-    /// The value.
-    /// </summary>
     public readonly double Value;
 
-    /// <summary>
-    /// Convenience property to get DateTime from Ticks.
-    /// </summary>
     public DateTime AsDateTime => new(Time, DateTimeKind.Utc);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

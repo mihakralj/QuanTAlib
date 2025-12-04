@@ -11,7 +11,6 @@ namespace QuanTAlib;
 /// </summary>
 public class TBarSeries : IReadOnlyList<TBar>
 {
-    // Internal storage: SoA layout
     protected readonly List<long> _t = new();
     protected readonly List<double> _o = new();
     protected readonly List<double> _h = new();
@@ -22,7 +21,6 @@ public class TBarSeries : IReadOnlyList<TBar>
     public string Name { get; set; } = "Bar";
     public event Action<TBar>? Pub;
 
-    // Public properties are Views into the main data
     public TSeries Open { get; }
     public TSeries High { get; }
     public TSeries Low { get; }
@@ -38,7 +36,6 @@ public class TBarSeries : IReadOnlyList<TBar>
 
     public TBarSeries()
     {
-        // Initialize views sharing the same Time list but different Value lists
         Open = new TSeries(_t, _o) { Name = "Open" };
         High = new TSeries(_t, _h) { Name = "High" };
         Low = new TSeries(_t, _l) { Name = "Low" };
@@ -46,9 +43,6 @@ public class TBarSeries : IReadOnlyList<TBar>
         Volume = new TSeries(_t, _v) { Name = "Volume" };
     }
 
-    /// <summary>
-    /// Constructor with capacity hint to avoid List growth overhead.
-    /// </summary>
     public TBarSeries(int capacity)
     {
         _t = new List<long>(capacity);
@@ -58,7 +52,6 @@ public class TBarSeries : IReadOnlyList<TBar>
         _c = new List<double>(capacity);
         _v = new List<double>(capacity);
 
-        // Initialize views sharing the same Time list but different Value lists
         Open = new TSeries(_t, _o) { Name = "Open" };
         High = new TSeries(_t, _h) { Name = "High" };
         Low = new TSeries(_t, _l) { Name = "Low" };

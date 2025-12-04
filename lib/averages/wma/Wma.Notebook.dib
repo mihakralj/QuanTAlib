@@ -21,7 +21,7 @@ This notebook demonstrates:
 1.  **Manual Data Processing**: Understanding Batch vs. Streaming modes.
 2.  **Streaming with `isNew`**: Handling intra-bar updates.
 3.  **Large Dataset Processing**: Using Geometric Brownian Motion (GBM) generated data.
-4.  **Vectorized Operations**: Calculating multiple WMAs simultaneously.
+4.  **Handling Invalid Values**: Last-value substitution for NaN/Infinity.
 5.  **WMA vs SMA vs EMA**: Comparing different moving averages.
 
 #!csharp
@@ -190,63 +190,9 @@ Console.WriteLine($"Match: {Math.Abs(batchLargeResult.Last().Value - lastStreamV
 
 #!markdown
 
-## 4. Vectorized WMA (Multiple Periods)
+## 4. Handling Invalid Values (NaN/Infinity)
 
-`WmaVector` allows calculating multiple WMAs (e.g., 5, 10, 20) simultaneously. This is useful for comparing different timeframes.
-
-### Vectorized Batch
-
-#!csharp
-
-int[] periods = { 5, 10, 20 };
-Console.WriteLine($"\n--- Vectorized Batch WMA (Periods: {string.Join(", ", periods)}) ---");
-
-var wmaVectorBatch = new WmaVector(periods);
-var vectorBatchResults = wmaVectorBatch.Calculate(closeSeries);
-
-for (int i = 0; i < periods.Length; i++)
-{
-    Console.WriteLine($"WMA({periods[i]}) Last Value: {vectorBatchResults[i].Last().Value:F4}");
-}
-
-#!markdown
-
-### Vectorized Streaming
-
-#!csharp
-
-Console.WriteLine($"\n--- Vectorized Streaming WMA (Periods: {string.Join(", ", periods)}) ---");
-
-var wmaVectorStream = new WmaVector(periods);
-TValue[] lastVectorVal = null;
-
-foreach(var item in closeSeries)
-{
-    lastVectorVal = wmaVectorStream.Update(item);
-}
-
-for (int i = 0; i < periods.Length; i++)
-{
-    Console.WriteLine($"WMA({periods[i]}) Last Value: {lastVectorVal[i].Value:F4}");
-}
-
-// Verification
-bool allMatch = true;
-for (int i = 0; i < periods.Length; i++)
-{
-    if (Math.Abs(vectorBatchResults[i].Last().Value - lastVectorVal[i].Value) > 1e-10)
-    {
-        allMatch = false;
-        break;
-    }
-}
-Console.WriteLine($"\nAll Vectorized Stream/Batch values match: {allMatch}");
-
-#!markdown
-
-## 5. Handling Invalid Values (NaN/Infinity)
-
-Both `Wma` and `WmaVector` use **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
+`Wma` uses **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
 
 #!csharp
 
@@ -299,7 +245,7 @@ for (int i = 0; i < seriesWithNaN.Count; i++)
 
 #!markdown
 
-## 6. WMA vs SMA vs EMA Comparison
+## 5. WMA vs SMA vs EMA Comparison
 
 The WMA, SMA, and EMA are all trend-following indicators, but they weight data differently:
 
@@ -346,7 +292,7 @@ Console.WriteLine("- WMA provides a balance between SMA's stability and EMA's re
 
 #!markdown
 
-## 7. WMA Weights More Recent Values
+## 6. WMA Weights More Recent Values
 
 This example demonstrates how WMA weights more recent values compared to SMA.
 

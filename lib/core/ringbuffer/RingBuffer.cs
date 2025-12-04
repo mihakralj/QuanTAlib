@@ -23,9 +23,9 @@ public sealed class RingBuffer : IEnumerable<double>
 {
     private readonly double[] _buffer;
     private readonly int _capacity;
-    private int _head;      // Next write position (also start position when full)
-    private int _count;     // Current number of elements
-    private double _sum;    // Running sum of all elements
+    private int _head;
+    private int _count;
+    private double _sum;
 
     /// <summary>
     /// Creates a new RingBuffer with the specified capacity.
@@ -114,7 +114,6 @@ public sealed class RingBuffer : IEnumerable<double>
         get
         {
             if (_count == 0) return 0;
-            // When full, _head points to oldest; otherwise start is 0
             int start = _count == _capacity ? _head : 0;
             return _buffer[start];
         }
@@ -143,7 +142,6 @@ public sealed class RingBuffer : IEnumerable<double>
 
         if (_count == _capacity)
         {
-            // Buffer is full: remove oldest value from sum
             removed = _buffer[_head];
             _sum -= removed;
         }
@@ -243,13 +241,11 @@ public sealed class RingBuffer : IEnumerable<double>
 
         int start = _count == _capacity ? _head : 0;
 
-        // Check if contiguous (no wrap)
         if (start + _count <= _capacity)
         {
             return new ReadOnlySpan<double>(_buffer, start, _count);
         }
 
-        // Wrapped - need to copy
         return new ReadOnlySpan<double>(ToArray());
     }
 

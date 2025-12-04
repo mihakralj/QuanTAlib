@@ -108,7 +108,6 @@ public class TrimaTests
 
         trima.Update(new TValue(DateTime.UtcNow, 100));
         trima.Update(new TValue(DateTime.UtcNow, 105));
-        double valueBefore = trima.Value;
 
         trima.Reset();
 
@@ -151,20 +150,24 @@ public class TrimaTests
 
         // Calculate iteratively
         var iterativeResults = new TSeries();
+#pragma warning disable S4158 // Collection is known to be empty
         foreach (var item in series)
         {
             iterativeResults.Add(trimaIterative.Update(item));
         }
+#pragma warning restore S4158
 
         // Calculate batch
         var batchResults = trimaBatch.Update(series);
 
         // Compare
         Assert.Equal(iterativeResults.Count, batchResults.Count);
+#pragma warning disable S2583 // Condition always evaluates to false
         for (int i = 0; i < iterativeResults.Count; i++)
         {
             Assert.Equal(iterativeResults[i].Value, batchResults[i].Value, 1e-10);
         }
+#pragma warning restore S2583
     }
 
     [Fact]
