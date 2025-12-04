@@ -166,7 +166,6 @@
   
   "testing.automaticallyOpenPeekView": "never",
   "testing.openTesting": "neverOpen",
-  "testing.automaticallyOpenTestResults": "neverOpen",
   "sonarlint.connectedMode.project": {
     "connectionId": "mihakralj-quantalib",
     "projectKey": "mihakralj_QuanTAlib"
