@@ -19,7 +19,7 @@ The **Triangular Moving Average (TRIMA)** is a weighted moving average where the
 #!csharp
 
 // Reference the library
-#r "..\..\bin\QuanTAlib.dll"
+#r "..\..\bin\Debug\net10.0\QuanTAlib.dll"
 
 using System;
 using System.Linq;

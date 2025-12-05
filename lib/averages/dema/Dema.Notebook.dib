@@ -1,0 +1,219 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"name":"csharp"},{"name":"fsharp","languageName":"F#","aliases":["f#","fs"]},{"name":"html","languageName":"HTML"},{"name":"http","languageName":"HTTP"},{"name":"javascript","languageName":"JavaScript","aliases":["js"]},{"name":"mermaid","languageName":"Mermaid"},{"name":"pwsh","languageName":"PowerShell","aliases":["powershell"]},{"name":"value"}]}}
+
+#!markdown
+
+# Double Exponential Moving Average (DEMA) Examples
+
+This is a **.NET Interactive** notebook. To run it, you need the [Polyglot Notebooks](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.dotnet-interactive-vscode) extension installed in VS Code.
+
+For detailed documentation on the DEMA indicator, including mathematical formulas and interpretation, please refer to [Dema.md](Dema.md).
+
+The **Double Exponential Moving Average (DEMA)** is a technical indicator designed to reduce the lag associated with traditional moving averages. It combines a single EMA and a double EMA to achieve higher responsiveness.
+
+This notebook demonstrates:
+1.  **Manual Data Processing**: Understanding Batch vs. Streaming modes.
+2.  **Streaming with `isNew`**: Handling intra-bar updates.
+3.  **Large Dataset Processing**: Using Geometric Brownian Motion (GBM) generated data.
+4.  **Handling Invalid Values**: Last-value substitution for NaN/Infinity.
+
+#!csharp
+
+// Reference the library
+#r "..\..\bin\QuanTAlib.dll"
+
+using System;
+using System.Linq;
+using QuanTAlib;
+
+// Helper to print TSeries
+void PrintSeries(TSeries series, int count = 5)
+{
+    Console.WriteLine($"Series Length: {series.Count}");
+    foreach (var item in series.Take(count))
+    {
+        Console.WriteLine($"Time: {item.Time:HH:mm:ss}, Value: {item.Value:F2}");
+    }
+    if (series.Count > count) Console.WriteLine("...");
+}
+
+#!markdown
+
+## 1. Manual Data: Batch vs. Streaming
+
+We'll start with a small, manually created dataset to clearly see how Batch and Streaming operations work.
+
+### Batch Processing
+Batch processing calculates the DEMA for the entire dataset at once. This is efficient for historical analysis.
+
+#!csharp
+
+// Create a small manual dataset
+var manualData = new TSeries();
+manualData.Add(DateTime.Now, 100.0);
+manualData.Add(DateTime.Now.AddMinutes(1), 102.0);
+manualData.Add(DateTime.Now.AddMinutes(2), 101.0);
+manualData.Add(DateTime.Now.AddMinutes(3), 103.0);
+manualData.Add(DateTime.Now.AddMinutes(4), 105.0);
+
+Console.WriteLine("--- Input Data ---");
+PrintSeries(manualData, 5);
+
+// Batch Calculation
+Console.WriteLine("\n--- Batch DEMA (Period 3) ---");
+var demaBatch = new Dema(3);
+var resultBatch = demaBatch.Update(manualData);
+
+PrintSeries(resultBatch, 5);
+
+#!markdown
+
+### Streaming Processing
+Streaming processing updates the DEMA one data point at a time. This is essential for real-time trading systems where data arrives sequentially.
+
+#!csharp
+
+Console.WriteLine("\n--- Streaming DEMA (Period 3) ---");
+var demaStream = new Dema(3);
+
+foreach (var item in manualData)
+{
+    var result = demaStream.Update(item);
+    Console.WriteLine($"Time: {item.Time:HH:mm:ss}, Input: {item.Value:F2}, DEMA: {result.Value:F2}, IsHot: {demaStream.IsHot}");
+}
+
+// Verify that the last values match
+var batchLast = resultBatch.Last().Value;
+var streamLast = demaStream.Value.Value;
+Console.WriteLine($"\nMatch: {Math.Abs(batchLast - streamLast) < 1e-10} (Batch: {batchLast:F2}, Stream: {streamLast:F2})");
+
+#!markdown
+
+## 2. Streaming with `isNew` (Intra-bar Updates)
+
+In real-time feeds, you often receive multiple updates for the *same* bar (e.g., price changes within the current minute) before the bar closes.
+*   `isNew = true`: The input is a new bar (advances time).
+*   `isNew = false`: The input is an update to the current bar (recalculates without advancing).
+
+#!csharp
+
+Console.WriteLine("\n--- Streaming with Intra-bar Updates ---");
+var demaIntra = new Dema(3);
+
+// 1. Process the first 4 bars normally
+for (int i = 0; i < 4; i++)
+{
+    demaIntra.Update(manualData[i]);
+}
+Console.WriteLine($"After 4th bar: {demaIntra.Value.Value:F2}");
+
+// 2. Simulate intra-bar updates for the 5th bar (Final value is 105.0)
+// Update 1: Price moves to 104.0
+var update1 = new TValue(manualData[4].Time, 104.0);
+demaIntra.Update(update1, isNew: true); // First update for this bar is "New"
+Console.WriteLine($"Update 1 (104.0): {demaIntra.Value.Value:F2}");
+
+// Update 2: Price moves to 106.0 (Same time, same bar)
+var update2 = new TValue(manualData[4].Time, 106.0);
+demaIntra.Update(update2, isNew: false); // Not new, just an update
+Console.WriteLine($"Update 2 (106.0): {demaIntra.Value.Value:F2}");
+
+// Update 3: Final Close at 105.0
+var update3 = manualData[4];
+demaIntra.Update(update3, isNew: false); // Final update
+Console.WriteLine($"Update 3 (105.0): {demaIntra.Value.Value:F2}");
+
+// Verify match with batch result
+Console.WriteLine($"Match with Batch: {Math.Abs(demaIntra.Value.Value - batchLast) < 1e-10}");
+
+#!markdown
+
+## 3. Large Dataset: Geometric Brownian Motion (GBM)
+
+We'll generate a larger dataset (1000 bars) using a Geometric Brownian Motion generator to simulate realistic market data.
+
+#!csharp
+
+// Generate 1000 bars of data
+var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2);
+var gbmData = gbm.Fetch(1000, DateTime.Now.Ticks, TimeSpan.FromMinutes(1));
+var closeSeries = gbmData.Close;
+
+Console.WriteLine($"Generated {closeSeries.Count} bars of GBM data.");
+Console.WriteLine($"First 5 values: {string.Join(", ", closeSeries.Take(5).Select(x => x.Value.ToString("F2")))}");
+
+#!markdown
+
+### Batch vs. Streaming Performance on Large Data
+
+#!csharp
+
+// Batch
+var demaLargeBatch = new Dema(20);
+var batchLargeResult = demaLargeBatch.Update(closeSeries);
+Console.WriteLine($"Batch Last Value: {batchLargeResult.Last().Value:F2}");
+
+// Streaming
+var demaLargeStream = new Dema(20);
+TValue lastStreamVal = default;
+foreach(var item in closeSeries)
+{
+    lastStreamVal = demaLargeStream.Update(item);
+}
+Console.WriteLine($"Streaming Last Value: {lastStreamVal.Value:F2}");
+
+#!markdown
+
+## 4. Handling Invalid Values (NaN/Infinity)
+
+`Dema` uses **last-value substitution** for invalid inputs. When a non-finite value (NaN, PositiveInfinity, NegativeInfinity) is encountered, it is replaced with the last valid value. This provides output continuity instead of propagating invalid values through the calculation.
+
+#!csharp
+
+Console.WriteLine("\n--- Handling Invalid Values ---");
+
+// Single DEMA
+var demaNaN = new Dema(10);
+
+// Feed valid values first
+demaNaN.Update(new TValue(DateTime.Now, 100.0));
+demaNaN.Update(new TValue(DateTime.Now.AddMinutes(1), 110.0));
+Console.WriteLine($"After valid values: {demaNaN.Value.Value:F2}");
+
+// Feed NaN - should use last valid value (110)
+var resultAfterNaN = demaNaN.Update(new TValue(DateTime.Now.AddMinutes(2), double.NaN));
+Console.WriteLine($"After NaN input: {resultAfterNaN.Value:F2} (IsFinite: {double.IsFinite(resultAfterNaN.Value)})");
+
+// Feed Infinity - should use last valid value (110)
+var resultAfterInf = demaNaN.Update(new TValue(DateTime.Now.AddMinutes(3), double.PositiveInfinity));
+Console.WriteLine($"After Infinity input: {resultAfterInf.Value:F2} (IsFinite: {double.IsFinite(resultAfterInf.Value)})");
+
+// Continue with valid value
+var resultAfterValid = demaNaN.Update(new TValue(DateTime.Now.AddMinutes(4), 120.0));
+Console.WriteLine($"After valid value (120): {resultAfterValid.Value:F2}");
+
+#!csharp
+
+Console.WriteLine("\n--- Batch Processing with Invalid Values ---");
+
+// Create series with NaN values interspersed
+var seriesWithNaN = new TSeries();
+seriesWithNaN.Add(DateTime.Now.Ticks, 100.0);
+seriesWithNaN.Add(DateTime.Now.Ticks + 1, 110.0);
+seriesWithNaN.Add(DateTime.Now.Ticks + 2, double.NaN);
+seriesWithNaN.Add(DateTime.Now.Ticks + 3, 120.0);
+seriesWithNaN.Add(DateTime.Now.Ticks + 4, double.PositiveInfinity);
+seriesWithNaN.Add(DateTime.Now.Ticks + 5, 130.0);
+
+var demaBatchNaN = new Dema(3);
+var resultsWithNaN = demaBatchNaN.Update(seriesWithNaN);
+
+Console.WriteLine("Input → Output:");
+for (int i = 0; i < seriesWithNaN.Count; i++)
+{
+    var input = seriesWithNaN[i].Value;
+    var output = resultsWithNaN[i].Value;
+    var inputStr = double.IsFinite(input) ? input.ToString("F2") : input.ToString();
+    Console.WriteLine($"  {inputStr,-10} → {output:F2} (IsFinite: {double.IsFinite(output)})");
+}

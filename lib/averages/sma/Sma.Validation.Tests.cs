@@ -19,9 +19,9 @@ public class SmaValidationTests
     {
         _output = output;
 
-        // 1. Generate 1000 records using GBM feed
+        // 1. Generate 5000 records using GBM feed
         var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2);
-        _bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        _bars = gbm.Fetch(5000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         // 2. Extract Close TSeries
         _data = _bars.Close;

@@ -20,6 +20,9 @@ namespace QuanTAlib;
 /// O(1) update:
 /// S_new = S - oldest + newest
 /// W_new = W - S_old + n*newest
+///
+/// IsHot:
+/// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Wma

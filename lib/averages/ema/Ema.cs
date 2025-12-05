@@ -7,23 +7,25 @@ namespace QuanTAlib;
 /// EMA: Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// EMA needs very short history buffer and calculates the EMA value using just the
-/// previous EMA value. The weight of the new datapoint (alpha) is alpha = 2 / (period + 1)
+/// EMA applies exponential weighting to data points, giving more weight to recent values.
+/// Uses a single state variable for O(1) complexity per update.
 ///
-/// Key characteristics:
-/// - Uses no buffer, relying only on the previous EMA value.
-/// - The weight of new data points is calculated as alpha = 2 / (period + 1).
-/// - Provides a balance between responsiveness and smoothing. No overshooting. Significant lag
+/// Calculation:
+/// alpha = 2 / (period + 1)
+/// EMA_new = EMA_old + alpha * (newest - EMA_old)
 ///
-/// Calculation method:
-/// This implementation can use SMA for the first Period bars as a seeding value for EMA when useSma is true.
+/// Initialization:
+/// Uses a compensator factor to correct early-stage bias (when n < period).
+/// Output = EMA_state / (1 - (1-alpha)^n)
 ///
-/// Sources:
-/// - https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-/// - https://www.investopedia.com/ask/answers/122314/what-exponential-moving-average-ema-formula-and-how-ema-calculated.asp
-/// - https://blog.fugue88.ws/archives/2017-01/The-correct-way-to-start-an-Exponential-Moving-Average-EMA
+/// O(1) update:
+/// No buffer required, only previous EMA value and compensator state.
+///
+/// IsHot:
+/// Becomes true when n = ln(0.05) / ln(1 - alpha) 
 /// </remarks>
-public class Ema
+[SkipLocalsInit]
+public sealed class Ema
 {
     private struct State
     {
@@ -100,6 +102,55 @@ public class Ema
     private const double COMPENSATOR_THRESHOLD = 1e-10;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(TValue input, bool isNew = true)
+    {
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
+        double val = GetValidValue(input.Value);
+        val = Compute(val, _alpha, _decay, ref _state);
+        Value = new TValue(input.Time, val);
+        return Value;
+    }
+
+    public TSeries Update(TSeries source)
+    {
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
+        int len = source.Count;
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+        var sourceValues = source.Values;
+        var sourceTimes = source.Times;
+
+        State state = _state;
+        double lastValidValue = _lastValidValue;
+
+        CalculateCore(sourceValues, vSpan, _alpha, ref state, ref lastValidValue);
+
+        _state = state;
+        _lastValidValue = lastValidValue;
+
+        sourceTimes.CopyTo(tSpan);
+        
+        _p_state = _state;
+        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        
+        return new TSeries(t, v);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Compute(double input, double alpha, double decay, ref State state)
     {
         state.Ema += alpha * (input - state.Ema);
@@ -170,55 +221,6 @@ public class Ema
             state.Ema += alpha * (val - state.Ema);
             output[i] = state.Ema;
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
-    {
-        if (isNew)
-        {
-            _p_state = _state;
-        }
-        else
-        {
-            _state = _p_state;
-        }
-
-        double val = GetValidValue(input.Value);
-        val = Compute(val, _alpha, _decay, ref _state);
-        Value = new TValue(input.Time, val);
-        return Value;
-    }
-
-    public TSeries Update(TSeries source)
-    {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
-
-        int len = source.Count;
-        var t = new List<long>(len);
-        var v = new List<double>(len);
-        CollectionsMarshal.SetCount(t, len);
-        CollectionsMarshal.SetCount(v, len);
-
-        var tSpan = CollectionsMarshal.AsSpan(t);
-        var vSpan = CollectionsMarshal.AsSpan(v);
-        var sourceValues = source.Values;
-        var sourceTimes = source.Times;
-
-        State state = _state;
-        double lastValidValue = _lastValidValue;
-
-        CalculateCore(sourceValues, vSpan, _alpha, ref state, ref lastValidValue);
-
-        _state = state;
-        _lastValidValue = lastValidValue;
-
-        sourceTimes.CopyTo(tSpan);
-        
-        _p_state = _state;
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
-        
-        return new TSeries(t, v);
     }
 
     /// <summary>

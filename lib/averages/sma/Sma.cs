@@ -11,27 +11,18 @@ namespace QuanTAlib;
 /// SMA: Simple Moving Average
 /// </summary>
 /// <remarks>
-/// SMA calculates the arithmetic mean of the last N values.
-/// Uses a RingBuffer for storage and manual running sum for O(1) operations.
+/// SMA calculates the arithmetic mean of the last n values.
+/// Uses a RingBuffer for storage and manual running sum for O(1) complexity per update.
 ///
-/// Key characteristics:
-/// - Equal weighting of all values in the period
-/// - No lag bias - responds equally to all values in window
-/// - Smooth output with good noise reduction
-/// - O(1) time complexity for both update and bar correction
-/// - O(1) space complexity for state save/restore (scalars only)
+/// Calculation:
+/// SMA = (P_n + P_(n-1) + ... + P_1) / n
 ///
-/// Calculation method:
-/// SMA = Sum(values in period) / period
+/// O(1) update:
+/// S_new = S_old - oldest + newest
+/// SMA = S_new / n
 ///
-/// Bar correction (isNew=false):
-/// - Restores to state after last isNew=true
-/// - Then replaces the last value with new correction value
-/// - All O(1) using scalar state
-///
-/// Sources:
-/// - https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:moving_averages
-/// - https://www.investopedia.com/terms/s/sma.asp
+/// IsHot:
+/// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Sma

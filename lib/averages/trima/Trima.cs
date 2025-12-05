@@ -8,17 +8,19 @@ namespace QuanTAlib;
 /// TRIMA: Triangular Moving Average
 /// </summary>
 /// <remarks>
-/// TRIMA is a weighted moving average where weights increase linearly to the middle
-/// and then decrease. It is equivalent to a double SMA: SMA(SMA(period1), period2).
+/// TRIMA applies triangular weighting to data points, emphasizing the middle of the window.
+/// Equivalent to a double SMA: SMA(SMA(period1), period2).
 ///
 /// Calculation:
-/// period1 = period / 2 + 1
-/// period2 = (period + 1) / 2
+/// p1 = period / 2 + 1
+/// p2 = (period + 1) / 2
+/// TRIMA = SMA(SMA(input, p1), p2)
 ///
-/// Characteristics:
-/// - Smoother than SMA, higher lag
-/// - O(1) time complexity
-/// - O(period) space complexity
+/// O(1) update:
+/// Uses two SMA instances, each with O(1) update complexity.
+///
+/// IsHot:
+/// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Trima

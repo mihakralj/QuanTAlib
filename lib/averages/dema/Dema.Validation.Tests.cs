@@ -9,14 +9,14 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class TrimaValidationTests
+public class DemaValidationTests
 {
     private readonly TBarSeries _bars;
     private readonly TSeries _data;
     private readonly List<Quote> _skenderQuotes;
     private readonly ITestOutputHelper _output;
 
-    public TrimaValidationTests(ITestOutputHelper output)
+    public DemaValidationTests(ITestOutputHelper output)
     {
         _output = output;
 
@@ -50,31 +50,17 @@ public class TrimaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib TRIMA (batch TSeries)
-            var trima = new global::QuanTAlib.Trima(period);
-            var qResult = trima.Update(_data);
+            // Calculate QuanTAlib DEMA (batch TSeries)
+            var dema = new global::QuanTAlib.Dema(period);
+            var qResult = dema.Update(_data);
 
-            // Calculate Skender Composite TRIMA: SMA(SMA(x, p1), p2)
-            int p1 = period / 2 + 1;
-            int p2 = (period + 1) / 2;
-
-            var sma1Results = _skenderQuotes.GetSma(p1).ToList();
-            
-            // Map SMA1 results to Quotes for the second pass
-            // Note: We use 0 for null values during warmup, which might affect early values
-            // but should stabilize for the verification window (last 100 records)
-            var quotes2 = sma1Results.Select(r => new Quote 
-            { 
-                Date = r.Date, 
-                Close = (decimal)(r.Sma ?? 0) 
-            }).ToList();
-
-            var sResult = quotes2.GetSma(p2).ToList();
+            // Calculate Skender DEMA
+            var sResult = _skenderQuotes.GetDema(period).ToList();
 
             // Compare last 100 records
             VerifyData_Skender(qResult, sResult);
         }
-        _output.WriteLine("TRIMA Batch(TSeries) validated successfully against Skender Composite SMA");
+        _output.WriteLine("DEMA Batch(TSeries) validated successfully against Skender.Stock.Indicators");
     }
 
     [Fact]
@@ -88,20 +74,20 @@ public class TrimaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib TRIMA (batch TSeries)
-            var trima = new global::QuanTAlib.Trima(period);
-            var qResult = trima.Update(_data);
+            // Calculate QuanTAlib DEMA (batch TSeries)
+            var dema = new global::QuanTAlib.Dema(period);
+            var qResult = dema.Update(_data);
 
-            // Calculate TA-Lib TRIMA
-            var retCode = TALib.Functions.Trima<double>(tData, 0..^0, output, out var outRange, period);
+            // Calculate TA-Lib DEMA
+            var retCode = TALib.Functions.Dema<double>(tData, 0..^0, output, out var outRange, period);
             Assert.Equal(Core.RetCode.Success, retCode);
 
-            int lookback = TALib.Functions.TrimaLookback(period);
+            int lookback = TALib.Functions.DemaLookback(period);
 
             // Compare last 100 records
             VerifyData_Talib(qResult, output, outRange, lookback);
         }
-        _output.WriteLine("TRIMA Batch(TSeries) validated successfully against TA-Lib");
+        _output.WriteLine("DEMA Batch(TSeries) validated successfully against TA-Lib");
     }
 
     [Fact]
@@ -114,31 +100,38 @@ public class TrimaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib TRIMA (batch TSeries)
-            var trima = new global::QuanTAlib.Trima(period);
-            var qResult = trima.Update(_data);
+            // Calculate QuanTAlib DEMA (batch TSeries)
+            var dema = new global::QuanTAlib.Dema(period);
+            var qResult = dema.Update(_data);
 
-            // Calculate Tulip TRIMA
-            var trimaIndicator = Tulip.Indicators.trima;
+            // Calculate Tulip DEMA
+            var demaIndicator = Tulip.Indicators.dema;
             double[][] inputs = { tData };
             double[] options = { period };
-            // Tulip TRIMA lookback might be different, let's calculate or infer
-            // Usually it's period-1 for simple averages, but TRIMA is double smoothed.
-            // We'll rely on the output length to align.
-            // Tulip.Indicators.trima.Run expects outputs to be sized correctly.
-            // We can try to run it with a large buffer and see what happens, 
-            // or calculate the expected lookback.
-            // For TRIMA(n), lookback is roughly n-1.
-            int lookback = period - 1; 
+            
+            // Tulip DEMA lookback is usually period-1 for EMA, but DEMA is 2*EMA - EMA(EMA)
+            // Let's rely on the output length to align.
+            // Tulip DEMA lookback is same as EMA lookback? No, it involves double smoothing.
+            // Actually, Tulip's DEMA implementation might have a specific lookback.
+            // We'll calculate it based on output length.
+            
+            // Tulip.Indicators.dema.Run expects outputs to be sized correctly.
+            // We'll use a large buffer and resize if needed, or just calculate lookback.
+            // For DEMA(n), lookback is roughly n-1 (same as EMA).
+            // Wait, DEMA uses EMA(EMA), so it might be 2*(n-1)?
+            // Let's try with n-1 first, if it fails we adjust.
+            // Actually, TA-Lib DEMA lookback is 2*(period-1).
+            // Let's assume Tulip is similar.
+            int lookback = 2 * (period - 1); 
             double[][] outputs = { new double[tData.Length - lookback] };
 
-            trimaIndicator.Run(inputs, options, outputs);
+            demaIndicator.Run(inputs, options, outputs);
             var tResult = outputs[0];
 
             // Compare last 100 records
             VerifyData_Tulip(qResult, tResult, lookback);
         }
-        _output.WriteLine("TRIMA Batch(TSeries) validated successfully against Tulip");
+        _output.WriteLine("DEMA Batch(TSeries) validated successfully against Tulip");
     }
 
     [Fact]
@@ -152,25 +145,25 @@ public class TrimaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib TRIMA (Span API)
+            // Calculate QuanTAlib DEMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Trima.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Dema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
-            // Calculate TA-Lib TRIMA
-            var retCode = TALib.Functions.Trima<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
+            // Calculate TA-Lib DEMA
+            var retCode = TALib.Functions.Dema<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
             Assert.Equal(Core.RetCode.Success, retCode);
 
-            int lookback = TALib.Functions.TrimaLookback(period);
+            int lookback = TALib.Functions.DemaLookback(period);
 
             // Compare last 100 records
             VerifyData_Talib_Span(qOutput, talibOutput, outRange, lookback);
         }
-        _output.WriteLine("TRIMA Span validated successfully against TA-Lib");
+        _output.WriteLine("DEMA Span validated successfully against TA-Lib");
     }
 
     // ==================== Verification Helpers ====================
 
-    private static void VerifyData_Skender(TSeries qSeries, List<SmaResult> sSeries)
+    private static void VerifyData_Skender(TSeries qSeries, List<DemaResult> sSeries)
     {
         Assert.Equal(qSeries.Count, sSeries.Count);
 
@@ -180,7 +173,7 @@ public class TrimaValidationTests
         for (int i = skip; i < count; i++)
         {
             double qValue = qSeries[i].Value;
-            double? sValue = sSeries[i].Sma;
+            double? sValue = sSeries[i].Dema;
 
             if (!sValue.HasValue) continue;
 
