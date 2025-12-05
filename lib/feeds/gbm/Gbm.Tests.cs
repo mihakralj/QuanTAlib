@@ -212,7 +212,7 @@ public class GBMTests
         var gbm = new GBM(startPrice: 100.0);
         
         // Start with streaming
-        var bar1 = gbm.Next();
+        _ = gbm.Next();
         var bar2 = gbm.Next();
         
         // Batch generation with explicit time
@@ -253,11 +253,11 @@ public class GBMTests
     {
         var gbm = new GBM(startPrice: 100.0);
         
-        var bar1 = gbm.Next();
-        var bar2 = gbm.Next();
+        var previousBar = gbm.Next();
+        var currentBar = gbm.Next();
         
-        // bar2.Open should equal bar1.Close (continuity)
-        Assert.Equal(bar1.Close, bar2.Open);
+        // currentBar.Open should equal previousBar.Close (continuity)
+        Assert.Equal(previousBar.Close, currentBar.Open);
     }
 
     [Fact]
@@ -268,7 +268,7 @@ public class GBMTests
         // Generate multiple bars
         for (int i = 0; i < 100; i++)
         {
-            gbm.Next();
+            _ = gbm.Next();
         }
         
         // GBM should not expose any history storage

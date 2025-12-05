@@ -2,6 +2,7 @@ using Xunit;
 
 namespace QuanTAlib.Tests;
 
+#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
 public class DemaTests
 {
     [Fact]
@@ -12,7 +13,7 @@ public class DemaTests
         var dema = new Dema(period);
         var ema1 = new Ema(period);
         var ema2 = new Ema(period);
-        var r = new Random(123);
+        var r = new Random(123); // nosemgrep
 
         // Act & Assert
         for (int i = 0; i < 100; i++)
@@ -36,7 +37,7 @@ public class DemaTests
         // Arrange
         int period = 10;
         var source = new TSeries();
-        var r = new Random(123);
+        var r = new Random(123); // nosemgrep
         for (int i = 0; i < 100; i++)
         {
             source.Add(new TValue(DateTime.Now.AddMinutes(i), r.NextDouble() * 100));
@@ -62,7 +63,7 @@ public class DemaTests
         int count = 100;
         var source = new double[count];
         var output = new double[count];
-        var r = new Random(123);
+        var r = new Random(123); // nosemgrep
         for (int i = 0; i < count; i++)
         {
             source[i] = r.NextDouble() * 100;
@@ -88,7 +89,7 @@ public class DemaTests
         double alpha = 2.0 / (period + 1);
         var demaPeriod = new Dema(period);
         var demaAlpha = new Dema(alpha);
-        var r = new Random(123);
+        var r = new Random(123); // nosemgrep
 
         // Act & Assert
         for (int i = 0; i < 100; i++)
@@ -109,7 +110,7 @@ public class DemaTests
         // Arrange
         double alpha = 0.15;
         var source = new TSeries();
-        var r = new Random(123);
+        var r = new Random(123); // nosemgrep
         for (int i = 0; i < 100; i++)
         {
             source.Add(new TValue(DateTime.Now.AddMinutes(i), r.NextDouble() * 100));
@@ -135,7 +136,7 @@ public class DemaTests
         int count = 100;
         var source = new double[count];
         var output = new double[count];
-        var r = new Random(123);
+        var r = new Random(123); // nosemgrep
         for (int i = 0; i < count; i++)
         {
             source[i] = r.NextDouble() * 100;

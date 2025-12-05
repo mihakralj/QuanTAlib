@@ -292,78 +292,75 @@ public sealed class Sma
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-#pragma warning disable S6640 // Unsafe code is required for high-performance SIMD operations
-    private static unsafe void CalculateSimdCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    private static void CalculateSimdCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
         const int VectorWidth = 4;
 
-        fixed (double* srcPtr = source)
-        fixed (double* outPtr = output)
+        ref double srcRef = ref MemoryMarshal.GetReference(source);
+        ref double outRef = ref MemoryMarshal.GetReference(output);
+
+        double invPeriod = 1.0 / period;
+
+        int warmupEnd = Math.Min(period, len);
+        double sum = 0;
+        for (int i = 0; i < warmupEnd; i++)
         {
-            double invPeriod = 1.0 / period;
+            sum += Unsafe.Add(ref srcRef, i);
+            Unsafe.Add(ref outRef, i) = sum / (i + 1);
+        }
 
-            int warmupEnd = Math.Min(period, len);
-            double sum = 0;
-            for (int i = 0; i < warmupEnd; i++)
+        if (len <= period)
+            return;
+
+        var vInvPeriod = Vector256.Create(invPeriod);
+        var vZero = Vector256<double>.Zero;
+        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int tickCount = 0;
+
+        for (int i = period; i < simdEnd; i += VectorWidth)
+        {
+            var vNew = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
+            var vOld = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - period));
+
+            var vDelta = Avx.Subtract(vNew, vOld);
+
+            var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble();
+            vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
+            var vP1 = Avx.Add(vDelta, vShift1);
+
+            var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+            vShift2 = Avx.Blend(vZero, vShift2, 0b_1100);
+            var vP2 = Avx.Add(vP1, vShift2);
+
+            var vSumPrev = Vector256.Create(sum);
+            var vSums = Avx.Add(vSumPrev, vP2);
+
+            var vResult = Avx.Multiply(vSums, vInvPeriod);
+            Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+
+            sum = vSums.GetElement(3);
+
+            tickCount += VectorWidth;
+            if (tickCount >= ResyncInterval)
             {
-                sum += srcPtr[i];
-                outPtr[i] = sum / (i + 1);
-            }
-
-            if (len <= period)
-                return;
-
-            var vInvPeriod = Vector256.Create(invPeriod);
-            var vZero = Vector256<double>.Zero;
-            int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
-            int tickCount = 0;
-
-            for (int i = period; i < simdEnd; i += VectorWidth)
-            {
-                var vNew = Avx.LoadVector256(srcPtr + i);
-                var vOld = Avx.LoadVector256(srcPtr + i - period);
-
-                var vDelta = Avx.Subtract(vNew, vOld);
-
-                var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble();
-                vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
-                var vP1 = Avx.Add(vDelta, vShift1);
-
-                var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble();
-                vShift2 = Avx.Blend(vZero, vShift2, 0b_1100);
-                var vP2 = Avx.Add(vP1, vShift2);
-
-                var vSumPrev = Vector256.Create(sum);
-                var vSums = Avx.Add(vSumPrev, vP2);
-
-                var vResult = Avx.Multiply(vSums, vInvPeriod);
-                Avx.Store(outPtr + i, vResult);
-
-                sum = vSums.GetElement(3);
-
-                tickCount += VectorWidth;
-                if (tickCount >= ResyncInterval)
+                tickCount = 0;
+                int lastIdx = i + VectorWidth - 1;
+                double recalcSum = 0;
+                for (int k = 0; k < period; k++)
                 {
-                    tickCount = 0;
-                    int lastIdx = i + VectorWidth - 1;
-                    double recalcSum = 0;
-                    for (int k = 0; k < period; k++)
-                    {
-                        recalcSum += srcPtr[lastIdx - k];
-                    }
-                    sum = recalcSum;
+                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
                 }
-            }
-
-            for (int i = simdEnd; i < len; i++)
-            {
-                sum = sum - srcPtr[i - period] + srcPtr[i];
-                outPtr[i] = sum * invPeriod;
+                sum = recalcSum;
             }
         }
+
+        for (int i = simdEnd; i < len; i++)
+        {
+            sum = sum - Unsafe.Add(ref srcRef, i - period) + Unsafe.Add(ref srcRef, i);
+            Unsafe.Add(ref outRef, i) = sum * invPeriod;
+        }
     }
-#pragma warning restore S6640
 
     /// <summary>
     /// Checks if span contains any non-finite values (NaN or Infinity).

@@ -9,6 +9,7 @@ namespace QuanTAlib;
 /// </summary>
 [SkipLocalsInit]
 #pragma warning disable S101 // Rename class 'GBM' to match pascal case naming rules
+#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
 public class GBM : IFeed
 #pragma warning restore S101
 {
@@ -82,10 +83,8 @@ public class GBM : IFeed
             return _cachedZ;
         }
 
-#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
-        double u1 = 1.0 - _rnd.NextDouble();
-        double u2 = 1.0 - _rnd.NextDouble();
-#pragma warning restore S2245
+        double u1 = 1.0 - _rnd.NextDouble(); // nosemgrep
+        double u2 = 1.0 - _rnd.NextDouble(); // nosemgrep
         double mag = Math.Sqrt(-2.0 * Math.Log(u1));
         double angle = 2.0 * Math.PI * u2;
 
@@ -190,11 +189,9 @@ public class GBM : IFeed
             double open = currentPrice;
             double close = price;
 
-#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
             double rnd1 = _rnd.NextDouble();
             double rnd2 = _rnd.NextDouble();
             double rnd3 = _rnd.NextDouble();
-#pragma warning restore S2245
 
             t[i] = currentTime;
             o[i] = open;

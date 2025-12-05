@@ -1,5 +1,6 @@
 namespace QuanTAlib.Tests;
 
+#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
 public class TemaTests
 {
     [Fact]
@@ -253,7 +254,7 @@ public class TemaTests
     {
         double[] source = new double[10000];
         double[] output = new double[10000];
-        var rng = new Random(42);
+        var rng = new Random(42); // nosemgrep
         for (int i = 0; i < source.Length; i++)
             source[i] = rng.NextDouble() * 100;
 

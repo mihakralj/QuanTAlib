@@ -19,7 +19,9 @@ namespace QuanTAlib;
 /// Uses three EMA instances, each with O(1) update complexity.
 ///
 /// IsHot:
-/// Becomes true when the third EMA converges (approx. 3x EMA convergence time).
+/// Becomes true when the TEMA step response converges to within 5% error.
+/// This happens when the third EMA's error factor drops below ~9% (approx 2.43/alpha steps),
+/// which is faster than the standard EMA convergence (3/alpha steps).
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Tema
@@ -48,7 +50,7 @@ public sealed class Tema
 
     public string Name { get; }
     public TValue Value { get; private set; }
-    public bool IsHot => _state3.IsHot;
+    public bool IsHot => _state3.E <= 0.09;
 
     public Tema(int period)
     {
