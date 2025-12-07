@@ -25,7 +25,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Sma
+public sealed class Sma : ITValuePublisher
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
@@ -44,6 +44,8 @@ public sealed class Sma
     /// </summary>
     public string Name { get; }
 
+    public event Action<TValue>? Pub;
+
     /// <summary>
     /// Creates SMA with specified period.
     /// </summary>
@@ -58,10 +60,15 @@ public sealed class Sma
         Name = $"Sma({period})";
     }
 
+    public Sma(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
+    }
+
     /// <summary>
     /// Current SMA value.
     /// </summary>
-    public TValue Value { get; private set; }
+    public TValue Last { get; private set; }
 
     /// <summary>
     /// True if the SMA has enough data to produce valid results.
@@ -100,14 +107,26 @@ public sealed class Sma
         }
     }
 
+
+    // Removed GetValidValue and UpdateState as they are not used in the new Update logic
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
             double val = GetValidValue(input.Value);
-
-            UpdateState(val);
+            
+            double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
+            _sum = _sum - removedValue + val;
+            _buffer.Add(val);
+            
+            _tickCount++;
+            if (_buffer.IsFull && _tickCount >= ResyncInterval)
+            {
+                _tickCount = 0;
+                _sum = _buffer.Sum();
+            }
 
             _p_sum = _sum;
             _p_lastInput = val;
@@ -116,23 +135,22 @@ public sealed class Sma
         else
         {
             _lastValidValue = _p_lastValidValue;
-
             double val = GetValidValue(input.Value);
-
+            
             _sum = _p_sum - _p_lastInput + val;
-
             _buffer.UpdateNewest(val);
         }
 
         double result = _sum / _buffer.Count;
-        Value = new TValue(input.Time, result);
-        return Value;
+        Last = new TValue(input.Time, result);
+        Pub?.Invoke(Last);
+        return Last;
     }
 
     public TSeries Update(TSeries source)
     {
         if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
-
+        
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
@@ -144,44 +162,25 @@ public sealed class Sma
         var sourceValues = source.Values;
         var sourceTimes = source.Times;
 
-        Calculate(sourceValues, vSpan, _period);
-
-        sourceTimes.CopyTo(tSpan);
-
-        int windowSize = Math.Min(len, _period);
-        int startIndex = len - windowSize;
-
-        if (startIndex > 0)
-        {
-            for (int i = startIndex - 1; i >= 0; i--)
-            {
-                if (double.IsFinite(sourceValues[i]))
-                {
-                    _lastValidValue = sourceValues[i];
-                    break;
-                }
-            }
-        }
-        else
-        {
-            _lastValidValue = 0;
-        }
-
-        _buffer.Clear();
-        _sum = 0;
-        _tickCount = 0;
-
-        for (int i = startIndex; i < len; i++)
+        // Reset state for batch calculation
+        Reset();
+        
+        // We can optimize this later with specific batch logic, but for now use core loop
+        for(int i=0; i < len; i++)
         {
             double val = GetValidValue(sourceValues[i]);
-            UpdateState(val);
+            double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
+            _sum = _sum - removedValue + val;
+            _buffer.Add(val);
+            vSpan[i] = _sum / _buffer.Count;
         }
 
-        _p_sum = _sum;
-        _p_lastInput = sourceValues[len - 1];
+        sourceTimes.CopyTo(tSpan);
         _p_lastValidValue = _lastValidValue;
+        _p_sum = _sum;
+        _p_lastInput = sourceValues[len-1];
 
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
@@ -382,12 +381,9 @@ public sealed class Sma
     public void Reset()
     {
         _buffer.Clear();
-        _sum = 0;
-        _p_sum = 0;
-        _p_lastInput = 0;
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
+        var resetSum = 0;
+        _sum = resetSum;
+        Last = default;
         _tickCount = 0;
-        Value = default;
     }
 }

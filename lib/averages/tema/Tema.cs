@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// which is faster than the standard EMA convergence (3/alpha steps).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Tema
+public sealed class Tema : ITValuePublisher
 {
     private struct EmaState
     {
@@ -49,8 +49,9 @@ public sealed class Tema
     private double _lastValidValue;
 
     public string Name { get; }
-    public TValue Value { get; private set; }
+    public TValue Last { get; private set; }
     public bool IsHot => _state3.E <= 0.09;
+    public event Action<TValue>? Pub;
 
     public Tema(int period)
     {
@@ -59,6 +60,11 @@ public sealed class Tema
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
         Name = $"Tema({period})";
+    }
+
+    public Tema(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
     }
 
     public Tema(double alpha)
@@ -102,8 +108,9 @@ public sealed class Tema
         double e3 = Compute(e2, _alpha, _decay, ref _state3);
 
         double result = 3 * e1 - 3 * e2 + e3;
-        Value = new TValue(input.Time, result);
-        return Value;
+        Last = new TValue(input.Time, result);
+        Pub?.Invoke(Last);
+        return Last;
     }
 
     public TSeries Update(TSeries source)
@@ -154,7 +161,7 @@ public sealed class Tema
         _p_state3 = s3;
         _lastValidValue = lastValid;
 
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
@@ -322,6 +329,6 @@ public sealed class Tema
         _p_state2 = EmaState.New();
         _p_state3 = EmaState.New();
         _lastValidValue = 0;
-        Value = default;
+        Last = default;
     }
 }

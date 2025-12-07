@@ -13,13 +13,13 @@ public class DemaTests
         var dema = new Dema(period);
         var ema1 = new Ema(period);
         var ema2 = new Ema(period);
-        var r = new Random(123); // nosemgrep
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
 
         // Act & Assert
         for (int i = 0; i < 100; i++)
         {
-            double val = r.NextDouble() * 100;
-            var tVal = new TValue(DateTime.Now.AddMinutes(i), val);
+            var bar = gbm.Next(isNew: true);
+            var tVal = new TValue(bar.Time, bar.Close);
 
             var dVal = dema.Update(tVal);
             
@@ -37,10 +37,12 @@ public class DemaTests
         // Arrange
         int period = 10;
         var source = new TSeries();
-        var r = new Random(123); // nosemgrep
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), r.NextDouble() * 100));
+            var bar = gbm.Next(isNew: true);
+            source.Add(new TValue(bar.Time, bar.Close));
         }
 
         // Act
@@ -63,10 +65,11 @@ public class DemaTests
         int count = 100;
         var source = new double[count];
         var output = new double[count];
-        var r = new Random(123); // nosemgrep
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         for (int i = 0; i < count; i++)
         {
-            source[i] = r.NextDouble() * 100;
+            source[i] = gbm.Next().Close;
         }
 
         // Act
@@ -89,13 +92,14 @@ public class DemaTests
         double alpha = 2.0 / (period + 1);
         var demaPeriod = new Dema(period);
         var demaAlpha = new Dema(alpha);
-        var r = new Random(123); // nosemgrep
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
 
         // Act & Assert
         for (int i = 0; i < 100; i++)
         {
-            double val = r.NextDouble() * 100;
-            var tVal = new TValue(DateTime.Now.AddMinutes(i), val);
+            var bar = gbm.Next(isNew: true);
+            var tVal = new TValue(bar.Time, bar.Close);
 
             var pVal = demaPeriod.Update(tVal);
             var aVal = demaAlpha.Update(tVal);
@@ -110,10 +114,12 @@ public class DemaTests
         // Arrange
         double alpha = 0.15;
         var source = new TSeries();
-        var r = new Random(123); // nosemgrep
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         for (int i = 0; i < 100; i++)
         {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), r.NextDouble() * 100));
+            var bar = gbm.Next(isNew: true);
+            source.Add(new TValue(bar.Time, bar.Close));
         }
 
         // Act
@@ -136,10 +142,11 @@ public class DemaTests
         int count = 100;
         var source = new double[count];
         var output = new double[count];
-        var r = new Random(123); // nosemgrep
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         for (int i = 0; i < count; i++)
         {
-            source[i] = r.NextDouble() * 100;
+            source[i] = gbm.Next().Close;
         }
 
         // Act
@@ -152,5 +159,47 @@ public class DemaTests
             var val = demaObj.Update(new TValue(DateTime.Now, source[i]));
             Assert.Equal(val.Value, output[i], 1e-9);
         }
+    }
+    [Fact]
+    public void Dema_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Dema.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Dema.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Dema(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Dema(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
     }
 }

@@ -23,7 +23,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Trima
+public sealed class Trima : ITValuePublisher
 {
     private readonly int _period;
     private readonly int _p1;
@@ -41,8 +41,9 @@ public sealed class Trima
     private const int ResyncInterval = 1000;
 
     public string Name { get; }
-    public TValue Value { get; private set; }
+    public TValue Last { get; private set; }
     public bool IsHot => _sampleCount >= _period;
+    public event Action<TValue>? Pub;
 
     public Trima(int period)
     {
@@ -56,6 +57,11 @@ public sealed class Trima
         _buffer2 = new RingBuffer(_p2);
         
         Name = $"Trima({period})";
+    }
+
+    public Trima(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -110,7 +116,7 @@ public sealed class Trima
             _p_sum2 = _sum2;
             _p_lastInput2 = sma1Result;
 
-            Value = new TValue(input.Time, _sum2 / _buffer2.Count);
+            Last = new TValue(input.Time, _sum2 / _buffer2.Count);
         }
         else
         {
@@ -126,10 +132,11 @@ public sealed class Trima
             _sum2 = _p_sum2 - _p_lastInput2 + sma1Result;
             _buffer2.UpdateNewest(sma1Result);
 
-            Value = new TValue(input.Time, _sum2 / _buffer2.Count);
+            Last = new TValue(input.Time, _sum2 / _buffer2.Count);
         }
 
-        return Value;
+        Pub?.Invoke(Last);
+        return Last;
     }
 
     public TSeries Update(TSeries source)
@@ -158,7 +165,7 @@ public sealed class Trima
             Update(new TValue(source.Times[i], source.Values[i]), isNew: true);
         }
 
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
@@ -204,6 +211,6 @@ public sealed class Trima
         _tickCount2 = 0;
 
         _sampleCount = 0;
-        Value = default;
+        Last = default;
     }
 }

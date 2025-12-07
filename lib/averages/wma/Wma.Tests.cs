@@ -18,12 +18,12 @@ public class WmaTests
     {
         var wma = new Wma(10);
 
-        Assert.Equal(0, wma.Value.Value);
+        Assert.Equal(0, wma.Last.Value);
 
         TValue result = wma.Update(new TValue(DateTime.UtcNow, 100));
 
         Assert.True(result.Value > 0);
-        Assert.Equal(result.Value, wma.Value.Value);
+        Assert.Equal(result.Value, wma.Last.Value);
     }
 
     [Fact]
@@ -42,10 +42,10 @@ public class WmaTests
         var wma = new Wma(10);
 
         wma.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
-        double value1 = wma.Value;
+        double value1 = wma.Last.Value;
 
         wma.Update(new TValue(DateTime.UtcNow, 200), isNew: true);
-        double value2 = wma.Value;
+        double value2 = wma.Last.Value;
 
         // Values should change with new bars
         Assert.NotEqual(value1, value2);
@@ -58,10 +58,10 @@ public class WmaTests
 
         wma.Update(new TValue(DateTime.UtcNow, 100));
         wma.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
-        double beforeUpdate = wma.Value;
+        double beforeUpdate = wma.Last.Value;
 
         wma.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
-        double afterUpdate = wma.Value;
+        double afterUpdate = wma.Last.Value;
 
         // Update should change the value
         Assert.NotEqual(beforeUpdate, afterUpdate);
@@ -74,16 +74,16 @@ public class WmaTests
 
         wma.Update(new TValue(DateTime.UtcNow, 100));
         wma.Update(new TValue(DateTime.UtcNow, 105));
-        double valueBefore = wma.Value;
+        double valueBefore = wma.Last.Value;
 
         wma.Reset();
 
-        Assert.Equal(0, wma.Value.Value);
+        Assert.Equal(0, wma.Last.Value);
 
         // After reset, should accept new values
         wma.Update(new TValue(DateTime.UtcNow, 50));
-        Assert.NotEqual(0, wma.Value.Value);
-        Assert.NotEqual(valueBefore, wma.Value.Value);
+        Assert.NotEqual(0, wma.Last.Value);
+        Assert.NotEqual(valueBefore, wma.Last.Value);
     }
 
     [Fact]
@@ -91,12 +91,12 @@ public class WmaTests
     {
         var wma = new Wma(10);
 
-        Assert.Equal(0, wma.Value.Value);
+        Assert.Equal(0, wma.Last.Value);
         Assert.False(wma.IsHot);
 
         wma.Update(new TValue(DateTime.UtcNow, 100));
 
-        Assert.NotEqual(0, wma.Value.Value);
+        Assert.NotEqual(0, wma.Last.Value);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class WmaTests
 
         // WMA(5) of 10,20,30,40,50 = (1*10 + 2*20 + 3*30 + 4*40 + 5*50) / 15
         // = (10 + 40 + 90 + 160 + 250) / 15 = 550 / 15 = 36.666...
-        Assert.Equal(550.0 / 15.0, wma.Value.Value, 1e-10);
+        Assert.Equal(550.0 / 15.0, wma.Last.Value, 1e-10);
     }
 
     [Fact]
@@ -142,17 +142,17 @@ public class WmaTests
         wma.Update(new TValue(DateTime.UtcNow, 30));
 
         // WMA(3) of 10,20,30 = (1*10 + 2*20 + 3*30) / 6 = (10 + 40 + 90) / 6 = 140/6 = 23.333...
-        Assert.Equal(140.0 / 6.0, wma.Value.Value, 1e-10);
+        Assert.Equal(140.0 / 6.0, wma.Last.Value, 1e-10);
 
         wma.Update(new TValue(DateTime.UtcNow, 40));
 
         // WMA(3) of 20,30,40 = (1*20 + 2*30 + 3*40) / 6 = (20 + 60 + 120) / 6 = 200/6 = 33.333...
-        Assert.Equal(200.0 / 6.0, wma.Value.Value, 1e-10);
+        Assert.Equal(200.0 / 6.0, wma.Last.Value, 1e-10);
 
         wma.Update(new TValue(DateTime.UtcNow, 50));
 
         // WMA(3) of 30,40,50 = (1*30 + 2*40 + 3*50) / 6 = (30 + 80 + 150) / 6 = 260/6 = 43.333...
-        Assert.Equal(260.0 / 6.0, wma.Value.Value, 1e-10);
+        Assert.Equal(260.0 / 6.0, wma.Last.Value, 1e-10);
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class WmaTests
         }
 
         // Remember WMA state after 10 values
-        double wmaAfterTen = wma.Value;
+        double wmaAfterTen = wma.Last.Value;
 
         // Generate 9 corrections with isNew=false (different values)
         for (int i = 0; i < 9; i++)
@@ -230,7 +230,7 @@ public class WmaTests
         wma.Update(new TValue(DateTime.UtcNow, 100));
 
         // This should compile and work because TValue has implicit conversion to double
-        double result = wma.Value;
+        double result = wma.Last.Value;
 
         Assert.Equal(100.0, result, 1e-10);
     }
@@ -375,9 +375,9 @@ public class WmaTests
         // WMA should be higher than SMA because it weights the high recent value more
         // SMA = (10 + 20 + 100) / 3 = 43.333...
         // WMA = (1*10 + 2*20 + 3*100) / 6 = (10 + 40 + 300) / 6 = 58.333...
-        Assert.True(wma.Value.Value > sma.Value.Value);
-        Assert.Equal(350.0 / 6.0, wma.Value.Value, 1e-10);
-        Assert.Equal(130.0 / 3.0, sma.Value.Value, 1e-10);
+        Assert.True(wma.Last.Value > sma.Last.Value);
+        Assert.Equal(350.0 / 6.0, wma.Last.Value, 1e-10);
+        Assert.Equal(130.0 / 3.0, sma.Last.Value, 1e-10);
     }
 
     [Fact]
@@ -469,9 +469,9 @@ public class WmaTests
     {
         double[] source = new double[10000];
         double[] output = new double[10000];
-        var rng = new Random(42); // nosemgrep
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
-            source[i] = rng.NextDouble() * 100;
+            source[i] = gbm.Next().Close;
 
         // Warm up
         Wma.Calculate(source.AsSpan(), output.AsSpan(), 100);
@@ -514,9 +514,9 @@ public class WmaTests
     {
         double[] source = new double[1000];
         double[] output = new double[1000];
-        var rng = new Random(42); // nosemgrep
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
-            source[i] = rng.NextDouble() * 100;
+            source[i] = gbm.Next().Close;
 
         // Period <= 512 uses stackalloc
         Wma.Calculate(source.AsSpan(), output.AsSpan(), 100);
@@ -526,5 +526,47 @@ public class WmaTests
         double[] output2 = new double[1000];
         Wma.Calculate(source.AsSpan(), output2.AsSpan(), 600);
         Assert.True(double.IsFinite(output2[^1]));
+    }
+    [Fact]
+    public void Wma_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Wma.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Wma.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Wma(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Wma(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
     }
 }

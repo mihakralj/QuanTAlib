@@ -3,6 +3,8 @@
         "ms-dotnettools.csdevkit",
         "ms-dotnettools.csharp",
         "ms-dotnettools.dotnet-interactive-vscode",
-        "bierner.markdown-mermaid"
+        "bierner.markdown-mermaid",
+        "visualstudioexptteam.vscodeintellicode",
+        "SonarSource.sonarlint-vscode"
     ]
 }

@@ -154,6 +154,19 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("SMA")]
+    [Benchmark(Description = "QuanTAlib SMA (Eventing)")]
+    public void QuanTAlib_Sma_Eventing()
+    {
+        var source = new TSeries();
+        var sma = new Sma(source, Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
+            _quantalibOutput[i] = sma.Last.Value;
+        }
+    }
+
+    [BenchmarkCategory("SMA")]
     [Benchmark(Description = "Tulip SMA")]
     public void Tulip_Sma() => Tulip.Indicators.sma.Run(_tulipSmaInputs, _tulipSmaOptions, _tulipSmaOutputs);
 
@@ -190,6 +203,19 @@ public class IndicatorBenchmarks
         for (int i = 0; i < _closeValues.Length; i++)
         {
             _quantalibOutput[i] = ema.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
+        }
+    }
+
+    [BenchmarkCategory("EMA")]
+    [Benchmark(Description = "QuanTAlib EMA (Eventing)")]
+    public void QuanTAlib_Ema_Eventing()
+    {
+        var source = new TSeries();
+        var ema = new Ema(source, Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
+            _quantalibOutput[i] = ema.Last.Value;
         }
     }
 
@@ -234,6 +260,19 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("WMA")]
+    [Benchmark(Description = "QuanTAlib WMA (Eventing)")]
+    public void QuanTAlib_Wma_Eventing()
+    {
+        var source = new TSeries();
+        var wma = new Wma(source, Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
+            _quantalibOutput[i] = wma.Last.Value;
+        }
+    }
+
+    [BenchmarkCategory("WMA")]
     [Benchmark(Description = "Tulip WMA")]
     public void Tulip_Wma() => Tulip.Indicators.wma.Run(_tulipWmaInputs, _tulipWmaOptions, _tulipWmaOutputs);
 
@@ -274,6 +313,19 @@ public class IndicatorBenchmarks
     }
 
     [BenchmarkCategory("TRIMA")]
+    [Benchmark(Description = "QuanTAlib TRIMA (Eventing)")]
+    public void QuanTAlib_Trima_Eventing()
+    {
+        var source = new TSeries();
+        var trima = new Trima(source, Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
+            _quantalibOutput[i] = trima.Last.Value;
+        }
+    }
+
+    [BenchmarkCategory("TRIMA")]
     [Benchmark(Description = "Tulip TRIMA")]
     public void Tulip_Trima() => Tulip.Indicators.trima.Run(_tulipTrimaInputs, _tulipTrimaOptions, _tulipTrimaOutputs);
 
@@ -298,6 +350,19 @@ public class IndicatorBenchmarks
         for (int i = 0; i < _closeValues.Length; i++)
         {
             _quantalibOutput[i] = dema.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
+        }
+    }
+
+    [BenchmarkCategory("DEMA")]
+    [Benchmark(Description = "QuanTAlib DEMA (Eventing)")]
+    public void QuanTAlib_Dema_Eventing()
+    {
+        var source = new TSeries();
+        var dema = new Dema(source, Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
+            _quantalibOutput[i] = dema.Last.Value;
         }
     }
 
@@ -338,6 +403,19 @@ public class IndicatorBenchmarks
         for (int i = 0; i < _closeValues.Length; i++)
         {
             _quantalibOutput[i] = tema.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
+        }
+    }
+
+    [BenchmarkCategory("TEMA")]
+    [Benchmark(Description = "QuanTAlib TEMA (Eventing)")]
+    public void QuanTAlib_Tema_Eventing()
+    {
+        var source = new TSeries();
+        var tema = new Tema(source, Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
+            _quantalibOutput[i] = tema.Last.Value;
         }
     }
 

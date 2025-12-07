@@ -18,12 +18,12 @@ public class SmaTests
     {
         var sma = new Sma(10);
 
-        Assert.Equal(0, sma.Value.Value);
+        Assert.Equal(0, sma.Last.Value);
 
         TValue result = sma.Update(new TValue(DateTime.UtcNow, 100));
 
         Assert.True(result.Value > 0);
-        Assert.Equal(result.Value, sma.Value.Value);
+        Assert.Equal(result.Value, sma.Last.Value);
     }
 
     [Fact]
@@ -42,10 +42,10 @@ public class SmaTests
         var sma = new Sma(10);
 
         sma.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
-        double value1 = sma.Value;
+        double value1 = sma.Last.Value;
 
         sma.Update(new TValue(DateTime.UtcNow, 200), isNew: true);
-        double value2 = sma.Value;
+        double value2 = sma.Last.Value;
 
         // Values should change with new bars
         Assert.NotEqual(value1, value2);
@@ -58,10 +58,10 @@ public class SmaTests
 
         sma.Update(new TValue(DateTime.UtcNow, 100));
         sma.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
-        double beforeUpdate = sma.Value;
+        double beforeUpdate = sma.Last.Value;
 
         sma.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
-        double afterUpdate = sma.Value;
+        double afterUpdate = sma.Last.Value;
 
         // Update should change the value
         Assert.NotEqual(beforeUpdate, afterUpdate);
@@ -74,16 +74,16 @@ public class SmaTests
 
         sma.Update(new TValue(DateTime.UtcNow, 100));
         sma.Update(new TValue(DateTime.UtcNow, 105));
-        double valueBefore = sma.Value;
+        double valueBefore = sma.Last.Value;
 
         sma.Reset();
 
-        Assert.Equal(0, sma.Value.Value);
+        Assert.Equal(0, sma.Last.Value);
 
         // After reset, should accept new values
         sma.Update(new TValue(DateTime.UtcNow, 50));
-        Assert.NotEqual(0, sma.Value.Value);
-        Assert.NotEqual(valueBefore, sma.Value.Value);
+        Assert.NotEqual(0, sma.Last.Value);
+        Assert.NotEqual(valueBefore, sma.Last.Value);
     }
 
     [Fact]
@@ -91,12 +91,12 @@ public class SmaTests
     {
         var sma = new Sma(10);
 
-        Assert.Equal(0, sma.Value.Value);
+        Assert.Equal(0, sma.Last.Value);
         Assert.False(sma.IsHot);
 
         sma.Update(new TValue(DateTime.UtcNow, 100));
 
-        Assert.NotEqual(0, sma.Value.Value);
+        Assert.NotEqual(0, sma.Last.Value);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class SmaTests
         sma.Update(new TValue(DateTime.UtcNow, 50));
 
         // SMA(5) of 10,20,30,40,50 = 150/5 = 30
-        Assert.Equal(30.0, sma.Value.Value, 1e-10);
+        Assert.Equal(30.0, sma.Last.Value, 1e-10);
     }
 
     [Fact]
@@ -141,17 +141,17 @@ public class SmaTests
         sma.Update(new TValue(DateTime.UtcNow, 30));
 
         // SMA(3) of 10,20,30 = 60/3 = 20
-        Assert.Equal(20.0, sma.Value.Value, 1e-10);
+        Assert.Equal(20.0, sma.Last.Value, 1e-10);
 
         sma.Update(new TValue(DateTime.UtcNow, 40));
 
         // SMA(3) of 20,30,40 = 90/3 = 30
-        Assert.Equal(30.0, sma.Value.Value, 1e-10);
+        Assert.Equal(30.0, sma.Last.Value, 1e-10);
 
         sma.Update(new TValue(DateTime.UtcNow, 50));
 
         // SMA(3) of 30,40,50 = 120/3 = 40
-        Assert.Equal(40.0, sma.Value.Value, 1e-10);
+        Assert.Equal(40.0, sma.Last.Value, 1e-10);
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class SmaTests
         }
 
         // Remember SMA state after 10 values
-        double smaAfterTen = sma.Value;
+        double smaAfterTen = sma.Last.Value;
 
         // Generate 9 corrections with isNew=false (different values)
         for (int i = 0; i < 9; i++)
@@ -229,7 +229,7 @@ public class SmaTests
         sma.Update(new TValue(DateTime.UtcNow, 100));
 
         // This should compile and work because TValue has implicit conversion to double
-        double result = sma.Value;
+        double result = sma.Last.Value;
 
         Assert.Equal(100.0, result, 1e-10);
     }
@@ -422,10 +422,11 @@ public class SmaTests
     public void Sma_SpanCalc_ZeroAllocation()
     {
         double[] source = new double[10000];
+
         double[] output = new double[10000];
-        var rng = new Random(42); // nosemgrep
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
-            source[i] = rng.NextDouble() * 100; // nosemgrep
+            source[i] = gbm.Next().Close;
 
         // Warm up
         Sma.Calculate(source.AsSpan(), output.AsSpan(), 100);
@@ -462,5 +463,47 @@ public class SmaTests
         {
             Assert.Equal(source[i], output[i], 1e-10);
         }
+    }
+    [Fact]
+    public void Sma_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Sma.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Sma.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Sma(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Sma(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
     }
 }

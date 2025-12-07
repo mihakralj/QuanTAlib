@@ -25,7 +25,7 @@ namespace QuanTAlib;
 /// Becomes true when n = ln(0.05) / ln(1 - alpha) 
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Ema
+public sealed class Ema : ITValuePublisher
 {
     private struct State
     {
@@ -48,6 +48,8 @@ public sealed class Ema
     /// </summary>
     public string Name { get; }
 
+    public event Action<TValue>? Pub;
+
     /// <summary>
     /// Creates EMA with specified period.
     /// Alpha = 2 / (period + 1)
@@ -61,6 +63,17 @@ public sealed class Ema
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
         Name = $"Ema({period})";
+    }
+
+    /// <summary>
+    /// Creates EMA with specified source and period.
+    /// Subscribes to source.Pub event.
+    /// </summary>
+    /// <param name="source">Source to subscribe to</param>
+    /// <param name="period">Period for EMA calculation</param>
+    public Ema(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
     }
 
     /// <summary>
@@ -80,7 +93,7 @@ public sealed class Ema
     /// <summary>
     /// Current EMA value.
     /// </summary>
-    public TValue Value { get; private set; }
+    public TValue Last { get; private set; }
 
     /// <summary>
     /// True if the EMA has warmed up and is providing valid results.
@@ -115,8 +128,9 @@ public sealed class Ema
 
         double val = GetValidValue(input.Value);
         val = Compute(val, _alpha, _decay, ref _state);
-        Value = new TValue(input.Time, val);
-        return Value;
+        Last = new TValue(input.Time, val);
+        Pub?.Invoke(Last);
+        return Last;
     }
 
     public TSeries Update(TSeries source)
@@ -145,7 +159,7 @@ public sealed class Ema
         sourceTimes.CopyTo(tSpan);
         
         _p_state = _state;
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         
         return new TSeries(t, v);
     }
@@ -277,6 +291,6 @@ public sealed class Ema
         _state = State.New();
         _p_state = _state;
         _lastValidValue = 0;
-        Value = default;
+        Last = default;
     }
 }

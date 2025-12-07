@@ -19,12 +19,12 @@ public class TrimaTests
     {
         var trima = new Trima(10);
 
-        Assert.Equal(0, trima.Value.Value);
+        Assert.Equal(0, trima.Last.Value);
 
         TValue result = trima.Update(new TValue(DateTime.UtcNow, 100));
 
         Assert.True(result.Value > 0);
-        Assert.Equal(result.Value, trima.Value.Value);
+        Assert.Equal(result.Value, trima.Last.Value);
     }
 
     [Fact]
@@ -111,12 +111,12 @@ public class TrimaTests
 
         trima.Reset();
 
-        Assert.Equal(0, trima.Value.Value);
+        Assert.Equal(0, trima.Last.Value);
         Assert.False(trima.IsHot);
 
         // After reset, should accept new values
         trima.Update(new TValue(DateTime.UtcNow, 50));
-        Assert.NotEqual(0, trima.Value.Value);
+        Assert.NotEqual(0, trima.Last.Value);
     }
 
     [Fact]
@@ -196,5 +196,47 @@ public class TrimaTests
         {
             Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
         }
+    }
+    [Fact]
+    public void Trima_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Trima.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Trima.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Trima(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Trima(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
     }
 }

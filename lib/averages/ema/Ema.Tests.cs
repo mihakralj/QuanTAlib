@@ -29,12 +29,12 @@ public class EmaTests
     {
         var ema = new Ema(10);
 
-        Assert.Equal(0, ema.Value.Value);
+        Assert.Equal(0, ema.Last.Value);
 
         TValue result = ema.Update(new TValue(DateTime.UtcNow, 100));
 
         Assert.True(result.Value > 0);
-        Assert.Equal(result.Value, ema.Value.Value);
+        Assert.Equal(result.Value, ema.Last.Value);
     }
 
     [Fact]
@@ -43,10 +43,10 @@ public class EmaTests
         var ema = new Ema(10);
 
         ema.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
-        double value1 = ema.Value;
+        double value1 = ema.Last.Value;
 
         ema.Update(new TValue(DateTime.UtcNow, 105), isNew: true);
-        double value2 = ema.Value;
+        double value2 = ema.Last.Value;
 
         // Values should change with new bars
         Assert.NotEqual(value1, value2);
@@ -59,10 +59,10 @@ public class EmaTests
 
         ema.Update(new TValue(DateTime.UtcNow, 100));
         ema.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
-        double beforeUpdate = ema.Value;
+        double beforeUpdate = ema.Last.Value;
 
         ema.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
-        double afterUpdate = ema.Value;
+        double afterUpdate = ema.Last.Value;
 
         // Update should change the value
         Assert.NotEqual(beforeUpdate, afterUpdate);
@@ -75,16 +75,16 @@ public class EmaTests
 
         ema.Update(new TValue(DateTime.UtcNow, 100));
         ema.Update(new TValue(DateTime.UtcNow, 105));
-        double valueBefore = ema.Value;
+        double valueBefore = ema.Last.Value;
 
         ema.Reset();
 
-        Assert.Equal(0, ema.Value.Value);
+        Assert.Equal(0, ema.Last.Value);
 
         // After reset, should accept new values
         ema.Update(new TValue(DateTime.UtcNow, 50));
-        Assert.NotEqual(0, ema.Value.Value);
-        Assert.NotEqual(valueBefore, ema.Value.Value);
+        Assert.NotEqual(0, ema.Last.Value);
+        Assert.NotEqual(valueBefore, ema.Last.Value);
     }
 
     [Fact]
@@ -92,12 +92,12 @@ public class EmaTests
     {
         var ema = new Ema(10);
 
-        Assert.Equal(0, ema.Value.Value);
+        Assert.Equal(0, ema.Last.Value);
         Assert.False(ema.IsHot);
 
         ema.Update(new TValue(DateTime.UtcNow, 100));
 
-        Assert.NotEqual(0, ema.Value.Value);
+        Assert.NotEqual(0, ema.Last.Value);
     }
 
     [Fact]
@@ -195,7 +195,7 @@ public class EmaTests
         }
 
         // Remember EMA state after 10 values
-        double emaAfterTen = ema.Value;
+        double emaAfterTen = ema.Last.Value;
 
         // Generate 9 corrections with isNew=false (different values)
         for (int i = 0; i < 9; i++)
@@ -254,7 +254,7 @@ public class EmaTests
         ema.Update(new TValue(DateTime.UtcNow, 100));
 
         // This should compile and work because TValue has implicit conversion to double
-        double result = ema.Value;
+        double result = ema.Last.Value;
 
         Assert.Equal(100.0, result, 1e-10);
     }
@@ -442,9 +442,10 @@ public class EmaTests
     {
         double[] source = new double[10000];
         double[] output = new double[10000];
-        var rng = new Random(42); // nosemgrep
+
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
-            source[i] = rng.NextDouble() * 100;
+            source[i] = gbm.Next().Close;
 
         // Warm up
         Ema.Calculate(source.AsSpan(), output.AsSpan(), 100);
@@ -498,5 +499,48 @@ public class EmaTests
         // Results should be finite and reasonable
         Assert.True(double.IsFinite(output[^1]));
         Assert.True(output[^1] > 10 && output[^1] <= 50);
+    }
+    [Fact]
+    public void Ema_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Ema.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray(); // Need array for Span modification safety if any
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Ema.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Ema(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Ema(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        // Precision 9 due to potential accumulation differences in loop vs batch optimizations
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
     }
 }

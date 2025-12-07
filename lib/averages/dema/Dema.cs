@@ -22,7 +22,7 @@ namespace QuanTAlib;
 /// Becomes true when the second EMA converges (approx. 2x EMA convergence time).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Dema
+public sealed class Dema : ITValuePublisher
 {
     private struct EmaState
     {
@@ -45,8 +45,9 @@ public sealed class Dema
     private double _lastValidValue;
 
     public string Name { get; }
-    public TValue Value { get; private set; }
+    public TValue Last { get; private set; }
     public bool IsHot => _state2.IsHot;
+    public event Action<TValue>? Pub;
 
     public Dema(int period)
     {
@@ -55,6 +56,11 @@ public sealed class Dema
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
         Name = $"Dema({period})";
+    }
+
+    public Dema(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
     }
 
     public Dema(double alpha)
@@ -93,8 +99,9 @@ public sealed class Dema
         double e2 = Compute(e1, _alpha, _decay, ref _state2);
 
         double result = 2 * e1 - e2;
-        Value = new TValue(input.Time, result);
-        return Value;
+        Last = new TValue(input.Time, result);
+        Pub?.Invoke(Last);
+        return Last;
     }
 
     public TSeries Update(TSeries source)
@@ -141,7 +148,7 @@ public sealed class Dema
         _p_state2 = s2;
         _lastValidValue = lastValid;
 
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
@@ -281,6 +288,6 @@ public sealed class Dema
         _p_state1 = EmaState.New();
         _p_state2 = EmaState.New();
         _lastValidValue = 0;
-        Value = default;
+        Last = default;
     }
 }

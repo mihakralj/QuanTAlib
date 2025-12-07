@@ -25,7 +25,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Wma
+public sealed class Wma : ITValuePublisher
 {
     private readonly int _period;
     private readonly double _divisor;
@@ -38,8 +38,9 @@ public sealed class Wma
     private const int ResyncInterval = 1000;
 
     public string Name { get; }
-    public TValue Value { get; private set; }
+    public TValue Last { get; private set; }
     public bool IsHot => _buffer.IsFull;
+    public event Action<TValue>? Pub;
 
     public Wma(int period)
     {
@@ -49,6 +50,11 @@ public sealed class Wma
         _divisor = period * (period + 1) * 0.5;
         _buffer = new RingBuffer(period);
         Name = $"Wma({period})";
+    }
+
+    public Wma(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -128,8 +134,9 @@ public sealed class Wma
         }
 
         double currentDivisor = _buffer.IsFull ? _divisor : _buffer.Count * (_buffer.Count + 1) * 0.5;
-        Value = new TValue(input.Time, _wsum / currentDivisor);
-        return Value;
+        Last = new TValue(input.Time, _wsum / currentDivisor);
+        Pub?.Invoke(Last);
+        return Last;
     }
 
     public TSeries Update(TSeries source)
@@ -184,7 +191,7 @@ public sealed class Wma
         _p_lastInput = source.Values[len - 1];
         _p_lastValidValue = _lastValidValue;
 
-        Value = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
@@ -485,6 +492,6 @@ public sealed class Wma
     {
         _buffer.Clear();
         _sum = _wsum = _p_sum = _p_wsum = _p_lastInput = _lastValidValue = _p_lastValidValue = 0;
-        Value = default;
+        Last = default;
     }
 }
