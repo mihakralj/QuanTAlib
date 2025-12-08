@@ -21,13 +21,15 @@ namespace QuanTAlib;
 public sealed class Hma : ITValuePublisher
 {
     private readonly int _period;
+    private readonly int _sqrtPeriod;
     private readonly Wma _wmaFull;
     private readonly Wma _wmaHalf;
     private readonly Wma _wmaSqrt;
+    private int _sampleCount;
 
     public string Name { get; }
     public TValue Last { get; private set; }
-    public bool IsHot => _wmaFull.IsHot && _wmaSqrt.IsHot;
+    public bool IsHot => _sampleCount >= _period + _sqrtPeriod - 1;
     public event Action<TValue>? Pub;
 
     public Hma(int period)
@@ -36,11 +38,11 @@ public sealed class Hma : ITValuePublisher
 
         _period = period;
         int halfPeriod = period / 2;
-        int sqrtPeriod = (int)Math.Sqrt(period);
+        _sqrtPeriod = (int)Math.Sqrt(period);
 
         _wmaFull = new Wma(period);
         _wmaHalf = new Wma(halfPeriod);
-        _wmaSqrt = new Wma(sqrtPeriod);
+        _wmaSqrt = new Wma(_sqrtPeriod);
 
         Name = $"Hma({period})";
     }
@@ -53,6 +55,8 @@ public sealed class Hma : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
+        if (isNew) _sampleCount++;
+
         // 1. Calculate WMA(n)
         TValue full = _wmaFull.Update(input, isNew);
 
@@ -188,6 +192,7 @@ public sealed class Hma : ITValuePublisher
         _wmaFull.Reset();
         _wmaHalf.Reset();
         _wmaSqrt.Reset();
+        _sampleCount = 0;
         Last = default;
     }
 }

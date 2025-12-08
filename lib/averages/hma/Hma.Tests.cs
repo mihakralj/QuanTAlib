@@ -37,9 +37,9 @@ public class HmaTests
         // IsHot is defined as Full.IsHot && Sqrt.IsHot.
         // Full becomes hot after 9 updates.
         // Sqrt becomes hot after 3 updates.
-        // So HMA should be hot after 9 updates.
+        // So HMA should be hot after 9 + 3 - 1 = 11 updates.
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 10; i++)
         {
             hma.Update(new TValue(DateTime.UtcNow, 100));
             Assert.False(hma.IsHot);

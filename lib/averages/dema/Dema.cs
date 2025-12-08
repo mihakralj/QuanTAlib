@@ -24,7 +24,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Dema : ITValuePublisher
 {
-    private struct EmaState
+    private struct EmaState : IEquatable<EmaState>
     {
         public double Ema;
         public double E;
@@ -32,6 +32,20 @@ public sealed class Dema : ITValuePublisher
         public bool IsCompensated;
 
         public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
+
+        public override bool Equals(object? obj) => obj is EmaState other && Equals(other);
+
+        public bool Equals(EmaState other) =>
+            Ema == other.Ema &&
+            E == other.E &&
+            IsHot == other.IsHot &&
+            IsCompensated == other.IsCompensated;
+
+        public override int GetHashCode() => HashCode.Combine(Ema, E, IsHot, IsCompensated);
+
+        public static bool operator ==(EmaState left, EmaState right) => left.Equals(right);
+
+        public static bool operator !=(EmaState left, EmaState right) => !left.Equals(right);
     }
 
     private readonly double _alpha;

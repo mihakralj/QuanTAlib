@@ -26,15 +26,28 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class T3 : ITValuePublisher
 {
-    private struct State
+    private struct State : IEquatable<State>
     {
         public double E1, E2, E3, E4, E5, E6;
         public bool IsInitialized;
 
         public static State New() => new() { IsInitialized = false };
+
+        public override bool Equals(object? obj) => obj is State other && Equals(other);
+
+        public bool Equals(State other) =>
+            E1 == other.E1 && E2 == other.E2 && E3 == other.E3 &&
+            E4 == other.E4 && E5 == other.E5 && E6 == other.E6 &&
+            IsInitialized == other.IsInitialized;
+
+        public override int GetHashCode() => HashCode.Combine(E1, E2, E3, E4, E5, E6, IsInitialized);
+
+        public static bool operator ==(State left, State right) => left.Equals(right);
+
+        public static bool operator !=(State left, State right) => !left.Equals(right);
     }
 
-    private readonly struct Parameters
+    private readonly struct Parameters : IEquatable<Parameters>
     {
         public readonly double Alpha;
         public readonly double C1, C2, C3, C4;
@@ -47,6 +60,19 @@ public sealed class T3 : ITValuePublisher
             C3 = c3;
             C4 = c4;
         }
+
+        public override bool Equals(object? obj) => obj is Parameters other && Equals(other);
+
+        public bool Equals(Parameters other) =>
+            Alpha == other.Alpha &&
+            C1 == other.C1 && C2 == other.C2 &&
+            C3 == other.C3 && C4 == other.C4;
+
+        public override int GetHashCode() => HashCode.Combine(Alpha, C1, C2, C3, C4);
+
+        public static bool operator ==(Parameters left, Parameters right) => left.Equals(right);
+
+        public static bool operator !=(Parameters left, Parameters right) => !left.Equals(right);
     }
 
     private readonly Parameters _params;
