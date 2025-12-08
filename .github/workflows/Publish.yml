@@ -32,7 +32,7 @@ env:
 jobs:
   Code_Coverage:
     timeout-minutes: 30
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
       - name: Install dotnet tools
         run: |
           dotnet tool install JetBrains.dotCover.GlobalTool --global
-          dotnet tool install dotnet-sonarscanner --global
+          dotnet tool install dotnet-sonarscanner --global --version 9.0.0
           dotnet tool install dotnet-coverage --global
           dotnet tool install --global coverlet.console
           dotnet tool install --global dotnet-reportgenerator-globaltool
@@ -78,20 +78,20 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: pwsh
         run: |
-          dotnet sonarscanner begin /k:"mihakralj_QuanTAlib" /o:"mihakralj-quantalib" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.solution.file="QuanTAlib.sln" `
-            /d:sonar.cs.opencover.reportsPaths="**/*cover*.xml" `
-            /d:sonar.cs.dotcover.reportsPaths="**/dotcover.xml" `
-            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
-            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
-            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
-            /d:sonar.cpd.exclusions="**Tests.cs" `
-            /d:sonar.scanner.scanAll="false" `
-            /d:sonar.cs.roslyn.ignoreIssues="false" `
-            /d:sonar.issue.ignore.multicriteria="e1" `
-            /d:sonar.issue.ignore.multicriteria.e1.ruleKey="csharpsquid:S1944,csharpsquid:S2053,csharpsquid:S2222,csharpsquid:S2259,csharpsquid:S2583,csharpsquid:S2589,csharpsquid:S3329,csharpsquid:S3655,csharpsquid:S3900,csharpsquid:S3949,csharpsquid:S3966,csharpsquid:S4158,csharpsquid:S4347,csharpsquid:S5773,csharpsquid:S6781" `
-            /d:sonar.issue.ignore.multicriteria.e1.resourceKey="**/*.cs" `
-            /d:sonar.verbose="true"
+          dotnet sonarscanner begin -k:"mihakralj_QuanTAlib" -o:"mihakralj-quantalib" -d:sonar.token="${{ secrets.SONAR_TOKEN }}" -d:sonar.host.url="https://sonarcloud.io" `
+            -d:sonar.solution.file="QuanTAlib.sln" `
+            -d:sonar.cs.opencover.reportsPaths="**/*cover*.xml" `
+            -d:sonar.cs.dotcover.reportsPaths="**/dotcover.xml" `
+            -d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
+            -d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
+            -d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
+            -d:sonar.cpd.exclusions="**Tests.cs" `
+            -d:sonar.scanner.scanAll="false" `
+            -d:sonar.cs.roslyn.ignoreIssues="false" `
+            -d:sonar.issue.ignore.multicriteria="e1" `
+            -d:sonar.issue.ignore.multicriteria.e1.ruleKey="csharpsquid:S1944,csharpsquid:S2053,csharpsquid:S2222,csharpsquid:S2259,csharpsquid:S2583,csharpsquid:S2589,csharpsquid:S3329,csharpsquid:S3655,csharpsquid:S3900,csharpsquid:S3949,csharpsquid:S3966,csharpsquid:S4158,csharpsquid:S4347,csharpsquid:S5773,csharpsquid:S6781" `
+            -d:sonar.issue.ignore.multicriteria.e1.resourceKey="**/*.cs" `
+            -d:sonar.verbose="true"
 
       - name: Build Projects
         id: build
@@ -113,7 +113,7 @@ jobs:
         id: tests
         continue-on-error: true
         run: |
-          dotnet test --no-build --configuration Debug /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+          dotnet test --no-build --configuration Debug -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
           dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
           dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
           dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
@@ -140,18 +140,32 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: pwsh
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        run: dotnet sonarscanner end -d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+  Coverage_Upload:
+    needs: Code_Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: '*cover*.xml'
+          coverage-reports: '**/*cover*.xml'
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: 'cover*'
+          files: '**/*cover*.xml'
           verbose: true
 
   Qodana:
@@ -254,7 +268,7 @@ jobs:
 
   build_publish:
     timeout-minutes: 20
-    needs: [Code_Coverage, CodeQL, Qodana]
+    needs: [Code_Coverage, CodeQL, Qodana, Coverage_Upload]
     if: |
       success() &&
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
