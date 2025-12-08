@@ -144,15 +144,16 @@ jobs:
           dotnet restore
           
           # Added verbose logging to debug 9.0.0 auth issues
-          dotnet sonarscanner begin /k:"mihakralj_QuanTAlib" /o:"mihakralj-quantalib" \
+          # Reverted to sonar.token since the token has been updated
+          # Removed quotes from /k and /o to ensure they are parsed correctly
+          dotnet sonarscanner begin /k:mihakralj_QuanTAlib /o:mihakralj-quantalib \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" \
             /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
             /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
-            /d:sonar.scanner.scanAll="false" \
-            /d:sonar.verbose=true
+            /d:sonar.scanner.scanAll="false"
 
           dotnet build --no-restore --configuration Debug
           
