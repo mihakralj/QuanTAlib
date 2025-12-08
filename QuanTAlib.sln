@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanTAlib.Tests", "lib\Quan
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "quantower", "quantower", "{6CF592EE-4302-E72F-3CB4-AB1D314DD5A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Averages", "quantower\Averages.csproj", "{D8F03B19-F99F-475F-8951-85C9D2258B73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trends", "quantower\Trends.csproj", "{D8F03B19-F99F-475F-8951-85C9D2258B73}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quantower.Tests", "quantower\Quantower.Tests.csproj", "{576835AB-6453-4413-A2E7-54B6725CDF9D}"
 EndProject

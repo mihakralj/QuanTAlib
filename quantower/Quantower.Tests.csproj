@@ -27,8 +27,8 @@
     <Compile Include="*.Tests.cs" />
     <!-- Include core library types -->
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
-    <!-- Include averages implementations -->
-    <Compile Include="..\lib\averages\**\*.cs" Exclude="..\lib\averages\**\*.Tests.cs;..\lib\averages\**\*.Validation.Tests.cs" />
+    <!-- Include trends implementations -->
+    <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\*.Validation.Tests.cs" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
   </ItemGroup>

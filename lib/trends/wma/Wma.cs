@@ -47,7 +47,7 @@ public sealed class Wma : ITValuePublisher
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _period = period;
-        _divisor = period * (period + 1) * 0.5;
+        _divisor = (double)period * (period + 1) * 0.5;
         _buffer = new RingBuffer(period);
         Name = $"Wma({period})";
     }
@@ -133,7 +133,7 @@ public sealed class Wma : ITValuePublisher
             _buffer.UpdateNewest(val);
         }
 
-        double currentDivisor = _buffer.IsFull ? _divisor : _buffer.Count * (_buffer.Count + 1) * 0.5;
+        double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * 0.5;
         Last = new TValue(input.Time, _wsum / currentDivisor);
         Pub?.Invoke(Last);
         return Last;
@@ -226,7 +226,7 @@ public sealed class Wma : ITValuePublisher
     private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
-        double divisor = period * (period + 1) * 0.5;
+        double divisor = (double)period * (period + 1) * 0.5;
         double sum = 0;
         double wsum = 0;
         double lastValid = 0;
@@ -248,7 +248,7 @@ public sealed class Wma : ITValuePublisher
             wsum += (i + 1) * val;
             buffer[i] = val;
 
-            double currentDivisor = (i + 1) * (i + 2) * 0.5;
+            double currentDivisor = (double)(i + 1) * (i + 2) * 0.5;
             output[i] = wsum / currentDivisor;
         }
 
@@ -304,7 +304,7 @@ public sealed class Wma : ITValuePublisher
         ref double srcRef = ref MemoryMarshal.GetReference(source);
         ref double outRef = ref MemoryMarshal.GetReference(output);
 
-        double divisor = period * (period + 1) * 0.5;
+        double divisor = (double)period * (period + 1) * 0.5;
         double invDivisor = 1.0 / divisor;
 
         int warmupEnd = Math.Min(period, len);
@@ -315,7 +315,7 @@ public sealed class Wma : ITValuePublisher
             double val = Unsafe.Add(ref srcRef, i);
             sum += val;
             wsum += (i + 1) * val;
-            double currentDivisor = (i + 1) * (i + 2) * 0.5;
+            double currentDivisor = (double)(i + 1) * (i + 2) * 0.5;
             Unsafe.Add(ref outRef, i) = wsum / currentDivisor;
         }
 

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Averages</AssemblyName>
+    <AssemblyName>Trends</AssemblyName>
     <AlgoType>Indicator</AlgoType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -16,7 +16,7 @@
   <ItemGroup>
     <Compile Include="IndicatorExtensions.cs" />
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
-    <Compile Include="..\lib\averages\**\*.cs" Exclude="..\lib\averages\**\*.Tests.cs" />
+    <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
-    <Copy SourceFiles="$(OutputPath)\Averages.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Averages" />
+    <Copy SourceFiles="$(OutputPath)\Trends.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Trends" />
   </Target>
 
 </Project>

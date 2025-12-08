@@ -3,10 +3,16 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class DemaIndicator : Indicator, IWatchlistIndicator
+public class AlmaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
-    public int Period { get; set; } = 10;
+    public int Period { get; set; } = 9;
+
+    [InputParameter("Offset", sortIndex: 2, 0.0, 1.0, 0.01, 2)]
+    public double Offset { get; set; } = 0.85;
+
+    [InputParameter("Sigma", sortIndex: 3, 0.1, 100.0, 0.1, 1)]
+    public double Sigma { get; set; } = 6.0;
 
     [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
@@ -14,7 +20,7 @@ public class DemaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Dema? ma;
+    private Alma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
     private int _warmupBarIndex = -1;
@@ -22,23 +28,22 @@ public class DemaIndicator : Indicator, IWatchlistIndicator
     public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"DEMA {Period}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/averages/dema/Dema.Quantower.cs";
+    public override string ShortName => $"ALMA {Period}:{SourceName}";
 
-    public DemaIndicator()
+    public AlmaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "DEMA - Double Exponential Moving Average";
-        Description = "Double Exponential Moving Average";
-        Series = new(name: $"DEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Name = "ALMA - Arnaud Legoux Moving Average";
+        Description = "Arnaud Legoux Moving Average";
+        Series = new(name: $"ALMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Dema(Period);
+        ma = new Alma(Period, Offset, Sigma);
         SourceName = Source.ToString();
         _warmupBarIndex = -1;
         base.OnInit();

@@ -1,0 +1,13 @@
+- [**QuanTAlib**](/)
+
+- **Trends**
+  - [Overview](trends/)
+  - [ALMA - Arnaud Legoux MA](trends/alma/Alma.md)
+  - [DEMA - Double Exponential MA](trends/dema/Dema.md)
+  - [EMA - Exponential MA](trends/ema/Ema.md)
+  - [HMA - Hull MA](trends/hma/Hma.md)
+  - [SMA - Simple MA](trends/sma/Sma.md)
+  - [T3 - Tillson T3 MA](trends/t3/T3.md)
+  - [TEMA - Triple Exponential MA](trends/tema/Tema.md)
+  - [TRIMA - Triangular MA](trends/trima/Trima.md)
+  - [WMA - Weighted MA](trends/wma/Wma.md)

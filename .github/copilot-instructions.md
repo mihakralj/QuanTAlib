@@ -40,7 +40,7 @@ protected override void ManageState(bool isNew)
     }
 }
 ```
-**Pattern**: Use `_p_` prefix for backup variables (e.g., `_p_lastEma`, `_p_isInit`, `_p_e`). When `isNew=false`, restore ALL stateful variables before recalculating. See `lib/averages/Ema.cs` for reference implementation.
+**Pattern**: Use `_p_` prefix for backup variables (e.g., `_p_lastEma`, `_p_isInit`, `_p_e`). When `isNew=false`, restore ALL stateful variables before recalculating. See `lib/trends/Ema.cs` for reference implementation.
 
 ## Development Workflow
 
@@ -79,7 +79,7 @@ dotnet clean QuanTAlib.sln
 1. **Research**: Get formula/specification. For non-trivial indicators, use Context7 to retrieve authoritative references.
 
 2. **Location**: Place in appropriate `lib/` subdirectory:
-   - `averages/` - Moving averages (SMA, EMA, JMA, etc.)
+   - `trends/` - Trend indicators (SMA, EMA, JMA, etc.)
    - `oscillators/` - RSI, Stochastic, CCI, etc.
    - `momentum/` - MACD, ADX, ROC, etc.
    - `volatility/` - ATR, Bollinger Bands, volatility measures
@@ -229,7 +229,7 @@ public class MyIndicator : Indicator, IWatchlistIndicator
 ```
 lib/
 ├── core/              # AbstractBase, CircularBuffer, TSeries, TBar, TValue, ITValue
-├── averages/          # Moving averages: SMA, EMA, DEMA, TEMA, JMA, KAMA, etc. (25+ indicators)
+├── trends/            # Trend indicators: SMA, EMA, DEMA, TEMA, JMA, KAMA, etc. (25+ indicators)
 ├── oscillators/       # RSI, Stochastic, Williams %R, CCI, Fisher, CTI, etc.
 ├── momentum/          # MACD, ADX, DMI, ROC, TRIX, Vortex, PMO, etc.
 ├── volatility/        # ATR, Bollinger Bands, Keltner Channels, volatility measures

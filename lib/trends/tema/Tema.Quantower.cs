@@ -3,7 +3,7 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class TrimaIndicator : Indicator, IWatchlistIndicator
+public class TemaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 10;
@@ -14,7 +14,7 @@ public class TrimaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Trima? ma;
+    private Tema? ma;
     protected LineSeries? Series;
     protected string? SourceName;
     private int _warmupBarIndex = -1;
@@ -22,23 +22,23 @@ public class TrimaIndicator : Indicator, IWatchlistIndicator
     public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"TRIMA {Period}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/averages/trima/Trima.Quantower.cs";
+    public override string ShortName => $"TEMA {Period}:{SourceName}";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/tema/Tema.Quantower.cs";
 
-    public TrimaIndicator()
+    public TemaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "TRIMA - Triangular Moving Average";
-        Description = "Triangular Moving Average";
-        Series = new(name: $"TRIMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Name = "TEMA - Triple Exponential Moving Average";
+        Description = "Triple Exponential Moving Average";
+        Series = new(name: $"TEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Trima(Period);
+        ma = new Tema(Period);
         SourceName = Source.ToString();
         _warmupBarIndex = -1;
         base.OnInit();

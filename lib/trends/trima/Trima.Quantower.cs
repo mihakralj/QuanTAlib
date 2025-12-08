@@ -3,10 +3,10 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class HmaIndicator : Indicator, IWatchlistIndicator
+public class TrimaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 2, 1000, 1, 0)]
-    public int Period { get; set; } = 14;
+    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
+    public int Period { get; set; } = 10;
 
     [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
@@ -14,33 +14,33 @@ public class HmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Hma? ma;
-    private int _warmupBarIndex = -1;
+    private Trima? ma;
     protected LineSeries? Series;
     protected string? SourceName;
+    private int _warmupBarIndex = -1;
 
-    public int MinHistoryDepths => Period + (int)Math.Sqrt(Period); // Approximate warmup
+    public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"HMA {Period}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/averages/hma/Hma.cs";
+    public override string ShortName => $"TRIMA {Period}:{SourceName}";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/trima/Trima.Quantower.cs";
 
-    public HmaIndicator()
+    public TrimaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "HMA - Hull Moving Average";
-        Description = "Hull Moving Average for reduced lag";
-        Series = new(name: $"HMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Name = "TRIMA - Triangular Moving Average";
+        Description = "Triangular Moving Average";
+        Series = new(name: $"TRIMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Hma(Period);
-        _warmupBarIndex = -1;
+        ma = new Trima(Period);
         SourceName = Source.ToString();
+        _warmupBarIndex = -1;
         base.OnInit();
     }
 
@@ -49,15 +49,17 @@ public class HmaIndicator : Indicator, IWatchlistIndicator
         TValue input = this.GetInputValue(args, Source);
         bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
         TValue result = ma!.Update(input, isNew);
-        if (_warmupBarIndex < 0 && ma!.IsHot)
-            _warmupBarIndex = Count;
         Series!.SetValue(result.Value);
         Series!.SetMarker(0, Color.Transparent);
+
+        if (_warmupBarIndex < 0 && ma!.IsHot)
+            _warmupBarIndex = Count;
     }
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
         base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, _warmupBarIndex, showColdValues: ShowColdValues, tension: 0.2);
+        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
+        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
     }
 }

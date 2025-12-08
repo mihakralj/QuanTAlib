@@ -1,0 +1,67 @@
+# Trends
+
+Trend indicators help identify the direction and strength of a market trend. Moving averages are the most common type of trend indicator, smoothing out price data to create a clearer picture of the underlying direction.
+
+| Indicator | Full Name | Description |
+| :--- | :--- | :--- |
+| [ALMA](trends/alma/Alma.md) | Arnaud Legoux MA | Uses Gaussian distribution weights to balance smoothness and responsiveness. |
+| BESSEL | Bessel Filter | |
+| BILATERAL | Bilateral Filter | |
+| BLMA | Blackman Window MA | |
+| BPF | Ehlers Bandpass Filter | |
+| BUTTER | Butterworth Filter | |
+| BWMA | Bessel-Weighted MA | |
+| CHEBY1 | Chebyshev Type I Filter | |
+| CHEBY2 | Chebyshev Type II Filter | |
+| CONV | Convolution MA with any kernel | |
+| [DEMA](trends/dema/Dema.md) | Double Exponential Moving Average | Reduces lag by placing more weight on recent data than a standard EMA. |
+| DSMA | Deviation-Scaled MA | |
+| DWMA | Double Weighted MA | |
+| ELLIPTIC | Elliptic (Cauer) Filter | |
+| [EMA](trends/ema/Ema.md) | Exponential Moving Average | Weighted average giving more importance to recent price data. |
+| EPMA | Endpoint MA | |
+| FRAMA | Fractal Adaptive MA | |
+| GAUSS | Gaussian Filter | |
+| GWMA | Gaussian-Weighted MA | |
+| HAMMA | Hamming Window MA | |
+| HANN | Hann FIR Filter | |
+| HANMA | Hanning Window MA | |
+| HEMA | Hull Exponential MA | |
+| [HMA](trends/hma/Hma.md) | Hull Moving Average | Developed by Alan Hull to reduce lag while improving smoothing. |
+| HP | Hodrick-Prescott Filter | |
+| HPF | Ehlers Highpass Filter | |
+| HTIT | Hilbert Transform Instantaneous Trend | |
+| HWMA | Holt Weighted MA | |
+| JMA | Jurik MA | |
+| [KAMA](trends/kama/Kama.md) | Kaufman Adaptive MA | Adapts to market volatility by adjusting its smoothing factor based on an Efficiency Ratio. |
+| KF | Kalman Filter | |
+| LOESS | LOESS/LOWESS Smoothing | |
+| LSMA | Least Squares MA | |
+| LTMA | Linear Trend MA | |
+| MAMA | MESA Adaptive MA | |
+| MEDIAN | Median Filter | |
+| MGDI | McGinley Dynamic Indicator | |
+| MMA | Modified MA | |
+| NOTCH | Notch Filter | |
+| PWMA | Pascal Weighted MA | |
+| QEMA | Quadruple Exponential MA | |
+| REMA | Regularized Exponential MA | |
+| RGMA | Recursive Gaussian MA | |
+| RMA | wildeR MA (SMMA, MMA) | |
+| SGF | Savitzky-Golay Filter | |
+| SGMA | Savitzky-Golay MA | |
+| SINEMA | Sine-weighted MA | |
+| [SMA](trends/sma/Sma.md) | Simple Moving Average | The unweighted mean of the previous n data. |
+| SSF | Ehlers Super Smooth Filter | |
+| [T3](trends/t3/T3.md) | Tillson T3 Moving Average | A smooth moving average that uses a smoothing factor to reduce lag. |
+| [TEMA](trends/tema/Tema.md) | Triple Exponential Moving Average | Designed to smooth price fluctuations and filter out volatility. |
+| [TRIMA](trends/trima/Trima.md) | Triangular Moving Average | A double-smoothed SMA that gives more weight to the middle of the data window. |
+| USF | Ehlers Ultrasmooth Filter | |
+| VAMA | Volatility Adjusted MA | |
+| VIDYA | Variable Index Dynamic Average | |
+| WIENER | Wiener Filter | |
+| [WMA](trends/wma/Wma.md) | Weighted Moving Average | Assigns a heavier weighting to more current data points since they are more relevant. |
+| YZVAMA | Yang-Zhang Volatility Adjusted MA | |
+| ZLDEMA | Zero-Lag Double Exponential MA | |
+| ZLEMA | Zero-Lag Exponential MA | |
+| ZLTEMA | Zero-Lag Triple Exponential MA | |

@@ -122,7 +122,7 @@ TBar bar = csv.Next(isNew: true);
 Copy DLL files to Quantower installation:
 
 ```
-<Quantower_root>\Settings\Scripts\Indicators\QuanTAlib\Averages\Averages.dll
+<Quantower_root>\Settings\Scripts\Indicators\QuanTAlib\Trends\Trends.dll
 ```
 
 Where `<Quantower_root>` is the directory containing `Start.lnk`.
@@ -138,7 +138,7 @@ QuanTAlib/
 │   │   ├── tbar/        # TBar struct
 │   │   ├── tbarseries/  # TBarSeries class
 │   │   └── simd/        # SIMD extensions
-│   ├── averages/
+│   ├── trends/
 │   │   └── ema/         # EMA indicator + tests + docs
 │   └── feeds/
 │       ├── csv/         # CSV file feed
