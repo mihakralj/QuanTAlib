@@ -264,11 +264,14 @@ jobs:
       - name: Install Snyk CLI
         uses: snyk/actions/setup@master
 
+      - name: Restore dependencies
+        run: dotnet restore
+
       - name: Run Snyk on Solution
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --file=QuanTAlib.sln
+        run: snyk test --all-projects
 
   # ==============================================================================
   # 7. CodeQL Analysis
@@ -312,7 +315,7 @@ jobs:
     needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codecov_Upload, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
     if: |
       success() &&
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
@@ -345,7 +348,7 @@ jobs:
           dotnet build ./quantower/Averages.csproj --configuration Release --nologo
 
       - name: Create Development Release
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -359,7 +362,7 @@ jobs:
             quantower/bin/Release/Averages.dll
 
       - name: Push to MyGet
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
         continue-on-error: true
         run: |
           dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \

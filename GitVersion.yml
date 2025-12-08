@@ -23,7 +23,7 @@ branches:
     increment: Patch
     track-merge-target: true
     track-merge-message: true
-    regex: ^dev(elop)?(ment)?$
+    regex: ^dev(elop)?(ment)?$|.*-dev$
     source-branches:
     - main
     pre-release-weight: 30000
