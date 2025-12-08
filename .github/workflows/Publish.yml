@@ -21,8 +21,10 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read     # Allows SonarCloud to decorate PRs with analysis results
-  security-events: write  # Required for CodeQL analysis and uploading SARIF results
+  pull-requests: read
+  security-events: write
+  checks: write
+  actions: read
 
 env:
   DOTNET_VERSION: '10.x'
@@ -30,8 +32,10 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  Code_Coverage:
-    timeout-minutes: 30
+  # ==============================================================================
+  # 1. Build & Test (Generates Coverage)
+  # ==============================================================================
+  Build_Test_Coverage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,173 +54,6 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Cache dotnet tools
-        uses: actions/cache@v4
-        with:
-          path: ~/.dotnet/tools
-          key: ${{ runner.os }}-dotnet-tools-${{ hashFiles('**/*.csproj') }}
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu'
-
-      - name: Install dotnet tools
-        run: |
-          dotnet tool install JetBrains.dotCover.GlobalTool --global
-          dotnet tool install dotnet-sonarscanner --global --version 9.0.0
-          dotnet tool install dotnet-coverage --global
-          dotnet tool install --global coverlet.console
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          dotnet restore
-
-      - name: Begin SonarCloud Analysis
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: pwsh
-        run: |
-          dotnet sonarscanner begin -k:"mihakralj_QuanTAlib" -o:"mihakralj-quantalib" -d:sonar.token="${{ secrets.SONAR_TOKEN }}" -d:sonar.host.url="https://sonarcloud.io" `
-            -d:sonar.solution.file="QuanTAlib.sln" `
-            -d:sonar.cs.opencover.reportsPaths="**/*cover*.xml" `
-            -d:sonar.cs.dotcover.reportsPaths="**/dotcover.xml" `
-            -d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
-            -d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
-            -d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
-            -d:sonar.cpd.exclusions="**Tests.cs" `
-            -d:sonar.scanner.scanAll="false" `
-            -d:sonar.cs.roslyn.ignoreIssues="false" `
-            -d:sonar.issue.ignore.multicriteria="e1" `
-            -d:sonar.issue.ignore.multicriteria.e1.ruleKey="csharpsquid:S1944,csharpsquid:S2053,csharpsquid:S2222,csharpsquid:S2259,csharpsquid:S2583,csharpsquid:S2589,csharpsquid:S3329,csharpsquid:S3655,csharpsquid:S3900,csharpsquid:S3949,csharpsquid:S3966,csharpsquid:S4158,csharpsquid:S4347,csharpsquid:S5773,csharpsquid:S6781" `
-            -d:sonar.issue.ignore.multicriteria.e1.resourceKey="**/*.cs" `
-            -d:sonar.verbose="true"
-
-      - name: Build Projects
-        id: build
-        continue-on-error: true
-        run: |
-          dotnet build --no-restore --configuration Debug
-          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
-          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
-          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
-          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
-          if ($LASTEXITCODE -ne 0) { Write-Error "Build failed" }
-
-      - name: Check Build Status
-        if: steps.build.outcome == 'failure'
-        run: exit 1
-
-      - name: Run Tests with Coverage
-        id: tests
-        continue-on-error: true
-        run: |
-          dotnet test --no-build --configuration Debug -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
-          dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
-          dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
-          dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
-          dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
-
-      - name: Generate Coverage Report
-        run: |
-          reportgenerator -reports:*cover*.xml -targetdir:./coverage-report
-
-      - name: Upload Coverage Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-reports
-          path: |
-            **/TestResults
-            **/coverage-report
-            **/*cover*.xml
-            **/dotcover.*
-
-      - name: End SonarCloud Analysis
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: pwsh
-        run: dotnet sonarscanner end -d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
-  Coverage_Upload:
-    needs: Code_Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-reports
-
-      - name: Upload Coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@v1.3.0
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: '**/*cover*.xml'
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          files: '**/*cover*.xml'
-          verbose: true
-
-  Qodana:
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      checks: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2024.3.4
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-
-  CodeQL:
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'csharp'
-          queries: security-and-quality
-          config-file: ./.github/codeql/codeql-config.yml
-          tools: linked
 
       - name: Restore dependencies
         run: dotnet restore
@@ -224,60 +61,233 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Debug
 
+      - name: Run Tests
+        run: |
+          dotnet test --no-build --configuration Debug \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: Collect Coverage Files
+        run: |
+          mkdir -p coverage
+          find . -name "coverage.opencover.xml" -type f -exec cp --backup=numbered {} coverage/ \;
+          # Rename numbered backups to standard extensions if needed, or just keep them unique
+          # Simple copy with unique names:
+          count=1
+          find . -name "coverage.opencover.xml" -type f | while read file; do
+            cp "$file" "coverage/coverage_${count}.opencover.xml"
+            count=$((count+1))
+          done
+
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage/
+
+  # ==============================================================================
+  # 2. SonarCloud Analysis
+  # ==============================================================================
+  Sonar_Analysis:
+    needs: Build_Test_Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage
+
+      - name: Install SonarScanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner --version 9.0.0
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Run SonarCloud Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: pwsh
+        run: |
+          dotnet restore
+          dotnet sonarscanner begin -k:"mihakralj_QuanTAlib" -o:"mihakralj-quantalib" -d:sonar.token="${{ secrets.SONAR_TOKEN }}" -d:sonar.host.url="https://sonarcloud.io" `
+            -d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
+            -d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
+            -d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
+            -d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
+            -d:sonar.scanner.scanAll="false"
+
+          dotnet build --no-restore --configuration Debug
+          
+          dotnet sonarscanner end -d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+  # ==============================================================================
+  # 3. Qodana Scan
+  # ==============================================================================
+  Qodana_Scan:
+    needs: Build_Test_Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: .qodana/code-coverage
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2024.3.4
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          args: --coverage-dir,.qodana/code-coverage
+
+  # ==============================================================================
+  # 4. Codecov Upload
+  # ==============================================================================
+  Codecov_Upload:
+    needs: Build_Test_Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          directory: coverage
+          verbose: true
+
+  # ==============================================================================
+  # 5. Codacy Upload
+  # ==============================================================================
+  Codacy_Upload:
+    needs: Build_Test_Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage
+
+      - name: Upload to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          # Download the reporter script
+          curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
+          chmod +x codacy.sh
+          
+          # Upload each file
+          for file in coverage/*.xml; do
+            echo "Uploading $file..."
+            ./codacy.sh report -r "$file" --partial
+          done
+          
+          # Finalize
+          ./codacy.sh final
+        continue-on-error: true
+
+  # ==============================================================================
+  # 6. Snyk Scan
+  # ==============================================================================
+  Snyk_Scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run Snyk on Solution
+        uses: snyk/actions/dotnet@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=QuanTAlib.sln --all-projects --detection-depth=4
+
+  # ==============================================================================
+  # 7. CodeQL Analysis
+  # ==============================================================================
+  CodeQL_Analysis:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'csharp'
+          queries: security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Build
+        run: dotnet build --configuration Debug
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           output: results
           upload: true
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/dotnet@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          LD_PRELOAD: '' # Clear the LD_PRELOAD to avoid CodeQL conflicts
-        with:
-          args: |
-            --file=./lib/quantalib.csproj
-            --severity-threshold=low
-            --detection-depth=4
-            --package-manager=nuget
-
-      - name: Run Snyk on Solution
-        uses: snyk/actions/dotnet@master
-        if: always()
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          LD_PRELOAD: ''
-        with:
-          args: |
-            --file=QuanTAlib.sln
-            --all-projects
-            --detection-depth=4
-
-      - name: Run Snyk IaC
-        uses: snyk/actions/iac@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          LD_PRELOAD: ''
-        with:
-          args: |
-            --severity-threshold=low
-
-  build_publish:
-    timeout-minutes: 20
-    needs: [Code_Coverage, CodeQL, Qodana, Coverage_Upload]
+  # ==============================================================================
+  # 8. Publish Package
+  # ==============================================================================
+  Publish_Package:
+    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codecov_Upload, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
     if: |
       success() &&
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -299,23 +309,13 @@ jobs:
           useConfigFile: true
           updateAssemblyInfo: false
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Build projects
+      - name: Build & Pack
         run: |
           dotnet restore
           dotnet build ./lib/quantalib.csproj --configuration Release --nologo
-          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
-          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
-          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
+          dotnet build ./quantower/Averages.csproj --configuration Release --nologo
 
-      - name: Create or Update Development Release
+      - name: Create Development Release
         if: github.ref == 'refs/heads/dev'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -327,15 +327,11 @@ jobs:
             --prerelease \
             --target ${{ github.sha }} \
             lib/bin/Release/QuanTAlib.dll \
-            quantower/Averages/bin/Release/Averages.dll \
-            quantower/Statistics/bin/Release/Statistics.dll \
-            quantower/Volatility/bin/Release/Volatility.dll \
-            SyntheticVendor/bin/Release/SyntheticVendor.dll
+            quantower/bin/Release/Averages.dll
 
-      - name: Push prerelease package to myget.org
+      - name: Push to MyGet
         if: github.ref == 'refs/heads/dev'
         continue-on-error: true
-        id: myget-push
         run: |
           dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
             --source https://www.myget.org/F/quantalib/api/v3/index.json \
@@ -350,12 +346,9 @@ jobs:
           gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
             --title "Release from commit ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
             --notes "Release notes for this version." \
-            quantower/Averages/bin/Release/Averages.dll \
-            quantower/Statistics/bin/Release/Statistics.dll \
-            quantower/Volatility/bin/Release/Volatility.dll \
-            SyntheticVendor/bin/Release/SyntheticVendor.dll
+            quantower/bin/Release/Averages.dll
 
-      - name: Push release package to nuget.org
+      - name: Push to NuGet
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
