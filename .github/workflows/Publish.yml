@@ -70,12 +70,13 @@ jobs:
       - name: Collect Coverage Files
         run: |
           mkdir -p coverage
-          find . -name "coverage.opencover.xml" -type f -exec cp --backup=numbered {} coverage/ \;
-          # Rename numbered backups to standard extensions if needed, or just keep them unique
-          # Simple copy with unique names:
           count=1
           find . -name "coverage.opencover.xml" -type f | while read file; do
-            cp "$file" "coverage/coverage_${count}.opencover.xml"
+            dest="coverage/coverage_${count}.opencover.xml"
+            cp "$file" "$dest"
+            # Sanitize paths for Qodana (convert absolute to relative)
+            # This strips the current working directory from the paths in the XML
+            sed -i "s|$(pwd)/||g" "$dest"
             count=$((count+1))
           done
 
@@ -132,17 +133,20 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
+          
           dotnet restore
-          dotnet sonarscanner begin -k:"mihakralj_QuanTAlib" -o:"mihakralj-quantalib" -d:sonar.token="${{ secrets.SONAR_TOKEN }}" -d:sonar.host.url="https://sonarcloud.io" `
-            -d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
-            -d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
-            -d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
-            -d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
-            -d:sonar.scanner.scanAll="false"
+          
+          dotnet sonarscanner begin /k:"mihakralj_QuanTAlib" /o:"mihakralj-quantalib" /d:sonar.token="$env:SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
+            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
+            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
+            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
+            /d:sonar.scanner.scanAll="false"
 
           dotnet build --no-restore --configuration Debug
           
-          dotnet sonarscanner end -d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.token="$env:SONAR_TOKEN"
 
   # ==============================================================================
   # 3. Qodana Scan
@@ -176,6 +180,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Download Coverage Reports
         uses: actions/download-artifact@v4
@@ -197,6 +203,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Download Coverage Reports
         uses: actions/download-artifact@v4
@@ -229,6 +237,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
@@ -254,6 +264,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4

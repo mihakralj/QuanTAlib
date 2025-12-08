@@ -42,8 +42,13 @@ exclude:
   # Public API unused internally - this is a library
   - name: UnusedMember.Global
   - name: MemberCanBePrivate.Global
+  - name: MemberCanBePrivate.Local
   - name: ClassNeverInstantiated.Global
   - name: UnusedType.Global
+  - name: UnusedMethodReturnValue.Global
+  - name: AutoPropertyCanBeMadeGetOnly.Global
+  - name: MemberCanBeMadeStatic.Global
+  - name: MemberCanBeMadeStatic.Local
 
   # Redundant using directives - managed by IDE/build, not critical for library
   - name: RedundantUsingDirective
