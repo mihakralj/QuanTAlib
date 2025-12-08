@@ -268,7 +268,7 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --file=QuanTAlib.sln --all-projects --detection-depth=4
+        run: snyk test --file=QuanTAlib.sln
 
   # ==============================================================================
   # 7. CodeQL Analysis
