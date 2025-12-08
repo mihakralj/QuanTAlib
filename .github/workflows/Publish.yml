@@ -63,14 +63,6 @@ jobs:
           java-version: 17
           distribution: 'zulu'
 
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
       - name: Install dotnet tools
         run: |
           dotnet tool install JetBrains.dotCover.GlobalTool --global

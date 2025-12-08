@@ -91,6 +91,3 @@ exclude:
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
 linter: jetbrains/qodana-dotnet:2024.3
-
-# Use native mode instead of Docker (avoids Unix socket issues on Windows)
-withinDocker: false
