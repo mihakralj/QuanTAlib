@@ -1,0 +1,242 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace QuanTAlib;
+
+/// <summary>
+/// T3: Tillson T3 Moving Average
+/// </summary>
+/// <remarks>
+/// T3 works by running price data through a series of six EMAs, then combining the outputs 
+/// of these EMAs using carefully calculated weights.
+/// 
+/// Formula:
+/// T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
+/// 
+/// Where:
+/// e1..e6 are cascaded EMAs
+/// c1 = -v^3
+/// c2 = 3(v^2 + v^3)
+/// c3 = -3(2v^2 + v + v^3)
+/// c4 = 1 + 3v + 3v^2 + v^3
+/// 
+/// v is volume factor (default 0.7)
+/// alpha = 2 / (period + 1)
+/// </remarks>
+[SkipLocalsInit]
+public sealed class T3 : ITValuePublisher
+{
+    private struct State
+    {
+        public double E1, E2, E3, E4, E5, E6;
+        public bool IsInitialized;
+
+        public static State New() => new() { IsInitialized = false };
+    }
+
+    private readonly double _alpha;
+    private readonly double _c1, _c2, _c3, _c4;
+    private State _state = State.New();
+    private State _p_state = State.New();
+    private double _lastValidValue;
+
+    /// <summary>
+    /// Display name for the indicator.
+    /// </summary>
+    public string Name { get; }
+
+    public event Action<TValue>? Pub;
+
+    /// <summary>
+    /// Creates T3 with specified period and volume factor.
+    /// </summary>
+    /// <param name="period">Period for EMA calculation (must be > 0)</param>
+    /// <param name="vfactor">Volume Factor (default 0.7)</param>
+    public T3(int period, double vfactor = 0.7)
+    {
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        _alpha = 2.0 / (period + 1);
+        
+        // Precompute coefficients
+        double v = vfactor;
+        double v2 = v * v;
+        double v3 = v2 * v;
+
+        _c1 = -v3;
+        _c2 = 3.0 * (v2 + v3);
+        _c3 = -3.0 * (2.0 * v2 + v + v3);
+        _c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
+
+        Name = $"T3({period}, {vfactor:F2})";
+    }
+
+    /// <summary>
+    /// Creates T3 with specified source, period and volume factor.
+    /// Subscribes to source.Pub event.
+    /// </summary>
+    /// <param name="source">Source to subscribe to</param>
+    /// <param name="period">Period for EMA calculation</param>
+    /// <param name="vfactor">Volume Factor (default 0.7)</param>
+    public T3(ITValuePublisher source, int period, double vfactor = 0.7) : this(period, vfactor)
+    {
+        source.Pub += (item) => Update(item);
+    }
+
+    /// <summary>
+    /// Current T3 value.
+    /// </summary>
+    public TValue Last { get; private set; }
+
+    /// <summary>
+    /// True if the T3 has been initialized (received at least one value).
+    /// </summary>
+    public bool IsHot => _state.IsInitialized;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double GetValidValue(double input)
+    {
+        if (double.IsFinite(input))
+        {
+            _lastValidValue = input;
+            return input;
+        }
+        return _lastValidValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(TValue input, bool isNew = true)
+    {
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
+        double val = GetValidValue(input.Value);
+        val = Compute(val, _alpha, _c1, _c2, _c3, _c4, ref _state);
+        Last = new TValue(input.Time, val);
+        Pub?.Invoke(Last);
+        return Last;
+    }
+
+    public TSeries Update(TSeries source)
+    {
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
+        int len = source.Count;
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+        var sourceValues = source.Values;
+        var sourceTimes = source.Times;
+
+        State state = _state;
+        double lastValidValue = _lastValidValue;
+
+        CalculateCore(sourceValues, vSpan, _alpha, _c1, _c2, _c3, _c4, ref state, ref lastValidValue);
+
+        _state = state;
+        _lastValidValue = lastValidValue;
+
+        sourceTimes.CopyTo(tSpan);
+        
+        _p_state = _state;
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        
+        return new TSeries(t, v);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double Compute(double input, double alpha, double c1, double c2, double c3, double c4, ref State state)
+    {
+        if (!state.IsInitialized)
+        {
+            state.E1 = state.E2 = state.E3 = state.E4 = state.E5 = state.E6 = input;
+            state.IsInitialized = true;
+        }
+        else
+        {
+            state.E1 += alpha * (input - state.E1);
+            state.E2 += alpha * (state.E1 - state.E2);
+            state.E3 += alpha * (state.E2 - state.E3);
+            state.E4 += alpha * (state.E3 - state.E4);
+            state.E5 += alpha * (state.E4 - state.E5);
+            state.E6 += alpha * (state.E5 - state.E6);
+        }
+
+        return c1 * state.E6 + c2 * state.E5 + c3 * state.E4 + c4 * state.E3;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalculateCore(ReadOnlySpan<double> source, Span<double> output, double alpha, 
+        double c1, double c2, double c3, double c4, ref State state, ref double lastValidValue)
+    {
+        int len = source.Length;
+        for (int i = 0; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValidValue = val;
+            else
+                val = lastValidValue;
+
+            output[i] = Compute(val, alpha, c1, c2, c3, c4, ref state);
+        }
+    }
+
+    /// <summary>
+    /// Calculates T3 for the entire series using a new instance.
+    /// </summary>
+    public static TSeries Calculate(TSeries source, int period, double vfactor = 0.7)
+    {
+        var t3 = new T3(period, vfactor);
+        return t3.Update(source);
+    }
+
+    /// <summary>
+    /// Calculates T3 in-place using period, writing results to pre-allocated output span.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double vfactor = 0.7)
+    {
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (source.Length != output.Length)
+            throw new ArgumentException("Source and output must have the same length");
+            
+        double alpha = 2.0 / (period + 1);
+        double v = vfactor;
+        double v2 = v * v;
+        double v3 = v2 * v;
+
+        double c1 = -v3;
+        double c2 = 3.0 * (v2 + v3);
+        double c3 = -3.0 * (2.0 * v2 + v + v3);
+        double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
+
+        State state = State.New();
+        double lastValidValue = 0;
+
+        CalculateCore(source, output, alpha, c1, c2, c3, c4, ref state, ref lastValidValue);
+    }
+
+    /// <summary>
+    /// Resets the T3 state.
+    /// </summary>
+    public void Reset()
+    {
+        _state = State.New();
+        _p_state = _state;
+        _lastValidValue = 0;
+        Last = default;
+    }
+}
