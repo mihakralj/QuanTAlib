@@ -172,7 +172,7 @@ public sealed class T3 : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries();
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -269,7 +269,7 @@ public sealed class T3 : ITValuePublisher
         double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
 
         var p = new Parameters(alpha, c1, c2, c3, c4);
-        State state = State.New();
+        var state = State.New();
         double lastValidValue = 0;
 
         CalculateCore(source, output, p, ref state, ref lastValidValue);

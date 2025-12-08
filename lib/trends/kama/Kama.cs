@@ -157,7 +157,7 @@ public sealed class Kama : ITValuePublisher
             if (er > 1.0) er = 1.0;
 
             double sc = er * (_fastAlpha - _slowAlpha) + _slowAlpha;
-            sc = sc * sc;
+            sc *= sc;
 
             _kama = _p_kama + sc * (val - _p_kama);
         }
@@ -169,7 +169,7 @@ public sealed class Kama : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var t = new List<long>(len);

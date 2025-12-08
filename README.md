@@ -147,6 +147,7 @@ QuanTAlib/
 ```
 
 Each indicator follows a consistent file pattern:
+
 - `Indicator.cs` - Core implementation
 - `Indicator.Tests.cs` - Unit tests
 - `Indicator.Validation.Tests.cs` - Cross-validation with other libraries
@@ -174,6 +175,7 @@ Apache License 2.0 - See [LICENSE](LICENSE) for details.
 ## Contributing
 
 Contributions welcome! Each indicator should include:
+
 1. Core implementation with streaming support
 2. Unit tests covering edge cases
 3. Validation tests against reference libraries

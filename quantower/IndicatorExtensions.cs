@@ -119,8 +119,8 @@ public static class IndicatorExtensions
 
     public static List<Point> GetSmoothCurvePoints(Indicator indicator, IChartWindowCoordinatesConverter converter, Rectangle clientRect, LineSeries series)
     {
-        if (indicator == null) throw new ArgumentNullException(nameof(indicator));
-        if (converter == null) throw new ArgumentNullException(nameof(converter));
+        ArgumentNullException.ThrowIfNull(indicator);
+        ArgumentNullException.ThrowIfNull(converter);
         var data = indicator.HistoricalData;
         if (data == null) return new List<Point>();
 
@@ -193,8 +193,8 @@ public static class IndicatorExtensions
 
     public static List<(Rectangle Rect, Color Color)> GetHistogramRectangles(Indicator indicator, IChartWindowCoordinatesConverter converter, Rectangle clientRect, LineSeries series)
     {
-        if (indicator == null) throw new ArgumentNullException(nameof(indicator));
-        if (converter == null) throw new ArgumentNullException(nameof(converter));
+        ArgumentNullException.ThrowIfNull(indicator);
+        ArgumentNullException.ThrowIfNull(converter);
         var data = indicator.HistoricalData;
         if (data == null) return new List<(Rectangle, Color)>();
 

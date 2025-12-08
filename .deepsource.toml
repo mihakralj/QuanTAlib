@@ -3,6 +3,8 @@ version = 1
 [[analyzers]]
 name = "csharp"
 enabled = true
+  [analyzers.meta]
+  skip_rules = ["CS-R1131"]
 
 [[analyzers]]
 name = "test-coverage"
