@@ -131,22 +131,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: pwsh
+        shell: bash
         run: |
-          $ErrorActionPreference = 'Stop'
+          set -e # Fail immediately if any command exits with a non-zero status
+          
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "WARNING: SONAR_TOKEN is not set. Skipping analysis."
+            exit 0
+          fi
+          echo "SONAR_TOKEN is set (Length: ${#SONAR_TOKEN})"
           
           dotnet restore
           
-          dotnet sonarscanner begin /k:"mihakralj_QuanTAlib" /o:"mihakralj-quantalib" /d:sonar.token="$env:SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
-            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
-            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
-            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
-            /d:sonar.scanner.scanAll="false"
+          # Added verbose logging to debug 9.0.0 auth issues
+          dotnet sonarscanner begin /k:"mihakralj_QuanTAlib" /o:"mihakralj-quantalib" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" \
+            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
+            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
+            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
+            /d:sonar.scanner.scanAll="false" \
+            /d:sonar.verbose=true
 
           dotnet build --no-restore --configuration Debug
           
-          dotnet sonarscanner end /d:sonar.token="$env:SONAR_TOKEN"
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
   # ==============================================================================
   # 3. Qodana Scan
