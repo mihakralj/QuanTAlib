@@ -14,6 +14,10 @@ insert_final_newline = true
 # High-performance SIMD code intentionally has complex control flow
 dotnet_diagnostic.S3776.severity = none
 
+# Suppress SonarQube S1244 - Floating point equality
+# Intentional for exact struct comparison and zero checks in high-performance code
+dotnet_diagnostic.S1244.severity = none
+
 #### C# Coding Conventions ####
 
 # "var" preferences
