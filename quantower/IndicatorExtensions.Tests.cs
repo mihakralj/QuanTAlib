@@ -1,5 +1,6 @@
 using Xunit;
 using TradingPlatform.BusinessLayer;
+using TradingPlatform.BusinessLayer.Chart;
 using System.Drawing;
 using System.Reflection;
 
@@ -15,14 +16,14 @@ public class IndicatorExtensionsTests
         }
     }
 
-    private sealed class TestCoordinatesConverter : ICoordinatesConverter
+    private sealed class TestCoordinatesConverter : IChartWindowCoordinatesConverter
     {
         private readonly DateTime _time;
         public TestCoordinatesConverter(DateTime time) => _time = time;
 
         public DateTime GetTime(int x) => _time;
-        public double GetChartX(DateTime time) => 0;
-        public double GetChartY(double value) => 0;
+        public double GetChartX(DateTime time) => 10; // Return a fixed X for testing
+        public double GetChartY(double value) => value; // Return value as Y for testing
     }
 
     [Fact]
@@ -108,21 +109,8 @@ public class IndicatorExtensionsTests
     }
 
     [Fact]
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public void PaintMethods_DoNotThrow_WithValidGraphics()
+    public void LogicMethods_CalculateCorrectly()
     {
-        // This test attempts to verify that paint methods don't crash.
-        // It requires System.Drawing.Common to be functional.
-        
-        if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-        {
-            // Skip on non-Windows if System.Drawing is not fully supported (GDI+)
-            return; 
-        }
-
-        using var bitmap = new Bitmap(100, 100);
-        using var graphics = Graphics.FromImage(bitmap);
-        
         var indicator = new TestIndicator();
         indicator.CurrentChart = new MockChart();
         
@@ -133,9 +121,92 @@ public class IndicatorExtensionsTests
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 110, 90, 105);
         }
 
-        // Setup converter to return a time that exists in our data (e.g. the middle bar)
-        // We added bars at now, now+1min, ..., now+19min.
-        // Let's return now+10min.
+        // Setup converter
+        var validTime = now.AddMinutes(10);
+        var converter = new TestCoordinatesConverter(validTime);
+        indicator.CurrentChart.MainWindow.CoordinatesConverter = converter;
+
+        var clientRect = new Rectangle(0, 0, 100, 100);
+
+        // 1. Test GetHLineY
+        int y = IndicatorExtensions.GetHLineY(converter, 50.0);
+        Assert.Equal(50, y); // Since our mock returns value as Y
+
+        // 2. Test GetSmoothCurvePoints
+        var series = new LineSeries("Test", Color.Blue, 1, LineStyle.Solid);
+        for (int i = 0; i < 20; i++) series.AddValue(); 
+        for (int i = 0; i < 20; i++) series.SetValue(100 + i, i); 
+
+        var points = IndicatorExtensions.GetSmoothCurvePoints(indicator, converter, clientRect, series);
+        Assert.NotEmpty(points);
+        // Verify points logic: X should be 10 + halfBarWidth, Y should be value
+        // MockChart.BarsWidth defaults to something? Let's assume 0 or check logic.
+        // In GetSmoothCurvePoints: barX + halfBarWidth.
+        // Our mock GetChartX returns 10.
+        
+        // 3. Test GetHistogramRectangles
+        var histSeries = new LineSeries("Hist", Color.Blue, 1, LineStyle.Solid);
+        for (int i = 0; i < 20; i++) histSeries.AddValue();
+        for (int i = 0; i < 20; i++) 
+        {
+            double val = (i % 2 == 0) ? 10.0 : -10.0;
+            histSeries.SetValue(val, i);
+        }
+
+        var rects = IndicatorExtensions.GetHistogramRectangles(indicator, converter, clientRect, histSeries);
+        Assert.NotEmpty(rects);
+        
+        // Check value at offset 9 (i=9 in setup loop)
+        // i=9 is odd -> -10.0 (Negative)
+        // Color should be Red (150, 255, 0, 0)
+        var first = rects.First();
+        Assert.Equal(Color.FromArgb(150, 255, 0, 0), first.Color);
+        
+        // Verify geometry
+        // Value is -10. GetChartY(-10) -> -10.
+        // GetChartY(0) -> 0.
+        // Height = Abs(0 - (-10)) = 10.
+        // Y = 0 (since negative bars start at 0 and go down? No, GDI+ coords usually go down.
+        // But here we are testing the logic in GetHistogramRectangles:
+        // else { new Rectangle(barX, barY0, ...) } -> Y = barY0 = 0.
+        Assert.Equal(0, first.Rect.Y);
+        Assert.Equal(10, first.Rect.Height);
+    }
+
+    [Fact]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public void PaintMethods_DoNotThrow_WithValidGraphics()
+    {
+        // This test attempts to verify that paint methods don't crash.
+        // It requires System.Drawing.Common to be functional.
+        
+        // On non-Windows, this might fail if libgdiplus is not installed.
+        // We'll try-catch the PlatformNotSupportedException to allow the test to pass (but not cover) on those systems.
+        try 
+        {
+            using var bitmap = new Bitmap(100, 100);
+            using var graphics = Graphics.FromImage(bitmap);
+            RunPaintTests(graphics);
+        }
+        catch (TypeInitializationException) { return; } // System.Drawing.Common not supported
+        catch (PlatformNotSupportedException) { return; } // GDI+ not available
+        catch (DllNotFoundException) { return; } // libgdiplus not found
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    private void RunPaintTests(Graphics graphics)
+    {
+        var indicator = new TestIndicator();
+        indicator.CurrentChart = new MockChart();
+        
+        // Add some data
+        var now = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        for (int i = 0; i < 20; i++)
+        {
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 110, 90, 105);
+        }
+
+        // Setup converter
         var validTime = now.AddMinutes(10);
         indicator.CurrentChart.MainWindow.CoordinatesConverter = new TestCoordinatesConverter(validTime);
 
@@ -145,20 +216,49 @@ public class IndicatorExtensionsTests
         // Test PaintHLine
         IndicatorExtensions.PaintHLine(indicator, args, 100, pen);
 
-        // Test PaintSmoothCurve
-        var series = new LineSeries("Test", Color.Blue, 1, LineStyle.Solid);
-        for (int i = 0; i < 20; i++) series.AddValue(); // Fill with NaNs or values
-        for (int i = 0; i < 20; i++) series.SetValue(100 + i, i); // Set some values
-        
-        IndicatorExtensions.PaintSmoothCurve(indicator, args, series, 0);
+        // Test PaintSmoothCurve with different LineStyles and Warmup
+        foreach (LineStyle style in Enum.GetValues(typeof(LineStyle)))
+        {
+            var series = new LineSeries("Test", Color.Blue, 1, style);
+            for (int i = 0; i < 20; i++) series.AddValue(); 
+            for (int i = 0; i < 20; i++) series.SetValue(100 + i, i); 
+            
+            // Test with warmup and cold values
+            IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: true);
+            
+            // Test without cold values
+            IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: false);
+        }
 
-        // Test PaintHistogram
-        IndicatorExtensions.PaintHistogram(indicator, args, series, 0);
+        // Test PaintHistogram with Positive and Negative values
+        var histSeries = new LineSeries("Hist", Color.Blue, 1, LineStyle.Solid);
+        for (int i = 0; i < 20; i++) histSeries.AddValue();
+        for (int i = 0; i < 20; i++) 
+        {
+            // Alternate positive and negative
+            double val = (i % 2 == 0) ? 10.0 : -10.0;
+            histSeries.SetValue(val, i);
+        }
+        IndicatorExtensions.PaintHistogram(indicator, args, histSeries, 0);
 
         // Test DrawText
         IndicatorExtensions.DrawText(indicator, args, "Test Text");
-
-        // Assert that we reached the end without throwing
-        // If we got here, no exception was thrown
     }
+
+    [Fact]
+    public void GetInputValue_DefaultCase_ReturnsClose()
+    {
+        TestIndicator indicator = new();
+        DateTime now = new(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        indicator.HistoricalData.AddBar(now, 100, 110, 90, 105, 1000);
+        UpdateArgs args = new(UpdateReason.NewBar);
+
+        // Cast to an invalid SourceType to trigger default case
+        SourceType invalidType = (SourceType)999;
+        
+        var result = IndicatorExtensions.GetInputValue(indicator, args, invalidType);
+        
+        Assert.Equal(105, result.Value); // Should default to Close (105)
+    }
+
 }

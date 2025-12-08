@@ -1,6 +1,9 @@
 using TradingPlatform.BusinessLayer;
+using TradingPlatform.BusinessLayer.Chart;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+
+#nullable disable
 
 namespace QuanTAlib;
 
@@ -88,6 +91,11 @@ public static class IndicatorExtensions
     }
 
 #pragma warning disable CA1416 // Validate platform compatibility
+    public static int GetHLineY(IChartWindowCoordinatesConverter converter, double value)
+    {
+        return (int)converter.GetChartY(value);
+    }
+
     public static void PaintHLine(this Indicator indicator, PaintChartEventArgs args, double value, Pen pen)
     {
         if (indicator.CurrentChart == null)
@@ -101,12 +109,45 @@ public static class IndicatorExtensions
         gr.SetClip(clientRect);
         int leftX = clientRect.Left;
         int rightX = clientRect.Right;
-        int Y = (int)converter.GetChartY(value);
+        int Y = GetHLineY(converter, value);
 
         using (pen)
         {
             gr.DrawLine(pen, new Point(leftX, Y), new Point(rightX, Y));
         }
+    }
+
+    public static List<Point> GetSmoothCurvePoints(Indicator indicator, IChartWindowCoordinatesConverter converter, Rectangle clientRect, LineSeries series)
+    {
+        if (indicator == null) throw new ArgumentNullException(nameof(indicator));
+        if (converter == null) throw new ArgumentNullException(nameof(converter));
+        var data = indicator.HistoricalData;
+        if (data == null) return new List<Point>();
+
+        var lastTime = data.Time(data.Count - 1);
+        var firstTime = data.Time(0);
+
+        IChartWindowCoordinatesConverter safeConverter = converter!;
+        DateTime tLeft = safeConverter.GetTime(clientRect.Left);
+        DateTime leftTime = tLeft > lastTime ? tLeft : lastTime;
+
+        DateTime tRight = safeConverter.GetTime(clientRect.Right);
+        DateTime rightTime = tRight < firstTime ? tRight : firstTime;
+
+        int leftIndex = (int)data.GetIndexByTime(leftTime.Ticks) + 1;
+        int rightIndex = (int)data.GetIndexByTime(rightTime.Ticks);
+
+        List<Point> allPoints = new List<Point>();
+
+        for (int i = rightIndex; i < leftIndex; i++)
+        {
+            int barX = (int)converter.GetChartX(data.Time(i));
+            int barY = (int)converter.GetChartY(series[i]);
+            int halfBarWidth = indicator.CurrentChart.BarsWidth / 2;
+            Point point = new Point(barX + halfBarWidth, barY);
+            allPoints.Add(point);
+        }
+        return allPoints;
     }
 
     public static void PaintSmoothCurve(this Indicator indicator, PaintChartEventArgs args, LineSeries series, int warmupPeriod, bool showColdValues = true, double tension = 0.2)
@@ -121,26 +162,13 @@ public static class IndicatorExtensions
         var clientRect = mainWindow.ClientRectangle;
 
         gr.SetClip(clientRect);
-        DateTime leftTime = new[] { converter.GetTime(clientRect.Left), indicator.HistoricalData.Time(indicator!.Count - 1) }.Max();
-        DateTime rightTime = new[] { converter.GetTime(clientRect.Right), indicator.HistoricalData.Time(0) }.Min();
-
-        int leftIndex = (int)indicator.HistoricalData.GetIndexByTime(leftTime.Ticks) + 1;
-        int rightIndex = (int)indicator.HistoricalData.GetIndexByTime(rightTime.Ticks);
-
-        List<Point> allPoints = new List<Point>();
-
-        for (int i = rightIndex; i < leftIndex; i++)
-        {
-            int barX = (int)converter.GetChartX(indicator.HistoricalData.Time(i));
-            int barY = (int)converter.GetChartY(series[i]);
-            int halfBarWidth = indicator.CurrentChart.BarsWidth / 2;
-            Point point = new Point(barX + halfBarWidth, barY);
-            allPoints.Add(point);
-        }
+        
+        List<Point> allPoints = GetSmoothCurvePoints(indicator, converter, clientRect, series);
 
         if (allPoints.Count > 1)
         {
-            if (allPoints.Count < 2) return;
+            DateTime rightTime = new[] { converter.GetTime(clientRect.Right), indicator.HistoricalData.Time(0) }.Min();
+            int rightIndex = (int)indicator.HistoricalData.GetIndexByTime(rightTime.Ticks);
 
             using (Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) })
             using (Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot })
@@ -164,6 +192,47 @@ public static class IndicatorExtensions
         }
     }
 
+    public static List<(Rectangle Rect, Color Color)> GetHistogramRectangles(Indicator indicator, IChartWindowCoordinatesConverter converter, Rectangle clientRect, LineSeries series)
+    {
+        if (indicator == null) throw new ArgumentNullException(nameof(indicator));
+        if (converter == null) throw new ArgumentNullException(nameof(converter));
+        var data = indicator.HistoricalData;
+        if (data == null) return new List<(Rectangle, Color)>();
+
+        var lastTime = data.Time(data.Count - 1);
+        var firstTime = data.Time(0);
+
+        IChartWindowCoordinatesConverter safeConverter = converter!;
+        DateTime tLeft = safeConverter.GetTime(clientRect.Left);
+        DateTime leftTime = tLeft > lastTime ? tLeft : lastTime;
+
+        DateTime tRight = safeConverter.GetTime(clientRect.Right);
+        DateTime rightTime = tRight < firstTime ? tRight : firstTime;
+
+        int leftIndex = (int)data.GetIndexByTime(leftTime.Ticks) + 1;
+        int rightIndex = (int)data.GetIndexByTime(rightTime.Ticks);
+
+        var result = new List<(Rectangle, Color)>();
+
+        for (int i = rightIndex; i < leftIndex; i++)
+        {
+            int barX = (int)converter.GetChartX(data.Time(i));
+            int barY = (int)converter.GetChartY(series[i]);
+            int barY0 = (int)converter.GetChartY(0);
+            int HistBarWidth = indicator.CurrentChart.BarsWidth - 2;
+
+            if (series[i] > 0)
+            {
+                result.Add((new Rectangle(barX, barY, HistBarWidth, Math.Abs(barY - barY0)), Color.FromArgb(150, 0, 255, 0)));
+            }
+            else
+            {
+                result.Add((new Rectangle(barX, barY0, HistBarWidth, Math.Abs(barY0 - barY)), Color.FromArgb(150, 255, 0, 0)));
+            }
+        }
+        return result;
+    }
+
     public static void PaintHistogram(this Indicator indicator, PaintChartEventArgs args, LineSeries series, int warmupPeriod, bool showColdValues = true)
     {
         if (!series.Visible || indicator.CurrentChart == null)
@@ -176,32 +245,14 @@ public static class IndicatorExtensions
         var clientRect = mainWindow.ClientRectangle;
 
         gr.SetClip(clientRect);
-        DateTime leftTime = new[] { converter.GetTime(clientRect.Left), indicator.HistoricalData.Time(indicator!.Count - 1) }.Max();
-        DateTime rightTime = new[] { converter.GetTime(clientRect.Right), indicator.HistoricalData.Time(0) }.Min();
+        
+        var rects = GetHistogramRectangles(indicator, converter, clientRect, series);
 
-        int leftIndex = (int)indicator.HistoricalData.GetIndexByTime(leftTime.Ticks) + 1;
-        int rightIndex = (int)indicator.HistoricalData.GetIndexByTime(rightTime.Ticks);
-
-        for (int i = rightIndex; i < leftIndex; i++)
+        foreach (var (rect, color) in rects)
         {
-            int barX = (int)converter.GetChartX(indicator.HistoricalData.Time(i));
-            int barY = (int)converter.GetChartY(series[i]);
-            int barY0 = (int)converter.GetChartY(0);
-            int HistBarWidth = indicator.CurrentChart.BarsWidth - 2;
-
-            if (series[i] > 0)
+            using (Brush hist = new SolidBrush(color))
             {
-                using (Brush hist = new SolidBrush(Color.FromArgb(150, 0, 255, 0)))
-                {
-                    gr.FillRectangle(hist, barX, barY, HistBarWidth, Math.Abs(barY - barY0));
-                }
-            }
-            else
-            {
-                using (Brush hist = new SolidBrush(Color.FromArgb(150, 255, 0, 0)))
-                {
-                    gr.FillRectangle(hist, barX, barY0, HistBarWidth, Math.Abs(barY0 - barY));
-                }
+                gr.FillRectangle(hist, rect);
             }
         }
     }

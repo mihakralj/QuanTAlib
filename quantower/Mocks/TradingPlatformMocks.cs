@@ -3,9 +3,11 @@
 
 using System.Drawing;
 
-namespace TradingPlatform.BusinessLayer;
+namespace TradingPlatform.BusinessLayer
+{
+    using TradingPlatform.BusinessLayer.Chart;
 
-#region Enums
+    #region Enums
 
 /// <summary>
 /// Specifies the style of indicator line.
@@ -185,7 +187,7 @@ public class HistoricalData
         for (int i = 0; i < _items.Count; i++)
         {
             if (_items[i].TicksLeft == ticks)
-                return i;
+                return Count - 1 - i;
         }
         return -1;
     }
@@ -354,60 +356,68 @@ public class PaintChartEventArgs : EventArgs
 
 #endregion
 
-#region Chart
-
-/// <summary>
-/// Chart interface
-/// </summary>
-public interface IChart
-{
-    ChartWindow MainWindow { get; }
-    ChartWindow[] Windows { get; }
-    int BarsWidth { get; }
+    #region Chart
 }
 
-/// <summary>
-/// Chart window
-/// </summary>
-public class ChartWindow
+namespace TradingPlatform.BusinessLayer.Chart
 {
-    public Rectangle ClientRectangle { get; set; }
-    public ICoordinatesConverter CoordinatesConverter { get; set; } = new MockCoordinatesConverter();
+    /// <summary>
+    /// Coordinates converter interface
+    /// </summary>
+    public interface IChartWindowCoordinatesConverter
+    {
+        DateTime GetTime(int x);
+        double GetChartX(DateTime time);
+        double GetChartY(double value);
+    }
 }
 
-/// <summary>
-/// Coordinates converter interface
-/// </summary>
-public interface ICoordinatesConverter
+namespace TradingPlatform.BusinessLayer
 {
-    DateTime GetTime(int x);
-    double GetChartX(DateTime time);
-    double GetChartY(double value);
-}
+    using TradingPlatform.BusinessLayer.Chart;
 
-/// <summary>
-/// Mock coordinates converter
-/// </summary>
-public class MockCoordinatesConverter : ICoordinatesConverter
-{
-    public DateTime GetTime(int x) => DateTime.UtcNow;
-    public double GetChartX(DateTime time) => 0;
-    public double GetChartY(double value) => 0;
-}
+    /// <summary>
+    /// Chart interface
+    /// </summary>
+    public interface IChart
+    {
+        ChartWindow MainWindow { get; }
+        ChartWindow[] Windows { get; }
+        int BarsWidth { get; }
+    }
 
-/// <summary>
-/// Mock chart for testing
-/// </summary>
-public class MockChart : IChart
-{
-    public ChartWindow MainWindow { get; } = new();
-    public ChartWindow[] Windows { get; } = new[] { new ChartWindow() };
-    public int BarsWidth { get; set; } = 10;
-}
+    /// <summary>
+    /// Chart window
+    /// </summary>
+    public class ChartWindow
+    {
+        public Rectangle ClientRectangle { get; set; }
+        public IChartWindowCoordinatesConverter CoordinatesConverter { get; set; } = new MockCoordinatesConverter();
+    }
 
-#endregion
+    /// <summary>
+    /// Mock coordinates converter
+    /// </summary>
+    public class MockCoordinatesConverter : IChartWindowCoordinatesConverter
+    {
+        public DateTime GetTime(int x) => DateTime.UtcNow;
+        public double GetChartX(DateTime time) => 0;
+        public double GetChartY(double value) => 0;
+    }
 
-#region Indicator Base
+    /// <summary>
+    /// Mock chart for testing
+    /// </summary>
+    public class MockChart : IChart
+    {
+        public ChartWindow MainWindow { get; } = new();
+        public ChartWindow[] Windows { get; } = new[] { new ChartWindow() };
+        public int BarsWidth { get; set; } = 10;
+    }
+
+    #endregion
+
+    #region Indicator Base
 
 /// <summary>
 /// Watchlist indicator interface
@@ -488,3 +498,4 @@ public abstract class Indicator
 }
 
 #endregion
+}

@@ -34,8 +34,22 @@ public sealed class T3 : ITValuePublisher
         public static State New() => new() { IsInitialized = false };
     }
 
-    private readonly double _alpha;
-    private readonly double _c1, _c2, _c3, _c4;
+    private readonly struct Parameters
+    {
+        public readonly double Alpha;
+        public readonly double C1, C2, C3, C4;
+
+        public Parameters(double alpha, double c1, double c2, double c3, double c4)
+        {
+            Alpha = alpha;
+            C1 = c1;
+            C2 = c2;
+            C3 = c3;
+            C4 = c4;
+        }
+    }
+
+    private readonly Parameters _params;
     private State _state = State.New();
     private State _p_state = State.New();
     private double _lastValidValue;
@@ -57,17 +71,19 @@ public sealed class T3 : ITValuePublisher
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
-        _alpha = 2.0 / (period + 1);
-        
+        double alpha = 2.0 / (period + 1);
+
         // Precompute coefficients
         double v = vfactor;
         double v2 = v * v;
         double v3 = v2 * v;
 
-        _c1 = -v3;
-        _c2 = 3.0 * (v2 + v3);
-        _c3 = -3.0 * (2.0 * v2 + v + v3);
-        _c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
+        double c1 = -v3;
+        double c2 = 3.0 * (v2 + v3);
+        double c3 = -3.0 * (2.0 * v2 + v + v3);
+        double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
+
+        _params = new Parameters(alpha, c1, c2, c3, c4);
 
         Name = $"T3({period}, {vfactor:F2})";
     }
@@ -118,7 +134,7 @@ public sealed class T3 : ITValuePublisher
         }
 
         double val = GetValidValue(input.Value);
-        val = Compute(val, _alpha, _c1, _c2, _c3, _c4, ref _state);
+        val = Compute(val, _params, ref _state);
         Last = new TValue(input.Time, val);
         Pub?.Invoke(Last);
         return Last;
@@ -142,21 +158,21 @@ public sealed class T3 : ITValuePublisher
         State state = _state;
         double lastValidValue = _lastValidValue;
 
-        CalculateCore(sourceValues, vSpan, _alpha, _c1, _c2, _c3, _c4, ref state, ref lastValidValue);
+        CalculateCore(sourceValues, vSpan, _params, ref state, ref lastValidValue);
 
         _state = state;
         _lastValidValue = lastValidValue;
 
         sourceTimes.CopyTo(tSpan);
-        
+
         _p_state = _state;
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
-        
+
         return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double Compute(double input, double alpha, double c1, double c2, double c3, double c4, ref State state)
+    private static double Compute(double input, in Parameters p, ref State state)
     {
         if (!state.IsInitialized)
         {
@@ -165,20 +181,19 @@ public sealed class T3 : ITValuePublisher
         }
         else
         {
-            state.E1 += alpha * (input - state.E1);
-            state.E2 += alpha * (state.E1 - state.E2);
-            state.E3 += alpha * (state.E2 - state.E3);
-            state.E4 += alpha * (state.E3 - state.E4);
-            state.E5 += alpha * (state.E4 - state.E5);
-            state.E6 += alpha * (state.E5 - state.E6);
+            state.E1 += p.Alpha * (input - state.E1);
+            state.E2 += p.Alpha * (state.E1 - state.E2);
+            state.E3 += p.Alpha * (state.E2 - state.E3);
+            state.E4 += p.Alpha * (state.E3 - state.E4);
+            state.E5 += p.Alpha * (state.E4 - state.E5);
+            state.E6 += p.Alpha * (state.E5 - state.E6);
         }
 
-        return c1 * state.E6 + c2 * state.E5 + c3 * state.E4 + c4 * state.E3;
+        return p.C1 * state.E6 + p.C2 * state.E5 + p.C3 * state.E4 + p.C4 * state.E3;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateCore(ReadOnlySpan<double> source, Span<double> output, double alpha, 
-        double c1, double c2, double c3, double c4, ref State state, ref double lastValidValue)
+    private static void CalculateCore(ReadOnlySpan<double> source, Span<double> output, in Parameters p, ref State state, ref double lastValidValue)
     {
         int len = source.Length;
         for (int i = 0; i < len; i++)
@@ -189,7 +204,7 @@ public sealed class T3 : ITValuePublisher
             else
                 val = lastValidValue;
 
-            output[i] = Compute(val, alpha, c1, c2, c3, c4, ref state);
+            output[i] = Compute(val, p, ref state);
         }
     }
 
@@ -212,7 +227,7 @@ public sealed class T3 : ITValuePublisher
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
-            
+
         double alpha = 2.0 / (period + 1);
         double v = vfactor;
         double v2 = v * v;
@@ -223,10 +238,11 @@ public sealed class T3 : ITValuePublisher
         double c3 = -3.0 * (2.0 * v2 + v + v3);
         double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
 
+        var p = new Parameters(alpha, c1, c2, c3, c4);
         State state = State.New();
         double lastValidValue = 0;
 
-        CalculateCore(source, output, alpha, c1, c2, c3, c4, ref state, ref lastValidValue);
+        CalculateCore(source, output, p, ref state, ref lastValidValue);
     }
 
     /// <summary>
