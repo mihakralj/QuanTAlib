@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.Tests.cs" />
+    <Compile Include="**\*.Tests.cs" Exclude="**\*.Quantower.Tests.cs" />
   </ItemGroup>
 
   <ItemGroup>

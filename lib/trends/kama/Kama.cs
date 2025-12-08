@@ -69,15 +69,15 @@ public sealed class Kama : ITValuePublisher
         // Buffer needs to hold period + 1 values to calculate Change over 'period' bars
         // Change = Price[0] - Price[period]
         _buffer = new RingBuffer(period + 1);
-        
+
         _fastAlpha = 2.0 / (fastPeriod + 1);
         _slowAlpha = 2.0 / (slowPeriod + 1);
-        
+
         Name = $"Kama({period}, {fastPeriod}, {slowPeriod})";
         _kama = double.NaN;
     }
 
-    public Kama(ITValuePublisher source, int period = 10, int fastPeriod = 2, int slowPeriod = 30) 
+    public Kama(ITValuePublisher source, int period = 10, int fastPeriod = 2, int slowPeriod = 30)
         : this(period, fastPeriod, slowPeriod)
     {
         source.Pub += (item) => Update(item);
@@ -104,14 +104,11 @@ public sealed class Kama : ITValuePublisher
             _p_kama = _kama;
             _p_volatilitySum = _volatilitySum;
 
+            bool wasFull = _buffer.IsFull;
             double removed = _buffer.Add(val);
 
-            if (_buffer.IsFull)
+            if (wasFull)
             {
-                // removed is the value that fell off (Price[period+1] relative to new state?)
-                // No, removed is the value that was at index 0 (oldest).
-                // The new oldest is at index 0.
-                // diff_out was abs(removed - new_oldest).
                 double diff_out = Math.Abs(removed - _buffer[0]);
                 _lastDiffOut = diff_out;
 
@@ -153,7 +150,7 @@ public sealed class Kama : ITValuePublisher
         {
             double change = Math.Abs(_buffer[^1] - _buffer[0]);
             double volatility = _volatilitySum;
-            
+
             // Avoid division by zero
             double er = (volatility > double.Epsilon) ? change / volatility : 0.0;
             // Cap ER at 1.0 just in case floating point errors push it slightly over
@@ -177,14 +174,14 @@ public sealed class Kama : ITValuePublisher
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
-        
+
         // Use static Calculate for performance
         var outputSpan = new double[len];
-        Calculate(source.Values, outputSpan, _period, 
-            (int)(2.0/_fastAlpha - 1), (int)(2.0/_slowAlpha - 1)); // Reverse calc periods from alphas? 
-            // Actually better to pass alphas or periods. 
-            // The static method signature should match constructor params.
-            
+        Calculate(source.Values, outputSpan, _period,
+            (int)(2.0 / _fastAlpha - 1), (int)(2.0 / _slowAlpha - 1)); // Reverse calc periods from alphas? 
+                                                                       // Actually better to pass alphas or periods. 
+                                                                       // The static method signature should match constructor params.
+
         // Wait, I need to pass periods to static method.
         // fastPeriod = 2/fastAlpha - 1.
         int fastPeriod = (int)Math.Round(2.0 / _fastAlpha - 1);
@@ -192,7 +189,7 @@ public sealed class Kama : ITValuePublisher
 
         Calculate(source.Values, outputSpan, _period, fastPeriod, slowPeriod);
 
-        for(int i=0; i<len; i++)
+        for (int i = 0; i < len; i++)
         {
             t.Add(source.Times[i]);
             v.Add(outputSpan[i]);
@@ -217,14 +214,14 @@ public sealed class Kama : ITValuePublisher
 
         double fastAlpha = 2.0 / (fastPeriod + 1);
         double slowAlpha = 2.0 / (slowPeriod + 1);
-        
+
         // We need a buffer for price history to calculate ER
         // Size period + 1
         int bufSize = period + 1;
         Span<double> buffer = bufSize <= 256 ? stackalloc double[bufSize] : new double[bufSize];
         int bufferIdx = 0;
         int count = 0;
-        
+
         double volatilitySum = 0;
         double kama = 0;
         bool kamaInitialized = false;
@@ -241,7 +238,7 @@ public sealed class Kama : ITValuePublisher
             // Add to buffer
             double removed = buffer[bufferIdx];
             buffer[bufferIdx] = val;
-            
+
             // Update volatility
             if (count >= 1)
             {
@@ -249,9 +246,9 @@ public sealed class Kama : ITValuePublisher
                 // prev is at bufferIdx-1 (circular)
                 int prevIdx = (bufferIdx - 1 + bufSize) % bufSize;
                 double diff_in = Math.Abs(val - buffer[prevIdx]);
-                
+
                 volatilitySum += diff_in;
-                
+
                 if (count == bufSize)
                 {
                     // diff_out = abs(removed - new_oldest)
@@ -281,31 +278,18 @@ public sealed class Kama : ITValuePublisher
                 // Wait, bufferIdx points to where we WILL write next.
                 // So buffer[bufferIdx] is the oldest value (the one that will be overwritten next).
                 // So Change = abs(val - buffer[bufferIdx])
-                
+
                 double change = 0;
-                if (count == bufSize)
-                {
-                    change = Math.Abs(val - buffer[bufferIdx]);
-                }
-                else
-                {
-                    // If not full, oldest is at 0?
-                    // No, we fill 0, 1, 2...
-                    // Oldest is at 0.
-                    // But bufferIdx wraps.
-                    // If count < bufSize, we haven't wrapped yet (except maybe once if count==bufSize?)
-                    // If count < bufSize, bufferIdx is the index of next write.
-                    // Oldest is at 0.
-                    change = Math.Abs(val - buffer[0]);
-                }
+                change = (count == bufSize) ? Math.Abs(val - buffer[bufferIdx]) : Math.Abs(val - buffer[0]);
+
 
                 double er = (volatilitySum > double.Epsilon) ? change / volatilitySum : 0.0;
                 if (er > 1.0) er = 1.0;
 
                 double sc = er * (fastAlpha - slowAlpha) + slowAlpha;
-                sc = sc * sc;
+                sc *= sc;
 
-                kama = kama + sc * (val - kama);
+                kama += sc * (val - kama);
                 output[i] = kama;
             }
         }
@@ -320,5 +304,6 @@ public sealed class Kama : ITValuePublisher
         _p_volatilitySum = 0;
         _lastDiffOut = 0;
         _lastValidValue = 0;
+        Last = default;
     }
 }

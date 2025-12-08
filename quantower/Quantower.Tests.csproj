@@ -24,7 +24,8 @@
     <!-- Include mock types -->
     <Compile Include="Mocks\*.cs" />
     <!-- Include test files -->
-    <Compile Include="*.Tests.cs" />
+    <Compile Include="**\*.Tests.cs" />
+    <Compile Include="..\lib\**\*.Quantower.Tests.cs" />
     <!-- Include core library types -->
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
     <!-- Include trends implementations -->

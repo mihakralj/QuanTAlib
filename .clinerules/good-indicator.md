@@ -24,6 +24,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 | **Validation** | Cross-library validation | `[Name].Validation.Tests.cs` |
 | **Docs** | User documentation | `[Name].md` |
 | **Quantower** | Quantower adapter | `[Name].Quantower.cs` |
+| **Quantower Tests** | Quantower adapter tests | `[Name].Quantower.Tests.cs` |
 
 ## 3. Implementation Rules (`[Name].cs`)
 
@@ -143,7 +144,7 @@ Template structure:
 
 ## 7. Checklist for New Indicators
 
-* [ ] **File Structure:** Created all 4 required files?
+* [ ] **File Structure:** Created all 6 required files?
 * [ ] **Constructor:** Validates inputs? Sets `Name`?
 * [ ] **Update:** Handles `isNew` correctly? Handles `NaN`? O(1)?
 * [ ] **Static API:** Implemented `Calculate(Span)`?
@@ -151,6 +152,6 @@ Template structure:
 * [ ] **Validation:** Matches external libraries (Skender/TA-Lib)?
 * [ ] **Docs:** Markdown file created with formula and examples?
 * [ ] **Quantower:** Adapter created in `[Name].Quantower.cs`?
-* [ ] **Quantower Tests:** Adapter tests created in `quantower/[category]/[Name]Indicator.Tests.cs`?
+* [ ] **Quantower Tests:** Adapter tests created in `[Name].Quantower.Tests.cs`?
 * [ ] **Index:** Added to category `_index.md` with link and description?
 * [ ] **Performance:** No allocations in `Update`? `[SkipLocalsInit]` used?
