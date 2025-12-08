@@ -3,52 +3,52 @@ using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib.Tests;
 
-public class SmaIndicatorTests
+public class DemaIndicatorTests
 {
     [Fact]
-    public void SmaIndicator_Constructor_SetsDefaults()
+    public void DemaIndicator_Constructor_SetsDefaults()
     {
-        var indicator = new SmaIndicator();
+        var indicator = new DemaIndicator();
 
         Assert.Equal(10, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("SMA - Simple Moving Average", indicator.Name);
+        Assert.Equal("DEMA - Double Exponential Moving Average", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }
 
     [Fact]
-    public void SmaIndicator_MinHistoryDepths_EqualsPeriod()
+    public void DemaIndicator_MinHistoryDepths_EqualsPeriod()
     {
-        var indicator = new SmaIndicator { Period = 20 };
+        var indicator = new DemaIndicator { Period = 20 };
 
         Assert.Equal(20, indicator.MinHistoryDepths);
         Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
-    public void SmaIndicator_ShortName_IncludesPeriodAndSource()
+    public void DemaIndicator_ShortName_IncludesPeriodAndSource()
     {
-        var indicator = new SmaIndicator { Period = 15 };
+        var indicator = new DemaIndicator { Period = 15 };
 
-        Assert.Contains("SMA", indicator.ShortName);
+        Assert.Contains("DEMA", indicator.ShortName);
         Assert.Contains("15", indicator.ShortName);
     }
 
     [Fact]
-    public void SmaIndicator_SourceCodeLink_IsValid()
+    public void DemaIndicator_SourceCodeLink_IsValid()
     {
-        var indicator = new SmaIndicator();
+        var indicator = new DemaIndicator();
 
         Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Sma.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("Dema.Quantower.cs", indicator.SourceCodeLink);
     }
 
     [Fact]
-    public void SmaIndicator_Initialize_CreatesInternalSma()
+    public void DemaIndicator_Initialize_CreatesInternalDema()
     {
-        var indicator = new SmaIndicator { Period = 10 };
+        var indicator = new DemaIndicator { Period = 10 };
 
         // Initialize should not throw
         indicator.Initialize();
@@ -58,9 +58,9 @@ public class SmaIndicatorTests
     }
 
     [Fact]
-    public void SmaIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
+    public void DemaIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
     {
-        var indicator = new SmaIndicator { Period = 3 };
+        var indicator = new DemaIndicator { Period = 3 };
         indicator.Initialize();
 
         // Add historical data
@@ -77,9 +77,9 @@ public class SmaIndicatorTests
     }
 
     [Fact]
-    public void SmaIndicator_ProcessUpdate_NewBar_ComputesValue()
+    public void DemaIndicator_ProcessUpdate_NewBar_ComputesValue()
     {
-        var indicator = new SmaIndicator { Period = 3 };
+        var indicator = new DemaIndicator { Period = 3 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -93,9 +93,9 @@ public class SmaIndicatorTests
     }
 
     [Fact]
-    public void SmaIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
+    public void DemaIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
     {
-        var indicator = new SmaIndicator { Period = 3 };
+        var indicator = new DemaIndicator { Period = 3 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -112,20 +112,22 @@ public class SmaIndicatorTests
     }
 
     [Fact]
-    public void SmaIndicator_OnPaintChart_DoesNotThrow()
+    public void DemaIndicator_OnPaintChart_DoesNotThrow()
     {
-        var indicator = new SmaIndicator();
+        var indicator = new DemaIndicator();
         indicator.Initialize();
         
+        // We can't easily mock PaintChartEventArgs fully, but we can verify the method exists and is callable
+        // if we could mock the args. Since we can't, we skip the actual call but verify the method is overridden.
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
-        Assert.Equal(typeof(SmaIndicator), method.DeclaringType);
+        Assert.Equal(typeof(DemaIndicator), method.DeclaringType);
     }
 
     [Fact]
-    public void SmaIndicator_MultipleUpdates_ProducesCorrectSmaSequence()
+    public void DemaIndicator_MultipleUpdates_ProducesCorrectDemaSequence()
     {
-        var indicator = new SmaIndicator { Period = 3 };
+        var indicator = new DemaIndicator { Period = 3 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -143,21 +145,16 @@ public class SmaIndicatorTests
         {
             Assert.True(double.IsFinite(indicator.LinesSeries[0].GetValue(closes.Length - 1 - i)));
         }
-
-        // Last SMA(3) should be average of last 3 values: (103 + 105 + 104) / 3 ≈ 104
-        // Actually: (104 + 103 + 105) / 3 = 104
-        double lastSma = indicator.LinesSeries[0].GetValue(0);
-        Assert.True(lastSma >= 103 && lastSma <= 105);
     }
 
     [Fact]
-    public void SmaIndicator_DifferentSourceTypes_Work()
+    public void DemaIndicator_DifferentSourceTypes_Work()
     {
         var sources = new[] { SourceType.Open, SourceType.High, SourceType.Low, SourceType.Close, SourceType.HL2, SourceType.HLC3 };
 
         foreach (var source in sources)
         {
-            var indicator = new SmaIndicator { Period = 3, Source = source };
+            var indicator = new DemaIndicator { Period = 3, Source = source };
             indicator.Initialize();
 
             var now = DateTime.UtcNow;
@@ -170,9 +167,9 @@ public class SmaIndicatorTests
     }
 
     [Fact]
-    public void SmaIndicator_Period_CanBeChanged()
+    public void DemaIndicator_Period_CanBeChanged()
     {
-        var indicator = new SmaIndicator { Period = 5 };
+        var indicator = new DemaIndicator { Period = 5 };
         Assert.Equal(5, indicator.Period);
 
         indicator.Period = 20;

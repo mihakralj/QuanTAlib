@@ -115,6 +115,34 @@ Console.WriteLine($"Last EMA: {emaOutput[^1]}");
 * **Hunter's bias correction**: Same accuracy as TSeries API
 * **Compatible** with `ArrayPool<T>` for buffer management
 
+### Eventing and Reactive Support
+
+This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.
+
+* **Subscription:** Can be constructed with an `ITValuePublisher` (e.g., `TSeries`) to automatically update when the source emits a new value.
+* **Publication:** Emits a `Pub` event with the new `TValue` whenever it is updated.
+
+```csharp
+using QuanTAlib;
+
+// 1. Setup a source (publisher)
+var source = new TSeries();
+
+// 2. Create indicator subscribed to source
+// It waits for events from 'source'
+var ema = new Ema(source, period: 10);
+
+// 3. Optional: Subscribe to indicator's output
+ema.Pub += (item) => Console.WriteLine($"EMA Updated: {item.Value}");
+
+// 4. Ingest data into source
+// This triggers the chain: source -> ema -> Console.WriteLine
+source.Add(new TValue(DateTime.Now, 100));
+source.Add(new TValue(DateTime.Now, 105));
+```
+
+This pattern allows building complex, reactive processing pipelines without manual update loops.
+
 ### Handling Invalid Values (NaN/Infinity)
 
 `Ema` uses **last-value substitution** for handling invalid inputs:

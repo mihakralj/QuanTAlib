@@ -140,6 +140,34 @@ wma.Update(new TValue(time + 1, 101.2), isNew: true);
 
 **Implementation detail:** Bar correction is O(1) using scalar state save/restore, not buffer copying.
 
+### Eventing and Reactive Support
+
+This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.
+
+* **Subscription:** Can be constructed with an `ITValuePublisher` (e.g., `TSeries`) to automatically update when the source emits a new value.
+* **Publication:** Emits a `Pub` event with the new `TValue` whenever it is updated.
+
+```csharp
+using QuanTAlib;
+
+// 1. Setup a source (publisher)
+var source = new TSeries();
+
+// 2. Create indicator subscribed to source
+// It waits for events from 'source'
+var wma = new Wma(source, period: 10);
+
+// 3. Optional: Subscribe to indicator's output
+wma.Pub += (item) => Console.WriteLine($"WMA Updated: {item.Value}");
+
+// 4. Ingest data into source
+// This triggers the chain: source -> wma -> Console.WriteLine
+source.Add(new TValue(DateTime.Now, 100));
+source.Add(new TValue(DateTime.Now, 105));
+```
+
+This pattern allows building complex, reactive processing pipelines without manual update loops.
+
 ### Handling Invalid Values (NaN/Infinity)
 
 `Wma` uses **last-value substitution** for handling invalid inputs:

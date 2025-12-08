@@ -108,25 +108,13 @@ public sealed class Sma : ITValuePublisher
     }
 
 
-    // Removed GetValidValue and UpdateState as they are not used in the new Update logic
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
             double val = GetValidValue(input.Value);
-            
-            double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
-            _sum = _sum - removedValue + val;
-            _buffer.Add(val);
-            
-            _tickCount++;
-            if (_buffer.IsFull && _tickCount >= ResyncInterval)
-            {
-                _tickCount = 0;
-                _sum = _buffer.Sum();
-            }
+            UpdateState(val);
 
             _p_sum = _sum;
             _p_lastInput = val;
@@ -136,7 +124,7 @@ public sealed class Sma : ITValuePublisher
         {
             _lastValidValue = _p_lastValidValue;
             double val = GetValidValue(input.Value);
-            
+
             _sum = _p_sum - _p_lastInput + val;
             _buffer.UpdateNewest(val);
         }
@@ -150,7 +138,7 @@ public sealed class Sma : ITValuePublisher
     public TSeries Update(TSeries source)
     {
         if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
-        
+
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
@@ -159,26 +147,43 @@ public sealed class Sma : ITValuePublisher
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
-        var sourceValues = source.Values;
-        var sourceTimes = source.Times;
 
-        // Reset state for batch calculation
-        Reset();
-        
-        // We can optimize this later with specific batch logic, but for now use core loop
-        for(int i=0; i < len; i++)
+        Calculate(source.Values, vSpan, _period);
+        source.Times.CopyTo(tSpan);
+
+        // Restore state
+        int windowSize = Math.Min(len, _period);
+        int startIndex = len - windowSize;
+
+        if (startIndex > 0)
         {
-            double val = GetValidValue(sourceValues[i]);
-            double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
-            _sum = _sum - removedValue + val;
-            _buffer.Add(val);
-            vSpan[i] = _sum / _buffer.Count;
+            for (int i = startIndex - 1; i >= 0; i--)
+            {
+                if (double.IsFinite(source.Values[i]))
+                {
+                    _lastValidValue = source.Values[i];
+                    break;
+                }
+            }
+        }
+        else
+        {
+            _lastValidValue = 0;
         }
 
-        sourceTimes.CopyTo(tSpan);
-        _p_lastValidValue = _lastValidValue;
+        _buffer.Clear();
+        _sum = 0;
+        _tickCount = 0;
+
+        for (int i = startIndex; i < len; i++)
+        {
+            double val = GetValidValue(source.Values[i]);
+            UpdateState(val);
+        }
+
         _p_sum = _sum;
-        _p_lastInput = sourceValues[len-1];
+        _p_lastInput = source.Values[len - 1];
+        _p_lastValidValue = _lastValidValue;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);

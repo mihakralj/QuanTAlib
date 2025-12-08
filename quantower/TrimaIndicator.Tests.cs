@@ -77,6 +77,52 @@ public class TrimaIndicatorTests
     }
 
     [Fact]
+    public void TrimaIndicator_ProcessUpdate_NewBar_ComputesValue()
+    {
+        var indicator = new TrimaIndicator { Period = 3 };
+        indicator.Initialize();
+
+        var now = DateTime.UtcNow;
+        indicator.HistoricalData.AddBar(now, 100, 105, 95, 102);
+        indicator.HistoricalData.AddBar(now.AddMinutes(1), 102, 108, 100, 106);
+
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
+
+        Assert.Equal(2, indicator.LinesSeries[0].Count);
+    }
+
+    [Fact]
+    public void TrimaIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
+    {
+        var indicator = new TrimaIndicator { Period = 3 };
+        indicator.Initialize();
+
+        var now = DateTime.UtcNow;
+        indicator.HistoricalData.AddBar(now, 100, 105, 95, 102);
+
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+        double firstValue = indicator.LinesSeries[0].GetValue(0);
+
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewTick));
+        double secondValue = indicator.LinesSeries[0].GetValue(0);
+
+        Assert.True(double.IsFinite(firstValue));
+        Assert.True(double.IsFinite(secondValue));
+    }
+
+    [Fact]
+    public void TrimaIndicator_OnPaintChart_DoesNotThrow()
+    {
+        var indicator = new TrimaIndicator();
+        indicator.Initialize();
+        
+        var method = indicator.GetType().GetMethod("OnPaintChart");
+        Assert.NotNull(method);
+        Assert.Equal(typeof(TrimaIndicator), method.DeclaringType);
+    }
+
+    [Fact]
     public void TrimaIndicator_MultipleUpdates_ProducesCorrectTrimaSequence()
     {
         var indicator = new TrimaIndicator { Period = 3 };

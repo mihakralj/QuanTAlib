@@ -82,6 +82,34 @@ double[] temaOutput = new double[200000];
 Tema.Calculate(source.AsSpan(), temaOutput.AsSpan(), period: 50);
 ```
 
+### Eventing and Reactive Support
+
+This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.
+
+* **Subscription:** Can be constructed with an `ITValuePublisher` (e.g., `TSeries`) to automatically update when the source emits a new value.
+* **Publication:** Emits a `Pub` event with the new `TValue` whenever it is updated.
+
+```csharp
+using QuanTAlib;
+
+// 1. Setup a source (publisher)
+var source = new TSeries();
+
+// 2. Create indicator subscribed to source
+// It waits for events from 'source'
+var tema = new Tema(source, period: 14);
+
+// 3. Optional: Subscribe to indicator's output
+tema.Pub += (item) => Console.WriteLine($"TEMA Updated: {item.Value}");
+
+// 4. Ingest data into source
+// This triggers the chain: source -> tema -> Console.WriteLine
+source.Add(new TValue(DateTime.Now, 100));
+source.Add(new TValue(DateTime.Now, 105));
+```
+
+This pattern allows building complex, reactive processing pipelines without manual update loops.
+
 ### Handling Invalid Values
 
 `Tema` delegates value handling to the underlying `Ema` instances, which use **last-value substitution** for `NaN` or `Infinity`. This ensures continuity and stability in the output series.

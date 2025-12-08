@@ -41,6 +41,36 @@ TRIMA(source, p) = SMA(SMA(source, (p+1)/2), (p+1)/2)
 
 > 🔍 **Technical Note:** The double application of SMA explains why TRIMA provides better smoothing than a single SMA or WMA. This approach effectively applies smoothing twice with optimal period adjustment, creating a -18dB/octave roll-off in the frequency domain compared to -6dB/octave for a simple moving average.
 
+## C# Implementation
+
+### Eventing and Reactive Support
+
+This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.
+
+* **Subscription:** Can be constructed with an `ITValuePublisher` (e.g., `TSeries`) to automatically update when the source emits a new value.
+* **Publication:** Emits a `Pub` event with the new `TValue` whenever it is updated.
+
+```csharp
+using QuanTAlib;
+
+// 1. Setup a source (publisher)
+var source = new TSeries();
+
+// 2. Create indicator subscribed to source
+// It waits for events from 'source'
+var trima = new Trima(source, period: 14);
+
+// 3. Optional: Subscribe to indicator's output
+trima.Pub += (item) => Console.WriteLine($"TRIMA Updated: {item.Value}");
+
+// 4. Ingest data into source
+// This triggers the chain: source -> trima -> Console.WriteLine
+source.Add(new TValue(DateTime.Now, 100));
+source.Add(new TValue(DateTime.Now, 105));
+```
+
+This pattern allows building complex, reactive processing pipelines without manual update loops.
+
 ## Interpretation Details
 
 TRIMA can be used in various trading strategies:
