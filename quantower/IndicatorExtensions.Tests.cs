@@ -111,9 +111,11 @@ public class IndicatorExtensionsTests
     [Fact]
     public void LogicMethods_CalculateCorrectly()
     {
-        var indicator = new TestIndicator();
-        indicator.CurrentChart = new MockChart();
-        
+        var indicator = new TestIndicator
+        {
+            CurrentChart = new MockChart()
+        };
+
         // Add some data
         var now = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         for (int i = 0; i < 20; i++)
@@ -134,8 +136,8 @@ public class IndicatorExtensionsTests
 
         // 2. Test GetSmoothCurvePoints
         var series = new LineSeries("Test", Color.Blue, 1, LineStyle.Solid);
-        for (int i = 0; i < 20; i++) series.AddValue(); 
-        for (int i = 0; i < 20; i++) series.SetValue(100 + i, i); 
+        for (int i = 0; i < 20; i++) series.AddValue();
+        for (int i = 0; i < 20; i++) series.SetValue(100 + i, i);
 
         var points = IndicatorExtensions.GetSmoothCurvePoints(indicator, converter, clientRect, series);
         Assert.NotEmpty(points);
@@ -143,11 +145,11 @@ public class IndicatorExtensionsTests
         // MockChart.BarsWidth defaults to something? Let's assume 0 or check logic.
         // In GetSmoothCurvePoints: barX + halfBarWidth.
         // Our mock GetChartX returns 10.
-        
+
         // 3. Test GetHistogramRectangles
         var histSeries = new LineSeries("Hist", Color.Blue, 1, LineStyle.Solid);
         for (int i = 0; i < 20; i++) histSeries.AddValue();
-        for (int i = 0; i < 20; i++) 
+        for (int i = 0; i < 20; i++)
         {
             double val = (i % 2 == 0) ? 10.0 : -10.0;
             histSeries.SetValue(val, i);
@@ -155,20 +157,20 @@ public class IndicatorExtensionsTests
 
         var rects = IndicatorExtensions.GetHistogramRectangles(indicator, converter, clientRect, histSeries);
         Assert.NotEmpty(rects);
-        
+
         // Check value at offset 9 (i=9 in setup loop)
         // i=9 is odd -> -10.0 (Negative)
         // Color should be Red (150, 255, 0, 0)
-        var first = rects.First();
+        var first = rects[0];
         Assert.Equal(Color.FromArgb(150, 255, 0, 0), first.Color);
-        
+
         // Verify geometry
         // Value is -10. GetChartY(-10) -> -10.
         // GetChartY(0) -> 0.
         // Height = Abs(0 - (-10)) = 10.
         // Y = 0 (since negative bars start at 0 and go down? No, GDI+ coords usually go down.
         // But here we are testing the logic in GetHistogramRectangles:
-        // else { new Rectangle(barX, barY0, ...) } -> Y = barY0 = 0.
+        // else  new Rectangle(barX, barY0, ...)  -> Y = barY0 = 0.
         Assert.Equal(0, first.Rect.Y);
         Assert.Equal(10, first.Rect.Height);
     }
@@ -179,27 +181,38 @@ public class IndicatorExtensionsTests
     {
         // This test attempts to verify that paint methods don't crash.
         // It requires System.Drawing.Common to be functional.
-        
+
         // On non-Windows, this might fail if libgdiplus is not installed.
         // We'll try-catch the PlatformNotSupportedException to allow the test to pass (but not cover) on those systems.
-        try 
+        try
         {
             using var bitmap = new Bitmap(100, 100);
             using var graphics = Graphics.FromImage(bitmap);
             RunPaintTests(graphics);
             Assert.True(true); // Assertion to satisfy SonarCloud RSPEC-2699
         }
-        catch (TypeInitializationException) { return; } // System.Drawing.Common not supported
-        catch (PlatformNotSupportedException) { return; } // GDI+ not available
-        catch (DllNotFoundException) { return; } // libgdiplus not found
+        catch (TypeInitializationException)
+        {
+            // System.Drawing.Common not supported on this platform
+        }
+        catch (PlatformNotSupportedException)
+        {
+            // GDI+ not available on this platform
+        }
+        catch (DllNotFoundException)
+        {
+            // libgdiplus not found on this platform
+        }
     }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private void RunPaintTests(Graphics graphics)
     {
-        var indicator = new TestIndicator();
-        indicator.CurrentChart = new MockChart();
-        
+        var indicator = new TestIndicator
+        {
+            CurrentChart = new MockChart()
+        };
+
         // Add some data
         var now = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         for (int i = 0; i < 20; i++)
@@ -213,7 +226,7 @@ public class IndicatorExtensionsTests
 
         var args = new PaintChartEventArgs(graphics, new Rectangle(0, 0, 100, 100));
         using var pen = new Pen(Color.Red);
-        
+
         // Test PaintHLine
         IndicatorExtensions.PaintHLine(indicator, args, 100, pen);
 
@@ -221,12 +234,12 @@ public class IndicatorExtensionsTests
         foreach (LineStyle style in Enum.GetValues(typeof(LineStyle)))
         {
             var series = new LineSeries("Test", Color.Blue, 1, style);
-            for (int i = 0; i < 20; i++) series.AddValue(); 
-            for (int i = 0; i < 20; i++) series.SetValue(100 + i, i); 
-            
+            for (int i = 0; i < 20; i++) series.AddValue();
+            for (int i = 0; i < 20; i++) series.SetValue(100 + i, i);
+
             // Test with warmup and cold values
             IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: true);
-            
+
             // Test without cold values
             IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: false);
         }
@@ -234,7 +247,7 @@ public class IndicatorExtensionsTests
         // Test PaintHistogram with Positive and Negative values
         var histSeries = new LineSeries("Hist", Color.Blue, 1, LineStyle.Solid);
         for (int i = 0; i < 20; i++) histSeries.AddValue();
-        for (int i = 0; i < 20; i++) 
+        for (int i = 0; i < 20; i++)
         {
             // Alternate positive and negative
             double val = (i % 2 == 0) ? 10.0 : -10.0;
@@ -256,9 +269,9 @@ public class IndicatorExtensionsTests
 
         // Cast to an invalid SourceType to trigger default case
         SourceType invalidType = (SourceType)999;
-        
+
         var result = IndicatorExtensions.GetInputValue(indicator, args, invalidType);
-        
+
         Assert.Equal(105, result.Value); // Should default to Close (105)
     }
 

@@ -170,24 +170,23 @@ public static class IndicatorExtensions
             DateTime rightTime = new[] { converter.GetTime(clientRect.Right), indicator.HistoricalData.Time(0) }.Min();
             int rightIndex = (int)indicator.HistoricalData.GetIndexByTime(rightTime.Ticks);
 
-            using (Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) })
-            using (Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot })
+            using Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) };
+            using Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot };
+
+            int hotCount = indicator.Count - warmupPeriod - rightIndex;
+
+            // Draw the hot part
+            if (hotCount > 0)
             {
-                int hotCount = indicator.Count - warmupPeriod - rightIndex;
+                var hotPoints = allPoints.Take(Math.Min(hotCount + 1, allPoints.Count)).ToArray();
+                gr.DrawCurve(defaultPen, hotPoints, 0, hotPoints.Length - 1, (float)tension);
+            }
 
-                // Draw the hot part
-                if (hotCount > 0)
-                {
-                    var hotPoints = allPoints.Take(Math.Min(hotCount + 1, allPoints.Count)).ToArray();
-                    gr.DrawCurve(defaultPen, hotPoints, 0, hotPoints.Length - 1, (float)tension);
-                }
-
-                // Draw the cold part
-                if (showColdValues && hotCount < allPoints.Count)
-                {
-                    var coldPoints = allPoints.Skip(Math.Max(0, hotCount)).ToArray();
-                    gr.DrawCurve(coldPen, coldPoints, 0, coldPoints.Length - 1, (float)tension);
-                }
+            // Draw the cold part
+            if (showColdValues && hotCount < allPoints.Count)
+            {
+                var coldPoints = allPoints.Skip(Math.Max(0, hotCount)).ToArray();
+                gr.DrawCurve(coldPen, coldPoints, 0, coldPoints.Length - 1, (float)tension);
             }
         }
     }

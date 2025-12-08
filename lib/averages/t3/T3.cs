@@ -35,10 +35,12 @@ public sealed class T3 : ITValuePublisher
 
         public override bool Equals(object? obj) => obj is State other && Equals(other);
 
+#pragma warning disable S1244 // Do not check floating point equality with exact values
         public bool Equals(State other) =>
             E1 == other.E1 && E2 == other.E2 && E3 == other.E3 &&
             E4 == other.E4 && E5 == other.E5 && E6 == other.E6 &&
             IsInitialized == other.IsInitialized;
+#pragma warning restore S1244 // Do not check floating point equality with exact values
 
         public override int GetHashCode() => HashCode.Combine(E1, E2, E3, E4, E5, E6, IsInitialized);
 
@@ -63,10 +65,12 @@ public sealed class T3 : ITValuePublisher
 
         public override bool Equals(object? obj) => obj is Parameters other && Equals(other);
 
+#pragma warning disable S1244 // Do not check floating point equality with exact values
         public bool Equals(Parameters other) =>
             Alpha == other.Alpha &&
             C1 == other.C1 && C2 == other.C2 &&
             C3 == other.C3 && C4 == other.C4;
+#pragma warning restore S1244 // Do not check floating point equality with exact values
 
         public override int GetHashCode() => HashCode.Combine(Alpha, C1, C2, C3, C4);
 

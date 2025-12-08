@@ -51,7 +51,7 @@
 | SINEMA | Sine-weighted MA |
 | [SMA](sma/Sma.cs) | Simple MA |
 | SSF | Ehlers Super Smooth Filter |
-| T3 | Tillson T3 MA |
+| [T3](t3/T3.cs) | Tillson T3 MA |
 | [TEMA](tema/Tema.cs) | Triple Exponential MA |
 | [TRIMA](trima/Trima.cs) | Triangular MA |
 | USF | Ehlers Ultrasmooth Filter |

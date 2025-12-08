@@ -75,7 +75,7 @@ public sealed class Hma : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries([], new List<double>());
 
         int len = source.Count;
         var t = new List<long>(len);
