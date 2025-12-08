@@ -90,7 +90,7 @@ exclude:
 #  - id: <plugin.id> #(plugin id can be found at https://plugins.jetbrains.com)
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
-linter: qodana-dotnet
+linter: jetbrains/qodana-dotnet:2024.3
 
 # Use native mode instead of Docker (avoids Unix socket issues on Windows)
 withinDocker: false
