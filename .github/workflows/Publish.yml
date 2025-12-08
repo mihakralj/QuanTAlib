@@ -227,6 +227,11 @@ jobs:
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
+            exit 0
+          fi
+
           # Download the reporter script
           curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
           chmod +x codacy.sh
