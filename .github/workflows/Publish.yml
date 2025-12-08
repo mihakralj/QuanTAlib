@@ -261,13 +261,14 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
       - name: Run Snyk on Solution
-        uses: snyk/actions/dotnet@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --file=QuanTAlib.sln --all-projects --detection-depth=4
+        run: snyk test --file=QuanTAlib.sln --all-projects --detection-depth=4
 
   # ==============================================================================
   # 7. CodeQL Analysis
@@ -289,7 +290,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: 'csharp'
           queries: security-and-quality
@@ -299,7 +300,7 @@ jobs:
         run: dotnet build --configuration Debug
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           output: results
           upload: true
