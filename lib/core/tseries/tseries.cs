@@ -20,10 +20,8 @@ namespace QuanTAlib;
 
     public event Action<TValue>? Pub;
 
-    public TSeries()
+    public TSeries() : this(0)
     {
-        _t = new List<long>();
-        _v = new List<double>();
     }
 
     public TSeries(int capacity)

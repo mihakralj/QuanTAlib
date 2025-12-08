@@ -176,15 +176,7 @@ public class IndicatorBenchmarks
 
     [BenchmarkCategory("SMA")]
     [Benchmark(Description = "Skender SMA")]
-    public double Skender_Sma()
-    {
-        double sum = 0;
-        foreach (var r in _quotes.GetSma(Period))
-        {
-            sum += (double)(r.Sma ?? 0);
-        }
-        return sum;
-    }
+    public object Skender_Sma() => _quotes.GetSma(Period);
 
     // ==================== EMA ====================
     [BenchmarkCategory("EMA")]
@@ -229,15 +221,7 @@ public class IndicatorBenchmarks
 
     [BenchmarkCategory("EMA")]
     [Benchmark(Description = "Skender EMA")]
-    public double Skender_Ema()
-    {
-        double sum = 0;
-        foreach (var r in _quotes.GetEma(Period))
-        {
-            sum += (double)(r.Ema ?? 0);
-        }
-        return sum;
-    }
+    public object Skender_Ema() => _quotes.GetEma(Period);
 
     // ==================== WMA ====================
     [BenchmarkCategory("WMA")]
@@ -282,15 +266,7 @@ public class IndicatorBenchmarks
 
     [BenchmarkCategory("WMA")]
     [Benchmark(Description = "Skender WMA")]
-    public double Skender_Wma()
-    {
-        double sum = 0;
-        foreach (var r in _quotes.GetWma(Period))
-        {
-            sum += (double)(r.Wma ?? 0);
-        }
-        return sum;
-    }
+    public object Skender_Wma() => _quotes.GetWma(Period);
 
     // ==================== TRIMA ====================
     [BenchmarkCategory("TRIMA")]
@@ -376,15 +352,7 @@ public class IndicatorBenchmarks
 
     [BenchmarkCategory("DEMA")]
     [Benchmark(Description = "Skender DEMA")]
-    public double Skender_Dema()
-    {
-        double sum = 0;
-        foreach (var r in _quotes.GetDema(Period))
-        {
-            sum += (double)(r.Dema ?? 0);
-        }
-        return sum;
-    }
+    public object Skender_Dema() => _quotes.GetDema(Period);
 
     // ==================== TEMA ====================
     [BenchmarkCategory("TEMA")]
@@ -429,13 +397,5 @@ public class IndicatorBenchmarks
 
     [BenchmarkCategory("TEMA")]
     [Benchmark(Description = "Skender TEMA")]
-    public double Skender_Tema()
-    {
-        double sum = 0;
-        foreach (var r in _quotes.GetTema(Period))
-        {
-            sum += (double)(r.Tema ?? 0);
-        }
-        return sum;
-    }
+    public object Skender_Tema() => _quotes.GetTema(Period);
 }

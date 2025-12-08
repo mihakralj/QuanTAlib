@@ -149,7 +149,7 @@ public sealed class Ema : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries();
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -291,7 +291,7 @@ public sealed class Ema : ITValuePublisher
 
         if (source.Length == 0) return;
 
-        State state = State.New();
+        var state = State.New();
         double lastValid = 0;
 
         CalculateCore(source, output, alpha, ref state, ref lastValid);

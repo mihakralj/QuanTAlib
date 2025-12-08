@@ -11,12 +11,12 @@ namespace QuanTAlib;
 /// </summary>
 public class TBarSeries : IReadOnlyList<TBar>
 {
-    protected readonly List<long> _t = new();
-    protected readonly List<double> _o = new();
-    protected readonly List<double> _h = new();
-    protected readonly List<double> _l = new();
-    protected readonly List<double> _c = new();
-    protected readonly List<double> _v = new();
+    protected readonly List<long> _t;
+    protected readonly List<double> _o;
+    protected readonly List<double> _h;
+    protected readonly List<double> _l;
+    protected readonly List<double> _c;
+    protected readonly List<double> _v;
 
     public string Name { get; set; } = "Bar";
     public event Action<TBar>? Pub;
@@ -34,13 +34,8 @@ public class TBarSeries : IReadOnlyList<TBar>
     public TSeries C => Close;
     public TSeries V => Volume;
 
-    public TBarSeries()
+    public TBarSeries() : this(0)
     {
-        Open = new TSeries(_t, _o) { Name = "Open" };
-        High = new TSeries(_t, _h) { Name = "High" };
-        Low = new TSeries(_t, _l) { Name = "Low" };
-        Close = new TSeries(_t, _c) { Name = "Close" };
-        Volume = new TSeries(_t, _v) { Name = "Volume" };
     }
 
     public TBarSeries(int capacity)
