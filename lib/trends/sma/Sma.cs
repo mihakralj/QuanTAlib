@@ -103,7 +103,7 @@ public sealed class Sma : ITValuePublisher
         if (_buffer.IsFull && _tickCount >= ResyncInterval)
         {
             _tickCount = 0;
-            _sum = _buffer.Sum();
+            _sum = _buffer.RecalculateSum();
         }
     }
 
@@ -386,9 +386,12 @@ public sealed class Sma : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        var resetSum = 0;
-        _sum = resetSum;
-        Last = default;
+        _sum = 0;
+        _p_sum = 0;
+        _p_lastInput = 0;
+        _lastValidValue = 0;
+        _p_lastValidValue = 0;
         _tickCount = 0;
+        Last = default;
     }
 }

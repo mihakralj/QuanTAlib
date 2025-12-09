@@ -26,6 +26,8 @@ namespace QuanTAlib;
 public sealed class Alma : ITValuePublisher
 {
     private readonly int _period;
+    private readonly double _offset;
+    private readonly double _sigma;
     private readonly double[] _weights;
     private readonly double _weightSum;
     private readonly RingBuffer _buffer;
@@ -62,6 +64,8 @@ public sealed class Alma : ITValuePublisher
             throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
 
         _period = period;
+        _offset = offset;
+        _sigma = sigma;
         _buffer = new RingBuffer(period);
         _weights = new double[period];
         Name = $"Alma({period}, {offset:F2}, {sigma:F2})";
@@ -129,7 +133,7 @@ public sealed class Alma : ITValuePublisher
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
+        Calculate(source.Values, vSpan, _period, _offset, _sigma);
         source.Times.CopyTo(tSpan);
 
         // Restore state

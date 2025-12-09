@@ -156,7 +156,7 @@ public sealed class Trima : ITValuePublisher
         source.Times.CopyTo(tSpan);
 
         // Restore state
-        int lookback = _p1 + _p2;
+        int lookback = _p1 + _p2 - 1;
         int startIndex = Math.Max(0, len - lookback);
         Reset();
 

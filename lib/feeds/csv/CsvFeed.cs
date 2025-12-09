@@ -70,8 +70,9 @@ public class CsvFeed : IFeed
             var line = dataLines[i];
 
             var parts = line.Split(',');
+            int originalLineNumber = dataLines.Count - i + 1;
             if (parts.Length != 6)
-                throw new FormatException($"Invalid CSV format at line {i + 2}. Expected 6 columns, found {parts.Length}");
+                throw new FormatException($"Invalid CSV format at line {originalLineNumber}. Expected 6 columns, found {parts.Length}");
 
             try
             {
@@ -89,7 +90,7 @@ public class CsvFeed : IFeed
             }
             catch (Exception ex) when (ex is FormatException or OverflowException)
             {
-                throw new FormatException($"Failed to parse CSV line {i + 2}: {line}", ex);
+                throw new FormatException($"Failed to parse CSV line {originalLineNumber}: {line}", ex);
             }
         }
 
@@ -153,7 +154,7 @@ public class CsvFeed : IFeed
         var result = new TBarSeries(count);
 
         // Find starting index
-        int startIndex = 0;
+        int startIndex = -1;
         for (int i = 0; i < _data.Count; i++)
         {
             if (_data[i].Time >= startTime)
@@ -162,6 +163,9 @@ public class CsvFeed : IFeed
                 break;
             }
         }
+
+        if (startIndex == -1)
+            return result;
 
         // Collect bars matching interval
         long expectedTime = startTime;

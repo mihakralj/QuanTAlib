@@ -129,12 +129,10 @@ public class TBarSeries : IReadOnlyList<TBar>
             throw new ArgumentException("All arrays must have the same length");
         }
 
-        _t.AddRange(tArr);
-        _o.AddRange(oArr);
-        _h.AddRange(hArr);
-        _l.AddRange(lArr);
-        _c.AddRange(cArr);
-        _v.AddRange(vArr);
+        for (int i = 0; i < tArr.Length; i++)
+        {
+            Add(tArr[i], oArr[i], hArr[i], lArr[i], cArr[i], vArr[i]);
+        }
     }
 
     public IEnumerator<TBar> GetEnumerator()

@@ -57,6 +57,7 @@ public sealed class Dema : ITValuePublisher
     private EmaState _p_state2 = EmaState.New();
     
     private double _lastValidValue;
+    private double _p_lastValidValue;
 
     public string Name { get; }
     public TValue Last { get; private set; }
@@ -93,11 +94,13 @@ public sealed class Dema : ITValuePublisher
         {
             _p_state1 = _state1;
             _p_state2 = _state2;
+            _p_lastValidValue = _lastValidValue;
         }
         else
         {
             _state1 = _p_state1;
             _state2 = _p_state2;
+            _lastValidValue = _p_lastValidValue;
         }
 
         // EMA1
@@ -302,6 +305,7 @@ public sealed class Dema : ITValuePublisher
         _p_state1 = EmaState.New();
         _p_state2 = EmaState.New();
         _lastValidValue = 0;
+        _p_lastValidValue = 0;
         Last = default;
     }
 }

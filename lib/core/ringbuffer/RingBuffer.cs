@@ -83,6 +83,22 @@ public sealed class RingBuffer : IEnumerable<double>
     }
 
     /// <summary>
+    /// Recalculates the sum by iterating over all elements.
+    /// Useful for correcting floating-point drift after many updates.
+    /// </summary>
+    public double RecalculateSum()
+    {
+        double sum = 0;
+        var span = GetSpan();
+        for (int i = 0; i < span.Length; i++)
+        {
+            sum += span[i];
+        }
+        _sum = sum;
+        return sum;
+    }
+
+    /// <summary>
     /// Average of all elements in the buffer.
     /// Returns 0 if buffer is empty.
     /// </summary>

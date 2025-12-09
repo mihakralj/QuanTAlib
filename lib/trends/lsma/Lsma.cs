@@ -252,6 +252,8 @@ public sealed class Lsma : ITValuePublisher
         int windowSize = Math.Min(len, _period);
         int startIndex = len - windowSize;
 
+        Reset();
+
         // Initialize lastValidValue
         if (startIndex > 0)
         {
@@ -268,8 +270,6 @@ public sealed class Lsma : ITValuePublisher
         {
             _lastValidValue = 0;
         }
-
-        Reset();
 
         for (int i = startIndex; i < len; i++)
         {

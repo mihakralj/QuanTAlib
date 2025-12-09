@@ -177,12 +177,7 @@ public sealed class Kama : ITValuePublisher
 
         // Use static Calculate for performance
         var outputSpan = new double[len];
-        Calculate(source.Values, outputSpan, _period,
-            (int)(2.0 / _fastAlpha - 1), (int)(2.0 / _slowAlpha - 1)); // Reverse calc periods from alphas? 
-                                                                       // Actually better to pass alphas or periods. 
-                                                                       // The static method signature should match constructor params.
-
-        // Wait, I need to pass periods to static method.
+        
         // fastPeriod = 2/fastAlpha - 1.
         int fastPeriod = (int)Math.Round(2.0 / _fastAlpha - 1);
         int slowPeriod = (int)Math.Round(2.0 / _slowAlpha - 1);

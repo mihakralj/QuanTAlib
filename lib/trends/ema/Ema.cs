@@ -56,6 +56,7 @@ public sealed class Ema : ITValuePublisher
     private State _state = State.New();
     private State _p_state = State.New();
     private double _lastValidValue;
+    private double _p_lastValidValue;
 
     /// <summary>
     /// Display name for the indicator.
@@ -134,10 +135,12 @@ public sealed class Ema : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
+            _p_lastValidValue = _lastValidValue;
         }
         else
         {
             _state = _p_state;
+            _lastValidValue = _p_lastValidValue;
         }
 
         double val = GetValidValue(input.Value);
@@ -305,6 +308,7 @@ public sealed class Ema : ITValuePublisher
         _state = State.New();
         _p_state = _state;
         _lastValidValue = 0;
+        _p_lastValidValue = 0;
         Last = default;
     }
 }
