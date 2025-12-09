@@ -15,6 +15,6 @@ reviews:
     - "!**/*.lock"         # Exclude lock files
     - "!**/*.nupkg"        # Exclude NuGet packages
     - "!**/*.snupkg"       # Exclude NuGet symbol packages
-    # - "!**/*.Tests.cs"     # Uncomment to exclude all test files
-    # - "!**/*.Validation.Tests.cs" # Uncomment to exclude validation tests
-    # - "!**/*.Quantower.Tests.cs"  # Uncomment to exclude Quantower adapter tests
+    - "!**/*.Tests.cs"     # Exclude all test files
+    - "!**/*.Validation.Tests.cs" # Exclude validation tests
+    - "!**/*.Quantower.Tests.cs"  # Exclude Quantower adapter tests
