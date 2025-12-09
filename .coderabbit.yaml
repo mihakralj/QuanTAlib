@@ -12,6 +12,13 @@ reviews:
     - "!**/obj/**"         # Exclude obj directories
     - "!**/BenchmarkDotNet.Artifacts/**" # Exclude benchmark artifacts
     - "!**/ilspy/**"       # Exclude decompiled code
+    - "!**/.vs/**"         # Exclude Visual Studio cache
+    - "!**/.git/**"        # Exclude Git directory
+    - "!**/.idea/**"       # Exclude JetBrains cache
+    - "!**/.vscode/**"     # Exclude VS Code settings
+    - "!**/.sonarqube/**"  # Exclude SonarQube cache
+    - "!**/.sonarlint/**"  # Exclude SonarLint cache
+    - "!**/.codacy/**"     # Exclude Codacy cache
     - "!**/*.lock"         # Exclude lock files
     - "!**/*.nupkg"        # Exclude NuGet packages
     - "!**/*.snupkg"       # Exclude NuGet symbol packages
