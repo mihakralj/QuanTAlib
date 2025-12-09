@@ -36,7 +36,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | [KAMA](trends/kama/Kama.md) | Kaufman Adaptive MA | Adapts to market volatility by adjusting its smoothing factor based on an Efficiency Ratio. |
 | KF | Kalman Filter | |
 | LOESS | LOESS/LOWESS Smoothing | |
-| LSMA | Least Squares MA | |
+| [LSMA](trends/lsma/Lsma.md) | Least Squares MA | Calculates the linear regression line for a specified period. |
 | LTMA | Linear Trend MA | |
 | MAMA | MESA Adaptive MA | |
 | MEDIAN | Median Filter | |
