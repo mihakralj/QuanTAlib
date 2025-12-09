@@ -1,0 +1,20 @@
+# CodeRabbit Configuration File
+# Documentation: https://docs.coderabbit.ai/getting-started/yaml-configuration
+
+reviews:
+  path_filters:
+    - "!**/*.md"           # Exclude Markdown documentation
+    - "!**/*.dib"          # Exclude .NET Interactive Notebooks
+    - "!**/*.csv"          # Exclude CSV data files
+    - "!**/*.xml"          # Exclude XML files
+    - "!**/*.json"         # Exclude JSON files
+    - "!**/bin/**"         # Exclude bin directories
+    - "!**/obj/**"         # Exclude obj directories
+    - "!**/BenchmarkDotNet.Artifacts/**" # Exclude benchmark artifacts
+    - "!**/ilspy/**"       # Exclude decompiled code
+    - "!**/*.lock"         # Exclude lock files
+    - "!**/*.nupkg"        # Exclude NuGet packages
+    - "!**/*.snupkg"       # Exclude NuGet symbol packages
+    # - "!**/*.Tests.cs"     # Uncomment to exclude all test files
+    # - "!**/*.Validation.Tests.cs" # Uncomment to exclude validation tests
+    # - "!**/*.Quantower.Tests.cs"  # Uncomment to exclude Quantower adapter tests
