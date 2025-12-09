@@ -132,8 +132,8 @@ public sealed class Tema : ITValuePublisher
         if (source.Count == 0) return new TSeries();
 
         int len = source.Count;
-        var t = new List<long>(len);
-        var v = new List<double>(len);
+        List<long> t = new(len);
+        List<double> v = new(len);
         CollectionsMarshal.SetCount(t, len);
         CollectionsMarshal.SetCount(v, len);
 

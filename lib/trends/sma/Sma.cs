@@ -137,7 +137,7 @@ public sealed class Sma : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         int len = source.Count;
         var t = new List<long>(len);
