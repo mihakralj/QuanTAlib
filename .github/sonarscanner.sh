@@ -17,23 +17,8 @@ fi
 # Coverage output directory for Qodana
 COVERAGE_DIR=".qodana/code-coverage"
 
-echo "==> Building solution..."
-dotnet build --no-incremental
-
-echo "==> Running tests with coverage..."
-mkdir -p "$COVERAGE_DIR"
-dotnet test --no-build --collect:"XPlat Code Coverage" \
-    -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=lcov
-
-# Copy coverage to Qodana directory
-find . -name "coverage.info" -exec cp {} "$COVERAGE_DIR/" \;
-
 # Run SonarCloud
 echo "==> Starting SonarScanner analysis..."
-
-# Re-run tests with OpenCover format for SonarCloud
-dotnet test --no-build --collect:"XPlat Code Coverage" \
-    -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
 dotnet sonarscanner begin \
     /o:"mihakralj-quantalib" \
@@ -41,7 +26,17 @@ dotnet sonarscanner begin \
     /d:sonar.token="$SONAR_TOKEN" \
     /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
+echo "==> Building solution..."
 dotnet build --no-incremental
+
+echo "==> Running tests with coverage..."
+mkdir -p "$COVERAGE_DIR"
+# Run tests with both formats if possible, or sequentially
+dotnet test --no-build --collect:"XPlat Code Coverage" \
+    -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=lcov,opencover
+
+# Copy coverage to Qodana directory
+find . -name "coverage.info" -exec cp {} "$COVERAGE_DIR/" \;
 
 dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 

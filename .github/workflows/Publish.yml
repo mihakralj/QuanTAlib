@@ -71,14 +71,14 @@ jobs:
         run: |
           mkdir -p coverage
           count=1
-          find . -name "coverage.opencover.xml" -type f | while read file; do
+          while read -r file; do
             dest="coverage/coverage_${count}.opencover.xml"
             cp "$file" "$dest"
             # Sanitize paths for Qodana (convert absolute to relative)
             # This strips the current working directory from the paths in the XML
             sed -i "s|$(pwd)/||g" "$dest"
             count=$((count+1))
-          done
+          done < <(find . -name "coverage.opencover.xml" -type f)
 
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -315,8 +315,10 @@ jobs:
     needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codecov_Upload, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
     if: |
       success() &&
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
-      github.event_name == 'workflow_dispatch'
+      (
+        (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
+        github.event_name == 'workflow_dispatch'
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

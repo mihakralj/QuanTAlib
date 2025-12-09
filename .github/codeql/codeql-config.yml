@@ -19,4 +19,4 @@ query-filters:
         - recommendation
 
 paths:
-  - src
+  - lib

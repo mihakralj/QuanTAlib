@@ -125,7 +125,7 @@ if [ "$SKIP_BUILD" = false ]; then
     # Copy coverage files to Qodana directory and convert Windows paths to Linux
     log_info "Copying coverage files for Qodana..."
     index=0
-    find . -name "coverage.info" -type f | while read -r file; do
+    while read -r file; do
         # Convert Windows paths (Z:\github\...) to Linux paths (/mnt/z/github/...)
         sed -e 's|SF:Z:\\|SF:/mnt/z/|g' \
             -e 's|SF:z:\\|SF:/mnt/z/|g' \
@@ -133,7 +133,7 @@ if [ "$SKIP_BUILD" = false ]; then
             "$file" > "$COVERAGE_DIR/coverage_$index.info"
         log_detail "Converted: $file -> coverage_$index.info (Windows→Linux paths)"
         ((index++)) || true
-    done
+    done < <(find . -name "coverage.info" -type f)
 fi
 
 # ============================================
@@ -203,7 +203,11 @@ if [ "$SKIP_QODANA" = false ]; then
         # Install dependencies required for Qodana (IntelliJ) on minimal Debian
         if ! dpkg -s libfreetype6 fontconfig &> /dev/null; then
             log_info "Installing missing dependencies (libfreetype6, fontconfig)..."
-            apt-get update && apt-get install -y libfreetype6 fontconfig
+            if [ "$EUID" -ne 0 ]; then
+                sudo apt-get update && sudo apt-get install -y libfreetype6 fontconfig
+            else
+                apt-get update && apt-get install -y libfreetype6 fontconfig
+            fi
         fi
 
         export CI=true
