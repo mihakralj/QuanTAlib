@@ -16,5 +16,8 @@ reviews:
     - "!**/*.nupkg"        # Exclude NuGet packages
     - "!**/*.snupkg"       # Exclude NuGet symbol packages
     - "!**/*.Tests.cs"     # Exclude all test files
+    - "!**/*Tests.cs"      # Exclude all files ending in Tests.cs
     - "!**/*.Validation.Tests.cs" # Exclude validation tests
     - "!**/*.Quantower.Tests.cs"  # Exclude Quantower adapter tests
+    - "!**/*.Quantower.cs" # Exclude Quantower adapters
+    - "!**/perf/**"        # Exclude performance tests
