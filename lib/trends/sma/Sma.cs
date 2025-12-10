@@ -225,7 +225,7 @@ public sealed class Sma : ITValuePublisher
         // Try SIMD path for large, clean datasets
         // Requirements: AVX2 support, large enough dataset, no NaN values
         const int SimdThreshold = 256;
-        if (Avx2.IsSupported && len >= SimdThreshold && !HasNonFiniteValues(source))
+        if (Avx2.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
         {
             CalculateSimdCore(source, output, period);
             return;
@@ -365,20 +365,6 @@ public sealed class Sma : ITValuePublisher
             sum = sum - Unsafe.Add(ref srcRef, i - period) + Unsafe.Add(ref srcRef, i);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
-    }
-
-    /// <summary>
-    /// Checks if span contains any non-finite values (NaN or Infinity).
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool HasNonFiniteValues(ReadOnlySpan<double> span)
-    {
-        for (int idx = 0; idx < span.Length; idx++)
-        {
-            if (!double.IsFinite(span[idx]))
-                return true;
-        }
-        return false;
     }
 
     /// <summary>

@@ -1,5 +1,9 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -375,5 +379,326 @@ public static class SimdExtensions
         }
 
         return MinMaxScalar(span);
+    }
+
+    /// <summary>
+    /// Calculates the dot product of two spans using SIMD intrinsics.
+    /// Supports AVX512, AVX2, SSE2, and NEON.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double DotProduct(this ReadOnlySpan<double> a, ReadOnlySpan<double> b)
+    {
+        if (a.Length != b.Length || a.Length == 0) return 0;
+
+        int len = a.Length;
+
+        // Fast path for very small kernels (avoid SIMD overhead)
+        if (len <= 3)
+        {
+            ref double aRef = ref MemoryMarshal.GetReference(a);
+            ref double bRef = ref MemoryMarshal.GetReference(b);
+
+            double sum = aRef * bRef;
+            if (len > 1) sum += Unsafe.Add(ref aRef, 1) * Unsafe.Add(ref bRef, 1);
+            if (len > 2) sum += Unsafe.Add(ref aRef, 2) * Unsafe.Add(ref bRef, 2);
+            return sum;
+        }
+
+        if (Avx512F.IsSupported)
+            return DotProductAvx512(a, b);
+
+        if (Avx2.IsSupported)
+            return DotProductAvx2(a, b);
+
+        if (Sse2.IsSupported)
+            return DotProductSse2(a, b);
+
+        if (AdvSimd.Arm64.IsSupported)
+            return DotProductNeon(a, b);
+
+        double s = 0;
+        ref double ar = ref MemoryMarshal.GetReference(a);
+        ref double br = ref MemoryMarshal.GetReference(b);
+
+        int i = 0;
+        // Unroll scalar loop
+        for (; i <= len - 4; i += 4)
+        {
+            s += Unsafe.Add(ref ar, i) * Unsafe.Add(ref br, i);
+            s += Unsafe.Add(ref ar, i + 1) * Unsafe.Add(ref br, i + 1);
+            s += Unsafe.Add(ref ar, i + 2) * Unsafe.Add(ref br, i + 2);
+            s += Unsafe.Add(ref ar, i + 3) * Unsafe.Add(ref br, i + 3);
+        }
+
+        for (; i < len; i++)
+        {
+            s += Unsafe.Add(ref ar, i) * Unsafe.Add(ref br, i);
+        }
+        return s;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double DotProductAvx512(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
+    {
+        int len = a.Length;
+        int i = 0;
+        Vector512<double> vSum = Vector512<double>.Zero;
+        Vector512<double> vSum2 = Vector512<double>.Zero;
+        Vector512<double> vSum3 = Vector512<double>.Zero;
+        Vector512<double> vSum4 = Vector512<double>.Zero;
+
+        ref double aRef = ref MemoryMarshal.GetReference(a);
+        ref double bRef = ref MemoryMarshal.GetReference(b);
+
+        // Unroll loop: Process 32 doubles (4 vectors) at a time
+        if (len >= 32)
+        {
+            for (; i <= len - 32; i += 32)
+            {
+                var va1 = Vector512.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                var vb1 = Vector512.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+
+                var va2 = Vector512.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 8));
+                var vb2 = Vector512.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 8));
+
+                var va3 = Vector512.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 16));
+                var vb3 = Vector512.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 16));
+
+                var va4 = Vector512.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 24));
+                var vb4 = Vector512.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 24));
+
+                vSum = Avx512F.FusedMultiplyAdd(va1, vb1, vSum);
+                vSum2 = Avx512F.FusedMultiplyAdd(va2, vb2, vSum2);
+                vSum3 = Avx512F.FusedMultiplyAdd(va3, vb3, vSum3);
+                vSum4 = Avx512F.FusedMultiplyAdd(va4, vb4, vSum4);
+            }
+        }
+
+        // Process remaining vectors (8 doubles at a time)
+        for (; i <= len - 8; i += 8)
+        {
+            var va = Vector512.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+            var vb = Vector512.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+            vSum = Avx512F.FusedMultiplyAdd(va, vb, vSum);
+        }
+
+        // Combine accumulators
+        vSum = Avx512F.Add(vSum, vSum2);
+        vSum3 = Avx512F.Add(vSum3, vSum4);
+        vSum = Avx512F.Add(vSum, vSum3);
+
+        // Horizontal sum - reduce to Vector256, then Vector128
+        Vector256<double> v256 = Avx512F.Add(vSum.GetLower(), vSum.GetUpper());
+        Vector128<double> lower = v256.GetLower();
+        Vector128<double> upper = v256.GetUpper();
+        Vector128<double> combined = Sse2.Add(lower, upper);
+        double sum = combined.GetElement(0) + combined.GetElement(1);
+
+        // Scalar remainder
+        for (; i < len; i++)
+        {
+            sum += Unsafe.Add(ref aRef, i) * Unsafe.Add(ref bRef, i);
+        }
+
+        return sum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double DotProductAvx2(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
+    {
+        int len = a.Length;
+        int i = 0;
+        Vector256<double> vSum = Vector256<double>.Zero;
+        Vector256<double> vSum2 = Vector256<double>.Zero;
+        Vector256<double> vSum3 = Vector256<double>.Zero;
+        Vector256<double> vSum4 = Vector256<double>.Zero;
+
+        ref double aRef = ref MemoryMarshal.GetReference(a);
+        ref double bRef = ref MemoryMarshal.GetReference(b);
+
+        // Unroll loop: Process 16 doubles (4 vectors) at a time
+        if (len >= 16)
+        {
+            for (; i <= len - 16; i += 16)
+            {
+                var va1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                var vb1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+
+                var va2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 4));
+                var vb2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 4));
+
+                var va3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 8));
+                var vb3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 8));
+
+                var va4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 12));
+                var vb4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 12));
+
+                if (Fma.IsSupported)
+                {
+                    vSum = Fma.MultiplyAdd(va1, vb1, vSum);
+                    vSum2 = Fma.MultiplyAdd(va2, vb2, vSum2);
+                    vSum3 = Fma.MultiplyAdd(va3, vb3, vSum3);
+                    vSum4 = Fma.MultiplyAdd(va4, vb4, vSum4);
+                }
+                else
+                {
+                    vSum = Avx.Add(vSum, Avx.Multiply(va1, vb1));
+                    vSum2 = Avx.Add(vSum2, Avx.Multiply(va2, vb2));
+                    vSum3 = Avx.Add(vSum3, Avx.Multiply(va3, vb3));
+                    vSum4 = Avx.Add(vSum4, Avx.Multiply(va4, vb4));
+                }
+            }
+        }
+
+        // Process remaining vectors (4 doubles at a time)
+        for (; i <= len - 4; i += 4)
+        {
+            var va = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+            var vb = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+
+            vSum = Fma.IsSupported
+                ? Fma.MultiplyAdd(va, vb, vSum)
+                : Avx.Add(vSum, Avx.Multiply(va, vb));
+        }
+
+        // Combine accumulators
+        vSum = Avx.Add(vSum, vSum2);
+        vSum3 = Avx.Add(vSum3, vSum4);
+        vSum = Avx.Add(vSum, vSum3);
+
+        // Horizontal sum
+        Vector128<double> lower = vSum.GetLower();
+        Vector128<double> upper = vSum.GetUpper();
+        Vector128<double> combined = Sse2.Add(lower, upper);
+        double sum = combined.GetElement(0) + combined.GetElement(1);
+
+        // Process remaining elements (scalar)
+        for (; i < len; i++)
+        {
+            sum += Unsafe.Add(ref aRef, i) * Unsafe.Add(ref bRef, i);
+        }
+
+        return sum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double DotProductNeon(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
+    {
+        int len = a.Length;
+        int i = 0;
+        Vector128<double> vSum = Vector128<double>.Zero;
+        Vector128<double> vSum2 = Vector128<double>.Zero;
+        Vector128<double> vSum3 = Vector128<double>.Zero;
+        Vector128<double> vSum4 = Vector128<double>.Zero;
+
+        ref double aRef = ref MemoryMarshal.GetReference(a);
+        ref double bRef = ref MemoryMarshal.GetReference(b);
+
+        // Unroll loop: Process 8 doubles (4 vectors) at a time
+        if (len >= 8)
+        {
+            for (; i <= len - 8; i += 8)
+            {
+                var va1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                var vb1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+
+                var va2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 2));
+                var vb2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 2));
+
+                var va3 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 4));
+                var vb3 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 4));
+
+                var va4 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 6));
+                var vb4 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 6));
+
+                // NEON has FMA on ARM64
+                // Since we are inside DotProductNeon which is guarded by AdvSimd.Arm64.IsSupported,
+                // we can assume Arm64 support.
+                vSum = AdvSimd.Arm64.FusedMultiplyAdd(vSum, va1, vb1);
+                vSum2 = AdvSimd.Arm64.FusedMultiplyAdd(vSum2, va2, vb2);
+                vSum3 = AdvSimd.Arm64.FusedMultiplyAdd(vSum3, va3, vb3);
+                vSum4 = AdvSimd.Arm64.FusedMultiplyAdd(vSum4, va4, vb4);
+            }
+        }
+
+        // Process remaining vectors (2 doubles at a time)
+        for (; i <= len - 2; i += 2)
+        {
+            var va = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+            var vb = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+
+            vSum = AdvSimd.Arm64.FusedMultiplyAdd(vSum, va, vb);
+        }
+
+        // Combine accumulators
+        vSum = AdvSimd.Arm64.Add(vSum, vSum2);
+        vSum3 = AdvSimd.Arm64.Add(vSum3, vSum4);
+        vSum = AdvSimd.Arm64.Add(vSum, vSum3);
+
+        // Horizontal sum (NEON has pairwise add)
+        double sum = AdvSimd.Arm64.AddPairwiseScalar(vSum).ToScalar();
+
+        // Scalar remainder (0-1 elements)
+        for (; i < len; i++)
+        {
+            sum += Unsafe.Add(ref aRef, i) * Unsafe.Add(ref bRef, i);
+        }
+
+        return sum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double DotProductSse2(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
+    {
+        int len = a.Length;
+        int i = 0;
+        Vector128<double> vSum = Vector128<double>.Zero;
+        Vector128<double> vSum2 = Vector128<double>.Zero;
+
+        ref double aRef = ref MemoryMarshal.GetReference(a);
+        ref double bRef = ref MemoryMarshal.GetReference(b);
+
+        // Process 4 doubles at a time using 2 accumulators
+        for (; i <= len - 4; i += 4)
+        {
+            var va1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+            var vb1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+            var va2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 2));
+            var vb2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 2));
+
+            if (Fma.IsSupported)
+            {
+                vSum = Fma.MultiplyAdd(va1, vb1, vSum);
+                vSum2 = Fma.MultiplyAdd(va2, vb2, vSum2);
+            }
+            else
+            {
+                vSum = Sse2.Add(vSum, Sse2.Multiply(va1, vb1));
+                vSum2 = Sse2.Add(vSum2, Sse2.Multiply(va2, vb2));
+            }
+        }
+
+        // Process remaining 2 doubles if available
+        if (i <= len - 2)
+        {
+            var va = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+            var vb = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+
+            vSum = Fma.IsSupported
+                ? Fma.MultiplyAdd(va, vb, vSum)
+                : Sse2.Add(vSum, Sse2.Multiply(va, vb));
+            i += 2;
+        }
+
+        vSum = Sse2.Add(vSum, vSum2);
+        double sum = vSum.GetElement(0) + vSum.GetElement(1);
+
+        // Scalar remainder (0-1 elements)
+        for (; i < len; i++)
+        {
+            sum += Unsafe.Add(ref aRef, i) * Unsafe.Add(ref bRef, i);
+        }
+
+        return sum;
     }
 }

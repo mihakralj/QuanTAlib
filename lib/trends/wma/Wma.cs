@@ -213,7 +213,7 @@ public sealed class Wma : ITValuePublisher
         if (len == 0) return;
 
         const int SimdThreshold = 256;
-        if (Avx2.IsSupported && len >= SimdThreshold && !HasNonFiniteValues(source))
+        if (Avx2.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
         {
             CalculateSimdCore(source, output, period);
             return;
@@ -475,17 +475,6 @@ public sealed class Wma : ITValuePublisher
             wsum = wsum - oldSum + (period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool HasNonFiniteValues(ReadOnlySpan<double> span)
-    {
-        for (int idx = 0; idx < span.Length; idx++)
-        {
-            if (!double.IsFinite(span[idx]))
-                return true;
-        }
-        return false;
     }
 
     public void Reset()

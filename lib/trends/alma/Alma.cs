@@ -155,90 +155,44 @@ public sealed class Alma : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateWeightedSum()
     {
-        // If buffer is not full, we only use the most recent 'count' weights?
-        // Standard ALMA usually waits for full period, or re-normalizes weights.
-        // Here we'll re-normalize based on how many items we have.
-        // But to match standard behavior, we usually just run on what we have.
-        // However, the weights are designed for a specific period.
-        // Using a partial window with full-period weights might be weird.
-        // Let's stick to the standard: use the weights corresponding to the filled positions.
-        // Since RingBuffer adds new items at 'head', and we want to apply weights 
-        // such that weights[period-1] applies to the newest item, etc.
-        
-        // RingBuffer: [Oldest ... Newest]
-        // Weights:    [0 ... period-1]
-        // We want:    Sum(Buffer[i] * Weights[i]) / Sum(Weights)
-        
-        // BUT: If buffer is not full, say count=5, period=10.
-        // We have 5 items. Should we use weights[0..4] or weights[5..9]?
-        // Usually, moving averages grow.
-        // Let's assume we use the last 'count' weights, normalized.
-        
-        ReadOnlySpan<double> bufferSpan = _buffer.GetSpan();
-        int count = bufferSpan.Length;
-        
-        // If not full, we need to handle it carefully.
-        // For simplicity and performance, let's just iterate.
-        // Optimization: If full, use SIMD.
-        
+        int count = _buffer.Count;
+        if (count == 0) return 0;
+
         if (count < _period)
         {
-            double sum = 0;
-            double wSum = 0;
-            // Map weights to buffer: 
-            // Buffer[0] (oldest) -> Weights[period - count] ??
-            // Actually, standard is: Weights are fixed.
-            // Let's align newest with newest.
-            // Buffer[count-1] (newest) <-> Weights[period-1]
-            // Buffer[0] (oldest)       <-> Weights[period-count]
-            
+            // Partial buffer: align newest with newest
+            // Buffer[0] (oldest) -> Weights[period - count]
+            ReadOnlySpan<double> bufferSpan = _buffer.GetSpan();
             int weightOffset = _period - count;
+            
+            // Use DotProduct for partial sum
+            double sum = bufferSpan.DotProduct(_weights.AsSpan(weightOffset, count));
+            
+            // Calculate weightSum for this subset
+            double wSum = 0;
             for (int i = 0; i < count; i++)
             {
-                double w = _weights[weightOffset + i];
-                sum += bufferSpan[i] * w;
-                wSum += w;
+                wSum += _weights[weightOffset + i];
             }
+            
             return wSum > 0 ? sum / wSum : 0;
         }
 
-        // Full buffer
-        return CalculateWeightedSumSimd(bufferSpan);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double CalculateWeightedSumSimd(ReadOnlySpan<double> buffer)
-    {
-        double sum = 0;
-        int i = 0;
-        int len = _period;
-
-        if (Avx2.IsSupported && len >= Vector256<double>.Count)
-        {
-            var vSum = Vector256<double>.Zero;
-            ref double bufRef = ref MemoryMarshal.GetReference(buffer);
-            ref double wRef = ref MemoryMarshal.GetReference(_weights.AsSpan());
-
-            for (; i <= len - Vector256<double>.Count; i += Vector256<double>.Count)
-            {
-                var vBuf = Vector256.LoadUnsafe(ref Unsafe.Add(ref bufRef, i));
-                var vW = Vector256.LoadUnsafe(ref Unsafe.Add(ref wRef, i));
-                vSum = Avx.Add(vSum, Avx.Multiply(vBuf, vW));
-            }
-
-            // Horizontal sum
-            vSum = Avx.Add(vSum, Avx2.Permute4x64(vSum.AsUInt64(), 0b_01_00_11_10).AsDouble()); // skipcq: CS-R1131
-            vSum = Avx.Add(vSum, Avx2.Permute4x64(vSum.AsUInt64(), 0b_00_00_00_01).AsDouble()); // skipcq: CS-R1131
-            sum = vSum.GetElement(0);
-        }
-
-        // Scalar fallback
-        for (; i < len; i++)
-        {
-            sum += buffer[i] * _weights[i];
-        }
-
-        return sum / _weightSum;
+        // Full buffer: use precomputed _weightSum and SIMD DotProduct
+        // We use InternalBuffer and StartIndex to avoid allocation and handle wrapping
+        ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
+        int head = _buffer.StartIndex;
+        
+        // Part 1: Oldest to End of Buffer -> InternalBuffer[Head ... Cap-1]
+        //         Matches Weights[0 ... Cap-Head-1]
+        int part1Len = _period - head;
+        double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
+        
+        // Part 2: Start of Buffer to Newest -> InternalBuffer[0 ... Head-1]
+        //         Matches Weights[Cap-Head ... Cap-1]
+        double sum2 = internalBuf.Slice(0, head).DotProduct(_weights.AsSpan(part1Len));
+        
+        return (sum1 + sum2) / _weightSum;
     }
 
     public static TSeries Calculate(TSeries source, int period, double offset = 0.85, double sigma = 6.0)

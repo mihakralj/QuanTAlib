@@ -137,6 +137,15 @@ public sealed class RingBuffer : IEnumerable<double>
     }
 
     /// <summary>
+    /// Gets the index in the internal buffer where the oldest element is located.
+    /// </summary>
+    public int StartIndex
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _count == _capacity ? _head : 0;
+    }
+
+    /// <summary>
     /// Gets a read-only span over the internal buffer array for direct SIMD access.
     /// </summary>
     public ReadOnlySpan<double> InternalBuffer
