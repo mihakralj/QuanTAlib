@@ -13,7 +13,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | BWMA | Bessel-Weighted MA | |
 | CHEBY1 | Chebyshev Type I Filter | |
 | CHEBY2 | Chebyshev Type II Filter | |
-| CONV | Convolution MA with any kernel | |
+| [CONV](trends/conv/Conv.md) | Convolution Indicator | Applies a custom kernel (weights) to the data window. |
 | [DEMA](trends/dema/Dema.md) | Double Exponential Moving Average | Reduces lag by placing more weight on recent data than a standard EMA. |
 | DSMA | Deviation-Scaled MA | |
 | DWMA | Double Weighted MA | |
