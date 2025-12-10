@@ -61,6 +61,7 @@ public sealed class Tema : ITValuePublisher
     private EmaState _p_state3 = EmaState.New();
     
     private double _lastValidValue;
+    private double _p_lastValidValue;
 
     public string Name { get; }
     public TValue Last { get; private set; }
@@ -83,7 +84,7 @@ public sealed class Tema : ITValuePublisher
 
     public Tema(double alpha)
     {
-        if (alpha <= 0 || alpha > 1) throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+        if (alpha <= 0 || alpha >= 1) throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -98,12 +99,14 @@ public sealed class Tema : ITValuePublisher
             _p_state1 = _state1;
             _p_state2 = _state2;
             _p_state3 = _state3;
+            _p_lastValidValue = _lastValidValue;
         }
         else
         {
             _state1 = _p_state1;
             _state2 = _p_state2;
             _state3 = _p_state3;
+            _lastValidValue = _p_lastValidValue;
         }
 
         // EMA1
@@ -174,6 +177,7 @@ public sealed class Tema : ITValuePublisher
         _p_state2 = s2;
         _p_state3 = s3;
         _lastValidValue = lastValid;
+        _p_lastValidValue = lastValid;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -343,6 +347,7 @@ public sealed class Tema : ITValuePublisher
         _p_state2 = EmaState.New();
         _p_state3 = EmaState.New();
         _lastValidValue = 0;
+        _p_lastValidValue = 0;
         Last = default;
     }
 }

@@ -109,7 +109,7 @@ namespace QuanTAlib;
     public void Add(long time, double value, bool isNew = true) => Add(new TValue(time, value), isNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(DateTime time, double value, bool isNew = true) => Add(new TValue(time.Ticks, value), isNew);
+    public void Add(DateTime time, double value, bool isNew = true) => Add(new TValue(time, value), isNew);
 
     public void Add(IEnumerable<double> values)
     {

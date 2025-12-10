@@ -74,24 +74,23 @@ public class CsvFeed : IFeed
             if (parts.Length != 6)
                 throw new FormatException($"Invalid CSV format at line {originalLineNumber}. Expected 6 columns, found {parts.Length}");
 
-            try
+            // Parse timestamp (YYYY-MM-DD format, assume UTC midnight)
+            if (!DateTime.TryParseExact(parts[0].Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var timestamp))
             {
-                // Parse timestamp (YYYY-MM-DD format, assume UTC midnight)
-                var timestamp = DateTime.ParseExact(parts[0].Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
-
-                // Parse OHLCV values
-                double open = double.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
-                double high = double.Parse(parts[2].Trim(), CultureInfo.InvariantCulture);
-                double low = double.Parse(parts[3].Trim(), CultureInfo.InvariantCulture);
-                double close = double.Parse(parts[4].Trim(), CultureInfo.InvariantCulture);
-                double volume = double.Parse(parts[5].Trim(), CultureInfo.InvariantCulture);
-
-                series.Add(timestamp, open, high, low, close, volume, isNew: true);
+                throw new FormatException($"Failed to parse timestamp at line {originalLineNumber}: {line}");
             }
-            catch (Exception ex) when (ex is FormatException or OverflowException)
+
+            // Parse OHLCV values
+            if (!double.TryParse(parts[1].Trim(), CultureInfo.InvariantCulture, out double open) ||
+                !double.TryParse(parts[2].Trim(), CultureInfo.InvariantCulture, out double high) ||
+                !double.TryParse(parts[3].Trim(), CultureInfo.InvariantCulture, out double low) ||
+                !double.TryParse(parts[4].Trim(), CultureInfo.InvariantCulture, out double close) ||
+                !double.TryParse(parts[5].Trim(), CultureInfo.InvariantCulture, out double volume))
             {
-                throw new FormatException($"Failed to parse CSV line {originalLineNumber}: {line}", ex);
+                throw new FormatException($"Failed to parse CSV line {originalLineNumber}: {line}");
             }
+
+            series.Add(timestamp, open, high, low, close, volume, isNew: true);
         }
 
         return series;

@@ -83,6 +83,7 @@ public sealed class T3 : ITValuePublisher
     private State _state = State.New();
     private State _p_state = State.New();
     private double _lastValidValue;
+    private double _p_lastValidValue;
 
     /// <summary>
     /// Display name for the indicator.
@@ -157,10 +158,12 @@ public sealed class T3 : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
+            _p_lastValidValue = _lastValidValue;
         }
         else
         {
             _state = _p_state;
+            _lastValidValue = _p_lastValidValue;
         }
 
         double val = GetValidValue(input.Value);
@@ -196,6 +199,7 @@ public sealed class T3 : ITValuePublisher
         sourceTimes.CopyTo(tSpan);
 
         _p_state = _state;
+        _p_lastValidValue = _lastValidValue;
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
 
         return new TSeries(t, v);
@@ -283,6 +287,7 @@ public sealed class T3 : ITValuePublisher
         _state = State.New();
         _p_state = _state;
         _lastValidValue = 0;
+        _p_lastValidValue = 0;
         Last = default;
     }
 }

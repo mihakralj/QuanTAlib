@@ -11,6 +11,8 @@ public class AlmaTests
     {
         Assert.Throws<ArgumentException>(() => new Alma(0));
         Assert.Throws<ArgumentException>(() => new Alma(10, sigma: 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Alma(10, offset: -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Alma(10, offset: 1.1));
 
         var alma = new Alma(10);
         Assert.NotNull(alma);
@@ -52,7 +54,7 @@ public class AlmaTests
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next(isNew: true);
-            series.Add(bar.Time, bar.Close);
+            series.Add(new TValue(bar.Time, bar.Close));
         }
 
         // Streaming
@@ -66,7 +68,7 @@ public class AlmaTests
         var batchResults = almaBatch.Update(series);
 
         Assert.Equal(streamingResults.Count, batchResults.Count);
-        for (int i = 0; i < streamingResults.Count; i++)
+        for (int i = 0; i < batchResults.Count; i++)
         {
             Assert.Equal(streamingResults[i].Value, batchResults[i].Value, 1e-9);
         }

@@ -204,8 +204,8 @@ public sealed class Mama : ITValuePublisher
         else
         {
             // Initialization phase
-            _sumPr += input.Value;
-            double avg = _index > 0 ? _sumPr / _index : input.Value;
+            _sumPr += price;
+            double avg = _index > 0 ? _sumPr / _index : price;
             _mama = avg;
             _fama = avg;
             
@@ -230,46 +230,13 @@ public sealed class Mama : ITValuePublisher
         var v = new List<double>(len);
         var t = new List<long>(len);
 
-        var temp = new Mama(_fastLimit, _slowLimit);
         for (int i = 0; i < len; i++)
         {
             var item = source[i];
-            var result = temp.Update(item);
+            var result = Update(item);
             v.Add(result.Value);
             t.Add(item.Time);
         }
-
-        // Copy state from temp to this
-        _period = temp._period;
-        _p_period = temp._p_period;
-        _phase = temp._phase;
-        _p_phase = temp._p_phase;
-        _mama = temp._mama;
-        _p_mama = temp._p_mama;
-        _fama = temp._fama;
-        _p_fama = temp._p_fama;
-        _sumPr = temp._sumPr;
-        _p_sumPr = temp._p_sumPr;
-        _index = temp._index;
-
-        _i2 = temp._i2;
-        _p_i2 = temp._p_i2;
-        _q2 = temp._q2;
-        _p_q2 = temp._p_q2;
-        _re = temp._re;
-        _p_re = temp._p_re;
-        _im = temp._im;
-        _p_im = temp._p_im;
-        _lastValidPrice = temp._lastValidPrice;
-
-        _priceBuffer.CopyFrom(temp._priceBuffer);
-        _smoothBuffer.CopyFrom(temp._smoothBuffer);
-        _detrender.CopyFrom(temp._detrender);
-        _I1_buffer.CopyFrom(temp._I1_buffer);
-        _Q1_buffer.CopyFrom(temp._Q1_buffer);
-
-        Last = temp.Last;
-        Fama = temp.Fama;
 
         return new TSeries(t, v);
     }

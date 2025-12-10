@@ -36,10 +36,11 @@
     <InternalsVisibleTo Include="QuanTAlib.Tests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="**\*.Tests.cs;**\*.Quantower.cs;obj\**\*.cs" />
-  </ItemGroup>
 
+
+  <ItemGroup>
+    <Compile Include="**/*.cs" Exclude="**/*.Tests.cs;**/*.Quantower.cs;**/obj/**/*.cs;**/bin/**/*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="6.5.1">

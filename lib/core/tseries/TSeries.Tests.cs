@@ -1,8 +1,8 @@
 
-namespace QuanTAlib.Tests
+namespace QuanTAlib.Tests;
+
+public class TSeriesTests
 {
-    public class TSeriesTests
-    {
         [Fact]
         public void Constructor_Default_CreatesEmptySeries()
         {
@@ -284,9 +284,8 @@ namespace QuanTAlib.Tests
             series.Add(100, 1.0);
             series.Add(200, 2.0);
 
-            IEnumerable enumerable = series;
             var list = new List<object>();
-            foreach (var item in enumerable)
+            foreach (var item in (IEnumerable)series)
             {
                 list.Add(item);
             }
@@ -327,13 +326,10 @@ namespace QuanTAlib.Tests
         {
             var series = new TSeries();
 
-            Assert.Empty(series);
-
             series.Add(100, 1.0);
             Assert.Single(series);
 
             series.Add(200, 2.0);
             Assert.Equal(2, series.Count);
-        }
     }
 }

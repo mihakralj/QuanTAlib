@@ -8,6 +8,16 @@ reviews:
     - "!**/*.csv"          # Exclude CSV data files
     - "!**/*.xml"          # Exclude XML files
     - "!**/*.json"         # Exclude JSON files
+    - "!**/*.dll"          # Exclude DLL files
+    - "!**/*.pdb"          # Exclude PDB files
+    - "!**/*.sln"          # Exclude Solution files
+    - "!**/*.csproj"       # Exclude Project files
+    - "!**/*.ndproj"       # Exclude NDepend project files
+    - "!**/*.user"         # Exclude User files
+    - "!**/*.suo"          # Exclude Solution User Options
+    - "!**/*.cache"        # Exclude Cache files
+    - "!**/*.yml"          # Exclude YAML files
+    - "!**/*.yaml"         # Exclude YAML files
     - "!**/bin/**"         # Exclude bin directories
     - "!**/obj/**"         # Exclude obj directories
     - "!**/BenchmarkDotNet.Artifacts/**" # Exclude benchmark artifacts
@@ -28,3 +38,17 @@ reviews:
     - "!**/*.Quantower.Tests.cs"  # Exclude Quantower adapter tests
     - "!**/*.Quantower.cs" # Exclude Quantower adapters
     - "!**/perf/**"        # Exclude performance tests
+    - "!**/quantower/**"   # Exclude root quantower directory
+    - "!**/Mocks/**"       # Exclude Mocks
+    - "!**/test_collection_expr.cs" # Exclude scratch files
+    - "!**/*.so"           # Exclude Shared Objects
+    - "!**/*.dylib"        # Exclude Dynamic Libraries
+    - "!**/*.log"          # Exclude Log files
+    - "!**/*.png"          # Exclude PNG images
+    - "!**/*.jpg"          # Exclude JPG images
+    - "!**/*.jpeg"         # Exclude JPEG images
+    - "!**/*.gif"          # Exclude GIF images
+    - "!**/*.props"        # Exclude Build properties
+    - "!**/*.targets"      # Exclude Build targets
+    - "!**/*.db"           # Exclude Database files
+    - "!**/*.sqlite"       # Exclude SQLite files

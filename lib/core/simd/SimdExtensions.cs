@@ -266,8 +266,8 @@ public static class SimdExtensions
     }
 
     /// <summary>
-    /// Calculates variance using SIMD vectorization (Welford's online algorithm adapted).
-    /// More numerically stable than naive two-pass algorithm.
+    /// Calculates variance using a two-pass SIMD variant that computes the mean first (via AverageSIMD) and then sums squared differences to produce variance.
+    /// Note that this is not the single-pass Welford algorithm.
     /// Returns NaN if any input value is non-finite or if mean is non-finite.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

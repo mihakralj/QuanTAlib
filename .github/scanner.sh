@@ -119,8 +119,16 @@ if [ "$SKIP_BUILD" = false ]; then
     dotnet build /p:DisableGitVersionTask=true /p:Version=0.0.0-wsl /p:AssemblyVersion=0.0.0.0 /p:FileVersion=0.0.0.0
     
     log_info "Running tests with coverage..."
+    set +e
     dotnet test --no-build --collect:"XPlat Code Coverage" \
-        -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,lcov || true
+        -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,lcov
+    TEST_EXIT_CODE=$?
+    set -e
+
+    if [ $TEST_EXIT_CODE -ne 0 ]; then
+        log_error "Tests failed with exit code $TEST_EXIT_CODE. Stopping analysis."
+        exit $TEST_EXIT_CODE
+    fi
     
     # Copy coverage files to Qodana directory and convert Windows paths to Linux
     log_info "Copying coverage files for Qodana..."
@@ -175,18 +183,38 @@ if [ "$SKIP_CODACY" = false ]; then
     log_info "Uploading coverage to Codacy..."
     
     # Find the most recent coverage files (one per test project)
-    coverage_files=$(find . -name "coverage.opencover.xml" -type f -printf '%T@ %p\n' | sort -rn | head -2 | cut -d' ' -f2-)
+    mapfile -t coverage_files < <(find . -name "coverage.opencover.xml" -type f -printf '%T@ %p\n' | sort -rn | head -2 | cut -d' ' -f2-)
     
-    if [ -n "$coverage_files" ]; then
-        for file in $coverage_files; do
+    if [ ${#coverage_files[@]} -gt 0 ]; then
+        # Download and verify Codacy reporter
+        CODACY_VERSION="14.1.0"
+        CODACY_SHA256="f1db13a9b21a9d161ddfeadf0cf6a65ffb0e9eaae8c314d3d14502946ee08475"
+        CODACY_URL="https://github.com/codacy/codacy-coverage-reporter/releases/download/${CODACY_VERSION}/codacy-coverage-reporter-linux"
+        CODACY_BIN="/tmp/codacy-coverage-reporter"
+
+        log_info "Downloading Codacy coverage reporter v${CODACY_VERSION}..."
+        curl -L -o "$CODACY_BIN" "$CODACY_URL"
+        
+        # Verify hash
+        echo "$CODACY_SHA256  $CODACY_BIN" | sha256sum -c -
+        if [ $? -ne 0 ]; then
+            log_error "Codacy reporter checksum verification failed!"
+            rm -f "$CODACY_BIN"
+            exit 1
+        fi
+        
+        chmod +x "$CODACY_BIN"
+
+        for file in "${coverage_files[@]}"; do
             log_detail "Uploading: $file"
-            bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r "$file" --partial || true
+            "$CODACY_BIN" report -r "$file" --partial || true
         done
         
         # Send final notification
         log_detail "Finalizing coverage report..."
-        bash <(curl -Ls https://coverage.codacy.com/get.sh) final || true
+        "$CODACY_BIN" final || true
         
+        rm -f "$CODACY_BIN"
         log_success "Codacy: https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard"
     else
         log_warn "No coverage.opencover.xml files found"
@@ -201,12 +229,21 @@ if [ "$SKIP_QODANA" = false ]; then
         log_info "Starting Qodana analysis..."
         
         # Install dependencies required for Qodana (IntelliJ) on minimal Debian
+        # Note: CI environments must run as root or have passwordless sudo configured
         if ! dpkg -s libfreetype6 fontconfig &> /dev/null; then
             log_info "Installing missing dependencies (libfreetype6, fontconfig)..."
+            
             if [ "$EUID" -ne 0 ]; then
-                sudo apt-get update && sudo apt-get install -y libfreetype6 fontconfig
+                # Use sudo -n to fail fast if password is required
+                if ! sudo -n apt-get update || ! sudo -n DEBIAN_FRONTEND=noninteractive apt-get install -y libfreetype6 fontconfig; then
+                    log_error "Dependency installation failed. Ensure passwordless sudo is configured."
+                    exit 1
+                fi
             else
-                apt-get update && apt-get install -y libfreetype6 fontconfig
+                if ! apt-get update || ! DEBIAN_FRONTEND=noninteractive apt-get install -y libfreetype6 fontconfig; then
+                    log_error "Dependency installation failed."
+                    exit 1
+                fi
             fi
         fi
 

@@ -96,6 +96,7 @@ public sealed class Hma : ITValuePublisher
 
         int lookback = _period + (int)Math.Sqrt(_period) + 10; // Sufficient lookback
         int startIndex = Math.Max(0, len - lookback);
+        _sampleCount = startIndex;
 
         for (int i = startIndex; i < len; i++)
         {

@@ -128,14 +128,15 @@ public class GBM : IFeed
             // Update current bar (intra-bar tick)
             double z = NextNormal();
             double price = _lastPrice * Math.Exp(_drift + _vol * z);
-            double volume = 1000 + _rnd.NextDouble() * 1000;
+            double additionalVolume = 1000 + _rnd.NextDouble() * 1000;
 
             var bar = _currentBar;
             double newClose = price;
             double newHigh = Math.Max(bar.High, newClose);
             double newLow = Math.Min(bar.Low, newClose);
+            double newVolume = bar.Volume + additionalVolume;
 
-            _currentBar = new TBar(bar.Time, bar.Open, newHigh, newLow, newClose, volume);
+            _currentBar = new TBar(bar.Time, bar.Open, newHigh, newLow, newClose, newVolume);
             _lastPrice = newClose;
         }
 

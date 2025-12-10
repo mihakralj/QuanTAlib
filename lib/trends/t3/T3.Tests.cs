@@ -1,3 +1,5 @@
+using Xunit;
+using System;
 
 namespace QuanTAlib.Tests;
 
@@ -100,5 +102,30 @@ public class T3Tests
 
         // Check last values match
         Assert.Equal(resSeries.Last.Value, resSpan[count-1], 1e-9);
+    }
+
+    [Fact]
+    public void T3_BarCorrection_WithNaN_RestoresPreviousValidValue()
+    {
+        var t3 = new T3(10);
+        var time = DateTime.UtcNow;
+
+        // Step 1: Update with valid value
+        t3.Update(new TValue(time, 100), isNew: true);
+        
+        // Step 2: Update with another valid value
+        t3.Update(new TValue(time.AddMinutes(1), 200), isNew: true);
+        double valAfter200 = t3.Last.Value;
+
+        // Step 3: Correct with NaN (should use 100)
+        t3.Update(new TValue(time.AddMinutes(1), double.NaN), isNew: false);
+        double valAfterNaN = t3.Last.Value;
+
+        // Step 4: Correct with 100 (should match NaN result)
+        t3.Update(new TValue(time.AddMinutes(1), 100), isNew: false);
+        double valAfter100 = t3.Last.Value;
+
+        Assert.NotEqual(valAfter200, valAfterNaN); // Should not be the same as 200
+        Assert.Equal(valAfter100, valAfterNaN, 1e-9); // Should be the same as using 100
     }
 }

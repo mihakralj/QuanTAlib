@@ -271,15 +271,17 @@ public sealed class Lsma : ITValuePublisher
             _lastValidValue = 0;
         }
 
+        double lastProcessedValue = _lastValidValue;
         for (int i = startIndex; i < len; i++)
         {
             double val = GetValidValue(source.Values[i]);
             UpdateState(val);
+            lastProcessedValue = val;
         }
 
         _p_sum_y = _sum_y;
         _p_sum_xy = _sum_xy;
-        _p_last_val = source.Values[len - 1];
+        _p_last_val = lastProcessedValue;
         _p_lastValidValue = _lastValidValue;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);

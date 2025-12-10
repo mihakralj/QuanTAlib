@@ -62,6 +62,8 @@ public sealed class Alma : ITValuePublisher
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (sigma <= 0)
             throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        if (offset < 0 || offset > 1)
+            throw new ArgumentOutOfRangeException(nameof(offset), "Offset must be between 0 and 1");
 
         _period = period;
         _offset = offset;
@@ -225,8 +227,8 @@ public sealed class Alma : ITValuePublisher
             }
 
             // Horizontal sum
-            vSum = Avx.Add(vSum, Avx2.Permute4x64(vSum.AsUInt64(), 0b_01_00_11_10).AsDouble());
-            vSum = Avx.Add(vSum, Avx2.Permute4x64(vSum.AsUInt64(), 0b_00_00_00_01).AsDouble());
+            vSum = Avx.Add(vSum, Avx2.Permute4x64(vSum.AsUInt64(), 0b_01_00_11_10).AsDouble()); // skipcq: CS-R1131
+            vSum = Avx.Add(vSum, Avx2.Permute4x64(vSum.AsUInt64(), 0b_00_00_00_01).AsDouble()); // skipcq: CS-R1131
             sum = vSum.GetElement(0);
         }
 

@@ -75,6 +75,7 @@ public sealed class Kama : ITValuePublisher
 
         Name = $"Kama({period}, {fastPeriod}, {slowPeriod})";
         _kama = double.NaN;
+        _lastValidValue = double.NaN;
     }
 
     public Kama(ITValuePublisher source, int period = 10, int fastPeriod = 2, int slowPeriod = 30)
@@ -98,6 +99,12 @@ public sealed class Kama : ITValuePublisher
     public TValue Update(TValue input, bool isNew = true)
     {
         double val = GetValidValue(input.Value);
+        if (double.IsNaN(val))
+        {
+            Last = new TValue(input.Time, double.NaN);
+            Pub?.Invoke(Last);
+            return Last;
+        }
 
         if (isNew)
         {
@@ -190,11 +197,11 @@ public sealed class Kama : ITValuePublisher
             v.Add(outputSpan[i]);
         }
 
-        // Restore state by replaying last few bars
-        // This is expensive but necessary to sync the object state
+        // Restore state by replaying the entire series
+        // This is expensive but necessary to sync the object state correctly
+        // because KAMA is recursive (IIR) and depends on the full history.
         Reset();
-        int startIndex = Math.Max(0, len - _period - 1);
-        for (int i = startIndex; i < len; i++)
+        for (int i = 0; i < len; i++)
         {
             Update(source[i]);
         }
@@ -220,7 +227,7 @@ public sealed class Kama : ITValuePublisher
         double volatilitySum = 0;
         double kama = 0;
         bool kamaInitialized = false;
-        double lastValid = 0;
+        double lastValid = double.NaN;
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -229,6 +236,12 @@ public sealed class Kama : ITValuePublisher
                 lastValid = val;
             else
                 val = lastValid;
+
+            if (double.IsNaN(val))
+            {
+                output[i] = double.NaN;
+                continue;
+            }
 
             // Add to buffer
             double removed = buffer[bufferIdx];
@@ -298,7 +311,7 @@ public sealed class Kama : ITValuePublisher
         _volatilitySum = 0;
         _p_volatilitySum = 0;
         _lastDiffOut = 0;
-        _lastValidValue = 0;
+        _lastValidValue = double.NaN;
         Last = default;
     }
 }

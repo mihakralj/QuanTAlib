@@ -188,7 +188,7 @@ public sealed class Wma : ITValuePublisher
 
         _p_sum = _sum;
         _p_wsum = _wsum;
-        _p_lastInput = _lastValidValue;
+        _p_lastInput = GetValidValue(source.Values[len - 1]);
         _p_lastValidValue = _lastValidValue;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);

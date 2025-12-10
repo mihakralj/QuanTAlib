@@ -157,6 +157,7 @@ public sealed class Sma : ITValuePublisher
 
         if (startIndex > 0)
         {
+            _lastValidValue = 0;
             for (int i = startIndex - 1; i >= 0; i--)
             {
                 if (double.IsFinite(source.Values[i]))
@@ -182,7 +183,7 @@ public sealed class Sma : ITValuePublisher
         }
 
         _p_sum = _sum;
-        _p_lastInput = source.Values[len - 1];
+        _p_lastInput = GetValidValue(source.Values[len - 1]);
         _p_lastValidValue = _lastValidValue;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
@@ -329,11 +330,11 @@ public sealed class Sma : ITValuePublisher
 
             var vDelta = Avx.Subtract(vNew, vOld);
 
-            var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble();
+            var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
             vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
             var vP1 = Avx.Add(vDelta, vShift1);
 
-            var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+            var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
             vShift2 = Avx.Blend(vZero, vShift2, 0b_1100);
             var vP2 = Avx.Add(vP1, vShift2);
 

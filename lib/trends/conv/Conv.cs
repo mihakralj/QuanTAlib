@@ -49,6 +49,8 @@ public sealed class Conv : ITValuePublisher
         Array.Copy(kernel, _kernel, _period);
         _buffer = new RingBuffer(_period);
         Name = $"Conv({_period})";
+        _lastValidValue = double.NaN;
+        _p_lastValidValue = double.NaN;
     }
 
     public Conv(ITValuePublisher source, double[] kernel) : this(kernel)
@@ -154,7 +156,7 @@ public sealed class Conv : ITValuePublisher
         }
         else
         {
-            _lastValidValue = 0;
+            _lastValidValue = double.NaN;
         }
 
         _buffer.Clear();
@@ -516,7 +518,7 @@ public sealed class Conv : ITValuePublisher
         // Use stackalloc for small kernels to avoid heap allocation
         Span<double> window = period <= 256 ? stackalloc double[period] : new double[period];
 
-        double lastValid = 0;
+        double lastValid = double.NaN;
         int windowIdx = 0; // Points to where the NEXT value goes (circular)
         int count = 0;
 
@@ -563,8 +565,8 @@ public sealed class Conv : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
+        _lastValidValue = double.NaN;
+        _p_lastValidValue = double.NaN;
         _head = 0;
         Last = default;
     }

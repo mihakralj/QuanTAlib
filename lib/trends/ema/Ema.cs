@@ -176,6 +176,7 @@ public sealed class Ema : ITValuePublisher
         sourceTimes.CopyTo(tSpan);
         
         _p_state = _state;
+        _p_lastValidValue = _lastValidValue;
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         
         return new TSeries(t, v);

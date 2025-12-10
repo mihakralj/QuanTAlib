@@ -28,12 +28,19 @@ dotnet sonarscanner begin \
 
 echo "==> Building solution..."
 dotnet build --no-incremental
+if [ $? -ne 0 ]; then
+    echo "Error: Build failed"
+    exit 1
+fi
 
 echo "==> Running tests with coverage..."
 mkdir -p "$COVERAGE_DIR"
-# Run tests with both formats if possible, or sequentially
 dotnet test --no-build --collect:"XPlat Code Coverage" \
     -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=lcov,opencover
+if [ $? -ne 0 ]; then
+    echo "Error: Tests failed"
+    exit 1
+fi
 
 # Copy coverage to Qodana directory
 find . -name "coverage.info" -exec cp {} "$COVERAGE_DIR/" \;

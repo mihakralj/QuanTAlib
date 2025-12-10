@@ -164,6 +164,7 @@ public sealed class Dema : ITValuePublisher
         _p_state1 = s1;
         _p_state2 = s2;
         _lastValidValue = lastValid;
+        _p_lastValidValue = lastValid;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
