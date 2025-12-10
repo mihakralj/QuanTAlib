@@ -26,7 +26,6 @@ public sealed class Conv : ITValuePublisher
     private readonly RingBuffer _buffer;
 
     private double _lastValidValue;
-    private int _head;
 
     // State for bar correction
     private double _p_lastValidValue;
@@ -83,7 +82,6 @@ public sealed class Conv : ITValuePublisher
         if (isNew)
         {
             _buffer.Add(val);
-            _head = (_head + 1 == _period) ? 0 : _head + 1;
         }
         else
         {
@@ -104,10 +102,11 @@ public sealed class Conv : ITValuePublisher
             }
             else
             {
-                // Full: data is split at _head (which points to oldest)
-                int part1Len = _period - _head;
-                result = internalBuf.Slice(_head, part1Len).DotProduct(kernelSpan.Slice(0, part1Len))
-                       + internalBuf.Slice(0, _head).DotProduct(kernelSpan.Slice(part1Len));
+                // Full: data is split at StartIndex (which points to oldest)
+                int head = _buffer.StartIndex;
+                int part1Len = _period - head;
+                result = internalBuf.Slice(head, part1Len).DotProduct(kernelSpan.Slice(0, part1Len))
+                       + internalBuf.Slice(0, head).DotProduct(kernelSpan.Slice(part1Len));
             }
         }
 
@@ -164,9 +163,6 @@ public sealed class Conv : ITValuePublisher
             double val = GetValidValue(sourceValues[i]);
             _buffer.Add(val);
         }
-
-        // Sync _head with buffer state
-        _head = windowSize % _period;
 
         // Set Last
         Last = new TValue(source.Times[len - 1], vSpan[len - 1]);
@@ -247,7 +243,6 @@ public sealed class Conv : ITValuePublisher
         _buffer.Clear();
         _lastValidValue = double.NaN;
         _p_lastValidValue = double.NaN;
-        _head = 0;
         Last = default;
     }
 }

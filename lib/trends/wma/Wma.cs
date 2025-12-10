@@ -421,9 +421,7 @@ public sealed class Wma : ITValuePublisher
 
                 var vSums = Avx.Add(vSumState, vPS2);
 
-                var vSumsShifted = Avx2.Permute4x64(vSums.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
-                vSumsShifted = Avx.Blend(vSumState, vSumsShifted, 0b_1110);
-
+                var vSumsShifted = Avx.Subtract(vSums, vDeltaS);
                 var vTerm1 = Avx.Multiply(vPeriod, vNew);
                 var vU = Avx.Subtract(vTerm1, vSumsShifted);
 

@@ -210,7 +210,8 @@ public sealed class Alma : ITValuePublisher
             throw new ArgumentException("Source and output must have the same length");
 
         // Precompute weights
-        double[] weights = new double[period];
+        // Use stackalloc for small periods to avoid heap allocation
+        Span<double> weights = period <= 256 ? stackalloc double[period] : new double[period];
         double m = offset * (period - 1);
         double s = period / sigma;
         double s2 = 2 * s * s;
@@ -224,7 +225,6 @@ public sealed class Alma : ITValuePublisher
         }
 
         // Buffer for sliding window
-        // Use stackalloc for small periods
         Span<double> buffer = period <= 256 ? stackalloc double[period] : new double[period];
         int bufferIdx = 0;
         int count = 0;
