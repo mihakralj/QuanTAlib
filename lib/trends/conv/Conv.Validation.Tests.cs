@@ -17,11 +17,11 @@ public class ConvValidationTests
         var sma = new Sma(period);
         var conv = new Conv(kernel);
 
-        var rnd = new Random(123);
+        var gbm = new GBM(startPrice: 100, seed: 123);
         for (int i = 0; i < 1000; i++)
         {
-            double price = rnd.NextDouble() * 100;
-            var tValue = new TValue(DateTime.UtcNow, price);
+            var bar = gbm.Next();
+            var tValue = bar.C;
 
             var smaVal = sma.Update(tValue);
             var convVal = conv.Update(tValue);
@@ -48,11 +48,11 @@ public class ConvValidationTests
         var wma = new Wma(period);
         var conv = new Conv(kernel);
 
-        var rnd = new Random(123);
+        var gbm = new GBM(startPrice: 100, seed: 123);
         for (int i = 0; i < 1000; i++)
         {
-            double price = rnd.NextDouble() * 100;
-            var tValue = new TValue(DateTime.UtcNow, price);
+            var bar = gbm.Next();
+            var tValue = bar.C;
 
             var wmaVal = wma.Update(tValue);
             var convVal = conv.Update(tValue);
@@ -105,11 +105,11 @@ public class ConvValidationTests
         var trima = new Trima(period);
         var conv = new Conv(kernel);
 
-        var rnd = new Random(123);
+        var gbm = new GBM(startPrice: 100, seed: 123);
         for (int i = 0; i < 1000; i++)
         {
-            double price = rnd.NextDouble() * 100;
-            var tValue = new TValue(DateTime.UtcNow, price);
+            var bar = gbm.Next();
+            var tValue = bar.C;
 
             var trimaVal = trima.Update(tValue);
             var convVal = conv.Update(tValue);

@@ -26,7 +26,7 @@ public class LsmaTests
     public void Update_SingleValue_ReturnsSameValue()
     {
         var lsma = new Lsma(14);
-        var result = lsma.Update(new TValue(DateTime.Now, 100));
+        var result = lsma.Update(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, result.Value);
     }
 
@@ -39,7 +39,7 @@ public class LsmaTests
         
         for (int i = 0; i < period * 2; i++)
         {
-            var result = lsma.Update(new TValue(DateTime.Now, i));
+            var result = lsma.Update(new TValue(DateTime.UtcNow, i));
             if (i >= period) // After warmup
             {
                 Assert.Equal(i, result.Value, 1e-9);
@@ -56,7 +56,7 @@ public class LsmaTests
         
         for (int i = 0; i < period * 2; i++)
         {
-            var result = lsma.Update(new TValue(DateTime.Now, value));
+            var result = lsma.Update(new TValue(DateTime.UtcNow, value));
             Assert.Equal(value, result.Value, 1e-9);
         }
     }
@@ -75,7 +75,7 @@ public class LsmaTests
         for (int i = 0; i < 20; i++)
         {
             double y = 2 * i + 1;
-            var result = lsma.Update(new TValue(DateTime.Now, y));
+            var result = lsma.Update(new TValue(DateTime.UtcNow, y));
             
             if (i >= period)
             {
@@ -93,20 +93,20 @@ public class LsmaTests
         // Fill buffer
         for (int i = 0; i < 5; i++)
         {
-            lsma.Update(new TValue(DateTime.Now, i));
+            lsma.Update(new TValue(DateTime.UtcNow, i));
         }
         
         // New bar
-        var result1 = lsma.Update(new TValue(DateTime.Now, 10));
+        var result1 = lsma.Update(new TValue(DateTime.UtcNow, 10));
         
         // Update same bar with different value
-        var result2 = lsma.Update(new TValue(DateTime.Now, 20), isNew: false);
+        var result2 = lsma.Update(new TValue(DateTime.UtcNow, 20), isNew: false);
         
         Assert.NotEqual(result1.Value, result2.Value);
         
         // Verify internal state by adding next bar
         // If state was corrupted, this would fail
-        var result3 = lsma.Update(new TValue(DateTime.Now, 30));
+        var result3 = lsma.Update(new TValue(DateTime.UtcNow, 30));
         Assert.True(double.IsFinite(result3.Value));
     }
 
@@ -115,9 +115,9 @@ public class LsmaTests
     {
         var lsma = new Lsma(5);
         
-        lsma.Update(new TValue(DateTime.Now, 1));
-        lsma.Update(new TValue(DateTime.Now, 2));
-        var result = lsma.Update(new TValue(DateTime.Now, double.NaN));
+        lsma.Update(new TValue(DateTime.UtcNow, 1));
+        lsma.Update(new TValue(DateTime.UtcNow, 2));
+        var result = lsma.Update(new TValue(DateTime.UtcNow, double.NaN));
         
         // Input sequence becomes: 1, 2, 2 (NaN replaced by last valid 2)
         // Regression on (2,1), (1,2), (0,2)
@@ -131,11 +131,12 @@ public class LsmaTests
         int period = 10;
         int count = 100;
         var source = new TSeries();
-        var rnd = new Random(42);
+        var gbm = new GBM(startPrice: 100, seed: 42);
         
         for (int i = 0; i < count; i++)
         {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), rnd.NextDouble() * 100));
+            var bar = gbm.Next();
+            source.Add(bar.C);
         }
         
         var lsma = new Lsma(period);
@@ -156,11 +157,12 @@ public class LsmaTests
         int count = 100;
         var values = new double[count];
         var output = new double[count];
-        var rnd = new Random(42);
+        var gbm = new GBM(startPrice: 100, seed: 42);
         
         for (int i = 0; i < count; i++)
         {
-            values[i] = rnd.NextDouble() * 100;
+            var bar = gbm.Next();
+            values[i] = bar.Close;
         }
         
         Lsma.Calculate(values, output, period);
@@ -168,7 +170,7 @@ public class LsmaTests
         var lsma = new Lsma(period);
         for (int i = 0; i < count; i++)
         {
-            var result = lsma.Update(new TValue(DateTime.Now, values[i]));
+            var result = lsma.Update(new TValue(DateTime.UtcNow, values[i]));
             Assert.Equal(result.Value, output[i], 1e-9);
         }
     }
@@ -179,7 +181,7 @@ public class LsmaTests
         var lsma = new Lsma(5);
         for (int i = 0; i < 10; i++)
         {
-            lsma.Update(new TValue(DateTime.Now, i));
+            lsma.Update(new TValue(DateTime.UtcNow, i));
         }
         
         Assert.True(lsma.IsHot);
@@ -190,7 +192,7 @@ public class LsmaTests
         Assert.Equal(0, lsma.Last.Value);
         
         // Should behave like new instance
-        var result = lsma.Update(new TValue(DateTime.Now, 100));
+        var result = lsma.Update(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, result.Value);
     }
 }

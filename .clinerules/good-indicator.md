@@ -11,6 +11,7 @@ This document defines the strict standards for creating high-quality technical i
 * **Bar Correction:** Support intra-bar updates via the `isNew` parameter. The indicator must be able to rollback the last update and apply a new value for the same timestamp.
 * **Robustness:** Handle `NaN` and `Infinity` gracefully using last-valid-value substitution. Never propagate invalid values.
 * **Reactive:** Implement `ITValuePublisher` to support event-driven architectures.
+* **Time Handling:** Always use `DateTime.UtcNow` instead of `DateTime.Now` to ensure consistent time handling across timezones.
 
 ## 2. File Structure
 
@@ -91,6 +92,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 ### Unit Tests (`[Name].Tests.cs`)
 
 * **Framework:** xUnit
+* **Data Generation:** Use `GBM` (Geometric Brownian Motion) for generating realistic test data. Avoid using `System.Random` directly.
 * **Coverage:**
 
 * Constructor validation (invalid params).
@@ -155,7 +157,7 @@ Template structure:
 
 ## 9. Checklist for New Indicators
 
-* [ ] **Source Material:** Sourced algorithm and docs from `mihakralj/pinescript`?
+* [ ] **Source Material:** Sourced algorithm and docs from `mihakralj/pinescript` or `mihakralj/quantalib`?
 * [ ] **File Structure:** Created all 6 required files?
 * [ ] **Constructor:** Validates inputs? Sets `Name`?
 * [ ] **Update:** Handles `isNew` correctly? Handles `NaN`? O(1)?

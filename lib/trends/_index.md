@@ -16,7 +16,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | [CONV](trends/conv/Conv.md) | Convolution Indicator | Applies a custom kernel (weights) to the data window. |
 | [DEMA](trends/dema/Dema.md) | Double Exponential Moving Average | Reduces lag by placing more weight on recent data than a standard EMA. |
 | DSMA | Deviation-Scaled MA | |
-| DWMA | Double Weighted MA | |
+| [DWMA](trends/dwma/Dwma.md) | Double Weighted MA | Applies WMA smoothing twice to reduce noise further. |
 | ELLIPTIC | Elliptic (Cauer) Filter | |
 | [EMA](trends/ema/Ema.md) | Exponential Moving Average | Weighted average giving more importance to recent price data. |
 | EPMA | Endpoint MA | |

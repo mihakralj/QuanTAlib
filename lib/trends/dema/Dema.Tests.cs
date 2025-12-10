@@ -79,7 +79,7 @@ public class DemaTests
         // Assert
         for (int i = 0; i < count; i++)
         {
-            var val = demaObj.Update(new TValue(DateTime.Now, source[i]));
+            var val = demaObj.Update(new TValue(DateTime.UtcNow, source[i]));
             Assert.Equal(val.Value, output[i], 1e-9);
         }
     }
@@ -156,7 +156,7 @@ public class DemaTests
         // Assert
         for (int i = 0; i < count; i++)
         {
-            var val = demaObj.Update(new TValue(DateTime.Now, source[i]));
+            var val = demaObj.Update(new TValue(DateTime.UtcNow, source[i]));
             Assert.Equal(val.Value, output[i], 1e-9);
         }
     }
