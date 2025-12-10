@@ -346,22 +346,22 @@ public sealed class Wma : ITValuePublisher
                 var vDeltaS1 = Avx.Subtract(vNew1, vOld1);
                 var vDeltaS2 = Avx.Subtract(vNew2, vOld2);
 
-                var vShiftS1_1 = Avx2.Permute4x64(vDeltaS1.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vShiftS1_1 = Avx2.Permute4x64(vDeltaS1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS1_1 = Avx.Blend(vZero, vShiftS1_1, 0b_1110);
                 var vPS_DeltaS1 = Avx.Add(vDeltaS1, vShiftS1_1);
-                var vShiftS2_1 = Avx2.Permute4x64(vPS_DeltaS1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                var vShiftS2_1 = Avx2.Permute4x64(vPS_DeltaS1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS2_1 = Avx.Blend(vZero, vShiftS2_1, 0b_1100);
                 vPS_DeltaS1 = Avx.Add(vPS_DeltaS1, vShiftS2_1);
 
-                var vShiftS1_2 = Avx2.Permute4x64(vDeltaS2.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vShiftS1_2 = Avx2.Permute4x64(vDeltaS2.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS1_2 = Avx.Blend(vZero, vShiftS1_2, 0b_1110);
                 var vPS_DeltaS2 = Avx.Add(vDeltaS2, vShiftS1_2);
-                var vShiftS2_2 = Avx2.Permute4x64(vPS_DeltaS2.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                var vShiftS2_2 = Avx2.Permute4x64(vPS_DeltaS2.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS2_2 = Avx.Blend(vZero, vShiftS2_2, 0b_1100);
                 vPS_DeltaS2 = Avx.Add(vPS_DeltaS2, vShiftS2_2);
 
                 var vSums1 = Avx.Add(vSumState, vPS_DeltaS1);
-                var vLastS1 = Avx2.Permute4x64(vSums1.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                var vLastS1 = Avx2.Permute4x64(vSums1.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 var vSums2 = Avx.Add(vLastS1, vPS_DeltaS2);
 
                 var vSumsShifted1 = Avx.Subtract(vSums1, vDeltaS1);
@@ -379,29 +379,29 @@ public sealed class Wma : ITValuePublisher
                     vU2 = Avx.Subtract(Avx.Multiply(vPeriod, vNew2), vSumsShifted2);
                 }
 
-                var vShiftW1_1 = Avx2.Permute4x64(vU1.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vShiftW1_1 = Avx2.Permute4x64(vU1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW1_1 = Avx.Blend(vZero, vShiftW1_1, 0b_1110);
                 var vPW1_1 = Avx.Add(vU1, vShiftW1_1);
-                var vShiftW2_1 = Avx2.Permute4x64(vPW1_1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                var vShiftW2_1 = Avx2.Permute4x64(vPW1_1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW2_1 = Avx.Blend(vZero, vShiftW2_1, 0b_1100);
                 var vPW2_1 = Avx.Add(vPW1_1, vShiftW2_1);
 
-                var vShiftW1_2 = Avx2.Permute4x64(vU2.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vShiftW1_2 = Avx2.Permute4x64(vU2.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW1_2 = Avx.Blend(vZero, vShiftW1_2, 0b_1110);
                 var vPW1_2 = Avx.Add(vU2, vShiftW1_2);
-                var vShiftW2_2 = Avx2.Permute4x64(vPW1_2.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                var vShiftW2_2 = Avx2.Permute4x64(vPW1_2.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW2_2 = Avx.Blend(vZero, vShiftW2_2, 0b_1100);
                 var vPW2_2 = Avx.Add(vPW1_2, vShiftW2_2);
 
                 var vWsums1 = Avx.Add(vWsumState, vPW2_1);
-                var vLastW1 = Avx2.Permute4x64(vWsums1.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                var vLastW1 = Avx2.Permute4x64(vWsums1.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 var vWsums2 = Avx.Add(vLastW1, vPW2_2);
 
                 Vector256.StoreUnsafe(Avx.Multiply(vWsums1, vInvDivisor), ref Unsafe.Add(ref outRef, idx));
                 Vector256.StoreUnsafe(Avx.Multiply(vWsums2, vInvDivisor), ref Unsafe.Add(ref outRef, idx + VectorWidth));
 
-                vSumState = Avx2.Permute4x64(vSums2.AsUInt64(), 0b_11_11_11_11).AsDouble();
-                vWsumState = Avx2.Permute4x64(vWsums2.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                vSumState = Avx2.Permute4x64(vSums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
+                vWsumState = Avx2.Permute4x64(vWsums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
             }
 
             for (; idx < nextSync; idx += VectorWidth)
@@ -411,27 +411,27 @@ public sealed class Wma : ITValuePublisher
 
                 var vDeltaS = Avx.Subtract(vNew, vOld);
 
-                var vShiftS1 = Avx2.Permute4x64(vDeltaS.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vShiftS1 = Avx2.Permute4x64(vDeltaS.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS1 = Avx.Blend(vZero, vShiftS1, 0b_1110);
                 var vPS1 = Avx.Add(vDeltaS, vShiftS1);
 
-                var vShiftS2 = Avx2.Permute4x64(vPS1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                var vShiftS2 = Avx2.Permute4x64(vPS1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS2 = Avx.Blend(vZero, vShiftS2, 0b_1100);
                 var vPS2 = Avx.Add(vPS1, vShiftS2);
 
                 var vSums = Avx.Add(vSumState, vPS2);
 
-                var vSumsShifted = Avx2.Permute4x64(vSums.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vSumsShifted = Avx2.Permute4x64(vSums.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vSumsShifted = Avx.Blend(vSumState, vSumsShifted, 0b_1110);
 
                 var vTerm1 = Avx.Multiply(vPeriod, vNew);
                 var vU = Avx.Subtract(vTerm1, vSumsShifted);
 
-                var vShiftW1 = Avx2.Permute4x64(vU.AsUInt64(), 0b_10_01_00_00).AsDouble();
+                var vShiftW1 = Avx2.Permute4x64(vU.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW1 = Avx.Blend(vZero, vShiftW1, 0b_1110);
                 var vPW1 = Avx.Add(vU, vShiftW1);
 
-                var vShiftW2 = Avx2.Permute4x64(vPW1.AsUInt64(), 0b_01_00_00_00).AsDouble();
+                var vShiftW2 = Avx2.Permute4x64(vPW1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW2 = Avx.Blend(vZero, vShiftW2, 0b_1100);
                 var vPW2 = Avx.Add(vPW1, vShiftW2);
 
@@ -440,8 +440,8 @@ public sealed class Wma : ITValuePublisher
                 var vResult = Avx.Multiply(vWsums, vInvDivisor);
                 Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, idx));
 
-                vSumState = Avx2.Permute4x64(vSums.AsUInt64(), 0b_11_11_11_11).AsDouble();
-                vWsumState = Avx2.Permute4x64(vWsums.AsUInt64(), 0b_11_11_11_11).AsDouble();
+                vSumState = Avx2.Permute4x64(vSums.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
+                vWsumState = Avx2.Permute4x64(vWsums.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
             }
 
             if (idx < len)

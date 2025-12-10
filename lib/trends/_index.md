@@ -38,7 +38,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | LOESS | LOESS/LOWESS Smoothing | |
 | [LSMA](trends/lsma/Lsma.md) | Least Squares MA | Calculates the linear regression line for a specified period. |
 | LTMA | Linear Trend MA | |
-| MAMA | MESA Adaptive MA | |
+| [MAMA](trends/mama/Mama.md) | MESA Adaptive MA | Adapts to market cycles using Hilbert Transform phase measurement. |
 | MEDIAN | Median Filter | |
 | MGDI | McGinley Dynamic Indicator | |
 | MMA | Modified MA | |

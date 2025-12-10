@@ -4,6 +4,7 @@ This document defines the strict standards for creating high-quality technical i
 
 ## 1. Architecture & Design Principles
 
+* **Source Material:** The algorithm and markdown documentation foundation should be sourced from [https://github.com/mihakralj/pinescript/blob/main/indicators/](https://github.com/mihakralj/pinescript/blob/main/indicators/).
 * **Zero Allocation:** The core calculation loop must not allocate memory on the heap. Use `stackalloc`, `Span<T>`, and pinned memory where possible.
 * **O(1) Complexity:** Streaming updates must be O(1) whenever mathematically possible. Use running sums/products or circular buffers to avoid re-iterating over history.
 * **Dual API:** Provide both a stateful object-oriented API (`Update`) and a stateless static vector API (`Calculate`).
@@ -103,7 +104,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 
 ### Validation Tests (`[Name].Validation.Tests.cs`)
 
-* **Purpose:** Verify accuracy against established libraries (Skender, TA-Lib, Tulip).
+* **Purpose:** Verify accuracy against **ALL** available external libraries (Skender, TA-Lib, Tulip, Python libraries, etc.) where the indicator is implemented. You must actively search for existing implementations to validate against.
 * **Data:** Use `GBM` (Geometric Brownian Motion) to generate realistic test data.
 * **Scenarios:**
 
@@ -134,7 +135,17 @@ Template structure:
 6. **Interpretation:** How to use it in trading.
 7. **References:** Books or papers.
 
-## 6. Performance Guidelines
+## 6. Quantower Adapter
+
+* **Implementation:** Create a wrapper class in `[Name].Quantower.cs` that adapts the QuanTAlib indicator for the Quantower platform.
+* **Tests:** Create unit tests in `[Name].Quantower.Tests.cs` to verify the adapter's functionality using mocks where necessary.
+
+## 7. Code Review
+
+* **Tool:** Run CodeRabbit on the changes.
+* **Requirement:** Address and fix **ALL** issues identified by the CodeRabbit review before considering the task complete.
+
+## 8. Performance Guidelines
 
 * **Inlining:** Use `[MethodImpl(MethodImplOptions.AggressiveInlining)]` on all hot path methods (`Update`, `Calculate`).
 * **Locals Init:** Use `[SkipLocalsInit]` on the class to skip zero-initialization of locals.
@@ -142,16 +153,18 @@ Template structure:
 * **Math:** Use `System.Math` or `System.Numerics`. Avoid LINQ in hot paths.
 * **Memory:** **NEVER** use `new` inside the `Update` method. Pre-allocate everything in the constructor.
 
-## 7. Checklist for New Indicators
+## 9. Checklist for New Indicators
 
+* [ ] **Source Material:** Sourced algorithm and docs from `mihakralj/pinescript`?
 * [ ] **File Structure:** Created all 6 required files?
 * [ ] **Constructor:** Validates inputs? Sets `Name`?
 * [ ] **Update:** Handles `isNew` correctly? Handles `NaN`? O(1)?
 * [ ] **Static API:** Implemented `Calculate(Span)`?
 * [ ] **Tests:** Unit tests pass? `NaN` tests included?
-* [ ] **Validation:** Matches external libraries (Skender/TA-Lib)?
-* [ ] **Docs:** Markdown file created with formula and examples?
+* [ ] **Validation:** Matches **ALL** available external libraries?
+* [ ] **Docs:** Markdown file created with formula and examples? Linted (MD030, MD032)?
 * [ ] **Quantower:** Adapter created in `[Name].Quantower.cs`?
 * [ ] **Quantower Tests:** Adapter tests created in `[Name].Quantower.Tests.cs`?
+* [ ] **Code Review:** Ran CodeRabbit and fixed all issues?
 * [ ] **Index:** Added to category `_index.md` with link and description?
 * [ ] **Performance:** No allocations in `Update`? `[SkipLocalsInit]` used?
