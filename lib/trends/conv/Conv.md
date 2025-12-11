@@ -1,7 +1,5 @@
 # CONV: Convolution
 
-[Pine Script Implementation of CONV](https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/conv.pine)
-
 ## Overview and Purpose
 
 The Convolution (CONV) is a flexible technical indicator that allows traders to apply any arbitrary weighting scheme (kernel) to price data. Rooted in signal processing principles developed in the 1950-60s, convolution filtering was later adapted to financial markets in the 1990s as digital signal processing techniques gained popularity in technical analysis. Convolution provides a generalized framework that enables traders to create customized moving averages with specific filtering characteristics, either by designing their own weight distributions or using predefined kernels.

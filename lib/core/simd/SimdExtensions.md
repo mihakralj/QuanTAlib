@@ -13,6 +13,7 @@
 
 | Method | Description |
 |--------|-------------|
+| `ContainsNonFinite()` | Checks if span contains any non-finite values (NaN or Infinity). |
 | `SumSIMD()` | Calculates the sum of elements. |
 | `MinSIMD()` | Finds the minimum value. |
 | `MaxSIMD()` | Finds the maximum value. |
@@ -20,6 +21,7 @@
 | `AverageSIMD()` | Calculates the arithmetic mean. |
 | `VarianceSIMD()` | Calculates the sample variance. |
 | `StdDevSIMD()` | Calculates the sample standard deviation. |
+| `DotProduct()` | Calculates the dot product of two spans. |
 
 ## Performance
 
@@ -41,3 +43,10 @@ var (min, max) = span.MinMaxSIMD();
 
 // Calculate standard deviation
 double stdDev = span.StdDevSIMD();
+
+// Check for valid data
+bool hasInvalid = span.ContainsNonFinite();
+
+// Calculate dot product
+double dot = span.DotProduct(otherSpan);
+```

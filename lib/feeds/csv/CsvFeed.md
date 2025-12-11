@@ -18,6 +18,7 @@ The file must have a header row and follow this column order:
 - **Prices/Volume**: Numeric values
 
 Example:
+
 ```csv
 Date,Open,High,Low,Close,Volume
 2024-01-01,100.0,105.0,99.0,102.5,10000
@@ -38,11 +39,13 @@ public class CsvFeed : IFeed
 ## Usage
 
 ### 1. Loading Data
+
 ```csharp
 var feed = new CsvFeed("path/to/data.csv");
 ```
 
 ### 2. Streaming Data (Simulation)
+
 ```csharp
 // Get first bar
 var bar = feed.Next(isNew: true);
@@ -63,6 +66,7 @@ while (true)
 ```
 
 ### 3. Fetching a Batch
+
 ```csharp
 long startTime = new DateTime(2024, 1, 1).Ticks;
 var batch = feed.Fetch(10, startTime, TimeSpan.FromDays(1));

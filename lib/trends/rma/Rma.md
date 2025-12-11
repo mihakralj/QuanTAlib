@@ -1,7 +1,5 @@
 # RMA: Wilder's Moving Average
 
-[Pine Script Implementation of RMA](https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/rma.pine)
-
 ## Overview and Purpose
 
 Wilder's Moving Average (RMA), also known as the Smoothed Moving Average (SMMA), is a specialized technical indicator designed to provide superior noise reduction while maintaining sensitivity to meaningful price changes. Developed by J. Welles Wilder Jr. and introduced in his influential 1978 book "New Concepts in Technical Trading Systems," RMA was specifically created to power Wilder's revolutionary technical indicators like RSI, ATR, and DMI/ADX.

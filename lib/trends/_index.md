@@ -58,7 +58,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | [TRIMA](trends/trima/Trima.md) | Triangular Moving Average | A double-smoothed SMA that gives more weight to the middle of the data window. |
 | USF | Ehlers Ultrasmooth Filter | |
 | VAMA | Volatility Adjusted MA | |
-| VIDYA | Variable Index Dynamic Average | |
+| [VIDYA](trends/vidya/Vidya.md) | Variable Index Dynamic Average | Adapts smoothing based on volatility using the Chande Momentum Oscillator (CMO). |
 | WIENER | Wiener Filter | |
 | [WMA](trends/wma/Wma.md) | Weighted Moving Average | Assigns a heavier weighting to more current data points since they are more relevant. |
 | YZVAMA | Yang-Zhang Volatility Adjusted MA | |

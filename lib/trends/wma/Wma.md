@@ -1,7 +1,5 @@
 # WMA: Weighted Moving Average
 
-[Pine Script Implementation of WMA](https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/wma.pine)
-
 ## Overview and Purpose
 
 The Weighted Moving Average (WMA) is a technical indicator that applies progressively increasing weights to more recent price data. Emerging in the early 1950s during the formative years of technical analysis, WMA gained significant adoption among professional traders through the 1970s as computational methods became more accessible. The approach was formalized in Robert Colby's 1988 "Encyclopedia of Technical Market Indicators," establishing it as a staple in technical analysis software. Unlike the Simple Moving Average (SMA) which gives equal weight to all prices, WMA assigns greater importance to recent prices, creating a more responsive indicator that reacts faster to price changes while still providing effective noise filtering.

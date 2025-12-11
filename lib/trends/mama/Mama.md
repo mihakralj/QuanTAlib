@@ -1,7 +1,5 @@
 # MAMA: MESA Adaptive Moving Average
 
-[Pine Script Implementation of MAMA](https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/mama.pine)
-
 ## Overview and Purpose
 
 The MESA Adaptive Moving Average (MAMA) is an advanced technical indicator that automatically adjusts its responsiveness based on market cycles. Developed by John Ehlers and introduced in 2001 in his book "MESA and Trading Market Cycles," MAMA applies sophisticated signal processing techniques from electrical engineering to market analysis.
