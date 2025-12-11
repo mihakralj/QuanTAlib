@@ -211,6 +211,7 @@ The implementation uses:
 * **Scalar state save/restore** for O(1) bar correction
 * **Pinned memory** in RingBuffer for cache-friendly access
 * **CollectionsMarshal.SetCount** for zero-allocation batch processing
+* **SIMD Acceleration** (AVX512/AVX2) for high-performance batch processing
 
 ## Interpretation Details
 

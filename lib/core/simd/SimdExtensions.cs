@@ -383,7 +383,7 @@ public static class SimdExtensions
 
     /// <summary>
     /// Calculates the dot product of two spans using SIMD intrinsics.
-    /// Supports AVX512, AVX2, SSE2, and NEON.
+    /// Supports AVX512, AVX2, and NEON (ARM64).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double DotProduct(this ReadOnlySpan<double> a, ReadOnlySpan<double> b)
@@ -410,25 +410,24 @@ public static class SimdExtensions
         if (Avx2.IsSupported)
             return DotProductAvx2(a, b);
 
-        if (Sse2.IsSupported)
-            return DotProductSse2(a, b);
-
         if (AdvSimd.Arm64.IsSupported)
             return DotProductNeon(a, b);
 
-        double s = 0;
+        double s1 = 0, s2 = 0, s3 = 0, s4 = 0;
         ref double ar = ref MemoryMarshal.GetReference(a);
         ref double br = ref MemoryMarshal.GetReference(b);
 
         int i = 0;
-        // Unroll scalar loop
+        // Unroll scalar loop with 4 accumulators to break dependency chains
         for (; i <= len - 4; i += 4)
         {
-            s += Unsafe.Add(ref ar, i) * Unsafe.Add(ref br, i);
-            s += Unsafe.Add(ref ar, i + 1) * Unsafe.Add(ref br, i + 1);
-            s += Unsafe.Add(ref ar, i + 2) * Unsafe.Add(ref br, i + 2);
-            s += Unsafe.Add(ref ar, i + 3) * Unsafe.Add(ref br, i + 3);
+            s1 += Unsafe.Add(ref ar, i) * Unsafe.Add(ref br, i);
+            s2 += Unsafe.Add(ref ar, i + 1) * Unsafe.Add(ref br, i + 1);
+            s3 += Unsafe.Add(ref ar, i + 2) * Unsafe.Add(ref br, i + 2);
+            s4 += Unsafe.Add(ref ar, i + 3) * Unsafe.Add(ref br, i + 3);
         }
+
+        double s = s1 + s2 + s3 + s4;
 
         for (; i < len; i++)
         {
@@ -647,58 +646,4 @@ public static class SimdExtensions
         return sum;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double DotProductSse2(ReadOnlySpan<double> a, ReadOnlySpan<double> b)
-    {
-        int len = a.Length;
-        int i = 0;
-        Vector128<double> vSum = Vector128<double>.Zero;
-        Vector128<double> vSum2 = Vector128<double>.Zero;
-
-        ref double aRef = ref MemoryMarshal.GetReference(a);
-        ref double bRef = ref MemoryMarshal.GetReference(b);
-
-        // Process 4 doubles at a time using 2 accumulators
-        for (; i <= len - 4; i += 4)
-        {
-            var va1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
-            var vb1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
-            var va2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 2));
-            var vb2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 2));
-
-            if (Fma.IsSupported)
-            {
-                vSum = Fma.MultiplyAdd(va1, vb1, vSum);
-                vSum2 = Fma.MultiplyAdd(va2, vb2, vSum2);
-            }
-            else
-            {
-                vSum = Sse2.Add(vSum, Sse2.Multiply(va1, vb1));
-                vSum2 = Sse2.Add(vSum2, Sse2.Multiply(va2, vb2));
-            }
-        }
-
-        // Process remaining 2 doubles if available
-        if (i <= len - 2)
-        {
-            var va = Vector128.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
-            var vb = Vector128.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
-
-            vSum = Fma.IsSupported
-                ? Fma.MultiplyAdd(va, vb, vSum)
-                : Sse2.Add(vSum, Sse2.Multiply(va, vb));
-            i += 2;
-        }
-
-        vSum = Sse2.Add(vSum, vSum2);
-        double sum = vSum.GetElement(0) + vSum.GetElement(1);
-
-        // Scalar remainder (0-1 elements)
-        for (; i < len; i++)
-        {
-            sum += Unsafe.Add(ref aRef, i) * Unsafe.Add(ref bRef, i);
-        }
-
-        return sum;
-    }
 }

@@ -2,6 +2,8 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -163,22 +165,41 @@ public sealed class Hma : ITValuePublisher
         int len = halfWma.Length;
         int i = 0;
 
-        if (Vector256.IsHardwareAccelerated && len >= Vector256<double>.Count)
+        ref double halfRef = ref MemoryMarshal.GetReference(halfWma);
+        ref double fullRef = ref MemoryMarshal.GetReference(fullWma);
+        ref double outRef = ref MemoryMarshal.GetReference(output);
+
+        if (Avx512F.IsSupported && len >= Vector512<double>.Count)
+        {
+            var vTwo = Vector512.Create(2.0);
+            for (; i <= len - Vector512<double>.Count; i += Vector512<double>.Count)
+            {
+                var vHalf = Vector512.LoadUnsafe(ref Unsafe.Add(ref halfRef, i));
+                var vFull = Vector512.LoadUnsafe(ref Unsafe.Add(ref fullRef, i));
+                var vResult = Avx512F.Subtract(Avx512F.Multiply(vHalf, vTwo), vFull);
+                Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            }
+        }
+        else if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
             var vTwo = Vector256.Create(2.0);
-            ref double halfRef = ref MemoryMarshal.GetReference(halfWma);
-            ref double fullRef = ref MemoryMarshal.GetReference(fullWma);
-            ref double outRef = ref MemoryMarshal.GetReference(output);
-
             for (; i <= len - Vector256<double>.Count; i += Vector256<double>.Count)
             {
                 var vHalf = Vector256.LoadUnsafe(ref Unsafe.Add(ref halfRef, i));
                 var vFull = Vector256.LoadUnsafe(ref Unsafe.Add(ref fullRef, i));
-
-                // vResult = 2 * half - full
-                var vResult = (vHalf * vTwo) - vFull;
-
+                var vResult = Avx.Subtract(Avx.Multiply(vHalf, vTwo), vFull);
                 Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            }
+        }
+        else if (AdvSimd.Arm64.IsSupported && len >= Vector128<double>.Count)
+        {
+            var vTwo = Vector128.Create(2.0);
+            for (; i <= len - Vector128<double>.Count; i += Vector128<double>.Count)
+            {
+                var vHalf = Vector128.LoadUnsafe(ref Unsafe.Add(ref halfRef, i));
+                var vFull = Vector128.LoadUnsafe(ref Unsafe.Add(ref fullRef, i));
+                var vResult = AdvSimd.Arm64.Subtract(AdvSimd.Arm64.Multiply(vHalf, vTwo), vFull);
+                Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
             }
         }
 

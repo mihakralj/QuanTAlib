@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
@@ -213,9 +214,21 @@ public sealed class Wma : ITValuePublisher
         if (len == 0) return;
 
         const int SimdThreshold = 256;
+        if (Avx512F.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
+        {
+            CalculateAvx512Core(source, output, period);
+            return;
+        }
+
         if (Avx2.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
         {
             CalculateSimdCore(source, output, period);
+            return;
+        }
+
+        if (AdvSimd.Arm64.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
+        {
+            CalculateNeonCore(source, output, period);
             return;
         }
 
@@ -292,6 +305,121 @@ public sealed class Wma : ITValuePublisher
                 sum = recalcSum;
                 wsum = recalcWsum;
             }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static void CalculateAvx512Core(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        int len = source.Length;
+        const int VectorWidth = 8;
+
+        ref double srcRef = ref MemoryMarshal.GetReference(source);
+        ref double outRef = ref MemoryMarshal.GetReference(output);
+
+        double divisor = (double)period * (period + 1) * 0.5;
+        double invDivisor = 1.0 / divisor;
+
+        int warmupEnd = Math.Min(period, len);
+        double sum = 0;
+        double wsum = 0;
+        for (int i = 0; i < warmupEnd; i++)
+        {
+            double val = Unsafe.Add(ref srcRef, i);
+            sum += val;
+            wsum += (i + 1) * val;
+            double currentDivisor = (double)(i + 1) * (i + 2) * 0.5;
+            Unsafe.Add(ref outRef, i) = wsum / currentDivisor;
+        }
+
+        if (len <= period)
+            return;
+
+        var vInvDivisor = Vector512.Create(invDivisor);
+        var vPeriod = Vector512.Create((double)period);
+        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+
+        var vSumState = Vector512.Create(sum);
+        var vWsumState = Vector512.Create(wsum);
+
+        int idx = period;
+        while (idx < simdEnd)
+        {
+            int nextSync = Math.Min(simdEnd, idx + ResyncInterval);
+
+            for (; idx < nextSync; idx += VectorWidth)
+            {
+                var vNew = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
+                var vOld = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
+
+                var vDeltaS = Avx512F.Subtract(vNew, vOld);
+
+                // Prefix sum of DeltaS
+                var vShiftS1 = Vector512.Create(0.0, vDeltaS.GetElement(0), vDeltaS.GetElement(1), vDeltaS.GetElement(2), vDeltaS.GetElement(3), vDeltaS.GetElement(4), vDeltaS.GetElement(5), vDeltaS.GetElement(6));
+                var vPS1 = Avx512F.Add(vDeltaS, vShiftS1);
+
+                var vShiftS2 = Vector512.Create(0.0, 0.0, vPS1.GetElement(0), vPS1.GetElement(1), vPS1.GetElement(2), vPS1.GetElement(3), vPS1.GetElement(4), vPS1.GetElement(5));
+                var vPS2 = Avx512F.Add(vPS1, vShiftS2);
+
+                var vShiftS4 = Vector512.Create(0.0, 0.0, 0.0, 0.0, vPS2.GetElement(0), vPS2.GetElement(1), vPS2.GetElement(2), vPS2.GetElement(3));
+                var vPS4 = Avx512F.Add(vPS2, vShiftS4);
+
+                var vSums = Avx512F.Add(vSumState, vPS4);
+
+                // Calculate Wsum update
+                var vSumsShifted = Avx512F.Subtract(vSums, vDeltaS);
+                var vU = Avx512F.FusedMultiplySubtract(vPeriod, vNew, vSumsShifted);
+
+                // Prefix sum of vU
+                var vShiftW1 = Vector512.Create(0.0, vU.GetElement(0), vU.GetElement(1), vU.GetElement(2), vU.GetElement(3), vU.GetElement(4), vU.GetElement(5), vU.GetElement(6));
+                var vPW1 = Avx512F.Add(vU, vShiftW1);
+
+                var vShiftW2 = Vector512.Create(0.0, 0.0, vPW1.GetElement(0), vPW1.GetElement(1), vPW1.GetElement(2), vPW1.GetElement(3), vPW1.GetElement(4), vPW1.GetElement(5));
+                var vPW2 = Avx512F.Add(vPW1, vShiftW2);
+
+                var vShiftW4 = Vector512.Create(0.0, 0.0, 0.0, 0.0, vPW2.GetElement(0), vPW2.GetElement(1), vPW2.GetElement(2), vPW2.GetElement(3));
+                var vPW4 = Avx512F.Add(vPW2, vShiftW4);
+
+                var vWsums = Avx512F.Add(vWsumState, vPW4);
+
+                var vResult = Avx512F.Multiply(vWsums, vInvDivisor);
+                Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, idx));
+
+                // Update state for next iteration
+                vSumState = Vector512.Create(vSums.GetElement(7));
+                vWsumState = Vector512.Create(vWsums.GetElement(7));
+            }
+
+            if (idx < len)
+            {
+                int lastIdx = idx - 1;
+                double recalcSum = 0;
+                double recalcWsum = 0;
+                for (int k = 0; k < period; k++)
+                {
+                    double val = Unsafe.Add(ref srcRef, lastIdx - k);
+                    recalcSum += val;
+                    recalcWsum += (period - k) * val;
+                }
+                sum = recalcSum;
+                wsum = recalcWsum;
+
+                vSumState = Vector512.Create(sum);
+                vWsumState = Vector512.Create(wsum);
+            }
+        }
+
+        sum = vSumState.GetElement(0);
+        wsum = vWsumState.GetElement(0);
+
+        for (; idx < len; idx++)
+        {
+            double val = Unsafe.Add(ref srcRef, idx);
+            double oldSum = sum;
+            double oldest = Unsafe.Add(ref srcRef, idx - period);
+            sum = sum - oldest + val;
+            wsum = wsum - oldSum + (period * val);
+            Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }
 
@@ -464,6 +592,154 @@ public sealed class Wma : ITValuePublisher
         sum = vSumState.GetElement(0);
         wsum = vWsumState.GetElement(0);
 
+        for (; idx < len; idx++)
+        {
+            double val = Unsafe.Add(ref srcRef, idx);
+            double oldSum = sum;
+            double oldest = Unsafe.Add(ref srcRef, idx - period);
+            sum = sum - oldest + val;
+            wsum = wsum - oldSum + (period * val);
+            Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static void CalculateNeonCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        int len = source.Length;
+        const int VectorWidth = 2;
+
+        ref double srcRef = ref MemoryMarshal.GetReference(source);
+        ref double outRef = ref MemoryMarshal.GetReference(output);
+
+        double divisor = (double)period * (period + 1) * 0.5;
+        double invDivisor = 1.0 / divisor;
+
+        int warmupEnd = Math.Min(period, len);
+        double sum = 0;
+        double wsum = 0;
+        for (int i = 0; i < warmupEnd; i++)
+        {
+            double val = Unsafe.Add(ref srcRef, i);
+            sum += val;
+            wsum += (i + 1) * val;
+            double currentDivisor = (double)(i + 1) * (i + 2) * 0.5;
+            Unsafe.Add(ref outRef, i) = wsum / currentDivisor;
+        }
+
+        if (len <= period)
+            return;
+
+        var vInvDivisor = Vector128.Create(invDivisor);
+        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+
+        double sumState = sum;
+        double wsumState = wsum;
+
+        int idx = period;
+        while (idx < simdEnd)
+        {
+            int nextSync = Math.Min(simdEnd, idx + ResyncInterval);
+
+            // Unrolled loop: process 4 elements (2 vectors) at a time
+            int unrolledSync = nextSync - (2 * VectorWidth);
+            for (; idx <= unrolledSync; idx += 2 * VectorWidth)
+            {
+                var vNew1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
+                var vOld1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
+                var vNew2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + VectorWidth));
+                var vOld2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + VectorWidth - period));
+
+                var vDeltaS1 = AdvSimd.Arm64.Subtract(vNew1, vOld1);
+                var vDeltaS2 = AdvSimd.Arm64.Subtract(vNew2, vOld2);
+
+                // Prefix sum for first vector: [d0, d0+d1]
+                double d1_0 = vDeltaS1.GetElement(0);
+                double d1_1 = vDeltaS1.GetElement(1);
+                double ps1_0 = sumState + d1_0;
+                double ps1_1 = ps1_0 + d1_1;
+
+                // Prefix sum for second vector
+                double d2_0 = vDeltaS2.GetElement(0);
+                double d2_1 = vDeltaS2.GetElement(1);
+                double ps2_0 = ps1_1 + d2_0;
+                double ps2_1 = ps2_0 + d2_1;
+
+                // Calculate Wsum update: W_new = W_old - S_prev + n*new
+                // For element i: u_i = period * new_i - S_(i-1)
+                double u1_0 = period * vNew1.GetElement(0) - sumState;
+                double u1_1 = period * vNew1.GetElement(1) - ps1_0;
+                double u2_0 = period * vNew2.GetElement(0) - ps1_1;
+                double u2_1 = period * vNew2.GetElement(1) - ps2_0;
+
+                // Prefix sum of U values
+                double pw1_0 = wsumState + u1_0;
+                double pw1_1 = pw1_0 + u1_1;
+                double pw2_0 = pw1_1 + u2_0;
+                double pw2_1 = pw2_0 + u2_1;
+
+                var vWsums1 = Vector128.Create(pw1_0, pw1_1);
+                var vWsums2 = Vector128.Create(pw2_0, pw2_1);
+
+                var vResult1 = AdvSimd.Arm64.Multiply(vWsums1, vInvDivisor);
+                var vResult2 = AdvSimd.Arm64.Multiply(vWsums2, vInvDivisor);
+
+                Vector128.StoreUnsafe(vResult1, ref Unsafe.Add(ref outRef, idx));
+                Vector128.StoreUnsafe(vResult2, ref Unsafe.Add(ref outRef, idx + VectorWidth));
+
+                sumState = ps2_1;
+                wsumState = pw2_1;
+            }
+
+            // Process remaining pairs
+            for (; idx < nextSync; idx += VectorWidth)
+            {
+                var vNew = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
+                var vOld = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
+
+                var vDeltaS = AdvSimd.Arm64.Subtract(vNew, vOld);
+
+                double d0 = vDeltaS.GetElement(0);
+                double d1 = vDeltaS.GetElement(1);
+                double ps0 = sumState + d0;
+                double ps1 = ps0 + d1;
+
+                double u0 = period * vNew.GetElement(0) - sumState;
+                double u1 = period * vNew.GetElement(1) - ps0;
+
+                double pw0 = wsumState + u0;
+                double pw1 = pw0 + u1;
+
+                var vWsums = Vector128.Create(pw0, pw1);
+                var vResult = AdvSimd.Arm64.Multiply(vWsums, vInvDivisor);
+
+                Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, idx));
+
+                sumState = ps1;
+                wsumState = pw1;
+            }
+
+            // Resync to prevent floating-point drift
+            if (idx < len)
+            {
+                int lastIdx = idx - 1;
+                double recalcSum = 0;
+                double recalcWsum = 0;
+                for (int k = 0; k < period; k++)
+                {
+                    double val = Unsafe.Add(ref srcRef, lastIdx - k);
+                    recalcSum += val;
+                    recalcWsum += (period - k) * val;
+                }
+                sumState = recalcSum;
+                wsumState = recalcWsum;
+            }
+        }
+
+        sum = sumState;
+        wsum = wsumState;
+
+        // Scalar tail
         for (; idx < len; idx++)
         {
             double val = Unsafe.Add(ref srcRef, idx);
