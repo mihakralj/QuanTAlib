@@ -31,12 +31,9 @@ public sealed class Sma : ITValuePublisher
     private readonly int _period;
     private readonly RingBuffer _buffer;
 
-    private double _sum;
-    private double _p_sum;
-    private double _p_lastInput;
-    private double _lastValidValue;
-    private double _p_lastValidValue;
-    private int _tickCount;
+    private record struct State(double Sum, double LastInput, double LastValidValue, int TickCount);
+    private State _state;
+    private State _p_state;
 
     private const int ResyncInterval = 1000;
 
@@ -85,10 +82,10 @@ public sealed class Sma : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue = input;
+            _state.LastValidValue = input;
             return input;
         }
-        return _lastValidValue;
+        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -96,18 +93,17 @@ public sealed class Sma : ITValuePublisher
     {
         double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
 
-        _sum = _sum - removedValue + val;
+        _state.Sum = _state.Sum - removedValue + val;
 
         _buffer.Add(val);
 
-        _tickCount++;
-        if (_buffer.IsFull && _tickCount >= ResyncInterval)
+        _state.TickCount++;
+        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
         {
-            _tickCount = 0;
-            _sum = _buffer.RecalculateSum();
+            _state.TickCount = 0;
+            _state.Sum = _buffer.RecalculateSum();
         }
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
@@ -116,21 +112,20 @@ public sealed class Sma : ITValuePublisher
         {
             double val = GetValidValue(input.Value);
             UpdateState(val);
+            _state.LastInput = val;
 
-            _p_sum = _sum;
-            _p_lastInput = val;
-            _p_lastValidValue = _lastValidValue;
+            _p_state = _state;
         }
         else
         {
-            _lastValidValue = _p_lastValidValue;
+            _state = _p_state;
             double val = GetValidValue(input.Value);
 
-            _sum = _p_sum - _p_lastInput + val;
+            _state.Sum = _state.Sum - _state.LastInput + val;
             _buffer.UpdateNewest(val);
         }
 
-        double result = _sum / _buffer.Count;
+        double result = _state.Sum / _buffer.Count;
         Last = new TValue(input.Time, result);
         Pub?.Invoke(Last);
         return Last;
@@ -158,34 +153,33 @@ public sealed class Sma : ITValuePublisher
 
         if (startIndex > 0)
         {
-            _lastValidValue = 0;
+            _state.LastValidValue = 0;
             for (int i = startIndex - 1; i >= 0; i--)
             {
                 if (double.IsFinite(source.Values[i]))
                 {
-                    _lastValidValue = source.Values[i];
+                    _state.LastValidValue = source.Values[i];
                     break;
                 }
             }
         }
         else
         {
-            _lastValidValue = 0;
+            _state.LastValidValue = 0;
         }
 
         _buffer.Clear();
-        _sum = 0;
-        _tickCount = 0;
+        _state.Sum = 0;
+        _state.TickCount = 0;
 
         for (int i = startIndex; i < len; i++)
         {
             double val = GetValidValue(source.Values[i]);
             UpdateState(val);
+            _state.LastInput = val;
         }
 
-        _p_sum = _sum;
-        _p_lastInput = GetValidValue(source.Values[len - 1]);
-        _p_lastValidValue = _lastValidValue;
+        _p_state = _state;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -528,12 +522,8 @@ public sealed class Sma : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _sum = 0;
-        _p_sum = 0;
-        _p_lastInput = 0;
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
-        _tickCount = 0;
+        _state = default;
+        _p_state = default;
         Last = default;
     }
 }

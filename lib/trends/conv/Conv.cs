@@ -25,10 +25,9 @@ public sealed class Conv : ITValuePublisher
     private readonly double[] _kernel;
     private readonly RingBuffer _buffer;
 
-    private double _lastValidValue;
-
-    // State for bar correction
-    private double _p_lastValidValue;
+    private record struct State(double LastValidValue);
+    private State _state;
+    private State _p_state;
 
     public string Name { get; }
     public TValue Last { get; private set; }
@@ -45,8 +44,8 @@ public sealed class Conv : ITValuePublisher
         Array.Copy(kernel, _kernel, _period);
         _buffer = new RingBuffer(_period);
         Name = $"Conv({_period})";
-        _lastValidValue = double.NaN;
-        _p_lastValidValue = double.NaN;
+        _state.LastValidValue = double.NaN;
+        _p_state.LastValidValue = double.NaN;
     }
 
     public Conv(ITValuePublisher source, double[] kernel) : this(kernel)
@@ -59,10 +58,10 @@ public sealed class Conv : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue = input;
+            _state.LastValidValue = input;
             return input;
         }
-        return _lastValidValue;
+        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -70,11 +69,11 @@ public sealed class Conv : ITValuePublisher
     {
         if (isNew)
         {
-            _p_lastValidValue = _lastValidValue;
+            _p_state = _state;
         }
         else
         {
-            _lastValidValue = _p_lastValidValue;
+            _state = _p_state;
         }
 
         double val = GetValidValue(input.Value);
@@ -145,14 +144,14 @@ public sealed class Conv : ITValuePublisher
             {
                 if (double.IsFinite(sourceValues[i]))
                 {
-                    _lastValidValue = sourceValues[i];
+                    _state.LastValidValue = sourceValues[i];
                     break;
                 }
             }
         }
         else
         {
-            _lastValidValue = double.NaN;
+            _state.LastValidValue = double.NaN;
         }
 
         _buffer.Clear();
@@ -168,7 +167,7 @@ public sealed class Conv : ITValuePublisher
         Last = new TValue(source.Times[len - 1], vSpan[len - 1]);
 
         // Save state for isNew=false
-        _p_lastValidValue = _lastValidValue;
+        _p_state = _state;
 
         return new TSeries(t, v);
     }
@@ -241,8 +240,8 @@ public sealed class Conv : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _lastValidValue = double.NaN;
-        _p_lastValidValue = double.NaN;
+        _state.LastValidValue = double.NaN;
+        _p_state.LastValidValue = double.NaN;
         Last = default;
     }
 }

@@ -24,12 +24,10 @@ public sealed class Kama : ITValuePublisher
     private readonly double _fastAlpha;
     private readonly double _slowAlpha;
     private readonly RingBuffer _buffer;
-    private double _kama;
-    private double _p_kama;
-    private double _volatilitySum;
-    private double _p_volatilitySum;
-    private double _lastDiffOut;
-    private double _lastValidValue;
+
+    private record struct State(double Kama, double VolatilitySum, double NextDiffOut, double LastValidValue);
+    private State _state;
+    private State _p_state;
 
     /// <summary>
     /// Display name for the indicator.
@@ -74,8 +72,10 @@ public sealed class Kama : ITValuePublisher
         _slowAlpha = 2.0 / (slowPeriod + 1);
 
         Name = $"Kama({period}, {fastPeriod}, {slowPeriod})";
-        _kama = double.NaN;
-        _lastValidValue = double.NaN;
+        _state.Kama = double.NaN;
+        _state.LastValidValue = double.NaN;
+        _p_state.Kama = double.NaN;
+        _p_state.LastValidValue = double.NaN;
     }
 
     public Kama(ITValuePublisher source, int period = 10, int fastPeriod = 2, int slowPeriod = 30)
@@ -89,15 +89,24 @@ public sealed class Kama : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue = input;
+            _state.LastValidValue = input;
             return input;
         }
-        return _lastValidValue;
+        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
         double val = GetValidValue(input.Value);
         if (double.IsNaN(val))
         {
@@ -108,55 +117,58 @@ public sealed class Kama : ITValuePublisher
 
         if (isNew)
         {
-            _p_kama = _kama;
-            _p_volatilitySum = _volatilitySum;
-
             bool wasFull = _buffer.IsFull;
-            double removed = _buffer.Add(val);
+            _buffer.Add(val);
 
             if (wasFull)
             {
-                double diff_out = Math.Abs(removed - _buffer[0]);
-                _lastDiffOut = diff_out;
-
+                double diff_out = _p_state.NextDiffOut;
                 double diff_in = Math.Abs(_buffer[^1] - _buffer[^2]);
-                _volatilitySum += diff_in - diff_out;
+                _state.VolatilitySum += diff_in - diff_out;
+                
+                // Calculate NextDiffOut for the next step
+                // NextDiffOut = abs(buffer[0] - buffer[1])
+                _state.NextDiffOut = Math.Abs(_buffer[0] - _buffer[1]);
             }
             else if (_buffer.Count >= 2)
             {
                 double diff_in = Math.Abs(_buffer[^1] - _buffer[^2]);
-                _volatilitySum += diff_in;
-                _lastDiffOut = 0;
+                _state.VolatilitySum += diff_in;
+                
+                if (_buffer.IsFull)
+                {
+                     // Buffer just became full.
+                     // NextDiffOut = abs(buffer[0] - buffer[1])
+                     _state.NextDiffOut = Math.Abs(_buffer[0] - _buffer[1]);
+                }
             }
         }
         else
         {
-            // Restore state
-            _kama = _p_kama;
             _buffer.UpdateNewest(val);
 
             if (_buffer.IsFull)
             {
                 double diff_in = Math.Abs(_buffer[^1] - _buffer[^2]);
-                _volatilitySum = _p_volatilitySum + diff_in - _lastDiffOut;
+                // Use NextDiffOut from _p_state (which is the correct DiffOut for this transition)
+                _state.VolatilitySum = _p_state.VolatilitySum + diff_in - _p_state.NextDiffOut;
             }
             else if (_buffer.Count >= 2)
             {
                 double diff_in = Math.Abs(_buffer[^1] - _buffer[^2]);
-                _volatilitySum = _p_volatilitySum + diff_in;
+                _state.VolatilitySum = _p_state.VolatilitySum + diff_in;
             }
         }
 
         // Calculate KAMA
-        if (double.IsNaN(_kama))
+        if (double.IsNaN(_state.Kama))
         {
-            _kama = val;
-            _p_kama = val; // Ensure p_kama is initialized
+            _state.Kama = val;
         }
         else
         {
             double change = Math.Abs(_buffer[^1] - _buffer[0]);
-            double volatility = _volatilitySum;
+            double volatility = _state.VolatilitySum;
 
             // Avoid division by zero
             double er = (volatility > double.Epsilon) ? change / volatility : 0.0;
@@ -166,10 +178,16 @@ public sealed class Kama : ITValuePublisher
             double sc = er * (_fastAlpha - _slowAlpha) + _slowAlpha;
             sc *= sc;
 
-            _kama = _p_kama + sc * (val - _p_kama);
+            double prevKama = _p_state.Kama;
+            if (double.IsNaN(prevKama))
+            {
+                 prevKama = _state.Kama;
+            }
+
+            _state.Kama = prevKama + sc * (val - prevKama);
         }
 
-        Last = new TValue(input.Time, _kama);
+        Last = new TValue(input.Time, _state.Kama);
         Pub?.Invoke(Last);
         return Last;
     }
@@ -290,7 +308,6 @@ public sealed class Kama : ITValuePublisher
                 double change = 0;
                 change = (count == bufSize) ? Math.Abs(val - buffer[bufferIdx]) : Math.Abs(val - buffer[0]);
 
-
                 double er = (volatilitySum > double.Epsilon) ? change / volatilitySum : 0.0;
                 if (er > 1.0) er = 1.0;
 
@@ -306,12 +323,10 @@ public sealed class Kama : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _kama = double.NaN;
-        _p_kama = double.NaN;
-        _volatilitySum = 0;
-        _p_volatilitySum = 0;
-        _lastDiffOut = 0;
-        _lastValidValue = double.NaN;
+        _state = default;
+        _state.Kama = double.NaN;
+        _state.LastValidValue = double.NaN;
+        _p_state = _state;
         Last = default;
     }
 }

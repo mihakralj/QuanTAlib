@@ -31,18 +31,19 @@ public sealed class Trima : ITValuePublisher
     private readonly RingBuffer _buffer1;
     private readonly RingBuffer _buffer2;
 
-    private double _sum1, _p_sum1, _p_lastInput1, _lastValidValue1, _p_lastValidValue1;
-    private int _tickCount1;
+    private record struct State(
+        double Sum1, double LastInput1, double LastValidValue1, int TickCount1, double NextRemoved1,
+        double Sum2, double LastInput2, int TickCount2, double NextRemoved2,
+        int SampleCount
+    );
+    private State _state;
+    private State _p_state;
 
-    private double _sum2, _p_sum2, _p_lastInput2;
-    private int _tickCount2;
-
-    private int _sampleCount;
     private const int ResyncInterval = 1000;
 
     public string Name { get; }
     public TValue Last { get; private set; }
-    public bool IsHot => _sampleCount >= _period;
+    public bool IsHot => _state.SampleCount >= _period;
     public event Action<TValue>? Pub;
 
     public Trima(int period)
@@ -69,10 +70,10 @@ public sealed class Trima : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue1 = input;
+            _state.LastValidValue1 = input;
             return input;
         }
-        return _lastValidValue1;
+        return _state.LastValidValue1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,61 +81,72 @@ public sealed class Trima : ITValuePublisher
     {
         if (isNew)
         {
-            _sampleCount++;
-
-            // SMA 1
-            double val1 = GetValidValue(input.Value);
-            double removed1 = _buffer1.Count == _buffer1.Capacity ? _buffer1.Oldest : 0.0;
-            _sum1 = _sum1 - removed1 + val1;
-            _buffer1.Add(val1);
-
-            _tickCount1++;
-            if (_buffer1.IsFull && _tickCount1 >= ResyncInterval)
-            {
-                _tickCount1 = 0;
-                _sum1 = _buffer1.Sum();
-            }
-
-            _p_sum1 = _sum1;
-            _p_lastInput1 = val1;
-            _p_lastValidValue1 = _lastValidValue1;
-
-            double sma1Result = _sum1 / _buffer1.Count;
-
-            // SMA 2
-            double removed2 = _buffer2.Count == _buffer2.Capacity ? _buffer2.Oldest : 0.0;
-            _sum2 = _sum2 - removed2 + sma1Result;
-            _buffer2.Add(sma1Result);
-
-            _tickCount2++;
-            if (_buffer2.IsFull && _tickCount2 >= ResyncInterval)
-            {
-                _tickCount2 = 0;
-                _sum2 = _buffer2.Sum();
-            }
-
-            _p_sum2 = _sum2;
-            _p_lastInput2 = sma1Result;
-
-            Last = new TValue(input.Time, _sum2 / _buffer2.Count);
+            _p_state = _state;
+            _state.SampleCount++;
         }
         else
         {
-            // SMA 1 Correction
-            _lastValidValue1 = _p_lastValidValue1;
-            double val1 = GetValidValue(input.Value);
-            _sum1 = _p_sum1 - _p_lastInput1 + val1;
-            _buffer1.UpdateNewest(val1);
-            
-            double sma1Result = _sum1 / _buffer1.Count;
-
-            // SMA 2 Correction
-            _sum2 = _p_sum2 - _p_lastInput2 + sma1Result;
-            _buffer2.UpdateNewest(sma1Result);
-
-            Last = new TValue(input.Time, _sum2 / _buffer2.Count);
+            _state = _p_state;
         }
 
+        // SMA 1
+        double val1 = GetValidValue(input.Value);
+        
+        if (isNew)
+        {
+            double removed1 = _buffer1.Count == _buffer1.Capacity ? _buffer1.Oldest : 0.0;
+            _state.Sum1 = _state.Sum1 - removed1 + val1;
+            _buffer1.Add(val1);
+            
+            // Store NextRemoved1 for next step
+            _state.NextRemoved1 = _buffer1.Count == _buffer1.Capacity ? _buffer1.Oldest : 0.0;
+
+            _state.TickCount1++;
+            if (_buffer1.IsFull && _state.TickCount1 >= ResyncInterval)
+            {
+                _state.TickCount1 = 0;
+                _state.Sum1 = _buffer1.Sum();
+            }
+        }
+        else
+        {
+            // Use NextRemoved1 from _p_state
+            double removed1 = _p_state.NextRemoved1;
+            _state.Sum1 = _p_state.Sum1 - removed1 + val1;
+            _buffer1.UpdateNewest(val1);
+        }
+        
+        _state.LastInput1 = val1;
+        double sma1Result = _state.Sum1 / _buffer1.Count;
+
+        // SMA 2
+        if (isNew)
+        {
+            double removed2 = _buffer2.Count == _buffer2.Capacity ? _buffer2.Oldest : 0.0;
+            _state.Sum2 = _state.Sum2 - removed2 + sma1Result;
+            _buffer2.Add(sma1Result);
+            
+            // Store NextRemoved2 for next step
+            _state.NextRemoved2 = _buffer2.Count == _buffer2.Capacity ? _buffer2.Oldest : 0.0;
+
+            _state.TickCount2++;
+            if (_buffer2.IsFull && _state.TickCount2 >= ResyncInterval)
+            {
+                _state.TickCount2 = 0;
+                _state.Sum2 = _buffer2.Sum();
+            }
+        }
+        else
+        {
+            // Use NextRemoved2 from _p_state
+            double removed2 = _p_state.NextRemoved2;
+            _state.Sum2 = _p_state.Sum2 - removed2 + sma1Result;
+            _buffer2.UpdateNewest(sma1Result);
+        }
+
+        _state.LastInput2 = sma1Result;
+
+        Last = new TValue(input.Time, _state.Sum2 / _buffer2.Count);
         Pub?.Invoke(Last);
         return Last;
     }
@@ -203,14 +215,8 @@ public sealed class Trima : ITValuePublisher
     {
         _buffer1.Clear();
         _buffer2.Clear();
-        
-        _sum1 = _p_sum1 = _p_lastInput1 = _lastValidValue1 = _p_lastValidValue1 = 0;
-        _tickCount1 = 0;
-
-        _sum2 = _p_sum2 = _p_lastInput2 = 0;
-        _tickCount2 = 0;
-
-        _sampleCount = 0;
+        _state = default;
+        _p_state = default;
         Last = default;
     }
 }

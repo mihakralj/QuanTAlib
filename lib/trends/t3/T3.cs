@@ -26,27 +26,9 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class T3 : ITValuePublisher
 {
-    private struct State : IEquatable<State>
+    private record struct State(double E1, double E2, double E3, double E4, double E5, double E6, bool IsInitialized)
     {
-        public double E1, E2, E3, E4, E5, E6;
-        public bool IsInitialized;
-
         public static State New() => new() { IsInitialized = false };
-
-        public override bool Equals(object? obj) => obj is State other && Equals(other);
-
-#pragma warning disable S1244 // Do not check floating point equality with exact values
-        public bool Equals(State other) =>
-            E1 == other.E1 && E2 == other.E2 && E3 == other.E3 &&
-            E4 == other.E4 && E5 == other.E5 && E6 == other.E6 &&
-            IsInitialized == other.IsInitialized;
-#pragma warning restore S1244 // Do not check floating point equality with exact values
-
-        public override int GetHashCode() => HashCode.Combine(E1, E2, E3, E4, E5, E6, IsInitialized);
-
-        public static bool operator ==(State left, State right) => left.Equals(right);
-
-        public static bool operator !=(State left, State right) => !left.Equals(right);
     }
 
     private readonly struct Parameters : IEquatable<Parameters>

@@ -12,25 +12,18 @@ public sealed class Mama : ITValuePublisher
 {
     public TValue Last { get; private set; }
     public TValue Fama { get; private set; }
-    public bool IsHot => _index > 6;
+    public bool IsHot => _state.Index > 6;
     public event Action<TValue>? Pub;
 
     private readonly double _fastLimit;
     private readonly double _slowLimit;
 
-    private double _period, _p_period;
-    private double _phase, _p_phase;
-    private double _mama, _p_mama;
-    private double _fama, _p_fama;
-    private double _sumPr, _p_sumPr;
-    private int _index;
-
-    // State variables for IIR filters need to be preserved
-    private double _i2, _p_i2;
-    private double _q2, _p_q2;
-    private double _re, _p_re;
-    private double _im, _p_im;
-    private double _lastValidPrice;
+    private record struct State(
+        double Period, double Phase, double Mama, double Fama, double SumPr,
+        double I2, double Q2, double Re, double Im, double LastValidPrice, int Index
+    );
+    private State _state;
+    private State _p_state;
 
     private readonly RingBuffer _priceBuffer;
     private readonly RingBuffer _smoothBuffer;
@@ -69,18 +62,10 @@ public sealed class Mama : ITValuePublisher
 
     public void Init()
     {
-        _period = _p_period = 0.0;
-        _phase = _p_phase = 0.0;
-        _mama = _p_mama = double.NaN;
-        _fama = _p_fama = double.NaN;
-        _sumPr = _p_sumPr = 0.0;
-        _index = 0;
-
-        _i2 = _p_i2 = 0.0;
-        _q2 = _p_q2 = 0.0;
-        _re = _p_re = 0.0;
-        _im = _p_im = 0.0;
-        _lastValidPrice = 0.0;
+        _state = default;
+        _state.Mama = double.NaN;
+        _state.Fama = double.NaN;
+        _p_state = _state;
 
         _priceBuffer.Clear();
         _smoothBuffer.Clear();
@@ -97,45 +82,29 @@ public sealed class Mama : ITValuePublisher
     {
         if (isNew)
         {
-            _p_period = _period;
-            _p_phase = _phase;
-            _p_mama = _mama;
-            _p_fama = _fama;
-            _p_sumPr = _sumPr;
-            _p_i2 = _i2;
-            _p_q2 = _q2;
-            _p_re = _re;
-            _p_im = _im;
-            _index++;
+            _p_state = _state;
+            _state.Index++;
         }
         else
         {
-            _period = _p_period;
-            _phase = _p_phase;
-            _mama = _p_mama;
-            _fama = _p_fama;
-            _sumPr = _p_sumPr;
-            _i2 = _p_i2;
-            _q2 = _p_q2;
-            _re = _p_re;
-            _im = _p_im;
+            _state = _p_state;
         }
 
         double price = input.Value;
         if (!double.IsFinite(price))
         {
-            price = _lastValidPrice;
+            price = _state.LastValidPrice;
         }
         else
         {
-            _lastValidPrice = price;
+            _state.LastValidPrice = price;
         }
 
         _priceBuffer.Add(price, isNew);
 
-        if (_index > 6)
+        if (_state.Index > 6)
         {
-            double adj = (0.075 * _period) + 0.54;
+            double adj = (0.075 * _state.Period) + 0.54;
 
             // Smooth
             double smooth = (4.0 * _priceBuffer[0] + 3.0 * _priceBuffer[1] + 2.0 * _priceBuffer[2] + _priceBuffer[3]) * 0.1;
@@ -164,50 +133,50 @@ public sealed class Mama : ITValuePublisher
             double q2_val = q1 + jI;
 
             // Smooth i2, q2
-            _i2 = 0.2 * i2_val + 0.8 * _p_i2;
-            _q2 = 0.2 * q2_val + 0.8 * _p_q2;
+            _state.I2 = 0.2 * i2_val + 0.8 * _p_state.I2;
+            _state.Q2 = 0.2 * q2_val + 0.8 * _p_state.Q2;
 
             // Homodyne discriminator
-            double re_val = (_i2 * _p_i2) + (_q2 * _p_q2);
-            double im_val = (_i2 * _p_q2) - (_q2 * _p_i2);
+            double re_val = (_state.I2 * _p_state.I2) + (_state.Q2 * _p_state.Q2);
+            double im_val = (_state.I2 * _p_state.Q2) - (_state.Q2 * _p_state.I2);
 
             // Smooth re, im
-            _re = 0.2 * re_val + 0.8 * _p_re;
-            _im = 0.2 * im_val + 0.8 * _p_im;
+            _state.Re = 0.2 * re_val + 0.8 * _p_state.Re;
+            _state.Im = 0.2 * im_val + 0.8 * _p_state.Im;
 
             // Calculate Period
-            double period = (Math.Abs(_im) > double.Epsilon && Math.Abs(_re) > double.Epsilon)
-                ? TWOPI / Math.Atan(_im / _re)
+            double period = (Math.Abs(_state.Im) > double.Epsilon && Math.Abs(_state.Re) > double.Epsilon)
+                ? TWOPI / Math.Atan(_state.Im / _state.Re)
                 : 0.0;
 
             // Adjust Period
-            period = period > 1.5 * _p_period ? 1.5 * _p_period : period;
-            period = period < 0.67 * _p_period ? 0.67 * _p_period : period;
+            period = period > 1.5 * _p_state.Period ? 1.5 * _p_state.Period : period;
+            period = period < 0.67 * _p_state.Period ? 0.67 * _p_state.Period : period;
             period = period < 6.0 ? 6.0 : period;
             period = period > 50.0 ? 50.0 : period;
 
             // Smooth Period
-            _period = 0.2 * period + 0.8 * _p_period;
+            _state.Period = 0.2 * period + 0.8 * _p_state.Period;
 
             // Phase calculation
-            _phase = Math.Abs(i1) >= double.Epsilon ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
+            _state.Phase = Math.Abs(i1) >= double.Epsilon ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
 
             // Adaptive alpha
-            double delta = Math.Max(_p_phase - _phase, 1.0);
+            double delta = Math.Max(_p_state.Phase - _state.Phase, 1.0);
             double alpha = _fastLimit / delta;
             alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
 
             // Final indicators
-            _mama = alpha * _priceBuffer[0] + (1.0 - alpha) * _p_mama;
-            _fama = 0.5 * alpha * _mama + (1.0 - 0.5 * alpha) * _p_fama;
+            _state.Mama = alpha * _priceBuffer[0] + (1.0 - alpha) * _p_state.Mama;
+            _state.Fama = 0.5 * alpha * _state.Mama + (1.0 - 0.5 * alpha) * _p_state.Fama;
         }
         else
         {
             // Initialization phase
-            _sumPr += price;
-            double avg = _index > 0 ? _sumPr / _index : price;
-            _mama = avg;
-            _fama = avg;
+            _state.SumPr += price;
+            double avg = _state.Index > 0 ? _state.SumPr / _state.Index : price;
+            _state.Mama = avg;
+            _state.Fama = avg;
             
             // Initialize buffers with 0
             _smoothBuffer.Add(0, isNew);
@@ -216,8 +185,8 @@ public sealed class Mama : ITValuePublisher
             _Q1_buffer.Add(0, isNew);
         }
 
-        Last = new TValue(input.Time, _mama);
-        Fama = new TValue(input.Time, _fama);
+        Last = new TValue(input.Time, _state.Mama);
+        Fama = new TValue(input.Time, _state.Fama);
         Pub?.Invoke(Last);
         return Last;
     }

@@ -32,10 +32,10 @@ public sealed class Wma : ITValuePublisher
     private readonly double _divisor;
     private readonly RingBuffer _buffer;
 
-    private double _sum, _wsum;
-    private double _p_sum, _p_wsum, _p_lastInput;
-    private double _lastValidValue, _p_lastValidValue;
-    private int _tickCount;
+    private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount);
+    private State _state;
+    private State _p_state;
+
     private const int ResyncInterval = 1000;
 
     public string Name { get; }
@@ -63,10 +63,10 @@ public sealed class Wma : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue = input;
+            _state.LastValidValue = input;
             return input;
         }
-        return _lastValidValue;
+        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,24 +74,24 @@ public sealed class Wma : ITValuePublisher
     {
         if (_buffer.IsFull)
         {
-            double oldSum = _sum;
+            double oldSum = _state.Sum;
             double oldest = _buffer.Oldest;
-            _sum = _sum - oldest + val;
-            _wsum = _wsum - oldSum + (_period * val);
+            _state.Sum = _state.Sum - oldest + val;
+            _state.WSum = _state.WSum - oldSum + (_period * val);
         }
         else
         {
             int count = _buffer.Count + 1;
-            _sum += val;
-            _wsum += count * val;
+            _state.Sum += val;
+            _state.WSum += count * val;
         }
 
         _buffer.Add(val);
 
-        _tickCount++;
-        if (_buffer.IsFull && _tickCount >= ResyncInterval)
+        _state.TickCount++;
+        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
         {
-            _tickCount = 0;
+            _state.TickCount = 0;
             double recalcSum = 0;
             double recalcWsum = 0;
             int weight = 1;
@@ -101,8 +101,8 @@ public sealed class Wma : ITValuePublisher
                 recalcWsum += weight * item;
                 weight++;
             }
-            _sum = recalcSum;
-            _wsum = recalcWsum;
+            _state.Sum = recalcSum;
+            _state.WSum = recalcWsum;
         }
     }
 
@@ -113,29 +113,24 @@ public sealed class Wma : ITValuePublisher
         {
             double val = GetValidValue(input.Value);
             UpdateState(val);
+            _state.LastInput = val;
 
-            _p_sum = _sum;
-            _p_wsum = _wsum;
-            _p_lastInput = val;
-            _p_lastValidValue = _lastValidValue;
+            _p_state = _state;
         }
         else
         {
-            _lastValidValue = _p_lastValidValue;
+            _state = _p_state;
             double val = GetValidValue(input.Value);
 
-            _sum = _p_sum;
-            _wsum = _p_wsum;
-
             int weight = _buffer.IsFull ? _period : _buffer.Count;
-            _sum = _sum - _p_lastInput + val;
-            _wsum += weight * (val - _p_lastInput);
+            _state.Sum = _state.Sum - _state.LastInput + val;
+            _state.WSum += weight * (val - _state.LastInput);
 
             _buffer.UpdateNewest(val);
         }
 
         double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * 0.5;
-        Last = new TValue(input.Time, _wsum / currentDivisor);
+        Last = new TValue(input.Time, _state.WSum / currentDivisor);
         Pub?.Invoke(Last);
         return Last;
     }
@@ -162,35 +157,34 @@ public sealed class Wma : ITValuePublisher
 
         if (startIndex > 0)
         {
+            _state.LastValidValue = 0;
             for (int i = startIndex - 1; i >= 0; i--)
             {
                 if (double.IsFinite(source.Values[i]))
                 {
-                    _lastValidValue = source.Values[i];
+                    _state.LastValidValue = source.Values[i];
                     break;
                 }
             }
         }
         else
         {
-            _lastValidValue = 0;
+            _state.LastValidValue = 0;
         }
 
         _buffer.Clear();
-        _sum = 0;
-        _wsum = 0;
-        _tickCount = 0;
+        _state.Sum = 0;
+        _state.WSum = 0;
+        _state.TickCount = 0;
 
         for (int i = startIndex; i < len; i++)
         {
             double val = GetValidValue(source.Values[i]);
             UpdateState(val);
+            _state.LastInput = val;
         }
 
-        _p_sum = _sum;
-        _p_wsum = _wsum;
-        _p_lastInput = GetValidValue(source.Values[len - 1]);
-        _p_lastValidValue = _lastValidValue;
+        _p_state = _state;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -754,7 +748,8 @@ public sealed class Wma : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _sum = _wsum = _p_sum = _p_wsum = _p_lastInput = _lastValidValue = _p_lastValidValue = 0;
+        _state = default;
+        _p_state = default;
         Last = default;
     }
 }

@@ -31,7 +31,10 @@ public sealed class Alma : ITValuePublisher
     private readonly double[] _weights;
     private readonly double _weightSum;
     private readonly RingBuffer _buffer;
-    private double _lastValidValue;
+
+    private record struct State(double LastValidValue);
+    private State _state;
+    private State _p_state;
 
     /// <summary>
     /// Display name for the indicator.
@@ -99,15 +102,24 @@ public sealed class Alma : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue = input;
+            _state.LastValidValue = input;
             return input;
         }
-        return _lastValidValue;
+        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
         double val = GetValidValue(input.Value);
         _buffer.Add(val, isNew);
 
@@ -140,7 +152,7 @@ public sealed class Alma : ITValuePublisher
 
         // Restore state
         _buffer.Clear();
-        _lastValidValue = 0;
+        _state = default;
         
         // Replay last part to restore buffer state
         int startIndex = Math.Max(0, len - _period);
@@ -301,7 +313,8 @@ public sealed class Alma : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _lastValidValue = 0;
+        _state = default;
+        _p_state = default;
         Last = default;
     }
 }

@@ -65,9 +65,10 @@ public TValue Update(TValue input, bool isNew = true)
 
 ### State Management
 
-* Use `RingBuffer` for sliding windows.
-* Maintain `_state` and `_p_state` (previous state) variables to support `isNew=false` rollbacks.
-* **Resync**: Periodically recalculate running sums to prevent floating-point drift.
+* **Scalar State:** Use a `private record struct State` to group all scalar state variables. This ensures value semantics, automatic `IEquatable` implementation, and cleaner rollback logic.
+* **State Variables:** Maintain `private State _state;` (current) and `private State _p_state;` (previous valid state).
+* **Buffers:** Use `RingBuffer` for sliding windows.
+* **Resync:** Periodically recalculate running sums to prevent floating-point drift.
 
 ### Dual API Requirement
 

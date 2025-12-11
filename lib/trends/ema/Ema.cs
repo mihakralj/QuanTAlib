@@ -27,28 +27,9 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Ema : ITValuePublisher
 {
-    private struct State : IEquatable<State>
+    private record struct State(double Ema, double E, bool IsHot, bool IsCompensated)
     {
-        public double Ema;
-        public double E;
-        public bool IsHot;
-        public bool IsCompensated;
-
         public static State New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
-
-        public override bool Equals(object? obj) => obj is State other && Equals(other);
-
-        public bool Equals(State other) =>
-            Ema == other.Ema &&
-            E == other.E &&
-            IsHot == other.IsHot &&
-            IsCompensated == other.IsCompensated;
-
-        public override int GetHashCode() => HashCode.Combine(Ema, E, IsHot, IsCompensated);
-
-        public static bool operator ==(State left, State right) => left.Equals(right);
-
-        public static bool operator !=(State left, State right) => !left.Equals(right);
     }
 
     private readonly double _alpha;

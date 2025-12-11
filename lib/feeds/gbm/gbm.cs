@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 namespace QuanTAlib;
 
@@ -13,7 +14,7 @@ namespace QuanTAlib;
 public class GBM : IFeed
 #pragma warning restore S101
 {
-    private readonly Random _rnd;
+    private readonly Random? _rnd;
 
     private double _lastPrice;
     private long _lastTime;
@@ -52,7 +53,7 @@ public class GBM : IFeed
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(startPrice);
         ArgumentOutOfRangeException.ThrowIfNegative(sigma);
 
-        _rnd = seed.HasValue ? new Random(seed.Value) : new Random();
+        _rnd = seed.HasValue ? new Random(seed.Value) : null;
         _lastPrice = startPrice;
         _lastTime = DateTime.UtcNow.Ticks;
 
@@ -72,6 +73,23 @@ public class GBM : IFeed
     }
 
     /// <summary>
+    /// Generates a random double in [0, 1) using either the seeded Random or RandomNumberGenerator.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double NextDouble()
+    {
+        if (_rnd != null)
+        {
+            return _rnd.NextDouble();
+        }
+
+        Span<byte> buffer = stackalloc byte[8];
+        RandomNumberGenerator.Fill(buffer);
+        ulong ul = BitConverter.ToUInt64(buffer);
+        return (ul >> 11) * (1.0 / (1ul << 53));
+    }
+
+    /// <summary>
     /// Generates next standard normal using Box-Muller transform with caching.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,8 +101,8 @@ public class GBM : IFeed
             return _cachedZ;
         }
 
-        double u1 = 1.0 - _rnd.NextDouble(); // nosemgrep
-        double u2 = 1.0 - _rnd.NextDouble(); // nosemgrep
+        double u1 = 1.0 - NextDouble();
+        double u2 = 1.0 - NextDouble();
         double mag = Math.Sqrt(-2.0 * Math.Log(u1));
         double angle = 2.0 * Math.PI * u2;
 
@@ -110,12 +128,12 @@ public class GBM : IFeed
 
             double z = NextNormal();
             double price = _lastPrice * Math.Exp(_drift + _vol * z);
-            double volume = 1000 + _rnd.NextDouble() * 1000;
+            double volume = 1000 + NextDouble() * 1000;
 
             double open = _lastPrice;
             double close = price;
-            double high = Math.Max(open, close) * (1.0 + _rnd.NextDouble() * 0.01);
-            double low = Math.Min(open, close) * (1.0 - _rnd.NextDouble() * 0.01);
+            double high = Math.Max(open, close) * (1.0 + NextDouble() * 0.01);
+            double low = Math.Min(open, close) * (1.0 - NextDouble() * 0.01);
 
             _currentBar = new TBar(currentTime, open, high, low, close, volume);
             _hasCurrentBar = true;
@@ -128,7 +146,7 @@ public class GBM : IFeed
             // Update current bar (intra-bar tick)
             double z = NextNormal();
             double price = _lastPrice * Math.Exp(_drift + _vol * z);
-            double additionalVolume = 1000 + _rnd.NextDouble() * 1000;
+            double additionalVolume = 1000 + NextDouble() * 1000;
 
             var bar = _currentBar;
             double newClose = price;
@@ -190,9 +208,9 @@ public class GBM : IFeed
             double open = currentPrice;
             double close = price;
 
-            double rnd1 = _rnd.NextDouble();
-            double rnd2 = _rnd.NextDouble();
-            double rnd3 = _rnd.NextDouble();
+            double rnd1 = NextDouble();
+            double rnd2 = NextDouble();
+            double rnd3 = NextDouble();
 
             t[i] = currentTime;
             o[i] = open;

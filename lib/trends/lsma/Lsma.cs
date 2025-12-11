@@ -34,15 +34,10 @@ public sealed class Lsma : ITValuePublisher
     private readonly double _sum_x;
     private readonly double _denominator;
 
-    private double _sum_y;
-    private double _sum_xy;
+    private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
+    private State _state;
+    private State _p_state;
     
-    private double _p_sum_y;
-    private double _p_sum_xy;
-    private double _p_last_val;
-    
-    private double _lastValidValue;
-    private double _p_lastValidValue;
     private int _tickCount;
 
     private const int ResyncInterval = 1000;
@@ -100,10 +95,10 @@ public sealed class Lsma : ITValuePublisher
     {
         if (double.IsFinite(input))
         {
-            _lastValidValue = input;
+            _state.LastValidValue = input;
             return input;
         }
-        return _lastValidValue;
+        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -112,24 +107,24 @@ public sealed class Lsma : ITValuePublisher
         if (_buffer.IsFull)
         {
             double oldest = _buffer.Oldest;
-            double prev_sum_y = _sum_y;
+            double prev_sum_y = _state.SumY;
             
             // O(1) update for sum_xy
             // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
-            _sum_xy = _sum_xy + prev_sum_y - _period * oldest;
+            _state.SumXY = _state.SumXY + prev_sum_y - _period * oldest;
             
             // O(1) update for sum_y
-            _sum_y = _sum_y - oldest + val;
+            _state.SumY = _state.SumY - oldest + val;
             
             _buffer.Add(val);
         }
         else
         {
             _buffer.Add(val);
-            _sum_y += val;
+            _state.SumY += val;
             
             // Recalculate sum_xy from scratch during warmup
-            _sum_xy = 0;
+            _state.SumXY = 0;
             var span = _buffer.GetSpan();
             for (int i = 0; i < span.Length; i++)
             {
@@ -138,7 +133,7 @@ public sealed class Lsma : ITValuePublisher
                 // index j in buffer corresponds to x = count - 1 - j
                 // sum_xy = sum(x * y)
                 int x = span.Length - 1 - i;
-                _sum_xy += x * span[i];
+                _state.SumXY += x * span[i];
             }
         }
 
@@ -152,13 +147,13 @@ public sealed class Lsma : ITValuePublisher
 
     private void Resync()
     {
-        _sum_y = _buffer.Sum;
-        _sum_xy = 0;
+        _state.SumY = _buffer.Sum;
+        _state.SumXY = 0;
         var span = _buffer.GetSpan();
         for (int i = 0; i < span.Length; i++)
         {
             int x = span.Length - 1 - i;
-            _sum_xy += x * span[i];
+            _state.SumXY += x * span[i];
         }
     }
 
@@ -170,25 +165,23 @@ public sealed class Lsma : ITValuePublisher
             double val = GetValidValue(input.Value);
             UpdateState(val);
 
-            _p_sum_y = _sum_y;
-            _p_sum_xy = _sum_xy;
-            _p_last_val = val;
-            _p_lastValidValue = _lastValidValue;
+            _p_state = _state;
+            _state.LastVal = val;
         }
         else
         {
-            _lastValidValue = _p_lastValidValue;
+            _state.LastValidValue = _p_state.LastValidValue;
             double val = GetValidValue(input.Value);
 
             // For isNew=false, we update the current bar.
             // sum_xy remains constant because it depends on the previous window state which hasn't changed.
             // sum_y updates to reflect the change in the newest value.
             
-            _sum_y = _p_sum_y - _p_last_val + val;
-            _sum_xy = _p_sum_xy; // Restore sum_xy to the state after the shift
+            _state.SumY = _p_state.SumY - _p_state.LastVal + val;
+            _state.SumXY = _p_state.SumXY; // Restore sum_xy to the state after the shift
             
             _buffer.UpdateNewest(val);
-            _p_last_val = val;
+            _state.LastVal = val;
         }
 
         double result;
@@ -218,8 +211,8 @@ public sealed class Lsma : ITValuePublisher
             }
             else
             {
-                double m = (n * _sum_xy - sx * _sum_y) / denom;
-                double b = (_sum_y - m * sx) / n;
+                double m = (n * _state.SumXY - sx * _state.SumY) / denom;
+                double b = (_state.SumY - m * sx) / n;
                 
                 // LSMA = b - m * offset
                 result = b - m * _offset;
@@ -261,17 +254,17 @@ public sealed class Lsma : ITValuePublisher
             {
                 if (double.IsFinite(source.Values[i]))
                 {
-                    _lastValidValue = source.Values[i];
+                    _state.LastValidValue = source.Values[i];
                     break;
                 }
             }
         }
         else
         {
-            _lastValidValue = 0;
+            _state.LastValidValue = 0;
         }
 
-        double lastProcessedValue = _lastValidValue;
+        double lastProcessedValue = _state.LastValidValue;
         for (int i = startIndex; i < len; i++)
         {
             double val = GetValidValue(source.Values[i]);
@@ -279,10 +272,8 @@ public sealed class Lsma : ITValuePublisher
             lastProcessedValue = val;
         }
 
-        _p_sum_y = _sum_y;
-        _p_sum_xy = _sum_xy;
-        _p_last_val = lastProcessedValue;
-        _p_lastValidValue = _lastValidValue;
+        _state.LastVal = lastProcessedValue;
+        _p_state = _state;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -409,14 +400,9 @@ public sealed class Lsma : ITValuePublisher
     public void Reset()
     {
         _buffer.Clear();
-        _sum_y = 0;
-        _sum_xy = 0;
-        _p_sum_y = 0;
-        _p_sum_xy = 0;
-        _p_last_val = 0;
+        _state = default;
+        _p_state = default;
         Last = default;
         _tickCount = 0;
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
     }
 }

@@ -39,8 +39,9 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 
 ### State Management
 
-* Use `RingBuffer` for sliding window data.
-* Maintain separate state variables for the *current* calculation (`_sum`, `_lastVal`) and the *previous* valid state (`_p_sum`, `_p_lastVal`) to support `isNew=false` updates.
+* **Scalar State:** Use a `private record struct State` to group all scalar state variables. This ensures value semantics, automatic `IEquatable` implementation, and cleaner rollback logic.
+* **State Variables:** Maintain `private State _state;` (current) and `private State _p_state;` (previous valid state).
+* **Buffers:** Use `RingBuffer` for sliding window data.
 * **Resync:** Implement a periodic full recalculation (e.g., every 1000 ticks) to prevent floating-point drift in running sums.
 
 ### Constructor
@@ -54,10 +55,17 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 * **Signature:** `public TValue Update(TValue input, bool isNew = true)`
 * **Attribute:** `[MethodImpl(MethodImplOptions.AggressiveInlining)]`
 * **Logic:**
-    1. **Input Validation:** Check `double.IsFinite`. If not, use `_lastValidValue`.
-    2. **State Management:**
-        * If `isNew=true`: Save current state to `_p_*` variables, then update.
-        * If `isNew=false`: Restore state from `_p_*` variables, then update.
+    1. **State Rollback:**
+        ```csharp
+        if (isNew) {
+            _p_state = _state;
+            // ... update state (e.g. counters) ...
+        } else {
+            _state = _p_state;
+            // ... update state ...
+        }
+        ```
+    2. **Input Validation:** Check `double.IsFinite`. If not, use `_lastValidValue` (stored in `State`).
     3. **Calculation:** Perform the math.
     4. **Publish:** Update `Last` property, invoke `Pub` event, return `Last`.
 
@@ -68,7 +76,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 * **Logic:**
     1. Create output series.
     2. Call static `Calculate(Span)` for performance.
-    3. Restore internal state by replaying the last `Period` bars.
+    3. Restore internal state by replaying the last `Period` bars (or full series if recursive).
 
 ### Static Calculate (TSeries)
 

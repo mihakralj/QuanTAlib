@@ -31,12 +31,13 @@ public sealed class Vidya : ITValuePublisher
     private readonly RingBuffer _ups;
     private readonly RingBuffer _downs;
     
-    private double _prevClose;
-    private double _lastVidya;
-    private double _currentClose;
-    private double _currentVidya;
-    private bool _isInitialized;
-    private int _barCount;
+    private record struct State(
+        double PrevClose, double LastVidya, 
+        double CurrentClose, double CurrentVidya, 
+        bool IsInitialized, int BarCount
+    );
+    private State _state;
+    private State _p_state;
 
     /// <summary>
     /// Display name for the indicator.
@@ -78,12 +79,18 @@ public sealed class Vidya : ITValuePublisher
     {
         if (isNew)
         {
-            _barCount++;
-            if (_isInitialized)
-            {
-                _prevClose = _currentClose;
-                _lastVidya = _currentVidya;
-            }
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
+        _state.BarCount++;
+        if (_state.IsInitialized)
+        {
+            _state.PrevClose = _state.CurrentClose;
+            _state.LastVidya = _state.CurrentVidya;
         }
 
         double price = input.Value;
@@ -91,25 +98,25 @@ public sealed class Vidya : ITValuePublisher
         {
             // Handle NaN/Infinity by using the last known valid values
             // If not initialized, we can't do much, just return input
-            if (!_isInitialized) return input;
-            price = _currentClose; // Use last valid close
+            if (!_state.IsInitialized) return input;
+            price = _state.CurrentClose; // Use last valid close
         }
 
-        if (_barCount <= 1)
+        if (_state.BarCount <= 1)
         {
-            _prevClose = price;
-            _lastVidya = price;
-            _currentClose = price;
-            _currentVidya = price;
-            _isInitialized = true;
+            _state.PrevClose = price;
+            _state.LastVidya = price;
+            _state.CurrentClose = price;
+            _state.CurrentVidya = price;
+            _state.IsInitialized = true;
             _ups.Add(0, isNew);
             _downs.Add(0, isNew);
-            Last = new TValue(input.Time, _currentVidya);
+            Last = new TValue(input.Time, _state.CurrentVidya);
             Pub?.Invoke(Last);
             return Last;
         }
 
-        double change = price - _prevClose;
+        double change = price - _state.PrevClose;
         double up = change > 0 ? change : 0;
         double down = change < 0 ? -change : 0;
 
@@ -127,10 +134,10 @@ public sealed class Vidya : ITValuePublisher
         }
 
         double dynamicAlpha = _alpha * vi;
-        _currentVidya = dynamicAlpha * price + (1.0 - dynamicAlpha) * _lastVidya;
-        _currentClose = price;
+        _state.CurrentVidya = dynamicAlpha * price + (1.0 - dynamicAlpha) * _state.LastVidya;
+        _state.CurrentClose = price;
 
-        Last = new TValue(input.Time, _currentVidya);
+        Last = new TValue(input.Time, _state.CurrentVidya);
         Pub?.Invoke(Last);
         return Last;
     }
@@ -150,41 +157,9 @@ public sealed class Vidya : ITValuePublisher
         var sourceValues = source.Values;
         var sourceTimes = source.Times;
 
-        // We can't easily use a static Calculate here because of the complex state (RingBuffers)
-        // So we'll iterate and use the instance Update logic, but optimized for series
-        // Actually, we can implement a static Calculate that uses temporary buffers
-        
         Calculate(sourceValues, vSpan, _period);
 
         sourceTimes.CopyTo(tSpan);
-        
-        // Update internal state to match the end of the series
-        // This is tricky because Calculate is static and doesn't update instance state.
-        // To support "Update(TSeries)", we should probably just run the instance update loop.
-        // But for performance, we want to use the static method if possible.
-        // The standard pattern in this library seems to be:
-        // 1. Call static Calculate to fill the output
-        // 2. Re-run the last N updates on the instance to sync state
-        
-        // Re-sync state
-        // We need to feed at least 'period' bars to fill the buffers
-        // But since VIDYA is recursive, we really need the whole history to match exactly.
-        // So for VIDYA, it's safer to just reset and run the update loop.
-        
-        Reset();
-        for (int i = 0; i < len; i++)
-        {
-            Update(new TValue(sourceTimes[i], sourceValues[i]), true);
-        }
-        
-        // Overwrite the vSpan with the results we just calculated? 
-        // Or just trust the loop we just ran.
-        // Since we ran the loop, 'v' is already populated? No, Update(TValue) updates 'Last', not a list.
-        // So we need to populate 'v'.
-        
-        // Let's do this:
-        // 1. Reset
-        // 2. Loop and populate
         
         Reset();
         for (int i = 0; i < len; i++)
@@ -210,14 +185,6 @@ public sealed class Vidya : ITValuePublisher
 
         double alpha = 2.0 / (period + 1);
         
-        // We need buffers for Up and Down sums
-        // Since we can't allocate RingBuffers on the stack easily for dynamic period,
-        // and we want to avoid heap allocations in the hot path if possible.
-        // But for a static Calculate with a large span, a few allocations are acceptable.
-        // Or we can use a circular buffer logic with a stackalloc array if period is small,
-        // but period can be large.
-        
-        // Let's use a simple array for the circular buffer logic
         double[] ups = new double[period];
         double[] downs = new double[period];
         int head = 0;
@@ -227,10 +194,7 @@ public sealed class Vidya : ITValuePublisher
         double prevClose = source[0];
         double lastVidya = source[0];
         
-        // Initialize first element
         output[0] = source[0];
-        
-        // Fill buffers with 0 initially (already done by new double[])
         
         for (int i = 1; i < source.Length; i++)
         {
@@ -244,7 +208,6 @@ public sealed class Vidya : ITValuePublisher
             double up = change > 0 ? change : 0;
             double down = change < 0 ? -change : 0;
             
-            // Update sums: remove old, add new
             sumUp -= ups[head];
             sumDown -= downs[head];
             
@@ -277,13 +240,8 @@ public sealed class Vidya : ITValuePublisher
     {
         _ups.Clear();
         _downs.Clear();
-        _prevClose = 0;
-        _lastVidya = 0;
-        _currentClose = 0;
-        _currentVidya = 0;
-        _isInitialized = false;
-        _barCount = 0;
-        
+        _state = default;
+        _p_state = default;
         Last = default;
     }
 }
