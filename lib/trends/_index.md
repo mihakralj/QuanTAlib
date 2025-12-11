@@ -47,7 +47,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | QEMA | Quadruple Exponential MA | |
 | REMA | Regularized Exponential MA | |
 | RGMA | Recursive Gaussian MA | |
-| RMA | wildeR MA (SMMA, MMA) | |
+| [RMA](trends/rma/Rma.md) | wildeR MA (SMMA, MMA) | Exponential moving average with alpha = 1/N. |
 | SGF | Savitzky-Golay Filter | |
 | SGMA | Savitzky-Golay MA | |
 | SINEMA | Sine-weighted MA | |
