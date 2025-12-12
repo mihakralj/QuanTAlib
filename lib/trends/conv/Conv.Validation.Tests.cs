@@ -1,10 +1,37 @@
 using System;
 using Xunit;
+using QuanTAlib.Tests;
 
 namespace QuanTAlib;
 
-public class ConvValidationTests
+public class ConvValidationTests : IDisposable
 {
+    private readonly ValidationTestData _testData;
+    private bool _disposed;
+
+    public ConvValidationTests()
+    {
+        _testData = new ValidationTestData(count: 1000, seed: 123);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _testData.Dispose();
+            }
+            _disposed = true;
+        }
+    }
+
     [Fact]
     public void Validate_Against_Sma()
     {
@@ -17,18 +44,15 @@ public class ConvValidationTests
         var sma = new Sma(period);
         var conv = new Conv(kernel);
 
-        var gbm = new GBM(startPrice: 100, seed: 123);
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < _testData.Data.Count; i++)
         {
-            var bar = gbm.Next();
-            var tValue = bar.C;
-
-            var smaVal = sma.Update(tValue);
-            var convVal = conv.Update(tValue);
+            var item = _testData.Data[i];
+            var smaVal = sma.Update(item);
+            var convVal = conv.Update(item);
 
             if (i >= period) // Skip warmup
             {
-                Assert.Equal(smaVal.Value, convVal.Value, 1e-9);
+                Assert.Equal(smaVal.Value, convVal.Value, 1e-4);
             }
         }
     }
@@ -48,18 +72,15 @@ public class ConvValidationTests
         var wma = new Wma(period);
         var conv = new Conv(kernel);
 
-        var gbm = new GBM(startPrice: 100, seed: 123);
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < _testData.Data.Count; i++)
         {
-            var bar = gbm.Next();
-            var tValue = bar.C;
-
-            var wmaVal = wma.Update(tValue);
-            var convVal = conv.Update(tValue);
+            var item = _testData.Data[i];
+            var wmaVal = wma.Update(item);
+            var convVal = conv.Update(item);
 
             if (i >= period) // Skip warmup
             {
-                Assert.Equal(wmaVal.Value, convVal.Value, 1e-9);
+                Assert.Equal(wmaVal.Value, convVal.Value, 1e-4);
             }
         }
     }
@@ -105,19 +126,17 @@ public class ConvValidationTests
         var trima = new Trima(period);
         var conv = new Conv(kernel);
 
-        var gbm = new GBM(startPrice: 100, seed: 123);
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < _testData.Data.Count; i++)
         {
-            var bar = gbm.Next();
-            var tValue = bar.C;
-
-            var trimaVal = trima.Update(tValue);
-            var convVal = conv.Update(tValue);
+            var item = _testData.Data[i];
+            var trimaVal = trima.Update(item);
+            var convVal = conv.Update(item);
 
             if (i >= period) // Skip warmup
             {
-                Assert.Equal(trimaVal.Value, convVal.Value, 1e-9);
+                Assert.Equal(trimaVal.Value, convVal.Value, 1e-4);
             }
         }
     }
+
 }

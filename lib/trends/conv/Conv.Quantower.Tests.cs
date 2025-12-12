@@ -13,7 +13,7 @@ public class ConvIndicatorTests
         Assert.Equal("0.1, 0.2, 0.3, 0.4", indicator.WeightsInput);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("Conv - Convolution", indicator.Name);
+        Assert.Equal("CONV - Convolution", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }
@@ -33,7 +33,7 @@ public class ConvIndicatorTests
     {
         var indicator = new ConvIndicator();
 
-        Assert.Contains("Conv", indicator.ShortName);
+        Assert.Contains("CONV", indicator.ShortName);
         Assert.Contains("Close", indicator.ShortName);
     }
 

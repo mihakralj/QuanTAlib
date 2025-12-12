@@ -107,26 +107,26 @@ public sealed class Mama : ITValuePublisher
             double adj = (0.075 * _state.Period) + 0.54;
 
             // Smooth
-            double smooth = (4.0 * _priceBuffer[0] + 3.0 * _priceBuffer[1] + 2.0 * _priceBuffer[2] + _priceBuffer[3]) * 0.1;
+            double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;
             _smoothBuffer.Add(smooth, isNew);
 
             // Detrender
-            double dt = (c1 * _smoothBuffer[0] + c2 * _smoothBuffer[2] - c2 * _smoothBuffer[4] - c1 * _smoothBuffer[6]) * adj;
+            double dt = (c1 * _smoothBuffer[^1] + c2 * _smoothBuffer[^3] - c2 * _smoothBuffer[^5] - c1 * _smoothBuffer[^7]) * adj;
             _detrender.Add(dt, isNew);
 
             // Q1
-            double q1 = (c1 * dt + c2 * _detrender[2] - c2 * _detrender[4] - c1 * _detrender[6]) * adj;
+            double q1 = (c1 * dt + c2 * _detrender[^3] - c2 * _detrender[^5] - c1 * _detrender[^7]) * adj;
             _Q1_buffer.Add(q1, isNew);
 
             // I1 = dt[3]
-            double i1 = _detrender[3];
+            double i1 = _detrender[^4];
             _I1_buffer.Add(i1, isNew);
 
             // Advance phases
             // jI = CalculateHilbertTransform(_i1, adj)
-            double jI = (c1 * i1 + c2 * _I1_buffer[2] - c2 * _I1_buffer[4] - c1 * _I1_buffer[6]) * adj;
+            double jI = (c1 * i1 + c2 * _I1_buffer[^3] - c2 * _I1_buffer[^5] - c1 * _I1_buffer[^7]) * adj;
             // jQ = CalculateHilbertTransform(_q1, adj)
-            double jQ = (c1 * q1 + c2 * _Q1_buffer[2] - c2 * _Q1_buffer[4] - c1 * _Q1_buffer[6]) * adj;
+            double jQ = (c1 * q1 + c2 * _Q1_buffer[^3] - c2 * _Q1_buffer[^5] - c1 * _Q1_buffer[^7]) * adj;
 
             // Phasor addition
             double i2_val = i1 - jQ;
@@ -150,10 +150,14 @@ public sealed class Mama : ITValuePublisher
                 : 0.0;
 
             // Adjust Period
-            period = period > 1.5 * _p_state.Period ? 1.5 * _p_state.Period : period;
-            period = period < 0.67 * _p_state.Period ? 0.67 * _p_state.Period : period;
-            period = period < 6.0 ? 6.0 : period;
-            period = period > 50.0 ? 50.0 : period;
+            double periodCap = _p_state.Period * 1.5;
+            double periodFloor = _p_state.Period * 0.67;
+
+            if (period > periodCap) period = periodCap;
+            if (period < periodFloor) period = periodFloor;
+
+            if (period < 6.0) period = 6.0;
+            if (period > 50.0) period = 50.0;
 
             // Smooth Period
             _state.Period = 0.2 * period + 0.8 * _p_state.Period;
@@ -167,7 +171,7 @@ public sealed class Mama : ITValuePublisher
             alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
 
             // Final indicators
-            _state.Mama = alpha * _priceBuffer[0] + (1.0 - alpha) * _p_state.Mama;
+            _state.Mama = alpha * _priceBuffer[^1] + (1.0 - alpha) * _p_state.Mama;
             _state.Fama = 0.5 * alpha * _state.Mama + (1.0 - 0.5 * alpha) * _p_state.Fama;
         }
         else

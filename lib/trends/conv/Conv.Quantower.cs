@@ -24,7 +24,7 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
     public int MinHistoryDepths => _conv != null ? WeightsInput.Split(',').Length : 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"Conv:{SourceName}";
+    public override string ShortName => $"CONV:{SourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/conv/Conv.Quantower.cs";
 
     public ConvIndicator()
@@ -32,9 +32,9 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "Conv - Convolution";
+        Name = "CONV - Convolution";
         Description = "Convolution with custom kernel";
-        Series = new(name: "Conv", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new(name: "CONV", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

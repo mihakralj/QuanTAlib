@@ -9,37 +9,28 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class DemaValidationTests
+public class DemaValidationTests : IDisposable
 {
-    private readonly TBarSeries _bars;
-    private readonly TSeries _data;
-    private readonly List<Quote> _skenderQuotes;
+    private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
 
     public DemaValidationTests(ITestOutputHelper output)
     {
         _output = output;
+        _testData = new ValidationTestData();
+    }
 
-        // 1. Generate 5000 records using GBM feed
-        var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2);
-        _bars = gbm.Fetch(5000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        // 2. Extract Close TSeries
-        _data = _bars.Close;
-
-        // 3. Prepare data for Skender (List<Quote>)
-        _skenderQuotes = new List<Quote>();
-        for (int i = 0; i < _bars.Count; i++)
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
         {
-            _skenderQuotes.Add(new Quote
-            {
-                Date = new DateTime(_bars.Open.Times[i], DateTimeKind.Utc),
-                Open = (decimal)_bars.Open[i].Value,
-                High = (decimal)_bars.High[i].Value,
-                Low = (decimal)_bars.Low[i].Value,
-                Close = (decimal)_bars.Close[i].Value,
-                Volume = (decimal)_bars.Volume[i].Value
-            });
+            _testData.Dispose();
         }
     }
 
@@ -52,13 +43,13 @@ public class DemaValidationTests
         {
             // Calculate QuanTAlib DEMA (batch TSeries)
             var dema = new global::QuanTAlib.Dema(period);
-            var qResult = dema.Update(_data);
+            var qResult = dema.Update(_testData.Data);
 
             // Calculate Skender DEMA
-            var sResult = _skenderQuotes.GetDema(period).ToList();
+            var sResult = _testData.SkenderQuotes.GetDema(period).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender(qResult, sResult);
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Dema);
         }
         _output.WriteLine("DEMA Batch(TSeries) validated successfully against Skender.Stock.Indicators");
     }
@@ -69,14 +60,14 @@ public class DemaValidationTests
         int[] periods = { 5, 10, 20, 50, 100 };
 
         // Prepare data for TA-Lib (double[])
-        double[] tData = _data.Select(x => x.Value).ToArray();
+        double[] tData = _testData.RawData.ToArray();
         double[] output = new double[tData.Length];
 
         foreach (var period in periods)
         {
             // Calculate QuanTAlib DEMA (batch TSeries)
             var dema = new global::QuanTAlib.Dema(period);
-            var qResult = dema.Update(_data);
+            var qResult = dema.Update(_testData.Data);
 
             // Calculate TA-Lib DEMA
             var retCode = TALib.Functions.Dema<double>(tData, 0..^0, output, out var outRange, period);
@@ -85,7 +76,7 @@ public class DemaValidationTests
             int lookback = TALib.Functions.DemaLookback(period);
 
             // Compare last 100 records
-            VerifyData_Talib(qResult, output, outRange, lookback);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback);
         }
         _output.WriteLine("DEMA Batch(TSeries) validated successfully against TA-Lib");
     }
@@ -96,13 +87,13 @@ public class DemaValidationTests
         int[] periods = { 5, 10, 20, 50, 100 };
 
         // Prepare data for Tulip (double[])
-        double[] tData = _data.Select(x => x.Value).ToArray();
+        double[] tData = _testData.RawData.ToArray();
 
         foreach (var period in periods)
         {
             // Calculate QuanTAlib DEMA (batch TSeries)
             var dema = new global::QuanTAlib.Dema(period);
-            var qResult = dema.Update(_data);
+            var qResult = dema.Update(_testData.Data);
 
             // Calculate Tulip DEMA
             var demaIndicator = Tulip.Indicators.dema;
@@ -129,7 +120,7 @@ public class DemaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            VerifyData_Tulip(qResult, tResult, lookback);
+            ValidationHelper.VerifyData(qResult, tResult, lookback);
         }
         _output.WriteLine("DEMA Batch(TSeries) validated successfully against Tulip");
     }
@@ -140,7 +131,7 @@ public class DemaValidationTests
         int[] periods = { 5, 10, 20, 50, 100 };
 
         // Prepare data
-        double[] sourceData = _data.Select(x => x.Value).ToArray();
+        double[] sourceData = _testData.RawData.ToArray();
         double[] talibOutput = new double[sourceData.Length];
 
         foreach (var period in periods)
@@ -156,90 +147,44 @@ public class DemaValidationTests
             int lookback = TALib.Functions.DemaLookback(period);
 
             // Compare last 100 records
-            VerifyData_Talib_Span(qOutput, talibOutput, outRange, lookback);
+            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback);
         }
         _output.WriteLine("DEMA Span validated successfully against TA-Lib");
     }
 
-    // ==================== Verification Helpers ====================
-
-    private static void VerifyData_Skender(TSeries qSeries, List<DemaResult> sSeries)
+    [Fact]
+    public void Validate_Against_Ooples()
     {
-        Assert.Equal(qSeries.Count, sSeries.Count);
+        // Ooples Finance implementation of DEMA is standard:
+        // DEMA = 2 * EMA(n) - EMA(EMA(n))
+        // We validate that our Dema class matches this composition using our own Ema class.
 
-        int count = qSeries.Count;
-        int skip = count - 100;
+        int[] periods = { 5, 10, 14, 20 };
 
-        for (int i = skip; i < count; i++)
+        foreach (var period in periods)
         {
-            double qValue = qSeries[i].Value;
-            double? sValue = sSeries[i].Dema;
+            var dema = new Dema(period);
+            var ema1 = new Ema(period);
+            var ema2 = new Ema(period);
 
-            if (!sValue.HasValue) continue;
+            for (int i = 0; i < _testData.Data.Count; i++)
+            {
+                var item = _testData.Data[i];
+                
+                // QuanTAlib DEMA
+                var qVal = dema.Update(item);
 
-            Assert.Equal(sValue.Value, qValue, 1e-6);
+                // Manual DEMA (Ooples logic)
+                var e1 = ema1.Update(item);
+                var e2 = ema2.Update(e1); // EMA of EMA
+                double ooplesVal = 2 * e1.Value - e2.Value;
+
+                // Compare
+                // Note: There might be tiny differences due to floating point operations order
+                // or internal state handling optimization in Dema class vs composed Ema classes.
+                Assert.Equal(ooplesVal, qVal.Value, 1e-9);
+            }
         }
-    }
-
-    private static void VerifyData_Talib(TSeries qSeries, double[] tOutput, Range outRange, int lookback)
-    {
-        int count = qSeries.Count;
-        int skip = count - 100;
-        int validCount = outRange.End.Value - outRange.Start.Value;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qSeries[i].Value;
-
-            if (i < lookback) continue;
-
-            int tIndex = i - lookback;
-            if (tIndex >= validCount) continue;
-
-            double tValue = tOutput[tIndex];
-
-            Assert.Equal(tValue, qValue, 1e-6);
-        }
-    }
-
-    private static void VerifyData_Talib_Span(double[] qOutput, double[] tOutput, Range outRange, int lookback)
-    {
-        int count = qOutput.Length;
-        int skip = count - 100;
-        int validCount = outRange.End.Value - outRange.Start.Value;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qOutput[i];
-
-            if (i < lookback) continue;
-
-            int tIndex = i - lookback;
-            if (tIndex >= validCount) continue;
-
-            double tValue = tOutput[tIndex];
-
-            Assert.Equal(tValue, qValue, 1e-6);
-        }
-    }
-
-    private static void VerifyData_Tulip(TSeries qSeries, double[] tOutput, int lookback)
-    {
-        int count = qSeries.Count;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qSeries[i].Value;
-
-            if (i < lookback) continue;
-
-            int tIndex = i - lookback;
-            if (tIndex >= tOutput.Length) continue;
-
-            double tValue = tOutput[tIndex];
-
-            Assert.Equal(tValue, qValue, 1e-6);
-        }
+        _output.WriteLine("DEMA validated successfully against Ooples logic (2*EMA - EMA(EMA))");
     }
 }

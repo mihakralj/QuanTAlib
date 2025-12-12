@@ -2,44 +2,44 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Skender.Stock.Indicators;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class AlmaValidationTests
+public class AlmaValidationTests : IDisposable
 {
-    // Note: ALMA is not available in TA-Lib or Tulip, so validation is limited to Skender.Stock.Indicators.
+    // Note: ALMA is not available in TA-Lib or Tulip,
+    // validation is limited to Skender.Stock.Indicators and OoplesFinance.StockIndicators.
 
-    private readonly TBarSeries _bars;
-    private readonly TSeries _data;
-    private readonly List<Quote> _skenderQuotes;
+    private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
 
     public AlmaValidationTests(ITestOutputHelper output)
     {
         _output = output;
+        _testData = new ValidationTestData(count: 1000, seed: 42);
+    }
 
-        // 1. Generate 1000 records using GBM feed
-        var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2, seed: 42);
-        _bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+    private bool _disposed;
 
-        // 2. Extract Close TSeries
-        _data = _bars.Close;
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        // 3. Prepare data for Skender (List<Quote>)
-        _skenderQuotes = new List<Quote>();
-        for (int i = 0; i < _bars.Count; i++)
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            _skenderQuotes.Add(new Quote
+            if (disposing)
             {
-                Date = new DateTime(_bars.Open.Times[i], DateTimeKind.Utc),
-                Open = (decimal)_bars.Open[i].Value,
-                High = (decimal)_bars.High[i].Value,
-                Low = (decimal)_bars.Low[i].Value,
-                Close = (decimal)_bars.Close[i].Value,
-                Volume = (decimal)_bars.Volume[i].Value
-            });
+                _testData.Dispose();
+            }
+            _disposed = true;
         }
     }
 
@@ -54,13 +54,13 @@ public class AlmaValidationTests
         {
             // Calculate QuanTAlib ALMA (batch TSeries)
             var alma = new global::QuanTAlib.Alma(period, offset, sigma);
-            var qResult = alma.Update(_data);
+            var qResult = alma.Update(_testData.Data);
 
             // Calculate Skender ALMA
-            var sResult = _skenderQuotes.GetAlma(period, offset, sigma).ToList();
+            var sResult = _testData.SkenderQuotes.GetAlma(period, offset, sigma).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender(qResult, sResult);
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Alma);
         }
         _output.WriteLine("ALMA Batch(TSeries) validated successfully against Skender");
     }
@@ -77,16 +77,16 @@ public class AlmaValidationTests
             // Calculate QuanTAlib ALMA (streaming)
             var alma = new global::QuanTAlib.Alma(period, offset, sigma);
             var qResults = new List<double>();
-            foreach (var item in _data)
+            foreach (var item in _testData.Data)
             {
                 qResults.Add(alma.Update(item).Value);
             }
 
             // Calculate Skender ALMA
-            var sResult = _skenderQuotes.GetAlma(period, offset, sigma).ToList();
+            var sResult = _testData.SkenderQuotes.GetAlma(period, offset, sigma).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender_Streaming(qResults, sResult);
+            ValidationHelper.VerifyData(qResults, sResult, (s) => s.Alma);
         }
         _output.WriteLine("ALMA Streaming validated successfully against Skender");
     }
@@ -99,74 +99,55 @@ public class AlmaValidationTests
         double sigma = 6.0;
 
         // Prepare data for Span API
-        double[] sourceData = _data.Select(x => x.Value).ToArray();
+        ReadOnlySpan<double> sourceData = _testData.RawData.Span;
 
         foreach (var period in periods)
         {
             // Calculate QuanTAlib ALMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Alma.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period, offset, sigma);
+            global::QuanTAlib.Alma.Calculate(sourceData, qOutput.AsSpan(), period, offset, sigma);
 
             // Calculate Skender ALMA
-            var sResult = _skenderQuotes.GetAlma(period, offset, sigma).ToList();
+            var sResult = _testData.SkenderQuotes.GetAlma(period, offset, sigma).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender_Span(qOutput, sResult);
+            ValidationHelper.VerifyData(qOutput, sResult, (s) => s.Alma);
         }
         _output.WriteLine("ALMA Span validated successfully against Skender");
     }
 
-    private static void VerifyData_Skender(TSeries qSeries, List<AlmaResult> sSeries)
+    [Fact]
+    public void Validate_Ooples_Batch()
     {
-        Assert.Equal(qSeries.Count, sSeries.Count);
+        int[] periods = { 9, 14, 20, 50 };
+        double offset = 0.85;
+        double sigma = 6.0;
 
-        int count = qSeries.Count;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
+        // Prepare data for Ooples
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
         {
-            double qValue = qSeries[i].Value;
-            double? sValue = sSeries[i].Alma;
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
 
-            if (!sValue.HasValue) continue;
-
-            Assert.Equal(sValue.Value, qValue, 1e-6);
-        }
-    }
-
-    private static void VerifyData_Skender_Streaming(List<double> qResults, List<AlmaResult> sSeries)
-    {
-        Assert.Equal(qResults.Count, sSeries.Count);
-
-        int count = qResults.Count;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
+        foreach (var period in periods)
         {
-            double qValue = qResults[i];
-            double? sValue = sSeries[i].Alma;
+            // 1. Calculate Ooples ALMA
+            var stockData = new StockData(ooplesData);
+            var oResult = stockData.CalculateArnaudLegouxMovingAverage(period, offset, (int)sigma);
+            var oAlma = oResult.OutputValues["Alma"];
 
-            if (!sValue.HasValue) continue;
+            // 2. Calculate QuanTAlib ALMA
+            var alma = new global::QuanTAlib.Alma(period, offset, sigma);
+            var qResult = alma.Update(_testData.Data);
 
-            Assert.Equal(sValue.Value, qValue, 1e-6);
+            // 3. Verify
+            ValidationHelper.VerifyData(qResult, oAlma, x => x, skip: 100, tolerance: 1.0);
         }
-    }
-
-    private static void VerifyData_Skender_Span(double[] qOutput, List<AlmaResult> sSeries)
-    {
-        Assert.Equal(qOutput.Length, sSeries.Count);
-
-        int count = qOutput.Length;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qOutput[i];
-            double? sValue = sSeries[i].Alma;
-
-            if (!sValue.HasValue) continue;
-
-            Assert.Equal(sValue.Value, qValue, 1e-6);
-        }
+        _output.WriteLine("ALMA Batch validated successfully against Ooples");
     }
 }

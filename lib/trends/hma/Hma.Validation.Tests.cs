@@ -8,38 +8,35 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class HmaValidationTests
+public class HmaValidationTests : IDisposable
 {
-    private readonly TBarSeries _bars;
-    private readonly TSeries _data;
-    private readonly List<Quote> _skenderQuotes;
+    private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
 
     public HmaValidationTests(ITestOutputHelper output)
     {
         _output = output;
+        _testData = new ValidationTestData(count: 1000, seed: 42);
+    }
 
-        // 1. Generate 1000 records using GBM feed
-        var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2, seed: 42);
-        _bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+    private bool _disposed;
 
-        // 2. Extract Close TSeries
-        _data = _bars.Close;
-
-        // 3. Prepare data for Skender (List<Quote>)
-        _skenderQuotes = new List<Quote>();
-        for (int i = 0; i < _bars.Count; i++)
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            _skenderQuotes.Add(new Quote
+            if (disposing)
             {
-                Date = new DateTime(_bars.Open.Times[i], DateTimeKind.Utc),
-                Open = (decimal)_bars.Open[i].Value,
-                High = (decimal)_bars.High[i].Value,
-                Low = (decimal)_bars.Low[i].Value,
-                Close = (decimal)_bars.Close[i].Value,
-                Volume = (decimal)_bars.Volume[i].Value
-            });
+                _testData.Dispose();
+            }
+            _disposed = true;
         }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -51,13 +48,13 @@ public class HmaValidationTests
         {
             // Calculate QuanTAlib HMA (batch TSeries)
             var hma = new global::QuanTAlib.Hma(period);
-            var qResult = hma.Update(_data);
+            var qResult = hma.Update(_testData.Data);
 
             // Calculate Skender HMA
-            var sResult = _skenderQuotes.GetHma(period).ToList();
+            var sResult = _testData.SkenderQuotes.GetHma(period).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender(qResult, sResult);
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Hma);
         }
         _output.WriteLine("HMA Batch(TSeries) validated successfully against Skender");
     }
@@ -68,13 +65,13 @@ public class HmaValidationTests
         int[] periods = { 9, 14, 20, 50 };
 
         // Prepare data for Tulip (double[])
-        double[] tData = _data.Select(x => x.Value).ToArray();
+        double[] tData = _testData.RawData.ToArray();
 
         foreach (var period in periods)
         {
             // Calculate QuanTAlib HMA (batch TSeries)
             var hma = new global::QuanTAlib.Hma(period);
-            var qResult = hma.Update(_data);
+            var qResult = hma.Update(_testData.Data);
 
             // Calculate Tulip HMA
             var hmaIndicator = Tulip.Indicators.hma;
@@ -104,7 +101,7 @@ public class HmaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            VerifyData_Tulip(qResult, tResult, lookback);
+            ValidationHelper.VerifyData(qResult, tResult, lookback);
         }
         _output.WriteLine("HMA Batch(TSeries) validated successfully against Tulip");
     }
@@ -119,16 +116,16 @@ public class HmaValidationTests
             // Calculate QuanTAlib HMA (streaming)
             var hma = new global::QuanTAlib.Hma(period);
             var qResults = new List<double>();
-            foreach (var item in _data)
+            foreach (var item in _testData.Data)
             {
                 qResults.Add(hma.Update(item).Value);
             }
 
             // Calculate Skender HMA
-            var sResult = _skenderQuotes.GetHma(period).ToList();
+            var sResult = _testData.SkenderQuotes.GetHma(period).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender_Streaming(qResults, sResult);
+            ValidationHelper.VerifyData(qResults, sResult, (s) => s.Hma);
         }
         _output.WriteLine("HMA Streaming validated successfully against Skender");
     }
@@ -139,7 +136,7 @@ public class HmaValidationTests
         int[] periods = { 9, 14, 20, 50 };
 
         // Prepare data for Span API
-        double[] sourceData = _data.Select(x => x.Value).ToArray();
+        double[] sourceData = _testData.RawData.ToArray();
 
         foreach (var period in periods)
         {
@@ -148,85 +145,11 @@ public class HmaValidationTests
             global::QuanTAlib.Hma.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Skender HMA
-            var sResult = _skenderQuotes.GetHma(period).ToList();
+            var sResult = _testData.SkenderQuotes.GetHma(period).ToList();
 
             // Compare last 100 records
-            VerifyData_Skender_Span(qOutput, sResult);
+            ValidationHelper.VerifyData(qOutput, sResult, (s) => s.Hma);
         }
         _output.WriteLine("HMA Span validated successfully against Skender");
-    }
-
-    private static void VerifyData_Skender(TSeries qSeries, List<HmaResult> sSeries)
-    {
-        Assert.Equal(qSeries.Count, sSeries.Count);
-
-        int count = qSeries.Count;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qSeries[i].Value;
-            double? sValue = sSeries[i].Hma;
-
-            if (!sValue.HasValue) continue;
-
-            Assert.Equal(sValue.Value, qValue, 1e-6);
-        }
-    }
-
-    private static void VerifyData_Skender_Streaming(List<double> qResults, List<HmaResult> sSeries)
-    {
-        Assert.Equal(qResults.Count, sSeries.Count);
-
-        int count = qResults.Count;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qResults[i];
-            double? sValue = sSeries[i].Hma;
-
-            if (!sValue.HasValue) continue;
-
-            Assert.Equal(sValue.Value, qValue, 1e-6);
-        }
-    }
-
-    private static void VerifyData_Skender_Span(double[] qOutput, List<HmaResult> sSeries)
-    {
-        Assert.Equal(qOutput.Length, sSeries.Count);
-
-        int count = qOutput.Length;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qOutput[i];
-            double? sValue = sSeries[i].Hma;
-
-            if (!sValue.HasValue) continue;
-
-            Assert.Equal(sValue.Value, qValue, 1e-6);
-        }
-    }
-
-    private static void VerifyData_Tulip(TSeries qSeries, double[] tOutput, int lookback)
-    {
-        int count = qSeries.Count;
-        int skip = count - 100;
-
-        for (int i = skip; i < count; i++)
-        {
-            double qValue = qSeries[i].Value;
-
-            if (i < lookback) continue;
-
-            int tIndex = i - lookback;
-            if (tIndex >= tOutput.Length) continue;
-
-            double tValue = tOutput[tIndex];
-
-            Assert.Equal(tValue, qValue, 1e-6);
-        }
     }
 }

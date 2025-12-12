@@ -4,7 +4,7 @@ This document defines the strict standards for creating high-quality technical i
 
 ## 1. Architecture & Design Principles
 
-* **Source Material:** The algorithm and markdown documentation foundation should be sourced from [https://github.com/mihakralj/pinescript/blob/main/indicators/](https://github.com/mihakralj/pinescript/blob/main/indicators/).
+* **Source Material:** The algorithm and markdown documentation foundation should be sourced from [https://github.com/mihakralj/pinescript/blob/main/indicators/](PineScript).
 * **Zero Allocation:** The core calculation loop must not allocate memory on the heap. Use `stackalloc`, `Span<T>`, and pinned memory where possible.
 * **O(1) Complexity:** Streaming updates must be O(1) whenever mathematically possible. Use running sums/products or circular buffers to avoid re-iterating over history.
 * **Dual API:** Provide both a stateful object-oriented API (`Update`) and a stateless static vector API (`Calculate`).
@@ -56,6 +56,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 * **Attribute:** `[MethodImpl(MethodImplOptions.AggressiveInlining)]`
 * **Logic:**
     1. **State Rollback:**
+
         ```csharp
         if (isNew) {
             _p_state = _state;
@@ -65,6 +66,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
             // ... update state ...
         }
         ```
+
     2. **Input Validation:** Check `double.IsFinite`. If not, use `_lastValidValue` (stored in `State`).
     3. **Calculation:** Perform the math.
     4. **Publish:** Update `Last` property, invoke `Pub` event, return `Last`.
@@ -114,7 +116,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 
 ### Validation Tests (`[Name].Validation.Tests.cs`)
 
-* **Purpose:** Verify accuracy against **ALL** available external libraries (Skender, TA-Lib, Tulip, Python libraries, etc.) where the indicator is implemented. You must actively search for existing implementations to validate against.
+* **Purpose:** Verify accuracy against **ALL** available external libraries (Skender, TA-Lib, Tulip, OoplesFinance, Python libraries, etc.) where the indicator is implemented. You must actively search for existing implementations to validate against.
 * **Data:** Use `GBM` (Geometric Brownian Motion) to generate realistic test data.
 * **Scenarios:**
 

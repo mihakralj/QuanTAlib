@@ -1,10 +1,26 @@
-using QuanTAlib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Enums;
+using OoplesFinance.StockIndicators.Models;
 using Xunit;
+using Xunit.Abstractions;
+using QuanTAlib.Tests;
 
-namespace Trends;
+namespace QuanTAlib.Tests;
 
 public class VidyaValidationTests
 {
+    private readonly ValidationTestData _testData;
+    private readonly ITestOutputHelper _output;
+
+    public VidyaValidationTests(ITestOutputHelper output)
+    {
+        _output = output;
+        _testData = new ValidationTestData();
+    }
+
     [Fact]
     public void ValidateAgainstReference()
     {
@@ -13,32 +29,59 @@ public class VidyaValidationTests
         // Therefore, we cannot validate against Tulip.
         // We validate against a simple, readable reference implementation of the CMO-based VIDYA.
         
-        var feed = new GBM();
-        var data = feed.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var period = 14;
         
         // QuanTAlib
         var vidya = new Vidya(period);
         var qResults = new List<double>();
-        foreach (var item in data)
+        foreach (var item in _testData.Data)
         {
-            qResults.Add(vidya.Update(new TValue(item.Time, item.Close)).Value);
+            qResults.Add(vidya.Update(item).Value);
         }
         
         // Reference Implementation
-        var refResults = CalculateVidyaReference(data, period);
+        var refResults = CalculateVidyaReference(_testData.Data, period);
         
         // Compare
-        for (int i = 0; i < data.Count; i++)
+        ValidationHelper.VerifyData(qResults, refResults, x => x);
+        
+        _output.WriteLine("VIDYA validated successfully against reference implementation");
+    }
+
+    [Fact]
+    public void Validate_Ooples_Batch()
+    {
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        // Map to Ooples StockData
+        var ooplesData = new StockData(
+            _testData.SkenderQuotes.Select(x => (double)x.Open),
+            _testData.SkenderQuotes.Select(x => (double)x.High),
+            _testData.SkenderQuotes.Select(x => (double)x.Low),
+            _testData.SkenderQuotes.Select(x => (double)x.Close),
+            _testData.SkenderQuotes.Select(x => (double)x.Volume),
+            _testData.SkenderQuotes.Select(x => x.Date)
+        );
+
+        foreach (var period in periods)
         {
-            Assert.Equal(refResults[i], qResults[i], 1e-9);
+            // Calculate QuanTAlib VIDYA (batch TSeries)
+            var vidya = new global::QuanTAlib.Vidya(period);
+            var qResult = vidya.Update(_testData.Data);
+
+            // Calculate Ooples VIDYA
+            var oResult = ooplesData.CalculateVariableIndexDynamicAverage(MovingAvgType.ExponentialMovingAverage, period);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, oResult.OutputValues["Vidya"], x => x, tolerance: 1e-4);
         }
+        _output.WriteLine("VIDYA Batch(TSeries) validated successfully against OoplesFinance");
     }
     
-    private static List<double> CalculateVidyaReference(TBarSeries data, int period)
+    private static List<double> CalculateVidyaReference(TSeries data, int period)
     {
         var results = new List<double>();
-        var prices = data.Select(x => x.Close).ToList();
+        var prices = data.Select(x => x.Value).ToList();
         double alpha = 2.0 / (period + 1);
         
         double prevVidya = 0;

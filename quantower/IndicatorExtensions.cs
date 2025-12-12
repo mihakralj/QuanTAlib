@@ -173,7 +173,7 @@ public static class IndicatorExtensions
             using Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) };
             using Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot };
 
-            int hotCount = indicator.Count - warmupPeriod - rightIndex;
+            int hotCount = (warmupPeriod >= 0) ? (indicator.Count - warmupPeriod - rightIndex) : 0;
 
             // Draw the hot part
             if (hotCount > 0)

@@ -39,7 +39,7 @@
 
 
   <ItemGroup>
-    <Compile Include="**/*.cs" Exclude="**/*.Tests.cs;**/*.Quantower.cs;**/obj/**/*.cs;**/bin/**/*.cs" />
+    <Compile Include="**/*.cs" Exclude="**/*.Tests.cs;**/*.Quantower.cs;**/obj/**/*.cs;**/bin/**/*.cs;feeds/gbm/ValidationHelper.cs;feeds/gbm/ValidationTestData.cs" />
   </ItemGroup>
 
   <ItemGroup>

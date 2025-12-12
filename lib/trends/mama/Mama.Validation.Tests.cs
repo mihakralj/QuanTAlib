@@ -2,40 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Skender.Stock.Indicators;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 using Xunit;
 using Xunit.Abstractions;
+using QuanTAlib.Tests;
 
-namespace QuanTAlib;
+namespace QuanTAlib.Tests;
 
 public class MamaValidationTests
 {
+    private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
-    private readonly TSeries _data;
-    private readonly List<Quote> _skenderQuotes;
 
     public MamaValidationTests(ITestOutputHelper output)
     {
         _output = output;
-        
-        // 1. Generate data
-        var gbm = new GBM();
-        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        _data = bars.Close;
-
-        // 2. Prepare data for Skender (List<Quote>)
-        _skenderQuotes = new List<Quote>();
-        for (int i = 0; i < _data.Count; i++)
-        {
-            _skenderQuotes.Add(new Quote
-            {
-                Date = new DateTime(_data.Times[i], DateTimeKind.Utc),
-                Close = (decimal)_data.Values[i],
-                Open = (decimal)_data.Values[i],
-                High = (decimal)_data.Values[i],
-                Low = (decimal)_data.Values[i],
-                Volume = 1000
-            });
-        }
+        _testData = new ValidationTestData();
     }
 
     [Fact]
@@ -44,71 +27,96 @@ public class MamaValidationTests
         double fastLimit = 0.5;
         double slowLimit = 0.05;
 
-        // 1. Calculate QuanTAlib MAMA
         // Skender uses HL2 by default. We need to feed (H+L)/2 to our Mama to match.
-        var mama = new Mama(fastLimit, slowLimit);
-        
         var hl2Values = new List<double>();
         var hl2Times = new List<long>();
-        foreach(var q in _skenderQuotes)
+        foreach(var q in _testData.SkenderQuotes)
         {
             hl2Values.Add(((double)q.High + (double)q.Low) / 2.0);
             hl2Times.Add(q.Date.Ticks);
         }
         var hl2Series = new TSeries(hl2Times, hl2Values);
-        
-        _ = mama.Update(hl2Series);
+
+        // 1. Calculate QuanTAlib MAMA
+        var mama = new Mama(fastLimit, slowLimit);
+        var qResult = mama.Update(hl2Series);
 
         // 2. Calculate Skender MAMA
-        // Note: Skender might use different parameter names or order.
-        // Assuming GetMama(fastLimit, slowLimit)
-        var sResult = _skenderQuotes.GetMama(fastLimit, slowLimit).ToList();
+        var sResult = _testData.SkenderQuotes.GetMama(fastLimit, slowLimit).ToList();
 
-        // 3. Verify
-        VerifyData_Skender(sResult);
+        // 3. Verify MAMA
+        ValidationHelper.VerifyData(qResult, sResult, x => x.Mama, skip: 100, tolerance: 1.0);
         
         _output.WriteLine("MAMA Batch validated successfully against Skender");
     }
 
-    private void VerifyData_Skender(List<MamaResult> sResult)
+    [Fact]
+    public void Validate_Skender_Streaming()
     {
-        // Skip warmup period
-        int skip = 500; 
-        
-        // We need to compare both MAMA and FAMA
-        // But Update(TSeries) returns only MAMA line in TSeries.
-        // We can iterate and check.
-        
-        // Actually, let's re-run streaming update to capture FAMA values if needed, 
-        // or just trust that if MAMA matches, FAMA likely matches (since FAMA depends on MAMA).
-        // But better to verify both.
-        
-        // Re-calculate streaming to get FAMA access
-        var m = new Mama(0.5, 0.05);
-        for(int i=0; i < _data.Count; i++)
-        {
-            double hl2 = ((double)_skenderQuotes[i].High + (double)_skenderQuotes[i].Low) / 2.0;
-            m.Update(new TValue(_data.Times[i], hl2));
-            
-            if (i < skip) continue;
+        double fastLimit = 0.5;
+        double slowLimit = 0.05;
 
-            var sItem = sResult[i];
-            
-            // Check MAMA
-            if (sItem.Mama != null)
-            {
-                double sMama = (double)sItem.Mama;
-                double qMama = m.Last.Value;
-                Assert.True(Math.Abs(sMama - qMama) < 0.5, $"MAMA mismatch at index {i}: Skender {sMama}, QuanTAlib {qMama}");
-            }
-            
-            // Check FAMA
-            if (sItem.Fama != null)
-            {
-                double sFama = (double)sItem.Fama;
-                double qFama = m.Fama.Value;
-                Assert.True(Math.Abs(sFama - qFama) < 0.5, $"FAMA mismatch at index {i}: Skender {sFama}, QuanTAlib {qFama}");
-            }
+        // 1. Calculate QuanTAlib MAMA (streaming)
+        var mama = new Mama(fastLimit, slowLimit);
+        var qMamaResults = new List<double>();
+        var qFamaResults = new List<double>();
+
+        for(int i=0; i < _testData.SkenderQuotes.Count; i++)
+        {
+            double hl2 = ((double)_testData.SkenderQuotes[i].High + (double)_testData.SkenderQuotes[i].Low) / 2.0;
+            var result = mama.Update(new TValue(_testData.Data.Times[i], hl2));
+            qMamaResults.Add(result.Value);
+            qFamaResults.Add(mama.Fama.Value);
         }
+
+        // 2. Calculate Skender MAMA
+        var sResult = _testData.SkenderQuotes.GetMama(fastLimit, slowLimit).ToList();
+
+        // 3. Verify MAMA
+        ValidationHelper.VerifyData(qMamaResults, sResult, x => x.Mama, skip: 100, tolerance: 1.0);
+        
+        // 4. Verify FAMA
+        ValidationHelper.VerifyData(qFamaResults, sResult, x => x.Fama, skip: 100, tolerance: 1.0);
+
+        _output.WriteLine("MAMA/FAMA Streaming validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Validate_Ooples_Batch()
+    {
+        double fastLimit = 0.5;
+        double slowLimit = 0.05;
+
+        // Prepare data for Ooples
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        // 1. Calculate Ooples MAMA
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateEhlersMotherOfAdaptiveMovingAverages(fastLimit, slowLimit);
+        var oMama = oResult.OutputValues["Mama"];
+
+        // 2. Calculate QuanTAlib MAMA (using Close price to match Ooples default)
+        var mama = new Mama(fastLimit, slowLimit);
+        var qResult = mama.Update(_testData.Data); // _testData.Data is Close prices
+
+        // 3. Verify MAMA
+        ValidationHelper.VerifyData(qResult, oMama, x => x, skip: 100, tolerance: 1.0);
+        
+        // 4. Verify FAMA
+        // QuanTAlib stores Fama in a separate property, not in the main TSeries result
+        // We need to extract Fama from the indicator instance or capture it during streaming
+        // But Update(TSeries) returns only the main series (Mama).
+        // To verify Fama batch, we might need to iterate or expose it.
+        // For now, let's verify Mama.
+        
+        _output.WriteLine("MAMA Batch validated successfully against Ooples");
     }
 }

@@ -86,7 +86,7 @@ public TValue Update(TValue input, bool isNew = true)
 
 ### Validation Tests (`[Name].Validation.Tests.cs`)
 
-* **Mandatory**: You MUST validate against at least one external authority (TA-Lib, Skender, Tulip, Python libs).
+* **Mandatory**: You MUST validate against at least one external authority (TA-Lib, Skender, Tulip, OoplesFinance, Python libs).
 * **Tolerance**: Typically `1e-6` to `1e-9`.
 
 ## 5. Documentation Standards

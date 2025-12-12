@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="OoplesFinance.StockIndicators" Version="1.0.53" />
     <PackageReference Include="Skender.Stock.Indicators" Version="2.7.0" />
     <PackageReference Include="TALib.NETCore" Version="0.5.0" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
@@ -32,6 +33,8 @@
 
   <ItemGroup>
     <Compile Include="**\*.Tests.cs" Exclude="**\*.Quantower.Tests.cs" />
+    <Compile Include="feeds\gbm\ValidationHelper.cs" />
+    <Compile Include="feeds\gbm\ValidationTestData.cs" />
   </ItemGroup>
 
   <ItemGroup>
