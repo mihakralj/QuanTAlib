@@ -32,7 +32,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | HPF | Ehlers Highpass Filter | |
 | HTIT | Hilbert Transform Instantaneous Trend | |
 | HWMA | Holt Weighted MA | |
-| JMA | Jurik MA | |
+| [JMA](trends/jma/Jma.md) | Jurik MA | Adaptive moving average that adjusts to market volatility for superior smoothing with minimal lag. |
 | [KAMA](trends/kama/Kama.md) | Kaufman Adaptive MA | Adapts to market volatility by adjusting its smoothing factor based on an Efficiency Ratio. |
 | KF | Kalman Filter | |
 | LOESS | LOESS/LOWESS Smoothing | |
