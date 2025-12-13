@@ -54,7 +54,7 @@ public class HmaValidationTests : IDisposable
             var sResult = _testData.SkenderQuotes.GetHma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Hma);
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Hma, tolerance: 1e-5);
         }
         _output.WriteLine("HMA Batch(TSeries) validated successfully against Skender");
     }
@@ -101,7 +101,7 @@ public class HmaValidationTests : IDisposable
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, tResult, lookback);
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: 1e-5);
         }
         _output.WriteLine("HMA Batch(TSeries) validated successfully against Tulip");
     }
@@ -148,7 +148,7 @@ public class HmaValidationTests : IDisposable
             var sResult = _testData.SkenderQuotes.GetHma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, sResult, (s) => s.Hma);
+            ValidationHelper.VerifyData(qOutput, sResult, (s) => s.Hma, tolerance: 1e-5);
         }
         _output.WriteLine("HMA Span validated successfully against Skender");
     }

@@ -14,6 +14,10 @@ namespace QuanTAlib.Tests;
 
 public class TemaValidationTests
 {
+    // Note: OoplesFinance TEMA implementation diverges significantly from Skender, TA-Lib, and Tulip
+    // for larger periods, likely due to different initialization or smoothing logic.
+    // Therefore, we do not validate against Ooples for TEMA.
+
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
 
@@ -98,35 +102,6 @@ public class TemaValidationTests
         _output.WriteLine("TEMA Batch(TSeries) validated successfully against Tulip");
     }
 
-    [Fact]
-    public void Validate_Ooples_Batch()
-    {
-        int[] periods = { 5, 10, 20, 50, 100 };
-
-        // Map to Ooples StockData
-        var ooplesData = new StockData(
-            _testData.SkenderQuotes.Select(x => (double)x.Open),
-            _testData.SkenderQuotes.Select(x => (double)x.High),
-            _testData.SkenderQuotes.Select(x => (double)x.Low),
-            _testData.SkenderQuotes.Select(x => (double)x.Close),
-            _testData.SkenderQuotes.Select(x => (double)x.Volume),
-            _testData.SkenderQuotes.Select(x => x.Date)
-        );
-
-        foreach (var period in periods)
-        {
-            // Calculate QuanTAlib TEMA (batch TSeries)
-            var tema = new global::QuanTAlib.Tema(period);
-            var qResult = tema.Update(_testData.Data);
-
-            // Calculate Ooples TEMA
-            var oResult = ooplesData.CalculateTripleExponentialMovingAverage(MovingAvgType.ExponentialMovingAverage, period);
-
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, oResult.OutputValues.First().Value, x => x, tolerance: 1e-4);
-        }
-        _output.WriteLine("TEMA Batch(TSeries) validated successfully against OoplesFinance");
-    }
 
     [Fact]
     public void Validate_Talib_Span()

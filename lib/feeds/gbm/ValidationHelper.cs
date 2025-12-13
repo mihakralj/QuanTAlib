@@ -119,7 +119,7 @@ public static class ValidationHelper
             Assert.Equal(tValue, qValue, tolerance);
         }
     }
-    
+
     public static void VerifyData(TSeries qSeries, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qSeries.Count;
