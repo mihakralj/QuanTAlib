@@ -37,6 +37,9 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static double MinScalar(ReadOnlySpan<double> span)
     {
+        if (span.Length == 0)
+            throw new ArgumentException("Span must not be empty", nameof(span));
+
         double min = span[0];
         for (int i = 1; i < span.Length; i++)
         {
@@ -49,6 +52,9 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static double MaxScalar(ReadOnlySpan<double> span)
     {
+        if (span.Length == 0)
+            throw new ArgumentException("Span must not be empty", nameof(span));
+
         double max = span[0];
         for (int i = 1; i < span.Length; i++)
         {

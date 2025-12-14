@@ -124,8 +124,7 @@ public static class ValidationHelper
     {
         int count = qSeries.Count;
         int start = Math.Max(0, count - skip);
-        var (_, length) = outRange.GetOffsetAndLength(tOutput.Length);
-        int validCount = length;
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
 
         for (int i = start; i < count; i++)
         {
@@ -133,8 +132,8 @@ public static class ValidationHelper
 
             if (i < lookback) continue;
 
-            int tIndex = i - lookback;
-            if (tIndex >= validCount) continue;
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length) continue;
 
             double tValue = tOutput[tIndex];
 
@@ -146,8 +145,7 @@ public static class ValidationHelper
     {
         int count = qResults.Count;
         int start = Math.Max(0, count - skip);
-        var (_, length) = outRange.GetOffsetAndLength(tOutput.Length);
-        int validCount = length;
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
 
         for (int i = start; i < count; i++)
         {
@@ -155,8 +153,8 @@ public static class ValidationHelper
 
             if (i < lookback) continue;
 
-            int tIndex = i - lookback;
-            if (tIndex >= validCount) continue;
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length) continue;
 
             double tValue = tOutput[tIndex];
 
@@ -168,8 +166,7 @@ public static class ValidationHelper
     {
         int count = qOutput.Length;
         int start = Math.Max(0, count - skip);
-        var (_, length) = outRange.GetOffsetAndLength(tOutput.Length);
-        int validCount = length;
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
 
         for (int i = start; i < count; i++)
         {
@@ -177,8 +174,8 @@ public static class ValidationHelper
 
             if (i < lookback) continue;
 
-            int tIndex = i - lookback;
-            if (tIndex >= validCount) continue;
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length) continue;
 
             double tValue = tOutput[tIndex];
 

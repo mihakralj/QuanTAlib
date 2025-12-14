@@ -132,8 +132,13 @@ public class GBM : IFeed
 
             double open = _lastPrice;
             double close = price;
-            double high = Math.Max(open, close) * (1.0 + NextDouble() * 0.01);
-            double low = Math.Min(open, close) * (1.0 - NextDouble() * 0.01);
+            double high = Math.Max(open, close) * (1.0 + Math.Abs(NextDouble()) * 0.01);
+            double low = Math.Min(open, close) * (1.0 - Math.Abs(NextDouble()) * 0.01);
+
+            // Ensure valid OHLC
+            high = Math.Max(high, Math.Max(open, close));
+            low = Math.Min(low, Math.Min(open, close));
+            low = Math.Max(0.0, low);
 
             _currentBar = new TBar(currentTime, open, high, low, close, volume);
             _hasCurrentBar = true;
@@ -215,8 +220,17 @@ public class GBM : IFeed
             t[i] = currentTime;
             o[i] = open;
             c[i] = close;
-            h[i] = Math.Max(open, close) * (1.0 + rnd1 * 0.01);
-            l[i] = Math.Min(open, close) * (1.0 - rnd2 * 0.01);
+
+            double high = Math.Max(open, close) * (1.0 + Math.Abs(rnd1) * 0.01);
+            double low = Math.Min(open, close) * (1.0 - Math.Abs(rnd2) * 0.01);
+
+            // Ensure valid OHLC
+            high = Math.Max(high, Math.Max(open, close));
+            low = Math.Min(low, Math.Min(open, close));
+            low = Math.Max(0.0, low);
+
+            h[i] = high;
+            l[i] = low;
             v[i] = 1000 + rnd3 * 1000;
 
             currentPrice = price;
