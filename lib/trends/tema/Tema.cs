@@ -220,8 +220,8 @@ public sealed class Tema : ITValuePublisher
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
-        if (alpha <= 0 || alpha > 1)
-            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+        if (alpha <= 0 || alpha >= 1)
+            throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
 
         if (source.Length == 0) return;
 

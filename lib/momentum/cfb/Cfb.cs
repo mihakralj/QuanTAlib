@@ -235,7 +235,6 @@ public sealed class Cfb : ITValuePublisher
             Update(new TValue(source.Times[i], source.Values[i]), true);
         }
 
-        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 

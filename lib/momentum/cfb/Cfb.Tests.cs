@@ -60,7 +60,7 @@ public class CfbTests
     [Fact]
     public void ZigZag_ReturnsOne()
     {
-        var cfb = new Cfb(new int[] { 4, 8 });
+        var cfb = new Cfb([4, 8]);
         // 100, 101, 100, 101...
         // NetMove(4) = Abs(100 - 100) = 0. Ratio = 0.
         // NetMove(8) = 0. Ratio = 0.
@@ -93,7 +93,7 @@ public class CfbTests
         }
 
         // Update with 100th point (isNew=true)
-        var val1 = cfb.Update(data[99], true);
+        cfb.Update(data[99], true);
 
         // Update with modified 100th point (isNew=false)
         var modified = new TValue(data[99].Time, data[99].Value + 1.0);

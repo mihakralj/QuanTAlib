@@ -11,7 +11,7 @@ public static class ValidationHelper
         Assert.Equal(qSeries.Count, sSeries.Count);
 
         int count = qSeries.Count;
-        int start = count - skip;
+        int start = Math.Max(0, count - skip);
 
         for (int i = start; i < count; i++)
         {
@@ -29,7 +29,7 @@ public static class ValidationHelper
         Assert.Equal(qResults.Count, sSeries.Count);
 
         int count = qResults.Count;
-        int start = count - skip;
+        int start = Math.Max(0, count - skip);
 
         for (int i = start; i < count; i++)
         {
@@ -47,7 +47,7 @@ public static class ValidationHelper
         Assert.Equal(qOutput.Length, sSeries.Count);
 
         int count = qOutput.Length;
-        int start = count - skip;
+        int start = Math.Max(0, count - skip);
 
         for (int i = start; i < count; i++)
         {
@@ -63,7 +63,7 @@ public static class ValidationHelper
     public static void VerifyData(TSeries qSeries, double[] tOutput, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qSeries.Count;
-        int start = count - skip;
+        int start = Math.Max(0, count - skip);
 
         for (int i = start; i < count; i++)
         {
@@ -83,7 +83,7 @@ public static class ValidationHelper
     public static void VerifyData(List<double> qResults, double[] tOutput, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qResults.Count;
-        int start = count - skip;
+        int start = Math.Max(0, count - skip);
 
         for (int i = start; i < count; i++)
         {
@@ -103,7 +103,7 @@ public static class ValidationHelper
     public static void VerifyData(double[] qOutput, double[] tOutput, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qOutput.Length;
-        int start = count - skip;
+        int start = Math.Max(0, count - skip);
 
         for (int i = start; i < count; i++)
         {
@@ -123,8 +123,9 @@ public static class ValidationHelper
     public static void VerifyData(TSeries qSeries, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qSeries.Count;
-        int start = count - skip;
-        int validCount = outRange.End.Value - outRange.Start.Value;
+        int start = Math.Max(0, count - skip);
+        var (_, length) = outRange.GetOffsetAndLength(tOutput.Length);
+        int validCount = length;
 
         for (int i = start; i < count; i++)
         {
@@ -144,8 +145,9 @@ public static class ValidationHelper
     public static void VerifyData(List<double> qResults, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qResults.Count;
-        int start = count - skip;
-        int validCount = outRange.End.Value - outRange.Start.Value;
+        int start = Math.Max(0, count - skip);
+        var (_, length) = outRange.GetOffsetAndLength(tOutput.Length);
+        int validCount = length;
 
         for (int i = start; i < count; i++)
         {
@@ -165,8 +167,9 @@ public static class ValidationHelper
     public static void VerifyData(double[] qOutput, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
     {
         int count = qOutput.Length;
-        int start = count - skip;
-        int validCount = outRange.End.Value - outRange.Start.Value;
+        int start = Math.Max(0, count - skip);
+        var (_, length) = outRange.GetOffsetAndLength(tOutput.Length);
+        int validCount = length;
 
         for (int i = start; i < count; i++)
         {
