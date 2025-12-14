@@ -30,6 +30,8 @@
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
     <!-- Include trends implementations -->
     <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\*.Validation.Tests.cs" />
+    <!-- Include momentum implementations -->
+    <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs;..\lib\momentum\**\*.Validation.Tests.cs" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
   </ItemGroup>

@@ -472,6 +472,59 @@ public class SimdExtensionsTests
         Assert.Equal(-1.0, max);
     }
 
+    // Add/Subtract tests
+    [Fact]
+    public void Add_SameLength_CorrectResult()
+    {
+        double[] left = [1.0, 2.0, 3.0, 4.0, 5.0];
+        double[] right = [10.0, 20.0, 30.0, 40.0, 50.0];
+        double[] result = new double[5];
+
+        SimdExtensions.Add(left, right, result);
+
+        Assert.Equal(11.0, result[0]);
+        Assert.Equal(22.0, result[1]);
+        Assert.Equal(33.0, result[2]);
+        Assert.Equal(44.0, result[3]);
+        Assert.Equal(55.0, result[4]);
+    }
+
+    [Fact]
+    public void Add_DifferentLengths_ThrowsArgumentException()
+    {
+        double[] left = [1.0, 2.0];
+        double[] right = [1.0];
+        double[] result = new double[2];
+
+        Assert.Throws<ArgumentException>(() => SimdExtensions.Add(left, right, result));
+    }
+
+    [Fact]
+    public void Subtract_SameLength_CorrectResult()
+    {
+        double[] left = [10.0, 20.0, 30.0, 40.0, 50.0];
+        double[] right = [1.0, 2.0, 3.0, 4.0, 5.0];
+        double[] result = new double[5];
+
+        SimdExtensions.Subtract(left, right, result);
+
+        Assert.Equal(9.0, result[0]);
+        Assert.Equal(18.0, result[1]);
+        Assert.Equal(27.0, result[2]);
+        Assert.Equal(36.0, result[3]);
+        Assert.Equal(45.0, result[4]);
+    }
+
+    [Fact]
+    public void Subtract_DifferentLengths_ThrowsArgumentException()
+    {
+        double[] left = [1.0, 2.0];
+        double[] right = [1.0];
+        double[] result = new double[2];
+
+        Assert.Throws<ArgumentException>(() => SimdExtensions.Subtract(left, right, result));
+    }
+
     // Integration tests
     [Fact]
     public void SIMD_WorksWithTSeriesValues()

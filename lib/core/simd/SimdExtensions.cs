@@ -382,6 +382,62 @@ public static class SimdExtensions
     }
 
     /// <summary>
+    /// Element-wise addition of two spans using SIMD.
+    /// result[i] = left[i] + right[i]
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Add(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
+    {
+        if (left.Length != right.Length || left.Length != result.Length)
+            throw new ArgumentException("All spans must have the same length");
+
+        int i = 0;
+        if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
+        {
+            int vectorSize = Vector<double>.Count;
+            for (; i <= left.Length - vectorSize; i += vectorSize)
+            {
+                var vLeft = new Vector<double>(left.Slice(i, vectorSize));
+                var vRight = new Vector<double>(right.Slice(i, vectorSize));
+                (vLeft + vRight).CopyTo(result.Slice(i, vectorSize));
+            }
+        }
+
+        for (; i < left.Length; i++)
+        {
+            result[i] = left[i] + right[i];
+        }
+    }
+
+    /// <summary>
+    /// Element-wise subtraction of two spans using SIMD.
+    /// result[i] = left[i] - right[i]
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Subtract(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
+    {
+        if (left.Length != right.Length || left.Length != result.Length)
+            throw new ArgumentException("All spans must have the same length");
+
+        int i = 0;
+        if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
+        {
+            int vectorSize = Vector<double>.Count;
+            for (; i <= left.Length - vectorSize; i += vectorSize)
+            {
+                var vLeft = new Vector<double>(left.Slice(i, vectorSize));
+                var vRight = new Vector<double>(right.Slice(i, vectorSize));
+                (vLeft - vRight).CopyTo(result.Slice(i, vectorSize));
+            }
+        }
+
+        for (; i < left.Length; i++)
+        {
+            result[i] = left[i] - right[i];
+        }
+    }
+
+    /// <summary>
     /// Calculates the dot product of two spans using SIMD intrinsics.
     /// Supports AVX512, AVX2, and NEON (ARM64).
     /// </summary>

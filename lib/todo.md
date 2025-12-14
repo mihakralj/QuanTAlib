@@ -1,3 +1,5 @@
+# To do
+
 | **Indicator Name**                                                           | **Libraries**                                 |
 | ---------------------------------------------------------------------------- | --------------------------------------------- |
 | **Aroon** – measures trend strength (Aroon Up/Down)                          | TA-Lib, Tulip, Skender, PineScript, Pandas-TA |
@@ -140,3 +142,10 @@
 | **Schaff Trend Cycle** – *(also listed in 3-library category)*                |                |
 | **ConnorsRSI** – *(if PineScript not included; otherwise 2 libraries)*        |                |
 
+## Missing Indicators (Identified Gap Analysis)
+
+- **Trends:** FWMA, GANN_HILO, MAVP, SSL, SWMA, PARA_WMA.
+- **Momentum:** COPPOCK, ERI, KST, PSL, QQE, RMI, RVGI, VHF.
+- **Volume:** BWMFI, VFI.
+- **Volatility:** THERMO.
+- **Statistics:** LINREG_ANGLE, LINREG_INT, LINREG_SLOPE, MAD.

@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trends", "quantower\Trends.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quantower.Tests", "quantower\Quantower.Tests.csproj", "{576835AB-6453-4413-A2E7-54B6725CDF9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum", "quantower\Momentum.csproj", "{4C83564F-433B-46EC-B6F4-1912F38D55A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,18 @@ Global
 		{576835AB-6453-4413-A2E7-54B6725CDF9D}.Release|x64.Build.0 = Release|Any CPU
 		{576835AB-6453-4413-A2E7-54B6725CDF9D}.Release|x86.ActiveCfg = Release|Any CPU
 		{576835AB-6453-4413-A2E7-54B6725CDF9D}.Release|x86.Build.0 = Release|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Debug|x64.Build.0 = Debug|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Release|x64.ActiveCfg = Release|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Release|x64.Build.0 = Release|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +95,7 @@ Global
 		{953F0406-DD9B-406E-993D-6D988D5F5423} = {3A8DF596-E814-FECC-DD4B-D8EF8AAC1A0D}
 		{D8F03B19-F99F-475F-8951-85C9D2258B73} = {6CF592EE-4302-E72F-3CB4-AB1D314DD5A8}
 		{576835AB-6453-4413-A2E7-54B6725CDF9D} = {6CF592EE-4302-E72F-3CB4-AB1D314DD5A8}
+		{4C83564F-433B-46EC-B6F4-1912F38D55A5} = {6CF592EE-4302-E72F-3CB4-AB1D314DD5A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6DB434C-508E-4231-B8A6-5EDD7FF87E22}

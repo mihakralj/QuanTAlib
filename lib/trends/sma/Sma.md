@@ -46,7 +46,7 @@ Where:
 
 ## C# Implementation
 
-The library provides two implementations: a standard scalar version and a multi-period vector version for calculating multiple SMAs simultaneously.
+The library provides two implementations: a standard scalar version and a high-performance Span-based static version.
 
 ### Single SMA (`Sma`)
 

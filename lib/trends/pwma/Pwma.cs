@@ -1,0 +1,320 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace QuanTAlib;
+
+/// <summary>
+/// PWMA: Parabolic Weighted Moving Average
+/// </summary>
+/// <remarks>
+/// PWMA applies parabolic weighting to data points, giving significantly more weight to recent values.
+/// Uses triple running sums for O(1) complexity per update.
+///
+/// Weights: w(i) = i^2
+///
+/// Calculation:
+/// PWMA = Sum(i^2 * P_i) / Sum(i^2)
+///
+/// O(1) update logic:
+/// S1_new = S1_old - oldest + newest
+/// S2_new = S2_old - S1_old + n * newest
+/// S3_new = S3_old - 2*S2_old + S1_old + n^2 * newest
+///
+/// Where:
+/// S1 is simple sum
+/// S2 is linear weighted sum
+/// S3 is parabolic weighted sum
+/// </remarks>
+[SkipLocalsInit]
+public sealed class Pwma : ITValuePublisher
+{
+    private readonly int _period;
+    private readonly double _divisor;
+    private readonly RingBuffer _buffer;
+
+    private record struct State(double Sum, double WSum, double PSum, double LastInput, double LastValidValue, int TickCount);
+    private State _state;
+    private State _p_state;
+
+    private const int ResyncInterval = 1000;
+
+    public string Name { get; }
+    public TValue Last { get; private set; }
+    public bool IsHot => _buffer.IsFull;
+    public event Action<TValue>? Pub;
+
+    public Pwma(int period)
+    {
+        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        _period = period;
+        _divisor = (double)period * (period + 1) * (2 * period + 1) / 6.0;
+        _buffer = new RingBuffer(period);
+        Name = $"Pwma({period})";
+    }
+
+    public Pwma(ITValuePublisher source, int period) : this(period)
+    {
+        source.Pub += (item) => Update(item);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double GetValidValue(double input)
+    {
+        if (double.IsFinite(input))
+        {
+            _state.LastValidValue = input;
+            return input;
+        }
+        return _state.LastValidValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateState(double val)
+    {
+        if (_buffer.IsFull)
+        {
+            double oldSum = _state.Sum;
+            double oldWSum = _state.WSum;
+            double oldest = _buffer.Oldest;
+
+            _state.Sum = _state.Sum - oldest + val;
+            _state.WSum = _state.WSum - oldSum + (_period * val);
+            _state.PSum = _state.PSum - 2 * oldWSum + oldSum + ((double)_period * _period * val);
+        }
+        else
+        {
+            int count = _buffer.Count + 1;
+            _state.Sum += val;
+            _state.WSum += count * val;
+            _state.PSum += (double)count * count * val;
+        }
+
+        _buffer.Add(val);
+
+        _state.TickCount++;
+        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
+        {
+            _state.TickCount = 0;
+            double recalcSum = 0;
+            double recalcWsum = 0;
+            double recalcPsum = 0;
+            int i = 1;
+            foreach (double item in _buffer)
+            {
+                recalcSum += item;
+                recalcWsum += i * item;
+                recalcPsum += (double)i * i * item;
+                i++;
+            }
+            _state.Sum = recalcSum;
+            _state.WSum = recalcWsum;
+            _state.PSum = recalcPsum;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(TValue input, bool isNew = true)
+    {
+        if (isNew)
+        {
+            double val = GetValidValue(input.Value);
+            UpdateState(val);
+            _state.LastInput = val;
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+            double val = GetValidValue(input.Value);
+
+            // Recalculate for the updated last value
+            // We can't easily use the O(1) update formula here because we are replacing the newest value,
+            // not shifting the window.
+            // But we can adjust the sums directly.
+            // S1' = S1 - last + new
+            // S2' = S2 - n*last + n*new
+            // S3' = S3 - n^2*last + n^2*new
+            
+            int n = _buffer.IsFull ? _period : _buffer.Count;
+            double diff = val - _state.LastInput;
+            
+            _state.Sum += diff;
+            _state.WSum += n * diff;
+            _state.PSum += (double)n * n * diff;
+
+            _buffer.UpdateNewest(val);
+        }
+
+        double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * (2 * _buffer.Count + 1) / 6.0;
+        Last = new TValue(input.Time, _state.PSum / currentDivisor);
+        Pub?.Invoke(Last);
+        return Last;
+    }
+
+    public TSeries Update(TSeries source)
+    {
+        if (source.Count == 0) return [];
+
+        int len = source.Count;
+        List<long> t = new(len);
+        List<double> v = new(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+        
+        Calculate(source.Values, vSpan, _period);
+        source.Times.CopyTo(tSpan);
+
+        // Restore state
+        int windowSize = Math.Min(len, _period);
+        int startIndex = len - windowSize;
+
+        if (startIndex > 0)
+        {
+            _state.LastValidValue = 0;
+            for (int i = startIndex - 1; i >= 0; i--)
+            {
+                if (double.IsFinite(source.Values[i]))
+                {
+                    _state.LastValidValue = source.Values[i];
+                    break;
+                }
+            }
+        }
+        else
+        {
+            _state.LastValidValue = 0;
+        }
+
+        _buffer.Clear();
+        _state.Sum = 0;
+        _state.WSum = 0;
+        _state.PSum = 0;
+        _state.TickCount = 0;
+
+        for (int i = startIndex; i < len; i++)
+        {
+            double val = GetValidValue(source.Values[i]);
+            UpdateState(val);
+            _state.LastInput = val;
+        }
+
+        _p_state = _state;
+
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        return new TSeries(t, v);
+    }
+
+    public static TSeries Calculate(TSeries source, int period)
+    {
+        var pwma = new Pwma(period);
+        return pwma.Update(source);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        if (source.Length != output.Length)
+            throw new ArgumentException("Source and output must have the same length");
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        int len = source.Length;
+        if (len == 0) return;
+
+        CalculateScalarCore(source, output, period);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    {
+        int len = source.Length;
+        double divisor = (double)period * (period + 1) * (2 * period + 1) / 6.0;
+        double sum = 0;
+        double wsum = 0;
+        double psum = 0;
+        double lastValid = 0;
+
+        Span<double> buffer = period <= 512 ? stackalloc double[period] : new double[period];
+        int bufferIdx = 0;
+        int i = 0;
+
+        int warmupEnd = Math.Min(period, len);
+        for (; i < warmupEnd; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValid = val;
+            else
+                val = lastValid;
+
+            sum += val;
+            wsum += (i + 1) * val;
+            psum += (double)(i + 1) * (i + 1) * val;
+            buffer[i] = val;
+
+            double currentDivisor = (double)(i + 1) * (i + 2) * (2 * (i + 1) + 1) / 6.0;
+            output[i] = psum / currentDivisor;
+        }
+
+        int tickCount = period;
+        for (; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValid = val;
+            else
+                val = lastValid;
+
+            double oldSum = sum;
+            double oldWSum = wsum;
+            double oldest = buffer[bufferIdx];
+
+            sum = sum - oldest + val;
+            wsum = wsum - oldSum + (period * val);
+            psum = psum - 2 * oldWSum + oldSum + ((double)period * period * val);
+
+            buffer[bufferIdx] = val;
+            bufferIdx++;
+            if (bufferIdx >= period)
+                bufferIdx = 0;
+
+            tickCount++;
+            if (tickCount >= ResyncInterval)
+            {
+                tickCount = 0;
+                double recalcSum = 0;
+                double recalcWsum = 0;
+                double recalcPsum = 0;
+                
+                for (int k = 0; k < period; k++)
+                {
+                    int idx = bufferIdx + k;
+                    if (idx >= period) idx -= period;
+                    
+                    double v = buffer[idx];
+                    recalcSum += v;
+                    recalcWsum += (k + 1) * v;
+                    recalcPsum += (double)(k + 1) * (k + 1) * v;
+                }
+                sum = recalcSum;
+                wsum = recalcWsum;
+                psum = recalcPsum;
+            }
+
+            output[i] = psum / divisor;
+        }
+    }
+
+    public void Reset()
+    {
+        _buffer.Clear();
+        _state = default;
+        _p_state = default;
+        Last = default;
+    }
+}

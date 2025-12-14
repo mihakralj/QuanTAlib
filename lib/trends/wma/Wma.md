@@ -59,7 +59,7 @@ This works because when all weights decrement by 1 (as the window slides), it's 
 
 ## C# Implementation
 
-The library provides two implementations: a standard scalar version and a multi-period vector version for calculating multiple WMAs simultaneously.
+The library provides two implementations: a standard scalar version and a high-performance Span-based static version.
 
 ### Single WMA (`Wma`)
 
