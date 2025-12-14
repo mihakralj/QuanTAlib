@@ -193,16 +193,25 @@ if [ "$SKIP_CODACY" = false ]; then
         CODACY_BIN="/tmp/codacy-coverage-reporter"
 
         log_info "Downloading Codacy coverage reporter v${CODACY_VERSION}..."
-        curl -L -o "$CODACY_BIN" "$CODACY_URL"
-        
-        # Verify hash
-        echo "$CODACY_SHA256  $CODACY_BIN" | sha256sum -c -
-        if [ $? -ne 0 ]; then
-            log_error "Codacy reporter checksum verification failed!"
+        if ! curl -fSL -o "$CODACY_BIN" "$CODACY_URL"; then
+            log_error "Failed to download Codacy coverage reporter from $CODACY_URL"
             rm -f "$CODACY_BIN"
             exit 1
         fi
         
+        # Verify hash using temporary checksum file
+        CHECKSUM_FILE=$(mktemp)
+        printf "%s  %s\n" "$CODACY_SHA256" "$CODACY_BIN" > "$CHECKSUM_FILE"
+        
+        if ! sha256sum -c --status "$CHECKSUM_FILE"; then
+            log_error "Codacy reporter checksum verification failed!"
+            log_error "Expected: $CODACY_SHA256"
+            log_error "File: $CODACY_BIN"
+            rm -f "$CODACY_BIN" "$CHECKSUM_FILE"
+            exit 1
+        fi
+        
+        rm -f "$CHECKSUM_FILE"
         chmod +x "$CODACY_BIN"
 
         for file in "${coverage_files[@]}"; do
