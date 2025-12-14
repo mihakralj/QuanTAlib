@@ -248,7 +248,7 @@ public sealed class Jma : ITValuePublisher
     {
         int n = source.Count;
         if (n == 0)
-            return new TSeries(0);
+            return [];
 
         var t = new List<long>(n);
         var v = new List<double>(n);
