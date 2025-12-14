@@ -1,4 +1,4 @@
-# RSX - Relative Strength X (Jurik's RSI Variant)
+# RSX - Jurik Relative Strength X
 
 RSX is a noise-free version of the Relative Strength Index (RSI) developed by Mark Jurik. It eliminates the lag and choppiness associated with standard RSI and its smoothed variants. RSX preserves the 0-100 bounded range and turning points of RSI but provides a much smoother signal, making it easier to identify trends and reversals without false signals from whipsaw movements.
 

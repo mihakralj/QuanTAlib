@@ -14,7 +14,7 @@ public class VelIndicatorTests
         Assert.Equal(14, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("VEL - Jurik's Velocity", indicator.Name);
+        Assert.Equal("VEL - Jurik Velocity", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

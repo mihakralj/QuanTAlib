@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// RSX: Relative Strength X (Jurik's RSI Variant)
+/// RSX: Jurik Relative Strength Index (Jurik's RSI Variant)
 /// </summary>
 /// <remarks>
 /// RSX is a noise-free version of RSI that eliminates lag and choppiness.

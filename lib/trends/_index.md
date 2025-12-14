@@ -36,7 +36,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | HT_TRENDMODE | Ehlers Hilbert Transform Trend Mode | |
 | HWMA | Holt Weighted MA | |
 | ICHIMOKU | Ichimoku Cloud | |
-| [JMA](jma/Jma.md) | Jurik MA | Adaptive moving average that adjusts to market volatility for superior smoothing with minimal lag. |
+| [JMA](jma/Jma.md) | Jurik Moving Average | Adaptive moving average that adjusts to market volatility for superior smoothing with minimal lag. |
 | [KAMA](kama/Kama.md) | Kaufman Adaptive MA | Adapts to market volatility by adjusting its smoothing factor based on an Efficiency Ratio. |
 | KF | Kalman Filter | |
 | LOESS | LOESS/LOWESS Smoothing | |

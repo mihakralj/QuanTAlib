@@ -14,7 +14,7 @@ public class RsxIndicatorTests
         Assert.Equal(14, indicator.Period);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("RSX - Relative Strength X", indicator.Name);
+        Assert.Equal("RSX - Jurik Relative Strength Index", indicator.Name);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }

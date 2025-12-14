@@ -1,4 +1,4 @@
-# VEL - Jurik's Velocity
+# VEL - Jurik Velocity
 
 VEL (Jurik's Velocity) is a momentum oscillator that measures the rate of change of price. It is calculated as the difference between a Parabolic Weighted Moving Average (PWMA) and a Weighted Moving Average (WMA) of the same period.
 

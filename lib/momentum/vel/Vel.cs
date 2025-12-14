@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// VEL: Jurik's Velocity
+/// VEL: Jurik Velocity
 /// </summary>
 /// <remarks>
 /// VEL is a momentum oscillator calculated as the difference between a Parabolic Weighted Moving Average (PWMA)

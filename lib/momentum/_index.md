@@ -15,6 +15,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | BBS | Bollinger Band Squeeze | |
 | BOP | Balance of Power | |
 | CCI | Commodity Channel Index | |
+| [CFB](cfb/Cfb.md) | Jurik Composite Fractal Behavior | Trend Duration Index using fractal efficiency. |
 | CHOP | Choppiness Index | |
 | CMO | Chande Momentum Oscillator | |
 | DMX | Jurik Directional Movement Index | |
@@ -35,7 +36,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | ROCP | Rate of Change Percentage | |
 | ROCR | Rate of Change Ratio | |
 | RSI | Relative Strength Index | |
-| [RSX](rsx/Rsx.md) | Relative Strength X (Jurik's RSI Variant) | Noise-free, zero-lag version of RSI |
+| [RSX](rsx/Rsx.md) | Jurik Relative Strength X | Noise-free, zero-lag version of RSI |
 | SMI | Stochastic Momentum Index | |
 | STOCH | Stochastic Oscillator | |
 | STOCHF | Stochastic Fast | |

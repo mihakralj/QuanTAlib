@@ -30,8 +30,8 @@ public class RsxIndicator : Indicator, IWatchlistIndicator
         OnBackGround = true;
         SeparateWindow = true;
         SourceName = Source.ToString();
-        Name = "RSX - Relative Strength X";
-        Description = "Jurik's RSX: A noise-free, zero-lag version of RSI";
+        Name = "RSX - Jurik Relative Strength Index";
+        Description = "Jurik's RSI: A noise-free, zero-lag version of RSI";
         Series = new(name: $"RSX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
