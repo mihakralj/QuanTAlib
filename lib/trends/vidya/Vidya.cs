@@ -166,6 +166,13 @@ public sealed class Vidya : ITValuePublisher
 
         return new TSeries(t, v);
     }
+
+    public static TSeries Calculate(TSeries source, int period)
+    {
+        var vidya = new Vidya(period);
+        return vidya.Update(source);
+    }
+
     /// <summary>
     /// Calculates VIDYA for the entire series.
     /// </summary>

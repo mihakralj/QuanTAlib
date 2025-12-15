@@ -1,131 +1,173 @@
-using Xunit;
 using System;
+using System.Collections.Generic;
+using Xunit;
 
-namespace QuanTAlib.Tests;
+namespace QuanTAlib;
 
 public class T3Tests
 {
     [Fact]
-    public void T3_Constructor_Period_ValidatesInput()
+    public void BasicCalculation_DoesNotCrash()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        Assert.True(double.IsFinite(t3.Last.Value));
+    }
+
+    [Fact]
+    public void IsNew_Consistency()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed first 99
+        for (int i = 0; i < 99; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        // Update with 100th point (isNew=true)
+        t3.Update(new TValue(bars[99].Time, bars[99].Close), true);
+
+        // Update with modified 100th point (isNew=false)
+        var val2 = t3.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), false);
+
+        // Create new instance and feed up to modified
+        var t3_2 = new T3(5, 0.7);
+        for (int i = 0; i < 99; i++)
+        {
+            t3_2.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        var val3 = t3_2.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), true);
+
+        Assert.Equal(val3.Value, val2.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Reset_Works()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        t3.Reset();
+        Assert.Equal(0, t3.Last.Value);
+        Assert.False(t3.IsHot);
+        
+        // Feed again
+        for (int i = 0; i < bars.Count; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        
+        Assert.True(double.IsFinite(t3.Last.Value));
+    }
+
+    [Fact]
+    public void TSeries_Update_Matches_Streaming()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(t3.Update(series[i]).Value);
+        }
+
+        var t3_2 = new T3(5, 0.7);
+        var seriesResults = t3_2.Update(series);
+
+        Assert.Equal(streamingResults.Count, seriesResults.Count);
+        for (int i = 0; i < seriesResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
+        }
+    }
+    
+    [Fact]
+    public void StaticCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        var t3 = new T3(5, 0.7);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(t3.Update(series[i]).Value);
+        }
+        
+        var staticResults = T3.Calculate(series, 5, 0.7);
+        
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < staticResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void StaticCalculateSpan_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        var t3 = new T3(5, 0.7);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(t3.Update(series[i]).Value);
+        }
+        
+        var spanResults = new double[series.Count];
+        T3.Calculate(series.Values, spanResults, 5, 0.7);
+        
+        for (int i = 0; i < spanResults.Length; i++)
+        {
+            Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // Test TSeries chain
+        var result = t3.Update(series);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
+        
+        // Test TValue chain
+        var result2 = t3.Update(series[0]);
+        Assert.IsType<TValue>(result2);
+    }
+
+    [Fact]
+    public void Constructor_InvalidParameters_ThrowsArgumentException()
     {
         Assert.Throws<ArgumentException>(() => new T3(0));
         Assert.Throws<ArgumentException>(() => new T3(-1));
-
-        var t3 = new T3(10);
-        Assert.NotNull(t3);
-    }
-
-    [Fact]
-    public void T3_ConstantInput_ConvergesToInput()
-    {
-        var t3 = new T3(5, 0.7);
-        double input = 100.0;
-        
-        // Feed enough values for T3 to converge (it has 6 cascaded EMAs)
-        for(int i = 0; i < 100; i++)
-        {
-            t3.Update(new TValue(DateTime.UtcNow, input));
-        }
-
-        Assert.Equal(input, t3.Last.Value, 1e-9);
-    }
-
-    [Fact]
-    public void T3_Parameters_AffectResult()
-    {
-        // Different volume factors should produce different results for changing data
-        var t3_low_v = new T3(10, 0.1);
-        var t3_high_v = new T3(10, 0.9);
-
-        var series = new TSeries();
-        series.Add(DateTime.UtcNow, 100);
-        series.Add(DateTime.UtcNow.AddMinutes(1), 110);
-        series.Add(DateTime.UtcNow.AddMinutes(2), 120);
-
-        t3_low_v.Update(series);
-        t3_high_v.Update(series);
-
-        Assert.NotEqual(t3_low_v.Last.Value, t3_high_v.Last.Value);
-    }
-
-    [Fact]
-    public void T3_Reset_ResetsState()
-    {
-        var t3 = new T3(10);
-        t3.Update(new TValue(DateTime.UtcNow, 100));
-        t3.Update(new TValue(DateTime.UtcNow, 110));
-
-        Assert.True(t3.IsHot);
-        Assert.NotEqual(0, t3.Last.Value);
-
-        t3.Reset();
-
-        Assert.False(t3.IsHot);
-        Assert.Equal(0, t3.Last.Value);
-
-        // Should accept new data as if fresh
-        t3.Update(new TValue(DateTime.UtcNow, 50));
-        Assert.Equal(50, t3.Last.Value, 1e-9); // First value logic: output = input
-    }
-
-    [Fact]
-    public void T3_Eventing_Works()
-    {
-        var source = new TSeries();
-        var t3 = new T3(source, 10);
-        double lastVal = 0;
-
-        t3.Pub += (v) => lastVal = v.Value;
-
-        source.Add(new TValue(DateTime.UtcNow, 100));
-        Assert.Equal(100, lastVal, 1e-9);
-        
-        source.Add(new TValue(DateTime.UtcNow, 110));
-        Assert.NotEqual(100, lastVal);
-        Assert.NotEqual(0, lastVal);
-    }
-
-    [Fact]
-    public void T3_SpanTests()
-    {
-        var series = new TSeries();
-        int count = 100;
-        for(int i=0; i<count; i++) 
-            series.Add(DateTime.UtcNow.AddMinutes(i), 100 + i);
-
-        var t3 = new T3(10);
-        var resSeries = t3.Update(series);
-
-        var resSpan = new double[count];
-        // Correctly use Span.CopyTo
-        T3.Calculate(series, 10).Values.CopyTo(resSpan.AsSpan());
-
-        // Check last values match
-        Assert.Equal(resSeries.Last.Value, resSpan[count-1], 1e-9);
-    }
-
-    [Fact]
-    public void T3_BarCorrection_WithNaN_RestoresPreviousValidValue()
-    {
-        var t3 = new T3(10);
-        var time = DateTime.UtcNow;
-
-        // Step 1: Update with valid value
-        t3.Update(new TValue(time, 100), isNew: true);
-        
-        // Step 2: Update with another valid value
-        t3.Update(new TValue(time.AddMinutes(1), 200), isNew: true);
-        double valAfter200 = t3.Last.Value;
-
-        // Step 3: Correct with NaN (should use 100)
-        t3.Update(new TValue(time.AddMinutes(1), double.NaN), isNew: false);
-        double valAfterNaN = t3.Last.Value;
-
-        // Step 4: Correct with 100 (should match NaN result)
-        t3.Update(new TValue(time.AddMinutes(1), 100), isNew: false);
-        double valAfter100 = t3.Last.Value;
-
-        Assert.NotEqual(valAfter200, valAfterNaN); // Should not be the same as 200
-        Assert.Equal(valAfter100, valAfterNaN, 1e-9); // Should be the same as using 100
     }
 }

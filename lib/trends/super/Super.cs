@@ -217,4 +217,10 @@ public sealed class Super : ITValuePublisher
 
         return new TSeries(t, v);
     }
+
+    public static TSeries Calculate(TBarSeries source, int period = 10, double multiplier = 3.0)
+    {
+        var indicator = new Super(period, multiplier);
+        return indicator.Update(source);
+    }
 }

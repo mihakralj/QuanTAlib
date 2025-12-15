@@ -140,4 +140,50 @@ public class SuperTests
         Assert.Throws<ArgumentOutOfRangeException>(() => new Super(10, 0));
         Assert.Throws<ArgumentOutOfRangeException>(() => new Super(10, -1.0));
     }
+
+    [Fact]
+    public void StaticCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        var super = new Super(10, 3.0);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < bars.Count; i++)
+        {
+            streamingResults.Add(super.Update(bars[i]).Value);
+        }
+        
+        var staticResults = Super.Calculate(bars, 10, 3.0);
+        
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < staticResults.Count; i++)
+        {
+            if (double.IsNaN(streamingResults[i]))
+            {
+                Assert.True(double.IsNaN(staticResults.Values[i]));
+            }
+            else
+            {
+                Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+            }
+        }
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var super = new Super(10, 3.0);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        // Test TBarSeries chain
+        var result = super.Update(bars);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
+        
+        // Test TBar chain (returns TValue)
+        var result2 = super.Update(bars[0]);
+        Assert.IsType<TValue>(result2);
+    }
 }

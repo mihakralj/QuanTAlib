@@ -15,7 +15,7 @@
 | ALLIGATOR | Williams Alligator | Trends |
 | [ALMA](trends/alma/Alma.md) | Arnaud Legoux MA | Trends |
 | AMAT | Archer Moving Averages Trends | Trends |
-| AO | Awesome Oscillator | Momentum |
+| [AO](momentum/ao/Ao.md) | Awesome Oscillator | Momentum |
 | AOBV | Archer On-Balance Volume | Volume |
 | APCHANNEL | Andrews' Pitchfork | Channels |
 | APO | Absolute Price Oscillator | Momentum |

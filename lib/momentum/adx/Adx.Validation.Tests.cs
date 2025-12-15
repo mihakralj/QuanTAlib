@@ -8,7 +8,7 @@ using QuanTAlib.Tests;
 
 namespace QuanTAlib;
 
-public class AdxValidationTests : IDisposable
+public sealed class AdxValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
 
@@ -19,16 +19,7 @@ public class AdxValidationTests : IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _data.Dispose();
-        }
+        _data.Dispose();
     }
 
     [Fact]

@@ -195,4 +195,29 @@ public class LsmaTests
         var result = lsma.Update(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, result.Value);
     }
+
+    [Fact]
+    public void IsHot_BecomesTrueWhenBufferFull()
+    {
+        int period = 5;
+        var lsma = new Lsma(period);
+        
+        for (int i = 0; i < period; i++)
+        {
+            Assert.False(lsma.IsHot);
+            lsma.Update(new TValue(DateTime.UtcNow, i));
+        }
+        
+        Assert.True(lsma.IsHot);
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var source = new TSeries();
+        var lsma = new Lsma(source, 10);
+        
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100, lsma.Last.Value);
+    }
 }

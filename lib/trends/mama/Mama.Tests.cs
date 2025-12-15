@@ -99,4 +99,83 @@ public class MamaTests
             Assert.Equal(result1[25 + i].Value, result2[i].Value, 6);
         }
     }
+
+    [Fact]
+    public void IsHot_BecomesTrueAfterWarmup()
+    {
+        var mama = new Mama();
+        
+        // MAMA needs 6 bars to warmup (Index > 6)
+        for (int i = 0; i < 6; i++)
+        {
+            mama.Update(new TValue(DateTime.UtcNow, 100));
+            Assert.False(mama.IsHot);
+        }
+        
+        mama.Update(new TValue(DateTime.UtcNow, 100));
+        Assert.True(mama.IsHot);
+    }
+
+    [Fact]
+    public void Reset_ClearsState()
+    {
+        var mama = new Mama();
+        for (int i = 0; i < 10; i++)
+        {
+            mama.Update(new TValue(DateTime.UtcNow, 100));
+        }
+        Assert.True(mama.IsHot);
+        
+        mama.Reset();
+        
+        Assert.False(mama.IsHot);
+        Assert.True(double.IsNaN(mama.Last.Value));
+    }
+
+    [Fact]
+    public void Update_BarCorrection_UpdatesCorrectly()
+    {
+        var mama = new Mama();
+        
+        // Warmup
+        for (int i = 0; i < 10; i++)
+        {
+            mama.Update(new TValue(DateTime.UtcNow, 100));
+        }
+        
+        // New bar
+        var result1 = mama.Update(new TValue(DateTime.UtcNow, 110));
+        
+        // Update same bar with different value
+        var result2 = mama.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
+        
+        Assert.NotEqual(result1.Value, result2.Value);
+        
+        // Verify internal state by adding next bar
+        var result3 = mama.Update(new TValue(DateTime.UtcNow, 130));
+        Assert.True(double.IsFinite(result3.Value));
+    }
+
+    [Fact]
+    public void Calculate_StaticMethod_MatchesObjectInstance()
+    {
+        var source = new TSeries();
+        var gbm = new GBM(startPrice: 100, seed: 42);
+        
+        for (int i = 0; i < 50; i++)
+        {
+            var bar = gbm.Next();
+            source.Add(bar.C);
+        }
+        
+        var mama = new Mama();
+        var series1 = mama.Update(source);
+        var series2 = Mama.Calculate(source);
+        
+        Assert.Equal(series1.Count, series2.Count);
+        for (int i = 0; i < source.Count; i++)
+        {
+            Assert.Equal(series1[i].Value, series2[i].Value, 1e-9);
+        }
+    }
 }

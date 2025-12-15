@@ -129,4 +129,10 @@ public sealed class Dmx : ITValuePublisher
 
         return new TSeries(t, v);
     }
+
+    public static TSeries Calculate(TBarSeries source, int period = 14)
+    {
+        var dmx = new Dmx(period);
+        return dmx.Update(source);
+    }
 }

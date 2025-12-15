@@ -59,6 +59,7 @@ public class AlmaTests
 
         // Streaming
         var streamingResults = new TSeries();
+        Assert.True(series.Count > 0);
         foreach (var item in series)
         {
             streamingResults.Add(almaStreaming.Update(item));
@@ -177,5 +178,156 @@ public class AlmaTests
 
         Assert.Equal(0, alma.Last.Value);
         Assert.False(alma.IsHot);
+    }
+
+    [Fact]
+    public void Alma_FirstValue_ReturnsExpected()
+    {
+        var alma = new Alma(10);
+        TValue result = alma.Update(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100.0, result.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Alma_Properties_Accessible()
+    {
+        var alma = new Alma(10);
+        Assert.False(alma.IsHot);
+        Assert.Equal(0, alma.Last.Value);
+    }
+
+    [Fact]
+    public void Alma_Calc_IsNew_AcceptsParameter()
+    {
+        var alma = new Alma(10);
+        alma.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
+        Assert.Equal(100, alma.Last.Value);
+    }
+
+    [Fact]
+    public void Alma_IterativeCorrections_RestoreToOriginalState()
+    {
+        var alma = new Alma(10);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 10 new values
+        TValue tenthInput = default;
+        for (int i = 0; i < 10; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            tenthInput = new TValue(bar.Time, bar.Close);
+            alma.Update(tenthInput, isNew: true);
+        }
+
+        // Remember state after 10 values
+        double valueAfterTen = alma.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            alma.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered 10th input again with isNew=false
+        TValue finalValue = alma.Update(tenthInput, isNew: false);
+
+        // Should match the original state after 10 values
+        Assert.Equal(valueAfterTen, finalValue.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Alma_Infinity_Input_UsesLastValidValue()
+    {
+        var alma = new Alma(10);
+        alma.Update(new TValue(DateTime.UtcNow, 100));
+        alma.Update(new TValue(DateTime.UtcNow, 110));
+
+        var resultPosInf = alma.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
+        Assert.True(double.IsFinite(resultPosInf.Value));
+
+        var resultNegInf = alma.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
+        Assert.True(double.IsFinite(resultNegInf.Value));
+    }
+
+    [Fact]
+    public void Alma_MultipleNaN_ContinuesWithLastValid()
+    {
+        var alma = new Alma(10);
+        alma.Update(new TValue(DateTime.UtcNow, 100));
+        
+        var r1 = alma.Update(new TValue(DateTime.UtcNow, double.NaN));
+        var r2 = alma.Update(new TValue(DateTime.UtcNow, double.NaN));
+        
+        Assert.True(double.IsFinite(r1.Value));
+        Assert.True(double.IsFinite(r2.Value));
+    }
+
+    [Fact]
+    public void Alma_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Alma.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Alma.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Alma(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Alma(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, 1e-9);
+        Assert.Equal(expected, streamingResult, 1e-9);
+        Assert.Equal(expected, eventingResult, 1e-9);
+    }
+
+    [Fact]
+    public void Alma_SpanCalc_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void Alma_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Alma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val));
+        }
     }
 }

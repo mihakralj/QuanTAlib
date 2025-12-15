@@ -506,4 +506,14 @@ public class SmaTests
         Assert.Equal(expected, streamingResult, precision: 9);
         Assert.Equal(expected, eventingResult, precision: 9);
     }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var source = new TSeries();
+        var sma = new Sma(source, 10);
+        
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100, sma.Last.Value);
+    }
 }

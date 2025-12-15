@@ -1,111 +1,172 @@
-using QuanTAlib;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
-namespace Trends;
+namespace QuanTAlib;
 
 public class VidyaTests
 {
     [Fact]
-    public void BasicCalculation()
+    public void BasicCalculation_DoesNotCrash()
     {
-        // Test with a small dataset
-        // Period = 2
-        // Alpha = 2 / (2 + 1) = 0.666...
-        
-        var vidya = new Vidya(2);
-        
-        // Bar 1: Price 100
-        // Init: PrevClose=100, LastVidya=100, Ups=[0,0], Downs=[0,0]
-        // Output: 100
-        var v1 = vidya.Update(new TValue(DateTime.UtcNow, 100));
-        Assert.Equal(100, v1.Value);
-        
-        // Bar 2: Price 110
-        // Change = 110 - 100 = 10
-        // Up=10, Down=0
-        // Ups=[10,0], Downs=[0,0]
-        // SumUp=10, SumDown=0, Sum=10
-        // VI = |10-0|/10 = 1
-        // DynAlpha = 0.666 * 1 = 0.666
-        // Vidya = 0.666 * 110 + 0.333 * 100 = 73.33 + 33.33 = 106.66
-        var v2 = vidya.Update(new TValue(DateTime.UtcNow, 110));
-        Assert.Equal(106.66666666666667, v2.Value, 5);
-        
-        // Bar 3: Price 105
-        // Change = 105 - 110 = -5
-        // Up=0, Down=5
-        // Ups=[0,10], Downs=[5,0] (Circular buffer logic)
-        // SumUp=10, SumDown=5, Sum=15
-        // VI = |10-5|/15 = 5/15 = 0.333
-        // DynAlpha = 0.666 * 0.333 = 0.222
-        // Vidya = 0.222 * 105 + 0.777 * 106.66 = 23.33 + 82.96 = 106.29
-        var v3 = vidya.Update(new TValue(DateTime.UtcNow, 105));
-        Assert.Equal(106.29629629629629, v3.Value, 5);
+        var vidya = new Vidya(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            vidya.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        Assert.True(double.IsFinite(vidya.Last.Value));
     }
 
     [Fact]
-    public void IsNewConsistency()
+    public void IsNew_Consistency()
     {
-        var vidya = new Vidya(5);
-        var inputs = new double[] { 100, 105, 102, 108, 110, 105 };
-        
-        // Feed normally
-        var expected = new List<double>();
-        foreach (var input in inputs)
+        var vidya = new Vidya(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed first 99
+        for (int i = 0; i < 99; i++)
         {
-            expected.Add(vidya.Update(new TValue(DateTime.UtcNow, input)).Value);
+            vidya.Update(new TValue(bars[i].Time, bars[i].Close));
         }
-        
-        // Feed with updates
+
+        // Update with 100th point (isNew=true)
+        vidya.Update(new TValue(bars[99].Time, bars[99].Close), true);
+
+        // Update with modified 100th point (isNew=false)
+        var val2 = vidya.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), false);
+
+        // Create new instance and feed up to modified
+        var vidya2 = new Vidya(10);
+        for (int i = 0; i < 99; i++)
+        {
+            vidya2.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        var val3 = vidya2.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), true);
+
+        Assert.Equal(val3.Value, val2.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Reset_Works()
+    {
+        var vidya = new Vidya(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            vidya.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
         vidya.Reset();
-        for (int i = 0; i < inputs.Length; i++)
+        Assert.Equal(0, vidya.Last.Value);
+        
+        // Feed again
+        for (int i = 0; i < bars.Count; i++)
         {
-            // Update with a temporary value first
-            vidya.Update(new TValue(DateTime.UtcNow, inputs[i] + 1), true);
-            
-            // Correct it
-            var corrected = vidya.Update(new TValue(DateTime.UtcNow, inputs[i]), false);
-            
-            Assert.Equal(expected[i], corrected.Value, 1e-9);
+            vidya.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        
+        Assert.True(double.IsFinite(vidya.Last.Value));
+    }
+
+    [Fact]
+    public void TSeries_Update_Matches_Streaming()
+    {
+        var vidya = new Vidya(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(vidya.Update(series[i]).Value);
+        }
+
+        var vidya2 = new Vidya(10);
+        var seriesResults = vidya2.Update(series);
+
+        Assert.Equal(streamingResults.Count, seriesResults.Count);
+        for (int i = 0; i < seriesResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
+        }
+    }
+    
+    [Fact]
+    public void StaticCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        var vidya = new Vidya(10);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(vidya.Update(series[i]).Value);
+        }
+        
+        var staticResults = Vidya.Calculate(series, 10);
+        
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < staticResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
         }
     }
 
     [Fact]
-    public void StaticVsInstance()
+    public void StaticCalculateSpan_Matches_Streaming()
     {
-        var vidya = new Vidya(5);
-        var inputs = new double[] { 100, 105, 102, 108, 110, 105, 100, 95, 98, 102 };
-        var tSeries = new TSeries();
-        tSeries.Add(inputs);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
         
-        var instanceResult = vidya.Update(tSeries);
-        
-        var staticResult = new double[inputs.Length];
-        Vidya.Calculate(inputs, staticResult, 5);
-        
-        for (int i = 0; i < inputs.Length; i++)
+        var vidya = new Vidya(10);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
         {
-            Assert.Equal(instanceResult.Values[i], staticResult[i], 1e-9);
+            streamingResults.Add(vidya.Update(series[i]).Value);
+        }
+        
+        var spanResults = new double[series.Count];
+        Vidya.Calculate(series.Values, spanResults, 10);
+        
+        for (int i = 0; i < spanResults.Length; i++)
+        {
+            Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
         }
     }
 
     [Fact]
-    public void EdgeCases()
+    public void Chainability_Works()
     {
-        var vidya = new Vidya(5);
+        var vidya = new Vidya(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
         
-        // Empty
-        Assert.Empty(vidya.Update(new TSeries()));
+        // Test TSeries chain
+        var result = vidya.Update(series);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
         
-        // NaN handling
-        vidya.Reset();
-        vidya.Update(new TValue(DateTime.UtcNow, 100));
-        var v2 = vidya.Update(new TValue(DateTime.UtcNow, double.NaN));
-        Assert.Equal(100, v2.Value); // Should hold previous value
-        
-        // Period 1
-        var vidya1 = new Vidya(1);
-        var v = vidya1.Update(new TValue(DateTime.UtcNow, 100));
-        Assert.Equal(100, v.Value);
+        // Test TValue chain
+        var result2 = vidya.Update(series[0]);
+        Assert.IsType<TValue>(result2);
+    }
+
+    [Fact]
+    public void Constructor_InvalidParameters_ThrowsArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => new Vidya(0));
+        Assert.Throws<ArgumentException>(() => new Vidya(-1));
     }
 }

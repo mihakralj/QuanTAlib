@@ -183,7 +183,7 @@ public TValue Update(TValue input, bool isNew = true)
 
 * **Format**: Markdown.
 * **Content**: Title, Description, Parameters, Formula (LaTeX), C# Usage Examples.
-* **Index**: Add the new indicator to the category index (e.g., `lib/trends/_index.md`).
+* **Index**: Add the new indicator to the category index (e.g., `lib/trends/_index.md`) AND the main index (`lib/_index.md`).
 * **Linting**: Ensure that markdownlint shows no issues for the file.
   * **MD030:** Ensure exactly one space after list markers.
   * **MD032:** Ensure lists are surrounded by blank lines.
@@ -209,7 +209,7 @@ When creating a new indicator, you are **DONE** only when:
 * [ ] Static `Calculate(Span)` is implemented.
 * [ ] Unit tests pass (including edge cases).
 * [ ] Validation tests pass against external libs.
-* [ ] Documentation is complete and linked in `_index.md`.
+* [ ] Documentation is complete and linked in both `_index.md` files.
 * [ ] Quantower adapter and tests are implemented.
 * [ ] CodeRabbit review issues are resolved.
 

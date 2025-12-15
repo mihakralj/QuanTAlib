@@ -129,4 +129,107 @@ public class ConvTests
         var res = conv.Update(new TValue(DateTime.UtcNow, double.NaN));
         Assert.True(double.IsNaN(res.Value));
     }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        double[] kernel = [0.5, 1.0];
+        var conv = new Conv(kernel);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 10 new values
+        TValue tenthInput = default;
+        for (int i = 0; i < 10; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            tenthInput = new TValue(bar.Time, bar.Close);
+            conv.Update(tenthInput, isNew: true);
+        }
+
+        // Remember state after 10 values
+        double valueAfterTen = conv.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            conv.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered 10th input again with isNew=false
+        TValue finalValue = conv.Update(tenthInput, isNew: false);
+
+        // Should match the original state after 10 values
+        Assert.Equal(valueAfterTen, finalValue.Value, 1e-9);
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        // Arrange
+        double[] kernel = [0.1, 0.2, 0.3, 0.4];
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // 1. Batch Mode
+        var batchSeries = Conv.Calculate(series, kernel);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Conv.Calculate(spanInput, spanOutput, kernel);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Conv(kernel);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Conv(pubSource, kernel);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, 1e-9);
+        Assert.Equal(expected, streamingResult, 1e-9);
+        Assert.Equal(expected, eventingResult, 1e-9);
+    }
+
+    [Fact]
+    public void SpanCalc_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+        double[] kernel = [0.5, 0.5];
+
+        Assert.Throws<ArgumentException>(() => Conv.Calculate(source.AsSpan(), output.AsSpan(), Array.Empty<double>()));
+        Assert.Throws<ArgumentException>(() => Conv.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), kernel));
+    }
+
+    [Fact]
+    public void SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+        double[] kernel = [0.5, 0.5];
+
+        Conv.Calculate(source.AsSpan(), output.AsSpan(), kernel);
+
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val));
+        }
+    }
 }

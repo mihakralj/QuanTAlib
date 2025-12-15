@@ -96,4 +96,54 @@ public class MgdiTests
         Assert.Throws<ArgumentOutOfRangeException>(() => new Mgdi(14, double.NaN));
         Assert.Throws<ArgumentOutOfRangeException>(() => new Mgdi(14, double.PositiveInfinity));
     }
+
+    [Fact]
+    public void Reset_ClearsState()
+    {
+        var mgdi = new Mgdi(14);
+        for (int i = 0; i < 20; i++)
+        {
+            mgdi.Update(new TValue(DateTime.UtcNow, 100));
+        }
+        Assert.True(mgdi.IsHot);
+        
+        mgdi.Reset();
+        
+        Assert.False(mgdi.IsHot);
+        Assert.Equal(0, mgdi.Last.Value);
+    }
+
+    [Fact]
+    public void Update_BarCorrection_UpdatesCorrectly()
+    {
+        var mgdi = new Mgdi(14);
+        
+        // Warmup
+        for (int i = 0; i < 20; i++)
+        {
+            mgdi.Update(new TValue(DateTime.UtcNow, 100));
+        }
+        
+        // New bar
+        var result1 = mgdi.Update(new TValue(DateTime.UtcNow, 110));
+        
+        // Update same bar with different value
+        var result2 = mgdi.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
+        
+        Assert.NotEqual(result1.Value, result2.Value);
+        
+        // Verify internal state by adding next bar
+        var result3 = mgdi.Update(new TValue(DateTime.UtcNow, 130));
+        Assert.True(double.IsFinite(result3.Value));
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var source = new TSeries();
+        var mgdi = new Mgdi(source, 14);
+        
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100, mgdi.Last.Value);
+    }
 }

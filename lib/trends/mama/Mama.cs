@@ -62,6 +62,11 @@ public sealed class Mama : ITValuePublisher
 
     public void Init()
     {
+        Reset();
+    }
+
+    public void Reset()
+    {
         _state = default;
         _state.Mama = double.NaN;
         _state.Fama = double.NaN;
@@ -212,6 +217,12 @@ public sealed class Mama : ITValuePublisher
         }
 
         return new TSeries(t, v);
+    }
+
+    public static TSeries Calculate(TSeries source, double fastLimit = 0.5, double slowLimit = 0.05)
+    {
+        var mama = new Mama(fastLimit, slowLimit);
+        return mama.Update(source);
     }
 
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05)

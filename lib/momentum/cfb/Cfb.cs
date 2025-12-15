@@ -88,6 +88,20 @@ public sealed class Cfb : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Reset()
+    {
+        _prices.Clear();
+        _volatility.Clear();
+        Array.Clear(_runningSums);
+        Array.Clear(_p_runningSums);
+        _state = default;
+        _state.PrevCfb = 1.0;
+        _p_state = default;
+        _p_state.PrevCfb = 1.0;
+        Last = default;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
         double price = input.Value;

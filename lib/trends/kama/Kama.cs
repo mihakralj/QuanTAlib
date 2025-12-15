@@ -227,6 +227,12 @@ public sealed class Kama : ITValuePublisher
         return new TSeries(t, v);
     }
 
+    public static TSeries Calculate(TSeries source, int period, int fastPeriod = 2, int slowPeriod = 30)
+    {
+        var kama = new Kama(period, fastPeriod, slowPeriod);
+        return kama.Update(source);
+    }
+
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int fastPeriod = 2, int slowPeriod = 30)
     {
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));

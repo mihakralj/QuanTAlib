@@ -28,18 +28,18 @@ public class JmaTests
     }
 
     [Fact]
-    public void Jma_Calc_IsNew_AcceptsParameter()
+    public void Jma_SpanCalc_ValidatesInput()
     {
-        var jma = new Jma(10);
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
 
-        jma.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
-        double value1 = jma.Last.Value;
+        // Period must be > 0
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Calculate(source.AsSpan(), output.AsSpan(), 0, 0, 1.0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Calculate(source.AsSpan(), output.AsSpan(), -1, 0, 1.0));
 
-        jma.Update(new TValue(DateTime.UtcNow, 200), isNew: true);
-        double value2 = jma.Last.Value;
-
-        // Values should change with new bars
-        Assert.NotEqual(value1, value2);
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() => Jma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3, 0, 1.0));
     }
 
     [Fact]
@@ -235,5 +235,20 @@ public class JmaTests
 
         Assert.NotEqual(jmaPhase0.Last.Value, jmaPhase100.Last.Value);
         Assert.NotEqual(jmaPhase0.Last.Value, jmaPhaseMinus100.Last.Value);
+    }
+
+
+    [Fact]
+    public void Jma_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Jma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val));
+        }
     }
 }

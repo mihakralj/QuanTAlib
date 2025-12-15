@@ -20,7 +20,7 @@ public class RsxTests
     }
 
     [Fact]
-    public void Update_ValidInput_ReturnsValidRsx()
+    public void BasicCalculation_DoesNotCrash()
     {
         var rsx = new Rsx(14);
         var result = rsx.Update(new TValue(DateTime.UtcNow, 100));
@@ -40,7 +40,7 @@ public class RsxTests
     }
 
     [Fact]
-    public void Update_IsNew_Consistency()
+    public void IsNew_Consistency()
     {
         var rsx = new Rsx(14);
         var time = DateTime.UtcNow;
@@ -52,15 +52,13 @@ public class RsxTests
         rsx.Update(new TValue(time, 105), false);
         
         // Update with isNew=false (same time, original value) - should match val1 if state rollback works
-        // Note: RSX is highly sensitive to path, so exact match might be tricky if intermediate states drift,
-        // but for a single step rollback it should be very close.
         var val3 = rsx.Update(new TValue(time, 100), false);
 
         Assert.Equal(val1.Value, val3.Value, 1e-9);
     }
 
     [Fact]
-    public void Calculate_Span_Matches_Update()
+    public void StaticCalculate_Matches_Streaming()
     {
         int period = 14;
         int count = 100;
@@ -68,7 +66,35 @@ public class RsxTests
         var series = bars.Close;
         var rsx = new Rsx(period);
         
-        var resultSeries = rsx.Update(series);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < count; i++)
+        {
+            streamingResults.Add(rsx.Update(new TValue(series.Times[i], series.Values[i])).Value);
+        }
+        
+        var staticResults = Rsx.Calculate(series, period);
+        
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < count; i++)
+        {
+            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void SpanCalculate_Matches_Streaming()
+    {
+        int period = 14;
+        int count = 100;
+        var bars = _gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        var rsx = new Rsx(period);
+        
+        var streamingResults = new List<double>();
+        for (int i = 0; i < count; i++)
+        {
+            streamingResults.Add(rsx.Update(new TValue(series.Times[i], series.Values[i])).Value);
+        }
         
         var spanInput = series.Values.ToArray();
         var spanOutput = new double[count];
@@ -76,28 +102,24 @@ public class RsxTests
         
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(resultSeries.Values[i], spanOutput[i], 1e-9);
+            Assert.Equal(streamingResults[i], spanOutput[i], 1e-9);
         }
     }
 
     [Fact]
-    public void Reset_ClearsState()
+    public void Reset_Works()
     {
         var rsx = new Rsx(14);
         rsx.Update(new TValue(DateTime.UtcNow, 100));
         rsx.Reset();
         
         // After reset, it should behave like a new instance
-        // RSX initializes with 0 filters.
-        // If we feed it the same value, it should produce the same initial output.
-        // However, RSX output depends on change (v8), so first value sets LastF8 but v8=0.
-        
         var val1 = rsx.Update(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(50.0, val1.Value); // Neutral start
     }
     
     [Fact]
-    public void Chain_Works()
+    public void Chainability_Works()
     {
         var rsx = new Rsx(14);
         var rsx2 = new Rsx(rsx, 14);

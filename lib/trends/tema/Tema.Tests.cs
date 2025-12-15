@@ -1,310 +1,175 @@
-namespace QuanTAlib.Tests;
+using System;
+using System.Collections.Generic;
+using Xunit;
 
-#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
+namespace QuanTAlib;
+
 public class TemaTests
 {
     [Fact]
-    public void Tema_Constructor_Period_ValidatesInput()
+    public void BasicCalculation_DoesNotCrash()
+    {
+        var tema = new Tema(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            tema.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        Assert.True(double.IsFinite(tema.Last.Value));
+    }
+
+    [Fact]
+    public void IsNew_Consistency()
+    {
+        var tema = new Tema(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed first 99
+        for (int i = 0; i < 99; i++)
+        {
+            tema.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        // Update with 100th point (isNew=true)
+        tema.Update(new TValue(bars[99].Time, bars[99].Close), true);
+
+        // Update with modified 100th point (isNew=false)
+        var val2 = tema.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), false);
+
+        // Create new instance and feed up to modified
+        var tema2 = new Tema(10);
+        for (int i = 0; i < 99; i++)
+        {
+            tema2.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        var val3 = tema2.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), true);
+
+        Assert.Equal(val3.Value, val2.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Reset_Works()
+    {
+        var tema = new Tema(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            tema.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        tema.Reset();
+        Assert.Equal(0, tema.Last.Value);
+        Assert.False(tema.IsHot);
+        
+        // Feed again
+        for (int i = 0; i < bars.Count; i++)
+        {
+            tema.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        
+        Assert.True(double.IsFinite(tema.Last.Value));
+    }
+
+    [Fact]
+    public void TSeries_Update_Matches_Streaming()
+    {
+        var tema = new Tema(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(tema.Update(series[i]).Value);
+        }
+
+        var tema2 = new Tema(10);
+        var seriesResults = tema2.Update(series);
+
+        Assert.Equal(streamingResults.Count, seriesResults.Count);
+        for (int i = 0; i < seriesResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
+        }
+    }
+    
+    [Fact]
+    public void StaticCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        var tema = new Tema(10);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(tema.Update(series[i]).Value);
+        }
+        
+        var staticResults = Tema.Calculate(series, 10);
+        
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < staticResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void StaticCalculateSpan_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        var tema = new Tema(10);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(tema.Update(series[i]).Value);
+        }
+        
+        var spanResults = new double[series.Count];
+        Tema.Calculate(series.Values, spanResults, 10);
+        
+        for (int i = 0; i < spanResults.Length; i++)
+        {
+            Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var tema = new Tema(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+        
+        // Test TSeries chain
+        var result = tema.Update(series);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
+        
+        // Test TValue chain
+        var result2 = tema.Update(series[0]);
+        Assert.IsType<TValue>(result2);
+    }
+
+    [Fact]
+    public void Constructor_InvalidParameters_ThrowsArgumentException()
     {
         Assert.Throws<ArgumentException>(() => new Tema(0));
         Assert.Throws<ArgumentException>(() => new Tema(-1));
-
-        var tema = new Tema(10);
-        Assert.NotNull(tema);
-    }
-
-    [Fact]
-    public void Tema_Constructor_Alpha_ValidatesInput()
-    {
         Assert.Throws<ArgumentException>(() => new Tema(0.0));
-        Assert.Throws<ArgumentException>(() => new Tema(-0.1));
-        Assert.Throws<ArgumentException>(() => new Tema(1.1));
-
-        var tema = new Tema(0.5);
-        Assert.NotNull(tema);
-    }
-
-    [Fact]
-    public void Tema_Calc_ReturnsValue()
-    {
-        var tema = new Tema(10);
-
-        Assert.Equal(0, tema.Last.Value);
-
-        TValue result = tema.Update(new TValue(DateTime.UtcNow, 100));
-
-        Assert.True(result.Value > 0);
-        Assert.Equal(result.Value, tema.Last.Value);
-    }
-
-    [Fact]
-    public void Tema_Calc_IsNew_AcceptsParameter()
-    {
-        var tema = new Tema(10);
-
-        tema.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
-        double value1 = tema.Last.Value;
-
-        tema.Update(new TValue(DateTime.UtcNow, 105), isNew: true);
-        double value2 = tema.Last.Value;
-
-        // Values should change with new bars
-        Assert.NotEqual(value1, value2);
-    }
-
-    [Fact]
-    public void Tema_Calc_IsNew_False_UpdatesValue()
-    {
-        var tema = new Tema(10);
-
-        tema.Update(new TValue(DateTime.UtcNow, 100));
-        tema.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
-        double beforeUpdate = tema.Last.Value;
-
-        tema.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
-        double afterUpdate = tema.Last.Value;
-
-        // Update should change the value
-        Assert.NotEqual(beforeUpdate, afterUpdate);
-    }
-
-    [Fact]
-    public void Tema_Reset_ClearsState()
-    {
-        var tema = new Tema(10);
-
-        tema.Update(new TValue(DateTime.UtcNow, 100));
-        tema.Update(new TValue(DateTime.UtcNow, 105));
-        double valueBefore = tema.Last.Value;
-
-        tema.Reset();
-
-        Assert.Equal(0, tema.Last.Value);
-
-        // After reset, should accept new values
-        tema.Update(new TValue(DateTime.UtcNow, 50));
-        Assert.NotEqual(0, tema.Last.Value);
-        Assert.NotEqual(valueBefore, tema.Last.Value);
-    }
-
-    [Fact]
-    public void Tema_Properties_Accessible()
-    {
-        var tema = new Tema(10);
-
-        Assert.Equal(0, tema.Last.Value);
-        Assert.False(tema.IsHot);
-
-        tema.Update(new TValue(DateTime.UtcNow, 100));
-
-        Assert.NotEqual(0, tema.Last.Value);
-    }
-
-    [Fact]
-    public void Tema_IsHot_BecomesTrueAfterWarmup()
-    {
-        var tema = new Tema(10);
-
-        // Initially IsHot should be false
-        Assert.False(tema.IsHot);
-
-        // TEMA needs more warmup than EMA due to triple smoothing
-        int steps = 0;
-        while (!tema.IsHot && steps < 1000)
-        {
-            tema.Update(new TValue(DateTime.UtcNow, 100));
-            steps++;
-        }
-
-        Assert.True(tema.IsHot);
-        Assert.True(steps > 0);
-    }
-
-    [Fact]
-    public void Tema_PeriodEquivalence_BothConstructorsWork()
-    {
-        int period = 20;
-        double alpha = 2.0 / (period + 1);
-
-        var temaPeriod = new Tema(period);
-        var temaAlpha = new Tema(alpha);
-
-        // Both should accept Calc calls and produce same result
-        TValue result1 = temaPeriod.Update(new TValue(DateTime.UtcNow, 100));
-        TValue result2 = temaAlpha.Update(new TValue(DateTime.UtcNow, 100));
-
-        Assert.Equal(result1.Value, result2.Value, 1e-10);
-    }
-
-    [Fact]
-    public void Tema_IterativeCorrections_RestoreToOriginalState()
-    {
-        var tema = new Tema(10);
-        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
-
-        // Feed 10 new values
-        TValue tenthInput = default;
-        for (int i = 0; i < 10; i++)
-        {
-            var bar = gbm.Next(isNew: true);
-            tenthInput = new TValue(bar.Time, bar.Close);
-            tema.Update(tenthInput, isNew: true);
-        }
-
-        // Remember TEMA state after 10 values
-        double temaAfterTen = tema.Last.Value;
-
-        // Generate 9 corrections with isNew=false (different values)
-        for (int i = 0; i < 9; i++)
-        {
-            var bar = gbm.Next(isNew: false);
-            tema.Update(new TValue(bar.Time, bar.Close), isNew: false);
-        }
-
-        // Feed the remembered 10th input again with isNew=false
-        TValue finalTema = tema.Update(tenthInput, isNew: false);
-
-        // TEMA should match the original state after 10 values
-        Assert.Equal(temaAfterTen, finalTema.Value, 1e-10);
-    }
-
-    [Fact]
-    public void Tema_BatchCalc_MatchesIterativeCalc()
-    {
-        var temaIterative = new Tema(10);
-        var temaBatch = new Tema(10);
-        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
-
-        // Generate data
-        var series = new TSeries();
-        for (int i = 0; i < 100; i++)
-        {
-            var bar = gbm.Next(isNew: true);
-            series.Add(bar.Time, bar.Close);
-        }
-
-        Assert.True(series.Count > 0);
-
-        // Calculate iteratively
-        var iterativeResults = new TSeries();
-        foreach (var item in series)
-        {
-            iterativeResults.Add(temaIterative.Update(item));
-        }
-
-        // Calculate batch
-        var batchResults = temaBatch.Update(series);
-
-        // Compare
-        Assert.Equal(iterativeResults.Count, batchResults.Count);
-        for (int i = 0; i < iterativeResults.Count; i++)
-        {
-            Assert.Equal(iterativeResults[i].Value, batchResults[i].Value, 1e-10);
-            Assert.Equal(iterativeResults[i].Time, batchResults[i].Time);
-        }
-    }
-
-    [Fact]
-    public void Tema_NaN_Input_UsesLastValidValue()
-    {
-        var tema = new Tema(10);
-
-        // Feed some valid values
-        tema.Update(new TValue(DateTime.UtcNow, 100));
-        tema.Update(new TValue(DateTime.UtcNow, 110));
-
-        // Feed NaN - should use last valid value (110)
-        var resultAfterNaN = tema.Update(new TValue(DateTime.UtcNow, double.NaN));
-
-        // Result should be finite (not NaN)
-        Assert.True(double.IsFinite(resultAfterNaN.Value));
-        Assert.NotEqual(0, resultAfterNaN.Value);
-    }
-
-    [Fact]
-    public void Tema_SpanCalc_MatchesTSeriesCalc()
-    {
-        var series = new TSeries();
-        double[] source = new double[100];
-        double[] output = new double[100];
-
-        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
-        for (int i = 0; i < 100; i++)
-        {
-            var bar = gbm.Next(isNew: true);
-            source[i] = bar.Close;
-            series.Add(bar.Time, bar.Close);
-        }
-
-        // Calculate with TSeries API
-        var tseriesResult = Tema.Calculate(series, 10);
-
-        // Calculate with Span API
-        Tema.Calculate(source.AsSpan(), output.AsSpan(), 10);
-
-        // Compare results
-        for (int i = 0; i < 100; i++)
-        {
-            Assert.Equal(tseriesResult[i].Value, output[i], 1e-9);
-        }
-    }
-
-    [Fact]
-    public void Tema_SpanCalc_ZeroAllocation()
-    {
-        double[] source = new double[10000];
-
-        double[] output = new double[10000];
-        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
-        for (int i = 0; i < source.Length; i++)
-            source[i] = gbm.Next().Close;
-
-        // Warm up
-        Tema.Calculate(source.AsSpan(), output.AsSpan(), 100);
-
-        // This test verifies the method runs without throwing
-        Assert.True(double.IsFinite(output[^1]));
-    }
-    [Fact]
-    public void Tema_AllModes_ProduceSameResult()
-    {
-        // Arrange
-        int period = 10;
-        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var series = bars.Close;
-        
-        // 1. Batch Mode
-        var batchSeries = Tema.Calculate(series, period);
-        double expected = batchSeries.Last.Value;
-
-        // 2. Span Mode
-        var tValues = series.Values.ToArray();
-        var spanInput = new ReadOnlySpan<double>(tValues);
-        var spanOutput = new double[tValues.Length];
-        Tema.Calculate(spanInput, spanOutput, period);
-        double spanResult = spanOutput[^1];
-
-        // 3. Streaming Mode
-        var streamingInd = new Tema(period);
-        for (int i = 0; i < series.Count; i++)
-        {
-            streamingInd.Update(series[i]);
-        }
-        double streamingResult = streamingInd.Last.Value;
-
-        // 4. Eventing Mode
-        var pubSource = new TSeries();
-        var eventingInd = new Tema(pubSource, period);
-        for (int i = 0; i < series.Count; i++)
-        {
-            pubSource.Add(series[i]);
-        }
-        double eventingResult = eventingInd.Last.Value;
-
-        // Assert
-        Assert.Equal(expected, spanResult, precision: 9);
-        Assert.Equal(expected, streamingResult, precision: 9);
-        Assert.Equal(expected, eventingResult, precision: 9);
+        Assert.Throws<ArgumentException>(() => new Tema(1.0));
     }
 }

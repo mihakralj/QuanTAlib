@@ -110,4 +110,42 @@ public class DmxTests
         
         Assert.Equal(0, result.Value);
     }
+
+    [Fact]
+    public void StaticCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        var dmx = new Dmx(14);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < bars.Count; i++)
+        {
+            streamingResults.Add(dmx.Update(bars[i]).Value);
+        }
+
+        var staticResults = Dmx.Calculate(bars, 14);
+
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < streamingResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var dmx = new Dmx(14);
+        var sma = new Sma(dmx, 10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            dmx.Update(bars[i]);
+        }
+
+        Assert.True(sma.Last.Value != 0);
+    }
 }

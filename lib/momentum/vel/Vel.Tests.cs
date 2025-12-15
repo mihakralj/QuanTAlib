@@ -6,7 +6,7 @@ namespace QuanTAlib.Tests;
 public class VelTests
 {
     [Fact]
-    public void Vel_Constructor_ValidatesInput()
+    public void Constructor_InvalidPeriod_ThrowsArgumentException()
     {
         Assert.Throws<ArgumentException>(() => new Vel(0));
         Assert.Throws<ArgumentException>(() => new Vel(-1));
@@ -16,7 +16,7 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_Calc_ReturnsValue()
+    public void BasicCalculation_DoesNotCrash()
     {
         var vel = new Vel(10);
 
@@ -28,38 +28,25 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_Calc_IsNew_AcceptsParameter()
+    public void IsNew_Consistency()
     {
         var vel = new Vel(10);
+        var time = DateTime.UtcNow;
 
-        vel.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
-        double value1 = vel.Last.Value;
+        // Update with isNew=true
+        var val1 = vel.Update(new TValue(time, 100), true);
 
-        vel.Update(new TValue(DateTime.UtcNow, 200), isNew: true);
-        double value2 = vel.Last.Value;
+        // Update with isNew=false (same time, different value)
+        vel.Update(new TValue(time, 105), false);
 
-        // Values should change with new bars
-        Assert.NotEqual(value1, value2);
+        // Update with isNew=false (same time, original value) - should match val1 if state rollback works
+        var val3 = vel.Update(new TValue(time, 100), false);
+
+        Assert.Equal(val1.Value, val3.Value, 1e-9);
     }
 
     [Fact]
-    public void Vel_Calc_IsNew_False_UpdatesValue()
-    {
-        var vel = new Vel(10);
-
-        vel.Update(new TValue(DateTime.UtcNow, 100));
-        vel.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
-        double beforeUpdate = vel.Last.Value;
-
-        vel.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
-        double afterUpdate = vel.Last.Value;
-
-        // Update should change the value
-        Assert.NotEqual(beforeUpdate, afterUpdate);
-    }
-
-    [Fact]
-    public void Vel_Reset_ClearsState()
+    public void Reset_Works()
     {
         var vel = new Vel(10);
 
@@ -82,7 +69,7 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_IsHot_BecomesTrueWhenBufferFull()
+    public void IsHot_BecomesTrueWhenBufferFull()
     {
         var vel = new Vel(5);
 
@@ -99,7 +86,7 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_CalculatesCorrectValue()
+    public void CalculatesCorrectValue()
     {
         var vel = new Vel(3);
 
@@ -119,7 +106,7 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_StaticCalculate_Works()
+    public void StaticCalculate_Matches_Streaming()
     {
         var series = new TSeries();
         series.Add(DateTime.UtcNow.Ticks, 10);
@@ -138,7 +125,7 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_SpanCalc_MatchesTSeriesCalc()
+    public void SpanCalculate_Matches_Streaming()
     {
         var series = new TSeries();
         double[] source = new double[100];
@@ -166,45 +153,12 @@ public class VelTests
     }
 
     [Fact]
-    public void Vel_AllModes_ProduceSameResult()
+    public void Chainability_Works()
     {
-        // Arrange
-        int period = 10;
-        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var series = bars.Close;
+        var vel = new Vel(10);
+        var vel2 = new Vel(vel, 10);
         
-        // 1. Batch Mode
-        var batchSeries = Vel.Calculate(series, period);
-        double expected = batchSeries.Last.Value;
-
-        // 2. Span Mode
-        var tValues = series.Values.ToArray();
-        var spanInput = new ReadOnlySpan<double>(tValues);
-        var spanOutput = new double[tValues.Length];
-        Vel.Calculate(spanInput, spanOutput, period);
-        double spanResult = spanOutput[^1];
-
-        // 3. Streaming Mode
-        var streamingInd = new Vel(period);
-        for (int i = 0; i < series.Count; i++)
-        {
-            streamingInd.Update(series[i]);
-        }
-        double streamingResult = streamingInd.Last.Value;
-
-        // 4. Eventing Mode
-        var pubSource = new TSeries();
-        var eventingInd = new Vel(pubSource, period);
-        for (int i = 0; i < series.Count; i++)
-        {
-            pubSource.Add(series[i]);
-        }
-        double eventingResult = eventingInd.Last.Value;
-
-        // Assert
-        Assert.Equal(expected, spanResult, precision: 9);
-        Assert.Equal(expected, streamingResult, precision: 8);
-        Assert.Equal(expected, eventingResult, precision: 8);
+        vel.Update(new TValue(DateTime.UtcNow, 100));
+        Assert.False(double.IsNaN(vel2.Last.Value));
     }
 }

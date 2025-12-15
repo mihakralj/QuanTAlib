@@ -160,6 +160,107 @@ public class DemaTests
             Assert.Equal(val.Value, output[i], 1e-9);
         }
     }
+
+    [Fact]
+    public void Dema_Constructor_ValidatesInput()
+    {
+        Assert.Throws<ArgumentException>(() => new Dema(0));
+        Assert.Throws<ArgumentException>(() => new Dema(-1));
+        Assert.Throws<ArgumentException>(() => new Dema(0.0));
+        Assert.Throws<ArgumentException>(() => new Dema(1.1));
+    }
+
+    [Fact]
+    public void Dema_Calc_IsNew_AcceptsParameter()
+    {
+        var dema = new Dema(10);
+        dema.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
+        Assert.Equal(100, dema.Last.Value);
+    }
+
+    [Fact]
+    public void Dema_Reset_ClearsState()
+    {
+        var dema = new Dema(10);
+        dema.Update(new TValue(DateTime.UtcNow, 100));
+        dema.Update(new TValue(DateTime.UtcNow, 110));
+        
+        dema.Reset();
+        
+        Assert.Equal(0, dema.Last.Value);
+        Assert.False(dema.IsHot);
+    }
+
+    [Fact]
+    public void Dema_IterativeCorrections_RestoreToOriginalState()
+    {
+        var dema = new Dema(10);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 10 new values
+        TValue tenthInput = default;
+        for (int i = 0; i < 10; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            tenthInput = new TValue(bar.Time, bar.Close);
+            dema.Update(tenthInput, isNew: true);
+        }
+
+        // Remember state after 10 values
+        double valueAfterTen = dema.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            dema.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered 10th input again with isNew=false
+        TValue finalValue = dema.Update(tenthInput, isNew: false);
+
+        // Should match the original state after 10 values
+        Assert.Equal(valueAfterTen, finalValue.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Dema_NaN_Input_UsesLastValidValue()
+    {
+        var dema = new Dema(10);
+        dema.Update(new TValue(DateTime.UtcNow, 100));
+        dema.Update(new TValue(DateTime.UtcNow, 110));
+
+        var resultAfterNaN = dema.Update(new TValue(DateTime.UtcNow, double.NaN));
+
+        Assert.True(double.IsFinite(resultAfterNaN.Value));
+        Assert.NotEqual(0, resultAfterNaN.Value);
+    }
+
+    [Fact]
+    public void Dema_SpanCalc_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        Assert.Throws<ArgumentException>(() => Dema.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Dema.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void Dema_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Dema.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val));
+        }
+    }
+
     [Fact]
     public void Dema_AllModes_ProduceSameResult()
     {

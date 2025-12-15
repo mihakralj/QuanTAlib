@@ -155,4 +155,46 @@ public class CfbTests
             Assert.Equal(streamingResults[i], spanResults[i]);
         }
     }
+
+    [Fact]
+    public void Reset_Works()
+    {
+        var cfb = new Cfb();
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        }
+
+        Assert.True(cfb.Last.Value >= 1.0);
+
+        cfb.Reset();
+
+        Assert.Equal(0, cfb.Last.Value);
+        Assert.Equal(0, cfb.Last.Time);
+
+        // Feed again
+        for (int i = 0; i < bars.Count; i++)
+        {
+            cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        }
+
+        Assert.True(cfb.Last.Value >= 1.0);
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var cfb = new Cfb();
+        var cfb2 = new Cfb(cfb);
+
+        for (int i = 0; i < 100; i++)
+        {
+            cfb.Update(new TValue(DateTime.UtcNow, i));
+        }
+
+        Assert.True(cfb2.Last.Value > 0);
+    }
 }
