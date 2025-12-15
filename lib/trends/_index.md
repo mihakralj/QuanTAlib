@@ -4,6 +4,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [ADX](adx/Adx.md) | Average Directional Index | Measures the strength of a trend, regardless of its direction. |
 | ALLIGATOR | Williams Alligator | |
 | [ALMA](alma/Alma.md) | Arnaud Legoux MA | Uses Gaussian distribution weights to balance smoothness and responsiveness. |
 | AMAT | Archer Moving Averages Trends | |
