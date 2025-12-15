@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Enums;
-using OoplesFinance.StockIndicators.Models;
 using Xunit;
 using Xunit.Abstractions;
 using QuanTAlib.Tests;
