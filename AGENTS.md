@@ -30,7 +30,7 @@ We do not store objects in lists. We store primitive arrays.
 
 1. **Zero Allocation**: The `Update` method MUST NOT allocate memory on the heap. Use `stackalloc` or pre-allocated buffers.
 2. **O(1) Complexity**: Streaming updates must be constant time. Use circular buffers (`RingBuffer`) or running sums.
-3. **SIMD**: Batch operations (`Calculate`) should use `System.Runtime.Intrinsics` (AVX2) where possible.
+3. **SIMD**: Batch operations (`Calculate`) should use `System.Runtime.Intrinsics` (AVX2) where possible. If SIMD is not possible due to recursive dependencies, use `stackalloc` for internal buffers to avoid heap allocations.
 4. **Inlining**: Use `[MethodImpl(MethodImplOptions.AggressiveInlining)]` on hot methods.
 5. **Locals**: Use `[SkipLocalsInit]` to avoid zero-init costs in tight loops.
 
@@ -94,6 +94,7 @@ public TValue Update(TValue input, bool isNew = true)
 * **Format**: Markdown.
 * **Content**: Title, Description, Parameters, Formula (LaTeX), C# Usage Examples.
 * **Index**: Add the new indicator to the category index (e.g., `lib/trends/_index.md`).
+* **Linting**: Ensure that markdownlint shows no issues for the file.
 
 ## 6. Development Checklist
 

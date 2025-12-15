@@ -43,7 +43,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | [LSMA](lsma/Lsma.md) | Least Squares Moving Average | Calculates the linear regression line for a specified period. |
 | LTMA | Linear Trend MA | |
 | [MAMA](mama/Mama.md) | Ehlers MESA Adaptive MA | Adapts to market cycles using Hilbert Transform phase measurement. |
-| MGDI | McGinley Dynamic Indicator | |
+| [MGDI](mgdi/Mgdi.md) | McGinley Dynamic Indicator | A moving average that adjusts for shifts in market speed to minimize lag and whipsaws. |
 | MMA | Modified MA | |
 | NOTCH | Notch Filter | |
 | [PWMA](pwma/Pwma.md) | Parabolic Weighted MA | Uses parabolic weighting ($i^2$) to give more weight to recent data. |

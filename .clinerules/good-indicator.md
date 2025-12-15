@@ -93,7 +93,7 @@ Each indicator resides in its own directory such as `lib/trends/`, `lib/indicato
 * **Optimization:**
 
 * Check for SIMD support (`Avx2.IsSupported`).
-* Use `stackalloc` for small buffers (threshold ~256).
+* Use `stackalloc` for small buffers (threshold ~256) and for internal state buffers in recursive algorithms where SIMD is not applicable.
 * Implement a scalar fallback path that handles `NaN` safely.
 * Implement a SIMD path for large, clean datasets (optional but recommended for simple averages).
 
@@ -132,6 +132,7 @@ Follow the standard template and ensure strict adherence to Markdownlint rules, 
 
 * **MD030:** Ensure exactly one space after list markers (e.g., `* Item`, not `*Item` or `*  Item`).
 * **MD032:** Ensure lists are surrounded by blank lines (one blank line before the first item and one after the last item).
+* **No Issues:** Ensure that markdownlint shows no issues for the file.
 
 Template structure:
 

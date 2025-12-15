@@ -269,14 +269,14 @@ public sealed class Htit : ITValuePublisher
         if (len == 0) return;
 
         // Buffers
-        double[] priceBuffer = new double[50];
-        double[] smoothBuffer = new double[7];
-        double[] detrenderBuffer = new double[7];
-        double[] i1Buffer = new double[7];
-        double[] q1Buffer = new double[7];
-        double[] periodBuffer = new double[2];
-        double[] smoothPeriodBuffer = new double[2];
-        double[] itBuffer = new double[4];
+        Span<double> priceBuffer = stackalloc double[50];
+        Span<double> smoothBuffer = stackalloc double[7];
+        Span<double> detrenderBuffer = stackalloc double[7];
+        Span<double> i1Buffer = stackalloc double[7];
+        Span<double> q1Buffer = stackalloc double[7];
+        Span<double> periodBuffer = stackalloc double[2];
+        Span<double> smoothPeriodBuffer = stackalloc double[2];
+        Span<double> itBuffer = stackalloc double[4];
 
         int pIdx = 0, sIdx = 0, dIdx = 0, i1Idx = 0, q1Idx = 0, pdIdx = 0, sdIdx = 0, itIdx = 0;
         int pCount = 0;
