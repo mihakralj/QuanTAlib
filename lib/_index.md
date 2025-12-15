@@ -9,7 +9,7 @@
 | ADL | Accumulation/Distribution Line | Volume |
 | ADOSC | Chaikin A/D Oscillator | Volume |
 | ADR | Average Daily Range | Volatility |
-| ADX | Average Directional Movement Index | Momentum |
+| [ADX](momentum/adx/Adx.md) | Average Directional Index | Momentum |
 | ADXR | Average Directional Movement Rating | Momentum |
 | AFIRMA | Autoregressive FIR MA | Forecasts |
 | ALLIGATOR | Williams Alligator | Trends |
@@ -235,7 +235,7 @@
 | STOCH | Stochastic Oscillator | Momentum |
 | STOCHF | Stochastic Fast | Momentum |
 | STOCHRSI | Stochastic RSI | Momentum |
-| SUPER | SuperTrend | Trends |
+| [SUPER](trends/super/Super.md) | SuperTrend | Trends |
 | SWINGS | Swing High/Low Detection | Reversals |
 | [T3](trends/t3/T3.md) | Tillson T3 MA | Trends |
 | TANH | Hyperbolic Tangent | Numerics |
