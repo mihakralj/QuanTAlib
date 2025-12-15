@@ -110,13 +110,14 @@ public sealed class RingBuffer : IEnumerable<double>
 
     /// <summary>
     /// Gets the newest (most recently added) value.
+    /// Returns double.NaN if buffer is empty.
     /// </summary>
     public double Newest
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            if (_count == 0) return 0;
+            if (_count == 0) return double.NaN;
             int idx = (_head - 1 + _capacity) % _capacity;
             return _buffer[idx];
         }
@@ -124,13 +125,14 @@ public sealed class RingBuffer : IEnumerable<double>
 
     /// <summary>
     /// Gets the oldest value in the buffer.
+    /// Returns double.NaN if buffer is empty.
     /// </summary>
     public double Oldest
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            if (_count == 0) return 0;
+            if (_count == 0) return double.NaN;
             int start = _count == _capacity ? _head : 0;
             return _buffer[start];
         }

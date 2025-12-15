@@ -4,7 +4,6 @@ Error metrics and performance indicators for model/strategy evaluation.
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| DIRTY | Dirty Data Detection | |
 | HUBER | Huber Loss | |
 | MAE | Mean Absolute Error | |
 | MAPD | Mean Absolute Percentage Difference | |

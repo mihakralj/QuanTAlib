@@ -26,14 +26,13 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Vidya : ITValuePublisher
 {
-    private readonly int _period;
     private readonly double _alpha;
     private readonly RingBuffer _ups;
     private readonly RingBuffer _downs;
-    
+
     private record struct State(
-        double PrevClose, double LastVidya, 
-        double CurrentClose, double CurrentVidya, 
+        double PrevClose, double LastVidya,
+        double CurrentClose, double CurrentVidya,
         bool IsInitialized, int BarCount
     );
     private State _state;
@@ -57,7 +56,6 @@ public sealed class Vidya : ITValuePublisher
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
-        _period = period;
         _alpha = 2.0 / (period + 1);
         _ups = new RingBuffer(period);
         _downs = new RingBuffer(period);
@@ -157,10 +155,8 @@ public sealed class Vidya : ITValuePublisher
         var sourceValues = source.Values;
         var sourceTimes = source.Times;
 
-        Calculate(sourceValues, vSpan, _period);
-
         sourceTimes.CopyTo(tSpan);
-        
+
         Reset();
         for (int i = 0; i < len; i++)
         {
@@ -170,7 +166,6 @@ public sealed class Vidya : ITValuePublisher
 
         return new TSeries(t, v);
     }
-
     /// <summary>
     /// Calculates VIDYA for the entire series.
     /// </summary>
@@ -184,18 +179,18 @@ public sealed class Vidya : ITValuePublisher
         if (source.Length == 0) return;
 
         double alpha = 2.0 / (period + 1);
-        
+
         double[] ups = new double[period];
         double[] downs = new double[period];
         int head = 0;
         double sumUp = 0;
         double sumDown = 0;
-        
+
         double prevClose = source[0];
         double lastVidya = source[0];
-        
+
         output[0] = source[0];
-        
+
         for (int i = 1; i < source.Length; i++)
         {
             double price = source[i];
@@ -203,34 +198,34 @@ public sealed class Vidya : ITValuePublisher
             {
                 price = prevClose;
             }
-            
+
             double change = price - prevClose;
             double up = change > 0 ? change : 0;
             double down = change < 0 ? -change : 0;
-            
+
             sumUp -= ups[head];
             sumDown -= downs[head];
-            
+
             ups[head] = up;
             downs[head] = down;
-            
+
             sumUp += up;
             sumDown += down;
-            
+
             head = (head + 1) % period;
-            
+
             double sum = sumUp + sumDown;
             double vi = 0;
             if (sum > double.Epsilon)
             {
                 vi = Math.Abs(sumUp - sumDown) / sum;
             }
-            
+
             double dynamicAlpha = alpha * vi;
             double currentVidya = dynamicAlpha * price + (1.0 - dynamicAlpha) * lastVidya;
-            
+
             output[i] = currentVidya;
-            
+
             prevClose = price;
             lastVidya = currentVidya;
         }

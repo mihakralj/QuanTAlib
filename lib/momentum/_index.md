@@ -18,7 +18,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | [CFB](cfb/Cfb.md) | Jurik Composite Fractal Behavior | Trend Duration Index using fractal efficiency. |
 | CHOP | Choppiness Index | |
 | CMO | Chande Momentum Oscillator | |
-| DMX | Jurik Directional Movement Index | |
+| [DMX](dmx/Dmx.md) | Jurik Directional Movement Index | Advanced replacement for DMI/ADX using JMA smoothing. |
 | DPO | Detrended Price Oscillator | |
 | DX | Directional Movement Index | |
 | FISHER | Ehlers Fisher Transform | |

@@ -437,19 +437,19 @@ public class RingBufferTests
     }
 
     [Fact]
-    public void Newest_EmptyBuffer_ReturnsZero()
+    public void Newest_EmptyBuffer_ReturnsNaN()
     {
         var buffer = new RingBuffer(5);
 
-        Assert.Equal(0, buffer.Newest);
+        Assert.True(double.IsNaN(buffer.Newest));
     }
 
     [Fact]
-    public void Oldest_EmptyBuffer_ReturnsZero()
+    public void Oldest_EmptyBuffer_ReturnsNaN()
     {
         var buffer = new RingBuffer(5);
 
-        Assert.Equal(0, buffer.Oldest);
+        Assert.True(double.IsNaN(buffer.Oldest));
     }
 
     [Fact]

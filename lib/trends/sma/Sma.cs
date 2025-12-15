@@ -151,10 +151,25 @@ public sealed class Sma : ITValuePublisher
         int windowSize = Math.Min(len, _period);
         int startIndex = len - windowSize;
 
+        _state.LastValidValue = double.NaN;
+        bool found = false;
+
         if (startIndex > 0)
         {
-            _state.LastValidValue = 0;
             for (int i = startIndex - 1; i >= 0; i--)
+            {
+                if (double.IsFinite(source.Values[i]))
+                {
+                    _state.LastValidValue = source.Values[i];
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found)
+        {
+            for (int i = 0; i < len; i++)
             {
                 if (double.IsFinite(source.Values[i]))
                 {
@@ -162,10 +177,6 @@ public sealed class Sma : ITValuePublisher
                     break;
                 }
             }
-        }
-        else
-        {
-            _state.LastValidValue = 0;
         }
 
         _buffer.Clear();
@@ -256,7 +267,18 @@ public sealed class Sma : ITValuePublisher
             : new double[period];
 
         double sum = 0;
-        double lastValid = 0;
+        double lastValid = double.NaN;
+        
+        // Find first valid value to seed lastValid
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(source[k]))
+            {
+                lastValid = source[k];
+                break;
+            }
+        }
+
         int bufferIndex = 0;
         int i = 0;
 

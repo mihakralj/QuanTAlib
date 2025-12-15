@@ -93,7 +93,7 @@ public class DmxTests
         var seriesResults = dmx2.Update(bars);
 
         Assert.Equal(streamingResults.Count, seriesResults.Count);
-        for (int i = 0; i < streamingResults.Count; i++)
+        for (int i = 0; i < seriesResults.Count; i++)
         {
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }

@@ -21,12 +21,12 @@ public class TBarSeries : IReadOnlyList<TBar>
     public string Name { get; set; } = "Bar";
     public event Action<TBar>? Pub;
 
+    // Note: These views share underlying storage. Do not modify directly; use TBarSeries.Add() instead.
     public TSeries Open { get; }
     public TSeries High { get; }
     public TSeries Low { get; }
     public TSeries Close { get; }
     public TSeries Volume { get; }
-
     // Aliases for convenience
     public TSeries O => Open;
     public TSeries H => High;

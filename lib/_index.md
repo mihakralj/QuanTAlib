@@ -44,7 +44,7 @@
 | BWMA | Bessel-Weighted MA | Trends |
 | CCI | Commodity Channel Index | Momentum |
 | CCV | Close-to-Close Volatility | Volatility |
-| CFB | Jurik Composite Fractal Behavior | Cycles |
+| [CFB](momentum/cfb/Cfb.md) | Jurik Composite Fractal Behavior | Cycles |
 | CFO | Chande Forecast Oscillator | Forecasts |
 | CG | Ehlers Center of Gravity | Cycles |
 | CHANGE | Percentage Change | Numerics |
@@ -64,7 +64,7 @@
 | DECAYCHANNEL | Decay Min-Max Channel | Channels |
 | [DEMA](trends/dema/Dema.md) | Double Exponential MA | Trends |
 | DIRTY | Dirty Data Detection | Errors |
-| DMX | Jurik Directional Movement Index | Momentum |
+| [DMX](momentum/dmx/Dmx.md) | Jurik Directional Movement Index | Momentum |
 | DPO | Detrended Price Oscillator | Momentum |
 | DSMA | Deviation-Scaled MA | Trends |
 | DSP | Detrended Synthetic Price | Cycles |
@@ -207,7 +207,7 @@
 | RSI | Relative Strength Index | Momentum |
 | RSQUARED | R-Squared | Errors |
 | RSV | Rogers-Satchell Volatility | Volatility |
-| RSX | Jurik Relative Strength Quality Index | Momentum |
+| [RSX](momentum/rsx/Rsx.md) | Jurik Relative Strength Quality Index | Momentum |
 | RV | Realized Volatility | Volatility |
 | RVI | Relative Volatility Index | Volatility |
 | SDCHANNEL | Standard Deviation Channel | Channels |
@@ -257,7 +257,7 @@
 | VA | Volume Accumulation | Volume |
 | VAMA | Volatility Adjusted Moving Average | Trends |
 | VARIANCE | Variance | Statistics |
-| VEL | Jurik Velocity | Momentum |
+| [VEL](momentum/vel/Vel.md) | Jurik Velocity | Momentum |
 | VF | Volume Force | Volume |
 | [VIDYA](trends/vidya/Vidya.md) | Variable Index Dynamic Average | Trends |
 | VO | Volume Oscillator | Volume |

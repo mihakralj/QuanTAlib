@@ -32,7 +32,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | [HMA](hma/Hma.md) | Hull MA | Developed by Alan Hull to reduce lag while improving smoothing. |
 | HP | Hodrick-Prescott Filter | |
 | HPF | Ehlers Highpass Filter | |
-| HTIT | Ehlers Hilbert Transform Instantaneous Trend | |
+| [HTIT](htit/Htit.md) | Ehlers Hilbert Transform Instantaneous Trend | Uses Hilbert Transform to measure the dominant cycle period and compute an instantaneous trendline. |
 | HT_TRENDMODE | Ehlers Hilbert Transform Trend Mode | |
 | HWMA | Holt Weighted MA | |
 | ICHIMOKU | Ichimoku Cloud | |
