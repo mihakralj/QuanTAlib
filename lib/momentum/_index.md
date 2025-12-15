@@ -7,7 +7,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | AC | Acceleration Oscillator | |
 | [ADX](adx/Adx.md) | Average Directional Index | Measures the strength of a trend, regardless of its direction. |
 | ADXR | Average Directional Movement Rating | |
-| AO | Awesome Oscillator | |
+| [AO](ao/Ao.md) | Awesome Oscillator | Measures market momentum using the difference between 34-period and 5-period SMAs of median price. |
 | APO | Absolute Price Oscillator | |
 | AROON | Aroon | |
 | AROONOSC | Aroon Oscillator | |
