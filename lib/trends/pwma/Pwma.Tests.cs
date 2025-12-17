@@ -187,7 +187,6 @@ public class PwmaTests
     public void Pwma_BatchCalc_MatchesIterativeCalc()
     {
         var pwmaIterative = new Pwma(10);
-        var pwmaBatch = new Pwma(10);
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
 
         // Generate data
@@ -208,7 +207,7 @@ public class PwmaTests
         }
 
         // Calculate batch
-        var batchResults = pwmaBatch.Update(series);
+        var batchResults = Pwma.Batch(series, 10);
 
         // Compare
         Assert.Equal(iterativeResults.Count, batchResults.Count);
@@ -262,7 +261,7 @@ public class PwmaTests
         series.Add(DateTime.UtcNow.Ticks + 1, 20);
         series.Add(DateTime.UtcNow.Ticks + 2, 30);
 
-        var results = Pwma.Calculate(series, 3);
+        var results = Pwma.Batch(series, 3);
 
         Assert.Equal(3, results.Count);
         // PWMA(3) for last 3 values [10,20,30]: 360/14
@@ -324,7 +323,7 @@ public class PwmaTests
         }
 
         // Calculate with TSeries API
-        var tseriesResult = Pwma.Calculate(series, 10);
+        var tseriesResult = Pwma.Batch(series, 10);
 
         // Calculate with Span API
         Pwma.Calculate(source.AsSpan(), output.AsSpan(), 10);
@@ -363,7 +362,7 @@ public class PwmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Pwma.Calculate(series, period);
+        var batchSeries = Pwma.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

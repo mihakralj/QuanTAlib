@@ -189,7 +189,7 @@ public static class SimdExtensions
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
             int vectorSize = Vector<double>.Count;
-            var minVec = new Vector<double>(span.Slice(0, vectorSize));
+            var minVec = new Vector<double>(span[..vectorSize]);
             int i = vectorSize;
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
@@ -234,7 +234,7 @@ public static class SimdExtensions
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
             int vectorSize = Vector<double>.Count;
-            var maxVec = new Vector<double>(span.Slice(0, vectorSize));
+            var maxVec = new Vector<double>(span[..vectorSize]);
             int i = vectorSize;
 
             for (; i <= span.Length - vectorSize; i += vectorSize)
@@ -356,7 +356,7 @@ public static class SimdExtensions
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
             int vectorSize = Vector<double>.Count;
-            var minVec = new Vector<double>(span.Slice(0, vectorSize));
+            var minVec = new Vector<double>(span[..vectorSize]);
             var maxVec = minVec;
             int i = vectorSize;
 
@@ -450,7 +450,10 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double DotProduct(this ReadOnlySpan<double> a, ReadOnlySpan<double> b)
     {
-        if (a.Length != b.Length || a.Length == 0) return 0;
+        if (a.Length != b.Length)
+            throw new ArgumentException("Spans must have equal length");
+
+        if (a.IsEmpty) return 0.0;
 
         int len = a.Length;
 
@@ -548,7 +551,6 @@ public static class SimdExtensions
         vSum3 = Avx512F.Add(vSum3, vSum4);
         vSum = Avx512F.Add(vSum, vSum3);
 
-        // Horizontal sum - reduce to Vector256, then Vector128
         Vector256<double> v256 = Avx512F.Add(vSum.GetLower(), vSum.GetUpper());
         Vector128<double> lower = v256.GetLower();
         Vector128<double> upper = v256.GetUpper();

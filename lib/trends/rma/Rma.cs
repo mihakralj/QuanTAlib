@@ -17,17 +17,9 @@ namespace QuanTAlib;
 /// utilizing the same O(1) update complexity and zero-allocation architecture.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Rma : ITValuePublisher
+public sealed class Rma : AbstractBase
 {
     private readonly Ema _ema;
-    private readonly int _period;
-
-    /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name => $"Rma({_period})";
-
-    public event Action<TValue>? Pub;
 
     /// <summary>
     /// Creates RMA with specified period.
@@ -39,9 +31,9 @@ public sealed class Rma : ITValuePublisher
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
-        _period = period;
         _ema = new Ema(1.0 / period);
-        _ema.Pub += (item) => Pub?.Invoke(item);
+        Name = $"Rma({period})";
+        WarmupPeriod = _ema.WarmupPeriod;
     }
 
     /// <summary>
@@ -56,24 +48,49 @@ public sealed class Rma : ITValuePublisher
     }
 
     /// <summary>
-    /// Current RMA value.
+    /// Creates RMA with specified source and period.
     /// </summary>
-    public TValue Last => _ema.Last;
+    /// <param name="source">Source series</param>
+    /// <param name="period">Period for RMA calculation</param>
+    public Rma(TSeries source, int period) : this(period)
+    {
+        Prime(source.Values);
+        if (source.Count > 0)
+        {
+            Last = new TValue(source.LastTime, Last.Value);
+        }
+        source.Pub += (item) => Update(item);
+    }
 
     /// <summary>
     /// True if the RMA has warmed up and is providing valid results.
     /// </summary>
-    public bool IsHot => _ema.IsHot;
+    public override bool IsHot => _ema.IsHot;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    /// <summary>
+    /// Initializes the indicator state using the provided history.
+    /// </summary>
+    /// <param name="source">Historical data</param>
+    public override void Prime(ReadOnlySpan<double> source)
     {
-        return _ema.Update(input, isNew);
+        _ema.Prime(source);
+        Last = _ema.Last;
     }
 
-    public TSeries Update(TSeries source)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override TValue Update(TValue input, bool isNew = true)
     {
-        return _ema.Update(source);
+        TValue result = _ema.Update(input, isNew);
+        Last = result;
+        PubEvent(Last);
+        return result;
+    }
+
+    public override TSeries Update(TSeries source)
+    {
+        TSeries result = _ema.Update(source);
+        Last = _ema.Last;
+        return result;
     }
 
     /// <summary>
@@ -82,7 +99,7 @@ public sealed class Rma : ITValuePublisher
     /// <param name="source">Input series</param>
     /// <param name="period">RMA period</param>
     /// <returns>RMA series</returns>
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var rma = new Rma(period);
         return rma.Update(source);
@@ -97,20 +114,35 @@ public sealed class Rma : ITValuePublisher
     /// <param name="output">Output span (must be same length as source)</param>
     /// <param name="period">RMA period (must be > 0)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         double alpha = 1.0 / period;
-        Ema.Calculate(source, output, alpha);
+        Ema.Batch(source, output, alpha);
+    }
+
+    /// <summary>
+    /// Runs a high-performance batch calculation on history and returns
+    /// a "Hot" Rma instance ready to process the next tick immediately.
+    /// </summary>
+    /// <param name="source">Historical time series</param>
+    /// <param name="period">RMA Period</param>
+    /// <returns>A tuple containing the full calculation results and the hot indicator instance</returns>
+    public static (TSeries Results, Rma Indicator) Calculate(TSeries source, int period)
+    {
+        var rma = new Rma(period);
+        TSeries results = rma.Update(source);
+        return (results, rma);
     }
 
     /// <summary>
     /// Resets the RMA state.
     /// </summary>
-    public void Reset()
+    public override void Reset()
     {
         _ema.Reset();
+        Last = default;
     }
 }

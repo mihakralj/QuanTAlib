@@ -101,7 +101,7 @@ public class AoTests
     }
     
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -113,7 +113,7 @@ public class AoTests
             streamingResults.Add(ao.Update(bars[i]).Value);
         }
         
-        var staticResults = Ao.Calculate(bars, 5, 34);
+        var staticResults = Ao.Batch(bars, 5, 34);
         
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)

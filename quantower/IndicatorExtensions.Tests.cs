@@ -242,6 +242,9 @@ public class IndicatorExtensionsTests
 
             // Test without cold values
             IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: false);
+
+            // Test PaintLine
+            IndicatorExtensions.PaintLine(indicator, args, series, warmupPeriod: 5, showColdValues: true);
         }
 
         // Test PaintHistogram with Positive and Negative values

@@ -61,7 +61,7 @@ double[] input = { ... };
 double[] output = new double[input.Length];
 
 // Calculate LSMA in-place
-Lsma.Calculate(input, output, period: 14);
+Lsma.Batch(input, output, period: 14);
 ```
 
 ### Bar Correction

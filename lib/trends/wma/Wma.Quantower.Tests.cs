@@ -116,7 +116,7 @@ public class WmaIndicatorTests
     {
         var indicator = new WmaIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(WmaIndicator), method.DeclaringType);

@@ -112,7 +112,7 @@ public class DmxTests
     }
 
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -124,7 +124,7 @@ public class DmxTests
             streamingResults.Add(dmx.Update(bars[i]).Value);
         }
 
-        var staticResults = Dmx.Calculate(bars, 14);
+        var staticResults = Dmx.Batch(bars, 14);
 
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < streamingResults.Count; i++)

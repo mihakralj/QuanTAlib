@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -26,7 +27,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Wma : ITValuePublisher
+public sealed class Wma : AbstractBase
 {
     private readonly int _period;
     private readonly double _divisor;
@@ -38,11 +39,6 @@ public sealed class Wma : ITValuePublisher
 
     private const int ResyncInterval = 1000;
 
-    public string Name { get; }
-    public TValue Last { get; private set; }
-    public bool IsHot => _buffer.IsFull;
-    public event Action<TValue>? Pub;
-
     public Wma(int period)
     {
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
@@ -51,12 +47,15 @@ public sealed class Wma : ITValuePublisher
         _divisor = (double)period * (period + 1) * 0.5;
         _buffer = new RingBuffer(period);
         Name = $"Wma({period})";
+        WarmupPeriod = period;
     }
 
     public Wma(ITValuePublisher source, int period) : this(period)
     {
         source.Pub += (item) => Update(item);
     }
+
+    public override bool IsHot => _buffer.IsFull;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -107,7 +106,7 @@ public sealed class Wma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -131,73 +130,91 @@ public sealed class Wma : ITValuePublisher
 
         double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * 0.5;
         Last = new TValue(input.Time, _state.WSum / currentDivisor);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
         int len = source.Count;
-        List<long> t = new(len);
-        List<double> v = new(len);
+        var t = new List<long>(len);
+        var v = new List<double>(len);
         CollectionsMarshal.SetCount(t, len);
         CollectionsMarshal.SetCount(v, len);
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
-        
-        Calculate(source.Values, vSpan, _period);
+
+        Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
-        // Restore state
-        int windowSize = Math.Min(len, _period);
-        int startIndex = len - windowSize;
-
-        if (startIndex > 0)
-        {
-            _state.LastValidValue = 0;
-            for (int i = startIndex - 1; i >= 0; i--)
-            {
-                if (double.IsFinite(source.Values[i]))
-                {
-                    _state.LastValidValue = source.Values[i];
-                    break;
-                }
-            }
-        }
-        else
-        {
-            _state.LastValidValue = 0;
-        }
-
-        _buffer.Clear();
-        _state.Sum = 0;
-        _state.WSum = 0;
-        _state.TickCount = 0;
-
-        for (int i = startIndex; i < len; i++)
-        {
-            double val = GetValidValue(source.Values[i]);
-            UpdateState(val);
-            _state.LastInput = val;
-        }
-
-        _p_state = _state;
+        Prime(source.Values);
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        if (source.Length == 0) return;
+
+        int len = source.Length;
+        int windowSize = Math.Min(len, _period);
+        int startIndex = len - windowSize;
+
+        // Seed LastValidValue
+        _state.LastValidValue = 0;
+        if (startIndex > 0)
+        {
+            for (int i = startIndex - 1; i >= 0; i--)
+            {
+                if (double.IsFinite(source[i]))
+                {
+                    _state.LastValidValue = source[i];
+                    break;
+                }
+            }
+        }
+
+        // Reset state
+        _buffer.Clear();
+        _state.Sum = 0;
+        _state.WSum = 0;
+        _state.TickCount = 0;
+
+        // Process window
+        for (int i = startIndex; i < len; i++)
+        {
+            double val = GetValidValue(source[i]);
+            UpdateState(val);
+            _state.LastInput = val;
+        }
+
+        // Calculate Last
+        double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * 0.5;
+        Last = new TValue(DateTime.MinValue, _state.WSum / currentDivisor);
+
+        _p_state = _state;
+    }
+
+    public override void Reset()
+    {
+        _buffer.Clear();
+        _state = default;
+        _p_state = default;
+        Last = default;
+    }
+
+    public static TSeries Batch(TSeries source, int period)
     {
         var wma = new Wma(period);
         return wma.Update(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -286,12 +303,12 @@ public sealed class Wma : ITValuePublisher
                 tickCount = 0;
                 double recalcSum = 0;
                 double recalcWsum = 0;
-                
+
                 for (int k = 0; k < period; k++)
                 {
                     int idx = bufferIdx + k;
                     if (idx >= period) idx -= period;
-                    
+
                     double v = buffer[idx];
                     recalcSum += v;
                     recalcWsum += (k + 1) * v;
@@ -743,13 +760,5 @@ public sealed class Wma : ITValuePublisher
             wsum = wsum - oldSum + (period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
-    }
-
-    public void Reset()
-    {
-        _buffer.Clear();
-        _state = default;
-        _p_state = default;
-        Last = default;
     }
 }

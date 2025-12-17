@@ -56,7 +56,7 @@ public class AdxIndicatorTests
         indicator.Initialize();
 
         // After init, line series should exist (ADX, +DI, -DI)
-        Assert.Equal(3, indicator.LinesSeries.Length);
+        Assert.Equal(3, indicator.LinesSeries.Count);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class AdxIndicatorTests
         for (int i = 0; i < 20; i++)
         {
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i);
-            
+
             // Process update for each bar to simulate history loading
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);
@@ -79,7 +79,7 @@ public class AdxIndicatorTests
 
         // Line series should have a value
         double adx = indicator.LinesSeries[0].GetValue(0);
-        
+
         Assert.True(double.IsFinite(adx));
     }
 }

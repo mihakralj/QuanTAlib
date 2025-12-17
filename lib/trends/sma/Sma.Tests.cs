@@ -331,7 +331,7 @@ public class SmaTests
     }
 
     [Fact]
-    public void Sma_StaticCalculate_Works()
+    public void Sma_StaticBatch_Works()
     {
         var series = new TSeries();
         series.Add(DateTime.UtcNow.Ticks, 10);
@@ -340,7 +340,7 @@ public class SmaTests
         series.Add(DateTime.UtcNow.Ticks + 3, 40);
         series.Add(DateTime.UtcNow.Ticks + 4, 50);
 
-        var results = Sma.Calculate(series, 3);
+        var results = Sma.Batch(series, 3);
 
         Assert.Equal(5, results.Count);
         // SMA(3) for last value: (30+40+50)/3 = 40
@@ -360,22 +360,22 @@ public class SmaTests
     // ============== Span API Tests ==============
 
     [Fact]
-    public void Sma_SpanCalc_ValidatesInput()
+    public void Sma_SpanBatch_ValidatesInput()
     {
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentException>(() => Sma.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Sma.Calculate(source.AsSpan(), output.AsSpan(), -1));
+        Assert.Throws<ArgumentException>(() => Sma.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Sma.Batch(source.AsSpan(), output.AsSpan(), -1));
 
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => Sma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Sma.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
-    public void Sma_SpanCalc_MatchesTSeriesCalc()
+    public void Sma_SpanBatch_MatchesTSeriesBatch()
     {
         var series = new TSeries();
         double[] source = new double[100];
@@ -390,10 +390,10 @@ public class SmaTests
         }
 
         // Calculate with TSeries API
-        var tseriesResult = Sma.Calculate(series, 10);
+        var tseriesResult = Sma.Batch(series, 10);
 
         // Calculate with Span API
-        Sma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Sma.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)
@@ -403,12 +403,12 @@ public class SmaTests
     }
 
     [Fact]
-    public void Sma_SpanCalc_CalculatesCorrectly()
+    public void Sma_SpanBatch_CalculatesCorrectly()
     {
         double[] source = [10, 20, 30, 40, 50];
         double[] output = new double[5];
 
-        Sma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Sma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         // SMA(3) warmup: 10, (10+20)/2=15, (10+20+30)/3=20, then sliding: (20+30+40)/3=30, (30+40+50)/3=40
         Assert.Equal(10.0, output[0], 1e-10);
@@ -419,7 +419,7 @@ public class SmaTests
     }
 
     [Fact]
-    public void Sma_SpanCalc_ZeroAllocation()
+    public void Sma_SpanBatch_ZeroAllocation()
     {
         double[] source = new double[10000];
 
@@ -429,7 +429,7 @@ public class SmaTests
             source[i] = gbm.Next().Close;
 
         // Warm up
-        Sma.Calculate(source.AsSpan(), output.AsSpan(), 100);
+        Sma.Batch(source.AsSpan(), output.AsSpan(), 100);
 
         // This test verifies the method runs without throwing
         // (allocation is measured by BenchmarkDotNet, not unit tests)
@@ -437,12 +437,12 @@ public class SmaTests
     }
 
     [Fact]
-    public void Sma_SpanCalc_HandlesNaN()
+    public void Sma_SpanBatch_HandlesNaN()
     {
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Sma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Sma.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         // All outputs should be finite
         foreach (var val in output)
@@ -452,12 +452,12 @@ public class SmaTests
     }
 
     [Fact]
-    public void Sma_SpanCalc_Period1_ReturnsInput()
+    public void Sma_SpanBatch_Period1_ReturnsInput()
     {
         double[] source = [10, 20, 30, 40, 50];
         double[] output = new double[5];
 
-        Sma.Calculate(source.AsSpan(), output.AsSpan(), 1);
+        Sma.Batch(source.AsSpan(), output.AsSpan(), 1);
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -474,14 +474,14 @@ public class SmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Sma.Calculate(series, period);
+        var batchSeries = Sma.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Sma.Calculate(spanInput, spanOutput, period);
+        Sma.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -515,5 +515,83 @@ public class SmaTests
         
         source.Add(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, sma.Last.Value);
+    }
+
+    [Fact]
+    public void WarmupPeriod_IsSetCorrectly()
+    {
+        var sma = new Sma(10);
+        Assert.Equal(10, sma.WarmupPeriod);
+    }
+
+    [Fact]
+    public void Prime_SetsStateCorrectly()
+    {
+        var sma = new Sma(5);
+        double[] history = [10, 20, 30, 40, 50]; // SMA(5) = 30
+        
+        sma.Prime(history);
+
+        Assert.True(sma.IsHot);
+        Assert.Equal(30.0, sma.Last.Value, 1e-10);
+        
+        // Verify it continues correctly
+        sma.Update(new TValue(DateTime.UtcNow, 60)); // 20,30,40,50,60 -> 40
+        Assert.Equal(40.0, sma.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Prime_WithInsufficientHistory_IsNotHot()
+    {
+        var sma = new Sma(10);
+        double[] history = [10, 20, 30, 40, 50]; 
+        
+        sma.Prime(history);
+
+        Assert.False(sma.IsHot);
+        Assert.Equal(30.0, sma.Last.Value, 1e-10); // It still calculates what it can
+    }
+
+    [Fact]
+    public void Prime_HandlesNaN_InHistory()
+    {
+        var sma = new Sma(3);
+        double[] history = [10, 20, double.NaN, 40]; 
+        // 10
+        // 10, 20
+        // 10, 20, 20 (NaN replaced by 20) -> Avg(10,20,20) = 16.666...
+        // 20, 20, 40 -> Avg(20,20,40) = 26.666...
+        
+        sma.Prime(history);
+        
+        Assert.True(sma.IsHot);
+        Assert.Equal(80.0 / 3.0, sma.Last.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Calculate_ReturnsCorrectResultsAndHotIndicator()
+    {
+        var series = new TSeries();
+        for (int i = 1; i <= 10; i++) series.Add(DateTime.UtcNow, i * 10);
+        // 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
+        
+        // SMA(5)
+        var (results, indicator) = Sma.Calculate(series, 5);
+
+        // Check results
+        Assert.Equal(10, results.Count);
+        Assert.Equal(30.0, results[4].Value); // 5th element (index 4) is SMA(10..50) = 30
+        Assert.Equal(80.0, results.Last.Value); // Last element is SMA(60..100) = 80
+
+        // Check indicator state
+        Assert.True(indicator.IsHot);
+        Assert.Equal(80.0, indicator.Last.Value);
+        Assert.Equal(5, indicator.WarmupPeriod);
+
+        // Verify indicator continues correctly
+        indicator.Update(new TValue(DateTime.UtcNow, 110)); 
+        // Window was [60, 70, 80, 90, 100] -> Avg 80
+        // New Window [70, 80, 90, 100, 110] -> Avg 90
+        Assert.Equal(90.0, indicator.Last.Value);
     }
 }

@@ -23,7 +23,7 @@ namespace QuanTAlib;
 /// The final ALMA is the weighted sum of the price window divided by the sum of weights.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Alma : ITValuePublisher
+public sealed class Alma : AbstractBase
 {
     private readonly int _period;
     private readonly double _offset;
@@ -36,22 +36,7 @@ public sealed class Alma : ITValuePublisher
     private State _state;
     private State _p_state;
 
-    /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    public event Action<TValue>? Pub;
-
-    /// <summary>
-    /// Current ALMA value.
-    /// </summary>
-    public TValue Last { get; private set; }
-
-    /// <summary>
-    /// True if the ALMA has enough data to produce valid results (buffer is full).
-    /// </summary>
-    public bool IsHot => _buffer.IsFull;
+    public override bool IsHot => _buffer.IsFull;
 
     /// <summary>
     /// Creates ALMA with specified parameters.
@@ -74,6 +59,7 @@ public sealed class Alma : ITValuePublisher
         _buffer = new RingBuffer(period);
         _weights = new double[period];
         Name = $"Alma({period}, {offset:F2}, {sigma:F2})";
+        WarmupPeriod = period;
 
         // Precompute weights
         double m = offset * (period - 1);
@@ -91,7 +77,7 @@ public sealed class Alma : ITValuePublisher
         _weightSum = sum;
     }
 
-    public Alma(ITValuePublisher source, int period, double offset = 0.85, double sigma = 6.0) 
+    public Alma(ITValuePublisher source, int period, double offset = 0.85, double sigma = 6.0)
         : this(period, offset, sigma)
     {
         source.Pub += (item) => Update(item);
@@ -109,7 +95,7 @@ public sealed class Alma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -130,11 +116,11 @@ public sealed class Alma : ITValuePublisher
         }
 
         Last = new TValue(input.Time, result);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return new TSeries([], []);
 
@@ -153,7 +139,7 @@ public sealed class Alma : ITValuePublisher
         // Restore state
         _buffer.Clear();
         _state = default;
-        
+
         // Replay last part to restore buffer state
         int startIndex = Math.Max(0, len - _period);
         for (int i = startIndex; i < len; i++)
@@ -162,6 +148,14 @@ public sealed class Alma : ITValuePublisher
         }
 
         return new TSeries(t, v);
+    }
+
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -176,17 +170,17 @@ public sealed class Alma : ITValuePublisher
             // Buffer[0] (oldest) -> Weights[period - count]
             ReadOnlySpan<double> bufferSpan = _buffer.GetSpan();
             int weightOffset = _period - count;
-            
+
             // Use DotProduct for partial sum
             double sum = bufferSpan.DotProduct(_weights.AsSpan(weightOffset, count));
-            
+
             // Calculate weightSum for this subset
             double wSum = 0;
             for (int i = 0; i < count; i++)
             {
                 wSum += _weights[weightOffset + i];
             }
-            
+
             return wSum > 0 ? sum / wSum : 0;
         }
 
@@ -194,20 +188,20 @@ public sealed class Alma : ITValuePublisher
         // We use InternalBuffer and StartIndex to avoid allocation and handle wrapping
         ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
         int head = _buffer.StartIndex;
-        
+
         // Part 1: Oldest to End of Buffer -> InternalBuffer[Head ... Cap-1]
         //         Matches Weights[0 ... Cap-Head-1]
         int part1Len = _period - head;
         double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
-        
+
         // Part 2: Start of Buffer to Newest -> InternalBuffer[0 ... Head-1]
         //         Matches Weights[Cap-Head ... Cap-1]
-        double sum2 = internalBuf.Slice(0, head).DotProduct(_weights.AsSpan(part1Len));
-        
+        double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
+
         return (sum1 + sum2) / _weightSum;
     }
 
-    public static TSeries Calculate(TSeries source, int period, double offset = 0.85, double sigma = 6.0)
+    public static TSeries Batch(TSeries source, int period, double offset = 0.85, double sigma = 6.0)
     {
         var alma = new Alma(period, offset, sigma);
         return alma.Update(source);
@@ -260,39 +254,39 @@ public sealed class Alma : ITValuePublisher
             // Oldest is at: (bufferIdx - count + period) % period
             // But wait, the buffer wraps.
             // Let's just iterate 0..count-1 and map to buffer index.
-            
+
             double sum = 0;
             double currentWeightSum = 0;
-            
+
             int startIdx = (bufferIdx - count + period) % period;
             int weightOffset = period - count; // Align weights to end
-            
+
             // Optimization: If full, we can use SIMD if we unwrap the buffer or handle wrapping.
             // For simplicity in static method (and since we can't easily unwrap stackalloc),
             // we'll use scalar loop with modulo.
             // Or better: copy to a temporary linear buffer? No, that's too much copying.
-            
+
             // Actually, for full period, we can do two loops (part1, part2) to avoid modulo in loop.
-            
+
             if (count == period)
             {
                 // Buffer is full. startIdx is bufferIdx (which is the oldest, since we just wrote to bufferIdx-1)
                 // Wait, bufferIdx points to the NEXT write position.
                 // So bufferIdx is the Oldest.
-                
+
                 // Part 1: bufferIdx to End
                 int part1Len = period - bufferIdx;
                 for (int j = 0; j < part1Len; j++)
                 {
                     sum += buffer[bufferIdx + j] * weights[j];
                 }
-                
+
                 // Part 2: 0 to bufferIdx
                 for (int j = 0; j < bufferIdx; j++)
                 {
                     sum += buffer[j] * weights[part1Len + j];
                 }
-                
+
                 output[i] = sum / weightSum;
             }
             else
@@ -310,7 +304,7 @@ public sealed class Alma : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _buffer.Clear();
         _state = default;

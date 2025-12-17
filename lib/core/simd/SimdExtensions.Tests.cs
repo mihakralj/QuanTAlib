@@ -525,6 +525,32 @@ public class SimdExtensionsTests
         Assert.Throws<ArgumentException>(() => SimdExtensions.Subtract(left, right, result));
     }
 
+    // DotProduct tests
+    [Fact]
+    public void DotProduct_SameLength_CorrectResult()
+    {
+        double[] a = [1.0, 2.0, 3.0];
+        double[] b = [4.0, 5.0, 6.0];
+        // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
+        Assert.Equal(32.0, SimdExtensions.DotProduct(a, b));
+    }
+
+    [Fact]
+    public void DotProduct_DifferentLengths_ThrowsArgumentException()
+    {
+        double[] a = [1.0, 2.0];
+        double[] b = [1.0];
+        Assert.Throws<ArgumentException>(() => SimdExtensions.DotProduct(a, b));
+    }
+
+    [Fact]
+    public void DotProduct_EmptySpans_ReturnsZero()
+    {
+        double[] a = [];
+        double[] b = [];
+        Assert.Equal(0.0, SimdExtensions.DotProduct(a, b));
+    }
+
     // Integration tests
     [Fact]
     public void SIMD_WorksWithTSeriesValues()

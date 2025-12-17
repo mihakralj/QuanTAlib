@@ -57,7 +57,7 @@ double[] prices = ...;
 double[] output = new double[prices.Length];
 
 // Calculate KAMA for the entire array
-Kama.Calculate(prices.AsSpan(), output.AsSpan(), period: 10, fastPeriod: 2, slowPeriod: 30);
+Kama.Batch(prices.AsSpan(), output.AsSpan(), period: 10, fastPeriod: 2, slowPeriod: 30);
 ```
 
 ### Bar Correction

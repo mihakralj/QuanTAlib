@@ -170,7 +170,7 @@ public class MamaTests
         
         var mama = new Mama();
         var series1 = mama.Update(source);
-        var series2 = Mama.Calculate(source);
+        var series2 = Mama.Batch(source);
         
         Assert.Equal(series1.Count, series2.Count);
         for (int i = 0; i < source.Count; i++)

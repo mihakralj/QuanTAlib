@@ -43,6 +43,29 @@ TRIMA(source, p) = SMA(SMA(source, (p+1)/2), (p+1)/2)
 
 ## C# Implementation
 
+### Standard Usage
+
+```csharp
+using QuanTAlib;
+
+// Create TRIMA with period 14
+var trima = new Trima(14);
+
+// Update with new value
+var result = trima.Update(new TValue(DateTime.UtcNow, 100.0));
+Console.WriteLine($"TRIMA: {result.Value}");
+```
+
+### Static API (High Performance)
+
+```csharp
+// Calculate TRIMA for an entire array
+double[] prices = { ... };
+double[] results = new double[prices.Length];
+
+Trima.Batch(prices, results, 14);
+```
+
 ### Eventing and Reactive Support
 
 This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.

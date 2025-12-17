@@ -142,7 +142,7 @@ public class SuperTests
     }
 
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -154,7 +154,7 @@ public class SuperTests
             streamingResults.Add(super.Update(bars[i]).Value);
         }
         
-        var staticResults = Super.Calculate(bars, 10, 3.0);
+        var staticResults = Super.Batch(bars, 10, 3.0);
         
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)

@@ -175,10 +175,10 @@ public class RmaTests
         }
 
         // Calculate with TSeries API
-        var tseriesResult = Rma.Calculate(series, 10);
+        var tseriesResult = Rma.Batch(series, 10);
 
         // Calculate with Span API
-        Rma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Rma.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)

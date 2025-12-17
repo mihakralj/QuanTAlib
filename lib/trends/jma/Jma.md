@@ -88,7 +88,7 @@ For high-performance batch processing:
 double[] prices = { 100.0, 101.5, 99.8, ... };
 double[] output = new double[prices.Length];
 
-Jma.Calculate(prices, output, period: 10, phase: 0);
+Jma.Batch(prices, output, period: 10, phase: 0);
 ```
 
 ### Batch with TSeries

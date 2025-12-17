@@ -245,7 +245,7 @@ public class KamaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Kama.Calculate(series, period);
+        var batchSeries = Kama.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

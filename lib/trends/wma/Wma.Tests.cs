@@ -101,7 +101,7 @@ public class WmaTests
     }
     
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -114,7 +114,7 @@ public class WmaTests
             streamingResults.Add(wma.Update(series[i]).Value);
         }
         
-        var staticResults = Wma.Calculate(series, 10);
+        var staticResults = Wma.Batch(series, 10);
         
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
@@ -124,7 +124,7 @@ public class WmaTests
     }
 
     [Fact]
-    public void StaticCalculateSpan_Matches_Streaming()
+    public void StaticBatchSpan_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -138,7 +138,7 @@ public class WmaTests
         }
         
         var spanResults = new double[series.Count];
-        Wma.Calculate(series.Values, spanResults, 10);
+        Wma.Batch(series.Values, spanResults, 10);
         
         for (int i = 0; i < spanResults.Length; i++)
         {

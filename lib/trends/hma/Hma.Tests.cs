@@ -90,7 +90,7 @@ public class HmaTests
         }
 
         var instanceResults = new Hma(14).Update(series);
-        var staticResults = Hma.Calculate(series, 14);
+        var staticResults = Hma.Batch(series, 14);
 
         for (int i = 0; i < instanceResults.Count; i++)
         {
@@ -109,7 +109,7 @@ public class HmaTests
             series.Add(bar.Time, bar.Close);
         }
 
-        var seriesResults = Hma.Calculate(series, 14);
+        var seriesResults = Hma.Batch(series, 14);
 
         double[] input = series.Values.ToArray();
         double[] output = new double[input.Length];
@@ -247,7 +247,7 @@ public class HmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Hma.Calculate(series, period);
+        var batchSeries = Hma.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

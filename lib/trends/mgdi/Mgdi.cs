@@ -20,19 +20,16 @@ namespace QuanTAlib;
 /// Default k = 0.6
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Mgdi : ITValuePublisher
+public sealed class Mgdi : AbstractBase
 {
-    public string Name { get; }
-    public bool IsHot { get; private set; }
-    public event Action<TValue>? Pub;
-    public TValue Last { get; private set; }
-
     private readonly int _period;
     private readonly double _k;
-    
+
     private record struct State(double LastMgdi, double LastValidValue, int Count);
     private State _state;
     private State _p_state;
+
+    public override bool IsHot => _state.Count >= _period;
 
     public Mgdi(int period = 14, double k = 0.6)
     {
@@ -41,6 +38,7 @@ public sealed class Mgdi : ITValuePublisher
         _period = period;
         _k = k;
         Name = $"Mgdi({period},{k})";
+        WarmupPeriod = period;
         Init();
     }
 
@@ -53,12 +51,11 @@ public sealed class Mgdi : ITValuePublisher
     {
         _state = default;
         _p_state = default;
-        IsHot = false;
         Last = default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew) _p_state = _state;
         else _state = _p_state;
@@ -87,25 +84,24 @@ public sealed class Mgdi : ITValuePublisher
                 double ratio = price / prev;
                 double ratio4 = ratio * ratio;
                 ratio4 *= ratio4;
-                
+
                 double denominator = _k * _period * ratio4;
                 _state.LastMgdi = prev + (price - prev) / denominator;
             }
             else
             {
-                 _state.LastMgdi = price;
+                _state.LastMgdi = price;
             }
         }
 
-        IsHot = _state.Count >= _period;
         Last = new TValue(input.Time, _state.LastMgdi);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -121,9 +117,8 @@ public sealed class Mgdi : ITValuePublisher
 
         // Restore state
         Init();
-        // Replay last portion to restore state
-        int startIndex = Math.Max(0, len - Math.Max(_period * 2, 100));
-        for (int i = startIndex; i < len; i++)
+        // Replay the whole series to restore state correctly as it is recursive
+        for (int i = 0; i < len; i++)
         {
             Update(new TValue(source.Times[i], source.Values[i]));
         }
@@ -132,7 +127,15 @@ public sealed class Mgdi : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period = 14, double k = 0.6)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period = 14, double k = 0.6)
     {
         var mgdi = new Mgdi(period, k);
         return mgdi.Update(source);
@@ -161,7 +164,7 @@ public sealed class Mgdi : ITValuePublisher
                 double ratio = price / lastMgdi;
                 double ratio4 = ratio * ratio;
                 ratio4 *= ratio4;
-                
+
                 double denominator = k * period * ratio4;
                 lastMgdi += (price - lastMgdi) / denominator;
             }
@@ -169,12 +172,12 @@ public sealed class Mgdi : ITValuePublisher
             {
                 lastMgdi = price;
             }
-            
+
             output[i] = lastMgdi;
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         Init();
     }

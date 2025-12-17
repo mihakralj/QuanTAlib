@@ -56,7 +56,7 @@ Trend indicators help identify the direction and strength of a market trend. Mov
 | SINEMA | Sine-weighted MA | |
 | [SMA](sma/Sma.md) | Simple MA | The unweighted mean of the previous n data. |
 | SSF | Ehlers Super Smooth Filter | |
-| SUPER | SuperTrend | |
+| [SUPER](super/Super.md) | SuperTrend | Trend-following indicator using ATR to define upper and lower bands acting as a trailing stop. |
 | [T3](t3/T3.md) | Tillson T3 MA | A smooth moving average that uses a smoothing factor to reduce lag. |
 | [TEMA](tema/Tema.md) | Triple Exponential MA | Designed to smooth price fluctuations and filter out volatility. |
 | [TRIMA](trima/Trima.md) | Triangular MA | A double-smoothed SMA that gives more weight to the middle of the data window. |

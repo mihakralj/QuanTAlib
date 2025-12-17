@@ -103,7 +103,7 @@
 | HOMOD | Homodyne Discriminator Dominant Cycle | Cycles |
 | HP | Hodrick-Prescott Filter | Trends |
 | HPF | Ehlers Highpass Filter | Trends |
-| HTIT | Ehlers Hilbert Transform Instantaneous Trend | Trends |
+| [HTIT](trends/htit/Htit.md) | Ehlers Hilbert Transform Instantaneous Trend | Trends |
 | HT_DCPERIOD | Ehlers Hilbert Transform Dominant Cycle Period | Cycles |
 | HT_DCPHASE | Ehlers Hilbert Transform Dominant Cycle Phase | Cycles |
 | HT_PHASOR | Ehlers Hilbert Transform Phasor Components | Cycles |
@@ -188,7 +188,7 @@
 | PVO | Percentage Volume Oscillator | Volume |
 | PVR | Price Volume Rank | Volume |
 | PVT | Price Volume Trend | Volume |
-| PWMA | Pascal Weighted MA | Trends |
+| [PWMA](trends/pwma/Pwma.md) | Pascal Weighted MA | Trends |
 | QEMA | Quadruple Exponential MA | Trends |
 | QSTICK | Qstick Indicator | Momentum |
 | QUANTILE | Quantile | Statistics |

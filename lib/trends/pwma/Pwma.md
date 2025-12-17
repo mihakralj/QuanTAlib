@@ -79,12 +79,12 @@ Console.WriteLine($"IsHot: {pwma.IsHot}");          // true when buffer is full
 
 // Batch calculation (TSeries API)
 TSeries source = ...;
-TSeries results = Pwma.Calculate(source, 14);
+TSeries results = Pwma.Batch(source, 14);
 
 // High-performance Span API (zero allocation)
 double[] prices = new double[10000];
 double[] output = new double[10000];
-Pwma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+Pwma.Batch(prices.AsSpan(), output.AsSpan(), period: 14);
 ```
 
 ### Zero-Allocation Span API
@@ -97,7 +97,7 @@ double[] source = new double[200000];
 double[] pwmaOutput = new double[200000];
 
 // Zero heap allocation during calculation
-Pwma.Calculate(source.AsSpan(), pwmaOutput.AsSpan(), period: 100);
+Pwma.Batch(source.AsSpan(), pwmaOutput.AsSpan(), period: 100);
 
 // Results are written directly to output buffer
 Console.WriteLine($"Last PWMA: {pwmaOutput[^1]}");

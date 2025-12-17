@@ -91,7 +91,7 @@ public class EmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib EMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Ema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Ema.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Skender EMA
             var sResult = _testData.SkenderQuotes.GetEma(period).ToList();
@@ -173,7 +173,7 @@ public class EmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib EMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Ema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Ema.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate TA-Lib EMA
             var retCode = TALib.Functions.Ema<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
@@ -261,7 +261,7 @@ public class EmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib EMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Ema.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Ema.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Tulip EMA
             var emaIndicator = Tulip.Indicators.ema;

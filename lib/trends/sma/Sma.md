@@ -68,12 +68,12 @@ Console.WriteLine($"IsHot: {sma.IsHot}");          // true when buffer is full
 
 // Batch calculation (TSeries API)
 TSeries source = ...;
-TSeries results = Sma.Calculate(source, 10);
+TSeries results = Sma.Batch(source, 10);
 
 // High-performance Span API (zero allocation)
 double[] prices = new double[10000];
 double[] output = new double[10000];
-Sma.Calculate(prices.AsSpan(), output.AsSpan(), period: 10);
+Sma.Batch(prices.AsSpan(), output.AsSpan(), period: 10);
 ```
 
 ### Zero-Allocation Span API
@@ -86,7 +86,7 @@ double[] source = new double[200000];
 double[] smaOutput = new double[200000];
 
 // Zero heap allocation during calculation
-Sma.Calculate(source.AsSpan(), smaOutput.AsSpan(), period: 100);
+Sma.Batch(source.AsSpan(), smaOutput.AsSpan(), period: 100);
 
 // Results are written directly to output buffer
 Console.WriteLine($"Last SMA: {smaOutput[^1]}");

@@ -49,6 +49,22 @@ public class VidyaValidationTests
         _output.WriteLine("VIDYA validated successfully against reference implementation");
     }
 
+    [Fact]
+    public void ValidateBatchAgainstReference()
+    {
+        var period = 14;
+
+        // QuanTAlib Batch
+        var qResults = Vidya.Batch(_testData.Data, period);
+
+        // Reference Implementation
+        var refResults = CalculateVidyaReference(_testData.Data, period);
+
+        // Compare
+        ValidationHelper.VerifyData(qResults, refResults, x => x);
+
+        _output.WriteLine("VIDYA Batch validated successfully against reference implementation");
+    }
 
     private static List<double> CalculateVidyaReference(TSeries data, int period)
     {

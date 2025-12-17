@@ -116,7 +116,7 @@ public class DemaIndicatorTests
     {
         var indicator = new DemaIndicator();
         indicator.Initialize();
-        
+
         // We can't easily mock PaintChartEventArgs fully, but we can verify the method exists and is callable
         // if we could mock the args. Since we can't, we skip the actual call but verify the method is overridden.
         var method = indicator.GetType().GetMethod("OnPaintChart");

@@ -23,10 +23,12 @@ public sealed class Dmx : ITValuePublisher
     public string Name { get; }
     public event Action<TValue>? Pub;
     public TValue Last { get; private set; }
+    public int WarmupPeriod { get; }
 
     public Dmx(int period)
     {
         Name = $"Dmx({period})";
+        WarmupPeriod = period;
         _jmaDMp = new Jma(period);
         _jmaDMm = new Jma(period);
         _jmaTR = new Jma(period);
@@ -61,7 +63,7 @@ public sealed class Dmx : ITValuePublisher
                 // But we want to handle the first bar logic specifically
             }
         }
-        
+
         // We always update _lastInput to the current input
         _lastInput = input;
 
@@ -80,14 +82,14 @@ public sealed class Dmx : ITValuePublisher
 
             if (upMove > downMove && upMove > 0)
                 dmPlusRaw = upMove;
-            
+
             if (downMove > upMove && downMove > 0)
                 dmMinusRaw = downMove;
 
             double tr1 = input.High - input.Low;
             double tr2 = Math.Abs(input.High - _prevBar.Close);
             double tr3 = Math.Abs(input.Low - _prevBar.Close);
-            
+
             trRaw = Math.Max(tr1, Math.Max(tr2, tr3));
         }
 
@@ -130,7 +132,7 @@ public sealed class Dmx : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int period = 14)
+    public static TSeries Batch(TBarSeries source, int period = 14)
     {
         var dmx = new Dmx(period);
         return dmx.Update(source);

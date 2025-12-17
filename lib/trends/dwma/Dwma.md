@@ -91,7 +91,7 @@ Console.WriteLine($"DWMA: {result.Value}");
 ReadOnlySpan<double> input = ...;
 Span<double> output = new double[input.Length];
 
-Dwma.Calculate(input, output, 14);
+Dwma.Batch(input, output, 14);
 ```
 
 ### Bar Correction

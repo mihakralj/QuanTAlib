@@ -57,7 +57,7 @@ double[] prices = ...;
 double[] output = new double[prices.Length];
 
 // Calculate ALMA for the entire array
-Alma.Calculate(prices.AsSpan(), output.AsSpan(), period: 9, offset: 0.85, sigma: 6.0);
+Alma.Batch(prices.AsSpan(), output.AsSpan(), period: 9, offset: 0.85, sigma: 6.0);
 ```
 
 ### Bar Correction

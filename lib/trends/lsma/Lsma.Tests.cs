@@ -141,7 +141,7 @@ public class LsmaTests
         
         var lsma = new Lsma(period);
         var series1 = lsma.Update(source);
-        var series2 = Lsma.Calculate(source, period);
+        var series2 = Lsma.Batch(source, period);
         
         Assert.Equal(series1.Count, series2.Count);
         for (int i = 0; i < count; i++)

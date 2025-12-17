@@ -101,7 +101,7 @@ public class CfbIndicatorTests
         indicator.HistoricalData.AddBar(now.AddMinutes(3), 103, 109, 101, 105);
 
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-        
+
         // Add new bar
         indicator.HistoricalData.AddBar(now.AddMinutes(4), 105, 112, 103, 110);
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
@@ -137,7 +137,7 @@ public class CfbIndicatorTests
     {
         var indicator = new CfbIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(CfbIndicator), method.DeclaringType);
@@ -159,7 +159,7 @@ public class CfbIndicatorTests
             {
                 indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i);
             }
-            
+
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
 
             Assert.True(double.IsFinite(indicator.LinesSeries[0].GetValue(0)),

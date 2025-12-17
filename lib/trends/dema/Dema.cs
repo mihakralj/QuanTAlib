@@ -22,7 +22,7 @@ namespace QuanTAlib;
 /// Becomes true when the second EMA converges (approx. 2x EMA convergence time).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Dema : ITValuePublisher
+public sealed class Dema : AbstractBase
 {
     private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
     {
@@ -31,19 +31,16 @@ public sealed class Dema : ITValuePublisher
 
     private readonly double _alpha;
     private readonly double _decay;
-    
+
     private EmaState _state1 = EmaState.New();
     private EmaState _state2 = EmaState.New();
     private EmaState _p_state1 = EmaState.New();
     private EmaState _p_state2 = EmaState.New();
-    
+
     private double _lastValidValue;
     private double _p_lastValidValue;
 
-    public string Name { get; }
-    public TValue Last { get; private set; }
-    public bool IsHot => _state2.IsHot;
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _state2.IsHot;
 
     public Dema(int period)
     {
@@ -52,6 +49,7 @@ public sealed class Dema : ITValuePublisher
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
         Name = $"Dema({period})";
+        WarmupPeriod = period;
     }
 
     public Dema(ITValuePublisher source, int period) : this(period)
@@ -69,7 +67,7 @@ public sealed class Dema : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -98,11 +96,11 @@ public sealed class Dema : ITValuePublisher
 
         double result = 2 * e1 - e2;
         Last = new TValue(input.Time, result);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -117,7 +115,7 @@ public sealed class Dema : ITValuePublisher
         source.Times.CopyTo(tSpan);
 
         var sourceValues = source.Values;
-        
+
         // Use current state
         EmaState s1 = _state1;
         EmaState s2 = _state2;
@@ -151,6 +149,14 @@ public sealed class Dema : ITValuePublisher
         return new TSeries(t, v);
     }
 
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Compute(double input, double alpha, double decay, ref EmaState state)
     {
@@ -182,13 +188,13 @@ public sealed class Dema : ITValuePublisher
         return result;
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var dema = new Dema(period);
         return dema.Update(source);
     }
 
-    public static TSeries Calculate(TSeries source, double alpha)
+    public static TSeries Batch(TSeries source, double alpha)
     {
         var dema = new Dema(alpha);
         return dema.Update(source);
@@ -280,7 +286,7 @@ public sealed class Dema : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _state1 = EmaState.New();
         _state2 = EmaState.New();

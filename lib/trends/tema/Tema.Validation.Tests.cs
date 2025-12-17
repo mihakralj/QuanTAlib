@@ -112,7 +112,7 @@ public class TemaValidationTests
         {
             // Calculate QuanTAlib TEMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Tema.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period);
+            global::QuanTAlib.Tema.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
 
             // Calculate TA-Lib TEMA
             var retCode = TALib.Functions.Tema<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period);

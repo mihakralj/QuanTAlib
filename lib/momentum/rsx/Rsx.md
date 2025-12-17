@@ -45,7 +45,7 @@ Console.WriteLine($"RSX: {result.Value}");
 double[] prices = { ... };
 double[] results = new double[prices.Length];
 
-Rsx.Calculate(prices, results, 14);
+Rsx.Batch(prices, results, 14);
 ```
 
 ### Chaining

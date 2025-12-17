@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// alpha = 2 / (period + 1)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class T3 : ITValuePublisher
+public sealed class T3 : AbstractBase
 {
     private record struct State(double E1, double E2, double E3, double E4, double E5, double E6, bool IsInitialized)
     {
@@ -68,13 +68,6 @@ public sealed class T3 : ITValuePublisher
     private double _p_lastValidValue;
 
     /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    public event Action<TValue>? Pub;
-
-    /// <summary>
     /// Creates T3 with specified period and volume factor.
     /// </summary>
     /// <param name="period">Period for EMA calculation (must be > 0)</param>
@@ -99,6 +92,7 @@ public sealed class T3 : ITValuePublisher
         _params = new Parameters(alpha, c1, c2, c3, c4);
 
         Name = $"T3({period}, {vfactor:F2})";
+        WarmupPeriod = period * 6; // T3 has 6 cascaded EMAs, so warmup is longer
     }
 
     /// <summary>
@@ -114,14 +108,84 @@ public sealed class T3 : ITValuePublisher
     }
 
     /// <summary>
-    /// Current T3 value.
+    /// Creates T3 with specified source, period and volume factor.
     /// </summary>
-    public TValue Last { get; private set; }
+    /// <param name="source">Source series</param>
+    /// <param name="period">Period for EMA calculation</param>
+    /// <param name="vfactor">Volume Factor (default 0.7)</param>
+    public T3(TSeries source, int period, double vfactor = 0.7) : this(period, vfactor)
+    {
+        Prime(source.Values);
+        if (source.Count > 0)
+        {
+            Last = new TValue(source.LastTime, Last.Value);
+        }
+        source.Pub += (item) => Update(item);
+    }
 
     /// <summary>
     /// True if the T3 has been initialized (received at least one value).
     /// </summary>
-    public bool IsHot => _state.IsInitialized;
+    public override bool IsHot => _state.IsInitialized;
+
+    /// <summary>
+    /// Initializes the indicator state using the provided history.
+    /// </summary>
+    /// <param name="source">Historical data</param>
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        if (source.Length == 0) return;
+
+        // Reset state
+        _state = State.New();
+        _p_state = State.New();
+        _lastValidValue = 0;
+        _p_lastValidValue = 0;
+
+        // Run the calculation on the history to update state
+        // We don't need the output, just the final state
+        int len = source.Length;
+        double lastValidValue = 0;
+        State state = _state;
+
+        for (int i = 0; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValidValue = val;
+            else
+                val = lastValidValue;
+
+            Compute(val, _params, ref state);
+        }
+
+        _state = state;
+        _lastValidValue = lastValidValue;
+
+        // Calculate the initial "Last" value
+        // We need to re-compute the last step to get the result, or just use the state if we stored the result
+        // Since Compute returns the result but also updates state, we can't easily get the last result without re-running or storing it.
+        // However, Prime is usually followed by Update or we just need the state ready.
+        // If we want Last to be correct, we should probably store the last result.
+        // But AbstractBase.Prime doesn't strictly require Last to be set to the very last value of source, 
+        // though it's good practice.
+        // Let's re-run the last value computation to set Last correctly.
+        if (len > 0)
+        {
+            // We need to be careful not to double-apply the last update if we just loop.
+            // Actually, the loop above updated the state to include the last value.
+            // So the state corresponds to "after processing source".
+            // To get the output value corresponding to the last input, we can calculate it from the state.
+            // But T3 formula uses the *updated* EMAs.
+            // T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
+            // The state has the updated EMAs.
+            double result = _params.C1 * _state.E6 + _params.C2 * _state.E5 + _params.C3 * _state.E4 + _params.C4 * _state.E3;
+            Last = new TValue(DateTime.MinValue, result);
+        }
+
+        _p_state = _state;
+        _p_lastValidValue = _lastValidValue;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -135,7 +199,7 @@ public sealed class T3 : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -151,11 +215,11 @@ public sealed class T3 : ITValuePublisher
         double val = GetValidValue(input.Value);
         val = Compute(val, _params, ref _state);
         Last = new TValue(input.Time, val);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -227,7 +291,7 @@ public sealed class T3 : ITValuePublisher
     /// <summary>
     /// Calculates T3 for the entire series using a new instance.
     /// </summary>
-    public static TSeries Calculate(TSeries source, int period, double vfactor = 0.7)
+    public static TSeries Batch(TSeries source, int period, double vfactor = 0.7)
     {
         var t3 = new T3(period, vfactor);
         return t3.Update(source);
@@ -237,7 +301,7 @@ public sealed class T3 : ITValuePublisher
     /// Calculates T3 in-place using period, writing results to pre-allocated output span.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double vfactor = 0.7)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double vfactor = 0.7)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
@@ -264,7 +328,7 @@ public sealed class T3 : ITValuePublisher
     /// <summary>
     /// Resets the T3 state.
     /// </summary>
-    public void Reset()
+    public override void Reset()
     {
         _state = State.New();
         _p_state = _state;

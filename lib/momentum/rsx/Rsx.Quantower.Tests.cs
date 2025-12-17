@@ -118,7 +118,7 @@ public class RsxIndicatorTests
     {
         var indicator = new RsxIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(RsxIndicator), method.DeclaringType);

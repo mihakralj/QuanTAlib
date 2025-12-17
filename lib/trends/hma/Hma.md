@@ -62,3 +62,40 @@ HMA can be used in various trading strategies:
 ## References
 
 * Hull, Alan. "Better Trading with the Hull Moving Average." MTA Symposium Proceedings, 2005
+
+## C# Implementation
+
+### Standard Usage
+
+```csharp
+using QuanTAlib;
+
+// Initialize with period 9
+var hma = new Hma(9);
+
+// Update with new value
+TValue result = hma.Update(new TValue(time, price));
+Console.WriteLine($"HMA: {result.Value}");
+```
+
+### Zero-Allocation Span API
+
+```csharp
+double[] prices = ...;
+double[] output = new double[prices.Length];
+
+// Calculate HMA for the entire array
+Hma.Batch(prices.AsSpan(), output.AsSpan(), period: 9);
+```
+
+### Bar Correction
+
+```csharp
+var hma = new Hma(9);
+
+// Update with initial tick
+hma.Update(new TValue(time, 100), isNew: true);
+
+// Update with correction (same bar)
+hma.Update(new TValue(time, 101), isNew: false);
+```

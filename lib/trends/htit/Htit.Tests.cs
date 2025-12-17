@@ -165,7 +165,7 @@ public class HtitTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Htit.Calculate(series);
+        var batchSeries = Htit.Batch(series);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

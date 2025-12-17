@@ -94,7 +94,7 @@ public class ConvTests
         source.Add(new TValue(DateTime.UtcNow, 3));
         source.Add(new TValue(DateTime.UtcNow, 4));
 
-        var result = Conv.Calculate(source, kernel);
+        var result = Conv.Batch(source, kernel);
 
         Assert.Equal(1.0, result.Values[0]);
         Assert.Equal(2.5, result.Values[1]);
@@ -173,14 +173,14 @@ public class ConvTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Conv.Calculate(series, kernel);
+        var batchSeries = Conv.Batch(series, kernel);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Conv.Calculate(spanInput, spanOutput, kernel);
+        Conv.Batch(spanInput, spanOutput, kernel);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode
@@ -214,8 +214,8 @@ public class ConvTests
         double[] wrongSizeOutput = new double[3];
         double[] kernel = [0.5, 0.5];
 
-        Assert.Throws<ArgumentException>(() => Conv.Calculate(source.AsSpan(), output.AsSpan(), Array.Empty<double>()));
-        Assert.Throws<ArgumentException>(() => Conv.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), kernel));
+        Assert.Throws<ArgumentException>(() => Conv.Batch(source.AsSpan(), output.AsSpan(), Array.Empty<double>()));
+        Assert.Throws<ArgumentException>(() => Conv.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), kernel));
     }
 
     [Fact]
@@ -225,7 +225,7 @@ public class ConvTests
         double[] output = new double[5];
         double[] kernel = [0.5, 0.5];
 
-        Conv.Calculate(source.AsSpan(), output.AsSpan(), kernel);
+        Conv.Batch(source.AsSpan(), output.AsSpan(), kernel);
 
         foreach (var val in output)
         {

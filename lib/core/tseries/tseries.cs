@@ -11,8 +11,8 @@ namespace QuanTAlib;
 /// Stores Time (long) and Value (double) in separate contiguous arrays for SIMD efficiency.
 /// Supports "New Bar" vs "Update Last" streaming semantics.
 /// </summary>
-    public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
-    {
+public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
+{
     protected readonly List<long> _t;
     protected readonly List<double> _v;
 

@@ -363,34 +363,34 @@ public class EmaTests
     // ============== Span API Tests ==============
 
     [Fact]
-    public void Ema_SpanCalc_Period_ValidatesInput()
+    public void Ema_SpanBatch_Period_ValidatesInput()
     {
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
         // Period must be > 0
-        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), 0));
-        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), -1));
+        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), -1));
 
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
     [Fact]
-    public void Ema_SpanCalc_Alpha_ValidatesInput()
+    public void Ema_SpanBatch_Alpha_ValidatesInput()
     {
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
 
         // Alpha must be > 0 and <= 1
-        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), 0.0));
-        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), -0.1));
-        Assert.Throws<ArgumentException>(() => Ema.Calculate(source.AsSpan(), output.AsSpan(), 1.1));
+        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 0.0));
+        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), -0.1));
+        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 1.1));
     }
 
     [Fact]
-    public void Ema_SpanCalc_MatchesTSeriesCalc()
+    public void Ema_SpanBatch_MatchesTSeriesBatch()
     {
         var series = new TSeries();
         double[] source = new double[100];
@@ -405,10 +405,10 @@ public class EmaTests
         }
 
         // Calculate with TSeries API
-        var tseriesResult = Ema.Calculate(series, 10);
+        var tseriesResult = Ema.Batch(series, 10);
 
         // Calculate with Span API
-        Ema.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Ema.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results - allow small tolerance due to bias correction differences
         for (int i = 0; i < 100; i++)
@@ -418,7 +418,7 @@ public class EmaTests
     }
 
     [Fact]
-    public void Ema_SpanCalc_PeriodAndAlphaEquivalent()
+    public void Ema_SpanBatch_PeriodAndAlphaEquivalent()
     {
         double[] source = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
         double[] outputPeriod = new double[10];
@@ -427,8 +427,8 @@ public class EmaTests
         int period = 5;
         double alpha = 2.0 / (period + 1);
 
-        Ema.Calculate(source.AsSpan(), outputPeriod.AsSpan(), period);
-        Ema.Calculate(source.AsSpan(), outputAlpha.AsSpan(), alpha);
+        Ema.Batch(source.AsSpan(), outputPeriod.AsSpan(), period);
+        Ema.Batch(source.AsSpan(), outputAlpha.AsSpan(), alpha);
 
         // Results should be identical
         for (int i = 0; i < 10; i++)
@@ -438,7 +438,7 @@ public class EmaTests
     }
 
     [Fact]
-    public void Ema_SpanCalc_ZeroAllocation()
+    public void Ema_SpanBatch_ZeroAllocation()
     {
         double[] source = new double[10000];
         double[] output = new double[10000];
@@ -448,19 +448,19 @@ public class EmaTests
             source[i] = gbm.Next().Close;
 
         // Warm up
-        Ema.Calculate(source.AsSpan(), output.AsSpan(), 100);
+        Ema.Batch(source.AsSpan(), output.AsSpan(), 100);
 
         // This test verifies the method runs without throwing
         Assert.True(double.IsFinite(output[^1]));
     }
 
     [Fact]
-    public void Ema_SpanCalc_HandlesNaN()
+    public void Ema_SpanBatch_HandlesNaN()
     {
         double[] source = [100, 110, double.NaN, 120, 130];
         double[] output = new double[5];
 
-        Ema.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Ema.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         // All outputs should be finite
         foreach (var val in output)
@@ -470,12 +470,12 @@ public class EmaTests
     }
 
     [Fact]
-    public void Ema_SpanCalc_BiasCorrection_Works()
+    public void Ema_SpanBatch_BiasCorrection_Works()
     {
         double[] source = [100, 100, 100, 100, 100];
         double[] output = new double[5];
 
-        Ema.Calculate(source.AsSpan(), output.AsSpan(), 3);
+        Ema.Batch(source.AsSpan(), output.AsSpan(), 3);
 
         // With bias correction, first value should equal input
         Assert.Equal(100.0, output[0], 1e-10);
@@ -488,18 +488,97 @@ public class EmaTests
     }
 
     [Fact]
-    public void Ema_SpanCalc_Alpha_DirectUsage()
+    public void Ema_SpanBatch_Alpha_DirectUsage()
     {
         double[] source = [10, 20, 30, 40, 50];
         double[] output = new double[5];
 
         // Use alpha = 0.5 directly
-        Ema.Calculate(source.AsSpan(), output.AsSpan(), 0.5);
+        Ema.Batch(source.AsSpan(), output.AsSpan(), 0.5);
 
         // Results should be finite and reasonable
         Assert.True(double.IsFinite(output[^1]));
         Assert.True(output[^1] > 10 && output[^1] <= 50);
     }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var source = new TSeries();
+        var ema = new Ema(source, 10);
+        
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100, ema.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Prime_SetsStateCorrectly()
+    {
+        var ema = new Ema(5);
+        double[] history = [10, 20, 30, 40, 50]; 
+        
+        ema.Prime(history);
+
+        // EMA(5) of 10,20,30,40,50
+        // Alpha = 2/6 = 1/3
+        // 10 -> 10
+        // 20 -> 10 + 1/3(10) = 13.33...
+        // ...
+        // We can verify against a fresh EMA fed with same data
+        var verifyEma = new Ema(5);
+        foreach (var val in history) verifyEma.Update(new TValue(DateTime.UtcNow, val));
+
+        Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
+        Assert.Equal(verifyEma.IsHot, ema.IsHot);
+        
+        // Verify it continues correctly
+        ema.Update(new TValue(DateTime.UtcNow, 60));
+        verifyEma.Update(new TValue(DateTime.UtcNow, 60));
+        Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Prime_HandlesNaN_InHistory()
+    {
+        var ema = new Ema(5);
+        double[] history = [10, 20, double.NaN, 40, 50]; 
+        
+        ema.Prime(history);
+        
+        var verifyEma = new Ema(5);
+        foreach (var val in history) verifyEma.Update(new TValue(DateTime.UtcNow, val));
+
+        Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Calculate_ReturnsCorrectResultsAndHotIndicator()
+    {
+        var series = new TSeries();
+        for (int i = 1; i <= 20; i++) series.Add(DateTime.UtcNow, i * 10);
+        
+        // EMA(5)
+        var (results, indicator) = Ema.Calculate(series, 5);
+
+        // Check results
+        Assert.Equal(20, results.Count);
+        
+        // Verify against standard calculation
+        var verifyEma = new Ema(5);
+        var verifyResults = verifyEma.Update(series);
+        
+        Assert.Equal(verifyResults.Last.Value, results.Last.Value, 1e-10);
+        Assert.Equal(verifyEma.Last.Value, indicator.Last.Value, 1e-10);
+
+        // Check indicator state
+        Assert.True(indicator.IsHot);
+
+        // Verify indicator continues correctly
+        indicator.Update(new TValue(DateTime.UtcNow, 210)); 
+        verifyEma.Update(new TValue(DateTime.UtcNow, 210));
+        Assert.Equal(verifyEma.Last.Value, indicator.Last.Value, 1e-10);
+    }
+
     [Fact]
     public void Ema_AllModes_ProduceSameResult()
     {
@@ -510,14 +589,14 @@ public class EmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Ema.Calculate(series, period);
+        var batchSeries = Ema.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode
         var tValues = series.Values.ToArray(); // Need array for Span modification safety if any
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Ema.Calculate(spanInput, spanOutput, period);
+        Ema.Batch(spanInput, spanOutput, period);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

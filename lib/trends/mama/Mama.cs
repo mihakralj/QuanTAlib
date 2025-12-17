@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -8,12 +10,10 @@ namespace QuanTAlib;
 /// A trend-following indicator that adapts to the market's phase rate of change.
 /// </summary>
 [SkipLocalsInit]
-public sealed class Mama : ITValuePublisher
+public sealed class Mama : AbstractBase
 {
-    public TValue Last { get; private set; }
     public TValue Fama { get; private set; }
-    public bool IsHot => _state.Index > 6;
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _state.Index > 6;
 
     private readonly double _fastLimit;
     private readonly double _slowLimit;
@@ -52,6 +52,7 @@ public sealed class Mama : ITValuePublisher
         _Q1_buffer = new RingBuffer(7);
 
         Name = $"Mama({fastLimit:F2},{slowLimit:F2})";
+        WarmupPeriod = 7;
         Init();
     }
 
@@ -65,7 +66,7 @@ public sealed class Mama : ITValuePublisher
         Reset();
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _state = default;
         _state.Mama = double.NaN;
@@ -83,7 +84,7 @@ public sealed class Mama : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    private double Step(double price, bool isNew)
     {
         if (isNew)
         {
@@ -95,7 +96,6 @@ public sealed class Mama : ITValuePublisher
             _state = _p_state;
         }
 
-        double price = input.Value;
         if (!double.IsFinite(price))
         {
             price = _state.LastValidPrice;
@@ -186,7 +186,7 @@ public sealed class Mama : ITValuePublisher
             double avg = _state.Index > 0 ? _state.SumPr / _state.Index : price;
             _state.Mama = avg;
             _state.Fama = avg;
-            
+
             // Initialize buffers with 0
             _smoothBuffer.Add(0, isNew);
             _detrender.Add(0, isNew);
@@ -194,15 +194,22 @@ public sealed class Mama : ITValuePublisher
             _Q1_buffer.Add(0, isNew);
         }
 
-        Last = new TValue(input.Time, _state.Mama);
+        return _state.Mama;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override TValue Update(TValue input, bool isNew = true)
+    {
+        double mama = Step(input.Value, isNew);
+        Last = new TValue(input.Time, mama);
         Fama = new TValue(input.Time, _state.Fama);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var v = new List<double>(len);
@@ -210,16 +217,23 @@ public sealed class Mama : ITValuePublisher
 
         for (int i = 0; i < len; i++)
         {
-            var item = source[i];
-            var result = Update(item);
+            var result = Update(new TValue(source.Times[i], source.Values[i]));
+            t.Add(result.Time);
             v.Add(result.Value);
-            t.Add(item.Time);
         }
 
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, double fastLimit = 0.5, double slowLimit = 0.05)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Step(value, true);
+        }
+    }
+
+    public static TSeries Batch(TSeries source, double fastLimit = 0.5, double slowLimit = 0.05)
     {
         var mama = new Mama(fastLimit, slowLimit);
         return mama.Update(source);
@@ -227,12 +241,165 @@ public sealed class Mama : ITValuePublisher
 
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05)
     {
-        var mama = new Mama(fastLimit, slowLimit);
+        if (source.Length == 0) return;
+
+        // Stack allocate buffers for high performance (size 8 for power of 2 masking)
+        // We need 7 elements, but 8 allows & 7 masking
+        Span<double> priceBuffer = stackalloc double[8];
+        Span<double> smoothBuffer = stackalloc double[8];
+        Span<double> detrender = stackalloc double[8];
+        Span<double> I1_buffer = stackalloc double[8];
+        Span<double> Q1_buffer = stackalloc double[8];
+
+        int bufferIdx = 0; // Current index for circular buffer
+        int count = 0;
+
+        // State variables
+        double period = 0, mama = 0, sumPr = 0;
+        double i2 = 0, q2 = 0, re = 0, im = 0, lastValidPrice = 0;
+        double p_period = 0, p_phase = 0, p_mama = 0;
+        double p_i2 = 0, p_q2 = 0, p_re = 0, p_im = 0;
+
+        // Constants
+        const int Mask = 7;
+
         for (int i = 0; i < source.Length; i++)
         {
-            output[i] = mama.Update(new TValue(DateTime.MinValue, source[i])).Value;
+            double price = source[i];
+            if (!double.IsFinite(price))
+            {
+                price = count > 0 ? lastValidPrice : 0.0;
+            }
+            else
+            {
+                lastValidPrice = price;
+            }
+
+            // Circular buffer update
+            bufferIdx = (bufferIdx + 1) & Mask;
+            priceBuffer[bufferIdx] = price;
+            count++;
+
+            if (count > 6)
+            {
+                double adj = (0.075 * period) + 0.54;
+
+                // Smooth
+                double smooth = (4.0 * priceBuffer[bufferIdx] +
+                                 3.0 * priceBuffer[(bufferIdx - 1) & Mask] +
+                                 2.0 * priceBuffer[(bufferIdx - 2) & Mask] +
+                                 priceBuffer[(bufferIdx - 3) & Mask]) * 0.1;
+
+                smoothBuffer[bufferIdx] = smooth;
+
+                // Detrender
+                double dt = (c1 * smoothBuffer[bufferIdx] +
+                             c2 * smoothBuffer[(bufferIdx - 2) & Mask] -
+                             c2 * smoothBuffer[(bufferIdx - 4) & Mask] -
+                             c1 * smoothBuffer[(bufferIdx - 6) & Mask]) * adj;
+
+                detrender[bufferIdx] = dt;
+
+                // Q1
+                double q1 = (c1 * dt +
+                             c2 * detrender[(bufferIdx - 2) & Mask] -
+                             c2 * detrender[(bufferIdx - 4) & Mask] -
+                             c1 * detrender[(bufferIdx - 6) & Mask]) * adj;
+
+                Q1_buffer[bufferIdx] = q1;
+
+                // I1 = dt[3]
+                double i1 = detrender[(bufferIdx - 3) & Mask];
+                I1_buffer[bufferIdx] = i1;
+
+                // Advance phases
+                double jI = (c1 * i1 +
+                             c2 * I1_buffer[(bufferIdx - 2) & Mask] -
+                             c2 * I1_buffer[(bufferIdx - 4) & Mask] -
+                             c1 * I1_buffer[(bufferIdx - 6) & Mask]) * adj;
+
+                double jQ = (c1 * q1 +
+                             c2 * Q1_buffer[(bufferIdx - 2) & Mask] -
+                             c2 * Q1_buffer[(bufferIdx - 4) & Mask] -
+                             c1 * Q1_buffer[(bufferIdx - 6) & Mask]) * adj;
+
+                // Phasor addition
+                double i2_val = i1 - jQ;
+                double q2_val = q1 + jI;
+
+                // Smooth i2, q2
+                i2 = 0.2 * i2_val + 0.8 * p_i2;
+                q2 = 0.2 * q2_val + 0.8 * p_q2;
+
+                // Homodyne discriminator
+                double re_val = (i2 * p_i2) + (q2 * p_q2);
+                double im_val = (i2 * p_q2) - (q2 * p_i2);
+
+                // Smooth re, im
+                re = 0.2 * re_val + 0.8 * p_re;
+                im = 0.2 * im_val + 0.8 * p_im;
+
+                // Calculate Period
+                double newPeriod = (Math.Abs(im) > double.Epsilon && Math.Abs(re) > double.Epsilon)
+                    ? TWOPI / Math.Atan(im / re)
+                    : 0.0;
+
+                // Adjust Period
+                double periodCap = p_period * 1.5;
+                double periodFloor = p_period * 0.67;
+
+                if (newPeriod > periodCap) newPeriod = periodCap;
+                if (newPeriod < periodFloor) newPeriod = periodFloor;
+
+                if (newPeriod < 6.0) newPeriod = 6.0;
+                if (newPeriod > 50.0) newPeriod = 50.0;
+
+                // Smooth Period
+                period = 0.2 * newPeriod + 0.8 * p_period;
+
+                // Phase calculation
+                double phase = Math.Abs(i1) >= double.Epsilon ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
+
+                // Adaptive alpha
+                double delta = Math.Max(p_phase - phase, 1.0);
+                double alpha = fastLimit / delta;
+                alpha = Math.Clamp(alpha, slowLimit, fastLimit);
+
+                // Final indicators
+                mama = alpha * priceBuffer[bufferIdx] + (1.0 - alpha) * p_mama;
+
+                // Update previous state
+                p_i2 = i2;
+                p_q2 = q2;
+                p_re = re;
+                p_im = im;
+                p_period = period;
+                p_phase = phase;
+                p_mama = mama;
+            }
+            else
+            {
+                // Initialization
+                sumPr += price;
+                double avg = count > 0 ? sumPr / count : price;
+                mama = avg;
+
+                // Init simple state
+                smoothBuffer[bufferIdx] = 0;
+                detrender[bufferIdx] = 0;
+                I1_buffer[bufferIdx] = 0;
+                Q1_buffer[bufferIdx] = 0;
+
+                // Set initial p_state
+                p_mama = avg;
+                p_period = 0; // Initial period state
+                p_phase = 0;
+
+                // Initialize other state variables if needed for next iteration logic?
+                // Actually they just stay 0/default until we hit count > 6
+            }
+
+            output[i] = mama;
         }
     }
-
-    public string Name { get; set; }
 }

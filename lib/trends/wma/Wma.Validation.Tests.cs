@@ -75,7 +75,7 @@ public class WmaValidationTests
         {
             // Calculate QuanTAlib WMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Wma.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period);
+            global::QuanTAlib.Wma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
 
             // Calculate Skender WMA
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
@@ -154,7 +154,7 @@ public class WmaValidationTests
         {
             // Calculate QuanTAlib WMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Wma.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period);
+            global::QuanTAlib.Wma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
 
             // Calculate TA-Lib WMA
             var retCode = TALib.Functions.Wma<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period);
@@ -235,7 +235,7 @@ public class WmaValidationTests
         {
             // Calculate QuanTAlib WMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Wma.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period);
+            global::QuanTAlib.Wma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
 
             // Calculate Tulip WMA
             var wmaIndicator = Tulip.Indicators.wma;

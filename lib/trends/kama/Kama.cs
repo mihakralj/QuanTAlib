@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -18,7 +20,7 @@ namespace QuanTAlib;
 /// KAMA = KAMA[prev] + SC * (Price - KAMA[prev])
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Kama : ITValuePublisher
+public sealed class Kama : AbstractBase
 {
     private readonly int _period;
     private readonly double _fastAlpha;
@@ -29,22 +31,7 @@ public sealed class Kama : ITValuePublisher
     private State _state;
     private State _p_state;
 
-    /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    public event Action<TValue>? Pub;
-
-    /// <summary>
-    /// Current KAMA value.
-    /// </summary>
-    public TValue Last { get; private set; }
-
-    /// <summary>
-    /// True if the KAMA has enough data to produce valid results.
-    /// </summary>
-    public bool IsHot => _buffer.IsFull;
+    public override bool IsHot => _buffer.IsFull;
 
     /// <summary>
     /// Creates KAMA with specified parameters.
@@ -72,6 +59,8 @@ public sealed class Kama : ITValuePublisher
         _slowAlpha = 2.0 / (slowPeriod + 1);
 
         Name = $"Kama({period}, {fastPeriod}, {slowPeriod})";
+        WarmupPeriod = period + 1;
+
         _state.Kama = double.NaN;
         _state.LastValidValue = double.NaN;
         _p_state.Kama = double.NaN;
@@ -96,7 +85,7 @@ public sealed class Kama : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -111,7 +100,7 @@ public sealed class Kama : ITValuePublisher
         if (double.IsNaN(val))
         {
             Last = new TValue(input.Time, double.NaN);
-            Pub?.Invoke(Last);
+            PubEvent(Last);
             return Last;
         }
 
@@ -125,7 +114,7 @@ public sealed class Kama : ITValuePublisher
                 double diff_out = _p_state.NextDiffOut;
                 double diff_in = Math.Abs(_buffer[^1] - _buffer[^2]);
                 _state.VolatilitySum += diff_in - diff_out;
-                
+
                 // Calculate NextDiffOut for the next step
                 // NextDiffOut = abs(buffer[0] - buffer[1])
                 _state.NextDiffOut = Math.Abs(_buffer[0] - _buffer[1]);
@@ -134,12 +123,12 @@ public sealed class Kama : ITValuePublisher
             {
                 double diff_in = Math.Abs(_buffer[^1] - _buffer[^2]);
                 _state.VolatilitySum += diff_in;
-                
+
                 if (_buffer.IsFull)
                 {
-                     // Buffer just became full.
-                     // NextDiffOut = abs(buffer[0] - buffer[1])
-                     _state.NextDiffOut = Math.Abs(_buffer[0] - _buffer[1]);
+                    // Buffer just became full.
+                    // NextDiffOut = abs(buffer[0] - buffer[1])
+                    _state.NextDiffOut = Math.Abs(_buffer[0] - _buffer[1]);
                 }
             }
         }
@@ -181,39 +170,38 @@ public sealed class Kama : ITValuePublisher
             double prevKama = _p_state.Kama;
             if (double.IsNaN(prevKama))
             {
-                 prevKama = _state.Kama;
+                prevKama = _state.Kama;
             }
 
             _state.Kama = prevKama + sc * (val - prevKama);
         }
 
         Last = new TValue(input.Time, _state.Kama);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+
+        source.Times.CopyTo(tSpan);
 
         // Use static Calculate for performance
-        var outputSpan = new double[len];
-        
         // fastPeriod = 2/fastAlpha - 1.
         int fastPeriod = (int)Math.Round(2.0 / _fastAlpha - 1);
         int slowPeriod = (int)Math.Round(2.0 / _slowAlpha - 1);
 
-        Calculate(source.Values, outputSpan, _period, fastPeriod, slowPeriod);
-
-        for (int i = 0; i < len; i++)
-        {
-            t.Add(source.Times[i]);
-            v.Add(outputSpan[i]);
-        }
+        Calculate(source.Values, vSpan, _period, fastPeriod, slowPeriod);
 
         // Restore state by replaying the entire series
         // This is expensive but necessary to sync the object state correctly
@@ -221,13 +209,22 @@ public sealed class Kama : ITValuePublisher
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(source[i]);
+            Update(new TValue(source.Times[i], source.Values[i]));
         }
 
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period, int fastPeriod = 2, int slowPeriod = 30)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period, int fastPeriod = 2, int slowPeriod = 30)
     {
         var kama = new Kama(period, fastPeriod, slowPeriod);
         return kama.Update(source);
@@ -326,7 +323,7 @@ public sealed class Kama : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _buffer.Clear();
         _state = default;

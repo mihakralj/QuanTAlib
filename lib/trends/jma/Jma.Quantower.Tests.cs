@@ -120,7 +120,7 @@ public class JmaIndicatorTests
     {
         var indicator = new JmaIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(JmaIndicator), method.DeclaringType);

@@ -96,7 +96,7 @@ public class DmxIndicatorTests
         }
 
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-        
+
         // Add new bar
         indicator.HistoricalData.AddBar(now.AddMinutes(10), 110, 120, 100, 115);
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
@@ -131,7 +131,7 @@ public class DmxIndicatorTests
     {
         var indicator = new DmxIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(DmxIndicator), method.DeclaringType);

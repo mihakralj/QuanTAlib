@@ -25,7 +25,7 @@ namespace QuanTAlib;
 /// Becomes true when n = ln(0.05) / ln(1 - alpha) 
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Ema : ITValuePublisher
+public sealed class Ema : AbstractBase
 {
     private record struct State(double Ema, double E, bool IsHot, bool IsCompensated)
     {
@@ -40,13 +40,6 @@ public sealed class Ema : ITValuePublisher
     private double _p_lastValidValue;
 
     /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    public event Action<TValue>? Pub;
-
-    /// <summary>
     /// Creates EMA with specified period.
     /// Alpha = 2 / (period + 1)
     /// </summary>
@@ -59,6 +52,7 @@ public sealed class Ema : ITValuePublisher
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
         Name = $"Ema({period})";
+        WarmupPeriod = period;
     }
 
     /// <summary>
@@ -72,10 +66,20 @@ public sealed class Ema : ITValuePublisher
         source.Pub += (item) => Update(item);
     }
 
+    public Ema(TSeries source, int period) : this(period)
+    {
+        Prime(source.Values);
+        if (source.Count > 0)
+        {
+            Last = new TValue(source.LastTime, Last.Value);
+        }
+        source.Pub += (item) => Update(item);
+    }
+
     /// <summary>
     /// Creates EMA with specified alpha smoothing factor.
     /// </summary>
-    /// <param name="alpha">Smoothing factor (0 &lt; alpha &lt;= 1)</param>
+    /// <param name="alpha">Smoothing factor (0 < alpha <= 1)</param>
     public Ema(double alpha)
     {
         if (alpha <= 0 || alpha > 1)
@@ -84,17 +88,87 @@ public sealed class Ema : ITValuePublisher
         _alpha = alpha;
         _decay = 1.0 - alpha;
         Name = $"Ema(α={alpha:F4})";
+        // Approximate period from alpha: alpha = 2/(N+1) => N = 2/alpha - 1
+        WarmupPeriod = (int)(2.0 / alpha - 1.0);
     }
-
-    /// <summary>
-    /// Current EMA value.
-    /// </summary>
-    public TValue Last { get; private set; }
 
     /// <summary>
     /// True if the EMA has warmed up and is providing valid results.
     /// </summary>
-    public bool IsHot => _state.IsHot;
+    public override bool IsHot => _state.IsHot;
+
+    /// <summary>
+    /// Initializes the indicator state using the provided history.
+    /// </summary>
+    /// <param name="source">Historical data</param>
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        if (source.Length == 0) return;
+
+        // Reset state
+        _state = State.New();
+        _p_state = State.New();
+        _lastValidValue = 0;
+        _p_lastValidValue = 0;
+
+        // Run the calculation on the history to update state
+        // We don't need the output, just the final state
+        int len = source.Length;
+        double decay = _decay;
+        int i = 0;
+
+        // Find first valid value to seed lastValid
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(source[k]))
+            {
+                _lastValidValue = source[k];
+                break;
+            }
+        }
+
+        if (!_state.IsCompensated)
+        {
+            for (; i < len && _state.E > COMPENSATOR_THRESHOLD; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                    _lastValidValue = val;
+                else
+                    val = _lastValidValue;
+
+                _state.Ema += _alpha * (val - _state.Ema);
+                _state.E *= decay;
+
+                if (!_state.IsHot && _state.E <= COVERAGE_THRESHOLD)
+                    _state.IsHot = true;
+            }
+            if (_state.E <= COMPENSATOR_THRESHOLD)
+                _state.IsCompensated = true;
+        }
+
+        for (; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                _lastValidValue = val;
+            else
+                val = _lastValidValue;
+
+            _state.Ema += _alpha * (val - _state.Ema);
+        }
+
+        // Calculate the initial "Last" value
+        double result = _state.IsCompensated ? _state.Ema : _state.Ema / (1.0 - _state.E);
+
+        // Note: We can't infer accurate Time from a simple Span<double>,
+        // so we leave 'Last' with default time or user updates it on next Tick.
+        Last = new TValue(DateTime.MinValue, result);
+
+        // Backup state for the next update cycle
+        _p_state = _state;
+        _p_lastValidValue = _lastValidValue;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -111,7 +185,7 @@ public sealed class Ema : ITValuePublisher
     private const double COMPENSATOR_THRESHOLD = 1e-10;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -127,11 +201,11 @@ public sealed class Ema : ITValuePublisher
         double val = GetValidValue(input.Value);
         val = Compute(val, _alpha, _decay, ref _state);
         Last = new TValue(input.Time, val);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -155,11 +229,11 @@ public sealed class Ema : ITValuePublisher
         _lastValidValue = lastValidValue;
 
         sourceTimes.CopyTo(tSpan);
-        
+
         _p_state = _state;
         _p_lastValidValue = _lastValidValue;
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
-        
+
         return new TSeries(t, v);
     }
 
@@ -237,12 +311,26 @@ public sealed class Ema : ITValuePublisher
     }
 
     /// <summary>
+    /// Runs a high-performance batch calculation on history and returns
+    /// a "Hot" Ema instance ready to process the next tick immediately.
+    /// </summary>
+    /// <param name="source">Historical time series</param>
+    /// <param name="period">EMA Period</param>
+    /// <returns>A tuple containing the full calculation results and the hot indicator instance</returns>
+    public static (TSeries Results, Ema Indicator) Calculate(TSeries source, int period)
+    {
+        var ema = new Ema(period);
+        TSeries results = ema.Update(source);
+        return (results, ema);
+    }
+
+    /// <summary>
     /// Calculates EMA for the entire series using a new instance.
     /// </summary>
     /// <param name="source">Input series</param>
     /// <param name="period">EMA period</param>
     /// <returns>EMA series</returns>
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var ema = new Ema(period);
         return ema.Update(source);
@@ -257,17 +345,17 @@ public sealed class Ema : ITValuePublisher
     /// <param name="output">Output span (must be same length as source)</param>
     /// <param name="period">EMA period (must be > 0)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         double alpha = 2.0 / (period + 1);
-        Calculate(source, output, alpha);
+        Batch(source, output, alpha);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -279,13 +367,23 @@ public sealed class Ema : ITValuePublisher
         var state = State.New();
         double lastValid = 0;
 
+        // Find first valid value to seed lastValid
+        for (int k = 0; k < source.Length; k++)
+        {
+            if (double.IsFinite(source[k]))
+            {
+                lastValid = source[k];
+                break;
+            }
+        }
+
         CalculateCore(source, output, alpha, ref state, ref lastValid);
     }
 
     /// <summary>
     /// Resets the EMA state.
     /// </summary>
-    public void Reset()
+    public override void Reset()
     {
         _state = State.New();
         _p_state = _state;

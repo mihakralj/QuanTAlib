@@ -87,7 +87,7 @@ public class AlmaTests
         }
 
         var instanceResults = new Alma(10).Update(series);
-        var staticResults = Alma.Calculate(series, 10);
+        var staticResults = Alma.Batch(series, 10);
 
         for (int i = 0; i < instanceResults.Count; i++)
         {
@@ -106,7 +106,7 @@ public class AlmaTests
             series.Add(bar.Time, bar.Close);
         }
 
-        var seriesResults = Alma.Calculate(series, 10);
+        var seriesResults = Alma.Batch(series, 10);
 
         double[] input = series.Values.ToArray();
         double[] output = new double[input.Length];
@@ -273,7 +273,7 @@ public class AlmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Alma.Calculate(series, period);
+        var batchSeries = Alma.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

@@ -115,7 +115,7 @@ public class AdxTests
             streamingResults.Add(adx.Update(bars[i]).Value);
         }
         
-        var staticResults = Adx.Calculate(bars, 14);
+        var staticResults = Adx.Batch(bars, 14);
         
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)

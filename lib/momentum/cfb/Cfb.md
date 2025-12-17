@@ -74,7 +74,7 @@ double[] prices = ...;
 double[] output = new double[prices.Length];
 
 // Calculate using default lengths
-Cfb.Calculate(prices.AsSpan(), output.AsSpan());
+Cfb.Batch(prices.AsSpan(), output.AsSpan());
 ```
 
 ### Bar Correction (isNew Parameter)

@@ -71,7 +71,7 @@ public class AoIndicator : Indicator, IWatchlistIndicator
         // or just use _ao.Last (which is current) and we need the previous one.
         // But _ao doesn't expose history directly unless we use TSeries.
         // However, Quantower stores history in the Series.
-        
+
         // Get previous value from series
         double prevAo = double.NaN;
         if (Count > 1)

@@ -71,7 +71,7 @@ Console.WriteLine($"VIDYA: {result.Value}");
 double[] prices = { ... };
 double[] results = new double[prices.Length];
 
-Vidya.Calculate(prices, results, 14);
+Vidya.Batch(prices, results, 14);
 ```
 
 ### Bar Correction (Streaming)

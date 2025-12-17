@@ -58,7 +58,7 @@ double[] input = { ... }; // Your price data
 double[] output = new double[input.Length];
 
 // Calculate MGDI over the entire span
-Mgdi.Calculate(input, output, period: 14, k: 0.6);
+Mgdi.Batch(input, output, period: 14, k: 0.6);
 ```
 
 ### Event-Driven Usage

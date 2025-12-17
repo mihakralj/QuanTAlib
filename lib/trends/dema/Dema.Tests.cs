@@ -46,7 +46,7 @@ public class DemaTests
         }
 
         // Act
-        var demaSeries = Dema.Calculate(source, period);
+        var demaSeries = Dema.Batch(source, period);
         var demaObj = new Dema(period);
         
         // Assert
@@ -123,7 +123,7 @@ public class DemaTests
         }
 
         // Act
-        var demaSeries = Dema.Calculate(source, alpha);
+        var demaSeries = Dema.Batch(source, alpha);
         var demaObj = new Dema(alpha);
         
         // Assert
@@ -271,7 +271,7 @@ public class DemaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Dema.Calculate(series, period);
+        var batchSeries = Dema.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

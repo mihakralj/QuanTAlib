@@ -116,7 +116,7 @@ public class TrimaIndicatorTests
     {
         var indicator = new TrimaIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(TrimaIndicator), method.DeclaringType);

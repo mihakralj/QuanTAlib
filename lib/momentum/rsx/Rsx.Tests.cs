@@ -58,7 +58,7 @@ public class RsxTests
     }
 
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         int period = 14;
         int count = 100;
@@ -72,7 +72,7 @@ public class RsxTests
             streamingResults.Add(rsx.Update(new TValue(series.Times[i], series.Values[i])).Value);
         }
         
-        var staticResults = Rsx.Calculate(series, period);
+        var staticResults = Rsx.Batch(series, period);
         
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < count; i++)
@@ -82,7 +82,7 @@ public class RsxTests
     }
 
     [Fact]
-    public void SpanCalculate_Matches_Streaming()
+    public void SpanBatch_Matches_Streaming()
     {
         int period = 14;
         int count = 100;
@@ -98,7 +98,7 @@ public class RsxTests
         
         var spanInput = series.Values.ToArray();
         var spanOutput = new double[count];
-        Rsx.Calculate(spanInput, spanOutput, period);
+        Rsx.Batch(spanInput, spanOutput, period);
         
         for (int i = 0; i < count; i++)
         {

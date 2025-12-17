@@ -47,12 +47,12 @@ TValue result = htit.Update(new TValue(time, price));
 
 // Batch
 var series = new TSeries(times, prices);
-var resultSeries = Htit.Calculate(series);
+var resultSeries = Htit.Batch(series);
 
 // Span (Zero-Allocation)
 double[] input = ...;
 double[] output = new double[input.Length];
-Htit.Calculate(input, output);
+Htit.Batch(input, output);
 ```
 
 ## Interpretation

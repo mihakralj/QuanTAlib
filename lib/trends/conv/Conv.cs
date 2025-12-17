@@ -19,7 +19,7 @@ namespace QuanTAlib;
 /// Update: O(K) where K is kernel length.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Conv : ITValuePublisher
+public sealed class Conv : AbstractBase
 {
     private readonly int _period;
     private readonly double[] _kernel;
@@ -29,10 +29,7 @@ public sealed class Conv : ITValuePublisher
     private State _state;
     private State _p_state;
 
-    public string Name { get; }
-    public TValue Last { get; private set; }
-    public bool IsHot => _buffer.IsFull;
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _buffer.IsFull;
 
     public Conv(double[] kernel)
     {
@@ -44,6 +41,7 @@ public sealed class Conv : ITValuePublisher
         Array.Copy(kernel, _kernel, _period);
         _buffer = new RingBuffer(_period);
         Name = $"Conv({_period})";
+        WarmupPeriod = _period;
         _state.LastValidValue = double.NaN;
         _p_state.LastValidValue = double.NaN;
     }
@@ -65,7 +63,7 @@ public sealed class Conv : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -92,29 +90,29 @@ public sealed class Conv : ITValuePublisher
         {
             int count = _buffer.Count;
             int kernelOffset = _period - count;
-            ReadOnlySpan<double> kernelSpan = _kernel.AsSpan().Slice(kernelOffset);
+            ReadOnlySpan<double> kernelSpan = _kernel.AsSpan()[kernelOffset..];
             ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
 
             if (count < _period)
             {
-                result = internalBuf.Slice(0, count).DotProduct(kernelSpan);
+                result = internalBuf[..count].DotProduct(kernelSpan);
             }
             else
             {
                 // Full: data is split at StartIndex (which points to oldest)
                 int head = _buffer.StartIndex;
                 int part1Len = _period - head;
-                result = internalBuf.Slice(head, part1Len).DotProduct(kernelSpan.Slice(0, part1Len))
-                       + internalBuf.Slice(0, head).DotProduct(kernelSpan.Slice(part1Len));
+                result = internalBuf.Slice(head, part1Len).DotProduct(kernelSpan[..part1Len])
+                       + internalBuf[..head].DotProduct(kernelSpan[part1Len..]);
             }
         }
 
         Last = new TValue(input.Time, result);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -130,7 +128,7 @@ public sealed class Conv : ITValuePublisher
         source.Times.CopyTo(tSpan);
         var sourceValues = source.Values;
 
-        Calculate(sourceValues, vSpan, _kernel);
+        Batch(sourceValues, vSpan, _kernel);
 
         // Restore state
         // We need to replay the last few updates to restore _buffer and _lastValidValue
@@ -172,14 +170,22 @@ public sealed class Conv : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, double[] kernel)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, double[] kernel)
     {
         var conv = new Conv(kernel);
         return conv.Update(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double[] kernel)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double[] kernel)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -223,21 +229,21 @@ public sealed class Conv : ITValuePublisher
             {
                 int kernelOffset = period - count;
                 // Window is [0..count-1]
-                sum = window.Slice(0, count).DotProduct(kernelSpan.Slice(kernelOffset));
+                sum = window[..count].DotProduct(kernelSpan[kernelOffset..]);
             }
             else
             {
                 // Full buffer - branchless version
                 int part1Len = period - windowIdx;
-                sum = window.Slice(windowIdx, part1Len).DotProduct(kernelSpan.Slice(0, part1Len))
-                    + window.Slice(0, windowIdx).DotProduct(kernelSpan.Slice(part1Len));
+                sum = window.Slice(windowIdx, part1Len).DotProduct(kernelSpan[..part1Len])
+                    + window[..windowIdx].DotProduct(kernelSpan[part1Len..]);
             }
 
             output[i] = sum;
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _buffer.Clear();
         _state.LastValidValue = double.NaN;

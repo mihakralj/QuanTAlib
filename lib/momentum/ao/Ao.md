@@ -30,6 +30,10 @@ var result = ao.Update(bar);
 
 // Result contains the AO value
 Console.WriteLine($"AO: {result.Value}");
+
+// Batch calculation
+var series = new TBarSeries();
+var results = Ao.Batch(series, 5, 34);
 ```
 
 ### Parameters

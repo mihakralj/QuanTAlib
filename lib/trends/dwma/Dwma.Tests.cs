@@ -94,7 +94,7 @@ public class DwmaTests
             dwma.Update(source.Last);
         }
         
-        var staticResult = Dwma.Calculate(source, period);
+        var staticResult = Dwma.Batch(source, period);
         
         Assert.Equal(source.Count, staticResult.Count);
         Assert.Equal(dwma.Last.Value, staticResult.Last.Value, 8);
@@ -180,7 +180,7 @@ public class DwmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = Dwma.Calculate(series, period);
+        var batchSeries = Dwma.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode

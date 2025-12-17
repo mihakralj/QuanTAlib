@@ -58,7 +58,7 @@ public class AoIndicatorTests
         indicator.Initialize();
 
         // After init, line series should exist (Up and Down)
-        Assert.Equal(2, indicator.LinesSeries.Length);
+        Assert.Equal(2, indicator.LinesSeries.Count);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class AoIndicatorTests
         for (int i = 0; i < 20; i++)
         {
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100 + i, 110 + i, 90 + i, 105 + i);
-            
+
             // Process update for each bar to simulate history loading
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);
@@ -83,7 +83,7 @@ public class AoIndicatorTests
         // One should be NaN, other should be value, or both NaN if cold
         double up = indicator.LinesSeries[0].GetValue(0);
         double down = indicator.LinesSeries[1].GetValue(0);
-        
+
         Assert.True(double.IsFinite(up) || double.IsFinite(down));
     }
 
@@ -100,7 +100,7 @@ public class AoIndicatorTests
         }
 
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-        
+
         // Add new bar
         indicator.HistoricalData.AddBar(now.AddMinutes(20), 120, 130, 110, 125);
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));

@@ -50,31 +50,9 @@ public static class IndicatorExtensions
     public static TValue GetInputValue(this Indicator indicator, UpdateArgs args, SourceType source)
     {
         var historicalData = indicator.HistoricalData;
-        TBar bar = new TBar(
-            time: historicalData.Time(),
-            open: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.Open],
-            high: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.High],
-            low: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.Low],
-            close: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.Close],
-            volume: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.Volume]
-        );
-
-        double price = source switch
-        {
-            SourceType.Open => bar.Open,
-            SourceType.High => bar.High,
-            SourceType.Low => bar.Low,
-            SourceType.Close => bar.Close,
-            SourceType.HL2 => bar.HL2,
-            SourceType.OC2 => bar.OC2,
-            SourceType.OHL3 => bar.OHL3,
-            SourceType.HLC3 => bar.HLC3,
-            SourceType.OHLC4 => bar.OHLC4,
-            SourceType.HLCC4 => bar.HLCC4,
-            _ => bar.Close
-        };
-
-        return new TValue(bar.Time, price);
+        var item = historicalData[indicator.Count - 1, SeekOriginHistory.Begin];
+        double price = item.GetPrice(source);
+        return new TValue(item.TimeLeft.Ticks, price);
     }
 
     public static TBar GetInputBar(this Indicator indicator, UpdateArgs args)
@@ -88,6 +66,100 @@ public static class IndicatorExtensions
             close: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.Close],
             volume: historicalData[indicator.Count - 1, SeekOriginHistory.Begin][PriceType.Volume]
         );
+    }
+
+    public static double GetPrice(this IHistoryItem item, SourceType source)
+    {
+        return source switch
+        {
+            SourceType.Open => item[PriceType.Open],
+            SourceType.High => item[PriceType.High],
+            SourceType.Low => item[PriceType.Low],
+            SourceType.Close => item[PriceType.Close],
+            SourceType.HL2 => (item[PriceType.High] + item[PriceType.Low]) * 0.5,
+            SourceType.OC2 => (item[PriceType.Open] + item[PriceType.Close]) * 0.5,
+            SourceType.OHL3 => (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low]) * 0.333333333333333333,
+            SourceType.HLC3 => (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.333333333333333333,
+            SourceType.OHLC4 => (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.25,
+            SourceType.HLCC4 => (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close] + item[PriceType.Close]) * 0.25,
+            _ => item[PriceType.Close]
+        };
+    }
+
+    public static void FillValues(this HistoricalData history, Span<double> destination, SourceType source)
+    {
+        int count = Math.Min(history.Count, destination.Length);
+
+        // Hoist switch to avoid per-iteration branching
+        switch (source)
+        {
+            case SourceType.Open:
+                for (int i = 0; i < count; i++) destination[i] = history[i, SeekOriginHistory.Begin][PriceType.Open];
+                break;
+            case SourceType.High:
+                for (int i = 0; i < count; i++) destination[i] = history[i, SeekOriginHistory.Begin][PriceType.High];
+                break;
+            case SourceType.Low:
+                for (int i = 0; i < count; i++) destination[i] = history[i, SeekOriginHistory.Begin][PriceType.Low];
+                break;
+            case SourceType.Close:
+                for (int i = 0; i < count; i++) destination[i] = history[i, SeekOriginHistory.Begin][PriceType.Close];
+                break;
+            case SourceType.HL2:
+                for (int i = 0; i < count; i++)
+                {
+                    var item = history[i, SeekOriginHistory.Begin];
+                    destination[i] = (item[PriceType.High] + item[PriceType.Low]) * 0.5;
+                }
+                break;
+            case SourceType.OC2:
+                for (int i = 0; i < count; i++)
+                {
+                    var item = history[i, SeekOriginHistory.Begin];
+                    destination[i] = (item[PriceType.Open] + item[PriceType.Close]) * 0.5;
+                }
+                break;
+            case SourceType.OHL3:
+                for (int i = 0; i < count; i++)
+                {
+                    var item = history[i, SeekOriginHistory.Begin];
+                    destination[i] = (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low]) * 0.333333333333333333;
+                }
+                break;
+            case SourceType.HLC3:
+                for (int i = 0; i < count; i++)
+                {
+                    var item = history[i, SeekOriginHistory.Begin];
+                    destination[i] = (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.333333333333333333;
+                }
+                break;
+            case SourceType.OHLC4:
+                for (int i = 0; i < count; i++)
+                {
+                    var item = history[i, SeekOriginHistory.Begin];
+                    destination[i] = (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.25;
+                }
+                break;
+            case SourceType.HLCC4:
+                for (int i = 0; i < count; i++)
+                {
+                    var item = history[i, SeekOriginHistory.Begin];
+                    destination[i] = (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close] + item[PriceType.Close]) * 0.25;
+                }
+                break;
+            default:
+                for (int i = 0; i < count; i++) destination[i] = history[i, SeekOriginHistory.Begin][PriceType.Close];
+                break;
+        }
+    }
+
+    public static void SetValues(this LineSeries series, ReadOnlySpan<double> values)
+    {
+        int count = values.Length;
+        for (int i = 0; i < count; i++)
+        {
+            series.SetValue(values[i], i, SeekOriginHistory.Begin);
+        }
     }
 
 #pragma warning disable CA1416 // Validate platform compatibility
@@ -117,12 +189,12 @@ public static class IndicatorExtensions
         }
     }
 
-    public static List<Point> GetSmoothCurvePoints(Indicator indicator, IChartWindowCoordinatesConverter converter, Rectangle clientRect, LineSeries series)
+    public static Point[] GetSmoothCurvePoints(Indicator indicator, IChartWindowCoordinatesConverter converter, Rectangle clientRect, LineSeries series)
     {
         ArgumentNullException.ThrowIfNull(indicator);
         ArgumentNullException.ThrowIfNull(converter);
         var data = indicator.HistoricalData;
-        if (data == null) return new List<Point>();
+        if (data == null) return Array.Empty<Point>();
 
         var lastTime = data.Time(data.Count - 1);
         var firstTime = data.Time(0);
@@ -137,15 +209,18 @@ public static class IndicatorExtensions
         int leftIndex = (int)data.GetIndexByTime(leftTime.Ticks) + 1;
         int rightIndex = (int)data.GetIndexByTime(rightTime.Ticks);
 
-        List<Point> allPoints = new List<Point>();
+        int count = leftIndex - rightIndex;
+        if (count <= 0) return Array.Empty<Point>();
 
-        for (int i = rightIndex; i < leftIndex; i++)
+        Point[] allPoints = new Point[count];
+
+        for (int i = 0; i < count; i++)
         {
-            int barX = (int)converter.GetChartX(data.Time(i));
-            int barY = (int)converter.GetChartY(series[i]);
+            int dataIndex = rightIndex + i;
+            int barX = (int)converter.GetChartX(data.Time(dataIndex));
+            int barY = (int)converter.GetChartY(series[dataIndex]);
             int halfBarWidth = indicator.CurrentChart.BarsWidth / 2;
-            Point point = new Point(barX + halfBarWidth, barY);
-            allPoints.Add(point);
+            allPoints[i] = new Point(barX + halfBarWidth, barY);
         }
         return allPoints;
     }
@@ -162,12 +237,15 @@ public static class IndicatorExtensions
         var clientRect = mainWindow.ClientRectangle;
 
         gr.SetClip(clientRect);
-        
-        List<Point> allPoints = GetSmoothCurvePoints(indicator, converter, clientRect, series);
 
-        if (allPoints.Count > 1)
+        Point[] allPoints = GetSmoothCurvePoints(indicator, converter, clientRect, series);
+
+        if (allPoints.Length > 1)
         {
-            DateTime rightTime = new[] { converter.GetTime(clientRect.Right), indicator.HistoricalData.Time(0) }.Min();
+            DateTime tRight = converter.GetTime(clientRect.Right);
+            DateTime tZero = indicator.HistoricalData.Time(0);
+            DateTime rightTime = tRight < tZero ? tRight : tZero;
+
             int rightIndex = (int)indicator.HistoricalData.GetIndexByTime(rightTime.Ticks);
 
             using Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) };
@@ -176,18 +254,101 @@ public static class IndicatorExtensions
             int hotCount = (warmupPeriod >= 0) ? (indicator.Count - warmupPeriod - rightIndex) : 0;
 
             // Draw the hot part
-            if (hotCount > 0)
+            int hotSegments = Math.Min(hotCount, allPoints.Length - 1);
+            if (hotSegments > 0)
             {
-                var hotPoints = allPoints.Take(Math.Min(hotCount + 1, allPoints.Count)).ToArray();
-                gr.DrawCurve(defaultPen, hotPoints, 0, hotPoints.Length - 1, (float)tension);
+                gr.DrawCurve(defaultPen, allPoints, 0, hotSegments, (float)tension);
             }
 
             // Draw the cold part
-            if (showColdValues && hotCount < allPoints.Count)
+            if (showColdValues)
             {
-                var coldPoints = allPoints.Skip(Math.Max(0, hotCount)).ToArray();
-                gr.DrawCurve(coldPen, coldPoints, 0, coldPoints.Length - 1, (float)tension);
+                int coldStart = Math.Max(0, hotCount);
+                int coldSegments = (allPoints.Length - 1) - coldStart;
+
+                if (coldSegments > 0)
+                {
+                    gr.DrawCurve(coldPen, allPoints, coldStart, coldSegments, (float)tension);
+                }
             }
+        }
+    }
+
+    public static void PaintLine(this Indicator indicator, PaintChartEventArgs args, LineSeries series, int warmupPeriod, bool showColdValues = true)
+    {
+        if (!series.Visible || indicator.CurrentChart == null)
+            return;
+
+        Graphics gr = args.Graphics;
+        gr.SmoothingMode = SmoothingMode.AntiAlias;
+        var mainWindow = indicator.CurrentChart.Windows[args.WindowIndex];
+        var converter = mainWindow.CoordinatesConverter;
+        var clientRect = mainWindow.ClientRectangle;
+
+        gr.SetClip(clientRect);
+
+        var data = indicator.HistoricalData;
+        if (data == null) return;
+
+        var lastTime = data.Time(data.Count - 1);
+        var firstTime = data.Time(0);
+
+        IChartWindowCoordinatesConverter safeConverter = converter!;
+        DateTime tLeft = safeConverter.GetTime(clientRect.Left);
+        DateTime leftTime = tLeft > lastTime ? tLeft : lastTime;
+
+        DateTime tRight = safeConverter.GetTime(clientRect.Right);
+        DateTime rightTime = tRight < firstTime ? tRight : firstTime;
+
+        int leftIndex = (int)data.GetIndexByTime(leftTime.Ticks) + 1;
+        int rightIndex = (int)data.GetIndexByTime(rightTime.Ticks);
+
+        int count = leftIndex - rightIndex;
+        if (count <= 0) return;
+
+        // Use ArrayPool to avoid allocations
+        Point[] allPoints = System.Buffers.ArrayPool<Point>.Shared.Rent(count);
+        try
+        {
+            int halfBarWidth = indicator.CurrentChart.BarsWidth / 2;
+            for (int i = 0; i < count; i++)
+            {
+                int dataIndex = rightIndex + i;
+                int barX = (int)converter.GetChartX(data.Time(dataIndex));
+                int barY = (int)converter.GetChartY(series[dataIndex]);
+                allPoints[i] = new Point(barX + halfBarWidth, barY);
+            }
+
+            if (count > 1)
+            {
+                using Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) };
+                using Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot };
+
+                int hotCount = (warmupPeriod >= 0) ? (indicator.Count - warmupPeriod - rightIndex) : 0;
+
+                // Draw the hot part
+                int hotSegments = Math.Min(hotCount, count - 1);
+                if (hotSegments > 0)
+                {
+                    gr.DrawCurve(defaultPen, allPoints, 0, hotSegments, tension: 0);
+                }
+
+                // Draw the cold part
+                if (showColdValues)
+                {
+                    int coldStart = Math.Max(0, hotCount);
+                    int coldSegments = (count - 1) - coldStart;
+
+                    if (coldSegments > 0)
+                    {
+                        gr.DrawCurve(coldPen, allPoints, coldStart, coldSegments, tension: 0);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            System.Buffers.ArrayPool<Point>.Shared.Return(allPoints);
         }
     }
 
@@ -244,15 +405,13 @@ public static class IndicatorExtensions
         var clientRect = mainWindow.ClientRectangle;
 
         gr.SetClip(clientRect);
-        
+
         var rects = GetHistogramRectangles(indicator, converter, clientRect, series);
 
         foreach (var (rect, color) in rects)
         {
-            using (Brush hist = new SolidBrush(color))
-            {
-                gr.FillRectangle(hist, rect);
-            }
+            using Brush hist = new SolidBrush(color);
+            gr.FillRectangle(hist, rect);
         }
     }
 
@@ -263,9 +422,9 @@ public static class IndicatorExtensions
 
         Graphics gr = args.Graphics;
         var clientRect = indicator.CurrentChart.MainWindow.ClientRectangle;
-        Font font = new Font("Inter", 8);
+        var font = new Font("Inter", 8);
         SizeF textSize = gr.MeasureString(text, font);
-        RectangleF textRect = new RectangleF(clientRect.Left + 5,
+        var textRect = new RectangleF(clientRect.Left + 5,
                                            clientRect.Bottom - textSize.Height - 10,
                                            textSize.Width + 10, textSize.Height + 10);
 

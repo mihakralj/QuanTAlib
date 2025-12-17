@@ -35,10 +35,10 @@ public class MamaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "MAMA - MESA Adaptive Moving Average";
         Description = "MESA Adaptive Moving Average";
-        
+
         MamaSeries = new(name: "MAMA", color: Color.Red, width: 2, style: LineStyle.Solid);
         FamaSeries = new(name: "FAMA", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        
+
         AddLineSeries(MamaSeries);
         AddLineSeries(FamaSeries);
     }
@@ -55,12 +55,12 @@ public class MamaIndicator : Indicator, IWatchlistIndicator
     {
         TValue input = this.GetInputValue(args, Source);
         bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        
+
         TValue result = _ma!.Update(input, isNew);
-        
+
         MamaSeries!.SetValue(result.Value);
         FamaSeries!.SetValue(_ma.Fama.Value);
-        
+
         MamaSeries!.SetMarker(0, Color.Transparent);
         FamaSeries!.SetMarker(0, Color.Transparent);
 

@@ -25,14 +25,16 @@ public sealed class Vel : ITValuePublisher
     public string Name { get; }
     public TValue Last { get; private set; }
     public bool IsHot => _pwma.IsHot && _wma.IsHot;
+    public int WarmupPeriod { get; }
     public event Action<TValue>? Pub;
 
     public Vel(int period)
     {
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
-        
+
         _pwma = new Pwma(period);
         _wma = new Wma(period);
+        WarmupPeriod = period;
         Name = $"Vel({period})";
     }
 
@@ -68,7 +70,7 @@ public sealed class Vel : ITValuePublisher
         CollectionsMarshal.SetCount(v, len);
 
         var vSpan = CollectionsMarshal.AsSpan(v);
-        
+
         SimdExtensions.Subtract(pwmaSeries.Values, wmaSeries.Values, vSpan);
         source.Times.CopyTo(CollectionsMarshal.AsSpan(t));
 
@@ -76,14 +78,14 @@ public sealed class Vel : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var vel = new Vel(period);
         return vel.Update(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -92,7 +94,7 @@ public sealed class Vel : ITValuePublisher
         Span<double> wma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
 
         Pwma.Calculate(source, pwma, period);
-        Wma.Calculate(source, wma, period);
+        Wma.Batch(source, wma, period);
 
         SimdExtensions.Subtract(pwma, wma, output);
     }

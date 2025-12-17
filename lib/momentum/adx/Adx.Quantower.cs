@@ -28,11 +28,11 @@ public class AdxIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         Name = "ADX - Average Directional Index";
         Description = "Measures the strength of a trend";
-        
+
         AdxSeries = new(name: "ADX", color: Color.Blue, width: 2, style: LineStyle.Solid);
         DiPlusSeries = new(name: "+DI", color: Color.Green, width: 1, style: LineStyle.Solid);
         DiMinusSeries = new(name: "-DI", color: Color.Red, width: 1, style: LineStyle.Solid);
-        
+
         AddLineSeries(AdxSeries);
         AddLineSeries(DiPlusSeries);
         AddLineSeries(DiMinusSeries);
@@ -51,7 +51,7 @@ public class AdxIndicator : Indicator, IWatchlistIndicator
         TBar bar = this.GetInputBar(args);
 
         TValue result = _adx!.Update(bar, isNew);
-        
+
         if (!_adx.IsHot && !ShowColdValues)
         {
             return;

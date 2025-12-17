@@ -28,7 +28,7 @@ public class HtitIndicatorTests
         {
             var time = DateTime.UtcNow.AddMinutes(i);
             indicator.HistoricalData.AddBar(time, 100 + i, 100 + i, 100 + i, 100 + i);
-            
+
             var args = new UpdateArgs(UpdateReason.NewBar);
             indicator.ProcessUpdate(args);
         }

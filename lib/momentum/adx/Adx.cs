@@ -38,7 +38,7 @@ public sealed class Adx : ITValuePublisher
     private double _p_trSum, _p_dmPlusSum, _p_dmMinusSum;
     private int _samples;
     private int _p_samples;
-    
+
     private double _trSmooth, _dmPlusSmooth, _dmMinusSmooth;
     private double _p_trSmooth, _p_dmPlusSmooth, _p_dmMinusSmooth;
 
@@ -47,7 +47,7 @@ public sealed class Adx : ITValuePublisher
     private double _p_dxSum;
     private int _dxSamples;
     private int _p_dxSamples;
-    
+
     private double _adx;
     private double _p_adx;
 
@@ -79,6 +79,11 @@ public sealed class Adx : ITValuePublisher
     public bool IsHot => _dxSamples >= _period;
 
     /// <summary>
+    /// The number of bars required for the indicator to warm up.
+    /// </summary>
+    public int WarmupPeriod { get; }
+
+    /// <summary>
     /// Creates ADX with specified period.
     /// </summary>
     /// <param name="period">Period for ADX calculation (must be > 0)</param>
@@ -89,6 +94,7 @@ public sealed class Adx : ITValuePublisher
 
         _period = period;
         Name = $"Adx({period})";
+        WarmupPeriod = period * 2; // Needs period for TR/DM smoothing, then period for ADX smoothing
         _isInitialized = false;
     }
 
@@ -101,19 +107,19 @@ public sealed class Adx : ITValuePublisher
         _prevBar = default;
         _p_prevBar = default;
         _isInitialized = false;
-        
+
         _trSum = _dmPlusSum = _dmMinusSum = 0;
         _p_trSum = _p_dmPlusSum = _p_dmMinusSum = 0;
         _samples = _p_samples = 0;
-        
+
         _trSmooth = _dmPlusSmooth = _dmMinusSmooth = 0;
         _p_trSmooth = _p_dmPlusSmooth = _p_dmMinusSmooth = 0;
-        
+
         _dxSum = _p_dxSum = 0;
         _dxSamples = _p_dxSamples = 0;
-        
+
         _adx = _p_adx = 0;
-        
+
         Last = default;
         DiPlus = default;
         DiMinus = default;
@@ -175,7 +181,7 @@ public sealed class Adx : ITValuePublisher
 
         if (upMove > downMove && upMove > 0)
             dmPlus = upMove;
-        
+
         if (downMove > upMove && downMove > 0)
             dmMinus = downMove;
 
@@ -211,7 +217,7 @@ public sealed class Adx : ITValuePublisher
             // Wilder uses sums, but effectively it's RMA.
             // Standard formula:
             // Smooth = Smooth - (Smooth / Period) + Input
-            
+
             _trSmooth = _trSmooth - (_trSmooth / _period) + tr;
             _dmPlusSmooth = _dmPlusSmooth - (_dmPlusSmooth / _period) + dmPlus;
             _dmMinusSmooth = _dmMinusSmooth - (_dmMinusSmooth / _period) + dmMinus;
@@ -235,13 +241,13 @@ public sealed class Adx : ITValuePublisher
             {
                 dx = (Math.Abs(diPlus - diMinus) / diSum) * 100.0;
             }
-            
+
             // Smooth DX to get ADX
             if (_dxSamples < _period)
             {
                 _dxSum += dx;
                 _dxSamples++;
-                
+
                 if (_dxSamples == _period)
                 {
                     _adx = _dxSum / _period; // First ADX is SMA of DX
@@ -257,7 +263,7 @@ public sealed class Adx : ITValuePublisher
         DiPlus = new TValue(input.Time, diPlus);
         DiMinus = new TValue(input.Time, diMinus);
         Last = new TValue(input.Time, _adx);
-        
+
         Pub?.Invoke(Last);
         return Last;
     }
@@ -284,7 +290,7 @@ public sealed class Adx : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int period)
+    public static TSeries Batch(TBarSeries source, int period)
     {
         var adx = new Adx(period);
         return adx.Update(source);

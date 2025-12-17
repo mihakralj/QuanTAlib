@@ -55,6 +55,11 @@ public sealed class Rsx : ITValuePublisher
     public event Action<TValue>? Pub;
 
     /// <summary>
+    /// The number of bars required to warm up the indicator.
+    /// </summary>
+    public int WarmupPeriod { get; }
+
+    /// <summary>
     /// Creates RSX with specified period.
     /// </summary>
     /// <param name="period">Length of the filter (typically 8-40).</param>
@@ -64,6 +69,7 @@ public sealed class Rsx : ITValuePublisher
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _period = period;
+        WarmupPeriod = period;
         _alpha = 3.0 / (period + 2.0);
         Name = $"Rsx({period})";
     }
@@ -113,10 +119,10 @@ public sealed class Rsx : ITValuePublisher
 
         // Calculate momentum (change in price * 100)
         double momentum = (price - _state.LastPrice) * 100.0;
-        
+
         if (isNew)
         {
-             _state.LastPrice = price;
+            _state.LastPrice = price;
         }
 
         // --- Momentum Smoothing ---
@@ -184,7 +190,7 @@ public sealed class Rsx : ITValuePublisher
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
+        Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
         // Restore state by replaying the last few bars
@@ -199,14 +205,14 @@ public sealed class Rsx : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var rsx = new Rsx(period);
         return rsx.Update(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");

@@ -59,8 +59,12 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
 
     public override void OnPaintChart(PaintChartEventArgs args)
     {
+        var savedColor = Series!.Color;
+        Series.Color = Color.Transparent;
         base.OnPaintChart(args);
+        Series.Color = savedColor;
+
         int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        this.PaintLine(args, Series!, warmupPeriod, showColdValues: ShowColdValues);
     }
 }

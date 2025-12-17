@@ -61,12 +61,12 @@ Console.WriteLine($"Current TEMA: {result.Value}");
 
 // Batch calculation (TSeries API)
 TSeries source = ...;
-TSeries results = Tema.Calculate(source, 14);
+TSeries results = Tema.Batch(source, 14);
 
 // High-performance Span API (zero allocation)
 double[] prices = new double[10000];
 double[] output = new double[10000];
-Tema.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+Tema.Batch(prices.AsSpan(), output.AsSpan(), period: 14);
 ```
 
 ### Zero-Allocation Span API
@@ -79,7 +79,7 @@ double[] source = new double[200000];
 double[] temaOutput = new double[200000];
 
 // Zero heap allocation during calculation
-Tema.Calculate(source.AsSpan(), temaOutput.AsSpan(), period: 50);
+Tema.Batch(source.AsSpan(), temaOutput.AsSpan(), period: 50);
 ```
 
 ### Eventing and Reactive Support

@@ -25,7 +25,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Lsma : ITValuePublisher
+public sealed class Lsma : AbstractBase
 {
     private readonly int _period;
     private readonly int _offset;
@@ -37,17 +37,12 @@ public sealed class Lsma : ITValuePublisher
     private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
     private State _state;
     private State _p_state;
-    
+
     private int _tickCount;
 
     private const int ResyncInterval = 1000;
 
-    /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _buffer.IsFull;
 
     /// <summary>
     /// Creates LSMA with specified period and offset.
@@ -63,14 +58,15 @@ public sealed class Lsma : ITValuePublisher
         _offset = offset;
         _buffer = new RingBuffer(period);
         Name = $"Lsma({period})";
+        WarmupPeriod = period;
 
         // Precalculate constants
         // sum_x = 0 + 1 + ... + (n-1) = n(n-1)/2
         _sum_x = 0.5 * period * (period - 1);
-        
+
         // sum_x2 = 0^2 + ... + (n-1)^2 = (n-1)n(2n-1)/6
         double sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        
+
         // denominator = n * sum_x2 - sum_x^2
         _denominator = period * sum_x2 - _sum_x * _sum_x;
     }
@@ -79,16 +75,6 @@ public sealed class Lsma : ITValuePublisher
     {
         source.Pub += (item) => Update(item);
     }
-
-    /// <summary>
-    /// Current LSMA value.
-    /// </summary>
-    public TValue Last { get; private set; }
-
-    /// <summary>
-    /// True if the LSMA has enough data to produce valid results.
-    /// </summary>
-    public bool IsHot => _buffer.IsFull;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -108,21 +94,21 @@ public sealed class Lsma : ITValuePublisher
         {
             double oldest = _buffer.Oldest;
             double prev_sum_y = _state.SumY;
-            
+
             // O(1) update for sum_xy
             // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
             _state.SumXY = _state.SumXY + prev_sum_y - _period * oldest;
-            
+
             // O(1) update for sum_y
             _state.SumY = _state.SumY - oldest + val;
-            
+
             _buffer.Add(val);
         }
         else
         {
             _buffer.Add(val);
             _state.SumY += val;
-            
+
             // Recalculate sum_xy from scratch during warmup
             _state.SumXY = 0;
             var span = _buffer.GetSpan();
@@ -158,7 +144,7 @@ public sealed class Lsma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -176,10 +162,10 @@ public sealed class Lsma : ITValuePublisher
             // For isNew=false, we update the current bar.
             // sum_xy remains constant because it depends on the previous window state which hasn't changed.
             // sum_y updates to reflect the change in the newest value.
-            
+
             _state.SumY = _p_state.SumY - _p_state.LastVal + val;
             _state.SumXY = _p_state.SumXY; // Restore sum_xy to the state after the shift
-            
+
             _buffer.UpdateNewest(val);
             _state.LastVal = val;
         }
@@ -196,7 +182,7 @@ public sealed class Lsma : ITValuePublisher
             double n = _buffer.Count;
             double sx = _sum_x;
             double denom = _denominator;
-            
+
             if (!_buffer.IsFull)
             {
                 // Recalculate constants for smaller n
@@ -213,20 +199,20 @@ public sealed class Lsma : ITValuePublisher
             {
                 double m = (n * _state.SumXY - sx * _state.SumY) / denom;
                 double b = (_state.SumY - m * sx) / n;
-                
+
                 // LSMA = b - m * offset
                 result = b - m * _offset;
             }
         }
 
         Last = new TValue(input.Time, result);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -279,10 +265,15 @@ public sealed class Lsma : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    /// <summary>
-    /// Calculates LSMA for the entire series using a new instance.
-    /// </summary>
-    public static TSeries Calculate(TSeries source, int period, int offset = 0)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period, int offset = 0)
     {
         var lsma = new Lsma(period, offset);
         return lsma.Update(source);
@@ -333,7 +324,7 @@ public sealed class Lsma : ITValuePublisher
                 buffer[count] = val;
                 sum_y += val;
                 count++;
-                
+
                 // Recalculate sum_xy for current count
                 sum_xy = 0;
                 for (int j = 0; j < count; j++)
@@ -365,7 +356,7 @@ public sealed class Lsma : ITValuePublisher
                         output[i] = b - m * offset;
                     }
                 }
-                
+
                 if (count == period)
                 {
                     bufferIndex = 0; // Reset for circular buffer usage
@@ -376,13 +367,13 @@ public sealed class Lsma : ITValuePublisher
                 // Full buffer phase - O(1) update
                 double oldest = buffer[bufferIndex];
                 double prev_sum_y = sum_y;
-                
+
                 // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
                 sum_xy = sum_xy + prev_sum_y - period * oldest;
-                
+
                 sum_y = sum_y - oldest + val;
                 buffer[bufferIndex] = val;
-                
+
                 bufferIndex++;
                 if (bufferIndex >= period)
                     bufferIndex = 0;
@@ -397,7 +388,7 @@ public sealed class Lsma : ITValuePublisher
     /// <summary>
     /// Resets the LSMA state.
     /// </summary>
-    public void Reset()
+    public override void Reset()
     {
         _buffer.Clear();
         _state = default;

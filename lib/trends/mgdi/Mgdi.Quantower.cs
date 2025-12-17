@@ -51,7 +51,7 @@ public class MgdiIndicator : Indicator, IWatchlistIndicator
     {
         TValue input = this.GetInputValue(args, Source);
         bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        
+
         TValue result = _mgdi!.Update(input, isNew);
         Series!.SetValue(result.Value);
         Series!.SetMarker(0, Color.Transparent);

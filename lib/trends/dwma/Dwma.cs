@@ -15,28 +15,13 @@ namespace QuanTAlib;
 /// DWMA = WMA(WMA(source, period), period)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Dwma : ITValuePublisher
+public sealed class Dwma : AbstractBase
 {
     private readonly int _period;
     private readonly Wma _wma1;
     private readonly Wma _wma2;
 
-    /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    /// <summary>
-    /// Current DWMA value.
-    /// </summary>
-    public TValue Last { get; private set; }
-
-    /// <summary>
-    /// True if the indicator has enough data to produce valid results.
-    /// </summary>
-    public bool IsHot => _wma1.IsHot && _wma2.IsHot;
-
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _wma1.IsHot && _wma2.IsHot;
 
     /// <summary>
     /// Creates DWMA with specified period.
@@ -51,6 +36,7 @@ public sealed class Dwma : ITValuePublisher
         _wma1 = new Wma(period);
         _wma2 = new Wma(period);
         Name = $"Dwma({period})";
+        WarmupPeriod = period * 2;
     }
 
     public Dwma(ITValuePublisher source, int period) : this(period)
@@ -59,15 +45,15 @@ public sealed class Dwma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         TValue wma1Result = _wma1.Update(input, isNew);
         Last = _wma2.Update(wma1Result, isNew);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -87,13 +73,13 @@ public sealed class Dwma : ITValuePublisher
         // We need to replay the last part to restore the internal WMAs state
         // Since DWMA is WMA(WMA), the effective lookback is roughly 2*Period
         // But to be safe and simple, we can just reset and replay the last 2*Period bars.
-        
+
         _wma1.Reset();
         _wma2.Reset();
-        
+
         int warmup = _period * 2; // Approximate warmup needed
         int startIndex = Math.Max(0, len - warmup);
-        
+
         for (int i = startIndex; i < len; i++)
         {
             Update(new TValue(source.Times[i], source.Values[i]));
@@ -102,7 +88,16 @@ public sealed class Dwma : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        Reset();
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period)
     {
         var dwma = new Dwma(period);
         return dwma.Update(source);
@@ -119,18 +114,18 @@ public sealed class Dwma : ITValuePublisher
         if (source.Length <= 1024)
         {
             Span<double> temp = stackalloc double[source.Length];
-            Wma.Calculate(source, temp, period);
-            Wma.Calculate(temp, output, period);
+            Wma.Batch(source, temp, period);
+            Wma.Batch(temp, output, period);
         }
         else
         {
             double[] temp = new double[source.Length];
-            Wma.Calculate(source, temp, period);
-            Wma.Calculate(temp, output, period);
+            Wma.Batch(source, temp, period);
+            Wma.Batch(temp, output, period);
         }
     }
-    
-    public void Reset()
+
+    public override void Reset()
     {
         _wma1.Reset();
         _wma2.Reset();

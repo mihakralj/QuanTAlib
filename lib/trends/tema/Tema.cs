@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// which is faster than the standard EMA convergence (3/alpha steps).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Tema : ITValuePublisher
+public sealed class Tema : AbstractBase
 {
     private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
     {
@@ -33,21 +33,18 @@ public sealed class Tema : ITValuePublisher
 
     private readonly double _alpha;
     private readonly double _decay;
-    
+
     private EmaState _state1 = EmaState.New();
     private EmaState _state2 = EmaState.New();
     private EmaState _state3 = EmaState.New();
     private EmaState _p_state1 = EmaState.New();
     private EmaState _p_state2 = EmaState.New();
     private EmaState _p_state3 = EmaState.New();
-    
+
     private double _lastValidValue;
     private double _p_lastValidValue;
 
-    public string Name { get; }
-    public TValue Last { get; private set; }
-    public bool IsHot => _state3.E <= 0.09;
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _state3.E <= 0.09;
 
     public Tema(int period)
     {
@@ -56,10 +53,21 @@ public sealed class Tema : ITValuePublisher
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
         Name = $"Tema({period})";
+        WarmupPeriod = period * 3;
     }
 
     public Tema(ITValuePublisher source, int period) : this(period)
     {
+        source.Pub += (item) => Update(item);
+    }
+
+    public Tema(TSeries source, int period) : this(period)
+    {
+        Prime(source.Values);
+        if (source.Count > 0)
+        {
+            Last = new TValue(source.LastTime, Last.Value);
+        }
         source.Pub += (item) => Update(item);
     }
 
@@ -70,10 +78,86 @@ public sealed class Tema : ITValuePublisher
         _alpha = alpha;
         _decay = 1.0 - alpha;
         Name = $"Tema(α={alpha:F4})";
+        WarmupPeriod = (int)(3 * (2.0 / alpha - 1.0));
+    }
+
+    /// <summary>
+    /// Initializes the indicator state using the provided history.
+    /// </summary>
+    /// <param name="source">Historical data</param>
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        if (source.Length == 0) return;
+
+        // Reset state
+        _state1 = EmaState.New();
+        _state2 = EmaState.New();
+        _state3 = EmaState.New();
+        _p_state1 = EmaState.New();
+        _p_state2 = EmaState.New();
+        _p_state3 = EmaState.New();
+        _lastValidValue = 0;
+        _p_lastValidValue = 0;
+
+        // Run the calculation on the history to update state
+        // We don't need the output, just the final state
+        int len = source.Length;
+        double lastValid = 0;
+        EmaState s1 = _state1;
+        EmaState s2 = _state2;
+        EmaState s3 = _state3;
+        double alpha = _alpha;
+        double decay = _decay;
+
+        for (int i = 0; i < len; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                lastValid = val;
+            else
+                val = lastValid;
+
+            double e1 = Compute(val, alpha, decay, ref s1);
+            double e2 = Compute(e1, alpha, decay, ref s2);
+            Compute(e2, alpha, decay, ref s3);
+        }
+
+        _state1 = s1;
+        _state2 = s2;
+        _state3 = s3;
+        _lastValidValue = lastValid;
+
+        // Calculate the initial "Last" value
+        // We need to re-compute the last step to get the result
+        // But Compute updates state, so we can't just call it again without side effects if we pass ref state.
+        // However, we can calculate the result from the current state.
+        // TEMA = 3 * EMA1 - 3 * EMA2 + EMA3
+        // The state contains the updated EMA values (Ema field).
+        // But wait, Compute returns the *compensated* value.
+        // The state.Ema is the raw EMA value.
+        // We need to apply compensation logic to get the correct E1, E2, E3.
+
+        double GetCompensated(EmaState s)
+        {
+            if (s.IsCompensated) return s.Ema;
+            return s.Ema / (1.0 - s.E);
+        }
+
+        double e1_final = GetCompensated(_state1);
+        double e2_final = GetCompensated(_state2);
+        double e3_final = GetCompensated(_state3);
+        double result = 3 * e1_final - 3 * e2_final + e3_final;
+
+        Last = new TValue(DateTime.MinValue, result);
+
+        _p_state1 = _state1;
+        _p_state2 = _state2;
+        _p_state3 = _state3;
+        _p_lastValidValue = _lastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -107,11 +191,11 @@ public sealed class Tema : ITValuePublisher
 
         double result = 3 * e1 - 3 * e2 + e3;
         Last = new TValue(input.Time, result);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -126,7 +210,7 @@ public sealed class Tema : ITValuePublisher
         source.Times.CopyTo(tSpan);
 
         var sourceValues = source.Values;
-        
+
         // Use current state
         EmaState s1 = _state1;
         EmaState s2 = _state2;
@@ -195,28 +279,28 @@ public sealed class Tema : ITValuePublisher
         return result;
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var tema = new Tema(period);
         return tema.Update(source);
     }
 
-    public static TSeries Calculate(TSeries source, double alpha)
+    public static TSeries Batch(TSeries source, double alpha)
     {
         var tema = new Tema(alpha);
         return tema.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         double alpha = 2.0 / (period + 1);
-        Calculate(source, output, alpha);
+        Batch(source, output, alpha);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -319,7 +403,7 @@ public sealed class Tema : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _state1 = EmaState.New();
         _state2 = EmaState.New();

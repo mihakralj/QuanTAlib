@@ -16,9 +16,9 @@ public class CfbValidationTests
     }
 
     [Fact]
-    public void Validate_Consistency_UpdateVsCalculate()
+    public void Validate_Consistency_UpdateVsBatch()
     {
-        // Verify that Update(TValue) and Calculate(TSeries) produce identical results
+        // Verify that Update(TValue) and Batch(TSeries) produce identical results
         var cfb = new Cfb();
         var streamResult = new TSeries();
         foreach (var item in _testData.Data)
@@ -26,7 +26,7 @@ public class CfbValidationTests
             streamResult.Add(cfb.Update(item));
         }
 
-        var batchResult = Cfb.Calculate(_testData.Data);
+        var batchResult = Cfb.Batch(_testData.Data);
 
         Assert.Equal(streamResult.Count, batchResult.Count);
         Assert.NotEmpty(streamResult);
@@ -34,18 +34,18 @@ public class CfbValidationTests
         {
             Assert.Equal(streamResult[i].Value, batchResult[i].Value, 1e-9);
         }
-        _output.WriteLine("CFB Update vs Calculate validated successfully");
+        _output.WriteLine("CFB Update vs Batch validated successfully");
     }
 
     [Fact]
     public void Validate_Consistency_SeriesVsSpan()
     {
-        // Verify that Calculate(TSeries) and Calculate(Span) produce identical results
-        var batchResult = Cfb.Calculate(_testData.Data);
+        // Verify that Batch(TSeries) and Batch(Span) produce identical results
+        var batchResult = Cfb.Batch(_testData.Data);
         
         var spanInput = _testData.Data.Values.ToArray().AsSpan();
         var spanOutput = new double[spanInput.Length];
-        Cfb.Calculate(spanInput, spanOutput);
+        Cfb.Batch(spanInput, spanOutput);
 
         for (int i = 0; i < batchResult.Count; i++)
         {
@@ -58,7 +58,7 @@ public class CfbValidationTests
     public void Validate_Properties()
     {
         // CFB should be >= 1.0
-        var result = Cfb.Calculate(_testData.Data);
+        var result = Cfb.Batch(_testData.Data);
         foreach (var val in result.Values)
         {
             Assert.True(val >= 1.0, $"CFB value {val} should be >= 1.0");

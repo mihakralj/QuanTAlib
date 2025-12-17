@@ -42,6 +42,11 @@ public sealed class Ao : ITValuePublisher
     public bool IsHot => _smaSlow.IsHot;
 
     /// <summary>
+    /// The number of bars required to warm up the indicator.
+    /// </summary>
+    public int WarmupPeriod { get; }
+
+    /// <summary>
     /// Creates AO with specified periods.
     /// </summary>
     /// <param name="fastPeriod">Fast SMA period (default 5)</param>
@@ -57,6 +62,7 @@ public sealed class Ao : ITValuePublisher
 
         _smaFast = new Sma(fastPeriod);
         _smaSlow = new Sma(slowPeriod);
+        WarmupPeriod = slowPeriod;
         Name = $"Ao({fastPeriod},{slowPeriod})";
     }
 
@@ -139,7 +145,7 @@ public sealed class Ao : ITValuePublisher
     /// <param name="fastPeriod">Fast SMA period (default 5)</param>
     /// <param name="slowPeriod">Slow SMA period (default 34)</param>
     /// <returns>AO series</returns>
-    public static TSeries Calculate(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
+    public static TSeries Batch(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
     {
         var ao = new Ao(fastPeriod, slowPeriod);
         return ao.Update(source);

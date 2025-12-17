@@ -106,14 +106,14 @@ public class VelTests
     }
 
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         var series = new TSeries();
         series.Add(DateTime.UtcNow.Ticks, 10);
         series.Add(DateTime.UtcNow.Ticks + 1, 20);
         series.Add(DateTime.UtcNow.Ticks + 2, 30);
 
-        var results = Vel.Calculate(series, 3);
+        var results = Vel.Batch(series, 3);
 
         Assert.Equal(3, results.Count);
         
@@ -125,7 +125,7 @@ public class VelTests
     }
 
     [Fact]
-    public void SpanCalculate_Matches_Streaming()
+    public void SpanBatch_Matches_Streaming()
     {
         var series = new TSeries();
         double[] source = new double[100];
@@ -140,10 +140,10 @@ public class VelTests
         }
 
         // Calculate with TSeries API
-        var tseriesResult = Vel.Calculate(series, 10);
+        var tseriesResult = Vel.Batch(series, 10);
 
         // Calculate with Span API
-        Vel.Calculate(source.AsSpan(), output.AsSpan(), 10);
+        Vel.Batch(source.AsSpan(), output.AsSpan(), 10);
 
         // Compare results
         for (int i = 0; i < 100; i++)

@@ -27,11 +27,11 @@
     <Compile Include="**\*.Tests.cs" />
     <Compile Include="..\lib\**\*.Quantower.Tests.cs" />
     <!-- Include core library types -->
-    <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
+    <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
     <!-- Include trends implementations -->
-    <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\*.Validation.Tests.cs" />
+    <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\*.Validation.Tests.cs;..\lib\trends\**\obj\**;..\lib\trends\**\bin\**" />
     <!-- Include momentum implementations -->
-    <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs;..\lib\momentum\**\*.Validation.Tests.cs" />
+    <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs;..\lib\momentum\**\*.Validation.Tests.cs;..\lib\momentum\**\obj\**;..\lib\momentum\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
   </ItemGroup>

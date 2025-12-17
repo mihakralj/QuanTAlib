@@ -47,7 +47,7 @@ public class MamaIndicatorTests
         indicator.Initialize();
 
         // After init, line series should exist (MAMA and FAMA)
-        Assert.Equal(2, indicator.LinesSeries.Length);
+        Assert.Equal(2, indicator.LinesSeries.Count);
     }
 
     [Fact]

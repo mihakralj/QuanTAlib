@@ -27,7 +27,7 @@ namespace QuanTAlib;
 /// S3 is parabolic weighted sum
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Pwma : ITValuePublisher
+public sealed class Pwma : AbstractBase
 {
     private readonly int _period;
     private readonly double _divisor;
@@ -39,10 +39,7 @@ public sealed class Pwma : ITValuePublisher
 
     private const int ResyncInterval = 1000;
 
-    public string Name { get; }
-    public TValue Last { get; private set; }
-    public bool IsHot => _buffer.IsFull;
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _buffer.IsFull;
 
     public Pwma(int period)
     {
@@ -52,6 +49,7 @@ public sealed class Pwma : ITValuePublisher
         _divisor = (double)period * (period + 1) * (2 * period + 1) / 6.0;
         _buffer = new RingBuffer(period);
         Name = $"Pwma({period})";
+        WarmupPeriod = period;
     }
 
     public Pwma(ITValuePublisher source, int period) : this(period)
@@ -115,7 +113,7 @@ public sealed class Pwma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -136,10 +134,10 @@ public sealed class Pwma : ITValuePublisher
             // S1' = S1 - last + new
             // S2' = S2 - n*last + n*new
             // S3' = S3 - n^2*last + n^2*new
-            
+
             int n = _buffer.IsFull ? _period : _buffer.Count;
             double diff = val - _state.LastInput;
-            
+
             _state.Sum += diff;
             _state.WSum += n * diff;
             _state.PSum += (double)n * n * diff;
@@ -149,13 +147,13 @@ public sealed class Pwma : ITValuePublisher
 
         double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * (2 * _buffer.Count + 1) / 6.0;
         Last = new TValue(input.Time, _state.PSum / currentDivisor);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         List<long> t = new(len);
@@ -165,7 +163,7 @@ public sealed class Pwma : ITValuePublisher
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
-        
+
         Calculate(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
@@ -209,7 +207,15 @@ public sealed class Pwma : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period)
     {
         var pwma = new Pwma(period);
         return pwma.Update(source);
@@ -290,12 +296,12 @@ public sealed class Pwma : ITValuePublisher
                 double recalcSum = 0;
                 double recalcWsum = 0;
                 double recalcPsum = 0;
-                
+
                 for (int k = 0; k < period; k++)
                 {
                     int idx = bufferIdx + k;
                     if (idx >= period) idx -= period;
-                    
+
                     double v = buffer[idx];
                     recalcSum += v;
                     recalcWsum += (k + 1) * v;
@@ -310,7 +316,7 @@ public sealed class Pwma : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _buffer.Clear();
         _state = default;

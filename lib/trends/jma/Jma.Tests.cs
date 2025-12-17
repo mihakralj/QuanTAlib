@@ -163,7 +163,7 @@ public class JmaTests
         }
 
         // Calculate with TSeries API
-        var tseriesResult = new Jma(10).Update(series);
+        var tseriesResult = Jma.Batch(series, 10);
 
         // Calculate with Span API
         Jma.Calculate(source.AsSpan(), output.AsSpan(), 10);
@@ -185,7 +185,7 @@ public class JmaTests
         var series = bars.Close;
         
         // 1. Batch Mode
-        var batchSeries = new Jma(period).Update(series);
+        var batchSeries = Jma.Batch(series, period);
         double expected = batchSeries.Last.Value;
 
         // 2. Span Mode
@@ -229,9 +229,9 @@ public class JmaTests
             series.Add(bar.Time, bar.Close);
         }
 
-        var jmaPhase0 = new Jma(10, phase: 0).Update(series);
-        var jmaPhase100 = new Jma(10, phase: 100).Update(series);
-        var jmaPhaseMinus100 = new Jma(10, phase: -100).Update(series);
+        var jmaPhase0 = Jma.Batch(series, 10, phase: 0);
+        var jmaPhase100 = Jma.Batch(series, 10, phase: 100);
+        var jmaPhaseMinus100 = Jma.Batch(series, 10, phase: -100);
 
         Assert.NotEqual(jmaPhase0.Last.Value, jmaPhase100.Last.Value);
         Assert.NotEqual(jmaPhase0.Last.Value, jmaPhaseMinus100.Last.Value);

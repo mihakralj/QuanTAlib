@@ -114,7 +114,7 @@ public class T3ValidationTests
         {
             // Calculate QuanTAlib T3 (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.T3.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period, vFactor);
+            global::QuanTAlib.T3.Batch(_testData.RawData.Span, qOutput.AsSpan(), period, vFactor);
 
             // Calculate TA-Lib T3
             var retCode = TALib.Functions.T3<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period, vFactor);

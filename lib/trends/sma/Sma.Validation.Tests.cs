@@ -91,7 +91,7 @@ public class SmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib SMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Sma.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Sma.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Skender SMA
             var sResult = _testData.SkenderQuotes.GetSma(period).ToList();
@@ -173,7 +173,7 @@ public class SmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib SMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Sma.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Sma.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate TA-Lib SMA
             var retCode = TALib.Functions.Sma<double>(sourceData, 0..^0, talibOutput, out var outRange, period);
@@ -263,7 +263,7 @@ public class SmaValidationTests : IDisposable
         {
             // Calculate QuanTAlib SMA (Span API)
             double[] qOutput = new double[sourceData.Length];
-            global::QuanTAlib.Sma.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period);
+            global::QuanTAlib.Sma.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
             // Calculate Tulip SMA
             var smaIndicator = Tulip.Indicators.sma;

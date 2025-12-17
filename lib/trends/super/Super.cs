@@ -60,6 +60,8 @@ public sealed class Super : ITValuePublisher
     /// </summary>
     public bool IsHot => _sampleCount > _period;
 
+    public int WarmupPeriod => _period + 1;
+
     public Super(int period = 10, double multiplier = 3.0)
     {
         if (period <= 0)
@@ -196,7 +198,7 @@ public sealed class Super : ITValuePublisher
         Last = new TValue(input.Time, superTrend);
         UpperBand = new TValue(input.Time, upperBand);
         LowerBand = new TValue(input.Time, lowerBand);
-        
+
         Pub?.Invoke(Last);
         return Last;
     }
@@ -218,7 +220,7 @@ public sealed class Super : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TBarSeries source, int period = 10, double multiplier = 3.0)
+    public static TSeries Batch(TBarSeries source, int period = 10, double multiplier = 3.0)
     {
         var indicator = new Super(period, multiplier);
         return indicator.Update(source);

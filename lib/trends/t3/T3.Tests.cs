@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace QuanTAlib;
+namespace QuanTAlib.Tests;
 
 public class T3Tests
 {
@@ -101,7 +101,7 @@ public class T3Tests
     }
     
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void BatchCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -114,17 +114,17 @@ public class T3Tests
             streamingResults.Add(t3.Update(series[i]).Value);
         }
         
-        var staticResults = T3.Calculate(series, 5, 0.7);
+        var batchResults = T3.Batch(series, 5, 0.7);
         
-        Assert.Equal(streamingResults.Count, staticResults.Count);
-        for (int i = 0; i < staticResults.Count; i++)
+        Assert.Equal(streamingResults.Count, batchResults.Count);
+        for (int i = 0; i < batchResults.Count; i++)
         {
-            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+            Assert.Equal(streamingResults[i], batchResults.Values[i], 1e-9);
         }
     }
 
     [Fact]
-    public void StaticCalculateSpan_Matches_Streaming()
+    public void BatchCalculateSpan_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -138,7 +138,7 @@ public class T3Tests
         }
         
         var spanResults = new double[series.Count];
-        T3.Calculate(series.Values, spanResults, 5, 0.7);
+        T3.Batch(series.Values, spanResults, 5, 0.7);
         
         for (int i = 0; i < spanResults.Length; i++)
         {

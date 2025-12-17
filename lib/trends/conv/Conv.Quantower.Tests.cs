@@ -117,7 +117,7 @@ public class ConvIndicatorTests
     {
         var indicator = new ConvIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(ConvIndicator), method.DeclaringType);
@@ -170,10 +170,10 @@ public class ConvIndicatorTests
     public void ConvIndicator_InvalidWeights_FallsBackToDefault()
     {
         var indicator = new ConvIndicator { WeightsInput = "invalid" };
-        
+
         // Should not throw, but fallback
         indicator.Initialize();
-        
+
         Assert.Single(indicator.LinesSeries);
     }
 

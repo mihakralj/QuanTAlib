@@ -111,7 +111,7 @@ public class CfbTests
     }
 
     [Fact]
-    public void StaticCalculate_Matches_Streaming()
+    public void StaticBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -124,7 +124,7 @@ public class CfbTests
             streamingResults.Add(cfb.Update(new TValue(series.Times[i], series.Values[i])).Value);
         }
 
-        var staticResults = Cfb.Calculate(series);
+        var staticResults = Cfb.Batch(series);
 
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < streamingResults.Count; i++)
@@ -134,7 +134,7 @@ public class CfbTests
     }
 
     [Fact]
-    public void SpanCalculate_Matches_Streaming()
+    public void SpanBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
@@ -148,7 +148,7 @@ public class CfbTests
         }
 
         double[] spanResults = new double[bars.Count];
-        Cfb.Calculate(values, spanResults);
+        Cfb.Batch(values, spanResults);
 
         for (int i = 0; i < streamingResults.Count; i++)
         {

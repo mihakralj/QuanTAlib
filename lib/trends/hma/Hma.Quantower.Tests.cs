@@ -117,7 +117,7 @@ public class HmaIndicatorTests
     {
         var indicator = new HmaIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(HmaIndicator), method.DeclaringType);

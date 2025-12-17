@@ -62,6 +62,44 @@ MAMA is particularly valuable for identifying trends in markets with varying cyc
 * **Mathematical complexity:** Requires proper implementation of digital signal processing concepts for accurate results
 * **Complementary tools:** Works best when combined with momentum indicators or volume analysis for confirmation
 
+## C# Implementation
+
+### Standard Usage
+
+```csharp
+using QuanTAlib;
+
+// Create MAMA with default parameters
+var mama = new Mama(fastLimit: 0.5, slowLimit: 0.05);
+
+// Update with new price
+var result = mama.Update(new TValue(DateTime.UtcNow, 100.0));
+Console.WriteLine($"MAMA: {result.Value}");
+Console.WriteLine($"FAMA: {mama.Fama.Value}");
+```
+
+### Static API (High Performance)
+
+```csharp
+// Calculate MAMA for an entire array
+double[] prices = { ... };
+double[] results = new double[prices.Length];
+
+Mama.Batch(prices, results, fastLimit: 0.5, slowLimit: 0.05);
+```
+
+### Event-Driven
+
+```csharp
+var source = new TSeries();
+var mama = new Mama(source);
+
+mama.Pub += (item) => {
+    Console.WriteLine($"MAMA: {item.Value}");
+    Console.WriteLine($"FAMA: {mama.Fama.Value}");
+};
+```
+
 ## References
 
 1. Ehlers, J. (2001). *MESA and Trading Market Cycles*. John Wiley & Sons.

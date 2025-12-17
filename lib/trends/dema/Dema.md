@@ -62,12 +62,12 @@ Console.WriteLine($"Current DEMA: {result.Value}");
 
 // Batch calculation (TSeries API)
 TSeries source = ...;
-TSeries results = Dema.Calculate(source, 14);
+TSeries results = Dema.Batch(source, 14);
 
 // High-performance Span API (zero allocation)
 double[] prices = new double[10000];
 double[] output = new double[10000];
-Dema.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+Dema.Batch(prices.AsSpan(), output.AsSpan(), period: 14);
 ```
 
 ### Zero-Allocation Span API
@@ -80,7 +80,7 @@ double[] source = new double[200000];
 double[] demaOutput = new double[200000];
 
 // Zero heap allocation during calculation
-Dema.Calculate(source.AsSpan(), demaOutput.AsSpan(), period: 50);
+Dema.Batch(source.AsSpan(), demaOutput.AsSpan(), period: 50);
 ```
 
 ### Eventing and Reactive Support

@@ -26,7 +26,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Sma : ITValuePublisher
+public sealed class Sma : AbstractBase
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
@@ -36,13 +36,6 @@ public sealed class Sma : ITValuePublisher
     private State _p_state;
 
     private const int ResyncInterval = 1000;
-
-    /// <summary>
-    /// Display name for the indicator.
-    /// </summary>
-    public string Name { get; }
-
-    public event Action<TValue>? Pub;
 
     /// <summary>
     /// Creates SMA with specified period.
@@ -56,6 +49,7 @@ public sealed class Sma : ITValuePublisher
         _period = period;
         _buffer = new RingBuffer(period);
         Name = $"Sma({period})";
+        WarmupPeriod = period;
     }
 
     public Sma(ITValuePublisher source, int period) : this(period)
@@ -63,16 +57,93 @@ public sealed class Sma : ITValuePublisher
         source.Pub += (item) => Update(item);
     }
 
-    /// <summary>
-    /// Current SMA value.
-    /// </summary>
-    public TValue Last { get; private set; }
+    public Sma(TSeries source, int period) : this(period)
+    {
+        Prime(source.Values);
+        if (source.Count > 0)
+        {
+            Last = new TValue(source.LastTime, Last.Value);
+        }
+        source.Pub += (item) => Update(item);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // Mode B: Streaming (Stateful)
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// <summary>
     /// True if the SMA has enough data to produce valid results.
     /// SMA is "hot" when the buffer is full (has received at least 'period' values).
     /// </summary>
-    public bool IsHot => _buffer.IsFull;
+    public override bool IsHot => _buffer.IsFull;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // Mode C: Priming (The Bridge)
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /// <summary>
+    /// Initializes the indicator state using the provided history.
+    /// Efficiently processes only the last 'Period' values required to sync the buffer.
+    /// </summary>
+    /// <param name="source">Historical data (only the last 'period' is actually needed)</param>
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        if (source.Length == 0) return;
+
+        // Reset state
+        _buffer.Clear();
+        _state = default;
+        _p_state = default;
+
+        // We only need the last 'period' values to fully restore state
+        // If history is shorter than period, we take it all.
+        int warmupLength = Math.Min(source.Length, WarmupPeriod);
+        int startIndex = source.Length - warmupLength;
+
+        // 1. Seed the LastValidValue (crucial for NaN handling)
+        // We must look backwards from start of our warmup window to find a valid predecessor
+        _state.LastValidValue = double.NaN;
+        for (int i = startIndex - 1; i >= 0; i--)
+        {
+            if (double.IsFinite(source[i]))
+            {
+                _state.LastValidValue = source[i];
+                break;
+            }
+        }
+
+        // If we didn't find a valid value in history, try finding one inside the warmup window
+        if (double.IsNaN(_state.LastValidValue))
+        {
+            for (int i = startIndex; i < source.Length; i++)
+            {
+                if (double.IsFinite(source[i]))
+                {
+                    _state.LastValidValue = source[i];
+                    break;
+                }
+            }
+        }
+
+        // 2. Feed the RingBuffer and State
+        for (int i = startIndex; i < source.Length; i++)
+        {
+            double val = GetValidValue(source[i]);
+            UpdateState(val);
+            _state.LastInput = val;
+        }
+
+        // 3. Finalize State
+        // Calculate the initial "Last" value so the indicator is ready to be read immediately
+        double result = _buffer.Count > 0 ? _state.Sum / _buffer.Count : double.NaN;
+
+        // Note: We can't infer accurate Time from a simple Span<double>,
+        // so we leave 'Last' with default time or user updates it on next Tick.
+        Last = new TValue(DateTime.MinValue, result);
+
+        // Backup state for the next update cycle
+        _p_state = _state;
+    }
 
     /// <summary>
     /// Gets a valid input value, using last-value substitution for non-finite inputs.
@@ -106,7 +177,7 @@ public sealed class Sma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
         {
@@ -127,11 +198,11 @@ public sealed class Sma : ITValuePublisher
 
         double result = _state.Sum / _buffer.Count;
         Last = new TValue(input.Time, result);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -144,57 +215,18 @@ public sealed class Sma : ITValuePublisher
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
+        Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
-        // Restore state
-        int windowSize = Math.Min(len, _period);
-        int startIndex = len - windowSize;
-
-        _state.LastValidValue = double.NaN;
-        bool found = false;
-
-        if (startIndex > 0)
-        {
-            for (int i = startIndex - 1; i >= 0; i--)
-            {
-                if (double.IsFinite(source.Values[i]))
-                {
-                    _state.LastValidValue = source.Values[i];
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found)
-        {
-            for (int i = 0; i < len; i++)
-            {
-                if (double.IsFinite(source.Values[i]))
-                {
-                    _state.LastValidValue = source.Values[i];
-                    break;
-                }
-            }
-        }
-
-        _buffer.Clear();
-        _state.Sum = 0;
-        _state.TickCount = 0;
-
-        for (int i = startIndex; i < len; i++)
-        {
-            double val = GetValidValue(source.Values[i]);
-            UpdateState(val);
-            _state.LastInput = val;
-        }
-
-        _p_state = _state;
+        Prime(source.Values);
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // Mode A: Batch (Stateless)
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// <summary>
     /// Calculates SMA for the entire series using a new instance.
@@ -202,7 +234,7 @@ public sealed class Sma : ITValuePublisher
     /// <param name="source">Input series</param>
     /// <param name="period">SMA period</param>
     /// <returns>SMA series</returns>
-    public static TSeries Calculate(TSeries source, int period)
+    public static TSeries Batch(TSeries source, int period)
     {
         var sma = new Sma(period);
         return sma.Update(source);
@@ -218,7 +250,7 @@ public sealed class Sma : ITValuePublisher
     /// <param name="output">Output span (must be same length as source)</param>
     /// <param name="period">SMA period (must be > 0)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -256,6 +288,20 @@ public sealed class Sma : ITValuePublisher
         CalculateScalarCore(source, output, period);
     }
 
+    /// <summary>
+    /// Runs a high-performance SIMD batch calculation on history and returns
+    /// a "Hot" Sma instance ready to process the next tick immediately.
+    /// </summary>
+    /// <param name="source">Historical time series</param>
+    /// <param name="period">SMA Period</param>
+    /// <returns>A tuple containing the full calculation results and the hot indicator instance</returns>
+    public static (TSeries Results, Sma Indicator) Calculate(TSeries source, int period)
+    {
+        var sma = new Sma(period);
+        TSeries results = sma.Update(source);
+        return (results, sma);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
@@ -268,7 +314,7 @@ public sealed class Sma : ITValuePublisher
 
         double sum = 0;
         double lastValid = double.NaN;
-        
+
         // Find first valid value to seed lastValid
         for (int k = 0; k < len; k++)
         {
@@ -541,7 +587,7 @@ public sealed class Sma : ITValuePublisher
     /// <summary>
     /// Resets the SMA state.
     /// </summary>
-    public void Reset()
+    public override void Reset()
     {
         _buffer.Clear();
         _state = default;

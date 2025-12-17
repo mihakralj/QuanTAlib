@@ -55,7 +55,7 @@ double[] weights = { 0.1, 0.2, 0.3, 0.4 };
 ReadOnlySpan<double> input = ...;
 Span<double> output = new double[input.Length];
 
-Conv.Calculate(input, output, weights);
+Conv.Batch(input, output, weights);
 ```
 
 ### Bar Correction

@@ -126,7 +126,7 @@ public class TrimaValidationTests
         {
             // Calculate QuanTAlib TRIMA (Span API)
             double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Trima.Calculate(_testData.RawData.Span, qOutput.AsSpan(), period);
+            global::QuanTAlib.Trima.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
 
             // Calculate TA-Lib TRIMA
             var retCode = TALib.Functions.Trima<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period);

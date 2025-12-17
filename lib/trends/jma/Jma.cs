@@ -13,7 +13,7 @@ namespace QuanTAlib;
 /// - Jurik dynamic exponent and 2-pole IIR core
 /// </summary>
 [SkipLocalsInit]
-public sealed class Jma : ITValuePublisher
+public sealed class Jma : AbstractBase
 {
     private const int VolWindowSize = 128; // volatility history length
     private const int DevWindowSize = 10;  // short SMA length for deviation
@@ -24,7 +24,6 @@ public sealed class Jma : ITValuePublisher
     private readonly double _lengthDivider;  // L'/(L'+2), L' = 0.9*L
     private readonly double _logSqrtDivider; // Precomputed log(_sqrtDivider) for Exp optimization
     private readonly double _logLengthDivider; // Precomputed log(_lengthDivider) for Exp optimization
-    private readonly int _warmupBars;        // for IsHot
 
     // Constants for trimmed mean
     private const int JurikTrimCount = 65; // canonical JMA: middle 65 of 128 samples
@@ -57,15 +56,7 @@ public sealed class Jma : ITValuePublisher
         public int Bars;
     }
 
-    public string Name { get; }
-    public event Action<TValue>? Pub;
-    public TValue Last { get; private set; }
-
-    /// <summary>
-    /// JMA is considered "hot" when enough bars have passed to stabilize
-    /// the internal volatility distribution.
-    /// </summary>
-    public bool IsHot => _state.Bars >= _warmupBars;
+    public override bool IsHot => _state.Bars >= WarmupPeriod;
 
     public Jma(int period, int phase = 0, double power = 0.45)
     {
@@ -100,7 +91,7 @@ public sealed class Jma : ITValuePublisher
         _logSqrtDivider = Math.Log(sqrtDivider);
 
         // same warmup heuristic used in the AFL port (SetBarsRequired)
-        _warmupBars = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
+        WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
 
         Name = $"Jma({period},{phase},{power})"; // power kept for signature compatibility
 
@@ -118,7 +109,7 @@ public sealed class Jma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Reset()
+    public override void Reset()
     {
         _state = default;
         _p_state = default;
@@ -232,43 +223,73 @@ public sealed class Jma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         double j = Step(input.Value, isNew);
         Last = new TValue(input.Time, j);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    /// <summary>
-    /// Batch update: recomputes JMA for entire series using the same
-    /// streaming core, so results match Update(TValue) applied bar-by-bar.
-    /// </summary>
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
-        int n = source.Count;
-        if (n == 0)
-            return [];
+        if (source.Count == 0) return [];
 
-        var t = new List<long>(n);
-        var v = new List<double>(n);
-
-        CollectionsMarshal.SetCount(t, n);
-        CollectionsMarshal.SetCount(v, n);
+        int len = source.Count;
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
         source.Times.CopyTo(tSpan);
 
+        // Use static Calculate for performance
+        // But JMA has complex parameters, so we need to pass them.
+        // We can use the instance to calculate, but we need to be careful about state.
+        // Or we can just loop using Step, which is what the original code did.
+        // Since JMA is complex and not easily vectorizable, looping is fine.
+        // But we should restore state afterwards.
+
+        // RingBuffers are reference types, so we need to clone them or replay.
+        // Replaying is safer and cleaner for complex state.
+
         Reset();
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < len; i++)
         {
             double j = Step(source.Values[i], true);
             vSpan[i] = j;
         }
 
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+
+        // Restore state by replaying history
+        // JMA needs a lot of history (128 bars for volatility).
+        Reset();
+        int lookback = Math.Max(VolWindowSize + 10, WarmupPeriod + 10);
+        int startIndex = Math.Max(0, len - lookback);
+        for (int i = startIndex; i < len; i++)
+        {
+            Update(new TValue(source.Times[i], source.Values[i]));
+        }
+
         return new TSeries(t, v);
+    }
+
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period, int phase = 0, double power = 0.45)
+    {
+        var jma = new Jma(period, phase, power);
+        return jma.Update(source);
     }
 
     /// <summary>
@@ -325,6 +346,6 @@ public sealed class Jma : ITValuePublisher
         if (end >= count) end = count - 1;
 
         int len = end - start + 1;
-        return _sorted.AsSpan(start, len).SumSIMD() / len;
+        return ((ReadOnlySpan<double>)_sorted.AsSpan(start, len)).SumSIMD() / len;
     }
 }

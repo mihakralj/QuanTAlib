@@ -45,7 +45,7 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
             var weights = WeightsInput.Split(',')
                 .Select(s => double.Parse(s.Trim()))
                 .ToArray();
-            
+
             if (weights.Length == 0)
                 throw new ArgumentException("Weights cannot be empty");
 

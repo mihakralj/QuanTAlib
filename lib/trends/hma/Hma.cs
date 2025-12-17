@@ -20,7 +20,7 @@ namespace QuanTAlib;
 /// https://alan.hull.com.au/hma.html
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Hma : ITValuePublisher
+public sealed class Hma : AbstractBase
 {
     private readonly int _period;
     private readonly int _sqrtPeriod;
@@ -29,10 +29,7 @@ public sealed class Hma : ITValuePublisher
     private readonly Wma _wmaSqrt;
     private int _sampleCount;
 
-    public string Name { get; }
-    public TValue Last { get; private set; }
-    public bool IsHot => _sampleCount >= _period + _sqrtPeriod - 1;
-    public event Action<TValue>? Pub;
+    public override bool IsHot => _sampleCount >= WarmupPeriod;
 
     public Hma(int period)
     {
@@ -47,6 +44,7 @@ public sealed class Hma : ITValuePublisher
         _wmaSqrt = new Wma(_sqrtPeriod);
 
         Name = $"Hma({period})";
+        WarmupPeriod = period + _sqrtPeriod - 1; // WMA needs period, then WMA(sqrt) needs sqrt_period. Total lag/warmup.
     }
 
     public Hma(ITValuePublisher source, int period) : this(period)
@@ -55,7 +53,7 @@ public sealed class Hma : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew) _sampleCount++;
 
@@ -71,13 +69,13 @@ public sealed class Hma : ITValuePublisher
         // 4. Calculate HMA = WMA(sqrt(n), intermediate)
         Last = _wmaSqrt.Update(new TValue(input.Time, intermediate), isNew);
 
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0) return [];
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -92,23 +90,37 @@ public sealed class Hma : ITValuePublisher
         source.Times.CopyTo(tSpan);
 
         // Restore state for streaming
-        _wmaFull.Reset();
-        _wmaHalf.Reset();
-        _wmaSqrt.Reset();
+        Reset();
 
-        int lookback = _period + (int)Math.Sqrt(_period) + 10; // Sufficient lookback
+        // We need to replay enough history to get the state right.
+        // HMA depends on 3 WMAs.
+        // WMA state depends on the last 'period' values.
+        // So we need to replay at least _period + _sqrtPeriod + buffer.
+        int lookback = _period + _sqrtPeriod + 10;
         int startIndex = Math.Max(0, len - lookback);
-        _sampleCount = startIndex;
+
+        // We can't easily set _sampleCount without replaying, or we assume it's just count.
+        // But WMA internal state needs to be restored.
+        // Since WMA doesn't expose Prime/State easily (unless we cast and check), replaying is safer.
 
         for (int i = startIndex; i < len; i++)
         {
-            Update(source[i]);
+            Update(new TValue(source.Times[i], source.Values[i]));
         }
 
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int period)
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    public static TSeries Batch(TSeries source, int period)
     {
         int len = source.Count;
         var t = new List<long>(len);
@@ -142,15 +154,24 @@ public sealed class Hma : ITValuePublisher
         double[] rentedHalf = System.Buffers.ArrayPool<double>.Shared.Rent(len);
         Span<double> halfWma = rentedHalf.AsSpan(0, len);
 
-        // Reuse halfWma buffer for intermediate results
+        // Reuse halfWma buffer for intermediate results to save memory/allocations
+        // But we need halfWma values for the calculation.
+        // Wait, CalculateIntermediate reads halfWma and fullWma and writes to output.
+        // So we can write to 'halfWma' IF we don't need 'halfWma' anymore.
+        // CalculateIntermediate iterates. If we write to halfWma in place, we overwrite values we might need if we were doing something else.
+        // But here: output[i] = 2*half[i] - full[i].
+        // This is element-wise. So we CAN overwrite half[i] with the result if we process carefully or if we don't need half[i] later.
+        // We don't need half[i] later.
+        // So we can use halfWma as the intermediate buffer.
+
         Span<double> intermediate = halfWma;
 
         try
         {
-            Wma.Calculate(source, fullWma, period);
-            Wma.Calculate(source, halfWma, halfPeriod);
+            Wma.Batch(source, fullWma, period);
+            Wma.Batch(source, halfWma, halfPeriod);
             CalculateIntermediate(halfWma, fullWma, intermediate);
-            Wma.Calculate(intermediate, output, sqrtPeriod);
+            Wma.Batch(intermediate, output, sqrtPeriod);
         }
         finally
         {
@@ -209,7 +230,7 @@ public sealed class Hma : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         _wmaFull.Reset();
         _wmaHalf.Reset();

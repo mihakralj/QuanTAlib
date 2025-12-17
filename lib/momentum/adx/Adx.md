@@ -59,10 +59,10 @@ var series = new TBarSeries();
 var results = adx.Update(series);
 ```
 
-### Static Calculation
+### Batch Calculation
 
 ```csharp
-var results = Adx.Calculate(series, 14);
+var results = Adx.Batch(series, 14);
 ```
 
 ## Interpretation

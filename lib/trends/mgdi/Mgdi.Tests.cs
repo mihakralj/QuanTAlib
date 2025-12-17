@@ -34,7 +34,7 @@ public class MgdiTests
         var data = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1)).Close;
         var series = data;
 
-        var resultSeries = mgdi.Update(series);
+        var resultSeries = Mgdi.Batch(series);
         
         // Reset and calculate streaming
         mgdi.Reset();

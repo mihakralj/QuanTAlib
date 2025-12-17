@@ -65,7 +65,7 @@ double[] source = ...;
 double[] output = new double[source.Length];
 
 // Zero-allocation calculation
-Rma.Calculate(source, output, 14);
+Rma.Batch(source, output, 14);
 ```
 
 ### Event-Driven

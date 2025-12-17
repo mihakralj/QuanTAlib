@@ -47,12 +47,12 @@ var vel = new Vel(source, 14);
 
 ### Batch Calculation (Span)
 
-For high-performance scenarios, use the static `Calculate` method with `Span<double>`.
+For high-performance scenarios, use the static `Batch` method with `Span<double>`.
 
 ```csharp
 double[] prices = { ... };
 double[] results = new double[prices.Length];
-Vel.Calculate(prices, results, 14);
+Vel.Batch(prices, results, 14);
 ```
 
 ## Interpretation

@@ -51,6 +51,14 @@ Console.WriteLine($"Lower Band: {super.LowerBand.Value}");
 Console.WriteLine($"Is Bullish: {super.IsBullish}");
 ```
 
+### Batch Calculation
+
+```csharp
+// Calculate SuperTrend for an entire series
+TBarSeries bars = ...;
+TSeries result = Super.Batch(bars, period: 10, multiplier: 3.0);
+```
+
 ### Bar Correction (isNew)
 
 ```csharp

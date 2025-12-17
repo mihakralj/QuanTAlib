@@ -30,10 +30,10 @@ public class SuperIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "SuperTrend";
         Description = "Trend-following indicator using ATR";
-        
+
         UpSeries = new(name: "SuperTrend Up", color: Color.Green, width: 2, style: LineStyle.Solid);
         DownSeries = new(name: "SuperTrend Down", color: Color.Red, width: 2, style: LineStyle.Solid);
-        
+
         AddLineSeries(UpSeries);
         AddLineSeries(DownSeries);
     }
@@ -51,7 +51,7 @@ public class SuperIndicator : Indicator, IWatchlistIndicator
         TBar bar = this.GetInputBar(args);
 
         TValue result = _super!.Update(bar, isNew);
-        
+
         if (!_super.IsHot && !ShowColdValues)
         {
             return;

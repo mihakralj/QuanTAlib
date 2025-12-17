@@ -118,7 +118,7 @@ public class LsmaIndicatorTests
     {
         var indicator = new LsmaIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(LsmaIndicator), method.DeclaringType);

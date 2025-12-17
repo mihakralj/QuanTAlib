@@ -45,6 +45,7 @@ public sealed class Cfb : ITValuePublisher
     public event Action<TValue>? Pub;
     public TValue Last { get; private set; }
     public bool IsHot => _prices.IsFull;
+    public int WarmupPeriod { get; }
 
     /// <summary>
     /// Creates a CFB indicator with specified fractal lengths.
@@ -68,16 +69,17 @@ public sealed class Cfb : ITValuePublisher
         }
 
         _maxLen = _lengths[^1];
-        
+        WarmupPeriod = _maxLen;
+
         // We need maxLen + 1 capacity to handle the lookback correctly
         // _prices stores raw prices
         // _volatility stores bar-to-bar changes. _volatility[i] = Abs(Price[i] - Price[i-1])
         _prices = new RingBuffer(_maxLen + 1);
         _volatility = new RingBuffer(_maxLen + 1);
-        
+
         _runningSums = new double[_lengths.Length];
         _p_runningSums = new double[_lengths.Length];
-        
+
         Name = "Cfb";
         _state.PrevCfb = 1.0;
     }
@@ -155,17 +157,17 @@ public sealed class Cfb : ITValuePublisher
         for (int i = 0; i < _lengths.Length; i++)
         {
             int L = _lengths[i];
-            
+
             // Update running sum of volatility
             // We always add the new volatility
             // We only subtract if we have enough history
-            
+
             double volToRemove = 0.0;
             if (count > L)
             {
                 volToRemove = _volatility[count - 1 - L];
             }
-            
+
             _runningSums[i] += vol - volToRemove;
 
             if (count <= L) continue;
@@ -176,7 +178,7 @@ public sealed class Cfb : ITValuePublisher
             // Net move over L bars
             // Price at Count-1 is current. Price at Count-1-L is L bars ago.
             double netMove = Math.Abs(price - _prices[count - 1 - L]);
-            
+
             double ratio = netMove / _runningSums[i];
 
 
@@ -199,7 +201,7 @@ public sealed class Cfb : ITValuePublisher
         }
 
         if (cfb < 1.0) cfb = 1.0;
-        
+
         // Round to nearest integer
         cfb = Math.Round(cfb);
         if (cfb < 1.0) cfb = 1.0;
@@ -224,14 +226,14 @@ public sealed class Cfb : ITValuePublisher
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _lengths);
+        Batch(source.Values, vSpan, _lengths);
         source.Times.CopyTo(tSpan);
 
         // Restore state logic would go here if needed for continuity, 
         // but for batch processing we usually just return the result.
         // To properly support "Update(TValue)" after "Update(TSeries)", we would need to 
         // replay the last MaxLen bars to populate the buffers.
-        
+
         // Replay last MaxLen bars to restore state
         int replayStart = Math.Max(0, len - _maxLen - 1);
         _prices.Clear();
@@ -243,7 +245,7 @@ public sealed class Cfb : ITValuePublisher
         // We need to re-run the update logic for the replay window to populate running sums correctly
         // This is expensive but necessary for correct state restoration.
         // For the purpose of this implementation, we will just ensure the buffers are populated.
-        
+
         for (int i = replayStart; i < len; i++)
         {
             Update(new TValue(source.Times[i], source.Values[i]), true);
@@ -252,14 +254,14 @@ public sealed class Cfb : ITValuePublisher
         return new TSeries(t, v);
     }
 
-    public static TSeries Calculate(TSeries source, int[]? lengths = null)
+    public static TSeries Batch(TSeries source, int[]? lengths = null)
     {
         var cfb = new Cfb(lengths);
         return cfb.Update(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int[]? lengths = null)
+    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int[]? lengths = null)
     {
         if (source.Length == 0) return;
 
@@ -275,7 +277,7 @@ public sealed class Cfb : ITValuePublisher
             lens = lengths;
         }
         int maxLen = 0;
-        for(int i=0; i<lens.Length; i++) if(lens[i] > maxLen) maxLen = lens[i];
+        for (int i = 0; i < lens.Length; i++) if (lens[i] > maxLen) maxLen = lens[i];
 
         // Pre-calculate volatility for the whole series
         // vol[i] = Abs(source[i] - source[i-1])
@@ -285,7 +287,7 @@ public sealed class Cfb : ITValuePublisher
         volArray[0] = 0;
         for (int i = 1; i < len; i++)
         {
-            volArray[i] = Math.Abs(source[i] - source[i-1]);
+            volArray[i] = Math.Abs(source[i] - source[i - 1]);
         }
 
         // We need running sums for each length.
@@ -297,7 +299,7 @@ public sealed class Cfb : ITValuePublisher
         {
             double price = source[i];
             double currentVol = volArray[i];
-            
+
             double sumWeightedLen = 0.0;
             double sumWeights = 0.0;
 
@@ -317,14 +319,14 @@ public sealed class Cfb : ITValuePublisher
             for (int k = 0; k < lens.Length; k++)
             {
                 int L = lens[k];
-                
+
                 // Update running sum
                 runningSums[k] += currentVol;
                 if (i > L)
                 {
                     runningSums[k] -= volArray[i - L];
                 }
-                
+
                 if (i < L) continue;
 
                 double totalMove = runningSums[k];

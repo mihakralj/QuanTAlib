@@ -17,13 +17,8 @@ namespace QuanTAlib;
 /// https://dotnet.stockindicators.dev/indicators/HtTrendline/
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Htit : ITValuePublisher
+public sealed class Htit : AbstractBase
 {
-    public string Name { get; }
-    public bool IsHot { get; private set; }
-    public event Action<TValue>? Pub;
-    public TValue Last { get; private set; }
-
     private readonly RingBuffer _priceBuffer;
     private readonly RingBuffer _smoothBuffer;
     private readonly RingBuffer _detrenderBuffer;
@@ -37,9 +32,12 @@ public sealed class Htit : ITValuePublisher
     private State _state;
     private State _p_state;
 
+    public override bool IsHot => _priceBuffer.Count >= WarmupPeriod;
+
     public Htit()
     {
         Name = "Htit";
+        WarmupPeriod = 12; // Based on logic: _priceBuffer.Count >= 12
         _priceBuffer = new RingBuffer(50);
         _smoothBuffer = new RingBuffer(7);
         _detrenderBuffer = new RingBuffer(7);
@@ -56,7 +54,7 @@ public sealed class Htit : ITValuePublisher
         source.Pub += (item) => Update(item);
     }
 
-    public void Init()
+    private void Init()
     {
         _priceBuffer.Clear();
         _smoothBuffer.Clear();
@@ -68,12 +66,11 @@ public sealed class Htit : ITValuePublisher
         _itBuffer.Clear();
         _state = default;
         _p_state = default;
-        IsHot = false;
         Last = default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue input, bool isNew = true)
+    public override TValue Update(TValue input, bool isNew = true)
     {
         ManageState(isNew);
         double price = ValidateInput(input.Value);
@@ -123,13 +120,12 @@ public sealed class Htit : ITValuePublisher
             ? (4 * _itBuffer[^1] + 3 * _itBuffer[^2] + 2 * _itBuffer[^3] + _itBuffer[^4]) / 10.0
             : price;
 
-        IsHot = _priceBuffer.Count >= 12;
         Last = new TValue(input.Time, trendline);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
-    public TSeries Update(TSeries source)
+    public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
 
@@ -157,6 +153,14 @@ public sealed class Htit : ITValuePublisher
         return new TSeries(t, v);
     }
 
+    public override void Prime(ReadOnlySpan<double> source)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ManageState(bool isNew)
     {
@@ -173,7 +177,7 @@ public sealed class Htit : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UpdateBuffer(RingBuffer buffer, double val, bool isNew)
+    private static void UpdateBuffer(RingBuffer buffer, double val, bool isNew)
     {
         if (isNew) buffer.Add(val);
         else buffer.UpdateNewest(val);
@@ -190,7 +194,7 @@ public sealed class Htit : ITValuePublisher
         UpdateBuffer(_itBuffer, price, isNew);
 
         Last = new TValue(input.Time, price);
-        Pub?.Invoke(Last);
+        PubEvent(Last);
         return Last;
     }
 
@@ -253,7 +257,7 @@ public sealed class Htit : ITValuePublisher
         return count > 0 ? sumPr / count : price;
     }
 
-    public static TSeries Calculate(TSeries source)
+    public static TSeries Batch(TSeries source)
     {
         var htit = new Htit();
         return htit.Update(source);
@@ -318,12 +322,12 @@ public sealed class Htit : ITValuePublisher
                 // 2. Detrender
                 double prevPeriod = periodBuffer[(pdIdx - 1 + 2) % 2];
                 double adj = (0.075 * prevPeriod) + 0.54;
-                
+
                 double s0 = smoothBuffer[sIdx];
                 double s2 = smoothBuffer[(sIdx - 2 + 7) % 7];
                 double s4 = smoothBuffer[(sIdx - 4 + 7) % 7];
                 double s6 = smoothBuffer[(sIdx - 6 + 7) % 7];
-                
+
                 double detrender = (0.0962 * s0 + 0.5769 * s2 - 0.5769 * s4 - 0.0962 * s6) * adj;
                 detrenderBuffer[dIdx] = detrender;
 
@@ -332,10 +336,10 @@ public sealed class Htit : ITValuePublisher
                 double d2 = detrenderBuffer[(dIdx - 2 + 7) % 7];
                 double d4 = detrenderBuffer[(dIdx - 4 + 7) % 7];
                 double d6 = detrenderBuffer[(dIdx - 6 + 7) % 7];
-                
+
                 double q1 = (0.0962 * d0 + 0.5769 * d2 - 0.5769 * d4 - 0.0962 * d6) * adj;
                 double i1 = detrenderBuffer[(dIdx - 3 + 7) % 7];
-                
+
                 q1Buffer[q1Idx] = q1;
                 i1Buffer[i1Idx] = i1;
 
@@ -438,7 +442,7 @@ public sealed class Htit : ITValuePublisher
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
         Init();
     }

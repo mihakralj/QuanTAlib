@@ -85,8 +85,7 @@ foreach(var bar in bars) {
 ### Batch Processing
 
 ```csharp
-var dmx = new Dmx(14);
-var resultSeries = dmx.Update(bars);
+var resultSeries = Dmx.Batch(bars, 14);
 ```
 
 ## Interpretation

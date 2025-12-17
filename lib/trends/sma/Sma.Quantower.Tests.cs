@@ -116,7 +116,7 @@ public class SmaIndicatorTests
     {
         var indicator = new SmaIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(SmaIndicator), method.DeclaringType);

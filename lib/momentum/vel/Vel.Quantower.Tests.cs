@@ -118,7 +118,7 @@ public class VelIndicatorTests
     {
         var indicator = new VelIndicator();
         indicator.Initialize();
-        
+
         var method = indicator.GetType().GetMethod("OnPaintChart");
         Assert.NotNull(method);
         Assert.Equal(typeof(VelIndicator), method.DeclaringType);
