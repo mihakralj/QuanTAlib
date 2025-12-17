@@ -180,15 +180,29 @@ public sealed class Super : ITValuePublisher
             }
 
             // SuperTrend
-            if (input.Close <= (_state.IsBullish ? _state.LowerBand : _state.UpperBand))
+            if (_state.IsBullish)
             {
-                superTrend = _state.UpperBand;
-                _state.IsBullish = false;
+                if (input.Close < _state.LowerBand)
+                {
+                    _state.IsBullish = false;
+                    superTrend = _state.UpperBand;
+                }
+                else
+                {
+                    superTrend = _state.LowerBand;
+                }
             }
             else
             {
-                superTrend = _state.LowerBand;
-                _state.IsBullish = true;
+                if (input.Close > _state.UpperBand)
+                {
+                    _state.IsBullish = true;
+                    superTrend = _state.LowerBand;
+                }
+                else
+                {
+                    superTrend = _state.UpperBand;
+                }
             }
 
             upperBand = _state.UpperBand;

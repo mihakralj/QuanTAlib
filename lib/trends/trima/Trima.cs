@@ -14,8 +14,8 @@ namespace QuanTAlib;
 /// Equivalent to a double SMA: SMA(SMA(period1), period2).
 ///
 /// Calculation:
-/// p1 = period / 2 + 1
-/// p2 = (period + 1) / 2
+/// p1 = (period + 1) / 2
+/// p2 = period / 2 + 1
 /// TRIMA = SMA(SMA(input, p1), p2)
 ///
 /// O(1) update:
@@ -36,8 +36,8 @@ public sealed class Trima : AbstractBase
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _period = period;
-        int p1 = period / 2 + 1;
-        int p2 = (period + 1) / 2;
+        int p1 = (period + 1) / 2;
+        int p2 = period / 2 + 1;
 
         _sma1 = new Sma(p1);
         _sma2 = new Sma(p2);
@@ -94,7 +94,7 @@ public sealed class Trima : AbstractBase
         _sma1.Prime(source);
 
         // Calculate intermediate SMA series to prime the second SMA
-        int p1 = _period / 2 + 1;
+        int p1 = (_period + 1) / 2;
         double[] tempArray = ArrayPool<double>.Shared.Rent(source.Length);
         Span<double> tempSpan = tempArray.AsSpan(0, source.Length);
 
@@ -129,8 +129,8 @@ public sealed class Trima : AbstractBase
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
-        int p1 = period / 2 + 1;
-        int p2 = (period + 1) / 2;
+        int p1 = (period + 1) / 2;
+        int p2 = period / 2 + 1;
 
         double[] tempArray = ArrayPool<double>.Shared.Rent(source.Length);
         Span<double> tempSpan = tempArray.AsSpan(0, source.Length);

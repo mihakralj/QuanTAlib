@@ -86,12 +86,7 @@ public sealed class Alma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
     {
-        if (double.IsFinite(input))
-        {
-            _state.LastValidValue = input;
-            return input;
-        }
-        return _state.LastValidValue;
+        return double.IsFinite(input) ? input : _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,6 +102,11 @@ public sealed class Alma : AbstractBase
         }
 
         double val = GetValidValue(input.Value);
+        if (double.IsFinite(input.Value))
+        {
+            _state.LastValidValue = input.Value;
+        }
+
         _buffer.Add(val, isNew);
 
         double result = 0;

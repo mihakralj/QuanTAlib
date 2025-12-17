@@ -402,7 +402,7 @@ NDependOut/
 # SonarQube/SonarCloud
 .sonarqube/
 
-# Cline Memory Bank - exclude from git
+# ILSpy decompiler output
 ilspy/
 
 # macOS resource forks and metadata
@@ -411,6 +411,5 @@ ilspy/
 .AppleDouble
 .LSOverride
 
-
-#Ignore insiders AI rules
+# Ignore insiders AI rules
 .github/instructions/codacy.instructions.md
