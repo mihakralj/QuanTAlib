@@ -7,15 +7,8 @@ namespace QuanTAlib;
 /// Pure data type: 48 bytes (long + 5 doubles).
 /// </summary>
 [SkipLocalsInit]
-public readonly struct TBar : IEquatable<TBar>
+public readonly record struct TBar(long Time, double Open, double High, double Low, double Close, double Volume)
 {
-    public readonly long Time;
-    public readonly double Open;
-    public readonly double High;
-    public readonly double Low;
-    public readonly double Close;
-    public readonly double Volume;
-
     public DateTime AsDateTime => new(Time, DateTimeKind.Utc);
 
     // TValue conversions (Zero-copy / lightweight creation)
@@ -34,25 +27,9 @@ public readonly struct TBar : IEquatable<TBar>
     public double HLCC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close + Close) * 0.25; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(long time, double open, double high, double low, double close, double volume)
+    public TBar(DateTime time, double open, double high, double low, double close, double volume) 
+        : this(time.Ticks, open, high, low, close, volume)
     {
-        Time = time;
-        Open = open;
-        High = high;
-        Low = low;
-        Close = close;
-        Volume = volume;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(DateTime time, double open, double high, double low, double close, double volume)
-    {
-        Time = time.Ticks;
-        Open = open;
-        High = high;
-        Low = low;
-        Close = close;
-        Volume = volume;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,18 +43,4 @@ public readonly struct TBar : IEquatable<TBar>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}: O={Open:F2}, H={High:F2}, L={Low:F2}, C={Close:F2}, V={Volume:F2}]";
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(TBar other) =>
-        Time == other.Time &&
-        Open == other.Open &&
-        High == other.High &&
-        Low == other.Low &&
-        Close == other.Close &&
-        Volume == other.Volume;
-
-    public override bool Equals(object? obj) => obj is TBar other && Equals(other);
-    public override int GetHashCode() => HashCode.Combine(Time, Open, High, Low, Close, Volume);
-    public static bool operator ==(TBar left, TBar right) => left.Equals(right);
-    public static bool operator !=(TBar left, TBar right) => !left.Equals(right);
 }

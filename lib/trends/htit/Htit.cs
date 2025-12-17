@@ -220,7 +220,7 @@ public sealed class Htit : AbstractBase
     private double CalculatePeriod(double prevPeriod)
     {
         double period = 0;
-        if (_state.Im != 0 && _state.Re != 0)
+        if (Math.Abs(_state.Im) > 1e-9 && Math.Abs(_state.Re) > 1e-9)
         {
             period = 2 * Math.PI / Math.Atan(_state.Im / _state.Re);
         }
@@ -372,7 +372,7 @@ public sealed class Htit : AbstractBase
 
                 // 7. Calculate Period
                 double period = 0;
-                if (im != 0 && re != 0)
+                if (Math.Abs(im) > 1e-9 && Math.Abs(re) > 1e-9)
                 {
                     period = 2 * Math.PI / Math.Atan(im / re);
                 }

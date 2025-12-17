@@ -31,35 +31,7 @@ public sealed class T3 : AbstractBase
         public static State New() => new() { IsInitialized = false };
     }
 
-    private readonly struct Parameters : IEquatable<Parameters>
-    {
-        public readonly double Alpha;
-        public readonly double C1, C2, C3, C4;
-
-        public Parameters(double alpha, double c1, double c2, double c3, double c4)
-        {
-            Alpha = alpha;
-            C1 = c1;
-            C2 = c2;
-            C3 = c3;
-            C4 = c4;
-        }
-
-        public override bool Equals(object? obj) => obj is Parameters other && Equals(other);
-
-#pragma warning disable S1244 // Do not check floating point equality with exact values
-        public bool Equals(Parameters other) =>
-            Alpha == other.Alpha &&
-            C1 == other.C1 && C2 == other.C2 &&
-            C3 == other.C3 && C4 == other.C4;
-#pragma warning restore S1244 // Do not check floating point equality with exact values
-
-        public override int GetHashCode() => HashCode.Combine(Alpha, C1, C2, C3, C4);
-
-        public static bool operator ==(Parameters left, Parameters right) => left.Equals(right);
-
-        public static bool operator !=(Parameters left, Parameters right) => !left.Equals(right);
-    }
+    private readonly record struct Parameters(double Alpha, double C1, double C2, double C3, double C4);
 
     private readonly Parameters _params;
     private State _state = State.New();

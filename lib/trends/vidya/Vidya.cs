@@ -67,13 +67,12 @@ public sealed class Vidya : AbstractBase
         if (isNew)
         {
             _p_state = _state;
+            _state.BarCount++;
         }
         else
         {
             _state = _p_state;
         }
-
-        if (isNew) _state.BarCount++;
 
         if (_state.IsInitialized)
         {

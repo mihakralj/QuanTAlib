@@ -33,7 +33,7 @@ public sealed class Mgdi : AbstractBase
 
     public Mgdi(int period = 14, double k = 0.6)
     {
-        if (period < 1) throw new ArgumentOutOfRangeException(nameof(period));
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
         if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
         _period = period;
         _k = k;
@@ -57,10 +57,15 @@ public sealed class Mgdi : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (isNew) _p_state = _state;
-        else _state = _p_state;
-
-        if (isNew) _state.Count++;
+        if (isNew)
+        {
+            _p_state = _state;
+            _state.Count++;
+        }
+        else
+        {
+            _state = _p_state;
+        }
 
         double price = input.Value;
         if (!double.IsFinite(price))
