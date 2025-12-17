@@ -37,7 +37,14 @@ public sealed class Wma : AbstractBase
     private State _state;
     private State _p_state;
 
-    private const int ResyncInterval = 1000;
+    private const int ResyncInterval = 10000;
+
+    private static readonly Vector512<long> V512_Idx_1 = Vector512.Create(0L, 0, 1, 2, 3, 4, 5, 6);
+    private static readonly Vector512<long> V512_Idx_2 = Vector512.Create(0L, 0, 0, 0, 1, 2, 3, 4);
+    private static readonly Vector512<long> V512_Idx_4 = Vector512.Create(0L, 0, 0, 0, 0, 0, 1, 2);
+    private static readonly Vector512<double> V512_Mask_1 = Vector512.Create(0.0, 1, 1, 1, 1, 1, 1, 1);
+    private static readonly Vector512<double> V512_Mask_2 = Vector512.Create(0.0, 0, 1, 1, 1, 1, 1, 1);
+    private static readonly Vector512<double> V512_Mask_4 = Vector512.Create(0.0, 0, 0, 0, 1, 1, 1, 1);
 
     public Wma(int period)
     {
@@ -366,13 +373,13 @@ public sealed class Wma : AbstractBase
                 var vDeltaS = Avx512F.Subtract(vNew, vOld);
 
                 // Prefix sum of DeltaS
-                var vShiftS1 = Vector512.Create(0.0, vDeltaS.GetElement(0), vDeltaS.GetElement(1), vDeltaS.GetElement(2), vDeltaS.GetElement(3), vDeltaS.GetElement(4), vDeltaS.GetElement(5), vDeltaS.GetElement(6));
+                var vShiftS1 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vDeltaS, V512_Idx_1), V512_Mask_1);
                 var vPS1 = Avx512F.Add(vDeltaS, vShiftS1);
 
-                var vShiftS2 = Vector512.Create(0.0, 0.0, vPS1.GetElement(0), vPS1.GetElement(1), vPS1.GetElement(2), vPS1.GetElement(3), vPS1.GetElement(4), vPS1.GetElement(5));
+                var vShiftS2 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPS1, V512_Idx_2), V512_Mask_2);
                 var vPS2 = Avx512F.Add(vPS1, vShiftS2);
 
-                var vShiftS4 = Vector512.Create(0.0, 0.0, 0.0, 0.0, vPS2.GetElement(0), vPS2.GetElement(1), vPS2.GetElement(2), vPS2.GetElement(3));
+                var vShiftS4 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPS2, V512_Idx_4), V512_Mask_4);
                 var vPS4 = Avx512F.Add(vPS2, vShiftS4);
 
                 var vSums = Avx512F.Add(vSumState, vPS4);
@@ -382,13 +389,13 @@ public sealed class Wma : AbstractBase
                 var vU = Avx512F.FusedMultiplySubtract(vPeriod, vNew, vSumsShifted);
 
                 // Prefix sum of vU
-                var vShiftW1 = Vector512.Create(0.0, vU.GetElement(0), vU.GetElement(1), vU.GetElement(2), vU.GetElement(3), vU.GetElement(4), vU.GetElement(5), vU.GetElement(6));
+                var vShiftW1 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vU, V512_Idx_1), V512_Mask_1);
                 var vPW1 = Avx512F.Add(vU, vShiftW1);
 
-                var vShiftW2 = Vector512.Create(0.0, 0.0, vPW1.GetElement(0), vPW1.GetElement(1), vPW1.GetElement(2), vPW1.GetElement(3), vPW1.GetElement(4), vPW1.GetElement(5));
+                var vShiftW2 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPW1, V512_Idx_2), V512_Mask_2);
                 var vPW2 = Avx512F.Add(vPW1, vShiftW2);
 
-                var vShiftW4 = Vector512.Create(0.0, 0.0, 0.0, 0.0, vPW2.GetElement(0), vPW2.GetElement(1), vPW2.GetElement(2), vPW2.GetElement(3));
+                var vShiftW4 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPW2, V512_Idx_4), V512_Mask_4);
                 var vPW4 = Avx512F.Add(vPW2, vShiftW4);
 
                 var vWsums = Avx512F.Add(vWsumState, vPW4);

@@ -9,6 +9,9 @@ using QuanTAlib.Benchmarks;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+using OoplesFinance.StockIndicators.Enums;
 
 namespace QuanTAlib.Benchmarks;
 
@@ -40,12 +43,13 @@ public static class Program
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 public class IndicatorBenchmarks
 {
-    private const int BarCount = 200_000;
-    private const int Period = 100;
+    private const int BarCount = 500_000;
+    private const int Period = 220;
 
     private double[] _closeValues = null!;
     private TSeries _closeTseries = null!;
     private List<Quote> _quotes = null!;
+    private List<TickerData> _ooplesData = null!;
 
     // Pre-allocated outputs for TA-Lib
     private double[] _talibOutput = null!;
@@ -60,15 +64,9 @@ public class IndicatorBenchmarks
     private double[][] _tulipWmaInputs = null!;
     private double[] _tulipWmaOptions = null!;
     private double[][] _tulipWmaOutputs = null!;
-    private double[][] _tulipTrimaInputs = null!;
-    private double[] _tulipTrimaOptions = null!;
-    private double[][] _tulipTrimaOutputs = null!;
-    private double[][] _tulipDemaInputs = null!;
-    private double[] _tulipDemaOptions = null!;
-    private double[][] _tulipDemaOutputs = null!;
-    private double[][] _tulipTemaInputs = null!;
-    private double[] _tulipTemaOptions = null!;
-    private double[][] _tulipTemaOutputs = null!;
+    private double[][] _tulipHmaInputs = null!;
+    private double[] _tulipHmaOptions = null!;
+    private double[][] _tulipHmaOutputs = null!;
 
     // Pre-allocated outputs for QuanTAlib Span API
     private double[] _quantalibOutput = null!;
@@ -98,6 +96,21 @@ public class IndicatorBenchmarks
             });
         }
 
+        // Create Ooples TickerData format
+        _ooplesData = new List<TickerData>(BarCount);
+        for (int i = 0; i < BarCount; i++)
+        {
+            _ooplesData.Add(new TickerData
+            {
+                Date = new DateTime(_closeTseries.Times[i]),
+                Open = bars.Open.Values[i],
+                High = bars.High.Values[i],
+                Low = bars.Low.Values[i],
+                Close = _closeValues[i],
+                Volume = bars.Volume.Values[i]
+            });
+        }
+
         // Pre-allocate TA-Lib output
         _talibOutput = new double[BarCount];
 
@@ -115,19 +128,10 @@ public class IndicatorBenchmarks
         _tulipWmaOptions = new double[] { Period };
         _tulipWmaOutputs = new[] { new double[BarCount - smaLookback] };
 
-        _tulipTrimaInputs = new[] { _closeValues };
-        _tulipTrimaOptions = new double[] { Period };
-        _tulipTrimaOutputs = new[] { new double[BarCount - smaLookback] };
-
-        int demaLookback = 2 * (Period - 1);
-        _tulipDemaInputs = new[] { _closeValues };
-        _tulipDemaOptions = new double[] { Period };
-        _tulipDemaOutputs = new[] { new double[BarCount - demaLookback] };
-
-        int temaLookback = 3 * (Period - 1);
-        _tulipTemaInputs = new[] { _closeValues };
-        _tulipTemaOptions = new double[] { Period };
-        _tulipTemaOutputs = new[] { new double[BarCount - temaLookback] };
+        int hmaLookback = Period + (int)Math.Sqrt(Period) - 2;
+        _tulipHmaInputs = new[] { _closeValues };
+        _tulipHmaOptions = new double[] { Period };
+        _tulipHmaOutputs = new[] { new double[BarCount - hmaLookback] };
 
         // Pre-allocate QuanTAlib output
         _quantalibOutput = new double[BarCount];
@@ -136,11 +140,11 @@ public class IndicatorBenchmarks
     // ==================== SMA ====================
     [BenchmarkCategory("SMA")]
     [Benchmark(Description = "QuanTAlib SMA (Span)")]
-    public void QuanTAlib_Sma_Span() => Sma.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+    public void QuanTAlib_Sma_Span() => Sma.Batch(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
 
     [BenchmarkCategory("SMA")]
     [Benchmark(Description = "QuanTAlib SMA (Batch)")]
-    public TSeries QuanTAlib_Sma_TSeries() => Sma.Calculate(_closeTseries, Period);
+    public TSeries QuanTAlib_Sma_TSeries() => Sma.Calculate(_closeTseries, Period).Results;
 
     [BenchmarkCategory("SMA")]
     [Benchmark(Description = "QuanTAlib SMA (Streaming)")]
@@ -178,14 +182,18 @@ public class IndicatorBenchmarks
     [Benchmark(Description = "Skender SMA")]
     public object Skender_Sma() => _quotes.GetSma(Period);
 
+    [BenchmarkCategory("SMA")]
+    [Benchmark(Description = "Ooples SMA")]
+    public object Ooples_Sma() => new StockData(_ooplesData).CalculateSimpleMovingAverage(Period);
+
     // ==================== EMA ====================
     [BenchmarkCategory("EMA")]
     [Benchmark(Description = "QuanTAlib EMA (Span)")]
-    public void QuanTAlib_Ema_Span() => Ema.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+    public void QuanTAlib_Ema_Span() => Ema.Batch(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
 
     [BenchmarkCategory("EMA")]
     [Benchmark(Description = "QuanTAlib EMA (Batch)")]
-    public TSeries QuanTAlib_Ema_TSeries() => Ema.Calculate(_closeTseries, Period);
+    public TSeries QuanTAlib_Ema_TSeries() => Ema.Calculate(_closeTseries, Period).Results;
 
     [BenchmarkCategory("EMA")]
     [Benchmark(Description = "QuanTAlib EMA (Streaming)")]
@@ -223,14 +231,18 @@ public class IndicatorBenchmarks
     [Benchmark(Description = "Skender EMA")]
     public object Skender_Ema() => _quotes.GetEma(Period);
 
+    [BenchmarkCategory("EMA")]
+    [Benchmark(Description = "Ooples EMA")]
+    public object Ooples_Ema() => new StockData(_ooplesData).CalculateExponentialMovingAverage(Period);
+
     // ==================== WMA ====================
     [BenchmarkCategory("WMA")]
     [Benchmark(Description = "QuanTAlib WMA (Span)")]
-    public void QuanTAlib_Wma_Span() => Wma.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+    public void QuanTAlib_Wma_Span() => Wma.Batch(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
 
     [BenchmarkCategory("WMA")]
     [Benchmark(Description = "QuanTAlib WMA (Batch)")]
-    public TSeries QuanTAlib_Wma_TSeries() => Wma.Calculate(_closeTseries, Period);
+    public TSeries QuanTAlib_Wma_TSeries() => Wma.Batch(_closeTseries, Period);
 
     [BenchmarkCategory("WMA")]
     [Benchmark(Description = "QuanTAlib WMA (Streaming)")]
@@ -268,134 +280,52 @@ public class IndicatorBenchmarks
     [Benchmark(Description = "Skender WMA")]
     public object Skender_Wma() => _quotes.GetWma(Period);
 
-    // ==================== TRIMA ====================
-    [BenchmarkCategory("TRIMA")]
-    [Benchmark(Description = "QuanTAlib TRIMA (Span)")]
-    public void QuanTAlib_Trima_Span() => Trima.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+    [BenchmarkCategory("WMA")]
+    [Benchmark(Description = "Ooples WMA")]
+    public object Ooples_Wma() => new StockData(_ooplesData).CalculateWeightedMovingAverage(Period);
 
-    [BenchmarkCategory("TRIMA")]
-    [Benchmark(Description = "QuanTAlib TRIMA (Batch)")]
-    public TSeries QuanTAlib_Trima_TSeries() => Trima.Calculate(_closeTseries, Period);
+    // ==================== HMA ====================
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "QuanTAlib HMA (Span)")]
+    public void QuanTAlib_Hma_Span() => Hma.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
 
-    [BenchmarkCategory("TRIMA")]
-    [Benchmark(Description = "QuanTAlib TRIMA (Streaming)")]
-    public void QuanTAlib_Trima_Streaming()
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "QuanTAlib HMA (Batch)")]
+    public TSeries QuanTAlib_Hma_TSeries() => Hma.Batch(_closeTseries, Period);
+
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "QuanTAlib HMA (Streaming)")]
+    public void QuanTAlib_Hma_Streaming()
     {
-        var trima = new Trima(Period);
+        var hma = new Hma(Period);
         for (int i = 0; i < _closeValues.Length; i++)
         {
-            _quantalibOutput[i] = trima.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
+            _quantalibOutput[i] = hma.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
         }
     }
 
-    [BenchmarkCategory("TRIMA")]
-    [Benchmark(Description = "QuanTAlib TRIMA (Eventing)")]
-    public void QuanTAlib_Trima_Eventing()
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "QuanTAlib HMA (Eventing)")]
+    public void QuanTAlib_Hma_Eventing()
     {
         var source = new TSeries();
-        var trima = new Trima(source, Period);
+        var hma = new Hma(source, Period);
         for (int i = 0; i < _closeValues.Length; i++)
         {
             source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
-            _quantalibOutput[i] = trima.Last.Value;
+            _quantalibOutput[i] = hma.Last.Value;
         }
     }
 
-    [BenchmarkCategory("TRIMA")]
-    [Benchmark(Description = "Tulip TRIMA")]
-    public void Tulip_Trima() => Tulip.Indicators.trima.Run(_tulipTrimaInputs, _tulipTrimaOptions, _tulipTrimaOutputs);
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "Tulip HMA")]
+    public void Tulip_Hma() => Tulip.Indicators.hma.Run(_tulipHmaInputs, _tulipHmaOptions, _tulipHmaOutputs);
 
-    [BenchmarkCategory("TRIMA")]
-    [Benchmark(Description = "TALib TRIMA")]
-    public Core.RetCode TALib_Trima() => TALib.Functions.Trima<double>(_closeValues, 0..^0, _talibOutput, out _, Period);
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "Skender HMA")]
+    public object Skender_Hma() => _quotes.GetHma(Period);
 
-    // ==================== DEMA ====================
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "QuanTAlib DEMA (Span)")]
-    public void QuanTAlib_Dema_Span() => Dema.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
-
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "QuanTAlib DEMA (Batch)")]
-    public TSeries QuanTAlib_Dema_TSeries() => Dema.Calculate(_closeTseries, Period);
-
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "QuanTAlib DEMA (Streaming)")]
-    public void QuanTAlib_Dema_Streaming()
-    {
-        var dema = new Dema(Period);
-        for (int i = 0; i < _closeValues.Length; i++)
-        {
-            _quantalibOutput[i] = dema.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
-        }
-    }
-
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "QuanTAlib DEMA (Eventing)")]
-    public void QuanTAlib_Dema_Eventing()
-    {
-        var source = new TSeries();
-        var dema = new Dema(source, Period);
-        for (int i = 0; i < _closeValues.Length; i++)
-        {
-            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
-            _quantalibOutput[i] = dema.Last.Value;
-        }
-    }
-
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "Tulip DEMA")]
-    public void Tulip_Dema() => Tulip.Indicators.dema.Run(_tulipDemaInputs, _tulipDemaOptions, _tulipDemaOutputs);
-
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "TALib DEMA")]
-    public Core.RetCode TALib_Dema() => TALib.Functions.Dema<double>(_closeValues, 0..^0, _talibOutput, out _, Period);
-
-    [BenchmarkCategory("DEMA")]
-    [Benchmark(Description = "Skender DEMA")]
-    public object Skender_Dema() => _quotes.GetDema(Period);
-
-    // ==================== TEMA ====================
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "QuanTAlib TEMA (Span)")]
-    public void QuanTAlib_Tema_Span() => Tema.Calculate(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
-
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "QuanTAlib TEMA (Batch)")]
-    public TSeries QuanTAlib_Tema_TSeries() => Tema.Calculate(_closeTseries, Period);
-
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "QuanTAlib TEMA (Streaming)")]
-    public void QuanTAlib_Tema_Streaming()
-    {
-        var tema = new Tema(Period);
-        for (int i = 0; i < _closeValues.Length; i++)
-        {
-            _quantalibOutput[i] = tema.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
-        }
-    }
-
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "QuanTAlib TEMA (Eventing)")]
-    public void QuanTAlib_Tema_Eventing()
-    {
-        var source = new TSeries();
-        var tema = new Tema(source, Period);
-        for (int i = 0; i < _closeValues.Length; i++)
-        {
-            source.Add(new TValue(_closeTseries.Times[i], _closeValues[i]));
-            _quantalibOutput[i] = tema.Last.Value;
-        }
-    }
-
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "Tulip TEMA")]
-    public void Tulip_Tema() => Tulip.Indicators.tema.Run(_tulipTemaInputs, _tulipTemaOptions, _tulipTemaOutputs);
-
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "TALib TEMA")]
-    public Core.RetCode TALib_Tema() => TALib.Functions.Tema<double>(_closeValues, 0..^0, _talibOutput, out _, Period);
-
-    [BenchmarkCategory("TEMA")]
-    [Benchmark(Description = "Skender TEMA")]
-    public object Skender_Tema() => _quotes.GetTema(Period);
+    [BenchmarkCategory("HMA")]
+    [Benchmark(Description = "Ooples HMA")]
+    public object Ooples_Hma() => new StockData(_ooplesData).CalculateHullMovingAverage(MovingAvgType.WeightedMovingAverage, Period);
 }

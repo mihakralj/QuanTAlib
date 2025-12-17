@@ -9,7 +9,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | ADXR | Average Directional Movement Rating | |
 | [AO](ao/Ao.md) | Awesome Oscillator | Measures market momentum using the difference between 34-period and 5-period SMAs of median price. |
 | APO | Absolute Price Oscillator | |
-| AROON | Aroon | |
+| [AROON](aroon/Aroon.md) | Aroon | Identifies trend changes and strength using time since high/low. |
 | AROONOSC | Aroon Oscillator | |
 | BBB | Bollinger %B | |
 | BBS | Bollinger Band Squeeze | |

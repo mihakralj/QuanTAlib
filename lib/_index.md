@@ -20,7 +20,7 @@
 | APCHANNEL | Andrews' Pitchfork | Channels |
 | APO | Absolute Price Oscillator | Momentum |
 | APZ | Adaptive Price Zone | Channels |
-| AROON | Aroon | Momentum |
+| [AROON](momentum/aroon/Aroon.md) | Aroon | Momentum |
 | AROONOSC | Aroon Oscillator | Momentum |
 | ATAN2 | Two-Argument Arctangent | Numerics |
 | ATR | Average True Range | Volatility |

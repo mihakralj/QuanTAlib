@@ -331,14 +331,14 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@4934e803a6603a118d0979e2c608a113d077b946 # v3.1.11
+        uses: gittools/actions/gitversion/setup@b4372b9a14557a67171fe7292bf2f92b657c26a3 # v3.1.11
         with:
           versionSpec: '6.x'
           includePrerelease: true
 
       - name: Determine Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@9393967d73967d6a599b514b1b31278f99e82110 # v3.1.11
+        uses: gittools/actions/gitversion/execute@b4372b9a14557a67171fe7292bf2f92b657c26a3 # v3.1.11
         with:
           useConfigFile: true
           updateAssemblyInfo: false
