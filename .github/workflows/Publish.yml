@@ -177,7 +177,7 @@ jobs:
           path: .qodana/code-coverage
 
       - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2024.3.4
+        uses: JetBrains/qodana-action@b60a4b95388c6e8647571e16f3984e9d0da499e1 # v2024.3.4
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
@@ -201,7 +201,7 @@ jobs:
           path: coverage
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@1e68e06f1dbfde0f4cefc87efeba9e4643565303 # v5.1.2
         with:
           directory: coverage
           verbose: true
@@ -262,7 +262,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install Snyk CLI
-        uses: snyk/actions/setup@master
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb # master
 
       - name: Restore dependencies
         run: dotnet restore
@@ -331,14 +331,14 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.1.11
+        uses: gittools/actions/gitversion/setup@4934e803a6603a118d0979e2c608a113d077b946 # v3.1.11
         with:
           versionSpec: '6.x'
           includePrerelease: true
 
       - name: Determine Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.1.11
+        uses: gittools/actions/gitversion/execute@9393967d73967d6a599b514b1b31278f99e82110 # v3.1.11
         with:
           useConfigFile: true
           updateAssemblyInfo: false

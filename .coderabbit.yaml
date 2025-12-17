@@ -40,7 +40,6 @@ reviews:
     - "!**/perf/**"        # Exclude performance tests
     - "!**/quantower/**"   # Exclude root quantower directory
     - "!**/Mocks/**"       # Exclude Mocks
-    - "!**/test_collection_expr.cs" # Exclude scratch files
     - "!**/*.so"           # Exclude Shared Objects
     - "!**/*.dylib"        # Exclude Dynamic Libraries
     - "!**/*.log"          # Exclude Log files
