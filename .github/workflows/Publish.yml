@@ -177,7 +177,7 @@ jobs:
           path: .qodana/code-coverage
 
       - name: Qodana Scan
-        uses: JetBrains/qodana-action@b60a4b95388c6e8647571e16f3984e9d0da499e1 # v2024.3.4
+        uses: JetBrains/qodana-action@69894e24022a101f3750824b20464654b971a1c3 # v2024.3.4
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
@@ -201,7 +201,7 @@ jobs:
           path: coverage
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@1e68e06f1dbfde0f4cefc87efeba9e4643565303 # v5.1.2
+        uses: codecov/codecov-action@015f24e6818733317a741f027d1017576ed98b3f # v5.1.2
         with:
           directory: coverage
           verbose: true
