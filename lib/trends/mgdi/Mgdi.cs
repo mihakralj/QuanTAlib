@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using QuanTAlib;
 
 namespace QuanTAlib;
 
@@ -87,11 +86,19 @@ public sealed class Mgdi : AbstractBase
             if (Math.Abs(prev) > double.Epsilon)
             {
                 double ratio = price / prev;
+                ratio = Math.Clamp(ratio, 0.3, 3.0);
                 double ratio4 = ratio * ratio;
                 ratio4 *= ratio4;
 
                 double denominator = _k * _period * ratio4;
-                _state.LastMgdi = prev + (price - prev) / denominator;
+                if (Math.Abs(denominator) < 1e-9)
+                {
+                    _state.LastMgdi = price;
+                }
+                else
+                {
+                    _state.LastMgdi = prev + (price - prev) / denominator;
+                }
             }
             else
             {
@@ -167,11 +174,19 @@ public sealed class Mgdi : AbstractBase
             if (Math.Abs(lastMgdi) > double.Epsilon)
             {
                 double ratio = price / lastMgdi;
+                ratio = Math.Clamp(ratio, 0.3, 3.0);
                 double ratio4 = ratio * ratio;
                 ratio4 *= ratio4;
 
                 double denominator = k * period * ratio4;
-                lastMgdi += (price - lastMgdi) / denominator;
+                if (Math.Abs(denominator) < 1e-9)
+                {
+                    lastMgdi = price;
+                }
+                else
+                {
+                    lastMgdi += (price - lastMgdi) / denominator;
+                }
             }
             else
             {

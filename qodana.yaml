@@ -87,6 +87,11 @@ exclude:
   - name: MethodCoverageCheck
   - name: CodeCoverageCheck
 
+  # Library-specific exclusions
+  - name: UnusedMember.Global # Suppresses "Method/Class is never used"
+  - name: UnusedMethodReturnValue.Global # Suppresses "Return value is never used"
+  - name: AutoPropertyCanBeMadeGetOnly.Global # Optional: common in libraries
+
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
 #bootstrap: sh ./prepare-qodana.sh
 
