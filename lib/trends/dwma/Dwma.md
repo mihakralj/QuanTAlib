@@ -42,51 +42,6 @@ Our implementation wraps two instances of the `Wma` class.
 
 **Configuration note:** A DWMA(10) will have roughly the same lag as a WMA(15-20) but will be significantly smoother.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var dwma = new Dwma(period: 14);
-
-// Process each new bar
-TValue result = dwma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"DWMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (dwma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries dwmaValues = Dwma.Batch(prices, period: 14);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Dwma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var dwma = new Dwma(14);
-
-// New bar
-dwma.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-dwma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -150,3 +105,48 @@ This implementation makes specific trade-offs:
 ## References
 
 - Kaufman, Perry J. "Trading Systems and Methods." Wiley, 2013.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var dwma = new Dwma(period: 14);
+
+// Process each new bar
+TValue result = dwma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"DWMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (dwma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries dwmaValues = Dwma.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Dwma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var dwma = new Dwma(14);
+
+// New bar
+dwma.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+dwma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

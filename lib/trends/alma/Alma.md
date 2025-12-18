@@ -51,70 +51,6 @@ For the calculation, we use a **RingBuffer** to store the price window. The weig
 
 **Configuration note:** The default combination (Period 9, Offset 0.85, Sigma 6) is widely used as a responsive trend filter.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var alma = new Alma(period: 9, offset: 0.85, sigma: 6.0);
-
-// Process each new bar
-TValue result = alma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"ALMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (alma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API (object-oriented)
-TSeries prices = ...; 
-TSeries almaValues = Alma.Batch(prices, period: 9, offset: 0.85, sigma: 6.0);
-
-// High-performance Span API (zero allocation)
-double[] prices = new double[10000];
-double[] output = new double[10000];
-Alma.Calculate(prices.AsSpan(), output.AsSpan(), period: 9, offset: 0.85, sigma: 6.0);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var alma = new Alma(9);
-
-// New bar arrives
-alma.Update(new TValue(time, 100.5), isNew: true);
-
-// Intra-bar price updates (real-time tick data)
-alma.Update(new TValue(time, 101.0), isNew: false); // Updates current bar
-alma.Update(new TValue(time, 100.8), isNew: false); // Updates current bar
-
-// Next bar
-alma.Update(new TValue(time + 60, 101.2), isNew: true); // Advances state
-```
-
-### Event-Driven Architecture
-
-```csharp
-var source = new TSeries();
-var alma = new Alma(source, period: 9);
-
-// Subscribe to ALMA output
-alma.Pub += (value) => {
-    Console.WriteLine($"New ALMA value: {value.Value}");
-};
-
-// Feeding source automatically triggers the chain
-source.Add(new TValue(DateTime.Now, 105.2));
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -201,3 +137,67 @@ This implementation makes specific trade-offs:
 ## References
 
 - Legoux, Arnaud. "ALMA: Arnaud Legoux Moving Average."
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var alma = new Alma(period: 9, offset: 0.85, sigma: 6.0);
+
+// Process each new bar
+TValue result = alma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"ALMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (alma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API (object-oriented)
+TSeries prices = ...; 
+TSeries almaValues = Alma.Batch(prices, period: 9, offset: 0.85, sigma: 6.0);
+
+// High-performance Span API (zero allocation)
+double[] prices = new double[10000];
+double[] output = new double[10000];
+Alma.Calculate(prices.AsSpan(), output.AsSpan(), period: 9, offset: 0.85, sigma: 6.0);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var alma = new Alma(9);
+
+// New bar arrives
+alma.Update(new TValue(time, 100.5), isNew: true);
+
+// Intra-bar price updates (real-time tick data)
+alma.Update(new TValue(time, 101.0), isNew: false); // Updates current bar
+alma.Update(new TValue(time, 100.8), isNew: false); // Updates current bar
+
+// Next bar
+alma.Update(new TValue(time + 60, 101.2), isNew: true); // Advances state
+```
+
+### Event-Driven Architecture
+
+```csharp
+var source = new TSeries();
+var alma = new Alma(source, period: 9);
+
+// Subscribe to ALMA output
+alma.Pub += (value) => {
+    Console.WriteLine($"New ALMA value: {value.Value}");
+};
+
+// Feeding source automatically triggers the chain
+source.Add(new TValue(DateTime.Now, 105.2));
+```

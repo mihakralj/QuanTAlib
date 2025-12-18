@@ -43,48 +43,6 @@ Our implementation uses the `Rma` indicator internally to smooth the calculated 
 |-----------|---------|---------|----------------------|
 | Period | 14 | Lookback window | Standard is 14. Shorter (e.g., 7) = more sensitive to recent volatility spikes. Longer (e.g., 21) = smoother measure of volatility. |
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var atr = new Atr(period: 14);
-
-// Process each new bar
-TBar bar = new TBar(time, open, high, low, close, volume);
-TValue result = atr.Update(bar);
-
-Console.WriteLine($"ATR: {result.Value:F2}");
-
-// Check if buffer is full
-if (atr.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TBarSeries API
-TBarSeries bars = ...;
-TSeries atrValues = Atr.Batch(bars, period: 14);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var atr = new Atr(14);
-
-// New bar
-atr.Update(bar, isNew: true);
-
-// Intra-bar update
-atr.Update(updatedBar, isNew: false); // Replaces last calculation
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -128,3 +86,44 @@ This implementation makes specific trade-offs:
 ## References
 
 - Wilder, J. Welles Jr. "New Concepts in Technical Trading Systems." Trend Research, 1978.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var atr = new Atr(period: 14);
+
+// Process each new bar
+TBar bar = new TBar(time, open, high, low, close, volume);
+TValue result = atr.Update(bar);
+
+Console.WriteLine($"ATR: {result.Value:F2}");
+
+// Check if buffer is full
+if (atr.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TBarSeries API
+TBarSeries bars = ...;
+TSeries atrValues = Atr.Batch(bars, period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var atr = new Atr(14);
+
+// New bar
+atr.Update(bar, isNew: true);
+
+// Intra-bar update
+atr.Update(updatedBar, isNew: false); // Replaces last calculation

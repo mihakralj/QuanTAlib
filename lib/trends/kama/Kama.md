@@ -50,51 +50,6 @@ Our implementation is fully optimized for O(1) updates.
 
 **Configuration note:** The default settings (10, 2, 30) are widely used and robust. Adjusting the Slow Period to 80 or 100 can create an extremely stable filter for long-term trend following.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var kama = new Kama(period: 10, fastPeriod: 2, slowPeriod: 30);
-
-// Process each new bar
-TValue result = kama.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"KAMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (kama.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries kamaValues = Kama.Batch(prices, period: 10);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Kama.Batch(prices.AsSpan(), output.AsSpan(), period: 10, fastPeriod: 2, slowPeriod: 30);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var kama = new Kama(10);
-
-// New bar
-kama.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-kama.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -140,3 +95,48 @@ This implementation makes specific trade-offs:
 
 - Kaufman, Perry J. "Smarter Trading: Improving Performance in Changing Markets." McGraw-Hill, 1995.
 - Kaufman, Perry J. "Trading Systems and Methods." Wiley, 2013.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var kama = new Kama(period: 10, fastPeriod: 2, slowPeriod: 30);
+
+// Process each new bar
+TValue result = kama.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"KAMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (kama.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries kamaValues = Kama.Batch(prices, period: 10);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Kama.Batch(prices.AsSpan(), output.AsSpan(), period: 10, fastPeriod: 2, slowPeriod: 30);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var kama = new Kama(10);
+
+// New bar
+kama.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+kama.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

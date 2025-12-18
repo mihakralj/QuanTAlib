@@ -45,6 +45,44 @@ Our implementation uses the Double SMA method for O(1) efficiency.
 |-----------|---------|---------|----------------------|
 | Period | 14 | Lookback window | Standard lookback. |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Two sliding window sums |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(period) | RingBuffers for the two internal SMAs |
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Identification
+
+- **Primary Trend:** TRIMA is excellent for visualizing the "major" trend. If TRIMA is rising, the long-term direction is up, regardless of short-term chops.
+
+### When It Works Best
+
+- **Visual Clarity:** Traders often use TRIMA not for signals, but to declutter charts and see the underlying market structure.
+
+### When It Struggles
+
+- **Timing Entries:** Due to its significant lag, TRIMA is poor for timing entries or exits. It is a lagging indicator, not a leading one.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Double SMA Composition
+
+- **Implementation:** Composed of two `Sma` objects.
+- **Rationale:** This is mathematically equivalent to the weighted sum method but allows us to reuse the O(1) optimization of the `Sma` class.
+
+## References
+
+- Merrill, Arthur A. "Filtered Waves." *Technical Analysis of Stocks & Commodities*.
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -88,42 +126,3 @@ trima.Update(new TValue(time, 100), isNew: true);
 
 // Intra-bar update
 trima.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Two sliding window sums |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(N) | Single pass through data |
-| Memory footprint | O(period) | RingBuffers for the two internal SMAs |
-
-## Interpretation
-
-### Trading Signals
-
-#### Trend Identification
-
-- **Primary Trend:** TRIMA is excellent for visualizing the "major" trend. If TRIMA is rising, the long-term direction is up, regardless of short-term chops.
-
-### When It Works Best
-
-- **Visual Clarity:** Traders often use TRIMA not for signals, but to declutter charts and see the underlying market structure.
-
-### When It Struggles
-
-- **Timing Entries:** Due to its significant lag, TRIMA is poor for timing entries or exits. It is a lagging indicator, not a leading one.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Double SMA Composition
-
-- **Implementation:** Composed of two `Sma` objects.
-- **Rationale:** This is mathematically equivalent to the weighted sum method but allows us to reuse the O(1) optimization of the `Sma` class.
-
-## References
-
-- Merrill, Arthur A. "Filtered Waves." *Technical Analysis of Stocks & Commodities*.

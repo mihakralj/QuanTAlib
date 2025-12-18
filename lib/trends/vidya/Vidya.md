@@ -44,6 +44,49 @@ Our implementation calculates CMO and VIDYA in a single pass.
 |-----------|---------|---------|----------------------|
 | Period | 14 | Lookback window | Standard lookback for both CMO and the base EMA. |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | CMO update + EMA update |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(period) | RingBuffer for CMO calculation |
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Following
+
+- **Support/Resistance:** VIDYA is excellent at identifying dynamic support and resistance levels because it flattens out during consolidations (providing a clear "shelf" of support) and slopes steeply during trends.
+
+#### Crossovers
+
+- **Price Crossover:** Price crossing VIDYA is a standard trend entry signal. Because VIDYA adapts to volatility, these signals are often more reliable than SMA crossovers in choppy markets.
+
+### When It Works Best
+
+- **Breakouts:** VIDYA excels at catching breakouts from low-volatility consolidations because its effective period shortens (speeds up) as soon as volatility expands.
+
+### When It Struggles
+
+- **Grinding Trends:** In a slow, low-volatility grind upwards, VIDYA might lag more than a standard EMA because the low volatility keeps the smoothing factor small.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: CMO as Volatility Index
+
+- **Implementation:** Uses Chande Momentum Oscillator.
+- **Rationale:** This is the original definition by Chande. Other variants (like using Efficiency Ratio) exist but are technically different indicators (e.g., KAMA).
+
+## References
+
+- Chande, Tushar. "The New Technical Trader." Wiley, 1994.
+- Chande, Tushar. "Adapting Moving Averages To Market Volatility." *Technical Analysis of Stocks & Commodities*, Mar 1992.
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -87,47 +130,3 @@ vidya.Update(new TValue(time, 100), isNew: true);
 
 // Intra-bar update
 vidya.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | CMO update + EMA update |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(N) | Single pass through data |
-| Memory footprint | O(period) | RingBuffer for CMO calculation |
-
-## Interpretation
-
-### Trading Signals
-
-#### Trend Following
-
-- **Support/Resistance:** VIDYA is excellent at identifying dynamic support and resistance levels because it flattens out during consolidations (providing a clear "shelf" of support) and slopes steeply during trends.
-
-#### Crossovers
-
-- **Price Crossover:** Price crossing VIDYA is a standard trend entry signal. Because VIDYA adapts to volatility, these signals are often more reliable than SMA crossovers in choppy markets.
-
-### When It Works Best
-
-- **Breakouts:** VIDYA excels at catching breakouts from low-volatility consolidations because its effective period shortens (speeds up) as soon as volatility expands.
-
-### When It Struggles
-
-- **Grinding Trends:** In a slow, low-volatility grind upwards, VIDYA might lag more than a standard EMA because the low volatility keeps the smoothing factor small.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: CMO as Volatility Index
-
-- **Implementation:** Uses Chande Momentum Oscillator.
-- **Rationale:** This is the original definition by Chande. Other variants (like using Efficiency Ratio) exist but are technically different indicators (e.g., KAMA).
-
-## References
-
-- Chande, Tushar. "The New Technical Trader." Wiley, 1994.
-- Chande, Tushar. "Adapting Moving Averages To Market Volatility." *Technical Analysis of Stocks & Commodities*, Mar 1992.

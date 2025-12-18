@@ -46,6 +46,68 @@ This reduces the calculation to two subtractions, two additions, and one multipl
 | Period | 14 | Lookback window | Shorter (5-10) = scalping/intraday; Longer (20-50) = swing/trend following |
 | Source | Close | Price input | Typical usage is Close, but HL2 or HLC3 can provide smoother inputs |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Constant time regardless of period length |
+| Bar correction | O(1) | Efficient state rollback for real-time feeds |
+| Batch processing | O(n) | SIMD-optimized (AVX2/AVX512/Neon) for high throughput |
+| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
+
+**Note:** The batch implementation automatically selects the best available SIMD instruction set (AVX512, AVX2, or ARM Neon) for the running hardware, falling back to a scalar implementation if necessary.
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Identification
+
+- **Uptrend:** Price is consistently above the WMA, and the WMA slope is positive.
+- **Downtrend:** Price is consistently below the WMA, and the WMA slope is negative.
+
+#### Crossovers
+
+- **Price Crossover:** Price crossing above the WMA suggests a potential bullish reversal. Price crossing below suggests a bearish reversal.
+- **Dual WMA:** Using two WMAs (e.g., 20 and 50). Fast crossing above Slow is a "Golden Cross" (bullish). Fast crossing below Slow is a "Death Cross" (bearish).
+
+### When It Works Best
+
+- **Trending Markets:** WMA excels in clearly defined trends where its reduced lag allows traders to enter and exit positions earlier than with an SMA.
+- **Swing Trading:** The linear weighting aligns well with swing trading timeframes, capturing momentum shifts effectively.
+
+### When It Struggles
+
+- **Choppy/Sideways Markets:** Like all moving averages, WMA will generate false signals in range-bound markets.
+- **Drop-off Effect:** Because the oldest price drops off the calculation entirely (weight goes from 1 to 0), a large price spike exiting the window can cause the WMA to move counter-intuitively, though less severely than an SMA.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Dual Running Sums for O(1)
+
+- **Alternative:** Recalculate weighted sum every bar (O(n)).
+- **Trade-off:** Requires maintaining two state variables ($S$ and $W$) and a RingBuffer.
+- **Rationale:** Critical for performance in real-time systems monitoring thousands of assets with long periods.
+
+### Choice: Periodic Resync
+
+- **Alternative:** Never resync.
+- **Trade-off:** Small CPU cost every 10,000 ticks.
+- **Rationale:** Floating-point errors accumulate in running sums. Periodic recalculation ensures long-running server stability.
+
+#### Choice: SIMD for Batch
+
+- **Alternative:** Scalar loop.
+- **Trade-off:** Code complexity (multiple execution paths).
+- **Rationale:** Batch processing is often the bottleneck in backtesting. SIMD provides 4-8x throughput improvement.
+
+## References
+
+- Colby, Robert W. "The Encyclopedia of Technical Market Indicators." McGraw-Hill, 2002.
+- Murphy, John J. "Technical Analysis of the Financial Markets." New York Institute of Finance, 1999.
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -121,66 +183,3 @@ var wma = new Wma(14);
 wma.Update(new TValue(time, 100));
 wma.Update(new TValue(time, double.NaN));  // Uses last valid value (100)
 wma.Update(new TValue(time, 110));         // Resumes normal calculation
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Constant time regardless of period length |
-| Bar correction | O(1) | Efficient state rollback for real-time feeds |
-| Batch processing | O(n) | SIMD-optimized (AVX2/AVX512/Neon) for high throughput |
-| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
-
-**Note:** The batch implementation automatically selects the best available SIMD instruction set (AVX512, AVX2, or ARM Neon) for the running hardware, falling back to a scalar implementation if necessary.
-
-## Interpretation
-
-### Trading Signals
-
-#### Trend Identification
-
-- **Uptrend:** Price is consistently above the WMA, and the WMA slope is positive.
-- **Downtrend:** Price is consistently below the WMA, and the WMA slope is negative.
-
-#### Crossovers
-
-- **Price Crossover:** Price crossing above the WMA suggests a potential bullish reversal. Price crossing below suggests a bearish reversal.
-- **Dual WMA:** Using two WMAs (e.g., 20 and 50). Fast crossing above Slow is a "Golden Cross" (bullish). Fast crossing below Slow is a "Death Cross" (bearish).
-
-### When It Works Best
-
-- **Trending Markets:** WMA excels in clearly defined trends where its reduced lag allows traders to enter and exit positions earlier than with an SMA.
-- **Swing Trading:** The linear weighting aligns well with swing trading timeframes, capturing momentum shifts effectively.
-
-### When It Struggles
-
-- **Choppy/Sideways Markets:** Like all moving averages, WMA will generate false signals in range-bound markets.
-- **Drop-off Effect:** Because the oldest price drops off the calculation entirely (weight goes from 1 to 0), a large price spike exiting the window can cause the WMA to move counter-intuitively, though less severely than an SMA.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Dual Running Sums for O(1)
-
-- **Alternative:** Recalculate weighted sum every bar (O(n)).
-- **Trade-off:** Requires maintaining two state variables ($S$ and $W$) and a RingBuffer.
-- **Rationale:** Critical for performance in real-time systems monitoring thousands of assets with long periods.
-
-### Choice: Periodic Resync
-
-- **Alternative:** Never resync.
-- **Trade-off:** Small CPU cost every 10,000 ticks.
-- **Rationale:** Floating-point errors accumulate in running sums. Periodic recalculation ensures long-running server stability.
-
-#### Choice: SIMD for Batch
-
-- **Alternative:** Scalar loop.
-- **Trade-off:** Code complexity (multiple execution paths).
-- **Rationale:** Batch processing is often the bottleneck in backtesting. SIMD provides 4-8x throughput improvement.
-
-## References
-
-- Colby, Robert W. "The Encyclopedia of Technical Market Indicators." McGraw-Hill, 2002.
-- Murphy, John J. "Technical Analysis of the Financial Markets." New York Institute of Finance, 1999.

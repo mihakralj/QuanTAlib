@@ -1,103 +1,110 @@
-# CFB - Jurik Composite Fractal Behavior
+# CFB - Composite Fractal Behavior
 
-## Overview and Purpose
+A sophisticated trend duration index that measures the "fractal efficiency" of price movements across multiple time scales. It answers the question: "How long has the market been trending efficiently?"
 
-Composite Fractal Behavior (CFB) is a sophisticated trend duration index developed by Jurik Research. It measures the "fractal efficiency" of price movements across multiple time scales to determine the quality and duration of a trend. Unlike traditional trend indicators that look at a single period, CFB analyzes a spectrum of lookback periods to create a composite index.
+## What It Does
 
-CFB is designed to answer the question: "How long has the market been trending efficiently?" It is particularly useful for:
+Composite Fractal Behavior (CFB) analyzes the market's geometry to determine the quality and persistence of a trend. Unlike standard indicators that rely on a single fixed period (e.g., RSI-14), CFB scans a wide spectrum of lookback lengths (e.g., from 2 to 192 bars) simultaneously.
 
-* Adjusting the period of other indicators (adaptive indicators).
-* Filtering out choppy markets.
-* Identifying the breakdown of long-term trends.
+It calculates the "fractal efficiency"—how straight the price path is—for each length. It then combines the lengths that show efficient trending behavior into a single composite index. The result is a value representing the approximate duration (in bars) of the current trend.
 
-## Core Concepts
+## Historical Context
 
-* **Fractal Efficiency:** Measures how "straight" the price movement is. A straight line has high efficiency; a choppy path has low efficiency.
-* **Composite Index:** Instead of relying on a single lookback length, CFB evaluates a wide range of lengths (e.g., 4 to 192 bars) and combines them based on their efficiency.
-* **Adaptive:** The indicator adapts to the market's current fractal structure, giving more weight to timeframes where trending behavior is evident.
-* **Trend Duration:** The output value represents the approximate duration (in bars) of the current trend.
+Developed by Mark Jurik of Jurik Research, CFB addresses the "lag vs. noise" dilemma by avoiding it entirely. Instead of smoothing price data (which adds lag), it measures the structural integrity of the price action itself. It was designed to be an adaptive input for other indicators, allowing them to adjust their speed based on whether the market is trending or chopping.
 
-## Common Settings and Parameters
+## How It Works
 
-| Parameter | Default | Function |
-|-----------|---------|----------|
-| Lengths | `[2, 4, ..., 192]` | Array of lookback periods to analyze. Default is a dense array from 2 to 192. |
-| Source | Close | Price data used for calculation. |
+The algorithm evaluates the "straightness" of price movement over many different timeframes and aggregates the results.
 
-**Pro Tip:** CFB values typically range from 0 to the maximum lookback length. A rising CFB indicates a strengthening trend (either up or down), while a falling CFB suggests the trend is breaking down or the market is entering a consolidation phase.
+### The Math
 
-## Calculation and Mathematical Foundation
+For each lookback length $L$ in the configured set:
 
-The CFB calculation involves several steps for each lookback length $L$ in the provided set:
+1. **Calculate Efficiency Ratio**:
+    $$ \text{Ratio}_L = \frac{|\text{Price}_t - \text{Price}_{t-L}|}{\sum_{i=0}^{L-1} |\text{Price}_{t-i} - \text{Price}_{t-i-1}|} $$
+    *Numerator*: Net distance traveled (straight line).
+    *Denominator*: Total path length (volatility).
 
-1. **Calculate Efficiency Ratio:**
-   For each length $L$, calculate the ratio of the net price movement to the total volatility (path length) over that period.
-   $$Ratio_L = \frac{|Price_t - Price_{t-L}|}{\sum_{i=0}^{L-1} |Price_{t-i} - Price_{t-i-1}|}$$
+2. **Filter**:
+    We discard any length where $\text{Ratio}_L < 0.25$. If the efficiency is below 25%, the movement is considered "noise" or "chop" at that timeframe.
 
-2. **Filter:**
-   Only consider lengths where the efficiency ratio exceeds a threshold (typically 0.25). This filters out noise and weak trends.
+3. **Composite Weighting**:
+    We calculate a weighted average of the qualifying lengths, using the efficiency ratio itself as the weight.
+    $$ \text{CFB} = \frac{\sum (L \cdot \text{Ratio}_L)}{\sum \text{Ratio}_L} $$
 
-3. **Weighted Average:**
-   Calculate the weighted average of the qualifying lengths, using the efficiency ratio as the weight.
-   $$CFB = \frac{\sum (L \cdot Ratio_L)}{\sum Ratio_L}$$
-   where the summation is over all $L$ such that $Ratio_L > 0.25$.
+4. **Decay**:
+    If no lengths qualify (the market is chaotic at all scales), the CFB value decays toward 1.0.
 
-4. **Decay:**
-   If no lengths qualify (i.e., the market is very choppy), the CFB value decays towards 1.0.
+## Configuration
 
-## C# Implementation
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `lengths` | `int[]` | `[2, 4, ..., 192]` | An array of lookback periods to analyze. The default is a dense set of even numbers from 2 to 192. |
 
-The library provides a high-performance implementation that uses `RingBuffer` for O(1) updates of the volatility sums.
+## Performance Profile
 
-### Single CFB (`Cfb`)
+Despite its complexity, the implementation is optimized for real-time use.
+
+- **Complexity**: $O(K)$ per update, where $K$ is the number of lengths analyzed (default 96).
+- **Optimization**: It maintains running sums of volatility for each length, ensuring that the denominator calculation is $O(1)$ rather than $O(L)$.
+- **Memory**: $O(L_{max} + K)$. It requires a history buffer equal to the maximum lookback length, plus state for each length's running sum.
+
+| Operation | Time Complexity | Space Complexity |
+|-----------|-----------------|------------------|
+| Update    | $O(K)$          | $O(L_{max})$     |
+| Batch     | $O(N \cdot K)$  | $O(N)$           |
+
+## Interpretation
+
+CFB is primarily a "state" indicator rather than a directional one.
+
+### 1. Trend Duration
+
+The output value roughly corresponds to the number of bars the current trend has been valid.
+
+- **High Values**: Strong, persistent trend.
+- **Low Values**: Choppy, sideways market.
+
+### 2. Trend Strength
+
+- **Rising CFB**: The trend is becoming more efficient or extending in duration.
+- **Falling CFB**: The trend is breaking down; volatility is increasing relative to net movement.
+
+### 3. Adaptive Input
+
+CFB is ideal for driving the parameters of other indicators. For example, you can use CFB to dynamically adjust the period of a Moving Average:
+
+- **High CFB** $\rightarrow$ Use a longer period (capture the trend).
+- **Low CFB** $\rightarrow$ Use a shorter period (react to chop).
+
+## Architecture Notes
+
+- **Running Sums**: The class maintains an array of running sums for volatility. When a new bar arrives, it adds the new volatility and subtracts the volatility from $L$ bars ago. This keeps the efficiency calculation fast.
+- **State Management**: The `Update` method handles `isNew` logic carefully to ensure running sums are rolled back correctly during intra-bar updates.
+- **Default Lengths**: If no lengths are provided, the constructor generates a dense array `[2, 4, 6, ..., 192]`.
+
+## References
+
+- Jurik Research: [CFB - Composite Fractal Behavior](http://jurikres.com/catalog1/ms_cfb.htm)
+
+## C# Usage
 
 ```csharp
 using QuanTAlib;
 
-// Initialize with default lengths
+// 1. Standard Initialization (Default lengths 2..192)
 var cfb = new Cfb();
 
-// Or specify custom lengths
-var cfbCustom = new Cfb(new int[] { 10, 20, 30, 40, 50 });
+// 2. Custom Initialization (Specific lengths)
+var customCfb = new Cfb(new int[] { 10, 20, 50, 100 });
 
-// Streaming update
-TValue result = cfb.Update(new TValue(time, price));
-Console.WriteLine($"Current Trend Duration: {result.Value}");
-```
+// 3. Process a Bar
+// CFB uses Close price by default (or whatever value is passed)
+var result = cfb.Update(new TValue(DateTime.UtcNow, 105.5));
 
-### Zero-Allocation Span API
+Console.WriteLine($"Trend Duration: {result.Value:F1} bars");
 
-For performance-critical scenarios:
-
-```csharp
-double[] prices = ...;
-double[] output = new double[prices.Length];
-
-// Calculate using default lengths
-Cfb.Batch(prices.AsSpan(), output.AsSpan());
-```
-
-### Bar Correction (isNew Parameter)
-
-`Cfb` supports intra-bar updates:
-
-```csharp
-// Real-time: receive initial tick for new bar
-cfb.Update(new TValue(time, 100.5), isNew: true);
-
-// Real-time: price updates within same bar
-cfb.Update(new TValue(time, 101.0), isNew: false);
-```
-
-## Interpretation Details
-
-* **High Values:** Indicate a strong, persistent trend. The value roughly corresponds to the number of bars the trend has been in effect.
-* **Low Values:** Indicate a choppy, non-trending market.
-* **Rising CFB:** The trend is gaining strength or duration.
-* **Falling CFB:** The trend is losing consistency or ending.
-
-CFB is often used as an input to other adaptive indicators (e.g., JMA) to dynamically adjust their smoothing period based on market conditions.
-
-## References
-
-* Jurik Research: [CFB - Composite Fractal Behavior](http://jurikres.com/catalog1/ms_cfb.htm)
+// 4. Batch Calculation
+var series = new TBarSeries();
+// ... populate series ...
+var cfbSeries = Cfb.Batch(series);

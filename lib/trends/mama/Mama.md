@@ -42,6 +42,54 @@ The implementation uses a Homodyne Discriminator to measure the cycle period and
 | Fast Limit | 0.5 | Maximum adaptation rate | Controls sensitivity in trending markets. Higher = faster response. |
 | Slow Limit | 0.05 | Minimum adaptation rate | Controls stability in ranging markets. Lower = smoother. |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Constant time DSP calculation |
+| Batch processing | O(n) | Fast sequential processing |
+| Memory footprint | O(1) | Fixed-size RingBuffers (7 elements) |
+
+## Interpretation
+
+### Trading Signals
+
+#### Crossovers
+
+- **Bullish:** MAMA crosses above FAMA. This typically happens early in a new uptrend.
+- **Bearish:** MAMA crosses below FAMA. This signals the start of a downtrend.
+
+#### Trend Strength
+
+- **Separation:** The distance between MAMA and FAMA indicates the strength of the trend. Wide separation suggests a strong trend; convergence suggests consolidation.
+
+### When It Works Best
+
+- **Cycle-to-Trend Transitions:** MAMA excels at identifying when a market breaks out of a cycle into a trend, adapting its speed instantly.
+
+### When It Struggles
+
+- **Erratic Volatility:** Extremely noisy markets with no discernible cycle or trend can cause the phase calculation to be erratic, leading to false signals.
+
+### Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Fixed-Size Buffers
+
+- **Implementation:** Uses `RingBuffer` of size 7.
+- **Rationale:** The Hilbert Transform and smoothing filters used by Ehlers have fixed coefficients requiring exactly 7 historical points. This ensures O(1) memory usage.
+
+### Choice: Stack Allocation for Batch
+
+- **Implementation:** Uses `stackalloc` for internal buffers in the static `Calculate` method.
+- **Rationale:** Eliminates heap allocations during batch processing, maximizing performance for large datasets.
+
+## References
+
+- Ehlers, John F. "MESA and Trading Market Cycles." John Wiley & Sons, 2001.
+- Ehlers, John F. "Cycle Analytics for Traders." John Wiley & Sons, 2013.
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -90,52 +138,3 @@ mama.Pub += (value) => {
 
 // Feeding source automatically triggers the chain
 source.Add(new TValue(DateTime.Now, 105.2));
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Constant time DSP calculation |
-| Batch processing | O(n) | Fast sequential processing |
-| Memory footprint | O(1) | Fixed-size RingBuffers (7 elements) |
-
-## Interpretation
-
-### Trading Signals
-
-#### Crossovers
-
-- **Bullish:** MAMA crosses above FAMA. This typically happens early in a new uptrend.
-- **Bearish:** MAMA crosses below FAMA. This signals the start of a downtrend.
-
-#### Trend Strength
-
-- **Separation:** The distance between MAMA and FAMA indicates the strength of the trend. Wide separation suggests a strong trend; convergence suggests consolidation.
-
-### When It Works Best
-
-- **Cycle-to-Trend Transitions:** MAMA excels at identifying when a market breaks out of a cycle into a trend, adapting its speed instantly.
-
-### When It Struggles
-
-- **Erratic Volatility:** Extremely noisy markets with no discernible cycle or trend can cause the phase calculation to be erratic, leading to false signals.
-
-### Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Fixed-Size Buffers
-
-- **Implementation:** Uses `RingBuffer` of size 7.
-- **Rationale:** The Hilbert Transform and smoothing filters used by Ehlers have fixed coefficients requiring exactly 7 historical points. This ensures O(1) memory usage.
-
-### Choice: Stack Allocation for Batch
-
-- **Implementation:** Uses `stackalloc` for internal buffers in the static `Calculate` method.
-- **Rationale:** Eliminates heap allocations during batch processing, maximizing performance for large datasets.
-
-## References
-
-- Ehlers, John F. "MESA and Trading Market Cycles." John Wiley & Sons, 2001.
-- Ehlers, John F. "Cycle Analytics for Traders." John Wiley & Sons, 2013.

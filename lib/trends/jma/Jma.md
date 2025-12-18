@@ -47,51 +47,6 @@ Our implementation is optimized for performance:
 
 **Configuration note:** The `Phase` parameter is unique to JMA. A phase of 100 makes it act like a TEMA (very fast, some overshoot), while -100 makes it act like a Gaussian filter (no overshoot, more lag). 0 is the optimal balance.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var jma = new Jma(period: 10, phase: 0);
-
-// Process each new bar
-TValue result = jma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"JMA: {result.Value:F2}");
-
-// Check if buffer is full (JMA needs a long warmup)
-if (jma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries jmaValues = Jma.Batch(prices, period: 10, phase: 0);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Jma.Batch(prices.AsSpan(), output.AsSpan(), period: 10, phase: 0);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var jma = new Jma(10);
-
-// New bar
-jma.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-jma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -146,3 +101,48 @@ This implementation makes specific trade-offs:
 
 - Jurik, Mark. "Jurik Research." [http://www.jurikres.com/](http://www.jurikres.com/)
 - "JMA - Jurik Moving Average." Technical Analysis of Stocks & Commodities.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var jma = new Jma(period: 10, phase: 0);
+
+// Process each new bar
+TValue result = jma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"JMA: {result.Value:F2}");
+
+// Check if buffer is full (JMA needs a long warmup)
+if (jma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries jmaValues = Jma.Batch(prices, period: 10, phase: 0);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Jma.Batch(prices.AsSpan(), output.AsSpan(), period: 10, phase: 0);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var jma = new Jma(10);
+
+// New bar
+jma.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+jma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

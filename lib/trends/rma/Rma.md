@@ -44,6 +44,45 @@ Our implementation uses the recursive formula for O(1) updates.
 |-----------|---------|---------|----------------------|
 | Period | 14 | Lookback window | Standard is 14 (Wilder's default). |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Simple scalar math |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(1) | Minimal state (previous value only) |
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Filter
+
+- **Direction:** Because RMA is slower than EMA, it acts as an excellent long-term trend filter.
+- **Support/Resistance:** In strong trends, price often respects the RMA line as dynamic support/resistance.
+
+### When It Works Best
+
+- **Smoothing Volatility:** RMA is the gold standard for smoothing volatile sub-indicators (like True Range to get ATR) because it doesn't react jerkily to single spikes.
+
+### When It Struggles
+
+- **Fast Reversals:** Due to its lag (approx $2N-1$ EMA equivalent), it is too slow for catching rapid market turns.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Wilder's Initialization
+
+- **Implementation:** The first value is the SMA of the first $N$ bars.
+- **Rationale:** Strict adherence to Wilder's definition ensures values match standard platforms (TradingView, etc.) exactly.
+
+## References
+
+- Wilder, J. Welles Jr. "New Concepts in Technical Trading Systems." Trend Research, 1978.
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -87,43 +126,3 @@ rma.Update(new TValue(time, 100), isNew: true);
 
 // Intra-bar update
 rma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Simple scalar math |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(N) | Single pass through data |
-| Memory footprint | O(1) | Minimal state (previous value only) |
-
-## Interpretation
-
-### Trading Signals
-
-#### Trend Filter
-
-- **Direction:** Because RMA is slower than EMA, it acts as an excellent long-term trend filter.
-- **Support/Resistance:** In strong trends, price often respects the RMA line as dynamic support/resistance.
-
-### When It Works Best
-
-- **Smoothing Volatility:** RMA is the gold standard for smoothing volatile sub-indicators (like True Range to get ATR) because it doesn't react jerkily to single spikes.
-
-### When It Struggles
-
-- **Fast Reversals:** Due to its lag (approx $2N-1$ EMA equivalent), it is too slow for catching rapid market turns.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Wilder's Initialization
-
-- **Implementation:** The first value is the SMA of the first $N$ bars.
-- **Rationale:** Strict adherence to Wilder's definition ensures values match standard platforms (TradingView, etc.) exactly.
-
-## References
-
-- Wilder, J. Welles Jr. "New Concepts in Technical Trading Systems." Trend Research, 1978.

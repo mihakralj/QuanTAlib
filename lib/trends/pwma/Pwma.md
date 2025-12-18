@@ -51,6 +51,54 @@ This allows the indicator to update in constant time, regardless of the period l
 |-----------|---------|---------|----------------------|
 | Period | 14 | Lookback window | Shorter (5-10) for momentum; Longer (20+) for trend smoothing. |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Constant time triple-sum update |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(n) | Fast sequential processing |
+| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
+
+## Interpretation
+
+### Trading Signals
+
+#### Momentum
+
+- **Rapid Turns:** PWMA is excellent for identifying the exact moment a trend loses momentum, often turning before the price itself peaks or troughs.
+
+#### Velocity
+
+- **PWMA - WMA:** Subtracting a WMA from a PWMA of the same period creates a powerful momentum oscillator (Velocity) that is smoother than ROC but with less lag.
+
+### When It Works Best
+
+- **Fast Trends:** Markets that move parabolically or have sharp V-bottoms/tops.
+
+### When It Struggles
+
+- **Noise:** The extreme sensitivity to recent data means PWMA can be noisy in choppy markets. It is often best used as part of a composite indicator rather than a standalone filter.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Triple Running Sums
+
+- **Implementation:** Maintains S1, S2, and S3.
+- **Rationale:** Enables O(1) updates. A naive implementation would be O(n), which is unacceptable for large periods or high-frequency trading.
+
+### Choice: Periodic Resync
+
+- **Implementation:** Recalculates sums from scratch every 1,000 ticks.
+- **Rationale:** Floating-point errors accumulate rapidly in the $S3$ term (which involves $n^2$). Periodic resync ensures long-term stability.
+
+## References
+
+- Colby, Robert W. "The Encyclopedia of Technical Market Indicators." McGraw-Hill, 2002.
+- Jurik Research. "Velocity."
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -113,52 +161,3 @@ pwma.Pub += (value) => {
 
 // Feeding source automatically triggers the chain
 source.Add(new TValue(DateTime.Now, 105.2));
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Constant time triple-sum update |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(n) | Fast sequential processing |
-| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
-
-## Interpretation
-
-### Trading Signals
-
-#### Momentum
-
-- **Rapid Turns:** PWMA is excellent for identifying the exact moment a trend loses momentum, often turning before the price itself peaks or troughs.
-
-#### Velocity
-
-- **PWMA - WMA:** Subtracting a WMA from a PWMA of the same period creates a powerful momentum oscillator (Velocity) that is smoother than ROC but with less lag.
-
-### When It Works Best
-
-- **Fast Trends:** Markets that move parabolically or have sharp V-bottoms/tops.
-
-### When It Struggles
-
-- **Noise:** The extreme sensitivity to recent data means PWMA can be noisy in choppy markets. It is often best used as part of a composite indicator rather than a standalone filter.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Triple Running Sums
-
-- **Implementation:** Maintains S1, S2, and S3.
-- **Rationale:** Enables O(1) updates. A naive implementation would be O(n), which is unacceptable for large periods or high-frequency trading.
-
-### Choice: Periodic Resync
-
-- **Implementation:** Recalculates sums from scratch every 1,000 ticks.
-- **Rationale:** Floating-point errors accumulate rapidly in the $S3$ term (which involves $n^2$). Periodic resync ensures long-term stability.
-
-## References
-
-- Colby, Robert W. "The Encyclopedia of Technical Market Indicators." McGraw-Hill, 2002.
-- Jurik Research. "Velocity."

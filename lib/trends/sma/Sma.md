@@ -38,51 +38,6 @@ This ensures that calculating an SMA(200) takes the exact same amount of CPU tim
 |-----------|---------|---------|----------------------|
 | Period | 10 | Lookback window | Short (10-20) for short-term trends; Medium (50) for intermediate; Long (200) for major trends. |
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var sma = new Sma(period: 20);
-
-// Process each new bar
-TValue result = sma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"SMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (sma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries smaValues = Sma.Batch(prices, period: 20);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Sma.Calculate(prices.AsSpan(), output.AsSpan(), period: 20);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var sma = new Sma(20);
-
-// New bar
-sma.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-sma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -135,3 +90,47 @@ This implementation makes specific trade-offs:
 ## References
 
 - Murphy, John J. "Technical Analysis of the Financial Markets." New York Institute of Finance, 1999.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var sma = new Sma(period: 20);
+
+// Process each new bar
+TValue result = sma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"SMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (sma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries smaValues = Sma.Batch(prices, period: 20);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Sma.Calculate(prices.AsSpan(), output.AsSpan(), period: 20);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var sma = new Sma(20);
+
+// New bar
+sma.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+sma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101

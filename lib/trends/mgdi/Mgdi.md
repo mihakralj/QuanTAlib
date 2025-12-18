@@ -41,54 +41,6 @@ Where:
 | Period | 14 | Base lookback window | Standard is 14. Adjust based on the timeframe (e.g., 10 for short-term, 20+ for long-term). |
 | K | 0.6 | Sensitivity constant | 0.6 (60%) is the standard. Lower values make it more sensitive; higher values make it smoother. |
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var mgdi = new Mgdi(period: 14, k: 0.6);
-
-// Process each new bar
-TValue result = mgdi.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"MGDI: {result.Value:F2}");
-
-// Check if buffer is full
-if (mgdi.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API (object-oriented)
-TSeries prices = ...;
-TSeries mgdiValues = Mgdi.Batch(prices, period: 14, k: 0.6);
-
-// High-performance Span API (zero allocation)
-double[] prices = new double[10000];
-double[] output = new double[10000];
-Mgdi.Calculate(prices.AsSpan(), output.AsSpan(), period: 14, k: 0.6);
-```
-
-### Event-Driven Architecture
-
-```csharp
-var source = new TSeries();
-var mgdi = new Mgdi(source, period: 14);
-
-// Subscribe to MGDI output
-mgdi.Pub += (value) => {
-    Console.WriteLine($"New MGDI value: {value.Value}");
-};
-
-// Feeding source automatically triggers the chain
-source.Add(new TValue(DateTime.Now, 105.2));
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -138,3 +90,50 @@ This implementation makes specific trade-offs:
 
 - [Investopedia: McGinley Dynamic Indicator](https://www.investopedia.com/terms/m/mcginley-dynamic.asp)
 - [Stock Indicators for .NET: McGinley Dynamic](https://dotnet.stockindicators.dev/indicators/Dynamic/)
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var mgdi = new Mgdi(period: 14, k: 0.6);
+
+// Process each new bar
+TValue result = mgdi.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"MGDI: {result.Value:F2}");
+
+// Check if buffer is full
+if (mgdi.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API (object-oriented)
+TSeries prices = ...;
+TSeries mgdiValues = Mgdi.Batch(prices, period: 14, k: 0.6);
+
+// High-performance Span API (zero allocation)
+double[] prices = new double[10000];
+double[] output = new double[10000];
+Mgdi.Calculate(prices.AsSpan(), output.AsSpan(), period: 14, k: 0.6);
+```
+
+### Event-Driven Architecture
+
+```csharp
+var source = new TSeries();
+var mgdi = new Mgdi(source, period: 14);
+
+// Subscribe to MGDI output
+mgdi.Pub += (value) => {
+    Console.WriteLine($"New MGDI value: {value.Value}");
+};
+
+// Feeding source automatically triggers the chain
+source.Add(new TValue(DateTime.Now, 105.2));

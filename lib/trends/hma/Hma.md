@@ -48,51 +48,6 @@ Our implementation orchestrates three internal `Wma` instances.
 
 **Configuration note:** HMA is significantly faster than SMA or EMA. An HMA(20) is often faster than an EMA(10).
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var hma = new Hma(period: 14);
-
-// Process each new bar
-TValue result = hma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"HMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (hma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries hmaValues = Hma.Batch(prices, period: 14);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Hma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var hma = new Hma(14);
-
-// New bar
-hma.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-hma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -154,3 +109,48 @@ This implementation makes specific trade-offs:
 
 - Hull, Alan. "Active Investing." Wrightbooks, 2005.
 - [Alan Hull's Official HMA Description](https://alan.hull.com.au/hma.html)
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var hma = new Hma(period: 14);
+
+// Process each new bar
+TValue result = hma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"HMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (hma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries hmaValues = Hma.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Hma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var hma = new Hma(14);
+
+// New bar
+hma.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+hma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

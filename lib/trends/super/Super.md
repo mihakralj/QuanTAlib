@@ -46,49 +46,6 @@ Our implementation maintains the state of the trend and the trailing bands.
 | Period | 10 | ATR Lookback | 10 is standard. Shorter = more volatile ATR. |
 | Multiplier | 3.0 | Band width | 3.0 is standard. Lower (e.g., 2.0) = tighter stops, more signals. Higher (e.g., 4.0) = wider stops, fewer signals. |
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var super = new SuperTrend(period: 10, multiplier: 3.0);
-
-// Process each new bar
-TBar bar = new TBar(time, open, high, low, close, volume);
-TValue result = super.Update(bar);
-
-Console.WriteLine($"SuperTrend: {result.Value:F2}");
-Console.WriteLine($"Trend: {(result.IsBullish ? "Bullish" : "Bearish")}");
-
-// Check if buffer is full
-if (super.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TBarSeries API
-TBarSeries bars = ...;
-TSeries superValues = SuperTrend.Batch(bars, period: 10, multiplier: 3.0);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var super = new SuperTrend(10, 3.0);
-
-// New bar
-super.Update(bar, isNew: true);
-
-// Intra-bar update
-super.Update(updatedBar, isNew: false); // Replaces last calculation
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -131,3 +88,45 @@ This implementation makes specific trade-offs:
 ## References
 
 - Seban, Olivier. "Tout le monde mérite d'être riche" (Everyone Deserves to Be Rich).
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var super = new SuperTrend(period: 10, multiplier: 3.0);
+
+// Process each new bar
+TBar bar = new TBar(time, open, high, low, close, volume);
+TValue result = super.Update(bar);
+
+Console.WriteLine($"SuperTrend: {result.Value:F2}");
+Console.WriteLine($"Trend: {(result.IsBullish ? "Bullish" : "Bearish")}");
+
+// Check if buffer is full
+if (super.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TBarSeries API
+TBarSeries bars = ...;
+TSeries superValues = SuperTrend.Batch(bars, period: 10, multiplier: 3.0);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var super = new SuperTrend(10, 3.0);
+
+// New bar
+super.Update(bar, isNew: true);
+
+// Intra-bar update
+super.Update(updatedBar, isNew: false); // Replaces last calculation

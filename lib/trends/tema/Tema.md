@@ -43,6 +43,48 @@ Our implementation uses three internal EMA instances.
 |-----------|---------|---------|----------------------|
 | Period | 14 | Lookback window | Short (5-10) for scalping; Medium (20-50) for swing trading. |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | 3 EMA updates + scalar math |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(1) | Stores state for 3 internal EMAs |
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Direction
+
+- **Fast Response:** TEMA turns much faster than SMA or EMA. A turn in TEMA often precedes a turn in price trend.
+
+#### Crossovers
+
+- **Price Crossover:** Because TEMA hugs price so closely, crossovers are frequent. They are best used for short-term entries in the direction of a larger trend.
+
+### When It Works Best
+
+- **Momentum Trading:** TEMA is excellent for capturing short-term bursts of momentum.
+
+### When It Struggles
+
+- **Overshoot:** In a sudden V-shaped reversal, TEMA can "overshoot" the price briefly due to the momentum of its internal calculation components.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Composition
+
+- **Implementation:** Composed of 3 `Ema` objects.
+- **Rationale:** Reusing the robust `Ema` class ensures consistent behavior (like initialization and NaN handling) across the library.
+
+## References
+
+- Mulloy, Patrick G. "Smoothing Data with Faster Moving Averages." *Technical Analysis of Stocks & Commodities*, Jan 1994.
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -86,46 +128,3 @@ tema.Update(new TValue(time, 100), isNew: true);
 
 // Intra-bar update
 tema.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | 3 EMA updates + scalar math |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(N) | Single pass through data |
-| Memory footprint | O(1) | Stores state for 3 internal EMAs |
-
-## Interpretation
-
-### Trading Signals
-
-#### Trend Direction
-
-- **Fast Response:** TEMA turns much faster than SMA or EMA. A turn in TEMA often precedes a turn in price trend.
-
-#### Crossovers
-
-- **Price Crossover:** Because TEMA hugs price so closely, crossovers are frequent. They are best used for short-term entries in the direction of a larger trend.
-
-### When It Works Best
-
-- **Momentum Trading:** TEMA is excellent for capturing short-term bursts of momentum.
-
-### When It Struggles
-
-- **Overshoot:** In a sudden V-shaped reversal, TEMA can "overshoot" the price briefly due to the momentum of its internal calculation components.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Composition
-
-- **Implementation:** Composed of 3 `Ema` objects.
-- **Rationale:** Reusing the robust `Ema` class ensures consistent behavior (like initialization and NaN handling) across the library.
-
-## References
-
-- Mulloy, Patrick G. "Smoothing Data with Faster Moving Averages." *Technical Analysis of Stocks & Commodities*, Jan 1994.

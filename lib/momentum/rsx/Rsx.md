@@ -1,68 +1,101 @@
 # RSX - Jurik Relative Strength X
 
-RSX is a noise-free version of the Relative Strength Index (RSI) developed by Mark Jurik. It eliminates the lag and choppiness associated with standard RSI and its smoothed variants. RSX preserves the 0-100 bounded range and turning points of RSI but provides a much smoother signal, making it easier to identify trends and reversals without false signals from whipsaw movements.
+A "noise-free" version of the Relative Strength Index (RSI) that eliminates the jaggedness of the original without introducing the lag of traditional smoothing. It produces a silky-smooth 0-100 oscillator that preserves the precise timing of market turns.
 
-## Core Concepts
+## What It Does
 
-- **Zero Lag:** Uses a specialized IIR filter chain to smooth the data without introducing significant delay.
-- **Noise Reduction:** Filters out high-frequency noise while retaining the underlying trend.
-- **Bounded Range:** Output is strictly bounded between 0 and 100, similar to RSI.
-- **Smoothness:** Produces a clean, continuous curve suitable for precise peak/valley detection.
+RSX solves the classic RSI dilemma: standard RSI is too twitchy (generating false signals), but smoothing it makes it too slow (missing the trade).
 
-## Parameters
+RSX replaces the simple moving averages in RSI with a sophisticated, cascading filter chain. This allows it to strip out high-frequency noise while tracking the underlying momentum with near-zero latency. The result is a curve that looks like a sine wave—clean, continuous, and devoid of the "jitter" that plagues standard oscillators.
+
+## Historical Context
+
+Mark Jurik developed RSX as part of his suite of "zero-lag" indicators. He recognized that the jagged nature of RSI made it difficult to programmatically detect peaks and valleys. By applying advanced signal processing techniques (similar to those used in guidance systems), he created an indicator that retains the familiar 0-100 scale of RSI but behaves with the smoothness of a much slower moving average.
+
+## How It Works
+
+The algorithm is significantly more complex than standard RSI, employing a multi-stage filter architecture.
+
+### The Math
+
+1. **Momentum Calculation**:
+    $$ \text{Momentum} = (\text{Price}_t - \text{Price}_{t-1}) \times 100 $$
+
+2. **Cascading Filters**:
+    The momentum and the absolute momentum are each passed through a chain of three filter stages. Each stage consists of two coupled IIR filters.
+    $$ \text{Stage}_1 \rightarrow \text{Stage}_2 \rightarrow \text{Stage}_3 $$
+    This creates a "higher-order" smoothing effect that suppresses noise aggressively while maintaining phase alignment (low lag).
+
+3. **Normalization**:
+    $$ \text{RSX} = \left( \frac{\text{Smoothed Momentum}}{\text{Smoothed Abs Momentum}} + 1 \right) \times 50 $$
+
+## Configuration
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| Period    | int  | 14      | The smoothing period (typically 8-40). |
+| `period` | `int` | 14 | The smoothing period. Typical values range from 8 to 40. |
 
-## Formula
+## Performance Profile
 
-RSX uses a cascading filter structure. The smoothing factor $\alpha$ is derived from the period:
+While mathematically dense, the RSX implementation is highly optimized for execution speed.
 
-$$ \alpha = \frac{3}{Period + 2} $$
+- **Complexity**: $O(1)$ per update. The filter chain involves a fixed number of floating-point operations regardless of the period.
+- **Memory**: Constant space. It stores the state variables for the 12 internal filter nodes (6 for momentum, 6 for absolute momentum).
+- **Allocations**: Zero heap allocations during the `Update` cycle.
 
-The algorithm processes price changes ($v_8$) through multiple smoothing stages for both the raw momentum and its absolute value. The final RSX is calculated as:
+| Operation | Time Complexity | Space Complexity |
+|-----------|-----------------|------------------|
+| Update    | $O(1)$          | $O(1)$           |
+| Batch     | $O(N)$          | $O(N)$           |
 
-$$ RSX = \left( \frac{v_{14}}{v_{20}} + 1 \right) \times 50 $$
+## Interpretation
 
-Where $v_{14}$ is the smoothed momentum and $v_{20}$ is the smoothed absolute momentum.
+RSX is interpreted exactly like RSI, but with higher confidence due to the lack of noise.
 
-## C# Implementation
+### 1. Overbought / Oversold
 
-### Standard Usage
+- **Overbought**: > 70 (or 80).
+- **Oversold**: < 30 (or 20).
+*Note: Because RSX is smoother, it spends less time "wiggling" in the extreme zones. An exit from the zone is a cleaner signal.*
+
+### 2. Divergence
+
+RSX is exceptional for spotting divergence because its peaks and valleys are distinct.
+
+- **Bearish Divergence**: Price makes a higher high, RSX makes a lower high.
+- **Bullish Divergence**: Price makes a lower low, RSX makes a higher low.
+
+### 3. Trend Confirmation
+
+- **Bullish**: RSX > 50.
+- **Bearish**: RSX < 50.
+
+## Architecture Notes
+
+- **Filter Chain**: The class implements the Jurik filter chain directly rather than relying on external classes. This ensures maximum performance and encapsulation.
+- **Warmup**: The filter requires a warmup period to stabilize. The `IsHot` property indicates when the internal state has converged.
+- **Input**: Accepts `TValue` (Close price). Unlike DMX, it does not require High/Low data.
+
+## References
+
+- Jurik Research: [RSX - Relative Strength Quality Index](http://www.jurikres.com/catalog/ms_rsx.htm)
+- ProRealCode: [Jurik RSX Implementation](https://www.prorealcode.com/prorealtime-indicators/jurik-rsx/)
+
+## C# Usage
 
 ```csharp
 using QuanTAlib;
 
-var rsx = new Rsx(14);
-var result = rsx.Update(new TValue(DateTime.UtcNow, price));
-Console.WriteLine($"RSX: {result.Value}");
-```
+// 1. Initialize
+var rsx = new Rsx(period: 14);
 
-### Span API (High Performance)
+// 2. Process a Value
+// RSX typically uses Close price
+var result = rsx.Update(new TValue(DateTime.UtcNow, 105.5));
 
-```csharp
-double[] prices = { ... };
-double[] results = new double[prices.Length];
+Console.WriteLine($"RSX: {result.Value:F2}");
 
-Rsx.Batch(prices, results, 14);
-```
-
-### Chaining
-
-```csharp
-var rsx = new Rsx(14);
-var sma = new Sma(rsx, 3); // Smooth the RSX further
-```
-
-## Interpretation
-
-- **Overbought/Oversold:** Values above 70 (or 80) indicate overbought conditions, while values below 30 (or 20) indicate oversold conditions.
-- **Trend Confirmation:** RSX crossing 50 can signal a trend change.
-- **Divergence:** Divergence between price and RSX often precedes a reversal.
-- **Smoothness:** Due to its smoothness, RSX slope changes are more significant than RSI slope changes.
-
-## References
-
-- [Jurik Research](http://www.jurikres.com/)
-- [ProRealCode - Jurik RSX](https://www.prorealcode.com/prorealtime-indicators/jurik-rsx/)
+// 3. Batch Calculation
+var series = new TBarSeries();
+// ... populate series ...
+var rsxSeries = Rsx.Batch(series.Close, period: 14);

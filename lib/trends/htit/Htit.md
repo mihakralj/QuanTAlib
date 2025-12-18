@@ -42,51 +42,6 @@ Our implementation follows Ehlers' original code structure but optimized for C#.
 
 **Configuration note:** The lack of parameters is a feature, not a bug. It prevents "curve fitting" and ensures the indicator relies on measured market properties rather than user guesses.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var htit = new Htit();
-
-// Process each new bar
-TValue result = htit.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"HTIT: {result.Value:F2}");
-
-// Check if buffer is full (requires some history to establish cycle)
-if (htit.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries htitValues = Htit.Batch(prices);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Htit.Batch(prices.AsSpan(), output.AsSpan());
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var htit = new Htit();
-
-// New bar
-htit.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-htit.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -138,3 +93,48 @@ This implementation makes specific trade-offs:
 
 - Ehlers, John F. "Rocket Science for Traders: Digital Signal Processing Applications." Wiley, 2001.
 - Ehlers, John F. "Cybernetic Analysis for Stocks and Futures." Wiley, 2004.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var htit = new Htit();
+
+// Process each new bar
+TValue result = htit.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"HTIT: {result.Value:F2}");
+
+// Check if buffer is full (requires some history to establish cycle)
+if (htit.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries htitValues = Htit.Batch(prices);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Htit.Batch(prices.AsSpan(), output.AsSpan());
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var htit = new Htit();
+
+// New bar
+htit.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+htit.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

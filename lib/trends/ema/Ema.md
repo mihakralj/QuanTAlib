@@ -60,51 +60,6 @@ Standard EMAs usually start at 0 or the first price, requiring a long "warmup" p
 
 **Configuration note:** The 200-day EMA is a standard institutional benchmark for long-term trend direction.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var ema = new Ema(period: 14);
-
-// Process each new bar
-TValue result = ema.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"EMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (ema.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries emaValues = Ema.Batch(prices, period: 14);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Ema.Batch(prices.AsSpan(), output.AsSpan(), period: 14);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var ema = new Ema(14);
-
-// New bar
-ema.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-ema.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -176,3 +131,48 @@ This implementation makes specific trade-offs:
 
 - Brown, Robert G. "Statistical Forecasting for Inventory Control." McGraw-Hill, 1959.
 - Appel, Gerald. "Technical Analysis: Power Tools for Active Investors." FT Press, 2005.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var ema = new Ema(period: 14);
+
+// Process each new bar
+TValue result = ema.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"EMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (ema.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries emaValues = Ema.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Ema.Batch(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var ema = new Ema(14);
+
+// New bar
+ema.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+ema.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

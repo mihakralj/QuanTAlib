@@ -56,6 +56,59 @@ This allows the LSMA to update in constant time regardless of the period length.
 | Offset | 0 | Projection shift | 0 = current bar; >0 projects future; <0 retrieves past regression value |
 | Source | Close | Price input | Can be applied to any data series |
 
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Constant time regression update |
+| Bar correction | O(1) | Efficient state rollback for real-time feeds |
+| Batch processing | O(n) | Fast sequential processing |
+| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Direction
+
+- **Bullish:** LSMA is rising and price is above LSMA.
+- **Bearish:** LSMA is falling and price is below LSMA.
+
+#### Crossovers
+
+- **Price Crossover:** Price crossing the LSMA line is often used as a signal of trend change.
+- **Slope Change:** A change in the slope of the LSMA (e.g., from positive to negative) indicates a potential reversal.
+
+### When It Works Best
+
+- **Trending Markets:** LSMA provides a smooth, responsive trend line that hugs price action closer than SMA.
+- **Reversals:** Due to its regression nature, it can identify turning points relatively quickly.
+
+### When It Struggles
+
+- **Sideways Markets:** Like other moving averages, it can produce whipsaws in ranging conditions, though the regression fit may offer slightly better noise filtering than a raw SMA.
+
+### Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: O(1) Regression Update
+
+- **Alternative:** Recalculate regression sums every bar (O(n)).
+- **Trade-off:** Requires maintaining running sums for $\sum y$ and $\sum xy$.
+- **Rationale:** Essential for performance when using long periods or processing high-frequency data.
+
+### Choice: Periodic Resync
+
+- **Alternative:** Rely solely on incremental updates.
+- **Trade-off:** Small CPU cost every 1,000 ticks.
+- **Rationale:** Prevents floating-point error accumulation in the $\sum xy$ term, ensuring long-term accuracy.
+
+## References
+
+- [Linear Regression in Technical Analysis](https://www.investopedia.com/terms/l/linearregression.asp)
+- [Least Squares Moving Average](https://www.tradingview.com/support/solutions/43000502584-least-squares-moving-average-lsma/)
+
 ## C# Usage
 
 ### Streaming Updates (Single Instance)
@@ -129,56 +182,3 @@ lsma.Update(new TValue(time, 100));
 lsma.Update(new TValue(time, double.NaN));  // Uses last valid value (100)
 lsma.Update(new TValue(time, 110));         // Resumes normal calculation
 ```
-
-## Performance Profile
-
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Constant time regression update |
-| Bar correction | O(1) | Efficient state rollback for real-time feeds |
-| Batch processing | O(n) | Fast sequential processing |
-| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
-
-## Interpretation
-
-### Trading Signals
-
-#### Trend Direction
-
-- **Bullish:** LSMA is rising and price is above LSMA.
-- **Bearish:** LSMA is falling and price is below LSMA.
-
-#### Crossovers
-
-- **Price Crossover:** Price crossing the LSMA line is often used as a signal of trend change.
-- **Slope Change:** A change in the slope of the LSMA (e.g., from positive to negative) indicates a potential reversal.
-
-### When It Works Best
-
-- **Trending Markets:** LSMA provides a smooth, responsive trend line that hugs price action closer than SMA.
-- **Reversals:** Due to its regression nature, it can identify turning points relatively quickly.
-
-### When It Struggles
-
-- **Sideways Markets:** Like other moving averages, it can produce whipsaws in ranging conditions, though the regression fit may offer slightly better noise filtering than a raw SMA.
-
-### Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: O(1) Regression Update
-
-- **Alternative:** Recalculate regression sums every bar (O(n)).
-- **Trade-off:** Requires maintaining running sums for $\sum y$ and $\sum xy$.
-- **Rationale:** Essential for performance when using long periods or processing high-frequency data.
-
-### Choice: Periodic Resync
-
-- **Alternative:** Rely solely on incremental updates.
-- **Trade-off:** Small CPU cost every 1,000 ticks.
-- **Rationale:** Prevents floating-point error accumulation in the $\sum xy$ term, ensuring long-term accuracy.
-
-## References
-
-- [Linear Regression in Technical Analysis](https://www.investopedia.com/terms/l/linearregression.asp)
-- [Least Squares Moving Average](https://www.tradingview.com/support/solutions/43000502584-least-squares-moving-average-lsma/)

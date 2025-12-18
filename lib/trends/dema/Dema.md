@@ -43,51 +43,6 @@ Our implementation uses a zero-lag initialization technique for the internal EMA
 
 **Configuration note:** Because DEMA is faster than EMA, you may need to use a slightly longer period (e.g., 14 instead of 10) to get comparable smoothness with better responsiveness.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var dema = new Dema(period: 10);
-
-// Process each new bar
-TValue result = dema.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"DEMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (dema.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries demaValues = Dema.Calculate(prices, period: 10);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Dema.Calculate(prices.AsSpan(), output.AsSpan(), period: 10);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var dema = new Dema(10);
-
-// New bar
-dema.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-dema.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -151,3 +106,48 @@ This implementation makes specific trade-offs:
 ## References
 
 - Mulloy, Patrick G. "Smoothing Data With Faster Moving Averages." Technical Analysis of Stocks & Commodities, Jan. 1994.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+var dema = new Dema(period: 10);
+
+// Process each new bar
+TValue result = dema.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"DEMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (dema.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries demaValues = Dema.Calculate(prices, period: 10);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Dema.Calculate(prices.AsSpan(), output.AsSpan(), period: 10);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var dema = new Dema(10);
+
+// New bar
+dema.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+dema.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

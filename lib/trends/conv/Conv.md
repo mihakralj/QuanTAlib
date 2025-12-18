@@ -42,49 +42,6 @@ The `Conv` indicator uses a **RingBuffer** to store the price history efficientl
 
 **Note:** The kernel is not automatically normalized. If you want a moving average that tracks price levels, the sum of your kernel weights should equal 1.0. If the sum is 0 (e.g., `[-1, 1]`), it will act as an oscillator.
 
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-// Create a custom kernel (e.g., a 3-period weighted average)
-double[] weights = { 0.1, 0.3, 0.6 }; 
-var conv = new Conv(weights);
-
-// Process each new bar
-TValue result = conv.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"Conv: {result.Value:F2}");
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-double[] kernel = { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 5-period SMA
-TSeries sma5 = Conv.Batch(prices, kernel);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-double[] edgeDetector = { -1, 1 }; // Simple difference
-Conv.Batch(prices.AsSpan(), output.AsSpan(), edgeDetector);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var conv = new Conv(new[] { 0.5, 0.5 });
-
-// New bar
-conv.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-conv.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
-
 ## Performance Profile
 
 | Operation | Complexity | Description |
@@ -129,3 +86,46 @@ This implementation makes specific trade-offs:
 
 - Smith, Steven W. "The Scientist and Engineer's Guide to Digital Signal Processing." California Technical Publishing, 1997.
 - Ehlers, John F. "Cycle Analytics for Traders." Wiley, 2013.
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
+
+```csharp
+using QuanTAlib;
+
+// Create a custom kernel (e.g., a 3-period weighted average)
+double[] weights = { 0.1, 0.3, 0.6 }; 
+var conv = new Conv(weights);
+
+// Process each new bar
+TValue result = conv.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"Conv: {result.Value:F2}");
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+double[] kernel = { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 5-period SMA
+TSeries sma5 = Conv.Batch(prices, kernel);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+double[] edgeDetector = { -1, 1 }; // Simple difference
+Conv.Batch(prices.AsSpan(), output.AsSpan(), edgeDetector);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
+var conv = new Conv(new[] { 0.5, 0.5 });
+
+// New bar
+conv.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+conv.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
+```

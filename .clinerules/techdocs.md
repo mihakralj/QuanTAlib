@@ -208,6 +208,91 @@ Example: "We implement every indicator as streaming algo maintaining O(1) comput
 
 **Performance Data:** Include test env specs, sample size, comparison baseline, statistical significance
 
+## MARKDOWN LINTING RULES
+
+Strict adherence to the following rules is required to ensure clean, consistent rendering:
+
+- **MD022 (Headers)**: Headers must be surrounded by blank lines.
+  - *Incorrect*:
+
+    ```markdown
+    # Header
+    Text
+    ```
+
+  - *Correct*:
+
+    ```markdown
+    # Header
+
+    Text
+    ```
+
+- **MD030 (List Spacing)**: Exactly one space after list markers.
+  - *Incorrect*: `*   Item` or `*Item`
+  - *Correct*: `* Item`
+
+- **MD032 (Lists)**: Lists must be surrounded by blank lines.
+  - *Incorrect*:
+
+    ```markdown
+    Text
+    * Item 1
+    * Item 2
+    Text
+    ```
+
+  - *Correct*:
+
+    ```markdown
+    Text
+
+    * Item 1
+    * Item 2
+
+    Text
+    ```
+
+- **MD012 (Multiple Blank Lines)**: No multiple consecutive blank lines.
+  - *Incorrect*:
+
+    ```markdown
+    Text
+
+    Text
+    ```
+
+  - *Correct*:
+
+    ```markdown
+    Text
+
+    Text
+    ```
+
+- **MD031 (Code Blocks)**: Fenced code blocks must be surrounded by blank lines.
+  - *Incorrect*:
+
+    ```markdown
+    Text
+    ```csharp
+    code
+    ```
+    Text
+    ```
+
+  - *Correct*:
+
+    ```markdown
+    Text
+
+    ```csharp
+    code
+    ```
+
+    Text
+    ```
+
 ## FINAL PRINCIPLES
 
 1. Uncompromising standards, kind about people
