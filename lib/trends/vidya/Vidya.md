@@ -1,109 +1,133 @@
-# VIDYA (Variable Index Dynamic Average)
+# VIDYA: Variable Index Dynamic Average
 
-## Overview and Purpose
+## What It Does
 
-The Variable Index Dynamic Average (VIDYA) is an adaptive technical indicator designed to automatically adjust its sensitivity based on market volatility. Developed by Tushar Chande in the early 1990s and introduced in his 1992 article in *Technical Analysis of Stocks & Commodities* magazine, VIDYA represents a significant innovation in moving average technology.
+The Variable Index Dynamic Average (VIDYA) is an adaptive moving average that automatically adjusts its smoothing speed based on market volatility. When the market is volatile and trending, VIDYA speeds up to capture the move. When the market is quiet or consolidating, VIDYA slows down to filter out noise. It uses the Chande Momentum Oscillator (CMO) as its volatility index.
 
-Unlike traditional moving averages with fixed parameters, VIDYA becomes more responsive during trending, volatile markets and more stable during quiet, sideways markets. This self-adjusting behavior makes it particularly valuable for traders navigating markets that frequently alternate between trending and consolidation phases without requiring manual parameter changes.
+## Historical Context
 
-## Core Concepts
+Developed by Tushar Chande and introduced in his 1994 book *"The New Technical Trader"*, VIDYA was one of the first "intelligent" moving averages. Chande recognized that a fixed-period moving average is always a compromise. VIDYA solves this by dynamically varying its effective period bar-by-bar.
 
-- **Volatility-based adaptation:** Automatically adjusts the effective smoothing period based on recent market volatility.
-- **Dynamic smoothing:** Uses volatility measurements to determine how quickly the moving average responds to price changes.
-- **Trend sensitivity:** Becomes more responsive during strong directional price moves and more stable during sideways consolidation.
-- **Noise filtering:** Reduces whipsaws during low-volatility periods while capturing significant moves during high-volatility periods.
+## How It Works
 
-VIDYA achieves its adaptive nature by scaling the standard exponential moving average (EMA) smoothing factor by a volatility ratio. This creates a moving average that effectively adjusts its own period based on market conditions - shortening during volatile trending markets and lengthening during consolidation.
+### The Core Idea
 
-## Common Settings and Parameters
+VIDYA is essentially an Exponential Moving Average (EMA) where the smoothing factor ($\alpha$) is not constant. Instead, $\alpha$ is scaled by a "Volatility Index" (VI).
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Period | 14 | Base smoothing period | Increase for less sensitivity to short-term trends, decrease for more responsiveness. |
-| Source | Close | Data point used for calculation | Change to HL2 or HLC3 for more balanced price representation. |
+- **High Volatility:** VI is high $\rightarrow$ $\alpha$ increases $\rightarrow$ VIDYA reacts faster.
+- **Low Volatility:** VI is low $\rightarrow$ $\alpha$ decreases $\rightarrow$ VIDYA reacts slower.
 
-**Pro Tip:** Many professional traders find that using the golden ratio (0.618) to determine the relationship between Period and VI Period (e.g., VI Period = Period × 0.382) can enhance performance by creating a more harmonious response to market cycles.
+### Mathematical Foundation
 
-## Calculation and Mathematical Foundation
+1. **Volatility Index (VI):**
+   We use the absolute value of the Chande Momentum Oscillator (CMO) over period $N$.
+   $$ VI = |CMO(N)| = \left| \frac{\sum Up - \sum Down}{\sum Up + \sum Down} \right| $$
+   $VI$ ranges from 0 (no trend) to 1 (strong trend).
 
-**Simplified explanation:**
-VIDYA works by measuring volatility as the ratio between short-term and longer-term standard deviations. It then uses this ratio to adjust how quickly the moving average responds. When volatility is high, VIDYA follows price more closely; when volatility is low, VIDYA moves more slowly, preserving the prior trend direction.
+2. **Smoothing Factor ($\alpha$):**
+   $$ \alpha_{base} = \frac{2}{N+1} $$
+   $$ \alpha_{dynamic} = \alpha_{base} \times VI $$
 
-**Technical formula:**
-This implementation uses the Chande Momentum Oscillator (CMO) as the volatility index, as originally proposed by Chande.
+3. **Update Formula:**
+   $$ VIDYA_{today} = \alpha_{dynamic} \times Price_{today} + (1 - \alpha_{dynamic}) \times VIDYA_{yesterday} $$
 
-$$
-\begin{aligned}
-\alpha &= \frac{2}{Period + 1} \\
-CMO &= \frac{\sum Up - \sum Down}{\sum Up + \sum Down} \\
-VI &= |CMO| \\
-\alpha_{dynamic} &= \alpha \times VI \\
-VIDYA_t &= \alpha_{dynamic} \times Price_t + (1 - \alpha_{dynamic}) \times VIDYA_{t-1}
-\end{aligned}
-$$
+### Implementation Details
 
-Where:
+Our implementation calculates CMO and VIDYA in a single pass.
 
-- $\alpha$ is the base smoothing factor.
-- $VI$ is the Volatility Index (normalized to 0-1), derived from the absolute value of CMO.
-- $Up$ is the sum of positive price changes over the period.
-- $Down$ is the sum of negative price changes (absolute values) over the period.
+- **Complexity:** O(1) per update (CMO is O(1) via running sums).
+- **Efficiency:** Uses the same optimized structure as our standard EMA.
 
-> 🔍 **Technical Note:** Some implementations of VIDYA use different volatility measurements such as standard deviation ratios or RSI-based volatility. The core concept remains the same - scaling the smoothing factor based on a measure of market activity. This library uses the CMO-based approach for its direct measurement of directional momentum.
+## Configuration
 
-## C# Implementation
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 14 | Lookback window | Standard lookback for both CMO and the base EMA. |
 
-### Standard Usage
+## C# Usage
+
+### Streaming Updates (Single Instance)
 
 ```csharp
-// Create VIDYA with period 14
+using QuanTAlib;
+
+var vidya = new Vidya(period: 14);
+
+// Process each new bar
+TValue result = vidya.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"VIDYA: {result.Value:F2}");
+
+// Check if buffer is full
+if (vidya.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries vidyaValues = Vidya.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Vidya.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
 var vidya = new Vidya(14);
 
-// Update with new price
-var result = vidya.Update(new TValue(DateTime.UtcNow, 100.0));
-Console.WriteLine($"VIDYA: {result.Value}");
+// New bar
+vidya.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+vidya.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
 ```
 
-### Static API (High Performance)
+## Performance Profile
 
-```csharp
-// Calculate VIDYA for an entire array
-double[] prices = { ... };
-double[] results = new double[prices.Length];
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | CMO update + EMA update |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(period) | RingBuffer for CMO calculation |
 
-Vidya.Batch(prices, results, 14);
-```
+## Interpretation
 
-### Bar Correction (Streaming)
+### Trading Signals
 
-```csharp
-// Update with a developing bar (isNew = false)
-vidya.Update(new TValue(time, close), isNew: false);
-```
+#### Trend Following
 
-## Interpretation Details
+- **Support/Resistance:** VIDYA is excellent at identifying dynamic support and resistance levels because it flattens out during consolidations (providing a clear "shelf" of support) and slopes steeply during trends.
 
-VIDYA provides several key insights for traders:
+#### Crossovers
 
-- When price consistently stays above VIDYA, it confirms an uptrend.
-- When price consistently stays below VIDYA, it confirms a downtrend.
-- When VIDYA's slope is steep, it indicates a strong trend with high volatility.
-- When VIDYA flattens despite price fluctuations, it suggests the market is in a low-volatility state.
-- Crossovers between price and VIDYA often signal potential trend changes.
-- VIDYA tends to act as dynamic support/resistance during trending markets.
+- **Price Crossover:** Price crossing VIDYA is a standard trend entry signal. Because VIDYA adapts to volatility, these signals are often more reliable than SMA crossovers in choppy markets.
 
-VIDYA is particularly valuable in markets that experience varying levels of volatility, as it automatically adjusts its behavior to match current conditions. It excels in trend-following strategies where traditional moving averages might generate false signals during quiet periods or fail to capture explosive moves quickly enough.
+### When It Works Best
 
-## Limitations and Considerations
+- **Breakouts:** VIDYA excels at catching breakouts from low-volatility consolidations because its effective period shortens (speeds up) as soon as volatility expands.
 
-- **Market conditions:** May still produce some false signals during periods of choppy volatility.
-- **Lag factor:** While adaptive, VIDYA still exhibits some lag, especially during the transition from low to high volatility.
-- **Parameter sensitivity:** Performance can vary significantly based on both period settings and volatility calculation method.
-- **Calculation complexity:** More computationally intensive than standard moving averages.
-- **Complementary tools:** Works best when combined with volume analysis or non-volatility based indicators for confirmation.
+### When It Struggles
+
+- **Grinding Trends:** In a slow, low-volatility grind upwards, VIDYA might lag more than a standard EMA because the low volatility keeps the smoothing factor small.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: CMO as Volatility Index
+
+- **Implementation:** Uses Chande Momentum Oscillator.
+- **Rationale:** This is the original definition by Chande. Other variants (like using Efficiency Ratio) exist but are technically different indicators (e.g., KAMA).
 
 ## References
 
-1. Chande, T. (1992). "Adapting Moving Averages to Market Volatility," *Technical Analysis of Stocks & Commodities*.
-2. Chande, T. & Kroll, S. (1994). *The New Technical Trader*. John Wiley & Sons.
-3. Kaufman, P. (2013). *Trading Systems and Methods*, 5th Edition. Wiley Trading.
+- Chande, Tushar. "The New Technical Trader." Wiley, 1994.
+- Chande, Tushar. "Adapting Moving Averages To Market Volatility." *Technical Analysis of Stocks & Commodities*, Mar 1992.

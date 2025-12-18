@@ -11,9 +11,32 @@
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 
-Technical analysis libraries face a timing problem. Calculate indicators too slowly and you miss trading opportunities. Calculate them incorrectly and you take bad trades based on meaningless numbers. Most libraries optimize for one or the other, accepting compromises that seemed reasonable when computers were slower and markets moved at human speed.
+TA libraries face a fundamental choice: accept approximations for simplicity OR enforce math rigor. We chose rigor.
 
-**Quan**titative **TA** **lib**rary (QuanTAlib) is a C# library built on the premise that you shouldn't have to choose. Modern CPUs can process 4-8 floating-point operations per clock cycle through SIMD instructions. Modern .NET can expose memory layouts that make hardware acceleration trivial. QuanTAlib was built to take full advantage of both, delivering mathematically rigorous indicators at speeds that make real-time multi-symbol analysis practical on ordinary hardware.
+**Quan**titative **TA** **lib**rary (QuanTAlib) is a C# library built on the premise that you shouldn't have to choose. Modern CPUs process 4-8 FLOPS per cycle via SIMD. Modern .NET exposes memory layouts making hardware acceleration trivial. QuanTAlib exploits both. **Result:** mathematically rigorous indicators at speeds making real-time multi-symbol analysis practical on ordinary hardware.
+
+## What You Get
+
+QuanTAlib provides technical indicators organized into mathematical families, often found in common charting software. Understanding these families helps choose the right tool for the analytical problem you're actually solving.
+
+### [All Available Indicators](/_index.md)
+
+| Category | What It Measures | Representative Indicators | When You Need It |
+|----------|------------------|---------------------------|------------------|
+| [**Trends**](trends/_index.md) | Direction and strength of price movement through smoothing and filtering | Simple Moving Average, Exponential Moving Aaverage, Weighted Moving Average, Hull Moving Average, Jurik Moving Average, Kaufmann Adaptive Moving Average | Starting point for most analysis. If you're looking at a chart, you're probably using at least one moving average. The simpler variants (SMA, EMA) work for trend identification. The exotic ones (Jurik, Ehlers) trade CPU cycles for reduced lag. It's a fair exchange — silicon is cheap, timing is expensive. |
+| [**Volatility**](volatility/_index.md) | Size and variability of price movements | Average True Range, Standard Deviation, Bollinger Bands, Keltner Channels, Historical Volatility | Position sizing, stop-loss placement, and understanding market regime. ATR tells you how much instruments typically move—essential for risk management. Bollinger Bands show when volatility expands or contracts, helping identify potential breakouts or mean-reversion opportunities. |
+| [**Momentum**](momentum/_index.md) | Speed and magnitude of price changes | Relative Strength Index, Stochastic, CCI, Williams %R, MACD, Momentum, ROC | Identifying overbought/oversold conditions and divergences. RSI oscillates between 0-100 by construction—it's the ratio of average gains to average losses. MACD compares two EMAs to show changes in trend strength. These get overused but remain useful when combined with other analysis. |
+| [**Volume**](volume/_index.md) | Trading activity and price-volume relationships | OBV, VWAP, Volume Rate of Change, Accumulation/Distribution, MFI | Confirming price movements with volume participation. VWAP shows where institutional traders executed—prices far from VWAP suggest pressure in one direction. OBV accumulates volume on up days and subtracts it on down days, revealing whether volume confirms price trends. |
+| [**Channels**](channels/_index.md) | Price boundaries and range definitions | Donchian Channels, Keltner Channels, Price Channels | Breakout strategies and range-bound trading. Donchian Channels mark highest high and lowest low over a period—breaks above/below suggest potential trend changes. Keltner uses ATR for volatility-adjusted bands. Less common than Bollinger Bands but useful for different trading styles. |
+| [**Statistics**](statistics/_index.md) | Mathematical relationships between price series | Correlation, Covariance, Beta, Z-Score, Linear Regression | Portfolio analysis, pairs trading, and statistical arbitrage. Correlation measures how two instruments move together (ranging from -1 to +1). Beta quantifies systematic risk relative to a benchmark. Z-Score normalizes values for statistical comparison. These require understanding basic statistics to use correctly. |
+| [**Numerics**](numerics/_index.md) | Mathematical transformations and signal processing | Convolution, Filters, Integration, Differentiation, Smoothing functions | Custom indicator development and advanced signal processing. This is the toolkit you use to build your own indicators rather than indicators you apply directly. Convolution lets you create custom filters. Differentiation extracts rate of change. Toolkit for building indicators rather than using them. If you need to differentiate a signal before smoothing it, you know who you are. If not, safe to ignore. |
+| [**Errors**](errors/_index.md) | Measurement accuracy and model fit quality | MAE (Mean Absolute Error), RMSE, Residuals, R-Squared | Model validation and forecast quality assessment. After building a predictive model or regression, these metrics tell you how wrong you are on average. RMSE penalizes large errors more heavily than MAE. R-Squared explains what percentage of variance your model captures. Critical for anyone building quantitative strategies. |
+| [**Forecasts**](forecasts/_index.md) | Future price prediction and projection | Linear Regression Forecast, Moving Average Projection, Trend Extrapolation | Predictive modeling and systematic strategy development. These attempt to project where prices will go based on historical patterns. Projects price based on historical patterns. Works beautifully until market changes regime, usually 5 minutes after you deploy capital. Useful as inputs to larger systems, dangerous when used as sole decision criteria. |
+| [**Cycles**](cycles/_index.md) | Periodic patterns and dominant frequencies in price data | Hilbert Transform, Dominant Cycle, Instantaneous Phase, Sine Wave, MESA | Identifying and trading cyclical market behavior. John Ehlers (who apparently decided financial markets could be analyzed like electrical signals) developed most of these. They use signal processing techniques to decompose price into cycle components. They work beautifully when markets are cyclical. They work poorly when markets trend or trade randomly. The math is complex—phase relationships, frequency analysis—and knowing which market regime you're in becomes harder than using the indicators themselves. |
+
+The categories aren't rigid boundaries—many indicators could fit multiple categories. KAMA is both a trend indicator and uses momentum calculations. Keltner Channels combine trends (moving average centerline) with volatility (ATR bands). The organization helps you understand what analytical problem each indicator solves rather than memorizing which arbitrary category someone assigned it to.
+
+Start with Trends, Volatility, and Momentum if you're new to technical analysis. These provide the foundation most traders need. The specialized categories (Numerics, Errors, Forecasts, Cycles) solve specific problems you'll recognize when you encounter them.
 
 ## The Architecture That Makes This Possible
 
@@ -69,27 +92,6 @@ The performance hierarchy is clear: **Span** > **Batch** > **Streaming** > **Eve
 
 Most systems use multiple modes: Span or Batch for historical analysis and strategy validation, Streaming for live trading. The modes share identical mathematical implementations — you get the same calculated results regardless of mode. The difference is how you interact with the calculation, not what gets calculated.
 
-## What You Get
-
-QuanTAlib provides technical indicators organized into mathematical families, often found in common charting software. Understanding these families helps choose the right tool for the analytical problem you're actually solving.
-
-| Category | What It Measures | Representative Indicators | When You Need It |
-|----------|------------------|---------------------------|------------------|
-| **Trends** | Direction and strength of price movement through smoothing and filtering | SMA, EMA, WMA, DEMA, TEMA, HMA, Jurik MA, KAMA, T3, ZLEMA | Starting point for most analysis. If you're looking at a chart, you're probably using at least one moving average. The simpler variants (SMA, EMA) work for trend identification. The exotic ones (Jurik, T3) trade computational complexity for smoother response with less lag. |
-| **Volatility** | Size and variability of price movements | ATR, Standard Deviation, Bollinger Bands, Keltner Channels, Historical Volatility | Position sizing, stop-loss placement, and understanding market regime. ATR tells you how much instruments typically move—essential for risk management. Bollinger Bands show when volatility expands or contracts, helping identify potential breakouts or mean-reversion opportunities. |
-| **Momentum** | Speed and magnitude of price changes | RSI, Stochastic, CCI, Williams %R, MACD, Momentum, ROC | Identifying overbought/oversold conditions and divergences. RSI oscillates between 0-100 by construction—it's the ratio of average gains to average losses. MACD compares two EMAs to show changes in trend strength. These get overused but remain useful when combined with other analysis. |
-| **Volume** | Trading activity and price-volume relationships | OBV, VWAP, Volume Rate of Change, Accumulation/Distribution, MFI | Confirming price movements with volume participation. VWAP shows where institutional traders executed—prices far from VWAP suggest pressure in one direction. OBV accumulates volume on up days and subtracts it on down days, revealing whether volume confirms price trends. |
-| **Channels** | Price boundaries and range definitions | Donchian Channels, Keltner Channels, Price Channels | Breakout strategies and range-bound trading. Donchian Channels mark highest high and lowest low over a period—breaks above/below suggest potential trend changes. Keltner uses ATR for volatility-adjusted bands. Less common than Bollinger Bands but useful for different trading styles. |
-| **Statistics** | Mathematical relationships between price series | Correlation, Covariance, Beta, Z-Score, Linear Regression | Portfolio analysis, pairs trading, and statistical arbitrage. Correlation measures how two instruments move together (ranging from -1 to +1). Beta quantifies systematic risk relative to a benchmark. Z-Score normalizes values for statistical comparison. These require understanding basic statistics to use correctly. |
-| **Numerics** | Mathematical transformations and signal processing | Convolution, Filters, Integration, Differentiation, Smoothing functions | Custom indicator development and advanced signal processing. This is the toolkit you use to build your own indicators rather than indicators you apply directly. Convolution lets you create custom filters. Differentiation extracts rate of change. Most traders never touch these—they're for people building their own analytical tools. |
-| **Errors** | Measurement accuracy and model fit quality | MAE (Mean Absolute Error), RMSE, Residuals, R-Squared | Model validation and forecast quality assessment. After building a predictive model or regression, these metrics tell you how wrong you are on average. RMSE penalizes large errors more heavily than MAE. R-Squared explains what percentage of variance your model captures. Critical for anyone building quantitative strategies. |
-| **Forecasts** | Future price prediction and projection | Linear Regression Forecast, Moving Average Projection, Trend Extrapolation | Predictive modeling and systematic strategy development. These attempt to project where prices will go based on historical patterns. They work until they don't—markets change behavior, invalidating historical relationships. Useful as inputs to larger systems, dangerous when used as sole decision criteria. |
-| **Cycles** | Periodic patterns and dominant frequencies in price data | Hilbert Transform, Dominant Cycle, Instantaneous Phase, Sine Wave, MESA | Identifying and trading cyclical market behavior. John Ehlers (who apparently decided financial markets could be analyzed like electrical signals) developed most of these. They use signal processing techniques to decompose price into cycle components. They work beautifully when markets are cyclical. They work poorly when markets trend or trade randomly. The math is complex—phase relationships, frequency analysis—and knowing which market regime you're in becomes harder than using the indicators themselves. |
-
-The categories aren't rigid boundaries—many indicators could fit multiple categories. KAMA is both a trend indicator and uses momentum calculations. Keltner Channels combine trends (moving average centerline) with volatility (ATR bands). The organization helps you understand what analytical problem each indicator solves rather than memorizing which arbitrary category someone assigned it to.
-
-Start with Trends, Volatility, and Momentum if you're new to technical analysis. These provide the foundation most traders need. The specialized categories (Numerics, Errors, Forecasts, Cycles) solve specific problems you'll recognize when you encounter them.
-
 ## The Evidence
 
 Performance claims require measurement. We benchmark QuanTAlib against established libraries: TA-Lib and Tulip (industry-standard C libraries accessed via P/Invoke), Skender.Stock.Indicators and Ooples.FinancialIndicators (popular .NET implementations).
@@ -100,51 +102,51 @@ All benchmark tests process 500,000 bars with period 220 — sufficient scale to
 
 ### Simple Moving Average (SMA)
 
-QuanTAlib's Span mode calculates 500,000 SMA values in 348 microseconds with zero memory allocations. That's 0.70 nanoseconds per value. For context, a single L1 cache access takes approximately 1 nanosecond on modern CPUs — we're calculating moving averages faster than fetching data from the nearest cache level.
+QuanTAlib's Span mode calculates 500,000 SMA values in 318 microseconds with zero memory allocations. That's 0.64 nanoseconds per value. For context, a single L1 cache access takes approximately 1 nanosecond on modern CPUs — we're calculating moving averages faster than fetching data from the nearest cache level.
 
 | Library | Mean Time | Allocations | Relative Speed |
 |---------|-----------|-------------|----------------|
-| **QuanTAlib (Span)** | **348.4 μs** | **0 B** | **1.00x (baseline)** |
-| TA-Lib | 376.8 μs | 37 B | 1.08x slower |
-| Tulip | 369.4 μs | 0 B | 1.06x slower |
-| Skender | 84,389 μs | 50.8 MB | 242x slower |
-| Ooples | 631,697 μs | 151 MB | 1,813x slower |
+| **QuanTAlib (Span)** | **318.3 μs** | **0 B** | **1.00x (baseline)** |
+| TA-Lib | 356.4 μs | 34 B | 1.12x slower |
+| Tulip | 359.3 μs | 0 B | 1.13x slower |
+| Skender | 71,277 μs | 50.8 MB | 224x slower |
+| Ooples | 500,793 μs | 151 MB | 1,573x slower |
 
 ### Exponential Moving Average (EMA)
 
-QuanTAlib matches C library performance at 713 microseconds — within measurement error of Tulip's 719μs and TA-Lib's 721μs. Pure C# matching heavily optimized C code demonstrates what modern .NET achieves when you align memory layouts with hardware capabilities.
+QuanTAlib matches C library performance at 711 microseconds — within measurement error of Tulip's 708μs and TA-Lib's 713μs. Pure C# matching heavily optimized C code demonstrates what modern .NET achieves when you align memory layouts with hardware capabilities.
 
 | Library | Mean Time | Allocations | Relative Speed |
 |---------|-----------|-------------|----------------|
-| **QuanTAlib (Span)** | **713.4 μs** | **0 B** | **1.00x** |
-| TA-Lib | 721.2 μs | 37 B | 1.01x slower |
-| Tulip | 718.9 μs | 0 B | 1.01x slower |
-| Skender | 35,716 μs | 50.8 MB | 50x slower |
-| Ooples | 19,324 μs | 79.3 MB | 27x slower |
+| **QuanTAlib (Span)** | **711.0 μs** | **0 B** | **1.00x** |
+| TA-Lib | 712.9 μs | 36 B | 1.00x slower |
+| Tulip | 708.1 μs | 0 B | 1.00x faster |
+| Skender | 31,393 μs | 50.8 MB | 44x slower |
+| Ooples | 18,860 μs | 79.3 MB | 27x slower |
 
 ### Weighted Moving Average (WMA)
 
-QuanTAlib's WMA beats both C libraries — 331 microseconds versus Tulip's 412μs and TA-Lib's 390μs. This isn't a measurement error. Pure C# with proper SIMD vectorization outperforms C code that predates AVX-512 optimizations.
+QuanTAlib's WMA beats both C libraries — 296 microseconds versus Tulip's 372μs and TA-Lib's 360μs. This isn't a measurement error. Pure C# with proper SIMD vectorization outperforms C code that predates AVX-512 optimizations.
 
 | Library | Mean Time | Allocations | Relative Speed |
 |---------|-----------|-------------|----------------|
-| **QuanTAlib (Span)** | **330.8 μs** | **0 B** | **1.00x (baseline)** |
-| TA-Lib | 389.8 μs | 37 B | 1.18x slower |
-| Tulip | 411.8 μs | 0 B | 1.24x slower |
-| Skender | 115,739 μs | 50.8 MB | 350x slower |
-| Ooples | 82,319 μs | 70.9 MB | 249x slower |
+| **QuanTAlib (Span)** | **296.0 μs** | **0 B** | **1.00x (baseline)** |
+| TA-Lib | 360.0 μs | 34 B | 1.22x slower |
+| Tulip | 372.1 μs | 0 B | 1.26x slower |
+| Skender | 103,254 μs | 50.8 MB | 349x slower |
+| Ooples | 73,983 μs | 70.9 MB | 250x slower |
 
 ### Hull Moving Average (HMA)
 
-HMA requires multiple moving average calculations — traditionally expensive. QuanTAlib processes 500,000 bars in 1,065 microseconds. Tulip takes 2,637 microseconds. Skender requires 298,757 microseconds. (TALib doesn't include HMA calculation) That's a 2.5x improvement over optimized C and a 280x improvement over standard .NET implementations.
+HMA requires multiple moving average calculations — traditionally expensive. QuanTAlib processes 500,000 bars in 1,008 microseconds. Tulip takes 2,266 microseconds. Skender requires 251,694 microseconds. (TALib doesn't include HMA calculation) That's a 2.25x improvement over optimized C and a 250x improvement over standard .NET implementations.
 
 | Library | Mean Time | Allocations | Relative Speed |
 |---------|-----------|-------------|----------------|
-| **QuanTAlib (Span)** | **1,065.4 μs** | **0 B** | **1.00x (baseline)** |
+| **QuanTAlib (Span)** | **1,007.8 μs** | **0 B** | **1.00x (baseline)** |
 | TA-Lib | -- | -- | -- |
-| Tulip | 2,636.5 μs | 156 B | 2.48x slower |
-| Skender | 298,757 μs | 235.9 MB | 280x slower |
-| Ooples | 156,048 μs | 108,7 MB| 1.18x slower |
+| Tulip | 2,266.0 μs | 152 B | 2.25x slower |
+| Skender | 251,694 μs | 235.9 MB | 250x slower |
+| Ooples | 123,234 μs | 108.7 MB | 122x slower |
 
 ### Zero-Allocation Execution
 
@@ -156,12 +158,12 @@ The benchmarks above show Span mode. Here's how all four modes compare using EMA
 
 | QuanTAlib Mode | Mean Time | Allocations | Use Case |
 |----------------|-----------|-------------|----------|
-| Span | 713.4 μs | 0 B | Maximum speed, batch processing |
-| Streaming | 730.1 μs | 45 B | Real-time updates, minimal overhead |
-| Batch (TSeries) | 1,340.0 μs | 8.0 MB | Time-aligned series with metadata |
-| Eventing | 3,077.6 μs | 16.8 MB | Reactive architectures with event infrastructure |
+| Span | 711.0 μs | 0 B | Maximum speed, batch processing |
+| Streaming | 721.9 μs | 44 B | Real-time updates, minimal overhead |
+| Batch (TSeries) | 1,311.7 μs | 8.0 MB | Time-aligned series with metadata |
+| Eventing | 2,928.4 μs | 16.8 MB | Reactive architectures with event infrastructure |
 
-Even QuanTAlib's slowest mode (Eventing with complete event infrastructure and 16MB of allocations) processes 500,000 EMA values in 3 milliseconds — faster than Ooples' 19 milliseconds and Skender's 36 milliseconds for the same calculation.
+Even QuanTAlib's slowest mode (Eventing with complete event infrastructure and 16MB of allocations) processes 500,000 EMA values in 3 milliseconds — faster than Ooples' 19 milliseconds and Skender's 31 milliseconds for the same calculation.
 
 ### What This Means Practically
 

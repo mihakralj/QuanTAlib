@@ -40,8 +40,8 @@ public sealed class Wma : AbstractBase
     private const int ResyncInterval = 10000;
 
     private static readonly Vector512<long> V512_Idx_1 = Vector512.Create(0L, 0, 1, 2, 3, 4, 5, 6);
-    private static readonly Vector512<long> V512_Idx_2 = Vector512.Create(0L, 0, 0, 0, 1, 2, 3, 4);
-    private static readonly Vector512<long> V512_Idx_4 = Vector512.Create(0L, 0, 0, 0, 0, 0, 1, 2);
+    private static readonly Vector512<long> V512_Idx_2 = Vector512.Create(0L, 0, 0, 1, 2, 3, 4, 5);
+    private static readonly Vector512<long> V512_Idx_4 = Vector512.Create(0L, 0, 0, 0, 0, 1, 2, 3);
     private static readonly Vector512<double> V512_Mask_1 = Vector512.Create(0.0, 1, 1, 1, 1, 1, 1, 1);
     private static readonly Vector512<double> V512_Mask_2 = Vector512.Create(0.0, 0, 1, 1, 1, 1, 1, 1);
     private static readonly Vector512<double> V512_Mask_4 = Vector512.Create(0.0, 0, 0, 0, 1, 1, 1, 1);

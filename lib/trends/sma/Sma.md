@@ -1,235 +1,137 @@
 # SMA: Simple Moving Average
 
-## Overview and Purpose
+## What It Does
 
-The Simple Moving Average (SMA) is one of the most fundamental and widely used technical indicators in financial analysis. It calculates the arithmetic mean of a selected range of prices over a specified number of periods. Developed in the early days of technical analysis, the SMA provides traders with a straightforward method to identify trends by smoothing price data and filtering out short-term fluctuations.
+The Simple Moving Average (SMA) is the most fundamental indicator in technical analysis. It calculates the unweighted mean of the previous $N$ data points. By smoothing out price fluctuations, it helps traders identify the direction of the trend and potential support/resistance levels.
 
-Unlike the Exponential Moving Average (EMA) which gives more weight to recent data, the SMA treats all data points in the window equally. This equal weighting makes the SMA particularly intuitive to understand, as it simply represents the average price over the specified time period. Due to its simplicity and effectiveness, it remains a cornerstone indicator that forms the basis for numerous other technical analysis tools.
+## Historical Context
 
-## Core Concepts
+The concept of a moving average dates back to the early 20th century, used by statisticians to smooth time series data. In financial markets, it became a cornerstone of technical analysis with the advent of computing, allowing traders to filter out "noise" and focus on the underlying trend.
 
-* **Equal weighting:** SMA gives equal importance to each price point in the calculation period, unlike weighted averages that emphasize certain data points
-* **Noise reduction:** Smooths price fluctuations to help identify the underlying trend direction
-* **Timeframe flexibility:** Effective across all timeframes, with shorter periods for short-term analysis and longer periods for identifying major trends
-* **Foundation indicator:** Serves as the mathematical basis for Bollinger Bands, moving average envelopes, and other derived indicators
+## How It Works
 
-The core principle of SMA is its unbiased approach to price data. By treating all prices within the lookback period with equal importance, SMA creates a balanced view of recent market activity. This equal weighting makes the SMA particularly intuitive to understand, as it simply represents the average price over the specified time period.
+### The Core Idea
 
-## Common Settings and Parameters
+The SMA treats every price in the lookback window equally. A price from 10 days ago has the same influence on the average as the price from today. This "democracy" of data points makes it stable but slow to react to recent changes compared to weighted averages like EMA or WMA.
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Period | 20 | Controls the lookback period | Increase for smoother signals in volatile markets, decrease for responsiveness |
-| Source | Close | Price data used for calculation | Consider using HLC3 for a more balanced price representation |
+### Mathematical Foundation
 
-**Pro Tip:** For trend following strategies, consider using two SMAs with different periods (e.g., 50 and 200) – crossovers between these can identify significant trend changes while filtering out minor fluctuations. This "golden cross" (50 crossing above 200) and "death cross" (50 crossing below 200) are among the most watched signals in technical analysis.
-
-## Calculation and Mathematical Foundation
-
-**Simplified explanation:**
-SMA adds up the prices for a specific number of periods and divides by that number. For example, a 10-period SMA adds the last 10 closing prices and divides by 10 to find the average.
-
-**Technical formula:**
-The standard calculation:
-$$SMA = \frac{P_1 + P_2 + ... + P_n}{n} = \frac{1}{n}\sum_{i=1}^{n}P_i$$
-
-An optimized recursive calculation used in the implementation:
-$$SMA_t = SMA_{t-1} + \frac{P_t - P_{t-n}}{n}$$
+$$ SMA_t = \frac{P_t + P_{t-1} + \dots + P_{t-n+1}}{n} $$
 
 Where:
 
-* $P_1, P_2, ..., P_n$ are price values in the lookback window
-* $n$ is the period length
-* $P_{t-n}$ is the oldest price leaving the window
+- $P$ = Price
+- $n$ = Period length
 
-> 🔍 **Technical Note:** The SMA has a precisely defined lag of $(n-1)/2$ periods, meaning a 21-period SMA lags behind price by 10 bars. This consistent, deterministic lag makes its behavior predictable across all market conditions. The implementation uses a running sum approach for O(1) update complexity regardless of period length.
+### Implementation Details: O(1) Streaming
 
-## C# Implementation
+A naive implementation sums all $N$ prices every bar, resulting in $O(N)$ complexity. We optimize this to **O(1)** using a sliding window algorithm:
 
-The library provides two implementations: a standard scalar version and a high-performance Span-based static version.
+$$ Sum_{new} = Sum_{old} - P_{leaving} + P_{entering} $$
+$$ SMA_{new} = \frac{Sum_{new}}{n} $$
 
-### Single SMA (`Sma`)
+This ensures that calculating an SMA(200) takes the exact same amount of CPU time as an SMA(10).
 
-The `Sma` class calculates a single simple moving average with O(1) update complexity.
+## Configuration
+
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 10 | Lookback window | Short (10-20) for short-term trends; Medium (50) for intermediate; Long (200) for major trends. |
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
 
 ```csharp
 using QuanTAlib;
 
-// Initialize with period 10
-var sma = new Sma(10);
+var sma = new Sma(period: 20);
 
-// Streaming update
-TValue result = sma.Update(new TValue(time, price));
-Console.WriteLine($"Current SMA: {result.Value}");
+// Process each new bar
+TValue result = sma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"SMA: {result.Value:F2}");
 
-// Access properties
-Console.WriteLine($"Name: {sma.Name}");           // "Sma(10)"
-Console.WriteLine($"IsHot: {sma.IsHot}");          // true when buffer is full
-
-// Batch calculation (TSeries API)
-TSeries source = ...;
-TSeries results = Sma.Batch(source, 10);
-
-// High-performance Span API (zero allocation)
-double[] prices = new double[10000];
-double[] output = new double[10000];
-Sma.Batch(prices.AsSpan(), output.AsSpan(), period: 10);
+// Check if buffer is full
+if (sma.IsHot)
+{
+    // Indicator is fully initialized
+}
 ```
 
-### Zero-Allocation Span API
-
-For performance-critical scenarios (backtesting, HFT), use the Span-based overload:
+### Batch Processing (Historical Data)
 
 ```csharp
-// Allocate buffers once, reuse across calculations
-double[] source = new double[200000];
-double[] smaOutput = new double[200000];
+// TSeries API
+TSeries prices = ...;
+TSeries smaValues = Sma.Batch(prices, period: 20);
 
-// Zero heap allocation during calculation
-Sma.Batch(source.AsSpan(), smaOutput.AsSpan(), period: 100);
-
-// Results are written directly to output buffer
-Console.WriteLine($"Last SMA: {smaOutput[^1]}");
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Sma.Calculate(prices.AsSpan(), output.AsSpan(), period: 20);
 ```
-
-**Benefits:**
-
-* **Zero allocation**: No GC pressure during calculation
-* **Cache-friendly**: Sequential memory access patterns
-* **2-3x faster** than TSeries API for large datasets
-* **Compatible** with `ArrayPool<T>` for buffer management
 
 ### Bar Correction (isNew Parameter)
 
-`Sma` supports intra-bar updates for real-time trading systems:
-
 ```csharp
-var sma = new Sma(10);
+var sma = new Sma(20);
 
-// Process historical bars
-for (int i = 0; i < historicalBars.Count; i++)
-{
-    sma.Update(historicalBars[i], isNew: true);
-}
+// New bar
+sma.Update(new TValue(time, 100), isNew: true);
 
-// Real-time: receive initial tick for new bar
-sma.Update(new TValue(time, 100.5), isNew: true);
-
-// Real-time: price updates within same bar
-sma.Update(new TValue(time, 101.0), isNew: false);  // O(1) correction
-sma.Update(new TValue(time, 100.8), isNew: false);  // O(1) correction
-
-// Bar closes, next bar starts
-sma.Update(new TValue(time + 1, 101.2), isNew: true);
+// Intra-bar update
+sma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
 ```
 
-**Implementation detail:** Bar correction is O(1) using scalar state save/restore, not buffer copying.
+## Performance Profile
 
-### Eventing and Reactive Support
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Sliding window sum |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(period) | RingBuffer for lookback window |
 
-This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.
+## Interpretation
 
-* **Subscription:** Can be constructed with an `ITValuePublisher` (e.g., `TSeries`) to automatically update when the source emits a new value.
-* **Publication:** Emits a `Pub` event with the new `TValue` whenever it is updated.
+### Trading Signals
 
-```csharp
-using QuanTAlib;
+#### Trend Direction
 
-// 1. Setup a source (publisher)
-var source = new TSeries();
+- **Uptrend:** Price > SMA and SMA slope is positive.
+- **Downtrend:** Price < SMA and SMA slope is negative.
 
-// 2. Create indicator subscribed to source
-// It waits for events from 'source'
-var sma = new Sma(source, period: 10);
+#### Crossovers
 
-// 3. Optional: Subscribe to indicator's output
-sma.Pub += (item) => Console.WriteLine($"SMA Updated: {item.Value}");
+- **Golden Cross:** Short-term SMA (e.g., 50) crosses above Long-term SMA (e.g., 200). Bullish.
+- **Death Cross:** Short-term SMA crosses below Long-term SMA. Bearish.
 
-// 4. Ingest data into source
-// This triggers the chain: source -> sma -> Console.WriteLine
-source.Add(new TValue(DateTime.Now, 100));
-source.Add(new TValue(DateTime.Now, 105));
-```
+#### Support/Resistance
 
-This pattern allows building complex, reactive processing pipelines without manual update loops.
+- The 50-day and 200-day SMAs are widely watched by institutions and often act as self-fulfilling support or resistance levels.
 
-### Handling Invalid Values (NaN/Infinity)
+### When It Works Best
 
-`Sma` uses **last-value substitution** for handling invalid inputs:
+- **Strong Trends:** In clearly trending markets, SMA keeps you on the right side of the move.
 
-```csharp
-var sma = new Sma(10);
+### When It Struggles
 
-// Valid values establish baseline
-sma.Update(new TValue(time, 100));
-sma.Update(new TValue(time, 110));
+- **Sideways Markets:** In ranging markets, price will constantly cross the SMA, generating false signals (whipsaws).
 
-// NaN or Infinity inputs are replaced with last valid value (110)
-var result = sma.Update(new TValue(time, double.NaN));
-Console.WriteLine(double.IsFinite(result.Value)); // true
+## Architecture Notes
 
-// Works identically for batch operations
-var series = new TSeries();
-series.Add(time, 100);
-series.Add(time + 1, double.NaN);  // Will use 100
-series.Add(time + 2, 120);
-var results = sma.Update(series);  // All values are finite
-```
+This implementation makes specific trade-offs:
 
-**Behavior:**
+### Choice: RingBuffer for History
 
-* When `NaN`, `PositiveInfinity`, or `NegativeInfinity` is encountered, the last valid value is substituted
-* This provides output continuity instead of propagating invalid values
-* `Reset()` clears the last valid value, so the next valid input establishes a new baseline
+- **Implementation:** Uses a circular buffer to store the last $N$ prices.
+- **Rationale:** Necessary to know which value is leaving the window ($P_{leaving}$) for the O(1) update.
 
-### Performance Characteristics
+### Choice: Periodic Resync
 
-| Operation | Complexity | Notes |
-|-----------|------------|-------|
-| Update (isNew=true) | O(1) | Running sum: `sum = sum - oldest + newest` |
-| Update (isNew=false) | O(1) | Scalar state restore + recalculate |
-| Batch processing | O(n) | Where n is series length |
-| Memory (single) | O(period) | One RingBuffer for values |
-| Memory (state) | O(1) | 6 doubles for bar correction |
-
-The implementation uses:
-
-* **Running sum** for O(1) average calculation
-* **Scalar state save/restore** for O(1) bar correction
-* **Pinned memory** in RingBuffer for cache-friendly access
-* **CollectionsMarshal.SetCount** for zero-allocation batch processing
-
-## Interpretation Details
-
-SMA can be used in various trading strategies:
-
-* **Trend identification:** The direction of SMA indicates the prevailing trend
-* **Signal generation:** Crossovers between price and SMA generate basic trade signals
-* **Support/resistance levels:** SMA can act as dynamic support during uptrends and resistance during downtrends
-* **Multiple timeframe analysis:** Using SMAs with different periods can confirm trends across different timeframes
-* **Moving average crossovers:** When a shorter-period SMA crosses above a longer-period SMA, it signals a potential uptrend (and vice versa)
-
-### SMA vs EMA Comparison
-
-| Aspect | SMA | EMA |
-|--------|-----|-----|
-| Weighting | Equal for all values | Recent values weighted more |
-| Lag | Higher: $(n-1)/2$ bars | Lower due to recent weighting |
-| Sensitivity | Slower to react | Faster reaction to changes |
-| Noise | Better noise filtering | More responsive but noisier |
-| Sudden changes | Abrupt when oldest value exits | Smooth exponential decay |
-| Best use | Long-term trends, support/resistance | Short-term signals, momentum |
-
-## Limitations and Considerations
-
-* **Market conditions:** Less effective in choppy, sideways markets where price oscillates around the average
-* **Lag factor:** Significant lag in responding to rapid price changes means SMA will always be late to signal reversals
-* **Equal weighting:** Treats recent and older prices equally, which may not reflect current market dynamics
-* **Sudden changes:** When a price point leaves the calculation window, it can cause abrupt changes in the SMA
-* **Complementary tools:** Best used with momentum oscillators, volume indicators, or other trend confirmation tools
+- **Implementation:** Recalculates the full sum every few thousand ticks.
+- **Rationale:** Prevents floating-point errors from accumulating in the running sum over very long data streams.
 
 ## References
 
-1. Edwards, R.D. and Magee, J. (2007). *Technical Analysis of Stock Trends*. CRC Press.
-2. Murphy, J.J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
-3. Kaufman, P. (2013). *Trading Systems and Methods*, 5th Edition. Wiley Trading.
+- Murphy, John J. "Technical Analysis of the Financial Markets." New York Institute of Finance, 1999.

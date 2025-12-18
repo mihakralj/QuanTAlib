@@ -1,107 +1,141 @@
 # MAMA: MESA Adaptive Moving Average
 
-## Overview and Purpose
+## What It Does
 
-The MESA Adaptive Moving Average (MAMA) is an advanced technical indicator that automatically adjusts its responsiveness based on market cycles. Developed by John Ehlers and introduced in 2001 in his book "MESA and Trading Market Cycles," MAMA applies sophisticated signal processing techniques from electrical engineering to market analysis.
+The MESA Adaptive Moving Average (MAMA) is a sophisticated trend-following indicator that adapts its responsiveness based on the rate of change of the market's phase (cycle). Unlike conventional adaptive averages that rely on volatility, MAMA uses the Hilbert Transform to determine the dominant cycle period and phase. It produces two lines: the MAMA line (primary) and the FAMA line (Following Adaptive Moving Average), which acts as a confirmation signal.
 
-Unlike other adaptive moving averages that typically adjust based on volatility or momentum, MAMA uses the Hilbert Transform to identify the dominant cycle period and phase of the market. This unique approach allows the indicator to adapt more intelligently to changing market conditions. MAMA consists of two lines - the primary MAMA line and a Following Adaptive Moving Average (FAMA) that serves as a confirmation signal and helps identify trend direction.
+## Historical Context
 
-## Core Concepts
+Developed by John Ehlers and introduced in his 2001 book *"MESA and Trading Market Cycles"*, MAMA represents a significant leap in applying Digital Signal Processing (DSP) to technical analysis. Ehlers, an electrical engineer, adapted techniques used in geophysical exploration to financial markets, aiming to solve the perennial problem of lag in moving averages by distinguishing between cycle mode (ranging) and trend mode.
 
-* **Cycle-based adaptation:** Uses Hilbert Transform techniques to detect dominant market cycles and adjust responsiveness accordingly
-* **Phase measurement:** Calculates instantaneous phase angles to determine optimal adaptation speed rather than relying on simple volatility measures
-* **Dual-line system:** Provides both a primary signal (MAMA) and a confirmation line (FAMA) for improved trend identification
-* **Self-optimizing smoothing:** Automatically adjusts alpha (smoothing factor) based on detected market cycle characteristics
+## How It Works
 
-MAMA achieves its adaptive nature through sophisticated digital signal processing techniques that identify the market's dominant cycle length and phase. By measuring the rate of phase change, the indicator can determine precisely how fast it should adapt to price changes - becoming more responsive during trending markets with clear cycles and more stable during choppy, unclear conditions.
+### The Core Idea
 
-## Common Settings and Parameters
+MAMA assumes that markets cycle. By measuring the phase rate of change of these cycles, MAMA determines whether the market is trending or cycling.
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Fast Limit | 0.5 | Maximum adaptation rate | Lower for less sensitivity in volatile markets, increase for faster response |
-| Slow Limit | 0.05 | Minimum adaptation rate | Raise for more stability in ranging markets, lower for more reactivity |
-| Source | Close | Data point used for calculation | Change to HL2 or HLC3 for more balanced price representation |
+- **Trending Market:** Phase changes rapidly. MAMA increases its `alpha` (smoothing factor) to track price closely.
+- **Cycling Market:** Phase changes slowly. MAMA decreases its `alpha` to filter out noise and avoid whipsaws.
 
-**Pro Tip:** Many professional traders find that slight adjustments to the Fast Limit (0.4-0.5) while keeping the Slow Limit steady (0.05) creates an optimal balance between responsiveness and stability across most market conditions.
+### Mathematical Foundation
 
-## Calculation and Mathematical Foundation
+The algorithm involves several DSP steps:
 
-**Simplified explanation:**
-MAMA works by identifying the market's current dominant cycle and how quickly that cycle is changing. It then uses this information to adjust how fast the moving average responds to price changes. The faster the market's cycle is changing, the more responsive MAMA becomes; the more stable the cycle, the smoother MAMA becomes.
+1. **Hilbert Transform:** Decomposes the price series into In-Phase ($I$) and Quadrature ($Q$) components.
+2. **Phase Calculation:** Determines the instantaneous phase angle: $\text{Phase} = \arctan(Q/I)$.
+3. **Adaptive Alpha:** Calculated based on the rate of change of the phase ($\Delta\phi$):
+   $$ \alpha = \frac{\text{FastLimit}}{\Delta\phi} $$
+   The result is clamped between `SlowLimit` and `FastLimit`.
+4. **MAMA Calculation:**
+   $$ \text{MAMA} = \alpha \cdot \text{Price} + (1 - \alpha) \cdot \text{MAMA}_{prev} $$
+5. **FAMA Calculation:**
+   $$ \text{FAMA} = 0.5 \cdot \alpha \cdot \text{MAMA} + (1 - 0.5 \cdot \alpha) \cdot \text{FAMA}_{prev} $$
 
-**Technical formula:**
+### Implementation Details
 
-1. Apply initial smoothing and Hilbert Transform to generate in-phase (I) and quadrature (Q) components
-2. Calculate instantaneous phase: Phase = arctan(Q/I)
-3. Measure delta phase (phase change rate): DeltaPhase = Previous Phase - Current Phase
-4. Calculate adaptive alpha: Alpha = FastLimit / (DeltaPhase/0.5 + 1), constrained between SlowLimit and FastLimit
-5. Apply to price: MAMA = Alpha × Price + (1-Alpha) × Previous MAMA
-6. Calculate following average: FAMA = 0.5 × Alpha × MAMA + (1-0.5×Alpha) × Previous FAMA
+The implementation uses a Homodyne Discriminator to measure the cycle period and phase. It requires a lookback buffer of 7 samples to perform the necessary smoothing and Hilbert Transform operations. Despite the mathematical complexity, the update step is **O(1)** as it relies on a fixed-size window.
 
-> 🔍 **Technical Note:** The Hilbert Transform implementation in MAMA uses specialized digital signal processing techniques to create a 90-degree phase-shifted version of the price series. This allows for precise measurement of instantaneous phase angles and cycle periods. The phase calculation is critical - when markets have a clear cycle, phase changes remain consistent, resulting in moderate adaptation; when cycles break down or change rapidly, phase shifts dramatically, causing MAMA to adjust its responsiveness accordingly.
+## Configuration
 
-## Interpretation Details
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Fast Limit | 0.5 | Maximum adaptation rate | Controls sensitivity in trending markets. Higher = faster response. |
+| Slow Limit | 0.05 | Minimum adaptation rate | Controls stability in ranging markets. Lower = smoother. |
 
-MAMA provides several key insights for traders:
+## C# Usage
 
-* When MAMA crosses above FAMA, it often signals the beginning of an uptrend
-* When MAMA crosses below FAMA, it often signals the beginning of a downtrend
-* The distance between MAMA and FAMA indicates trend strength - wider separation suggests stronger trends
-* The slope of both lines provides insight into trend momentum and potential continuation
-* When MAMA and FAMA flatten and move together, it suggests consolidation or trend exhaustion
-* The adaptation speed of MAMA itself offers insight into market cycle clarity
-
-MAMA is particularly valuable for identifying trends in markets with varying cycle characteristics. Its cycle-based adaptation approach provides cleaner signals in markets that alternate between trending and cyclical behavior, making it especially useful for swing trading and position trading strategies.
-
-## Limitations and Considerations
-
-* **Market conditions:** May struggle in markets with very erratic or rapidly changing cycles
-* **Computational complexity:** More resource-intensive than most moving averages due to Hilbert Transform calculations
-* **Parameter sensitivity:** While adaptive, the Fast/Slow Limit settings still influence overall behavior
-* **Mathematical complexity:** Requires proper implementation of digital signal processing concepts for accurate results
-* **Complementary tools:** Works best when combined with momentum indicators or volume analysis for confirmation
-
-## C# Implementation
-
-### Standard Usage
+### Streaming Updates (Single Instance)
 
 ```csharp
 using QuanTAlib;
 
-// Create MAMA with default parameters
 var mama = new Mama(fastLimit: 0.5, slowLimit: 0.05);
 
-// Update with new price
-var result = mama.Update(new TValue(DateTime.UtcNow, 100.0));
-Console.WriteLine($"MAMA: {result.Value}");
-Console.WriteLine($"FAMA: {mama.Fama.Value}");
+// Process each new bar
+TValue result = mama.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"MAMA: {result.Value:F2}");
+Console.WriteLine($"FAMA: {mama.Fama.Value:F2}");
+
+// Check if buffer is full
+if (mama.IsHot)
+{
+    // Indicator is fully initialized
+}
 ```
 
-### Static API (High Performance)
+### Batch Processing (Historical Data)
 
 ```csharp
-// Calculate MAMA for an entire array
-double[] prices = { ... };
-double[] results = new double[prices.Length];
+// TSeries API (object-oriented)
+TSeries prices = ...;
+TSeries mamaValues = Mama.Batch(prices, fastLimit: 0.5, slowLimit: 0.05);
 
-Mama.Batch(prices, results, fastLimit: 0.5, slowLimit: 0.05);
+// High-performance Span API (zero allocation)
+double[] prices = new double[10000];
+double[] output = new double[10000];
+Mama.Calculate(prices.AsSpan(), output.AsSpan(), fastLimit: 0.5, slowLimit: 0.05);
 ```
 
-### Event-Driven
+### Event-Driven Architecture
 
 ```csharp
 var source = new TSeries();
 var mama = new Mama(source);
 
-mama.Pub += (item) => {
-    Console.WriteLine($"MAMA: {item.Value}");
-    Console.WriteLine($"FAMA: {mama.Fama.Value}");
+// Subscribe to MAMA output
+mama.Pub += (value) => {
+    Console.WriteLine($"New MAMA value: {value.Value}");
+    Console.WriteLine($"New FAMA value: {mama.Fama.Value}");
 };
+
+// Feeding source automatically triggers the chain
+source.Add(new TValue(DateTime.Now, 105.2));
 ```
+
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Constant time DSP calculation |
+| Batch processing | O(n) | Fast sequential processing |
+| Memory footprint | O(1) | Fixed-size RingBuffers (7 elements) |
+
+## Interpretation
+
+### Trading Signals
+
+#### Crossovers
+
+- **Bullish:** MAMA crosses above FAMA. This typically happens early in a new uptrend.
+- **Bearish:** MAMA crosses below FAMA. This signals the start of a downtrend.
+
+#### Trend Strength
+
+- **Separation:** The distance between MAMA and FAMA indicates the strength of the trend. Wide separation suggests a strong trend; convergence suggests consolidation.
+
+### When It Works Best
+
+- **Cycle-to-Trend Transitions:** MAMA excels at identifying when a market breaks out of a cycle into a trend, adapting its speed instantly.
+
+### When It Struggles
+
+- **Erratic Volatility:** Extremely noisy markets with no discernible cycle or trend can cause the phase calculation to be erratic, leading to false signals.
+
+### Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Fixed-Size Buffers
+
+- **Implementation:** Uses `RingBuffer` of size 7.
+- **Rationale:** The Hilbert Transform and smoothing filters used by Ehlers have fixed coefficients requiring exactly 7 historical points. This ensures O(1) memory usage.
+
+### Choice: Stack Allocation for Batch
+
+- **Implementation:** Uses `stackalloc` for internal buffers in the static `Calculate` method.
+- **Rationale:** Eliminates heap allocations during batch processing, maximizing performance for large datasets.
 
 ## References
 
-1. Ehlers, J. (2001). *MESA and Trading Market Cycles*. John Wiley & Sons.
-2. Ehlers, J. (2002). "Using the MESA Adaptive Moving Average," *Technical Analysis of Stocks & Commodities*, Volume 20: June.
-3. Ehlers, J. (2013). *Cycle Analytics for Traders*. Wiley Trading.
+- Ehlers, John F. "MESA and Trading Market Cycles." John Wiley & Sons, 2001.
+- Ehlers, John F. "Cycle Analytics for Traders." John Wiley & Sons, 2013.

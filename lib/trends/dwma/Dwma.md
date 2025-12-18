@@ -1,128 +1,152 @@
 # DWMA: Double Weighted Moving Average
 
-## Overview and Purpose
+## What It Does
 
-The Double Weighted Moving Average (DWMA) is a technical indicator that applies weighted averaging twice in sequence to create a smoother signal with enhanced noise reduction. Developed in the late 1990s as an evolution of traditional weighted moving averages, the DWMA was created by quantitative analysts seeking enhanced smoothing without the excessive lag typically associated with longer period averages. By applying a weighted moving average calculation to the results of an initial weighted moving average, DWMA achieves more effective filtering while preserving important trend characteristics.
+The Double Weighted Moving Average (DWMA) is a smoothing indicator that applies a Weighted Moving Average (WMA) twice. By smoothing the data once and then smoothing the result again, DWMA produces an exceptionally clean curve that filters out significant market noise. The trade-off is increased lag compared to a single WMA, making it more suitable for identifying major trends rather than short-term scalping.
 
-## Core Concepts
+## Historical Context
 
-* **Cascaded filtering:** DWMA applies weighted averaging twice in sequence for enhanced smoothing and superior noise reduction
-* **Linear weighting:** Uses progressively increasing weights for more recent data in both calculation passes
-* **Market application:** Particularly effective for trend following strategies where noise reduction is prioritized over rapid signal response
-* **Timeframe flexibility:** Works across multiple timeframes but particularly valuable on daily and weekly charts for identifying significant trends
+While the concept of double smoothing dates back to the early days of technical analysis (with the Triangular Moving Average being a close cousin), the DWMA gained utility as computing power allowed traders to easily chain indicators. It represents a logical extension of the WMA for traders who found the standard WMA too jittery but appreciated its linear weighting scheme.
 
-The core innovation of DWMA is its two-stage approach that creates more effective noise filtering while minimizing the additional lag typically associated with longer-period or higher-order filters. This sequential processing creates a more refined output that balances noise reduction and signal preservation better than simply increasing the length of a standard weighted moving average.
+## How It Works
 
-## Common Settings and Parameters
+### The Core Idea
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Length | 14 | Controls the lookback period for both WMA calculations | Increase for smoother signals in volatile markets, decrease for more responsiveness |
-| Source | close | Price data used for calculation | Consider using hlc3 for a more balanced price representation |
+Think of DWMA as a "filter of a filter."
 
-**Pro Tip:** For trend following, use a length of 10-14 with DWMA instead of a single WMA with double the period - this provides better smoothing with less lag than simply increasing the period of a standard WMA.
+1. First, you calculate a standard WMA of the price. This removes high-frequency noise but leaves some jaggedness.
+2. Then, you calculate a WMA of that *first* WMA. This polishes the curve, resulting in a very smooth line that clearly defines the underlying trend direction.
 
-## Calculation and Mathematical Foundation
+### Mathematical Foundation
 
-**Simplified explanation:**
-DWMA first calculates a weighted moving average where recent prices have more importance than older prices. Then, it applies the same weighted calculation again to the results of the first calculation, creating a smoother line that reduces market noise more effectively.
+1. Calculate the first WMA: $WMA_1 = WMA(Price, n)$
+2. Calculate the second WMA: $DWMA = WMA(WMA_1, n)$
 
-**Technical formula:**
+Where $n$ is the period length.
 
-```text
-DWMA is calculated by applying WMA twice:
+Because WMA uses linear weighting (triangle weights), applying it twice creates a weighting structure that resembles a bell curve (Gaussian-like), giving the most weight to the center of the lookback window and tapering off smoothly at both ends.
 
-1. First WMA calculation:
-   WMA₁ = (P₁ × w₁ + P₂ × w₂ + ... + Pₙ × wₙ) / (w₁ + w₂ + ... + wₙ)
+### Implementation Details
 
-2. Second WMA calculation applied to WMA₁:
-   DWMA = (WMA₁₁ × w₁ + WMA₁₂ × w₂ + ... + WMA₁ₙ × wₙ) / (w₁ + w₂ + ... + wₙ)
-```
+Our implementation wraps two instances of the `Wma` class.
 
-Where:
+- **Complexity:** O(1) per update (since WMA is O(1)).
+- **Memory:** O(period) to store the buffers for both internal WMAs.
+- **Warmup:** Requires roughly $2 \times period$ bars to fully stabilize.
 
-* Linear weights: most recent value has weight = n, second most recent has weight = n-1, etc.
-* n is the period length
-* Sum of weights = n(n+1)/2
+## Configuration
 
-**O(1) Optimization - Inline Dual WMA Architecture:**
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 14 | Lookback window | Shorter = Faster trend detection; Longer = Major trend identification |
 
-This implementation uses an advanced O(1) algorithm with two complete inline WMA calculations. Each WMA uses the dual running sums technique:
+**Configuration note:** A DWMA(10) will have roughly the same lag as a WMA(15-20) but will be significantly smoother.
 
-1. **First WMA (source → wma1)**:
-   * Maintains buffer1, sum1, weighted_sum1
-   * Recurrence: `W₁_new = W₁_old - S₁_old + (n × P_new)`
-   * Cached denominator norm1 after warmup
+## C# Usage
 
-2. **Second WMA (wma1 → dwma)**:
-   * Maintains buffer2, sum2, weighted_sum2
-   * Recurrence: `W₂_new = W₂_old - S₂_old + (n × WMA₁_new)`
-   * Cached denominator norm2 after warmup
-
-**Implementation details:**
-
-* Both WMAs fully integrated inline (no helper functions)
-* Each maintains independent state: buffers, sums, counters, norms
-* Both warm up independently from bar 1
-* Performance: ~16 operations per bar regardless of period (vs ~10,000 for naive O(n²) implementation)
-
-**Why inline architecture:**
-Unlike helper functions, the inline approach makes all state variables and calculations visible in a single scope, eliminating function call overhead and making the dual-pass nature explicit. This is ideal for educational purposes and when debugging complex cascaded filters.
-
-> 🔍 **Technical Note:** The dual-pass O(1) approach creates a filter that effectively increases smoothing without the quadratic increase in computational cost. Original O(n²) implementations required ~10,000 operations for period=100; this optimized version requires only ~16 operations, achieving a 625x speedup while maintaining exact mathematical equivalence.
-
-## C# Implementation
-
-### Standard Usage
+### Streaming Updates (Single Instance)
 
 ```csharp
-// Create DWMA with period 14
+using QuanTAlib;
+
+var dwma = new Dwma(period: 14);
+
+// Process each new bar
+TValue result = dwma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"DWMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (dwma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries dwmaValues = Dwma.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Dwma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
 var dwma = new Dwma(14);
 
-// Update with new value
-var result = dwma.Update(new TValue(DateTime.Now, 123.45));
-Console.WriteLine($"DWMA: {result.Value}");
-```
-
-### Span API (High Performance)
-
-```csharp
-// Calculate on a span of data
-ReadOnlySpan<double> input = ...;
-Span<double> output = new double[input.Length];
-
-Dwma.Batch(input, output, 14);
-```
-
-### Bar Correction
-
-```csharp
-// Update with a value
+// New bar
 dwma.Update(new TValue(time, 100), isNew: true);
 
-// Correct the last value
-dwma.Update(new TValue(time, 101), isNew: false);
+// Intra-bar update
+dwma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
 ```
 
-## Interpretation Details
+## Performance Profile
 
-DWMA can be used in various trading strategies:
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Two O(1) WMA updates |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Two passes over the data |
+| Memory footprint | O(period) | Two RingBuffers |
 
-* **Trend identification:** The direction of DWMA indicates the prevailing trend
-* **Signal generation:** Crossovers between price and DWMA generate trade signals, though they occur later than with single WMA
-* **Support/resistance levels:** DWMA can act as dynamic support during uptrends and resistance during downtrends
-* **Trend strength assessment:** Distance between price and DWMA can indicate trend strength
-* **Noise filtering:** Using DWMA to filter noisy price data before applying other indicators
+## Interpretation
 
-## Limitations and Considerations
+### Trading Signals
 
-* **Market conditions:** Less effective in choppy, sideways markets where its lag becomes a disadvantage
-* **Lag factor:** More lag than single WMA due to double calculation process
-* **Initialization requirement:** Requires more data points for full calculation, showing more NA values at chart start
-* **Short-term trading:** May miss short-term trading opportunities due to increased smoothing
-* **Complementary tools:** Best used with momentum oscillators or volume indicators for confirmation
+#### Trend Identification
+
+- **Major Trend:** DWMA is excellent for defining the "background" trend. If price is above DWMA, the bias is bullish.
+- **Support/Resistance:** Due to its smoothness, DWMA often acts as dynamic support in uptrends and resistance in downtrends.
+
+#### Crossovers
+
+- **Price Crossover:** Price crossing DWMA signals a major trend change.
+- **DWMA/WMA Crossover:** Using a WMA(14) crossing a DWMA(14) creates a signal similar to MACD but directly on the price chart.
+
+### When It Works Best
+
+- **Long-Term Trends:** DWMA filters out the "noise" of daily volatility, letting you stay in a trade during minor pullbacks.
+- **Visual Clarity:** It produces a very clean line on the chart, reducing visual clutter.
+
+### When It Struggles
+
+- **Scalping:** The double smoothing introduces too much lag for very short-term trading.
+- **Reversals:** DWMA will be slow to recognize a sharp V-bottom or V-top reversal.
+
+## Comparison: DWMA vs WMA vs SMA
+
+| Aspect | WMA | DWMA | SMA |
+|--------|-----|------|-----|
+| **Lag** | Moderate | High | High |
+| **Smoothness** | Moderate | Very High | High |
+| **Responsiveness** | Moderate | Low | Low |
+| **Weighting** | Linear | Bell-curve-like | Equal |
+
+**Summary:** Use DWMA when smoothness is your priority and you are willing to accept some lag to avoid false signals.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Composition
+
+- **Alternative:** Implement a single "Double Weighted" formula.
+- **Trade-off:** Slight function call overhead.
+- **Rationale:** Reusing the optimized `Wma` class ensures correctness and benefits from any future optimizations to the base WMA (like SIMD).
+
+### Choice: Temporary Buffer for Batch
+
+- **Alternative:** Single pass calculation.
+- **Trade-off:** Memory allocation for intermediate results.
+- **Rationale:** Calculating DWMA in a single pass is mathematically complex and hard to vectorize. Two optimized WMA passes are faster and easier to maintain.
 
 ## References
 
-* Jurik, M. "Double Weighted Moving Averages: Theory and Applications in Algorithmic Trading Systems", Jurik Research Papers, 2004
-* Ehlers, J.F. "Cycle Analytics for Traders," Wiley, 2013
+- Kaufman, Perry J. "Trading Systems and Methods." Wiley, 2013.

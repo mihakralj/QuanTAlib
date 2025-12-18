@@ -1,109 +1,129 @@
-# RMA: Wilder's Moving Average
+# RMA: Running Moving Average
 
-## Overview and Purpose
+## What It Does
 
-Wilder's Moving Average (RMA), also known as the Smoothed Moving Average (SMMA), is a specialized technical indicator designed to provide superior noise reduction while maintaining sensitivity to meaningful price changes. Developed by J. Welles Wilder Jr. and introduced in his influential 1978 book "New Concepts in Technical Trading Systems," RMA was specifically created to power Wilder's revolutionary technical indicators like RSI, ATR, and DMI/ADX.
+The Running Moving Average (RMA), also known as the Smoothed Moving Average (SMMA) or Modified Moving Average (MMA), is an exponential moving average with a specific smoothing factor of $1/N$. It is most famous for being the smoothing method used by J. Welles Wilder Jr. in his core indicators, including the RSI (Relative Strength Index), ATR (Average True Range), and ADX (Average Directional Index).
 
-RMA achieves its distinctive smoothing characteristics by using a specific smoothing factor of 1/period, positioning it as an intermediate option between the simple moving average (SMA) and the standard exponential moving average (EMA). This unique approach provides the consistent, well-behaved smoothing necessary for Wilder's indicators to function properly.
+## Historical Context
 
-## Core Concepts
+Introduced by J. Welles Wilder Jr. in his seminal 1978 book *"New Concepts in Technical Trading Systems"*, the RMA was designed to be easily calculated by hand. Wilder needed a method that incorporated all historical data (unlike a simple moving average that drops old data) but was simpler to update than a standard EMA.
 
-- **Specialized smoothing:** Uses a fixed 1/period smoothing factor that creates more stable output than standard EMA
-- **Noise reduction:** Superior filtering of market noise compared to EMA while maintaining better responsiveness than SMA
-- **Indicator foundation:** Forms the mathematical basis for Wilder's suite of technical indicators (RSI, ATR, ADX)
-- **Balanced response:** Provides an optimal middle ground between the responsiveness of EMA and the stability of SMA
+## How It Works
 
-RMA achieves its unique characteristics by applying a smoothing factor ($\alpha = 1/N$) that is consistently lower than the standard EMA formula ($\alpha = 2/(N+1)$). This makes RMA approximately twice as slow to react compared to a standard EMA of the same period length, creating a smoother line that better filters out market noise.
+### The Core Idea
 
-## Common Settings and Parameters
+The RMA is essentially an Exponential Moving Average (EMA) but with a much slower reaction time for the same period $N$. While a standard EMA uses a smoothing factor of $\alpha = 2/(N+1)$, the RMA uses $\alpha = 1/N$.
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Length | 14 | Controls the amount of smoothing | Wilder's original indicators used 14; increase for more smoothing, decrease for more responsiveness |
-| Source | Close | Data point used for calculation | Change to High/Low for volatility measures or HL2/HLC3 for balanced price representation |
-| Alpha override | auto | Direct control of smoothing factor | Set manually to fine-tune behavior beyond standard period settings |
+This means an RMA of period 14 is roughly equivalent to an EMA of period 27 ($2N-1$). This slower response makes it exceptionally stable and suitable for smoothing highly volatile data like True Range.
 
-**Pro Tip:** When replacing RMA in Wilder's original indicators with other moving averages, remember that an EMA with twice the period length (e.g., EMA(28)) will approximate the smoothing behavior of RMA(14).
+### Mathematical Foundation
 
-## Calculation and Mathematical Foundation
+The formula is recursive:
 
-**Simplified explanation:**
-RMA works by taking a small portion (1/period) of the current price and adding it to a large portion ((period-1)/period) of the previous RMA value. This creates a very smooth moving average that reduces market noise while still adapting to price changes over time.
+$$ RMA_{today} = \frac{(RMA_{yesterday} \times (N - 1)) + Price_{today}}{N} $$
 
-**Technical formula:**
-$$
-RMA_t = \alpha \cdot P_t + (1 - \alpha) \cdot RMA_{t-1}
-$$
+Which is mathematically equivalent to an EMA with $\alpha = 1/N$:
+
+$$ RMA_{today} = \alpha \times Price_{today} + (1 - \alpha) \times RMA_{yesterday} $$
 
 Where:
 
-- $RMA_t$ is the RMA value at time $t$
-- $P_t$ is the price at time $t$
-- $N$ is the period
+- $N$ = Period length
 - $\alpha = 1/N$
 
-> 🔍 **Technical Note:** Advanced implementations use mathematical compensation methods that correct initialization bias, providing accurate values from the first bar without waiting for a "warm-up" period. This compensation is calculated as: $RMA_{corrected} = RMA_{raw} / (1 - compensation)$, where compensation decays by $(1-\alpha)$ on each bar.
+### Implementation Details
 
-## C# Implementation
+Our implementation uses the recursive formula for O(1) updates.
 
-### Standard Usage
+- **Initialization:** The first value is typically a Simple Moving Average (SMA) of the first $N$ data points, as defined by Wilder.
+- **Precision:** We use double-precision floating point to minimize error accumulation over long series.
+
+## Configuration
+
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 14 | Lookback window | Standard is 14 (Wilder's default). |
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
 
 ```csharp
-// Create RMA with period 14
+using QuanTAlib;
+
+var rma = new Rma(period: 14);
+
+// Process each new bar
+TValue result = rma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"RMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (rma.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries rmaValues = Rma.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Rma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
 var rma = new Rma(14);
 
-// Update with new values
-var result = rma.Update(new TValue(DateTime.UtcNow, 100.0));
-Console.WriteLine($"RMA: {result.Value}");
+// New bar
+rma.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+rma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
 ```
 
-### Span API (High Performance)
+## Performance Profile
 
-```csharp
-// Calculate RMA on a span of data
-double[] source = ...;
-double[] output = new double[source.Length];
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Simple scalar math |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(1) | Minimal state (previous value only) |
 
-// Zero-allocation calculation
-Rma.Batch(source, output, 14);
-```
+## Interpretation
 
-### Event-Driven
+### Trading Signals
 
-```csharp
-// Subscribe to a feed
-var feed = new CsvFeed("data.csv");
-var rma = new Rma(feed, 14);
+#### Trend Filter
 
-rma.Pub += (item) => Console.WriteLine($"RMA: {item.Value}");
-```
+- **Direction:** Because RMA is slower than EMA, it acts as an excellent long-term trend filter.
+- **Support/Resistance:** In strong trends, price often respects the RMA line as dynamic support/resistance.
 
-## Interpretation Details
+### When It Works Best
 
-RMA provides several key benefits for technical analysis:
+- **Smoothing Volatility:** RMA is the gold standard for smoothing volatile sub-indicators (like True Range to get ATR) because it doesn't react jerkily to single spikes.
 
-- Creates smoother trend lines compared to EMA, making trend direction easier to identify
-- Reduces whipsaws and false signals in indicator calculations
-- Maintains consistency across all of Wilder's indicators, enabling proper interpretation
-- Functions as an effective dynamic support/resistance level in trending markets
-- Provides stable baselines for measuring price momentum and volatility
+### When It Struggles
 
-RMA is primarily used as a smoothing component in other indicators rather than a standalone trend indicator.
+- **Fast Reversals:** Due to its lag (approx $2N-1$ EMA equivalent), it is too slow for catching rapid market turns.
 
-- **RSI:** Uses RMA to smooth gains and losses.
-- **ATR:** Uses RMA to smooth true range.
-- **ADX:** Uses RMA to smooth directional movement.
+## Architecture Notes
 
-## Limitations and Considerations
+This implementation makes specific trade-offs:
 
-- **Market conditions:** Slower response makes it less suitable for fast-moving markets or short timeframes
-- **Lag factor:** Exhibits more lag than standard EMA due to the smaller smoothing factor (approximately twice as much)
-- **Specialized use:** Primarily designed for Wilder's indicators rather than as a general-purpose moving average
-- **Parameter inflexibility:** Using the fixed 1/period smoothing factor reduces tuning options
-- **Complementary tools:** Best used with faster indicators or price action analysis to compensate for the lag
+### Choice: Wilder's Initialization
+
+- **Implementation:** The first value is the SMA of the first $N$ bars.
+- **Rationale:** Strict adherence to Wilder's definition ensures values match standard platforms (TradingView, etc.) exactly.
 
 ## References
 
-1. Wilder, J.W. (1978). *New Concepts in Technical Trading Systems*. Trend Research.
-2. Murphy, J.J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
-3. Kaufman, P.J. (2013). *Trading Systems and Methods*, 5th Edition. Wiley Trading.
+- Wilder, J. Welles Jr. "New Concepts in Technical Trading Systems." Trend Research, 1978.

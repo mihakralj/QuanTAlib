@@ -1,101 +1,156 @@
 # HMA: Hull Moving Average
 
-## Overview and Purpose
+## What It Does
 
-The Hull Moving Average (HMA) is a technical indicator designed to significantly reduce lag while maintaining smoothness in price data interpretation. Developed by Australian mathematician and trader Alan Hull in 2005, the HMA was created specifically to address the lagging nature of conventional moving averages. Hull sought to create an indicator that maintained effective smoothing capabilities while improving responsiveness, publishing his approach in "Better Trading with the Hull Moving Average" (2005). Through its multi-stage calculation process involving weighted moving averages and square-root period weighting, HMA provides traders with a more responsive tool for identifying trends and potential reversals.
+The Hull Moving Average (HMA) is famous for being "extremely fast and smooth." It solves the age-old problem of lag in moving averages by using weighted averages in a clever way to cancel out delay while simultaneously smoothing the data. The result is an indicator that hugs the price action tightly during trends but remains smooth enough to avoid false signals during minor corrections.
 
-## Core Concepts
+## Historical Context
 
-* **Reduced lag:** HMA substantially decreases the delay in trend identification compared to traditional moving averages
-* **Smoothing preservation:** Maintains effective noise filtering despite its increased responsiveness
-* **Market application:** Particularly effective for timing entries and exits in trending markets where minimizing lag is critical
-* **Timeframe flexibility:** Functions effectively across all timeframes with period adjustments to suit trading style
+Developed by Alan Hull in 2005, the HMA was introduced to the trading community as a solution to the lag vs. noise dilemma. Hull, an Australian mathematician and trader, realized that by over-weighting recent data using a specific combination of WMAs, he could virtually eliminate lag.
 
-The core innovation of HMA is its unique three-stage process that includes weighted averaging at different timeframes, followed by a momentum-enhanced smoothing phase. By applying weight calculations at half the specified period, then taking the difference between this result and the full-period calculation, and finally smoothing that difference with a square-root weighted calculation, HMA creates a moving average that anticipates price movements rather than simply following them.
+## How It Works
 
-## Common Settings and Parameters
+### The Core Idea
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Length | 9 | Controls the primary calculation period | Increase for smoother signals in volatile markets, decrease for more responsiveness |
-| Source | close | Price data used for calculation | Consider using hlc3 for a more balanced price representation |
+Hull's insight was based on the observation that if you take a short-term average and a long-term average, the difference between them can be used to predict where the price "should" be if there were no lag.
 
-**Pro Tip:** Using square numbers (4, 9, 16, 25, 36) as periods can produce optimal results with HMA due to the square root operation in the final calculation step.
+The algorithm has three steps:
 
-## Calculation and Mathematical Foundation
+1. Calculate a WMA with half the period ($n/2$). This is fast but noisy.
+2. Calculate a WMA with the full period ($n$). This is slow but smooth.
+3. Subtract the slow one from the fast one, double the result, and smooth *that* result with a WMA of the square root of the period ($\sqrt{n}$).
 
-**Simplified explanation:**
-HMA first calculates two weighted moving averages - one using half the specified period (which responds quickly) and one using the full period (which is smoother). It then doubles the faster WMA and subtracts the slower WMA to create a difference that emphasizes recent price direction. Finally, it applies another weighted moving average using the square root of the original period to smooth this difference.
+### Mathematical Foundation
 
-**Technical formula:**
-
-1. Calculate WMA with period n/2: WMA₁ = WMA(price, n/2)
-2. Calculate WMA with period n: WMA₂ = WMA(price, n)
-3. Calculate the difference: diff = 2 × WMA₁ - WMA₂
-4. Calculate final HMA: HMA = WMA(diff, √n)
+$$HMA = WMA\left( \sqrt{n}, \quad 2 \cdot WMA\left(\frac{n}{2}, P\right) - WMA(n, P) \right)$$
 
 Where:
 
-* n is the specified period
-* √n is the square root of n (rounded down)
+- $n$ is the period.
+- $P$ is the price series.
+- $WMA(period, data)$ is the Weighted Moving Average.
 
-> 🔍 **Technical Note:** The 2× multiplier applied to the faster WMA serves to amplify the momentum component, helping the HMA anticipate rather than just follow price movements.
+The term $2 \cdot WMA(n/2) - WMA(n)$ creates a "velocity" vector that overshoots the price slightly to compensate for lag. The final $WMA(\sqrt{n})$ smooths out this overshoot.
 
-## Interpretation Details
+### Implementation Details
 
-HMA can be used in various trading strategies:
+Our implementation orchestrates three internal `Wma` instances.
 
-* **Trend identification:** The direction of HMA indicates the prevailing trend
-* **Signal generation:** Crossovers between price and HMA generate trade signals earlier than with traditional moving averages
-* **Support/resistance levels:** HMA can act as dynamic support during uptrends and resistance during downtrends
-* **Trend strength assessment:** The angle of the HMA line can indicate trend strength
-* **Multiple timeframe analysis:** Using HMAs with different periods can confirm trends across different timeframes
+- **Complexity:** O(1) per update (since WMA is O(1)).
+- **Memory:** O(period) to store buffers for the three WMAs.
+- **Optimization:** The batch calculation uses `ArrayPool` to minimize allocations for intermediate buffers and SIMD instructions for the vector math.
 
-## Limitations and Considerations
+## Configuration
 
-* **Market conditions:** Less effective in ranging or choppy markets where increased responsiveness may generate false signals
-* **Overshooting:** The aggressive lag reduction can cause overshooting during sharp reversals
-* **Amplitude distortion:** The 2× multiplier in the formula can exaggerate price movements
-* **Gap sensitivity:** More prone to creating gaps in the moving average line during price gaps
-* **Complementary tools:** Best used alongside momentum oscillators or volume indicators for confirmation
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 14 | Lookback window | Shorter (9-12) = Scalping; Longer (20-50) = Swing Trading |
 
-## References
+**Configuration note:** HMA is significantly faster than SMA or EMA. An HMA(20) is often faster than an EMA(10).
 
-* Hull, Alan. "Better Trading with the Hull Moving Average." MTA Symposium Proceedings, 2005
+## C# Usage
 
-## C# Implementation
-
-### Standard Usage
+### Streaming Updates (Single Instance)
 
 ```csharp
 using QuanTAlib;
 
-// Initialize with period 9
-var hma = new Hma(9);
+var hma = new Hma(period: 14);
 
-// Update with new value
-TValue result = hma.Update(new TValue(time, price));
-Console.WriteLine($"HMA: {result.Value}");
+// Process each new bar
+TValue result = hma.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"HMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (hma.IsHot)
+{
+    // Indicator is fully initialized
+}
 ```
 
-### Zero-Allocation Span API
+### Batch Processing (Historical Data)
 
 ```csharp
-double[] prices = ...;
-double[] output = new double[prices.Length];
+// TSeries API
+TSeries prices = ...;
+TSeries hmaValues = Hma.Batch(prices, period: 14);
 
-// Calculate HMA for the entire array
-Hma.Batch(prices.AsSpan(), output.AsSpan(), period: 9);
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Hma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
 ```
 
-### Bar Correction
+### Bar Correction (isNew Parameter)
 
 ```csharp
-var hma = new Hma(9);
+var hma = new Hma(14);
 
-// Update with initial tick
+// New bar
 hma.Update(new TValue(time, 100), isNew: true);
 
-// Update with correction (same bar)
-hma.Update(new TValue(time, 101), isNew: false);
+// Intra-bar update
+hma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
 ```
+
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Three O(1) WMA updates |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Three passes over data + vector math |
+| Memory footprint | O(period) | Three RingBuffers |
+
+## Interpretation
+
+### Trading Signals
+
+#### Trend Identification
+
+- **Slope Change:** Because HMA turns so quickly, the most common signal is simply the change in slope (turning up or turning down).
+- **Price Crossover:** Price crossing the HMA is a very aggressive entry signal.
+
+#### Crossovers
+
+- **HMA Crossover:** HMA(9) crossing HMA(20) is a popular strategy for capturing short-term swings.
+
+### When It Works Best
+
+- **Swing Trading:** HMA is perfect for capturing the "meat" of a swing move. It gets you in early and gets you out before the reversal wipes out profits.
+
+### When It Struggles
+
+- **Overshoot:** In very choppy markets, the HMA can overshoot price spikes, creating a "hook" that looks like a reversal but is just a reaction to noise.
+
+## Comparison: HMA vs EMA vs SMA
+
+| Aspect | HMA | EMA | SMA |
+|--------|-----|-----|-----|
+| **Lag** | Very Low | Low | High |
+| **Smoothness** | High | Moderate | High |
+| **Responsiveness** | Very High | High | Low |
+| **Overshoot** | Moderate | Low | None |
+
+**Summary:** Use HMA when you need the absolute fastest reaction time without sacrificing smoothness.
+
+## Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Composition
+
+- **Alternative:** Single complex formula.
+- **Trade-off:** Overhead of managing 3 objects.
+- **Rationale:** Correctness. Implementing HMA from scratch is error-prone. Composing it from tested WMA units ensures reliability.
+
+### Choice: ArrayPool for Batch
+
+- **Alternative:** `new double[]`.
+- **Trade-off:** Complexity of `Rent`/`Return`.
+- **Rationale:** Batch processing often happens in tight loops (e.g., optimization). Allocating large arrays for intermediate results triggers GC. `ArrayPool` eliminates this pressure.
+
+## References
+
+- Hull, Alan. "Active Investing." Wrightbooks, 2005.
+- [Alan Hull's Official HMA Description](https://alan.hull.com.au/hma.html)

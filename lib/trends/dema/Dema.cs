@@ -188,28 +188,28 @@ public sealed class Dema : AbstractBase
         return result;
     }
 
-    public static TSeries Batch(TSeries source, int period)
+    public static TSeries Calculate(TSeries source, int period)
     {
         var dema = new Dema(period);
         return dema.Update(source);
     }
 
-    public static TSeries Batch(TSeries source, double alpha)
+    public static TSeries Calculate(TSeries source, double alpha)
     {
         var dema = new Dema(alpha);
         return dema.Update(source);
     }
 
-    public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         double alpha = 2.0 / (period + 1);
-        Batch(source, output, alpha);
+        Calculate(source, output, alpha);
     }
 
-    public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");

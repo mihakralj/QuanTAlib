@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
@@ -29,7 +30,7 @@ public sealed class Alma : AbstractBase
     private readonly double _offset;
     private readonly double _sigma;
     private readonly double[] _weights;
-    private readonly double _weightSum;
+    private readonly double _invWeightSum;
     private readonly RingBuffer _buffer;
 
     private record struct State(double LastValidValue);
@@ -74,7 +75,7 @@ public sealed class Alma : AbstractBase
             sum += _weights[i];
         }
 
-        _weightSum = sum;
+        _invWeightSum = 1.0 / sum;
     }
 
     public Alma(ITValuePublisher source, int period, double offset = 0.85, double sigma = 6.0)
@@ -198,7 +199,7 @@ public sealed class Alma : AbstractBase
         //         Matches Weights[Cap-Head ... Cap-1]
         double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
 
-        return (sum1 + sum2) / _weightSum;
+        return (sum1 + sum2) * _invWeightSum;
     }
 
     public static TSeries Batch(TSeries source, int period, double offset = 0.85, double sigma = 6.0)
@@ -216,8 +217,12 @@ public sealed class Alma : AbstractBase
             throw new ArgumentException("Source and output must have the same length");
 
         // Precompute weights
-        // Use stackalloc for small periods to avoid heap allocation
-        Span<double> weights = period <= 256 ? stackalloc double[period] : new double[period];
+        // Use stackalloc for small periods to avoid heap allocation, ArrayPool for large
+        double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> weights = period <= 256 
+            ? stackalloc double[period] 
+            : weightsArray!.AsSpan(0, period);
+
         double m = offset * (period - 1);
         double s = period / sigma;
         double s2 = 2 * s * s;
@@ -229,78 +234,88 @@ public sealed class Alma : AbstractBase
             weights[i] = Math.Exp(-(v * v) / s2);
             weightSum += weights[i];
         }
+        double invWeightSum = 1.0 / weightSum;
 
         // Buffer for sliding window
-        Span<double> buffer = period <= 256 ? stackalloc double[period] : new double[period];
+        double[]? bufferArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> buffer = period <= 256 
+            ? stackalloc double[period] 
+            : bufferArray!.AsSpan(0, period);
+
         int bufferIdx = 0;
         int count = 0;
         double lastValid = 0;
+        double currentWeightSum = 0;
 
-        for (int i = 0; i < source.Length; i++)
+        try
         {
-            double val = source[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
-
-            // Add to circular buffer
-            buffer[bufferIdx] = val;
-            bufferIdx = (bufferIdx + 1) % period;
-            if (count < period) count++;
-
-            // Calculate weighted sum
-            // We need to iterate buffer from oldest to newest to match weights[0..period-1]
-            // Oldest is at: (bufferIdx - count + period) % period
-            // But wait, the buffer wraps.
-            // Let's just iterate 0..count-1 and map to buffer index.
-
-            double sum = 0;
-            double currentWeightSum = 0;
-
-            int startIdx = (bufferIdx - count + period) % period;
-            int weightOffset = period - count; // Align weights to end
-
-            // Optimization: If full, we can use SIMD if we unwrap the buffer or handle wrapping.
-            // For simplicity in static method (and since we can't easily unwrap stackalloc),
-            // we'll use scalar loop with modulo.
-            // Or better: copy to a temporary linear buffer? No, that's too much copying.
-
-            // Actually, for full period, we can do two loops (part1, part2) to avoid modulo in loop.
-
-            if (count == period)
+            for (int i = 0; i < source.Length; i++)
             {
-                // Buffer is full. startIdx is bufferIdx (which is the oldest, since we just wrote to bufferIdx-1)
-                // Wait, bufferIdx points to the NEXT write position.
-                // So bufferIdx is the Oldest.
+                double val = source[i];
+                if (double.IsFinite(val))
+                    lastValid = val;
+                else
+                    val = lastValid;
 
-                // Part 1: bufferIdx to End
-                int part1Len = period - bufferIdx;
-                for (int j = 0; j < part1Len; j++)
+                // Add to circular buffer
+                buffer[bufferIdx] = val;
+                bufferIdx = (bufferIdx + 1) % period;
+                
+                if (count < period)
                 {
-                    sum += buffer[bufferIdx + j] * weights[j];
+                    count++;
+                    // Incremental weight sum update for warmup
+                    // We added weights[period - count] to the active set
+                    currentWeightSum += weights[period - count];
                 }
 
-                // Part 2: 0 to bufferIdx
-                for (int j = 0; j < bufferIdx; j++)
-                {
-                    sum += buffer[j] * weights[part1Len + j];
-                }
+                double sum = 0;
 
-                output[i] = sum / weightSum;
+                if (count == period)
+                {
+                    // Buffer is full. bufferIdx points to the oldest element (next write position)
+                    // We split the dot product into two parts to handle the circular buffer wrap-around
+
+                    // Part 1: From bufferIdx to End of buffer
+                    // Matches the beginning of the weights
+                    int part1Len = period - bufferIdx;
+                    sum += buffer.Slice(bufferIdx, part1Len).DotProduct(weights.Slice(0, part1Len));
+
+                    // Part 2: From Start of buffer to bufferIdx
+                    // Matches the rest of the weights
+                    sum += buffer.Slice(0, bufferIdx).DotProduct(weights.Slice(part1Len));
+
+                    output[i] = sum * invWeightSum;
+                }
+                else
+                {
+                    // Partial buffer
+                    int startIdx = (bufferIdx - count + period) % period;
+                    int weightOffset = period - count;
+
+                    if (startIdx + count <= period)
+                    {
+                        // Contiguous in buffer
+                        sum = buffer.Slice(startIdx, count).DotProduct(weights.Slice(weightOffset, count));
+                    }
+                    else
+                    {
+                        // Wrapped in buffer
+                        int part1Len = period - startIdx;
+                        int part2Len = count - part1Len;
+
+                        sum = buffer.Slice(startIdx, part1Len).DotProduct(weights.Slice(weightOffset, part1Len));
+                        sum += buffer.Slice(0, part2Len).DotProduct(weights.Slice(weightOffset + part1Len, part2Len));
+                    }
+
+                    output[i] = currentWeightSum > 0 ? sum / currentWeightSum : 0;
+                }
             }
-            else
-            {
-                // Partial buffer
-                for (int j = 0; j < count; j++)
-                {
-                    int idx = (startIdx + j) % period;
-                    double w = weights[weightOffset + j];
-                    sum += buffer[idx] * w;
-                    currentWeightSum += w;
-                }
-                output[i] = currentWeightSum > 0 ? sum / currentWeightSum : 0;
-            }
+        }
+        finally
+        {
+            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
+            if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
         }
     }
 

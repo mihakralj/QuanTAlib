@@ -1,89 +1,140 @@
-# MGDI - McGinley Dynamic Indicator
+# MGDI: McGinley Dynamic Indicator
 
-The McGinley Dynamic Indicator (MGDI) is a type of moving average that was designed to track the market better than existing moving average indicators. It is a technical indicator that improves upon moving average lines by adjusting for shifts in market speed.
+## What It Does
 
-## Core Concepts
+The McGinley Dynamic Indicator (MGDI) is a smoothing mechanism designed to track market prices more effectively than traditional moving averages. Unlike the SMA or EMA, which use fixed time periods, the MGDI automatically adjusts its speed based on the market's velocity. It minimizes "price separation" (the gap between the price and the average) and "price hugs" (whipsaws), providing a more reliable trend line that adapts to changing volatility.
 
-The McGinley Dynamic Indicator solves the problem of varying market speeds by incorporating an automatic adjustment factor into its formula. This factor speeds up or slows down the indicator in trending or ranging markets.
+## Historical Context
 
-* **Adaptive:** Automatically adjusts to the speed of the market.
-* **Smoothing:** Minimizes price separation and "price hugs" to avoid whipsaws.
-* **Lag Reduction:** Reduces lag compared to traditional moving averages like SMA or EMA.
+Invented by John R. McGinley, a Certified Market Technician, the indicator was designed to address the flaws of conventional moving averages—specifically their inability to adjust to the speed of the market. McGinley argued that moving averages should not be relied upon as trading signals themselves but rather as a mechanism to track the market's "steering mechanism."
 
-## Parameters
+## How It Works
 
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `period` | `int` | 14 | The number of periods used for the calculation (N). |
-| `k` | `double` | 0.6 | A constant factor, typically 60% (0.6). |
+### The Core Idea
 
-## Formula
+The MGDI incorporates an automatic adjustment factor that speeds up or slows down the indicator based on the ratio of the current price to the indicator's previous value.
 
-The formula for the McGinley Dynamic Indicator is:
+- **Uptrends:** When prices rise quickly, the indicator slows down to avoid overreacting to false breakouts.
+- **Downtrends:** When prices fall, the indicator speeds up to track the decline closely, reflecting the panic nature of sell-offs.
 
-$$
-MGDI_i = MGDI_{i-1} + \frac{Price_i - MGDI_{i-1}}{k \times N \times (\frac{Price_i}{MGDI_{i-1}})^4}
-$$
+### Mathematical Foundation
+
+The formula is recursive:
+
+$$ MGDI_{new} = MGDI_{prev} + \frac{Price - MGDI_{prev}}{k \times N \times (\frac{Price}{MGDI_{prev}})^4} $$
 
 Where:
 
-* $MGDI_i$ is the current McGinley Dynamic value.
-* $MGDI_{i-1}$ is the previous McGinley Dynamic value.
-* $Price_i$ is the current price.
-* $N$ is the period (number of periods).
-* $k$ is the constant factor (usually 0.6).
+- $N$ = Period (typically 14)
+- $k$ = Constant (typically 0.6, representing 60%)
+- The term $(\frac{Price}{MGDI_{prev}})^4$ is the accelerator/decelerator.
 
-## C# Implementation
+**Analysis of the Adjustment Factor:**
 
-### Standard Usage
+- If $Price > MGDI$ (Uptrend), the ratio is $>1$. Raised to the 4th power, it becomes large, increasing the denominator. A larger denominator reduces the adjustment step, making the MGDI move **slower**.
+- If $Price < MGDI$ (Downtrend), the ratio is $<1$. Raised to the 4th power, it becomes small, decreasing the denominator. A smaller denominator increases the adjustment step, making the MGDI move **faster**.
+
+## Configuration
+
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 14 | Base lookback window | Standard is 14. Adjust based on the timeframe (e.g., 10 for short-term, 20+ for long-term). |
+| K | 0.6 | Sensitivity constant | 0.6 (60%) is the standard. Lower values make it more sensitive; higher values make it smoother. |
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
 
 ```csharp
 using QuanTAlib;
 
-// Create the indicator with default parameters (Period=14, k=0.6)
 var mgdi = new Mgdi(period: 14, k: 0.6);
 
-// Update with a new value
-var result = mgdi.Update(new TValue(DateTime.UtcNow, 100.0));
+// Process each new bar
+TValue result = mgdi.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"MGDI: {result.Value:F2}");
 
-Console.WriteLine($"MGDI: {result.Value}");
+// Check if buffer is full
+if (mgdi.IsHot)
+{
+    // Indicator is fully initialized
+}
 ```
 
-### Span API (High Performance)
+### Batch Processing (Historical Data)
 
 ```csharp
-using QuanTAlib;
+// TSeries API (object-oriented)
+TSeries prices = ...;
+TSeries mgdiValues = Mgdi.Batch(prices, period: 14, k: 0.6);
 
-double[] input = { ... }; // Your price data
-double[] output = new double[input.Length];
-
-// Calculate MGDI over the entire span
-Mgdi.Batch(input, output, period: 14, k: 0.6);
+// High-performance Span API (zero allocation)
+double[] prices = new double[10000];
+double[] output = new double[10000];
+Mgdi.Calculate(prices.AsSpan(), output.AsSpan(), period: 14, k: 0.6);
 ```
 
-### Event-Driven Usage
+### Event-Driven Architecture
 
 ```csharp
-using QuanTAlib;
+var source = new TSeries();
+var mgdi = new Mgdi(source, period: 14);
 
-var source = new ObservableSource();
-var mgdi = new Mgdi(source, period: 14, k: 0.6);
-
-mgdi.Pub += (result) => {
-    Console.WriteLine($"New MGDI Value: {result.Value}");
+// Subscribe to MGDI output
+mgdi.Pub += (value) => {
+    Console.WriteLine($"New MGDI value: {value.Value}");
 };
 
-// When source updates, mgdi will automatically calculate and publish
+// Feeding source automatically triggers the chain
+source.Add(new TValue(DateTime.Now, 105.2));
 ```
+
+## Performance Profile
+
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Constant time recursive calculation |
+| Batch processing | O(n) | Fast sequential processing |
+| Memory footprint | O(1) | Minimal state (previous value only) |
 
 ## Interpretation
 
-* **Trend Identification:** Like other moving averages, the MGDI helps identify the trend direction. If the price is above the MGDI line, it suggests an uptrend. If below, a downtrend.
-* **Support/Resistance:** The MGDI line can act as dynamic support or resistance levels.
-* **Crossovers:** Price crossovers with the MGDI line can signal potential entry or exit points, though it is designed to be a better trend follower than a signal generator.
-* **Market Speed:** Because it adjusts to market speed, it hugs prices more closely in fast markets and moves further away in slow markets, reducing false signals.
+### Trading Signals
+
+#### Trend Following
+
+- **Support/Resistance:** The MGDI acts as a dynamic support line in uptrends and resistance in downtrends.
+- **Price Relation:**
+  - Price > MGDI: Bullish bias.
+  - Price < MGDI: Bearish bias.
+
+#### Crossovers
+
+- While not primarily a crossover indicator, price crossing the MGDI can signal a trend reversal. However, due to its smoothing nature, these signals are often lagging compared to more aggressive indicators.
+
+### When It Works Best
+
+- **Volatile Markets:** Its ability to adjust speed makes it superior to SMA/EMA in markets with erratic volatility or sudden crashes.
+
+### When It Struggles
+
+- **Range-Bound Markets:** Like most trend-following indicators, it can flatten out and provide little directional insight in sideways markets.
+
+### Architecture Notes
+
+This implementation makes specific trade-offs:
+
+### Choice: Ratio Clamping
+
+- **Implementation:** The price/MGDI ratio is clamped between 0.3 and 3.0.
+- **Rationale:** Prevents the denominator from becoming effectively zero (causing explosion) or infinitely large (causing stagnation) in extreme data scenarios.
+
+### Choice: Recursive State
+
+- **Implementation:** Stores only the last MGDI value.
+- **Rationale:** The formula is purely recursive, requiring no historical buffer, making it extremely memory efficient.
 
 ## References
 
-* [Investopedia: McGinley Dynamic Indicator](https://www.investopedia.com/terms/m/mcginley-dynamic.asp)
-* [Stock Indicators for .NET: McGinley Dynamic](https://dotnet.stockindicators.dev/indicators/Dynamic/)
+- [Investopedia: McGinley Dynamic Indicator](https://www.investopedia.com/terms/m/mcginley-dynamic.asp)
+- [Stock Indicators for .NET: McGinley Dynamic](https://dotnet.stockindicators.dev/indicators/Dynamic/)

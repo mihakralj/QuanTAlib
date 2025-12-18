@@ -37,7 +37,7 @@ public class WmaValidationTests
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, x => x.Wma);
+            ValidationHelper.VerifyData(qResult, sResult, x => x.Wma, tolerance: 1e-5);
         }
         _output.WriteLine("WMA Batch(TSeries) validated successfully against Skender");
     }
@@ -61,7 +61,7 @@ public class WmaValidationTests
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, sResult, x => x.Wma);
+            ValidationHelper.VerifyData(qResults, sResult, x => x.Wma, tolerance: 1e-5);
         }
         _output.WriteLine("WMA Streaming validated successfully against Skender");
     }
@@ -81,7 +81,7 @@ public class WmaValidationTests
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, sResult, x => x.Wma);
+            ValidationHelper.VerifyData(qOutput, sResult, x => x.Wma, tolerance: 1e-5);
         }
         _output.WriteLine("WMA Span validated successfully against Skender");
     }

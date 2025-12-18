@@ -1,5 +1,23 @@
 # QuanTAlib Indicators
 
+## Categories
+
+| Category | Description |
+| :--- | :--- |
+| [Trends](trends/_index.md) | Moving averages and trend indicators |
+| [Momentum](momentum/_index.md) | Oscillators and momentum indicators |
+| [Volatility](volatility/_index.md) | Volatility estimators and indicators |
+| [Volume](volume/_index.md) | Volume-based indicators |
+| [Statistics](statistics/_index.md) | Statistical measures and tests |
+| [Channels](channels/_index.md) | Price channels and bands |
+| [Cycles](cycles/_index.md) | Cycle analysis and signal processing |
+| [Reversals](reversals/_index.md) | Pattern recognition and reversal detection |
+| [Forecasts](forecasts/_index.md) | Predictive indicators |
+| [Errors](errors/_index.md) | Error metrics and loss functions |
+| [Numerics](numerics/_index.md) | Mathematical transformations |
+
+## All Indicators
+
 | Indicator | Full Name | Category |
 | :--- | :--- | :--- |
 | ABBER | Aberration | Channels |

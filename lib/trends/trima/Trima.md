@@ -1,119 +1,129 @@
 # TRIMA: Triangular Moving Average
 
-## Overview and Purpose
+## What It Does
 
-The Triangular Moving Average (TRIMA) is a technical indicator that applies a triangular weighting scheme to price data, providing enhanced smoothing compared to simpler moving averages. Originating in the early 1970s as technical analysts sought more effective noise filtering methods, the TRIMA was first popularized through the work of market technician Arthur Merrill. Its formal mathematical properties were established in the 1980s, and the indicator gained widespread adoption in the 1990s as computerized charting became standard. TRIMA effectively filters out market noise while maintaining important trends through its unique center-weighted calculation method.
+The Triangular Moving Average (TRIMA) is a weighted moving average where the weights are assigned in a triangular pattern. The most recent data and the oldest data carry the least weight, while the data in the middle of the period carries the most weight. This creates a double-smoothing effect that produces a line much smoother than a Simple Moving Average (SMA) or Exponential Moving Average (EMA), making it ideal for identifying the primary trend without the distraction of short-term noise.
 
-## Core Concepts
+## Historical Context
 
-* **Double-smoothing process:** TRIMA can be viewed as applying a simple moving average twice, creating more effective noise filtering
-* **Triangular weighting:** Uses a symmetrical weight distribution that emphasizes central data points and reduces emphasis toward both ends
-* **Market application:** Particularly effective for identifying the underlying trend in noisy market conditions where standard moving averages generate too many false signals
-* **Timeframe flexibility:** Works across multiple timeframes, with longer periods providing cleaner trend signals in higher timeframes
+While the concept of triangular weighting has roots in statistical signal processing, it was popularized in technical analysis as a way to solve the "whipsaw" problem of SMAs. By de-emphasizing the most recent data (which is often noisy), TRIMA focuses on the "consensus" of value over the period.
 
-The core innovation of TRIMA is its unique triangular weighting scheme, which can be viewed either as a specialized weight distribution or as a twice-applied simple moving average with adjusted period. This creates more effective noise filtering without the excessive lag penalty typically associated with longer-period averages. The symmetrical nature of the weight distribution ensures zero phase distortion, preserving the timing of important market turning points.
+## How It Works
 
-## Common Settings and Parameters
+### The Core Idea
 
-| Parameter | Default | Function | When to Adjust |
-|-----------|---------|----------|---------------|
-| Length | 14 | Controls the lookback period | Increase for smoother signals in volatile markets, decrease for responsiveness |
-| Source | close | Price data used for calculation | Consider using hlc3 for a more balanced price representation |
+TRIMA is mathematically equivalent to a "double SMA."
 
-**Pro Tip:** For a good balance between smoothing and responsiveness, try using a TRIMA with period N instead of an SMA with period 2N - you'll get similar smoothing characteristics but with less lag.
+- **SMA:** Average of $N$ prices.
+- **TRIMA:** Average of an Average. Specifically, an SMA of period $X$ applied to an SMA of period $X$.
 
-## Calculation and Mathematical Foundation
+Because it averages an average, it is extremely smooth. However, this double smoothing comes at the cost of increased lag. It will turn significantly later than an EMA or SMA.
 
-**Simplified explanation:**
-TRIMA calculates a weighted average of prices where the weights form a triangle shape. The middle prices get the most weight, and weights gradually decrease toward both the recent and older ends. This creates a smooth filter that effectively removes random price fluctuations while preserving the underlying trend.
+### Mathematical Foundation
 
-**Technical formula:**
-TRIMA = Σ(Price[i] × Weight[i]) / Σ(Weight[i])
+The weights form a triangle. For a period of 5:
 
-Where the triangular weights form a symmetric pattern:
+- Weights: 1, 2, 3, 2, 1
+- Sum of weights: $1+2+3+2+1 = 9$
 
-* Weight[i] = min(i, n-1-i) + 1
-* Example for n=5: weights = [1,2,3,2,1]
-* Example for n=4: weights = [1,2,2,1]
+Formula:
+$$ TRIMA = \frac{\sum (Price_i \times Weight_i)}{\sum Weights} $$
 
-Alternatively, TRIMA can be calculated as:
-TRIMA(source, p) = SMA(SMA(source, (p+1)/2), (p+1)/2)
+Equivalent Calculation (Double SMA):
+$$ TRIMA(N) \approx SMA(SMA(Price, \lceil N/2 \rceil), \lfloor N/2 \rfloor + 1) $$
 
-> 🔍 **Technical Note:** The double application of SMA explains why TRIMA provides better smoothing than a single SMA or WMA. This approach effectively applies smoothing twice with optimal period adjustment, creating a -18dB/octave roll-off in the frequency domain compared to -6dB/octave for a simple moving average.
+### Implementation Details
 
-## C# Implementation
+Our implementation uses the Double SMA method for O(1) efficiency.
 
-### Standard Usage
+- **Complexity:** O(1) per update (two sliding window sums).
+- **Stability:** Inherits the stability of SMA.
+
+## Configuration
+
+| Parameter | Default | Purpose | Adjustment Guidelines |
+|-----------|---------|---------|----------------------|
+| Period | 14 | Lookback window | Standard lookback. |
+
+## C# Usage
+
+### Streaming Updates (Single Instance)
 
 ```csharp
 using QuanTAlib;
 
-// Create TRIMA with period 14
+var trima = new Trima(period: 14);
+
+// Process each new bar
+TValue result = trima.Update(new TValue(timestamp, closePrice));
+Console.WriteLine($"TRIMA: {result.Value:F2}");
+
+// Check if buffer is full
+if (trima.IsHot)
+{
+    // Indicator is fully initialized
+}
+```
+
+### Batch Processing (Historical Data)
+
+```csharp
+// TSeries API
+TSeries prices = ...;
+TSeries trimaValues = Trima.Batch(prices, period: 14);
+
+// Span API (High Performance)
+double[] prices = new double[1000];
+double[] output = new double[1000];
+Trima.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
+```
+
+### Bar Correction (isNew Parameter)
+
+```csharp
 var trima = new Trima(14);
 
-// Update with new value
-var result = trima.Update(new TValue(DateTime.UtcNow, 100.0));
-Console.WriteLine($"TRIMA: {result.Value}");
+// New bar
+trima.Update(new TValue(time, 100), isNew: true);
+
+// Intra-bar update
+trima.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
 ```
 
-### Static API (High Performance)
+## Performance Profile
 
-```csharp
-// Calculate TRIMA for an entire array
-double[] prices = { ... };
-double[] results = new double[prices.Length];
+| Operation | Complexity | Description |
+|-----------|------------|-------------------|
+| Streaming update | O(1) | Two sliding window sums |
+| Bar correction | O(1) | Efficient state rollback |
+| Batch processing | O(N) | Single pass through data |
+| Memory footprint | O(period) | RingBuffers for the two internal SMAs |
 
-Trima.Batch(prices, results, 14);
-```
+## Interpretation
 
-### Eventing and Reactive Support
+### Trading Signals
 
-This indicator implements the `ITValuePublisher` interface, enabling event-driven and reactive workflows.
+#### Trend Identification
 
-* **Subscription:** Can be constructed with an `ITValuePublisher` (e.g., `TSeries`) to automatically update when the source emits a new value.
-* **Publication:** Emits a `Pub` event with the new `TValue` whenever it is updated.
+- **Primary Trend:** TRIMA is excellent for visualizing the "major" trend. If TRIMA is rising, the long-term direction is up, regardless of short-term chops.
 
-```csharp
-using QuanTAlib;
+### When It Works Best
 
-// 1. Setup a source (publisher)
-var source = new TSeries();
+- **Visual Clarity:** Traders often use TRIMA not for signals, but to declutter charts and see the underlying market structure.
 
-// 2. Create indicator subscribed to source
-// It waits for events from 'source'
-var trima = new Trima(source, period: 14);
+### When It Struggles
 
-// 3. Optional: Subscribe to indicator's output
-trima.Pub += (item) => Console.WriteLine($"TRIMA Updated: {item.Value}");
+- **Timing Entries:** Due to its significant lag, TRIMA is poor for timing entries or exits. It is a lagging indicator, not a leading one.
 
-// 4. Ingest data into source
-// This triggers the chain: source -> trima -> Console.WriteLine
-source.Add(new TValue(DateTime.Now, 100));
-source.Add(new TValue(DateTime.Now, 105));
-```
+## Architecture Notes
 
-This pattern allows building complex, reactive processing pipelines without manual update loops.
+This implementation makes specific trade-offs:
 
-## Interpretation Details
+### Choice: Double SMA Composition
 
-TRIMA can be used in various trading strategies:
-
-* **Trend identification:** The direction of TRIMA indicates the prevailing trend
-* **Signal generation:** Crossovers between price and TRIMA generate trade signals with fewer false alarms than SMA
-* **Support/resistance levels:** TRIMA can act as dynamic support during uptrends and resistance during downtrends
-* **Trend strength assessment:** Distance between price and TRIMA can indicate trend strength
-* **Multiple timeframe analysis:** Using TRIMAs with different periods can confirm trends across different timeframes
-
-## Limitations and Considerations
-
-* **Market conditions:** Like all moving averages, less effective in choppy, sideways markets
-* **Lag factor:** More lag than WMA or EMA due to center-weighted emphasis
-* **Limited adaptability:** Fixed weighting scheme cannot adapt to changing market volatility
-* **Response time:** Takes longer to reflect sudden price changes than directionally-weighted averages
-* **Complementary tools:** Best used with momentum oscillators or volume indicators for confirmation
+- **Implementation:** Composed of two `Sma` objects.
+- **Rationale:** This is mathematically equivalent to the weighted sum method but allows us to reuse the O(1) optimization of the `Sma` class.
 
 ## References
 
-* Ehlers, John F. "Cycle Analytics for Traders." Wiley, 2013
-* Kaufman, Perry J. "Trading Systems and Methods." Wiley, 2013
-* Colby, Robert W. "The Encyclopedia of Technical Market Indicators." McGraw-Hill, 2002
+- Merrill, Arthur A. "Filtered Waves." *Technical Analysis of Stocks & Commodities*.
