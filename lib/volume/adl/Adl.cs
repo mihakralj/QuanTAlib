@@ -129,14 +129,14 @@ public sealed class Adl : ITValuePublisher
 
     public static TSeries Calculate(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries(0);
+        if (source.Count == 0) return [];
 
         var t = source.Open.Times; // Times are same for all series
         var v = new double[source.Count];
 
         Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v);
 
-        return new TSeries(new List<long>(t.ToArray()), new List<double>(v));
+        return new TSeries([.. t], [.. v]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
