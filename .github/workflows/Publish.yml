@@ -184,29 +184,6 @@ jobs:
           args: --coverage-dir,.qodana/code-coverage
 
   # ==============================================================================
-  # 4. Codecov Upload
-  # ==============================================================================
-  Codecov_Upload:
-    needs: Build_Test_Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-reports
-          path: coverage
-
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v5.1.2
-        with:
-          directory: coverage
-          verbose: true
-
-  # ==============================================================================
   # 5. Codacy Upload
   # ==============================================================================
   Codacy_Upload:
@@ -312,7 +289,7 @@ jobs:
   # 8. Publish Package
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codecov_Upload, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
     if: |
       success() &&
       (
@@ -346,7 +323,9 @@ jobs:
         run: |
           dotnet restore
           dotnet build ./lib/quantalib.csproj --configuration Release --nologo
-          dotnet build ./quantower/Averages.csproj --configuration Release --nologo
+          dotnet build ./quantower/Momentum.csproj --configuration Release --nologo
+          dotnet build ./quantower/Trends.csproj --configuration Release --nologo
+          dotnet build ./quantower/Volume.csproj --configuration Release --nologo
 
       - name: Create Development Release
         if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
@@ -359,8 +338,10 @@ jobs:
             --notes "Latest development build from commit ${{ github.sha }}" \
             --prerelease \
             --target ${{ github.sha }} \
-            lib/bin/Release/QuanTAlib.dll \
-            quantower/bin/Release/Averages.dll
+            lib/bin/Release/net10.0/QuanTAlib.dll \
+            quantower/bin/Release/Momentum.dll \
+            quantower/bin/Release/Trends.dll \
+            quantower/bin/Release/Volume.dll
 
       - name: Push to MyGet
         if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
@@ -379,7 +360,9 @@ jobs:
           gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
             --title "Release from commit ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
             --notes "Release notes for this version." \
-            quantower/bin/Release/Averages.dll
+            quantower/bin/Release/Momentum.dll \
+            quantower/bin/Release/Trends.dll \
+            quantower/bin/Release/Volume.dll
 
       - name: Push to NuGet
         if: ${{ github.ref == 'refs/heads/main' }}
