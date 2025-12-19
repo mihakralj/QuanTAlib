@@ -13,7 +13,7 @@ Every indicator exposes the following core properties and methods:
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| -------- | ---- | ----------- |
 | `Name` | `string` | Descriptive name (e.g., `"Sma(14)"`). |
 | `Last` | `TValue` | The most recent calculated value (Time + Value). |
 | `IsHot` | `bool` | `true` if the indicator has processed enough data to be valid. |
@@ -23,7 +23,7 @@ Every indicator exposes the following core properties and methods:
 ### Methods
 
 | Method | Description |
-|--------|-------------|
+| ------ | ----------- |
 | `Update` | Updates the indicator with a new value (Streaming). |
 | `Batch` | Static method for high-performance bulk calculation (Batch). |
 | `Prime` | Initializes state from history without full processing (Priming). |

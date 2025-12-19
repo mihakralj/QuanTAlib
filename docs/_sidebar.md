@@ -1,9 +1,12 @@
 - **Core concepts**
-  - [Architecture](ARCHITECTURE.md)
-  - [Benchmarks](BENCHMARKS.md)
-  - [Indicators](INDICATORS.md)
-  - [Usage Guides](USAGE.md)
-  - [Integration](INTEGRATION.md)
+  - [Architecture](architecture.md)
+  - [API](api.md)
+  - [Benchmarks](benchmarks.md)
+  - [Indicators](indicators.md)
+  - [Usage Guides](usage.md)
+  - [Integration](integration.md)
+  - [Validation](validation.md)
+  - [MA Qualities](ma-qualities.md)
 
 - **Trends**
   - [Overview](../lib/trends/_index.md)
@@ -33,6 +36,7 @@
   - [Overview](../lib/momentum/_index.md)
   - [ADX - Average Directional Index](../lib/momentum/adx/Adx.md)
   - [AO - Awesome Oscillator](../lib/momentum/ao/Ao.md)
+  - [APO - Absolute Price Oscillator](../lib/momentum/apo/Apo.md)
   - [AROON - Aroon Oscillator](../lib/momentum/aroon/Aroon.md)
   - [CFB - Composite Fractal Behavior](../lib/momentum/cfb/Cfb.md)
   - [DMX - Jurik Directional Movement Index](../lib/momentum/dmx/Dmx.md)
@@ -45,6 +49,7 @@
 
 - **Volume**
   - [Overview](../lib/volume/_index.md)
+  - [ADL - Accumulation/Distribution Line](../lib/volume/adl/Adl.md)
 
 - **Channels**
   - [Overview](../lib/channels/_index.md)

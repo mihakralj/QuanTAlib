@@ -54,7 +54,7 @@ Every indicator must follow the **Good Indicator Guidelines** strictly.
 Directory: `lib/[category]/[name]/` (e.g., `lib/trends/sma/`)
 
 | File | Naming | Purpose |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | **Source** | `[Name].cs` | Main implementation. `public sealed class`. |
 | **Tests** | `[Name].Tests.cs` | xUnit tests (correctness, edge cases). |
 | **Validation** | `[Name].Validation.Tests.cs` | Compare against TA-Lib, Skender, etc. |
@@ -153,7 +153,9 @@ public TValue Update(TValue input, bool isNew = true)
 
 * **Mandatory**: You MUST validate against at least one external authority (TA-Lib, Skender, Tulip, OoplesFinance, Python libs).
 * **Tolerance**: Typically `1e-6` to `1e-9`.
-* **Data**: Use `ValidationTestData` class which wraps `GBM` (Geometric Brownian Motion) to generate realistic test data and provides pre-calculated Skender quotes.
+* **Data**: Use `ValidationTestData` class which wraps `GBM` (Geometric Brownian Motion) to generate realistic test data (default 5000 bars) and provides pre-calculated Skender quotes.
+* **Coverage**: Validate all 3 modes (Batch, Streaming, Span) against the external library.
+* **Verification**: Use `ValidationHelper.VerifyData` which checks the last 100 bars to ensure convergence and correctness.
 
 #### External Library Usage Guide
 
@@ -171,6 +173,7 @@ public TValue Update(TValue input, bool isNew = true)
   * Namespace: `using Tulip;`
   * Method: `Tulip.Indicators.[indicator].Run(...)`.
   * Handle lookback/offset manually (Tulip output is shorter than input).
+  * **Note:** Be aware of potential 1-bar shifts due to different initialization strategies (e.g., Tulip often skips index 0). Use `lookback` parameter to align.
   * Use `ValidationHelper.VerifyData` with `lookback`.
 
 * **OoplesFinance.StockIndicators:**
@@ -183,7 +186,14 @@ public TValue Update(TValue input, bool isNew = true)
 
 * **Format**: Markdown.
 * **Content**: Title, Description, Parameters, Formula (LaTeX), C# Usage Examples.
-* **Index**: Add the new indicator to the category index (e.g., `lib/trends/_index.md`) AND the main index (`lib/_index.md`).
+* **Style**: Follow the guidelines in `.clinerules/techdocs.md` (Bryson-Executive voice, architectural focus, evidence-based).
+* **Index & Links**: Add the new indicator to:
+  * Category index (e.g., `lib/trends/_index.md`)
+  * Main library index (`lib/_index.md`)
+  * Documentation sidebar (`docs/_sidebar.md`)
+  * Integration guide (`docs/integration.md`)
+  * Indicators list (`docs/indicators.md`)
+  * Validation table (`docs/validation.md`)
 * **Linting**: Ensure that markdownlint shows no issues for the file.
   * **MD030:** Ensure exactly one space after list markers.
   * **MD032:** Ensure lists are surrounded by blank lines.
@@ -209,7 +219,7 @@ When creating a new indicator, you are **DONE** only when:
 * [ ] Static `Calculate(Span)` is implemented.
 * [ ] Unit tests pass (including edge cases).
 * [ ] Validation tests pass against external libs.
-* [ ] Documentation is complete and linked in both `_index.md` files.
+* [ ] Documentation is complete and linked in all 6 required index/doc files (including validation.md).
 * [ ] Quantower adapter and tests are implemented.
 * [ ] CodeRabbit review issues are resolved.
 

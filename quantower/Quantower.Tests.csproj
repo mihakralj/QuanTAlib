@@ -32,6 +32,8 @@
     <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\*.Validation.Tests.cs;..\lib\trends\**\obj\**;..\lib\trends\**\bin\**" />
     <!-- Include momentum implementations -->
     <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs;..\lib\momentum\**\*.Validation.Tests.cs;..\lib\momentum\**\obj\**;..\lib\momentum\**\bin\**" />
+    <!-- Include volume implementations -->
+    <Compile Include="..\lib\volume\**\*.cs" Exclude="..\lib\volume\**\*.Tests.cs;..\lib\volume\**\*.Validation.Tests.cs;..\lib\volume\**\obj\**;..\lib\volume\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
   </ItemGroup>

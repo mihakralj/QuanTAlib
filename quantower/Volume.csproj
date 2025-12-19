@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Momentum</AssemblyName>
+    <AssemblyName>Volume</AssemblyName>
     <AlgoType>Indicator</AlgoType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -17,12 +17,7 @@
   <ItemGroup>
     <Compile Include="IndicatorExtensions.cs" />
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
-    <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs" />
-    <Compile Include="..\lib\trends\wma\Wma.cs" />
-    <Compile Include="..\lib\trends\pwma\Pwma.cs" />
-    <Compile Include="..\lib\trends\jma\Jma.cs" />
-    <Compile Include="..\lib\trends\sma\Sma.cs" />
-    <Compile Include="..\lib\trends\ema\Ema.cs" />
+    <Compile Include="..\lib\volume\**\*.cs" Exclude="..\lib\volume\**\*.Tests.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>
@@ -32,7 +27,7 @@
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
-    <Copy SourceFiles="$(OutputPath)\Momentum.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Momentum" />
+    <Copy SourceFiles="$(OutputPath)\Volume.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Volume" />
   </Target>
 
 </Project>

@@ -5,7 +5,7 @@ Volatility indicators measure price volatility and range.
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
 | ADR | Average Daily Range | |
-| ATR | Average True Range | |
+| [ATR](atr/Atr.md) | Average True Range | Measures market volatility by decomposing the entire range of an asset price for that period. |
 | ATRN | Average True Range Normalized [0,1] | |
 | ATRP | Average True Range Percent | |
 | BBW | Bollinger Band Width | |

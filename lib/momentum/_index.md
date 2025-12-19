@@ -8,7 +8,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | [ADX](adx/Adx.md) | Average Directional Index | Quantifies trend intensity by smoothing the expansion of daily ranges, independent of direction. |
 | ADXR | Average Directional Movement Rating | |
 | [AO](ao/Ao.md) | Awesome Oscillator | Measures immediate velocity vs. broader trend using the difference between fast and slow median-price SMAs. |
-| APO | Absolute Price Oscillator | |
+| [APO](apo/Apo.md) | Absolute Price Oscillator | Measures the absolute difference between two moving averages (Fast EMA - Slow EMA). |
 | [AROON](aroon/Aroon.md) | Aroon | Gauges trend freshness by measuring the time elapsed since the last high and low. |
 | AROONOSC | Aroon Oscillator | |
 | BBB | Bollinger %B | |

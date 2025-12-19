@@ -104,6 +104,7 @@ source.Add(DateTime.UtcNow, 105.0);
 ## Common Patterns
 
 ### Handling Warmup
+
 Always check `IsHot` or `Count` before using values.
 
 ```csharp
@@ -115,6 +116,7 @@ if (rsi.IsHot) {
 ```
 
 ### Combining Indicators
+
 You can feed the output of one indicator into another.
 
 ```csharp

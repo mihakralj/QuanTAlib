@@ -1,4 +1,4 @@
-# RSX - Jurik Relative Strength X
+# RSX - Jurik Relative Strength Index
 
 A "noise-free" version of the Relative Strength Index (RSI) that eliminates the jaggedness of the original without introducing the lag of traditional smoothing. It produces a silky-smooth 0-100 oscillator that preserves the precise timing of market turns.
 
@@ -31,9 +31,9 @@ The algorithm is significantly more complex than standard RSI, employing a multi
 
 ## Configuration
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `period` | `int` | 14 | The smoothing period. Typical values range from 8 to 40. |
+| Parameter | Type  | Default | Description                                              |
+|-----------|-------|---------|----------------------------------------------------------|
+| `period`  | `int` | 14      | The smoothing period. Typical values range from 8 to 40. |
 
 ## Performance Profile
 

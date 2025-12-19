@@ -4,7 +4,7 @@ Volume indicators are based on trading volume and flow of funds.
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| ADL | Accumulation/Distribution Line | |
+| [ADL](adl/Adl.md) | Accumulation/Distribution Line | Uses volume and price to assess whether a stock is being accumulated or distributed |
 | ADOSC | Chaikin A/D Oscillator | |
 | AOBV | Archer On-Balance Volume | |
 | CMF | Chaikin Money Flow | |

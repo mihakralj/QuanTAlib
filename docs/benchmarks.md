@@ -18,7 +18,7 @@ These results represent what current-generation server CPUs achieve in productio
 QuanTAlib's Span mode calculates 500,000 SMA values in 318 microseconds with zero memory allocations. That's 0.64 nanoseconds per value. For context, a single L1 cache access takes approximately 1 nanosecond on modern CPUs — we're calculating moving averages faster than fetching data from the nearest cache level.
 
 | Library | Mean Time | Allocations | Relative Speed |
-|---------|-----------|-------------|----------------|
+| ------- | --------- | ----------- | -------------- |
 | **QuanTAlib (Span)** | **318.3 μs** | **0 B** | **1.00x (baseline)** |
 | TA-Lib | 356.4 μs | 34 B | 1.12x slower |
 | Tulip | 359.3 μs | 0 B | 1.13x slower |
@@ -30,7 +30,7 @@ QuanTAlib's Span mode calculates 500,000 SMA values in 318 microseconds with zer
 QuanTAlib matches C library performance at 711 microseconds — within measurement error of Tulip's 708μs and TA-Lib's 713μs. Pure C# matching heavily optimized C code demonstrates what modern .NET achieves when you align memory layouts with hardware capabilities.
 
 | Library | Mean Time | Allocations | Relative Speed |
-|---------|-----------|-------------|----------------|
+| ------- | --------- | ----------- | -------------- |
 | **QuanTAlib (Span)** | **711.0 μs** | **0 B** | **1.00x** |
 | TA-Lib | 712.9 μs | 36 B | 1.00x slower |
 | Tulip | 708.1 μs | 0 B | 1.00x faster |
@@ -42,7 +42,7 @@ QuanTAlib matches C library performance at 711 microseconds — within measureme
 QuanTAlib's WMA beats both C libraries — 296 microseconds versus Tulip's 372μs and TA-Lib's 360μs. This isn't a measurement error. Pure C# with proper SIMD vectorization outperforms C code that predates AVX-512 optimizations.
 
 | Library | Mean Time | Allocations | Relative Speed |
-|---------|-----------|-------------|----------------|
+| ------- | --------- | ----------- | -------------- |
 | **QuanTAlib (Span)** | **296.0 μs** | **0 B** | **1.00x (baseline)** |
 | TA-Lib | 360.0 μs | 34 B | 1.22x slower |
 | Tulip | 372.1 μs | 0 B | 1.26x slower |
@@ -54,7 +54,7 @@ QuanTAlib's WMA beats both C libraries — 296 microseconds versus Tulip's 372μ
 HMA requires multiple moving average calculations — traditionally expensive. QuanTAlib processes 500,000 bars in 1,008 microseconds. Tulip takes 2,266 microseconds. Skender requires 251,694 microseconds. (TALib doesn't include HMA calculation) That's a 2.25x improvement over optimized C and a 250x improvement over standard .NET implementations.
 
 | Library | Mean Time | Allocations | Relative Speed |
-|---------|-----------|-------------|----------------|
+| ------- | --------- | ----------- | -------------- |
 | **QuanTAlib (Span)** | **1,007.8 μs** | **0 B** | **1.00x (baseline)** |
 | TA-Lib | -- | -- | -- |
 | Tulip | 2,266.0 μs | 152 B | 2.25x slower |
@@ -66,7 +66,7 @@ HMA requires multiple moving average calculations — traditionally expensive. Q
 The benchmarks above show Span mode. Here's how all four modes compare using EMA as representative:
 
 | QuanTAlib Mode | Mean Time | Allocations | Use Case |
-|----------------|-----------|-------------|----------|
+| -------------- | --------- | ----------- | -------- |
 | Span | 711.0 μs | 0 B | Maximum speed, batch processing |
 | Streaming | 721.9 μs | 44 B | Real-time updates, minimal overhead |
 | Batch (TSeries) | 1,311.7 μs | 8.0 MB | Time-aligned series with metadata |
@@ -77,6 +77,7 @@ Even QuanTAlib's slowest mode (Eventing with complete event infrastructure and 1
 ## Methodology
 
 We use [BenchmarkDotNet](https://benchmarkdotnet.org/) for all performance testing. This ensures:
+
 - Warmup iterations to stabilize JIT compilation
 - Statistical analysis of results (mean, standard deviation)
 - Memory allocation tracking
@@ -86,18 +87,21 @@ We use [BenchmarkDotNet](https://benchmarkdotnet.org/) for all performance testi
 
 You can run the benchmarks on your own hardware to verify these results.
 
-1.  Clone the repository:
+1. Clone the repository:
+
     ```bash
     git clone https://github.com/mihakralj/QuanTAlib.git
     cd QuanTAlib
     ```
 
-2.  Navigate to the performance project:
+2. Navigate to the performance project:
+
     ```bash
     cd perf
     ```
 
-3.  Run the benchmarks:
+3. Run the benchmarks:
+
     ```bash
     dotnet run -c Release
     ```

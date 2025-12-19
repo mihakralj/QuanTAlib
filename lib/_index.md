@@ -24,7 +24,7 @@
 | AC | Acceleration Oscillator | Momentum |
 | ACCBANDS | Acceleration Bands | Channels |
 | ACCEL | Momentum change; 2nd derivative | Numerics |
-| ADL | Accumulation/Distribution Line | Volume |
+| [ADL](volume/adl/Adl.md) | Accumulation/Distribution Line | Volume |
 | ADOSC | Chaikin A/D Oscillator | Volume |
 | ADR | Average Daily Range | Volatility |
 | [ADX](momentum/adx/Adx.md) | Average Directional Index | Momentum |
@@ -36,12 +36,12 @@
 | [AO](momentum/ao/Ao.md) | Awesome Oscillator | Momentum |
 | AOBV | Archer On-Balance Volume | Volume |
 | APCHANNEL | Andrews' Pitchfork | Channels |
-| APO | Absolute Price Oscillator | Momentum |
+| [APO](momentum/apo/Apo.md) | Absolute Price Oscillator | Momentum |
 | APZ | Adaptive Price Zone | Channels |
 | [AROON](momentum/aroon/Aroon.md) | Aroon | Momentum |
 | AROONOSC | Aroon Oscillator | Momentum |
 | ATAN2 | Two-Argument Arctangent | Numerics |
-| ATR | Average True Range | Volatility |
+| [ATR](volatility/atr/Atr.md) | Average True Range | Volatility |
 | ATRBANDS | ATR Bands | Channels |
 | ATRN | Average True Range Normalized [0,1] | Volatility |
 | ATRP | Average True Range Percent | Volatility |

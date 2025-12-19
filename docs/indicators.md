@@ -5,7 +5,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 ## Full Category Table
 
 | Category | What It Measures | Representative Indicators | When You Need It |
-|----------|------------------|---------------------------|------------------|
+| -------- | ---------------- | ------------------------- | ---------------- |
 | [**Trends**](../lib/trends/_index.md) | Direction and strength of price movement through smoothing and filtering | SMA, EMA, WMA, HMA, JMA, KAMA, ALMA, DEMA, TEMA, T3 | Starting point for most analysis. Simpler variants (SMA, EMA) work for trend identification. Exotic ones (Jurik, Ehlers) trade CPU cycles for reduced lag. |
 | [**Volatility**](../lib/volatility/_index.md) | Size and variability of price movements | ATR, StdDev, Bollinger Bands, Keltner Channels, Historical Volatility | Position sizing, stop-loss placement, and understanding market regime. ATR tells you how much instruments typically move. |
 | [**Momentum**](../lib/momentum/_index.md) | Speed and magnitude of price changes | RSI, Stochastic, CCI, Williams %R, MACD, Momentum, ROC | Identifying overbought/oversold conditions and divergences. RSI oscillates between 0-100 by construction. |
@@ -28,17 +28,67 @@ The categories aren't rigid boundaries—many indicators could fit multiple cate
 ## Mathematical Families Explanation
 
 ### Moving Averages (Trends)
+
 Moving averages are low-pass filters. They remove high-frequency noise (random price fluctuations) to reveal the underlying low-frequency signal (trend).
+
 - **SMA**: Equal weight to all points. Slowest to react.
 - **EMA/WMA**: More weight to recent data. Faster reaction.
 - **HMA/JMA/ALMA**: Advanced math to reduce lag while maintaining smoothness.
 
 ### Oscillators (Momentum)
+
 Oscillators measure the velocity of price changes. They are typically bounded (e.g., 0-100) or centered around zero.
+
 - **RSI**: Ratio of average gains to average losses.
 - **MACD**: Difference between two moving averages (convergence/divergence).
 
 ### Dispersion (Volatility)
+
 These measure the spread of data points around the mean.
+
 - **StdDev**: Standard statistical measure of variance.
 - **ATR**: Volatility measure that accounts for gaps (high-low range).
+
+## Implemented Indicators
+
+### Momentum
+
+- [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
+- [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
+- [**AROON**](../lib/momentum/aroon/Aroon.md) - Aroon
+- [**CFB**](../lib/momentum/cfb/Cfb.md) - Jurik Composite Fractal Behavior
+- [**DMX**](../lib/momentum/dmx/Dmx.md) - Jurik Directional Movement Index
+- [**RSX**](../lib/momentum/rsx/Rsx.md) - Jurik Relative Strength Quality Index
+- [**VEL**](../lib/momentum/vel/Vel.md) - Jurik Velocity
+
+### Trends
+
+- [**ALMA**](../lib/trends/alma/Alma.md) - Arnaud Legoux MA
+- [**CONV**](../lib/trends/conv/Conv.md) - Convolution MA
+- [**DEMA**](../lib/trends/dema/Dema.md) - Double Exponential MA
+- [**DWMA**](../lib/trends/dwma/Dwma.md) - Double Weighted MA
+- [**EMA**](../lib/trends/ema/Ema.md) - Exponential MA
+- [**HMA**](../lib/trends/hma/Hma.md) - Hull MA
+- [**HTIT**](../lib/trends/htit/Htit.md) - Hilbert Transform Instantaneous Trend
+- [**JMA**](../lib/trends/jma/Jma.md) - Jurik MA
+- [**KAMA**](../lib/trends/kama/Kama.md) - Kaufman Adaptive MA
+- [**LSMA**](../lib/trends/lsma/Lsma.md) - Least Squares MA
+- [**MAMA**](../lib/trends/mama/Mama.md) - MESA Adaptive MA
+- [**MGDI**](../lib/trends/mgdi/Mgdi.md) - McGinley Dynamic
+- [**PWMA**](../lib/trends/pwma/Pwma.md) - Pascal Weighted MA
+- [**RMA**](../lib/trends/rma/Rma.md) - wildeR MA
+- [**SMA**](../lib/trends/sma/Sma.md) - Simple MA
+- [**SUPER**](../lib/trends/super/Super.md) - SuperTrend
+- [**T3**](../lib/trends/t3/T3.md) - Tillson T3 MA
+- [**TEMA**](../lib/trends/tema/Tema.md) - Triple Exponential MA
+- [**TRIMA**](../lib/trends/trima/Trima.md) - Triangular MA
+- [**VIDYA**](../lib/trends/vidya/Vidya.md) - Variable Index Dynamic Average
+- [**WMA**](../lib/trends/wma/Wma.md) - Weighted MA
+
+### Volatility
+
+- [**ATR**](../lib/volatility/atr/Atr.md) - Average True Range
+
+### Volume
+
+- [**ADL**](../lib/volume/adl/Adl.md) - Accumulation/Distribution Line

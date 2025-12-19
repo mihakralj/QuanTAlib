@@ -1,6 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using QuanTAlib.Tests;
+using Skender.Stock.Indicators;
+using TALib;
+using Tulip;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
 
 namespace QuanTAlib;
 
@@ -32,6 +39,17 @@ public class ConvValidationTests : IDisposable
         }
     }
 
+    private static double[] GenerateWmaKernel(int period)
+    {
+        double divisor = period * (period + 1) / 2.0;
+        double[] kernel = new double[period];
+        for (int i = 0; i < period; i++)
+        {
+            kernel[i] = (i + 1) / divisor;
+        }
+        return kernel;
+    }
+
     [Fact]
     public void Validate_Against_Sma()
     {
@@ -60,14 +78,8 @@ public class ConvValidationTests : IDisposable
     [Fact]
     public void Validate_Against_Wma()
     {
-        // WMA(10) weights are 1, 2, ..., 10 divided by sum(1..10)
         int period = 10;
-        double divisor = period * (period + 1) / 2.0;
-        double[] kernel = new double[period];
-        for (int i = 0; i < period; i++)
-        {
-            kernel[i] = (i + 1) / divisor;
-        }
+        double[] kernel = GenerateWmaKernel(period);
 
         var wma = new Wma(period);
         var conv = new Conv(kernel);
@@ -99,19 +111,6 @@ public class ConvValidationTests : IDisposable
         int mid = period / 2;
         for (int i = 0; i < period; i++)
         {
-            // For even period 10:
-            // i=0 -> 1
-            // i=4 -> 5
-            // i=5 -> 5
-            // i=9 -> 1
-
-            // Distance from ends?
-            // 0 -> 1
-            // 1 -> 2
-            // ...
-            // mid-1 -> mid
-            // mid -> mid
-
             double val = (i < mid) ? (i + 1) : (period - i);
             kernel[i] = val;
             sum += val;
@@ -139,4 +138,77 @@ public class ConvValidationTests : IDisposable
         }
     }
 
+    [Fact]
+    public void Validate_Against_Skender_Wma()
+    {
+        int period = 14;
+        var skenderWma = _testData.SkenderQuotes.GetWma(period).ToList();
+        double[] kernel = GenerateWmaKernel(period);
+        var conv = new Conv(kernel);
+        var result = conv.Update(_testData.Data);
+
+        ValidationHelper.VerifyData(result, skenderWma, (s) => s.Wma, skip: period);
+    }
+
+    [Fact]
+    public void Validate_Against_TALib_Wma()
+    {
+        int period = 14;
+        double[] input = _testData.Data.Values.ToArray();
+        double[] output = new double[input.Length];
+
+        var retCode = TALib.Functions.Wma<double>(input, 0..^0, output, out var outRange, period);
+        Assert.Equal(TALib.Core.RetCode.Success, retCode);
+
+        double[] kernel = GenerateWmaKernel(period);
+        var conv = new Conv(kernel);
+        var result = conv.Update(_testData.Data);
+
+        ValidationHelper.VerifyData(result, output, outRange, lookback: period - 1);
+    }
+
+    [Fact]
+    public void Validate_Against_Tulip_Wma()
+    {
+        int period = 14;
+        double[] input = _testData.Data.Values.ToArray();
+
+        var wmaIndicator = Tulip.Indicators.wma;
+        double[][] inputs = { input };
+        double[] options = { period };
+        double[][] outputs = { new double[input.Length - period + 1] };
+
+        wmaIndicator.Run(inputs, options, outputs);
+        double[] output = outputs[0];
+
+        double[] kernel = GenerateWmaKernel(period);
+        var conv = new Conv(kernel);
+        var result = conv.Update(_testData.Data);
+
+        ValidationHelper.VerifyData(result, output, lookback: period - 1);
+    }
+
+    [Fact]
+    public void Validate_Against_Ooples_Wma()
+    {
+        int period = 14;
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var ooplesWma = stockData.CalculateWeightedMovingAverage(length: period).OutputValues["Wma"];
+
+        double[] kernel = GenerateWmaKernel(period);
+        var conv = new Conv(kernel);
+        var result = conv.Update(_testData.Data);
+
+        ValidationHelper.VerifyData(result, ooplesWma, (s) => s, skip: period, tolerance: 1e-4);
+    }
 }
