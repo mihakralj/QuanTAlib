@@ -48,6 +48,7 @@ The Proof Test: Is every claim backed by a specific, measurable number?
 The Respect Test: Would an expert architect with 20 years of experience respect this tone?
 The Slavic/Efficiency Check: Can I remove three unnecessary "the"s or "which"s?
 The Human Test: Does this contain a specific internal state or a realistic scenario (e.g., "internet crashing mid-Zoom, cat stepping on keyboard")?
+The Magic Number Test: Are all constants explained or replaced with their mathematical derivation (e.g., `sqrt(2)` instead of `1.414`)?
 
 DOCUMENTATION STRUCTURE TEMPLATE
 Every indicator documentation file must follow this structure:
@@ -92,12 +93,14 @@ $$ [Formula] $$
 
 [Explain how the implementation achieves zero-allocation. Mention `stackalloc`, structs, or specific optimizations.]
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | [Value] | [Context] |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(1) | Streaming updates are constant time |
-| **Precision** | `double` | [Reason] |
+| **Throughput** | [High/Low] | [Context] |
+| **Complexity** | [Big O] | [Context] |
+| **Accuracy** | [0-10] | [Context] |
+| **Timeliness** | [0-10] | [Context] |
+| **Overshoot** | [0-10] | [Context] |
+| **Smoothness** | [0-10] | [Context] |
 
 ## Validation
 

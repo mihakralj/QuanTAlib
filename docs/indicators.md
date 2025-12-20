@@ -85,6 +85,7 @@ These measure the spread of data points around the mean.
 - [**T3**](../lib/trends/t3/T3.md) - Tillson T3 MA
 - [**TEMA**](../lib/trends/tema/Tema.md) - Triple Exponential MA
 - [**TRIMA**](../lib/trends/trima/Trima.md) - Triangular MA
+- [**USF**](../lib/trends/usf/Usf.md) - Ehlers Ultimate Smoother Filter
 - [**VIDYA**](../lib/trends/vidya/Vidya.md) - Variable Index Dynamic Average
 - [**WMA**](../lib/trends/wma/Wma.md) - Weighted MA
 

@@ -66,7 +66,7 @@ We don't do "laggy" here. We do mathematically rigorous, zero-allocation smoothi
 | [TEMA](tema/Tema.md) | Triple Exponential MA | Three EMAs in a trench coat, trying to cancel out lag. |
 | [TRIMA](trima/Trima.md) | Triangular MA | A double-smoothed SMA. Heavily weighted towards the center. Very smooth, very laggy. |
 | TTM | TTM Trend | |
-| USF | Ehlers Ultrasmooth Filter | |
+| [USF](usf/Usf.md) | Ehlers Ultimate Smoother Filter | A zero-lag smoothing filter that subtracts high-frequency noise using a high-pass filter. |
 | VAMA | Volatility Adjusted Moving Average | |
 | [VIDYA](vidya/Vidya.md) | Variable Index Dynamic Average | Chande's adaptive average using the CMO for volatility adjustments. |
 | WIENER | Wiener Filter | |

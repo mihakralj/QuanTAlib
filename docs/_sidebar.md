@@ -30,6 +30,7 @@
   - [T3 - Tillson T3 MA](../lib/trends/t3/T3.md)
   - [TEMA - Triple Exponential MA](../lib/trends/tema/Tema.md)
   - [TRIMA - Triangular MA](../lib/trends/trima/Trima.md)
+  - [USF - Ehlers Ultimate Smoother Filter](../lib/trends/usf/Usf.md)
   - [VIDYA - Variable Index Dynamic Average](../lib/trends/vidya/Vidya.md)
   - [WMA - Weighted MA](../lib/trends/wma/Wma.md)
 
