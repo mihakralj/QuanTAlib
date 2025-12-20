@@ -6,6 +6,9 @@ using QuanTAlib.Tests;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+using OoplesFinance.StockIndicators.Enums;
 
 namespace QuanTAlib;
 
@@ -101,5 +104,46 @@ public class ApoValidationTests : IDisposable
         double[] spanOutput = new double[input.Length];
         Apo.Calculate(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
         ValidationHelper.VerifyData(spanOutput, output, lookback: 1);
+    }
+
+    [Fact]
+    public void Validate_Against_Ooples_Apo()
+    {
+        int fastPeriod = 12;
+        int slowPeriod = 26;
+
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var results = stockData.CalculateAbsolutePriceOscillator(MovingAvgType.ExponentialMovingAverage, fastPeriod, slowPeriod);
+        var output = results.OutputValues["Apo"].ToArray();
+
+        // 1. Batch Mode
+        var apo = new Apo(fastPeriod, slowPeriod);
+        var result = apo.Update(_testData.Data);
+        ValidationHelper.VerifyData(result, output, lookback: 0, tolerance: 1e-3);
+
+        // 2. Streaming Mode
+        var apoStream = new Apo(fastPeriod, slowPeriod);
+        var streamResults = new List<double>();
+        foreach (var item in _testData.Data)
+        {
+            streamResults.Add(apoStream.Update(item).Value);
+        }
+        ValidationHelper.VerifyData(streamResults, output, lookback: 0, tolerance: 1e-3);
+
+        // 3. Span Mode
+        double[] input = _testData.Data.Values.ToArray();
+        double[] spanOutput = new double[input.Length];
+        Apo.Calculate(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
+        ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: 1e-3);
     }
 }

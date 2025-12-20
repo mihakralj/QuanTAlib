@@ -1,163 +1,59 @@
 # PWMA: Parabolic Weighted Moving Average
 
-## What It Does
+> "Linear weighting is for people who think the world is flat. PWMA squares the weights, because recent data isn't just more important—it's exponentially more important."
 
-The Parabolic Weighted Moving Average (PWMA) applies a squared weighting scheme to historical prices, assigning significantly higher importance to the most recent data points than a standard Weighted Moving Average (WMA). While WMA uses linear weights ($1, 2, 3, \dots, n$), PWMA uses parabolic weights ($1^2, 2^2, 3^2, \dots, n^2$). This results in an indicator that tracks price action with exceptional responsiveness, making it ideal for fast-moving markets and momentum calculations.
+PWMA (Parabolic Weighted Moving Average) applies a parabolic ($i^2$) weighting scheme to the data window. This assigns massive importance to the most recent data points while still technically including the older data. It's like a WMA on steroids.
 
 ## Historical Context
 
-The concept of parabolic weighting is often associated with advanced signal processing techniques in finance, notably appearing as a core component in Jurik Research's "Velocity" indicator ($Velocity = PWMA - WMA$). By shifting the center of gravity even closer to the current price than a linear WMA, it minimizes lag to near-zero levels for recent price changes.
+While the WMA uses a linear triangle window ($1, 2, 3, \dots, n$), the PWMA uses a parabolic window ($1^2, 2^2, 3^2, \dots, n^2$). This was developed for traders who found the WMA too slow but the EMA too jittery. It provides a curve that turns faster than a WMA but is smoother than an EMA at the tail.
 
-## How It Works
+## Architecture & Physics
 
-### The Core Idea
+The "physics" is defined by the weight function $W_i = i^2$.
+This shifts the center of gravity of the filter heavily towards the right (recent data).
 
-Imagine a 5-day window.
+### Zero-Allocation Design
 
-- **SMA:** Weights are $1, 1, 1, 1, 1$.
-- **WMA:** Weights are $1, 2, 3, 4, 5$.
-- **PWMA:** Weights are $1, 4, 9, 16, 25$.
+We use a **Triple Running Sum** algorithm to achieve O(1) updates.
 
-In the PWMA, the most recent price (weight 25) is 25 times more important than the oldest price (weight 1), whereas in the WMA it is only 5 times more important. This aggressive weighting allows the PWMA to turn almost instantly when the trend changes.
+- **S1**: Simple Sum ($\sum P$).
+- **S2**: Linear Weighted Sum ($\sum i P$).
+- **S3**: Parabolic Weighted Sum ($\sum i^2 P$).
 
-### Mathematical Foundation
+By maintaining these three sums, we can update the parabolic average by adding the new point and subtracting the trailing effects, without iterating over the window.
 
-$$ PWMA = \frac{\sum_{i=1}^{n} i^2 \cdot P_i}{\sum_{i=1}^{n} i^2} $$
+## Mathematical Foundation
 
-Where:
+$$ \text{PWMA} = \frac{\sum_{i=1}^{N} i^2 P_{t-N+i}}{\sum_{i=1}^{N} i^2} $$
 
-- $n$ = period length
-- $P_i$ = price at position $i$ (oldest to newest)
-- Denominator = $\frac{n(n+1)(2n+1)}{6}$ (sum of squares)
-
-### Implementation Details: O(1) Streaming
-
-Calculating the sum of $i^2 \cdot P_i$ for every bar would be computationally expensive ($O(n)$). We achieve **O(1)** complexity using a triple running sum technique:
-
-1. **S1 (Simple Sum):** $\sum P_i$
-2. **S2 (Linear Weighted Sum):** $\sum i \cdot P_i$
-3. **S3 (Parabolic Weighted Sum):** $\sum i^2 \cdot P_i$
-
-When the window slides:
-$$ S1_{new} = S1_{old} - P_{oldest} + P_{new} $$
-$$ S2_{new} = S2_{old} - S1_{old} + n \cdot P_{new} $$
-$$ S3_{new} = S3_{old} - 2 \cdot S2_{old} + S1_{old} + n^2 \cdot P_{new} $$
-
-This allows the indicator to update in constant time, regardless of the period length.
-
-## Configuration
-
-| Parameter | Default | Purpose | Adjustment Guidelines |
-|-----------|---------|---------|----------------------|
-| Period | 14 | Lookback window | Shorter (5-10) for momentum; Longer (20+) for trend smoothing. |
+The O(1) update logic involves cascading the sums:
+$$ S1_{new} = S1_{old} - \text{Oldest} + \text{Newest} $$
+$$ S2_{new} = S2_{old} - S1_{old} + N \times \text{Newest} $$
+$$ S3_{new} = S3_{old} - 2 S2_{old} + S1_{old} + N^2 \times \text{Newest} $$
 
 ## Performance Profile
 
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Constant time triple-sum update |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(n) | Fast sequential processing |
-| Memory footprint | O(period) | Uses a RingBuffer to store the lookback window |
+Despite the "parabolic" name, the performance is linear O(1) per update.
 
-## Interpretation
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | High | Triple running sum O(1) |
+| **Complexity** | O(1) | Constant time update |
+| **Accuracy** | 8/10 | Heavily weighted to most recent price |
+| **Timeliness** | 9/10 | Very fast reaction to new data |
+| **Overshoot** | 3/10 | Parabolic weighting causes overshoot |
+| **Smoothness** | 4/10 | Sensitive to recent noise |
 
-### Trading Signals
+## Validation
 
-#### Momentum
+Validated against brute-force calculation (sum of products).
 
-- **Rapid Turns:** PWMA is excellent for identifying the exact moment a trend loses momentum, often turning before the price itself peaks or troughs.
+| Provider | Error Tolerance | Notes |
+| :--- | :--- | :--- |
+| **Manual Calc** | $10^{-9}$ | Verified against O(N) implementation |
 
-#### Velocity
+### Common Pitfalls
 
-- **PWMA - WMA:** Subtracting a WMA from a PWMA of the same period creates a powerful momentum oscillator (Velocity) that is smoother than ROC but with less lag.
-
-### When It Works Best
-
-- **Fast Trends:** Markets that move parabolically or have sharp V-bottoms/tops.
-
-### When It Struggles
-
-- **Noise:** The extreme sensitivity to recent data means PWMA can be noisy in choppy markets. It is often best used as part of a composite indicator rather than a standalone filter.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Triple Running Sums
-
-- **Implementation:** Maintains S1, S2, and S3.
-- **Rationale:** Enables O(1) updates. A naive implementation would be O(n), which is unacceptable for large periods or high-frequency trading.
-
-### Choice: Periodic Resync
-
-- **Implementation:** Recalculates sums from scratch every 1,000 ticks.
-- **Rationale:** Floating-point errors accumulate rapidly in the $S3$ term (which involves $n^2$). Periodic resync ensures long-term stability.
-
-## References
-
-- Colby, Robert W. "The Encyclopedia of Technical Market Indicators." McGraw-Hill, 2002.
-- Jurik Research. "Velocity."
-
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var pwma = new Pwma(period: 14);
-
-// Process each new bar
-TValue result = pwma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"PWMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (pwma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API (object-oriented)
-TSeries prices = ...;
-TSeries pwmaValues = Pwma.Batch(prices, period: 14);
-
-// High-performance Span API (zero allocation)
-double[] prices = new double[10000];
-double[] output = new double[10000];
-Pwma.Calculate(prices.AsSpan(), output.AsSpan(), period: 14);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var pwma = new Pwma(14);
-
-// New bar arrives
-pwma.Update(new TValue(time, 100.5), isNew: true);
-
-// Intra-bar price updates (real-time tick data)
-pwma.Update(new TValue(time, 101.0), isNew: false); // Updates current bar
-pwma.Update(new TValue(time, 100.8), isNew: false); // Updates current bar
-
-// Next bar
-pwma.Update(new TValue(time + 60, 101.2), isNew: true); // Advances state
-```
-
-### Event-Driven Architecture
-
-```csharp
-var source = new TSeries();
-var pwma = new Pwma(source, period: 14);
-
-// Subscribe to PWMA output
-pwma.Pub += (value) => {
-    Console.WriteLine($"New PWMA value: {value.Value}");
-};
-
-// Feeding source automatically triggers the chain
-source.Add(new TValue(DateTime.Now, 105.2));
+1. **Resync**: Because we use triple running sums, floating-point errors can accumulate faster than in a simple SMA. Our implementation automatically resyncs every 1000 ticks to maintain precision.
+2. **Sensitivity**: This indicator is very sensitive to the most recent bar. It can "repaint" visually if used on an open bar (though the math is consistent).

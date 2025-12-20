@@ -7,7 +7,7 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// The Awesome Oscillator (AO) is a momentum indicator used to measure market momentum.
-/// It calculates the difference between a 34-period and 5-period Simple Moving Average (SMA)
+/// It calculates the difference between a 5-period and 34-period Simple Moving Average (SMA)
 /// of the median prices (High + Low) / 2.
 ///
 /// Calculation:

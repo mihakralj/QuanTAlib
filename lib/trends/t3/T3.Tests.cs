@@ -170,4 +170,58 @@ public class T3Tests
         Assert.Throws<ArgumentException>(() => new T3(0));
         Assert.Throws<ArgumentException>(() => new T3(-1));
     }
+
+    private class TestPublisher : ITValuePublisher
+    {
+        public event Action<TValue>? Pub;
+        public int SubscriberCount => Pub?.GetInvocationList().Length ?? 0;
+        
+        public void Publish(TValue item)
+        {
+            Pub?.Invoke(item);
+        }
+    }
+
+    [Fact]
+    public void Constructor_SubscribesToSource()
+    {
+        var source = new TestPublisher();
+        var t3 = new T3(source, 5);
+        
+        Assert.Equal(1, source.SubscriberCount);
+    }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromSource()
+    {
+        var source = new TestPublisher();
+        var t3 = new T3(source, 5);
+        
+        Assert.Equal(1, source.SubscriberCount);
+        
+        t3.Dispose();
+        
+        Assert.Equal(0, source.SubscriberCount);
+    }
+
+    [Fact]
+    public void Dispose_CanBeCalledMultipleTimes()
+    {
+        var source = new TestPublisher();
+        var t3 = new T3(source, 5);
+        
+        t3.Dispose();
+        t3.Dispose();
+        
+        Assert.Equal(0, source.SubscriberCount);
+    }
+
+    [Fact]
+    public void Dispose_DoesNothing_WhenNoSource()
+    {
+        var t3 = new T3(5);
+        
+        // Should not throw
+        t3.Dispose();
+    }
 }

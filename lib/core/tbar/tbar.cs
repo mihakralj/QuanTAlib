@@ -27,8 +27,8 @@ public readonly record struct TBar(long Time, double Open, double High, double L
     public double HLCC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close + Close) * 0.25; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TBar(DateTime time, double open, double high, double low, double close, double volume) 
-        : this(time.Ticks, open, high, low, close, volume)
+    public TBar(DateTime time, double open, double high, double low, double close, double volume)
+        : this(time.Kind == DateTimeKind.Utc ? time.Ticks : time.ToUniversalTime().Ticks, open, high, low, close, volume)
     {
     }
 

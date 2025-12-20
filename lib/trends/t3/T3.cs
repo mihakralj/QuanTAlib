@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -24,7 +25,7 @@ namespace QuanTAlib;
 /// alpha = 2 / (period + 1)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class T3 : AbstractBase
+public sealed class T3 : AbstractBase, IDisposable
 {
     private record struct State(double E1, double E2, double E3, double E4, double E5, double E6, bool IsInitialized)
     {
@@ -38,6 +39,8 @@ public sealed class T3 : AbstractBase
     private State _p_state = State.New();
     private double _lastValidValue;
     private double _p_lastValidValue;
+    private ITValuePublisher? _publisher;
+    private Action<TValue>? _handler;
 
     /// <summary>
     /// Creates T3 with specified period and volume factor.
@@ -76,7 +79,9 @@ public sealed class T3 : AbstractBase
     /// <param name="vfactor">Volume Factor (default 0.7)</param>
     public T3(ITValuePublisher source, int period, double vfactor = 0.7) : this(period, vfactor)
     {
-        source.Pub += (item) => Update(item);
+        _publisher = source;
+        _handler = (item) => Update(item);
+        _publisher.Pub += _handler;
     }
 
     /// <summary>
@@ -87,12 +92,14 @@ public sealed class T3 : AbstractBase
     /// <param name="vfactor">Volume Factor (default 0.7)</param>
     public T3(TSeries source, int period, double vfactor = 0.7) : this(period, vfactor)
     {
+        _publisher = source;
         Prime(source.Values);
         if (source.Count > 0)
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        _handler = (item) => Update(item);
+        _publisher.Pub += _handler;
     }
 
     /// <summary>
@@ -307,5 +314,15 @@ public sealed class T3 : AbstractBase
         _lastValidValue = 0;
         _p_lastValidValue = 0;
         Last = default;
+    }
+
+    public void Dispose()
+    {
+        if (_publisher != null && _handler != null)
+        {
+            _publisher.Pub -= _handler;
+            _publisher = null;
+            _handler = null;
+        }
     }
 }

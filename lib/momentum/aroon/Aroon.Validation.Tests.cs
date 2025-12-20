@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Skender.Stock.Indicators;
 using TALib;
+using Tulip;
 using Xunit;
 using QuanTAlib.Tests;
 
@@ -91,4 +92,49 @@ public sealed class AroonValidationTests : IDisposable
         // Verify Oscillator
         ValidationHelper.VerifyData(results, outAroonOsc, outRangeOsc, lookback);
     }
+
+    [Fact]
+    public void MatchesTulip()
+    {
+        var aroon = new Aroon(14);
+        var results = new List<double>();
+        var upResults = new List<double>();
+        var downResults = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            var res = aroon.Update(_data.Bars[i]);
+            results.Add(res.Value);
+            upResults.Add(aroon.Up.Value);
+            downResults.Add(aroon.Down.Value);
+        }
+
+        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
+        double[][] inputs = { hData, lData };
+        double[] options = { 14 };
+
+        // Tulip Aroon (Down, Up) - Note: Tulip returns Down then Up
+        var aroonInd = Tulip.Indicators.aroon;
+        double[][] outputs = { new double[hData.Length - 14], new double[hData.Length - 14] };
+        aroonInd.Run(inputs, options, outputs);
+        double[] tulipDown = outputs[0];
+        double[] tulipUp = outputs[1];
+
+        // Tulip AroonOsc
+        var aroonOscInd = Tulip.Indicators.aroonosc;
+        double[][] outputsOsc = { new double[hData.Length - 14] };
+        aroonOscInd.Run(inputs, options, outputsOsc);
+        double[] tulipOsc = outputsOsc[0];
+
+        // Verify Up
+        ValidationHelper.VerifyData(upResults, tulipUp, lookback: 14);
+
+        // Verify Down
+        ValidationHelper.VerifyData(downResults, tulipDown, lookback: 14);
+
+        // Verify Oscillator
+        ValidationHelper.VerifyData(results, tulipOsc, lookback: 14);
+    }
+
 }

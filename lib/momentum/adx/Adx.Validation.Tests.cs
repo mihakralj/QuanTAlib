@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Skender.Stock.Indicators;
 using TALib;
+using Tulip;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+using OoplesFinance.StockIndicators.Enums;
 using Xunit;
 using QuanTAlib.Tests;
 
@@ -63,4 +67,59 @@ public sealed class AdxValidationTests : IDisposable
         ValidationHelper.VerifyData(results, outReal, outRange, lookback);
     }
 
+    [Fact(Skip = "Tulip implementation deviates from Skender/TA-Lib standard (15.3 vs 14.9)")]
+    public void MatchesTulip()
+    {
+        var adx = new Adx(14);
+        var results = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            var res = adx.Update(_data.Bars[i]);
+            results.Add(res.Value);
+        }
+
+        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
+        double[][] inputs = { hData, lData, cData };
+        double[] options = { 14 };
+
+        var adxInd = Tulip.Indicators.adx;
+        double[][] outputs = { new double[hData.Length - adxInd.Start(options)] };
+        adxInd.Run(inputs, options, outputs);
+        double[] tulipResults = outputs[0];
+
+        // Tulip initializes differently, so we skip the warmup period to verify convergence
+        ValidationHelper.VerifyData(results, tulipResults, lookback: 100);
+    }
+
+    [Fact(Skip = "Ooples implementation deviates significantly from Skender/TA-Lib standard (10.7 vs 14.9)")]
+    public void MatchesOoples()
+    {
+        var adx = new Adx(14);
+        var results = new List<double>();
+
+        for (int i = 0; i < _data.Bars.Count; i++)
+        {
+            var res = adx.Update(_data.Bars[i]);
+            results.Add(res.Value);
+        }
+
+        var ooplesData = _data.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        var stockData = new StockData(ooplesData);
+        var adxResults = stockData.CalculateAverageDirectionalIndex(MovingAvgType.WildersSmoothingMethod, 14);
+        var ooplesResults = adxResults.OutputValues["Adx"].ToArray();
+
+        ValidationHelper.VerifyData(results, ooplesResults, lookback: 27);
+    }
 }

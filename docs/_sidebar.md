@@ -25,6 +25,7 @@
   - [PWMA - Pascal Weighted MA](../lib/trends/pwma/Pwma.md)
   - [RMA - Rolling MA](../lib/trends/rma/Rma.md)
   - [SMA - Simple MA](../lib/trends/sma/Sma.md)
+  - [SSF - Ehlers Super Smooth Filter](../lib/trends/ssf/Ssf.md)
   - [SUPER - SuperTrend](../lib/trends/super/Super.md)
   - [T3 - Tillson T3 MA](../lib/trends/t3/T3.md)
   - [TEMA - Triple Exponential MA](../lib/trends/tema/Tema.md)
@@ -35,10 +36,12 @@
 - **Momentum**
   - [Overview](../lib/momentum/_index.md)
   - [ADX - Average Directional Index](../lib/momentum/adx/Adx.md)
+  - [ADXR - Average Directional Movement Rating](../lib/momentum/adxr/Adxr.md)
   - [AO - Awesome Oscillator](../lib/momentum/ao/Ao.md)
   - [APO - Absolute Price Oscillator](../lib/momentum/apo/Apo.md)
-  - [AROON - Aroon Oscillator](../lib/momentum/aroon/Aroon.md)
-  - [CFB - Composite Fractal Behavior](../lib/momentum/cfb/Cfb.md)
+  - [AROON - Aroon](../lib/momentum/aroon/Aroon.md)
+  - [AROONOSC - Aroon Oscillator](../lib/momentum/aroonosc/AroonOsc.md)
+  - [CFB - Jurik Composite Fractal Behavior](../lib/momentum/cfb/Cfb.md)
   - [DMX - Jurik Directional Movement Index](../lib/momentum/dmx/Dmx.md)
   - [RSX - Jurik Relative Strength X](../lib/momentum/rsx/Rsx.md)
   - [VEL - Jurik Velocity](../lib/momentum/vel/Vel.md)
@@ -50,6 +53,7 @@
 - **Volume**
   - [Overview](../lib/volume/_index.md)
   - [ADL - Accumulation/Distribution Line](../lib/volume/adl/Adl.md)
+  - [ADOSC - Chaikin A/D Oscillator](../lib/volume/adosc/Adosc.md)
 
 - **Channels**
   - [Overview](../lib/channels/_index.md)

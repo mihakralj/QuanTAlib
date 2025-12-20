@@ -68,6 +68,15 @@ public class IndicatorBenchmarks
     private double[] _tulipHmaOptions = null!;
     private double[][] _tulipHmaOutputs = null!;
 
+    // Pre-allocated outputs for ADOSC
+    private double[] _highValues = null!;
+    private double[] _lowValues = null!;
+    private double[] _volumeValues = null!;
+    private TBarSeries _bars = null!;
+    private double[][] _tulipAdoscInputs = null!;
+    private double[] _tulipAdoscOptions = null!;
+    private double[][] _tulipAdoscOutputs = null!;
+
     // Pre-allocated outputs for QuanTAlib Span API
     private double[] _quantalibOutput = null!;
 
@@ -78,7 +87,11 @@ public class IndicatorBenchmarks
         var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.2, seed: 42);
         var bars = gbm.Fetch(BarCount, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
+        _bars = bars;
         _closeValues = bars.Close.Values.ToArray();
+        _highValues = bars.High.Values.ToArray();
+        _lowValues = bars.Low.Values.ToArray();
+        _volumeValues = bars.Volume.Values.ToArray();
         _closeTseries = bars.Close;
 
         // Create Skender Quote format
@@ -133,9 +146,50 @@ public class IndicatorBenchmarks
         _tulipHmaOptions = new double[] { Period };
         _tulipHmaOutputs = new[] { new double[BarCount - hmaLookback] };
 
+        // Pre-allocate Tulip ADOSC
+        _tulipAdoscInputs = new[] { _highValues, _lowValues, _closeValues, _volumeValues };
+        _tulipAdoscOptions = new double[] { 3, 10 }; // Fast=3, Slow=10
+        _tulipAdoscOutputs = new[] { new double[BarCount - 1] }; // Tulip ADOSC starts at index 1?
+
         // Pre-allocate QuanTAlib output
         _quantalibOutput = new double[BarCount];
     }
+
+    // ==================== ADOSC ====================
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "QuanTAlib ADOSC (Span)")]
+    public void QuanTAlib_Adosc_Span() => Adosc.Calculate(_highValues.AsSpan(), _lowValues.AsSpan(), _closeValues.AsSpan(), _volumeValues.AsSpan(), _quantalibOutput.AsSpan(), 3, 10);
+
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "QuanTAlib ADOSC (Batch)")]
+    public TSeries QuanTAlib_Adosc_TSeries() => Adosc.Batch(_bars, 3, 10);
+
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "QuanTAlib ADOSC (Streaming)")]
+    public void QuanTAlib_Adosc_Streaming()
+    {
+        var adosc = new Adosc(3, 10);
+        for (int i = 0; i < _bars.Count; i++)
+        {
+            _quantalibOutput[i] = adosc.Update(_bars[i]).Value;
+        }
+    }
+
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "Tulip ADOSC")]
+    public void Tulip_Adosc() => Tulip.Indicators.adosc.Run(_tulipAdoscInputs, _tulipAdoscOptions, _tulipAdoscOutputs);
+
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "TALib ADOSC")]
+    public Core.RetCode TALib_Adosc() => TALib.Functions.AdOsc(_highValues, _lowValues, _closeValues, _volumeValues, 0..^0, _quantalibOutput, out _, 3, 10);
+
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "Skender ADOSC")]
+    public object Skender_Adosc() => _quotes.GetChaikinOsc(3, 10);
+
+    [BenchmarkCategory("ADOSC")]
+    [Benchmark(Description = "Ooples ADOSC")]
+    public object Ooples_Adosc() => new StockData(_ooplesData).CalculateChaikinOscillator(MovingAvgType.ExponentialMovingAverage, 3, 10);
 
     // ==================== SMA ====================
     [BenchmarkCategory("SMA")]

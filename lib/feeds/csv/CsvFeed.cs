@@ -140,7 +140,6 @@ public class CsvFeed : IFeed
     {
         return Next(ref isNew);
     }
-
     /// <summary>
     /// Returns a filtered subset of data matching the criteria.
     /// Resets streaming position to start of returned data.
@@ -188,9 +187,9 @@ public class CsvFeed : IFeed
             {
                 // Gap in data - skip forward
                 long gaps = (bar.Time - expectedTime) / interval.Ticks;
-                expectedTime += (gaps + 1) * interval.Ticks;
+                expectedTime += gaps * interval.Ticks;
 
-                if (Math.Abs(bar.Time - expectedTime + interval.Ticks) <= tolerance)
+                if (Math.Abs(bar.Time - expectedTime) <= tolerance)
                 {
                     result.Add(bar, isNew: true);
                     collected++;

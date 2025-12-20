@@ -106,7 +106,7 @@ public sealed class Rsx : ITValuePublisher
         {
             price = _state.LastValidValue;
         }
-        else
+        else if (isNew)
         {
             _state.LastValidValue = price;
         }
@@ -126,39 +126,43 @@ public sealed class Rsx : ITValuePublisher
         }
 
         // --- Momentum Smoothing ---
+        double m1_1 = _state.M1_1 + _alpha * (momentum - _state.M1_1);
+        double m1_2 = _state.M1_2 + _alpha * (m1_1 - _state.M1_2);
+        double m1_out = (3.0 * m1_1 - m1_2) * 0.5;
 
-        // Stage 1
-        _state.M1_1 += _alpha * (momentum - _state.M1_1);
-        _state.M1_2 += _alpha * (_state.M1_1 - _state.M1_2);
-        double m1_out = (3.0 * _state.M1_1 - _state.M1_2) * 0.5;
+        double m2_1 = _state.M2_1 + _alpha * (m1_out - _state.M2_1);
+        double m2_2 = _state.M2_2 + _alpha * (m2_1 - _state.M2_2);
+        double m2_out = (3.0 * m2_1 - m2_2) * 0.5;
 
-        // Stage 2
-        _state.M2_1 += _alpha * (m1_out - _state.M2_1);
-        _state.M2_2 += _alpha * (_state.M2_1 - _state.M2_2);
-        double m2_out = (3.0 * _state.M2_1 - _state.M2_2) * 0.5;
-
-        // Stage 3
-        _state.M3_1 += _alpha * (m2_out - _state.M3_1);
-        _state.M3_2 += _alpha * (_state.M3_1 - _state.M3_2);
-        double smoothedMomentum = (3.0 * _state.M3_1 - _state.M3_2) * 0.5;
+        double m3_1 = _state.M3_1 + _alpha * (m2_out - _state.M3_1);
+        double m3_2 = _state.M3_2 + _alpha * (m3_1 - _state.M3_2);
+        double smoothedMomentum = (3.0 * m3_1 - m3_2) * 0.5;
 
         // --- Absolute Momentum Smoothing ---
         double absMomentum = Math.Abs(momentum);
 
-        // Stage 1
-        _state.A1_1 += _alpha * (absMomentum - _state.A1_1);
-        _state.A1_2 += _alpha * (_state.A1_1 - _state.A1_2);
-        double a1_out = (3.0 * _state.A1_1 - _state.A1_2) * 0.5;
+        double a1_1 = _state.A1_1 + _alpha * (absMomentum - _state.A1_1);
+        double a1_2 = _state.A1_2 + _alpha * (a1_1 - _state.A1_2);
+        double a1_out = (3.0 * a1_1 - a1_2) * 0.5;
 
-        // Stage 2
-        _state.A2_1 += _alpha * (a1_out - _state.A2_1);
-        _state.A2_2 += _alpha * (_state.A2_1 - _state.A2_2);
-        double a2_out = (3.0 * _state.A2_1 - _state.A2_2) * 0.5;
+        double a2_1 = _state.A2_1 + _alpha * (a1_out - _state.A2_1);
+        double a2_2 = _state.A2_2 + _alpha * (a2_1 - _state.A2_2);
+        double a2_out = (3.0 * a2_1 - a2_2) * 0.5;
 
-        // Stage 3
-        _state.A3_1 += _alpha * (a2_out - _state.A3_1);
-        _state.A3_2 += _alpha * (_state.A3_1 - _state.A3_2);
-        double smoothedAbsMomentum = (3.0 * _state.A3_1 - _state.A3_2) * 0.5;
+        double a3_1 = _state.A3_1 + _alpha * (a2_out - _state.A3_1);
+        double a3_2 = _state.A3_2 + _alpha * (a3_1 - _state.A3_2);
+        double smoothedAbsMomentum = (3.0 * a3_1 - a3_2) * 0.5;
+
+        if (isNew)
+        {
+            _state.M1_1 = m1_1; _state.M1_2 = m1_2;
+            _state.M2_1 = m2_1; _state.M2_2 = m2_2;
+            _state.M3_1 = m3_1; _state.M3_2 = m3_2;
+
+            _state.A1_1 = a1_1; _state.A1_2 = a1_2;
+            _state.A2_1 = a2_1; _state.A2_2 = a2_2;
+            _state.A3_1 = a3_1; _state.A3_2 = a3_2;
+        }
 
         // --- Final RSX Calculation ---
         double rsx;

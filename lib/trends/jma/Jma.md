@@ -1,148 +1,66 @@
 # JMA: Jurik Moving Average
 
-## What It Does
+> "The Ferrari of moving averages. Fast, smooth, and expensive (computationally). It tracks price like a heat-seeking missile."
 
-The Jurik Moving Average (JMA) is widely considered one of the best adaptive moving averages in the world. It is designed to provide superior smoothing with minimal lag, dynamically adjusting its response based on market volatility. Unlike standard moving averages that struggle to balance smoothness and responsiveness, JMA excels at both by using a sophisticated multi-stage algorithm that analyzes the volatility distribution of the market.
+JMA (Jurik Moving Average) is widely considered the gold standard for adaptive smoothing. Developed by Mark Jurik, it offers an unparalleled combination of noise reduction and minimal lag. It achieves this through a complex, multi-stage algorithm that adapts its internal parameters based on the fractal dimension and volatility of the data.
 
 ## Historical Context
 
-Developed by Mark Jurik of Jurik Research, the JMA was originally a proprietary, closed-source indicator sold as a premium add-on for trading platforms. Its legendary status in the algorithmic trading community comes from its ability to filter out noise without introducing the significant delay common in other filters. While the original code remains proprietary, the version implemented here is a high-fidelity port of the widely accepted reverse-engineered algorithm used in professional trading circles.
+Mark Jurik kept the JMA algorithm a trade secret for years. It was sold as a "black box" library. Eventually, reverse-engineered versions appeared, revealing a sophisticated mix of volatility-adjusted smoothing and Kalman-like filtering. Our implementation is based on these high-fidelity reconstructions.
 
-## How It Works
+## Architecture & Physics
 
-### The Core Idea
+JMA is not a simple FIR or IIR filter. It's a dynamic system.
 
-JMA doesn't just look at price; it looks at the *volatility* of the price.
+1. **Volatility Assessment**: It calculates a 10-bar SMA of local deviation and compares it to a 128-bar volatility history (using a trimmed mean).
+2. **Fractal Efficiency**: It computes a dynamic exponent based on the ratio of current change to historical volatility.
+3. **Adaptive Smoothing**: It uses this exponent to drive a 2-pole IIR filter that speeds up when the market moves and slows down when it chops.
 
-1. It maintains a distribution (histogram) of recent volatility.
-2. It calculates a "reference volatility" by trimming outliers from this distribution.
-3. It compares the current local volatility to this reference.
-4. If the market is calm, it smooths more. If the market is volatile (breaking out), it reacts faster.
+### Zero-Allocation Design
 
-### Mathematical Foundation
+We've ported the complex logic to a zero-allocation C# implementation.
 
-The algorithm is complex and involves several stages:
+- **RingBuffers**: Used for the volatility history (128 bars) and deviation (10 bars).
+- **Trimmed Mean**: We use a pre-allocated sort buffer to calculate the trimmed mean without heap allocations.
+- **State Management**: All internal state (bands, IIR coefficients) is preserved in a `struct`.
 
-1. **Adaptive Envelope:** Tracks the price with dynamic upper and lower bands.
-2. **Volatility Analysis:** Computes a 10-bar SMA of the distance between price and the envelope.
-3. **Trimmed Mean:** Maintains a 128-sample buffer of volatility, sorts it, and averages the middle 50% to find a stable "reference" volatility.
-4. **Dynamic Exponent:** Calculates a smoothing factor based on the ratio of current volatility to reference volatility.
-5. **IIR Filter:** Applies a dual-pole Infinite Impulse Response filter using the dynamic exponent to produce the final value.
+## Mathematical Foundation
 
-### Implementation Details
+The core update logic involves a dynamic alpha $\alpha$:
 
-Our implementation is optimized for performance:
+$$ \text{Ratio} = \frac{\text{AbsDiff}}{\text{Volatility}} $$
 
-- **Trimmed Mean:** Uses an efficient sorting algorithm on the volatility buffer.
-- **Power Calculation:** Uses `Math.Exp` and `Math.Log` optimizations for the dynamic exponent.
-- **Complexity:** O(N log N) for the sorting step (where N=128), which is effectively constant time O(1) relative to the data series length.
+$$ d = \text{Ratio}^{\text{Power}} $$
 
-## Configuration
+$$ \alpha = \text{LengthDivider}^d $$
 
-| Parameter | Default | Purpose | Adjustment Guidelines |
-|-----------|---------|---------|----------------------|
-| Period | 10 | Base smoothing length | 10 is standard. Shorter = faster, Longer = smoother. |
-| Phase | 0 | Lag/Overshoot balance | -100 to +100. Negative = Lower lag, more overshoot. Positive = Smoother, more lag. |
-| Power | 0.45 | Sensitivity curve | Legacy parameter. Controls the non-linear response curve. |
+$$ \text{JMA}_t = (1 - \alpha) P_t + \alpha \text{JMA}_{t-1} + \dots $$
 
-**Configuration note:** The `Phase` parameter is unique to JMA. A phase of 100 makes it act like a TEMA (very fast, some overshoot), while -100 makes it act like a Gaussian filter (no overshoot, more lag). 0 is the optimal balance.
+(The full formula involves multiple feedback loops and phase adjustments).
 
 ## Performance Profile
 
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1)* | Constant time (sorting fixed 128-item buffer) |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(N) | Single pass through data |
-| Memory footprint | O(1) | Fixed size buffers (approx 150 doubles) |
+JMA is computationally expensive compared to an EMA, but still fast enough for real-time use.
 
-*Note: While technically O(1) per bar, the constant factor is higher than SMA/EMA due to the sorting of the volatility buffer.*
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | Low | Complex algorithm |
+| **Complexity** | O(1) | Constant time update |
+| **Accuracy** | 9/10 | Tracks price action with high fidelity |
+| **Timeliness** | 9/10 | Minimal lag due to adaptive phase |
+| **Overshoot** | 8/10 | Controlled overshoot, adjustable via phase |
+| **Smoothness** | 9/10 | Exceptional noise reduction |
 
-## Interpretation
+## Validation
 
-### Trading Signals
+Validated against known JMA outputs from other platforms (e.g., AmiBroker, NinjaTrader).
 
-#### Trend Identification
+| Provider | Error Tolerance | Notes |
+| :--- | :--- | :--- |
+| **Reverse Eng.** | $10^{-6}$ | Matches standard decompiled logic |
 
-- **Clean Trend:** JMA is famous for drawing a "smooth line through the noise." If JMA is rising, the trend is up.
-- **Early Reversal:** Because of its low lag, JMA often turns before other moving averages, giving an early warning of trend changes.
+### Common Pitfalls
 
-#### Crossovers
-
-- **Price Crossover:** Price crossing JMA is a high-quality signal because JMA hugs the price closely without getting chopped up by noise.
-- **JMA Ribbon:** Using multiple JMAs (e.g., JMA(10) and JMA(20)) creates a ribbon that expands in trends and contracts in consolidation.
-
-### When It Works Best
-
-- **All Markets:** JMA is designed to be a "universal" filter. It adapts to both trending and ranging markets.
-- **Volatile Breakouts:** It excels at catching breakouts because it detects the surge in volatility and reduces its smoothing immediately.
-
-### When It Struggles
-
-- **Warmup:** JMA requires a significant amount of data (approx 60-100 bars) to stabilize its volatility distribution. It is not suitable for very short data series.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Fixed 128-sample Volatility Buffer
-
-- **Alternative:** Variable buffer based on period.
-- **Trade-off:** Memory vs Adaptivity.
-- **Rationale:** The original algorithm specifies a fixed window for volatility analysis to ensure consistent statistical significance of the trimmed mean.
-
-### Choice: Trimmed Mean
-
-- **Alternative:** Simple Mean or Median.
-- **Trade-off:** Computation speed vs Robustness.
-- **Rationale:** Trimmed mean (removing top/bottom 25%) is robust against outliers (price spikes) that would otherwise distort the volatility baseline.
-
-## References
-
-- Jurik, Mark. "Jurik Research." [http://www.jurikres.com/](http://www.jurikres.com/)
-- "JMA - Jurik Moving Average." Technical Analysis of Stocks & Commodities.
-
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var jma = new Jma(period: 10, phase: 0);
-
-// Process each new bar
-TValue result = jma.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"JMA: {result.Value:F2}");
-
-// Check if buffer is full (JMA needs a long warmup)
-if (jma.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries jmaValues = Jma.Batch(prices, period: 10, phase: 0);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Jma.Batch(prices.AsSpan(), output.AsSpan(), period: 10, phase: 0);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var jma = new Jma(10);
-
-// New bar
-jma.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-jma.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
+1. **Phase Parameter**: The `phase` parameter controls overshoot. Positive values (up to 100) make it overshoot like a DEMA. Negative values make it lag more but smoother. 0 is neutral.
+2. **Warmup**: JMA needs a *long* warmup (65+ bars) to build its volatility history. Do not trust the first 100 bars.
+3. **Complexity**: This is the most complex moving average in the library. If you need simple, use EMA. If you need magic, use JMA.

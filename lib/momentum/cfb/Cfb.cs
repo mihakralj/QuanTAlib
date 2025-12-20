@@ -80,7 +80,7 @@ public sealed class Cfb : ITValuePublisher
         _runningSums = new double[_lengths.Length];
         _p_runningSums = new double[_lengths.Length];
 
-        Name = "Cfb";
+        Name = "Jurik Composite Fractal Behavior";
         _state.PrevCfb = 1.0;
     }
 
@@ -107,14 +107,6 @@ public sealed class Cfb : ITValuePublisher
     public TValue Update(TValue input, bool isNew = true)
     {
         double price = input.Value;
-        if (!double.IsFinite(price))
-        {
-            price = _state.LastValidValue;
-        }
-        else
-        {
-            _state.LastValidValue = price;
-        }
 
         if (isNew)
         {
@@ -127,6 +119,15 @@ public sealed class Cfb : ITValuePublisher
             // Restore state
             _state = _p_state;
             Array.Copy(_p_runningSums, _runningSums, _lengths.Length);
+        }
+
+        if (!double.IsFinite(price))
+        {
+            price = _state.LastValidValue;
+        }
+        else
+        {
+            _state.LastValidValue = price;
         }
 
         // Calculate volatility for this step
@@ -274,7 +275,7 @@ public sealed class Cfb : ITValuePublisher
         }
         else
         {
-            lens = lengths;
+            lens = (int[])lengths.Clone();
         }
         int maxLen = 0;
         for (int i = 0; i < lens.Length; i++) if (lens[i] > maxLen) maxLen = lens[i];

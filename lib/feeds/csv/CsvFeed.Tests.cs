@@ -147,7 +147,7 @@ public class CsvFeedTests
         
         // Fetch from start
         var startTime = new DateTime(2025, 7, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
-        var series = feed.Fetch(5, startTime, TimeSpan.FromDays(1));
+        feed.Fetch(5, startTime, TimeSpan.FromDays(1));
         
         // Next should now stream from fetched position
         var bar = feed.Next(isNew: true);
@@ -249,5 +249,48 @@ public class CsvFeedTests
         
         // Should return empty or minimal data
         Assert.True(series.Count == 0);
+    }
+
+    [Fact]
+    public void Fetch_HandlesGapsCorrectly()
+    {
+        string tempCsv = Path.GetTempFileName() + ".csv";
+        try
+        {
+            // Create CSV with gaps
+            // Date, Open, High, Low, Close, Volume
+            // 2023-01-01 (Sunday)
+            // 2023-01-02 (Monday)
+            // 2023-01-04 (Wednesday) - Gap of Tuesday
+            // 2023-01-05 (Thursday)
+            var lines = new[]
+            {
+                "Date,Open,High,Low,Close,Volume",
+                "2023-01-05,103,104,102,103,1000",
+                "2023-01-04,102,103,101,102,1000",
+                "2023-01-02,101,102,100,101,1000",
+                "2023-01-01,100,101,99,100,1000"
+            };
+            File.WriteAllLines(tempCsv, lines);
+
+            var feed = new CsvFeed(tempCsv);
+            var startTime = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+            var interval = TimeSpan.FromDays(1);
+
+            // Fetch 5 bars. Should get 4 bars (Jan 1, 2, 4, 5).
+            var series = feed.Fetch(10, startTime, interval);
+
+            Assert.Equal(4, series.Count);
+            Assert.Equal(startTime, series[0].Time); // Jan 1
+            Assert.Equal(startTime + interval.Ticks, series[1].Time); // Jan 2
+            // Gap here
+            Assert.Equal(startTime + 3 * interval.Ticks, series[2].Time); // Jan 4
+            Assert.Equal(startTime + 4 * interval.Ticks, series[3].Time); // Jan 5
+        }
+        finally
+        {
+            if (File.Exists(tempCsv))
+                File.Delete(tempCsv);
+        }
     }
 }

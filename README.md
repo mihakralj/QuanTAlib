@@ -23,6 +23,21 @@ TA libraries face a fundamental choice: accept approximations for simplicity OR 
 - **Platform Agnostic**: Runs on .NET 8/9/10, compatible with Quantower, NinjaTrader, QuantConnect.
 - **Mathematically Rigorous**: Validated against original research papers and established libraries.
 
+## Indicators
+
+| Category | What It Measures | Representative Indicators |
+| -------- | ---------------- | ------------------------- |
+| [**Trends**](../lib/trends/_index.md) | Direction and strength of price movement through smoothing and filtering | SMA, EMA, WMA, HMA, JMA, KAMA, ALMA, DEMA, TEMA, T3 |
+| [**Volatility**](../lib/volatility/_index.md) | Size and variability of price movements | ATR, StdDev, Bollinger Bands, Keltner Channels, Historical Volatility |
+| [**Momentum**](../lib/momentum/_index.md) | Speed and magnitude of price changes | RSI, Stochastic, CCI, Williams %R, MACD, Momentum, ROC |
+| [**Volume**](../lib/volume/_index.md) | Trading activity and price-volume relationships | OBV, VWAP, Volume ROC, A/D, MFI |
+| [**Channels**](../lib/channels/_index.md) | Price boundaries and range definitions | Donchian Channels, Keltner Channels, Price Channels |
+| [**Statistics**](../lib/statistics/_index.md) | Mathematical relationships between price series | Correlation, Covariance, Beta, Z-Score, Linear Regression |
+| [**Numerics**](../lib/numerics/_index.md) | Mathematical transformations and signal processing | Convolution, Filters, Integration, Differentiation, Smoothing |
+| [**Errors**](../lib/errors/_index.md) | Measurement accuracy and model fit quality | MAE, RMSE, Residuals, R-Squared |
+| [**Forecasts**](../lib/forecasts/_index.md) | Future price prediction and projection | Linear Regression Forecast, Moving Average Projection |
+| [**Cycles**](../lib/cycles/_index.md) | Periodic patterns and dominant frequencies | Hilbert Transform, Dominant Cycle, Instantaneous Phase, Sine Wave |
+
 ## Quick Start
 
 Install from NuGet:
@@ -52,12 +67,12 @@ if (result.IsHot)
 
 QuanTAlib is designed for speed. Here is how it compares calculating a 500,000 bar SMA against other libraries:
 
-| Library | Mean Time | Allocations | Relative Speed |
-|---------|-----------|-------------|----------------|
-| **QuanTAlib (Span)** | **318.3 μs** | **0 B** | **1.00x (baseline)** |
-| TA-Lib | 356.4 μs | 34 B | 1.12x slower |
-| Tulip | 359.3 μs | 0 B | 1.13x slower |
-| Skender | 71,277 μs | 50.8 MB | 224x slower |
+| Library              | Mean Time    | Allocations | Relative Speed       |
+|----------------------|--------------|-------------|----------------------|
+| **QuanTAlib (Span)** | **318.3 μs** | **0 B**     | **1.00x (baseline)** |
+| TA-Lib               | 356.4 μs     | 34 B        | 1.12x slower         |
+| Tulip Indicators     | 359.3 μs     | 0 B         | 1.13x slower         |
+| Skender Indicators   | 71,277 μs    | 50.8 MB     | 224x slower          |
 
 *See [Benchmarks](docs/BENCHMARKS.md) for full details and methodology.*
 

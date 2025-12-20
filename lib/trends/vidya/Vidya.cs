@@ -66,18 +66,17 @@ public sealed class Vidya : AbstractBase
     {
         if (isNew)
         {
-            _p_state = _state;
             _state.BarCount++;
+            if (_state.IsInitialized)
+            {
+                _state.PrevClose = _state.CurrentClose;
+                _state.LastVidya = _state.CurrentVidya;
+            }
+            _p_state = _state;
         }
         else
         {
             _state = _p_state;
-        }
-
-        if (_state.IsInitialized)
-        {
-            _state.PrevClose = _state.CurrentClose;
-            _state.LastVidya = _state.CurrentVidya;
         }
 
         double price = input.Value;
@@ -143,9 +142,25 @@ public sealed class Vidya : AbstractBase
         Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
-        Prime(source.Values);
+        // Replay only the last _period bars to restore internal state
+        Reset();
+        int start = 0;
+        if (len > _period)
+        {
+            start = len - _period;
+            _state.BarCount = start;
+            _state.IsInitialized = true;
+            _state.PrevClose = source.Values[start - 1];
+            _state.LastVidya = vSpan[start - 1];
+            _state.CurrentClose = _state.PrevClose;
+            _state.CurrentVidya = _state.LastVidya;
+        }
 
-        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        for (int i = start; i < len; i++)
+        {
+            Update(new TValue(source.Times[i], source.Values[i]));
+        }
+
         return new TSeries(t, v);
     }
 

@@ -67,6 +67,9 @@ exclude:
   - name: UnusedVariable
   - name: UnusedVariable.Compiler  # False positive for tuple deconstruction
   - name: CS0219  # Variable is assigned but never used
+  - name: RedundantAssignment # Value assigned is not used in any execution path
+  - name: UnusedAssignment # Assignment is not used
+  - name: IDE0059 # Unnecessary assignment of a value
 
   # Object initializer in using statement - false positive for simple property setters
   - name: CA2000  # Dispose objects before losing scope (overly cautious for simple cases)

@@ -25,10 +25,10 @@
 | ACCBANDS | Acceleration Bands | Channels |
 | ACCEL | Momentum change; 2nd derivative | Numerics |
 | [ADL](volume/adl/Adl.md) | Accumulation/Distribution Line | Volume |
-| ADOSC | Chaikin A/D Oscillator | Volume |
+| [ADOSC](volume/adosc/Adosc.md) | Chaikin A/D Oscillator | Volume |
 | ADR | Average Daily Range | Volatility |
 | [ADX](momentum/adx/Adx.md) | Average Directional Index | Momentum |
-| ADXR | Average Directional Movement Rating | Momentum |
+| [ADXR](momentum/adxr/Adxr.md) | Average Directional Movement Rating | Momentum |
 | AFIRMA | Autoregressive FIR MA | Forecasts |
 | ALLIGATOR | Williams Alligator | Trends |
 | [ALMA](trends/alma/Alma.md) | Arnaud Legoux MA | Trends |
@@ -39,7 +39,7 @@
 | [APO](momentum/apo/Apo.md) | Absolute Price Oscillator | Momentum |
 | APZ | Adaptive Price Zone | Channels |
 | [AROON](momentum/aroon/Aroon.md) | Aroon | Momentum |
-| AROONOSC | Aroon Oscillator | Momentum |
+| [AROONOSC](momentum/aroonosc/AroonOsc.md) | Aroon Oscillator | Momentum |
 | ATAN2 | Two-Argument Arctangent | Numerics |
 | [ATR](volatility/atr/Atr.md) | Average True Range | Volatility |
 | ATRBANDS | ATR Bands | Channels |

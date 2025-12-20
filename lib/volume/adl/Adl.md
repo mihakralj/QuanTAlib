@@ -1,81 +1,71 @@
-# ADL - Accumulation/Distribution Line
+# ADL: Accumulation/Distribution Line
 
-The Accumulation/Distribution Line (ADL) measures the cumulative flow of money into and out of a security. It validates price trends by correlating volume with price close location within the high-low range.
+> "Volume precedes price." — Old Wall Street Adage
 
-## Architectural Design
+The Accumulation/Distribution Line (ADL) is the bedrock of volume analysis. It attempts to answer a single, vital question: "Are the big players buying or selling?"
 
-We implement ADL as a stateful, streaming accumulator that maintains O(1) complexity for each new data point. Unlike window-based indicators, ADL carries its entire history in a single double-precision state variable.
+Unlike On-Balance Volume (OBV), which treats every up-day as 100% buying, ADL is nuanced. It looks at *where* the price closed within the day's range. A close near the high on massive volume screams "Accumulation." A close near the low on massive volume screams "Distribution."
 
-### The "Close Location Value" (CLV)
+## Historical Context
 
-The core mechanic relies on the Money Flow Multiplier (MFM), also known as CLV. This value ranges from -1 to +1:
+Developed by Marc Chaikin, the ADL was originally designed to spot divergences. Chaikin noticed that if a stock made a new high but the ADL failed to make a new high, a crash was imminent. He essentially quantified the "smart money" flow.
 
-* **+1**: Close equals High (Maximum Accumulation)
-* **-1**: Close equals Low (Maximum Distribution)
-* **0**: Close is exactly between High and Low
+## Architecture & Physics
 
-This approach avoids the noise of simple price changes, focusing instead on *where* the price settles relative to its intraday range.
+ADL is a cumulative indicator, meaning it has infinite memory. Today's value depends on the sum of all yesterdays.
 
-$$MFM = \frac{(Close - Low) - (High - Close)}{High - Low}$$
+The core mechanic is the **Money Flow Multiplier (MFM)**, also known as the Close Location Value (CLV). This value ranges from -1 to +1:
 
-$$MFV = MFM \times Volume$$
+- **+1**: Close = High (Maximum Accumulation)
+- **-1**: Close = Low (Maximum Distribution)
+- **0**: Close is exactly in the middle
 
-$$ADL_{current} = ADL_{previous} + MFV$$
+This multiplier is then applied to the volume to determine the "Money Flow Volume" for the period.
 
-### Zero-Allocation Implementation
+### Zero-Allocation Design
 
-Our implementation processes updates without heap allocations. The state consists of a single `double _lastAdl`.
+Our implementation is a stateful accumulator. It maintains a single `double` state variable representing the cumulative sum.
 
-* **Complexity**: O(1) per update.
-* **Memory**: 16 bytes (state) + object overhead.
-* **NaN Handling**: If `High == Low`, MFM is 0 to avoid division by zero. If inputs are `NaN`, the last valid ADL value is preserved.
+## Mathematical Foundation
 
-## Usage
+### 1. Money Flow Multiplier (MFM)
 
-### Streaming API
+$$
+MFM = \frac{(Close - Low) - (High - Close)}{High - Low}
+$$
 
-The streaming API is designed for real-time event processing. It updates the state with each new bar and returns the latest value immediately.
+### 2. Money Flow Volume (MFV)
 
-```csharp
-using QuanTAlib;
+$$
+MFV = MFM \times Volume
+$$
 
-// Initialize
-var adl = new Adl();
+### 3. Accumulation/Distribution Line (ADL)
 
-// Update loop
-foreach (var bar in feed)
-{
-    var result = adl.Update(bar);
-    Console.WriteLine($"ADL: {result.Value:F2}");
-}
-```
+$$
+ADL_t = ADL_{t-1} + MFV_t
+$$
 
-### Batch Processing
+## Performance Profile
 
-For historical analysis, the static `Calculate` method processes full datasets using optimized loops.
+ADL is extremely lightweight.
 
-```csharp
-var bars = GetHistory();
-var adlSeries = Adl.Calculate(bars);
-```
-
-## Performance Benchmarks
-
-Processing 10,000 bars on an Intel Core i9-13900K:
-
-| Operation | Time | Allocations |
+| Metric | Complexity | Notes |
 | :--- | :--- | :--- |
-| Update (Single) | 2.1 ns | 0 bytes |
-| Calculate (Batch) | 15 μs | 0 bytes (excluding output) |
+| **Throughput** | ~2ns / bar | Simple arithmetic + accumulation |
+| **Allocations** | 0 bytes | Hot path is allocation-free |
+| **Complexity** | O(1) | Constant time per update |
+| **Precision** | `double` | Essential for cumulative sums |
 
 ## Validation
 
-We validate correctness against three external authorities to 1e-9 precision:
+We validate against **TA-Lib**, **Skender.Stock.Indicators**, and **Tulip Indicators**.
 
-| Library | Status | Notes |
-| :--- | :--- | :--- |
-| **Skender.Stock.Indicators** | ✅ Pass | Reference implementation |
-| **TA-Lib** | ✅ Pass | Matches `AD` function |
-| **Tulip Indicators** | ✅ Pass | Matches `ad` indicator |
+- **Accuracy**: Matches external libraries to 9 decimal places.
+- **Edge Cases**: Handles `High == Low` (division by zero protection) by setting MFM to 0.
 
-See [Validation](../validation.md) for comprehensive test results.
+### Common Pitfalls
+
+- **Gaps**: ADL ignores gaps. If a stock gaps up but closes near its low, ADL will register distribution, even if the price is higher than yesterday.
+- **Scale**: The absolute value of ADL is meaningless; it depends on the start date of the data. Only the *trend* and *divergence* matter.
+- **Volume Spikes**: A single bad data point with erroneous volume can permanently skew the ADL. Sanitize your data.

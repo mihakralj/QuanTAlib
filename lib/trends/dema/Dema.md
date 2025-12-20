@@ -1,153 +1,64 @@
 # DEMA: Double Exponential Moving Average
 
-## What It Does
+> "EMA is good. DEMA is better. It's like an EMA that drank a double espresso and stopped lagging behind the conversation."
 
-The Double Exponential Moving Average (DEMA) is a faster, more responsive version of the traditional EMA. It was designed to reduce the lag inherent in trend-following indicators. Despite its name, it is not simply a "double smoothing" (which would increase lag); rather, it uses a clever combination of a single EMA and a double EMA to subtract lag from the original signal.
+DEMA (Double Exponential Moving Average) is not just "two EMAs." It's a clever mathematical hack to cancel out the lag inherent in a standard EMA. By subtracting the "error" (the difference between a single EMA and a double EMA) from the original EMA, DEMA produces a curve that hugs the price action much tighter.
 
 ## Historical Context
 
-Patrick Mulloy introduced DEMA in the January 1994 issue of *Technical Analysis of Stocks & Commodities* magazine. His goal was to create a moving average that could respond more quickly to market changes than the standard EMA, making it more suitable for the faster-paced trading environments that were emerging at the time.
+Introduced by Patrick Mulloy in the January 1994 issue of *Technical Analysis of Stocks & Commodities*, DEMA was designed to reduce the lag of trend-following indicators. Mulloy realized that smoothing always introduces lag, but by combining single and double smoothing, you could mathematically negate some of that delay.
 
-## How It Works
+## Architecture & Physics
 
-### The Core Idea
+DEMA is a composite indicator built from two EMAs.
 
-Standard moving averages introduce lag. If you smooth a moving average again (EMA of EMA), you get a smoother line, but with *more* lag. Mulloy's insight was that the difference between the single EMA and the double EMA represents a measure of the "lag error." By adding this difference back to the single EMA, you can effectively cancel out much of the lag.
+1. **EMA1**: The standard EMA of the price.
+2. **EMA2**: The EMA of EMA1.
 
-Think of it as:
-`DEMA = EMA + (EMA - EMA_of_EMA)`
-`DEMA = 2 * EMA - EMA_of_EMA`
+The "physics" relies on the fact that EMA2 lags EMA1 roughly as much as EMA1 lags the price. Therefore, $2 \times \text{EMA1} - \text{EMA2}$ pushes the value forward, correcting the lag.
 
-### Mathematical Foundation
+### Zero-Allocation Design
 
-1. Calculate the EMA of the price: $EMA_1 = EMA(Price)$
-2. Calculate the EMA of the first EMA: $EMA_2 = EMA(EMA_1)$
-3. Calculate DEMA:
-    $$DEMA = 2 \cdot EMA_1 - EMA_2$$
+Since DEMA is composed of two EMAs, and our EMA implementation is zero-allocation, DEMA inherits this efficiency.
 
-This formula effectively boosts the weighting of the most recent data, making the indicator turn faster than a standard EMA of the same period.
+- **State Structs**: We use lightweight `struct`s to hold the state of both internal EMAs.
+- **Inlining**: The calculation is aggressive inlined.
+- **No Buffers**: DEMA is recursive; it needs no history buffer, just the previous state.
 
-### Implementation Details
+## Mathematical Foundation
 
-Our implementation uses a zero-lag initialization technique for the internal EMAs. Instead of waiting for the EMA to converge from 0 (which takes hundreds of bars), we use a "compensator" factor that scales the early values to be statistically valid immediately.
+$$ \text{EMA}_1 = \text{EMA}(P, N) $$
 
-- **Complexity:** O(1) per update.
-- **State:** Maintains two internal EMA states.
-- **Convergence:** DEMA converges slightly slower than a single EMA because it depends on the second EMA stabilizing.
+$$ \text{EMA}_2 = \text{EMA}(\text{EMA}_1, N) $$
 
-## Configuration
+$$ \text{DEMA} = 2 \times \text{EMA}_1 - \text{EMA}_2 $$
 
-| Parameter | Default | Purpose | Adjustment Guidelines |
-|-----------|---------|---------|----------------------|
-| Period | 10 | Lookback window | Shorter = Scalping (very fast); Longer = Trend following |
-
-**Configuration note:** Because DEMA is faster than EMA, you may need to use a slightly longer period (e.g., 14 instead of 10) to get comparable smoothness with better responsiveness.
+Where $N$ is the period.
 
 ## Performance Profile
 
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(1) | Two EMA updates + one subtraction |
-| Bar correction | O(1) | Efficient state rollback |
-| Batch processing | O(N) | Single pass through data |
-| Memory footprint | O(1) | Minimal state (4 doubles) |
+DEMA is extremely fast, requiring only a few floating-point operations per update.
 
-## Interpretation
+| Metric | Complexity | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | Extreme | 2x EMA cost (still O(1)) |
+| **Complexity** | O(1) | Recursive calculation |
+| **Accuracy** | 7/10 | Good for trends, but can be erratic |
+| **Timeliness** | 9/10 | Very fast, minimal lag |
+| **Overshoot** | 4/10 | Prone to overshoot on reversals |
+| **Smoothness** | 5/10 | Can be jagged due to speed |
 
-### Trading Signals
+## Validation
 
-#### Trend Identification
+Validated against TA-Lib and Skender.Stock.Indicators.
 
-- **Uptrend:** Price > DEMA.
-- **Downtrend:** Price < DEMA.
-- **Reversal:** Because DEMA turns so quickly, a change in slope is often an early warning of a trend change.
+| Provider | Error Tolerance | Notes |
+| :--- | :--- | :--- |
+| **TA-Lib** | $10^{-9}$ | Matches `TA_DEMA` |
+| **Skender** | $10^{-9}$ | Matches `GetDema` |
 
-#### Crossovers
+### Common Pitfalls
 
-- **Price Crossover:** Price crossing DEMA is a very aggressive signal.
-- **DEMA/EMA Crossover:** Using DEMA(20) crossing EMA(20) can signal a change in momentum strength.
-
-### When It Works Best
-
-- **Fast Trends:** DEMA shines in markets that move quickly and reverse sharply.
-- **Scalping:** Its low lag makes it ideal for short-term trading on 1-minute or 5-minute charts.
-
-### When It Struggles
-
-- **Whipsaws:** Because it is so responsive, DEMA produces many false signals in choppy, sideways markets. It offers very little noise filtering compared to SMA or WMA.
-
-## Comparison: DEMA vs EMA vs TEMA
-
-| Aspect | EMA | DEMA | TEMA |
-|--------|-----|------|------|
-| **Lag** | Moderate | Low | Very Low |
-| **Smoothness** | Moderate | Low | Very Low |
-| **Responsiveness** | Moderate | High | Very High |
-| **Overshoot** | Minimal | Moderate | High |
-
-**Summary:** Use DEMA when EMA is too slow but you don't want the extreme volatility of TEMA (Triple EMA).
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: Zero-Lag Initialization
-
-- **Alternative:** Seed with first value or SMA.
-- **Trade-off:** Slightly more complex math (`1/(1-decay)` scaling).
-- **Rationale:** Provides valid values from the very first bar, eliminating the "warmup period" artifact common in other libraries.
-
-### Choice: Double Precision State
-
-- **Alternative:** Decimal.
-- **Trade-off:** Precision vs Speed.
-- **Rationale:** Double is significantly faster and provides sufficient precision for financial time series (15-17 digits).
-
-## References
-
-- Mulloy, Patrick G. "Smoothing Data With Faster Moving Averages." Technical Analysis of Stocks & Commodities, Jan. 1994.
-
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-var dema = new Dema(period: 10);
-
-// Process each new bar
-TValue result = dema.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"DEMA: {result.Value:F2}");
-
-// Check if buffer is full
-if (dema.IsHot)
-{
-    // Indicator is fully initialized
-}
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-TSeries demaValues = Dema.Calculate(prices, period: 10);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-Dema.Calculate(prices.AsSpan(), output.AsSpan(), period: 10);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var dema = new Dema(10);
-
-// New bar
-dema.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-dema.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
+1. **Overshoot**: Because DEMA subtracts lag, it can sometimes overshoot price turns. It's more volatile than a standard EMA.
+2. **"Double" Misconception**: It is *not* a moving average of a moving average (that would be slower). It is a lag-corrected composite.
+3. **Warmup**: DEMA needs about $2 \times N$ bars to converge fully, as the second EMA needs the first EMA to stabilize.

@@ -184,6 +184,8 @@ public class GBM : IFeed
     {
         if (count <= 0)
             throw new ArgumentException("Count must be positive", nameof(count));
+        if (interval <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(interval), "Interval must be positive");
 
         var series = new TBarSeries(count);
 

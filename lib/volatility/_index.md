@@ -1,11 +1,15 @@
 # Volatility
 
-Volatility indicators measure price volatility and range.
+> "The market is a pendulum that swings between unsustainable optimism and unjustified pessimism." — Benjamin Graham
+
+Volatility is the pulse of the market. It measures the rate and magnitude of price changes, regardless of direction. In low volatility, markets consolidate and coil; in high volatility, they explode and trend.
+
+These indicators don't tell you where the price is going. They tell you how scared or greedy the participants are while it gets there.
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
 | ADR | Average Daily Range | |
-| [ATR](atr/Atr.md) | Average True Range | Measures market volatility by decomposing the entire range of an asset price for that period. |
+| [ATR](atr/Atr.md) | Average True Range | The standard for measuring market "heat." Decomposes range to account for gaps. |
 | ATRN | Average True Range Normalized [0,1] | |
 | ATRP | Average True Range Percent | |
 | BBW | Bollinger Band Width | |

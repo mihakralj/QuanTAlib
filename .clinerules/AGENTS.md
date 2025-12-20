@@ -213,13 +213,22 @@ public TValue Update(TValue input, bool isNew = true)
 When creating a new indicator, you are **DONE** only when:
 
 * [ ] Source algorithm is verified.
+* [ ] Algorithm is fully optimized for modern C#.
+* [ ] Algorithm runs in O(1) constant time wherever possible.
+* [ ] Algorithm is SIMD-optimized wherever possible.
 * [ ] All 6 required files exist.
 * [ ] `Update` handles `isNew` and `NaN` correctly.
 * [ ] No heap allocations in `Update`.
 * [ ] Static `Calculate(Span)` is implemented.
+* [ ] Unit tests are created for all key methods and attributes.
 * [ ] Unit tests pass (including edge cases).
 * [ ] Validation tests pass against external libs.
-* [ ] Documentation is complete and linked in all 6 required index/doc files (including validation.md).
+* [ ] Documentation is complete and linked in all required index/doc files:
+  * [ ] `docs/_sidebar.md`
+  * [ ] `docs/indicators.md`
+  * [ ] `docs/validation.md`
+  * [ ] `lib/_index.md`
+  * [ ] `lib/[category]/_index.md`
 * [ ] Quantower adapter and tests are implemented.
 * [ ] CodeRabbit review issues are resolved.
 

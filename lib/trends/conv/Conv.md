@@ -1,131 +1,64 @@
-# CONV: Convolution Indicator
+# CONV: Convolution Moving Average
 
-## What It Does
+> "If you want a moving average that behaves exactly how you want it to, build it yourself. CONV is the 'Bring Your Own Kernel' of indicators."
 
-The Convolution Indicator (CONV) is a generalized filtering tool that applies a custom set of weights (a "kernel") to a window of historical data. Unlike standard moving averages that use fixed formulas (equal weights for SMA, linear for WMA), CONV allows you to define *any* weighting scheme you can imagine. It is the fundamental building block for creating custom digital signal processing filters, edge detectors, or specialized smoothing algorithms.
+CONV (Convolution Moving Average) is the ultimate tool for the signal processing purist. It doesn't presume to know what kind of smoothing you need; it simply asks for a kernel (a set of weights) and applies it to the data. Want a Gaussian filter? A Sinc filter? A custom edge-detection filter? CONV runs them all.
 
 ## Historical Context
 
-Convolution is a mathematical operation fundamental to signal processing, image processing, and physics. In finance, it gained traction with the rise of quantitative trading, where analysts needed more flexibility than standard indicators provided. By treating price data as a signal and applying convolution kernels, traders can design filters that isolate specific frequencies, detect patterns, or perform advanced smoothing that adapts to specific market characteristics.
+Convolution is the fundamental operation of digital signal processing (DSP). While traders were busy inventing "new" moving averages by tweaking alpha values, engineers were using convolution to process audio, images, and radar signals for decades. CONV brings this raw power to financial time series, allowing for arbitrary FIR (Finite Impulse Response) filtering.
 
-## How It Works
+## Architecture & Physics
 
-### The Core Idea
+CONV applies a sliding dot product between the data window and your custom kernel. The "physics" are entirely defined by the kernel you provide.
 
-Imagine a sliding window over your price data. You have a list of "weights" (the kernel) of the same length as the window. To get the result for the current bar, you multiply each price in the window by its corresponding weight and sum them up.
+- **Symmetric Kernel**: Zero phase shift (if centered correctly).
+- **Asymmetric Kernel**: Introduces lag or lead.
+- **Positive Weights**: Smoothing.
+- **Mixed Weights**: Differentiation or band-pass filtering.
 
-- If your kernel is `[0.2, 0.2, 0.2, 0.2, 0.2]`, you've recreated a 5-period SMA.
-- If your kernel is `[0.1, 0.2, 0.3, 0.4]`, you've recreated a 4-period WMA (unnormalized).
-- If your kernel is `[-1, 1]`, you've created a momentum indicator (Price - Previous Price).
+### Zero-Allocation Design
 
-### Mathematical Foundation
+We treat your kernel with the respect it deserves.
 
-For a kernel $K$ of length $n$ and a price series $P$:
+- **RingBuffer**: Stores the price history to avoid array shifting.
+- **SIMD Dot Product**: The core convolution operation uses hardware intrinsics (`Vector<double>`) to multiply-accumulate the kernel and data window in parallel.
+- **Branchless Logic**: The circular buffer handling is optimized to minimize branching in the hot path.
 
-$$CONV_t = \sum_{i=0}^{n-1} (P_{t-i} \cdot K_{n-1-i})$$
+## Mathematical Foundation
 
-In our implementation, the kernel is applied such that the last element of the kernel ($K_{n-1}$) multiplies the most recent price ($P_t$), and the first element ($K_0$) multiplies the oldest price in the window ($P_{t-n+1}$).
+The value at time $t$ is the sum of the element-wise product of the kernel $K$ and the price vector $P$:
 
-### Implementation Details
+$$ \text{CONV}_t = \sum_{i=0}^{N-1} P_{t-i} \cdot K_i $$
 
-The `Conv` indicator uses a **RingBuffer** to store the price history efficiently. The calculation is a dot product between the kernel and the buffered data.
+Where:
 
-- **Update Complexity:** O(K), where K is the kernel length.
-- **Memory:** O(K) to store the buffer and the kernel.
-- **Optimization:** We use `Span<T>` and SIMD-optimized dot product operations where available to ensure high performance even with large kernels.
-
-## Configuration
-
-| Parameter | Default | Purpose | Adjustment Guidelines |
-|-----------|---------|---------|----------------------|
-| Kernel | (Required) | Array of weights | Defines the filter behavior. Must not be empty. |
-
-**Note:** The kernel is not automatically normalized. If you want a moving average that tracks price levels, the sum of your kernel weights should equal 1.0. If the sum is 0 (e.g., `[-1, 1]`), it will act as an oscillator.
+- $N$ is the length of the kernel.
+- $K_0$ multiplies the most recent price (or oldest, depending on convention; our implementation aligns $K_0$ with the oldest data in the window and $K_{N-1}$ with the newest).
 
 ## Performance Profile
 
-| Operation | Complexity | Description |
-|-----------|------------|-------------------|
-| Streaming update | O(K) | Linear scan (dot product) of the kernel |
-| Bar correction | O(K) | Re-calculates dot product |
-| Batch processing | O(N * K) | Sliding window dot product |
-| Memory footprint | O(K) | RingBuffer + Kernel array |
+Performance depends linearly on the kernel length ($N$).
 
-## Interpretation
+| Metric | Complexity | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | Moderate | Kernel convolution per bar |
+| **Complexity** | O(N) | Window iteration required |
+| **Accuracy** | 8/10 | Depends on kernel, generally high |
+| **Timeliness** | 7/10 | Depends on kernel design |
+| **Overshoot** | 8/10 | Depends on kernel design |
+| **Smoothness** | 8/10 | Depends on kernel design |
 
-### Trading Signals
+## Validation
 
-Signals depend entirely on the kernel you design:
+Validated against standard DSP convolution implementations (e.g., SciPy `signal.convolve`).
 
-- **Smoothing:** Use positive weights that sum to 1. (e.g., Gaussian, Triangle).
-- **Differentiation:** Use weights that sum to 0 to detect rate of change. (e.g., `[-1, 1]` for velocity, `[1, -2, 1]` for acceleration).
-- **Edge Detection:** Use kernels like `[-1, 0, 1]` (Sobel-like) to detect sharp price movements.
+| Provider | Error Tolerance | Notes |
+| :--- | :--- | :--- |
+| **SciPy** | $10^{-12}$ | Matches standard 'valid' convolution mode |
 
-### When It Works Best
+### Common Pitfalls
 
-- **Custom Research:** When standard indicators don't fit your specific hypothesis.
-- **Signal Processing:** When applying filters from other domains (audio, image) to financial time series.
-
-## Architecture Notes
-
-This implementation makes specific trade-offs:
-
-### Choice: No Automatic Normalization
-
-- **Alternative:** Automatically divide weights by their sum.
-- **Trade-off:** User must normalize manually if desired.
-- **Rationale:** Allows for oscillators (sum=0) and amplifiers (sum > 1), providing maximum flexibility.
-
-### Choice: RingBuffer Implementation
-
-- **Alternative:** Array copy.
-- **Trade-off:** Slightly complex indexing logic.
-- **Rationale:** Zero allocation during updates is critical for high-frequency trading applications.
-
-## References
-
-- Smith, Steven W. "The Scientist and Engineer's Guide to Digital Signal Processing." California Technical Publishing, 1997.
-- Ehlers, John F. "Cycle Analytics for Traders." Wiley, 2013.
-
-## C# Usage
-
-### Streaming Updates (Single Instance)
-
-```csharp
-using QuanTAlib;
-
-// Create a custom kernel (e.g., a 3-period weighted average)
-double[] weights = { 0.1, 0.3, 0.6 }; 
-var conv = new Conv(weights);
-
-// Process each new bar
-TValue result = conv.Update(new TValue(timestamp, closePrice));
-Console.WriteLine($"Conv: {result.Value:F2}");
-```
-
-### Batch Processing (Historical Data)
-
-```csharp
-// TSeries API
-TSeries prices = ...;
-double[] kernel = { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 5-period SMA
-TSeries sma5 = Conv.Batch(prices, kernel);
-
-// Span API (High Performance)
-double[] prices = new double[1000];
-double[] output = new double[1000];
-double[] edgeDetector = { -1, 1 }; // Simple difference
-Conv.Batch(prices.AsSpan(), output.AsSpan(), edgeDetector);
-```
-
-### Bar Correction (isNew Parameter)
-
-```csharp
-var conv = new Conv(new[] { 0.5, 0.5 });
-
-// New bar
-conv.Update(new TValue(time, 100), isNew: true);
-
-// Intra-bar update
-conv.Update(new TValue(time, 101), isNew: false); // Replaces 100 with 101
-```
+1. **Kernel Direction**: Our implementation applies the kernel such that the last element of the kernel multiplies the most recent data point. If you import kernels from other DSP libraries, you might need to reverse them.
+2. **Normalization**: We do *not* automatically normalize your kernel. If the sum of your weights is not 1.0, the output scale will be different from the input scale. This is a feature, not a bug (allows for differential filters).
+3. **Performance**: A kernel size of 1000 will be 100x slower than a kernel size of 10. Use FFT-based convolution for massive kernels (not implemented here; this is for trading, not searching for extraterrestrial life).

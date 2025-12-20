@@ -54,8 +54,10 @@ These measure the spread of data points around the mean.
 ### Momentum
 
 - [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
+- [**ADXR**](../lib/momentum/adxr/Adxr.md) - Average Directional Movement Rating
 - [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
 - [**AROON**](../lib/momentum/aroon/Aroon.md) - Aroon
+- [**AROONOSC**](../lib/momentum/aroonosc/AroonOsc.md) - Aroon Oscillator
 - [**CFB**](../lib/momentum/cfb/Cfb.md) - Jurik Composite Fractal Behavior
 - [**DMX**](../lib/momentum/dmx/Dmx.md) - Jurik Directional Movement Index
 - [**RSX**](../lib/momentum/rsx/Rsx.md) - Jurik Relative Strength Quality Index
@@ -78,6 +80,7 @@ These measure the spread of data points around the mean.
 - [**PWMA**](../lib/trends/pwma/Pwma.md) - Pascal Weighted MA
 - [**RMA**](../lib/trends/rma/Rma.md) - wildeR MA
 - [**SMA**](../lib/trends/sma/Sma.md) - Simple MA
+- [**SSF**](../lib/trends/ssf/Ssf.md) - Ehlers Super Smooth Filter
 - [**SUPER**](../lib/trends/super/Super.md) - SuperTrend
 - [**T3**](../lib/trends/t3/T3.md) - Tillson T3 MA
 - [**TEMA**](../lib/trends/tema/Tema.md) - Triple Exponential MA
@@ -92,3 +95,4 @@ These measure the spread of data points around the mean.
 ### Volume
 
 - [**ADL**](../lib/volume/adl/Adl.md) - Accumulation/Distribution Line
+- [**ADOSC**](../lib/volume/adosc/Adosc.md) - Chaikin A/D Oscillator

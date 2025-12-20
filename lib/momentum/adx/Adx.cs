@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Buffers;
 
 namespace QuanTAlib;
 
@@ -275,24 +276,156 @@ public sealed class Adx : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        var t = new List<long>(source.Count);
-        var v = new List<double>(source.Count);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
 
-        Reset();
+        var len = source.Count;
+        var v = new double[len];
 
-        for (int i = 0; i < source.Count; i++)
+        // Use the static Calculate method for performance
+        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, _period, v);
+
+        // Create lists for TSeries
+        var tList = new List<long>(len);
+        var vList = new List<double>(v);
+
+        // Copy timestamps
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
-            t.Add(val.Time);
-            v.Add(val.Value);
+            tList.Add(times[i]);
         }
 
-        return new TSeries(t, v);
+        // Restore state by replaying the whole series
+        Reset();
+        for (int i = 0; i < len; i++)
+        {
+            Update(source[i], true);
+        }
+
+        return new TSeries(tList, vList);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalcTrDm(int i, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, out double tr, out double dmPlus, out double dmMinus)
+    {
+        double h = high[i];
+        double l = low[i];
+        double pc = close[i - 1];
+        double ph = high[i - 1];
+        double pl = low[i - 1];
+
+        double hl = h - l;
+        double hpc = Math.Abs(h - pc);
+        double lpc = Math.Abs(l - pc);
+        tr = Math.Max(hl, Math.Max(hpc, lpc));
+
+        double up = h - ph;
+        double down = pl - l;
+        dmPlus = (up > down && up > 0) ? up : 0;
+        dmMinus = (down > up && down > 0) ? down : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CalcDx(double trSmooth, double dmPlusSmooth, double dmMinusSmooth)
+    {
+        double diPlus = (trSmooth > 1e-10) ? (dmPlusSmooth / trSmooth) * 100.0 : 0;
+        double diMinus = (trSmooth > 1e-10) ? (dmMinusSmooth / trSmooth) * 100.0 : 0;
+        double diSum = diPlus + diMinus;
+        return (diSum > 1e-10) ? (Math.Abs(diPlus - diMinus) / diSum) * 100.0 : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void Smooth(double input, int period, ref double smoothed)
+    {
+        smoothed = smoothed - (smoothed / period) + input;
+    }
+
+    public static void Calculate(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
+    {
+        int len = high.Length;
+        if (len < period * 2)
+        {
+            destination.Fill(0);
+            return;
+        }
+
+        // Phase 1: Accumulate TR, +DM, -DM for the first 'period' bars
+        double trSum = 0;
+        double dmPlusSum = 0;
+        double dmMinusSum = 0;
+
+        for (int i = 1; i <= period; i++)
+        {
+            CalcTrDm(i, high, low, close, out double tr, out double dmPlus, out double dmMinus);
+            trSum += tr;
+            dmPlusSum += dmPlus;
+            dmMinusSum += dmMinus;
+            destination[i] = 0;
+        }
+        destination[0] = 0;
+
+        // Initialize smoothed values
+        double trSmooth = trSum;
+        double dmPlusSmooth = dmPlusSum;
+        double dmMinusSmooth = dmMinusSum;
+
+        // Phase 2: Calculate DX and accumulate it for ADX initialization
+        double dxSum = 0;
+
+        // Calculate DX for the 'period' index (first valid DX)
+        double dx = CalcDx(trSmooth, dmPlusSmooth, dmMinusSmooth);
+        dxSum += dx;
+
+        int adxStart = period * 2 - 1;
+
+        for (int i = period + 1; i <= adxStart; i++)
+        {
+            CalcTrDm(i, high, low, close, out double tr, out double dmPlus, out double dmMinus);
+
+            Smooth(tr, period, ref trSmooth);
+            Smooth(dmPlus, period, ref dmPlusSmooth);
+            Smooth(dmMinus, period, ref dmMinusSmooth);
+
+            dx = CalcDx(trSmooth, dmPlusSmooth, dmMinusSmooth);
+            dxSum += dx;
+            destination[i] = 0;
+        }
+
+        // Initialize ADX (SMA of DX)
+        double adx = dxSum / period;
+        destination[adxStart] = adx;
+
+        // Phase 3: Calculate ADX for the rest of the series
+        for (int i = adxStart + 1; i < len; i++)
+        {
+            CalcTrDm(i, high, low, close, out double tr, out double dmPlus, out double dmMinus);
+
+            Smooth(tr, period, ref trSmooth);
+            Smooth(dmPlus, period, ref dmPlusSmooth);
+            Smooth(dmMinus, period, ref dmMinusSmooth);
+
+            dx = CalcDx(trSmooth, dmPlusSmooth, dmMinusSmooth);
+
+            // ADX Smoothing (RMA)
+            Smooth(dx / period, period, ref adx);
+            destination[i] = adx;
+        }
     }
 
     public static TSeries Batch(TBarSeries source, int period)
     {
-        var adx = new Adx(period);
-        return adx.Update(source);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        var len = source.Count;
+        var v = new double[len];
+        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, period, v);
+
+        var tList = new List<long>(len);
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
+        {
+            tList.Add(times[i]);
+        }
+
+        return new TSeries(tList, new List<double>(v));
     }
 }
