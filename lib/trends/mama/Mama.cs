@@ -31,8 +31,11 @@ public sealed class Mama : AbstractBase
     private readonly RingBuffer _I1_buffer;
     private readonly RingBuffer _Q1_buffer;
 
-    private const double c1 = 0.0962;
-    private const double c2 = 0.5769;
+    // High-precision constants
+    private const double c1 = 5.0 / 52.0;   // ~0.09615385
+    private const double c2 = 15.0 / 26.0;  // ~0.57692308
+    private const double adjSlope = 3.0 / 40.0; // 0.075
+    private const double adjIntercept = 27.0 / 50.0; // 0.54
     private const double TWOPI = 2.0 * Math.PI;
     private const double RadToDeg = 180.0 / Math.PI;
 
@@ -109,7 +112,7 @@ public sealed class Mama : AbstractBase
 
         if (_state.Index > 6)
         {
-            double adj = (0.075 * _state.Period) + 0.54;
+            double adj = (adjSlope * _state.Period) + adjIntercept;
 
             // Smooth
             double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;
@@ -282,7 +285,7 @@ public sealed class Mama : AbstractBase
 
             if (count > 6)
             {
-                double adj = (0.075 * period) + 0.54;
+                double adj = (adjSlope * period) + adjIntercept;
 
                 // Smooth
                 double smooth = (4.0 * priceBuffer[bufferIdx] +

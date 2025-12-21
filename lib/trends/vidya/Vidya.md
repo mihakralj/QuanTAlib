@@ -35,19 +35,6 @@ $$ VIDYA_t = (\alpha_{dynamic} \times Price_t) + ((1 - \alpha_{dynamic}) \times 
 
 ## Performance Profile
 
-### Zero-Allocation Design
-
-The implementation uses two `RingBuffer`s to track the sum of up-moves and down-moves for the CMO calculation. This allows O(1) updates of the volatility index without re-iterating history.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | High | CMO + EMA |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 8/10 | Adapts to volatility, tracking trends |
-| **Timeliness** | 8/10 | Speeds up in volatile markets |
-| **Overshoot** | 7/10 | Can overshoot if volatility spikes |
-| **Smoothness** | 7/10 | Smoother than EMA in quiet markets |
-
 ## Validation
 
 Validated against the original formula and reference implementations.

@@ -17,14 +17,6 @@ DWMA applies a linear weight kernel (triangle window) twice.
 
 The effective window size is roughly $2 \times \text{Period}$, and the lag is cumulative. This is not for high-frequency scalping; this is for determining if the market is actually bullish or just having a manic episode.
 
-### Zero-Allocation Design
-
-Our implementation composes two `Wma` instances.
-
-- **Composition**: We wrap two `Wma` objects.
-- **Efficiency**: Since `Wma` is O(1) (using a running sum algorithm), DWMA is also O(1).
-- **Memory**: No massive arrays are allocated; just the internal buffers of the two WMAs.
-
 ## Mathematical Foundation
 
 $$ \text{WMA}_1 = \text{WMA}(P, N) $$

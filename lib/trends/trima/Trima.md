@@ -32,19 +32,6 @@ $$ TRIMA = SMA(SMA(Price, P_1), P_2) $$
 
 ## Performance Profile
 
-### Zero-Allocation Design
-
-TRIMA relies on two internal `Sma` instances, which use pre-allocated `RingBuffer`s. The chaining of updates is done via value passing, ensuring no intermediate objects are created on the heap.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | High | 2 SMAs |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 6/10 | Heavily smoothed, loses detail |
-| **Timeliness** | 4/10 | Significant lag (Lag ≈ N/2 + N/2) |
-| **Overshoot** | 9/10 | Very stable, minimal overshoot |
-| **Smoothness** | 9/10 | Triangular weighting removes high freq noise |
-
 ## Validation
 
 Validated against TA-Lib (`TA_TRIMA`) and Skender.Stock.Indicators.

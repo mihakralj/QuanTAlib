@@ -33,19 +33,6 @@ $$ TEMA = (3 \times EMA_1) - (3 \times EMA_2) + EMA_3 $$
 
 ## Performance Profile
 
-### Zero-Allocation Design
-
-QuanTAlib's `Tema` implementation does not create three separate `Ema` objects. Instead, it maintains three lightweight `EmaState` structs within the main class. This ensures zero heap allocations during updates and keeps the memory footprint minimal.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | High | 3 EMAs |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 8/10 | Extremely responsive to turns |
-| **Timeliness** | 9/10 | Near-zero lag (Lag ≈ 0) |
-| **Overshoot** | 4/10 | Significant overshoot on reversals |
-| **Smoothness** | 7/10 | Smoother than DEMA, less than T3 |
-
 ## Validation
 
 Validated against TA-Lib (`TA_TEMA`) and Skender.Stock.Indicators.

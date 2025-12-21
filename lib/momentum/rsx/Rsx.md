@@ -12,18 +12,14 @@ Jurik Research specializes in signal processing for noisy financial data. RSX is
 
 RSX does not use a simple moving average. It employs a complex, multi-stage IIR (Infinite Impulse Response) filter chain to process momentum.
 
-1. **Momentum Calculation**: We compute the raw momentum ($P_t - P_{t-1}$).
-2. **Dual Smoothing**: We pass both the momentum and the absolute momentum through a proprietary cascading filter structure.
-3. **Ratio**: We divide the smoothed momentum by the smoothed absolute momentum.
+1. **Momentum Calculation**: The raw momentum ($P_t - P_{t-1}$) is computed.
+2. **Dual Smoothing**: Both the momentum and the absolute momentum are passed through a proprietary cascading filter structure.
+3. **Ratio**: The smoothed momentum is divided by the smoothed absolute momentum.
 4. **Normalization**: The result is scaled to the 0-100 range.
 
 ### The Filter Chain
 
 The magic lies in the filter chain. It consists of three cascaded stages, each containing two internal filters. This specific topology is tuned to eliminate high-frequency noise while maintaining linear phase response in the passband. The result is a signal that looks "future-smoothed" but is calculated entirely in real-time.
-
-### Zero-Allocation Design
-
-The calculation involves 12 state variables per update (6 for momentum, 6 for absolute momentum). Our implementation uses a struct-based state machine to ensure zero heap allocations during the update loop.
 
 ## Mathematical Foundation
 
@@ -66,7 +62,7 @@ Despite the complexity of the filter chain, the operation is purely arithmetic a
 
 ## Validation
 
-We validate against **Jurik's published algorithms** and **ProRealTime implementations**.
+Validation is performed against **Jurik's published algorithms** and **ProRealTime implementations**.
 
 - **Smoothness**: The output is visually distinct from RSI; it lacks the "sawtooth" pattern.
 - **Phase**: Turning points align with price peaks/valleys with negligible delay.

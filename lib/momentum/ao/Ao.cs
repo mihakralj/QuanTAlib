@@ -21,6 +21,8 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Ao : ITValuePublisher
 {
+    private readonly int _fastPeriod;
+    private readonly int _slowPeriod;
     private readonly Sma _smaFast;
     private readonly Sma _smaSlow;
 
@@ -59,6 +61,9 @@ public sealed class Ao : ITValuePublisher
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
         if (fastPeriod >= slowPeriod)
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+
+        _fastPeriod = fastPeriod;
+        _slowPeriod = slowPeriod;
 
         _smaFast = new Sma(fastPeriod);
         _smaSlow = new Sma(slowPeriod);
@@ -123,31 +128,99 @@ public sealed class Ao : ITValuePublisher
     /// <returns>The AO series</returns>
     public TSeries Update(TBarSeries source)
     {
-        var t = new List<long>(source.Count);
-        var v = new List<double>(source.Count);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
 
-        Reset();
+        int len = source.Count;
+        var v = new double[len];
 
-        for (int i = 0; i < source.Count; i++)
+        Calculate(source.High.Values, source.Low.Values, v, _fastPeriod, _slowPeriod);
+
+        var tList = new List<long>(len);
+        var vList = new List<double>(v);
+
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
-            t.Add(val.Time);
-            v.Add(val.Value);
+            tList.Add(times[i]);
         }
 
-        return new TSeries(t, v);
+        // Restore streaming state so the instance is hot after batch update
+        Reset();
+        for (int i = 0; i < len; i++)
+        {
+            Update(source[i], true);
+        }
+
+        return new TSeries(tList, vList);
     }
 
     /// <summary>
-    /// Calculates AO for the entire series using a new instance.
+    /// Calculates AO over OHLC spans into a preallocated output span.
+    /// Median price is computed as (High + Low) / 2.
+    /// </summary>
+    /// <param name="high">High prices</param>
+    /// <param name="low">Low prices</param>
+    /// <param name="fastPeriod">Fast SMA period (default 5)</param>
+    /// <param name="slowPeriod">Slow SMA period (default 34)</param>
+    /// <param name="destination">Output AO values</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, Span<double> destination, int fastPeriod = 5, int slowPeriod = 34)
+    {
+        if (high.Length != low.Length || high.Length != destination.Length)
+            throw new ArgumentException("High, low, and destination spans must have the same length.");
+
+        int len = high.Length;
+        if (len == 0) return;
+
+        const int StackallocThreshold = 256;
+
+        Span<double> median = len <= StackallocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        for (int i = 0; i < len; i++)
+        {
+            median[i] = (high[i] + low[i]) * 0.5;
+        }
+
+        Span<double> fast = len <= StackallocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        Span<double> slow = len <= StackallocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        Sma.Batch(median, fast, fastPeriod);
+        Sma.Batch(median, slow, slowPeriod);
+
+        SimdExtensions.Subtract(fast, slow, destination);
+    }
+
+    /// <summary>
+    /// Calculates AO for the entire series using a stateless batch path.
     /// </summary>
     /// <param name="source">Input series</param>
     /// <param name="fastPeriod">Fast SMA period (default 5)</param>
     /// <param name="slowPeriod">Slow SMA period (default 34)</param>
     /// <returns>AO series</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
     {
-        var ao = new Ao(fastPeriod, slowPeriod);
-        return ao.Update(source);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
+        int len = source.Count;
+        var v = new double[len];
+
+        Calculate(source.High.Values, source.Low.Values, v, fastPeriod, slowPeriod);
+
+        var tList = new List<long>(len);
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
+        {
+            tList.Add(times[i]);
+        }
+
+        return new TSeries(tList, new List<double>(v));
     }
 }

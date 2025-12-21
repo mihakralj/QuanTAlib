@@ -17,14 +17,6 @@ DEMA is a composite indicator built from two EMAs.
 
 The "physics" relies on the fact that EMA2 lags EMA1 roughly as much as EMA1 lags the price. Therefore, $2 \times \text{EMA1} - \text{EMA2}$ pushes the value forward, correcting the lag.
 
-### Zero-Allocation Design
-
-Since DEMA is composed of two EMAs, and our EMA implementation is zero-allocation, DEMA inherits this efficiency.
-
-- **State Structs**: We use lightweight `struct`s to hold the state of both internal EMAs.
-- **Inlining**: The calculation is aggressive inlined.
-- **No Buffers**: DEMA is recursive; it needs no history buffer, just the previous state.
-
 ## Mathematical Foundation
 
 $$ \text{EMA}_1 = \text{EMA}(P, N) $$

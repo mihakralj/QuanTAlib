@@ -28,6 +28,12 @@ public sealed class Htit : AbstractBase
     private readonly RingBuffer _smoothPeriodBuffer;
     private readonly RingBuffer _itBuffer;
 
+    // High-precision constants
+    private const double c1 = 5.0 / 52.0;   // ~0.09615385
+    private const double c2 = 15.0 / 26.0;  // ~0.57692308
+    private const double adjSlope = 3.0 / 40.0; // 0.075
+    private const double adjIntercept = 27.0 / 50.0; // 0.54
+
     private record struct State(double I2, double Q2, double Re, double Im, double LastValidValue);
     private State _state;
     private State _p_state;
@@ -85,19 +91,19 @@ public sealed class Htit : AbstractBase
 
         // 2. Detrender
         double prevPeriod = _periodBuffer[isNew ? ^1 : ^2];
-        double adj = (0.075 * prevPeriod) + 0.54;
-        double detrender = (0.0962 * _smoothBuffer[^1] + 0.5769 * _smoothBuffer[^3] - 0.5769 * _smoothBuffer[^5] - 0.0962 * _smoothBuffer[^7]) * adj;
+        double adj = (adjSlope * prevPeriod) + adjIntercept;
+        double detrender = (c1 * _smoothBuffer[^1] + c2 * _smoothBuffer[^3] - c2 * _smoothBuffer[^5] - c1 * _smoothBuffer[^7]) * adj;
         UpdateBuffer(_detrenderBuffer, detrender, isNew);
 
         // 3. In-Phase and Quadrature
-        double q1 = (0.0962 * _detrenderBuffer[^1] + 0.5769 * _detrenderBuffer[^3] - 0.5769 * _detrenderBuffer[^5] - 0.0962 * _detrenderBuffer[^7]) * adj;
+        double q1 = (c1 * _detrenderBuffer[^1] + c2 * _detrenderBuffer[^3] - c2 * _detrenderBuffer[^5] - c1 * _detrenderBuffer[^7]) * adj;
         double i1 = _detrenderBuffer[^4];
         UpdateBuffer(_q1Buffer, q1, isNew);
         UpdateBuffer(_i1Buffer, i1, isNew);
 
         // 4. Advance phases by 90 degrees
-        double jI = (0.0962 * _i1Buffer[^1] + 0.5769 * _i1Buffer[^3] - 0.5769 * _i1Buffer[^5] - 0.0962 * _i1Buffer[^7]) * adj;
-        double jQ = (0.0962 * _q1Buffer[^1] + 0.5769 * _q1Buffer[^3] - 0.5769 * _q1Buffer[^5] - 0.0962 * _q1Buffer[^7]) * adj;
+        double jI = (c1 * _i1Buffer[^1] + c2 * _i1Buffer[^3] - c2 * _i1Buffer[^5] - c1 * _i1Buffer[^7]) * adj;
+        double jQ = (c1 * _q1Buffer[^1] + c2 * _q1Buffer[^3] - c2 * _q1Buffer[^5] - c1 * _q1Buffer[^7]) * adj;
 
         // 5. Phasor addition & 6. Homodyne Discriminator
         ProcessPhasorAndHomodyne(i1, q1, jI, jQ);
@@ -321,14 +327,14 @@ public sealed class Htit : AbstractBase
 
                 // 2. Detrender
                 double prevPeriod = periodBuffer[(pdIdx - 1 + 2) % 2];
-                double adj = (0.075 * prevPeriod) + 0.54;
+                double adj = (adjSlope * prevPeriod) + adjIntercept;
 
                 double s0 = smoothBuffer[sIdx];
                 double s2 = smoothBuffer[(sIdx - 2 + 7) % 7];
                 double s4 = smoothBuffer[(sIdx - 4 + 7) % 7];
                 double s6 = smoothBuffer[(sIdx - 6 + 7) % 7];
 
-                double detrender = (0.0962 * s0 + 0.5769 * s2 - 0.5769 * s4 - 0.0962 * s6) * adj;
+                double detrender = (c1 * s0 + c2 * s2 - c2 * s4 - c1 * s6) * adj;
                 detrenderBuffer[dIdx] = detrender;
 
                 // 3. In-Phase and Quadrature
@@ -337,7 +343,7 @@ public sealed class Htit : AbstractBase
                 double d4 = detrenderBuffer[(dIdx - 4 + 7) % 7];
                 double d6 = detrenderBuffer[(dIdx - 6 + 7) % 7];
 
-                double q1 = (0.0962 * d0 + 0.5769 * d2 - 0.5769 * d4 - 0.0962 * d6) * adj;
+                double q1 = (c1 * d0 + c2 * d2 - c2 * d4 - c1 * d6) * adj;
                 double i1 = detrenderBuffer[(dIdx - 3 + 7) % 7];
 
                 q1Buffer[q1Idx] = q1;
@@ -348,13 +354,13 @@ public sealed class Htit : AbstractBase
                 double i1_2 = i1Buffer[(i1Idx - 2 + 7) % 7];
                 double i1_4 = i1Buffer[(i1Idx - 4 + 7) % 7];
                 double i1_6 = i1Buffer[(i1Idx - 6 + 7) % 7];
-                double jI = (0.0962 * i1_0 + 0.5769 * i1_2 - 0.5769 * i1_4 - 0.0962 * i1_6) * adj;
+                double jI = (c1 * i1_0 + c2 * i1_2 - c2 * i1_4 - c1 * i1_6) * adj;
 
                 double q1_0 = q1Buffer[q1Idx];
                 double q1_2 = q1Buffer[(q1Idx - 2 + 7) % 7];
                 double q1_4 = q1Buffer[(q1Idx - 4 + 7) % 7];
                 double q1_6 = q1Buffer[(q1Idx - 6 + 7) % 7];
-                double jQ = (0.0962 * q1_0 + 0.5769 * q1_2 - 0.5769 * q1_4 - 0.0962 * q1_6) * adj;
+                double jQ = (c1 * q1_0 + c2 * q1_2 - c2 * q1_4 - c1 * q1_6) * adj;
 
                 // 5. Phasor addition
                 double i2_raw = i1 - jQ;

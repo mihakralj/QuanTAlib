@@ -22,10 +22,6 @@ The core mechanic is the **Money Flow Multiplier (MFM)**, also known as the Clos
 
 This multiplier is then applied to the volume to determine the "Money Flow Volume" for the period.
 
-### Zero-Allocation Design
-
-Our implementation is a stateful accumulator. It maintains a single `double` state variable representing the cumulative sum.
-
 ## Mathematical Foundation
 
 ### 1. Money Flow Multiplier (MFM)
@@ -59,7 +55,7 @@ ADL is extremely lightweight.
 
 ## Validation
 
-We validate against **TA-Lib**, **Skender.Stock.Indicators**, and **Tulip Indicators**.
+Validation is performed against **TA-Lib**, **Skender.Stock.Indicators**, and **Tulip Indicators**.
 
 - **Accuracy**: Matches external libraries to 9 decimal places.
 - **Edge Cases**: Handles `High == Low` (division by zero protection) by setting MFM to 0.

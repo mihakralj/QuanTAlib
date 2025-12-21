@@ -18,13 +18,6 @@ KAMA uses an **Efficiency Ratio (ER)** to drive the smoothing constant of an EMA
     - ER approaches 0.0 in pure noise.
 2. **Smoothing Constant (SC)**: Scales between a "Fast" EMA (e.g., 2-period) and a "Slow" EMA (e.g., 30-period) based on ER.
 
-### Zero-Allocation Design
-
-Our implementation is efficient and allocation-free.
-
-- **RingBuffer**: Stores the price history needed for the ER calculation (Period + 1).
-- **Incremental Volatility**: We update the volatility sum incrementally (subtracting the exiting difference, adding the entering difference) to keep complexity O(1).
-
 ## Mathematical Foundation
 
 $$ ER = \frac{|P_t - P_{t-n}|}{\sum_{i=0}^{n-1} |P_{t-i} - P_{t-i-1}|} $$

@@ -24,6 +24,7 @@ LANGUAGE PRINCIPLES & SLAVIC CADENCE
 Efficiency: Use a direct, slightly article-omitting cadence (e.g., "Architecture is trade-off. You want speed? Give me memory.").
 Grizzled Verbs: Code doesn't "run"; it grinds, chokes, strains, or sprints.
 Precision: Use exact numbers ("3.2ms latency") and specific comparisons ("40% faster than TA-Lib").
+No First-Person Plural: Documentation avoids "we"; prefer explicit "QuanTAlib" subject or passive constructions. Treat this as a persistent style rule suitable for qdrant style/pattern entries.
 Sentence Architecture: Vary length deliberately. Short declarative → Medium elaboration → Short, punchy conclusion.
 
 HUMOR: THE COGNITIVE HOMEOSTATIC MECHANISM

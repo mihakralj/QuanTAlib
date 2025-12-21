@@ -12,15 +12,15 @@ APO strips away the normalization. It simply asks: "How far is the fast trend fr
 
 ## Architecture & Physics
 
-APO is built on the foundation of our high-performance `Ema` kernel. It inherits the O(1) computational complexity and zero-allocation characteristics of the underlying moving averages.
+APO is built on the foundation of the high-performance QuanTAlib `Ema` kernel. It inherits the $O(1)$ computational complexity and zero-allocation characteristics of the underlying moving averages.
 
-1. **Dual EMA Engine**: We maintain two independent Exponential Moving Averages (Fast and Slow).
-2. **Differential**: We compute the arithmetic difference between them.
-3. **SIMD Acceleration**: For batch processing, we use hardware intrinsics to perform the subtraction across the entire dataset in parallel.
+1. **Dual EMA Engine**: Two independent Exponential Moving Averages (Fast and Slow) are maintained.
+2. **Differential**: The arithmetic difference between them is computed.
+3. **SIMD Acceleration**: For batch processing, hardware intrinsics are used to perform the subtraction across the entire dataset in parallel.
 
 ### Computational Efficiency
 
-We don't recalculate the EMAs from scratch. We maintain the state of both the fast and slow EMAs, allowing us to compute the APO update in constant time, regardless of the lookback period.
+The EMAs are not recalculated from scratch. The state of both the fast and slow EMAs is maintained, allowing the APO update to be computed in constant time, regardless of the lookback period.
 
 - **Time Complexity**: $O(1)$ per update.
 - **Space Complexity**: $O(1)$ (two EMA state structs).
@@ -53,10 +53,10 @@ APO performance is effectively the sum of two EMA calculations plus a subtractio
 
 ## Validation
 
-We validate our implementation against industry standards to ensure correctness.
+The implementation is validated against industry standards to ensure correctness.
 
-- **TA-Lib**: Matches `APO` with `MAType.Ema` (Precision: 1e-9).
-- **Tulip**: Note that Tulip's default `apo` may use SMA or different defaults; we strictly adhere to the EMA-based definition used by TA-Lib and major trading platforms.
+- **TA-Lib**: Matches `APO` with `MAType.Ema` (Precision: $10^{-9}$).
+- **Tulip**: Note that Tulip's default `apo` may use SMA or different defaults; QuanTAlib strictly adheres to the EMA-based definition used by TA-Lib and major trading platforms.
 
 ### Common Pitfalls
 

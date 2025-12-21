@@ -11,7 +11,7 @@
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 
-TA libraries face a fundamental choice: accept approximations for simplicity OR enforce math rigor. We chose rigor.
+TA libraries face a fundamental choice: accept approximations for simplicity OR enforce math rigor. QuanTAlib chooses rigor.
 
 **Quan**titative **TA** **lib**rary (QuanTAlib) is a C# library built on the premise that you shouldn't have to choose. Modern CPUs process 4-8 FLOPS per cycle via SIMD. Modern .NET exposes memory layouts making hardware acceleration trivial. QuanTAlib exploits both. **Result:** mathematically rigorous indicators at speeds making real-time multi-symbol analysis practical on ordinary hardware.
 
@@ -74,12 +74,13 @@ QuanTAlib is designed for speed. Here is how it compares calculating a 500,000 b
 | Tulip Indicators     | 359.3 μs     | 0 B         | 1.13x slower         |
 | Skender Indicators   | 71,277 μs    | 50.8 MB     | 224x slower          |
 
-*See [Benchmarks](docs/BENCHMARKS.md) for full details and methodology.*
+*See [Benchmarks](benchmarks.md) for full details and methodology.*
 
 ## Documentation
 
-- [**Architecture**](docs/ARCHITECTURE.md): Learn about SoA layout, SIMD, and design philosophy.
-- [**Indicators**](docs/INDICATORS.md): Full catalog of available indicators and their mathematical families.
-- [**Usage Guides**](docs/USAGE.md): Detailed patterns for Span, Streaming, Batch, and Eventing modes.
-- [**Integration**](docs/INTEGRATION.md): Setup guides for Quantower, NinjaTrader, and QuantConnect.
-- [**Benchmarks**](docs/BENCHMARKS.md): Detailed performance evidence and test methodology.
+- [**Architecture**](architecture.md): Learn about SoA layout, SIMD, and design philosophy.
+- [**Indicators**](INDICATORS.md): Full catalog of available indicators and their mathematical families.
+- [**Benchmarks**](benchmarks.md): Detailed performance evidence and test methodology.
+- [**Usage Guides**](usage.md): Detailed patterns for Span, Streaming, Batch, and Eventing modes.
+- [**Integration**](integration.md): Setup guides for Quantower, NinjaTrader, and QuantConnect.
+- [**Glossary**](glossary.md): Definitions of core QuanTAlib concepts, types, and terminology.

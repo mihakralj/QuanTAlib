@@ -4,7 +4,7 @@
 
 Trend indicators are the bread and butter of technical analysis—and often just as stale. They attempt to smooth out the chaotic noise of market data to reveal the underlying direction. Most fail, introducing so much lag that by the time they signal "buy," the smart money is already shorting.
 
-We don't do "laggy" here. We do mathematically rigorous, zero-allocation smoothing that respects the physics of market momentum.
+"Laggy" smoothing is avoided. QuanTAlib applies mathematically rigorous, zero-allocation smoothing that respects the physics of market momentum.
 
 ## The Collection
 
@@ -13,7 +13,7 @@ We don't do "laggy" here. We do mathematically rigorous, zero-allocation smoothi
 | ALLIGATOR | Williams Alligator | |
 | [ALMA](alma/Alma.md) | Arnaud Legoux MA | Gaussian distribution weights for the perfect balance of smoothness and responsiveness. |
 | AMAT | Archer Moving Averages Trends | |
-| BESSEL | Bessel Filter | |
+| [BESSEL](bessel/Bessel.md) | Bessel Filter | 2nd-order Bessel low-pass filter with maximally flat group delay. |
 | BILATERAL | Bilateral Filter | |
 | BLMA | Blackman Window MA | |
 | BPF | Ehlers Bandpass Filter | |

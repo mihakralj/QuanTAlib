@@ -14,21 +14,13 @@ It is a core component of the Williams Trading System, often used in conjunction
 
 The AO is architecturally simple: it is the difference between two Simple Moving Averages (SMA) of the Median Price.
 
-1. **Median Price**: We calculate the midpoint of the trading range: $(High + Low) / 2$.
-2. **Smoothing**: We smooth these midpoints over two distinct timeframes (Fast and Slow).
-3. **Differential**: We subtract the slow average from the fast average.
+1. **Median Price**: The midpoint of the trading range is calculated: $(High + Low) / 2$.
+2. **Smoothing**: These midpoints are smoothed over two distinct timeframes (Fast and Slow).
+3. **Differential**: The slow average is subtracted from the fast average.
 
 ### Why Median Price?
 
 Using `(High + Low) / 2` instead of `Close` is a deliberate architectural choice. It filters out the noise of the "last second" trades that determine the close, focusing instead on the center of gravity for the entire period. This makes AO less susceptible to manipulation or anomalies at the bell.
-
-### Zero-Allocation Design
-
-The implementation is a composite of two `Sma` instances.
-
-- **Composition**: The `Ao` class orchestrates two internal `Sma` calculators.
-- **Efficiency**: Since `Sma` is O(1) and zero-allocation, `Ao` inherits these properties.
-- **State**: The memory footprint is minimal, consisting only of the circular buffers required for the two SMAs.
 
 ## Mathematical Foundation
 
@@ -60,7 +52,7 @@ The AO is lightweight and suitable for high-frequency applications.
 
 ## Validation
 
-We validate against standard reference implementations (TradingView, Bill Williams' examples).
+Validation is performed against standard reference implementations (TradingView, Bill Williams' examples).
 
 - **Precision**: Matches standard platforms to double precision.
 - **Warmup**: Requires `slowPeriod` bars to become valid.

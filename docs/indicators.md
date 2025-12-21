@@ -66,6 +66,7 @@ These measure the spread of data points around the mean.
 ### Trends
 
 - [**ALMA**](../lib/trends/alma/Alma.md) - Arnaud Legoux MA
+- [**BESSEL**](../lib/trends/bessel/Bessel.md) - Bessel Filter
 - [**CONV**](../lib/trends/conv/Conv.md) - Convolution MA
 - [**DEMA**](../lib/trends/dema/Dema.md) - Double Exponential MA
 - [**DWMA**](../lib/trends/dwma/Dwma.md) - Double Weighted MA

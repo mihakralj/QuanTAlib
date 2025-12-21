@@ -11,6 +11,7 @@
 - **Trends**
   - [Overview](../lib/trends/_index.md)
   - [ALMA - Arnaud Legoux MA](../lib/trends/alma/Alma.md)
+  - [BESSEL - Bessel Filter](../lib/trends/bessel/Bessel.md)
   - [CONV - Convolution](../lib/trends/conv/Conv.md)
   - [DEMA - Double Exponential MA](../lib/trends/dema/Dema.md)
   - [DWMA - Double Weighted MA](../lib/trends/dwma/Dwma.md)

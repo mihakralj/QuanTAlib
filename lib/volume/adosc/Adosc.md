@@ -23,10 +23,6 @@ The physics here is identical to MACD:
 - **Slow EMA (10)**: Represents the established, medium-term money flow.
 - **Difference**: The spread between them represents the momentum of accumulation.
 
-### Zero-Allocation Design
-
-Our implementation composes existing zero-allocation components (`Adl` and `Ema`). The `Update` method simply pipes the bar into the ADL, and the ADL result into the two EMAs.
-
 ## Mathematical Foundation
 
 $$
@@ -51,7 +47,7 @@ ADOSC is slightly heavier than ADL because it involves two EMAs.
 
 ## Validation
 
-We validate against **TA-Lib**, **Skender.Stock.Indicators**, and **OoplesFinance**.
+Validation is performed against **TA-Lib**, **Skender.Stock.Indicators**, and **OoplesFinance**.
 
 - **Accuracy**: Matches external libraries to 9 decimal places.
 - **Note**: Tulip's `adosc` implementation diverges significantly from other libraries and is excluded from validation.

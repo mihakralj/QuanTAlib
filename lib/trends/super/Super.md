@@ -38,19 +38,6 @@ $$ SuperTrend = \begin{cases} Lower_{final} & \text{if Bullish} \\ Upper_{final}
 
 ## Performance Profile
 
-### Zero-Allocation Design
-
-The `Super` class maintains its state in a `struct`, ensuring zero heap allocations during the `Update` cycle. The ATR calculation is embedded to avoid the overhead of a separate object.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | High | O(1) updates |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 8/10 | Excellent trend direction filter |
-| **Timeliness** | 7/10 | Lags due to ATR component |
-| **Overshoot** | 9/10 | Very stable, resists whipsaws |
-| **Smoothness** | 8/10 | Step-function output filters noise |
-
 ## Validation
 
 Validated against Skender.Stock.Indicators and Pandas-TA.

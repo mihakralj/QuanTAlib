@@ -1,6 +1,6 @@
 # Benchmarks
 
-Performance claims require measurement. We benchmark QuanTAlib against established libraries: TA-Lib and Tulip (industry-standard C libraries accessed via P/Invoke), Skender.Stock.Indicators and Ooples.FinancialIndicators (popular .NET implementations).
+Performance claims require measurement. QuanTAlib is benchmarked against established libraries: TA-Lib and Tulip (industry-standard C libraries accessed via P/Invoke), Skender.Stock.Indicators and Ooples.FinancialIndicators (popular .NET implementations).
 
 ## Test Environment
 
@@ -15,7 +15,7 @@ These results represent what current-generation server CPUs achieve in productio
 
 ### Simple Moving Average (SMA)
 
-QuanTAlib's Span mode calculates 500,000 SMA values in 318 microseconds with zero memory allocations. That's 0.64 nanoseconds per value. For context, a single L1 cache access takes approximately 1 nanosecond on modern CPUs — we're calculating moving averages faster than fetching data from the nearest cache level.
+QuanTAlib's Span mode calculates 500,000 SMA values in 318 microseconds with zero memory allocations. That's 0.64 nanoseconds per value. For context, a single L1 cache access takes approximately 1 nanosecond on modern CPUs, so moving averages are being calculated faster than data can be fetched from the nearest cache level.
 
 | Library | Mean Time | Allocations | Relative Speed |
 | ------- | --------- | ----------- | -------------- |
@@ -76,7 +76,7 @@ Even QuanTAlib's slowest mode (Eventing with complete event infrastructure and 1
 
 ## Methodology
 
-We use [BenchmarkDotNet](https://benchmarkdotnet.org/) for all performance testing. This ensures:
+[BenchmarkDotNet](https://benchmarkdotnet.org/) is used for all performance testing. This ensures:
 
 - Warmup iterations to stabilize JIT compilation
 - Statistical analysis of results (mean, standard deviation)

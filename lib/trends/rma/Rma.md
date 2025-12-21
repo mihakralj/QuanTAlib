@@ -41,19 +41,6 @@ $$ RMA_t = \frac{P_t + (N-1) \cdot RMA_{t-1}}{N} $$
 
 RMA is extremely lightweight, requiring only a single multiplication and addition per update.
 
-### Zero-Allocation Design
-
-Since `Rma` wraps `Ema`, it inherits the zero-allocation properties. The calculation is a simple scalar update requiring no heap memory for the calculation step.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | Extreme | Single multiplication and addition |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 4/10 | Significant lag, smooths out details |
-| **Timeliness** | 3/10 | Slowest decay of all averages (Lag ≈ N) |
-| **Overshoot** | 10/10 | Extremely stable, no overshoot |
-| **Smoothness** | 10/10 | Maximum smoothing for volatile data |
-
 ## Validation
 
 RMA is validated against TA-Lib's internal macros used for RSI and ATR calculations.

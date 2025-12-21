@@ -14,7 +14,7 @@ A naive WMA implementation is $O(N)$, requiring a full loop over the history win
 
 ### The O(1) Algorithm
 
-We maintain two sums:
+Two sums are maintained:
 
 1. `Sum`: The simple sum of values (like SMA).
 2. `WSum`: The weighted sum.
@@ -37,19 +37,6 @@ $$ WMA = \frac{\sum_{i=0}^{N-1} (N-i) \times P_{t-i}}{\frac{N(N+1)}{2}} $$
 The denominator is the sum of the weights (triangular number).
 
 ## Performance Profile
-
-### Zero-Allocation Design
-
-WMA uses a pre-allocated `RingBuffer` and maintains dual running sums (`Sum` and `WSum`) in a struct. This design ensures that the hot path is entirely allocation-free.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | High | O(1) algorithm |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 6/10 | Linearly weighted to recent data |
-| **Timeliness** | 6/10 | Reduced lag compared to SMA (Lag ≈ N/3) |
-| **Overshoot** | 8/10 | Stable, minimal overshoot |
-| **Smoothness** | 5/10 | Less smoothing than SMA |
 
 ## Validation
 

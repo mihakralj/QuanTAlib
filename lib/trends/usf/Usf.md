@@ -53,10 +53,6 @@ The USF is designed for high performance and low latency.
 | **Overshoot** | 8/10 | Can overshoot on sharp turns |
 | **Smoothness** | 9/10 | Filters high frequencies effectively |
 
-### Zero-Allocation Design
-
-The implementation uses a circular buffer or state variables to store the necessary history (2 previous inputs and 2 previous outputs), ensuring that no heap allocations occur during the `Update` cycle. This makes it suitable for high-frequency trading applications.
-
 ## Validation
 
 The USF implementation has been verified against the EasyLanguage code provided in the original article. Since no external library validation is available (as noted in the task), the implementation relies on the mathematical correctness of the formula derived from the source material.
@@ -81,3 +77,4 @@ Console.WriteLine($"Current USF: {usf.Last.Value}");
 // Use in a TSeries chain
 var source = new TSeries();
 var usfSeries = new Usf(source, 20);
+

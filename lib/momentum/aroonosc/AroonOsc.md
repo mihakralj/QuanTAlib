@@ -2,7 +2,7 @@
 
 > Tushar Chande's Aroon system is a dual-line argument. The Oscillator is the verdict.
 
-The Aroon Oscillator condenses the struggle between the "Aroon Up" and "Aroon Down" lines into a single, normalized value. It quantifies not just the existence of a trend, but its freshness. It answers the question: "Are we making new highs faster than we are making new lows?"
+The Aroon Oscillator condenses the struggle between the "Aroon Up" and "Aroon Down" lines into a single, normalized value. It quantifies not just the existence of a trend, but its freshness. It answers the question: "Are new highs appearing faster than new lows?"
 
 ## The 1995 Standard
 
@@ -12,21 +12,13 @@ Introduced by Tushar Chande in *The New Technical Trader* (1995), the Aroon syst
 
 The physics of Aroon are temporal, not spatial. It measures the decay of "recency."
 
-1. **Time Measurement**: We count the bars since the highest high and lowest low within the period.
+1. **Time Measurement**: The bars since the highest high and lowest low within the period are counted.
 2. **Normalization**: These counts are converted to a 0-100 scale (100 = happened right now, 0 = happened `Period` bars ago).
 3. **Differential**: The Oscillator is `Up - Down`.
 
 ### The Drift Resistance
 
 Unlike recursive indicators (EMA, RSI) which accumulate floating-point errors over time, Aroon is stateless in the long term. Its value depends *only* on the data within the lookback window. This makes it mathematically robust and immune to "poisoning" from bad data in the distant past.
-
-### Zero-Allocation Design
-
-The implementation avoids the naive approach of scanning the entire window on every update. Instead, it maintains a circular buffer (`RingBuffer`) of the last `Period + 1` highs and lows.
-
-- **Hot Path**: The `Update` method uses stack-based logic.
-- **Memory**: Fixed footprint (two ring buffers of size `Period + 1`).
-- **Allocations**: Zero heap allocations during streaming updates.
 
 ## Mathematical Foundation
 
@@ -52,7 +44,7 @@ $$
 
 ## Performance Profile
 
-The algorithm is $O(N)$ where $N$ is the period, as we must scan the window for extremes. However, for typical periods (14-25), this is negligible.
+The algorithm is $O(N)$ where $N$ is the period, as the window must be scanned for extremes. However, for typical periods (14-25), this is negligible.
 
 | Metric | Complexity | Notes |
 | :--- | :--- | :--- |
@@ -63,7 +55,7 @@ The algorithm is $O(N)$ where $N$ is the period, as we must scan the window for 
 
 ## Validation
 
-We validate against **TA-Lib** and **Tushar Chande's original examples**.
+Validation is performed against **TA-Lib** and **Tushar Chande's original examples**.
 
 - **Consistency**: Matches TA-Lib outputs exactly.
 - **Edge Cases**: Handles flat markets (where high/low are unchanged) correctly by prioritizing the *most recent* extreme.

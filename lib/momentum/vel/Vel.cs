@@ -21,6 +21,7 @@ public sealed class Vel : ITValuePublisher
 {
     private readonly Pwma _pwma;
     private readonly Wma _wma;
+    private readonly int _period;
 
     public string Name { get; }
     public TValue Last { get; private set; }
@@ -34,6 +35,7 @@ public sealed class Vel : ITValuePublisher
 
         _pwma = new Pwma(period);
         _wma = new Wma(period);
+        _period = period;
         WarmupPeriod = period;
         Name = $"Vel({period})";
     }
@@ -56,32 +58,52 @@ public sealed class Vel : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
-
-        // Update internal indicators to ensure their state is correct
-        var pwmaSeries = _pwma.Update(source);
-        var wmaSeries = _wma.Update(source);
-
-        // Calculate VEL series
         int len = source.Count;
-        List<long> t = new(len);
-        List<double> v = new(len);
+        if (len == 0)
+            return [];
+
+        var t = new List<long>(len);
+        var v = new List<double>(len);
         CollectionsMarshal.SetCount(t, len);
         CollectionsMarshal.SetCount(v, len);
 
+        var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        SimdExtensions.Subtract(pwmaSeries.Values, wmaSeries.Values, vSpan);
-        source.Times.CopyTo(CollectionsMarshal.AsSpan(t));
+        // Span-based batch calculation
+        Batch(source.Values, vSpan, _period);
+        source.Times.CopyTo(tSpan);
 
-        Last = new TValue(t[len - 1], v[len - 1]);
+        // Restore streaming state by replaying the tail of the series
+        Reset();
+        int start = Math.Max(0, len - WarmupPeriod - 1);
+        for (int i = start; i < len; i++)
+        {
+            Update(new TValue(source.Times[i], source.Values[i]), true);
+        }
+
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
     public static TSeries Batch(TSeries source, int period)
     {
-        var vel = new Vel(period);
-        return vel.Update(source);
+        int len = source.Count;
+        if (len == 0)
+            return [];
+
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+
+        Batch(source.Values, vSpan, period);
+        source.Times.CopyTo(tSpan);
+
+        return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,6 +121,7 @@ public sealed class Vel : ITValuePublisher
         SimdExtensions.Subtract(pwma, wma, output);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()
     {
         _pwma.Reset();

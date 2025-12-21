@@ -6,11 +6,11 @@ QuanTAlib is designed to be platform-agnostic. It can be integrated into any .NE
 
 Quantower allows custom indicators via C#.
 
-1.  **Reference the DLL**:
+1. **Reference the DLL**:
     - Build QuanTAlib or download the NuGet package.
     - In your Quantower indicator project, add a reference to `QuanTAlib.dll`.
 
-2.  **Wrapper Class**:
+2. **Wrapper Class**:
     - Create a class that inherits from `Indicator`.
     - Instantiate the QuanTAlib indicator in `OnInit`.
     - Call `Update` in `OnUpdate`.
@@ -38,7 +38,7 @@ public class MySmaIndicator : Indicator
         double price = ClosePrice;
         
         // Update QuanTAlib
-        // Note: Quantower handles bar updates, so we check if it's a new bar or update
+        // Note: Quantower handles bar updates, so a check is performed to determine whether this is a new bar or an update
         bool isNew = args.Reason == UpdateReason.NewBar;
         var result = _sma.Update(new TValue(DateTime.UtcNow, price), isNew);
 
@@ -52,8 +52,8 @@ public class MySmaIndicator : Indicator
 
 NinjaTrader 8 uses .NET Framework 4.8, but can interop with .NET Standard libraries.
 
-1.  **Copy DLL**: Place `QuanTAlib.dll` in `Documents\NinjaTrader 8\bin\Custom`.
-2.  **Add Reference**: In NinjaScript Editor, right-click > References > Add `QuanTAlib.dll`.
+1. **Copy DLL**: Place `QuanTAlib.dll` in `Documents\NinjaTrader 8\bin\Custom`.
+2. **Add Reference**: In NinjaScript Editor, right-click > References > Add `QuanTAlib.dll`.
 
 ```csharp
 protected override void OnStateChange()
@@ -85,8 +85,8 @@ protected override void OnBarUpdate()
 
 LEAN supports custom libraries.
 
-1.  **NuGet**: Add `QuanTAlib` to your `config.json` or project file.
-2.  **Usage**: Use inside `OnData`.
+1. **NuGet**: Add `QuanTAlib` to your `config.json` or project file.
+2. **Usage**: Use inside `OnData`.
 
 ```csharp
 public class MyAlgorithm : QCAlgorithm
@@ -120,7 +120,7 @@ For proprietary trading engines, the **Streaming Mode** is usually the best fit.
 
 ### Key Considerations
 
-1.  **Time Handling**: QuanTAlib uses `DateTime.UtcNow`. Ensure your platform provides UTC timestamps or convert them.
-2.  **Double Precision**: All calculations use `double`. If your platform uses `decimal`, cast to `double` for input and back to `decimal` for output.
-3.  **State Management**: Persist the indicator instance for the lifetime of the symbol/strategy. Do not recreate the indicator on every tick.
-4.  **Concurrency**: `Update` is not thread-safe for the same instance. If processing multiple symbols in parallel, use separate indicator instances for each symbol.
+1. **Time Handling**: QuanTAlib uses `DateTime.UtcNow`. Ensure your platform provides UTC timestamps or convert them.
+2. **Double Precision**: All calculations use `double`. If your platform uses `decimal`, cast to `double` for input and back to `decimal` for output.
+3. **State Management**: Persist the indicator instance for the lifetime of the symbol/strategy. Do not recreate the indicator on every tick.
+4. **Concurrency**: `Update` is not thread-safe for the same instance. If processing multiple symbols in parallel, use separate indicator instances for each symbol.

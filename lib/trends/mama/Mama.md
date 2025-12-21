@@ -18,19 +18,38 @@ The architecture is a direct application of the Hilbert Transform Homodyne Discr
     - Fast Phase Change = High Alpha (Fast MA).
     - Slow Phase Change = Low Alpha (Slow MA).
 
-### Zero-Allocation Design
-
-We maintain the complex state required for the Hilbert Transform without heap allocations.
-
-- **RingBuffers**: For the delay lines needed by the Hilbert Transform.
-- **State Struct**: Stores the phasors (I, Q, Re, Im) and previous values.
-- **Fixed Pipeline**: The DSP pipeline is fixed-length, allowing for static optimization.
-
 ## Mathematical Foundation
 
-$$ \text{Phase} = \arctan(Q / I) $$
+### 1. Pre-Smoothing
+A 4-tap FIR filter removes high-frequency noise (Nyquist limit) to prevent aliasing before the Hilbert Transform.
+
+$$ \text{Smooth}_t = \frac{4 P_t + 3 P_{t-1} + 2 P_{t-2} + P_{t-3}}{10} $$
+
+### 2. Hilbert Transform & Detrending
+The signal is detrended and split into In-Phase ($I$) and Quadrature ($Q$) components using a 7-tap Hilbert Transform. The coefficients are optimized for market cycles (10-40 bars) to minimize passband ripple.
+
+$$ \text{Adj} = 0.075 \cdot \text{Period}_{t-1} + 0.54 $$
+
+$$ \text{Detrender}_t = \left( \frac{5}{52} S_t + \frac{15}{26} S_{t-2} - \frac{15}{26} S_{t-4} - \frac{5}{52} S_{t-6} \right) \cdot \text{Adj} $$
+
+$$ Q_t = \left( \frac{5}{52} D_t + \frac{15}{26} D_{t-2} - \frac{15}{26} D_{t-4} - \frac{5}{52} D_{t-6} \right) \cdot \text{Adj} $$
+
+$$ I_t = D_{t-3} $$
+
+### 3. Homodyne Discriminator
+The phase rate of change is calculated using the complex conjugate product of the current and previous phasors.
+
+$$ \Delta \text{Phase} = \arctan\left(\frac{I_t Q_{t-1} - Q_t I_{t-1}}{I_t I_{t-1} + Q_t Q_{t-1}}\right) $$
+
+### 4. Adaptive Alpha
+The smoothing factor $\alpha$ is inversely proportional to the phase rate of change. When the phase changes rapidly (trend reversal or high volatility), $\alpha$ increases (faster response). When the phase changes slowly (stable trend), $\alpha$ decreases (more smoothing).
 
 $$ \alpha = \frac{\text{FastLimit}}{\Delta \text{Phase}} $$
+
+$$ \alpha = \max(\text{SlowLimit}, \min(\text{FastLimit}, \alpha)) $$
+
+### 5. MAMA & FAMA Calculation
+MAMA is an adaptive EMA using the calculated $\alpha$. FAMA (Following Adaptive Moving Average) is a second adaptive EMA applied to MAMA, using half the $\alpha$.
 
 $$ \text{MAMA}_t = \alpha \cdot P_t + (1 - \alpha) \cdot \text{MAMA}_{t-1} $$
 

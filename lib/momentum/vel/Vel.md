@@ -14,15 +14,11 @@ The physics of VEL rely on the different "inertia" of the two moving averages.
 
 1. **PWMA**: A Parabolic Weighted Moving Average places extreme weight on the most recent data (quadratic weighting). It is highly responsive and "fast."
 2. **WMA**: A standard Weighted Moving Average places linear weight on recent data. It is slightly "slower" than the PWMA.
-3. **Differential**: By subtracting the slower WMA from the faster PWMA, we isolate the *acceleration* of the price.
+3. **Differential**: By subtracting the slower WMA from the faster PWMA, the *acceleration* of the price is isolated.
 
 ### The Smoothing Effect
 
 Because both components are weighted averages, they inherently filter out high-frequency noise. The difference between them represents the "clean" momentum of the trend. This is far superior to simply subtracting $P_{t-n}$ from $P_t$, which is sensitive to single-bar outliers.
-
-### Zero-Allocation Design
-
-The implementation leverages existing `Pwma` and `Wma` classes. The `Update` method is allocation-free. For batch processing, we use `stackalloc` for intermediate buffers when the dataset is small (<= 1024 bars), ensuring zero GC pressure.
 
 ## Mathematical Foundation
 
@@ -59,7 +55,7 @@ The complexity is linear with respect to the period for the initial calculation,
 
 ## Validation
 
-We validate against **Jurik's published methodology**.
+Validation is performed against **Jurik's published methodology**.
 
 - **Smoothness**: VEL is significantly smoother than raw ROC or Momentum indicators.
 - **Responsiveness**: Despite the smoothing, VEL leads simple moving average crossovers.

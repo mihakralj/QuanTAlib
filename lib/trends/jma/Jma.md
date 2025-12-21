@@ -6,7 +6,7 @@ JMA (Jurik Moving Average) is widely considered the gold standard for adaptive s
 
 ## Historical Context
 
-Mark Jurik kept the JMA algorithm a trade secret for years. It was sold as a "black box" library. Eventually, reverse-engineered versions appeared, revealing a sophisticated mix of volatility-adjusted smoothing and Kalman-like filtering. Our implementation is based on these high-fidelity reconstructions.
+Mark Jurik kept the JMA algorithm a trade secret for years. It was sold as a "black box" library. Eventually, reverse-engineered versions appeared, revealing a sophisticated mix of volatility-adjusted smoothing and Kalman-like filtering. The QuanTAlib implementation is based on these high-fidelity reconstructions.
 
 ## Architecture & Physics
 
@@ -15,14 +15,6 @@ JMA is not a simple FIR or IIR filter. It's a dynamic system.
 1. **Volatility Assessment**: It calculates a 10-bar SMA of local deviation and compares it to a 128-bar volatility history (using a trimmed mean).
 2. **Fractal Efficiency**: It computes a dynamic exponent based on the ratio of current change to historical volatility.
 3. **Adaptive Smoothing**: It uses this exponent to drive a 2-pole IIR filter that speeds up when the market moves and slows down when it chops.
-
-### Zero-Allocation Design
-
-We've ported the complex logic to a zero-allocation C# implementation.
-
-- **RingBuffers**: Used for the volatility history (128 bars) and deviation (10 bars).
-- **Trimmed Mean**: We use a pre-allocated sort buffer to calculate the trimmed mean without heap allocations.
-- **State Management**: All internal state (bands, IIR coefficients) is preserved in a `struct`.
 
 ## Mathematical Foundation
 

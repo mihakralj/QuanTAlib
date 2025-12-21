@@ -27,14 +27,6 @@ ADXR is intentionally slow.
 
 This double lag makes ADXR useless for entry timing. Its only valid architectural purpose is **regime filtering**: determining *if* a trend-following system should be active, not *when* it should trade.
 
-### Zero-Allocation Design
-
-Despite the internal complexity, the `Update` path is allocation-free.
-
-- The internal `Adx` uses `stackalloc` for its calculations.
-- The ADXR history is stored in a pre-allocated `RingBuffer`.
-- State management uses value types (`double`, `struct`).
-
 ## Mathematical Foundation
 
 The formula is deceptively simple, but relies on the complex ADX calculation underneath.
@@ -49,7 +41,7 @@ Where:
 - $n$ is the Period (typically 14).
 - $ADX_{t-(n-1)}$ is the ADX value from `n-1` periods ago.
 
-*Note: We use `n-1` lag to match TA-Lib's implementation exactly. Some sources cite `n`, but standard reference implementations use `n-1`.*
+*Note: The `n-1` lag is used to match TA-Lib's implementation exactly. Some sources cite `n`, but standard reference implementations use `n-1`.*
 
 ## Performance Profile
 
@@ -64,9 +56,9 @@ The performance cost is dominated by the underlying ADX calculation. The ADXR st
 
 ## Validation
 
-We validate against **TA-Lib**.
+Validation is performed against **TA-Lib**.
 
-- **Lag Alignment**: We explicitly align the lag (`Period - 1`) to match TA-Lib's behavior.
+- **Lag Alignment**: The lag (`Period - 1`) is explicitly aligned to match TA-Lib's behavior.
 - **Warmup**: ADXR requires significantly more warmup than ADX.
   - ADX Warmup: $\approx 2 \times Period$
   - ADXR Warmup: $ADX\_Warmup + Period$

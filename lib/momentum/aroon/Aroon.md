@@ -12,9 +12,9 @@ Tushar Chande introduced Aroon in *Beyond Technical Analysis* (1995). The name c
 
 Aroon is purely time-based. It normalizes the "days since" metric into a 0-100 oscillator.
 
-1. **Time Tracking**: We maintain a sliding window of the last $N$ bars.
-2. **Extremum Search**: We locate the index of the highest high and lowest low within that window.
-3. **Normalization**: We convert the distance (in bars) into a percentage.
+1. **Time Tracking**: A sliding window of the last $N$ bars is maintained.
+2. **Extremum Search**: The index of the highest high and lowest low within that window is located.
+3. **Normalization**: The distance (in bars) is converted into a percentage.
 
 ### The Logic of Freshness
 
@@ -25,14 +25,6 @@ Aroon is purely time-based. It normalizes the "days since" metric into a 0-100 o
   - 100: New low today.
   - 0: No new low for the entire period.
 - **Oscillator**: The net difference ($Up - Down$), showing the dominant temporal force.
-
-### Zero-Allocation Design
-
-The implementation is optimized for minimal memory footprint.
-
-- **Storage**: We use two `RingBuffer` instances to store Highs and Lows.
-- **Search**: The search for min/max is performed via a linear scan of the internal buffer.
-- **Allocations**: The `Update` cycle is strictly zero-allocation.
 
 ## Mathematical Foundation
 
@@ -65,10 +57,10 @@ While memory is O(P), computational complexity is linear with respect to the per
 
 ## Validation
 
-We validate against standard reference implementations.
+Validation is performed against standard reference implementations.
 
-- **Buffer Sizing**: We use `Period + 1` to correctly handle the inclusive range.
-- **Tie-Breaking**: If multiple bars share the same extreme value, we use the *most recent* one (yielding a higher Aroon score).
+- **Buffer Sizing**: `Period + 1` is used to correctly handle the inclusive range.
+- **Tie-Breaking**: If multiple bars share the same extreme value, the *most recent* one is used (yielding a higher Aroon score).
 
 ### Common Pitfalls
 

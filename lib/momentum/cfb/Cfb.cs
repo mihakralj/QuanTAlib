@@ -264,42 +264,56 @@ public sealed class Cfb : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int[]? lengths = null)
     {
-        if (source.Length == 0) return;
+        int len = source.Length;
+        if (len == 0)
+            return;
+
+        if (output.Length != len)
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         // Setup lengths
         int[] lens;
         if (lengths == null || lengths.Length == 0)
         {
             lens = new int[96];
-            for (int i = 0; i < 96; i++) lens[i] = (i + 1) * 2;
+            for (int i = 0; i < 96; i++)
+            {
+                lens[i] = (i + 1) * 2;
+            }
         }
         else
         {
-            lens = (int[])lengths.Clone();
+            // We do not mutate lens, so cloning is unnecessary.
+            lens = lengths;
         }
-        int maxLen = 0;
-        for (int i = 0; i < lens.Length; i++) if (lens[i] > maxLen) maxLen = lens[i];
 
-        // Pre-calculate volatility for the whole series
+        const int StackallocThreshold = 256;
+
+        // Pre-calculate volatility for the whole series:
         // vol[i] = Abs(source[i] - source[i-1])
-        // We can use a temporary array for this.
-        int len = source.Length;
-        double[] volArray = new double[len];
-        volArray[0] = 0;
+        Span<double> vol = len <= StackallocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        vol[0] = 0.0;
         for (int i = 1; i < len; i++)
         {
-            volArray[i] = Math.Abs(source[i] - source[i - 1]);
+            vol[i] = Math.Abs(source[i] - source[i - 1]);
         }
 
-        // We need running sums for each length.
-        // Since we are processing sequentially, we can maintain the running sums just like in Update.
-        double[] runningSums = new double[lens.Length];
+        // Running sums for each length.
+        Span<double> runningSums = lens.Length <= StackallocThreshold
+            ? stackalloc double[lens.Length]
+            : new double[lens.Length];
+
+        runningSums.Clear();
+
         double prevCfb = 1.0;
 
         for (int i = 0; i < len; i++)
         {
             double price = source[i];
-            double currentVol = volArray[i];
+            double currentVol = vol[i];
 
             double sumWeightedLen = 0.0;
             double sumWeights = 0.0;
@@ -325,7 +339,7 @@ public sealed class Cfb : ITValuePublisher
                 runningSums[k] += currentVol;
                 if (i > L)
                 {
-                    runningSums[k] -= volArray[i - L];
+                    runningSums[k] -= vol[i - L];
                 }
 
                 if (i < L) continue;

@@ -18,14 +18,6 @@ This is a complex, multi-stage signal processing pipeline:
 4. **Period Measurement**: Use the phase rate of change (Homodyne Discriminator) to measure the dominant cycle period.
 5. **Trend Extraction**: Average the price over the measured dominant cycle period to cancel out the cycle.
 
-### Zero-Allocation Design
-
-Despite the complexity, we maintain zero allocations.
-
-- **RingBuffers**: We use multiple small `RingBuffer`s for the various stages (smooth, detrend, I/Q, period).
-- **State Struct**: Complex state (phasors, periods) is managed in a value type.
-- **Fixed Buffers**: The pipeline depth is constant, allowing for static buffer sizing.
-
 ## Mathematical Foundation
 
 The core idea is that if you average a sine wave over exactly one period, the result is 0.
@@ -34,11 +26,33 @@ $$ \text{Trend}_t = \frac{1}{\text{DC}} \sum_{i=0}^{\text{DC}-1} P_{t-i} $$
 
 Where $\text{DC}$ is the measured Dominant Cycle period.
 
-The Hilbert Transform is used to find $\text{DC}$ dynamically:
+### 1. Pre-Smoothing
+A 4-tap FIR filter removes high-frequency noise (Nyquist limit) to prevent aliasing before the Hilbert Transform.
 
-$$ \text{Phase} = \arctan(Q / I) $$
+$$ \text{Smooth}_t = \frac{4 P_t + 3 P_{t-1} + 2 P_{t-2} + P_{t-3}}{10} $$
 
-$$ \text{DC} = \frac{2\pi}{\Delta \text{Phase}} $$
+### 2. Hilbert Transform & Detrending
+The signal is detrended and split into In-Phase ($I$) and Quadrature ($Q$) components using a 7-tap Hilbert Transform. The coefficients are optimized for market cycles (10-40 bars) to minimize passband ripple.
+
+$$ \text{Adj} = 0.075 \cdot \text{Period}_{t-1} + 0.54 $$
+
+$$ \text{Detrender}_t = \left( \frac{5}{52} S_t + \frac{15}{26} S_{t-2} - \frac{15}{26} S_{t-4} - \frac{5}{52} S_{t-6} \right) \cdot \text{Adj} $$
+
+$$ Q_t = \left( \frac{5}{52} D_t + \frac{15}{26} D_{t-2} - \frac{15}{26} D_{t-4} - \frac{5}{52} D_{t-6} \right) \cdot \text{Adj} $$
+
+$$ I_t = D_{t-3} $$
+
+### 3. Homodyne Discriminator
+The phase rate of change is calculated using the complex conjugate product of the current and previous phasors.
+
+$$ \Delta \text{Phase} = \arctan\left(\frac{I_t Q_{t-1} - Q_t I_{t-1}}{I_t I_{t-1} + Q_t Q_{t-1}}\right) $$
+
+$$ \text{Period}_t = \frac{2\pi}{\Delta \text{Phase}} $$
+
+### 4. Instantaneous Trend
+The trend is extracted by averaging the price over the measured dominant cycle period.
+
+$$ \text{Trend}_t = \frac{1}{\text{Period}_t} \sum_{i=0}^{\text{Period}_t-1} P_{t-i} $$
 
 ## Performance Profile
 

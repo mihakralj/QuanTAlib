@@ -29,10 +29,6 @@ Standard range ($High - Low$) fails when markets gap.
 
 ATR correctly identifies the volatility as 12, not 3.
 
-### Zero-Allocation Design
-
-Our implementation is strictly zero-allocation on the hot path. We use a single `Rma` instance to smooth the calculated TR values.
-
 ## Mathematical Foundation
 
 ### 1. True Range (TR)
@@ -72,7 +68,7 @@ ATR is computationally cheap but mathematically robust.
 
 ## Validation
 
-We validate against **TA-Lib** and **Skender.Stock.Indicators**.
+Validation is performed against **TA-Lib** and **Skender.Stock.Indicators**.
 
 - **Accuracy**: Matches external libraries to 9 decimal places.
 - **Edge Cases**: Correctly handles the first bar (where $C_{t-1}$ is undefined) by using $H-L$.

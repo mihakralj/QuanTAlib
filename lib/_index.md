@@ -51,7 +51,7 @@
 | BBW | Bollinger Band Width | Volatility |
 | BBWN | Bollinger Band Width Normalized | Volatility |
 | BBWP | Bollinger Band Width Percentile | Volatility |
-| BESSEL | Bessel Filter | Trends |
+| [BESSEL](trends/bessel/Bessel.md) | Bessel Filter | Trends |
 | BETA | Beta Coefficient | Statistics |
 | BIAS | Bias | Statistics |
 | BILATERAL | Bilateral Filter | Trends |

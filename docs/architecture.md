@@ -8,15 +8,15 @@ Three design decisions define QuanTAlib's performance characteristics:
 
 ### 1. Structure of Arrays (SoA) Memory Layout
 
-We store timestamps and values in separate contiguous arrays rather than interleaving them in objects. This seemingly minor change enables direct SIMD vectorization—CPU processes eight values in a single instruction instead of one at a time. The performance difference is measurable: averaging 10,000 values takes 2.4μs with SIMD versus 18.7μs with scalar operations. That's an 8x improvement just from rearranging memory.
+Timestamps and values are stored in separate contiguous arrays rather than interleaved in objects. This seemingly minor change enables direct SIMD vectorization—CPU processes eight values in a single instruction instead of one at a time. The performance difference is measurable: averaging 10,000 values takes 2.4μs with SIMD versus 18.7μs with scalar operations. That's an 8x improvement just from rearranging memory.
 
 ### 2. O(1) Streaming Algorithms
 
-We maintain constant computational complexity per incoming data point regardless of lookback period. A 14-period RSI and a 200-period RSI both process new bars in 0.4μs. Traditional batch recalculation approaches scale linearly with period length, introducing variable latency that makes real-time processing unpredictable. QuanTAlib accepts higher memory overhead (40-60 bytes per indicator instance) to guarantee predictable timing when processing hundreds of symbols simultaneously.
+Constant computational complexity is maintained per incoming data point regardless of lookback period. A 14-period RSI and a 200-period RSI both process new bars in 0.4μs. Traditional batch recalculation approaches scale linearly with period length, introducing variable latency that makes real-time processing unpredictable. QuanTAlib accepts higher memory overhead (40-60 bytes per indicator instance) to guarantee predictable timing when processing hundreds of symbols simultaneously.
 
 ### 3. Explicit Initialization Handling
 
-We return meaningful values from the first bar while exposing confidence through the `IsHot` property. A 14-period SMA calculates results starting at bar 1 using whatever data is available—the math to calculate averages works with limited history, just not at full precision for a period of 14. Other libraries either hide these early values (returning NaN or null) or output numbers without indicating their veracity. QuanTAlib returns usable values immediately and sets `IsHot = true` when the indicator has accumulated enough data to guarantee correctness of results.
+Meaningful values are returned from the first bar while confidence is exposed through the `IsHot` property. A 14-period SMA calculates results starting at bar 1 using whatever data is available—the math to calculate averages works with limited history, just not at full precision for a period of 14. Other libraries either hide these early values (returning NaN or null) or output numbers without indicating their veracity. QuanTAlib returns usable values immediately and sets `IsHot = true` when the indicator has accumulated enough data to guarantee correctness of results.
 
 ## Four Operating Modes
 
@@ -67,7 +67,7 @@ QuanTAlib leverages .NET's `System.Runtime.Intrinsics` to access hardware-specif
 
 ## Design Philosophy
 
-1. **Correctness First**: We validate against original research papers and established libraries.
-2. **Performance by Default**: We choose algorithms and data structures that are naturally fast.
+1. **Correctness First**: Validation is performed against original research papers and established libraries.
+2. **Performance by Default**: Algorithms and data structures that are naturally fast are chosen.
 3. **No Hidden Allocations**: Hot paths are allocation-free to prevent GC pauses.
-4. **Transparency**: We expose the internal state (like `IsHot`) so you know exactly what the indicator is doing.
+4. **Transparency**: The internal state (like `IsHot`) is exposed so you know exactly what the indicator is doing.

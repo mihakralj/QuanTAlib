@@ -13,16 +13,6 @@ While the WMA uses a linear triangle window ($1, 2, 3, \dots, n$), the PWMA uses
 The "physics" is defined by the weight function $W_i = i^2$.
 This shifts the center of gravity of the filter heavily towards the right (recent data).
 
-### Zero-Allocation Design
-
-We use a **Triple Running Sum** algorithm to achieve O(1) updates.
-
-- **S1**: Simple Sum ($\sum P$).
-- **S2**: Linear Weighted Sum ($\sum i P$).
-- **S3**: Parabolic Weighted Sum ($\sum i^2 P$).
-
-By maintaining these three sums, we can update the parabolic average by adding the new point and subtracting the trailing effects, without iterating over the window.
-
 ## Mathematical Foundation
 
 $$ \text{PWMA} = \frac{\sum_{i=1}^{N} i^2 P_{t-N+i}}{\sum_{i=1}^{N} i^2} $$
@@ -55,5 +45,5 @@ Validated against brute-force calculation (sum of products).
 
 ### Common Pitfalls
 
-1. **Resync**: Because we use triple running sums, floating-point errors can accumulate faster than in a simple SMA. Our implementation automatically resyncs every 1000 ticks to maintain precision.
+1. **Resync**: Because triple running sums are used, floating-point errors can accumulate faster than in a simple SMA. The implementation automatically resyncs every 1000 ticks to maintain precision.
 2. **Sensitivity**: This indicator is very sensitive to the most recent bar. It can "repaint" visually if used on an open bar (though the math is consistent).

@@ -12,18 +12,14 @@ Wilder's original ADX/DMI system is legendary but mathematically primitive; it r
 
 The physics of DMX are identical to DMI, but the friction is removed.
 
-1. **Decomposition**: We calculate raw Directional Movement ($DM$) and True Range ($TR$) exactly as Wilder did.
-2. **Smoothing**: Instead of the laggy RMA, we feed these raw signals into three parallel JMA filters.
-3. **Normalization**: We normalize the smoothed DM by the smoothed TR to get Directional Indicators ($DI$).
+1. **Decomposition**: Raw Directional Movement ($DM$) and True Range ($TR$) are calculated exactly as Wilder did.
+2. **Smoothing**: Instead of the laggy RMA, these raw signals are fed into three parallel JMA filters.
+3. **Normalization**: The smoothed DM is normalized by the smoothed TR to get Directional Indicators ($DI$).
 4. **Differential**: The DMX is simply $DI^+ - DI^-$.
 
 ### The Lag Reduction
 
 JMA is an adaptive filter. It tracks the signal closely when it moves (low lag) and smooths it aggressively when it stalls (high noise reduction). This dynamic behavior means DMX signals trend changes significantly earlier than standard DMI—often by 3-5 bars—without the "whipsaw" penalty usually associated with faster indicators.
-
-### Zero-Allocation Design
-
-The implementation relies on three internal `Jma` instances. Each JMA instance is allocation-free after initialization. The DMX wrapper itself introduces no additional heap pressure.
 
 ## Mathematical Foundation
 
@@ -86,7 +82,7 @@ The complexity is dominated by the three JMA calculations.
 
 ## Validation
 
-We validate against **Jurik's published methodology**.
+Validation is performed against **Jurik's published methodology**.
 
 - **Responsiveness**: DMX consistently leads standard DMI in turning point detection.
 - **Smoothness**: DMX produces fewer false crossovers in chopping markets compared to a fast DMI.

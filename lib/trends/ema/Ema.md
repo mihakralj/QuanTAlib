@@ -15,15 +15,7 @@ The EMA is defined by its smoothing factor, $\alpha$.
 - **High $\alpha$**: Fast decay, responsive, noisy.
 - **Low $\alpha$**: Slow decay, smooth, laggy.
 
-Our implementation includes a **Compensator** for the warmup phase. A standard EMA starts at 0 (or the first price) and takes time to converge. We mathematically correct this early-stage bias so the EMA is accurate from the very first few bars, rather than waiting for $3 \times N$ bars to stabilize.
-
-### Zero-Allocation Design
-
-The EMA is the poster child for efficiency.
-
-- **State**: Requires only the previous EMA value and a compensator state.
-- **No Buffers**: No arrays, no lists, no history. Just one `double`.
-- **Inlining**: The update method is aggressive inlined for maximum throughput.
+The QuanTAlib implementation includes a **Compensator** for the warmup phase. A standard EMA starts at 0 (or the first price) and takes time to converge. This early-stage bias is corrected mathematically so the EMA is accurate from the very first few bars, rather than waiting for $3 \times N$ bars to stabilize.
 
 ## Mathematical Foundation
 
@@ -35,7 +27,7 @@ $$ \text{EMA}_t = \alpha \cdot P_t + (1 - \alpha) \cdot \text{EMA}_{t-1} $$
 
 ### The Compensator (Warmup Correction)
 
-To handle the initialization bias (where $\text{EMA}_0$ is unknown), we track the sum of weights:
+To handle the initialization bias (where $\text{EMA}_0$ is unknown), the sum of weights is tracked:
 
 $$ E_t = (1 - \alpha)^t $$
 
@@ -67,5 +59,5 @@ Validated against TA-Lib, Skender, and every other library in existence.
 
 ### Common Pitfalls
 
-1. **The "First Value" Problem**: Most libraries seed the EMA with the first price or an SMA of the first N prices. We use a mathematical compensator. Our results during the first N bars will be *more accurate* than TA-Lib, which might look like a discrepancy. It's not; we're right, they're approximating.
+1. **The "First Value" Problem**: Most libraries seed the EMA with the first price or an SMA of the first N prices. In QuanTAlib, a mathematical compensator is used. Results during the first N bars are *more accurate* than TA-Lib, which might look like a discrepancy. It is not; the QuanTAlib implementation is correct and TA-Lib is approximating.
 2. **Alpha vs. Period**: Remember that $N$ is just a proxy for $\alpha$. You can construct an EMA directly with an $\alpha$ (e.g., 0.1) if you prefer signal processing terminology over trader terminology.

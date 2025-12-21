@@ -148,24 +148,96 @@ public sealed class AroonOsc : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        var t = new List<long>(source.Count);
-        var v = new List<double>(source.Count);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
 
-        Reset();
+        int len = source.Count;
+        var v = new double[len];
 
-        for (int i = 0; i < source.Count; i++)
+        Calculate(source.High.Values, source.Low.Values, period: _period, destination: v);
+
+        var tList = new List<long>(len);
+        var vList = new List<double>(v);
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
-            t.Add(val.Time);
-            v.Add(val.Value);
+            tList.Add(times[i]);
         }
 
-        return new TSeries(t, v);
+        Reset();
+        for (int i = 0; i < len; i++)
+        {
+            Update(source[i], true);
+        }
+
+        return new TSeries(tList, vList);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
+    {
+        int len = high.Length;
+        if (len == 0 || len != low.Length || len != destination.Length || period <= 0)
+        {
+            if (destination.Length > 0)
+            {
+                destination.Fill(0);
+            }
+
+            return;
+        }
+
+        for (int i = 0; i < len; i++)
+        {
+            int windowStart = i - Math.Min(i, period);
+
+            double maxVal = double.MinValue;
+            int maxIdx = windowStart;
+            double minVal = double.MaxValue;
+            int minIdx = windowStart;
+
+            for (int j = windowStart; j <= i; j++)
+            {
+                double h = high[j];
+                if (h >= maxVal)
+                {
+                    maxVal = h;
+                    maxIdx = j;
+                }
+
+                double l = low[j];
+                if (l <= minVal)
+                {
+                    minVal = l;
+                    minIdx = j;
+                }
+            }
+
+            int daysSinceHigh = i - maxIdx;
+            int daysSinceLow = i - minIdx;
+
+            double up = ((double)(period - daysSinceHigh) / period) * 100.0;
+            double down = ((double)(period - daysSinceLow) / period) * 100.0;
+            destination[i] = up - down;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int period)
     {
-        var aroonOsc = new AroonOsc(period);
-        return aroonOsc.Update(source);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
+        int len = source.Count;
+        var v = new double[len];
+
+        Calculate(source.High.Values, source.Low.Values, period, v);
+
+        var tList = new List<long>(len);
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
+        {
+            tList.Add(times[i]);
+        }
+
+        return new TSeries(tList, new List<double>(v));
     }
 }

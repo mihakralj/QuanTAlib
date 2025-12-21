@@ -20,6 +20,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Adxr : ITValuePublisher
 {
+    private readonly int _period;
     private readonly Adx _adx;
     private readonly RingBuffer _adxHistory;
     private readonly RingBuffer _p_adxHistory;
@@ -55,6 +56,7 @@ public sealed class Adxr : ITValuePublisher
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
+        _period = period;
         Name = $"Adxr({period})";
         _adx = new Adx(period);
 
@@ -140,24 +142,94 @@ public sealed class Adxr : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        var t = new List<long>(source.Count);
-        var v = new List<double>(source.Count);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
 
-        Reset();
+        int len = source.Count;
+        var v = new double[len];
 
-        for (int i = 0; i < source.Count; i++)
+        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, _period, v);
+
+        var tList = new List<long>(len);
+        var vList = new List<double>(v);
+
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
-            t.Add(val.Time);
-            v.Add(val.Value);
+            tList.Add(times[i]);
         }
 
-        return new TSeries(t, v);
+        Reset();
+        for (int i = 0; i < len; i++)
+        {
+            Update(source[i], true);
+        }
+
+        return new TSeries(tList, vList);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
+    {
+        int len = high.Length;
+        if (len == 0 || len != low.Length || len != close.Length || len != open.Length || len != destination.Length)
+        {
+            if (destination.Length > 0)
+            {
+                destination.Fill(0);
+            }
+            return;
+        }
+
+        const int StackallocThreshold = 256;
+        Span<double> adxSpan = len <= StackallocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        Adx.Calculate(open, high, low, close, period, adxSpan);
+
+        destination.Clear();
+
+        int lag = period - 1;
+        if (lag <= 0)
+        {
+            adxSpan.CopyTo(destination);
+            return;
+        }
+
+        if (lag >= len)
+        {
+            return;
+        }
+
+        ReadOnlySpan<double> current = adxSpan[lag..];
+        ReadOnlySpan<double> previous = adxSpan[..(len - lag)];
+        Span<double> destTail = destination[lag..];
+
+        SimdExtensions.Add(current, previous, destTail);
+
+        for (int i = 0; i < destTail.Length; i++)
+        {
+            destTail[i] *= 0.5;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int period)
     {
-        var adxr = new Adxr(period);
-        return adxr.Update(source);
+        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+
+        int len = source.Count;
+        var v = new double[len];
+
+        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, period, v);
+
+        var tList = new List<long>(len);
+        var times = source.Open.Times;
+        for (int i = 0; i < len; i++)
+        {
+            tList.Add(times[i]);
+        }
+
+        return new TSeries(tList, new List<double>(v));
     }
 }

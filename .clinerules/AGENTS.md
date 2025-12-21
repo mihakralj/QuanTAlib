@@ -187,6 +187,7 @@ public TValue Update(TValue input, bool isNew = true)
 * **Format**: Markdown.
 * **Content**: Title, Description, Parameters, Formula (LaTeX), C# Usage Examples.
 * **Style**: Follow the guidelines in `.clinerules/techdocs.md` (Bryson-Executive voice, architectural focus, evidence-based).
+* **Pronouns**: Avoid first-person plural in documentation; prefer explicit "QuanTAlib" subject or passive voice. Treat this as a persistent style rule (to be stored in qdrant style/pattern entries when available).
 * **Index & Links**: Add the new indicator to:
   * Category index (e.g., `lib/trends/_index.md`)
   * Main library index (`lib/_index.md`)
@@ -245,3 +246,4 @@ When creating a new indicator, you are **DONE** only when:
 * **Time**: Use `DateTime.UtcNow`.
 * **Math**: Use `System.Math` or `System.Numerics`.
 * **Root Namespace**: `QuanTAlib`.
+* **Patterns & Decisions**: When designing, refactoring, or fixing indicators or tests, first query `qdrant.mcp` for stored QuanTAlib patterns, architectural decisions, and benchmarks, and align new work with those references unless there is a documented reason to diverge.

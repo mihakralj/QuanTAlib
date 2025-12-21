@@ -25,7 +25,7 @@
 | **Average True Range Percent** | Atrp | - | - | - | - |
 | **Awesome Oscillator** | [Ao](../lib/momentum/ao/ao.md) | - | ✔️ | ✔️ | ✔️ |
 | **Balance of Power** | Bop | BOP | bop | Bop | BalanceOfPower |
-| **Bessel Filter** | Bessel | - | - | - | - |
+| **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
 | **Bessel-Weighted MA** | Bwma | - | - | - | - |
 | **Beta Coefficient** | Beta | BETA | - | Beta | - |
 | **Bias** | Bias | - | - | - | - |

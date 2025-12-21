@@ -14,7 +14,7 @@ The naive implementation of SMA sums $N$ numbers at every step, resulting in $O(
 
 ### O(1) Running Sum
 
-We maintain a running `Sum` and a `RingBuffer` of history.
+A running `Sum` and a `RingBuffer` of history are maintained.
 $$ Sum_{new} = Sum_{old} - Value_{oldest} + Value_{new} $$
 $$ SMA = \frac{Sum_{new}}{N} $$
 
@@ -37,19 +37,6 @@ $$ SMA_t = \frac{1}{N} \sum_{i=0}^{N-1} P_{t-i} $$
 ## Performance Profile
 
 The implementation is optimized for both streaming (latency) and batch (throughput) scenarios.
-
-### Zero-Allocation Design
-
-The `RingBuffer` is pre-allocated at initialization. All updates are performed in-place using scalar operations or SIMD intrinsics, ensuring no heap allocations occur during the hot path.
-
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | High | Optimized running sum |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 5/10 | Baseline accuracy, unweighted |
-| **Timeliness** | 4/10 | Significant lag (N/2) |
-| **Overshoot** | 8/10 | Generally stable, no projection |
-| **Smoothness** | 6/10 | Susceptible to "drop-off" effect |
 
 ## Validation
 

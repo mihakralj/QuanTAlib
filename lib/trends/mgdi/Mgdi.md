@@ -15,13 +15,6 @@ The MGDI formula is unique. It looks like an EMA, but the smoothing constant is 
 - **Price > MGDI**: The market is speeding up (or recovering). The denominator grows, slowing the adjustment to prevent overshoot.
 - **Price < MGDI**: The market is falling. The formula adapts to hug the price without breaking.
 
-### Zero-Allocation Design
-
-The implementation is extremely lightweight.
-
-- **State**: Only requires the previous MGDI value.
-- **Math**: Pure scalar operations. No buffers, no loops.
-
 ## Mathematical Foundation
 
 $$ \text{MGDI}_t = \text{MGDI}_{t-1} + \frac{P_t - \text{MGDI}_{t-1}}{k \times N \times (\frac{P_t}{\text{MGDI}_{t-1}})^4} $$

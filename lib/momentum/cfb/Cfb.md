@@ -14,20 +14,16 @@ Mark Jurik is the quiet giant of signal processing in finance. His work focuses 
 
 CFB is a massive parallel processor. It doesn't just look at one timeframe; it looks at *all* of them.
 
-1. **Fractal Efficiency**: For every length $L$ in the scan set, we calculate the ratio of net price movement to total path length (volatility).
-2. **Filtering**: We discard any timeframe where the efficiency is below a threshold (0.25). This filters out "meandering" or choppy periods.
-3. **Compositing**: We take a weighted average of the qualifying lengths. The weight is the efficiency ratio itself.
+1. **Fractal Efficiency**: For every length $L$ in the scan set, the ratio of net price movement to total path length (volatility) is calculated.
+2. **Filtering**: Any timeframe where the efficiency is below a threshold (0.25) is discarded. This filters out "meandering" or choppy periods.
+3. **Compositing**: A weighted average of the qualifying lengths is taken, with the efficiency ratio itself used as the weight.
 4. **Decay**: If no timeframes qualify, the index decays exponentially, reflecting the loss of trend memory.
 
 ### The Computational Challenge
 
 A naive implementation of CFB is $O(N \times M)$, where $M$ is the number of lengths scanned (often ~100). This is prohibitively slow for real-time systems.
 
-Our implementation uses a **running-sum algorithm** to maintain $O(1)$ complexity per update. We maintain 96 parallel running sums of volatility, updating them incrementally as new bars arrive and old bars drop off.
-
-### Zero-Allocation Design
-
-Despite the heavy internal state (96 running sums, large ring buffers), the `Update` method is allocation-free. All state is pre-allocated in the constructor.
+The QuanTAlib implementation uses a **running-sum algorithm** to maintain $O(1)$ complexity per update. Ninety-six parallel running sums of volatility are maintained, updating incrementally as new bars arrive and old bars drop off.
 
 ## Mathematical Foundation
 
@@ -61,7 +57,7 @@ $$
 
 ## Performance Profile
 
-We trade memory for speed. The state object is large (~2KB), but the update loop is extremely fast due to the running-sum optimization.
+Memory is traded for speed. The state object is large (~2KB), but the update loop is extremely fast due to the running-sum optimization.
 
 | Metric | Complexity | Notes |
 | :--- | :--- | :--- |
@@ -72,7 +68,7 @@ We trade memory for speed. The state object is large (~2KB), but the update loop
 
 ## Validation
 
-We validate against **Jurik's published methodology**.
+Validation is performed against **Jurik's published methodology**.
 
 - **Adaptivity**: The index correctly identifies trend duration in synthetic geometric brownian motion tests.
 - **Decay**: The exponential decay logic ensures the indicator resets quickly when a trend breaks.

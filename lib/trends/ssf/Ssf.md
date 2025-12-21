@@ -16,14 +16,6 @@ The SSF is an Infinite Impulse Response (IIR) filter.
 - **Butterworth Characteristic**: Maximally flat passband response, minimizing distortion of the trend.
 - **Minimal Lag**: Despite its smoothing power, it reacts relatively quickly to significant price changes.
 
-### Zero-Allocation Design
-
-Our implementation is optimized for high-frequency trading.
-
-- **State**: Tracks only the previous two SSF values (`SSF[1]`, `SSF[2]`).
-- **O(1) Complexity**: Constant time update regardless of period.
-- **No Buffers**: Uses a compact state struct, no heap allocations in the hot path.
-
 ## Mathematical Foundation
 
 The filter coefficients are derived from the desired cutoff period:

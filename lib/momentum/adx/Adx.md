@@ -14,20 +14,16 @@ It is not a modern, low-lag indicator. It is a heavy, momentum-based flywheel th
 
 The ADX is a "derivative of a derivative." The calculation pipeline is deep, which creates significant lag but offers exceptional noise reduction.
 
-1. **Decomposition**: We break price action into Directional Movement (+DM, -DM) and Volatility (True Range).
-2. **Normalization**: Raw movement is meaningless without context. We normalize DM by TR to get Directional Indicators (+DI, -DI).
-3. **Oscillation**: We derive the Directional Index (DX) from the ratio of the difference to the sum of the DIs.
-4. **Smoothing**: Finally, we smooth the DX to get ADX.
+1. **Decomposition**: Price action is broken into Directional Movement (+DM, -DM) and Volatility (True Range).
+2. **Normalization**: Raw movement is meaningless without context. DM is normalized by TR to get Directional Indicators (+DI, -DI).
+3. **Oscillation**: The Directional Index (DX) is derived from the ratio of the difference to the sum of the DIs.
+4. **Smoothing**: Finally, the DX is smoothed to get ADX.
 
 ### The Stability Problem
 
 Because ADX relies on recursive smoothing (RMA) at multiple stages, it is notoriously slow to converge. A "cold" start requires at least $2 \times Period$ bars to produce data that even remotely resembles a mature series, and often $3-4 \times Period$ to match external libraries (like TA-Lib) within 4 decimal places.
 
-Our implementation handles this by tracking the "warmup" state explicitly. We do not output garbage during the convergence phase if we can avoid it, but users must be aware that ADX is history-dependent.
-
-### Zero-Allocation Design
-
-The calculation path is hot. We use `stackalloc` for internal buffers and struct-based state management. There are no `new` keywords in the update loop. The memory footprint is fixed at initialization: 48 bytes for the state struct and a small ring buffer for the period window.
+The QuanTAlib implementation handles this by tracking the "warmup" state explicitly. Garbage is not output during the convergence phase if it can be avoided, but users must be aware that ADX is history-dependent.
 
 ## Mathematical Foundation
 
@@ -35,7 +31,7 @@ The math is classic Wilder: recursive, stateful, and robust.
 
 ### 1. Directional Movement (DM)
 
-We compare today's range to yesterday's.
+Today's range is compared to yesterday's.
 $$
 \text{UpMove} = H_t - H_{t-1}
 $$
@@ -53,7 +49,7 @@ $$
 
 ### 2. Smoothing (RMA)
 
-Wilder's Moving Average (RMA) is an exponential moving average with $\alpha = 1/N$. We smooth $+DM$, $-DM$, and $TR$ (True Range).
+Wilder's Moving Average (RMA) is an exponential moving average with $\alpha = 1/N$. The series $+DM$, $-DM$, and $TR$ (True Range) are smoothed using this operator.
 
 $$
 +DM_{smoothed} = RMA(+DM, N)
@@ -85,7 +81,7 @@ $$
 
 ## Performance Profile
 
-We optimize for throughput. The recursive nature of RMA allows for O(1) updates, but the initial calculation over a span requires O(N).
+Throughput is optimized. The recursive nature of RMA allows for O(1) updates, but the initial calculation over a span requires O(N).
 
 | Metric | Complexity | Notes |
 | :--- | :--- | :--- |
@@ -96,7 +92,7 @@ We optimize for throughput. The recursive nature of RMA allows for O(1) updates,
 
 ## Validation
 
-We validate against **TA-Lib** (the industry reference).
+Validation is performed against **TA-Lib** (the industry reference).
 
 - **Convergence**: Matches TA-Lib to within `1e-9` after ~100 bars of warmup.
 - **Edge Cases**: Handles `NaN` inputs by carrying forward the last valid state, preventing the "poisoning" of the recursive chain.

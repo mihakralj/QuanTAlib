@@ -19,14 +19,6 @@ The HMA is built from three Weighted Moving Averages (WMAs):
 The core logic is: $2 \times \text{WMA}(n/2) - \text{WMA}(n)$.
 This operation "over-weights" the recent data, pushing the average forward to align with the current price. The final WMA smooths out the resulting noise.
 
-### Zero-Allocation Design
-
-Our implementation is a composite of three `Wma` instances.
-
-- **Composite Structure**: We manage three internal `Wma` objects.
-- **SIMD Acceleration**: The intermediate calculation ($2 \times A - B$) is vectorized using AVX2/AVX-512 where available.
-- **Memory Efficiency**: We reuse buffers where possible to minimize footprint.
-
 ## Mathematical Foundation
 
 $$ \text{Raw} = 2 \times \text{WMA}(P, \frac{N}{2}) - \text{WMA}(P, N) $$
@@ -61,4 +53,4 @@ Validated against Alan Hull's original formula and standard library implementati
 
 1. **Overshoot**: Like DEMA, HMA can overshoot price turns because of the lag correction.
 2. **Period Sensitivity**: The $\sqrt{N}$ smoothing is hardcoded into the definition. You can't easily tweak the smoothing independently of the lag correction without breaking the "Hull" definition.
-3. **Integer Math**: The periods $N/2$ and $\sqrt{N}$ are rounded to integers. This can cause slight discrepancies between implementations depending on rounding rules. We use standard integer truncation.
+3. **Integer Math**: The periods $N/2$ and $\sqrt{N}$ are rounded to integers. This can cause slight discrepancies between implementations depending on rounding rules. Standard integer truncation is used in QuanTAlib.

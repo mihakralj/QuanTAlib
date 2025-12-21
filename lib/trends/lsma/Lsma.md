@@ -16,14 +16,6 @@ LSMA is computationally heavier than an SMA because it minimizes the sum of squa
 - **Intercept ($b$)**: Represents the value at the start of the window.
 - **Endpoint**: The value at the current bar ($y = m \times 0 + b$ in our coordinate system where current bar is 0).
 
-### Zero-Allocation Design
-
-We use a highly optimized O(1) update algorithm.
-
-- **Running Sums**: We maintain running sums of $y$ (price) and $xy$ (price $\times$ time).
-- **Incremental Updates**: Instead of recalculating the regression from scratch (which is O(N)), we update the sums by removing the exiting point and adding the entering point.
-- **Resync**: To prevent floating-point drift, we perform a full recalculation every 1000 ticks.
-
 ## Mathematical Foundation
 
 The regression line is $y = mx + b$.
@@ -34,11 +26,11 @@ $$ b = \frac{\sum y - m \sum x}{N} $$
 
 $$ \text{LSMA} = b - m \times \text{Offset} $$
 
-(Note: In our implementation, $x$ ranges from $N-1$ (oldest) to $0$ (newest) to simplify the math).
+(Note: In the QuanTAlib implementation, $x$ ranges from $N-1$ (oldest) to $0$ (newest) to simplify the math).
 
 ## Performance Profile
 
-Despite the complex math, our O(1) implementation makes it fly.
+Despite the complex math, the $O(1)$ implementation makes LSMA fly.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |

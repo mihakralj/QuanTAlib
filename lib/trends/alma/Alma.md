@@ -18,15 +18,6 @@ The "physics" of ALMA are defined by three parameters:
 2. **Offset**: Determines where the peak of the Gaussian curve sits. An offset of 0.85 (default) pushes the weight towards the most recent data, reducing lag significantly while maintaining smoothness.
 3. **Sigma**: The standard deviation of the bell curve. A higher sigma (e.g., 6.0) makes the curve sharper, focusing weights tightly around the offset.
 
-### Zero-Allocation Design
-
-Our implementation is a study in memory discipline.
-
-- **Precomputed Weights**: The Gaussian weights are calculated once in the constructor.
-- **RingBuffer**: We use a circular buffer to store the price window, avoiding array shifts.
-- **SIMD Optimization**: The weighted sum calculation uses `Vector<double>` dot products where possible, or optimized loop unrolling.
-- **Stack Allocation**: For the static `Calculate` method, we use `stackalloc` for small periods to avoid heap pressure entirely.
-
 ## Mathematical Foundation
 
 The weight $W_i$ for the $i$-th element in the window is calculated as:

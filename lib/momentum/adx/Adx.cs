@@ -269,6 +269,7 @@ public sealed class Adx : ITValuePublisher
         return Last;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
         return Update(new TBar(input.Time, input.Value, input.Value, input.Value, input.Value, 0), isNew);
@@ -340,6 +341,7 @@ public sealed class Adx : ITValuePublisher
         smoothed = smoothed - (smoothed / period) + input;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
     {
         int len = high.Length;
@@ -412,6 +414,7 @@ public sealed class Adx : ITValuePublisher
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int period)
     {
         if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
