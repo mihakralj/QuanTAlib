@@ -230,6 +230,6 @@ public sealed class Adxr : ITValuePublisher
             tList.Add(times[i]);
         }
 
-        return new TSeries(tList, new List<double>(v));
+        return new TSeries(tList, [.. v]);
     }
 }

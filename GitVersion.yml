@@ -1,10 +1,11 @@
 workflow: GitHubFlow/v1
+next-version: 0.8.0
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 tag-prefix: '[vV]'
-major-version-bump-message: '\+semver:\s?(breaking|major)'
-minor-version-bump-message: '\+semver:\s?(feature|minor)'
-patch-version-bump-message: '\+semver:\s?(fix|patch)'
+major-version-bump-message: '(\+semver:\s?(breaking|major)|(breaking|major)(\(.*\))?:)'
+minor-version-bump-message: '(\+semver:\s?(feature|minor)|(feat|feature)(\(.*\))?:)'
+patch-version-bump-message: '(\+semver:\s?(fix|patch)|(fix|patch)(\(.*\))?:)'
 no-bump-message: '\+semver:\s?(none|skip)'
 branches:
   main:
