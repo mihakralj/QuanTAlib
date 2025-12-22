@@ -32,7 +32,7 @@ public class AdlValidationTests
             quantalibValues.Add(adl.Update(bar).Value);
         }
 
-        ValidationHelper.VerifyData(quantalibValues.ToArray(), skenderValues, 0, 100, 1e-7);
+        ValidationHelper.VerifyData(quantalibValues.ToArray(), skenderValues, 0, 100, ValidationHelper.SkenderTolerance);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class AdlValidationTests
             quantalibValues.Add(adl.Update(bar).Value);
         }
 
-        ValidationHelper.VerifyData(quantalibValues.ToArray(), talibValues, outRange, 0, 100, 1e-9);
+        ValidationHelper.VerifyData(quantalibValues.ToArray(), talibValues, outRange, 0, 100, ValidationHelper.TalibTolerance);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class AdlValidationTests
             quantalibValues.Add(adl.Update(bar).Value);
         }
 
-        ValidationHelper.VerifyData(quantalibValues.ToArray(), tulipValues, 0, 100, 1e-9);
+        ValidationHelper.VerifyData(quantalibValues.ToArray(), tulipValues, 0, 100, ValidationHelper.TulipTolerance);
     }
 
     [Fact]
@@ -113,6 +113,6 @@ public class AdlValidationTests
             quantalibValues.Add(adl.Update(bar).Value);
         }
 
-        ValidationHelper.VerifyData(quantalibValues.ToArray(), oValues.ToArray(), 0, 100, 1e-2);
+        ValidationHelper.VerifyData(quantalibValues.ToArray(), oValues.ToArray(), 0, 100, ValidationHelper.OoplesTolerance);
     }
 }

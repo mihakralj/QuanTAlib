@@ -129,7 +129,7 @@ public class ApoValidationTests : IDisposable
         // 1. Batch Mode
         var apo = new Apo(fastPeriod, slowPeriod);
         var result = apo.Update(_testData.Data);
-        ValidationHelper.VerifyData(result, output, lookback: 0, tolerance: 1e-3);
+        ValidationHelper.VerifyData(result, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
 
         // 2. Streaming Mode
         var apoStream = new Apo(fastPeriod, slowPeriod);
@@ -138,12 +138,12 @@ public class ApoValidationTests : IDisposable
         {
             streamResults.Add(apoStream.Update(item).Value);
         }
-        ValidationHelper.VerifyData(streamResults, output, lookback: 0, tolerance: 1e-3);
+        ValidationHelper.VerifyData(streamResults, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
 
         // 3. Span Mode
         double[] input = _testData.Data.Values.ToArray();
         double[] spanOutput = new double[input.Length];
         Apo.Calculate(input.AsSpan(), spanOutput.AsSpan(), fastPeriod, slowPeriod);
-        ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: 1e-3);
+        ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

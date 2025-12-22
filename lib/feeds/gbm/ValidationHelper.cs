@@ -6,7 +6,14 @@ namespace QuanTAlib.Tests;
 
 public static class ValidationHelper
 {
-    public static void VerifyData<TResult>(TSeries qSeries, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = 1e-6)
+    public const double DefaultTolerance = 1e-7;
+    public const double OoplesTolerance = 1e-7;
+    public const double SkenderTolerance = 1e-7;
+    public const double TalibTolerance = 1e-7;
+    public const double TulipTolerance = 1e-7;
+    public const double RelativeTolerance = 0.005;
+
+    public static void VerifyData<TResult>(TSeries qSeries, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
     {
         Assert.Equal(qSeries.Count, sSeries.Count);
 
@@ -24,7 +31,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData<TResult>(List<double> qResults, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData<TResult>(List<double> qResults, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
     {
         Assert.Equal(qResults.Count, sSeries.Count);
 
@@ -42,7 +49,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData<TResult>(double[] qOutput, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData<TResult>(double[] qOutput, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
     {
         Assert.Equal(qOutput.Length, sSeries.Count);
 
@@ -60,7 +67,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(TSeries qSeries, double[] tOutput, int lookback, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData(TSeries qSeries, double[] tOutput, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qSeries.Count;
         int start = Math.Max(0, count - skip);
@@ -80,7 +87,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(List<double> qResults, double[] tOutput, int lookback, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData(List<double> qResults, double[] tOutput, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qResults.Count;
         int start = Math.Max(0, count - skip);
@@ -100,7 +107,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(double[] qOutput, double[] tOutput, int lookback, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData(double[] qOutput, double[] tOutput, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qOutput.Length;
         int start = Math.Max(0, count - skip);
@@ -120,7 +127,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(TSeries qSeries, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData(TSeries qSeries, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qSeries.Count;
         int start = Math.Max(0, count - skip);
@@ -141,7 +148,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(List<double> qResults, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData(List<double> qResults, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qResults.Count;
         int start = Math.Max(0, count - skip);
@@ -162,7 +169,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(double[] qOutput, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = 1e-6)
+    public static void VerifyData(double[] qOutput, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qOutput.Length;
         int start = Math.Max(0, count - skip);

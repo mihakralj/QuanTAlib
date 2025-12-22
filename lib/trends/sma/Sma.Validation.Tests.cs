@@ -309,7 +309,7 @@ public class SmaValidationTests : IDisposable
             var sResult = Calculations.CalculateSimpleMovingAverage(stockData, period).OutputValues.Values.First();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, (s) => s, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("SMA Batch(TSeries) validated successfully against Ooples");
     }

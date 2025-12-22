@@ -75,7 +75,7 @@ public class TrimaValidationTests
             int lookback = TALib.Functions.TrimaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("TRIMA Batch(TSeries) validated successfully against TA-Lib");
     }
@@ -109,7 +109,7 @@ public class TrimaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("TRIMA Batch(TSeries) validated successfully against Tulip");
     }
@@ -135,7 +135,7 @@ public class TrimaValidationTests
             int lookback = TALib.Functions.TrimaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("TRIMA Span validated successfully against TA-Lib");
     }

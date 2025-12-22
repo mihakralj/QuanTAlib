@@ -32,7 +32,7 @@ public class CfbValidationTests
         Assert.NotEmpty(streamResult);
         for (int i = 0; i < streamResult.Count; i++)
         {
-            Assert.Equal(streamResult[i].Value, batchResult[i].Value, 1e-9);
+            Assert.Equal(streamResult[i].Value, batchResult[i].Value, ValidationHelper.DefaultTolerance);
         }
         _output.WriteLine("CFB Update vs Batch validated successfully");
     }
@@ -49,7 +49,7 @@ public class CfbValidationTests
 
         for (int i = 0; i < batchResult.Count; i++)
         {
-            Assert.Equal(batchResult.Values[i], spanOutput[i], 1e-9);
+            Assert.Equal(batchResult.Values[i], spanOutput[i], ValidationHelper.DefaultTolerance);
         }
         _output.WriteLine("CFB Series vs Span validated successfully");
     }

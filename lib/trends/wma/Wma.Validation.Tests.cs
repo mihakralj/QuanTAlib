@@ -37,7 +37,7 @@ public class WmaValidationTests
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, x => x.Wma, tolerance: 1e-5);
+            ValidationHelper.VerifyData(qResult, sResult, x => x.Wma, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("WMA Batch(TSeries) validated successfully against Skender");
     }
@@ -61,7 +61,7 @@ public class WmaValidationTests
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, sResult, x => x.Wma, tolerance: 1e-5);
+            ValidationHelper.VerifyData(qResults, sResult, x => x.Wma, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("WMA Streaming validated successfully against Skender");
     }
@@ -81,7 +81,7 @@ public class WmaValidationTests
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, sResult, x => x.Wma, tolerance: 1e-5);
+            ValidationHelper.VerifyData(qOutput, sResult, x => x.Wma, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("WMA Span validated successfully against Skender");
     }
@@ -107,7 +107,7 @@ public class WmaValidationTests
             int lookback = TALib.Functions.WmaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("WMA Batch(TSeries) validated successfully against TA-Lib");
     }
@@ -137,7 +137,7 @@ public class WmaValidationTests
             int lookback = TALib.Functions.WmaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, output, outRange, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResults, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("WMA Streaming validated successfully against TA-Lib");
     }
@@ -163,7 +163,7 @@ public class WmaValidationTests
             int lookback = TALib.Functions.WmaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("WMA Span validated successfully against TA-Lib");
     }
@@ -190,7 +190,7 @@ public class WmaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
         _output.WriteLine("WMA Batch(TSeries) validated successfully against Tulip");
     }
@@ -221,7 +221,7 @@ public class WmaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
         _output.WriteLine("WMA Streaming validated successfully against Tulip");
     }
@@ -248,7 +248,7 @@ public class WmaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, tResult, lookback, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qOutput, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
         _output.WriteLine("WMA Span validated successfully against Tulip");
     }
@@ -281,7 +281,7 @@ public class WmaValidationTests
             var oValues = oResult.OutputValues["Wma"];
 
             // Compare
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: 5e-4);
+            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("WMA validated successfully against Ooples");
     }

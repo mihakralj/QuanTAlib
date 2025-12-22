@@ -146,7 +146,7 @@ public class AlmaValidationTests : IDisposable
             var qResult = alma.Update(_testData.Data);
 
             // 3. Verify
-            ValidationHelper.VerifyData(qResult, oAlma, x => x, skip: 100, tolerance: 1.0);
+            ValidationHelper.VerifyData(qResult, oAlma, x => x, skip: 100, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("ALMA Batch validated successfully against Ooples");
     }

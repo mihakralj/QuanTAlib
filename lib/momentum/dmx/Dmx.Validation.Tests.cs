@@ -32,7 +32,7 @@ public class DmxValidationTests
         Assert.Equal(streamResult.Count, seriesResult.Count);
         for (int i = 0; i < bars.Count; i++)
         {
-            Assert.Equal(streamResult[i].Value, seriesResult[i].Value, 1e-9);
+            Assert.Equal(streamResult[i].Value, seriesResult[i].Value, ValidationHelper.DefaultTolerance);
         }
         _output.WriteLine("DMX Update vs Series validated successfully");
     }

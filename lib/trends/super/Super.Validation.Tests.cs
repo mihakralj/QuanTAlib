@@ -60,16 +60,16 @@ public class SuperValidationTests : IDisposable
                 continue;
             }
 
-            Assert.Equal((double)skenderResults[i].SuperTrend!, results[i], 1e-7);
+            Assert.Equal((double)skenderResults[i].SuperTrend!, results[i], ValidationHelper.SkenderTolerance);
 
             if (skenderResults[i].UpperBand != null)
             {
-                Assert.Equal((double)skenderResults[i].UpperBand!, upper[i], 1e-7);
+                Assert.Equal((double)skenderResults[i].UpperBand!, upper[i], ValidationHelper.SkenderTolerance);
             }
 
             if (skenderResults[i].LowerBand != null)
             {
-                Assert.Equal((double)skenderResults[i].LowerBand!, lower[i], 1e-7);
+                Assert.Equal((double)skenderResults[i].LowerBand!, lower[i], ValidationHelper.SkenderTolerance);
             }
         }
     }

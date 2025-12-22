@@ -167,7 +167,7 @@ public class AdoscValidationTests : IDisposable
         // 1. Batch Mode
         var adosc = new Adosc(fastPeriod, slowPeriod);
         var result = adosc.Update(_testData.Bars);
-        ValidationHelper.VerifyData(result, output, lookback: 0, tolerance: 1e-3);
+        ValidationHelper.VerifyData(result, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
 
         // 2. Streaming Mode
         var adoscStream = new Adosc(fastPeriod, slowPeriod);
@@ -176,7 +176,7 @@ public class AdoscValidationTests : IDisposable
         {
             streamResults.Add(adoscStream.Update(bar).Value);
         }
-        ValidationHelper.VerifyData(streamResults, output, lookback: 0, tolerance: 1e-3);
+        ValidationHelper.VerifyData(streamResults, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
 
         // 3. Span Mode
         double[] high = _testData.Bars.High.Values.ToArray();
@@ -185,6 +185,6 @@ public class AdoscValidationTests : IDisposable
         double[] volume = _testData.Bars.Volume.Values.ToArray();
         double[] spanOutput = new double[close.Length];
         Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
-        ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: 1e-3);
+        ValidationHelper.VerifyData(spanOutput, output, lookback: 0, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

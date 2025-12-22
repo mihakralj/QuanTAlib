@@ -182,7 +182,7 @@ public class DemaValidationTests : IDisposable
                 // Compare
                 // Note: There might be tiny differences due to floating point operations order
                 // or internal state handling optimization in Dema class vs composed Ema classes.
-                Assert.Equal(ooplesVal, qVal.Value, 1e-9);
+                Assert.Equal(ooplesVal, qVal.Value, ValidationHelper.DefaultTolerance);
             }
         }
         _output.WriteLine("DEMA validated successfully against Ooples logic (2*EMA - EMA(EMA))");

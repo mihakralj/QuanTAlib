@@ -57,7 +57,7 @@ public class AoValidationTests : IDisposable
                 continue;
             }
 
-            Assert.Equal((double)skenderResults[i].Oscillator!, results[i], 1e-6);
+            Assert.Equal((double)skenderResults[i].Oscillator!, results[i], ValidationHelper.SkenderTolerance);
         }
     }
 
@@ -88,7 +88,7 @@ public class AoValidationTests : IDisposable
 
         for (int i = 0; i < tulipResults.Length; i++)
         {
-            Assert.Equal(tulipResults[i], results[i + lookback], 1e-6);
+            Assert.Equal(tulipResults[i], results[i + lookback], ValidationHelper.TulipTolerance);
         }
     }
 
@@ -125,7 +125,7 @@ public class AoValidationTests : IDisposable
             // Ooples might return 0 for warmup
             if (i < 33) continue; // Skip warmup
 
-            Assert.Equal(oValues[i], results[i], 1e-3);
+            Assert.Equal(oValues[i], results[i], ValidationHelper.OoplesTolerance);
         }
     }
 }

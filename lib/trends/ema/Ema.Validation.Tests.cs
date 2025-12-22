@@ -306,7 +306,7 @@ public class EmaValidationTests : IDisposable
             var oValues = oResult.OutputValues.Values.First();
 
             // Compare
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: 5e-4);
+            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("EMA validated successfully against Ooples");
     }

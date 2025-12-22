@@ -47,7 +47,7 @@ public class PwmaValidationTests
             var oValues = oResult.OutputValues["Pwma"];
 
             // Compare
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: 1e-3);
+            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: 2e-4);
         }
         _output.WriteLine("PWMA validated successfully against Ooples");
     }

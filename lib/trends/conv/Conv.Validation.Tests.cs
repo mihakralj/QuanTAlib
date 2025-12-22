@@ -70,7 +70,7 @@ public class ConvValidationTests : IDisposable
 
             if (i >= period) // Skip warmup
             {
-                Assert.Equal(smaVal.Value, convVal.Value, 1e-4);
+                Assert.Equal(smaVal.Value, convVal.Value, ValidationHelper.DefaultTolerance);
             }
         }
     }
@@ -92,7 +92,7 @@ public class ConvValidationTests : IDisposable
 
             if (i >= period) // Skip warmup
             {
-                Assert.Equal(wmaVal.Value, convVal.Value, 1e-4);
+                Assert.Equal(wmaVal.Value, convVal.Value, ValidationHelper.DefaultTolerance);
             }
         }
     }
@@ -133,7 +133,7 @@ public class ConvValidationTests : IDisposable
 
             if (i >= period) // Skip warmup
             {
-                Assert.Equal(trimaVal.Value, convVal.Value, 1e-4);
+                Assert.Equal(trimaVal.Value, convVal.Value, ValidationHelper.DefaultTolerance);
             }
         }
     }
@@ -209,6 +209,6 @@ public class ConvValidationTests : IDisposable
         var conv = new Conv(kernel);
         var result = conv.Update(_testData.Data);
 
-        ValidationHelper.VerifyData(result, ooplesWma, (s) => s, skip: period, tolerance: 1e-4);
+        ValidationHelper.VerifyData(result, ooplesWma, (s) => s, skip: period, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

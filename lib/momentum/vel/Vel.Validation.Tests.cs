@@ -27,7 +27,7 @@ public class VelValidationTests
             var p = pwma.Update(input);
             var w = wma.Update(input);
 
-            Assert.Equal(p.Value - w.Value, v.Value, 1e-10);
+            Assert.Equal(p.Value - w.Value, v.Value, ValidationHelper.DefaultTolerance);
         }
     }
 }

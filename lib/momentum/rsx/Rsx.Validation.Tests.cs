@@ -1,5 +1,6 @@
 using System;
 using Xunit;
+using QuanTAlib.Tests;
 
 namespace QuanTAlib;
 
@@ -41,7 +42,7 @@ public class RsxValidationTests
         for (int i = 0; i < count; i++)
         {
             // Allow small difference due to floating point arithmetic order
-            Assert.Equal(refResults[i], quantalibResults[i], 1e-9);
+            Assert.Equal(refResults[i], quantalibResults[i], ValidationHelper.DefaultTolerance);
         }
     }
 

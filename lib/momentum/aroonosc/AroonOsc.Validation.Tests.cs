@@ -132,6 +132,6 @@ public sealed class AroonOscValidationTests : IDisposable
             .ToArray();
 
         // Verify Oscillator
-        ValidationHelper.VerifyData(results, ooplesOsc, lookback: 14, tolerance: 1e-4);
+        ValidationHelper.VerifyData(results, ooplesOsc, lookback: 14, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

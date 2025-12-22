@@ -12,7 +12,7 @@ public class ValidationTestData : IDisposable
     public IReadOnlyList<Quote> SkenderQuotes { get; }
     public ReadOnlyMemory<double> RawData { get; }
 
-    public ValidationTestData(int count = 5000, double startPrice = 1000000.0, double mu = 0.05, double sigma = 2.0, int seed = 123)
+    public ValidationTestData(int count = 5000, double startPrice = 1000.0, double mu = 0.05, double sigma = 2.0, int seed = 123)
     {
         var gbm = new GBM(startPrice, mu, sigma, seed: seed);
         Bars = gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));

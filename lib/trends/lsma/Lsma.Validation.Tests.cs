@@ -35,7 +35,7 @@ public class LsmaValidationTests
             var sResult = _testData.SkenderQuotes.GetEpma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, x => x.Epma, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResult, sResult, x => x.Epma, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("LSMA Batch(TSeries) validated successfully against Skender");
     }
@@ -59,7 +59,7 @@ public class LsmaValidationTests
             var sResult = _testData.SkenderQuotes.GetEpma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, sResult, x => x.Epma, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qResults, sResult, x => x.Epma, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("LSMA Streaming validated successfully against Skender");
     }
@@ -79,7 +79,7 @@ public class LsmaValidationTests
             var sResult = _testData.SkenderQuotes.GetEpma(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, sResult, x => x.Epma, tolerance: 1e-4);
+            ValidationHelper.VerifyData(qOutput, sResult, x => x.Epma, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("LSMA Span validated successfully against Skender");
     }

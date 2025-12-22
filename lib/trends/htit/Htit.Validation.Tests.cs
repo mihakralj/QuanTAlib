@@ -55,7 +55,7 @@ public class HtitValidationTests : IDisposable
             {
                 double talibValue = output[i - outRange.Start.Value];
                 double quantalibValue = quantalibResults.Values[i];
-                Assert.Equal(talibValue, quantalibValue, 1e-6);
+                Assert.Equal(talibValue, quantalibValue, ValidationHelper.TalibTolerance);
             }
         }
     }
@@ -85,7 +85,7 @@ public class HtitValidationTests : IDisposable
                 // The divergence in Skender is likely due to implementation details or smoothing differences.
                 double diff = Math.Abs(skenderValue - quantalibValue);
                 double relError = diff / skenderValue;
-                Assert.True(relError < 0.005, $"Relative error {relError} too high at index {i}");
+                Assert.True(relError < ValidationHelper.RelativeTolerance, $"Relative error {relError} too high at index {i}");
             }
         }
     }
@@ -116,7 +116,7 @@ public class HtitValidationTests : IDisposable
                 // Skender implementation differs slightly (~0.32%) from TA-Lib/QuanTAlib
                 double diff = Math.Abs(skenderValue - quantalibValue);
                 double relError = diff / skenderValue;
-                Assert.True(relError < 0.005, $"Relative error {relError} too high at index {i}");
+                Assert.True(relError < ValidationHelper.RelativeTolerance, $"Relative error {relError} too high at index {i}");
             }
         }
     }
@@ -156,7 +156,7 @@ public class HtitValidationTests : IDisposable
             // QuanTAlib matches TA-Lib (reference) with 1e-6 precision.
             double diff = Math.Abs(ooplesValue - quantalibValue);
             double relError = diff / ooplesValue;
-            Assert.True(relError < 0.003, $"Relative error {relError} too high at index {i}");
+            Assert.True(relError < ValidationHelper.RelativeTolerance, $"Relative error {relError} too high at index {i}");
         }
     }
 }

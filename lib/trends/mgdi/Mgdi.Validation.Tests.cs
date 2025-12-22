@@ -53,7 +53,7 @@ public class MgdiValidationTests : IDisposable
 
             if (!double.IsNaN(skenderValue))
             {
-                Assert.Equal(skenderValue, quantalibValue, 1e-6);
+                Assert.Equal(skenderValue, quantalibValue, ValidationHelper.SkenderTolerance);
             }
         }
     }
@@ -81,7 +81,7 @@ public class MgdiValidationTests : IDisposable
 
             if (!double.IsNaN(skenderValue))
             {
-                Assert.Equal(skenderValue, quantalibValue, 1e-6);
+                Assert.Equal(skenderValue, quantalibValue, ValidationHelper.SkenderTolerance);
             }
         }
     }
@@ -120,7 +120,7 @@ public class MgdiValidationTests : IDisposable
             // We'll check for close correlation using relative error
             double diff = Math.Abs(ooplesValue - quantalibValue);
             double relError = diff / ooplesValue;
-            Assert.True(relError < 1e-9, $"Relative error {relError} too high at index {i}");
+            Assert.True(relError < ValidationHelper.OoplesTolerance, $"Relative error {relError} too high at index {i}");
         }
     }
 }

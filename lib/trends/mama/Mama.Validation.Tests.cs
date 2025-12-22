@@ -111,8 +111,9 @@ public class MamaValidationTests
         var qResult = mama.Update(_testData.Data); // _testData.Data is Close prices
 
         // 3. Verify MAMA
-        // Tolerance increased to 30.0 due to high-precision constant updates in QuanTAlib
-        // Ooples implementation shows larger divergence (~26.3) likely due to different smoothing or constant handling
+        // Tolerance set to 30.0 due to significant divergence (~27.0) caused by:
+        // 1. Initialization: Ooples starts from 0, QuanTAlib warms up with Average.
+        // 2. Precision: Ooples uses 4-decimal constants, QuanTAlib uses exact fractions.
         ValidationHelper.VerifyData(qResult, oMama, x => x, skip: 100, tolerance: 30.0);
         
         // 4. Verify FAMA

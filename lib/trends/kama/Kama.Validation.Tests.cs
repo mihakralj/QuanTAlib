@@ -120,7 +120,7 @@ public class KamaValidationTests
             var oValues = oResult.OutputValues["Kama"];
 
             // Compare
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: 5e-4);
+            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("KAMA validated successfully against Ooples");
     }

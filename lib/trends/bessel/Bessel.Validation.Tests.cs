@@ -45,7 +45,7 @@ public class BesselValidationTests : IDisposable
             Bessel.Calculate(src.AsSpan(), outSpan.AsSpan(), length);
 
             // Verify last window for convergence and consistency
-            ValidationHelper.VerifyData(qResult, outSpan, lookback: 0, skip: length, tolerance: 1e-9);
+            ValidationHelper.VerifyData(qResult, outSpan, lookback: 0, skip: length, tolerance: ValidationHelper.DefaultTolerance);
         }
 
         _output.WriteLine("Bessel validated internally: Span vs TSeries are consistent.");

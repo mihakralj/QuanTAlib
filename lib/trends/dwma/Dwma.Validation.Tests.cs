@@ -57,7 +57,7 @@ public class DwmaValidationTests : IDisposable
             var wma1Val = wma1.Update(val);
             var wma2Val = wma2.Update(wma1Val);
             
-            Assert.Equal(wma2Val.Value, dwmaVal.Value, 1e-9);
+            Assert.Equal(wma2Val.Value, dwmaVal.Value, ValidationHelper.DefaultTolerance);
         }
     }
 
@@ -84,7 +84,7 @@ public class DwmaValidationTests : IDisposable
             var w1 = wma1.Update(val);
             var w2 = wma2.Update(w1);
             
-            Assert.Equal(w2.Value, qVal.Value, 1e-9);
+            Assert.Equal(w2.Value, qVal.Value, ValidationHelper.DefaultTolerance);
         }
     }
 
@@ -115,7 +115,7 @@ public class DwmaValidationTests : IDisposable
             var tResult = outputs2[0];
             int totalLookback = lookback1 + lookback2;
 
-            ValidationHelper.VerifyData(qResult, tResult, totalLookback, tolerance: 1e-6);
+            ValidationHelper.VerifyData(qResult, tResult, totalLookback, tolerance: ValidationHelper.TulipTolerance);
         }
         _output.WriteLine("DWMA validated against Tulip (Chained WMA)");
     }
@@ -143,7 +143,7 @@ public class DwmaValidationTests : IDisposable
                 .ToArray();
 
             int totalLookback = (period - 1) * 2;
-            ValidationHelper.VerifyData(qResult, wma2Results, totalLookback, tolerance: 1e-6);
+            ValidationHelper.VerifyData(qResult, wma2Results, totalLookback, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("DWMA validated against Skender (Chained WMA)");
     }
@@ -174,7 +174,7 @@ public class DwmaValidationTests : IDisposable
             Assert.Equal(Core.RetCode.Success, retCode2);
 
             int totalLookback = (period - 1) * 2;
-            ValidationHelper.VerifyData(qResult, dwmaOutput, totalLookback, tolerance: 1e-6);
+            ValidationHelper.VerifyData(qResult, dwmaOutput, totalLookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("DWMA validated against TA-Lib (Chained WMA)");
     }

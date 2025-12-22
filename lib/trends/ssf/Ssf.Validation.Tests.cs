@@ -63,7 +63,7 @@ public class SsfValidationTests : IDisposable
             // We use a looser tolerance (10.0) because our implementation uses high-precision constants (Math.Sqrt(2) * Math.PI)
             // whereas Ooples likely uses the approximation (1.414 * 3.14159) found in some reference implementations.
             // This difference in constants causes a divergence in values.
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, skip: period, tolerance: 10.0);
+            ValidationHelper.VerifyData(qResult, oValues, (s) => s, skip: period, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("SSF validated successfully against Ooples");
     }

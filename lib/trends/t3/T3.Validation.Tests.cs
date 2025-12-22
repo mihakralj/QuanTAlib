@@ -157,7 +157,7 @@ public class T3ValidationTests
             var oValues = oResult.OutputValues["T3"];
 
             // Compare
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: 1e-3);
+            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: ValidationHelper.OoplesTolerance);
         }
         _output.WriteLine("T3 validated successfully against Ooples");
     }

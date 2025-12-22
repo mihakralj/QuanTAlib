@@ -60,7 +60,7 @@ public class RmaValidationTests : IDisposable
         int skip = period * 30;
 
         int itemsToVerify = _testData.Data.Count - skip;
-        ValidationHelper.VerifyData(quantalibResults, skenderResults, (s) => s.Smma, skip: itemsToVerify, tolerance: 1e-4);
+        ValidationHelper.VerifyData(quantalibResults, skenderResults, (s) => s.Smma, skip: itemsToVerify, tolerance: ValidationHelper.OoplesTolerance);
     }
 
     [Fact]
@@ -93,6 +93,6 @@ public class RmaValidationTests : IDisposable
         int skip = period * 30;
         int itemsToVerify = _testData.Data.Count - skip;
         
-        ValidationHelper.VerifyData(qResult, oValues, (s) => s, skip: itemsToVerify, tolerance: 5e-4);
+        ValidationHelper.VerifyData(qResult, oValues, (s) => s, skip: itemsToVerify, tolerance: ValidationHelper.OoplesTolerance);
     }
 }
