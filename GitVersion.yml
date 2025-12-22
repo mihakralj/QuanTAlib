@@ -1,5 +1,4 @@
 workflow: GitHubFlow/v1
-next-version: 0.8.0
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 tag-prefix: '[vV]'
