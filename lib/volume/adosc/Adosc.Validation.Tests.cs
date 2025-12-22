@@ -74,7 +74,7 @@ public class AdoscValidationTests : IDisposable
         ValidationHelper.VerifyData(spanOutput, output, outRange, lookback: slowPeriod - 1);
     }
 
-    [Fact(Skip = "Tulip ADOSC implementation diverges significantly from TA-Lib and Skender")]
+    [Fact]
     public void Validate_Against_Tulip_Adosc()
     {
         int fastPeriod = 3;
@@ -87,7 +87,8 @@ public class AdoscValidationTests : IDisposable
         var adoscIndicator = Tulip.Indicators.adosc;
         double[][] inputs = { high, low, close, volume };
         double[] options = { fastPeriod, slowPeriod };
-        double[][] outputs = { new double[close.Length - 1] }; // Tulip starts at 1? Need to check
+        int start = (int)adoscIndicator.Start(options);
+        double[][] outputs = { new double[close.Length - start] };
 
         adoscIndicator.Run(inputs, options, outputs);
         double[] output = outputs[0];
@@ -95,7 +96,7 @@ public class AdoscValidationTests : IDisposable
         // 1. Batch Mode
         var adosc = new Adosc(fastPeriod, slowPeriod);
         var result = adosc.Update(_testData.Bars);
-        ValidationHelper.VerifyData(result, output, lookback: 1);
+        ValidationHelper.VerifyData(result, output, lookback: start);
 
         // 2. Streaming Mode
         var adoscStream = new Adosc(fastPeriod, slowPeriod);
@@ -104,12 +105,12 @@ public class AdoscValidationTests : IDisposable
         {
             streamResults.Add(adoscStream.Update(bar).Value);
         }
-        ValidationHelper.VerifyData(streamResults, output, lookback: 1);
+        ValidationHelper.VerifyData(streamResults, output, lookback: start);
 
         // 3. Span Mode
         double[] spanOutput = new double[close.Length];
         Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
-        ValidationHelper.VerifyData(spanOutput, output, lookback: 1);
+        ValidationHelper.VerifyData(spanOutput, output, lookback: start);
     }
 
     [Fact]

@@ -413,3 +413,6 @@ ilspy/
 
 # Ignore insiders AI rules
 .github/instructions/codacy.instructions.md
+
+# Ignore dotnet install script
+dotnet-install.sh

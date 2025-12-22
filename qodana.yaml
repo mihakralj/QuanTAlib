@@ -96,7 +96,7 @@ exclude:
   - name: AutoPropertyCanBeMadeGetOnly.Global # Optional: common in libraries
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
-#bootstrap: sh ./prepare-qodana.sh
+bootstrap: sh ./.github/prepare-qodana.sh
 
 #Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
 #plugins:
@@ -105,10 +105,10 @@ exclude:
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
 #linter: jetbrains/qodana-dotnet:2025.3
 
-solution: QuanTAlib.sln
 linter: qodana-cdnet-EAP
 
 dotnet:
+  solution: QuanTAlib.sln
   msbuild:
     properties:
       Qodana: true

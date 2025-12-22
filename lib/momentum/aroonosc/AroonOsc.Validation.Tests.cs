@@ -97,12 +97,13 @@ public sealed class AroonOscValidationTests : IDisposable
         ValidationHelper.VerifyData(results, tulipOsc, lookback: 14);
     }
 
-    [Fact(Skip = "Ooples implementation deviates from standard even with adjustment")]
+    [Fact(Skip = "Ooples implementation deviates significantly from standard (TA-Lib, Tulip, Skender, QuanTAlib)")]
     public void MatchesOoples()
     {
-        // Note: OoplesFinance implementation of Aroon Oscillator differs by exactly 1 period (100/Period)
-        // from Skender, TA-Lib, Tulip, and QuanTAlib.
-        // We adjust Ooples results by adding 100/Period to match the standard implementation.
+        // Note: OoplesFinance implementation of Aroon Oscillator is an outlier.
+        // It deviates from the consensus of TA-Lib, Tulip, Skender, and QuanTAlib.
+        // The deviation is not a simple offset; it involves inconsistent steps and reversals,
+        // likely due to differences in how the high/low window indices are tracked.
 
         var aroon = new AroonOsc(14);
         var results = new List<double>();
@@ -128,7 +129,6 @@ public sealed class AroonOscValidationTests : IDisposable
         // Ooples only provides CalculateAroonOscillator
         var aroonOscResults = stockData.CalculateAroonOscillator(14);
         var ooplesOsc = aroonOscResults.OutputValues["Aroon"]
-            .Select(x => x + (100.0 / 14.0))
             .ToArray();
 
         // Verify Oscillator

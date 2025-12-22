@@ -60,6 +60,10 @@ Validation is performed against **TA-Lib** and **Tushar Chande's original exampl
 - **Consistency**: Matches TA-Lib outputs exactly.
 - **Edge Cases**: Handles flat markets (where high/low are unchanged) correctly by prioritizing the *most recent* extreme.
 
+### External Library Discrepancies
+
+- **OoplesFinance**: The Ooples implementation deviates significantly from the standard (TA-Lib, Tulip, Skender, QuanTAlib). It exhibits inconsistent steps and reversals, likely due to differences in windowing or index logic. Validation against Ooples is intentionally skipped.
+
 ### Common Pitfalls
 
 - **Lag**: Because it looks back `Period` bars, it will not signal a reversal until the previous extreme "ages out" or is superseded. It is a lagging indicator of trend changes.

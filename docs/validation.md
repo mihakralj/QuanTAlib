@@ -14,7 +14,7 @@
 | **Archer On-Balance Volume** | Aobv | - | - | - | - |
 | **Arnaud Legoux Moving Average** | [Alma](../lib/trends/alma/alma.md) | - | - | ✔️ | ✔️ |
 | **Aroon** | [Aroon](../lib/momentum/aroon/aroon.md) | ✔️ | ✔️ | ✔️ | - |
-| **Aroon Oscillator** | [AroonOsc](../lib/momentum/aroonosc/AroonOsc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Aroon Oscillator** | [AroonOsc](../lib/momentum/aroonosc/AroonOsc.md) | ✔️ | ✔️ | ✔️ | [⚠️](../lib/momentum/aroonosc/AroonOsc.md#external-library-discrepancies) |
 | **ATR Bands** | Atrbands | - | - | - | - |
 | **Autoregressive FIR MA** | Afirma | - | - | - | - |
 | **Average Daily Range** | Adr | - | - | - | - |

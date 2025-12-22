@@ -142,7 +142,7 @@ public sealed class Adxr : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var v = new double[len];
@@ -175,7 +175,7 @@ public sealed class Adxr : ITValuePublisher
         {
             if (destination.Length > 0)
             {
-                destination.Fill(0);
+                destination.Clear();
             }
             return;
         }
@@ -216,7 +216,7 @@ public sealed class Adxr : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int period)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var v = new double[len];

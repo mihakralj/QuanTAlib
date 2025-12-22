@@ -128,7 +128,7 @@ public sealed class Ao : ITValuePublisher
     /// <returns>The AO series</returns>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var v = new double[len];
@@ -207,7 +207,7 @@ public sealed class Ao : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
     {
-        if (source.Count == 0) return new TSeries(new List<long>(), new List<double>());
+        if (source.Count == 0) return new TSeries([], []);
 
         int len = source.Count;
         var v = new double[len];
@@ -221,6 +221,6 @@ public sealed class Ao : ITValuePublisher
             tList.Add(times[i]);
         }
 
-        return new TSeries(tList, new List<double>(v));
+        return new TSeries(tList, [.. v]);
     }
 }
