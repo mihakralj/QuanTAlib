@@ -287,6 +287,10 @@ public sealed class Adx : ITValuePublisher
 
         // Create lists for TSeries
         var tList = new List<long>(len);
+        for (int i = 0; i < len; i++)
+        {
+            tList.Add(source.Open.Times[i]);
+        }
         var vList = new List<double>(v);
 
         // Copy timestamps
