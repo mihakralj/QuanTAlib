@@ -67,7 +67,7 @@ public class BopTests
         bars.Add(new TBar(DateTime.UtcNow, 10, 20, 5, 15, 100));
         bars.Add(new TBar(DateTime.UtcNow.AddMinutes(1), 15, 25, 10, 20, 100));
 
-        var batchResult = bop.Update(bars);
+        var batchResult = Bop.Update(bars);
         
         bop.Reset();
         var streamResult1 = bop.Update(bars[0]);

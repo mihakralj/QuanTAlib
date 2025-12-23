@@ -30,7 +30,7 @@ public sealed class Bop : ITValuePublisher
     /// <summary>
     /// Display name for the indicator.
     /// </summary>
-    public string Name => "Bop";
+    public static string Name => "Bop";
 
     public event Action<TValue>? Pub;
 
@@ -42,12 +42,12 @@ public sealed class Bop : ITValuePublisher
     /// <summary>
     /// True if the indicator has a valid value (always true for BOP as it has no warmup).
     /// </summary>
-    public bool IsHot => true;
+    public static bool IsHot => true;
 
     /// <summary>
     /// The number of bars required for the indicator to warm up.
     /// </summary>
-    public int WarmupPeriod => 0;
+    public static int WarmupPeriod => 0;
 
     /// <summary>
     /// Resets the indicator state.
@@ -99,7 +99,7 @@ public sealed class Bop : ITValuePublisher
     /// <summary>
     /// Updates the indicator with a series of bars.
     /// </summary>
-    public TSeries Update(TBarSeries source)
+    public static TSeries Update(TBarSeries source)
     {
         return Batch(source);
     }
@@ -118,13 +118,18 @@ public sealed class Bop : ITValuePublisher
         if (Vector.IsHardwareAccelerated && len >= Vector<double>.Count)
         {
             var epsilon = new Vector<double>(double.Epsilon);
-            var vectors = len / Vector<double>.Count;
-            for (int j = 0; j < vectors; j++)
+            ref var oRef = ref MemoryMarshal.GetReference(open);
+            ref var hRef = ref MemoryMarshal.GetReference(high);
+            ref var lRef = ref MemoryMarshal.GetReference(low);
+            ref var cRef = ref MemoryMarshal.GetReference(close);
+            ref var dRef = ref MemoryMarshal.GetReference(destination);
+
+            while (i <= len - Vector<double>.Count)
             {
-                var o = new Vector<double>(open.Slice(i, Vector<double>.Count));
-                var h = new Vector<double>(high.Slice(i, Vector<double>.Count));
-                var l = new Vector<double>(low.Slice(i, Vector<double>.Count));
-                var c = new Vector<double>(close.Slice(i, Vector<double>.Count));
+                var o = Vector.LoadUnsafe(ref oRef, (nuint)i);
+                var h = Vector.LoadUnsafe(ref hRef, (nuint)i);
+                var l = Vector.LoadUnsafe(ref lRef, (nuint)i);
+                var c = Vector.LoadUnsafe(ref cRef, (nuint)i);
 
                 var range = h - l;
                 var body = c - o;
@@ -138,7 +143,7 @@ public sealed class Bop : ITValuePublisher
                 // Select div where mask is true, otherwise 0
                 var result = Vector.ConditionalSelect(mask, div, Vector<double>.Zero);
 
-                result.CopyTo(destination.Slice(i, Vector<double>.Count));
+                result.StoreUnsafe(ref dRef, (nuint)i);
 
                 i += Vector<double>.Count;
             }
@@ -160,17 +165,18 @@ public sealed class Bop : ITValuePublisher
         if (source.Count == 0) return new TSeries([], []);
 
         var len = source.Count;
-        var v = new double[len];
+        
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
 
-        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, v);
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
 
-        var tList = new List<long>(len);
-        var times = source.Open.Times;
-        for (int i = 0; i < len; i++)
-        {
-            tList.Add(times[i]);
-        }
+        source.Open.Times.CopyTo(tSpan);
+        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, vSpan);
 
-        return new TSeries(tList, new List<double>(v));
+        return new TSeries(t, v);
     }
 }

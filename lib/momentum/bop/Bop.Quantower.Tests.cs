@@ -21,7 +21,7 @@ public class BopIndicatorTests
     {
         var indicator = new BopIndicator();
 
-        Assert.Equal(0, indicator.MinHistoryDepths);
+        Assert.Equal(0, BopIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
         Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
@@ -75,6 +75,6 @@ public class BopIndicatorTests
 
         // Open=10, High=20, Low=5, Close=15
         // Range=15, Diff=5, BOP=0.333...
-        Assert.Equal(1.0/3.0, bop, 6);
+        Assert.Equal(1.0 / 3.0, bop, 6);
     }
 }

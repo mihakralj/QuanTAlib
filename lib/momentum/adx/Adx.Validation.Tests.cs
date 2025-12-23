@@ -96,7 +96,7 @@ public sealed class AdxValidationTests : IDisposable
         ValidationHelper.VerifyData(results, tulipResults, lookback: offset);
     }
 
-    [Fact(Skip = "Ooples implementation deviates significantly (10.7 vs 25.2). Investigation showed Ooples WildersSmoothingMethod does not match standard RMA/EMA/SMA/WMA behavior.")]
+    [Fact]
     public void MatchesOoples()
     {
         var adx = new Adx(14);
@@ -122,6 +122,9 @@ public sealed class AdxValidationTests : IDisposable
         var adxResults = stockData.CalculateAverageDirectionalIndex(MovingAvgType.WildersSmoothingMethod, 14);
         var ooplesResults = adxResults.OutputValues["Adx"].ToArray();
 
-        ValidationHelper.VerifyData(results, ooplesResults, lookback: 27);
+        // Ooples uses 0-initialization for WWMA, which takes a long time to converge.
+        // We verify only the last 100 bars of the 5000-bar dataset.
+        // Note: Ooples returns full-length array, so lookback is 0.
+        ValidationHelper.VerifyData(results, ooplesResults, lookback: 0, skip: 100, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

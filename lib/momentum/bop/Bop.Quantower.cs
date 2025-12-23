@@ -8,7 +8,7 @@ public class BopIndicator : Indicator, IWatchlistIndicator
     private Bop? _bop;
     protected LineSeries? BopSeries;
 
-    public int MinHistoryDepths => 0;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => "BOP";
