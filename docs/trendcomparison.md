@@ -12,6 +12,7 @@ Scale 1–10 where **10 = better** for every column. Detailed evaluation criteri
 | **ALMA** | 8 | 7 | 10 | 8 | Positive-weight FIR; accurate-ish but still a lag tradeoff. |
 | **BESSEL** | 9 | 7 | 9 | 8 | Strong shape/phase preservation; step response is well-behaved. |
 | **BILATERAL** | 7 | 6 | 10 | 8 | Edge-preserving; excellent in ranging markets, variable smoothing by design. |
+| **BUTTER** | 7 | 7 | 8 | 9 | 2nd-order IIR; maximally flat passband, excellent balance of smooth/lag. |
 | **BLMA** | 7 | 3 | 10 | 10 | Standard DSP window; superior noise suppression but significant lag. |
 | **DEMA** | 4 | 9 | 3 | 6 | Lag-canceling subtraction ⇒ structure distortion + overshoot risk. |
 | **DWMA** | 7 | 2 | 10 | 10 | Ultra-smooth, but smears structure heavily (lag dominates). |

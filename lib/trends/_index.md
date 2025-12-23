@@ -17,7 +17,7 @@ Trend indicators are the bread and butter of technical analysis—and often just
 | [BILATERAL](bilateral/Bilateral.md) | Bilateral Filter | Non-linear smoothing that preserves edges by weighting both distance and intensity difference. |
 | [BLMA](blma/Blma.md) | Blackman Window MA | Applies a Blackman window for superior noise suppression. |
 | BPF | Ehlers Bandpass Filter | |
-| BUTTER | Butterworth Filter | |
+| [BUTTER](butter/Butter.md) | Butterworth Filter | 2nd-order low-pass filter with maximally flat frequency response in the passband. |
 | BWMA | Bessel-Weighted MA | |
 | CHEBY1 | Chebyshev Type I Filter | |
 | CHEBY2 | Chebyshev Type II Filter | |

@@ -37,6 +37,12 @@
 | **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
 | **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
 | **Bollinger Bands** | Bbands | BBANDS | bbands | BollingerBands | ❔ |
+| **Butterworth Filter** | [Butter](../lib/trends/butter/Butter.md) | - | - | - | ✔️ |
+| **Bollinger Band Squeeze** | Bbs | - | - | - | - |
+| **Bollinger Band Width** | Bbw | - | - | - | ❔ |
+| **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
+| **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
+| **Bollinger Bands** | Bbands | BBANDS | bbands | BollingerBands | ❔ |
 | **Butterworth Filter** | Butter | - | - | - | - |
 | **Camarilla Pivot Points** | Pivotcam | - | - | - | ❔ |
 | **Chaikin Money Flow** | Cmf | - | - | Cmf | ❔ |

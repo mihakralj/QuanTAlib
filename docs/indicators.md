@@ -69,6 +69,7 @@ These measure the spread of data points around the mean.
 - [**BESSEL**](../lib/trends/bessel/Bessel.md) - Bessel Filter
 - [**BILATERAL**](../lib/trends/bilateral/Bilateral.md) - Bilateral Filter
 - [**BLMA**](../lib/trends/blma/Blma.md) - Blackman Window MA
+- [**BUTTER**](../lib/trends/butter/Butter.md) - Butterworth Filter
 - [**CONV**](../lib/trends/conv/Conv.md) - Convolution MA
 - [**DEMA**](../lib/trends/dema/Dema.md) - Double Exponential MA
 - [**DWMA**](../lib/trends/dwma/Dwma.md) - Double Weighted MA
