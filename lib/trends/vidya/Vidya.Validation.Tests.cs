@@ -44,7 +44,7 @@ public class VidyaValidationTests
         var refResults = CalculateVidyaReference(_testData.Data, period);
 
         // Compare
-        ValidationHelper.VerifyData(qResults, refResults, x => x);
+        ValidationHelper.VerifyData(qResults, refResults, x => x, tolerance: 1e-9);
 
         _output.WriteLine("VIDYA validated successfully against reference implementation");
     }
@@ -61,7 +61,7 @@ public class VidyaValidationTests
         var refResults = CalculateVidyaReference(_testData.Data, period);
 
         // Compare
-        ValidationHelper.VerifyData(qResults, refResults, x => x);
+        ValidationHelper.VerifyData(qResults, refResults, x => x, tolerance: 1e-9);
 
         _output.WriteLine("VIDYA Batch validated successfully against reference implementation");
     }

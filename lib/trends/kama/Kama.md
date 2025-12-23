@@ -34,7 +34,8 @@ KAMA is very efficient, with O(1) complexity thanks to the incremental volatilit
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | O(1) updates |
+| **Throughput** | [N] ns/bar | O(1) updates |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Constant time update |
 | **Accuracy** | 7/10 | Flattens in noise, tracks in trends |
 | **Timeliness** | 8/10 | Accelerates quickly in strong trends |
@@ -43,12 +44,15 @@ KAMA is very efficient, with O(1) complexity thanks to the incremental volatilit
 
 ## Validation
 
-Validated against TA-Lib and Skender.
+Validated against TA-Lib, Skender, Tulip, and Ooples.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **TA-Lib** | $10^{-9}$ | Matches `TA_KAMA` |
-| **Skender** | $10^{-9}$ | Matches `GetKama` |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | ✅ | Matches `Kama` |
+| **Skender** | ✅ | Matches `GetKama` |
+| **Tulip** | ✅ | Matches `kama` |
+| **Ooples** | ✅ | Matches `CalculateKaufmanAdaptiveMovingAverage` |
 
 ### Common Pitfalls
 

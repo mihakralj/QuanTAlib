@@ -67,7 +67,7 @@ public sealed class AdxValidationTests : IDisposable
         ValidationHelper.VerifyData(results, outReal, outRange, lookback);
     }
 
-    [Fact(Skip = "Tulip implementation deviates from Skender/TA-Lib standard (15.3 vs 14.9)")]
+    [Fact]
     public void MatchesTulip()
     {
         var adx = new Adx(14);
@@ -91,10 +91,12 @@ public sealed class AdxValidationTests : IDisposable
         double[] tulipResults = outputs[0];
 
         // Tulip initializes differently, so we skip the warmup period to verify convergence
-        ValidationHelper.VerifyData(results, tulipResults, lookback: 100);
+        // We must use the correct offset (lookback) to align the data series
+        int offset = adxInd.Start(options);
+        ValidationHelper.VerifyData(results, tulipResults, lookback: offset);
     }
 
-    [Fact(Skip = "Ooples implementation deviates significantly from Skender/TA-Lib standard (10.7 vs 14.9)")]
+    [Fact(Skip = "Ooples implementation deviates significantly (10.7 vs 25.2). Investigation showed Ooples WildersSmoothingMethod does not match standard RMA/EMA/SMA/WMA behavior.")]
     public void MatchesOoples()
     {
         var adx = new Adx(14);

@@ -44,21 +44,25 @@ $$
 
 ## Performance Profile
 
-ADL is extremely lightweight.
-
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | ~2ns / bar | Simple arithmetic + accumulation |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(1) | Constant time per update |
-| **Precision** | `double` | Essential for cumulative sums |
+| **Throughput** | 10 | High; O(1) calculation with simple arithmetic. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time per update. |
+| **Accuracy** | 10 | Matches all standard libraries exactly. |
+| **Timeliness** | 10 | No lag; updates immediately with each bar. |
+| **Overshoot** | N/A | Cumulative indicator; concept doesn't apply. |
+| **Smoothness** | 2 | Jagged; reflects raw volume and price location. |
 
 ## Validation
 
-Validation is performed against **TA-Lib**, **Skender.Stock.Indicators**, and **Tulip Indicators**.
-
-- **Accuracy**: Matches external libraries to 9 decimal places.
-- **Edge Cases**: Handles `High == Low` (division by zero protection) by setting MFM to 0.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | ✅ | Matches `TA_AD` exactly. |
+| **Skender** | ✅ | Matches `GetAdl` exactly. |
+| **Tulip** | ✅ | Matches `ad` exactly. |
+| **Ooples** | ✅ | Matches `CalculateAccumulationDistributionLine`. |
 
 ### Common Pitfalls
 

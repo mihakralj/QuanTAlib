@@ -18,6 +18,7 @@
     <Compile Include="IndicatorExtensions.cs" />
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs" />
     <Compile Include="..\lib\volume\**\*.cs" Exclude="..\lib\volume\**\*.Tests.cs" />
+    <Compile Include="..\lib\trends\ema\Ema.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

@@ -41,7 +41,7 @@ We do not store objects in lists. We store primitive arrays.
 
 1. **Zero Allocation**: The `Update` method MUST NOT allocate memory on the heap. Use `stackalloc` or pre-allocated buffers.
 2. **O(1) Complexity**: Streaming updates must be constant time. Use circular buffers (`RingBuffer`) or running sums.
-3. **SIMD**: Batch operations (`Calculate`) should use `System.Runtime.Intrinsics` (AVX2) where possible. If SIMD is not possible due to recursive dependencies, use `stackalloc` for internal buffers to avoid heap allocations.
+3. **SIMD**: Batch operations (`Calculate`) should use `System.Runtime.Intrinsics` (AVX2) or `System.Numerics.Vector<T>` where possible. Use `Vector.ConditionalSelect` to handle edge cases (e.g., division by zero) without branching. If SIMD is not possible due to recursive dependencies, use `stackalloc` for internal buffers to avoid heap allocations.
 4. **Inlining**: Use `[MethodImpl(MethodImplOptions.AggressiveInlining)]` on hot methods.
 5. **Locals**: Use `[SkipLocalsInit]` to avoid zero-init costs in tight loops.
 
@@ -152,7 +152,7 @@ public TValue Update(TValue input, bool isNew = true)
 ### Validation Tests (`[Name].Validation.Tests.cs`)
 
 * **Mandatory**: You MUST validate against at least one external authority (TA-Lib, Skender, Tulip, OoplesFinance, Python libs).
-* **Tolerance**: Typically `1e-6` to `1e-9`.
+* **Tolerance**: Use explicit constants from `ValidationHelper` (e.g., `ValidationHelper.SkenderTolerance`, `ValidationHelper.TalibTolerance`) rather than relying on defaults. Typically `1e-7`.
 * **Data**: Use `ValidationTestData` class which wraps `GBM` (Geometric Brownian Motion) to generate realistic test data (default 5000 bars) and provides pre-calculated Skender quotes.
 * **Coverage**: Validate all 3 modes (Batch, Streaming, Span) against the external library.
 * **Verification**: Use `ValidationHelper.VerifyData` which checks the last 100 bars to ensure convergence and correctness.
@@ -161,7 +161,7 @@ public TValue Update(TValue input, bool isNew = true)
 
 * **Skender.Stock.Indicators:**
   * Use `_data.SkenderQuotes.Get[Indicator](...)`.
-  * Compare using `ValidationHelper.VerifyData`.
+  * Compare using `ValidationHelper.VerifyData` with `tolerance: ValidationHelper.SkenderTolerance`.
 
 * **TA-Lib (TALib.NETCore):**
   * Namespace: `using TALib;`

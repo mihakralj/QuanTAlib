@@ -57,21 +57,25 @@ $$
 
 ## Performance Profile
 
-ATR is computationally cheap but mathematically robust.
-
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | ~5ns / bar | Simple arithmetic + 1 EMA update |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(1) | Constant time per update |
-| **Precision** | `double` | Required for accurate gap measurement |
+| **Throughput** | 10 | High; O(1) calculation via RMA. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period. |
+| **Accuracy** | 10 | Matches TA-Lib exactly. |
+| **Timeliness** | 4 | Lags due to RMA smoothing; reflects past volatility. |
+| **Overshoot** | 0 | Absolute measure; cannot overshoot. |
+| **Smoothness** | 8 | Smooth decay due to RMA inertia. |
 
 ## Validation
 
-Validation is performed against **TA-Lib** and **Skender.Stock.Indicators**.
-
-- **Accuracy**: Matches external libraries to 9 decimal places.
-- **Edge Cases**: Correctly handles the first bar (where $C_{t-1}$ is undefined) by using $H-L$.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | ✅ | Matches `TA_ATR` exactly. |
+| **Skender** | ✅ | Matches `GetAtr` exactly. |
+| **Tulip** | ✅ | Matches `atr` exactly. |
+| **Ooples** | ✅ | Matches `CalculateAverageTrueRange`. |
 
 ### Common Pitfalls
 

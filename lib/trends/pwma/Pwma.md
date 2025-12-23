@@ -28,7 +28,8 @@ Despite the "parabolic" name, the performance is linear O(1) per update.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | Triple running sum O(1) |
+| **Throughput** | [N] ns/bar | Triple running sum O(1) |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Constant time update |
 | **Accuracy** | 8/10 | Heavily weighted to most recent price |
 | **Timeliness** | 9/10 | Very fast reaction to new data |
@@ -37,12 +38,16 @@ Despite the "parabolic" name, the performance is linear O(1) per update.
 
 ## Validation
 
-Validated against brute-force calculation (sum of products).
+Validated against Ooples.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Manual Calc** | $10^{-9}$ | Verified against O(N) implementation |
+| **QuanTAlib** | ✅ | Validated. |
+| **Ooples** | ✅ | Matches `CalculateParabolicWeightedMovingAverage` |
+| **Skender** | N/A | Not implemented |
+| **TA-Lib** | N/A | Not implemented |
 
+| **Tulip** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Resync**: Because triple running sums are used, floating-point errors can accumulate faster than in a simple SMA. The implementation automatically resyncs every 1000 ticks to maintain precision.

@@ -39,7 +39,7 @@ public class TemaValidationTests
             var sResult = _testData.SkenderQuotes.GetTema(period).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, x => x.Tema);
+            ValidationHelper.VerifyData(qResult, sResult, x => x.Tema, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("TEMA Batch(TSeries) validated successfully against Skender.Stock.Indicators");
     }
@@ -65,7 +65,7 @@ public class TemaValidationTests
             int lookback = TALib.Functions.TemaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("TEMA Batch(TSeries) validated successfully against TA-Lib");
     }
@@ -94,11 +94,10 @@ public class TemaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, tResult, lookback);
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
         _output.WriteLine("TEMA Batch(TSeries) validated successfully against Tulip");
     }
-
 
     [Fact]
     public void Validate_Talib_Span()
@@ -121,7 +120,7 @@ public class TemaValidationTests
             int lookback = TALib.Functions.TemaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback);
+            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("TEMA Span validated successfully against TA-Lib");
     }

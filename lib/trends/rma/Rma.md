@@ -41,10 +41,27 @@ $$ RMA_t = \frac{P_t + (N-1) \cdot RMA_{t-1}}{N} $$
 
 RMA is extremely lightweight, requiring only a single multiplication and addition per update.
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | [N] ns/bar | Scalar math |
+| **Allocations** | 0 | Stack-based calculations only |
+| **Complexity** | O(1) | Constant time update |
+| **Accuracy** | 9/10 | Standard for RSI/ATR |
+| **Timeliness** | 6/10 | Slower than EMA |
+| **Overshoot** | 9/10 | Very stable |
+| **Smoothness** | 9/10 | Very smooth |
+
 ## Validation
 
-RMA is validated against TA-Lib's internal macros used for RSI and ATR calculations.
+Validated against Skender and Ooples.
 
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **Skender** | ✅ | Matches `GetSmma` |
+| **Ooples** | ✅ | Matches `CalculateWellesWilderMovingAverage` |
+| **TA-Lib** | N/A | Not implemented |
+
+| **Tulip** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Initialization**: Like EMA, RMA requires a "warmup" period to converge. Wilder often initialized with a Simple Moving Average (SMA) of the first $N$ bars. QuanTAlib follows this convention.

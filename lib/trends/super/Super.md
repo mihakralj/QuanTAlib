@@ -38,9 +38,25 @@ $$ SuperTrend = \begin{cases} Lower_{final} & \text{if Bullish} \\ Upper_{final}
 
 ## Performance Profile
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 9 | High; O(1) calculation with minimal overhead. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period. |
+| **Accuracy** | 10 | Matches standard implementations exactly. |
+| **Timeliness** | 5 | Lag depends on ATR period and multiplier. |
+| **Overshoot** | 0 | Bands are constrained by price action. |
+| **Smoothness** | 2 | Step-like behavior; not a smooth curve. |
+
 ## Validation
 
-Validated against Skender.Stock.Indicators and Pandas-TA.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | N/A | Not implemented. |
+| **Skender** | ✅ | Matches `GetSuperTrend` exactly. |
+| **Tulip** | N/A | Not implemented. |
+| **Ooples** | ❌ | Diverges significantly due to initialization logic. |
 
 ### Common Pitfalls
 

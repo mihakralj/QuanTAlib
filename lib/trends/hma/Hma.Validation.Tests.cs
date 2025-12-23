@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Enums;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Tulip;
 using Xunit;
@@ -151,5 +154,40 @@ public class HmaValidationTests : IDisposable
             ValidationHelper.VerifyData(qOutput, sResult, (s) => s.Hma, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("HMA Span validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Validate_Ooples_Batch()
+    {
+        // Ooples uses Math.Round for sqrt(period) and period/2, while QuanTAlib uses integer truncation (floor).
+        // This causes discrepancies for periods where the fractional part is >= 0.5 (e.g., sqrt(14) = 3.74 -> 4 vs 3).
+        // We test only periods where the rounding logic yields the same result.
+        int[] periods = { 9, 20, 50 };
+
+        // Prepare data for Ooples (List<TickerData>)
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Close = (double)q.Close,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Open = (double)q.Open,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib HMA (batch TSeries)
+            var hma = new global::QuanTAlib.Hma(period);
+            var qResult = hma.Update(_testData.Data);
+
+            // Calculate Ooples HMA
+            var stockData = new StockData(ooplesData);
+            var sResult = Calculations.CalculateHullMovingAverage(stockData, length: period).OutputValues.Values.First();
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, 1.0);
+        }
+        _output.WriteLine("HMA Batch(TSeries) validated successfully against Ooples");
     }
 }

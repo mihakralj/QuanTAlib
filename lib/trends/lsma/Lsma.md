@@ -34,7 +34,8 @@ Despite the complex math, the $O(1)$ implementation makes LSMA fly.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | O(1) updates |
+| **Throughput** | [N] ns/bar | O(1) updates |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Constant time update |
 | **Accuracy** | 8/10 | Mathematically precise regression endpoint |
 | **Timeliness** | 8/10 | Projects trend, reducing lag |
@@ -43,13 +44,15 @@ Despite the complex math, the $O(1)$ implementation makes LSMA fly.
 
 ## Validation
 
-Validated against standard statistical libraries and TradingView's LSMA.
+Validated against Skender.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **TradingView** | $10^{-9}$ | Matches `linreg` function |
-| **Excel** | $10^{-9}$ | Matches `FORECAST` / `TREND` |
+| **Skender** | ✅ | Matches `GetEpma` |
+| **TA-Lib** | N/A | Not implemented |
 
+| **Tulip** | N/A | Not implemented. |
+| **Ooples** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Overshoot**: Because it projects a trend, LSMA will overshoot significantly when the trend reverses. It assumes the trend continues.

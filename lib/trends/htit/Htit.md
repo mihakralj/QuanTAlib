@@ -27,11 +27,13 @@ $$ \text{Trend}_t = \frac{1}{\text{DC}} \sum_{i=0}^{\text{DC}-1} P_{t-i} $$
 Where $\text{DC}$ is the measured Dominant Cycle period.
 
 ### 1. Pre-Smoothing
+
 A 4-tap FIR filter removes high-frequency noise (Nyquist limit) to prevent aliasing before the Hilbert Transform.
 
 $$ \text{Smooth}_t = \frac{4 P_t + 3 P_{t-1} + 2 P_{t-2} + P_{t-3}}{10} $$
 
 ### 2. Hilbert Transform & Detrending
+
 The signal is detrended and split into In-Phase ($I$) and Quadrature ($Q$) components using a 7-tap Hilbert Transform. The coefficients are optimized for market cycles (10-40 bars) to minimize passband ripple.
 
 $$ \text{Adj} = 0.075 \cdot \text{Period}_{t-1} + 0.54 $$
@@ -43,6 +45,7 @@ $$ Q_t = \left( \frac{5}{52} D_t + \frac{15}{26} D_{t-2} - \frac{15}{26} D_{t-4}
 $$ I_t = D_{t-3} $$
 
 ### 3. Homodyne Discriminator
+
 The phase rate of change is calculated using the complex conjugate product of the current and previous phasors.
 
 $$ \Delta \text{Phase} = \arctan\left(\frac{I_t Q_{t-1} - Q_t I_{t-1}}{I_t I_{t-1} + Q_t Q_{t-1}}\right) $$
@@ -50,6 +53,7 @@ $$ \Delta \text{Phase} = \arctan\left(\frac{I_t Q_{t-1} - Q_t I_{t-1}}{I_t I_{t-
 $$ \text{Period}_t = \frac{2\pi}{\Delta \text{Phase}} $$
 
 ### 4. Instantaneous Trend
+
 The trend is extracted by averaging the price over the measured dominant cycle period.
 
 $$ \text{Trend}_t = \frac{1}{\text{Period}_t} \sum_{i=0}^{\text{Period}_t-1} P_{t-i} $$
@@ -58,9 +62,10 @@ $$ \text{Trend}_t = \frac{1}{\text{Period}_t} \sum_{i=0}^{\text{Period}_t-1} P_{
 
 This is an $O(1)$ algorithm, but the constant factor is large due to the many steps.
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Moderate | Heavy floating-point math per bar |
+| **Throughput** | [N] ns/bar | Heavy floating-point math per bar |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Pipeline depth is fixed |
 | **Accuracy** | 9/10 | Extracts trend by removing cycle |
 | **Timeliness** | 7/10 | Adapts, but has some lag |
@@ -71,10 +76,14 @@ This is an $O(1)$ algorithm, but the constant factor is large due to the many st
 
 Validated against Ehlers' original EasyLanguage code and Python ports.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Ehlers** | N/A | Logic matches *Rocket Science for Traders* |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | ✅ | Matches `HtTrendline` exactly |
+| **Skender** | ⚠️ | Matches `GetHtTrendline` (~0.32% diff) |
+| **Ooples** | ⚠️ | Matches `CalculateEhlersInstantaneousTrendlineV1` (~0.25% diff) |
 
+| **Tulip** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Warmup**: This indicator needs significant warmup (at least 12 bars, ideally 50+) for the feedback loops (period smoothing) to stabilize.

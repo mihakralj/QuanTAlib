@@ -1,67 +1,249 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Enums;
+using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using TALib;
+using Tulip;
 using Xunit;
-using QuanTAlib.Tests;
+using Xunit.Abstractions;
 
-namespace QuanTAlib;
+namespace QuanTAlib.Tests;
 
-public sealed class AtrValidationTests : IDisposable
+public class AtrValidationTests : IDisposable
 {
-    private readonly ValidationTestData _data;
+    private readonly ValidationTestData _testData;
+    private readonly ITestOutputHelper _output;
 
-    public AtrValidationTests()
+    public AtrValidationTests(ITestOutputHelper output)
     {
-        _data = new ValidationTestData();
+        _output = output;
+        _testData = new ValidationTestData();
     }
 
     public void Dispose()
     {
-        _data.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _testData.Dispose();
+        }
     }
 
     [Fact]
-    public void MatchesSkender()
+    public void Validate_Skender_Batch()
     {
-        var atr = new Atr(14);
-        var results = new List<double>();
+        int[] periods = { 14 };
 
-        for (int i = 0; i < _data.Bars.Count; i++)
+        foreach (var period in periods)
         {
-            var res = atr.Update(_data.Bars[i]);
-            results.Add(res.Value);
+            // Calculate QuanTAlib ATR (batch TSeries)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResult = atr.Update(_testData.Bars);
+
+            // Calculate Skender ATR
+            var sResult = _testData.SkenderQuotes.GetAtr(period).ToList();
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Atr, tolerance: ValidationHelper.SkenderTolerance);
         }
-
-        var skenderResults = _data.SkenderQuotes.GetAtr(14).ToList();
-
-        // ATR involves smoothing, so early values might differ slightly depending on initialization.
-        // Skender uses Wilder's initialization method.
-        ValidationHelper.VerifyData(results, skenderResults, x => x.Atr);
+        _output.WriteLine("ATR Batch(TSeries) validated successfully against Skender");
     }
 
     [Fact]
-    public void MatchesTalib()
+    public void Validate_Skender_Streaming()
     {
-        var atr = new Atr(14);
-        var results = new List<double>();
+        int[] periods = { 14 };
 
-        for (int i = 0; i < _data.Bars.Count; i++)
+        foreach (var period in periods)
         {
-            var res = atr.Update(_data.Bars[i]);
-            results.Add(res.Value);
+            // Calculate QuanTAlib ATR (streaming)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResults = new List<double>();
+            foreach (var item in _testData.Bars)
+            {
+                qResults.Add(atr.Update(item).Value);
+            }
+
+            // Calculate Skender ATR
+            var sResult = _testData.SkenderQuotes.GetAtr(period).ToList();
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResults, sResult, (s) => s.Atr, tolerance: ValidationHelper.SkenderTolerance);
         }
+        _output.WriteLine("ATR Streaming validated successfully against Skender");
+    }
 
-        double[] hData = _data.Bars.High.Select(x => x.Value).ToArray();
-        double[] lData = _data.Bars.Low.Select(x => x.Value).ToArray();
-        double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
-        double[] outReal = new double[_data.Bars.Count];
+    [Fact]
+    public void Validate_Talib_Batch()
+    {
+        int[] periods = { 14 };
 
-        var retCode = TALib.Functions.Atr(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
-        Assert.Equal(Core.RetCode.Success, retCode);
+        // Prepare data for TA-Lib (double[])
+        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+        double[] output = new double[hData.Length];
 
-        int lookback = TALib.Functions.AtrLookback(14);
-        ValidationHelper.VerifyData(results, outReal, outRange, lookback);
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib ATR (batch TSeries)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResult = atr.Update(_testData.Bars);
+
+            // Calculate TA-Lib ATR
+            var retCode = TALib.Functions.Atr(hData, lData, cData, 0..^0, output, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = TALib.Functions.AtrLookback(period);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
+        }
+        _output.WriteLine("ATR Batch(TSeries) validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Talib_Streaming()
+    {
+        int[] periods = { 14 };
+
+        // Prepare data for TA-Lib (double[])
+        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+        double[] output = new double[hData.Length];
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib ATR (streaming)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResults = new List<double>();
+            foreach (var item in _testData.Bars)
+            {
+                qResults.Add(atr.Update(item).Value);
+            }
+
+            // Calculate TA-Lib ATR
+            var retCode = TALib.Functions.Atr(hData, lData, cData, 0..^0, output, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = TALib.Functions.AtrLookback(period);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResults, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
+        }
+        _output.WriteLine("ATR Streaming validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Tulip_Batch()
+    {
+        int[] periods = { 14 };
+
+        // Prepare data for Tulip (double[])
+        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib ATR (batch TSeries)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResult = atr.Update(_testData.Bars);
+
+            // Calculate Tulip ATR
+            var atrIndicator = Tulip.Indicators.atr;
+            double[][] inputs = { hData, lData, cData };
+            double[] options = { period };
+            
+            // Tulip ATR lookback
+            int lookback = atrIndicator.Start(options);
+            double[][] outputs = { new double[hData.Length - lookback] };
+
+            atrIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
+        }
+        _output.WriteLine("ATR Batch(TSeries) validated successfully against Tulip");
+    }
+
+    [Fact]
+    public void Validate_Tulip_Streaming()
+    {
+        int[] periods = { 14 };
+
+        // Prepare data for Tulip (double[])
+        double[] hData = _testData.Bars.High.Select(x => x.Value).ToArray();
+        double[] lData = _testData.Bars.Low.Select(x => x.Value).ToArray();
+        double[] cData = _testData.Bars.Close.Select(x => x.Value).ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib ATR (streaming)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResults = new List<double>();
+            foreach (var item in _testData.Bars)
+            {
+                qResults.Add(atr.Update(item).Value);
+            }
+
+            // Calculate Tulip ATR
+            var atrIndicator = Tulip.Indicators.atr;
+            double[][] inputs = { hData, lData, cData };
+            double[] options = { period };
+            
+            // Tulip ATR lookback
+            int lookback = atrIndicator.Start(options);
+            double[][] outputs = { new double[hData.Length - lookback] };
+
+            atrIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
+        }
+        _output.WriteLine("ATR Streaming validated successfully against Tulip");
+    }
+
+    [Fact]
+    public void Validate_Ooples_Batch()
+    {
+        int[] periods = { 14 };
+
+        // Prepare data for Ooples (List<TickerData>)
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Close = (double)q.Close,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Open = (double)q.Open,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib ATR (batch TSeries)
+            var atr = new global::QuanTAlib.Atr(period);
+            var qResult = atr.Update(_testData.Bars);
+
+            // Calculate Ooples ATR
+            var stockData = new StockData(ooplesData);
+            var sResult = Calculations.CalculateAverageTrueRange(stockData, MovingAvgType.WildersSmoothingMethod, period).OutputValues.Values.First();
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, ValidationHelper.OoplesTolerance);
+        }
+        _output.WriteLine("ATR Batch(TSeries) validated successfully against Ooples");
     }
 }

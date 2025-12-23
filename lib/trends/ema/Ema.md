@@ -39,23 +39,27 @@ This ensures the EMA is statistically valid even during the warmup period.
 
 This is as fast as it gets.
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Extreme | Single multiplication and addition |
-| **Complexity** | O(1) | Recursive calculation |
-| **Accuracy** | 7/10 | Standard baseline, tracks trends well |
-| **Timeliness** | 6/10 | Lags, but less than SMA |
-| **Overshoot** | 10/10 | No overshoot, asymptotically approaches price |
-| **Smoothness** | 7/10 | Good balance, but can be noisy with small N |
+| **Throughput** | ★★★★★ | Single multiplication and addition. |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★★★ | O(1) recursive calculation. |
+| **Precision** | ★★★★★ | `double` precision. |
+
+### Zero-Allocation Design
+
+EMA is implemented using a simple scalar state variable. The calculation is purely algebraic and requires no heap allocations during the `Update` cycle.
 
 ## Validation
 
-Validated against TA-Lib, Skender, and every other library in existence.
+Validated against TA-Lib, Skender, Tulip, and Ooples.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **TA-Lib** | $10^{-9}$ | Matches `TA_EMA` |
-| **Skender** | $10^{-9}$ | Matches `GetEma` |
+| **TA-Lib** | ✅ | Matches `TA_EMA`. |
+| **Skender** | ✅ | Matches `GetEma`. |
+| **Tulip** | ✅ | Matches `ema`. |
+| **Ooples** | ✅ | Matches `CalculateExponentialMovingAverage`. |
 
 ### Common Pitfalls
 

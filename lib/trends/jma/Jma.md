@@ -36,7 +36,8 @@ JMA is computationally expensive compared to an EMA, but still fast enough for r
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Low | Complex algorithm |
+| **Throughput** | [N] ns/bar | Complex algorithm |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Constant time update |
 | **Accuracy** | 9/10 | Tracks price action with high fidelity |
 | **Timeliness** | 9/10 | Minimal lag due to adaptive phase |
@@ -47,10 +48,14 @@ JMA is computationally expensive compared to an EMA, but still fast enough for r
 
 Validated against known JMA outputs from other platforms (e.g., AmiBroker, NinjaTrader).
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Reverse Eng.** | $10^{-6}$ | Matches standard decompiled logic |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | N/A | Not implemented |
+| **Reverse Eng.** | ✅ | Matches standard decompiled logic |
 
+| **Tulip** | N/A | Not implemented. |
+| **Ooples** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Phase Parameter**: The `phase` parameter controls overshoot. Positive values (up to 100) make it overshoot like a DEMA. Negative values make it lag more but smoother. 0 is neutral.

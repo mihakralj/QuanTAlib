@@ -36,23 +36,28 @@ $$ \text{ALMA} = \frac{\sum_{i=0}^{N-1} P_{t-i} \cdot W_{N-1-i}}{\sum_{i=0}^{N-1
 
 ALMA is computationally heavier than an SMA due to the exponential weights, but since these are precomputed, the runtime cost is strictly $O(1)$ per update.
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Moderate | Gaussian calculation per bar |
-| **Complexity** | O(N) | Window iteration required |
-| **Accuracy** | 9/10 | Gaussian weights preserve structure well |
-| **Timeliness** | 8/10 | Tunable offset allows for very low lag |
-| **Overshoot** | 9/10 | Minimal overshoot if tuned right |
-| **Smoothness** | 9/10 | Very smooth due to Gaussian curve |
+| **Throughput** | ★★★★☆ | Gaussian calculation per bar (precomputed weights). |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★☆☆ | O(N) window iteration required. |
+| **Precision** | ★★★★★ | `double` precision preserves Gaussian structure. |
+
+### Zero-Allocation Design
+
+ALMA precomputes the Gaussian weights in the constructor. The `Update` method performs a simple dot product of the price window and the weight vector, requiring no heap allocations.
 
 ## Validation
 
-Validated against Python's `pandas-ta` and custom reference implementations.
+Validation is performed against Skender and Ooples implementations.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Pandas-TA** | $10^{-9}$ | Exact match on Gaussian weights |
-| **Manual Calc** | $10^{-12}$ | Verified against Excel implementation |
+| **QuanTAlib** | ✅ | Validated. |
+| **Skender** | ✅ | Matches `GetAlma`. |
+| **Ooples** | ✅ | Matches `CalculateArnaudLegouxMovingAverage`. |
+| **TA-Lib** | ❌ | Not implemented. |
+| **Tulip** | ❌ | Not implemented. |
 
 ### Common Pitfalls
 

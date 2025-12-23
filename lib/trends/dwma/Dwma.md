@@ -29,22 +29,28 @@ The weight profile of a single WMA is triangular. The weight profile of a DWMA a
 
 Despite the double pass, it remains O(1) thanks to the optimized WMA implementation.
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | 2x cost of WMA |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 8/10 | Very smooth trend representation |
-| **Timeliness** | 4/10 | Double smoothing adds significant lag |
-| **Overshoot** | 10/10 | No overshoot (series of WMAs) |
-| **Smoothness** | 9/10 | Very smooth, ideal for noise reduction |
+| **Throughput** | ★★★★☆ | 2x cost of WMA (still O(1)). |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★★★ | O(1) constant time update. |
+| **Precision** | ★★★★★ | `double` precision. |
+
+### Zero-Allocation Design
+
+DWMA is implemented by chaining two `Wma` instances. Since `Wma` is zero-allocation, DWMA inherits this property.
 
 ## Validation
 
-Validated against custom reference implementations (Excel/Python).
+Validated against chained WMA implementations in standard libraries.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Manual Calc** | $10^{-9}$ | Verified against recursive WMA calculation |
+| **QuanTAlib** | ✅ | Validated against `WMA(WMA)`. |
+| **Skender** | ✅ | Validated against chained `GetWma`. |
+| **TA-Lib** | ✅ | Validated against chained `TA_WMA`. |
+| **Tulip** | ✅ | Validated against chained `wma`. |
+| **Ooples** | ✅ | Validated against chained `CalculateWeightedMovingAverage`. |
 
 ### Common Pitfalls
 

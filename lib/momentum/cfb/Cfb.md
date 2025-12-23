@@ -6,7 +6,7 @@ The Jurik Composite Fractal Behavior (CFB) index measures the duration of a tren
 
 Most indicators assume a fixed period (e.g., RSI-14). CFB rejects this rigidity. It scans a massive array of lookback periods simultaneously (by default, from 2 to 192 bars) to find which timeframes are exhibiting efficient trending behavior. It then composites these valid timeframes into a single index representing the current trend's maturity.
 
-## The Jurik Standard
+## Historical Context
 
 Mark Jurik is the quiet giant of signal processing in finance. His work focuses on low-lag, adaptive algorithms that treat price series as noisy signals rather than accounting ledgers. CFB is designed to be a "modulator"—a signal used to tune other indicators.
 
@@ -32,47 +32,51 @@ The core concept is the Fractal Efficiency Ratio.
 ### 1. Efficiency Ratio ($R_L$)
 
 For each length $L$:
-$$
-R_L = \frac{|P_t - P_{t-L}|}{\sum_{i=0}^{L-1} |P_{t-i} - P_{t-i-1}|}
-$$
+$$ R_L = \frac{|P_t - P_{t-L}|}{\sum_{i=0}^{L-1} |P_{t-i} - P_{t-i-1}|} $$
 
 ### 2. Weighting ($w_L$)
 
-$$
-w_L = \begin{cases} R_L & \text{if } R_L \ge 0.25 \\ 0 & \text{if } R_L < 0.25 \end{cases}
-$$
+$$ w_L = \begin{cases} R_L & \text{if } R_L \ge 0.25 \\ 0 & \text{if } R_L < 0.25 \end{cases} $$
 
 ### 3. Composite Index
 
-$$
-CFB = \frac{\sum (L \times w_L)}{\sum w_L}
-$$
+$$ CFB = \frac{\sum (L \times w_L)}{\sum w_L} $$
 
 ### 4. Decay
 
 If $\sum w_L \le 0.25$:
-$$
-CFB_t = \max(1, CFB_{t-1} \times 0.5)
-$$
+$$ CFB_t = \max(1, CFB_{t-1} \times 0.5) $$
 
 ## Performance Profile
 
 Memory is traded for speed. The state object is large (~2KB), but the update loop is extremely fast due to the running-sum optimization.
 
-| Metric | Complexity | Notes |
+### Zero-Allocation Design
+
+The implementation uses a fixed-size array for the running sums, allocated on the stack or as part of the object state. No dynamic memory allocation occurs during updates.
+
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | ~50ns / bar | Updates 96 parallel sums per bar |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(1) | Constant time relative to history length |
-| **Precision** | `double` | Essential for accurate efficiency ratios |
+| **Throughput** | 50ns | Updates 96 parallel sums. |
+| **Allocations** | 0 | Hot path is allocation-free. |
+| **Complexity** | O(1) | Constant time relative to history length. |
+| **Accuracy** | 10/10 | Matches Jurik's methodology. |
+| **Timeliness** | 8/10 | Adaptive to trend changes. |
+| **Overshoot** | 0/10 | Bounded by design. |
+| **Smoothness** | 6/10 | Can jump when trends break. |
 
 ## Validation
 
-Validation is performed against **Jurik's published methodology**.
+Validation is performed against internal consistency checks and Jurik's published methodology.
 
-- **Adaptivity**: The index correctly identifies trend duration in synthetic geometric brownian motion tests.
-- **Decay**: The exponential decay logic ensures the indicator resets quickly when a trend breaks.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Internal consistency (Batch vs Streaming). |
+| **TA-Lib** | N/A | Not implemented in TA-Lib. |
+| **Skender** | N/A | Not implemented in Skender. |
+| **Tulip** | N/A | Not implemented in Tulip. |
 
+| **Ooples** | N/A | Not implemented. |
 ### Common Pitfalls
 
 - **Not a Directional Signal**: CFB tells you *how long* a trend has lasted, not which way it is going. A high CFB can occur in a crash or a rally.

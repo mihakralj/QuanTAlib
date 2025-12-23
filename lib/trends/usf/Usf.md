@@ -42,20 +42,25 @@ Where:
 
 ## Performance Profile
 
-The USF is designed for high performance and low latency.
-
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | O(1) per update |
-| **Complexity** | O(1) | Simple arithmetic operations |
-| **Accuracy** | 9/10 | Matches theoretical response |
-| **Timeliness** | 10/10 | Zero lag in passband |
-| **Overshoot** | 8/10 | Can overshoot on sharp turns |
-| **Smoothness** | 9/10 | Filters high frequencies effectively |
+| **Throughput** | 10 | High; O(1) per update. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Simple arithmetic operations. |
+| **Accuracy** | 9 | Matches theoretical response. |
+| **Timeliness** | 10 | Zero lag in passband. |
+| **Overshoot** | 8 | Can overshoot on sharp turns. |
+| **Smoothness** | 9 | Filters high frequencies effectively. |
 
 ## Validation
 
-The USF implementation has been verified against the EasyLanguage code provided in the original article. Since no external library validation is available (as noted in the task), the implementation relies on the mathematical correctness of the formula derived from the source material.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | N/A | Not implemented. |
+| **Skender** | N/A | Not implemented. |
+| **Tulip** | N/A | Not implemented. |
+| **Ooples** | N/A | Not implemented. |
 
 ### Common Pitfalls
 
@@ -77,4 +82,3 @@ Console.WriteLine($"Current USF: {usf.Last.Value}");
 // Use in a TSeries chain
 var source = new TSeries();
 var usfSeries = new Usf(source, 20);
-

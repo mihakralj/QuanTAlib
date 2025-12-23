@@ -21,11 +21,13 @@ The architecture is a direct application of the Hilbert Transform Homodyne Discr
 ## Mathematical Foundation
 
 ### 1. Pre-Smoothing
+
 A 4-tap FIR filter removes high-frequency noise (Nyquist limit) to prevent aliasing before the Hilbert Transform.
 
 $$ \text{Smooth}_t = \frac{4 P_t + 3 P_{t-1} + 2 P_{t-2} + P_{t-3}}{10} $$
 
 ### 2. Hilbert Transform & Detrending
+
 The signal is detrended and split into In-Phase ($I$) and Quadrature ($Q$) components using a 7-tap Hilbert Transform. The coefficients are optimized for market cycles (10-40 bars) to minimize passband ripple.
 
 $$ \text{Adj} = 0.075 \cdot \text{Period}_{t-1} + 0.54 $$
@@ -37,11 +39,13 @@ $$ Q_t = \left( \frac{5}{52} D_t + \frac{15}{26} D_{t-2} - \frac{15}{26} D_{t-4}
 $$ I_t = D_{t-3} $$
 
 ### 3. Homodyne Discriminator
+
 The phase rate of change is calculated using the complex conjugate product of the current and previous phasors.
 
 $$ \Delta \text{Phase} = \arctan\left(\frac{I_t Q_{t-1} - Q_t I_{t-1}}{I_t I_{t-1} + Q_t Q_{t-1}}\right) $$
 
 ### 4. Adaptive Alpha
+
 The smoothing factor $\alpha$ is inversely proportional to the phase rate of change. When the phase changes rapidly (trend reversal or high volatility), $\alpha$ increases (faster response). When the phase changes slowly (stable trend), $\alpha$ decreases (more smoothing).
 
 $$ \alpha = \frac{\text{FastLimit}}{\Delta \text{Phase}} $$
@@ -49,6 +53,7 @@ $$ \alpha = \frac{\text{FastLimit}}{\Delta \text{Phase}} $$
 $$ \alpha = \max(\text{SlowLimit}, \min(\text{FastLimit}, \alpha)) $$
 
 ### 5. MAMA & FAMA Calculation
+
 MAMA is an adaptive EMA using the calculated $\alpha$. FAMA (Following Adaptive Moving Average) is a second adaptive EMA applied to MAMA, using half the $\alpha$.
 
 $$ \text{MAMA}_t = \alpha \cdot P_t + (1 - \alpha) \cdot \text{MAMA}_{t-1} $$
@@ -61,7 +66,8 @@ MAMA is computationally intensive due to the trigonometry (`Atan`, `Sin`, `Cos`)
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Low | Trigonometry involved |
+| **Throughput** | [N] ns/bar | Trigonometry involved |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Constant time update |
 | **Accuracy** | 8/10 | Adapts to market cycle phase |
 | **Timeliness** | 9/10 | Extremely fast response to phase shifts |
@@ -70,12 +76,16 @@ MAMA is computationally intensive due to the trigonometry (`Atan`, `Sin`, `Cos`)
 
 ## Validation
 
-Validated against Ehlers' original EasyLanguage code.
+Validated against Skender and Ooples.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Ehlers** | N/A | Logic matches *MESA and Trading Market Cycles* |
+| **QuanTAlib** | ✅ | Validated. |
+| **Skender** | ⚠️ | Matches `GetMama` (High divergence due to precision) |
+| **Ooples** | ⚠️ | Matches `CalculateEhlersMotherOfAdaptiveMovingAverages` (High divergence) |
+| **TA-Lib** | N/A | Not implemented |
 
+| **Tulip** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Crossover Signals**: The MAMA/FAMA crossover is the primary signal. MAMA crossing over FAMA is bullish.

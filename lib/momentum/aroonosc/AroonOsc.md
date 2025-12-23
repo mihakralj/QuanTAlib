@@ -4,7 +4,7 @@
 
 The Aroon Oscillator condenses the struggle between the "Aroon Up" and "Aroon Down" lines into a single, normalized value. It quantifies not just the existence of a trend, but its freshness. It answers the question: "Are new highs appearing faster than new lows?"
 
-## The 1995 Standard
+## Historical Context
 
 Introduced by Tushar Chande in *The New Technical Trader* (1995), the Aroon system was a departure from price-based momentum. It focused on *time*. While RSI asks "how much did price move?", Aroon asks "how long has it been since the last extreme?". The Oscillator is simply the arithmetic difference between the two, providing a zero-centered metric for trend bias.
 
@@ -26,43 +26,45 @@ The math is purely arithmetic.
 
 ### 1. Aroon Up
 
-$$
-\text{AroonUp} = \frac{\text{Period} - \text{Days Since High}}{\text{Period}} \times 100
-$$
+$$ \text{AroonUp} = \frac{\text{Period} - \text{Days Since High}}{\text{Period}} \times 100 $$
 
 ### 2. Aroon Down
 
-$$
-\text{AroonDown} = \frac{\text{Period} - \text{Days Since Low}}{\text{Period}} \times 100
-$$
+$$ \text{AroonDown} = \frac{\text{Period} - \text{Days Since Low}}{\text{Period}} \times 100 $$
 
 ### 3. The Oscillator
 
-$$
-\text{AroonOsc} = \text{AroonUp} - \text{AroonDown}
-$$
+$$ \text{AroonOsc} = \text{AroonUp} - \text{AroonDown} $$
 
 ## Performance Profile
 
 The algorithm is $O(N)$ where $N$ is the period, as the window must be scanned for extremes. However, for typical periods (14-25), this is negligible.
 
-| Metric | Complexity | Notes |
+### Zero-Allocation Design
+
+The implementation uses a circular buffer (`RingBuffer`) to store historical highs and lows, ensuring O(1) access and zero heap allocations during the update cycle. The min/max search is performed in-place on the buffer.
+
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | ~10ns / bar | Dependent on Period length |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(Period) | Linear scan of the lookback window |
-| **Precision** | `double` | Standard floating-point precision |
+| **Throughput** | 10ns | 10ns / bar. |
+| **Allocations** | 0 | Hot path is allocation-free. |
+| **Complexity** | O(P) | Linear scan of the lookback window. |
+| **Accuracy** | 10/10 | Matches standard implementations. |
+| **Timeliness** | 10/10 | Reacts immediately to new extremes. |
+| **Overshoot** | 0/10 | Bounded -100 to +100. |
+| **Smoothness** | 2/10 | Step-function behavior. |
 
 ## Validation
 
-Validation is performed against **TA-Lib** and **Tushar Chande's original examples**.
+Validation is performed against industry-standard libraries.
 
-- **Consistency**: Matches TA-Lib outputs exactly.
-- **Edge Cases**: Handles flat markets (where high/low are unchanged) correctly by prioritizing the *most recent* extreme.
-
-### External Library Discrepancies
-
-- **OoplesFinance**: The Ooples implementation deviates significantly from the standard (TA-Lib, Tulip, Skender, QuanTAlib). It exhibits inconsistent steps and reversals, likely due to differences in windowing or index logic. Validation against Ooples is intentionally skipped.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **Skender** | ✅ | Matches `GetAroon` (Oscillator). |
+| **TA-Lib** | ✅ | Matches `TA_AROONOSC`. |
+| **Tulip** | ✅ | Matches `ti.aroonosc`. |
+| **Ooples** | ❌ | Deviates significantly from standard. |
 
 ### Common Pitfalls
 

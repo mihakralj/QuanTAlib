@@ -52,32 +52,21 @@ BESSEL solves this by:
 
 Let $L$ be the user-specified length (cutoff period). Internally it is clamped as
 
-$$
-L_{\text{safe}} = \max(L, 2)
-$$
+$$ L_{\text{safe}} = \max(L, 2) $$
 
 The coefficients are:
 
-$$
-\begin{aligned}
-a &= e^{-\pi / L_{\text{safe}}} \\
-b &= 2 a \cos\!\left(1.738 \frac{\pi}{L_{\text{safe}}}\right) \\
-c_2 &= b \\
-c_3 &= -a^2 \\
-c_1 &= 1 - c_2 - c_3
-\end{aligned}
-$$
+$$ a = e^{-\pi / L_{\text{safe}}} $$
+$$ b = 2 a \cos\!\left(1.738 \frac{\pi}{L_{\text{safe}}}\right) $$
+$$ c_2 = b $$
+$$ c_3 = -a^2 $$
+$$ c_1 = 1 - c_2 - c_3 $$
 
 The constant $1.738 \approx \sqrt{3}$ is chosen to match the 2nd-order Bessel group-delay characteristics.
 
 For an input price series $s[n]$, the recursive filter is
 
-$$
-\text{BESSEL}[n]
-= c_1 s[n]
-+ c_2\, \text{BESSEL}[n-1]
-+ c_3\, \text{BESSEL}[n-2]
-$$
+$$ \text{BESSEL}[n] = c_1 s[n] + c_2\, \text{BESSEL}[n-1] + c_3\, \text{BESSEL}[n-2] $$
 
 with initialization:
 
@@ -97,67 +86,34 @@ For robustness:
 
 BESSEL is designed for **zero allocations** on the hot path and efficient batch processing for analysis and backtests.
 
-## Usage
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | ★★★★★ | O(1) streaming update. |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★★★ | Constant time per update. |
+| **Precision** | ★★★★★ | `double` precision critical for recursive stability. |
 
-### Object API (streaming)
+### Zero-Allocation Design
 
-```csharp
-var bessel = new Bessel(length: 14);
-
-foreach (var bar in bars)
-{
-    var value = new TValue(bar.Time, bar.Close);
-    TValue result = bessel.Update(value, isNew: true);
-    // use result.Value
-}
-```
-
-### TSeries API (batch)
-
-```csharp
-var (seriesOut, indicator) = Bessel.Calculate(inputSeries, length: 14);
-double last = seriesOut.Last.Value;
-```
-
-### Span API (high-performance batch)
-
-```csharp
-double[] src = /* prices */;
-double[] dst = new double[src.Length];
-
-Bessel.Calculate(src.AsSpan(), dst.AsSpan(), length: 14);
-```
-
-All three modes (streaming, `TSeries`, `Span`) are tested to produce numerically consistent results.
+The filter maintains its state in a small set of scalar variables (`_prev1`, `_prev2`, `_lastValidValue`). No arrays or buffers are allocated during the `Update` cycle.
 
 ## Validation
 
-Current validation focuses on **internal consistency**:
+Validation focuses on internal consistency between streaming, TSeries, and Span APIs.
 
-- `TSeries` vs Span API:
-  - Same GBM-based dataset, multiple lengths (5, 14, 20, 50).
-  - Last $N$ outputs compared with tolerance $10^{-9}$.
-- Warmup and hot-state behavior verified via unit tests:
-  - `IsHot` flips after `Length` bars.
-  - `isNew=true/false` behaves as expected for bar corrections.
-- Robustness:
-  - Inputs with `NaN`, `+∞`, `-∞` are forced to last valid value.
-  - Streaming and batch APIs remain finite and stable.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Internal consistency verified (Span vs TSeries). |
+| **TA-Lib** | ❌ | Not implemented. |
+| **Skender** | ❌ | Not implemented. |
+| **Tulip** | ❌ | Not implemented. |
+| **Ooples** | ❌ | Not implemented. |
 
-External library cross-checks can be added later (e.g. via Python or DSP toolkits) if you want independent frequency-domain confirmation; the internal tests already guarantee implementation consistency.
+### Common Pitfalls
 
-## Common Pitfalls
-
-- **Expecting razor-sharp cutoff:**  
-  Bessel is **not** a Chebyshev or elliptic filter. Roll-off is gentler by design to preserve shape and timing. If you want violent attenuation of high-frequency noise, pick Butterworth, Chebyshev, or a band-pass.
-
-- **Over-smoothing with large length:**  
-  Very large $L$ values will still preserve shape, but you will delay turning points more than necessary. Typical sweet spot for daily data is $L \in [10, 30]$.
-
-- **Misinterpreting flat response as “weak” filter:**  
-  The goal is not to crush all noise. The goal is to keep enough structure that pattern recognition, divergence analysis, and multi-stream alignment still make sense.
-
-- **Ignoring NaN propagation:**  
-  If your upstream feed throws `NaN` or infinities and you do not clean it, BESSEL will fall back to the last valid value. This is intentional. If you want gaps instead, preprocess the series and pass explicit masked values.
+- **Expecting razor-sharp cutoff:** Bessel is **not** a Chebyshev or elliptic filter. Roll-off is gentler by design to preserve shape and timing. If you want violent attenuation of high-frequency noise, pick Butterworth, Chebyshev, or a band-pass.
+- **Over-smoothing with large length:** Very large $L$ values will still preserve shape, but you will delay turning points more than necessary. Typical sweet spot for daily data is $L \in [10, 30]$.
+- **Misinterpreting flat response as “weak” filter:** The goal is not to crush all noise. The goal is to keep enough structure that pattern recognition, divergence analysis, and multi-stream alignment still make sense.
+- **Ignoring NaN propagation:** If your upstream feed throws `NaN` or infinities and you do not clean it, BESSEL will fall back to the last valid value. This is intentional. If you want gaps instead, preprocess the series and pass explicit masked values.
 
 Used correctly, BESSEL gives you a **shape-faithful trend line** with clean timing and low overshoot, ideal for traders who care more about *when* than *how loudly* the filter shouts.

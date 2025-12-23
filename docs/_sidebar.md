@@ -10,8 +10,10 @@
 
 - **Trends**
   - [Overview](../lib/trends/_index.md)
+  - [Trend Comparison](trendcomparison.md)
   - [ALMA - Arnaud Legoux MA](../lib/trends/alma/Alma.md)
   - [BESSEL - Bessel Filter](../lib/trends/bessel/Bessel.md)
+  - [BILATERAL - Bilateral Filter](../lib/trends/bilateral/Bilateral.md)
   - [CONV - Convolution](../lib/trends/conv/Conv.md)
   - [DEMA - Double Exponential MA](../lib/trends/dema/Dema.md)
   - [DWMA - Double Weighted MA](../lib/trends/dwma/Dwma.md)
@@ -43,8 +45,11 @@
   - [APO - Absolute Price Oscillator](../lib/momentum/apo/Apo.md)
   - [AROON - Aroon](../lib/momentum/aroon/Aroon.md)
   - [AROONOSC - Aroon Oscillator](../lib/momentum/aroonosc/AroonOsc.md)
+  - [BOP - Balance of Power](../lib/momentum/bop/Bop.md)
   - [CFB - Jurik Composite Fractal Behavior](../lib/momentum/cfb/Cfb.md)
   - [DMX - Jurik Directional Movement Index](../lib/momentum/dmx/Dmx.md)
+  - [MACD - Moving Average Convergence Divergence](../lib/momentum/macd/Macd.md)
+  - [RSI - Relative Strength Index](../lib/momentum/rsi/Rsi.md)
   - [RSX - Jurik Relative Strength X](../lib/momentum/rsx/Rsx.md)
   - [VEL - Jurik Velocity](../lib/momentum/vel/Vel.md)
 

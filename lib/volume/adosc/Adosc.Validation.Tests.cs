@@ -57,7 +57,7 @@ public class AdoscValidationTests : IDisposable
         // 1. Batch Mode
         var adosc = new Adosc(fastPeriod, slowPeriod);
         var result = adosc.Update(_testData.Bars);
-        ValidationHelper.VerifyData(result, output, outRange, lookback: slowPeriod - 1);
+        ValidationHelper.VerifyData(result, output, outRange, lookback: slowPeriod - 1, tolerance: ValidationHelper.TalibTolerance);
 
         // 2. Streaming Mode
         var adoscStream = new Adosc(fastPeriod, slowPeriod);
@@ -66,12 +66,12 @@ public class AdoscValidationTests : IDisposable
         {
             streamResults.Add(adoscStream.Update(bar).Value);
         }
-        ValidationHelper.VerifyData(streamResults, output, outRange, lookback: slowPeriod - 1);
+        ValidationHelper.VerifyData(streamResults, output, outRange, lookback: slowPeriod - 1, tolerance: ValidationHelper.TalibTolerance);
 
         // 3. Span Mode
         double[] spanOutput = new double[close.Length];
         Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
-        ValidationHelper.VerifyData(spanOutput, output, outRange, lookback: slowPeriod - 1);
+        ValidationHelper.VerifyData(spanOutput, output, outRange, lookback: slowPeriod - 1, tolerance: ValidationHelper.TalibTolerance);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class AdoscValidationTests : IDisposable
         // 1. Batch Mode
         var adosc = new Adosc(fastPeriod, slowPeriod);
         var result = adosc.Update(_testData.Bars);
-        ValidationHelper.VerifyData(result, output, lookback: start);
+        ValidationHelper.VerifyData(result, output, lookback: start, tolerance: ValidationHelper.TulipTolerance);
 
         // 2. Streaming Mode
         var adoscStream = new Adosc(fastPeriod, slowPeriod);
@@ -105,12 +105,12 @@ public class AdoscValidationTests : IDisposable
         {
             streamResults.Add(adoscStream.Update(bar).Value);
         }
-        ValidationHelper.VerifyData(streamResults, output, lookback: start);
+        ValidationHelper.VerifyData(streamResults, output, lookback: start, tolerance: ValidationHelper.TulipTolerance);
 
         // 3. Span Mode
         double[] spanOutput = new double[close.Length];
         Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
-        ValidationHelper.VerifyData(spanOutput, output, lookback: start);
+        ValidationHelper.VerifyData(spanOutput, output, lookback: start, tolerance: ValidationHelper.TulipTolerance);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class AdoscValidationTests : IDisposable
         // 1. Batch Mode
         var adosc = new Adosc(fastPeriod, slowPeriod);
         var result = adosc.Update(_testData.Bars);
-        ValidationHelper.VerifyData<ChaikinOscResult>(result, skenderResults, (x) => x.Oscillator);
+        ValidationHelper.VerifyData<ChaikinOscResult>(result, skenderResults, (x) => x.Oscillator, tolerance: ValidationHelper.SkenderTolerance);
 
         // 2. Streaming Mode
         var adoscStream = new Adosc(fastPeriod, slowPeriod);
@@ -133,7 +133,7 @@ public class AdoscValidationTests : IDisposable
         {
             streamResults.Add(adoscStream.Update(bar).Value);
         }
-        ValidationHelper.VerifyData<ChaikinOscResult>(streamResults, skenderResults, (x) => x.Oscillator);
+        ValidationHelper.VerifyData<ChaikinOscResult>(streamResults, skenderResults, (x) => x.Oscillator, tolerance: ValidationHelper.SkenderTolerance);
 
         // 3. Span Mode
         double[] high = _testData.Bars.High.Values.ToArray();
@@ -142,7 +142,7 @@ public class AdoscValidationTests : IDisposable
         double[] volume = _testData.Bars.Volume.Values.ToArray();
         double[] spanOutput = new double[close.Length];
         Adosc.Calculate(high, low, close, volume, spanOutput, fastPeriod, slowPeriod);
-        ValidationHelper.VerifyData<ChaikinOscResult>(spanOutput, skenderResults, (x) => x.Oscillator);
+        ValidationHelper.VerifyData<ChaikinOscResult>(spanOutput, skenderResults, (x) => x.Oscillator, tolerance: ValidationHelper.SkenderTolerance);
     }
 
     [Fact]

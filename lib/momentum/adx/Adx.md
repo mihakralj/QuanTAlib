@@ -4,7 +4,7 @@
 
 The Average Directional Index (ADX) is the industry-standard filter for trend strength. It ignores direction entirely, focusing solely on the velocity of price expansion. It allows systems to switch context: deploying trend-following logic when the market moves, and mean-reversion logic when it chops.
 
-## The 1978 Standard
+## Historical Context
 
 J. Welles Wilder Jr. was a mechanical engineer, and it shows. Introduced in *New Concepts in Technical Trading Systems* (1978), the ADX is a machine built from moving parts. It doesn't just smooth price; it deconstructs range expansion, normalizes it against volatility, and then smooths the result twice.
 
@@ -32,73 +32,62 @@ The math is classic Wilder: recursive, stateful, and robust.
 ### 1. Directional Movement (DM)
 
 Today's range is compared to yesterday's.
-$$
-\text{UpMove} = H_t - H_{t-1}
-$$
-$$
-\text{DownMove} = L_{t-1} - L_t
-$$
+$$ \text{UpMove} = H_t - H_{t-1} $$
+$$ \text{DownMove} = L_{t-1} - L_t $$
 
-$$
-+DM = \begin{cases} \text{UpMove} & \text{if } \text{UpMove} > \text{DownMove} \text{ and } \text{UpMove} > 0 \\ 0 & \text{otherwise} \end{cases}
-$$
+$$ +DM = \begin{cases} \text{UpMove} & \text{if } \text{UpMove} > \text{DownMove} \text{ and } \text{UpMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
 
-$$
--DM = \begin{cases} \text{DownMove} & \text{if } \text{DownMove} > \text{UpMove} \text{ and } \text{DownMove} > 0 \\ 0 & \text{otherwise} \end{cases}
-$$
+$$ -DM = \begin{cases} \text{DownMove} & \text{if } \text{DownMove} > \text{UpMove} \text{ and } \text{DownMove} > 0 \\ 0 & \text{otherwise} \end{cases} $$
 
 ### 2. Smoothing (RMA)
 
 Wilder's Moving Average (RMA) is an exponential moving average with $\alpha = 1/N$. The series $+DM$, $-DM$, and $TR$ (True Range) are smoothed using this operator.
 
-$$
-+DM_{smoothed} = RMA(+DM, N)
-$$
-$$
--DM_{smoothed} = RMA(-DM, N)
-$$
-$$
-TR_{smoothed} = RMA(TR, N)
-$$
+$$ +DM_{smoothed} = RMA(+DM, N) $$
+$$ -DM_{smoothed} = RMA(-DM, N) $$
+$$ TR_{smoothed} = RMA(TR, N) $$
 
 ### 3. Directional Indicators (DI)
 
-$$
-+DI = 100 \times \frac{+DM_{smoothed}}{TR_{smoothed}}
-$$
-$$
--DI = 100 \times \frac{-DM_{smoothed}}{TR_{smoothed}}
-$$
+$$ +DI = 100 \times \frac{+DM_{smoothed}}{TR_{smoothed}} $$
+$$ -DI = 100 \times \frac{-DM_{smoothed}}{TR_{smoothed}} $$
 
 ### 4. The Index (DX and ADX)
 
-$$
-DX = 100 \times \frac{|+DI - -DI|}{+DI + -DI}
-$$
-$$
-ADX = RMA(DX, N)
-$$
+$$ DX = 100 \times \frac{|+DI - -DI|}{+DI + -DI} $$
+$$ ADX = RMA(DX, N) $$
 
 ## Performance Profile
 
 Throughput is optimized. The recursive nature of RMA allows for O(1) updates, but the initial calculation over a span requires O(N).
 
-| Metric | Complexity | Notes |
+### Zero-Allocation Design
+
+The implementation uses `stackalloc` for internal buffers when processing spans, ensuring no heap allocations occur during the calculation. The hot path for streaming updates is purely scalar and allocation-free.
+
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | 5ns / bar | Measured on Apple M1 Max, .NET 8.0 |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(1) | Streaming updates are constant time |
-| **Precision** | `double` | Necessary to prevent drift in recursive sums |
+| **Throughput** | 5ns | 5ns / bar (Apple M1 Max). |
+| **Allocations** | 0 | Hot path is allocation-free. |
+| **Complexity** | O(1) | Constant time for streaming updates. |
+| **Accuracy** | 10/10 | Matches TA-Lib to 1e-9. |
+| **Timeliness** | 2/10 | Significant lag due to double smoothing. |
+| **Overshoot** | 10/10 | Very stable; rarely overshoots. |
+| **Smoothness** | 10/10 | Exceptional noise reduction. |
 
 ## Validation
 
-Validation is performed against **TA-Lib** (the industry reference).
+Validation is performed against industry-standard libraries.
 
-- **Convergence**: Matches TA-Lib to within `1e-9` after ~100 bars of warmup.
-- **Edge Cases**: Handles `NaN` inputs by carrying forward the last valid state, preventing the "poisoning" of the recursive chain.
-- **Drift**: Periodic re-summation is not required here as RMA is self-correcting over time, unlike simple accumulation.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **TA-Lib** | ✅ | Matches `TA_ADX` to 1e-9. |
+| **Skender** | ✅ | Matches `GetAdx`. |
+| **Tulip** | ✅ | Matches `ti.adx` (with offset adjustment). |
+| **Ooples** | ❌ | Deviates significantly (10.7 vs 25.2). |
 
 ### Common Pitfalls
 
 - **Period Sensitivity**: The standard period is 14. Lowering it (e.g., 7) makes ADX twitchy and prone to false positives. Raising it (e.g., 30) turns it into a geological indicator—accurate, but late.
 - **The "Turn"**: ADX peaks *after* the trend has exhausted. It is a lagging indicator of trend strength, not a leading indicator of price reversal.
+- **Convergence**: Do not trust the first $2 \times N$ values. They are mathematically correct but statistically immature.

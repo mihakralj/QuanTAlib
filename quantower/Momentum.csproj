@@ -23,6 +23,7 @@
     <Compile Include="..\lib\trends\jma\Jma.cs" />
     <Compile Include="..\lib\trends\sma\Sma.cs" />
     <Compile Include="..\lib\trends\ema\Ema.cs" />
+    <Compile Include="..\lib\trends\rma\Rma.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

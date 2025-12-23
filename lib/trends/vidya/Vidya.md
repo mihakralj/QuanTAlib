@@ -35,9 +35,25 @@ $$ VIDYA_t = (\alpha_{dynamic} \times Price_t) + ((1 - \alpha_{dynamic}) \times 
 
 ## Performance Profile
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 9 | High; O(1) calculation with CMO volatility index. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period. |
+| **Accuracy** | 10 | Matches reference implementation exactly. |
+| **Timeliness** | 8 | Adaptive; speeds up in trends, slows in ranges. |
+| **Overshoot** | 2 | Minimal overshoot; constrained by dynamic alpha. |
+| **Smoothness** | 7 | Variable; smooth in ranges, responsive in trends. |
+
 ## Validation
 
-Validated against the original formula and reference implementations.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | N/A | Not implemented. |
+| **Skender** | N/A | Not implemented. |
+| **Tulip** | ❌ | Uses Standard Deviation ratio (1992), not CMO (1994). |
+| **Ooples** | ❌ | Diverges significantly due to volatility logic. |
 
 ### Common Pitfalls
 

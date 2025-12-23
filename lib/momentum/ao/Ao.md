@@ -4,7 +4,7 @@
 
 The Awesome Oscillator (AO) is a momentum indicator that strips away the noise of closing prices to reveal the market's immediate velocity compared to its broader trend. It quantifies the gap between short-term and long-term market consensus using median prices, effectively serving as a non-lagging confirmation of trend direction.
 
-## The Chaos Theory Origin
+## Historical Context
 
 Bill Williams introduced the AO in *Trading Chaos* (1995). He argued that standard indicators fixated on closing prices missed the volatility that happens *during* the bar. By focusing on the median price, AO attempts to reflect the market's "balance point" rather than just its finish line.
 
@@ -26,13 +26,9 @@ Using `(High + Low) / 2` instead of `Close` is a deliberate architectural choice
 
 The math is elegant in its simplicity.
 
-$$
-\text{Median Price}_t = \frac{H_t + L_t}{2}
-$$
+$$ \text{Median Price}_t = \frac{H_t + L_t}{2} $$
 
-$$
-AO_t = SMA(\text{Median Price}, n_{fast}) - SMA(\text{Median Price}, n_{slow})
-$$
+$$ AO_t = SMA(\text{Median Price}, n_{fast}) - SMA(\text{Median Price}, n_{slow}) $$
 
 Where:
 
@@ -43,20 +39,31 @@ Where:
 
 The AO is lightweight and suitable for high-frequency applications.
 
-| Metric | Complexity | Notes |
+### Zero-Allocation Design
+
+The implementation uses `stackalloc` for internal buffers when processing spans, ensuring no heap allocations occur during the calculation. The hot path for streaming updates is purely scalar and allocation-free.
+
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | ~2ns / bar | Extremely fast due to simple arithmetic |
-| **Allocations** | 0 bytes | Hot path is allocation-free |
-| **Complexity** | O(1) | Constant time updates |
-| **Memory** | O(N) | Stores history for the slow SMA period |
+| **Throughput** | 2ns | 2ns / bar (Apple M1 Max). |
+| **Allocations** | 0 | Hot path is allocation-free. |
+| **Complexity** | O(1) | Constant time updates. |
+| **Accuracy** | 10/10 | Matches standard implementations. |
+| **Timeliness** | 6/10 | Lags due to SMA smoothing. |
+| **Overshoot** | 8/10 | Can overshoot in volatile markets. |
+| **Smoothness** | 6/10 | Smoother than raw price, but reactive. |
 
 ## Validation
 
-Validation is performed against standard reference implementations (TradingView, Bill Williams' examples).
+Validation is performed against industry-standard libraries.
 
-- **Precision**: Matches standard platforms to double precision.
-- **Warmup**: Requires `slowPeriod` bars to become valid.
-- **Consistency**: The `Update` method produces identical results to batch processing.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **Skender** | ✅ | Matches `GetAwesome`. |
+| **Tulip** | ✅ | Matches `ti.ao`. |
+| **Ooples** | ✅ | Matches `CalculateAwesomeOscillator`. |
+| **TA-Lib** | N/A | Not implemented in TA-Lib. |
 
 ### Common Pitfalls
 

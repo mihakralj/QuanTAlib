@@ -90,22 +90,30 @@ $$ [Formula] $$
 
 [Complexity, throughput, allocations. Use a table.]
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | [N] ns/bar | [Context] |
+| **Allocations** | 0 | [Context] |
+| **Complexity** | [Big O] | [Context] |
+| **Accuracy** | [1-10] | [Context] |
+| **Timeliness** | [1-10] | [Context] |
+| **Overshoot** | [1-10] | [Context] |
+| **Smoothness** | [1-10] | [Context] |
+
 ### Zero-Allocation Design
 
 [Explain how the implementation achieves zero-allocation. Mention `stackalloc`, structs, or specific optimizations.]
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | [High/Low] | [Context] |
-| **Complexity** | [Big O] | [Context] |
-| **Accuracy** | [0-10] | [Context] |
-| **Timeliness** | [0-10] | [Context] |
-| **Overshoot** | [0-10] | [Context] |
-| **Smoothness** | [0-10] | [Context] |
-
 ## Validation
 
 [How do we know it's correct? Comparison against external libs (TA-Lib, Skender, etc.).]
+
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **TA-Lib** | ✅ | Matches `TA_Function`. |
+| **Skender** | ✅ | Matches `GetFunction`. |
+| **Tulip** | ✅ | Matches `ti.function`. |
+| **Ooples** | ⚠️ | Deviates... (or ✅ Matches...) |
 
 ### Common Pitfalls
 

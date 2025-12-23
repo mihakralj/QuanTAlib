@@ -31,7 +31,8 @@ This is one of the fastest adaptive indicators available.
 
 | Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | Scalar math |
+| **Throughput** | [N] ns/bar | Scalar math |
+| **Allocations** | 0 | Stack-based calculations only |
 | **Complexity** | O(1) | Constant time update |
 | **Accuracy** | 9/10 | Hugs price closely without breaking |
 | **Timeliness** | 8/10 | Accelerates to catch up to price |
@@ -40,12 +41,16 @@ This is one of the fastest adaptive indicators available.
 
 ## Validation
 
-Validated against standard definitions and TradingView implementations.
+Validated against Skender and Ooples.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **TradingView** | $10^{-9}$ | Matches `mcginley` |
+| **QuanTAlib** | ✅ | Validated. |
+| **Skender** | ✅ | Matches `GetDynamic` |
+| **Ooples** | ✅ | Matches `CalculateMcGinleyDynamicIndicator` |
+| **TA-Lib** | N/A | Not implemented |
 
+| **Tulip** | N/A | Not implemented. |
 ### Common Pitfalls
 
 1. **Not an EMA**: Do not treat it like an EMA. It does not have a fixed alpha.

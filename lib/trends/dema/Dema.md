@@ -31,23 +31,28 @@ Where $N$ is the period.
 
 DEMA is extremely fast, requiring only a few floating-point operations per update.
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Extreme | 2x EMA cost (still O(1)) |
-| **Complexity** | O(1) | Recursive calculation |
-| **Accuracy** | 7/10 | Good for trends, but can be erratic |
-| **Timeliness** | 9/10 | Very fast, minimal lag |
-| **Overshoot** | 4/10 | Prone to overshoot on reversals |
-| **Smoothness** | 5/10 | Can be jagged due to speed |
+| **Throughput** | ★★★★★ | 2x EMA cost (still O(1)). |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★★★ | O(1) recursive calculation. |
+| **Precision** | ★★★★★ | `double` precision. |
+
+### Zero-Allocation Design
+
+DEMA is implemented using two internal `Ema` instances (or equivalent scalar state variables). The calculation is purely algebraic and requires no heap allocations during the `Update` cycle.
 
 ## Validation
 
-Validated against TA-Lib and Skender.Stock.Indicators.
+Validated against TA-Lib, Skender, Tulip, and Ooples logic.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **TA-Lib** | $10^{-9}$ | Matches `TA_DEMA` |
-| **Skender** | $10^{-9}$ | Matches `GetDema` |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | ✅ | Matches `TA_DEMA`. |
+| **Skender** | ✅ | Matches `GetDema`. |
+| **Tulip** | ✅ | Matches `dema`. |
+| **Ooples** | ✅ | Matches logic `2*EMA - EMA(EMA)`. |
 
 ### Common Pitfalls
 

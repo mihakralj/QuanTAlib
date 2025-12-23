@@ -54,7 +54,7 @@
 | [BESSEL](trends/bessel/Bessel.md) | Bessel Filter | Trends |
 | BETA | Beta Coefficient | Statistics |
 | BIAS | Bias | Statistics |
-| BILATERAL | Bilateral Filter | Trends |
+| [BILATERAL](trends/bilateral/Bilateral.md) | Bilateral Filter | Trends |
 | BLMA | Blackman Window MA | Trends |
 | BOP | Balance of Power | Momentum |
 | BPF | Ehlers Bandpass Filter | Trends |

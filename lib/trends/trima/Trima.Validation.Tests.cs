@@ -49,7 +49,7 @@ public class TrimaValidationTests
             var sResult = quotes2.GetSma(p2).ToList();
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, x => x.Sma);
+            ValidationHelper.VerifyData(qResult, sResult, x => x.Sma, tolerance: ValidationHelper.SkenderTolerance);
         }
         _output.WriteLine("TRIMA Batch(TSeries) validated successfully against Skender Composite SMA");
     }
@@ -75,7 +75,7 @@ public class TrimaValidationTests
             int lookback = TALib.Functions.TrimaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.OoplesTolerance);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("TRIMA Batch(TSeries) validated successfully against TA-Lib");
     }
@@ -109,7 +109,7 @@ public class TrimaValidationTests
             var tResult = outputs[0];
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.OoplesTolerance);
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
         }
         _output.WriteLine("TRIMA Batch(TSeries) validated successfully against Tulip");
     }
@@ -135,7 +135,7 @@ public class TrimaValidationTests
             int lookback = TALib.Functions.TrimaLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.OoplesTolerance);
+            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
         }
         _output.WriteLine("TRIMA Span validated successfully against TA-Lib");
     }

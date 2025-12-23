@@ -31,23 +31,37 @@ Where $N$ is the period.
 
 HMA is computationally more intensive than a simple WMA due to the three passes, but our implementation optimizes the intermediate step.
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | 3x WMA cost + vector math |
-| **Complexity** | O(1) | Constant time update |
-| **Accuracy** | 8/10 | Excellent at tracking price action |
-| **Timeliness** | 9/10 | Very responsive, minimal lag |
-| **Overshoot** | 5/10 | Prone to overshoot due to lag correction |
-| **Smoothness** | 8/10 | Surprisingly smooth given its speed |
+| **Throughput** | ★★★★☆ | 3x WMA cost + vector math. |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★★★ | O(1) constant time update. |
+| **Precision** | ★★★★★ | `double` precision. |
+
+### Zero-Allocation Design
+
+HMA is implemented by chaining three `Wma` instances. Since `Wma` is zero-allocation, HMA inherits this property.
 
 ## Validation
 
-Validated against Alan Hull's original formula and standard library implementations.
+Validated against Skender, Tulip, and Ooples.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Fidelity** | $10^{-9}$ | Matches standard HMA |
-| **Skender** | $10^{-9}$ | Matches `GetHma` |
+| **Skender** | ✅ | Matches `GetHma`. |
+| **Tulip** | ✅ | Matches `hma`. |
+| **Ooples** | ✅ | Matches `CalculateHullMovingAverage` (with rounding caveats). |
+| **TA-Lib** | ❌ | Not implemented. |
+
+### External Library Discrepancies
+
+**OoplesFinance.StockIndicators**:
+Discrepancies exist due to different rounding methods for integer periods.
+
+* **QuanTAlib**: Uses integer truncation (floor) for $N/2$ and $\sqrt{N}$.
+* **Ooples**: Uses `Math.Round` (nearest integer).
+
+This results in different effective periods for $N=14$ ($\sqrt{14} \approx 3.74 \to 3$ vs $4$) and others where the fractional part $\ge 0.5$. Validation tests match exactly for periods where rounding logic aligns (e.g., $N=9, 20, 50$).
 
 ### Common Pitfalls
 

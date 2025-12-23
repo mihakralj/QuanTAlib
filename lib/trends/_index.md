@@ -14,7 +14,7 @@ Trend indicators are the bread and butter of technical analysis—and often just
 | [ALMA](alma/Alma.md) | Arnaud Legoux MA | Gaussian distribution weights for the perfect balance of smoothness and responsiveness. |
 | AMAT | Archer Moving Averages Trends | |
 | [BESSEL](bessel/Bessel.md) | Bessel Filter | 2nd-order Bessel low-pass filter with maximally flat group delay. |
-| BILATERAL | Bilateral Filter | |
+| [BILATERAL](bilateral/Bilateral.md) | Bilateral Filter | Non-linear smoothing that preserves edges by weighting both distance and intensity difference. |
 | BLMA | Blackman Window MA | |
 | BPF | Ehlers Bandpass Filter | |
 | BUTTER | Butterworth Filter | |

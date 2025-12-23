@@ -32,22 +32,28 @@ Where:
 
 Performance depends linearly on the kernel length ($N$).
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | Moderate | Kernel convolution per bar |
-| **Complexity** | O(N) | Window iteration required |
-| **Accuracy** | 8/10 | Depends on kernel, generally high |
-| **Timeliness** | 7/10 | Depends on kernel design |
-| **Overshoot** | 8/10 | Depends on kernel design |
-| **Smoothness** | 8/10 | Depends on kernel design |
+| **Throughput** | ★★★☆☆ | O(N) kernel convolution per bar. |
+| **Allocations** | ★★★★★ | 0 bytes; hot path is allocation-free. |
+| **Complexity** | ★★★☆☆ | O(N) window iteration required. |
+| **Precision** | ★★★★★ | `double` precision. |
+
+### Zero-Allocation Design
+
+CONV stores the kernel in a pre-allocated array. The `Update` method performs a dot product using a circular buffer for the price history, requiring no new allocations.
 
 ## Validation
 
-Validated against standard DSP convolution implementations (e.g., SciPy `signal.convolve`).
+Validation is performed by reproducing standard moving averages (SMA, WMA, TRIMA) using their equivalent kernels and comparing against external libraries.
 
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **SciPy** | $10^{-12}$ | Matches standard 'valid' convolution mode |
+| **QuanTAlib** | ✅ | Validated against internal SMA, WMA, TRIMA. |
+| **Skender** | ✅ | Validated against WMA (using WMA kernel). |
+| **TA-Lib** | ✅ | Validated against WMA (using WMA kernel). |
+| **Tulip** | ✅ | Validated against WMA (using WMA kernel). |
+| **Ooples** | ✅ | Validated against WMA (using WMA kernel). |
 
 ### Common Pitfalls
 

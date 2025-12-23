@@ -160,7 +160,7 @@
   
   "dotnet.defaultSolution": "QuanTAlib.sln",
   "dotnet.testController.enabled": true,
-  "dotnet.unitTests.runSettingsPath": "",
+  "dotnet.unitTests.runSettingsPath": "coverage.runsettings",
   "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
   "dotnet.server.useOmnisharp": false,
   

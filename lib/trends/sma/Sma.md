@@ -36,11 +36,24 @@ $$ SMA_t = \frac{1}{N} \sum_{i=0}^{N-1} P_{t-i} $$
 
 ## Performance Profile
 
-The implementation is optimized for both streaming (latency) and batch (throughput) scenarios.
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 10 | SIMD-optimized; processes millions of bars/sec. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period $N$. |
+| **Accuracy** | 10 | Exact arithmetic mean. |
+| **Timeliness** | 3 | Significant lag ($\approx N/2$). |
+| **Overshoot** | 0 | Never overshoots the input data range. |
+| **Smoothness** | 5 | Smooth, but susceptible to "drop-off" jumps. |
 
 ## Validation
 
-Validated against TA-Lib (`TA_SMA`) and Skender.Stock.Indicators.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **TA-Lib** | ✅ | Matches `TA_SMA` exactly. |
+| **Skender** | ✅ | Matches `GetSma` exactly. |
+| **Tulip** | ✅ | Matches `sma` exactly. |
+| **Ooples** | ✅ | Matches `CalculateSimpleMovingAverage`. |
 
 ### Common Pitfalls
 

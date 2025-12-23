@@ -32,9 +32,24 @@ $$ TRIMA = SMA(SMA(Price, P_1), P_2) $$
 
 ## Performance Profile
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 10 | High; O(1) calculation via cascaded SMAs. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period. |
+| **Accuracy** | 10 | Matches TA-Lib exactly. |
+| **Timeliness** | 2 | Significant lag; double smoothing delays signals. |
+| **Overshoot** | 0 | Never overshoots the input data range. |
+| **Smoothness** | 9 | Very smooth; triangular weighting suppresses noise. |
+
 ## Validation
 
-Validated against TA-Lib (`TA_TRIMA`) and Skender.Stock.Indicators.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **TA-Lib** | ✅ | Matches `TA_TRIMA` exactly. |
+| **Skender** | ✅ | Matches composite `SMA(SMA)` logic. |
+| **Tulip** | ✅ | Matches `trima` exactly. |
+| **Ooples** | N/A | Not implemented. |
 
 ### Common Pitfalls
 

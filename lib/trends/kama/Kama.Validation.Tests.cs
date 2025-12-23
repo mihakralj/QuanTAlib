@@ -4,12 +4,14 @@ using System.Linq;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
+using TALib;
+using Tulip;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class KamaValidationTests
+public class KamaValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
@@ -18,6 +20,20 @@ public class KamaValidationTests
     {
         _output = output;
         _testData = new ValidationTestData();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _testData.Dispose();
+        }
     }
 
     [Fact]
@@ -88,6 +104,134 @@ public class KamaValidationTests
             ValidationHelper.VerifyData(qOutput, sResult, x => x.Kama);
         }
         _output.WriteLine("KAMA Span validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Validate_Talib_Batch()
+    {
+        int[] periods = { 10, 14, 20 };
+        // TA-Lib KAMA uses default fast=2, slow=30 and doesn't expose them in the standard API
+
+        // Prepare data for TA-Lib (double[])
+        double[] cData = _testData.Data.Select(x => x.Value).ToArray();
+        double[] output = new double[cData.Length];
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib KAMA (batch TSeries)
+            // Use default fast=2, slow=30 to match TA-Lib
+            var kama = new global::QuanTAlib.Kama(period);
+            var qResult = kama.Update(_testData.Data);
+
+            // Calculate TA-Lib KAMA
+            var retCode = TALib.Functions.Kama(cData, 0..^0, output, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = TALib.Functions.KamaLookback(period);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback);
+        }
+        _output.WriteLine("KAMA Batch(TSeries) validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Talib_Streaming()
+    {
+        int[] periods = { 10, 14, 20 };
+
+        // Prepare data for TA-Lib (double[])
+        double[] cData = _testData.Data.Select(x => x.Value).ToArray();
+        double[] output = new double[cData.Length];
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib KAMA (streaming)
+            var kama = new global::QuanTAlib.Kama(period);
+            var qResults = new List<double>();
+            foreach (var item in _testData.Data)
+            {
+                qResults.Add(kama.Update(item).Value);
+            }
+
+            // Calculate TA-Lib KAMA
+            var retCode = TALib.Functions.Kama(cData, 0..^0, output, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = TALib.Functions.KamaLookback(period);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResults, output, outRange, lookback);
+        }
+        _output.WriteLine("KAMA Streaming validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Tulip_Batch()
+    {
+        int[] periods = { 10, 14, 20 };
+
+        // Prepare data for Tulip (double[])
+        double[] cData = _testData.Data.Select(x => x.Value).ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib KAMA (batch TSeries)
+            var kama = new global::QuanTAlib.Kama(period);
+            var qResult = kama.Update(_testData.Data);
+
+            // Calculate Tulip KAMA
+            var kamaIndicator = Tulip.Indicators.kama;
+            double[][] inputs = { cData };
+            double[] options = { period };
+            
+            // Tulip KAMA lookback
+            int lookback = kamaIndicator.Start(options);
+            double[][] outputs = { new double[cData.Length - lookback] };
+
+            kamaIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
+        }
+        _output.WriteLine("KAMA Batch(TSeries) validated successfully against Tulip");
+    }
+
+    [Fact]
+    public void Validate_Tulip_Streaming()
+    {
+        int[] periods = { 10, 14, 20 };
+
+        // Prepare data for Tulip (double[])
+        double[] cData = _testData.Data.Select(x => x.Value).ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib KAMA (streaming)
+            var kama = new global::QuanTAlib.Kama(period);
+            var qResults = new List<double>();
+            foreach (var item in _testData.Data)
+            {
+                qResults.Add(kama.Update(item).Value);
+            }
+
+            // Calculate Tulip KAMA
+            var kamaIndicator = Tulip.Indicators.kama;
+            double[][] inputs = { cData };
+            double[] options = { period };
+            
+            // Tulip KAMA lookback
+            int lookback = kamaIndicator.Start(options);
+            double[][] outputs = { new double[cData.Length - lookback] };
+
+            kamaIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
+        }
+        _output.WriteLine("KAMA Streaming validated successfully against Tulip");
     }
 
     [Fact]

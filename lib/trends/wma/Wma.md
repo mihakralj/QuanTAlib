@@ -38,9 +38,24 @@ The denominator is the sum of the weights (triangular number).
 
 ## Performance Profile
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 10 | High; O(1) calculation via dual running sums. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period. |
+| **Accuracy** | 10 | Matches TA-Lib exactly. |
+| **Timeliness** | 6 | More responsive than SMA due to linear weighting. |
+| **Overshoot** | 0 | Never overshoots the input data range. |
+| **Smoothness** | 4 | Less smooth than SMA; follows price more closely. |
+
 ## Validation
 
-Validated against TA-Lib (`TA_WMA`) and Skender.Stock.Indicators.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **TA-Lib** | ✅ | Matches `TA_WMA` exactly. |
+| **Skender** | ✅ | Matches `GetWma` exactly. |
+| **Tulip** | ✅ | Matches `wma` exactly. |
+| **Ooples** | ✅ | Matches `CalculateWeightedMovingAverage`. |
 
 ### Common Pitfalls
 

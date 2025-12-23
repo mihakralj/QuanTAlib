@@ -33,9 +33,25 @@ $$ TEMA = (3 \times EMA_1) - (3 \times EMA_2) + EMA_3 $$
 
 ## Performance Profile
 
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 9 | High; O(1) calculation with 3 EMA steps. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Constant time regardless of period. |
+| **Accuracy** | 10 | Matches TA-Lib exactly. |
+| **Timeliness** | 10 | Extremely low lag; nearly zero-lag tracking. |
+| **Overshoot** | 8 | Significant overshoot on sharp reversals. |
+| **Smoothness** | 6 | Less smooth than SMA/EMA due to high responsiveness. |
+
 ## Validation
 
-Validated against TA-Lib (`TA_TEMA`) and Skender.Stock.Indicators.
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | ✅ | Matches `TA_TEMA` exactly. |
+| **Skender** | ✅ | Matches `GetTema` exactly. |
+| **Tulip** | ✅ | Matches `tema` exactly. |
+| **Ooples** | ❌ | Diverges significantly due to initialization logic. |
 
 ### Common Pitfalls
 

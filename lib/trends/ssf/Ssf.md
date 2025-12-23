@@ -42,22 +42,25 @@ Where:
 
 ## Performance Profile
 
-| Metric | Complexity | Notes |
+| Metric | Score | Notes |
 | :--- | :--- | :--- |
-| **Throughput** | High | Few multiplications and additions per bar |
-| **Complexity** | O(1) | Recursive calculation |
-| **Accuracy** | 9/10 | Excellent noise suppression |
-| **Timeliness** | 8/10 | Low lag for the amount of smoothing |
-| **Overshoot** | 8/10 | Minimal overshoot due to Butterworth design |
-| **Smoothness** | 9/10 | Superior to EMA/SMA |
+| **Throughput** | 10 | Very high; few multiplications and additions per bar. |
+| **Allocations** | 0 | Zero-allocation in hot paths. |
+| **Complexity** | O(1) | Recursive calculation. |
+| **Accuracy** | 9 | Excellent noise suppression. |
+| **Timeliness** | 8 | Low lag for the amount of smoothing. |
+| **Overshoot** | 8 | Minimal overshoot due to Butterworth design. |
+| **Smoothness** | 9 | Superior to EMA/SMA. |
 
 ## Validation
 
-Validated against OoplesFinance.StockIndicators.
-
-| Provider | Error Tolerance | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **OoplesFinance** | $10.0$ | Matches `CalculateEhlersSuperSmootherFilter` with deviation due to our use of high-precision constants (`Math.Sqrt(2)`, `Math.PI`) vs Ooples' shallow approximations (`1.414`, `3.14159`). |
+| **QuanTAlib** | ✅ | Validated. |
+| **TA-Lib** | N/A | Not implemented. |
+| **Skender** | N/A | Not implemented. |
+| **Tulip** | N/A | Not implemented. |
+| **Ooples** | ⚠️ | Matches `CalculateEhlersSuperSmootherFilter` with deviation due to our use of high-precision constants (`Math.Sqrt(2)`, `Math.PI`) vs Ooples' shallow approximations (`1.414`, `3.14159`). |
 
 ### Common Pitfalls
 
