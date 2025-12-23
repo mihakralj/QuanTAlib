@@ -30,7 +30,7 @@
 | **Beta Coefficient** | Beta | BETA | - | Beta | - |
 | **Bias** | Bias | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/trends/bilateral/Bilateral.md) | - | - | - | - |
-| **Blackman Window MA** | Blma | - | - | - | - |
+| **Blackman Window MA** | [Blma](../lib/trends/blma/Blma.md) | - | - | - | - |
 | **Bollinger %B** | Bbb | - | - | - | ❔ |
 | **Bollinger Band Squeeze** | Bbs | - | - | - | - |
 | **Bollinger Band Width** | Bbw | - | - | - | ❔ |

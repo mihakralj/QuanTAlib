@@ -55,7 +55,7 @@
 | BETA | Beta Coefficient | Statistics |
 | BIAS | Bias | Statistics |
 | [BILATERAL](trends/bilateral/Bilateral.md) | Bilateral Filter | Trends |
-| BLMA | Blackman Window MA | Trends |
+| [BLMA](trends/blma/Blma.md) | Blackman Window MA | Trends |
 | BOP | Balance of Power | Momentum |
 | BPF | Ehlers Bandpass Filter | Trends |
 | BUTTER | Butterworth Filter | Trends |

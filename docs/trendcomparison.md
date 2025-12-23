@@ -1,17 +1,18 @@
 # Trend Indicators Comparison
 
-Scale 1–10 where **10 = better** for every column.
+Scale 1–10 where **10 = better** for every column. Detailed evaluation criteria at the bottom of this doc.
 
-- Accuracy: preserves large-scale structure WITHOUT warping/projection artifacts
-- Timeliness: low lag / fast response
-- Overshoot Control: 10 = no overshoot / no ringing
-- Smoothness: noise suppression / stability
+- **Accuracy**: Preserve true movement structure (major trends and turning points) without distortion or artificial patterns.
+- **Timeliness**: Minimal lag. Fast response to genuine movement changes and reversals.
+- O**vershoot Control**: Remain within min/max of input, avoid generating artificial over-reaching levels and false threshold triggers.
+- **Smoothness**: Noise suppression. Stable output with smooth derivatives (no erratic velocity/acceleration).
 
 | Indicator | Accuracy | Timeliness | Overshoot Control | Smoothness | Notes (revised) |
 | :--- | :---: | :---: | :---: | :---: | :--- |
 | **ALMA** | 8 | 7 | 10 | 8 | Positive-weight FIR; accurate-ish but still a lag tradeoff. |
 | **BESSEL** | 9 | 7 | 9 | 8 | Strong shape/phase preservation; step response is well-behaved. |
 | **BILATERAL** | 7 | 6 | 10 | 8 | Edge-preserving; excellent in ranging markets, variable smoothing by design. |
+| **BLMA** | 7 | 3 | 10 | 10 | Standard DSP window; superior noise suppression but significant lag. |
 | **DEMA** | 4 | 9 | 3 | 6 | Lag-canceling subtraction ⇒ structure distortion + overshoot risk. |
 | **DWMA** | 7 | 2 | 10 | 10 | Ultra-smooth, but smears structure heavily (lag dominates). |
 | **EMA** | 8 | 6 | 10 | 8 | Convex IIR (monotone) ⇒ faithful & stable, moderate lag. |

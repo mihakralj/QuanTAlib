@@ -15,7 +15,7 @@ Trend indicators are the bread and butter of technical analysis—and often just
 | AMAT | Archer Moving Averages Trends | |
 | [BESSEL](bessel/Bessel.md) | Bessel Filter | 2nd-order Bessel low-pass filter with maximally flat group delay. |
 | [BILATERAL](bilateral/Bilateral.md) | Bilateral Filter | Non-linear smoothing that preserves edges by weighting both distance and intensity difference. |
-| BLMA | Blackman Window MA | |
+| [BLMA](blma/Blma.md) | Blackman Window MA | Applies a Blackman window for superior noise suppression. |
 | BPF | Ehlers Bandpass Filter | |
 | BUTTER | Butterworth Filter | |
 | BWMA | Bessel-Weighted MA | |
