@@ -20,13 +20,13 @@ public class AoIndicatorTests
     }
 
     [Fact]
-    public void AoIndicator_MinHistoryDepths_EqualsSlowPeriod()
+    public void AoIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new AoIndicator { SlowPeriod = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, AoIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -120,6 +120,6 @@ public class AoIndicatorTests
 
         Assert.Equal(10, indicator.FastPeriod);
         Assert.Equal(40, indicator.SlowPeriod);
-        Assert.Equal(40, indicator.MinHistoryDepths);
+        Assert.Equal(0, AoIndicator.MinHistoryDepths);
     }
 }

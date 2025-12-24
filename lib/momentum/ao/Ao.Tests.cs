@@ -101,7 +101,7 @@ public class AoTests
     }
     
     [Fact]
-    public void StaticBatch_Matches_Streaming()
+    public void StaticCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));

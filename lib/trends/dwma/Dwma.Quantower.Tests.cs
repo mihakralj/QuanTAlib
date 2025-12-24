@@ -23,8 +23,8 @@ public class DwmaIndicatorTests
     {
         var indicator = new DwmaIndicator { Period = 20 };
 
-        Assert.Equal(40, indicator.MinHistoryDepths);
-        Assert.Equal(40, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, DwmaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]

@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class AroonOscIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class AroonOscIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -12,9 +14,9 @@ public class AroonOscIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private AroonOsc? _aroonOsc;
-    protected LineSeries? OscSeries;
+    private readonly LineSeries? _oscSeries;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"AroonOsc {Period}";
@@ -27,30 +29,23 @@ public class AroonOscIndicator : Indicator, IWatchlistIndicator
         Name = "Aroon Oscillator";
         Description = "Aroon Oscillator";
 
-        OscSeries = new(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _oscSeries = new(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
 
-        AddLineSeries(OscSeries);
+        AddLineSeries(_oscSeries);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _aroonOsc = new AroonOsc(Period);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _aroonOsc!.Update(this.GetInputBar(args), args.IsNewBar());
 
-        TBar bar = this.GetInputBar(args);
-
-        TValue result = _aroonOsc!.Update(bar, isNew);
-
-        if (!_aroonOsc.IsHot && !ShowColdValues)
-        {
-            return;
-        }
-
-        OscSeries!.SetValue(result.Value);
+        _oscSeries!.SetValue(result.Value, _aroonOsc.IsHot, ShowColdValues);
     }
 }

@@ -23,9 +23,9 @@ public class BlmaIndicatorTests
     {
         var indicator = new BlmaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, BlmaIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]

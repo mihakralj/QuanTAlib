@@ -24,9 +24,9 @@ public class PwmaIndicatorTests
     {
         var indicator = new PwmaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, PwmaIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -114,17 +114,6 @@ public class PwmaIndicatorTests
     }
 
     [Fact]
-    public void PwmaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new PwmaIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(PwmaIndicator), method.DeclaringType);
-    }
-
-    [Fact]
     public void PwmaIndicator_MultipleUpdates_ProducesCorrectPwmaSequence()
     {
         var indicator = new PwmaIndicator { Period = 3 };
@@ -174,6 +163,6 @@ public class PwmaIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, PwmaIndicator.MinHistoryDepths);
     }
 }

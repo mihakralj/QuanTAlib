@@ -1,12 +1,17 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class AdlIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class AdlIndicator : Indicator, IWatchlistIndicator
 {
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
     private Adl? _adl;
-    protected LineSeries? AdlSeries;
+    private readonly LineSeries? _series;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -21,23 +26,23 @@ public class AdlIndicator : Indicator, IWatchlistIndicator
         Name = "ADL - Accumulation/Distribution Line";
         Description = "Accumulation/Distribution Line";
 
-        AdlSeries = new(name: "ADL", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        AddLineSeries(AdlSeries);
+        _series = new(name: "ADL", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _adl = new Adl();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-
         TBar bar = this.GetInputBar(args);
-        TValue result = _adl!.Update(bar, isNew);
+        TValue result = _adl!.Update(bar, args.IsNewBar());
 
-        AdlSeries!.SetValue(result.Value);
+        _series!.SetValue(result.Value, _adl.IsHot, ShowColdValues);
     }
 }

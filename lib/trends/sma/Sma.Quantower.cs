@@ -1,11 +1,14 @@
+using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class SmaIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class SmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 10;
 
     [IndicatorExtensions.DataSourceInput]
@@ -14,57 +17,40 @@ public class SmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Sma? ma;
-    protected LineSeries? Series;
-    protected string? SourceName;
-    private int _warmupBarIndex = -1;
+    private Sma? _sma;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"SMA {Period}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/sma/Sma.Quantower.cs";
+    public override string ShortName => $"SMA {Period}:{_sourceName}";
 
     public SmaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
-        SourceName = Source.ToString();
         Name = "SMA - Simple Moving Average";
         Description = "Simple Moving Average";
-        Series = new(name: $"SMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: $"SMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
     protected override void OnInit()
     {
-        ma = new Sma(Period);
-        SourceName = Source.ToString();
-        _warmupBarIndex = -1;  // Reset warmup tracking when period changes
+        _priceSelector = Source.GetPriceSelector();
+        _sourceName = Source.ToString();
+        _sma = new Sma(Period);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = ma!.Update(input, isNew);
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-
-        // Track when IsHot becomes true for the first time
-        if (_warmupBarIndex < 0 && ma!.IsHot)
-            _warmupBarIndex = Count;
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        var savedColor = Series!.Color;
-        Series.Color = Color.Transparent;
-        base.OnPaintChart(args);
-        Series.Color = savedColor;
-
-        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintLine(args, Series!, warmupPeriod, showColdValues: ShowColdValues);
+        bool isNew = args.IsNewBar();
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        double value = _sma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
+        _series!.SetValue(value, _sma.IsHot, ShowColdValues);
     }
 }

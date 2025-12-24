@@ -24,8 +24,8 @@ public class ConvIndicatorTests
         var indicator = new ConvIndicator { WeightsInput = "1, 2, 3, 4, 5" };
         indicator.Initialize(); // Initialize to parse weights
 
-        Assert.Equal(5, indicator.MinHistoryDepths);
-        Assert.Equal(5, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, ConvIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -112,16 +112,6 @@ public class ConvIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void ConvIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new ConvIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(ConvIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void ConvIndicator_MultipleUpdates_ProducesCorrectSequence()

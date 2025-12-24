@@ -1,8 +1,10 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
+[SkipLocalsInit]
 public class BilateralIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
@@ -23,9 +25,9 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
     private Bilateral? _bilateral;
     protected LineSeries? Series;
     protected string? SourceName;
-    private int _warmupBarIndex = -1;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"Bilateral {Period}:{SourceName}";
@@ -46,30 +48,17 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
     {
         _bilateral = new Bilateral(Period, SigmaSRatio, SigmaRMult);
         SourceName = Source.ToString();
-        _warmupBarIndex = -1;
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _bilateral!.Update(input, isNew);
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent);
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        
+        TValue result = _bilateral!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
-        if (_warmupBarIndex < 0 && _bilateral!.IsHot)
-            _warmupBarIndex = Count;
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        var savedColor = Series!.Color;
-        Series.Color = Color.Transparent;
-        base.OnPaintChart(args);
-        Series.Color = savedColor;
-
-        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintLine(args, Series!, warmupPeriod, showColdValues: ShowColdValues);
+        Series!.SetValue(result.Value, _bilateral.IsHot, ShowColdValues);
     }
 }

@@ -1,41 +1,45 @@
+using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class SuperIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class SuperIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
+    [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 10;
 
-    [InputParameter("Multiplier", sortIndex: 2, 0.1, 100, 0.1, 1)]
+    [InputParameter("Multiplier", sortIndex: 2, 0.1, 100.0, 0.1, 1)]
     public double Multiplier { get; set; } = 3.0;
 
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
     private Super? _super;
-    protected LineSeries? UpSeries;
-    protected LineSeries? DownSeries;
+    private readonly LineSeries? _series;
+    private readonly LineSeries? _upperBand;
+    private readonly LineSeries? _lowerBand;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"Super {Period}:{Multiplier}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/super/Super.Quantower.cs";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/master/lib/trends/super/Super.Quantower.cs";
 
     public SuperIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
         Name = "SuperTrend";
-        Description = "Trend-following indicator using ATR";
-
-        UpSeries = new(name: "SuperTrend Up", color: Color.Green, width: 2, style: LineStyle.Solid);
-        DownSeries = new(name: "SuperTrend Down", color: Color.Red, width: 2, style: LineStyle.Solid);
-
-        AddLineSeries(UpSeries);
-        AddLineSeries(DownSeries);
+        Description = "SuperTrend Indicator";
+        _series = new(name: "SuperTrend", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _upperBand = new(name: "Upper Band", color: Color.Red, width: 1, style: LineStyle.Dot);
+        _lowerBand = new(name: "Lower Band", color: Color.Green, width: 1, style: LineStyle.Dot);
+        AddLineSeries(_series);
+        AddLineSeries(_upperBand);
+        AddLineSeries(_lowerBand);
     }
 
     protected override void OnInit()
@@ -44,28 +48,21 @@ public class SuperIndicator : Indicator, IWatchlistIndicator
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        bool isNew = args.IsNewBar();
+        var bar = this.GetInputBar(args);
+        double value = _super!.Update(bar, isNew).Value;
+        
+        _series!.SetValue(value, _super.IsHot, ShowColdValues);
+        _upperBand!.SetValue(_super.UpperBand.Value, _super.IsHot, ShowColdValues);
+        _lowerBand!.SetValue(_super.LowerBand.Value, _super.IsHot, ShowColdValues);
 
-        TBar bar = this.GetInputBar(args);
-
-        TValue result = _super!.Update(bar, isNew);
-
-        if (!_super.IsHot && !ShowColdValues)
+        // Color logic
+        if (_super.IsHot)
         {
-            return;
-        }
-
-        if (_super.IsBullish)
-        {
-            UpSeries!.SetValue(result.Value);
-            DownSeries!.SetValue(double.NaN);
-        }
-        else
-        {
-            UpSeries!.SetValue(double.NaN);
-            DownSeries!.SetValue(result.Value);
+            _series!.SetMarker(0, _super.IsBullish ? Color.Green : Color.Red);
         }
     }
 }

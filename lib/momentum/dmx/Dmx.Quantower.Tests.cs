@@ -23,9 +23,9 @@ public class DmxIndicatorTests
     {
         var indicator = new DmxIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, DmxIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -127,17 +127,6 @@ public class DmxIndicatorTests
     }
 
     [Fact]
-    public void DmxIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new DmxIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(DmxIndicator), method.DeclaringType);
-    }
-
-    [Fact]
     public void DmxIndicator_Parameters_CanBeChanged()
     {
         var indicator = new DmxIndicator { Period = 14 };
@@ -146,6 +135,6 @@ public class DmxIndicatorTests
         indicator.Period = 20;
 
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, DmxIndicator.MinHistoryDepths);
     }
 }

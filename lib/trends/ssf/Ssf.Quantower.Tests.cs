@@ -23,8 +23,8 @@ public class SsfIndicatorTests
     {
         var indicator = new SsfIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, SsfIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -164,6 +164,6 @@ public class SsfIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, SsfIndicator.MinHistoryDepths);
     }
 }

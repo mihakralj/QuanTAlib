@@ -5,6 +5,13 @@ namespace QuanTAlib;
 
 public class BilateralTests
 {
+    private readonly GBM _gbm;
+
+    public BilateralTests()
+    {
+        _gbm = new GBM();
+    }
+
     [Fact]
     public void Constructor_ValidatesInput()
     {
@@ -101,22 +108,43 @@ public class BilateralTests
     }
     
     [Fact]
-    public void TSeries_Update_Matches_Iterative()
+    public void AllModes_ProduceSameResult()
     {
-        var indicator = new Bilateral(5);
-        var series = new TSeries();
-        for (int i = 0; i < 20; i++)
+        int period = 10;
+        var bars = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        // 1. Batch Mode
+        var batchSeries = new Bilateral(period).Update(series);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Bilateral.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Bilateral(period);
+        for (int i = 0; i < series.Count; i++)
         {
-            series.Add(new TValue(DateTime.UtcNow.AddMinutes(i), i));
+            streamingInd.Update(series[i]);
         }
-        
-        var resultSeries = indicator.Update(series);
-        
-        var indicatorIterative = new Bilateral(5);
-        for (int i = 0; i < 20; i++)
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Bilateral(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
         {
-            indicatorIterative.Update(series[i]);
-            Assert.Equal(indicatorIterative.Last.Value, resultSeries[i].Value);
+            pubSource.Add(series[i]);
         }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, 1e-9);
+        Assert.Equal(expected, streamingResult, 1e-9);
+        Assert.Equal(expected, eventingResult, 1e-9);
     }
 }

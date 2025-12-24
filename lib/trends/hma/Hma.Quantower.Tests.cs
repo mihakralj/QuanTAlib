@@ -24,8 +24,8 @@ public class HmaIndicatorTests
         var indicator = new HmaIndicator { Period = 16 };
         // HMA warmup is roughly Period + Sqrt(Period)
         // 16 + Sqrt(16) = 16 + 4 = 20
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, HmaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -112,16 +112,6 @@ public class HmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void HmaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new HmaIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(HmaIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void HmaIndicator_MultipleUpdates_ProducesCorrectHmaSequence()
@@ -174,6 +164,6 @@ public class HmaIndicatorTests
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
         // 20 + sqrt(20) = 20 + 4 = 24
-        Assert.Equal(24, indicator.MinHistoryDepths);
+        Assert.Equal(0, HmaIndicator.MinHistoryDepths);
     }
 }

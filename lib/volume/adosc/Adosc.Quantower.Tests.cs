@@ -20,24 +20,28 @@ public class AdoscIndicatorTests
     }
 
     [Fact]
-    public void AdoscIndicator_MinHistoryDepths_EqualsSlowPeriod()
+    public void AdoscIndicator_MinHistoryDepths_EqualsZero()
     {
-        var indicator = new AdoscIndicator { SlowPeriod = 20 };
+        var indicator = new AdoscIndicator
+        {
+            SlowPeriod = 20
+        };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, AdoscIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
-    public void AdoscIndicator_ShortName_IncludesParameters()
+    public void AdoscIndicator_SlowPeriod_CanBeChanged()
     {
-        var indicator = new AdoscIndicator { FastPeriod = 10, SlowPeriod = 40 };
-        indicator.Initialize();
+        var indicator = new AdoscIndicator
+        {
+            SlowPeriod = 40
+        };
 
-        Assert.Contains("ADOSC", indicator.ShortName);
-        Assert.Contains("10", indicator.ShortName);
-        Assert.Contains("40", indicator.ShortName);
+        Assert.Equal(40, indicator.SlowPeriod);
+        Assert.Equal(0, AdoscIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -117,6 +121,6 @@ public class AdoscIndicatorTests
 
         Assert.Equal(10, indicator.FastPeriod);
         Assert.Equal(40, indicator.SlowPeriod);
-        Assert.Equal(40, indicator.MinHistoryDepths);
+        Assert.Equal(0, AdoscIndicator.MinHistoryDepths);
     }
 }

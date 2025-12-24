@@ -19,13 +19,13 @@ public class AroonOscIndicatorTests
     }
 
     [Fact]
-    public void AroonOscIndicator_MinHistoryDepths_EqualsPeriod()
+    public void AroonOscIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new AroonOscIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, AroonOscIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]

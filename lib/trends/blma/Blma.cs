@@ -150,12 +150,22 @@ public sealed class Blma : AbstractBase
 
     private static double CalculateWeightedSum(RingBuffer buffer, ReadOnlySpan<double> weights)
     {
-        double sum = 0;
-        for (int i = 0; i < buffer.Count; i++)
+        int start = buffer.StartIndex;
+        int count = buffer.Count;
+        int capacity = buffer.Capacity;
+        
+        if (start + count <= capacity)
         {
-            sum += buffer[i] * weights[i];
+            return buffer.InternalBuffer.Slice(start, count).DotProduct(weights);
         }
-        return sum;
+
+        int firstPartLength = capacity - start;
+        int secondPartLength = count - firstPartLength;
+
+        double sum1 = buffer.InternalBuffer.Slice(start, firstPartLength).DotProduct(weights[..firstPartLength]);
+        double sum2 = buffer.InternalBuffer.Slice(0, secondPartLength).DotProduct(weights[firstPartLength..]);
+
+        return sum1 + sum2;
     }
 
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period)
@@ -200,11 +210,7 @@ public sealed class Blma : AbstractBase
                     }
                     else
                     {
-                        double sum = 0;
-                        for (int j = 0; j < count; j++)
-                        {
-                            sum += source[i - count + 1 + j] * currentWeights[j];
-                        }
+                        double sum = source.Slice(i - count + 1, count).DotProduct(currentWeights);
                         destination[i] = sum / currentWeightSum;
                     }
                 }
@@ -212,11 +218,7 @@ public sealed class Blma : AbstractBase
             else
             {
                 // Full period
-                double sum = 0;
-                for (int j = 0; j < period; j++)
-                {
-                    sum += source[i - period + 1 + j] * weights[j];
-                }
+                double sum = source.Slice(i - period + 1, period).DotProduct(weights);
                 destination[i] = sum / weightSum;
             }
         }

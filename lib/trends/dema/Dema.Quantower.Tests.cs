@@ -23,8 +23,8 @@ public class DemaIndicatorTests
     {
         var indicator = new DemaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, DemaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -111,18 +111,6 @@ public class DemaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void DemaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new DemaIndicator();
-        indicator.Initialize();
-
-        // We can't easily mock PaintChartEventArgs fully, but we can verify the method exists and is callable
-        // if we could mock the args. Since we can't, we skip the actual call but verify the method is overridden.
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(DemaIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void DemaIndicator_MultipleUpdates_ProducesCorrectDemaSequence()
@@ -166,14 +154,4 @@ public class DemaIndicatorTests
         }
     }
 
-    [Fact]
-    public void DemaIndicator_Period_CanBeChanged()
-    {
-        var indicator = new DemaIndicator { Period = 5 };
-        Assert.Equal(5, indicator.Period);
-
-        indicator.Period = 20;
-        Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
-    }
 }

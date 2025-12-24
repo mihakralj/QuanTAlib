@@ -25,8 +25,8 @@ public class BilateralIndicatorTests
     {
         var indicator = new BilateralIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, BilateralIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -113,16 +113,6 @@ public class BilateralIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void BilateralIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new BilateralIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(BilateralIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void BilateralIndicator_MultipleUpdates_ProducesCorrectSequence()
@@ -181,6 +171,6 @@ public class BilateralIndicatorTests
         Assert.Equal(20, indicator.Period);
         Assert.Equal(1.0, indicator.SigmaSRatio);
         Assert.Equal(2.0, indicator.SigmaRMult);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, BilateralIndicator.MinHistoryDepths);
     }
 }

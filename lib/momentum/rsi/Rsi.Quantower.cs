@@ -1,47 +1,59 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class RsiIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class RsiIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 14;
 
-    private Rsi? _rsi;
-    protected LineSeries? RsiSeries;
+    [IndicatorExtensions.DataSourceInput]
+    public SourceType Source { get; set; } = SourceType.Close;
 
-    public int MinHistoryDepths => Period;
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
+    private Rsi? _rsi;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
+
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"RSI({Period})";
+    public override string ShortName => $"RSI({Period}):{_sourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/momentum/rsi/Rsi.Quantower.cs";
 
     public RsiIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
+        _sourceName = Source.ToString();
         Name = "RSI - Relative Strength Index";
         Description = "Measures the speed and change of price movements";
 
-        RsiSeries = new(name: "RSI", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        AddLineSeries(RsiSeries);
+        _series = new(name: "RSI", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _rsi = new Rsi(Period);
+        _sourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _rsi!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-        TValue input = this.GetInputValue(args, SourceType.Close);
-
-        TValue result = _rsi!.Update(input, isNew);
-
-        RsiSeries!.SetValue(result.Value);
+        _series!.SetValue(result.Value, _rsi.IsHot, ShowColdValues);
+        _series!.SetMarker(0, Color.Transparent);
     }
 }

@@ -128,4 +128,21 @@ public class AdxrTests
         Assert.Throws<ArgumentException>(() => new Adxr(0));
         Assert.Throws<ArgumentException>(() => new Adxr(-1));
     }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var adxr = new Adxr(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        // Test TBarSeries chain
+        var result = adxr.Update(bars);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
+        
+        // Test TBar chain (returns TValue)
+        var result2 = adxr.Update(bars[0]);
+        Assert.IsType<TValue>(result2);
+    }
 }

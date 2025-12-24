@@ -1,8 +1,10 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
+[SkipLocalsInit]
 public class AlmaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
@@ -23,12 +25,13 @@ public class AlmaIndicator : Indicator, IWatchlistIndicator
     private Alma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
-    private int _warmupBarIndex = -1;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"ALMA {Period}:{SourceName}";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/alma/Alma.Quantower.cs";
 
     public AlmaIndicator()
     {
@@ -45,26 +48,17 @@ public class AlmaIndicator : Indicator, IWatchlistIndicator
     {
         ma = new Alma(Period, Offset, Sigma);
         SourceName = Source.ToString();
-        _warmupBarIndex = -1;
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = ma!.Update(input, isNew);
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent);
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        
+        TValue result = ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
-        if (_warmupBarIndex < 0 && ma!.IsHot)
-            _warmupBarIndex = Count;
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        Series!.SetValue(result.Value, ma.IsHot, ShowColdValues);
     }
 }

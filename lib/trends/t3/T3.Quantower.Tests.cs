@@ -25,8 +25,8 @@ public class T3IndicatorTests
         var indicator = new T3Indicator { Period = 10 };
 
         // MinHistoryDepths is Period * 6 for T3 due to 6 stages
-        Assert.Equal(60, indicator.MinHistoryDepths);
-        Assert.Equal(60, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, T3Indicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -168,6 +168,6 @@ public class T3IndicatorTests
         indicator.VolumeFactor = 0.9;
         Assert.Equal(20, indicator.Period);
         Assert.Equal(0.9, indicator.VolumeFactor);
-        Assert.Equal(120, indicator.MinHistoryDepths); // 20 * 6
+        Assert.Equal(0, T3Indicator.MinHistoryDepths); // 20 * 6
     }
 }

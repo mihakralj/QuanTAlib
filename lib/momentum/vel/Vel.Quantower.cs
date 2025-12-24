@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class VelIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class VelIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -15,49 +17,42 @@ public class VelIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Vel? _vel;
-    private int _warmupBarIndex = -1;
-    protected LineSeries? Series;
-    protected string? SourceName;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"VEL {Period}:{SourceName}";
+    public override string ShortName => $"VEL {Period}:{_sourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/momentum/vel/Vel.Quantower.cs";
 
     public VelIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
-        SourceName = Source.ToString();
+        _sourceName = Source.ToString();
         Name = "VEL - Jurik Velocity";
         Description = "Momentum oscillator calculated as PWMA - WMA";
-        Series = new(name: $"VEL {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: $"VEL {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _vel = new Vel(Period);
-        _warmupBarIndex = -1;
-        SourceName = Source.ToString();
+        _sourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _vel!.Update(input, isNew);
-        if (_warmupBarIndex < 0 && _vel!.IsHot)
-            _warmupBarIndex = Count;
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-    }
+        TValue result = _vel!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, _warmupBarIndex, showColdValues: ShowColdValues, tension: 0.2);
+        _series!.SetValue(result.Value, _vel.IsHot, ShowColdValues);
+        _series!.SetMarker(0, Color.Transparent);
     }
 }

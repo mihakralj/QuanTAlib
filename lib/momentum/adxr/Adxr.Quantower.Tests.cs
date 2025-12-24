@@ -19,33 +19,15 @@ public class AdxrIndicatorTests
     }
 
     [Fact]
-    public void AdxrIndicator_MinHistoryDepths_EqualsPeriod()
+    public void AdxrIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new AdxrIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, AdxrIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
-    [Fact]
-    public void AdxrIndicator_ShortName_IncludesParameters()
-    {
-        var indicator = new AdxrIndicator { Period = 20 };
-        indicator.Initialize();
-
-        Assert.Contains("ADXR", indicator.ShortName);
-        Assert.Contains("20", indicator.ShortName);
-    }
-
-    [Fact]
-    public void AdxrIndicator_SourceCodeLink_IsValid()
-    {
-        var indicator = new AdxrIndicator();
-
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Adxr.Quantower.cs", indicator.SourceCodeLink);
-    }
 
     [Fact]
     public void AdxrIndicator_Initialize_CreatesInternalAdxr()

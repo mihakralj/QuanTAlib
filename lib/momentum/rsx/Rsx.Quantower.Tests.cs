@@ -24,9 +24,9 @@ public class RsxIndicatorTests
     {
         var indicator = new RsxIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, RsxIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -114,17 +114,6 @@ public class RsxIndicatorTests
     }
 
     [Fact]
-    public void RsxIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new RsxIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(RsxIndicator), method.DeclaringType);
-    }
-
-    [Fact]
     public void RsxIndicator_MultipleUpdates_ProducesCorrectRsxSequence()
     {
         var indicator = new RsxIndicator { Period = 3 };
@@ -174,6 +163,6 @@ public class RsxIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, RsxIndicator.MinHistoryDepths);
     }
 }

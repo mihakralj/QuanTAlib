@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class RsxIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class RsxIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -15,51 +17,42 @@ public class RsxIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Rsx? _rsx;
-    protected LineSeries? Series;
-    protected string? SourceName;
-    private int _warmupBarIndex = -1;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"RSX {Period}:{SourceName}";
+    public override string ShortName => $"RSX {Period}:{_sourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/momentum/rsx/Rsx.Quantower.cs";
 
     public RsxIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
-        SourceName = Source.ToString();
+        _sourceName = Source.ToString();
         Name = "RSX - Jurik Relative Strength Index";
         Description = "Jurik's RSI: A noise-free, zero-lag version of RSI";
-        Series = new(name: $"RSX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: $"RSX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _rsx = new Rsx(Period);
-        SourceName = Source.ToString();
-        _warmupBarIndex = -1;
+        _sourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _rsx!.Update(input, isNew);
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent);
+        TValue result = _rsx!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-        if (_warmupBarIndex < 0 && _rsx!.IsHot)
-            _warmupBarIndex = Count;
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        _series!.SetValue(result.Value, _rsx.IsHot, ShowColdValues);
+        _series!.SetMarker(0, Color.Transparent);
     }
 }

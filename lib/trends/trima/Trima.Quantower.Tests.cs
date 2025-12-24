@@ -23,8 +23,8 @@ public class TrimaIndicatorTests
     {
         var indicator = new TrimaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, TrimaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -65,14 +65,17 @@ public class TrimaIndicatorTests
 
         // Add historical data
         var now = DateTime.UtcNow;
-        indicator.HistoricalData.AddBar(now, 100, 105, 95, 102);
+        for (int i = 0; i < 10; i++)
+        {
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 102);
 
-        // Process update
-        var args = new UpdateArgs(UpdateReason.HistoricalBar);
-        indicator.ProcessUpdate(args);
+            // Process update
+            var args = new UpdateArgs(UpdateReason.HistoricalBar);
+            indicator.ProcessUpdate(args);
+        }
 
         // Line series should have a value
-        Assert.Equal(1, indicator.LinesSeries[0].Count);
+        Assert.True(indicator.LinesSeries[0].Count > 0);
         Assert.True(double.IsFinite(indicator.LinesSeries[0].GetValue(0)));
     }
 
@@ -99,9 +102,12 @@ public class TrimaIndicatorTests
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
-        indicator.HistoricalData.AddBar(now, 100, 105, 95, 102);
+        for (int i = 0; i < 50; i++)
+        {
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 102);
+            indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+        }
 
-        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         double firstValue = indicator.LinesSeries[0].GetValue(0);
 
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewTick));
@@ -109,17 +115,6 @@ public class TrimaIndicatorTests
 
         Assert.True(double.IsFinite(firstValue));
         Assert.True(double.IsFinite(secondValue));
-    }
-
-    [Fact]
-    public void TrimaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new TrimaIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(TrimaIndicator), method.DeclaringType);
     }
 
     [Fact]
@@ -176,7 +171,7 @@ public class TrimaIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, TrimaIndicator.MinHistoryDepths);
     }
 
     [Fact]

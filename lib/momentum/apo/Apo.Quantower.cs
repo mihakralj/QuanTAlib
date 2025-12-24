@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class ApoIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class ApoIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Fast Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int FastPeriod { get; set; } = 12;
@@ -15,9 +17,9 @@ public class ApoIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Apo? _apo;
-    protected LineSeries? Series;
+    private readonly LineSeries? _series;
 
-    public int MinHistoryDepths => SlowPeriod;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"APO {FastPeriod}:{SlowPeriod}";
@@ -30,28 +32,22 @@ public class ApoIndicator : Indicator, IWatchlistIndicator
         Name = "APO - Absolute Price Oscillator";
         Description = "Momentum indicator showing the difference between two EMAs";
 
-        Series = new(name: "APO", color: Color.Orange, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: "APO", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _apo = new Apo(FastPeriod, SlowPeriod);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _apo!.Update(this.GetInputBar(args), args.IsNewBar());
 
-        TBar bar = this.GetInputBar(args);
-        TValue result = _apo!.Update(bar, isNew);
-
-        if (!_apo.IsHot && !ShowColdValues)
-        {
-            return;
-        }
-
-        Series!.SetValue(result.Value);
+        _series!.SetValue(result.Value, _apo.IsHot, ShowColdValues);
     }
 }

@@ -19,12 +19,12 @@ public class EmaIndicatorTests
     }
 
     [Fact]
-    public void EmaIndicator_MinHistoryDepths_EqualsPeriod()
+    public void EmaIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new EmaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, EmaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -164,6 +164,6 @@ public class EmaIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, EmaIndicator.MinHistoryDepths);
     }
 }

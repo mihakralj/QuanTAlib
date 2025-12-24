@@ -1,12 +1,14 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class BopIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class BopIndicator : Indicator, IWatchlistIndicator
 {
     private Bop? _bop;
-    protected LineSeries? BopSeries;
+    private readonly LineSeries? _bopSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -21,24 +23,22 @@ public class BopIndicator : Indicator, IWatchlistIndicator
         Name = "BOP - Balance of Power";
         Description = "Measures the strength of buyers vs sellers";
 
-        BopSeries = new(name: "BOP", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        AddLineSeries(BopSeries);
+        _bopSeries = new(name: "BOP", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_bopSeries);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _bop = new Bop();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _bop!.Update(this.GetInputBar(args), args.IsNewBar());
 
-        TBar bar = this.GetInputBar(args);
-
-        TValue result = _bop!.Update(bar, isNew);
-
-        BopSeries!.SetValue(result.Value);
+        _bopSeries!.SetValue(result.Value);
     }
 }

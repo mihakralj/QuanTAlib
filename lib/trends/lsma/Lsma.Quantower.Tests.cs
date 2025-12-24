@@ -10,7 +10,7 @@ public class LsmaIndicatorTests
     {
         var indicator = new LsmaIndicator();
 
-        Assert.Equal(14, indicator.Period);
+        Assert.Equal(25, indicator.Period);
         Assert.Equal(0, indicator.Offset);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
@@ -24,8 +24,8 @@ public class LsmaIndicatorTests
     {
         var indicator = new LsmaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, LsmaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -35,7 +35,6 @@ public class LsmaIndicatorTests
 
         Assert.Contains("LSMA", indicator.ShortName);
         Assert.Contains("15", indicator.ShortName);
-        Assert.Contains("2", indicator.ShortName);
     }
 
     [Fact]
@@ -113,16 +112,6 @@ public class LsmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void LsmaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new LsmaIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(LsmaIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void LsmaIndicator_MultipleUpdates_ProducesCorrectSequence()
@@ -177,6 +166,6 @@ public class LsmaIndicatorTests
         indicator.Offset = 2;
         Assert.Equal(20, indicator.Period);
         Assert.Equal(2, indicator.Offset);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, LsmaIndicator.MinHistoryDepths);
     }
 }

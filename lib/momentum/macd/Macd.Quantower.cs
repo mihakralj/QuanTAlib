@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class MacdIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class MacdIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Fast Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int FastPeriod { get; set; } = 12;
@@ -14,49 +16,58 @@ public class MacdIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Signal Period", sortIndex: 3, 1, 2000, 1, 0)]
     public int SignalPeriod { get; set; } = 9;
 
-    private Macd? _macd;
-    protected LineSeries? MacdSeries;
-    protected LineSeries? SignalSeries;
-    protected LineSeries? HistSeries;
+    [IndicatorExtensions.DataSourceInput]
+    public SourceType Source { get; set; } = SourceType.Close;
 
-    public int MinHistoryDepths => Math.Max(FastPeriod, SlowPeriod) + SignalPeriod;
+    [InputParameter("Show cold values", sortIndex: 21)]
+    public bool ShowColdValues { get; set; } = true;
+
+    private Macd? _macd;
+    private readonly LineSeries? _macdSeries;
+    private readonly LineSeries? _signalSeries;
+    private readonly LineSeries? _histSeries;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
+
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"MACD({FastPeriod},{SlowPeriod},{SignalPeriod})";
+    public override string ShortName => $"MACD({FastPeriod},{SlowPeriod},{SignalPeriod}):{_sourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/momentum/macd/Macd.Quantower.cs";
 
     public MacdIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
+        _sourceName = Source.ToString();
         Name = "MACD - Moving Average Convergence Divergence";
         Description = "Trend-following momentum indicator";
 
-        MacdSeries = new(name: "MACD", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        SignalSeries = new(name: "Signal", color: Color.Red, width: 2, style: LineStyle.Solid);
-        HistSeries = new(name: "Histogram", color: Color.Green, width: 2, style: LineStyle.Solid); // Quantower LineStyle doesn't have Histogram, use Solid and we'll paint it manually if needed, or just use Solid for now. Actually, Quantower usually handles Histogram via a different series type or style, but LineSeries only supports lines. Let's stick to Solid for now to fix compilation.
+        _macdSeries = new(name: "MACD", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _signalSeries = new(name: "Signal", color: Color.Red, width: 2, style: LineStyle.Solid);
+        _histSeries = new(name: "Histogram", color: Color.Green, width: 2, style: LineStyle.Solid);
 
-        AddLineSeries(MacdSeries);
-        AddLineSeries(SignalSeries);
-        AddLineSeries(HistSeries);
+        AddLineSeries(_macdSeries);
+        AddLineSeries(_signalSeries);
+        AddLineSeries(_histSeries);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _macd = new Macd(FastPeriod, SlowPeriod, SignalPeriod);
+        _sourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _macd!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-        TValue input = this.GetInputValue(args, SourceType.Close);
-
-        _macd!.Update(input, isNew);
-
-        MacdSeries!.SetValue(_macd.Last.Value);
-        SignalSeries!.SetValue(_macd.Signal.Value);
-        HistSeries!.SetValue(_macd.Histogram.Value);
+        _macdSeries!.SetValue(result.Value, _macd.IsHot, ShowColdValues);
+        _signalSeries!.SetValue(_macd.Signal.Value, _macd.IsHot, ShowColdValues);
+        _histSeries!.SetValue(_macd.Histogram.Value, _macd.IsHot, ShowColdValues);
     }
 }

@@ -1,10 +1,10 @@
-using System;
 using System.Drawing;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
+[SkipLocalsInit]
 public class ConvIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Weights (comma separated)", sortIndex: 1)]
@@ -17,11 +17,11 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Conv? _conv;
-    private int _warmupBarIndex = -1;
     protected LineSeries? Series;
     protected string? SourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => _conv != null ? WeightsInput.Split(',').Length : 0;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"CONV:{SourceName}";
@@ -60,25 +60,18 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
             _conv = new Conv([1.0]);
         }
 
-        _warmupBarIndex = -1;
         SourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _conv!.Update(input, isNew);
-        if (_warmupBarIndex < 0 && _conv!.IsHot)
-            _warmupBarIndex = Count;
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-    }
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        
+        TValue result = _conv!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, _warmupBarIndex, showColdValues: ShowColdValues, tension: 0.2);
+        Series!.SetValue(result.Value, _conv.IsHot, ShowColdValues);
     }
 }

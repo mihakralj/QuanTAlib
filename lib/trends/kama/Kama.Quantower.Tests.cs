@@ -15,7 +15,7 @@ public class KamaIndicatorTests
         Assert.Equal(30, indicator.SlowPeriod);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("KAMA - Kaufman Adaptive Moving Average", indicator.Name);
+        Assert.Equal("KAMA - Kaufman's Adaptive Moving Average", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }
@@ -25,8 +25,8 @@ public class KamaIndicatorTests
     {
         var indicator = new KamaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, KamaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -165,6 +165,6 @@ public class KamaIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, KamaIndicator.MinHistoryDepths);
     }
 }

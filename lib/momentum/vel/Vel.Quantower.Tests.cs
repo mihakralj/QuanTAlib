@@ -24,9 +24,9 @@ public class VelIndicatorTests
     {
         var indicator = new VelIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, VelIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -114,17 +114,6 @@ public class VelIndicatorTests
     }
 
     [Fact]
-    public void VelIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new VelIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(VelIndicator), method.DeclaringType);
-    }
-
-    [Fact]
     public void VelIndicator_MultipleUpdates_ProducesCorrectVelSequence()
     {
         var indicator = new VelIndicator { Period = 3 };
@@ -174,6 +163,6 @@ public class VelIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, VelIndicator.MinHistoryDepths);
     }
 }

@@ -30,9 +30,9 @@ public class MacdIndicatorTests
         };
 
         // 26 + 9 = 35
-        Assert.Equal(35, indicator.MinHistoryDepths);
+        Assert.Equal(0, MacdIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(35, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class MacdIndicatorTests
         var indicator = new MacdIndicator();
         indicator.Initialize();
 
-        Assert.Equal("MACD(12,26,9)", indicator.ShortName);
+        Assert.Equal("MACD(12,26,9):Close", indicator.ShortName);
     }
 
     [Fact]

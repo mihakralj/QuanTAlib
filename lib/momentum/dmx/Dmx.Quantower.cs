@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class DmxIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class DmxIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -12,10 +14,9 @@ public class DmxIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Dmx? _dmx;
-    protected LineSeries? Series;
-    private int _warmupBarIndex = -1;
+    private readonly LineSeries? _series;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"DMX {Period}";
@@ -27,36 +28,23 @@ public class DmxIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         Name = "DMX - Jurik Directional Movement Index";
         Description = "Jurik's smoother, lower-lag alternative to DMI/ADX";
-        Series = new(name: $"DMX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: $"DMX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _dmx = new Dmx(Period);
-        _warmupBarIndex = -1;
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _dmx!.Update(this.GetInputBar(args), args.IsNewBar());
 
-        TBar bar = this.GetInputBar(args);
-
-        TValue result = _dmx!.Update(bar, isNew);
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent);
-
-        // DMX doesn't expose IsHot directly, but we can infer warmup
-        if (_warmupBarIndex < 0 && Count > Period * 2) // Rough estimate for JMA warmup
-            _warmupBarIndex = Count;
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        _series!.SetValue(result.Value);
+        _series!.SetMarker(0, Color.Transparent);
     }
 }

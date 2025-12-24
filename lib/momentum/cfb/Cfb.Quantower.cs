@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class CfbIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class CfbIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Min Length", sortIndex: 1, 2, 1000, 1, 0)]
     public int MinLength { get; set; } = 2;
@@ -21,27 +23,28 @@ public class CfbIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Cfb? _cfb;
-    private int _warmupBarIndex = -1;
-    protected LineSeries? Series;
-    protected string? SourceName;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => MaxLength;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"CFB {MinLength}-{MaxLength}:{SourceName}";
+    public override string ShortName => $"CFB {MinLength}-{MaxLength}:{_sourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/momentum/cfb/Cfb.Quantower.cs";
 
     public CfbIndicator()
     {
         OnBackGround = true;
         SeparateWindow = true;
-        SourceName = Source.ToString();
+        _sourceName = Source.ToString();
         Name = "CFB - Jurik Composite Fractal Behavior";
         Description = "Trend Duration Index using fractal efficiency";
-        Series = new(name: "CFB", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: "CFB", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         // Generate lengths array
@@ -53,25 +56,17 @@ public class CfbIndicator : Indicator, IWatchlistIndicator
         }
 
         _cfb = new Cfb(lengths);
-        _warmupBarIndex = -1;
-        SourceName = Source.ToString();
+        _sourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _cfb!.Update(input, isNew);
-        if (_warmupBarIndex < 0 && _cfb!.IsHot)
-            _warmupBarIndex = Count;
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-    }
+        TValue result = _cfb!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, _warmupBarIndex, showColdValues: ShowColdValues, tension: 0.2);
+        _series!.SetValue(result.Value, _cfb.IsHot, ShowColdValues);
+        _series!.SetMarker(0, Color.Transparent);
     }
 }

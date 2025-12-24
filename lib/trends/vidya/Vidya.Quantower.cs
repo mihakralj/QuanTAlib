@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class VidyaIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class VidyaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -14,45 +16,47 @@ public class VidyaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Vidya? ma;
-    protected LineSeries? Series;
-    protected string? SourceName;
+    private Vidya? _ma;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"VIDYA {Period}:{SourceName}";
+    public override string ShortName => $"VIDYA {Period}:{_sourceName}";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/vidya/Vidya.Quantower.cs";
 
     public VidyaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
-        SourceName = Source.ToString();
+        _sourceName = Source.ToString();
         Name = "VIDYA - Variable Index Dynamic Average";
         Description = "Variable Index Dynamic Average (Chande)";
-        Series = new(name: $"VIDYA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        _series = new(name: $"VIDYA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
-        ma = new Vidya(Period);
-        SourceName = Source.ToString();
+        _ma = new Vidya(Period);
+        _sourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = ma!.Update(input, isNew);
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
-    }
+        if (args.Reason != UpdateReason.NewBar && args.Reason != UpdateReason.HistoricalBar && args.Reason != UpdateReason.NewTick)
+            return;
 
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, Period, showColdValues: ShowColdValues, tension: 0.2);
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        TValue result = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), args.IsNewBar());
+
+        _series!.SetValue(result.Value, _ma.IsHot, ShowColdValues);
+        _series!.SetMarker(0, Color.Transparent);
     }
 }

@@ -38,52 +38,6 @@ public class IndicatorExtensionsTests
     }
 
     [Fact]
-    public void GetInputValue_ReturnsCorrectValues_ForSourceTypes()
-    {
-        TestIndicator indicator = new();
-        DateTime now = new(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-
-        // Open=100, High=110, Low=90, Close=105, Volume=1000
-        const double open = 100;
-        const double high = 110;
-        const double low = 90;
-        const double close = 105;
-        const double volume = 1000;
-
-        indicator.HistoricalData.AddBar(now, open, high, low, close, volume);
-
-        // Ensure Count is updated (mock implementation detail)
-        // The mock HistoricalData.Count reflects added items.
-        // Indicator.Count => HistoricalData.Count.
-
-        UpdateArgs args = new(UpdateReason.NewBar);
-
-        // Test each SourceType
-        Assert.Equal(open, IndicatorExtensions.GetInputValue(indicator, args, SourceType.Open).Value);
-        Assert.Equal(high, IndicatorExtensions.GetInputValue(indicator, args, SourceType.High).Value);
-        Assert.Equal(low, IndicatorExtensions.GetInputValue(indicator, args, SourceType.Low).Value);
-        Assert.Equal(close, IndicatorExtensions.GetInputValue(indicator, args, SourceType.Close).Value);
-
-        // HL2 = (110 + 90) / 2 = 100
-        Assert.Equal(100, IndicatorExtensions.GetInputValue(indicator, args, SourceType.HL2).Value);
-
-        // OC2 = (100 + 105) / 2 = 102.5
-        Assert.Equal(102.5, IndicatorExtensions.GetInputValue(indicator, args, SourceType.OC2).Value);
-
-        // OHL3 = (100 + 110 + 90) / 3 = 100
-        Assert.Equal(100, IndicatorExtensions.GetInputValue(indicator, args, SourceType.OHL3).Value);
-
-        // HLC3 = (110 + 90 + 105) / 3 = 101.666...
-        Assert.Equal(101.66666666666667, IndicatorExtensions.GetInputValue(indicator, args, SourceType.HLC3).Value, 5);
-
-        // OHLC4 = (100 + 110 + 90 + 105) / 4 = 101.25
-        Assert.Equal(101.25, IndicatorExtensions.GetInputValue(indicator, args, SourceType.OHLC4).Value);
-
-        // HLCC4 = (110 + 90 + 105 + 105) / 4 = 102.5
-        Assert.Equal(102.5, IndicatorExtensions.GetInputValue(indicator, args, SourceType.HLCC4).Value);
-    }
-
-    [Fact]
     public void GetInputBar_ReturnsCorrectBar()
     {
         TestIndicator indicator = new();
@@ -130,11 +84,7 @@ public class IndicatorExtensionsTests
 
         var clientRect = new Rectangle(0, 0, 100, 100);
 
-        // 1. Test GetHLineY
-        int y = IndicatorExtensions.GetHLineY(converter, 50.0);
-        Assert.Equal(50, y); // Since our mock returns value as Y
-
-        // 2. Test GetSmoothCurvePoints
+        // Test GetSmoothCurvePoints
         var series = new LineSeries("Test", Color.Blue, 1, LineStyle.Solid);
         for (int i = 0; i < 20; i++) series.AddValue();
         for (int i = 0; i < 20; i++) series.SetValue(100 + i, i);
@@ -145,34 +95,6 @@ public class IndicatorExtensionsTests
         // MockChart.BarsWidth defaults to something? Let's assume 0 or check logic.
         // In GetSmoothCurvePoints: barX + halfBarWidth.
         // Our mock GetChartX returns 10.
-
-        // 3. Test GetHistogramRectangles
-        var histSeries = new LineSeries("Hist", Color.Blue, 1, LineStyle.Solid);
-        for (int i = 0; i < 20; i++) histSeries.AddValue();
-        for (int i = 0; i < 20; i++)
-        {
-            double val = (i % 2 == 0) ? 10.0 : -10.0;
-            histSeries.SetValue(val, i);
-        }
-
-        var rects = IndicatorExtensions.GetHistogramRectangles(indicator, converter, clientRect, histSeries);
-        Assert.NotEmpty(rects);
-
-        // Check value at offset 9 (i=9 in setup loop)
-        // i=9 is odd -> -10.0 (Negative)
-        // Color should be Red (150, 255, 0, 0)
-        var first = rects[0];
-        Assert.Equal(Color.FromArgb(150, 255, 0, 0), first.Color);
-
-        // Verify geometry
-        // Value is -10. GetChartY(-10) -> -10.
-        // GetChartY(0) -> 0.
-        // Height = Abs(0 - (-10)) = 10.
-        // Y = 0 (since negative bars start at 0 and go down? No, GDI+ coords usually go down.
-        // But here we are testing the logic in GetHistogramRectangles:
-        // else  new Rectangle(barX, barY0, ...)  -> Y = barY0 = 0.
-        Assert.Equal(0, first.Rect.Y);
-        Assert.Equal(10, first.Rect.Height);
     }
 
     [Fact]
@@ -225,10 +147,6 @@ public class IndicatorExtensionsTests
         indicator.CurrentChart.MainWindow.CoordinatesConverter = new TestCoordinatesConverter(validTime);
 
         var args = new PaintChartEventArgs(graphics, new Rectangle(0, 0, 100, 100));
-        using var pen = new Pen(Color.Red);
-
-        // Test PaintHLine
-        IndicatorExtensions.PaintHLine(indicator, args, 100, pen);
 
         // Test PaintSmoothCurve with different LineStyles and Warmup
         foreach (LineStyle style in Enum.GetValues(typeof(LineStyle)))
@@ -242,40 +160,6 @@ public class IndicatorExtensionsTests
 
             // Test without cold values
             IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: false);
-
-            // Test PaintLine
-            IndicatorExtensions.PaintLine(indicator, args, series, warmupPeriod: 5, showColdValues: true);
         }
-
-        // Test PaintHistogram with Positive and Negative values
-        var histSeries = new LineSeries("Hist", Color.Blue, 1, LineStyle.Solid);
-        for (int i = 0; i < 20; i++) histSeries.AddValue();
-        for (int i = 0; i < 20; i++)
-        {
-            // Alternate positive and negative
-            double val = (i % 2 == 0) ? 10.0 : -10.0;
-            histSeries.SetValue(val, i);
-        }
-        IndicatorExtensions.PaintHistogram(indicator, args, histSeries, 0);
-
-        // Test DrawText
-        IndicatorExtensions.DrawText(indicator, args, "Test Text");
     }
-
-    [Fact]
-    public void GetInputValue_DefaultCase_ReturnsClose()
-    {
-        TestIndicator indicator = new();
-        DateTime now = new(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-        indicator.HistoricalData.AddBar(now, 100, 110, 90, 105, 1000);
-        UpdateArgs args = new(UpdateReason.NewBar);
-
-        // Cast to an invalid SourceType to trigger default case
-        SourceType invalidType = (SourceType)999;
-
-        var result = IndicatorExtensions.GetInputValue(indicator, args, invalidType);
-
-        Assert.Equal(105, result.Value); // Should default to Close (105)
-    }
-
 }

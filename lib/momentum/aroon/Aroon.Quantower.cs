@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class AroonIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class AroonIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -12,11 +14,11 @@ public class AroonIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Aroon? _aroon;
-    protected LineSeries? UpSeries;
-    protected LineSeries? DownSeries;
-    protected LineSeries? OscSeries;
+    private readonly LineSeries? _upSeries;
+    private readonly LineSeries? _downSeries;
+    private readonly LineSeries? _oscSeries;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"Aroon {Period}";
@@ -29,36 +31,29 @@ public class AroonIndicator : Indicator, IWatchlistIndicator
         Name = "Aroon";
         Description = "Identifies trend changes and strength";
 
-        UpSeries = new(name: "Aroon Up", color: Color.Green, width: 1, style: LineStyle.Solid);
-        DownSeries = new(name: "Aroon Down", color: Color.Red, width: 1, style: LineStyle.Solid);
-        OscSeries = new(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _upSeries = new(name: "Aroon Up", color: Color.Green, width: 1, style: LineStyle.Solid);
+        _downSeries = new(name: "Aroon Down", color: Color.Red, width: 1, style: LineStyle.Solid);
+        _oscSeries = new(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
 
-        AddLineSeries(UpSeries);
-        AddLineSeries(DownSeries);
-        AddLineSeries(OscSeries);
+        AddLineSeries(_upSeries);
+        AddLineSeries(_downSeries);
+        AddLineSeries(_oscSeries);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _aroon = new Aroon(Period);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _aroon!.Update(this.GetInputBar(args), args.IsNewBar());
 
-        TBar bar = this.GetInputBar(args);
-
-        TValue result = _aroon!.Update(bar, isNew);
-
-        if (!_aroon.IsHot && !ShowColdValues)
-        {
-            return;
-        }
-
-        UpSeries!.SetValue(_aroon.Up.Value);
-        DownSeries!.SetValue(_aroon.Down.Value);
-        OscSeries!.SetValue(result.Value);
+        _upSeries!.SetValue(_aroon.Up.Value, _aroon.IsHot, ShowColdValues);
+        _downSeries!.SetValue(_aroon.Down.Value, _aroon.IsHot, ShowColdValues);
+        _oscSeries!.SetValue(result.Value, _aroon.IsHot, ShowColdValues);
     }
 }

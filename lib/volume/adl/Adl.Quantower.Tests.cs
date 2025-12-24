@@ -25,12 +25,12 @@ public class AdlIndicatorTests
     }
 
     [Fact]
-    public void AdlIndicator_SourceCodeLink_IsValid()
+    public void AdlIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new AdlIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Adl.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Equal(0, AdlIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]

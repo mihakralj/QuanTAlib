@@ -1,8 +1,10 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
+[SkipLocalsInit]
 public class BesselIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Length", sortIndex: 1, 1, 1000, 1, 0)]
@@ -17,9 +19,9 @@ public class BesselIndicator : Indicator, IWatchlistIndicator
     private Bessel? _filter;
     protected LineSeries? Series;
     protected string? SourceName;
-    private int _warmupBarIndex = -1;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Length;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"BESSEL {Length}:{SourceName}";
@@ -39,27 +41,17 @@ public class BesselIndicator : Indicator, IWatchlistIndicator
     {
         _filter = new Bessel(Length);
         SourceName = Source.ToString();
-        _warmupBarIndex = -1;
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _filter!.Update(input, isNew);
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        
+        TValue result = _filter!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent);
-
-        if (_warmupBarIndex < 0 && _filter!.IsHot)
-            _warmupBarIndex = Count;
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        int warmupPeriod = _warmupBarIndex > 0 ? _warmupBarIndex : Count;
-        this.PaintSmoothCurve(args, Series!, warmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        Series!.SetValue(result.Value, _filter.IsHot, ShowColdValues);
     }
 }

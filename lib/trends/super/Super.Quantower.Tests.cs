@@ -20,13 +20,13 @@ public class SuperIndicatorTests
     }
 
     [Fact]
-    public void SuperIndicator_MinHistoryDepths_EqualsPeriod()
+    public void SuperIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new SuperIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, SuperIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -57,8 +57,8 @@ public class SuperIndicatorTests
         // Initialize should not throw
         indicator.Initialize();
 
-        // After init, line series should exist (Up and Down)
-        Assert.Equal(2, indicator.LinesSeries.Count);
+        // After init, line series should exist (SuperTrend, Upper, Lower)
+        Assert.Equal(3, indicator.LinesSeries.Count);
     }
 
     [Fact]
@@ -119,6 +119,6 @@ public class SuperIndicatorTests
 
         Assert.Equal(20, indicator.Period);
         Assert.Equal(4.0, indicator.Multiplier);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, SuperIndicator.MinHistoryDepths);
     }
 }

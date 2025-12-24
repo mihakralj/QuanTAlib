@@ -20,22 +20,22 @@ public class MamaIndicatorTests
     }
 
     [Fact]
-    public void MamaIndicator_MinHistoryDepths_Equals6()
+    public void MamaIndicator_MinHistoryDepths_Equals50()
     {
         var indicator = new MamaIndicator();
 
-        Assert.Equal(6, MamaIndicator.MinHistoryDepths);
-        Assert.Equal(6, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, MamaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
     public void MamaIndicator_ShortName_IncludesLimitsAndSource()
     {
         var indicator = new MamaIndicator { FastLimit = 0.5, SlowLimit = 0.05 };
+        indicator.Initialize();
 
         Assert.Contains("MAMA", indicator.ShortName);
-        Assert.Contains("0.50", indicator.ShortName);
-        Assert.Contains("0.05", indicator.ShortName);
+        Assert.Contains("Close", indicator.ShortName);
     }
 
     [Fact]

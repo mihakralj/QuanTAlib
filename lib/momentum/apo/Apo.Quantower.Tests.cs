@@ -20,13 +20,13 @@ public class ApoIndicatorTests
     }
 
     [Fact]
-    public void ApoIndicator_MinHistoryDepths_EqualsSlowPeriod()
+    public void ApoIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new ApoIndicator { SlowPeriod = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, ApoIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -117,6 +117,6 @@ public class ApoIndicatorTests
 
         Assert.Equal(10, indicator.FastPeriod);
         Assert.Equal(40, indicator.SlowPeriod);
-        Assert.Equal(40, indicator.MinHistoryDepths);
+        Assert.Equal(0, ApoIndicator.MinHistoryDepths);
     }
 }

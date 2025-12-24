@@ -12,7 +12,6 @@ public class JmaIndicatorTests
 
         Assert.Equal(10, indicator.Period);
         Assert.Equal(0, indicator.Phase);
-        Assert.Equal(0.45, indicator.Power);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
         Assert.Equal("JMA - Jurik Moving Average", indicator.Name);
@@ -25,19 +24,18 @@ public class JmaIndicatorTests
     {
         var indicator = new JmaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, JmaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
     public void JmaIndicator_ShortName_IncludesParameters()
     {
-        var indicator = new JmaIndicator { Period = 15, Phase = 50, Power = 0.8 };
+        var indicator = new JmaIndicator { Period = 15, Phase = 50 };
 
         Assert.Contains("JMA", indicator.ShortName);
         Assert.Contains("15", indicator.ShortName);
         Assert.Contains("50", indicator.ShortName);
-        Assert.Contains("0.8", indicator.ShortName);
     }
 
     [Fact]
@@ -115,16 +113,6 @@ public class JmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void JmaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new JmaIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(JmaIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void JmaIndicator_MultipleUpdates_ProducesCorrectSequence()
@@ -171,18 +159,15 @@ public class JmaIndicatorTests
     [Fact]
     public void JmaIndicator_Parameters_CanBeChanged()
     {
-        var indicator = new JmaIndicator { Period = 5, Phase = 10, Power = 0.5 };
+        var indicator = new JmaIndicator { Period = 5, Phase = 10 };
         Assert.Equal(5, indicator.Period);
         Assert.Equal(10, indicator.Phase);
-        Assert.Equal(0.5, indicator.Power);
 
         indicator.Period = 20;
         indicator.Phase = -10;
-        indicator.Power = 0.9;
 
         Assert.Equal(20, indicator.Period);
         Assert.Equal(-10, indicator.Phase);
-        Assert.Equal(0.9, indicator.Power);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, JmaIndicator.MinHistoryDepths);
     }
 }

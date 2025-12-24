@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class AoIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class AoIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Fast Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int FastPeriod { get; set; } = 5;
@@ -15,10 +17,10 @@ public class AoIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Ao? _ao;
-    protected LineSeries? UpSeries;
-    protected LineSeries? DownSeries;
+    private readonly LineSeries? _upSeries;
+    private readonly LineSeries? _downSeries;
 
-    public int MinHistoryDepths => SlowPeriod;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"AO {FastPeriod}:{SlowPeriod}";
@@ -31,69 +33,47 @@ public class AoIndicator : Indicator, IWatchlistIndicator
         Name = "AO - Awesome Oscillator";
         Description = "Momentum indicator measuring market momentum";
 
-        UpSeries = new(name: "AO Up", color: Color.Green, width: 2, style: LineStyle.Solid);
-        DownSeries = new(name: "AO Down", color: Color.Red, width: 2, style: LineStyle.Solid);
+        _upSeries = new(name: "AO Up", color: Color.Green, width: 2, style: LineStyle.Solid);
+        _downSeries = new(name: "AO Down", color: Color.Red, width: 2, style: LineStyle.Solid);
 
-        AddLineSeries(UpSeries);
-        AddLineSeries(DownSeries);
+        AddLineSeries(_upSeries);
+        AddLineSeries(_downSeries);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _ao = new Ao(FastPeriod, SlowPeriod);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-
-        TBar bar = this.GetInputBar(args);
-        TValue result = _ao!.Update(bar, isNew);
+        TValue result = _ao!.Update(this.GetInputBar(args), args.IsNewBar());
 
         if (!_ao.IsHot && !ShowColdValues)
-        {
             return;
-        }
 
-        // Determine color based on momentum
-        // Green if rising, Red if falling
-        // We need previous value to compare.
-        // Since OnUpdate is called multiple times for the same bar (ticks),
-        // we need to be careful about "previous value".
-        // Ideally, we compare with the value of the *previous bar*.
-        // But AO coloring is usually: Current > Previous Bar's AO => Green.
-        // Or Current > Previous Value (intra-bar)?
-        // Standard is: "Green bar if the bar is higher than the previous bar. Red bar if the bar is lower than the previous bar."
-        // "Previous bar" usually means the AO value of the previous period.
-
-        // We can get the previous value from the indicator history if we stored it,
-        // or just use _ao.Last (which is current) and we need the previous one.
-        // But _ao doesn't expose history directly unless we use TSeries.
-        // However, Quantower stores history in the Series.
-
-        // Get previous value from series
         double prevAo = double.NaN;
         if (Count > 1)
         {
-            // Try to get from UpSeries
-            prevAo = UpSeries!.GetValue(1);
+            prevAo = _upSeries!.GetValue(1);
             if (double.IsNaN(prevAo))
             {
-                prevAo = DownSeries!.GetValue(1);
+                prevAo = _downSeries!.GetValue(1);
             }
         }
 
-        // If first bar, just pick a color (e.g. Green) or NaN
         if (double.IsNaN(prevAo) || result.Value > prevAo)
         {
-            UpSeries!.SetValue(result.Value);
-            DownSeries!.SetValue(double.NaN);
+            _upSeries!.SetValue(result.Value);
+            _downSeries!.SetValue(double.NaN);
         }
         else
         {
-            UpSeries!.SetValue(double.NaN);
-            DownSeries!.SetValue(result.Value);
+            _upSeries!.SetValue(double.NaN);
+            _downSeries!.SetValue(result.Value);
         }
     }
 }

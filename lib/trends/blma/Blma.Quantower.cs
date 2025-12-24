@@ -1,9 +1,10 @@
-using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
+[SkipLocalsInit]
 public class BlmaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
@@ -17,47 +18,41 @@ public class BlmaIndicator : Indicator, IWatchlistIndicator
 
     private Blma? _ma;
     protected LineSeries? _series;
+    protected string? SourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"BLMA {Period}";
+    public override string ShortName => $"BLMA {Period}:{SourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/blma/Blma.Quantower.cs";
 
     public BlmaIndicator()
     {
+        OnBackGround = true;
+        SeparateWindow = false;
+        SourceName = Source.ToString();
         Name = "BLMA - Blackman Window Moving Average";
         Description = "A moving average using the Blackman window function for superior noise suppression.";
-        SeparateWindow = false;
-
-        _series = new(name: "BLMA", color: Color.Yellow, width: 2, style: LineStyle.Solid);
+        _series = new(name: $"BLMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 
     protected override void OnInit()
     {
         _ma = new Blma(Period);
+        SourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
         
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _ma!.Update(input, isNew);
+        TValue result = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
-        if (!_ma.IsHot && !ShowColdValues)
-        {
-            return;
-        }
-
-        _series!.SetValue(result.Value);
-    }
-
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, _series!, _ma!.WarmupPeriod, showColdValues: ShowColdValues, tension: 0.2);
+        _series!.SetValue(result.Value, _ma.IsHot, ShowColdValues);
     }
 }

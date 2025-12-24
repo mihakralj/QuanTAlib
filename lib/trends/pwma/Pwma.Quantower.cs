@@ -1,9 +1,12 @@
+using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class PwmaIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class PwmaIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 2000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -14,50 +17,42 @@ public class PwmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Pwma? _ma;
-    private int _warmupBarIndex = -1;
-    protected LineSeries? Series;
-    protected string? SourceName;
+    private Pwma? _pwma;
+    private readonly LineSeries? _series;
+    private string? _sourceName;
+    private Func<IHistoryItem, double>? _priceSelector;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"PWMA {Period}:{SourceName}";
+    public override string ShortName => $"PWMA {Period}:{_sourceName}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/pwma/Pwma.Quantower.cs";
 
     public PwmaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
-        SourceName = Source.ToString();
         Name = "PWMA - Parabolic Weighted Moving Average";
-        Description = "Weighted Moving Average with parabolic weighting";
-        Series = new(name: $"PWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
-        AddLineSeries(Series);
+        Description = "Parabolic Weighted Moving Average";
+        _series = new(name: $"PWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_series);
     }
 
     protected override void OnInit()
     {
-        _ma = new Pwma(Period);
-        _warmupBarIndex = -1;
-        SourceName = Source.ToString();
+        _priceSelector = Source.GetPriceSelector();
+        _sourceName = Source.ToString();
+        _pwma = new Pwma(Period);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue input = this.GetInputValue(args, Source);
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
-        TValue result = _ma!.Update(input, isNew);
-        if (_warmupBarIndex < 0 && _ma!.IsHot)
-            _warmupBarIndex = Count;
-        Series!.SetValue(result.Value);
-        Series!.SetMarker(0, Color.Transparent); //OnPaintChart draws the line, hidden here
+        bool isNew = args.IsNewBar();
+        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        double value = _pwma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
+        _series!.SetValue(value, _pwma.IsHot, ShowColdValues);
     }
 
-    public override void OnPaintChart(PaintChartEventArgs args)
-    {
-        base.OnPaintChart(args);
-        this.PaintSmoothCurve(args, Series!, _warmupBarIndex, showColdValues: ShowColdValues, tension: 0.2);
-    }
 }

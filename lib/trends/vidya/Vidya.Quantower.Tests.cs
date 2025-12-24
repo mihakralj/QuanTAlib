@@ -23,8 +23,8 @@ public class VidyaIndicatorTests
     {
         var indicator = new VidyaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, VidyaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -56,14 +56,17 @@ public class VidyaIndicatorTests
 
         // Add historical data
         var now = DateTime.UtcNow;
-        indicator.HistoricalData.AddBar(now, 100, 105, 95, 102);
-
-        // Process update
-        var args = new UpdateArgs(UpdateReason.HistoricalBar);
-        indicator.ProcessUpdate(args);
+        for (int i = 0; i < 10; i++)
+        {
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 102);
+            
+            // Process update
+            var args = new UpdateArgs(UpdateReason.HistoricalBar);
+            indicator.ProcessUpdate(args);
+        }
 
         // Line series should have a value
-        Assert.Equal(1, indicator.LinesSeries[0].Count);
+        Assert.True(indicator.LinesSeries[0].Count > 0);
         Assert.True(double.IsFinite(indicator.LinesSeries[0].GetValue(0)));
     }
 
@@ -94,10 +97,12 @@ public class VidyaIndicatorTests
 
         // Add historical data
         var now = DateTime.UtcNow;
-        indicator.HistoricalData.AddBar(now, 100, 105, 95, 102);
+        for (int i = 0; i < 50; i++)
+        {
+            indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 102);
+            indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+        }
 
-        // Process historical bar first
-        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
         double firstValue = indicator.LinesSeries[0].GetValue(0);
 
         // Update with new tick (same bar data - simulates intrabar update)
@@ -164,6 +169,6 @@ public class VidyaIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, VidyaIndicator.MinHistoryDepths);
     }
 }

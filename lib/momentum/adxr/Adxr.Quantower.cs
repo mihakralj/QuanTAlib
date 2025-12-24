@@ -1,9 +1,11 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib;
 
-public class AdxrIndicator : Indicator, IWatchlistIndicator
+[SkipLocalsInit]
+public sealed class AdxrIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
     public int Period { get; set; } = 14;
@@ -12,9 +14,9 @@ public class AdxrIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Adxr? _adxr;
-    protected LineSeries? AdxrSeries;
+    private readonly LineSeries? _adxrSeries;
 
-    public int MinHistoryDepths => Period;
+    public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"ADXR {Period}";
@@ -27,29 +29,22 @@ public class AdxrIndicator : Indicator, IWatchlistIndicator
         Name = "ADXR - Average Directional Movement Rating";
         Description = "Quantifies the change in momentum of the ADX";
 
-        AdxrSeries = new(name: "ADXR", color: Color.Orange, width: 2, style: LineStyle.Solid);
-        AddLineSeries(AdxrSeries);
+        _adxrSeries = new(name: "ADXR", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        AddLineSeries(_adxrSeries);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnInit()
     {
         _adxr = new Adxr(Period);
         base.OnInit();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        bool isNew = args.Reason == UpdateReason.NewBar || args.Reason == UpdateReason.HistoricalBar;
+        TValue result = _adxr!.Update(this.GetInputBar(args), args.IsNewBar());
 
-        TBar bar = this.GetInputBar(args);
-
-        TValue result = _adxr!.Update(bar, isNew);
-
-        if (!_adxr.IsHot && !ShowColdValues)
-        {
-            return;
-        }
-
-        AdxrSeries!.SetValue(result.Value);
+        _adxrSeries!.SetValue(result.Value, _adxr.IsHot, ShowColdValues);
     }
 }

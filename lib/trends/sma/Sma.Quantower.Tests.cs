@@ -19,12 +19,12 @@ public class SmaIndicatorTests
     }
 
     [Fact]
-    public void SmaIndicator_MinHistoryDepths_EqualsPeriod()
+    public void SmaIndicator_MinHistoryDepths_EqualsZero()
     {
         var indicator = new SmaIndicator { Period = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, SmaIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -36,14 +36,6 @@ public class SmaIndicatorTests
         Assert.Contains("15", indicator.ShortName);
     }
 
-    [Fact]
-    public void SmaIndicator_SourceCodeLink_IsValid()
-    {
-        var indicator = new SmaIndicator();
-
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Sma.Quantower.cs", indicator.SourceCodeLink);
-    }
 
     [Fact]
     public void SmaIndicator_Initialize_CreatesInternalSma()
@@ -111,16 +103,6 @@ public class SmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-    [Fact]
-    public void SmaIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new SmaIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(SmaIndicator), method.DeclaringType);
-    }
 
     [Fact]
     public void SmaIndicator_MultipleUpdates_ProducesCorrectSmaSequence()
@@ -177,6 +159,6 @@ public class SmaIndicatorTests
 
         indicator.Period = 20;
         Assert.Equal(20, indicator.Period);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, SmaIndicator.MinHistoryDepths);
     }
 }

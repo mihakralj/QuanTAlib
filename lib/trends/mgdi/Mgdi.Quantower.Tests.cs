@@ -13,7 +13,7 @@ public class MgdiIndicatorTests
         var indicator = new MgdiIndicator();
         Assert.Equal("MGDI - McGinley Dynamic Indicator", indicator.Name);
         Assert.Equal("MGDI(14,0.6):Close", indicator.ShortName);
-        Assert.Equal(14, indicator.MinHistoryDepths);
+        Assert.Equal(0, MgdiIndicator.MinHistoryDepths);
         Assert.Single(indicator.LinesSeries);
     }
 

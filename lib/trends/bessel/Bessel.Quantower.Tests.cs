@@ -23,8 +23,8 @@ public class BesselIndicatorTests
     {
         var indicator = new BesselIndicator { Length = 20 };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
-        Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
+        Assert.Equal(0, BesselIndicator.MinHistoryDepths);
+        Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
     [Fact]
@@ -157,6 +157,6 @@ public class BesselIndicatorTests
 
         indicator.Length = 20;
         Assert.Equal(20, indicator.Length);
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, BesselIndicator.MinHistoryDepths);
     }
 }

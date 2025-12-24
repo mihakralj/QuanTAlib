@@ -1,67 +1,149 @@
-using Xunit;
 using System;
+using System.Collections.Generic;
+using Xunit;
 
-namespace QuanTAlib.Tests;
+namespace QuanTAlib;
 
 public class ApoTests
 {
-    private readonly GBM _gbm;
-
-    public ApoTests()
-    {
-        _gbm = new GBM();
-    }
-
     [Fact]
-    public void Constructor_ValidatesInput()
-    {
-        Assert.Throws<ArgumentException>(() => new Apo(fastPeriod: 0));
-        Assert.Throws<ArgumentException>(() => new Apo(slowPeriod: 0));
-        Assert.Throws<ArgumentException>(() => new Apo(fastPeriod: 26, slowPeriod: 12)); // Fast >= Slow
-    }
-
-    [Fact]
-    public void Update_ReturnsValidValue()
+    public void BasicCalculation_DoesNotCrash()
     {
         var apo = new Apo(12, 26);
-        var result = apo.Update(new TValue(DateTime.UtcNow, 100));
-        Assert.Equal(0, result.Value); // First value: EMA(100) - EMA(100) = 0
+        var gbm = new GBM();
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            apo.Update(bars[i]);
+        }
+
+        Assert.True(double.IsFinite(apo.Last.Value));
     }
 
     [Fact]
-    public void IsHot_BecomesTrue()
+    public void IsNew_Consistency()
     {
         var apo = new Apo(12, 26);
-        for (int i = 0; i < 100; i++)
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed first 99
+        for (int i = 0; i < 99; i++)
         {
-            apo.Update(new TValue(DateTime.UtcNow, 100));
+            apo.Update(bars[i]);
         }
-        Assert.True(apo.IsHot);
+
+        // Update with 100th point (isNew=true)
+        apo.Update(bars[99], true);
+
+        // Update with modified 100th point (isNew=false)
+        var modifiedBar = new TBar(bars[99].Time, bars[99].Open, bars[99].High + 1.0, bars[99].Low - 1.0, bars[99].Close, bars[99].Volume);
+        var val2 = apo.Update(modifiedBar, false);
+
+        // Create new instance and feed up to modified
+        var apo2 = new Apo(12, 26);
+        for (int i = 0; i < 99; i++)
+        {
+            apo2.Update(bars[i]);
+        }
+        var val3 = apo2.Update(modifiedBar, true);
+
+        Assert.Equal(val3.Value, val2.Value, 1e-9);
     }
 
     [Fact]
-    public void Batch_Matches_Streaming()
+    public void Reset_Works()
     {
-        var source = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var tSeries = new TSeries(source.Close.Count);
-        for (int i = 0; i < source.Close.Count; i++)
+        var apo = new Apo(12, 26);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
         {
-            tSeries.Add(source.Close[i]);
+            apo.Update(bars[i]);
         }
 
-        var apoBatch = Apo.Batch(tSeries, 12, 26);
-
-        var apoStream = new Apo(12, 26);
-        var streamResults = new List<double>();
-        for (int i = 0; i < tSeries.Count; i++)
+        apo.Reset();
+        Assert.Equal(0, apo.Last.Value);
+        Assert.False(apo.IsHot);
+        
+        // Feed again
+        for (int i = 0; i < bars.Count; i++)
         {
-            streamResults.Add(apoStream.Update(tSeries[i]).Value);
+            apo.Update(bars[i]);
+        }
+        
+        Assert.True(double.IsFinite(apo.Last.Value));
+    }
+
+    [Fact]
+    public void TBarSeries_Update_Matches_Streaming()
+    {
+        var apo = new Apo(12, 26);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        var streamingResults = new List<double>();
+        for (int i = 0; i < bars.Count; i++)
+        {
+            streamingResults.Add(apo.Update(bars[i]).Value);
         }
 
-        Assert.Equal(apoBatch.Count, streamResults.Count);
-        for (int i = 0; i < apoBatch.Count; i++)
+        var apo2 = new Apo(12, 26);
+        var seriesResults = apo2.Update(bars.Close);
+
+        Assert.Equal(streamingResults.Count, seriesResults.Count);
+        for (int i = 0; i < seriesResults.Count; i++)
         {
-            Assert.Equal(apoBatch[i].Value, streamResults[i], precision: 9);
+            Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
+    }
+    
+    [Fact]
+    public void StaticCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        var apo = new Apo(12, 26);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < bars.Count; i++)
+        {
+            streamingResults.Add(apo.Update(bars[i]).Value);
+        }
+        
+        var staticResults = Apo.Batch(bars.Close, 12, 26);
+        
+        Assert.Equal(streamingResults.Count, staticResults.Count);
+        for (int i = 0; i < staticResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], staticResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var apo = new Apo(12, 26);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        // Test TBarSeries chain
+        var result = apo.Update(bars.Close);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
+        
+        // Test TBar chain (returns TValue)
+        var result2 = apo.Update(bars[0]);
+        Assert.IsType<TValue>(result2);
+    }
+
+    [Fact]
+    public void Constructor_InvalidParameters_ThrowsArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => new Apo(0, 26));
+        Assert.Throws<ArgumentException>(() => new Apo(12, 0));
+        Assert.Throws<ArgumentException>(() => new Apo(26, 12)); // Fast >= Slow
     }
 }

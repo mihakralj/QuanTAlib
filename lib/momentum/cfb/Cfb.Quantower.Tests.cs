@@ -26,9 +26,9 @@ public class CfbIndicatorTests
     {
         var indicator = new CfbIndicator { MaxLength = 50 };
 
-        Assert.Equal(50, indicator.MinHistoryDepths);
+        Assert.Equal(0, CfbIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(50, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -133,17 +133,6 @@ public class CfbIndicatorTests
     }
 
     [Fact]
-    public void CfbIndicator_OnPaintChart_DoesNotThrow()
-    {
-        var indicator = new CfbIndicator();
-        indicator.Initialize();
-
-        var method = indicator.GetType().GetMethod("OnPaintChart");
-        Assert.NotNull(method);
-        Assert.Equal(typeof(CfbIndicator), method.DeclaringType);
-    }
-
-    [Fact]
     public void CfbIndicator_DifferentSourceTypes_Work()
     {
         var sources = new[] { SourceType.Open, SourceType.High, SourceType.Low, SourceType.Close, SourceType.HL2, SourceType.HLC3 };
@@ -182,6 +171,6 @@ public class CfbIndicatorTests
         Assert.Equal(10, indicator.MinLength);
         Assert.Equal(40, indicator.MaxLength);
         Assert.Equal(10, indicator.Step);
-        Assert.Equal(40, indicator.MinHistoryDepths);
+        Assert.Equal(0, CfbIndicator.MinHistoryDepths);
     }
 }

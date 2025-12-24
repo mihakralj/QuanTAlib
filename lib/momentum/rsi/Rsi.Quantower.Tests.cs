@@ -25,9 +25,9 @@ public class RsiIndicatorTests
             Period = 20
         };
 
-        Assert.Equal(20, indicator.MinHistoryDepths);
+        Assert.Equal(0, RsiIndicator.MinHistoryDepths);
         IWatchlistIndicator watchlistIndicator = indicator;
-        Assert.Equal(20, watchlistIndicator.MinHistoryDepths);
+        Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class RsiIndicatorTests
         };
         indicator.Initialize();
 
-        Assert.Equal("RSI(20)", indicator.ShortName);
+        Assert.Contains("RSI(20)", indicator.ShortName);
     }
 
     [Fact]
