@@ -13,7 +13,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | [AROONOSC](aroonosc/AroonOsc.md) | Aroon Oscillator | Measures the difference between Aroon Up and Aroon Down to gauge trend strength and direction. |
 | BBB | Bollinger %B | |
 | BBS | Bollinger Band Squeeze | |
-| BOP | Balance of Power | |
+| [BOP](bop/Bop.md) | Balance of Power | Measures the strength of buyers vs sellers by comparing the close price to the open price. |
 | CCI | Commodity Channel Index | |
 | [CFB](cfb/Cfb.md) | Jurik Composite Fractal Behavior | Measures trend duration and quality by analyzing fractal efficiency across multiple time scales. |
 | CHOP | Choppiness Index | |
