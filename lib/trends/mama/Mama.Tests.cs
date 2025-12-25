@@ -105,8 +105,8 @@ public class MamaTests
     {
         var mama = new Mama();
         
-        // MAMA needs 6 bars to warmup (Index > 6)
-        for (int i = 0; i < 6; i++)
+        // MAMA needs 50 bars to warmup (Index > 50)
+        for (int i = 0; i < 50; i++)
         {
             mama.Update(new TValue(DateTime.UtcNow, 100));
             Assert.False(mama.IsHot);
@@ -120,7 +120,7 @@ public class MamaTests
     public void Reset_ClearsState()
     {
         var mama = new Mama();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 55; i++)
         {
             mama.Update(new TValue(DateTime.UtcNow, 100));
         }

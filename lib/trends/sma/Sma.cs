@@ -196,7 +196,7 @@ public sealed class Sma : AbstractBase
             _buffer.UpdateNewest(val);
         }
 
-        double result = _state.Sum / _buffer.Count;
+        double result = _buffer.Count > 0 ? _state.Sum / _buffer.Count : double.NaN;
         Last = new TValue(input.Time, result);
         PubEvent(Last);
         return Last;

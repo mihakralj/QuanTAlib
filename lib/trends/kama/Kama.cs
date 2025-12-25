@@ -160,7 +160,7 @@ public sealed class Kama : AbstractBase
             double volatility = _state.VolatilitySum;
 
             // Avoid division by zero
-            double er = (volatility > double.Epsilon) ? change / volatility : 0.0;
+            double er = (volatility > 1e-10) ? change / volatility : 0.0;
             // Cap ER at 1.0 just in case floating point errors push it slightly over
             if (er > 1.0) er = 1.0;
 
@@ -212,7 +212,7 @@ public sealed class Kama : AbstractBase
             Update(new TValue(source.Times[i], source.Values[i]));
         }
 
-        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        Last = new TValue(tSpan[len - 1], _state.Kama);
         return new TSeries(t, v);
     }
 
@@ -311,7 +311,7 @@ public sealed class Kama : AbstractBase
                 double change = 0;
                 change = (count == bufSize) ? Math.Abs(val - buffer[bufferIdx]) : Math.Abs(val - buffer[0]);
 
-                double er = (volatilitySum > double.Epsilon) ? change / volatilitySum : 0.0;
+                double er = (volatilitySum > 1e-10) ? change / volatilitySum : 0.0;
                 if (er > 1.0) er = 1.0;
 
                 double sc = er * (fastAlpha - slowAlpha) + slowAlpha;

@@ -108,6 +108,9 @@ public sealed class Hma : AbstractBase
             Update(new TValue(source.Times[i], source.Values[i]));
         }
 
+        // Adjust sample count to reflect actual total samples processed
+        _sampleCount = len;
+
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }

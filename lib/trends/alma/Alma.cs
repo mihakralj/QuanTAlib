@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// The final ALMA is the weighted sum of the price window divided by the sum of weights.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Alma : AbstractBase
+public sealed class Alma : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly double _offset;
@@ -32,6 +32,8 @@ public sealed class Alma : AbstractBase
     private readonly double[] _weights;
     private readonly double _invWeightSum;
     private readonly RingBuffer _buffer;
+    private readonly ITValuePublisher? _source;
+    private readonly Action<TValue>? _pubHandler;
 
     private record struct State(double LastValidValue);
     private State _state;
@@ -81,7 +83,17 @@ public sealed class Alma : AbstractBase
     public Alma(ITValuePublisher source, int period, double offset = 0.85, double sigma = 6.0)
         : this(period, offset, sigma)
     {
-        source.Pub += (item) => Update(item);
+        _source = source;
+        _pubHandler = (item) => Update(item);
+        _source.Pub += _pubHandler;
+    }
+
+    public void Dispose()
+    {
+        if (_source != null && _pubHandler != null)
+        {
+            _source.Pub -= _pubHandler;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

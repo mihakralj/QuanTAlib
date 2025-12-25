@@ -100,10 +100,6 @@ $$ [Formula] $$
 | **Overshoot** | [1-10] | [Context] |
 | **Smoothness** | [1-10] | [Context] |
 
-### Zero-Allocation Design
-
-[Explain how the implementation achieves zero-allocation. Mention `stackalloc`, structs, or specific optimizations.]
-
 ## Validation
 
 [How do we know it's correct? Comparison against external libs (TA-Lib, Skender, etc.).]

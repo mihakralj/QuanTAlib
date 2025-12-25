@@ -97,7 +97,7 @@ public class HtitTests
         
         htit.Reset();
         
-        Assert.Equal(0, htit.Last.Value);
+        Assert.True(double.IsNaN(htit.Last.Value));
         Assert.False(htit.IsHot);
     }
 

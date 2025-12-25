@@ -13,10 +13,11 @@ namespace QuanTAlib;
 public sealed class Mama : AbstractBase
 {
     public TValue Fama { get; private set; }
-    public override bool IsHot => _state.Index > 6;
+    public override bool IsHot => _state.Index > 50;
 
     private readonly double _fastLimit;
     private readonly double _slowLimit;
+    private readonly double _scaledFastLimit;
 
     private record struct State(
         double Period, double Phase, double Mama, double Fama, double SumPr,
@@ -32,12 +33,23 @@ public sealed class Mama : AbstractBase
     private readonly RingBuffer _Q1_buffer;
 
     // High-precision constants
-    private const double c1 = 5.0 / 52.0;   // ~0.09615385
-    private const double c2 = 15.0 / 26.0;  // ~0.57692308
-    private const double adjSlope = 3.0 / 40.0; // 0.075
-    private const double adjIntercept = 27.0 / 50.0; // 0.54
-    private const double TWOPI = 2.0 * Math.PI;
-    private const double RadToDeg = 180.0 / Math.PI;
+    private const double C1 = 5.0 / 52.0;   // ~0.09615385
+    private const double C2 = 15.0 / 26.0;  // ~0.57692308
+
+    // Hilbert Transform Correction Factors
+    // These empirical constants (0.075 and 0.54) are derived by John Ehlers to tune
+    // the Hilbert Transform for the expected range of market cycles.
+    // CorrectionFactor = 0.075 * Period + 0.54
+    private const double AdjSlope = 3.0 / 40.0; // 0.075
+    private const double AdjIntercept = 27.0 / 50.0; // 0.54
+
+    private const double TwoPi = 2.0 * Math.PI;
+    private const double MinDeltaRadians = Math.PI / 180.0; // 1 degree in radians
+    private const double SmoothCoef = 0.2;
+    private const double SmoothPrev = 0.8;
+    private const double FamaAlphaFactor = 0.5;
+    private const double MinPeriod = 6.0;
+    private const double MaxPeriod = 50.0;
 
     public Mama(double fastLimit = 0.5, double slowLimit = 0.05)
     {
@@ -47,6 +59,7 @@ public sealed class Mama : AbstractBase
         }
         _fastLimit = fastLimit;
         _slowLimit = slowLimit;
+        _scaledFastLimit = fastLimit * MinDeltaRadians;
 
         _priceBuffer = new RingBuffer(7);
         _smoothBuffer = new RingBuffer(7);
@@ -55,7 +68,7 @@ public sealed class Mama : AbstractBase
         _Q1_buffer = new RingBuffer(7);
 
         Name = $"Mama({fastLimit:F2},{slowLimit:F2})";
-        WarmupPeriod = 7;
+        WarmupPeriod = 50;
         Init();
     }
 
@@ -64,7 +77,7 @@ public sealed class Mama : AbstractBase
         source.Pub += (item) => Update(item);
     }
 
-    public void Init()
+    private void Init()
     {
         Reset();
     }
@@ -112,18 +125,18 @@ public sealed class Mama : AbstractBase
 
         if (_state.Index > 6)
         {
-            double adj = (adjSlope * _state.Period) + adjIntercept;
+            double adj = (AdjSlope * _state.Period) + AdjIntercept;
 
             // Smooth
             double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;
             _smoothBuffer.Add(smooth, isNew);
 
             // Detrender
-            double dt = (c1 * _smoothBuffer[^1] + c2 * _smoothBuffer[^3] - c2 * _smoothBuffer[^5] - c1 * _smoothBuffer[^7]) * adj;
+            double dt = (C1 * _smoothBuffer[^1] + C2 * _smoothBuffer[^3] - C2 * _smoothBuffer[^5] - C1 * _smoothBuffer[^7]) * adj;
             _detrender.Add(dt, isNew);
 
             // Q1
-            double q1 = (c1 * dt + c2 * _detrender[^3] - c2 * _detrender[^5] - c1 * _detrender[^7]) * adj;
+            double q1 = (C1 * dt + C2 * _detrender[^3] - C2 * _detrender[^5] - C1 * _detrender[^7]) * adj;
             _Q1_buffer.Add(q1, isNew);
 
             // I1 = dt[3]
@@ -132,30 +145,31 @@ public sealed class Mama : AbstractBase
 
             // Advance phases
             // jI = CalculateHilbertTransform(_i1, adj)
-            double jI = (c1 * i1 + c2 * _I1_buffer[^3] - c2 * _I1_buffer[^5] - c1 * _I1_buffer[^7]) * adj;
+            double jI = (C1 * i1 + C2 * _I1_buffer[^3] - C2 * _I1_buffer[^5] - C1 * _I1_buffer[^7]) * adj;
             // jQ = CalculateHilbertTransform(_q1, adj)
-            double jQ = (c1 * q1 + c2 * _Q1_buffer[^3] - c2 * _Q1_buffer[^5] - c1 * _Q1_buffer[^7]) * adj;
+            double jQ = (C1 * q1 + C2 * _Q1_buffer[^3] - C2 * _Q1_buffer[^5] - C1 * _Q1_buffer[^7]) * adj;
 
             // Phasor addition
             double i2_val = i1 - jQ;
             double q2_val = q1 + jI;
 
             // Smooth i2, q2
-            _state.I2 = 0.2 * i2_val + 0.8 * _p_state.I2;
-            _state.Q2 = 0.2 * q2_val + 0.8 * _p_state.Q2;
+            _state.I2 = SmoothCoef * i2_val + SmoothPrev * _p_state.I2;
+            _state.Q2 = SmoothCoef * q2_val + SmoothPrev * _p_state.Q2;
 
             // Homodyne discriminator
             double re_val = (_state.I2 * _p_state.I2) + (_state.Q2 * _p_state.Q2);
             double im_val = (_state.I2 * _p_state.Q2) - (_state.Q2 * _p_state.I2);
 
             // Smooth re, im
-            _state.Re = 0.2 * re_val + 0.8 * _p_state.Re;
-            _state.Im = 0.2 * im_val + 0.8 * _p_state.Im;
+            _state.Re = SmoothCoef * re_val + SmoothPrev * _p_state.Re;
+            _state.Im = SmoothCoef * im_val + SmoothPrev * _p_state.Im;
 
             // Calculate Period
-            double period = (Math.Abs(_state.Im) > double.Epsilon && Math.Abs(_state.Re) > double.Epsilon)
-                ? TWOPI / Math.Atan(_state.Im / _state.Re)
-                : 0.0;
+            double angle = Math.Atan2(_state.Im, _state.Re);
+            double period = Math.Abs(angle) > MinDeltaRadians
+                ? TwoPi / Math.Abs(angle)
+                : _p_state.Period;
 
             // Adjust Period
             double periodCap = _p_state.Period * 1.5;
@@ -164,23 +178,23 @@ public sealed class Mama : AbstractBase
             if (period > periodCap) period = periodCap;
             if (period < periodFloor) period = periodFloor;
 
-            if (period < 6.0) period = 6.0;
-            if (period > 50.0) period = 50.0;
+            if (period < MinPeriod) period = MinPeriod;
+            if (period > MaxPeriod) period = MaxPeriod;
 
             // Smooth Period
-            _state.Period = 0.2 * period + 0.8 * _p_state.Period;
+            _state.Period = SmoothCoef * period + SmoothPrev * _p_state.Period;
 
             // Phase calculation
-            _state.Phase = Math.Abs(i1) >= double.Epsilon ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
+            _state.Phase = Math.Atan2(q1, i1);
 
             // Adaptive alpha
-            double delta = Math.Max(_p_state.Phase - _state.Phase, 1.0);
-            double alpha = _fastLimit / delta;
+            double delta = Math.Max(_p_state.Phase - _state.Phase, MinDeltaRadians);
+            double alpha = _scaledFastLimit / delta;
             alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
 
             // Final indicators
             _state.Mama = alpha * _priceBuffer[^1] + (1.0 - alpha) * _p_state.Mama;
-            _state.Fama = 0.5 * alpha * _state.Mama + (1.0 - 0.5 * alpha) * _p_state.Fama;
+            _state.Fama = FamaAlphaFactor * alpha * _state.Mama + (1.0 - FamaAlphaFactor * alpha) * _p_state.Fama;
         }
         else
         {
@@ -265,6 +279,10 @@ public sealed class Mama : AbstractBase
 
         // Constants
         const int Mask = 7;
+        // Pre-scale fastLimit by MinDeltaRadians so alpha calculation
+        // produces same numerical results as degree-based formula:
+        // alpha_rad = (fastLimit × π/180) / delta_rad ≡ alpha_deg = fastLimit / delta_deg
+        double scaledFastLimit = fastLimit * MinDeltaRadians;
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -285,7 +303,7 @@ public sealed class Mama : AbstractBase
 
             if (count > 6)
             {
-                double adj = (adjSlope * period) + adjIntercept;
+                double adj = (AdjSlope * period) + AdjIntercept;
 
                 // Smooth
                 double smooth = (4.0 * priceBuffer[bufferIdx] +
@@ -296,18 +314,18 @@ public sealed class Mama : AbstractBase
                 smoothBuffer[bufferIdx] = smooth;
 
                 // Detrender
-                double dt = (c1 * smoothBuffer[bufferIdx] +
-                             c2 * smoothBuffer[(bufferIdx - 2) & Mask] -
-                             c2 * smoothBuffer[(bufferIdx - 4) & Mask] -
-                             c1 * smoothBuffer[(bufferIdx - 6) & Mask]) * adj;
+                double dt = (C1 * smoothBuffer[bufferIdx] +
+                             C2 * smoothBuffer[(bufferIdx - 2) & Mask] -
+                             C2 * smoothBuffer[(bufferIdx - 4) & Mask] -
+                             C1 * smoothBuffer[(bufferIdx - 6) & Mask]) * adj;
 
                 detrender[bufferIdx] = dt;
 
                 // Q1
-                double q1 = (c1 * dt +
-                             c2 * detrender[(bufferIdx - 2) & Mask] -
-                             c2 * detrender[(bufferIdx - 4) & Mask] -
-                             c1 * detrender[(bufferIdx - 6) & Mask]) * adj;
+                double q1 = (C1 * dt +
+                             C2 * detrender[(bufferIdx - 2) & Mask] -
+                             C2 * detrender[(bufferIdx - 4) & Mask] -
+                             C1 * detrender[(bufferIdx - 6) & Mask]) * adj;
 
                 Q1_buffer[bufferIdx] = q1;
 
@@ -316,36 +334,37 @@ public sealed class Mama : AbstractBase
                 I1_buffer[bufferIdx] = i1;
 
                 // Advance phases
-                double jI = (c1 * i1 +
-                             c2 * I1_buffer[(bufferIdx - 2) & Mask] -
-                             c2 * I1_buffer[(bufferIdx - 4) & Mask] -
-                             c1 * I1_buffer[(bufferIdx - 6) & Mask]) * adj;
+                double jI = (C1 * i1 +
+                             C2 * I1_buffer[(bufferIdx - 2) & Mask] -
+                             C2 * I1_buffer[(bufferIdx - 4) & Mask] -
+                             C1 * I1_buffer[(bufferIdx - 6) & Mask]) * adj;
 
-                double jQ = (c1 * q1 +
-                             c2 * Q1_buffer[(bufferIdx - 2) & Mask] -
-                             c2 * Q1_buffer[(bufferIdx - 4) & Mask] -
-                             c1 * Q1_buffer[(bufferIdx - 6) & Mask]) * adj;
+                double jQ = (C1 * q1 +
+                             C2 * Q1_buffer[(bufferIdx - 2) & Mask] -
+                             C2 * Q1_buffer[(bufferIdx - 4) & Mask] -
+                             C1 * Q1_buffer[(bufferIdx - 6) & Mask]) * adj;
 
                 // Phasor addition
                 double i2_val = i1 - jQ;
                 double q2_val = q1 + jI;
 
                 // Smooth i2, q2
-                i2 = 0.2 * i2_val + 0.8 * p_i2;
-                q2 = 0.2 * q2_val + 0.8 * p_q2;
+                i2 = SmoothCoef * i2_val + SmoothPrev * p_i2;
+                q2 = SmoothCoef * q2_val + SmoothPrev * p_q2;
 
                 // Homodyne discriminator
                 double re_val = (i2 * p_i2) + (q2 * p_q2);
                 double im_val = (i2 * p_q2) - (q2 * p_i2);
 
                 // Smooth re, im
-                re = 0.2 * re_val + 0.8 * p_re;
-                im = 0.2 * im_val + 0.8 * p_im;
+                re = SmoothCoef * re_val + SmoothPrev * p_re;
+                im = SmoothCoef * im_val + SmoothPrev * p_im;
 
                 // Calculate Period
-                double newPeriod = (Math.Abs(im) > double.Epsilon && Math.Abs(re) > double.Epsilon)
-                    ? TWOPI / Math.Atan(im / re)
-                    : 0.0;
+                double angle = Math.Atan2(im, re);
+                double newPeriod = Math.Abs(angle) > MinDeltaRadians
+                    ? TwoPi / Math.Abs(angle)
+                    : p_period;
 
                 // Adjust Period
                 double periodCap = p_period * 1.5;
@@ -354,18 +373,18 @@ public sealed class Mama : AbstractBase
                 if (newPeriod > periodCap) newPeriod = periodCap;
                 if (newPeriod < periodFloor) newPeriod = periodFloor;
 
-                if (newPeriod < 6.0) newPeriod = 6.0;
-                if (newPeriod > 50.0) newPeriod = 50.0;
+                if (newPeriod < MinPeriod) newPeriod = MinPeriod;
+                if (newPeriod > MaxPeriod) newPeriod = MaxPeriod;
 
                 // Smooth Period
-                period = 0.2 * newPeriod + 0.8 * p_period;
+                period = SmoothCoef * newPeriod + SmoothPrev * p_period;
 
                 // Phase calculation
-                double phase = Math.Abs(i1) >= double.Epsilon ? Math.Atan(q1 / i1) * RadToDeg : 0.0;
+                double phase = Math.Atan2(q1, i1);
 
                 // Adaptive alpha
-                double delta = Math.Max(p_phase - phase, 1.0);
-                double alpha = fastLimit / delta;
+                double delta = Math.Max(p_phase - phase, MinDeltaRadians);
+                double alpha = scaledFastLimit / delta;
                 alpha = Math.Clamp(alpha, slowLimit, fastLimit);
 
                 // Final indicators

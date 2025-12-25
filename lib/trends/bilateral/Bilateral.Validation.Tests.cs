@@ -2,35 +2,119 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace QuanTAlib;
+namespace QuanTAlib.Tests;
 
-public class BilateralValidationTests
+public class BilateralValidationTests : IDisposable
 {
-    [Fact]
-    public void MatchesReferenceImplementation()
+    private readonly ValidationTestData _testData;
+    private readonly ITestOutputHelper _output;
+
+    public BilateralValidationTests(ITestOutputHelper output)
     {
-        int period = 10;
+        _output = output;
+        _testData = new ValidationTestData();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _testData.Dispose();
+        }
+    }
+
+    [Fact]
+    public void Validate_Reference_Batch()
+    {
+        int[] periods = { 5, 10, 20, 50 };
         double sigmaSRatio = 0.5;
         double sigmaRMult = 1.0;
-        
-        var indicator = new Bilateral(period, sigmaSRatio, sigmaRMult);
-        var reference = new BilateralReference(period, sigmaSRatio, sigmaRMult);
-        
-        var random = new Random(123);
-        var data = new List<double>();
-        
-        for (int i = 0; i < 100; i++)
+
+        foreach (var period in periods)
         {
-            double price = 100 + Math.Sin(i * 0.1) * 10 + random.NextDouble() * 5;
-            data.Add(price);
-            
-            var tValue = new TValue(DateTime.UtcNow, price);
-            var actual = indicator.Update(tValue);
-            var expected = reference.Update(price);
-            
-            Assert.Equal(expected, actual.Value, 8);
+            // Calculate QuanTAlib Bilateral (batch TSeries)
+            var bilateral = new global::QuanTAlib.Bilateral(period, sigmaSRatio, sigmaRMult);
+            var qResult = bilateral.Update(_testData.Data);
+
+            // Calculate Reference Bilateral
+            var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResult, refResult, (s) => s, 100, 1e-8);
         }
+        _output.WriteLine("Bilateral Batch(TSeries) validated successfully against Reference");
+    }
+
+    [Fact]
+    public void Validate_Reference_Streaming()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double sigmaSRatio = 0.5;
+        double sigmaRMult = 1.0;
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib Bilateral (streaming)
+            var bilateral = new global::QuanTAlib.Bilateral(period, sigmaSRatio, sigmaRMult);
+            var qResults = new List<double>();
+            foreach (var item in _testData.Data)
+            {
+                qResults.Add(bilateral.Update(item).Value);
+            }
+
+            // Calculate Reference Bilateral
+            var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qResults, refResult, (s) => s, 100, 1e-8);
+        }
+        _output.WriteLine("Bilateral Streaming validated successfully against Reference");
+    }
+
+    [Fact]
+    public void Validate_Reference_Span()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double sigmaSRatio = 0.5;
+        double sigmaRMult = 1.0;
+
+        // Prepare data for Span API
+        double[] sourceData = _testData.RawData.ToArray();
+
+        foreach (var period in periods)
+        {
+            // Calculate QuanTAlib Bilateral (Span API)
+            double[] qOutput = new double[sourceData.Length];
+            global::QuanTAlib.Bilateral.Calculate(sourceData.AsSpan(), qOutput.AsSpan(), period, sigmaSRatio, sigmaRMult);
+
+            // Calculate Reference Bilateral
+            var refResult = GetReferenceData(period, sigmaSRatio, sigmaRMult);
+
+            // Compare last 100 records
+            ValidationHelper.VerifyData(qOutput, refResult, (s) => s, 100, 1e-8);
+        }
+        _output.WriteLine("Bilateral Span validated successfully against Reference");
+    }
+
+    private List<double> GetReferenceData(int period, double sigmaSRatio, double sigmaRMult)
+    {
+        var reference = new BilateralReference(period, sigmaSRatio, sigmaRMult);
+        var results = new List<double>();
+        
+        foreach (var item in _testData.Data)
+        {
+            results.Add(reference.Update(item.Value));
+        }
+        
+        return results;
     }
 
     private class BilateralReference
@@ -57,10 +141,6 @@ public class BilateralValidationTests
 
             if (_history.Count == 0) return double.NaN;
 
-            // PineScript: src is the series. src[0] is newest.
-            // _history: last element is newest.
-            // So src[i] corresponds to _history[_history.Count - 1 - i]
-
             double sigmaS = Math.Max(_length * _sigmaSRatio, 1e-10);
             
             // Calculate StDev of current window
@@ -69,17 +149,15 @@ public class BilateralValidationTests
 
             double sumWeights = 0.0;
             double sumWeightedSrc = 0.0;
-            double centerVal = _history[_history.Count - 1]; // src[0]
+            double centerVal = _history[_history.Count - 1]; // Newest value
 
-            // PineScript: for i = 0 to length - 1
-            // If history is shorter than length, we iterate up to history count
-            int loopLen = _history.Count; // PineScript usually handles shorter history by returning NaN or partial? 
-            // The snippet assumes src has length.
-            // We will iterate available history.
+            // Iterate through history
+            // i=0 is newest (index Count-1)
+            int loopLen = _history.Count;
             
             for (int i = 0; i < loopLen; i++)
             {
-                double valI = _history[_history.Count - 1 - i]; // src[i]
+                double valI = _history[_history.Count - 1 - i];
                 double diffSpatial = i;
                 double diffRange = centerVal - valI;
                 
@@ -101,8 +179,7 @@ public class BilateralValidationTests
             
             double avg = values.Average();
             double sumSqDiff = values.Sum(d => (d - avg) * (d - avg));
-            // PineScript stdev is population? Or sample?
-            // "ta.stdev" is population standard deviation (biased).
+            // Population StDev to match implementation
             return Math.Sqrt(sumSqDiff / values.Count);
         }
     }

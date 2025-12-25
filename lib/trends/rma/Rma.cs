@@ -44,6 +44,7 @@ public sealed class Rma : AbstractBase
     /// <param name="period">Period for RMA calculation</param>
     public Rma(ITValuePublisher source, int period) : this(period)
     {
+        ArgumentNullException.ThrowIfNull(source);
         source.Pub += (item) => Update(item);
     }
 
@@ -51,9 +52,9 @@ public sealed class Rma : AbstractBase
     /// Creates RMA with specified source and period.
     /// </summary>
     /// <param name="source">Source series</param>
-    /// <param name="period">Period for RMA calculation</param>
     public Rma(TSeries source, int period) : this(period)
     {
+        ArgumentNullException.ThrowIfNull(source);
         Prime(source.Values);
         if (source.Count > 0)
         {
@@ -97,10 +98,9 @@ public sealed class Rma : AbstractBase
     /// Calculates RMA for the entire series using a new instance.
     /// </summary>
     /// <param name="source">Input series</param>
-    /// <param name="period">RMA period</param>
-    /// <returns>RMA series</returns>
     public static TSeries Batch(TSeries source, int period)
     {
+        ArgumentNullException.ThrowIfNull(source);
         var rma = new Rma(period);
         return rma.Update(source);
     }
@@ -111,13 +111,13 @@ public sealed class Rma : AbstractBase
     /// Alpha = 1 / period
     /// </summary>
     /// <param name="source">Input values</param>
-    /// <param name="output">Output span (must be same length as source)</param>
-    /// <param name="period">RMA period (must be > 0)</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        if (output.Length < source.Length)
+            throw new ArgumentException("Output span must be at least as long as source span", nameof(output));
 
         double alpha = 1.0 / period;
         Ema.Batch(source, output, alpha);
@@ -132,6 +132,7 @@ public sealed class Rma : AbstractBase
     /// <returns>A tuple containing the full calculation results and the hot indicator instance</returns>
     public static (TSeries Results, Rma Indicator) Calculate(TSeries source, int period)
     {
+        ArgumentNullException.ThrowIfNull(source);
         var rma = new Rma(period);
         TSeries results = rma.Update(source);
         return (results, rma);

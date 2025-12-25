@@ -20,6 +20,14 @@ public class ButterTests
     }
 
     [Fact]
+    public void Calculate_ThrowsWhenDestinationTooSmall()
+    {
+        var source = new double[10];
+        var destination = new double[5];
+        Assert.Throws<ArgumentOutOfRangeException>(() => Butter.Calculate(source, destination, 5));
+    }
+
+    [Fact]
     public void IsHot_BecomesTrueAfterWarmup()
     {
         var butter = new Butter(10);

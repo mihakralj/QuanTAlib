@@ -46,7 +46,7 @@ public sealed class Mgdi : AbstractBase
         source.Pub += (item) => Update(item);
     }
 
-    public void Init()
+    private void Init()
     {
         _state = default;
         _p_state = default;
@@ -91,14 +91,7 @@ public sealed class Mgdi : AbstractBase
                 ratio4 *= ratio4;
 
                 double denominator = _k * _period * ratio4;
-                if (Math.Abs(denominator) < 1e-9)
-                {
-                    _state.LastMgdi = price;
-                }
-                else
-                {
-                    _state.LastMgdi = prev + (price - prev) / denominator;
-                }
+                _state.LastMgdi = (Math.Abs(denominator) < 1e-9) ? price : prev + (price - prev) / denominator;
             }
             else
             {
@@ -179,14 +172,7 @@ public sealed class Mgdi : AbstractBase
                 ratio4 *= ratio4;
 
                 double denominator = k * period * ratio4;
-                if (Math.Abs(denominator) < 1e-9)
-                {
-                    lastMgdi = price;
-                }
-                else
-                {
-                    lastMgdi += (price - lastMgdi) / denominator;
-                }
+                lastMgdi = (Math.Abs(denominator) < 1e-9) ? price : lastMgdi + (price - lastMgdi) / denominator;
             }
             else
             {

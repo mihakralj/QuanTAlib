@@ -175,6 +175,11 @@ public sealed class Blma : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");
         }
 
+        if (destination.Length < source.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(destination), $"Destination length must be at least {source.Length}.");
+        }
+
         // Pre-calculate weights for full period
         Span<double> weights = period <= 256 ? stackalloc double[period] : new double[period];
         double weightSum = CalculateWeights(period, weights);

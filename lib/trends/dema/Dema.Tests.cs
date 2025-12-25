@@ -109,6 +109,15 @@ public class DemaTests
     }
 
     [Fact]
+    public void Alpha_Constructor_Sets_WarmupPeriod()
+    {
+        int period = 10;
+        double alpha = 2.0 / (period + 1);
+        var dema = new Dema(alpha);
+        Assert.Equal(period, dema.WarmupPeriod);
+    }
+
+    [Fact]
     public void StaticCalculate_Alpha_Matches_ObjectUpdate()
     {
         // Arrange
@@ -302,5 +311,21 @@ public class DemaTests
         Assert.Equal(expected, spanResult, precision: 9);
         Assert.Equal(expected, streamingResult, precision: 9);
         Assert.Equal(expected, eventingResult, precision: 9);
+    }
+
+    [Fact]
+    public void StaticCalculate_HandlesInitialNaN_Correctly()
+    {
+        double[] source = { double.NaN, double.NaN, 10.0, 11.0, 12.0 };
+        double[] output = new double[source.Length];
+
+        Dema.Calculate(source, output, 3);
+
+        // We expect the first two outputs to be NaN because the input was NaN 
+        Assert.True(double.IsNaN(output[0]), $"Output[0] should be NaN, but was {output[0]}");
+        Assert.True(double.IsNaN(output[1]), $"Output[1] should be NaN, but was {output[1]}");
+
+        // The first valid value is 10.0. 
+        Assert.Equal(10.0, output[2], 1e-9);
     }
 }

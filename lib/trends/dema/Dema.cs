@@ -22,7 +22,7 @@ namespace QuanTAlib;
 /// Becomes true when the second EMA converges (approx. 2x EMA convergence time).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Dema : AbstractBase
+public sealed class Dema : AbstractBase, IDisposable
 {
     private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
     {
@@ -37,8 +37,10 @@ public sealed class Dema : AbstractBase
     private EmaState _p_state1 = EmaState.New();
     private EmaState _p_state2 = EmaState.New();
 
-    private double _lastValidValue;
-    private double _p_lastValidValue;
+    private double _lastValidValue = double.NaN;
+    private double _p_lastValidValue = double.NaN;
+    private readonly ITValuePublisher? _publisher;
+    private readonly Action<TValue>? _listener;
 
     public override bool IsHot => _state2.IsHot;
 
@@ -54,7 +56,9 @@ public sealed class Dema : AbstractBase
 
     public Dema(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        _publisher = source;
+        _listener = (item) => Update(item);
+        _publisher.Pub += _listener;
     }
 
     public Dema(double alpha)
@@ -64,6 +68,7 @@ public sealed class Dema : AbstractBase
         _alpha = alpha;
         _decay = 1.0 - alpha;
         Name = $"Dema(α={alpha:F4})";
+        WarmupPeriod = (int)((2.0 / alpha) - 1.0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,6 +93,13 @@ public sealed class Dema : AbstractBase
             _lastValidValue = val;
         else
             val = _lastValidValue;
+
+        if (double.IsNaN(val))
+        {
+            Last = new TValue(input.Time, double.NaN);
+            PubEvent(Last);
+            return Last;
+        }
 
         double e1 = Compute(val, _alpha, _decay, ref _state1);
 
@@ -130,6 +142,12 @@ public sealed class Dema : AbstractBase
                 lastValid = val;
             else
                 val = lastValid;
+
+            if (double.IsNaN(val))
+            {
+                vSpan[i] = double.NaN;
+                continue;
+            }
 
             double e1 = Compute(val, alpha, decay, ref s1);
             double e2 = Compute(e1, alpha, decay, ref s2);
@@ -219,7 +237,7 @@ public sealed class Dema : AbstractBase
         if (source.Length == 0) return;
 
         double decay = 1.0 - alpha;
-        double lastValid = 0;
+        double lastValid = double.NaN;
 
         // State for EMA1
         double ema1_val = 0;
@@ -238,6 +256,12 @@ public sealed class Dema : AbstractBase
                 lastValid = val;
             else
                 val = lastValid;
+
+            if (double.IsNaN(val))
+            {
+                output[i] = double.NaN;
+                continue;
+            }
 
             // Update EMA1
             ema1_val += alpha * (val - ema1_val);
@@ -292,8 +316,17 @@ public sealed class Dema : AbstractBase
         _state2 = EmaState.New();
         _p_state1 = EmaState.New();
         _p_state2 = EmaState.New();
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
+        _lastValidValue = double.NaN;
+        _p_lastValidValue = double.NaN;
         Last = default;
+    }
+
+    public void Dispose()
+    {
+        if (_publisher != null && _listener != null)
+        {
+            _publisher.Pub -= _listener;
+        }
+        GC.SuppressFinalize(this);
     }
 }

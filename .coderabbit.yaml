@@ -3,51 +3,67 @@
 
 reviews:
   path_filters:
-    - "!**/*.md"           # Exclude Markdown documentation
-    - "!**/*.dib"          # Exclude .NET Interactive Notebooks
-    - "!**/*.csv"          # Exclude CSV data files
-    - "!**/*.xml"          # Exclude XML files
-    - "!**/*.json"         # Exclude JSON files
-    - "!**/*.dll"          # Exclude DLL files
-    - "!**/*.pdb"          # Exclude PDB files
-    - "!**/*.sln"          # Exclude Solution files
-    - "!**/*.csproj"       # Exclude Project files
-    - "!**/*.ndproj"       # Exclude NDepend project files
-    - "!**/*.user"         # Exclude User files
-    - "!**/*.suo"          # Exclude Solution User Options
-    - "!**/*.cache"        # Exclude Cache files
-    - "!**/*.yml"          # Exclude YAML files
-    - "!**/*.yaml"         # Exclude YAML files
-    - "!**/bin/**"         # Exclude bin directories
-    - "!**/obj/**"         # Exclude obj directories
-    - "!**/BenchmarkDotNet.Artifacts/**" # Exclude benchmark artifacts
-    - "!**/ilspy/**"       # Exclude decompiled code
-    - "!**/.vs/**"         # Exclude Visual Studio cache
-    - "!**/.git/**"        # Exclude Git directory
-    - "!**/.idea/**"       # Exclude JetBrains cache
-    - "!**/.vscode/**"     # Exclude VS Code settings
-    - "!**/.sonarqube/**"  # Exclude SonarQube cache
-    - "!**/.sonarlint/**"  # Exclude SonarLint cache
-    - "!**/.codacy/**"     # Exclude Codacy cache
-    - "!**/*.lock"         # Exclude lock files
-    - "!**/*.nupkg"        # Exclude NuGet packages
-    - "!**/*.snupkg"       # Exclude NuGet symbol packages
-    - "!**/*.Tests.cs"     # Exclude all test files
-    - "!**/*Tests.cs"      # Exclude all files ending in Tests.cs
-    - "!**/*.Validation.Tests.cs" # Exclude validation tests
-    - "!**/*.Quantower.Tests.cs"  # Exclude Quantower adapter tests
-    - "!**/*.Quantower.cs" # Exclude Quantower adapters
-    - "!**/perf/**"        # Exclude performance tests
-    - "!**/quantower/**"   # Exclude root quantower directory
-    - "!**/Mocks/**"       # Exclude Mocks
-    - "!**/*.so"           # Exclude Shared Objects
-    - "!**/*.dylib"        # Exclude Dynamic Libraries
-    - "!**/*.log"          # Exclude Log files
-    - "!**/*.png"          # Exclude PNG images
-    - "!**/*.jpg"          # Exclude JPG images
-    - "!**/*.jpeg"         # Exclude JPEG images
-    - "!**/*.gif"          # Exclude GIF images
-    - "!**/*.props"        # Exclude Build properties
-    - "!**/*.targets"      # Exclude Build targets
-    - "!**/*.db"           # Exclude Database files
-    - "!**/*.sqlite"       # Exclude SQLite files
+    # Include C# source files first
+    - "lib/trends/**/*.cs"
+    
+    # Exclude test files
+    - "!**/*.Tests.cs"
+    - "!**/*Tests.cs"
+    - "!**/*.Validation.Tests.cs"
+    
+    # Exclude Quantower adapters
+    - "!**/*.Quantower.Tests.cs"
+    - "!**/*.Quantower.cs"
+    - "!**/quantower/**"
+    - "!**/docs/*.md"
+    
+    # Exclude build/IDE artifacts
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/.vs/**"
+    - "!**/.git/**"
+    - "!**/.idea/**"
+    - "!**/.vscode/**"
+    - "!**/.sonarqube/**"
+    - "!**/.sonarlint/**"
+    - "!**/.codacy/**"
+    - "!**/BenchmarkDotNet.Artifacts/**"
+    - "!**/ilspy/**"
+    - "!**/perf/**"
+    - "!**/Mocks/**"
+    
+    # Exclude non-source files
+    - "!**/*.md"
+    - "!**/*.dib"
+    - "!**/*.csv"
+    - "!**/*.xml"
+    - "!**/*.json"
+    - "!**/*.yml"
+    - "!**/*.yaml"
+    - "!**/*.sln"
+    - "!**/*.csproj"
+    - "!**/*.ndproj"
+    - "!**/*.user"
+    - "!**/*.suo"
+    - "!**/*.cache"
+    - "!**/*.lock"
+    - "!**/*.props"
+    - "!**/*.targets"
+    
+    # Exclude binaries
+    - "!**/*.dll"
+    - "!**/*.pdb"
+    - "!**/*.nupkg"
+    - "!**/*.snupkg"
+    - "!**/*.so"
+    - "!**/*.dylib"
+    - "!**/*.exe"
+    
+    # Exclude data/media files
+    - "!**/*.db"
+    - "!**/*.sqlite"
+    - "!**/*.log"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"

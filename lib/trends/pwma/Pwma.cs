@@ -32,6 +32,7 @@ public sealed class Pwma : AbstractBase
     private readonly int _period;
     private readonly double _divisor;
     private readonly RingBuffer _buffer;
+    private readonly RingBuffer _p_buffer;
 
     private record struct State(double Sum, double WSum, double PSum, double LastInput, double LastValidValue, int TickCount);
     private State _state;
@@ -48,6 +49,7 @@ public sealed class Pwma : AbstractBase
         _period = period;
         _divisor = (double)period * (period + 1) * (2 * period + 1) / 6.0;
         _buffer = new RingBuffer(period);
+        _p_buffer = new RingBuffer(period);
         Name = $"Pwma({period})";
         WarmupPeriod = period;
     }
@@ -121,10 +123,12 @@ public sealed class Pwma : AbstractBase
             UpdateState(val);
             _state.LastInput = val;
             _p_state = _state;
+            _p_buffer.CopyFrom(_buffer);
         }
         else
         {
             _state = _p_state;
+            _buffer.CopyFrom(_p_buffer);
             double val = GetValidValue(input.Value);
 
             // Recalculate for the updated last value
@@ -202,6 +206,7 @@ public sealed class Pwma : AbstractBase
         }
 
         _p_state = _state;
+        _p_buffer.CopyFrom(_buffer);
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -319,6 +324,7 @@ public sealed class Pwma : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
+        _p_buffer.Clear();
         _state = default;
         _p_state = default;
         Last = default;

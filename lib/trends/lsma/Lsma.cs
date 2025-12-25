@@ -217,13 +217,17 @@ public sealed class Lsma : AbstractBase
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
-        CollectionsMarshal.SetCount(t, len);
-        CollectionsMarshal.SetCount(v, len);
+        for (int i = 0; i < len; i++)
+        {
+            t.Add(0);
+            v.Add(0);
+        }
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period, _offset);
+        double initialLastValid = _state.LastValidValue;
+        Calculate(source.Values, vSpan, _period, _offset, initialLastValid);
         source.Times.CopyTo(tSpan);
 
         // Restore state
@@ -247,7 +251,7 @@ public sealed class Lsma : AbstractBase
         }
         else
         {
-            _state.LastValidValue = 0;
+            _state.LastValidValue = initialLastValid;
         }
 
         double lastProcessedValue = _state.LastValidValue;
@@ -284,7 +288,7 @@ public sealed class Lsma : AbstractBase
     /// Zero-allocation method for maximum performance.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0)
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
@@ -301,7 +305,7 @@ public sealed class Lsma : AbstractBase
 
         double sum_y = 0;
         double sum_xy = 0;
-        double lastValid = 0;
+        double lastValid = initialLastValid;
         int bufferIndex = 0; // Points to where the NEXT value will be written (circular)
         int count = 0;
 

@@ -64,7 +64,7 @@ public sealed class Butter : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Init()
+    private void Init()
     {
         _state = new State();
         _p_state = new State();
@@ -153,6 +153,11 @@ public sealed class Butter : AbstractBase
         if (period < 2)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than or equal to 2.");
+        }
+
+        if (destination.Length < source.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(destination), "Destination span must have length >= source length.");
         }
 
         double omega = 2.0 * Math.PI / period;
