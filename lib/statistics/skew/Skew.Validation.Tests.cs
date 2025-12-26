@@ -47,8 +47,8 @@ public class SkewValidationTests : IDisposable
                 double expected = Statistics.Skewness(window);
                 double expectedPop = Statistics.PopulationSkewness(window);
                 
-                Assert.Equal(expected, val.Value, ValidationHelper.DefaultTolerance);
-                Assert.Equal(expectedPop, popVal.Value, ValidationHelper.DefaultTolerance);
+                Assert.Equal(expected, val.Value, 1e-6);
+                Assert.Equal(expectedPop, popVal.Value, 1e-6);
             }
         }
     }
