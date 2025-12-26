@@ -182,9 +182,13 @@ jobs:
           name: coverage-reports
           path: .qodana/code-coverage
 
-      - name: Fix Coverage Paths
+      - name: Debug Coverage Paths
         run: |
-          find .qodana/code-coverage -name "*.xml" -type f -exec sed -i 's|/home/runner/work/QuanTAlib/QuanTAlib|/data/project|g' {} +
+          echo "=== Coverage XML paths sample ==="
+          grep -h 'fullPath=' .qodana/code-coverage/*.xml | head -10
+          echo ""
+          echo "=== Project structure ==="
+          find . -name "*.cs" -type f | grep -E "lib/|quantower/" | head -10
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2024.3.4
