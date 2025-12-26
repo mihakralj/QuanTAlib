@@ -5,12 +5,14 @@ using QuanTAlib;
 
 namespace QuanTAlib;
 
-public sealed class Blma : AbstractBase
+public sealed class Blma : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly double[] _weights;
     private readonly double _weightSum;
+    private ITValuePublisher? _publisher;
+    private bool _hasLast;
 
     public override bool IsHot => _buffer.Count >= _period;
 
@@ -33,18 +35,25 @@ public sealed class Blma : AbstractBase
 
     public Blma(object source, int period) : this(period)
     {
-        if (source is null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
+        ArgumentNullException.ThrowIfNull(source);
 
         if (source is ITValuePublisher pub)
         {
-            pub.Pub += Handle;
+            _publisher = pub;
+            _publisher.Pub += Handle;
         }
         else
         {
             throw new ArgumentException("Source must implement ITValuePublisher", nameof(source));
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_publisher != null)
+        {
+            _publisher.Pub -= Handle;
+            _publisher = null;
         }
     }
 
@@ -56,6 +65,7 @@ public sealed class Blma : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
+        _hasLast = false;
     }
 
     public override void Prime(ReadOnlySpan<double> source)
@@ -80,7 +90,7 @@ public sealed class Blma : AbstractBase
     {
         if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
         {
-            return Last;
+            return _hasLast ? Last : default;
         }
 
         _buffer.Add(input.Value, isNew);
@@ -116,6 +126,7 @@ public sealed class Blma : AbstractBase
 
         var tValue = new TValue(input.Time, result);
         Last = tValue;
+        _hasLast = true;
         PubEvent(tValue);
         return tValue;
     }

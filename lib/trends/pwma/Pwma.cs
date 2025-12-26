@@ -47,7 +47,7 @@ public sealed class Pwma : AbstractBase
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _period = period;
-        _divisor = (double)period * (period + 1) * (2 * period + 1) / 6.0;
+        _divisor = (double)period * ((double)period + 1.0) * (2.0 * (double)period + 1.0) / 6.0;
         _buffer = new RingBuffer(period);
         _p_buffer = new RingBuffer(period);
         Name = $"Pwma({period})";
@@ -149,7 +149,8 @@ public sealed class Pwma : AbstractBase
             _buffer.UpdateNewest(val);
         }
 
-        double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * (2 * _buffer.Count + 1) / 6.0;
+        double count = _buffer.Count;
+        double currentDivisor = _buffer.IsFull ? _divisor : count * (count + 1.0) * (2.0 * count + 1.0) / 6.0;
         Last = new TValue(input.Time, _state.PSum / currentDivisor);
         PubEvent(Last);
         return Last;
@@ -244,7 +245,7 @@ public sealed class Pwma : AbstractBase
     private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
-        double divisor = (double)period * (period + 1) * (2 * period + 1) / 6.0;
+        double divisor = (double)period * ((double)period + 1.0) * (2.0 * (double)period + 1.0) / 6.0;
         double sum = 0;
         double wsum = 0;
         double psum = 0;
@@ -268,7 +269,7 @@ public sealed class Pwma : AbstractBase
             psum = Math.FusedMultiplyAdd((double)(i + 1) * (i + 1), val, psum);
             buffer[i] = val;
 
-            double currentDivisor = (double)(i + 1) * (i + 2) * (2 * (i + 1) + 1) / 6.0;
+            double currentDivisor = ((double)i + 1.0) * ((double)i + 2.0) * (2.0 * ((double)i + 1.0) + 1.0) / 6.0;
             output[i] = psum / currentDivisor;
         }
 

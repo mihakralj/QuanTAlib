@@ -382,6 +382,7 @@ public sealed class Ema : AbstractBase
 
         var state = State.New();
         double lastValid = 0;
+        bool foundValid = false;
 
         // Find first valid value to seed lastValid
         for (int k = 0; k < source.Length; k++)
@@ -389,8 +390,15 @@ public sealed class Ema : AbstractBase
             if (double.IsFinite(source[k]))
             {
                 lastValid = source[k];
+                foundValid = true;
                 break;
             }
+        }
+
+        if (!foundValid)
+        {
+            output.Fill(double.NaN);
+            return;
         }
 
         CalculateCore(source, output, alpha, ref state, ref lastValid);

@@ -98,9 +98,10 @@ public sealed class Rsi : AbstractBase
         double avgLoss = _avgLoss.Update(new TValue(input.Time, loss), isNew).Value;
 
         double rsi;
-        if (avgLoss == 0)
+        const double epsilon = 1e-10;
+        if (avgLoss < epsilon)
         {
-            rsi = (avgGain == 0) ? 50 : 100;
+            rsi = (avgGain < epsilon) ? 50 : 100;
         }
         else
         {
@@ -227,7 +228,7 @@ public sealed class Rsi : AbstractBase
             var v100 = new Vector<double>(100.0);
             var v1 = Vector<double>.One;
             var v50 = new Vector<double>(50.0);
-            var vZero = Vector<double>.Zero;
+            var vEpsilon = new Vector<double>(1e-10);
 
             for (; i <= len - vectorSize; i += vectorSize)
             {
@@ -239,8 +240,8 @@ public sealed class Rsi : AbstractBase
                 var vRsi = v100 - (v100 / (v1 + vRs));
 
                 // Handle edge cases where loss is zero
-                var vLossIsZero = Vector.Equals(vLoss, vZero);
-                var vGainIsZero = Vector.Equals(vGain, vZero);
+                var vLossIsZero = Vector.LessThan(vLoss, vEpsilon);
+                var vGainIsZero = Vector.LessThan(vGain, vEpsilon);
                 
                 // If loss is zero:
                 // If gain is also zero -> 50
@@ -257,14 +258,15 @@ public sealed class Rsi : AbstractBase
             }
         }
 
+        const double epsilon = 1e-10;
         for (; i < len; i++)
         {
             double avgGain = gainSpan[i];
             double avgLoss = lossSpan[i];
 
-            if (avgLoss == 0)
+            if (avgLoss < epsilon)
             {
-                output[i] = (avgGain == 0) ? 50 : 100;
+                output[i] = (avgGain < epsilon) ? 50 : 100;
             }
             else
             {

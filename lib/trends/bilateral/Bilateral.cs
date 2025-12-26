@@ -239,7 +239,7 @@ public sealed class Bilateral : AbstractBase
             sumWeightedSrc += weight * val;
         }
 
-        return sumWeights == 0.0 ? centerVal : sumWeightedSrc / sumWeights;
+        return sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
     }
 
     private void PrecalculateSpatialWeights()
@@ -362,7 +362,7 @@ public sealed class Bilateral : AbstractBase
                 sumWeightedSrc += weight * wVal;
             }
 
-            destination[i] = sumWeights == 0.0 ? centerVal : sumWeightedSrc / sumWeights;
+            destination[i] = sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
         }
     }
 }

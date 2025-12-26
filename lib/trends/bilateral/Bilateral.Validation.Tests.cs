@@ -170,7 +170,7 @@ public class BilateralValidationTests : IDisposable
                 sumWeightedSrc += weight * valI;
             }
 
-            return sumWeights == 0.0 ? centerVal : sumWeightedSrc / sumWeights;
+            return sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
         }
 
         private static double CalculateStDev(List<double> values)

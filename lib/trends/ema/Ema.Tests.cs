@@ -591,6 +591,21 @@ public class EmaTests
     }
 
     [Fact]
+    public void Ema_Batch_AllNaNs_ReturnsNaN()
+    {
+        double[] source = [double.NaN, double.NaN, double.NaN];
+        double[] output = new double[3];
+        
+        Ema.Batch(source.AsSpan(), output.AsSpan(), 5);
+        
+        // Should be all NaNs, not 0s
+        foreach (var val in output)
+        {
+            Assert.True(double.IsNaN(val), $"Expected NaN but got {val}");
+        }
+    }
+
+    [Fact]
     public void Ema_AllModes_ProduceSameResult()
     {
         // Arrange

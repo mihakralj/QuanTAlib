@@ -106,21 +106,12 @@ public sealed class Lsma : AbstractBase
         }
         else
         {
-            _buffer.Add(val);
-            _state.SumY += val;
-
-            // Recalculate sum_xy from scratch during warmup
-            _state.SumXY = 0;
-            var span = _buffer.GetSpan();
-            for (int i = 0; i < span.Length; i++)
+            if (_buffer.Count > 0)
             {
-                // x=0 is newest (index count-1), x=count-1 is oldest (index 0)
-                // buffer stores chronological: [oldest, ..., newest]
-                // index j in buffer corresponds to x = count - 1 - j
-                // sum_xy = sum(x * y)
-                int x = span.Length - 1 - i;
-                _state.SumXY = Math.FusedMultiplyAdd(x, span[i], _state.SumXY);
+                _state.SumXY += _state.SumY;
             }
+            _state.SumY += val;
+            _buffer.Add(val);
         }
 
         _tickCount++;
@@ -326,17 +317,15 @@ public sealed class Lsma : AbstractBase
             {
                 // Warmup phase
                 buffer[count] = val;
-                sum_y += val;
                 count++;
 
-                // Recalculate sum_xy for current count
-                sum_xy = 0;
-                for (int j = 0; j < count; j++)
+                // O(1) update: adding new value at x=0, existing values shift x+1
+                // New value at x=0 contributes 0, existing sum shifts by sum_y
+                if (count > 1)
                 {
-                    // buffer[j] is at index j
-                    // x = count - 1 - j
-                    sum_xy = Math.FusedMultiplyAdd(count - 1 - j, buffer[j], sum_xy);
+                    sum_xy += sum_y; // Shift existing values before adding new
                 }
+                sum_y += val;
 
                 if (count <= 1)
                 {

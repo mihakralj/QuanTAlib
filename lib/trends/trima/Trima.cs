@@ -25,11 +25,13 @@ namespace QuanTAlib;
 /// Becomes true when both internal SMAs are hot.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Trima : AbstractBase
+public sealed class Trima : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly Sma _sma1;
     private readonly Sma _sma2;
+    private readonly Action<TValue> _updateHandler;
+    private ITValuePublisher? _publisher;
 
     public Trima(int period)
     {
@@ -41,6 +43,7 @@ public sealed class Trima : AbstractBase
 
         _sma1 = new Sma(p1);
         _sma2 = new Sma(p2);
+        _updateHandler = (item) => Update(item);
 
         Name = $"Trima({period})";
         WarmupPeriod = p1 + p2 - 1;
@@ -48,7 +51,17 @@ public sealed class Trima : AbstractBase
 
     public Trima(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        _publisher = source;
+        _publisher.Pub += _updateHandler;
+    }
+
+    public void Dispose()
+    {
+        if (_publisher != null)
+        {
+            _publisher.Pub -= _updateHandler;
+            _publisher = null;
+        }
     }
 
     public override bool IsHot => _sma1.IsHot && _sma2.IsHot;

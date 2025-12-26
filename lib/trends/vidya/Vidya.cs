@@ -26,12 +26,14 @@ namespace QuanTAlib;
 /// - Reacts quickly in trending markets (high volatility)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Vidya : AbstractBase
+public sealed class Vidya : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly double _alpha;
     private readonly RingBuffer _ups;
     private readonly RingBuffer _downs;
+    private readonly ITValuePublisher? _source;
+    private readonly Action<TValue>? _pubHandler;
 
     private record struct State(
         double PrevClose, double LastVidya,
@@ -56,7 +58,17 @@ public sealed class Vidya : AbstractBase
 
     public Vidya(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        _source = source;
+        _pubHandler = (item) => Update(item);
+        _source.Pub += _pubHandler;
+    }
+
+    public void Dispose()
+    {
+        if (_source != null && _pubHandler != null)
+        {
+            _source.Pub -= _pubHandler;
+        }
     }
 
     public override bool IsHot => _state.BarCount >= _period;
@@ -145,7 +157,7 @@ public sealed class Vidya : AbstractBase
         // Replay only the last _period bars to restore internal state
         Reset();
         int start = 0;
-        if (len > _period)
+        if (len > 2 * _period)
         {
             start = len - _period;
             _state.BarCount = start;
@@ -154,6 +166,18 @@ public sealed class Vidya : AbstractBase
             _state.LastVidya = vSpan[start - 1];
             _state.CurrentClose = _state.PrevClose;
             _state.CurrentVidya = _state.LastVidya;
+
+            // Pre-fill buffers with the previous period's data to ensure correct VI calculation
+            for (int i = start - _period; i < start; i++)
+            {
+                double price = source.Values[i];
+                double prev = source.Values[i - 1];
+                double change = price - prev;
+                double up = change > 0 ? change : 0;
+                double down = change < 0 ? -change : 0;
+                _ups.Add(up);
+                _downs.Add(down);
+            }
         }
 
         for (int i = start; i < len; i++)

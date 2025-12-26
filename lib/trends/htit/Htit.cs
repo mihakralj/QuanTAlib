@@ -377,7 +377,8 @@ public sealed class Htit : AbstractBase
                 smoothPeriod = 0.33 * period + 0.67 * p_smoothPeriod;
 
                 // 8. Instantaneous Trend
-                int dcPeriods = (int)(smoothPeriod + 0.5);
+                double safeSmooth = double.IsNaN(smoothPeriod) ? 0 : smoothPeriod;
+                int dcPeriods = (int)(safeSmooth + 0.5);
                 double sumPr = 0;
                 int prCount = 0;
 

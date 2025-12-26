@@ -52,6 +52,7 @@ public sealed class Rma : AbstractBase
     /// Creates RMA with specified source and period.
     /// </summary>
     /// <param name="source">Source series</param>
+    /// <param name="period">Period for RMA calculation (must be > 0)</param>
     public Rma(TSeries source, int period) : this(period)
     {
         ArgumentNullException.ThrowIfNull(source);

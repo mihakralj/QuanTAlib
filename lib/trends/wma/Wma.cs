@@ -35,9 +35,15 @@ public sealed class Wma : AbstractBase, IDisposable
     private readonly ITValuePublisher? _source;
     private readonly Action<TValue>? _handler;
 
-    private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount);
+    private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount, bool HasSeenValidData);
     private State _state;
     private State _p_state;
+
+    /// <summary>
+    /// Default value to use for LastValidValue when no valid data has been seen yet.
+    /// Defaults to double.NaN to avoid silently introducing zeros.
+    /// </summary>
+    public double DefaultLastValidValue { get; set; } = double.NaN;
 
     private const int ResyncInterval = 10000;
 
@@ -82,9 +88,10 @@ public sealed class Wma : AbstractBase, IDisposable
         if (double.IsFinite(input))
         {
             _state.LastValidValue = input;
+            _state.HasSeenValidData = true;
             return input;
         }
-        return _state.LastValidValue;
+        return _state.HasSeenValidData ? _state.LastValidValue : DefaultLastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,7 +114,10 @@ public sealed class Wma : AbstractBase, IDisposable
         _buffer.Add(val);
 
         _state.TickCount++;
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
+        bool isNaN = double.IsNaN(_state.Sum) || double.IsNaN(_state.WSum);
+        bool needResync = _buffer.IsFull && _state.TickCount >= ResyncInterval;
+
+        if (needResync || (isNaN && double.IsFinite(val)))
         {
             _state.TickCount = 0;
             double recalcSum = 0;
@@ -184,7 +194,8 @@ public sealed class Wma : AbstractBase, IDisposable
         int startIndex = len - windowSize;
 
         // Seed LastValidValue
-        _state.LastValidValue = 0;
+        _state.LastValidValue = DefaultLastValidValue;
+        _state.HasSeenValidData = false;
         if (startIndex > 0)
         {
             for (int i = startIndex - 1; i >= 0; i--)
@@ -192,6 +203,7 @@ public sealed class Wma : AbstractBase, IDisposable
                 if (double.IsFinite(source[i]))
                 {
                     _state.LastValidValue = source[i];
+                    _state.HasSeenValidData = true;
                     break;
                 }
             }
@@ -272,7 +284,7 @@ public sealed class Wma : AbstractBase, IDisposable
         double divisor = (double)period * (period + 1) * 0.5;
         double sum = 0;
         double wsum = 0;
-        double lastValid = 0;
+        double lastValid = double.NaN;
 
         Span<double> buffer = period <= 512 ? stackalloc double[period] : new double[period];
         int bufferIdx = 0;
@@ -317,7 +329,8 @@ public sealed class Wma : AbstractBase, IDisposable
             output[i] = wsum / divisor;
 
             tickCount++;
-            if (tickCount >= ResyncInterval)
+            bool isNaN = double.IsNaN(sum) || double.IsNaN(wsum);
+            if (tickCount >= ResyncInterval || (isNaN && double.IsFinite(val)))
             {
                 tickCount = 0;
                 double recalcSum = 0;

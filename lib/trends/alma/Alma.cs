@@ -105,6 +105,12 @@ public sealed class Alma : AbstractBase, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        return Update(input, isNew, true);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TValue Update(TValue input, bool isNew, bool publish)
+    {
         if (isNew)
         {
             _p_state = _state;
@@ -129,7 +135,10 @@ public sealed class Alma : AbstractBase, IDisposable
         }
 
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        if (publish)
+        {
+            PubEvent(Last);
+        }
         return Last;
     }
 
@@ -157,7 +166,7 @@ public sealed class Alma : AbstractBase, IDisposable
         int startIndex = Math.Max(0, len - _period);
         for (int i = startIndex; i < len; i++)
         {
-            Update(source[i]);
+            Update(source[i], true, false);
         }
 
         return new TSeries(t, v);

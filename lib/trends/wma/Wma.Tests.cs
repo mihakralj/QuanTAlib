@@ -189,4 +189,61 @@ public class WmaTests
         // Last value should remain unchanged if unsubscribed
         Assert.Equal(100, wma.Last.Value);
     }
+
+    [Fact]
+    public void DefaultLastValidValue_IsNaN()
+    {
+        var wma = new Wma(10);
+        Assert.True(double.IsNaN(wma.DefaultLastValidValue));
+    }
+
+    [Fact]
+    public void InitialNaNs_ResultInNaN()
+    {
+        var wma = new Wma(5);
+        wma.Update(new TValue(DateTime.UtcNow, double.NaN));
+        Assert.True(double.IsNaN(wma.Last.Value));
+
+        wma.Update(new TValue(DateTime.UtcNow, double.NaN));
+        Assert.True(double.IsNaN(wma.Last.Value));
+    }
+
+    [Fact]
+    public void RecoveryFromNaN_Works()
+    {
+        var wma = new Wma(3);
+
+        // Feed NaNs
+        wma.Update(new TValue(DateTime.UtcNow, double.NaN)); // [NaN]
+        Assert.True(double.IsNaN(wma.Last.Value));
+
+        wma.Update(new TValue(DateTime.UtcNow, double.NaN)); // [NaN, NaN]
+        Assert.True(double.IsNaN(wma.Last.Value));
+
+        // Feed valid values
+        wma.Update(new TValue(DateTime.UtcNow, 1.0)); // [NaN, NaN, 1] -> Sum is NaN
+        Assert.True(double.IsNaN(wma.Last.Value));
+
+        wma.Update(new TValue(DateTime.UtcNow, 2.0)); // [NaN, 1, 2] -> Sum is NaN
+        Assert.True(double.IsNaN(wma.Last.Value));
+
+        wma.Update(new TValue(DateTime.UtcNow, 3.0)); // [1, 2, 3] -> Sum should recover!
+        // WMA(3) of [1, 2, 3] = (1*1 + 2*2 + 3*3) / 6 = (1+4+9)/6 = 14/6 = 2.333...
+        Assert.Equal(2.333333333, wma.Last.Value, 1e-6);
+    }
+
+    [Fact]
+    public void ConfigurableDefault_Works()
+    {
+        var wma = new Wma(3) { DefaultLastValidValue = 0 };
+
+        // Feed NaN
+        wma.Update(new TValue(DateTime.UtcNow, double.NaN)); // Treated as 0 -> [0]
+        // WMA(3) of [0] -> (1*0)/1 = 0
+        Assert.Equal(0, wma.Last.Value);
+
+        wma.Update(new TValue(DateTime.UtcNow, 3.0)); // [0, 3]
+        // WMA(3) of [0, 3] -> (1*0 + 2*3) / 3 = 6/3 = 2
+        Assert.Equal(2, wma.Last.Value);
+    }
 }

@@ -78,9 +78,10 @@ public sealed class Butter : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source)
     {
-        foreach (var value in source)
+        DateTime baseTime = DateTime.UtcNow;
+        for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(baseTime.AddTicks(i), source[i]));
         }
     }
 

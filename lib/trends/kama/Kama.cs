@@ -22,7 +22,6 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Kama : AbstractBase
 {
-    private readonly int _period;
     private readonly double _fastAlpha;
     private readonly double _slowAlpha;
     private readonly RingBuffer _buffer;
@@ -50,7 +49,6 @@ public sealed class Kama : AbstractBase
         if (fastPeriod >= slowPeriod)
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
 
-        _period = period;
         // Buffer needs to hold period + 1 values to calculate Change over 'period' bars
         // Change = Price[0] - Price[period]
         _buffer = new RingBuffer(period + 1);
@@ -198,23 +196,12 @@ public sealed class Kama : AbstractBase
 
         source.Times.CopyTo(tSpan);
 
-        // Use static Calculate for performance
-        // fastPeriod = 2/fastAlpha - 1.
-        int fastPeriod = (int)Math.Round(2.0 / _fastAlpha - 1);
-        int slowPeriod = (int)Math.Round(2.0 / _slowAlpha - 1);
-
-        Calculate(source.Values, vSpan, _period, fastPeriod, slowPeriod);
-
-        // Restore state by replaying the entire series
-        // This is expensive but necessary to sync the object state correctly
-        // because KAMA is recursive (IIR) and depends on the full history.
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(new TValue(source.Times[i], source.Values[i]));
+            vSpan[i] = Update(new TValue(source.Times[i], source.Values[i])).Value;
         }
 
-        Last = new TValue(tSpan[len - 1], _state.Kama);
         return new TSeries(t, v);
     }
 
