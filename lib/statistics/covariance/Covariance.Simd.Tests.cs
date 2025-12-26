@@ -12,13 +12,14 @@ public class CovarianceSimdTests
         // Arrange
         int count = 1000; // > 256 to trigger SIMD
         int period = 20;
-        var r = new Random(42);
+        var gbmX = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
+        var gbmY = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var dataX = new double[count];
         var dataY = new double[count];
         for (int i = 0; i < count; i++)
         {
-            dataX[i] = r.NextDouble() * 100;
-            dataY[i] = r.NextDouble() * 100;
+            dataX[i] = gbmX.Next().Close;
+            dataY[i] = gbmY.Next().Close;
         }
 
         var sourceX = new TSeries();

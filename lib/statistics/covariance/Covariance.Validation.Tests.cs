@@ -11,14 +11,15 @@ public class CovarianceValidationTests
         // Arrange
         int period = 10;
         var cov = new Covariance(period, isPopulation: false);
-        var r = new Random(123);
+        var gbmX = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var gbmY = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 456);
         
         double[] x = new double[100];
         double[] y = new double[100];
         for (int i = 0; i < 100; i++)
         {
-            x[i] = r.NextDouble() * 100;
-            y[i] = r.NextDouble() * 100;
+            x[i] = gbmX.Next().Close;
+            y[i] = gbmY.Next().Close;
             cov.Update(x[i], y[i]);
             
             if (i >= period - 1)
@@ -52,14 +53,15 @@ public class CovarianceValidationTests
         // Arrange
         int period = 10;
         var cov = new Covariance(period, isPopulation: true);
-        var r = new Random(456);
+        var gbmX = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 456);
+        var gbmY = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 789);
         
         double[] x = new double[100];
         double[] y = new double[100];
         for (int i = 0; i < 100; i++)
         {
-            x[i] = r.NextDouble() * 100;
-            y[i] = r.NextDouble() * 100;
+            x[i] = gbmX.Next().Close;
+            y[i] = gbmY.Next().Close;
             cov.Update(x[i], y[i]);
             
             if (i >= period - 1)

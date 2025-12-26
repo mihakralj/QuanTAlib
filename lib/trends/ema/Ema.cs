@@ -83,7 +83,7 @@ public sealed class Ema : AbstractBase
     public Ema(double alpha)
     {
         if (alpha <= 0 || alpha > 1)
-            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+            throw new ArgumentException("Alpha must be greater than 0 and at most 1", nameof(alpha));
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -364,9 +364,9 @@ public sealed class Ema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(source));
         if (alpha <= 0 || alpha > 1)
-            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+            throw new ArgumentOutOfRangeException(nameof(alpha), "Alpha must be > 0 and <= 1");
 
         if (source.Length == 0) return;
 

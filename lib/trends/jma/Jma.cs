@@ -87,8 +87,9 @@ public sealed class Jma : AbstractBase
         double sqrtDivider = sqrtParam / (sqrtParam + 1.0);
 
         // Precompute logs for Math.Exp optimization
-        _logLengthDivider = Math.Log(_lengthDivider);
-        _logSqrtDivider = Math.Log(sqrtDivider);
+        // Clamp to avoid -Infinity when period=1 (dividers can be zero)
+        _logLengthDivider = Math.Log(Math.Max(_lengthDivider, 1e-12));
+        _logSqrtDivider = Math.Log(Math.Max(sqrtDivider, 1e-12));
 
         // same warmup heuristic used in the AFL port (SetBarsRequired)
         WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
@@ -130,10 +131,14 @@ public sealed class Jma : AbstractBase
         if (isNew)
         {
             _p_state = _state;
+            _devBuffer.Snapshot();
+            _volBuffer.Snapshot();
         }
         else
         {
             _state = _p_state;
+            _devBuffer.Restore();
+            _volBuffer.Restore();
         }
 
         // --- Handle NaN/inf: reuse last finite price ---
@@ -169,11 +174,11 @@ public sealed class Jma : AbstractBase
         double deviation = absValue + 1e-10;
 
         // 2. 10-bar SMA of local deviation -> "volatility"
-        _devBuffer.Add(deviation, isNew);
+        _devBuffer.Add(deviation);
         double volatility = _devBuffer.Average;
 
         // 3. 128-bar volatility history + middle-65 trimmed mean
-        _volBuffer.Add(volatility, isNew);
+        _volBuffer.Add(volatility);
         double refVolatility = CalculateTrimmedMean(volatility);
 
         if (refVolatility <= 0.0)
@@ -263,8 +268,6 @@ public sealed class Jma : AbstractBase
             vSpan[i] = j;
         }
 
-        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
-
         // Restore state by replaying history
         // JMA needs a lot of history (128 bars for volatility).
         Reset();
@@ -272,8 +275,10 @@ public sealed class Jma : AbstractBase
         int startIndex = Math.Max(0, len - lookback);
         for (int i = startIndex; i < len; i++)
         {
-            Update(new TValue(source.Times[i], source.Values[i]));
+            Step(source.Values[i], true);
         }
+
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
 
         return new TSeries(t, v);
     }

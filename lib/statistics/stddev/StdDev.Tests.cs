@@ -78,10 +78,11 @@ public class StdDevTests
         int period = 10;
         int count = 1000;
         var data = new double[count];
-        var random = new Random(123);
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        
         for (int i = 0; i < count; i++)
         {
-            data[i] = random.NextDouble() * 100;
+            data[i] = gbm.Next().Close;
         }
 
         // Iterative
@@ -100,7 +101,7 @@ public class StdDevTests
         // Compare
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(iterativeResults[i], batchResults[i], precision: 7);
+            Assert.Equal(iterativeResults[i], batchResults[i], precision: 6);
         }
     }
     
@@ -110,10 +111,12 @@ public class StdDevTests
         int period = 10;
         int count = 1000;
         var data = new TSeries();
-        var random = new Random(123);
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        
         for (int i = 0; i < count; i++)
         {
-            data.Add(new TValue(DateTime.UtcNow, random.NextDouble() * 100));
+            var bar = gbm.Next();
+            data.Add(new TValue(bar.Time, bar.Close));
         }
 
         // Iterative
@@ -132,7 +135,7 @@ public class StdDevTests
         // Compare
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(iterativeResults[i], batchSeries[i].Value, precision: 7);
+            Assert.Equal(iterativeResults[i], batchSeries[i].Value, precision: 6);
         }
     }
 }

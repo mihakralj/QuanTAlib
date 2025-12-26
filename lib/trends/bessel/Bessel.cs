@@ -21,7 +21,7 @@ namespace QuanTAlib;
 /// F[n] = c1 * Src[n] + c2 * F[n-1] + c3 * F[n-2]
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Bessel : AbstractBase
+public sealed class Bessel : AbstractBase, IDisposable
 {
     private record struct State(double F1, double F2, double LastValidValue, int Count, bool IsHot)
     {
@@ -36,6 +36,8 @@ public sealed class Bessel : AbstractBase
     }
 
     private readonly double _c1, _c2, _c3;
+    private readonly ITValuePublisher? _publisher;
+    private readonly Action<TValue>? _handler;
     private State _state = State.New();
     private State _p_state = State.New();
 
@@ -65,7 +67,9 @@ public sealed class Bessel : AbstractBase
     /// </summary>
     public Bessel(ITValuePublisher source, int length) : this(length)
     {
-        source.Pub += item => Update(item);
+        _publisher = source;
+        _handler = item => Update(item);
+        _publisher.Pub += _handler;
     }
 
     /// <summary>
@@ -79,7 +83,9 @@ public sealed class Bessel : AbstractBase
             Last = new TValue(source.LastTime, Last.Value);
         }
 
-        source.Pub += item => Update(item);
+        _publisher = source;
+        _handler = item => Update(item);
+        _publisher.Pub += _handler;
     }
 
     public override bool IsHot => _state.IsHot;
@@ -308,5 +314,14 @@ public sealed class Bessel : AbstractBase
         _state = State.New();
         _p_state = _state;
         Last = default;
+    }
+
+    public void Dispose()
+    {
+        if (_publisher != null && _handler != null)
+        {
+            _publisher.Pub -= _handler;
+        }
+        GC.SuppressFinalize(this);
     }
 }

@@ -384,9 +384,9 @@ public class EmaTests
         double[] output = new double[5];
 
         // Alpha must be > 0 and <= 1
-        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 0.0));
-        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), -0.1));
-        Assert.Throws<ArgumentException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 1.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 0.0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Ema.Batch(source.AsSpan(), output.AsSpan(), 1.1));
     }
 
     [Fact]

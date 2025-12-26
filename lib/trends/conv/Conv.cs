@@ -17,13 +17,18 @@ namespace QuanTAlib;
 ///
 /// Complexity:
 /// Update: O(K) where K is kernel length.
+///
+/// IMPORTANT: This class implements IDisposable. When using the constructor with ITValuePublisher,
+/// you MUST dispose the instance to unsubscribe from the source event and prevent memory leaks.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Conv : AbstractBase
+public sealed class Conv : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly double[] _kernel;
     private readonly RingBuffer _buffer;
+    private readonly ITValuePublisher? _source;
+    private readonly Action<TValue>? _subHandler;
 
     private record struct State(double LastValidValue);
     private State _state;
@@ -48,7 +53,18 @@ public sealed class Conv : AbstractBase
 
     public Conv(ITValuePublisher source, double[] kernel) : this(kernel)
     {
-        source.Pub += (item) => Update(item);
+        _source = source;
+        _subHandler = (item) => Update(item);
+        _source.Pub += _subHandler;
+    }
+
+    public void Dispose()
+    {
+        if (_source != null && _subHandler != null)
+        {
+            _source.Pub -= _subHandler;
+        }
+        GC.SuppressFinalize(this);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,6 +154,7 @@ public sealed class Conv : AbstractBase
         // Find last valid value before the window if possible
         if (startIndex > 0)
         {
+            _state.LastValidValue = double.NaN;
             for (int i = startIndex - 1; i >= 0; i--)
             {
                 if (double.IsFinite(sourceValues[i]))

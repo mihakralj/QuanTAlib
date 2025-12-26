@@ -106,6 +106,9 @@ public sealed class Dwma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
+        if (period <= 0)
+            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than zero");
+
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
 

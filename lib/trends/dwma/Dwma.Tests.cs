@@ -152,7 +152,7 @@ public class DwmaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Dwma.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Dwma.Calculate(source.AsSpan(), output.AsSpan(), 0));
         Assert.Throws<ArgumentException>(() => Dwma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 

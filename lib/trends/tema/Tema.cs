@@ -103,6 +103,18 @@ public sealed class Tema : AbstractBase
         // We don't need the output, just the final state
         int len = source.Length;
         double lastValid = 0;
+
+        // Search for the first finite value to initialize lastValid
+        // If no finite value is found, lastValid remains 0
+        for (int i = 0; i < len; i++)
+        {
+            if (double.IsFinite(source[i]))
+            {
+                lastValid = source[i];
+                break;
+            }
+        }
+
         EmaState s1 = _state1;
         EmaState s2 = _state2;
         EmaState s3 = _state3;
@@ -311,6 +323,16 @@ public sealed class Tema : AbstractBase
 
         double decay = 1.0 - alpha;
         double lastValid = 0;
+
+        // Search for the first finite value to initialize lastValid
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (double.IsFinite(source[i]))
+            {
+                lastValid = source[i];
+                break;
+            }
+        }
 
         // State for EMA1
         double ema1_val = 0;

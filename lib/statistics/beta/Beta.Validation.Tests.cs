@@ -40,14 +40,20 @@ public class BetaValidationTests : IDisposable
         var assetQuotes = new List<TBar>();
         double assetPrice = 100;
         double targetBeta = 1.5;
-        var rnd = new Random(123);
+        
+        // Use GBM for noise generation (sigma=0.2 gives ~0.0006 per step noise which matches original random noise level)
+        var noiseGbm = new GBM(startPrice: 100, mu: 0, sigma: 0.2, seed: 777);
 
         assetQuotes.Add(new TBar(marketQuotes[0].Time, assetPrice, assetPrice, assetPrice, assetPrice, 1000));
 
         for (int i = 1; i < marketQuotes.Count; i++)
         {
             double marketReturn = (marketQuotes[i].Value - marketQuotes[i-1].Value) / marketQuotes[i-1].Value;
-            double noise = (rnd.NextDouble() - 0.5) * 0.002; // Small noise
+            
+            // Get noise from GBM return
+            var noiseBar = noiseGbm.Next();
+            double noise = (noiseBar.Close - noiseBar.Open) / noiseBar.Open;
+            
             double assetReturn = targetBeta * marketReturn + noise;
             
             assetPrice *= (1 + assetReturn);

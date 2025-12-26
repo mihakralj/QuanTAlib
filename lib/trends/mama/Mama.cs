@@ -100,6 +100,14 @@ public sealed class Mama : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double NormalizeAngle(double angle)
+    {
+        while (angle <= -Math.PI) angle += TwoPi;
+        while (angle > Math.PI) angle -= TwoPi;
+        return angle;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double Step(double price, bool isNew)
     {
         if (isNew)
@@ -188,7 +196,8 @@ public sealed class Mama : AbstractBase
             _state.Phase = Math.Atan2(q1, i1);
 
             // Adaptive alpha
-            double delta = Math.Max(_p_state.Phase - _state.Phase, MinDeltaRadians);
+            double diff = NormalizeAngle(_p_state.Phase - _state.Phase);
+            double delta = Math.Max(Math.Abs(diff), MinDeltaRadians);
             double alpha = _scaledFastLimit / delta;
             alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
 
@@ -383,7 +392,8 @@ public sealed class Mama : AbstractBase
                 double phase = Math.Atan2(q1, i1);
 
                 // Adaptive alpha
-                double delta = Math.Max(p_phase - phase, MinDeltaRadians);
+                double diff = NormalizeAngle(p_phase - phase);
+                double delta = Math.Max(Math.Abs(diff), MinDeltaRadians);
                 double alpha = scaledFastLimit / delta;
                 alpha = Math.Clamp(alpha, slowLimit, fastLimit);
 

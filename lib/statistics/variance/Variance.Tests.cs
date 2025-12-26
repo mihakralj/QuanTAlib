@@ -96,10 +96,11 @@ public class VarianceTests
         int period = 10;
         int count = 1000;
         var data = new double[count];
-        var random = new Random(123);
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        
         for (int i = 0; i < count; i++)
         {
-            data[i] = random.NextDouble() * 100;
+            data[i] = gbm.Next().Close;
         }
 
         // Iterative

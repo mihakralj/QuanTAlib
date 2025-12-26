@@ -28,6 +28,12 @@ public sealed class RingBuffer : IEnumerable<double>
     private int _count;
     private double _sum;
 
+    // Snapshot state
+    private int _savedHead;
+    private int _savedCount;
+    private double _savedSum;
+    private double _savedValue;
+
     /// <summary>
     /// Creates a new RingBuffer with the specified capacity.
     /// Uses pinned memory for SIMD compatibility.
@@ -433,6 +439,31 @@ public sealed class RingBuffer : IEnumerable<double>
         _head = source._head;
         _count = source._count;
         _sum = source._sum;
+    }
+
+    /// <summary>
+    /// Captures the current state of the buffer.
+    /// Must be called BEFORE adding a new value if you intend to Restore later.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Snapshot()
+    {
+        _savedHead = _head;
+        _savedCount = _count;
+        _savedSum = _sum;
+        _savedValue = _buffer[_head];
+    }
+
+    /// <summary>
+    /// Restores the buffer to the state captured by Snapshot.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Restore()
+    {
+        _head = _savedHead;
+        _count = _savedCount;
+        _sum = _savedSum;
+        _buffer[_head] = _savedValue;
     }
 
     /// <summary>

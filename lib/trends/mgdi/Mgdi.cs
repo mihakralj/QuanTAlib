@@ -24,7 +24,7 @@ public sealed class Mgdi : AbstractBase
     private readonly int _period;
     private readonly double _k;
 
-    private record struct State(double LastMgdi, double LastValidValue, int Count);
+    private record struct State(double LastMgdi, double LastValidValue, int Count, bool HasValidValue);
     private State _state;
     private State _p_state;
 
@@ -69,14 +69,24 @@ public sealed class Mgdi : AbstractBase
         double price = input.Value;
         if (!double.IsFinite(price))
         {
-            price = _state.LastValidValue;
+            if (_state.HasValidValue)
+            {
+                price = _state.LastValidValue;
+            }
+            else
+            {
+                Last = new TValue(input.Time, double.NaN);
+                PubEvent(Last);
+                return Last;
+            }
         }
         else
         {
             _state.LastValidValue = price;
+            _state.HasValidValue = true;
         }
 
-        if (_state.Count == 1)
+        if (!_p_state.HasValidValue)
         {
             _state.LastMgdi = price;
         }
@@ -149,20 +159,41 @@ public sealed class Mgdi : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 14, double k = 0.6)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
+        if (k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be greater than 0");
+
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");
 
         if (source.Length == 0) return;
 
-        double lastMgdi = source[0];
-        double lastValid = source[0];
-        output[0] = lastMgdi;
+        double lastMgdi = 0;
+        double lastValid = 0;
+        bool initialized = false;
 
-        for (int i = 1; i < source.Length; i++)
+        for (int i = 0; i < source.Length; i++)
         {
             double price = source[i];
-            if (!double.IsFinite(price)) price = lastValid;
-            else lastValid = price;
+            if (!double.IsFinite(price))
+            {
+                if (!initialized)
+                {
+                    output[i] = double.NaN;
+                    continue;
+                }
+                price = lastValid;
+            }
+            else
+            {
+                lastValid = price;
+                if (!initialized)
+                {
+                    initialized = true;
+                    lastMgdi = price;
+                    output[i] = lastMgdi;
+                    continue;
+                }
+            }
 
             if (Math.Abs(lastMgdi) > double.Epsilon)
             {

@@ -235,6 +235,9 @@ public sealed class Kama : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int fastPeriod = 2, int slowPeriod = 30)
     {
         if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (fastPeriod <= 0) throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        if (slowPeriod <= 0) throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        if (fastPeriod >= slowPeriod) throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
         if (source.Length != output.Length) throw new ArgumentException("Source and output must have the same length");
 
         double fastAlpha = 2.0 / (fastPeriod + 1);
