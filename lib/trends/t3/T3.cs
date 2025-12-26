@@ -81,7 +81,7 @@ public sealed class T3 : AbstractBase, IDisposable
     {
         _publisher = source;
         _handler = (item) => Update(item);
-        _publisher.Pub += _handler;
+        source.Pub += _handler;
     }
 
     /// <summary>

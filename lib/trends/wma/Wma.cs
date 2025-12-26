@@ -69,7 +69,7 @@ public sealed class Wma : AbstractBase, IDisposable
     {
         _source = source;
         _handler = (item) => Update(item);
-        _source.Pub += _handler;
+        source.Pub += _handler;
     }
 
     public void Dispose()

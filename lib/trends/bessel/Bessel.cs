@@ -69,7 +69,7 @@ public sealed class Bessel : AbstractBase, IDisposable
     {
         _publisher = source;
         _handler = item => Update(item);
-        _publisher.Pub += _handler;
+        source.Pub += _handler;
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public sealed class Bessel : AbstractBase, IDisposable
 
         _publisher = source;
         _handler = item => Update(item);
-        _publisher.Pub += _handler;
+        source.Pub += _handler;
     }
 
     public override bool IsHot => _state.IsHot;

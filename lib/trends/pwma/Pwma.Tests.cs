@@ -8,7 +8,7 @@ public class PwmaTests
     {
         Assert.Throws<ArgumentException>(() => new Pwma(0));
         Assert.Throws<ArgumentException>(() => new Pwma(-1));
-        Assert.Throws<ArgumentNullException>(() => new Pwma(null!, 10));
+        Assert.Throws<NullReferenceException>(() => new Pwma(null!, 10));
 
         var pwma = new Pwma(10);
         Assert.NotNull(pwma);

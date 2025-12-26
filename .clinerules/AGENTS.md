@@ -81,6 +81,7 @@ Directory: `lib/[category]/[name]/` (e.g., `lib/trends/sma/`)
 * Validate all parameters (throw `ArgumentException` for invalid values).
 * Initialize `Name` property (e.g., `$"Sma({period})"`);
 * Support chaining: `public [Name](ITValuePublisher source, ...)`
+* **Event Subscription:** Subscribe to events directly (`source.Pub += ...`) when the source is passed as a non-nullable parameter. Do not use defensive null checks (`if (_source != null)`).
 
 ### The `Update` Method Contract
 

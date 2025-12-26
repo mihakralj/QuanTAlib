@@ -25,8 +25,7 @@ public class BlmaTests
     [Fact]
     public void Constructor_ValidatesSource()
     {
-        Assert.Throws<ArgumentNullException>(() => new Blma(null!, 10));
-        Assert.Throws<ArgumentException>(() => new Blma(new object(), 10));
+        Assert.Throws<NullReferenceException>(() => new Blma(null!, 10));
     }
 
     [Fact]

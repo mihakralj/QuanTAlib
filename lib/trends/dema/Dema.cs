@@ -58,7 +58,7 @@ public sealed class Dema : AbstractBase, IDisposable
     {
         _publisher = source;
         _listener = (item) => Update(item);
-        _publisher.Pub += _listener;
+        source.Pub += _listener;
     }
 
     public Dema(double alpha)

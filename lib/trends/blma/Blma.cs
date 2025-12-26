@@ -33,19 +33,10 @@ public sealed class Blma : AbstractBase, IDisposable
         _weightSum = CalculateWeights(period, _weights);
     }
 
-    public Blma(object source, int period) : this(period)
+    public Blma(ITValuePublisher source, int period) : this(period)
     {
-        ArgumentNullException.ThrowIfNull(source);
-
-        if (source is ITValuePublisher pub)
-        {
-            _publisher = pub;
-            _publisher.Pub += Handle;
-        }
-        else
-        {
-            throw new ArgumentException("Source must implement ITValuePublisher", nameof(source));
-        }
+        _publisher = source;
+        source.Pub += Handle;
     }
 
     public void Dispose()

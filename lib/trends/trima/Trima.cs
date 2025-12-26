@@ -52,7 +52,7 @@ public sealed class Trima : AbstractBase, IDisposable
     public Trima(ITValuePublisher source, int period) : this(period)
     {
         _publisher = source;
-        _publisher.Pub += _updateHandler;
+        source.Pub += _updateHandler;
     }
 
     public void Dispose()

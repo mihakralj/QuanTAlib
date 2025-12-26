@@ -551,7 +551,7 @@ public static class SimdExtensions
         vSum3 = Avx512F.Add(vSum3, vSum4);
         vSum = Avx512F.Add(vSum, vSum3);
 
-        Vector256<double> v256 = Avx512F.Add(vSum.GetLower(), vSum.GetUpper());
+        Vector256<double> v256 = Avx.Add(vSum.GetLower(), vSum.GetUpper());
         Vector128<double> lower = v256.GetLower();
         Vector128<double> upper = v256.GetUpper();
         Vector128<double> combined = Sse2.Add(lower, upper);

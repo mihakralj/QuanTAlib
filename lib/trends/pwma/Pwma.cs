@@ -56,7 +56,6 @@ public sealed class Pwma : AbstractBase
 
     public Pwma(ITValuePublisher source, int period) : this(period)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
         source.Pub += (item) => Update(item);
     }
 

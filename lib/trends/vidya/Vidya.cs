@@ -60,7 +60,7 @@ public sealed class Vidya : AbstractBase, IDisposable
     {
         _source = source;
         _pubHandler = (item) => Update(item);
-        _source.Pub += _pubHandler;
+        source.Pub += _pubHandler;
     }
 
     public void Dispose()
