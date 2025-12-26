@@ -105,7 +105,7 @@ bootstrap: sh ./.github/prepare-qodana.sh
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
 #linter: jetbrains/qodana-dotnet:2025.3
 
-linter: qodana-cdnet-EAP
+linter: jetbrains/qodana-cdnet-eap:2024.3
 
 dotnet:
   solution: QuanTAlib.sln
