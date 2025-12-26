@@ -65,20 +65,22 @@ jobs:
         run: |
           dotnet test --no-build --configuration Debug \
             --collect:"XPlat Code Coverage" \
+            --results-directory:./TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Collect Coverage Files
         run: |
           mkdir -p coverage
           count=1
-          while read -r file; do
-            dest="coverage/coverage_${count}.opencover.xml"
-            cp "$file" "$dest"
-            # Sanitize paths for Qodana (convert absolute to relative)
-            # This strips the current working directory from the paths in the XML
-            sed -i "s|$(pwd)/||g" "$dest"
+          find TestResults -name "coverage.opencover.xml" | while read file; do
+            cp "$file" "coverage/coverage_${count}.opencover.xml"
             count=$((count+1))
-          done < <(find . -name "coverage.opencover.xml" -type f)
+          done
+
+      - name: Debug Coverage Paths
+        run: |
+          echo "=== Coverage file paths ==="
+          grep -h "fullPath=" coverage/*.xml | head -20 || true
 
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4

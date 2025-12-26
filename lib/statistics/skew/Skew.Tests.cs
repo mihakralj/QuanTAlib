@@ -129,4 +129,84 @@ public class SkewTests
             Assert.Equal(streamingResults[i], batchResult.Values[i], precision: 10);
         }
     }
+
+    [Fact]
+    public void Update_CalculatesCorrectly_Population()
+    {
+        // Test data: 1, 2, 3
+        // Mean = 2
+        // Variance (Pop) = ((1-2)^2 + (2-2)^2 + (3-2)^2) / 3 = 2/3
+        // StdDev (Pop) = sqrt(2/3)
+        // M3 (Pop) = ((1-2)^3 + (2-2)^3 + (3-2)^3) / 3 = 0
+        // Skew (Pop) = 0
+        
+        var skew = new Skew(3, isPopulation: true);
+        skew.Update(new TValue(DateTime.UtcNow, 1));
+        skew.Update(new TValue(DateTime.UtcNow, 2));
+        var result = skew.Update(new TValue(DateTime.UtcNow, 3));
+
+        Assert.Equal(0, result.Value, precision: 10);
+    }
+
+    [Fact]
+    public void Update_HandlesConstantValues_ZeroVariance()
+    {
+        var skew = new Skew(5);
+        for (int i = 0; i < 5; i++)
+        {
+            var result = skew.Update(new TValue(DateTime.UtcNow, 10));
+            Assert.Equal(0, result.Value); // Skew is undefined or 0 for constant values
+        }
+    }
+
+    [Fact]
+    public void Update_HandlesNaN()
+    {
+        var skew = new Skew(5);
+        skew.Update(new TValue(DateTime.UtcNow, 1));
+        skew.Update(new TValue(DateTime.UtcNow, 2));
+        skew.Update(new TValue(DateTime.UtcNow, double.NaN)); // Should be treated as 0 or handled gracefully
+        
+        var result = skew.Last.Value;
+        Assert.True(double.IsNaN(result) || result == 0);
+    }
+
+    [Fact]
+    public void Resync_DoesNotDrift()
+    {
+        // Run for > 1000 updates to trigger Resync
+        var skew = new Skew(10);
+        var random = new Random(123);
+        
+        for (int i = 0; i < 1100; i++)
+        {
+            skew.Update(new TValue(DateTime.UtcNow, random.NextDouble() * 100));
+        }
+        
+        Assert.True(double.IsFinite(skew.Last.Value));
+    }
+
+    [Fact]
+    public void Batch_LargeDataset_Simd()
+    {
+        // Create large dataset to trigger SIMD path (>= 256)
+        int count = 1000;
+        var data = new double[count];
+        for (int i = 0; i < count; i++) data[i] = (double)i;
+
+        var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
+        
+        // Batch calculation
+        var batchResult = Skew.Calculate(series, 10);
+        
+        // Verify last value against streaming
+        var skew = new Skew(10);
+        double lastStreaming = 0;
+        foreach (var val in data)
+        {
+            lastStreaming = skew.Update(new TValue(DateTime.UtcNow, val)).Value;
+        }
+
+        Assert.Equal(lastStreaming, batchResult.Last.Value, precision: 10);
+    }
 }

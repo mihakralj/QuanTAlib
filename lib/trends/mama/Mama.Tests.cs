@@ -178,4 +178,57 @@ public class MamaTests
             Assert.Equal(series1[i].Value, series2[i].Value, 1e-9);
         }
     }
+
+    [Fact]
+    public void Calculate_Span_Matches_Update()
+    {
+        int count = 100;
+        var data = new double[count];
+        var gbm = new GBM(startPrice: 100, seed: 42);
+        for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;
+
+        var output = new double[count];
+        Mama.Calculate(data, output);
+
+        var mama = new Mama();
+        for (int i = 0; i < count; i++)
+        {
+            var res = mama.Update(new TValue(DateTime.UtcNow, data[i]));
+            Assert.Equal(res.Value, output[i], precision: 8);
+        }
+    }
+
+    [Fact]
+    public void Calculate_Span_ThrowsOnSmallOutput()
+    {
+        var data = new double[10];
+        var output = new double[5];
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mama.Calculate(data, output));
+    }
+
+    [Fact]
+    public void Prime_PreloadsState()
+    {
+        var data = new double[60];
+        var gbm = new GBM(startPrice: 100, seed: 42);
+        for (int i = 0; i < 60; i++) data[i] = gbm.Next().Close;
+
+        // 1. Prime with all but last value
+        var mamaPrimed = new Mama();
+        mamaPrimed.Prime(data.AsSpan().Slice(0, 59));
+
+        // 2. Update with last value
+        var resultPrimed = mamaPrimed.Update(new TValue(DateTime.UtcNow, data[59]));
+
+        // 3. Run normal updates for comparison
+        var mamaNormal = new Mama();
+        TValue resultNormal = default;
+        for (int i = 0; i < 60; i++)
+        {
+            resultNormal = mamaNormal.Update(new TValue(DateTime.UtcNow, data[i]));
+        }
+
+        Assert.True(mamaPrimed.IsHot);
+        Assert.Equal(resultNormal.Value, resultPrimed.Value, precision: 9);
+    }
 }
