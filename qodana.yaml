@@ -109,6 +109,3 @@ linter: jetbrains/qodana-dotnet:2024.3
 
 dotnet:
   solution: QuanTAlib.sln
-  msbuild:
-    properties:
-      Qodana: true
