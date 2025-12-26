@@ -22,7 +22,7 @@ public sealed class Usf : AbstractBase
 {
     private record struct State(double Usf1, double Usf2, double PrevInput1, double PrevInput2, double LastValidValue, int Count, bool IsHot)
     {
-        public static State New() => new() { Usf1 = 0, Usf2 = 0, PrevInput1 = 0, PrevInput2 = 0, LastValidValue = 0, Count = 0, IsHot = false };
+        public static State New() => new() { Usf1 = 0, Usf2 = 0, PrevInput1 = 0, PrevInput2 = 0, LastValidValue = double.NaN, Count = 0, IsHot = false };
     }
 
     private readonly double _c1, _c2, _c3;

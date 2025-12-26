@@ -118,13 +118,23 @@ public sealed class Ema : AbstractBase
         int i = 0;
 
         // Find first valid value to seed lastValid
+        bool foundValid = false;
         for (int k = 0; k < len; k++)
         {
             if (double.IsFinite(source[k]))
             {
                 _lastValidValue = source[k];
+                foundValid = true;
                 break;
             }
+        }
+
+        if (!foundValid)
+        {
+            Last = new TValue(DateTime.MinValue, double.NaN);
+            _p_state = _state;
+            _p_lastValidValue = _lastValidValue;
+            return;
         }
 
         if (!_state.IsCompensated)

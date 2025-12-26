@@ -552,6 +552,17 @@ public class EmaTests
     }
 
     [Fact]
+    public void Prime_AllNaNs_ReturnsNaN()
+    {
+        var ema = new Ema(5);
+        double[] history = [double.NaN, double.NaN, double.NaN];
+        
+        ema.Prime(history);
+        
+        Assert.True(double.IsNaN(ema.Last.Value));
+    }
+
+    [Fact]
     public void Calculate_ReturnsCorrectResultsAndHotIndicator()
     {
         var series = new TSeries();

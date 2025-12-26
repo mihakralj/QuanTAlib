@@ -33,8 +33,19 @@ public sealed class Blma : AbstractBase
 
     public Blma(object source, int period) : this(period)
     {
-        var pub = (ITValuePublisher)source;
-        pub.Pub += Handle;
+        if (source is null)
+        {
+            throw new ArgumentNullException(nameof(source));
+        }
+
+        if (source is ITValuePublisher pub)
+        {
+            pub.Pub += Handle;
+        }
+        else
+        {
+            throw new ArgumentException("Source must implement ITValuePublisher", nameof(source));
+        }
     }
 
     private void Handle(TValue value)
@@ -49,9 +60,19 @@ public sealed class Blma : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source)
     {
+        DateTime time = DateTime.UtcNow;
         foreach (var value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(time, value));
+            time = time.AddMilliseconds(1);
+        }
+    }
+
+    public void Prime(ReadOnlySpan<TValue> source)
+    {
+        foreach (var value in source)
+        {
+            Update(value);
         }
     }
 

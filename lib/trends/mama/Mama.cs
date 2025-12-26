@@ -268,6 +268,10 @@ public sealed class Mama : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05)
     {
         if (source.Length == 0) return;
+        if (output.Length < source.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(output), "Output buffer must be at least as large as the input buffer.");
+        }
 
         // Stack allocate buffers for high performance (size 8 for power of 2 masking)
         // We need 7 elements, but 8 allows & 7 masking

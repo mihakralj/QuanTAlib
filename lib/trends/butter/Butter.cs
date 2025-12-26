@@ -68,6 +68,7 @@ public sealed class Butter : AbstractBase
     {
         _state = new State();
         _p_state = new State();
+        Last = new TValue(0, double.NaN);
     }
 
     public override void Reset()
@@ -97,6 +98,7 @@ public sealed class Butter : AbstractBase
 
         if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
         {
+            // Return Last (initialized to NaN) if no valid input has been seen yet
             return Last;
         }
 
@@ -126,7 +128,7 @@ public sealed class Butter : AbstractBase
     {
         var result = new TSeries();
         Span<double> output = new double[source.Count];
-        Calculate(source.Values, output, _period);
+        Calculate(source.Values, output, _period, double.NaN);
         
         for (int i = 0; i < source.Count; i++)
         {
@@ -148,7 +150,7 @@ public sealed class Butter : AbstractBase
         return result;
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period)
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period, double initialLast)
     {
         if (period < 2)
         {
@@ -183,7 +185,7 @@ public sealed class Butter : AbstractBase
             double x = source[i];
             if (double.IsNaN(x) || double.IsInfinity(x))
             {
-                destination[i] = i > 0 ? destination[i - 1] : 0;
+                destination[i] = i > 0 ? destination[i - 1] : initialLast;
                 continue;
             }
             double y = i < 2

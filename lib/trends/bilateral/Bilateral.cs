@@ -265,6 +265,9 @@ public sealed class Bilateral : AbstractBase
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        if (destination.Length < source.Length)
+            throw new ArgumentException("Destination must have length >= source length", nameof(destination));
             
         // Precalculate spatial weights
         double sigmaS = Math.Max(period * sigmaSRatio, 1e-10);
@@ -304,7 +307,7 @@ public sealed class Bilateral : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             double val = source[i];
-            if (double.IsNaN(val))
+            if (!double.IsFinite(val))
             {
                 val = lastValid;
             }

@@ -27,11 +27,13 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Wma : AbstractBase
+public sealed class Wma : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly double _divisor;
     private readonly RingBuffer _buffer;
+    private readonly ITValuePublisher? _source;
+    private readonly Action<TValue>? _handler;
 
     private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount);
     private State _state;
@@ -59,7 +61,17 @@ public sealed class Wma : AbstractBase
 
     public Wma(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        _source = source;
+        _handler = (item) => Update(item);
+        _source.Pub += _handler;
+    }
+
+    public void Dispose()
+    {
+        if (_source != null && _handler != null)
+        {
+            _source.Pub -= _handler;
+        }
     }
 
     public override bool IsHot => _buffer.IsFull;

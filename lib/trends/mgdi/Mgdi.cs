@@ -160,7 +160,7 @@ public sealed class Mgdi : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 14, double k = 0.6)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
-        if (k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be greater than 0");
+        if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
 
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length");

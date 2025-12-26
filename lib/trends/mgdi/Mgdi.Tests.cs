@@ -44,4 +44,17 @@ public class MgdiTests
         Assert.True(result.Value > 100.0);
         Assert.True(result.Value < 101.0);
     }
+
+    [Fact]
+    public void Calculate_InvalidK_ThrowsArgumentOutOfRangeException()
+    {
+        var source = new double[10];
+        var output = new double[10];
+        
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mgdi.Calculate(source, output, 14, double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mgdi.Calculate(source, output, 14, double.PositiveInfinity));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mgdi.Calculate(source, output, 14, double.NegativeInfinity));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mgdi.Calculate(source, output, 14, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Mgdi.Calculate(source, output, 14, -1));
+    }
 }

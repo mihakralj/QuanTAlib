@@ -237,6 +237,25 @@ public class JmaTests
         Assert.NotEqual(jmaPhase0.Last.Value, jmaPhaseMinus100.Last.Value);
     }
 
+    [Fact]
+    public void Jma_Power_AffectsResult()
+    {
+        var series = new TSeries();
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            series.Add(bar.Time, bar.Close);
+        }
+
+        var jmaPowerDefault = Jma.Batch(series, 10, power: 0.45);
+        var jmaPower1 = Jma.Batch(series, 10, power: 1.0);
+        var jmaPower2 = Jma.Batch(series, 10, power: 2.0);
+
+        Assert.NotEqual(jmaPowerDefault.Last.Value, jmaPower1.Last.Value);
+        Assert.NotEqual(jmaPowerDefault.Last.Value, jmaPower2.Last.Value);
+    }
+
 
     [Fact]
     public void Jma_SpanCalc_HandlesNaN()

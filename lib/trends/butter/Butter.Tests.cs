@@ -24,7 +24,7 @@ public class ButterTests
     {
         var source = new double[10];
         var destination = new double[5];
-        Assert.Throws<ArgumentOutOfRangeException>(() => Butter.Calculate(source, destination, 5));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Butter.Calculate(source, destination, 5, double.NaN));
     }
 
     [Fact]
@@ -60,6 +60,14 @@ public class ButterTests
     }
 
     [Fact]
+    public void Initial_NaN_Input_ReturnsNaN()
+    {
+        var butter = new Butter(10);
+        var result = butter.Update(new TValue(DateTime.UtcNow, double.NaN));
+        Assert.True(double.IsNaN(result.Value));
+    }
+
+    [Fact]
     public void AllModes_ProduceSameResult()
     {
         int period = 10;
@@ -74,7 +82,7 @@ public class ButterTests
         var tValues = series.Values.ToArray();
         var spanInput = new ReadOnlySpan<double>(tValues);
         var spanOutput = new double[tValues.Length];
-        Butter.Calculate(spanInput, spanOutput, period);
+        Butter.Calculate(spanInput, spanOutput, period, double.NaN);
         double spanResult = spanOutput[^1];
 
         // 3. Streaming Mode

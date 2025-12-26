@@ -23,21 +23,15 @@ public class BlmaTests
     }
 
     [Fact]
+    public void Constructor_ValidatesSource()
+    {
+        Assert.Throws<ArgumentNullException>(() => new Blma(null!, 10));
+        Assert.Throws<ArgumentException>(() => new Blma(new object(), 10));
+    }
+
+    [Fact]
     public void BasicCalculation_MatchesManual()
     {
-        // Period 3
-        // Weights:
-        // n=3
-        // i=0: 0.42 - 0.5*cos(0) + 0.08*cos(0) = 0.42 - 0.5 + 0.08 = 0
-        // i=1: 0.42 - 0.5*cos(pi) + 0.08*cos(2pi) = 0.42 - 0.5(-1) + 0.08(1) = 0.42 + 0.5 + 0.08 = 1.0
-        // i=2: 0.42 - 0.5*cos(2pi) + 0.08*cos(4pi) = 0.42 - 0.5(1) + 0.08(1) = 0
-        // Wait, Blackman window is 0 at edges.
-        // So for period 3, weights are [0, 1, 0].
-        // Sum = 1.
-        // Weighted Sum = 0*x0 + 1*x1 + 0*x2 = x1.
-        // So BLMA(3) should return the middle value?
-        // Let's verify.
-        
         var blma = new Blma(3);
         var input = new[] { 10.0, 20.0, 30.0 };
         
@@ -45,44 +39,12 @@ public class BlmaTests
         var r1 = blma.Update(new TValue(DateTime.UtcNow, input[0]));
         Assert.Equal(10.0, r1.Value);
         
-        // Bar 2: Count=2. Weights for n=2:
-        // i=0: 0.42 - 0.5*cos(0) + 0.08*cos(0) = 0
-        // i=1: 0.42 - 0.5*cos(2pi) + 0.08*cos(4pi) = 0
-        // Wait, for n=2, invNMinus1 = 1/(2-1) = 1.
-        // i=0: ratio=0. w=0.
-        // i=1: ratio=1. w=0.
-        // Sum=0. Division by zero?
-        // Let's check CalculateWeights logic.
-        // If n=2, weights are 0, 0. Sum is 0.
-        // This is a known issue with Blackman window for small N if we strictly follow formula.
-        // However, usually N is odd or larger.
-        // But for warmup, we encounter N=2.
-        // If sum is 0, result is NaN or Infinity.
-        // We should check if sum is 0 and handle it?
-        // Or maybe the formula handles it?
-        // Let's check the code.
-        // If sum is 0, we divide by 0.
-        // I should add a check in CalculateWeights or Update to handle zero sum?
-        // Or maybe for N=2, we should use something else?
-        // PineScript implementation:
-        // If total_weight is 0, inv_total is Infinity.
-        // Then weights become Infinity.
-        // Then result is Infinity.
-        // Does PineScript handle this?
-        // "int p = math.min(bar_index + 1, period)"
-        // If period=2, p=2.
-        // If Blackman gives 0 weights, it fails.
-        // But maybe `cos(2pi)` is not exactly 1 in float?
-        // No, it's mathematically 0.
-        // Let's see if I need to fix this in Blma.cs.
-        // I will run this test and see if it fails.
-        
+        // Bar 2: Count=2. Weights for n=2 sum to 0. Fallback to average: (10+20)/2 = 15.
         var r2 = blma.Update(new TValue(DateTime.UtcNow, input[1]));
-        // For N=2, weights sum to 0. Fallback to average: (10+20)/2 = 15.
         Assert.Equal(15.0, r2.Value);
         
+        // Bar 3: Count=3. Weights [0, 1, 0]. Sum=1. Result=20.
         var r3 = blma.Update(new TValue(DateTime.UtcNow, input[2]));
-        // For N=3, weights [0, 1, 0]. Sum=1. Result=20.
         Assert.Equal(20.0, r3.Value, 1e-6);
     }
 
@@ -156,9 +118,6 @@ public class BlmaTests
         Assert.Equal(val1, val2);
         
         // However, the internal buffer MUST be updated.
-        // We verify this by adding a 4th bar.
-        // If Bar 3 was 30, Bar 4 result would be different than if Bar 3 is 40.
-        
         // Case A: Bar 3 = 40 (current state)
         blma.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
         var valWith40 = blma.Last.Value;
@@ -172,5 +131,47 @@ public class BlmaTests
         var valWith30 = blma2.Last.Value;
         
         Assert.NotEqual(valWith30, valWith40);
+    }
+
+    [Fact]
+    public void Prime_PreservesTimestamps()
+    {
+        var blma = new Blma(5);
+        var input = new double[] { 1, 2, 3, 4, 5 };
+        var timestamps = new List<DateTime>();
+        
+        blma.Pub += (item) => timestamps.Add(item.AsDateTime);
+        
+        blma.Prime(input);
+        
+        Assert.Equal(input.Length, timestamps.Count);
+        // Verify timestamps are unique and increasing
+        for (int i = 1; i < timestamps.Count; i++)
+        {
+            Assert.True(timestamps[i] > timestamps[i-1], $"Timestamp at {i} ({timestamps[i].Ticks}) should be greater than {i-1} ({timestamps[i-1].Ticks})");
+        }
+    }
+
+    [Fact]
+    public void Prime_Overload_UsesProvidedTimestamps()
+    {
+        var blma = new Blma(5);
+        var now = DateTime.UtcNow;
+        TValue[] input = 
+        [ 
+            new(now, 1), 
+            new(now.AddMinutes(1), 2), 
+            new(now.AddMinutes(2), 3) 
+        ];
+        var timestamps = new List<DateTime>();
+        
+        blma.Pub += (item) => timestamps.Add(item.AsDateTime);
+        
+        blma.Prime(input);
+        
+        Assert.Equal(input.Length, timestamps.Count);
+        Assert.Equal(input[0].AsDateTime, timestamps[0]);
+        Assert.Equal(input[1].AsDateTime, timestamps[1]);
+        Assert.Equal(input[2].AsDateTime, timestamps[2]);
     }
 }

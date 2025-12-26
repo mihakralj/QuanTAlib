@@ -24,6 +24,7 @@ public sealed class Jma : AbstractBase
     private readonly double _lengthDivider;  // L'/(L'+2), L' = 0.9*L
     private readonly double _logSqrtDivider; // Precomputed log(_sqrtDivider) for Exp optimization
     private readonly double _logLengthDivider; // Precomputed log(_lengthDivider) for Exp optimization
+    private readonly double _power;          // Jurik power parameter
 
     // Constants for trimmed mean
     private const int JurikTrimCount = 65; // canonical JMA: middle 65 of 128 samples
@@ -70,6 +71,8 @@ public sealed class Jma : AbstractBase
             _phaseParam = 2.5;
         else
             _phaseParam = (phase * 0.01) + 1.5;
+
+        _power = power;
 
         // --- Length / log / divider parameters (from decompiled JMA) ---
         // L_raw ~ (period - 1)/2, with a tiny lower bound to avoid log(0)
@@ -144,7 +147,11 @@ public sealed class Jma : AbstractBase
         // --- Handle NaN/inf: reuse last finite price ---
         if (!double.IsFinite(value))
         {
-            value = _state.Bars > 0 ? _state.LastPrice : 0.0;
+            if (_state.Bars == 0)
+            {
+                return double.NaN;
+            }
+            value = _state.LastPrice;
         }
         else
         {
@@ -189,8 +196,7 @@ public sealed class Jma : AbstractBase
         double ratio = absValue / refVolatility;
         if (ratio < 0.0) ratio = 0.0;
 
-        double p = Math.Max(_logParam - 2.0, 0.5);
-        double d = Math.Pow(ratio, p);
+        double d = Math.Pow(ratio, _power);
         if (d > _logParam) d = _logParam;
         if (d < 1.0) d = 1.0;
 

@@ -170,4 +170,23 @@ public class WmaTests
         Assert.Throws<ArgumentException>(() => new Wma(0));
         Assert.Throws<ArgumentException>(() => new Wma(-1));
     }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromSource()
+    {
+        var source = new TSeries();
+        var wma = new Wma(source, 10);
+        
+        // Verify subscription works
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100, wma.Last.Value);
+        
+        // Dispose
+        wma.Dispose();
+        
+        // Verify unsubscription
+        source.Add(new TValue(DateTime.UtcNow, 200));
+        // Last value should remain unchanged if unsubscribed
+        Assert.Equal(100, wma.Last.Value);
+    }
 }
