@@ -93,7 +93,7 @@ public class BetaValidationTests : IDisposable
             double ql = qlBeta[i];
             
             // Skender might return null/0 for warmup.
-            if (sk != 0)
+            if (Math.Abs(sk) > 1e-10)
             {
                 Assert.Equal(sk, ql, ValidationHelper.DefaultTolerance);
             }

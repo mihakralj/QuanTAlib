@@ -19,12 +19,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  pull-requests: read
-  security-events: write
-  checks: write
-  actions: read
+permissions: {}
 
 env:
   DOTNET_VERSION: '10.x'
@@ -37,6 +32,8 @@ jobs:
   # ==============================================================================
   Build_Test_Coverage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -94,6 +91,8 @@ jobs:
   Sonar_Analysis:
     needs: Build_Test_Coverage
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -167,6 +166,11 @@ jobs:
   Qodana_Scan:
     needs: Build_Test_Coverage
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      security-events: write
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -191,6 +195,8 @@ jobs:
   Codacy_Upload:
     needs: Build_Test_Coverage
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -230,6 +236,8 @@ jobs:
   # ==============================================================================
   Snyk_Scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -292,13 +300,12 @@ jobs:
   # ==============================================================================
   Publish_Package:
     needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
-    if: |
-      success() &&
-      (
-        (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
-        github.event_name == 'workflow_dispatch'
-      )
+    if: >-
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:

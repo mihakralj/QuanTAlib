@@ -154,11 +154,11 @@ public class VarianceTests
     {
         // Run for > 1000 updates to trigger Resync
         var variance = new Variance(10);
-        var random = new Random(123);
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         
         for (int i = 0; i < 1100; i++)
         {
-            variance.Update(new TValue(DateTime.UtcNow, random.NextDouble() * 100));
+            variance.Update(new TValue(DateTime.UtcNow, gbm.Next().Close));
         }
         
         Assert.True(double.IsFinite(variance.Last.Value));

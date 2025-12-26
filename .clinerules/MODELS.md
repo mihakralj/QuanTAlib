@@ -11,6 +11,12 @@ These tests verify the internal logic, state management, and API contract of the
 - **`Constructor_ValidatesInput`**: Verify that invalid parameters (e.g., `period <= 0`) throw `ArgumentException`.
 - **`Constructor_ValidatesOptionalArgs`**: If applicable, verify other parameters (e.g., `alpha`, `sigma`).
 
+### Random Data Generation
+
+- **Use `GBM` Helper**: Always use the `GBM` (Geometric Brownian Motion) helper class for generating random test data.
+- **Avoid `System.Random`**: Do not use `System.Random` directly in tests to ensure consistency and realism.
+- **Example**: `var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);`
+
 ### Basic Functionality
 
 - **`Calc_ReturnsValue`**: Verify `Update` returns a valid `TValue` and updates the `Last` property.
