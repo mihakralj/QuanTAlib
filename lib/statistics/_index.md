@@ -8,7 +8,7 @@ Statistical analysis tools applied to price/returns.
 | BIAS | Bias | |
 | COINTEGRATION | Cointegration | |
 | CORRELATION | Correlation (Pearson's) | |
-| COVARIANCE | Covariance | |
+| [COVARIANCE](covariance/Covariance.md) | Covariance | |
 | CUMMEAN | Cumulative Mean (Average) | |
 | ENTROPY | Normalized Shannon Entropy | |
 | GEOMEAN | Geometric Mean | |
@@ -19,15 +19,15 @@ Statistical analysis tools applied to price/returns.
 | JB | Jarque-Bera Test | |
 | KENDALL | Kendall Rank Correlation | |
 | KURTOSIS | Kurtosis | |
-| LINREG | Linear Regression Curve | |
-| MEDIAN | Median (Statistical) | |
+| [LINREG](linreg/LinReg.md) | Linear Regression Curve | |
+| [MEDIAN](median/Median.md) | Median (Statistical) | |
 | MODE | Mode (Most Frequent) | |
 | PERCENTILE | Percentile | |
 | QUANTILE | Quantile | |
-| SKEW | Skewness | |
+| [SKEW](skew/Skew.md) | Skewness | |
 | SPEARMAN | Spearman Rank Correlation | |
-| STDDEV | Standard Deviation | |
+| [STDDEV](stddev/StdDev.md) | Standard Deviation | |
 | THEIL | Theil Index | |
-| VARIANCE | Variance | |
+| [VARIANCE](variance/Variance.md) | Variance | |
 | ZSCORE | Z-score standardization | |
 | ZTEST | Z-Test | |

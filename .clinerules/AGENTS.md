@@ -203,6 +203,7 @@ public TValue Update(TValue input, bool isNew = true)
 
 * **Implementation:** Create a wrapper class in `[Name].Quantower.cs` that adapts the QuanTAlib indicator for the Quantower platform.
 * **Tests:** Create unit tests in `[Name].Quantower.Tests.cs` to verify the adapter's functionality using mocks where necessary.
+* **Project Inclusion:** Ensure the adapter is included in the appropriate project (e.g., `quantower/Statistics.csproj`) and tests in `quantower/Quantower.Tests.csproj`.
 
 ## 7. Code Review
 
@@ -227,7 +228,7 @@ When creating a new indicator, you are **DONE** only when:
 * [ ] Documentation is complete and linked in all required index/doc files:
   * [ ] `docs/_sidebar.md`
   * [ ] `docs/indicators.md`
-  * [ ] `docs/validation.md`
+  * [ ] **`docs/validation.md`** (Update validation status table)
   * [ ] `lib/_index.md`
   * [ ] `lib/[category]/_index.md`
 * [ ] Quantower adapter and tests are implemented.
@@ -240,6 +241,8 @@ When creating a new indicator, you are **DONE** only when:
 * **DO NOT** change `Directory.Build.props` without explicit instruction.
 * **DO NOT** remove `[SkipLocalsInit]` or `[MethodImpl]` attributes.
 * **DO NOT** ignore `NaN` inputs; handle them safely.
+* **DO NOT** skip creating `[Name].Quantower.cs` and `[Name].Quantower.Tests.cs` when implementing or modifying an indicator.
+* **DO NOT** forget to update `docs/validation.md` with the validation status of the new indicator.
 
 ## 10. Context & Resources
 

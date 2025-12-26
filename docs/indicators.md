@@ -101,3 +101,12 @@ These measure the spread of data points around the mean.
 
 - [**ADL**](../lib/volume/adl/Adl.md) - Accumulation/Distribution Line
 - [**ADOSC**](../lib/volume/adosc/Adosc.md) - Chaikin A/D Oscillator
+
+### Statistics
+
+- [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) - Covariance
+- [**LINREG**](../lib/statistics/linreg/LinReg.md) - Linear Regression Curve
+- [**MEDIAN**](../lib/statistics/median/Median.md) - Rolling Median
+- [**SKEW**](../lib/statistics/skew/Skew.md) - Skewness
+- [**STDDEV**](../lib/statistics/stddev/StdDev.md) - Standard Deviation
+- [**VARIANCE**](../lib/statistics/variance/Variance.md) - Population and Sample Variance

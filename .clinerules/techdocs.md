@@ -1,4 +1,5 @@
-CORE MISSION
+# CORE MISSION
+
 Convince technical architects evaluating TA libs through uncompromising technical correctness, architectural evidence, and a benevolent curmudgeon's wit. Be kind to the humans, but ruthless with the math.
 
 AUDIENCE: THE SKEPTICAL PRACTITIONER

@@ -240,7 +240,11 @@ public sealed class Ema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Compute(double input, double alpha, double decay, ref State state)
     {
-        state.Ema += alpha * (input - state.Ema);
+        // state.Ema += alpha * (input - state.Ema)
+        // state.Ema = state.Ema + alpha * input - alpha * state.Ema
+        // state.Ema = state.Ema * (1 - alpha) + alpha * input
+        // state.Ema = state.Ema * decay + alpha * input
+        state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input);
 
         double result;
         if (!state.IsCompensated)
@@ -285,7 +289,8 @@ public sealed class Ema : AbstractBase
                 else
                     val = lastValidValue;
 
-                state.Ema += alpha * (val - state.Ema);
+                 
+                state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
                 state.E *= decay;
 
                 if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
@@ -305,7 +310,8 @@ public sealed class Ema : AbstractBase
             else
                 val = lastValidValue;
 
-            state.Ema += alpha * (val - state.Ema);
+            // state.Ema += alpha * (val - state.Ema);  // skipcq: S125
+            state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
             output[i] = state.Ema;
         }
     }

@@ -164,7 +164,8 @@ public sealed class Kama : AbstractBase
             // Cap ER at 1.0 just in case floating point errors push it slightly over
             if (er > 1.0) er = 1.0;
 
-            double sc = er * (_fastAlpha - _slowAlpha) + _slowAlpha;
+            // double sc = er * (_fastAlpha - _slowAlpha) + _slowAlpha;  // skipcq: S125
+            double sc = Math.FusedMultiplyAdd(er, _fastAlpha - _slowAlpha, _slowAlpha);
             sc *= sc;
 
             double prevKama = _p_state.Kama;
@@ -173,7 +174,8 @@ public sealed class Kama : AbstractBase
                 prevKama = _state.Kama;
             }
 
-            _state.Kama = prevKama + sc * (val - prevKama);
+            // _state.Kama = prevKama + sc * (val - prevKama); // skipcq: S125
+            _state.Kama = Math.FusedMultiplyAdd(sc, val - prevKama, prevKama);
         }
 
         Last = new TValue(input.Time, _state.Kama);
@@ -314,10 +316,12 @@ public sealed class Kama : AbstractBase
                 double er = (volatilitySum > 1e-10) ? change / volatilitySum : 0.0;
                 if (er > 1.0) er = 1.0;
 
-                double sc = er * (fastAlpha - slowAlpha) + slowAlpha;
+                // double sc = er * (fastAlpha - slowAlpha) + slowAlpha; // skipcq: S125
+                double sc = Math.FusedMultiplyAdd(er, fastAlpha - slowAlpha, slowAlpha);
                 sc *= sc;
 
-                kama += sc * (val - kama);
+                // kama += sc * (val - kama); // skipcq: S125
+                kama = Math.FusedMultiplyAdd(sc, val - kama, kama);
                 output[i] = kama;
             }
         }

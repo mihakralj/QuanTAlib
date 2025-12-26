@@ -87,7 +87,10 @@ public sealed class Blma : AbstractBase
         else
         {
             // Full period, use pre-calculated weights
-            result = CalculateWeightedSum(_buffer, _weights) / _weightSum;
+            // Fallback for cases where weights sum to zero (e.g. N=2)
+            result = Math.Abs(_weightSum) < double.Epsilon
+                ? _buffer.Average()
+                : CalculateWeightedSum(_buffer, _weights) / _weightSum;
         }
 
         var tValue = new TValue(input.Time, result);
@@ -223,8 +226,21 @@ public sealed class Blma : AbstractBase
             else
             {
                 // Full period
-                double sum = source.Slice(i - period + 1, period).DotProduct(weights);
-                destination[i] = sum / weightSum;
+                if (Math.Abs(weightSum) < double.Epsilon)
+                {
+                    // Fallback for zero sum weights (e.g. N=2)
+                    double sum = 0;
+                    for (int j = 0; j < period; j++)
+                    {
+                        sum += source[i - period + 1 + j];
+                    }
+                    destination[i] = sum / period;
+                }
+                else
+                {
+                    double sum = source.Slice(i - period + 1, period).DotProduct(weights);
+                    destination[i] = sum / weightSum;
+                }
             }
         }
     }

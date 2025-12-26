@@ -1,0 +1,71 @@
+using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Xunit;
+using Skender.Stock.Indicators;
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+using System.Collections.Generic;
+
+namespace QuanTAlib.Tests;
+
+public class LinRegValidationTests : IDisposable
+{
+    private readonly ValidationTestData _data;
+
+    public LinRegValidationTests()
+    {
+        _data = new ValidationTestData();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _data.Dispose();
+        }
+    }
+
+    [SkipLocalsInit]
+    [Fact]
+    public void Validate_Against_Skender_Slope()
+    {
+        var period = 14;
+        var skender = _data.SkenderQuotes.GetSlope(period).ToList();
+        
+        var linreg = new LinReg(period);
+        var slopeSeries = new TSeries();
+        foreach (var item in _data.Data)
+        {
+            linreg.Update(item);
+            slopeSeries.Add(new TValue(item.Time, linreg.Slope));
+        }
+
+        ValidationHelper.VerifyData(slopeSeries, skender, x => x.Slope, tolerance: ValidationHelper.DefaultTolerance);
+    }
+
+    [SkipLocalsInit]
+    [Fact]
+    public void Validate_Against_Skender_RSquared()
+    {
+        var period = 14;
+        var skender = _data.SkenderQuotes.GetSlope(period).ToList();
+        
+        var linreg = new LinReg(period);
+        var r2Series = new TSeries();
+        foreach (var item in _data.Data)
+        {
+            linreg.Update(item);
+            r2Series.Add(new TValue(item.Time, linreg.RSquared));
+        }
+
+        ValidationHelper.VerifyData(r2Series, skender, x => x.RSquared, tolerance: ValidationHelper.DefaultTolerance);
+    }
+
+}

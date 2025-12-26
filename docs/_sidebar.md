@@ -69,6 +69,11 @@
 
 - **Statistics**
   - [Overview](../lib/statistics/_index.md)
+  - [COVARIANCE - Covariance](../lib/statistics/covariance/Covariance.md)
+  - [LINREG - Linear Regression Curve](../lib/statistics/linreg/LinReg.md)
+  - [MEDIAN - Rolling Median](../lib/statistics/median/Median.md)
+  - [SKEW - Skewness](../lib/statistics/skew/Skew.md)
+  - [VARIANCE - Population and Sample Variance](../lib/statistics/variance/Variance.md)
 
 - **Numerics**
   - [Overview](../lib/numerics/_index.md)

@@ -166,7 +166,7 @@
 | MASE | Mean Absolute Scaled Error | Errors |
 | MASS | Mass Index | Volatility |
 | ME | Mean Error | Errors |
-| MEDIAN | Median (Statistical) | Statistics |
+| [MEDIAN](statistics/median/Median.md) | Median (Statistical) | Statistics |
 | MFI | Money Flow Index | Volume |
 | MGDI | McGinley Dynamic Indicator | Trends |
 | MIDPOINT | (Highest + Lowest) / 2 | Numerics |

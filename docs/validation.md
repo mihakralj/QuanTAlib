@@ -27,7 +27,7 @@
 | **Balance of Power** | [Bop](../lib/momentum/bop/Bop.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
 | **Bessel-Weighted MA** | Bwma | - | - | - | - |
-| **Beta Coefficient** | Beta | BETA | - | Beta | - |
+| **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | BETA | - | ✔️ | - |
 | **Bias** | Bias | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/trends/bilateral/Bilateral.md) | - | - | - | - |
 | **Blackman Window MA** | [Blma](../lib/trends/blma/Blma.md) | - | - | - | - |
@@ -42,7 +42,6 @@
 | **Bollinger Band Width** | Bbw | - | - | - | ❔ |
 | **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
 | **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
-| **Bollinger Bands** | Bbands | BBANDS | bbands | BollingerBands | ❔ |
 | **Butterworth Filter** | Butter | - | - | - | - |
 | **Camarilla Pivot Points** | Pivotcam | - | - | - | ❔ |
 | **Chaikin Money Flow** | Cmf | - | - | Cmf | ❔ |
@@ -59,7 +58,6 @@
 | **Conditional Volatility** | Cv | - | - | - | - |
 | **Convolution Moving Average** | [Conv](../lib/trends/conv/conv.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Correlation** | Correlation | CORREL | - | Correlation | - |
-| **Covariance** | Covariance | - | - | - | - |
 | **Cumulative Mean (Average)** | Cummean | - | - | - | - |
 | **Decay Min-Max Channel** | Decaychannel | - | - | - | - |
 | **DeMark Pivot Points** | Pivotdem | - | - | - | ❔ |
@@ -136,7 +134,7 @@
 | **Klinger Volume Oscillator** | Kvo | - | kvo | Kvo | ❔ |
 | **Kurtosis** | Kurtosis | - | - | - | ❔ |
 | **Least Squares Moving Average** | [Lsma](../lib/trends/lsma/lsma.md) | LINEARREG | - | ✔️ | ❔ |
-| **Linear Regression** | Linreg | LINEARREG | linreg | Slope | ❔ |
+| **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | LINEARREG | linreg | Slope | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
 | **Linear Transformation** | Linear | - | - | - | - |
 | **Linear Trend MA** | Ltma | - | - | - | - |
 | **LOESS/LOWESS Smoothing** | Loess | - | - | - | - |
@@ -154,7 +152,6 @@
 | **Mean Percentage Error** | Mpe | - | - | - | - |
 | **Mean Squared Error** | Mse | - | - | - | - |
 | **Mean Squared Logarithmic Error** | Msle | - | - | - | - |
-| **Median (Statistical)** | Median | - | - | - | - |
 | **MESA Adaptive Moving Average** | [Mama](../lib/trends/mama/mama.md) | MAMA | - | ✔️ | ✔️ |
 | **Min-Max Channel** | Mmchannel | - | - | - | - |
 | **Min-Max Scaling (Normalization)** | Normalize | - | - | - | - |
@@ -164,7 +161,7 @@
 | **Momentum change; 2nd derivative** | Accel | - | - | - | - |
 | **Money Flow Index** | Mfi | MFI | mfi | Mfi | ❔ |
 | **Moon Phase** | Moon | - | - | - | - |
-| **Moving Average Convergence/Divergence** | [Macd](../lib/momentum/macd/Macd.md) | ✔️ | ✔️ | ✔️ | MovingAverageConvergenceDivergence |
+| **Moving Average Convergence/Divergence** | [Macd](../lib/momentum/macd/Macd.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Moving Average Envelopes** | Maenv | - | - | MaEnvelopes | ❔ |
 | **Negative Volume Index** | Nvi | - | nvi | - | ❔ |
 | **Normalized Average True Range** | Natr | NATR | natr | - | - |
@@ -192,7 +189,7 @@
 | **Quantile** | Quantile | - | - | - | - |
 | **Rate of acceleration; 3rd derivative** | Jolt | - | - | - | - |
 | **Rate of Change** | Roc | ROC | roc | Roc | ❔ |
-| **Rate of change; 1st derivative** | Slope | - | - | - | - |
+| **Rate of change; 1st derivative** | [Slope](../lib/statistics/linreg/LinReg.md) | LINEARREG_SLOPE | linregslope | Slope | ❔ |
 | **Rate of Change Percentage** | Rocp | ROCP | - | - | - |
 | **Rate of Change Ratio** | Rocr | ROCR | rocr | - | - |
 | **Realized Volatility** | Rv | - | - | - | - |
@@ -209,18 +206,16 @@
 | **Rogers-Satchell Volatility** | Rsv | - | - | - | - |
 | **Root Mean Squared Error** | Rmse | - | - | - | - |
 | **Root Mean Squared Logarithmic Error** | Rmsle | - | - | - | - |
-| **R-Squared** | Rsquared | - | - | - | - |
+| **R-Squared** | [RSquared](../lib/statistics/linreg/LinReg.md) | - | - | RSquared | ❔ |
 | **Savitzky-Golay Filter** | Sgf | - | - | - | - |
 | **Savitzky-Golay MA** | Sgma | - | - | - | - |
 | **Schaff Trend Cycle** | Stc | - | - | Stc | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends/sma/sma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sine-weighted MA** | Sinema | - | - | - | ❔ |
-| **Skewness** | Skew | - | - | - | - |
 | **Smoothed Moving Average** | [Rma](../lib/trends/rma/rma.md) | - | wilders | ✔️ | ✔️ |
 | **Solar Activity Cycle** | Solar | - | - | - | - |
 | **Spearman Rank Correlation** | Spearman | - | - | - | ❔ |
 | **Square Root Transformation** | Sqrt | - | - | - | - |
-| **Standard Deviation** | Stddev | STDDEV | stddev | StdDev | ❔ |
 | **Standard Deviation Channel** | Sdchannel | - | - | - | ❔ |
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |
@@ -250,7 +245,6 @@
 | **Ultimate Channel** | Uchannel | - | - | - | - |
 | **Ultimate Oscillator** | Ultosc | ULTOSC | ultosc | Ultimate | ❔ |
 | **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | vidya | - | ❔ |
-| **Variance** | Variance | VAR | var | - | - |
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
 | **Volatility Adjusted Moving Average** | Vama | - | - | - | ❔ |
 | **Volatility of Volatility** | Vov | - | - | - | - |
@@ -280,3 +274,13 @@
 | **ZigZag** | - | - | - | ZigZag | - |
 | **Z-score standardization** | Zscore | - | - | - | ❔ |
 | **Z-Test** | Ztest | - | - | - | - |
+
+## Statistical Indicators
+
+| Indicator | QuanTAlib | MathNet | TA-Lib | Tulip | Skender |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Covariance** | [Covariance](../lib/statistics/covariance/Covariance.md) | - | - | - | - |
+| **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
+| **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |
+| **Standard Deviation** | [StdDev](../lib/statistics/stddev/StdDev.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Variance** | [Variance](../lib/statistics/variance/Variance.md) | ✔️ | ✔️ | ✔️ | ✔️ |

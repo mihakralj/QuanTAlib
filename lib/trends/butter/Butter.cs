@@ -86,11 +86,6 @@ public sealed class Butter : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
-        {
-            return Last;
-        }
-
         if (isNew)
         {
             _p_state = _state;
@@ -98,6 +93,11 @@ public sealed class Butter : AbstractBase
         else
         {
             _state = _p_state;
+        }
+
+        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
+        {
+            return Last;
         }
 
         double x = input.Value;
@@ -181,6 +181,11 @@ public sealed class Butter : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             double x = source[i];
+            if (double.IsNaN(x) || double.IsInfinity(x))
+            {
+                destination[i] = i > 0 ? destination[i - 1] : 0;
+                continue;
+            }
             double y = i < 2
                 ? x
                 : (b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) * invA0;

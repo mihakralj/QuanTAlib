@@ -28,7 +28,7 @@ public sealed class Bilateral : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly double[] _spatialWeights;
 
-    private record struct State(double SumSq, double LastInput, double LastValidValue);
+    private record struct State(double SumSq, double LastValidValue);
     private State _state;
     private State _p_state;
 
@@ -104,11 +104,12 @@ public sealed class Bilateral : AbstractBase
             {
                 _state.SumSq -= (removed * removed);
             }
-            _state.LastInput = val;
         }
 
         double result = CalculateBilateral();
-        Last = new TValue(DateTime.MinValue, result);
+        // Use DateTime.UtcNow as Prime(ReadOnlySpan<double>) does not provide timestamps.
+        // This represents an initial/primed reading rather than a real source timestamp.
+        Last = new TValue(DateTime.UtcNow, result);
         _p_state = _state;
     }
 
@@ -151,7 +152,6 @@ public sealed class Bilateral : AbstractBase
             {
                 _state.SumSq -= (removed * removed);
             }
-            _state.LastInput = val;
         }
         else
         {

@@ -80,15 +80,15 @@ public sealed class Pwma : AbstractBase
             double oldest = _buffer.Oldest;
 
             _state.Sum = _state.Sum - oldest + val;
-            _state.WSum = _state.WSum - oldSum + (_period * val);
-            _state.PSum = _state.PSum - 2 * oldWSum + oldSum + ((double)_period * _period * val);
+            _state.WSum = Math.FusedMultiplyAdd(_period, val, _state.WSum - oldSum);
+            _state.PSum = Math.FusedMultiplyAdd((double)_period * _period, val, _state.PSum - 2 * oldWSum + oldSum);
         }
         else
         {
             int count = _buffer.Count + 1;
             _state.Sum += val;
-            _state.WSum += count * val;
-            _state.PSum += (double)count * count * val;
+            _state.WSum = Math.FusedMultiplyAdd(count, val, _state.WSum);
+            _state.PSum = Math.FusedMultiplyAdd((double)count * count, val, _state.PSum);
         }
 
         _buffer.Add(val);
@@ -104,8 +104,8 @@ public sealed class Pwma : AbstractBase
             foreach (double item in _buffer)
             {
                 recalcSum += item;
-                recalcWsum += i * item;
-                recalcPsum += (double)i * i * item;
+                recalcWsum = Math.FusedMultiplyAdd(i, item, recalcWsum);
+                recalcPsum = Math.FusedMultiplyAdd((double)i * i, item, recalcPsum);
                 i++;
             }
             _state.Sum = recalcSum;
@@ -143,8 +143,8 @@ public sealed class Pwma : AbstractBase
             double diff = val - _state.LastInput;
 
             _state.Sum += diff;
-            _state.WSum += n * diff;
-            _state.PSum += (double)n * n * diff;
+            _state.WSum = Math.FusedMultiplyAdd(n, diff, _state.WSum);
+            _state.PSum = Math.FusedMultiplyAdd((double)n * n, diff, _state.PSum);
 
             _buffer.UpdateNewest(val);
         }
@@ -264,8 +264,8 @@ public sealed class Pwma : AbstractBase
                 val = lastValid;
 
             sum += val;
-            wsum += (i + 1) * val;
-            psum += (double)(i + 1) * (i + 1) * val;
+            wsum = Math.FusedMultiplyAdd(i + 1, val, wsum);
+            psum = Math.FusedMultiplyAdd((double)(i + 1) * (i + 1), val, psum);
             buffer[i] = val;
 
             double currentDivisor = (double)(i + 1) * (i + 2) * (2 * (i + 1) + 1) / 6.0;
@@ -286,8 +286,8 @@ public sealed class Pwma : AbstractBase
             double oldest = buffer[bufferIdx];
 
             sum = sum - oldest + val;
-            wsum = wsum - oldSum + (period * val);
-            psum = psum - 2 * oldWSum + oldSum + ((double)period * period * val);
+            wsum = Math.FusedMultiplyAdd(period, val, wsum - oldSum);
+            psum = Math.FusedMultiplyAdd((double)period * period, val, psum - 2 * oldWSum + oldSum);
 
             buffer[bufferIdx] = val;
             bufferIdx++;
@@ -309,8 +309,8 @@ public sealed class Pwma : AbstractBase
 
                     double v = buffer[idx];
                     recalcSum += v;
-                    recalcWsum += (k + 1) * v;
-                    recalcPsum += (double)(k + 1) * (k + 1) * v;
+                    recalcWsum = Math.FusedMultiplyAdd(k + 1, v, recalcWsum);
+                    recalcPsum = Math.FusedMultiplyAdd((double)(k + 1) * (k + 1), v, recalcPsum);
                 }
                 sum = recalcSum;
                 wsum = recalcWsum;

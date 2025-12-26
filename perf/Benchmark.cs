@@ -382,4 +382,24 @@ public class IndicatorBenchmarks
     [BenchmarkCategory("HMA")]
     [Benchmark(Description = "Ooples HMA")]
     public object Ooples_Hma() => new StockData(_ooplesData).CalculateHullMovingAverage(MovingAvgType.WeightedMovingAverage, Period);
+
+    // ==================== SKEW ====================
+    [BenchmarkCategory("SKEW")]
+    [Benchmark(Description = "QuanTAlib Skew (Span)")]
+    public void QuanTAlib_Skew_Span() => Skew.Batch(_closeValues.AsSpan(), _quantalibOutput.AsSpan(), Period);
+
+    [BenchmarkCategory("SKEW")]
+    [Benchmark(Description = "QuanTAlib Skew (Batch)")]
+    public TSeries QuanTAlib_Skew_TSeries() => Skew.Calculate(_closeTseries, Period);
+
+    [BenchmarkCategory("SKEW")]
+    [Benchmark(Description = "QuanTAlib Skew (Streaming)")]
+    public void QuanTAlib_Skew_Streaming()
+    {
+        var skew = new Skew(Period);
+        for (int i = 0; i < _closeValues.Length; i++)
+        {
+            _quantalibOutput[i] = skew.Update(new TValue(_closeTseries.Times[i], _closeValues[i])).Value;
+        }
+    }
 }

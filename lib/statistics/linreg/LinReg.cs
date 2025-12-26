@@ -5,27 +5,29 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// LSMA: Least Squares Moving Average
+/// LinReg: Linear Regression Curve
 /// </summary>
 /// <remarks>
-/// LSMA calculates the linear regression line for the last n values and returns the value at the current position (or offset).
-/// Uses a RingBuffer for storage and O(1) updates for regression sums.
+/// The Linear Regression Curve plots the end point of the linear regression line for each bar.
+/// It fits a straight line y = mx + b to the data points using the least squares method.
 ///
 /// Calculation:
 /// Uses linear regression y = mx + b where x=0 is the current bar and x increases into the past.
 /// m = (n * sum_xy - sum_x * sum_y) / denominator
 /// b = (sum_y - m * sum_x) / n
-/// LSMA = b - m * offset
+/// LinReg = b - m * offset
 ///
 /// O(1) update:
 /// sum_y_new = sum_y_old - oldest + newest
 /// sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
 ///
-/// IsHot:
-/// Becomes true when the buffer is full (period samples processed).
+/// Properties:
+/// - Slope (m): The rate of change of the regression line.
+/// - Intercept (b): The value of the regression line at x=0 (current bar).
+/// - RSquared (r^2): The coefficient of determination (goodness of fit).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Lsma : AbstractBase
+public sealed class LinReg : AbstractBase
 {
     private readonly int _period;
     private readonly int _offset;
@@ -34,22 +36,42 @@ public sealed class Lsma : AbstractBase
     private readonly double _sum_x;
     private readonly double _denominator;
 
-    private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
+    private record struct State(double SumY, double SumXY, double SumY2, double LastVal, double LastValidValue);
     private State _state;
     private State _p_state;
 
     private int _tickCount;
-
     private const int ResyncInterval = 1000;
+    private const double MinDenominator = 1e-10;
+
+    /// <summary>
+    /// The slope (m) of the linear regression line.
+    /// </summary>
+    public double Slope { get; private set; }
+
+    /// <summary>
+    /// The intercept (b) of the linear regression line at x=0.
+    /// </summary>
+    public double Intercept { get; private set; }
+
+    /// <summary>
+    /// The coefficient of determination (R-squared).
+    /// </summary>
+    public double RSquared { get; private set; }
 
     public override bool IsHot => _buffer.IsFull;
 
     /// <summary>
-    /// Creates LSMA with specified period and offset.
+    /// Creates LinReg with specified period and offset.
     /// </summary>
     /// <param name="period">Lookback period (must be > 0)</param>
-    /// <param name="offset">Offset from current bar (default 0). Positive values project into future.</param>
-    public Lsma(int period, int offset = 0)
+    /// <param name="offset">
+    /// Offset from current bar (default 0).
+    /// Positive: project into future (offset=1 gives next bar's expected value)
+    /// Negative: project into past (offset=-1 gives previous bar's fitted value)
+    /// Zero: current bar (end point of regression line)
+    /// </param>
+    public LinReg(int period, int offset = 0)
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
@@ -57,7 +79,7 @@ public sealed class Lsma : AbstractBase
         _period = period;
         _offset = offset;
         _buffer = new RingBuffer(period);
-        Name = $"Lsma({period})";
+        Name = $"LinReg({period})";
         WarmupPeriod = period;
 
         // Precalculate constants
@@ -71,7 +93,7 @@ public sealed class Lsma : AbstractBase
         _denominator = period * sum_x2 - _sum_x * _sum_x;
     }
 
-    public Lsma(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
+    public LinReg(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
     {
         source.Pub += (item) => Update(item);
     }
@@ -97,10 +119,14 @@ public sealed class Lsma : AbstractBase
 
             // O(1) update for sum_xy
             // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
-            _state.SumXY = Math.FusedMultiplyAdd(-_period, oldest, _state.SumXY + prev_sum_y);
+            _state.SumXY = _state.SumXY + prev_sum_y - _period * oldest;
 
             // O(1) update for sum_y
             _state.SumY = _state.SumY - oldest + val;
+
+            // O(1) update for sum_y2
+            _state.SumY2 = Math.FusedMultiplyAdd(-oldest, oldest, _state.SumY2);
+            _state.SumY2 = Math.FusedMultiplyAdd(val, val, _state.SumY2);
 
             _buffer.Add(val);
         }
@@ -108,6 +134,7 @@ public sealed class Lsma : AbstractBase
         {
             _buffer.Add(val);
             _state.SumY += val;
+            _state.SumY2 = Math.FusedMultiplyAdd(val, val, _state.SumY2);
 
             // Recalculate sum_xy from scratch during warmup
             _state.SumXY = 0;
@@ -115,9 +142,6 @@ public sealed class Lsma : AbstractBase
             for (int i = 0; i < span.Length; i++)
             {
                 // x=0 is newest (index count-1), x=count-1 is oldest (index 0)
-                // buffer stores chronological: [oldest, ..., newest]
-                // index j in buffer corresponds to x = count - 1 - j
-                // sum_xy = sum(x * y)
                 int x = span.Length - 1 - i;
                 _state.SumXY = Math.FusedMultiplyAdd(x, span[i], _state.SumXY);
             }
@@ -136,6 +160,10 @@ public sealed class Lsma : AbstractBase
         _state.SumY = _buffer.Sum;
         _state.SumXY = 0;
         var span = _buffer.GetSpan();
+        
+        // Vectorized SumY2
+        _state.SumY2 = span.DotProduct(span);
+
         for (int i = 0; i < span.Length; i++)
         {
             int x = span.Length - 1 - i;
@@ -159,12 +187,10 @@ public sealed class Lsma : AbstractBase
             _state.LastValidValue = _p_state.LastValidValue;
             double val = GetValidValue(input.Value);
 
-            // For isNew=false, we update the current bar.
-            // sum_xy remains constant because it depends on the previous window state which hasn't changed.
-            // sum_y updates to reflect the change in the newest value.
-
             _state.SumY = _p_state.SumY - _p_state.LastVal + val;
-            _state.SumXY = _p_state.SumXY; // Restore sum_xy to the state after the shift
+            _state.SumY2 = Math.FusedMultiplyAdd(-_p_state.LastVal, _p_state.LastVal, _p_state.SumY2);
+            _state.SumY2 = Math.FusedMultiplyAdd(val, val, _state.SumY2);
+            _state.SumXY = _p_state.SumXY; // Unchanged: newest value at x=0 contributes 0 to sum_xy
 
             _buffer.UpdateNewest(val);
             _state.LastVal = val;
@@ -174,34 +200,52 @@ public sealed class Lsma : AbstractBase
         if (_buffer.Count <= 1)
         {
             result = _buffer.Newest;
+            Slope = 0;
+            Intercept = result;
+            RSquared = 0;
         }
         else
         {
-            // Calculate regression parameters
-            // During warmup, we use the current count as n
             double n = _buffer.Count;
             double sx = _sum_x;
             double denom = _denominator;
 
             if (!_buffer.IsFull)
             {
-                // Recalculate constants for smaller n
                 sx = 0.5 * n * (n - 1);
                 double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
                 denom = n * sx2 - sx * sx;
             }
 
-            if (Math.Abs(denom) < 1e-10)
+            if (Math.Abs(denom) < MinDenominator)
             {
                 result = _buffer.Newest;
+                Slope = 0;
+                Intercept = result;
+                RSquared = 0;
             }
             else
             {
                 double m = Math.FusedMultiplyAdd(n, _state.SumXY, -sx * _state.SumY) / denom;
                 double b = Math.FusedMultiplyAdd(-m, sx, _state.SumY) / n;
 
-                // LSMA = b - m * offset
+                // Convert slope to time-forward direction:
+                // Our x-axis: x=0 (now), x=n-1 (past) — increases backward in time
+                // For rising prices: newest > oldest, so y decreases as x increases → m < 0
+                // Time-forward slope = -m → positive for rising prices
+                Slope = -m;
+
+                Intercept = b;
                 result = Math.FusedMultiplyAdd(-m, _offset, b);
+
+                // Calculate R-Squared
+                // R2 = (n * sum_xy - sum_x * sum_y)^2 / ( (n * sum_x2 - sum_x^2) * (n * sum_y2 - sum_y^2) )
+                double numerator = Math.FusedMultiplyAdd(n, _state.SumXY, -sx * _state.SumY);
+                double term2 = Math.FusedMultiplyAdd(n, _state.SumY2, -_state.SumY * _state.SumY);
+                
+                RSquared = Math.Abs(term2) < MinDenominator
+                    ? 1.0 // All y are same
+                    : numerator * numerator / (denom * term2);
             }
         }
 
@@ -231,13 +275,11 @@ public sealed class Lsma : AbstractBase
         source.Times.CopyTo(tSpan);
 
         // Restore state
-        // We need to replay the last 'period' bars to set up the buffer and sums correctly
         int windowSize = Math.Min(len, _period);
         int startIndex = len - windowSize;
 
         Reset();
 
-        // Initialize lastValidValue
         if (startIndex > 0)
         {
             for (int i = startIndex - 1; i >= 0; i--)
@@ -279,14 +321,10 @@ public sealed class Lsma : AbstractBase
 
     public static TSeries Batch(TSeries source, int period, int offset = 0)
     {
-        var lsma = new Lsma(period, offset);
-        return lsma.Update(source);
+        var linreg = new LinReg(period, offset);
+        return linreg.Update(source);
     }
 
-    /// <summary>
-    /// Calculates LSMA in-place, writing results to pre-allocated output span.
-    /// Zero-allocation method for maximum performance.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
     {
@@ -298,6 +336,8 @@ public sealed class Lsma : AbstractBase
         int len = source.Length;
         if (len == 0) return;
 
+        // Stack allocate for typical periods (most < 100)
+        // Heap allocate for large periods to avoid stack overflow
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
@@ -306,10 +346,9 @@ public sealed class Lsma : AbstractBase
         double sum_y = 0;
         double sum_xy = 0;
         double lastValid = initialLastValid;
-        int bufferIndex = 0; // Points to where the NEXT value will be written (circular)
+        int bufferIndex = 0;
         int count = 0;
 
-        // Precalculate constants for full period
         double full_sum_x = 0.5 * period * (period - 1);
         double full_sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
         double full_denom = period * full_sum_x2 - full_sum_x * full_sum_x;
@@ -324,17 +363,13 @@ public sealed class Lsma : AbstractBase
 
             if (count < period)
             {
-                // Warmup phase
                 buffer[count] = val;
                 sum_y += val;
                 count++;
 
-                // Recalculate sum_xy for current count
                 sum_xy = 0;
                 for (int j = 0; j < count; j++)
                 {
-                    // buffer[j] is at index j
-                    // x = count - 1 - j
                     sum_xy = Math.FusedMultiplyAdd(count - 1 - j, buffer[j], sum_xy);
                 }
 
@@ -349,7 +384,7 @@ public sealed class Lsma : AbstractBase
                     double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
                     double denom = n * sx2 - sx * sx;
 
-                    if (Math.Abs(denom) < 1e-10)
+                    if (Math.Abs(denom) < MinDenominator)
                     {
                         output[i] = val;
                     }
@@ -363,18 +398,15 @@ public sealed class Lsma : AbstractBase
 
                 if (count == period)
                 {
-                    bufferIndex = 0; // Reset for circular buffer usage
+                    bufferIndex = 0;
                 }
             }
             else
             {
-                // Full buffer phase - O(1) update
                 double oldest = buffer[bufferIndex];
                 double prev_sum_y = sum_y;
 
-                // sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
-                sum_xy = Math.FusedMultiplyAdd(-period, oldest, sum_xy + prev_sum_y);
-
+                sum_xy = sum_xy + prev_sum_y - period * oldest;
                 sum_y = sum_y - oldest + val;
                 buffer[bufferIndex] = val;
 
@@ -389,9 +421,6 @@ public sealed class Lsma : AbstractBase
         }
     }
 
-    /// <summary>
-    /// Resets the LSMA state.
-    /// </summary>
     public override void Reset()
     {
         _buffer.Clear();
@@ -399,5 +428,8 @@ public sealed class Lsma : AbstractBase
         _p_state = default;
         Last = default;
         _tickCount = 0;
+        Slope = 0;
+        Intercept = 0;
+        RSquared = 0;
     }
 }
