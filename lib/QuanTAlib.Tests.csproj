@@ -14,7 +14,7 @@
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageReference Include="OoplesFinance.StockIndicators" Version="1.1.0" />
+    <PackageReference Include="OoplesFinance.StockIndicators" Version="1.1.1" />
     <PackageReference Include="Skender.Stock.Indicators" Version="2.7.0" />
     <PackageReference Include="TALib.NETCore" Version="0.5.0" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
