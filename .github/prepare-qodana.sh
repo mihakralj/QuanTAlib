@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "Installing .NET 10.0 SDK..."
-wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-chmod +x dotnet-install.sh
-./dotnet-install.sh --channel 10.0 --quality daily --install-dir /usr/share/dotnet
-
-echo ".NET 10.0 SDK installed."
+echo "Using pre-installed .NET SDKs..."
 dotnet --list-sdks
+
+echo "Modifying csproj files to target only net8.0 for Qodana..."
+# Replace multi-targeting with single target net8.0
+find . -name "*.csproj" -exec sed -i 's|<TargetFrameworks>net10.0;net8.0</TargetFrameworks>|<TargetFramework>net8.0</TargetFramework>|g' {} +
+# Just in case some files still have single target net10.0
+find . -name "*.csproj" -exec sed -i 's|<TargetFramework>net10.0</TargetFramework>|<TargetFramework>net8.0</TargetFramework>|g' {} +
