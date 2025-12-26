@@ -182,6 +182,10 @@ jobs:
           name: coverage-reports
           path: .qodana/code-coverage
 
+      - name: Fix Coverage Paths
+        run: |
+          find .qodana/code-coverage -name "*.xml" -type f -exec sed -i 's|/home/runner/work/QuanTAlib/QuanTAlib|/data/project|g' {} +
+
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2024.3.4
         env:

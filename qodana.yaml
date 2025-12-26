@@ -109,8 +109,3 @@ linter: jetbrains/qodana-dotnet:2024.3
 
 dotnet:
   solution: QuanTAlib.sln
-
-coverage:
-  pathMappings:
-    - from: ""
-      to: /data/project
