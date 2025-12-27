@@ -12,9 +12,10 @@ using OoplesFinance.StockIndicators.Enums;
 
 namespace QuanTAlib;
 
-public class ApoValidationTests : IDisposable
+public sealed class ApoValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
+    private bool _disposed;
 
     public ApoValidationTests()
     {
@@ -24,14 +25,20 @@ public class ApoValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 

@@ -10,7 +10,7 @@ using QuanTAlib.Tests;
 
 namespace QuanTAlib;
 
-public class AoValidationTests : IDisposable
+public sealed class AoValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
 
@@ -21,16 +21,7 @@ public class AoValidationTests : IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _data.Dispose();
-        }
+        _data.Dispose();
     }
 
     [Fact]

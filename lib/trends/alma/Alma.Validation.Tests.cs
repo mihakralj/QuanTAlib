@@ -9,13 +9,14 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class AlmaValidationTests : IDisposable
+public sealed class AlmaValidationTests : IDisposable
 {
     // Note: ALMA is not available in TA-Lib or Tulip,
     // validation is limited to Skender.Stock.Indicators and OoplesFinance.StockIndicators.
 
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public AlmaValidationTests(ITestOutputHelper output)
     {
@@ -23,23 +24,23 @@ public class AlmaValidationTests : IDisposable
         _testData = new ValidationTestData(count: 1000, seed: 42);
     }
 
-    private bool _disposed;
-
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (_disposed)
         {
-            if (disposing)
-            {
-                _testData.Dispose();
-            }
-            _disposed = true;
+            return;
+        }
+
+        _disposed = true;
+
+        if (disposing)
+        {
+            _testData?.Dispose();
         }
     }
 
@@ -151,3 +152,4 @@ public class AlmaValidationTests : IDisposable
         _output.WriteLine("ALMA Batch validated successfully against Ooples");
     }
 }
+

@@ -8,22 +8,13 @@ using MathNet.Numerics.Statistics;
 
 namespace QuanTAlib.Validation;
 
-public class MedianValidationTests : IDisposable
+public sealed class MedianValidationTests : IDisposable
 {
     private readonly ValidationTestData _data = new();
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _data.Dispose();
-        }
+        _data.Dispose();
     }
 
     // Note: Standard TA libraries (Skender, TA-Lib, Tulip, Ooples) do not provide a 

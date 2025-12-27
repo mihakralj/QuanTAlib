@@ -10,9 +10,10 @@ using TALib;
 
 namespace QuanTAlib.Tests;
 
-public class HtitValidationTests : IDisposable
+public sealed class HtitValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
+    private bool _disposed;
 
     public HtitValidationTests()
     {
@@ -22,14 +23,20 @@ public class HtitValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _data.Dispose();
+            _data?.Dispose();
         }
     }
 

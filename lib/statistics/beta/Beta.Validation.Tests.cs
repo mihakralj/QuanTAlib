@@ -6,7 +6,7 @@ using Skender.Stock.Indicators;
 
 namespace QuanTAlib.Tests;
 
-public class BetaValidationTests : IDisposable
+public sealed class BetaValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
 
@@ -17,16 +17,7 @@ public class BetaValidationTests : IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _data.Dispose();
-        }
+        _data.Dispose();
     }
 
     [Fact]

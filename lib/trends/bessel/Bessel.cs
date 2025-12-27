@@ -322,6 +322,5 @@ public sealed class Bessel : AbstractBase, IDisposable
         {
             _publisher.Pub -= _handler;
         }
-        GC.SuppressFinalize(this);
     }
 }

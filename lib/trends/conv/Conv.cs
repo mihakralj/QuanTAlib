@@ -64,7 +64,6 @@ public sealed class Conv : AbstractBase, IDisposable
         {
             _source.Pub -= _subHandler;
         }
-        GC.SuppressFinalize(this);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

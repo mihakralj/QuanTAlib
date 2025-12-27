@@ -10,10 +10,11 @@ using QuanTAlib.Tests;
 
 namespace QuanTAlib;
 
-public class DwmaValidationTests : IDisposable
+public sealed class DwmaValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public DwmaValidationTests(ITestOutputHelper output)
     {
@@ -24,14 +25,20 @@ public class DwmaValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -179,3 +186,4 @@ public class DwmaValidationTests : IDisposable
         _output.WriteLine("DWMA validated against TA-Lib (Chained WMA)");
     }
 }
+

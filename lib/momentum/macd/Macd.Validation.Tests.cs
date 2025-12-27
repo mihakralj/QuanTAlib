@@ -12,10 +12,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class MacdValidationTests : IDisposable
+public sealed class MacdValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public MacdValidationTests(ITestOutputHelper output)
     {
@@ -26,14 +27,20 @@ public class MacdValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -238,3 +245,4 @@ public class MacdValidationTests : IDisposable
         _output.WriteLine("MACD Streaming validated successfully against Tulip");
     }
 }
+

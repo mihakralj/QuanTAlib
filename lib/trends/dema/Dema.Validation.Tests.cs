@@ -9,10 +9,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class DemaValidationTests : IDisposable
+public sealed class DemaValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public DemaValidationTests(ITestOutputHelper output)
     {
@@ -23,14 +24,20 @@ public class DemaValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -188,3 +195,4 @@ public class DemaValidationTests : IDisposable
         _output.WriteLine("DEMA validated successfully against Ooples logic (2*EMA - EMA(EMA))");
     }
 }
+

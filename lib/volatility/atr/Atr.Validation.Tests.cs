@@ -12,10 +12,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class AtrValidationTests : IDisposable
+public sealed class AtrValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public AtrValidationTests(ITestOutputHelper output)
     {
@@ -26,14 +27,20 @@ public class AtrValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -247,3 +254,4 @@ public class AtrValidationTests : IDisposable
         _output.WriteLine("ATR Batch(TSeries) validated successfully against Ooples");
     }
 }
+

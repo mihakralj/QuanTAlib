@@ -11,10 +11,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class HmaValidationTests : IDisposable
+public sealed class HmaValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public HmaValidationTests(ITestOutputHelper output)
     {
@@ -22,24 +23,24 @@ public class HmaValidationTests : IDisposable
         _testData = new ValidationTestData(count: 1000, seed: 42);
     }
 
-    private bool _disposed;
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                _testData.Dispose();
-            }
-            _disposed = true;
-        }
-    }
-
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
+        if (disposing)
+        {
+            _testData?.Dispose();
+        }
     }
 
     [Fact]
@@ -191,3 +192,4 @@ public class HmaValidationTests : IDisposable
         _output.WriteLine("HMA Batch(TSeries) validated successfully against Ooples");
     }
 }
+

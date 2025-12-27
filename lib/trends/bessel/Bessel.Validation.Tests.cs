@@ -4,10 +4,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class BesselValidationTests : IDisposable
+public sealed class BesselValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public BesselValidationTests(ITestOutputHelper output)
     {
@@ -18,14 +19,20 @@ public class BesselValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -51,3 +58,4 @@ public class BesselValidationTests : IDisposable
         _output.WriteLine("Bessel validated internally: Span vs TSeries are consistent.");
     }
 }
+

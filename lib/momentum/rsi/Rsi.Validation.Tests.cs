@@ -11,10 +11,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class RsiValidationTests : IDisposable
+public sealed class RsiValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public RsiValidationTests(ITestOutputHelper output)
     {
@@ -25,14 +26,20 @@ public class RsiValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -262,3 +269,4 @@ public class RsiValidationTests : IDisposable
         _output.WriteLine("RSI validated successfully against Ooples");
     }
 }
+

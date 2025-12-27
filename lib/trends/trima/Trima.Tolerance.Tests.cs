@@ -6,7 +6,7 @@ using Xunit;
 
 namespace QuanTAlib.Tests;
 
-public class TrimaToleranceTests : IDisposable
+public sealed class TrimaToleranceTests : IDisposable
 {
     private readonly ValidationTestData _testData;
 
@@ -17,16 +17,7 @@ public class TrimaToleranceTests : IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _testData.Dispose();
-        }
+        _testData.Dispose();
     }
 
     [Fact]

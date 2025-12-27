@@ -5,7 +5,7 @@ using Skender.Stock.Indicators;
 
 namespace QuanTAlib.Tests;
 
-public class ValidationTestData : IDisposable
+public sealed class ValidationTestData : IDisposable
 {
     public TBarSeries Bars { get; }
     public TSeries Data { get; }
@@ -35,24 +35,8 @@ public class ValidationTestData : IDisposable
         SkenderQuotes = quotes;
     }
 
-    private bool _disposed;
-
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                // Dispose managed state (managed objects)
-            }
-
-            _disposed = true;
-        }
+        // No resources to dispose
     }
 }

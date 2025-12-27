@@ -7,22 +7,13 @@ using MathNet.Numerics.Statistics;
 
 namespace QuanTAlib.Validation;
 
-public class SkewValidationTests : IDisposable
+public sealed class SkewValidationTests : IDisposable
 {
     private readonly ValidationTestData _data = new();
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _data.Dispose();
-        }
+        _data.Dispose();
     }
 
     [Fact]

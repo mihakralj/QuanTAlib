@@ -327,6 +327,5 @@ public sealed class Dema : AbstractBase, IDisposable
         {
             _publisher.Pub -= _listener;
         }
-        GC.SuppressFinalize(this);
     }
 }

@@ -7,7 +7,7 @@ using QuanTAlib.Tests;
 
 namespace QuanTAlib;
 
-public class SuperValidationTests : IDisposable
+public sealed class SuperValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
 
@@ -18,16 +18,7 @@ public class SuperValidationTests : IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _data.Dispose();
-        }
+        _data.Dispose();
     }
 
     [Fact]

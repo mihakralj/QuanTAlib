@@ -6,10 +6,11 @@ using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class BilateralValidationTests : IDisposable
+public sealed class BilateralValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public BilateralValidationTests(ITestOutputHelper output)
     {
@@ -20,14 +21,20 @@ public class BilateralValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
         if (disposing)
         {
-            _testData.Dispose();
+            _testData?.Dispose();
         }
     }
 
@@ -184,3 +191,4 @@ public class BilateralValidationTests : IDisposable
         }
     }
 }
+

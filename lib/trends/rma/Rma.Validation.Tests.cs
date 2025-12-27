@@ -8,7 +8,7 @@ using Xunit;
 
 namespace QuanTAlib.Tests;
 
-public class RmaValidationTests : IDisposable
+public sealed class RmaValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private bool _disposed;
@@ -21,18 +21,20 @@ public class RmaValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (_disposed)
         {
-            if (disposing)
-            {
-                _testData.Dispose();
-            }
-            _disposed = true;
+            return;
+        }
+
+        _disposed = true;
+
+        if (disposing)
+        {
+            _testData?.Dispose();
         }
     }
 

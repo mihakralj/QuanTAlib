@@ -12,7 +12,7 @@ using OoplesFinance.StockIndicators.Enums;
 
 namespace QuanTAlib;
 
-public class AdoscValidationTests : IDisposable
+public sealed class AdoscValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private bool _disposed;
@@ -25,18 +25,20 @@ public class AdoscValidationTests : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (_disposed)
         {
-            if (disposing)
-            {
-                _testData.Dispose();
-            }
-            _disposed = true;
+            return;
+        }
+
+        _disposed = true;
+
+        if (disposing)
+        {
+            _testData?.Dispose();
         }
     }
 
@@ -87,7 +89,7 @@ public class AdoscValidationTests : IDisposable
         var adoscIndicator = Tulip.Indicators.adosc;
         double[][] inputs = { high, low, close, volume };
         double[] options = { fastPeriod, slowPeriod };
-        int start = (int)adoscIndicator.Start(options);
+        int start = adoscIndicator.Start(options);
         double[][] outputs = { new double[close.Length - start] };
 
         adoscIndicator.Run(inputs, options, outputs);
@@ -120,7 +122,7 @@ public class AdoscValidationTests : IDisposable
         int slowPeriod = 10;
 
         var skenderResults = _testData.SkenderQuotes.GetChaikinOsc(fastPeriod, slowPeriod).ToList();
-        
+
         // 1. Batch Mode
         var adosc = new Adosc(fastPeriod, slowPeriod);
         var result = adosc.Update(_testData.Bars);
