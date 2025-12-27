@@ -26,6 +26,7 @@ public sealed class Rsi : AbstractBase
     private readonly int _period;
     private readonly Rma _avgGain;
     private readonly Rma _avgLoss;
+    private readonly TValuePublishedHandler _handler;
     private double _prevValue;
     private double _p_prevValue;
 
@@ -39,6 +40,7 @@ public sealed class Rsi : AbstractBase
         _period = period;
         _avgGain = new Rma(period);
         _avgLoss = new Rma(period);
+        _handler = Handle;
         _prevValue = double.NaN;
         _p_prevValue = double.NaN;
 
@@ -48,7 +50,7 @@ public sealed class Rsi : AbstractBase
 
     public Rsi(ITValuePublisher source, int period = 14) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -110,7 +112,7 @@ public sealed class Rsi : AbstractBase
         }
 
         Last = new TValue(input.Time, rsi);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -145,6 +147,11 @@ public sealed class Rsi : AbstractBase
         return new TSeries(t, v);
     }
 
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
     public override void Prime(ReadOnlySpan<double> source)
     {
         foreach (var value in source)
@@ -163,7 +170,7 @@ public sealed class Rsi : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

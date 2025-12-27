@@ -27,11 +27,13 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class T3 : AbstractBase, IDisposable
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double E1, double E2, double E3, double E4, double E5, double E6, bool IsInitialized)
     {
         public static State New() => new() { IsInitialized = false };
     }
 
+    [StructLayout(LayoutKind.Auto)]
     private readonly record struct Parameters(double Alpha, double C1, double C2, double C3, double C4);
 
     private readonly Parameters _params;
@@ -40,7 +42,7 @@ public sealed class T3 : AbstractBase, IDisposable
     private double _lastValidValue;
     private double _p_lastValidValue;
     private ITValuePublisher? _publisher;
-    private Action<TValue>? _handler;
+    private TValuePublishedHandler? _handler;
 
     /// <summary>
     /// Creates T3 with specified period and volume factor.
@@ -80,7 +82,7 @@ public sealed class T3 : AbstractBase, IDisposable
     public T3(ITValuePublisher source, int period, double vfactor = 0.7) : this(period, vfactor)
     {
         _publisher = source;
-        _handler = (item) => Update(item);
+        _handler = Handle;
         source.Pub += _handler;
     }
 
@@ -98,9 +100,11 @@ public sealed class T3 : AbstractBase, IDisposable
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        _handler = (item) => Update(item);
+        _handler = Handle;
         _publisher.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// True if the T3 has been initialized (received at least one value).
@@ -285,7 +289,7 @@ public sealed class T3 : AbstractBase, IDisposable
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         double alpha = 2.0 / (period + 1);
         double v = vfactor;

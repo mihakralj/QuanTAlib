@@ -33,7 +33,9 @@ public sealed class Pwma : AbstractBase
     private readonly double _divisor;
     private readonly RingBuffer _buffer;
     private readonly RingBuffer _p_buffer;
+    private readonly TValuePublishedHandler _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double WSum, double PSum, double LastInput, double LastValidValue, int TickCount);
     private State _state;
     private State _p_state;
@@ -52,12 +54,15 @@ public sealed class Pwma : AbstractBase
         _p_buffer = new RingBuffer(period);
         Name = $"Pwma({period})";
         WarmupPeriod = period;
+        _handler = Handle;
     }
 
     public Pwma(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -152,7 +157,7 @@ public sealed class Pwma : AbstractBase
         double count = _buffer.Count;
         double currentDivisor = _buffer.IsFull ? _divisor : count * (count + 1.0) * (2.0 * count + 1.0) / 6.0;
         Last = new TValue(input.Time, _state.PSum / currentDivisor);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -231,7 +236,7 @@ public sealed class Pwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

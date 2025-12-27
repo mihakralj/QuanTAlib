@@ -23,7 +23,9 @@ public sealed class Mgdi : AbstractBase
 {
     private readonly int _period;
     private readonly double _k;
+    private readonly TValuePublishedHandler _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastMgdi, double LastValidValue, int Count, bool HasValidValue);
     private State _state;
     private State _p_state;
@@ -38,13 +40,16 @@ public sealed class Mgdi : AbstractBase
         _k = k;
         Name = $"Mgdi({period},{k})";
         WarmupPeriod = period;
+        _handler = Handle;
         Init();
     }
 
     public Mgdi(ITValuePublisher source, int period = 14, double k = 0.6) : this(period, k)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     private void Init()
     {
@@ -110,7 +115,7 @@ public sealed class Mgdi : AbstractBase
         }
 
         Last = new TValue(input.Time, _state.LastMgdi);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -163,7 +168,7 @@ public sealed class Mgdi : AbstractBase
         if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
 
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         if (source.Length == 0) return;
 

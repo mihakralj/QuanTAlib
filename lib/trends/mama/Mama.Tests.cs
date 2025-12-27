@@ -57,7 +57,7 @@ public class MamaTests
 
         // Manually chain for test
         bool eventFired = false;
-        mama.Pub += (item) => eventFired = true;
+        mama.Pub += (object? sender, TValueEventArgs args) => eventFired = true;
 
         mama.Update(new TValue(DateTime.UtcNow, 100.0));
 

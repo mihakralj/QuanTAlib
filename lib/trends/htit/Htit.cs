@@ -20,6 +20,7 @@ public sealed class Htit : AbstractBase
 {
     public override bool IsHot => _state.Index >= WarmupPeriod;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double I2, double Q2, double Re, double Im,
         double Period, double SmoothPeriod,
@@ -34,6 +35,7 @@ public sealed class Htit : AbstractBase
     private readonly RingBuffer _i1Buffer;
     private readonly RingBuffer _q1Buffer;
     private readonly RingBuffer _itBuffer;
+    private readonly TValuePublishedHandler _handler;
 
     // High-precision constants
     private const double c1 = 5.0 / 52.0;   // ~0.09615385
@@ -47,7 +49,8 @@ public sealed class Htit : AbstractBase
     {
         Name = "Htit";
         WarmupPeriod = 12;
-        
+        _handler = Handle;
+
         // Initialize buffers with size 8 (power of 2) for consistency with Calculate optimization
         // except priceBuffer which needs to be larger for IT calculation
         _priceBuffer = new RingBuffer(64); // Needs to hold enough history for IT calculation (up to 50 bars)
@@ -62,7 +65,7 @@ public sealed class Htit : AbstractBase
 
     public Htit(ITValuePublisher source) : this()
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     private void Init()
@@ -215,7 +218,7 @@ public sealed class Htit : AbstractBase
     {
         double val = Step(input.Value, isNew);
         Last = new TValue(input.Time, val);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -237,6 +240,11 @@ public sealed class Htit : AbstractBase
         return new TSeries(t, v);
     }
 
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
     public override void Prime(ReadOnlySpan<double> source)
     {
         foreach (var value in source)
@@ -255,7 +263,7 @@ public sealed class Htit : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         if (source.Length == 0) return;
 

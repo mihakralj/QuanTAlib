@@ -45,7 +45,7 @@ public sealed class Rma : AbstractBase
     public Rma(ITValuePublisher source, int period) : this(period)
     {
         ArgumentNullException.ThrowIfNull(source);
-        source.Pub += (item) => Update(item);
+        source.Pub += Handle;
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public sealed class Rma : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += Handle;
     }
 
     /// <summary>
@@ -80,6 +80,8 @@ public sealed class Rma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+
     public override TValue Update(TValue input, bool isNew = true)
     {
         TValue result = _ema.Update(input, isNew);

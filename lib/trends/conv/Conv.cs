@@ -28,7 +28,7 @@ public sealed class Conv : AbstractBase, IDisposable
     private readonly double[] _kernel;
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
-    private readonly Action<TValue>? _subHandler;
+    private readonly TValuePublishedHandler? _subHandler;
 
     private record struct State(double LastValidValue);
     private State _state;
@@ -54,7 +54,7 @@ public sealed class Conv : AbstractBase, IDisposable
     public Conv(ITValuePublisher source, double[] kernel) : this(kernel)
     {
         _source = source;
-        _subHandler = (item) => Update(item);
+        _subHandler = Handle;
         _source.Pub += _subHandler;
     }
 
@@ -65,6 +65,8 @@ public sealed class Conv : AbstractBase, IDisposable
             _source.Pub -= _subHandler;
         }
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -204,7 +206,7 @@ public sealed class Conv : AbstractBase, IDisposable
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, double[] kernel)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (kernel == null || kernel.Length == 0)
             throw new ArgumentException("Kernel must not be empty", nameof(kernel));
 

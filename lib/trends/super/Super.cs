@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -15,6 +16,7 @@ public sealed class Super : ITValuePublisher
     private TBar _lastInput;
     private int _sampleCount;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State
     {
         public bool IsBullish;
@@ -33,7 +35,7 @@ public sealed class Super : ITValuePublisher
     /// </summary>
     public string Name => $"Super({_period},{_multiplier})";
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current SuperTrend value.
@@ -213,7 +215,7 @@ public sealed class Super : ITValuePublisher
         UpperBand = new TValue(input.Time, upperBand);
         LowerBand = new TValue(input.Time, lowerBand);
 
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 

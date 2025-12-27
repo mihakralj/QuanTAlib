@@ -31,14 +31,14 @@ public abstract class AbstractBase : ITValuePublisher
     /// <summary>
     /// Event triggered when a new TValue is available.
     /// </summary>
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Helper to invoke the Pub event.
     /// </summary>
-    protected void PubEvent(TValue value)
+    protected void PubEvent(TValue value, bool isNew = true)
     {
-        Pub?.Invoke(value);
+        Pub?.Invoke(this, new TValueEventArgs { Value = value, IsNew = isNew });
     }
 
     /// <summary>

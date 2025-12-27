@@ -358,8 +358,8 @@ namespace QuanTAlib.Tests
         {
             var series = new TBarSeries();
             TBar? received = null;
-            series.Pub += bar => received = bar;
-            
+            series.Pub += (object? sender, in TBarEventArgs args) => received = args.Value;
+
             var barToAdd = new TBar(100, 10, 15, 5, 12, 100);
             series.Add(barToAdd, isNew: true);
             
@@ -374,8 +374,8 @@ namespace QuanTAlib.Tests
             var series = new TBarSeries();
             TBar? received = null;
             series.Add(100, 10, 15, 5, 12, 100);
-            series.Pub += bar => received = bar;
-            
+            series.Pub += (object? sender, in TBarEventArgs args) => received = args.Value;
+
             series.Add(100, 10, 18, 5, 15, 150, isNew: false);
             
             Assert.NotNull(received);

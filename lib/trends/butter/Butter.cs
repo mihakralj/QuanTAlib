@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -8,9 +9,11 @@ public sealed class Butter : AbstractBase
     private readonly int _period;
     private double _a1, _a2, _b0, _b1, _b2;
     private double _invA0;
+    private readonly TValuePublishedHandler _handler;
     private State _state;
     private State _p_state;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State
     {
         public double X1, X2;
@@ -30,18 +33,18 @@ public sealed class Butter : AbstractBase
         CalculateCoefficients();
         Name = $"Butter({_period})";
         WarmupPeriod = 2;
+        _handler = Handle;
         Init();
     }
 
-    public Butter(object source, int period) : this(period)
+    public Butter(ITValuePublisher source, int period) : this(period)
     {
-        var pub = (ITValuePublisher)source;
-        pub.Pub += Handle;
+        source.Pub += _handler;
     }
 
-    private void Handle(TValue value)
+    private void Handle(object? sender, TValueEventArgs args)
     {
-        Update(value);
+        Update(args.Value, args.IsNew);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,7 +124,7 @@ public sealed class Butter : AbstractBase
 
         var tValue = new TValue(input.Time, y);
         Last = tValue;
-        PubEvent(tValue);
+        PubEvent(tValue, isNew);
         return tValue;
     }
 

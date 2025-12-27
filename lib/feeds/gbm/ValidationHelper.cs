@@ -13,7 +13,7 @@ public static class ValidationHelper
     public const double TulipTolerance = 1e-7;
     public const double RelativeTolerance = 0.005;
 
-    public static void VerifyData<TResult>(TSeries qSeries, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
+    public static void VerifyData<TResult>(TSeries qSeries, IReadOnlyList<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
     {
         Assert.Equal(qSeries.Count, sSeries.Count);
 
@@ -31,7 +31,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData<TResult>(List<double> qResults, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
+    public static void VerifyData<TResult>(IReadOnlyList<double> qResults, IReadOnlyList<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
     {
         Assert.Equal(qResults.Count, sSeries.Count);
 
@@ -87,7 +87,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(List<double> qResults, double[] tOutput, int lookback, int skip = 100, double tolerance = DefaultTolerance)
+    public static void VerifyData(IReadOnlyList<double> qResults, double[] tOutput, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qResults.Count;
         int start = Math.Max(0, count - skip);
@@ -148,7 +148,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData(List<double> qResults, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = DefaultTolerance)
+    public static void VerifyData(IReadOnlyList<double> qResults, double[] tOutput, Range outRange, int lookback, int skip = 100, double tolerance = DefaultTolerance)
     {
         int count = qResults.Count;
         int start = Math.Max(0, count - skip);

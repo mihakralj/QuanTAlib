@@ -19,12 +19,14 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Ssf : AbstractBase
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Ssf1, double Ssf2, double PrevInput, double LastValidValue, int Count, bool IsHot)
     {
         public static State New() => new() { Ssf1 = 0, Ssf2 = 0, PrevInput = 0, LastValidValue = 0, Count = 0, IsHot = false };
     }
 
     private readonly double _c1, _c2, _c3;
+    private readonly TValuePublishedHandler _handler;
     private State _state = State.New();
     private State _p_state = State.New();
 
@@ -52,6 +54,7 @@ public sealed class Ssf : AbstractBase
 
         Name = $"Ssf({period})";
         WarmupPeriod = period;
+        _handler = Handle;
     }
 
     /// <summary>
@@ -61,7 +64,7 @@ public sealed class Ssf : AbstractBase
     /// <param name="period">Period for SSF calculation</param>
     public Ssf(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public Ssf(TSeries source, int period) : this(period)
@@ -71,8 +74,10 @@ public sealed class Ssf : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override bool IsHot => _state.IsHot;
 
@@ -171,7 +176,7 @@ public sealed class Ssf : AbstractBase
             _state.IsHot = true;
 
         Last = new TValue(input.Time, ssf);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -276,7 +281,7 @@ public sealed class Ssf : AbstractBase
         double c1 = 1.0 - c2 - c3;
 
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         if (source.Length == 0) return;
 

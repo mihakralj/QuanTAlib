@@ -139,7 +139,8 @@ public class BlmaTests
         var input = new double[] { 1, 2, 3, 4, 5 };
         var timestamps = new List<DateTime>();
         
-        blma.Pub += (item) => timestamps.Add(item.AsDateTime);
+        blma.Pub += (object? sender, TValueEventArgs args) => timestamps.Add(args.Value.AsDateTime);
+
         
         blma.Prime(input);
         
@@ -164,7 +165,8 @@ public class BlmaTests
         ];
         var timestamps = new List<DateTime>();
         
-        blma.Pub += (item) => timestamps.Add(item.AsDateTime);
+        blma.Pub += (object? sender, TValueEventArgs args) => timestamps.Add(args.Value.AsDateTime);
+
         
         blma.Prime(input);
         

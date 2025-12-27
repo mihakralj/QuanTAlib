@@ -22,12 +22,13 @@ public sealed class Vel : ITValuePublisher
     private readonly Pwma _pwma;
     private readonly Wma _wma;
     private readonly int _period;
+    private readonly TValuePublishedHandler _handler;
 
     public string Name { get; }
     public TValue Last { get; private set; }
     public bool IsHot => _pwma.IsHot && _wma.IsHot;
     public int WarmupPeriod { get; }
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     public Vel(int period)
     {
@@ -38,12 +39,16 @@ public sealed class Vel : ITValuePublisher
         _period = period;
         WarmupPeriod = period;
         Name = $"Vel({period})";
+        _handler = Handle;
     }
 
     public Vel(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
@@ -52,7 +57,7 @@ public sealed class Vel : ITValuePublisher
         var wma = _wma.Update(input, isNew);
 
         Last = new TValue(input.Time, pwma.Value - wma.Value);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -110,7 +115,7 @@ public sealed class Vel : ITValuePublisher
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         Span<double> pwma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
         Span<double> wma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];

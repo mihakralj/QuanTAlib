@@ -36,9 +36,11 @@ public sealed class LinReg : AbstractBase
     private readonly double _sum_x;
     private readonly double _denominator;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double SumY, double SumXY, double SumY2, double LastVal, double LastValidValue);
     private State _state;
     private State _p_state;
+    private readonly TValuePublishedHandler _handler;
 
     private int _tickCount;
     private const int ResyncInterval = 1000;
@@ -81,6 +83,7 @@ public sealed class LinReg : AbstractBase
         _buffer = new RingBuffer(period);
         Name = $"LinReg({period})";
         WarmupPeriod = period;
+        _handler = Handle;
 
         // Precalculate constants
         // sum_x = 0 + 1 + ... + (n-1) = n(n-1)/2
@@ -95,8 +98,11 @@ public sealed class LinReg : AbstractBase
 
     public LinReg(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -250,7 +256,7 @@ public sealed class LinReg : AbstractBase
         }
 
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -329,7 +335,7 @@ public sealed class LinReg : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

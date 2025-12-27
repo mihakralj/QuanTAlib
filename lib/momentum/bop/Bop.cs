@@ -32,7 +32,7 @@ public sealed class Bop : ITValuePublisher
     /// </summary>
     public static string Name => "Bop";
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current BOP value.
@@ -76,7 +76,7 @@ public sealed class Bop : ITValuePublisher
         }
 
         Last = new TValue(input.Time, bop);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -92,7 +92,7 @@ public sealed class Bop : ITValuePublisher
         // Or we could throw NotSupportedException.
         // Given the interface contract, returning 0 is safer than crashing.
         Last = new TValue(input.Time, 0);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -180,3 +180,4 @@ public sealed class Bop : ITValuePublisher
         return new TSeries(t, v);
     }
 }
+

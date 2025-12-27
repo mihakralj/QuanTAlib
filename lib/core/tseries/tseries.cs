@@ -13,12 +13,14 @@ namespace QuanTAlib;
 /// </summary>
 public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
 {
+#pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
     protected readonly List<long> _t;
     protected readonly List<double> _v;
+#pragma warning restore MA0016
 
     public string Name { get; set; } = "Data";
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     public TSeries() : this(0)
     {
@@ -30,10 +32,18 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
         _v = new List<double>(capacity);
     }
 
-    public TSeries(List<long> time, List<double> values)
+    public TSeries(IReadOnlyList<long> time, IReadOnlyList<double> values)
     {
-        _t = time;
-        _v = values;
+        if (time is List<long> timeList && values is List<double> valueList)
+        {
+            _t = timeList;
+            _v = valueList;
+        }
+        else
+        {
+            _t = new List<long>(time);
+            _v = new List<double>(values);
+        }
     }
 
     public int Count
@@ -98,7 +108,9 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
             _t[lastIdx] = value.Time;
             _v[lastIdx] = value.Value;
         }
-        Pub?.Invoke(value);
+
+        var args = new TValueEventArgs { Value = value, IsNew = isNew };
+        Pub?.Invoke(this, args);
     }
 
     // Overload for backward compatibility (assumes isNew=true)

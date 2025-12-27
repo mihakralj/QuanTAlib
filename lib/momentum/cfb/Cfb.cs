@@ -37,12 +37,14 @@ public sealed class Cfb : ITValuePublisher
     private readonly double[] _runningSums;
     private readonly double[] _p_runningSums;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double PrevCfb, double LastPrice, double LastValidValue);
     private State _state;
     private State _p_state;
+    private readonly TValuePublishedHandler _handler;
 
     public string Name { get; }
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
     public TValue Last { get; private set; }
     public bool IsHot => _prices.IsFull;
     public int WarmupPeriod { get; }
@@ -81,13 +83,17 @@ public sealed class Cfb : ITValuePublisher
         _p_runningSums = new double[_lengths.Length];
 
         Name = "Jurik Composite Fractal Behavior";
+        _handler = Handle;
         _state.PrevCfb = 1.0;
     }
 
     public Cfb(ITValuePublisher source, int[]? lengths = null) : this(lengths)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()
@@ -210,7 +216,7 @@ public sealed class Cfb : ITValuePublisher
         _state.PrevCfb = cfb;
 
         Last = new TValue(input.Time, cfb);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

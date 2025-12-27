@@ -25,6 +25,7 @@ public sealed class Median : AbstractBase
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly double[] _sortedBuffer;
+    private readonly TValuePublishedHandler _handler;
 
     /// <summary>
     /// Creates a Median indicator with the specified period.
@@ -40,11 +41,12 @@ public sealed class Median : AbstractBase
         _sortedBuffer = new double[period];
         Name = $"Median({period})";
         WarmupPeriod = period;
+        _handler = Handle;
     }
 
     public Median(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public Median(TSeries source, int period) : this(period)
@@ -54,7 +56,7 @@ public sealed class Median : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     /// <summary>
@@ -78,6 +80,9 @@ public sealed class Median : AbstractBase
             Update(new TValue(DateTime.MinValue, source[i]));
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
@@ -123,7 +128,7 @@ public sealed class Median : AbstractBase
         }
 
         Last = new TValue(input.Time, median);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -202,7 +207,7 @@ public sealed class Median : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

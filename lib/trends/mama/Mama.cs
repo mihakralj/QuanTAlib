@@ -18,7 +18,9 @@ public sealed class Mama : AbstractBase
     private readonly double _fastLimit;
     private readonly double _slowLimit;
     private readonly double _scaledFastLimit;
+    private readonly TValuePublishedHandler _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double Period, double Phase, double Mama, double Fama, double SumPr,
         double I2, double Q2, double Re, double Im, double LastValidPrice, int Index
@@ -55,7 +57,7 @@ public sealed class Mama : AbstractBase
     {
         if (fastLimit <= slowLimit || fastLimit <= 0 || slowLimit <= 0)
         {
-            throw new ArgumentException("FastLimit must be > SlowLimit and > 0");
+            throw new ArgumentException("FastLimit must be > SlowLimit and > 0", nameof(fastLimit));
         }
         _fastLimit = fastLimit;
         _slowLimit = slowLimit;
@@ -69,13 +71,16 @@ public sealed class Mama : AbstractBase
 
         Name = $"Mama({fastLimit:F2},{slowLimit:F2})";
         WarmupPeriod = 50;
+        _handler = Handle;
         Init();
     }
 
     public Mama(ITValuePublisher source, double fastLimit = 0.5, double slowLimit = 0.05) : this(fastLimit, slowLimit)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     private void Init()
     {
@@ -229,7 +234,7 @@ public sealed class Mama : AbstractBase
         double mama = Step(input.Value, isNew);
         Last = new TValue(input.Time, mama);
         Fama = new TValue(input.Time, _state.Fama);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 

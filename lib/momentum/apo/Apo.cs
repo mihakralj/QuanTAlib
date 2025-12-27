@@ -26,13 +26,14 @@ public sealed class Apo : ITValuePublisher
 {
     private readonly Ema _emaFast;
     private readonly Ema _emaSlow;
+    private readonly TValuePublishedHandler _handler;
 
     /// <summary>
     /// Display name for the indicator.
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current APO value.
@@ -65,6 +66,7 @@ public sealed class Apo : ITValuePublisher
 
         _emaFast = new Ema(fastPeriod);
         _emaSlow = new Ema(slowPeriod);
+        _handler = Handle;
         WarmupPeriod = slowPeriod;
         Name = $"Apo({fastPeriod},{slowPeriod})";
     }
@@ -77,7 +79,7 @@ public sealed class Apo : ITValuePublisher
     /// <param name="slowPeriod">Slow EMA period (default 26)</param>
     public Apo(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26) : this(fastPeriod, slowPeriod)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     /// <summary>
@@ -105,7 +107,7 @@ public sealed class Apo : ITValuePublisher
 
         double apo = eFast.Value - eSlow.Value;
         Last = new TValue(input.Time, apo);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -143,6 +145,11 @@ public sealed class Apo : ITValuePublisher
         return new TSeries(t, v);
     }
 
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
     /// <summary>
     /// Calculates APO for the entire series using a new instance.
     /// </summary>
@@ -167,7 +174,7 @@ public sealed class Apo : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output spans must be of the same length.");
+            throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
 
         Span<double> fastEma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
         Span<double> slowEma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];

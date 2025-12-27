@@ -173,7 +173,7 @@ public class T3Tests
 
     private class TestPublisher : ITValuePublisher
     {
-        public event Action<TValue>? Pub;
+        public event TValuePublishedHandler? Pub;
         public int SubscriberCount => Pub?.GetInvocationList().Length ?? 0;
     }
 
@@ -222,3 +222,4 @@ public class T3Tests
         Assert.Null(exception);
     }
 }
+

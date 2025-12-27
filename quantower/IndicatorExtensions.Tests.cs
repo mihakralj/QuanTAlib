@@ -149,7 +149,7 @@ public class IndicatorExtensionsTests
         var args = new PaintChartEventArgs(graphics, new Rectangle(0, 0, 100, 100));
 
         // Test PaintSmoothCurve with different LineStyles and Warmup
-        foreach (LineStyle style in Enum.GetValues(typeof(LineStyle)))
+        foreach (LineStyle style in Enum.GetValues<LineStyle>())
         {
             var series = new LineSeries("Test", Color.Blue, 1, style);
             for (int i = 0; i < 20; i++) series.AddValue();

@@ -23,7 +23,7 @@ public sealed class Dmx : ITValuePublisher
     private bool _isInitialized;
 
     public string Name { get; }
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
     public TValue Last { get; private set; }
     public int WarmupPeriod { get; }
 
@@ -114,7 +114,7 @@ public sealed class Dmx : ITValuePublisher
         double dmxValue = diPlus - diMinus;
 
         Last = new TValue(input.Time, dmxValue);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -159,7 +159,7 @@ public sealed class Dmx : ITValuePublisher
             return;
 
         if (low.Length != len || close.Length != len || destination.Length != len)
-            throw new ArgumentException("All input spans must have the same length");
+            throw new ArgumentException("All input spans must have the same length", nameof(destination));
 
         if (period <= 0)
             throw new ArgumentException("Period must be greater than zero.", nameof(period));

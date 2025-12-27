@@ -33,7 +33,7 @@ public sealed class Alma : AbstractBase, IDisposable
     private readonly double _invWeightSum;
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
-    private readonly Action<TValue>? _pubHandler;
+    private readonly TValuePublishedHandler? _pubHandler;
 
     private record struct State(double LastValidValue);
     private State _state;
@@ -84,9 +84,12 @@ public sealed class Alma : AbstractBase, IDisposable
         : this(period, offset, sigma)
     {
         _source = source;
-        _pubHandler = (item) => Update(item);
+        _pubHandler = Handle;
         _source.Pub += _pubHandler;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public void Dispose()
     {
@@ -235,7 +238,7 @@ public sealed class Alma : AbstractBase, IDisposable
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         // Precompute weights
         // Use stackalloc for small periods to avoid heap allocation, ArrayPool for large

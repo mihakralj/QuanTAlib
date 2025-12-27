@@ -66,7 +66,7 @@ public class VidyaValidationTests
         _output.WriteLine("VIDYA Batch validated successfully against reference implementation");
     }
 
-    private static List<double> CalculateVidyaReference(TSeries data, int period)
+    private static IReadOnlyList<double> CalculateVidyaReference(TSeries data, int period)
     {
         var results = new List<double>();
         var prices = data.Select(x => x.Value).ToList();

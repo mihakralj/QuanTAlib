@@ -30,7 +30,7 @@ public sealed class Adxr : ITValuePublisher
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current ADXR value.
@@ -130,7 +130,7 @@ public sealed class Adxr : ITValuePublisher
         }
 
         Last = new TValue(input.Time, adxr);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -233,3 +233,4 @@ public sealed class Adxr : ITValuePublisher
         return new TSeries(tList, [.. v]);
     }
 }
+

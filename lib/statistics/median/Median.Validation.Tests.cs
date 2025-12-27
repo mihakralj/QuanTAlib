@@ -88,7 +88,7 @@ public sealed class MedianValidationTests : IDisposable
         }
     }
 
-    private static double CalculateMedian(List<double> sortedWindow)
+    private static double CalculateMedian(IReadOnlyList<double> sortedWindow)
     {
         int count = sortedWindow.Count;
         if (count == 0) return 0; // Or NaN

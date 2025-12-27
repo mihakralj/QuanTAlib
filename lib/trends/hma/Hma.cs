@@ -27,6 +27,7 @@ public sealed class Hma : AbstractBase
     private readonly Wma _wmaFull;
     private readonly Wma _wmaHalf;
     private readonly Wma _wmaSqrt;
+    private readonly TValuePublishedHandler _handler;
     private int _sampleCount;
 
     public override bool IsHot => _sampleCount >= WarmupPeriod;
@@ -42,6 +43,7 @@ public sealed class Hma : AbstractBase
         _wmaFull = new Wma(period);
         _wmaHalf = new Wma(halfPeriod);
         _wmaSqrt = new Wma(_sqrtPeriod);
+        _handler = Handle;
 
         Name = $"Hma({period})";
         WarmupPeriod = period + _sqrtPeriod - 1; // WMA needs period, then WMA(sqrt) needs sqrt_period. Total lag/warmup.
@@ -49,7 +51,7 @@ public sealed class Hma : AbstractBase
 
     public Hma(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -69,7 +71,7 @@ public sealed class Hma : AbstractBase
         // 4. Calculate HMA = WMA(sqrt(n), intermediate)
         Last = _wmaSqrt.Update(new TValue(input.Time, intermediate), isNew);
 
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -115,6 +117,11 @@ public sealed class Hma : AbstractBase
         return new TSeries(t, v);
     }
 
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
     public override void Prime(ReadOnlySpan<double> source)
     {
         foreach (var value in source)
@@ -141,7 +148,7 @@ public sealed class Hma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 1)
             throw new ArgumentException("Period must be greater than 1", nameof(period));
 

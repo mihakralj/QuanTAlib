@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -7,6 +8,7 @@ namespace QuanTAlib;
 /// Pure data type: 48 bytes (long + 5 doubles).
 /// </summary>
 [SkipLocalsInit]
+[StructLayout(LayoutKind.Auto)]
 public readonly record struct TBar(long Time, double Open, double High, double Low, double Close, double Volume)
 {
     public DateTime AsDateTime => new(Time, DateTimeKind.Utc);

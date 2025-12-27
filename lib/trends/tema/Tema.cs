@@ -26,6 +26,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Tema : AbstractBase
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
     {
         public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
@@ -40,6 +41,7 @@ public sealed class Tema : AbstractBase
     private EmaState _p_state1 = EmaState.New();
     private EmaState _p_state2 = EmaState.New();
     private EmaState _p_state3 = EmaState.New();
+    private readonly TValuePublishedHandler _handler;
 
     private double _lastValidValue;
     private double _p_lastValidValue;
@@ -54,11 +56,12 @@ public sealed class Tema : AbstractBase
         _decay = 1.0 - _alpha;
         Name = $"Tema({period})";
         WarmupPeriod = period * 3;
+        _handler = Handle;
     }
 
     public Tema(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public Tema(TSeries source, int period) : this(period)
@@ -68,7 +71,7 @@ public sealed class Tema : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public Tema(double alpha)
@@ -79,7 +82,10 @@ public sealed class Tema : AbstractBase
         _decay = 1.0 - alpha;
         Name = $"Tema(α={alpha:F4})";
         WarmupPeriod = (int)(3 * (2.0 / alpha - 1.0));
+        _handler = Handle;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// Initializes the indicator state using the provided history.
@@ -203,7 +209,7 @@ public sealed class Tema : AbstractBase
 
         double result = 3 * e1 - 3 * e2 + e3;
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -315,7 +321,7 @@ public sealed class Tema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (alpha <= 0 || alpha >= 1)
             throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
 

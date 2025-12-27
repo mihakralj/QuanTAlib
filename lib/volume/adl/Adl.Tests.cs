@@ -103,8 +103,8 @@ public class AdlTests
     {
         var adl = new Adl();
         bool eventFired = false;
-        adl.Pub += (val) => eventFired = true;
-        
+        adl.Pub += (object? sender, TValueEventArgs args) => eventFired = true;
+
         adl.Update(new TBar(DateTime.UtcNow, 10, 12, 8, 10, 100));
         Assert.True(eventFired);
     }

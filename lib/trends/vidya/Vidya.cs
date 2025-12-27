@@ -33,8 +33,9 @@ public sealed class Vidya : AbstractBase, IDisposable
     private readonly RingBuffer _ups;
     private readonly RingBuffer _downs;
     private readonly ITValuePublisher? _source;
-    private readonly Action<TValue>? _pubHandler;
+    private readonly TValuePublishedHandler? _pubHandler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(
         double PrevClose, double LastVidya,
         double CurrentClose, double CurrentVidya,
@@ -59,7 +60,7 @@ public sealed class Vidya : AbstractBase, IDisposable
     public Vidya(ITValuePublisher source, int period) : this(period)
     {
         _source = source;
-        _pubHandler = (item) => Update(item);
+        _pubHandler = Handle;
         source.Pub += _pubHandler;
     }
 
@@ -70,6 +71,8 @@ public sealed class Vidya : AbstractBase, IDisposable
             _source.Pub -= _pubHandler;
         }
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override bool IsHot => _state.BarCount >= _period;
 
@@ -277,7 +280,7 @@ public sealed class Vidya : AbstractBase, IDisposable
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         if (source.Length == 0) return;
 

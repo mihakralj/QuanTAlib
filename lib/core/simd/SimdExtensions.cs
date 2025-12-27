@@ -395,7 +395,7 @@ public static class SimdExtensions
     public static void Add(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
     {
         if (left.Length != right.Length || left.Length != result.Length)
-            throw new ArgumentException("All spans must have the same length");
+            throw new ArgumentException("All spans must have the same length", nameof(result));
 
         int i = 0;
         if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
@@ -423,7 +423,7 @@ public static class SimdExtensions
     public static void Subtract(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
     {
         if (left.Length != right.Length || left.Length != result.Length)
-            throw new ArgumentException("All spans must have the same length");
+            throw new ArgumentException("All spans must have the same length", nameof(result));
 
         int i = 0;
         if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
@@ -451,7 +451,7 @@ public static class SimdExtensions
     public static double DotProduct(this ReadOnlySpan<double> a, ReadOnlySpan<double> b)
     {
         if (a.Length != b.Length)
-            throw new ArgumentException("Spans must have equal length");
+            throw new ArgumentException("Spans must have equal length", nameof(b));
 
         if (a.IsEmpty) return 0.0;
 

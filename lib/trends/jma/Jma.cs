@@ -33,11 +33,13 @@ public sealed class Jma : AbstractBase
     private readonly RingBuffer _devBuffer;
     private readonly RingBuffer _volBuffer;
     private readonly double[] _sorted;
+    private readonly TValuePublishedHandler _handler;
 
     // Streaming state (current + previous snapshot for isNew=false)
     private State _state;
     private State _p_state;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State
     {
         // Jurik "envelope" anchors
@@ -97,6 +99,7 @@ public sealed class Jma : AbstractBase
         // same warmup heuristic used in the AFL port (SetBarsRequired)
         WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
 
+        _handler = Handle;
         Name = $"Jma({period},{phase},{power})"; // power kept for signature compatibility
 
         _devBuffer = new RingBuffer(DevWindowSize);
@@ -109,7 +112,7 @@ public sealed class Jma : AbstractBase
     public Jma(ITValuePublisher source, int period, int phase = 0, double power = 0.45)
         : this(period, phase, power)
     {
-        source.Pub += item => Update(item);
+        source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -238,7 +241,7 @@ public sealed class Jma : AbstractBase
     {
         double j = Step(input.Value, isNew);
         Last = new TValue(input.Time, j);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -288,6 +291,8 @@ public sealed class Jma : AbstractBase
 
         return new TSeries(t, v);
     }
+
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     public override void Prime(ReadOnlySpan<double> source)
     {

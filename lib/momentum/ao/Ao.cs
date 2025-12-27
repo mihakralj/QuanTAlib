@@ -31,7 +31,7 @@ public sealed class Ao : ITValuePublisher
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current AO value.
@@ -99,7 +99,7 @@ public sealed class Ao : ITValuePublisher
 
         double ao = sFast.Value - sSlow.Value;
         Last = new TValue(input.Time, ao);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -117,7 +117,7 @@ public sealed class Ao : ITValuePublisher
 
         double ao = sFast.Value - sSlow.Value;
         Last = new TValue(input.Time, ao);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -167,7 +167,7 @@ public sealed class Ao : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, Span<double> destination, int fastPeriod = 5, int slowPeriod = 34)
     {
         if (high.Length != low.Length || high.Length != destination.Length)
-            throw new ArgumentException("High, low, and destination spans must have the same length.");
+            throw new ArgumentException("High, low, and destination spans must have the same length.", nameof(destination));
 
         int len = high.Length;
         if (len == 0) return;

@@ -32,7 +32,7 @@ public sealed class Adosc : ITValuePublisher
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current ADOSC value.
@@ -96,7 +96,7 @@ public sealed class Adosc : ITValuePublisher
 
         double adosc = eFast.Value - eSlow.Value;
         Last = new TValue(input.Time, adosc);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -162,7 +162,7 @@ public sealed class Adosc : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int fastPeriod = 3, int slowPeriod = 10)
     {
         if (high.Length != output.Length)
-            throw new ArgumentException("Source and output spans must be of the same length.");
+            throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
 
         Span<double> adl = high.Length <= 1024 ? stackalloc double[high.Length] : new double[high.Length];
         Adl.Calculate(high, low, close, volume, adl);
@@ -176,3 +176,4 @@ public sealed class Adosc : ITValuePublisher
         SimdExtensions.Subtract(fastEma, slowEma, output);
     }
 }
+

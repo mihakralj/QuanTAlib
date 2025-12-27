@@ -28,9 +28,11 @@ public sealed class Bilateral : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly double[] _spatialWeights;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double SumSq, double LastValidValue);
     private State _state;
     private State _p_state;
+    private readonly TValuePublishedHandler _handler;
 
     /// <summary>
     /// Creates a Bilateral Filter with specified parameters.
@@ -49,6 +51,7 @@ public sealed class Bilateral : AbstractBase
         _buffer = new RingBuffer(period);
         Name = $"Bilateral({period}, {sigmaSRatio:F2}, {sigmaRMult:F2})";
         WarmupPeriod = period;
+        _handler = Handle;
 
         _spatialWeights = new double[period];
         PrecalculateSpatialWeights();
@@ -57,7 +60,7 @@ public sealed class Bilateral : AbstractBase
     public Bilateral(ITValuePublisher source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0) 
         : this(period, sigmaSRatio, sigmaRMult)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public override bool IsHot => _buffer.IsFull;
@@ -112,6 +115,9 @@ public sealed class Bilateral : AbstractBase
         Last = new TValue(DateTime.UtcNow, result);
         _p_state = _state;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     public override TSeries Update(TSeries source)
     {
@@ -171,7 +177,7 @@ public sealed class Bilateral : AbstractBase
 
         double result = CalculateBilateral();
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 

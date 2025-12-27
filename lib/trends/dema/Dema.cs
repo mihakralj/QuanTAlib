@@ -24,6 +24,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Dema : AbstractBase, IDisposable
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
     {
         public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
@@ -40,7 +41,7 @@ public sealed class Dema : AbstractBase, IDisposable
     private double _lastValidValue = double.NaN;
     private double _p_lastValidValue = double.NaN;
     private readonly ITValuePublisher? _publisher;
-    private readonly Action<TValue>? _listener;
+    private readonly TValuePublishedHandler? _listener;
 
     public override bool IsHot => _state2.IsHot;
 
@@ -57,7 +58,7 @@ public sealed class Dema : AbstractBase, IDisposable
     public Dema(ITValuePublisher source, int period) : this(period)
     {
         _publisher = source;
-        _listener = (item) => Update(item);
+        _listener = Handle;
         source.Pub += _listener;
     }
 
@@ -230,7 +231,7 @@ public sealed class Dema : AbstractBase, IDisposable
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (alpha <= 0 || alpha > 1)
             throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
 
@@ -328,4 +329,6 @@ public sealed class Dema : AbstractBase, IDisposable
             _publisher.Pub -= _listener;
         }
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 }

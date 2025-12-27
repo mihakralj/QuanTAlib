@@ -30,7 +30,9 @@ public sealed class Sma : AbstractBase
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
+    private readonly TValuePublishedHandler _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double LastInput, double LastValidValue, int TickCount);
     private State _state;
     private State _p_state;
@@ -50,11 +52,12 @@ public sealed class Sma : AbstractBase
         _buffer = new RingBuffer(period);
         Name = $"Sma({period})";
         WarmupPeriod = period;
+        _handler = Handle;
     }
 
     public Sma(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public Sma(TSeries source, int period) : this(period)
@@ -64,8 +67,10 @@ public sealed class Sma : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // Mode B: Streaming (Stateful)
@@ -198,7 +203,7 @@ public sealed class Sma : AbstractBase
 
         double result = _buffer.Count > 0 ? _state.Sum / _buffer.Count : double.NaN;
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -253,7 +258,7 @@ public sealed class Sma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

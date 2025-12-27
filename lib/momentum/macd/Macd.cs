@@ -23,6 +23,7 @@ public sealed class Macd : ITValuePublisher
     private readonly Ema _fastEma;
     private readonly Ema _slowEma;
     private readonly Ema _signalEma;
+    private readonly TValuePublishedHandler _handler;
 
     public string Name { get; }
     public bool IsHot => _fastEma.IsHot && _slowEma.IsHot && _signalEma.IsHot;
@@ -32,13 +33,14 @@ public sealed class Macd : ITValuePublisher
     public TValue Signal { get; private set; }
     public TValue Histogram { get; private set; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     public Macd(int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
     {
         _fastEma = new Ema(fastPeriod);
         _slowEma = new Ema(slowPeriod);
         _signalEma = new Ema(signalPeriod);
+        _handler = Handle;
         
         Name = $"Macd({fastPeriod},{slowPeriod},{signalPeriod})";
         WarmupPeriod = Math.Max(fastPeriod, slowPeriod) + signalPeriod;
@@ -47,7 +49,7 @@ public sealed class Macd : ITValuePublisher
     public Macd(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9) 
         : this(fastPeriod, slowPeriod, signalPeriod)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,7 +80,7 @@ public sealed class Macd : ITValuePublisher
         Signal = signal;
         Histogram = new TValue(input.Time, histValue);
 
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -100,6 +102,11 @@ public sealed class Macd : ITValuePublisher
         
         return new TSeries(t, v);
     }
+
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
     
     /// <summary>
     /// Calculates the MACD Line (Fast EMA - Slow EMA).
@@ -108,7 +115,7 @@ public sealed class Macd : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != destination.Length)
-            throw new ArgumentException("Source and destination must be same length");
+            throw new ArgumentException("Source and destination must be same length", nameof(destination));
             
         int len = source.Length;
         double[] fastBuffer = ArrayPool<double>.Shared.Rent(len);

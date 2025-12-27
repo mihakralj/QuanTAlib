@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,17 +10,32 @@ namespace QuanTAlib;
 /// Stores Time, Open, High, Low, Close, Volume in separate contiguous arrays for SIMD efficiency.
 /// Exposes TSeries views for each component that share the underlying Time array.
 /// </summary>
+[StructLayout(LayoutKind.Auto)]
+public readonly struct TBarEventArgs
+{
+    public TBar Value { get; init; }
+    public bool IsNew { get; init; }
+}
+
+// Performance-focused event args struct; not derived from EventArgs by design.
+// We intentionally deviate from the standard EventArgs pattern here for perf.
+#pragma warning disable MA0046 // The second parameter must be of type 'System.EventArgs' or a derived type
+public delegate void TBarPublishedHandler(object? sender, in TBarEventArgs args);
+#pragma warning restore MA0046
+
 public class TBarSeries : IReadOnlyList<TBar>
 {
+#pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
     protected readonly List<long> _t;
     protected readonly List<double> _o;
     protected readonly List<double> _h;
     protected readonly List<double> _l;
     protected readonly List<double> _c;
     protected readonly List<double> _v;
+#pragma warning restore MA0016
 
     public string Name { get; set; } = "Bar";
-    public event Action<TBar>? Pub;
+    public event TBarPublishedHandler? Pub;
 
     // Note: These views share underlying storage. Do not modify directly; use TBarSeries.Add() instead.
     public TSeries Open { get; }
@@ -102,7 +118,7 @@ public class TBarSeries : IReadOnlyList<TBar>
             _v[lastIdx] = bar.Volume;
         }
 
-        Pub?.Invoke(bar);
+        Pub?.Invoke(this, new TBarEventArgs { Value = bar, IsNew = isNew });
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -126,7 +142,7 @@ public class TBarSeries : IReadOnlyList<TBar>
             hArr.Length != lArr.Length || lArr.Length != cArr.Length ||
             cArr.Length != vArr.Length)
         {
-            throw new ArgumentException("All arrays must have the same length");
+            throw new ArgumentException("All arrays must have the same length", nameof(t));
         }
 
         for (int i = 0; i < tArr.Length; i++)

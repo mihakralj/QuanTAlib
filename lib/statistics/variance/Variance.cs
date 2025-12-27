@@ -181,7 +181,7 @@ public sealed class Variance : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation = false)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period < 2)
             throw new ArgumentException("Period must be greater than or equal to 2", nameof(period));
 

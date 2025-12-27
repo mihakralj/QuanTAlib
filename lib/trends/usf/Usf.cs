@@ -20,12 +20,14 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Usf : AbstractBase
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Usf1, double Usf2, double PrevInput1, double PrevInput2, double LastValidValue, int Count, bool IsHot)
     {
         public static State New() => new() { Usf1 = 0, Usf2 = 0, PrevInput1 = 0, PrevInput2 = 0, LastValidValue = double.NaN, Count = 0, IsHot = false };
     }
 
     private readonly double _c1, _c2, _c3;
+    private readonly TValuePublishedHandler _handler;
     private State _state = State.New();
     private State _p_state = State.New();
 
@@ -48,6 +50,7 @@ public sealed class Usf : AbstractBase
 
         Name = $"Usf({period})";
         WarmupPeriod = period;
+        _handler = Handle;
     }
 
     /// <summary>
@@ -57,7 +60,7 @@ public sealed class Usf : AbstractBase
     /// <param name="period">Period for USF calculation</param>
     public Usf(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     public Usf(TSeries source, int period) : this(period)
@@ -67,8 +70,10 @@ public sealed class Usf : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override bool IsHot => _state.IsHot;
 
@@ -171,7 +176,7 @@ public sealed class Usf : AbstractBase
             _state.IsHot = true;
 
         Last = new TValue(input.Time, usf);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -278,7 +283,7 @@ public sealed class Usf : AbstractBase
         double c1 = (1.0 + c2 - c3) / 4.0;
 
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         if (source.Length == 0) return;
 

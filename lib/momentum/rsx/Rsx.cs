@@ -27,6 +27,7 @@ public sealed class Rsx : ITValuePublisher
     private readonly int _period;
     private readonly double _alpha;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State
     {
         // Momentum filters (3 stages, 2 filters each)
@@ -46,13 +47,14 @@ public sealed class Rsx : ITValuePublisher
 
     private State _state;
     private State _p_state;
+    private readonly TValuePublishedHandler _handler;
 
     /// <summary>
     /// Display name for the indicator.
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// The number of bars required to warm up the indicator.
@@ -72,11 +74,12 @@ public sealed class Rsx : ITValuePublisher
         WarmupPeriod = period;
         _alpha = 3.0 / (period + 2.0);
         Name = $"Rsx({period})";
+        _handler = Handle;
     }
 
     public Rsx(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     /// <summary>
@@ -90,6 +93,8 @@ public sealed class Rsx : ITValuePublisher
     public bool IsHot => _state.IsInitialized;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
+
     public TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
@@ -177,7 +182,7 @@ public sealed class Rsx : ITValuePublisher
         }
 
         Last = new TValue(input.Time, rsx);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -219,7 +224,7 @@ public sealed class Rsx : ITValuePublisher
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

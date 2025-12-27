@@ -20,6 +20,7 @@ public sealed class Dwma : AbstractBase
     private readonly int _period;
     private readonly Wma _wma1;
     private readonly Wma _wma2;
+    private readonly TValuePublishedHandler _handler;
 
     public override bool IsHot => _wma1.IsHot && _wma2.IsHot;
 
@@ -35,13 +36,14 @@ public sealed class Dwma : AbstractBase
         _period = period;
         _wma1 = new Wma(period);
         _wma2 = new Wma(period);
+        _handler = Handle;
         Name = $"Dwma({period})";
         WarmupPeriod = period * 2;
     }
 
     public Dwma(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +51,7 @@ public sealed class Dwma : AbstractBase
     {
         TValue wma1Result = _wma1.Update(input, isNew);
         Last = _wma2.Update(wma1Result, isNew);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -88,6 +90,11 @@ public sealed class Dwma : AbstractBase
         return new TSeries(t, v);
     }
 
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
     public override void Prime(ReadOnlySpan<double> source)
     {
         Reset();
@@ -110,7 +117,7 @@ public sealed class Dwma : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than zero");
 
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         // We need a temporary buffer for the first WMA pass
         // Use stackalloc for small sizes, heap for large

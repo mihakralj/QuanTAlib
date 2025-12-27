@@ -23,6 +23,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Bessel : AbstractBase, IDisposable
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double F1, double F2, double LastValidValue, int Count, bool IsHot)
     {
         public static State New() => new()
@@ -37,7 +38,7 @@ public sealed class Bessel : AbstractBase, IDisposable
 
     private readonly double _c1, _c2, _c3;
     private readonly ITValuePublisher? _publisher;
-    private readonly Action<TValue>? _handler;
+    private readonly TValuePublishedHandler? _handler;
     private State _state = State.New();
     private State _p_state = State.New();
 
@@ -68,7 +69,7 @@ public sealed class Bessel : AbstractBase, IDisposable
     public Bessel(ITValuePublisher source, int length) : this(length)
     {
         _publisher = source;
-        _handler = item => Update(item);
+        _handler = Handle;
         source.Pub += _handler;
     }
 
@@ -84,7 +85,7 @@ public sealed class Bessel : AbstractBase, IDisposable
         }
 
         _publisher = source;
-        _handler = item => Update(item);
+        _handler = Handle;
         source.Pub += _handler;
     }
 
@@ -291,7 +292,7 @@ public sealed class Bessel : AbstractBase, IDisposable
             throw new ArgumentException("Length must be greater than 0", nameof(length));
 
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         if (source.Length == 0)
             return;
@@ -308,6 +309,9 @@ public sealed class Bessel : AbstractBase, IDisposable
 
         CalculateCore(source, output, c1, c2, c3, length, ref state);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override void Reset()
     {

@@ -33,8 +33,9 @@ public sealed class Wma : AbstractBase, IDisposable
     private readonly double _divisor;
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
-    private readonly Action<TValue>? _handler;
+    private readonly TValuePublishedHandler? _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount, bool HasSeenValidData);
     private State _state;
     private State _p_state;
@@ -68,7 +69,7 @@ public sealed class Wma : AbstractBase, IDisposable
     public Wma(ITValuePublisher source, int period) : this(period)
     {
         _source = source;
-        _handler = (item) => Update(item);
+        _handler = Handle;
         source.Pub += _handler;
     }
 
@@ -159,7 +160,7 @@ public sealed class Wma : AbstractBase, IDisposable
 
         double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * 0.5;
         Last = new TValue(input.Time, _state.WSum / currentDivisor);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -184,6 +185,8 @@ public sealed class Wma : AbstractBase, IDisposable
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override void Prime(ReadOnlySpan<double> source)
     {
@@ -248,7 +251,7 @@ public sealed class Wma : AbstractBase, IDisposable
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

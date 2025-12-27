@@ -33,7 +33,7 @@ public sealed class Adl : ITValuePublisher
     /// </summary>
     public static string Name => "ADL";
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current ADL value.
@@ -90,7 +90,7 @@ public sealed class Adl : ITValuePublisher
 
         _isInitialized = true;
         Last = new TValue(input.Time, _adl);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -106,7 +106,7 @@ public sealed class Adl : ITValuePublisher
         }
 
         Last = new TValue(input.Time, _adl);
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -143,7 +143,7 @@ public sealed class Adl : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != close.Length || high.Length != volume.Length || high.Length != output.Length)
-            throw new ArgumentException("All spans must be of the same length");
+            throw new ArgumentException("All spans must be of the same length", nameof(output));
 
         int len = high.Length;
         int i = 0;
@@ -197,3 +197,4 @@ public sealed class Adl : ITValuePublisher
         }
     }
 }
+

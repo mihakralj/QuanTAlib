@@ -33,7 +33,9 @@ public sealed class Lsma : AbstractBase
 
     private readonly double _sum_x;
     private readonly double _denominator;
+    private readonly TValuePublishedHandler _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
     private State _state;
     private State _p_state;
@@ -59,6 +61,7 @@ public sealed class Lsma : AbstractBase
         _buffer = new RingBuffer(period);
         Name = $"Lsma({period})";
         WarmupPeriod = period;
+        _handler = Handle;
 
         // Precalculate constants
         // sum_x = 0 + 1 + ... + (n-1) = n(n-1)/2
@@ -73,8 +76,10 @@ public sealed class Lsma : AbstractBase
 
     public Lsma(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -197,7 +202,7 @@ public sealed class Lsma : AbstractBase
         }
 
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -282,7 +287,7 @@ public sealed class Lsma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

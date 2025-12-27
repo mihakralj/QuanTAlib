@@ -30,7 +30,7 @@ public sealed class Trima : AbstractBase, IDisposable
     private readonly int _period;
     private readonly Sma _sma1;
     private readonly Sma _sma2;
-    private readonly Action<TValue> _updateHandler;
+    private readonly TValuePublishedHandler _handler;
     private ITValuePublisher? _publisher;
 
     public Trima(int period)
@@ -43,7 +43,7 @@ public sealed class Trima : AbstractBase, IDisposable
 
         _sma1 = new Sma(p1);
         _sma2 = new Sma(p2);
-        _updateHandler = (item) => Update(item);
+        _handler = Handle;
 
         Name = $"Trima({period})";
         WarmupPeriod = p1 + p2 - 1;
@@ -52,14 +52,14 @@ public sealed class Trima : AbstractBase, IDisposable
     public Trima(ITValuePublisher source, int period) : this(period)
     {
         _publisher = source;
-        source.Pub += _updateHandler;
+        source.Pub += _handler;
     }
 
     public void Dispose()
     {
         if (_publisher != null)
         {
-            _publisher.Pub -= _updateHandler;
+            _publisher.Pub -= _handler;
             _publisher = null;
         }
     }
@@ -73,7 +73,7 @@ public sealed class Trima : AbstractBase, IDisposable
         TValue v2 = _sma2.Update(v1, isNew);
 
         Last = v2;
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -98,6 +98,8 @@ public sealed class Trima : AbstractBase, IDisposable
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
+
+    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     public override void Prime(ReadOnlySpan<double> source)
     {
@@ -138,7 +140,7 @@ public sealed class Trima : AbstractBase, IDisposable
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length");
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 

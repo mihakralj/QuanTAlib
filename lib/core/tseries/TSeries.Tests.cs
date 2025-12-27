@@ -298,7 +298,7 @@ public class TSeriesTests
         {
             var series = new TSeries();
             TValue? received = null;
-            series.Pub += tv => received = tv;
+            series.Pub += (object? sender, TValueEventArgs args) => received = args.Value;
 
             series.Add(100, 42.0);
 
@@ -313,7 +313,7 @@ public class TSeriesTests
             var series = new TSeries();
             TValue? received = null;
             series.Add(100, 42.0);
-            series.Pub += tv => received = tv;
+            series.Pub += (object? sender, TValueEventArgs args) => received = args.Value;
 
             series.Add(100, 43.0, isNew: false);
 

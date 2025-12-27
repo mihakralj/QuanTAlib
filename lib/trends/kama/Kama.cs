@@ -25,7 +25,9 @@ public sealed class Kama : AbstractBase
     private readonly double _fastAlpha;
     private readonly double _slowAlpha;
     private readonly RingBuffer _buffer;
+    private readonly TValuePublishedHandler _handler;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Kama, double VolatilitySum, double NextDiffOut, double LastValidValue);
     private State _state;
     private State _p_state;
@@ -55,6 +57,7 @@ public sealed class Kama : AbstractBase
 
         _fastAlpha = 2.0 / (fastPeriod + 1);
         _slowAlpha = 2.0 / (slowPeriod + 1);
+        _handler = Handle;
 
         Name = $"Kama({period}, {fastPeriod}, {slowPeriod})";
         WarmupPeriod = period + 1;
@@ -68,7 +71,7 @@ public sealed class Kama : AbstractBase
     public Kama(ITValuePublisher source, int period = 10, int fastPeriod = 2, int slowPeriod = 30)
         : this(period, fastPeriod, slowPeriod)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -177,7 +180,7 @@ public sealed class Kama : AbstractBase
         }
 
         Last = new TValue(input.Time, _state.Kama);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -205,6 +208,11 @@ public sealed class Kama : AbstractBase
         return new TSeries(t, v);
     }
 
+    private void Handle(object? sender, TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
+
     public override void Prime(ReadOnlySpan<double> source)
     {
         foreach (var value in source)
@@ -225,7 +233,7 @@ public sealed class Kama : AbstractBase
         if (fastPeriod <= 0) throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
         if (slowPeriod <= 0) throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
         if (fastPeriod >= slowPeriod) throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
-        if (source.Length != output.Length) throw new ArgumentException("Source and output must have the same length");
+        if (source.Length != output.Length) throw new ArgumentException("Source and output must have the same length", nameof(output));
 
         double fastAlpha = 2.0 / (fastPeriod + 1);
         double slowAlpha = 2.0 / (slowPeriod + 1);

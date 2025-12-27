@@ -57,7 +57,7 @@ public sealed class Adx : ITValuePublisher
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current ADX value.
@@ -265,7 +265,7 @@ public sealed class Adx : ITValuePublisher
         DiMinus = new TValue(input.Time, diMinus);
         Last = new TValue(input.Time, _adx);
 
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

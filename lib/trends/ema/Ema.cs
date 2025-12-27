@@ -27,6 +27,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Ema : AbstractBase
 {
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double Ema, double E, bool IsHot, bool IsCompensated)
     {
         public static State New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
@@ -63,7 +64,7 @@ public sealed class Ema : AbstractBase
     /// <param name="period">Period for EMA calculation</param>
     public Ema(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += Handle;
     }
 
     public Ema(TSeries source, int period) : this(period)
@@ -73,7 +74,7 @@ public sealed class Ema : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += (item) => Update(item);
+        source.Pub += Handle;
     }
 
     /// <summary>
@@ -179,6 +180,9 @@ public sealed class Ema : AbstractBase
         _p_state = _state;
         _p_lastValidValue = _lastValidValue;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)

@@ -21,6 +21,7 @@ namespace QuanTAlib;
 public sealed class Atr : AbstractBase
 {
     private readonly Rma _rma;
+    private readonly TValuePublishedHandler _handler;
     private TBar _prevBar;
     private bool _isInitialized;
 
@@ -37,6 +38,7 @@ public sealed class Atr : AbstractBase
         Name = $"Atr({period})";
         WarmupPeriod = period;
         _isInitialized = false;
+        _handler = Handle;
     }
 
     /// <summary>
@@ -46,7 +48,7 @@ public sealed class Atr : AbstractBase
     /// <param name="period">Period for ATR calculation</param>
     public Atr(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += (item) => Update(item);
+        source.Pub += _handler;
     }
 
     /// <summary>
@@ -61,6 +63,8 @@ public sealed class Atr : AbstractBase
         // because AbstractBase doesn't enforce TBarSeries subscription structure, 
         // but we can rely on manual updates or the user subscribing.
     }
+
+    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// True if the ATR has warmed up and is providing valid results.
@@ -119,7 +123,7 @@ public sealed class Atr : AbstractBase
         TValue result = _rma.Update(new TValue(input.Time, tr), isNew);
 
         Last = result;
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return result;
     }
 
@@ -132,7 +136,7 @@ public sealed class Atr : AbstractBase
         // If user passes a single value, we assume it IS the True Range
         TValue result = _rma.Update(input, isNew);
         Last = result;
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return result;
     }
 

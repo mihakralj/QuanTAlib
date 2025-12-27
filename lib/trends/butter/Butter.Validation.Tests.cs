@@ -88,7 +88,7 @@ public class ButterValidationTests
         }
     }
 
-    private static List<double> CalculateReference(TSeries source, int period)
+    private static IReadOnlyList<double> CalculateReference(TSeries source, int period)
     {
         var result = new List<double>();
         

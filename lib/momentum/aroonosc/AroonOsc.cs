@@ -32,7 +32,7 @@ public sealed class AroonOsc : ITValuePublisher
     /// </summary>
     public string Name { get; }
 
-    public event Action<TValue>? Pub;
+    public event TValuePublishedHandler? Pub;
 
     /// <summary>
     /// Current Aroon Oscillator value.
@@ -136,7 +136,7 @@ public sealed class AroonOsc : ITValuePublisher
 
         Last = new TValue(input.Time, osc);
 
-        Pub?.Invoke(Last);
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
         return Last;
     }
 
@@ -241,3 +241,4 @@ public sealed class AroonOsc : ITValuePublisher
         return new TSeries(tList, [.. v]);
     }
 }
+

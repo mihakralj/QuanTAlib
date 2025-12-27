@@ -180,7 +180,7 @@ public sealed class Covariance : AbstractBase
     public static TSeries Calculate(TSeries sourceX, TSeries sourceY, int period, bool isPopulation = false)
     {
         if (sourceX.Count != sourceY.Count)
-            throw new ArgumentException("Source series must have the same length");
+            throw new ArgumentException("Source series must have the same length", nameof(sourceY));
 
         int len = sourceX.Count;
         var t = new List<long>(len);
@@ -201,7 +201,7 @@ public sealed class Covariance : AbstractBase
     public static void Batch(ReadOnlySpan<double> sourceX, ReadOnlySpan<double> sourceY, Span<double> output, int period, bool isPopulation = false)
     {
         if (sourceX.Length != sourceY.Length || sourceX.Length != output.Length)
-            throw new ArgumentException("All spans must have the same length");
+            throw new ArgumentException("All spans must have the same length", nameof(output));
         if (period < 2)
             throw new ArgumentException("Period must be greater than or equal to 2", nameof(period));
 

@@ -11,6 +11,7 @@ public sealed class Blma : AbstractBase, IDisposable
     private readonly RingBuffer _buffer;
     private readonly double[] _weights;
     private readonly double _weightSum;
+    private readonly TValuePublishedHandler _handler;
     private ITValuePublisher? _publisher;
     private bool _hasLast;
 
@@ -31,26 +32,27 @@ public sealed class Blma : AbstractBase, IDisposable
         
         // Pre-calculate weights for the full period
         _weightSum = CalculateWeights(period, _weights);
+        _handler = Handle;
     }
 
     public Blma(ITValuePublisher source, int period) : this(period)
     {
         _publisher = source;
-        source.Pub += Handle;
+        source.Pub += _handler;
     }
 
     public void Dispose()
     {
         if (_publisher != null)
         {
-            _publisher.Pub -= Handle;
+            _publisher.Pub -= _handler;
             _publisher = null;
         }
     }
 
-    private void Handle(TValue value)
+    private void Handle(object? sender, TValueEventArgs args)
     {
-        Update(value);
+        Update(args.Value, args.IsNew);
     }
 
     public override void Reset()
@@ -118,7 +120,7 @@ public sealed class Blma : AbstractBase, IDisposable
         var tValue = new TValue(input.Time, result);
         Last = tValue;
         _hasLast = true;
-        PubEvent(tValue);
+        PubEvent(tValue, isNew);
         return tValue;
     }
 
