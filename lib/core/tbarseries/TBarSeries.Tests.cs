@@ -1,9 +1,9 @@
 
-namespace QuanTAlib.Tests
+namespace QuanTAlib.Tests;
+
+public class TBarSeriesTests
 {
-    public class TBarSeriesTests
-    {
-        [Fact]
+    [Fact]
         public void Constructor_Default_CreatesEmptySeries()
         {
             var series = new TBarSeries();
@@ -340,13 +340,13 @@ namespace QuanTAlib.Tests
         public void GetEnumerator_NonGeneric_Works()
         {
             var series = new TBarSeries();
-            series.Add(100, 10, 15, 5, 12, 100);
-            series.Add(200, 20, 25, 15, 22, 200);
-            
-            IEnumerable enumerable = series;
-            var list = new List<object>();
-            foreach (var item in enumerable)
-            {
+        series.Add(100, 10, 15, 5, 12, 100, isNew: true);
+        series.Add(200, 20, 25, 15, 22, 200, isNew: true);
+
+        var list = new List<object>();
+
+        foreach (var item in (IEnumerable)series)
+        {
                 list.Add(item);
             }
             
@@ -406,7 +406,6 @@ namespace QuanTAlib.Tests
             Assert.Equal(3, series.Count);
             Assert.Equal(100, series[0].Time);
             Assert.Equal(200, series[1].Time);
-            Assert.Equal(300, series[2].Time);
-        }
+        Assert.Equal(300, series[2].Time);
     }
 }

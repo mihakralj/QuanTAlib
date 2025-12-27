@@ -72,6 +72,8 @@ These tests compare the indicator's output against established external librarie
 - **Compare against Python (pandas-ta/talib)**: If C# libs are unavailable.
 - **Tolerance**: Typically `1e-6` to `1e-9`.
 
+When asserting parameter validation behavior (e.g., invalid periods or mismatched buffer lengths), align with the MA0015-compliant pattern defined in `AGENTS.md` (commit d7dbd70): `ArgumentException` (or derived) overloads must include the offending `paramName` (for example `nameof(output)` or `nameof(sourceY)`), and tests should verify both the exception type and the parameter name where relevant.
+
 ## 3. Example Test Template
 
 ```csharp

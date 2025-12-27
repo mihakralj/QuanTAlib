@@ -21,7 +21,6 @@ public readonly struct TBarEventArgs
 // We intentionally deviate from the standard EventArgs pattern here for perf.
 #pragma warning disable MA0046 // The second parameter must be of type 'System.EventArgs' or a derived type
 public delegate void TBarPublishedHandler(object? sender, in TBarEventArgs args);
-#pragma warning restore MA0046
 
 public class TBarSeries : IReadOnlyList<TBar>
 {
@@ -36,6 +35,7 @@ public class TBarSeries : IReadOnlyList<TBar>
 
     public string Name { get; set; } = "Bar";
     public event TBarPublishedHandler? Pub;
+#pragma warning restore MA0046
 
     // Note: These views share underlying storage. Do not modify directly; use TBarSeries.Add() instead.
     public TSeries Open { get; }
