@@ -34,8 +34,8 @@ public class BlmaIndicatorTests
         var indicator = new BlmaIndicator { Period = 20 };
         indicator.Initialize();
 
-        Assert.Contains("BLMA", indicator.ShortName);
-        Assert.Contains("20", indicator.ShortName);
+        Assert.Contains("BLMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("20", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class BlmaIndicatorTests
     {
         var indicator = new BlmaIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Blma.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Blma.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

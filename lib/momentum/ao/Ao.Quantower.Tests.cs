@@ -35,9 +35,9 @@ public class AoIndicatorTests
         var indicator = new AoIndicator { FastPeriod = 10, SlowPeriod = 40 };
         indicator.Initialize();
 
-        Assert.Contains("AO", indicator.ShortName);
-        Assert.Contains("10", indicator.ShortName);
-        Assert.Contains("40", indicator.ShortName);
+        Assert.Contains("AO", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("10", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("40", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class AoIndicatorTests
     {
         var indicator = new AoIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Ao.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Ao.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

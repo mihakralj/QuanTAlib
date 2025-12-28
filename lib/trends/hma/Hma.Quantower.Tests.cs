@@ -33,8 +33,8 @@ public class HmaIndicatorTests
     {
         var indicator = new HmaIndicator { Period = 21 };
 
-        Assert.Contains("HMA", indicator.ShortName);
-        Assert.Contains("21", indicator.ShortName);
+        Assert.Contains("HMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("21", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class HmaIndicatorTests
     {
         var indicator = new HmaIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Hma.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Hma.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

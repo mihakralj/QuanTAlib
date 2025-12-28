@@ -69,10 +69,10 @@ public sealed class AoValidationTests : IDisposable
 
         var tulipIndicator = Tulip.Indicators.ao;
         double[][] inputs = { high, low };
-        double[] options = { };
+        double[] options = Array.Empty<double>();
 
         int lookback = 33;
-        double[][] outputs = { new double[_data.Bars.Count - lookback] };
+        double[][] outputs = [new double[_data.Bars.Count - lookback]];
 
         tulipIndicator.Run(inputs, options, outputs);
         var tulipResults = outputs[0];

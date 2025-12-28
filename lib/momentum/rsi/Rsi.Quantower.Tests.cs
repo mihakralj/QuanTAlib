@@ -39,7 +39,7 @@ public class RsiIndicatorTests
         };
         indicator.Initialize();
 
-        Assert.Contains("RSI(20)", indicator.ShortName);
+        Assert.Contains("RSI(20)", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -47,8 +47,8 @@ public class RsiIndicatorTests
     {
         var indicator = new RsiIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Rsi.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Rsi.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

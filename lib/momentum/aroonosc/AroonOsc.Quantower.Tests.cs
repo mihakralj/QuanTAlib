@@ -34,8 +34,8 @@ public class AroonOscIndicatorTests
         var indicator = new AroonOscIndicator { Period = 20 };
         indicator.Initialize();
 
-        Assert.Contains("AroonOsc", indicator.ShortName);
-        Assert.Contains("20", indicator.ShortName);
+        Assert.Contains("AroonOsc", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("20", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class AroonOscIndicatorTests
     {
         var indicator = new AroonOscIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("AroonOsc.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("AroonOsc.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

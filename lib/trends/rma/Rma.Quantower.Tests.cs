@@ -32,8 +32,8 @@ public class RmaIndicatorTests
     {
         var indicator = new RmaIndicator { Period = 15 };
 
-        Assert.Contains("RMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("RMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]

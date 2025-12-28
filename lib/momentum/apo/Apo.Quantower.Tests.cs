@@ -35,9 +35,9 @@ public class ApoIndicatorTests
         var indicator = new ApoIndicator { FastPeriod = 10, SlowPeriod = 40 };
         indicator.Initialize();
 
-        Assert.Contains("APO", indicator.ShortName);
-        Assert.Contains("10", indicator.ShortName);
-        Assert.Contains("40", indicator.ShortName);
+        Assert.Contains("APO", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("10", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("40", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class ApoIndicatorTests
     {
         var indicator = new ApoIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Apo.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Apo.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -34,8 +34,8 @@ public class RsxIndicatorTests
     {
         var indicator = new RsxIndicator { Period = 15 };
 
-        Assert.Contains("RSX", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("RSX", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class RsxIndicatorTests
     {
         var indicator = new RsxIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Rsx.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Rsx.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

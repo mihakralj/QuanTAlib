@@ -35,8 +35,8 @@ public class ButterIndicatorTests
         var indicator = new ButterIndicator { Period = 20 };
         indicator.Initialize();
 
-        Assert.Contains("BUTTER", indicator.ShortName);
-        Assert.Contains("20", indicator.ShortName);
+        Assert.Contains("BUTTER", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("20", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -44,8 +44,8 @@ public class ButterIndicatorTests
     {
         var indicator = new ButterIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Butter.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Butter.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

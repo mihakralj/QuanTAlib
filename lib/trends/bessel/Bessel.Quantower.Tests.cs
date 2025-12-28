@@ -32,8 +32,8 @@ public class BesselIndicatorTests
     {
         var indicator = new BesselIndicator { Length = 15 };
 
-        Assert.Contains("BESSEL", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("BESSEL", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]

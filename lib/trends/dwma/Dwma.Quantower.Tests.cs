@@ -32,8 +32,8 @@ public class DwmaIndicatorTests
     {
         var indicator = new DwmaIndicator { Period = 15 };
 
-        Assert.Contains("DWMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("DWMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public class DwmaIndicatorTests
     {
         var indicator = new DwmaIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Dwma.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Dwma.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

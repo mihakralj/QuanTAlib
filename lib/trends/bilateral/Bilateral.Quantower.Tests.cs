@@ -34,8 +34,8 @@ public class BilateralIndicatorTests
     {
         var indicator = new BilateralIndicator { Period = 15 };
 
-        Assert.Contains("Bilateral", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("Bilateral", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class BilateralIndicatorTests
     {
         var indicator = new BilateralIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Bilateral.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Bilateral.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

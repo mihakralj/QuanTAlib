@@ -62,7 +62,7 @@ public sealed class BopValidationTests : IDisposable
         var close = _data.Bars.Close.Values.ToArray();
         
         double[][] inputs = { open, high, low, close };
-        double[] options = { }; // No options for BOP
+        double[] options = Array.Empty<double>(); // No options for BOP
 
         var bopInd = Tulip.Indicators.bop;
         double[][] outputs = { new double[open.Length - bopInd.Start(options)] };

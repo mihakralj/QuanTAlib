@@ -32,8 +32,8 @@ public class SmaIndicatorTests
     {
         var indicator = new SmaIndicator { Period = 15 };
 
-        Assert.Contains("SMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("SMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
 

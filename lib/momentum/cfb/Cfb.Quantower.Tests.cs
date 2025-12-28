@@ -38,9 +38,9 @@ public class CfbIndicatorTests
         // Initialize to update SourceName
         indicator.Initialize();
 
-        Assert.Contains("CFB", indicator.ShortName);
-        Assert.Contains("5-20", indicator.ShortName);
-        Assert.Contains("Close", indicator.ShortName);
+        Assert.Contains("CFB", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("5-20", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("Close", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -48,8 +48,8 @@ public class CfbIndicatorTests
     {
         var indicator = new CfbIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Cfb.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Cfb.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

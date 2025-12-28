@@ -35,8 +35,8 @@ public class DmxIndicatorTests
         // Initialize to update SourceName (though DMX doesn't use SourceName)
         indicator.Initialize();
 
-        Assert.Contains("DMX", indicator.ShortName);
-        Assert.Contains("20", indicator.ShortName);
+        Assert.Contains("DMX", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("20", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -44,8 +44,8 @@ public class DmxIndicatorTests
     {
         var indicator = new DmxIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Dmx.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Dmx.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 
-namespace QuanTAlib.Tests
-{
-    public class TBarTests
+namespace QuanTAlib.Tests;
+
+public class TBarTests
     {
         [Fact]
         public void Constructor_SetsPropertiesCorrectly()
@@ -195,13 +195,13 @@ namespace QuanTAlib.Tests
 
             string result = bar.ToString();
 
-            Assert.Contains("2024-06-15", result);
-            Assert.Contains("10:30:00", result);
-            Assert.Contains("O=100.50", result);
-            Assert.Contains("H=110.25", result);
-            Assert.Contains("L=90.75", result);
-            Assert.Contains("C=105.00", result);
-            Assert.Contains("V=1000.00", result);
+            Assert.Contains("2024-06-15", result, StringComparison.Ordinal);
+            Assert.Contains("10:30:00", result, StringComparison.Ordinal);
+            Assert.Contains("O=100.50", result, StringComparison.Ordinal);
+            Assert.Contains("H=110.25", result, StringComparison.Ordinal);
+            Assert.Contains("L=90.75", result, StringComparison.Ordinal);
+            Assert.Contains("C=105.00", result, StringComparison.Ordinal);
+            Assert.Contains("V=1000.00", result, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -345,6 +345,5 @@ namespace QuanTAlib.Tests
             var bar2 = new TBar(12346, 100, 110, 90, 105, 1000);
 
             Assert.True(bar1 != bar2);
-        }
     }
 }

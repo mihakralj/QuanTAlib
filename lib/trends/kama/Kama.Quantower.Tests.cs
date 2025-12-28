@@ -34,8 +34,8 @@ public class KamaIndicatorTests
     {
         var indicator = new KamaIndicator { Period = 15 };
 
-        Assert.Contains("KAMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("KAMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]

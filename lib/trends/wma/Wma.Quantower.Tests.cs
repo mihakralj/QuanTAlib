@@ -32,8 +32,8 @@ public class WmaIndicatorTests
     {
         var indicator = new WmaIndicator { Period = 15 };
 
-        Assert.Contains("WMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("WMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public class WmaIndicatorTests
     {
         var indicator = new WmaIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Wma.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Wma.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -180,6 +180,6 @@ public class WmaIndicatorTests
     {
         var indicator = new WmaIndicator();
 
-        Assert.Contains("Weighted", indicator.Description);
+        Assert.Contains("Weighted", indicator.Description, StringComparison.Ordinal);
     }
 }

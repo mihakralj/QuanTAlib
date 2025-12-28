@@ -33,9 +33,9 @@ public class JmaIndicatorTests
     {
         var indicator = new JmaIndicator { Period = 15, Phase = 50 };
 
-        Assert.Contains("JMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
-        Assert.Contains("50", indicator.ShortName);
+        Assert.Contains("JMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("50", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class JmaIndicatorTests
     {
         var indicator = new JmaIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Jma.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Jma.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

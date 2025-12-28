@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(Configuration)' == 'Release'">net10.0;net8.0</TargetFrameworks>
+    <TargetFramework Condition="'$(Configuration)' == 'Debug'">net10.0</TargetFramework>
     <Title>QuanTAlib</Title>
     <Product>Library of TA Calculations, Charts and Strategies for Quantower</Product>
     <Description>Quantitative Technical Analysis Library in C# for Quantower</Description>
@@ -42,31 +43,6 @@
     <Compile Include="**/*.cs" Exclude="**/*.Tests.cs;**/*.Quantower.cs;**/obj/**/*.cs;**/bin/**/*.cs;feeds/gbm/ValidationHelper.cs;feeds/gbm/ValidationTestData.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-  
-    <PackageReference Include="GitVersion.MsBuild" Version="6.5.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.183">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-  <PackageReference Include="SonarAnalyzer.CSharp" Version="10.*">
-    <PrivateAssets>all</PrivateAssets>
-    <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-  </PackageReference>
-
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />

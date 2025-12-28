@@ -416,3 +416,7 @@ ilspy/
 
 # Ignore dotnet install script
 dotnet-install.sh
+
+# Roslyn SARIF files (generated during build and uploaded to Codacy)
+**/roslyn.sarif
+roslyn.sarif

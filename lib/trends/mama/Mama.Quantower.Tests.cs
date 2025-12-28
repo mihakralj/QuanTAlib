@@ -34,8 +34,8 @@ public class MamaIndicatorTests
         var indicator = new MamaIndicator { FastLimit = 0.5, SlowLimit = 0.05 };
         indicator.Initialize();
 
-        Assert.Contains("MAMA", indicator.ShortName);
-        Assert.Contains("Close", indicator.ShortName);
+        Assert.Contains("MAMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("Close", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -13,8 +13,8 @@ public class HtitIndicatorTests
         var indicator = new HtitIndicator();
         indicator.Initialize();
         Assert.Equal("HTIT - Ehlers Hilbert Transform Instantaneous Trend", indicator.Name);
-        Assert.StartsWith("HTIT", indicator.ShortName);
-        Assert.Contains("Close", indicator.ShortName);
+        Assert.StartsWith("HTIT", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("Close", indicator.ShortName, StringComparison.Ordinal);
         Assert.Equal(0, HtitIndicator.MinHistoryDepths);
         Assert.Single(indicator.LinesSeries);
     }

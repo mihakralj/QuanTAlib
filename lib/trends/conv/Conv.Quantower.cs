@@ -43,13 +43,10 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
         try
         {
             var weights = WeightsInput.Split(',')
-                .Select(s => double.Parse(s.Trim()))
+                .Select(s => double.Parse(s.Trim(), System.Globalization.CultureInfo.InvariantCulture))
                 .ToArray();
 
-            if (weights.Length == 0)
-                throw new ArgumentException("Weights cannot be empty");
-
-            _conv = new Conv(weights);
+            _conv = new Conv(weights.Length == 0 ? [1.0] : weights);
         }
         catch (FormatException)
         {

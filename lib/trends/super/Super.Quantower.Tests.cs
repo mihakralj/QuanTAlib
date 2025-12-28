@@ -35,9 +35,9 @@ public class SuperIndicatorTests
         var indicator = new SuperIndicator { Period = 20, Multiplier = 2.5 };
         indicator.Initialize();
 
-        Assert.Contains("Super", indicator.ShortName);
-        Assert.Contains("20", indicator.ShortName);
-        Assert.Contains("2.5", indicator.ShortName);
+        Assert.Contains("Super", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("20", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("2.5", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class SuperIndicatorTests
     {
         var indicator = new SuperIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Super.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Super.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

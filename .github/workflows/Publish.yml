@@ -58,6 +58,27 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Debug
 
+      - name: Collect SARIF Files
+        run: |
+          mkdir -p sarif-reports
+          find . -name "roslyn.sarif" -type f -exec cp {} sarif-reports/ \;
+          # Rename SARIF files to include project name
+          cd sarif-reports
+          count=1
+          for file in roslyn.sarif*; do
+            if [ -f "$file" ]; then
+              mv "$file" "roslyn_${count}.sarif"
+              count=$((count+1))
+            fi
+          done
+          ls -la
+
+      - name: Upload SARIF Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-reports
+          path: sarif-reports/
+
       - name: Run Tests
         run: |
           dotnet test --no-build --configuration Debug \
@@ -198,9 +219,9 @@ jobs:
           args: --coverage-dir,.qodana/code-coverage
 
   # ==============================================================================
-  # 5. Codacy Upload
+  # 5. Codacy Coverage Upload
   # ==============================================================================
-  Codacy_Upload:
+  Codacy_Coverage_Upload:
     needs: Build_Test_Coverage
     runs-on: ubuntu-latest
     permissions:
@@ -216,7 +237,7 @@ jobs:
           name: coverage-reports
           path: coverage
 
-      - name: Upload to Codacy
+      - name: Upload Coverage to Codacy
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
@@ -237,6 +258,54 @@ jobs:
           
           # Finalize
           ./codacy.sh final
+        continue-on-error: true
+
+  # ==============================================================================
+  # 6. Codacy SARIF Upload
+  # ==============================================================================
+  Codacy_SARIF_Upload:
+    needs: Build_Test_Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download SARIF Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-reports
+          path: sarif-reports
+
+      - name: Upload SARIF to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
+            exit 0
+          fi
+
+          echo "Installing Codacy Analysis CLI..."
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
+          chmod +x codacy-analysis-cli
+
+          # Upload each SARIF file
+          for file in sarif-reports/*.sarif; do
+            if [ -f "$file" ]; then
+              echo "Uploading SARIF: $file"
+              ./codacy-analysis-cli upload-results \
+                --provider gh \
+                --owner mihakralj \
+                --repository QuanTAlib \
+                --commit ${{ github.sha }} \
+                --upload-batch-size 50000 \
+                --tool roslyn \
+                --results-file "$file" || echo "Warning: Failed to upload $file"
+            fi
+          done
         continue-on-error: true
 
   # ==============================================================================
@@ -307,7 +376,7 @@ jobs:
   # 8. Publish Package
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       github.event_name == 'workflow_dispatch'

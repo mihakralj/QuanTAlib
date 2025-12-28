@@ -34,9 +34,9 @@ public class T3IndicatorTests
     {
         var indicator = new T3Indicator { Period = 15, VolumeFactor = 0.618 };
 
-        Assert.Contains("T3", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
-        Assert.Contains("0.62", indicator.ShortName); // F2 formatting
+        Assert.Contains("T3", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("0.62", indicator.ShortName, StringComparison.Ordinal); // F2 formatting
     }
 
     [Fact]

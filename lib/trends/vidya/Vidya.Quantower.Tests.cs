@@ -32,8 +32,8 @@ public class VidyaIndicatorTests
     {
         var indicator = new VidyaIndicator { Period = 15 };
 
-        Assert.Contains("VIDYA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("VIDYA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]

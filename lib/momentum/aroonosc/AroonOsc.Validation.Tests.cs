@@ -97,41 +97,4 @@ public sealed class AroonOscValidationTests : IDisposable
         ValidationHelper.VerifyData(results, tulipOsc, lookback: 14);
     }
 
-    [Fact(Skip = "Ooples implementation deviates significantly from standard (TA-Lib, Tulip, Skender, QuanTAlib)")]
-    public void MatchesOoples()
-    {
-        // Note: OoplesFinance implementation of Aroon Oscillator is an outlier.
-        // It deviates from the consensus of TA-Lib, Tulip, Skender, and QuanTAlib.
-        // The deviation is not a simple offset; it involves inconsistent steps and reversals,
-        // likely due to differences in how the high/low window indices are tracked.
-
-        var aroon = new AroonOsc(14);
-        var results = new List<double>();
-
-        for (int i = 0; i < _data.Bars.Count; i++)
-        {
-            var res = aroon.Update(_data.Bars[i]);
-            results.Add(res.Value);
-        }
-
-        var ooplesData = _data.SkenderQuotes.Select(q => new TickerData
-        {
-            Date = q.Date,
-            Open = (double)q.Open,
-            High = (double)q.High,
-            Low = (double)q.Low,
-            Close = (double)q.Close,
-            Volume = (double)q.Volume
-        }).ToList();
-
-        var stockData = new StockData(ooplesData);
-
-        // Ooples only provides CalculateAroonOscillator
-        var aroonOscResults = stockData.CalculateAroonOscillator(14);
-        var ooplesOsc = aroonOscResults.OutputValues["Aroon"]
-            .ToArray();
-
-        // Verify Oscillator
-        ValidationHelper.VerifyData(results, ooplesOsc, lookback: 14, tolerance: ValidationHelper.OoplesTolerance);
-    }
 }

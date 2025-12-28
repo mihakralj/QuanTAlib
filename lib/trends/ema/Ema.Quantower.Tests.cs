@@ -32,8 +32,8 @@ public class EmaIndicatorTests
     {
         var indicator = new EmaIndicator { Period = 15 };
 
-        Assert.Contains("EMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("EMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]

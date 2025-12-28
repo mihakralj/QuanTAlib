@@ -45,9 +45,9 @@ namespace QuanTAlib.Tests
 
             string result = tValue.ToString();
 
-            Assert.Contains("2023-01-01", result);
-            Assert.Contains("12:00:00", result);
-            Assert.Contains("123.46", result);
+            Assert.Contains("2023-01-01", result, StringComparison.Ordinal);
+            Assert.Contains("12:00:00", result, StringComparison.Ordinal);
+            Assert.Contains("123.46", result, StringComparison.Ordinal);
         }
 
         [Fact]

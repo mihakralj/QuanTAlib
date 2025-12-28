@@ -33,8 +33,8 @@ public class ConvIndicatorTests
     {
         var indicator = new ConvIndicator();
 
-        Assert.Contains("CONV", indicator.ShortName);
-        Assert.Contains("Close", indicator.ShortName);
+        Assert.Contains("CONV", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("Close", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class ConvIndicatorTests
     {
         var indicator = new ConvIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Conv.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Conv.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -172,6 +172,6 @@ public class ConvIndicatorTests
     {
         var indicator = new ConvIndicator();
 
-        Assert.Contains("Convolution", indicator.Description);
+        Assert.Contains("Convolution", indicator.Description, StringComparison.Ordinal);
     }
 }

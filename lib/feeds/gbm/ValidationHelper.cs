@@ -49,7 +49,7 @@ public static class ValidationHelper
         }
     }
 
-    public static void VerifyData<TResult>(double[] qOutput, List<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
+    public static void VerifyData<TResult>(double[] qOutput, IReadOnlyList<TResult> sSeries, Func<TResult, double?> selector, int skip = 100, double tolerance = DefaultTolerance)
     {
         Assert.Equal(qOutput.Length, sSeries.Count);
 

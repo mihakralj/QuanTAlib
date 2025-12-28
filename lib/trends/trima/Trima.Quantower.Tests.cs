@@ -32,8 +32,8 @@ public class TrimaIndicatorTests
     {
         var indicator = new TrimaIndicator { Period = 15 };
 
-        Assert.Contains("TRIMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("TRIMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public class TrimaIndicatorTests
     {
         var indicator = new TrimaIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Trima.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Trima.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -179,6 +179,6 @@ public class TrimaIndicatorTests
     {
         var indicator = new TrimaIndicator();
 
-        Assert.Contains("Triangular", indicator.Description);
+        Assert.Contains("Triangular", indicator.Description, StringComparison.Ordinal);
     }
 }

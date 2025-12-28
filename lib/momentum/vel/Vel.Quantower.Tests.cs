@@ -34,8 +34,8 @@ public class VelIndicatorTests
     {
         var indicator = new VelIndicator { Period = 15 };
 
-        Assert.Contains("VEL", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("VEL", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class VelIndicatorTests
     {
         var indicator = new VelIndicator();
 
-        Assert.Contains("github.com", indicator.SourceCodeLink);
-        Assert.Contains("Vel.Quantower.cs", indicator.SourceCodeLink);
+        Assert.Contains("github.com", indicator.SourceCodeLink, StringComparison.Ordinal);
+        Assert.Contains("Vel.Quantower.cs", indicator.SourceCodeLink, StringComparison.Ordinal);
     }
 
     [Fact]

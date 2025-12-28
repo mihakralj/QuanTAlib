@@ -34,8 +34,8 @@ public class AlmaIndicatorTests
     {
         var indicator = new AlmaIndicator { Period = 15 };
 
-        Assert.Contains("ALMA", indicator.ShortName);
-        Assert.Contains("15", indicator.ShortName);
+        Assert.Contains("ALMA", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
