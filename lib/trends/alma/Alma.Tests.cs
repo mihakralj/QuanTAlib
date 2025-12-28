@@ -314,6 +314,10 @@ public class AlmaTests
         double[] wrongSizeOutput = new double[3];
 
         Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, sigma: 0));
+        Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, sigma: -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, offset: -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Alma.Calculate(source.AsSpan(), output.AsSpan(), 3, offset: 1.1));
         Assert.Throws<ArgumentException>(() => Alma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 

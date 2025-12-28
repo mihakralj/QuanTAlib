@@ -73,7 +73,7 @@ public sealed class Rma : AbstractBase
     /// Initializes the indicator state using the provided history.
     /// </summary>
     /// <param name="source">Historical data</param>
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         _ema.Prime(source);
         Last = _ema.Last;

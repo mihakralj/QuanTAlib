@@ -187,7 +187,7 @@ public sealed class Skew : AbstractBase
         _sumCu = sumCu;
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double value in source)
         {

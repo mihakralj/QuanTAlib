@@ -23,9 +23,14 @@ namespace QuanTAlib;
 ///
 /// IsHot:
 /// Becomes true when the buffer is full (period samples processed).
+///
+/// Disposal:
+/// When constructed with an ITValuePublisher source, Lsma subscribes to the source's Pub event.
+/// Call Dispose() to unsubscribe and prevent memory leaks, especially in long-running applications
+/// or when creating many short-lived indicator instances.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Lsma : AbstractBase
+public sealed class Lsma : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly int _offset;
@@ -34,6 +39,8 @@ public sealed class Lsma : AbstractBase
     private readonly double _sum_x;
     private readonly double _denominator;
     private readonly TValuePublishedHandler _handler;
+    private ITValuePublisher? _source;
+    private int _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double SumY, double SumXY, double LastVal, double LastValidValue);
@@ -76,7 +83,8 @@ public sealed class Lsma : AbstractBase
 
     public Lsma(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
     {
-        source.Pub += _handler;
+        _source = source ?? throw new ArgumentNullException(nameof(source));
+        _source.Pub += _handler;
     }
 
     private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
@@ -213,11 +221,8 @@ public sealed class Lsma : AbstractBase
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
-        for (int i = 0; i < len; i++)
-        {
-            t.Add(0);
-            v.Add(0);
-        }
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
@@ -265,7 +270,7 @@ public sealed class Lsma : AbstractBase
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {
@@ -393,5 +398,20 @@ public sealed class Lsma : AbstractBase
         _p_state = default;
         Last = default;
         _tickCount = 0;
+    }
+
+    /// <summary>
+    /// Disposes the Lsma instance, unsubscribing from the source publisher if subscribed.
+    /// This method is idempotent and thread-safe.
+    /// </summary>
+    public void Dispose()
+    {
+        // Use Interlocked.CompareExchange for thread-safe, idempotent disposal
+        if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0 && _source != null)
+        {
+            _source.Pub -= _handler;
+            _source = null;
+        }
+        GC.SuppressFinalize(this);
     }
 }

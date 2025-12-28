@@ -8,9 +8,13 @@ public class BesselTests
     {
         Assert.Throws<ArgumentException>(() => new Bessel(0));
         Assert.Throws<ArgumentException>(() => new Bessel(-1));
+        Assert.Throws<ArgumentException>(() => new Bessel(1));
 
-        var bessel = new Bessel(14);
+        var bessel = new Bessel(2);
         Assert.NotNull(bessel);
+        
+        var bessel14 = new Bessel(14);
+        Assert.NotNull(bessel14);
     }
 
     [Fact]

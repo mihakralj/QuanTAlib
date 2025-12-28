@@ -61,7 +61,7 @@ public sealed class Blma : AbstractBase, IDisposable
         _hasLast = false;
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         DateTime time = DateTime.UtcNow;
         foreach (var value in source)

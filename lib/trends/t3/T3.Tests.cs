@@ -171,6 +171,101 @@ public class T3Tests
         Assert.Throws<ArgumentException>(() => new T3(-1));
     }
 
+    [Fact]
+    public void Constructor_InvalidVFactor_NaN_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, double.NaN));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_PositiveInfinity_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, double.PositiveInfinity));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_NegativeInfinity_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, double.NegativeInfinity));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_Zero_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, 0.0));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_Negative_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, -0.5));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_GreaterThanOne_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, 1.5));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_ValidVFactor_EdgeCases_DoesNotThrow()
+    {
+        // Smallest valid value just above 0
+        var t3_1 = new T3(5, 0.001);
+        Assert.NotNull(t3_1);
+
+        // Valid value of 1.0 (edge case)
+        var t3_2 = new T3(5, 1.0);
+        Assert.NotNull(t3_2);
+
+        // Typical valid values
+        var t3_3 = new T3(5, 0.5);
+        Assert.NotNull(t3_3);
+
+        var t3_4 = new T3(5, 0.7);
+        Assert.NotNull(t3_4);
+    }
+
+    [Fact]
+    public void BatchSpan_InvalidVFactor_NaN_ThrowsArgumentOutOfRangeException()
+    {
+        var input = new double[10];
+        var output = new double[10];
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, double.NaN));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void BatchSpan_InvalidVFactor_Infinity_ThrowsArgumentOutOfRangeException()
+    {
+        var input = new double[10];
+        var output = new double[10];
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, double.PositiveInfinity));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void BatchSpan_InvalidVFactor_OutOfRange_ThrowsArgumentOutOfRangeException()
+    {
+        var input = new double[10];
+        var output = new double[10];
+        
+        var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, 0.0));
+        Assert.Equal("vfactor", ex1.ParamName);
+        
+        var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, -0.5));
+        Assert.Equal("vfactor", ex2.ParamName);
+        
+        var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, 1.5));
+        Assert.Equal("vfactor", ex3.ParamName);
+    }
+
     private class TestPublisher : ITValuePublisher
     {
         public event TValuePublishedHandler? Pub;
@@ -222,4 +317,3 @@ public class T3Tests
         Assert.Null(exception);
     }
 }
-

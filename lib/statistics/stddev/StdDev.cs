@@ -97,7 +97,7 @@ public sealed class StdDev : AbstractBase
         Last = default;
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         _variance.Prime(source);
         // Update Last based on _variance.Last

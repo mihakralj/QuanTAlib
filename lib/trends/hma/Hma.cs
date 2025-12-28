@@ -122,7 +122,7 @@ public sealed class Hma : AbstractBase
         Update(args.Value, args.IsNew);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {

@@ -53,6 +53,10 @@ public sealed class T3 : AbstractBase, IDisposable
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (!double.IsFinite(vfactor))
+            throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be a finite number (not NaN or Infinity)");
+        if (vfactor <= 0 || vfactor > 1)
+            throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be greater than 0 and typically <= 1");
 
         double alpha = 2.0 / (period + 1);
 
@@ -115,7 +119,7 @@ public sealed class T3 : AbstractBase, IDisposable
     /// Initializes the indicator state using the provided history.
     /// </summary>
     /// <param name="source">Historical data</param>
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 
@@ -290,6 +294,10 @@ public sealed class T3 : AbstractBase, IDisposable
             throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        if (!double.IsFinite(vfactor))
+            throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be a finite number (not NaN or Infinity)");
+        if (vfactor <= 0 || vfactor > 1)
+            throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be greater than 0 and typically <= 1");
 
         double alpha = 2.0 / (period + 1);
         double v = vfactor;

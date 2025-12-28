@@ -178,7 +178,7 @@ public sealed class Beta : AbstractBase
         throw new NotSupportedException("Beta requires two inputs (asset and market). Use Update(asset, market).");
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Beta requires two inputs (asset and market). Use Update(asset, market).");
     }

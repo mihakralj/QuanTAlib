@@ -220,4 +220,88 @@ public class LsmaTests
         source.Add(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, lsma.Last.Value);
     }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromSource()
+    {
+        var source = new TSeries();
+        var lsma = new Lsma(source, 5);
+        
+        // Verify subscription works
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(100, lsma.Last.Value);
+        
+        // Dispose and verify unsubscription
+        lsma.Dispose();
+        
+        // Add more data - lsma should NOT update
+        source.Add(new TValue(DateTime.UtcNow, 200));
+        Assert.Equal(100, lsma.Last.Value); // Should remain at previous value
+    }
+
+    [Fact]
+    public void Dispose_IsIdempotent()
+    {
+        var source = new TSeries();
+        var lsma = new Lsma(source, 5);
+        
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        
+        // Multiple Dispose calls should not throw
+        // Suppressing S3966: Multiple Dispose calls are intentional to test idempotency
+#pragma warning disable S3966
+        lsma.Dispose();
+        lsma.Dispose();
+        lsma.Dispose();
+#pragma warning restore S3966
+        
+        // Verify still unsubscribed
+        source.Add(new TValue(DateTime.UtcNow, 200));
+        Assert.Equal(100, lsma.Last.Value);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task Dispose_IsThreadSafe()
+    {
+        var source = new TSeries();
+        var lsma = new Lsma(source, 5);
+        
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        
+        // Dispose from multiple threads simultaneously
+        var tasks = new System.Threading.Tasks.Task[10];
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            tasks[i] = System.Threading.Tasks.Task.Run(() => lsma.Dispose());
+        }
+        
+        await System.Threading.Tasks.Task.WhenAll(tasks);
+        
+        // Verify unsubscribed
+        source.Add(new TValue(DateTime.UtcNow, 200));
+        Assert.Equal(100, lsma.Last.Value);
+    }
+
+    [Fact]
+    public void Dispose_WithoutSource_DoesNotThrow()
+    {
+        // Lsma created without source parameter
+        var lsma = new Lsma(5);
+        
+        // Should not throw even though there's no source to unsubscribe from
+        // Suppressing S3966: Multiple Dispose calls are intentional to test idempotency
+#pragma warning disable S3966
+        lsma.Dispose();
+        lsma.Dispose(); // Idempotent
+#pragma warning restore S3966
+        
+        // Verify state remains valid
+        Assert.False(lsma.IsHot);
+    }
+
+    [Fact]
+    public void Constructor_NullSource_ThrowsArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => new Lsma(null!, 5));
+    }
 }

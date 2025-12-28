@@ -91,7 +91,7 @@ public sealed class Tema : AbstractBase
     /// Initializes the indicator state using the provided history.
     /// </summary>
     /// <param name="source">Historical data</param>
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 

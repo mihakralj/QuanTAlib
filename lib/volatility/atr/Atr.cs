@@ -77,7 +77,7 @@ public sealed class Atr : AbstractBase
     /// This Prime method expects pre-calculated TR values or handles basic priming 
     /// if the user erroneously passes non-TR data. Ideally, use Batched TBarSeries.
     /// </summary>
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         _rma.Prime(source);
         Last = _rma.Last;

@@ -25,7 +25,11 @@ public sealed class Htit : AbstractBase
         double I2, double Q2, double Re, double Im,
         double Period, double SmoothPeriod,
         double LastValidPrice, int Index
-    );
+    )
+    {
+        // Initialize LastValidPrice to NaN to detect first valid price
+        public State() : this(0, 0, 0, 0, 0, 0, double.NaN, 0) { }
+    }
     private State _state;
     private State _p_state;
 
@@ -59,7 +63,7 @@ public sealed class Htit : AbstractBase
         _i1Buffer = new RingBuffer(8);
         _q1Buffer = new RingBuffer(8);
         _itBuffer = new RingBuffer(8);
-        
+
         Init();
     }
 
@@ -77,14 +81,14 @@ public sealed class Htit : AbstractBase
     {
         _state = default;
         _p_state = default;
-        
+
         _priceBuffer.Clear();
         _smoothBuffer.Clear();
         _detrenderBuffer.Clear();
         _i1Buffer.Clear();
         _q1Buffer.Clear();
         _itBuffer.Clear();
-        
+
         Last = new TValue(DateTime.MinValue, double.NaN);
     }
 
@@ -101,8 +105,15 @@ public sealed class Htit : AbstractBase
             _state = _p_state;
         }
 
+        // Handle non-finite input: skip processing if no valid price seen yet
         if (!double.IsFinite(price))
         {
+            // If we haven't seen a valid price yet, return NaN (early exit)
+            if (double.IsNaN(_state.LastValidPrice))
+            {
+                return double.NaN;
+            }
+            // Otherwise, use the last valid price
             price = _state.LastValidPrice;
         }
         else
@@ -115,12 +126,13 @@ public sealed class Htit : AbstractBase
         // Need enough data for smooth calculation (4 bars) + detrender (7 bars total lag)
         if (_state.Index < 7)
         {
+            // During warmup, propagate NaN if input is NaN
             _smoothBuffer.Add(price, isNew);
             _detrenderBuffer.Add(0, isNew);
             _i1Buffer.Add(0, isNew);
             _q1Buffer.Add(0, isNew);
             _itBuffer.Add(price, isNew);
-            return price;
+            return price; // May be NaN if no valid input yet
         }
 
         // 1. Smooth Price
@@ -132,14 +144,14 @@ public sealed class Htit : AbstractBase
         // In streaming, we use previous period from state
         double prevPeriod = _p_state.Period;
         double adj = (adjSlope * prevPeriod) + adjIntercept;
-        
+
         double detrender = (c1 * _smoothBuffer[^1] + c2 * _smoothBuffer[^3] - c2 * _smoothBuffer[^5] - c1 * _smoothBuffer[^7]) * adj;
         _detrenderBuffer.Add(detrender, isNew);
 
         // 3. In-Phase and Quadrature
         double q1 = (c1 * _detrenderBuffer[^1] + c2 * _detrenderBuffer[^3] - c2 * _detrenderBuffer[^5] - c1 * _detrenderBuffer[^7]) * adj;
         double i1 = _detrenderBuffer[^4];
-        
+
         _q1Buffer.Add(q1, isNew);
         _i1Buffer.Add(i1, isNew);
 
@@ -207,10 +219,11 @@ public sealed class Htit : AbstractBase
         // Need at least 12 bars total (Index > 11) to have valid IT history for smoothing
         if (_state.Index >= 12)
         {
+            // NaN will propagate if IT buffer contains NaN
             return (4.0 * _itBuffer[^1] + 3.0 * _itBuffer[^2] + 2.0 * _itBuffer[^3] + _itBuffer[^4]) * 0.1;
         }
-        
-        return price;
+
+        return price; // May be NaN if no valid input yet
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,7 +258,7 @@ public sealed class Htit : AbstractBase
         Update(args.Value, args.IsNew);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {
@@ -284,8 +297,9 @@ public sealed class Htit : AbstractBase
         // State variables
         double i2 = 0, q2 = 0, re = 0, im = 0;
         double period = 0, smoothPeriod = 0;
-        double lastValidPrice = 0;
-        
+        // Initialize to NaN to detect first valid price
+        double lastValidPrice = double.NaN;
+
         // Previous state variables
         double p_i2 = 0, p_q2 = 0, p_re = 0, p_im = 0;
         double p_period = 0, p_smoothPeriod = 0;
@@ -296,9 +310,18 @@ public sealed class Htit : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             double price = source[i];
+            
+            // Handle non-finite input: skip processing if no valid price seen yet
             if (!double.IsFinite(price))
             {
-                price = count > 0 ? lastValidPrice : 0.0;
+                // If we haven't seen a valid price yet, output NaN
+                if (double.IsNaN(lastValidPrice))
+                {
+                    output[i] = double.NaN;
+                    continue;
+                }
+                // Otherwise, use the last valid price
+                price = lastValidPrice;
             }
             else
             {
@@ -315,25 +338,25 @@ public sealed class Htit : AbstractBase
             if (count > 6)
             {
                 // 1. Smooth Price
-                double smooth = (4.0 * priceBuffer[pIdx] + 
-                                 3.0 * priceBuffer[(pIdx - 1) & Mask63] + 
-                                 2.0 * priceBuffer[(pIdx - 2) & Mask63] + 
+                double smooth = (4.0 * priceBuffer[pIdx] +
+                                 3.0 * priceBuffer[(pIdx - 1) & Mask63] +
+                                 2.0 * priceBuffer[(pIdx - 2) & Mask63] +
                                  priceBuffer[(pIdx - 3) & Mask63]) * 0.1;
                 smoothBuffer[sIdx] = smooth;
 
                 // 2. Detrender
                 double adj = (adjSlope * p_period) + adjIntercept;
-                
-                double detrender = (c1 * smoothBuffer[sIdx] + 
-                                    c2 * smoothBuffer[(sIdx - 2) & Mask7] - 
-                                    c2 * smoothBuffer[(sIdx - 4) & Mask7] - 
+
+                double detrender = (c1 * smoothBuffer[sIdx] +
+                                    c2 * smoothBuffer[(sIdx - 2) & Mask7] -
+                                    c2 * smoothBuffer[(sIdx - 4) & Mask7] -
                                     c1 * smoothBuffer[(sIdx - 6) & Mask7]) * adj;
                 detrenderBuffer[sIdx] = detrender;
 
                 // 3. In-Phase and Quadrature
-                double q1 = (c1 * detrender + 
-                             c2 * detrenderBuffer[(sIdx - 2) & Mask7] - 
-                             c2 * detrenderBuffer[(sIdx - 4) & Mask7] - 
+                double q1 = (c1 * detrender +
+                             c2 * detrenderBuffer[(sIdx - 2) & Mask7] -
+                             c2 * detrenderBuffer[(sIdx - 4) & Mask7] -
                              c1 * detrenderBuffer[(sIdx - 6) & Mask7]) * adj;
                 q1Buffer[sIdx] = q1;
 
@@ -341,14 +364,14 @@ public sealed class Htit : AbstractBase
                 i1Buffer[sIdx] = i1;
 
                 // 4. Advance phases
-                double jI = (c1 * i1 + 
-                             c2 * i1Buffer[(sIdx - 2) & Mask7] - 
-                             c2 * i1Buffer[(sIdx - 4) & Mask7] - 
+                double jI = (c1 * i1 +
+                             c2 * i1Buffer[(sIdx - 2) & Mask7] -
+                             c2 * i1Buffer[(sIdx - 4) & Mask7] -
                              c1 * i1Buffer[(sIdx - 6) & Mask7]) * adj;
 
-                double jQ = (c1 * q1 + 
-                             c2 * q1Buffer[(sIdx - 2) & Mask7] - 
-                             c2 * q1Buffer[(sIdx - 4) & Mask7] - 
+                double jQ = (c1 * q1 +
+                             c2 * q1Buffer[(sIdx - 2) & Mask7] -
+                             c2 * q1Buffer[(sIdx - 4) & Mask7] -
                              c1 * q1Buffer[(sIdx - 6) & Mask7]) * adj;
 
                 // 5. Phasor addition
@@ -420,14 +443,14 @@ public sealed class Htit : AbstractBase
             }
             else
             {
-                // Initialization
+                // Initialization - propagate NaN if no valid price yet
                 smoothBuffer[sIdx] = price;
                 detrenderBuffer[sIdx] = 0;
                 i1Buffer[sIdx] = 0;
                 q1Buffer[sIdx] = 0;
                 itBuffer[sIdx] = price;
-                output[i] = price;
-                
+                output[i] = price; // May be NaN if no valid input yet
+
                 // Reset state variables
                 p_i2 = 0; p_q2 = 0; p_re = 0; p_im = 0;
                 p_period = 0; p_smoothPeriod = 0;

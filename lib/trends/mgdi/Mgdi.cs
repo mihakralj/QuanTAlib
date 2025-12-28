@@ -147,7 +147,7 @@ public sealed class Mgdi : AbstractBase
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {

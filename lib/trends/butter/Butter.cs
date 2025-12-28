@@ -48,22 +48,28 @@ public sealed class Butter : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CalculateCoefficients()
+    private static void ComputeCoefficients(int period, out double a1, out double a2, out double b0, out double b1, out double b2, out double invA0)
     {
-        double omega = 2.0 * Math.PI / _period;
+        double omega = 2.0 * Math.PI / period;
         double sinOmega = Math.Sin(omega);
         double cosOmega = Math.Cos(omega);
         double alpha = sinOmega / Math.Sqrt(2.0);
 
         double a0 = 1.0 + alpha;
-        _a1 = -2.0 * cosOmega;
-        _a2 = 1.0 - alpha;
+        a1 = -2.0 * cosOmega;
+        a2 = 1.0 - alpha;
         
-        _b0 = (1.0 - cosOmega) / 2.0;
-        _b1 = 1.0 - cosOmega;
-        _b2 = (1.0 - cosOmega) / 2.0;
+        b0 = (1.0 - cosOmega) / 2.0;
+        b1 = 1.0 - cosOmega;
+        b2 = (1.0 - cosOmega) / 2.0;
 
-        _invA0 = 1.0 / a0;
+        invA0 = 1.0 / a0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void CalculateCoefficients()
+    {
+        ComputeCoefficients(_period, out _a1, out _a2, out _b0, out _b1, out _b2, out _invA0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,12 +85,13 @@ public sealed class Butter : AbstractBase
         Init();
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
         DateTime baseTime = DateTime.UtcNow;
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(baseTime.AddTicks(i), source[i]));
+            Update(new TValue(baseTime + interval * i, source[i]));
         }
     }
 
@@ -166,20 +173,7 @@ public sealed class Butter : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(destination), "Destination span must have length >= source length.");
         }
 
-        double omega = 2.0 * Math.PI / period;
-        double sinOmega = Math.Sin(omega);
-        double cosOmega = Math.Cos(omega);
-        double alpha = sinOmega / Math.Sqrt(2.0);
-
-        double a0 = 1.0 + alpha;
-        double a1 = -2.0 * cosOmega;
-        double a2 = 1.0 - alpha;
-        
-        double b0 = (1.0 - cosOmega) / 2.0;
-        double b1 = 1.0 - cosOmega;
-        double b2 = (1.0 - cosOmega) / 2.0;
-
-        double invA0 = 1.0 / a0;
+        ComputeCoefficients(period, out double a1, out double a2, out double b0, out double b1, out double b2, out double invA0);
 
         double x1 = 0, x2 = 0;
         double y1 = 0, y2 = 0;

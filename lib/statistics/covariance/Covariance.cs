@@ -140,7 +140,7 @@ public sealed class Covariance : AbstractBase
         throw new NotSupportedException("Covariance requires two inputs. Use Update(x, y).");
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         throw new NotSupportedException("Covariance requires two inputs. Use Update(x, y).");
     }

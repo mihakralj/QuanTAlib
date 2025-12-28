@@ -215,7 +215,7 @@ public sealed class Super : ITValuePublisher
         UpperBand = new TValue(input.Time, upperBand);
         LowerBand = new TValue(input.Time, lowerBand);
 
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

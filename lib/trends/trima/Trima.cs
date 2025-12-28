@@ -101,7 +101,7 @@ public sealed class Trima : AbstractBase, IDisposable
 
     private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         _sma1.Reset();
         _sma2.Reset();

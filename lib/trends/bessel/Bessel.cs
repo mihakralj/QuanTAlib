@@ -45,16 +45,14 @@ public sealed class Bessel : AbstractBase, IDisposable
     /// <summary>
     /// Creates Bessel filter with specified length.
     /// </summary>
-    /// <param name="length">Cutoff length (must be > 0, internally clamped to at least 2).</param>
+    /// <param name="length">Cutoff length (must be >= 2 for 2nd-order filter stability).</param>
     public Bessel(int length)
     {
-        if (length <= 0)
-            throw new ArgumentException("Length must be greater than 0", nameof(length));
+        if (length < 2)
+            throw new ArgumentException("Length must be at least 2 for 2nd-order Bessel filter", nameof(length));
 
-        int safeLength = Math.Max(length, 2);
-
-        double a = Math.Exp(-Math.PI / safeLength);
-        double b = 2.0 * a * Math.Cos(1.738 * Math.PI / safeLength);
+        double a = Math.Exp(-Math.PI / length);
+        double b = 2.0 * a * Math.Cos(1.738 * Math.PI / length);
         _c2 = b;
         _c3 = -a * a;
         _c1 = 1.0 - _c2 - _c3;
@@ -91,7 +89,7 @@ public sealed class Bessel : AbstractBase, IDisposable
 
     public override bool IsHot => _state.IsHot;
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
             return;
@@ -288,8 +286,8 @@ public sealed class Bessel : AbstractBase, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int length)
     {
-        if (length <= 0)
-            throw new ArgumentException("Length must be greater than 0", nameof(length));
+        if (length < 2)
+            throw new ArgumentException("Length must be at least 2 for 2nd-order Bessel filter", nameof(length));
 
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length", nameof(output));
@@ -297,10 +295,8 @@ public sealed class Bessel : AbstractBase, IDisposable
         if (source.Length == 0)
             return;
 
-        int safeLength = Math.Max(length, 2);
-
-        double a = Math.Exp(-Math.PI / safeLength);
-        double b = 2.0 * a * Math.Cos(1.738 * Math.PI / safeLength);
+        double a = Math.Exp(-Math.PI / length);
+        double b = 2.0 * a * Math.Cos(1.738 * Math.PI / length);
         double c2 = b;
         double c3 = -a * a;
         double c1 = 1.0 - c2 - c3;

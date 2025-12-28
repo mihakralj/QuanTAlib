@@ -148,6 +148,14 @@ public sealed class Wma : AbstractBase, IDisposable
         }
         else
         {
+            // Defensive check: isNew must be true for the first update
+            if (_buffer.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Cannot call Update with isNew=false when buffer is empty. " +
+                    "The first update must have isNew=true to initialize state.");
+            }
+
             _state = _p_state;
             double val = GetValidValue(input.Value);
 
@@ -188,7 +196,7 @@ public sealed class Wma : AbstractBase, IDisposable
 
     private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 

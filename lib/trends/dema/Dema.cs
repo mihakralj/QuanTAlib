@@ -129,7 +129,12 @@ public sealed class Dema : AbstractBase, IDisposable
 
         var sourceValues = source.Values;
 
-        // Use current state
+        // Capture pre-batch state for rollback
+        EmaState preBatch_s1 = _state1;
+        EmaState preBatch_s2 = _state2;
+        double preBatch_lastValid = _lastValidValue;
+
+        // Use current state for calculation
         EmaState s1 = _state1;
         EmaState s2 = _state2;
         double lastValid = _lastValidValue;
@@ -156,19 +161,21 @@ public sealed class Dema : AbstractBase, IDisposable
             vSpan[i] = 2 * e1 - e2;
         }
 
-        // Update instance state
+        // Update instance state with post-batch values
         _state1 = s1;
         _state2 = s2;
-        _p_state1 = s1;
-        _p_state2 = s2;
         _lastValidValue = lastValid;
-        _p_lastValidValue = lastValid;
+
+        // Preserve pre-batch state for rollback (isNew=false)
+        _p_state1 = preBatch_s1;
+        _p_state2 = preBatch_s2;
+        _p_lastValidValue = preBatch_lastValid;
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {

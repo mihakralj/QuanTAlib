@@ -317,7 +317,7 @@ public sealed class LinReg : AbstractBase
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {

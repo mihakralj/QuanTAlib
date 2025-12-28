@@ -70,7 +70,7 @@ public sealed class Ssf : AbstractBase
     public Ssf(TSeries source, int period) : this(period)
     {
         Prime(source.Values);
-        if (source.Count > 0)
+        if (source.Count > 0 && double.IsFinite(Last.Value))
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
@@ -81,7 +81,7 @@ public sealed class Ssf : AbstractBase
 
     public override bool IsHot => _state.IsHot;
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 
@@ -103,6 +103,18 @@ public sealed class Ssf : AbstractBase
                 i = k + 1;
                 break;
             }
+        }
+
+        // Handle all-NaN case: if no finite value was found, set state to NaN and return
+        if (i == 0)
+        {
+            _state.LastValidValue = double.NaN;
+            _state.Ssf1 = double.NaN;
+            _state.Ssf2 = double.NaN;
+            _state.PrevInput = double.NaN;
+            Last = new TValue(DateTime.MinValue, double.NaN);
+            _p_state = _state;
+            return;
         }
 
         for (; i < len; i++)
@@ -233,6 +245,16 @@ public sealed class Ssf : AbstractBase
                     break;
                 }
                 output[i] = double.NaN; 
+            }
+
+            // Handle all-NaN case: if no finite value was found, set remaining outputs to NaN and return
+            if (i == len && state.Count == 0)
+            {
+                state.LastValidValue = double.NaN;
+                state.Ssf1 = double.NaN;
+                state.Ssf2 = double.NaN;
+                state.PrevInput = double.NaN;
+                return;
             }
         }
 

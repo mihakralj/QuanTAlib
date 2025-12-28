@@ -175,7 +175,7 @@ public sealed class Alma : AbstractBase, IDisposable
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {
@@ -237,6 +237,10 @@ public sealed class Alma : AbstractBase, IDisposable
     {
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (sigma <= 0)
+            throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        if (offset < 0 || offset > 1)
+            throw new ArgumentOutOfRangeException(nameof(offset), "Offset must be between 0 and 1");
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length", nameof(output));
 

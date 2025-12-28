@@ -294,7 +294,7 @@ public sealed class Jma : AbstractBase
 
     private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {

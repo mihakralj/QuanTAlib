@@ -45,7 +45,8 @@ public abstract class AbstractBase : ITValuePublisher
     /// Initializes the indicator state using the provided history.
     /// </summary>
     /// <param name="source">Historical data</param>
-    public abstract void Prime(ReadOnlySpan<double> source);
+    /// <param name="step">Time interval between values (default: 1 second)</param>
+    public abstract void Prime(ReadOnlySpan<double> source, TimeSpan? step = null);
 
     /// <summary>
     /// Updates the indicator with a single value.

@@ -67,7 +67,7 @@ public sealed class Median : AbstractBase
     /// <summary>
     /// Initializes the indicator state using the provided history.
     /// </summary>
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 

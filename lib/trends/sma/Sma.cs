@@ -91,7 +91,7 @@ public sealed class Sma : AbstractBase
     /// Efficiently processes only the last 'Period' values required to sync the buffer.
     /// </summary>
     /// <param name="source">Historical data (only the last 'period' is actually needed)</param>
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 

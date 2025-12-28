@@ -95,7 +95,7 @@ public sealed class Dwma : AbstractBase
         Update(args.Value, args.IsNew);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         Reset();
         foreach (var value in source)

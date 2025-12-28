@@ -107,6 +107,12 @@ public sealed class Mama : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double NormalizeAngle(double angle)
     {
+        // Guard against non-finite inputs to prevent infinite loop
+        if (!double.IsFinite(angle))
+        {
+            return 0.0; // Return neutral angle for invalid inputs
+        }
+
         while (angle <= -Math.PI) angle += TwoPi;
         while (angle > Math.PI) angle -= TwoPi;
         return angle;
@@ -256,7 +262,7 @@ public sealed class Mama : AbstractBase
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {
@@ -270,12 +276,16 @@ public sealed class Mama : AbstractBase
         return mama.Update(source);
     }
 
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05)
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05, Span<double> famaOutput = default)
     {
         if (source.Length == 0) return;
         if (output.Length < source.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(output), "Output buffer must be at least as large as the input buffer.");
+        }
+        if (!famaOutput.IsEmpty && famaOutput.Length < source.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(famaOutput), "FAMA output buffer must be at least as large as the input buffer.");
         }
 
         // Stack allocate buffers for high performance (size 8 for power of 2 masking)
@@ -290,9 +300,9 @@ public sealed class Mama : AbstractBase
         int count = 0;
 
         // State variables
-        double period = 0, mama = 0, sumPr = 0;
+        double period = 0, mama = 0, fama = 0, sumPr = 0;
         double i2 = 0, q2 = 0, re = 0, im = 0, lastValidPrice = 0;
-        double p_period = 0, p_phase = 0, p_mama = 0;
+        double p_period = 0, p_phase = 0, p_mama = 0, p_fama = 0;
         double p_i2 = 0, p_q2 = 0, p_re = 0, p_im = 0;
 
         // Constants
@@ -408,6 +418,7 @@ public sealed class Mama : AbstractBase
 
                 // Final indicators
                 mama = alpha * priceBuffer[bufferIdx] + (1.0 - alpha) * p_mama;
+                fama = FamaAlphaFactor * alpha * mama + (1.0 - FamaAlphaFactor * alpha) * p_fama;
 
                 // Update previous state
                 p_i2 = i2;
@@ -417,6 +428,7 @@ public sealed class Mama : AbstractBase
                 p_period = period;
                 p_phase = phase;
                 p_mama = mama;
+                p_fama = fama;
             }
             else
             {
@@ -424,6 +436,7 @@ public sealed class Mama : AbstractBase
                 sumPr += price;
                 double avg = count > 0 ? sumPr / count : price;
                 mama = avg;
+                fama = avg;
 
                 // Init simple state
                 smoothBuffer[bufferIdx] = 0;
@@ -433,6 +446,7 @@ public sealed class Mama : AbstractBase
 
                 // Set initial p_state
                 p_mama = avg;
+                p_fama = avg;
                 p_period = 0; // Initial period state
                 p_phase = 0;
 
@@ -441,6 +455,10 @@ public sealed class Mama : AbstractBase
             }
 
             output[i] = mama;
+            if (!famaOutput.IsEmpty)
+            {
+                famaOutput[i] = fama;
+            }
         }
     }
 }

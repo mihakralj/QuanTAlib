@@ -154,7 +154,7 @@ public sealed class Variance : AbstractBase
         _buffer.RecalculateSum();
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double value in source)
         {

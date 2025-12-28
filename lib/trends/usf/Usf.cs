@@ -77,7 +77,7 @@ public sealed class Usf : AbstractBase
 
     public override bool IsHot => _state.IsHot;
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 
@@ -154,12 +154,15 @@ public sealed class Usf : AbstractBase
 
         double val = GetValidValue(input.Value);
 
+        bool initialized = false;
         if (_state.Count == 0)
         {
             _state.Usf1 = val;
             _state.Usf2 = val;
             _state.PrevInput1 = val;
             _state.PrevInput2 = val;
+            _state.Count = 1;
+            initialized = true;
         }
 
         double usf = (_state.Count < 4)
@@ -171,7 +174,7 @@ public sealed class Usf : AbstractBase
         _state.PrevInput2 = _state.PrevInput1;
         _state.PrevInput1 = val;
         
-        if (isNew) _state.Count++;
+        if (isNew && !initialized) _state.Count++;
         if (!_state.IsHot && _state.Count >= WarmupPeriod)
             _state.IsHot = true;
 

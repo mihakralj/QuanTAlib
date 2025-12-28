@@ -246,4 +246,62 @@ public class WmaTests
         // WMA(3) of [0, 3] -> (1*0 + 2*3) / 3 = 6/3 = 2
         Assert.Equal(2, wma.Last.Value);
     }
+
+    [Fact]
+    public void Update_IsNewFalse_OnEmptyBuffer_ThrowsInvalidOperationException()
+    {
+        var wma = new Wma(10);
+        
+        // Calling Update with isNew=false on an empty buffer should throw
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            wma.Update(new TValue(DateTime.UtcNow, 100.0), isNew: false));
+        
+        Assert.Contains("isNew=false", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("buffer is empty", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("isNew=true", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Update_IsNewFalse_AfterReset_ThrowsInvalidOperationException()
+    {
+        var wma = new Wma(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        // Feed some data
+        for (int i = 0; i < 10; i++)
+        {
+            wma.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        
+        // Reset clears the buffer
+        wma.Reset();
+        
+        // Calling Update with isNew=false after reset should throw
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            wma.Update(new TValue(bars[10].Time, bars[10].Close), isNew: false));
+        
+        Assert.Contains("isNew=false", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("buffer is empty", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Update_IsNewFalse_WithData_WorksCorrectly()
+    {
+        var wma = new Wma(10);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        
+        // Feed some data first
+        for (int i = 0; i < 5; i++)
+        {
+            wma.Update(new TValue(bars[i].Time, bars[i].Close), isNew: true);
+        }
+        
+        // Now isNew=false should work (buffer has data)
+        var result = wma.Update(new TValue(bars[4].Time, bars[4].Close + 10), isNew: false);
+        
+        // Should not throw and should return a finite value
+        Assert.True(double.IsFinite(result.Value));
+    }
 }

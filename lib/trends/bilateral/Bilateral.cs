@@ -65,7 +65,7 @@ public sealed class Bilateral : AbstractBase
 
     public override bool IsHot => _buffer.IsFull;
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0) return;
 

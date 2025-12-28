@@ -65,14 +65,18 @@ public sealed class Pwma : AbstractBase
     private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double GetValidValue(double input)
+    private double GetValidValue(double input, double lastValid)
     {
-        if (double.IsFinite(input))
+        return double.IsFinite(input) ? input : lastValid;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateLastValidValue(double val)
+    {
+        if (double.IsFinite(val))
         {
-            _state.LastValidValue = input;
-            return input;
+            _state.LastValidValue = val;
         }
-        return _state.LastValidValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,7 +128,8 @@ public sealed class Pwma : AbstractBase
     {
         if (isNew)
         {
-            double val = GetValidValue(input.Value);
+            double val = GetValidValue(input.Value, _state.LastValidValue);
+            UpdateLastValidValue(val);
             UpdateState(val);
             _state.LastInput = val;
             _p_state = _state;
@@ -134,7 +139,7 @@ public sealed class Pwma : AbstractBase
         {
             _state = _p_state;
             _buffer.CopyFrom(_p_buffer);
-            double val = GetValidValue(input.Value);
+            double val = GetValidValue(input.Value, _state.LastValidValue);
 
             // Recalculate for the updated last value
             // We can't easily use the O(1) update formula here because we are replacing the newest value,
@@ -152,6 +157,7 @@ public sealed class Pwma : AbstractBase
             _state.PSum = Math.FusedMultiplyAdd((double)n * n, diff, _state.PSum);
 
             _buffer.UpdateNewest(val);
+            UpdateLastValidValue(val);
         }
 
         double count = _buffer.Count;
@@ -206,7 +212,8 @@ public sealed class Pwma : AbstractBase
 
         for (int i = startIndex; i < len; i++)
         {
-            double val = GetValidValue(source.Values[i]);
+            double val = GetValidValue(source.Values[i], _state.LastValidValue);
+            UpdateLastValidValue(val);
             UpdateState(val);
             _state.LastInput = val;
         }
@@ -218,7 +225,7 @@ public sealed class Pwma : AbstractBase
         return new TSeries(t, v);
     }
 
-    public override void Prime(ReadOnlySpan<double> source)
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (var value in source)
         {
