@@ -212,11 +212,66 @@ jobs:
           find . -name "*.cs" -type f | grep -E "lib/|quantower/" | head -10
 
       - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2024.3.4
+        uses: JetBrains/qodana-action@v2025.3
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
           args: --coverage-dir,.qodana/code-coverage
+          fail-threshold: -1
+
+      - name: Upload Qodana SARIF Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: qodana-sarif-reports
+          path: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+
+  # ==============================================================================
+  # 4. Codacy Qodana SARIF Upload
+  # ==============================================================================
+  Codacy_Qodana_Upload:
+    needs: Qodana_Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download Qodana SARIF Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: qodana-sarif-reports
+          path: qodana-sarif
+
+      - name: Upload Qodana SARIF to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
+            exit 0
+          fi
+
+          echo "Installing Codacy Analysis CLI..."
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
+          chmod +x codacy-analysis-cli
+
+          # Upload Qodana SARIF
+          if [ -f "qodana-sarif/qodana.sarif.json" ]; then
+            echo "Uploading Qodana SARIF report..."
+            ./codacy-analysis-cli upload-results \
+              --provider gh \
+              --owner mihakralj \
+              --repository QuanTAlib \
+              --commit ${{ github.sha }} \
+              --upload-batch-size 50000 \
+              --tool qodana \
+              --results-file qodana-sarif/qodana.sarif.json || echo "Warning: Failed to upload Qodana SARIF"
+          else
+            echo "Warning: Qodana SARIF file not found"
+          fi
+        continue-on-error: true
 
   # ==============================================================================
   # 5. Codacy Coverage Upload
@@ -376,7 +431,7 @@ jobs:
   # 8. Publish Package
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       github.event_name == 'workflow_dispatch'

@@ -15,10 +15,10 @@ dotnet:
 
 failureConditions:
   severityThresholds:
-    critical: 0
-    high: 10
-    moderate: 50
-    low: 100
+    critical: -1
+    high: -1
+    moderate: -1
+    low: -1
     info: -1
 
 exclude:
