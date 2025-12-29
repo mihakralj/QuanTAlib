@@ -23,7 +23,7 @@ public class BetaTests
     {
         int period = 5;
         var beta = new Beta(period);
-        
+
         // We need period returns.
         // 1st update: initializes prev prices. No return.
         // 2nd update: 1st return.
@@ -45,7 +45,7 @@ public class BetaTests
     {
         // Scenario: Asset returns are exactly 2x Market returns.
         // We need variable market returns to have non-zero variance.
-        
+
         int period = 10;
         var beta = new Beta(period);
 
@@ -66,9 +66,9 @@ public class BetaTests
 
             marketPrice *= (1 + marketReturn);
             assetPrice *= (1 + assetReturn);
-            
+
             TValue result = beta.Update(assetPrice, marketPrice);
-            
+
             if (beta.IsHot)
             {
                 Assert.Equal(2.0, result.Value, precision: 6);
@@ -88,7 +88,7 @@ public class BetaTests
 
         beta.Reset();
         Assert.False(beta.IsHot);
-        
+
         // Re-initialize
         beta.Update(100, 100);
         Assert.False(beta.IsHot);

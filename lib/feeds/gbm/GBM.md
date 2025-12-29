@@ -29,7 +29,7 @@ Where:
 public class GBM : IFeed
 {
     public GBM(double startPrice = 100.0, double mu = 0.05, double sigma = 0.2, TimeSpan? defaultTimeframe = null);
-    
+
     public TBar Next(bool isNew = true);
     public TBarSeries Fetch(int count, long startTime, TimeSpan interval);
 }

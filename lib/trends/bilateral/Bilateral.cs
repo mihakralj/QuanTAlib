@@ -57,7 +57,7 @@ public sealed class Bilateral : AbstractBase
         PrecalculateSpatialWeights();
     }
 
-    public Bilateral(ITValuePublisher source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0) 
+    public Bilateral(ITValuePublisher source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
         : this(period, sigmaSRatio, sigmaRMult)
     {
         source.Pub += _handler;
@@ -139,7 +139,7 @@ public sealed class Bilateral : AbstractBase
             Update(new TValue(source.Times[i], source.Values[i]));
             vSpan[i] = Last.Value;
         }
-        
+
         return new TSeries(t, v);
     }
 
@@ -149,10 +149,10 @@ public sealed class Bilateral : AbstractBase
         if (isNew)
         {
             _p_state = _state;
-            
+
             double val = GetValidValue(input.Value);
             double removed = _buffer.Add(val);
-            
+
             _state.SumSq += (val * val);
             if (_buffer.IsFull)
             {
@@ -163,12 +163,12 @@ public sealed class Bilateral : AbstractBase
         {
             // Preserve SumSq as it tracks the buffer which is already at T
             double currentSumSq = _state.SumSq;
-            
+
             _state = _p_state;
             _state.SumSq = currentSumSq;
-            
+
             double val = GetValidValue(input.Value);
-            
+
             // Defensive check: if buffer is empty, treat as first value
             if (_buffer.Count == 0)
             {
@@ -179,7 +179,7 @@ public sealed class Bilateral : AbstractBase
             {
                 double oldNewest = _buffer.Newest; // Get current newest before overwriting
                 _buffer.UpdateNewest(val);
-                
+
                 _state.SumSq -= (oldNewest * oldNewest);
                 _state.SumSq += (val * val);
             }
@@ -210,7 +210,7 @@ public sealed class Bilateral : AbstractBase
         // Calculate StDev
         double count = _buffer.Count;
         double sum = _buffer.Sum;
-        
+
         // Variance = (SumSq - (Sum*Sum)/N) / N
         // Use Math.Max(0, ...) to handle potential floating point negative zero
         double variance = Math.Max(0, (_state.SumSq - (sum * sum) / count) / count);
@@ -226,12 +226,12 @@ public sealed class Bilateral : AbstractBase
         // Iterate from 0 to Count-1
         // i=0 corresponds to Newest (src[0])
         // i corresponds to buffer[Count - 1 - i]
-        
+
         // Use InternalBuffer to avoid allocations from GetSpan() when wrapped
         ReadOnlySpan<double> buffer = _buffer.InternalBuffer;
         int capacity = _buffer.Capacity;
         int startIndex = _buffer.StartIndex;
-        
+
         // Newest element index
         int newestIndex = (startIndex + (int)count - 1) % capacity;
 
@@ -241,16 +241,16 @@ public sealed class Bilateral : AbstractBase
             // (newestIndex - i) handling wrap-around
             int idx = newestIndex - i;
             if (idx < 0) idx += capacity;
-            
+
             double val = buffer[idx];
             double diffRange = centerVal - val;
-            
+
             // weight_spatial = _spatialWeights[i]
             // weight_range = exp(-(diff^2) / (2 * sigma_r^2))
-            
+
             double weightRange = Math.Exp(-(diffRange * diffRange) / twoSigmaRSq);
             double weight = _spatialWeights[i] * weightRange;
-            
+
             sumWeights += weight;
             sumWeightedSrc += weight * val;
         }
@@ -284,7 +284,7 @@ public sealed class Bilateral : AbstractBase
 
         if (destination.Length < source.Length)
             throw new ArgumentException("Destination must have length >= source length", nameof(destination));
-            
+
         // Precalculate spatial weights
         double sigmaS = Math.Max(period * sigmaSRatio, 1e-10);
         double twoSigmaSSq = 2.0 * sigmaS * sigmaS;
@@ -306,7 +306,7 @@ public sealed class Bilateral : AbstractBase
                 break;
             }
         }
-        
+
         // If all NaNs, fill with NaN
         if (double.IsNaN(lastValid))
         {
@@ -340,11 +340,11 @@ public sealed class Bilateral : AbstractBase
                 sum -= removed;
                 sumSq -= removed * removed;
             }
-            
+
             window[windowIdx] = val;
             sum += val;
             sumSq += val * val;
-            
+
             int currentNewestIdx = windowIdx;
             windowIdx = (windowIdx + 1) % period;
             if (count < period) count++;
@@ -367,13 +367,13 @@ public sealed class Bilateral : AbstractBase
                 // k=1 is previous...
                 int idx = currentNewestIdx - k;
                 if (idx < 0) idx += period;
-                
+
                 double wVal = window[idx];
                 double diffRange = centerVal - wVal;
-                
+
                 double weightRange = Math.Exp(-(diffRange * diffRange) / twoSigmaRSq);
                 double weight = spatialWeights[k] * weightRange;
-                
+
                 sumWeights += weight;
                 sumWeightedSrc += weight * wVal;
             }

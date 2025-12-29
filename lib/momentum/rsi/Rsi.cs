@@ -191,7 +191,7 @@ public sealed class Rsi : AbstractBase
         {
             int vectorSize = Vector<double>.Count;
             var vZero = Vector<double>.Zero;
-            
+
             // Start from 1, but align to vector size if possible or just process chunks
             // Since we need i-1, we can load vectors at i and i-1
             for (; i <= len - vectorSize; i += vectorSize)
@@ -249,15 +249,15 @@ public sealed class Rsi : AbstractBase
                 // Handle edge cases where loss is zero
                 var vLossIsZero = Vector.LessThan(vLoss, vEpsilon);
                 var vGainIsZero = Vector.LessThan(vGain, vEpsilon);
-                
+
                 // If loss is zero:
                 // If gain is also zero -> 50
                 // Else -> 100
                 var vFlat = Vector.BitwiseAnd(vLossIsZero, vGainIsZero);
-                
+
                 // First set to 100 if loss is zero
                 var vResult = Vector.ConditionalSelect(vLossIsZero, v100, vRsi);
-                
+
                 // Then set to 50 if both are zero
                 vResult = Vector.ConditionalSelect(vFlat, v50, vResult);
 

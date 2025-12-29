@@ -31,7 +31,7 @@ public class CovarianceSimdTests
         // This will use SIMD if available and length >= 256
         var simdResult = Covariance.Calculate(sourceX, sourceY, period);
 
-        // Calculate expected using scalar loop (simulating by using small chunks or manual calc, 
+        // Calculate expected using scalar loop (simulating by using small chunks or manual calc,
         // but easier to just use the streaming update which is scalar)
         var scalarCov = new Covariance(period);
         var expectedValues = new double[count];
@@ -56,7 +56,7 @@ public class CovarianceSimdTests
         int period = 50;
         var dataX = Enumerable.Range(0, count).Select(x => (double)x).ToArray();
         var dataY = Enumerable.Range(0, count).Select(x => (double)x * 2).ToArray();
-        
+
         // Inject NaN
         dataX[300] = double.NaN;
         dataY[350] = double.NaN;
@@ -74,9 +74,9 @@ public class CovarianceSimdTests
 
         // Assert
         // Verify around the NaN values
-        // Index 300 has NaN in X. Covariance should handle it (likely treat as 0 or propagate last valid if logic dictates, 
+        // Index 300 has NaN in X. Covariance should handle it (likely treat as 0 or propagate last valid if logic dictates,
         // but current implementation replaces non-finite with 0 in scalar core).
-        
+
         // Let's verify against streaming which we know uses scalar logic
         // BUT: Batch implementation replaces NaN with 0, while Streaming propagates NaN.
         // To compare, we must feed 0 instead of NaN to streaming.
@@ -92,7 +92,7 @@ public class CovarianceSimdTests
             Assert.Equal(res.Value, result.Values[i], precision: 9);
         }
     }
-    
+
     [Fact]
     public void Covariance_Simd_Resync_Check()
     {
@@ -102,13 +102,13 @@ public class CovarianceSimdTests
         // The SIMD loop starts at 'period' and goes up to 'simdEnd'.
         // So we need length > period + 1000.
         int period = 10;
-        int count = 2000; 
-        
+        int count = 2000;
+
         // Use simple linear data to make verification easy
         // y = 2x
         var dataX = Enumerable.Range(0, count).Select(x => (double)x).ToArray();
         var dataY = Enumerable.Range(0, count).Select(x => (double)x * 2).ToArray();
-        
+
         var sourceX = new TSeries();
         sourceX.Add(dataX);
         var sourceY = new TSeries();
@@ -123,7 +123,7 @@ public class CovarianceSimdTests
         // For period 10: 0..9. Variance is constant.
         // Var(0..9) = 9.16666... (Population) or 10.185... (Sample)?
         // Let's just compare with scalar truth.
-        
+
         var scalarCov = new Covariance(period);
         for (int i = 0; i < count; i++)
         {

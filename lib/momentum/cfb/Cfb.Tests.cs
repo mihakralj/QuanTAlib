@@ -64,7 +64,7 @@ public class CfbTests
         // 100, 101, 100, 101...
         // NetMove(4) = Abs(100 - 100) = 0. Ratio = 0.
         // NetMove(8) = 0. Ratio = 0.
-        
+
         for (int i = 0; i < 100; i++)
         {
             double price = 100 + (i % 2);

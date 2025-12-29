@@ -58,7 +58,7 @@ public sealed class MgdiValidationTests : IDisposable
         // Calculate QuanTAlib MGDI Streaming
         var mgdi = new Mgdi(14, 0.6);
         var streamingResults = new List<double>();
-        
+
         foreach (var item in _data.Data)
         {
             streamingResults.Add(mgdi.Update(item).Value);

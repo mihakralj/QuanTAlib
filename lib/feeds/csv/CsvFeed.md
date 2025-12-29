@@ -55,11 +55,11 @@ while (true)
 {
     // Process bar...
     Console.WriteLine(bar);
-    
+
     // Get next bar
     bool isNew = true;
     bar = feed.Next(ref isNew);
-    
+
     // Stop if no more new data
     if (!isNew) break;
 }

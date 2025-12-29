@@ -31,11 +31,11 @@ public class JmaZeroDivTests
         // Since we can't easily access private fields, we'll rely on the calculation logic check
         // If the fix is applied, we shouldn't see -Infinity in internal calculations if we could see them.
         // But we can check if the output is exactly the input, which implies adapt=0 (if logic holds).
-        
+
         var jma = new Jma(period: 1);
         var result = jma.Update(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, result.Value);
-        
+
         result = jma.Update(new TValue(DateTime.UtcNow, 200));
         // If adapt is 0 (due to -Infinity log), bands snap to price.
         // If JMA(1) is identity, result should be 200.

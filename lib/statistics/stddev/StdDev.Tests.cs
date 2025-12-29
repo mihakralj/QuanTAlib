@@ -25,7 +25,7 @@ public class StdDevTests
         // Sample StdDev: Sqrt(4.571428...) = 2.1380899...
 
         var data = new double[] { 2, 4, 4, 4, 5, 5, 7, 9 };
-        
+
         // Test Population StdDev
         var popStd = new StdDev(8, isPopulation: true);
         foreach (var val in data)
@@ -48,7 +48,7 @@ public class StdDevTests
     {
         int period = 5;
         var stdDev = new StdDev(period);
-        
+
         for (int i = 0; i < period; i++)
         {
             Assert.False(stdDev.IsHot);
@@ -79,7 +79,7 @@ public class StdDevTests
         int count = 1000;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        
+
         for (int i = 0; i < count; i++)
         {
             data[i] = gbm.Next().Close;
@@ -104,7 +104,7 @@ public class StdDevTests
             Assert.Equal(iterativeResults[i], batchResults[i], precision: 6);
         }
     }
-    
+
     [Fact]
     public void Update_TSeries_Matches_Iterative()
     {
@@ -112,7 +112,7 @@ public class StdDevTests
         int count = 1000;
         var data = new TSeries();
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        
+
         for (int i = 0; i < count; i++)
         {
             var bar = gbm.Next();

@@ -186,7 +186,7 @@ public sealed class RsiValidationTests : IDisposable
             var rsiIndicator = Tulip.Indicators.rsi;
             double[][] inputs = { tData };
             double[] options = { period };
-            
+
             // Tulip RSI lookback
             int lookback = rsiIndicator.Start(options);
             double[][] outputs = { new double[tData.Length - lookback] };
@@ -222,7 +222,7 @@ public sealed class RsiValidationTests : IDisposable
             var rsiIndicator = Tulip.Indicators.rsi;
             double[][] inputs = { tData };
             double[] options = { period };
-            
+
             // Tulip RSI lookback
             int lookback = rsiIndicator.Start(options);
             double[][] outputs = { new double[tData.Length - lookback] };

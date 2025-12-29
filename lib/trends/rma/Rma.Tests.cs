@@ -208,7 +208,7 @@ public class RmaTests
     {
         var source = new TSeries();
         var rma = new Rma(source, 10);
-        
+
         source.Add(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, rma.Last.Value, 1e-9);
     }

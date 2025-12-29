@@ -45,7 +45,7 @@ public class ButterTests
         butter.Update(new TValue(DateTime.UtcNow, 100));
         butter.Update(new TValue(DateTime.UtcNow, 101));
         Assert.True(butter.IsHot);
-        
+
         butter.Reset();
         Assert.False(butter.IsHot);
     }
@@ -107,30 +107,30 @@ public class ButterTests
         Assert.Equal(expected, streamingResult, 1e-9);
         Assert.Equal(expected, eventingResult, 1e-9);
     }
-    
+
     [Fact]
     public void IterativeCorrections_RestoreToOriginalState()
     {
         int period = 10;
         var butter = new Butter(period);
-        
+
         // Feed 10 values
         for (int i = 0; i < 10; i++)
         {
             butter.Update(new TValue(DateTime.UtcNow, 100 + i));
         }
-        
+
         double expected = butter.Last.Value;
-        
+
         // Feed 5 updates with isNew=false
         for (int i = 0; i < 5; i++)
         {
             butter.Update(new TValue(DateTime.UtcNow, 200 + i), isNew: false);
         }
-        
+
         // Feed original 10th value again with isNew=false
         var result = butter.Update(new TValue(DateTime.UtcNow, 109), isNew: false);
-        
+
         Assert.Equal(expected, result.Value, 1e-9);
     }
 }

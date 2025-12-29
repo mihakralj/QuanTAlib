@@ -41,12 +41,12 @@ public sealed class Macd : ITValuePublisher
         _slowEma = new Ema(slowPeriod);
         _signalEma = new Ema(signalPeriod);
         _handler = Handle;
-        
+
         Name = $"Macd({fastPeriod},{slowPeriod},{signalPeriod})";
         WarmupPeriod = Math.Max(fastPeriod, slowPeriod) + signalPeriod;
     }
 
-    public Macd(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9) 
+    public Macd(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
         : this(fastPeriod, slowPeriod, signalPeriod)
     {
         source.Pub += _handler;
@@ -99,7 +99,7 @@ public sealed class Macd : ITValuePublisher
             t.Add(source[i].Time);
             v.Add(Last.Value);
         }
-        
+
         return new TSeries(t, v);
     }
 
@@ -107,7 +107,7 @@ public sealed class Macd : ITValuePublisher
     {
         Update(args.Value, args.IsNew);
     }
-    
+
     /// <summary>
     /// Calculates the MACD Line (Fast EMA - Slow EMA).
     /// Does not calculate Signal or Histogram.
@@ -116,19 +116,19 @@ public sealed class Macd : ITValuePublisher
     {
         if (source.Length != destination.Length)
             throw new ArgumentException("Source and destination must be same length", nameof(destination));
-            
+
         int len = source.Length;
         double[] fastBuffer = ArrayPool<double>.Shared.Rent(len);
         double[] slowBuffer = ArrayPool<double>.Shared.Rent(len);
-        
-        try 
+
+        try
         {
             Span<double> fastSpan = fastBuffer.AsSpan(0, len);
             Span<double> slowSpan = slowBuffer.AsSpan(0, len);
-            
+
             Ema.Batch(source, fastSpan, fastPeriod);
             Ema.Batch(source, slowSpan, slowPeriod);
-            
+
             SimdExtensions.Subtract(fastSpan, slowSpan, destination);
         }
         finally

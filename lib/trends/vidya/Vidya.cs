@@ -201,7 +201,7 @@ public sealed class Vidya : AbstractBase, IDisposable
         // Process all data to build up state
         // For recursive indicators like VIDYA, we generally need to process from the start
         // or at least a significant warmup period.
-        // Given we don't know the "correct" previous VIDYA without processing, 
+        // Given we don't know the "correct" previous VIDYA without processing,
         // we process the whole provided history.
 
         double prevClose = source[0];
@@ -254,7 +254,7 @@ public sealed class Vidya : AbstractBase, IDisposable
         _state.LastVidya = lastVidya;
 
         // Set Last
-        // Note: Time is not available in Span, so we use MinValue. 
+        // Note: Time is not available in Span, so we use MinValue.
         // It will be updated on next Update.
         Last = new TValue(DateTime.MinValue, _state.CurrentVidya);
         _p_state = _state;
@@ -286,7 +286,7 @@ public sealed class Vidya : AbstractBase, IDisposable
 
         double alpha = 2.0 / (period + 1);
 
-        // Use arrays for buffers to avoid heap allocations if possible, 
+        // Use arrays for buffers to avoid heap allocations if possible,
         // but period is dynamic.
         // We can use ArrayPool or just new double[period] if period is small.
         // For simplicity and safety with large periods, let's use ArrayPool.

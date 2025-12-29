@@ -67,13 +67,13 @@ public class AoTests
         ao.Reset();
         Assert.Equal(0, ao.Last.Value);
         Assert.False(ao.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             ao.Update(bars[i]);
         }
-        
+
         Assert.True(double.IsFinite(ao.Last.Value));
     }
 
@@ -99,22 +99,22 @@ public class AoTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void StaticCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var ao = new Ao(5, 34);
         var streamingResults = new List<double>();
         for (int i = 0; i < bars.Count; i++)
         {
             streamingResults.Add(ao.Update(bars[i]).Value);
         }
-        
+
         var staticResults = Ao.Batch(bars, 5, 34);
-        
+
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
         {
@@ -128,12 +128,12 @@ public class AoTests
         var ao = new Ao(5, 34);
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // Test TBarSeries chain
         var result = ao.Update(bars);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TBar chain (returns TValue)
         var result2 = ao.Update(bars[0]);
         Assert.IsType<TValue>(result2);

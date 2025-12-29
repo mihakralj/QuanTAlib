@@ -29,7 +29,7 @@ public sealed class SmaToleranceTests : IDisposable
         var sResult = _testData.SkenderQuotes.GetSma(period).ToList();
 
         ValidationHelper.VerifyData(qResult, sResult, (s) => s.Sma);
-        
+
         // Add explicit assertion to satisfy SonarQube
         Assert.True(qResult.Count > 0);
     }

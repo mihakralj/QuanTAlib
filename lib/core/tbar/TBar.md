@@ -72,7 +72,7 @@ var bar = new TBar(DateTime.UtcNow, 100, 105, 95, 102, 1000);
 TBar bar = ...;
 
 // Treat as double (uses Close price)
-double price = bar; 
+double price = bar;
 
 // Treat as TValue (Time + Close)
 TValue tv = bar;

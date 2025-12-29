@@ -158,7 +158,7 @@ Ehlers used `atan(Q/I)` with manual zero-checks because TradeStation's `atan2` d
 ```csharp
 // Period calculation: atan2 handles all quadrants correctly
 double angle = Math.Atan2(_state.Im, _state.Re);
-double period = Math.Abs(angle) > MinDeltaRadians 
+double period = Math.Abs(angle) > MinDeltaRadians
     ? TwoPi / Math.Abs(angle)
     : _p_state.Period;
 

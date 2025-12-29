@@ -85,7 +85,7 @@ public class MacdIndicatorTests
 
         // Process updates
         var args = new UpdateArgs(UpdateReason.HistoricalBar);
-        
+
         for(int i=0; i<10; i++)
         {
             indicator.ProcessUpdate(args);
@@ -95,7 +95,7 @@ public class MacdIndicatorTests
         double macd = indicator.LinesSeries[0].GetValue(0);
         double signal = indicator.LinesSeries[1].GetValue(0);
         double hist = indicator.LinesSeries[2].GetValue(0);
-        
+
         // Just check they are valid numbers
         Assert.False(double.IsNaN(macd));
         Assert.False(double.IsNaN(signal));

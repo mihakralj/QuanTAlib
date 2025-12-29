@@ -189,7 +189,7 @@ public sealed class Sma : AbstractBase
         {
             // Capture previous state BEFORE any mutation
             _p_state = _state;
-            
+
             double val = GetValidValue(input.Value);
             UpdateState(val);
             _state.LastInput = val;
@@ -199,11 +199,11 @@ public sealed class Sma : AbstractBase
         {
             // Restore scalar state to pre-mutation values
             _state = _p_state;
-            
+
             double val = GetValidValue(input.Value);
             // Update sum: remove the value that was added during isNew=true, add the new correction value
             _state.Sum = _state.Sum - _currentBarValue + val;
-            
+
             // Update the buffer's newest value and sync its internal sum with our state sum
             _buffer.UpdateNewest(val);
             _state.Sum = _buffer.RecalculateSum(); // Ensure sums stay in sync

@@ -170,7 +170,7 @@ public sealed class AtrValidationTests : IDisposable
             var atrIndicator = Tulip.Indicators.atr;
             double[][] inputs = { hData, lData, cData };
             double[] options = { period };
-            
+
             // Tulip ATR lookback
             int lookback = atrIndicator.Start(options);
             double[][] outputs = { new double[hData.Length - lookback] };
@@ -208,7 +208,7 @@ public sealed class AtrValidationTests : IDisposable
             var atrIndicator = Tulip.Indicators.atr;
             double[][] inputs = { hData, lData, cData };
             double[] options = { period };
-            
+
             // Tulip ATR lookback
             int lookback = atrIndicator.Start(options);
             double[][] outputs = { new double[hData.Length - lookback] };

@@ -168,12 +168,12 @@ public sealed class Usf : AbstractBase
         double usf = (_state.Count < 4)
             ? val
             : (1.0 - _c1) * val + (2.0 * _c1 - _c2) * _state.PrevInput1 - (_c1 + _c3) * _state.PrevInput2 + _c2 * _state.Usf1 + _c3 * _state.Usf2;
-        
+
         _state.Usf2 = _state.Usf1;
         _state.Usf1 = usf;
         _state.PrevInput2 = _state.PrevInput1;
         _state.PrevInput1 = val;
-        
+
         if (isNew && !initialized) _state.Count++;
         if (!_state.IsHot && _state.Count >= WarmupPeriod)
             _state.IsHot = true;
@@ -207,7 +207,7 @@ public sealed class Usf : AbstractBase
         sourceTimes.CopyTo(tSpan);
 
         _p_state = _state;
-        
+
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
 
         return new TSeries(t, v);
@@ -231,12 +231,12 @@ public sealed class Usf : AbstractBase
                     state.Usf2 = state.LastValidValue;
                     state.PrevInput1 = state.LastValidValue;
                     state.PrevInput2 = state.LastValidValue;
-                    output[i] = state.LastValidValue; 
+                    output[i] = state.LastValidValue;
                     state.Count = 1;
                     i++;
                     break;
                 }
-                output[i] = double.NaN; 
+                output[i] = double.NaN;
             }
         }
 

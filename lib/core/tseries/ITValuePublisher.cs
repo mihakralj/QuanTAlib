@@ -16,9 +16,9 @@ public readonly struct TValueEventArgs
 
 // Performance-focused event args struct; not derived from EventArgs by design.
 // We intentionally deviate from the standard EventArgs pattern here for perf.
+// MA0046 suppressed: struct-based args avoid heap allocations in high-frequency events.
 #pragma warning disable MA0046 // The second parameter must be of type 'System.EventArgs' or a derived type
 public delegate void TValuePublishedHandler(object? sender, in TValueEventArgs args);
-#pragma warning restore MA0046
 
 /// <summary>
 /// Interface for objects that publish TValue updates.
@@ -30,3 +30,4 @@ public interface ITValuePublisher
     /// </summary>
     event TValuePublishedHandler? Pub;
 }
+#pragma warning restore MA0046

@@ -9,14 +9,14 @@ namespace QuanTAlib;
 /// <remarks>
 /// Beta is calculated as the covariance of the asset's returns and the market's returns,
 /// divided by the variance of the market's returns.
-/// 
+///
 /// Formula:
 /// Beta = Cov(Ra, Rm) / Var(Rm)
-/// 
+///
 /// Where:
 /// Ra = Return of Asset
 /// Rm = Return of Market
-/// 
+///
 /// This implementation uses the O(1) slope formula for linear regression of Ra vs Rm:
 /// Beta = (N * Sum(Ra*Rm) - Sum(Ra) * Sum(Rm)) / (N * Sum(Rm^2) - Sum(Rm)^2)
 /// </remarks>
@@ -25,7 +25,7 @@ public sealed class Beta : AbstractBase
 {
     private readonly RingBuffer _returnsAsset;
     private readonly RingBuffer _returnsMarket;
-    
+
     private double _prevAsset;
     private double _prevMarket;
     private double _p_prevAsset;

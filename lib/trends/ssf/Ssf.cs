@@ -178,11 +178,11 @@ public sealed class Ssf : AbstractBase
         double ssf = (_state.Count < 4)
             ? val
             : (_c1 * (val + _state.PrevInput) * 0.5) + (_c2 * _state.Ssf1) + (_c3 * _state.Ssf2);
-        
+
         _state.Ssf2 = _state.Ssf1;
         _state.Ssf1 = ssf;
         _state.PrevInput = val;
-        
+
         if (isNew) _state.Count++;
         if (!_state.IsHot && _state.Count >= WarmupPeriod)
             _state.IsHot = true;
@@ -216,7 +216,7 @@ public sealed class Ssf : AbstractBase
         sourceTimes.CopyTo(tSpan);
 
         _p_state = _state;
-        
+
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
 
         return new TSeries(t, v);
@@ -239,12 +239,12 @@ public sealed class Ssf : AbstractBase
                     state.Ssf1 = state.LastValidValue;
                     state.Ssf2 = state.LastValidValue;
                     state.PrevInput = state.LastValidValue;
-                    output[i] = state.LastValidValue; 
+                    output[i] = state.LastValidValue;
                     state.Count = 1;
                     i++;
                     break;
                 }
-                output[i] = double.NaN; 
+                output[i] = double.NaN;
             }
 
             // Handle all-NaN case: if no finite value was found, set remaining outputs to NaN and return

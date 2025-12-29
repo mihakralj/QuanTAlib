@@ -71,13 +71,13 @@ public class AroonTests
         aroon.Reset();
         Assert.Equal(0, aroon.Last.Value);
         Assert.False(aroon.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             aroon.Update(bars[i]);
         }
-        
+
         Assert.True(double.IsFinite(aroon.Last.Value));
     }
 
@@ -103,22 +103,22 @@ public class AroonTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void StaticCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var aroon = new Aroon(14);
         var streamingResults = new List<double>();
         for (int i = 0; i < bars.Count; i++)
         {
             streamingResults.Add(aroon.Update(bars[i]).Value);
         }
-        
+
         var staticResults = Aroon.Batch(bars, 14);
-        
+
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
         {
@@ -140,20 +140,20 @@ public class AroonTests
         // Period = 2
         // Highs: 10, 12, 11
         // Lows:  8, 9, 7
-        
+
         // T=0: H=10, L=8. Not enough data.
         // T=1: H=12, L=9. Not enough data.
-        // T=2: H=11, L=7. 
+        // T=2: H=11, L=7.
         // Window Highs: [10, 12, 11]. Max is 12 at index 1 (1 day ago).
         // Window Lows:  [8, 9, 7]. Min is 7 at index 2 (0 days ago).
-        
+
         // Up = ((2 - 1) / 2) * 100 = 50
         // Down = ((2 - 0) / 2) * 100 = 100
         // Osc = 50 - 100 = -50
 
         var aroon = new Aroon(2);
         var time = DateTime.UtcNow;
-        
+
         aroon.Update(new TBar(time, 10, 10, 8, 9, 100));
         aroon.Update(new TBar(time.AddMinutes(1), 11, 12, 9, 10, 100));
         var result = aroon.Update(new TBar(time.AddMinutes(2), 10, 11, 7, 8, 100));

@@ -166,7 +166,7 @@ public sealed class LinReg : AbstractBase
         _state.SumY = _buffer.Sum;
         _state.SumXY = 0;
         var span = _buffer.GetSpan();
-        
+
         // Vectorized SumY2
         _state.SumY2 = span.DotProduct(span);
 
@@ -248,7 +248,7 @@ public sealed class LinReg : AbstractBase
                 // R2 = (n * sum_xy - sum_x * sum_y)^2 / ( (n * sum_x2 - sum_x^2) * (n * sum_y2 - sum_y^2) )
                 double numerator = Math.FusedMultiplyAdd(n, _state.SumXY, -sx * _state.SumY);
                 double term2 = Math.FusedMultiplyAdd(n, _state.SumY2, -_state.SumY * _state.SumY);
-                
+
                 RSquared = Math.Abs(term2) < MinDenominator
                     ? 1.0 // All y are same
                     : numerator * numerator / (denom * term2);

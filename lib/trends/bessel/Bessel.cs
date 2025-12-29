@@ -9,7 +9,7 @@ namespace QuanTAlib;
 /// <remarks>
 /// Bessel filter is a 2nd-order IIR low-pass filter with maximally flat group delay,
 /// adapted from John Ehlers' work for financial time series.
-/// 
+///
 /// Coefficients for a given length L:
 /// a  = exp(-PI / L)
 /// b  = 2 * a * cos(1.738 * PI / L)

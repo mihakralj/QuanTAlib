@@ -17,7 +17,7 @@ public class WmaCoverageTests
         for (int i = 0; i < len; i++) source[i] = i;
 
         double[] output = new double[len];
-        
+
         // This should trigger CalculateScalarCore internally
         Wma.Batch(source.AsSpan(), output.AsSpan(), period);
 
@@ -45,26 +45,26 @@ public class WmaCoverageTests
             // However, we can't easily invoke it directly.
             // But wait, I previously wrote a test that called a *copy* of the method.
             // Calling the *actual* private method with Spans via reflection is not possible in C# (TargetInvocationException).
-            
-            // Strategy change: 
+
+            // Strategy change:
             // Since we cannot invoke private methods with Span args via reflection,
             // and we cannot change the visibility of the methods (they should remain private),
             // we are limited in how we can "force" coverage of the private AVX2 method if AVX512 is present.
-            
+
             // However, we CAN use the fact that Wma.Batch checks for Avx512F.IsSupported.
             // We cannot change that runtime flag.
-            
+
             // Actually, we can't easily cover the AVX2 path on an AVX512 machine without code modification or a "TestAccessor" pattern.
             // But wait, the user asked "why is coverage only 46%".
             // If I can't run the code, I can't cover it.
-            
+
             // BUT, I can verify the Scalar Core logic by using the small data test (done above).
             // For AVX2, if I can't invoke it, I can't cover it on this machine.
-            
+
             // Let's double check if there's any way to invoke it.
             // Maybe I can use `MethodInfo.CreateDelegate`?
             // Delegates can take Spans if defined correctly.
-            
+
             InvokePrivateStaticMethod_WithSpans("CalculateSimdCore", source, output, period);
         }
         catch (Exception ex)
@@ -98,7 +98,7 @@ public class WmaCoverageTests
         // Create a delegate that matches the signature
         // Note: ReadOnlySpan<double> and Span<double> in delegate signature
         var del = methodInfo.CreateDelegate<CoreDelegate>();
-        
+
         del(source.AsSpan(), output.AsSpan(), period);
     }
 }

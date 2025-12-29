@@ -506,7 +506,7 @@ public class EmaTests
     {
         var source = new TSeries();
         var ema = new Ema(source, 10);
-        
+
         source.Add(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, ema.Last.Value, 1e-10);
     }
@@ -515,8 +515,8 @@ public class EmaTests
     public void Prime_SetsStateCorrectly()
     {
         var ema = new Ema(5);
-        double[] history = [10, 20, 30, 40, 50]; 
-        
+        double[] history = [10, 20, 30, 40, 50];
+
         ema.Prime(history);
 
         // EMA(5) of 10,20,30,40,50
@@ -530,7 +530,7 @@ public class EmaTests
 
         Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
         Assert.Equal(verifyEma.IsHot, ema.IsHot);
-        
+
         // Verify it continues correctly
         ema.Update(new TValue(DateTime.UtcNow, 60));
         verifyEma.Update(new TValue(DateTime.UtcNow, 60));
@@ -541,10 +541,10 @@ public class EmaTests
     public void Prime_HandlesNaN_InHistory()
     {
         var ema = new Ema(5);
-        double[] history = [10, 20, double.NaN, 40, 50]; 
-        
+        double[] history = [10, 20, double.NaN, 40, 50];
+
         ema.Prime(history);
-        
+
         var verifyEma = new Ema(5);
         foreach (var val in history) verifyEma.Update(new TValue(DateTime.UtcNow, val));
 
@@ -556,9 +556,9 @@ public class EmaTests
     {
         var ema = new Ema(5);
         double[] history = [double.NaN, double.NaN, double.NaN];
-        
+
         ema.Prime(history);
-        
+
         Assert.True(double.IsNaN(ema.Last.Value));
     }
 
@@ -567,17 +567,17 @@ public class EmaTests
     {
         var series = new TSeries();
         for (int i = 1; i <= 20; i++) series.Add(DateTime.UtcNow, i * 10);
-        
+
         // EMA(5)
         var (results, indicator) = Ema.Calculate(series, 5);
 
         // Check results
         Assert.Equal(20, results.Count);
-        
+
         // Verify against standard calculation
         var verifyEma = new Ema(5);
         var verifyResults = verifyEma.Update(series);
-        
+
         Assert.Equal(verifyResults.Last.Value, results.Last.Value, 1e-10);
         Assert.Equal(verifyEma.Last.Value, indicator.Last.Value, 1e-10);
 
@@ -585,7 +585,7 @@ public class EmaTests
         Assert.True(indicator.IsHot);
 
         // Verify indicator continues correctly
-        indicator.Update(new TValue(DateTime.UtcNow, 210)); 
+        indicator.Update(new TValue(DateTime.UtcNow, 210));
         verifyEma.Update(new TValue(DateTime.UtcNow, 210));
         Assert.Equal(verifyEma.Last.Value, indicator.Last.Value, 1e-10);
     }
@@ -595,9 +595,9 @@ public class EmaTests
     {
         double[] source = [double.NaN, double.NaN, double.NaN];
         double[] output = new double[3];
-        
+
         Ema.Batch(source.AsSpan(), output.AsSpan(), 5);
-        
+
         // Should be all NaNs, not 0s
         foreach (var val in output)
         {
@@ -613,7 +613,7 @@ public class EmaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Ema.Batch(series, period);
         double expected = batchSeries.Last.Value;

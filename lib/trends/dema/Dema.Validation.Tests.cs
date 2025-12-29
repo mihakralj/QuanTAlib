@@ -106,13 +106,13 @@ public sealed class DemaValidationTests : IDisposable
             var demaIndicator = Tulip.Indicators.dema;
             double[][] inputs = { tData };
             double[] options = { period };
-            
+
             // Tulip DEMA lookback is usually period-1 for EMA, but DEMA is 2*EMA - EMA(EMA)
             // Let's rely on the output length to align.
             // Tulip DEMA lookback is same as EMA lookback? No, it involves double smoothing.
             // Actually, Tulip's DEMA implementation might have a specific lookback.
             // We'll calculate it based on output length.
-            
+
             // Tulip.Indicators.dema.Run expects outputs to be sized correctly.
             // We'll use a large buffer and resize if needed, or just calculate lookback.
             // For DEMA(n), lookback is roughly n-1 (same as EMA).
@@ -120,7 +120,7 @@ public sealed class DemaValidationTests : IDisposable
             // Let's try with n-1 first, if it fails we adjust.
             // Actually, TA-Lib DEMA lookback is 2*(period-1).
             // Let's assume Tulip is similar.
-            int lookback = 2 * (period - 1); 
+            int lookback = 2 * (period - 1);
             double[][] outputs = { new double[tData.Length - lookback] };
 
             demaIndicator.Run(inputs, options, outputs);
@@ -177,7 +177,7 @@ public sealed class DemaValidationTests : IDisposable
             for (int i = 0; i < _testData.Data.Count; i++)
             {
                 var item = _testData.Data[i];
-                
+
                 // QuanTAlib DEMA
                 var qVal = dema.Update(item);
 

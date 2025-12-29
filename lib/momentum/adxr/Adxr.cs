@@ -64,11 +64,11 @@ public sealed class Adxr : ITValuePublisher
         // TA-Lib uses (Period-1) lag for ADXR.
         _adxHistory = new RingBuffer(period - 1);
         _p_adxHistory = new RingBuffer(period - 1);
-        
+
         // ADXR needs valid ADX from 'period' bars ago.
         // ADX takes 2*period to warm up.
         // So ADXR takes 2*period + period - 1 to warm up.
-        WarmupPeriod = _adx.WarmupPeriod + period - 1; 
+        WarmupPeriod = _adx.WarmupPeriod + period - 1;
     }
 
     /// <summary>

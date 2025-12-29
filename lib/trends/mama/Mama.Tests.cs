@@ -41,21 +41,21 @@ public class MamaTests
     public void Update_InfinityInputs_DoesNotHang()
     {
         var mama = new Mama();
-        
+
         // Warmup with valid data to get past initialization phase
         for (int i = 0; i < 60; i++)
         {
             mama.Update(new TValue(DateTime.UtcNow, 100.0 + i));
         }
-        
+
         // Test positive infinity - should not hang
         var result1 = mama.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         Assert.True(double.IsFinite(result1.Value), "Positive infinity should produce finite result");
-        
+
         // Test negative infinity - should not hang
         var result2 = mama.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
         Assert.True(double.IsFinite(result2.Value), "Negative infinity should produce finite result");
-        
+
         // Test NaN - should not hang
         var result3 = mama.Update(new TValue(DateTime.UtcNow, double.NaN));
         Assert.True(double.IsFinite(result3.Value), "NaN should produce finite result");
@@ -66,25 +66,25 @@ public class MamaTests
     {
         var data = new double[100];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        
+
         // Fill with mostly valid data
         for (int i = 0; i < 100; i++)
         {
             data[i] = gbm.Next().Close;
         }
-        
+
         // Insert non-finite values at various points
         data[20] = double.NaN;
         data[40] = double.PositiveInfinity;
         data[60] = double.NegativeInfinity;
         data[80] = double.NaN;
-        
+
         var output = new double[100];
         var famaOutput = new double[100];
-        
+
         // This should complete without hanging
         Mama.Calculate(data, output, famaOutput: famaOutput);
-        
+
         // Verify all outputs are finite (no NaN or Infinity propagation)
         for (int i = 0; i < 100; i++)
         {
@@ -113,7 +113,7 @@ public class MamaTests
 
         // Manually chain for test
         bool eventFired = false;
-        mama.Pub += (object? sender, TValueEventArgs args) => eventFired = true;
+        mama.Pub += (object? sender, in TValueEventArgs args) => eventFired = true;
 
         mama.Update(new TValue(DateTime.UtcNow, 100.0));
 
@@ -160,14 +160,14 @@ public class MamaTests
     public void IsHot_BecomesTrueAfterWarmup()
     {
         var mama = new Mama();
-        
+
         // MAMA needs 50 bars to warmup (Index > 50)
         for (int i = 0; i < 50; i++)
         {
             mama.Update(new TValue(DateTime.UtcNow, 100));
             Assert.False(mama.IsHot);
         }
-        
+
         mama.Update(new TValue(DateTime.UtcNow, 100));
         Assert.True(mama.IsHot);
     }
@@ -181,9 +181,9 @@ public class MamaTests
             mama.Update(new TValue(DateTime.UtcNow, 100));
         }
         Assert.True(mama.IsHot);
-        
+
         mama.Reset();
-        
+
         Assert.False(mama.IsHot);
         Assert.True(double.IsNaN(mama.Last.Value));
     }
@@ -192,21 +192,21 @@ public class MamaTests
     public void Update_BarCorrection_UpdatesCorrectly()
     {
         var mama = new Mama();
-        
+
         // Warmup
         for (int i = 0; i < 10; i++)
         {
             mama.Update(new TValue(DateTime.UtcNow, 100));
         }
-        
+
         // New bar
         var result1 = mama.Update(new TValue(DateTime.UtcNow, 110));
-        
+
         // Update same bar with different value
         var result2 = mama.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
-        
+
         Assert.NotEqual(result1.Value, result2.Value);
-        
+
         // Verify internal state by adding next bar
         var result3 = mama.Update(new TValue(DateTime.UtcNow, 130));
         Assert.True(double.IsFinite(result3.Value));
@@ -217,17 +217,17 @@ public class MamaTests
     {
         var source = new TSeries();
         var gbm = new GBM(startPrice: 100, seed: 42);
-        
+
         for (int i = 0; i < 50; i++)
         {
             var bar = gbm.Next();
             source.Add(bar.C);
         }
-        
+
         var mama = new Mama();
         var series1 = mama.Update(source);
         var series2 = Mama.Batch(source);
-        
+
         Assert.Equal(series1.Count, series2.Count);
         for (int i = 0; i < source.Count; i++)
         {
@@ -319,13 +319,13 @@ public class MamaTests
 
         var output1 = new double[count];
         var output2 = new double[count];
-        
+
         // Call without famaOutput parameter (backwards compatibility)
         Mama.Calculate(data, output1);
-        
+
         // Call with empty famaOutput span
         Mama.Calculate(data, output2, famaOutput: Span<double>.Empty);
-        
+
         // Both should produce identical MAMA results
         for (int i = 0; i < count; i++)
         {
@@ -339,8 +339,8 @@ public class MamaTests
         var data = new double[10];
         var mamaOutput = new double[10];
         var famaOutput = new double[5];
-        
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             Mama.Calculate(data, mamaOutput, famaOutput: famaOutput));
         Assert.Equal("famaOutput", ex.ParamName);
     }

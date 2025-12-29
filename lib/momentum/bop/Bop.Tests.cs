@@ -68,7 +68,7 @@ public class BopTests
         bars.Add(new TBar(DateTime.UtcNow.AddMinutes(1), 15, 25, 10, 20, 100));
 
         var batchResult = Bop.Update(bars);
-        
+
         bop.Reset();
         var streamResult1 = bop.Update(bars[0]);
         var streamResult2 = bop.Update(bars[1]);
@@ -76,19 +76,19 @@ public class BopTests
         Assert.Equal(batchResult[0].Value, streamResult1.Value);
         Assert.Equal(batchResult[1].Value, streamResult2.Value);
     }
-    
+
     [Fact]
     public void SpanMatchesBatch()
     {
         var bars = new TBarSeries();
         bars.Add(new TBar(DateTime.UtcNow, 10, 20, 5, 15, 100));
         bars.Add(new TBar(DateTime.UtcNow.AddMinutes(1), 15, 25, 10, 20, 100));
-        
+
         var batchResult = Bop.Batch(bars);
-        
+
         var output = new double[bars.Count];
         Bop.Calculate(bars.Open.Values, bars.High.Values, bars.Low.Values, bars.Close.Values, output);
-        
+
         Assert.Equal(batchResult[0].Value, output[0]);
         Assert.Equal(batchResult[1].Value, output[1]);
     }

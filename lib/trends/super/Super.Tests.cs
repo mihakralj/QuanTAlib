@@ -70,13 +70,13 @@ public class SuperTests
         super.Reset();
         Assert.Equal(0, super.Last.Value);
         Assert.False(super.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             super.Update(bars[i]);
         }
-        
+
         Assert.True(double.IsFinite(super.Last.Value));
     }
 
@@ -110,14 +110,14 @@ public class SuperTests
             }
         }
     }
-    
+
     [Fact]
     public void Warmup_Handling()
     {
         var super = new Super(10, 3.0);
         var gbm = new GBM();
         var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // First 10 bars should be NaN
         for (int i = 0; i < 10; i++)
         {
@@ -125,7 +125,7 @@ public class SuperTests
             Assert.True(double.IsNaN(result.Value), $"Bar {i} should be NaN");
             Assert.False(super.IsHot);
         }
-        
+
         // 11th bar (index 10) should be valid
         var result11 = super.Update(bars[10]);
         Assert.True(double.IsFinite(result11.Value), "Bar 10 should be finite");
@@ -146,16 +146,16 @@ public class SuperTests
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var super = new Super(10, 3.0);
         var streamingResults = new List<double>();
         for (int i = 0; i < bars.Count; i++)
         {
             streamingResults.Add(super.Update(bars[i]).Value);
         }
-        
+
         var staticResults = Super.Batch(bars, 10, 3.0);
-        
+
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
         {
@@ -176,12 +176,12 @@ public class SuperTests
         var super = new Super(10, 3.0);
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // Test TBarSeries chain
         var result = super.Update(bars);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TBar chain (returns TValue)
         var result2 = super.Update(bars[0]);
         Assert.IsType<TValue>(result2);

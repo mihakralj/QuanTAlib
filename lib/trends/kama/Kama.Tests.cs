@@ -157,7 +157,7 @@ public class KamaTests
         Assert.Equal(0, kama.Last.Value);
         Assert.False(kama.IsHot);
     }
-    
+
     [Fact]
     public void Kama_FlatLine_ReturnsSameValue()
     {
@@ -166,7 +166,7 @@ public class KamaTests
         {
             kama.Update(new TValue(DateTime.UtcNow, 100));
         }
-        
+
         Assert.Equal(100, kama.Last.Value);
     }
 
@@ -243,7 +243,7 @@ public class KamaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Kama.Batch(series, period);
         double expected = batchSeries.Last.Value;

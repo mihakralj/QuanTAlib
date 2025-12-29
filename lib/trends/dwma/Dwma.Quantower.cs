@@ -50,7 +50,7 @@ public class DwmaIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        
+
         TValue result = ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
         Series!.SetValue(result.Value, ma.IsHot, ShowColdValues);

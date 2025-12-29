@@ -56,7 +56,7 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        
+
         TValue result = _bilateral!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
         Series!.SetValue(result.Value, _bilateral.IsHot, ShowColdValues);

@@ -43,7 +43,7 @@ public sealed class RmaValidationTests : IDisposable
     {
         // Arrange
         int period = 14;
-        
+
         // QuanTAlib RMA
         var rma = new Rma(period);
         var quantalibResults = new TSeries();
@@ -94,7 +94,7 @@ public sealed class RmaValidationTests : IDisposable
         // Skip warmup period for comparison
         int skip = period * 30;
         int itemsToVerify = _testData.Data.Count - skip;
-        
+
         ValidationHelper.VerifyData(qResult, oValues, (s) => s, skip: itemsToVerify, tolerance: ValidationHelper.OoplesTolerance);
     }
 }

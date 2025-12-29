@@ -21,7 +21,7 @@ public class SkewTests
         // Variance (Sample) = 2.5
         // StdDev (Sample) = 1.58113883
         // Skewness (Sample) = 0 (Symmetric)
-        
+
         var skew = new Skew(5, isPopulation: false);
         skew.Update(new TValue(DateTime.UtcNow, 1));
         skew.Update(new TValue(DateTime.UtcNow, 2));
@@ -38,7 +38,7 @@ public class SkewTests
         // Test data: 1, 1, 1, 10
         // Mean = 3.25
         // Skewness should be positive (right tail)
-        
+
         var skew = new Skew(4, isPopulation: false);
         skew.Update(new TValue(DateTime.UtcNow, 1));
         skew.Update(new TValue(DateTime.UtcNow, 1));
@@ -54,7 +54,7 @@ public class SkewTests
         // Test data: 10, 10, 10, 1
         // Mean = 7.75
         // Skewness should be negative (left tail)
-        
+
         var skew = new Skew(4, isPopulation: false);
         skew.Update(new TValue(DateTime.UtcNow, 10));
         skew.Update(new TValue(DateTime.UtcNow, 10));
@@ -68,16 +68,16 @@ public class SkewTests
     public void Update_HandlesUpdates_IsNewFalse()
     {
         var skew = new Skew(5);
-        
+
         // 1, 2, 3, 4
         skew.Update(new TValue(DateTime.UtcNow, 1));
         skew.Update(new TValue(DateTime.UtcNow, 2));
         skew.Update(new TValue(DateTime.UtcNow, 3));
         skew.Update(new TValue(DateTime.UtcNow, 4));
-        
+
         // Add 5
         skew.Update(new TValue(DateTime.UtcNow, 5), isNew: true);
-        
+
         // Update 5 to 10
         var res2 = skew.Update(new TValue(DateTime.UtcNow, 10), isNew: false);
 
@@ -97,10 +97,10 @@ public class SkewTests
     {
         var skew = new Skew(5);
         for (int i = 0; i < 5; i++) skew.Update(new TValue(DateTime.UtcNow, i));
-        
+
         skew.Reset();
         Assert.False(skew.IsHot);
-        
+
         // Should behave like new
         skew.Update(new TValue(DateTime.UtcNow, 1));
         Assert.Equal(0, skew.Last.Value); // Not enough data
@@ -111,7 +111,7 @@ public class SkewTests
     {
         var data = new double[] { 1, 2, 3, 4, 5, 10, 1, 2, 3 };
         int period = 5;
-        
+
         // Streaming
         var skew = new Skew(period);
         var streamingResults = new System.Collections.Generic.List<double>();
@@ -139,7 +139,7 @@ public class SkewTests
         // StdDev (Pop) = sqrt(2/3)
         // M3 (Pop) = ((1-2)^3 + (2-2)^3 + (3-2)^3) / 3 = 0
         // Skew (Pop) = 0
-        
+
         var skew = new Skew(3, isPopulation: true);
         skew.Update(new TValue(DateTime.UtcNow, 1));
         skew.Update(new TValue(DateTime.UtcNow, 2));
@@ -166,7 +166,7 @@ public class SkewTests
         skew.Update(new TValue(DateTime.UtcNow, 1));
         skew.Update(new TValue(DateTime.UtcNow, 2));
         skew.Update(new TValue(DateTime.UtcNow, double.NaN)); // Should be treated as 0 or handled gracefully
-        
+
         var result = skew.Last.Value;
         Assert.True(double.IsNaN(result) || result == 0);
     }
@@ -177,12 +177,12 @@ public class SkewTests
         // Run for > 1000 updates to trigger Resync
         var skew = new Skew(10);
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        
+
         for (int i = 0; i < 1100; i++)
         {
             skew.Update(new TValue(DateTime.UtcNow, gbm.Next().Close));
         }
-        
+
         Assert.True(double.IsFinite(skew.Last.Value));
     }
 
@@ -195,10 +195,10 @@ public class SkewTests
         for (int i = 0; i < count; i++) data[i] = (double)i;
 
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
-        
+
         // Batch calculation
         var batchResult = Skew.Calculate(series, 10);
-        
+
         // Verify last value against streaming
         var skew = new Skew(10);
         double lastStreaming = 0;

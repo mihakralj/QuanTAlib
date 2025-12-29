@@ -165,7 +165,7 @@ public sealed class Bop : ITValuePublisher
         if (source.Count == 0) return new TSeries([], []);
 
         var len = source.Count;
-        
+
         var t = new List<long>(len);
         var v = new List<double>(len);
         CollectionsMarshal.SetCount(t, len);

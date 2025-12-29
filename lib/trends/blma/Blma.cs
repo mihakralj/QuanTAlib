@@ -29,7 +29,7 @@ public sealed class Blma : AbstractBase, IDisposable
         WarmupPeriod = period;
         _buffer = new RingBuffer(period);
         _weights = new double[period];
-        
+
         // Pre-calculate weights for the full period
         _weightSum = CalculateWeights(period, _weights);
         _handler = Handle;
@@ -102,7 +102,7 @@ public sealed class Blma : AbstractBase, IDisposable
             {
                 Span<double> currentWeights = stackalloc double[count];
                 double currentWeightSum = CalculateWeights(count, currentWeights);
-                
+
                 // Fallback for cases where weights sum to zero (e.g. N=2)
                 result = Math.Abs(currentWeightSum) < double.Epsilon
                     ? _buffer.Average()
@@ -130,7 +130,7 @@ public sealed class Blma : AbstractBase, IDisposable
         var result = new TSeries();
         Span<double> output = new double[source.Count];
         Calculate(source.Values, output, _period);
-        
+
         for (int i = 0; i < source.Count; i++)
         {
             result.Add(new TValue(source[i].Time, output[i]));
@@ -182,7 +182,7 @@ public sealed class Blma : AbstractBase, IDisposable
         int start = buffer.StartIndex;
         int count = buffer.Count;
         int capacity = buffer.Capacity;
-        
+
         if (start + count <= capacity)
         {
             return buffer.InternalBuffer.Slice(start, count).DotProduct(weights);
@@ -219,7 +219,7 @@ public sealed class Blma : AbstractBase, IDisposable
         for (int i = 0; i < source.Length; i++)
         {
             int count = Math.Min(i + 1, period);
-            
+
             if (count < period)
             {
                 // Warmup: dynamic weights
@@ -231,7 +231,7 @@ public sealed class Blma : AbstractBase, IDisposable
                 {
                     Span<double> currentWeights = warmupWeightsBuffer.Slice(0, count);
                     double currentWeightSum = CalculateWeights(count, currentWeights);
-                    
+
                     if (Math.Abs(currentWeightSum) < double.Epsilon)
                     {
                         // Fallback for zero sum weights (e.g. N=2)

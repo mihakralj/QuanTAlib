@@ -23,13 +23,13 @@ public class BilateralTests
     public void IsHot_BecomesTrueWhenBufferFull()
     {
         var indicator = new Bilateral(3);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 1));
         Assert.False(indicator.IsHot);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 2));
         Assert.False(indicator.IsHot);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 3));
         Assert.True(indicator.IsHot);
     }
@@ -42,13 +42,13 @@ public class BilateralTests
         // If sigma_r is high, range weights are ~1.
         // If sigma_s is high, spatial weights are ~1.
         // Then it becomes a simple average.
-        
+
         var indicator = new Bilateral(3, sigmaSRatio: 100, sigmaRMult: 100);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 1));
         indicator.Update(new TValue(DateTime.UtcNow, 2));
         var result = indicator.Update(new TValue(DateTime.UtcNow, 3));
-        
+
         // Expected: (1+2+3)/3 = 2
         Assert.Equal(2.0, result.Value, 1);
     }
@@ -57,11 +57,11 @@ public class BilateralTests
     public void Update_HandlesNaN()
     {
         var indicator = new Bilateral(3);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 1));
         indicator.Update(new TValue(DateTime.UtcNow, double.NaN)); // Should use 1
         var result = indicator.Update(new TValue(DateTime.UtcNow, 3));
-        
+
         // Buffer: [1, 1, 3]
         // StDev of [1, 1, 3]: Mean=1.66, Var=((1-1.66)^2 + (1-1.66)^2 + (3-1.66)^2)/3 = (0.44 + 0.44 + 1.77)/3 = 0.88. StDev ~ 0.94
         // Calculation will proceed with these values.
@@ -73,23 +73,23 @@ public class BilateralTests
     public void Update_IsNew_False_UpdatesCorrectly()
     {
         var indicator = new Bilateral(3);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 1));
         indicator.Update(new TValue(DateTime.UtcNow, 2));
-        
+
         // Update with 3, isNew=true
         indicator.Update(new TValue(DateTime.UtcNow, 3), isNew: true);
-        
+
         // Update with 4, isNew=false (correction)
         var res2 = indicator.Update(new TValue(DateTime.UtcNow, 4), isNew: false);
-        
+
         // Verify state was updated
         // If we had updated with 4 directly: [1, 2, 4]
         var indicator2 = new Bilateral(3);
         indicator2.Update(new TValue(DateTime.UtcNow, 1));
         indicator2.Update(new TValue(DateTime.UtcNow, 2));
         var resExpected = indicator2.Update(new TValue(DateTime.UtcNow, 4));
-        
+
         Assert.Equal(resExpected.Value, res2.Value);
     }
 
@@ -100,9 +100,9 @@ public class BilateralTests
         indicator.Update(new TValue(DateTime.UtcNow, 1));
         indicator.Update(new TValue(DateTime.UtcNow, 2));
         indicator.Update(new TValue(DateTime.UtcNow, 3));
-        
+
         indicator.Reset();
-        
+
         Assert.False(indicator.IsHot);
         Assert.Equal(1, indicator.Update(new TValue(DateTime.UtcNow, 1)).Value); // Center val 1, weights 0? No, center val is returned if weights 0.
     }
@@ -112,10 +112,10 @@ public class BilateralTests
     {
         // Test edge case: calling Update with isNew:false before any isNew:true
         var indicator = new Bilateral(3);
-        
+
         // This should not crash - buffer is empty, so we treat it as first value
         var result = indicator.Update(new TValue(DateTime.UtcNow, 5.0), isNew: false);
-        
+
         // Should have added the value to the buffer
         Assert.True(double.IsFinite(result.Value));
         Assert.Equal(5.0, result.Value); // Single value, so result is that value
@@ -126,18 +126,18 @@ public class BilateralTests
     {
         // Test edge case: calling Update with isNew:false after Reset
         var indicator = new Bilateral(3);
-        
+
         indicator.Update(new TValue(DateTime.UtcNow, 1));
         indicator.Update(new TValue(DateTime.UtcNow, 2));
         indicator.Reset();
-        
+
         // Buffer is now empty, isNew:false should not crash
         var result = indicator.Update(new TValue(DateTime.UtcNow, 7.0), isNew: false);
-        
+
         Assert.True(double.IsFinite(result.Value));
         Assert.Equal(7.0, result.Value);
     }
-    
+
     [Fact]
     public void AllModes_ProduceSameResult()
     {

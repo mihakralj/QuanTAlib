@@ -66,13 +66,13 @@ public class DmxTests
 
         dmx.Reset();
         Assert.Equal(0, dmx.Last.Value);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             dmx.Update(bars[i]);
         }
-        
+
         Assert.True(double.IsFinite(dmx.Last.Value));
     }
 
@@ -98,16 +98,16 @@ public class DmxTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void FirstBar_Handling()
     {
         var dmx = new Dmx(14);
         var bar = new TBar(DateTime.UtcNow, 100, 110, 90, 105, 1000);
-        
+
         // First bar should produce 0 DMX because DM+ and DM- are 0
         var result = dmx.Update(bar);
-        
+
         Assert.Equal(0, result.Value);
     }
 

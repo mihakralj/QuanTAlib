@@ -18,7 +18,7 @@ public class DmxValidationTests
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var dmx = new Dmx(14);
         var streamResult = new TSeries();
         for (int i = 0; i < bars.Count; i++)
@@ -42,7 +42,7 @@ public class DmxValidationTests
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var dmx = new Dmx(14);
         for (int i = 0; i < bars.Count; i++)
         {
@@ -94,7 +94,7 @@ public class DmxValidationTests
         {
             Assert.True(result[i].Value < 0, $"DMX should be negative in downtrend at index {i}, got {result[i].Value}");
         }
-        
+
         _output.WriteLine("DMX trend direction validated successfully");
     }
 }

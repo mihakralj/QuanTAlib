@@ -361,7 +361,7 @@ public class PwmaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Pwma.Batch(series, period);
         double expected = batchSeries.Last.Value;

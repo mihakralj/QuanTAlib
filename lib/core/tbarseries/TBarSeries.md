@@ -40,7 +40,7 @@ public class TBarSeries : IReadOnlyList<TBar>
     public TSeries Low { get; }
     public TSeries Close { get; }
     public TSeries Volume { get; }
-    
+
     // Aliases
     public TSeries O => Open;
     public TSeries H => High;

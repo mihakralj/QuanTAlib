@@ -9,7 +9,7 @@
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Quantower.Tests'">
     <BaseIntermediateOutputPath>obj\Tests\</BaseIntermediateOutputPath>
   </PropertyGroup>
-  
+
   <!-- Common settings for all quantower projects -->
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

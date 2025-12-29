@@ -66,13 +66,13 @@ public class TemaTests
         tema.Reset();
         Assert.Equal(0, tema.Last.Value);
         Assert.False(tema.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             tema.Update(new TValue(bars[i].Time, bars[i].Close));
         }
-        
+
         Assert.True(double.IsFinite(tema.Last.Value));
     }
 
@@ -99,23 +99,23 @@ public class TemaTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void BatchCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         var tema = new Tema(10);
         var streamingResults = new List<double>();
         for (int i = 0; i < series.Count; i++)
         {
             streamingResults.Add(tema.Update(series[i]).Value);
         }
-        
+
         var batchResults = Tema.Batch(series, 10);
-        
+
         Assert.Equal(streamingResults.Count, batchResults.Count);
         for (int i = 0; i < batchResults.Count; i++)
         {
@@ -129,17 +129,17 @@ public class TemaTests
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         var tema = new Tema(10);
         var streamingResults = new List<double>();
         for (int i = 0; i < series.Count; i++)
         {
             streamingResults.Add(tema.Update(series[i]).Value);
         }
-        
+
         var spanResults = new double[series.Count];
         Tema.Batch(series.Values, spanResults, 10);
-        
+
         for (int i = 0; i < spanResults.Length; i++)
         {
             Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
@@ -153,12 +153,12 @@ public class TemaTests
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // Test TSeries chain
         var result = tema.Update(series);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TValue chain
         var result2 = tema.Update(series[0]);
         Assert.IsType<TValue>(result2);

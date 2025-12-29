@@ -54,7 +54,7 @@ public sealed class SuperIndicator : Indicator, IWatchlistIndicator
         bool isNew = args.IsNewBar();
         var bar = this.GetInputBar(args);
         double value = _super!.Update(bar, isNew).Value;
-        
+
         _series!.SetValue(value, _super.IsHot, ShowColdValues);
         _upperBand!.SetValue(_super.UpperBand.Value, _super.IsHot, ShowColdValues);
         _lowerBand!.SetValue(_super.LowerBand.Value, _super.IsHot, ShowColdValues);

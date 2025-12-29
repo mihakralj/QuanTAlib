@@ -33,7 +33,7 @@ Every indicator exposes the following core properties and methods:
 
 ## 2. Mode A: Batch (Stateless)
 
-**Purpose:** Backtesting, Data Analysis, Optimization  
+**Purpose:** Backtesting, Data Analysis, Optimization
 **Method:** `static Batch`
 
 Batch mode provides stateless, SIMD-accelerated processing of historical arrays. It is optimized for maximum throughput and zero heap allocation.
@@ -67,7 +67,7 @@ TSeries sma = Sma.Batch(history, 14);
 
 ## 3. Mode B: Streaming (Stateful)
 
-**Purpose:** Live Trading, Event Processing  
+**Purpose:** Live Trading, Event Processing
 **Method:** `Update`
 
 Streaming mode handles real-time data ingestion using O(1) complexity per update. It maintains internal state (circular buffers, running sums) to process ticks with minimal latency.
@@ -109,7 +109,7 @@ var sma = new Sma(source, 14);
 var ema = new Ema(sma, 5);
 
 // Updates flow automatically
-source.Add(new TValue(time, price)); 
+source.Add(new TValue(time, price));
 // sma updates, then ema updates automatically
 ```
 
@@ -117,7 +117,7 @@ source.Add(new TValue(time, price));
 
 ## 4. Mode C: Priming (The Bridge)
 
-**Purpose:** Switching from Batch to Streaming  
+**Purpose:** Switching from Batch to Streaming
 **Method:** `Prime`
 
 Priming mode hydrates a streaming instance using the minimal required tail of historical data. It calculates the intersection of *History Available* and *State Required*, allowing an indicator to become "Hot" without processing the entire history.
@@ -132,7 +132,7 @@ double[] history = ...; // e.g., 100,000 bars
 
 // Efficiently processes only the last 'period' bars needed to fill the buffer
 // O(Warmup) initialization instead of O(History)
-indicator.Prime(history); 
+indicator.Prime(history);
 
 // Indicator is now "Hot" and ready for the next live tick
 Console.WriteLine(indicator.IsHot); // true
@@ -193,7 +193,7 @@ The initial portion of the output contains "cold" values.
 
 ```mermaid
 graph LR
-    H[Historical Data] 
+    H[Historical Data]
     L[Live Data]
 
     subgraph "Mode A: Batch"

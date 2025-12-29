@@ -166,7 +166,7 @@ public class BilateralIndicatorTests
         indicator.Period = 20;
         indicator.SigmaSRatio = 1.0;
         indicator.SigmaRMult = 2.0;
-        
+
         Assert.Equal(20, indicator.Period);
         Assert.Equal(1.0, indicator.SigmaSRatio);
         Assert.Equal(2.0, indicator.SigmaRMult);

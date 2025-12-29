@@ -80,7 +80,7 @@ public sealed class Skew : AbstractBase
         {
             double oldNewest = _buffer.Newest;
             _buffer.UpdateNewest(input.Value);
-            
+
             double val = input.Value;
             _sum = _sum - oldNewest + val;
             _sumSq = _sumSq - (oldNewest * oldNewest) + (val * val);
@@ -92,7 +92,7 @@ public sealed class Skew : AbstractBase
         {
             double n = _buffer.Count;
             double mean = _sum / n;
-            
+
             // Calculate 2nd moment (Variance)
             // m2 = Sum((x-mean)^2) / n = (SumSq - Sum^2/n) / n
             double m2Numerator = _sumSq - (_sum * _sum) / n;
@@ -106,7 +106,7 @@ public sealed class Skew : AbstractBase
             // = SumCu - 3*mean*SumSq + 3*mean^2*Sum - n*mean^3
             // Since Sum = n*mean:
             // = SumCu - 3*mean*SumSq + 2*n*mean^3
-            
+
             double m3Numerator = _sumCu - 3 * mean * _sumSq + 2 * n * mean * mean * mean;
             double m3 = m3Numerator / n;
 
@@ -232,7 +232,7 @@ public sealed class Skew : AbstractBase
         double sum = 0;
         double sumSq = 0;
         double sumCu = 0;
-        
+
         int i = 0;
 
         // Warmup phase
@@ -259,11 +259,11 @@ public sealed class Skew : AbstractBase
 
             double oldVal = source[i - period];
             if (!double.IsFinite(oldVal)) oldVal = 0;
-            
+
             sum = sum - oldVal + val;
             sumSq = sumSq - (oldVal * oldVal) + (val * val);
             sumCu = sumCu - (oldVal * oldVal * oldVal) + (val * val * val);
-            
+
             output[i] = CalculateSkewFromSums(sum, sumSq, sumCu, period, isPopulation);
 
             tickCount++;
@@ -293,7 +293,7 @@ public sealed class Skew : AbstractBase
     private static double CalculateSkewFromSums(double sum, double sumSq, double sumCu, double n, bool isPopulation)
     {
         double mean = sum / n;
-        
+
         double m2Numerator = sumSq - (sum * sum) / n;
         if (m2Numerator < Epsilon) return 0;
         double m2 = m2Numerator / n;
@@ -326,7 +326,7 @@ public sealed class Skew : AbstractBase
             sum += val;
             sumSq += val * val;
             sumCu += val * val * val;
-            
+
             double n = i + 1;
             Unsafe.Add(ref outRef, i) = (n >= 3) ? CalculateSkewFromSums(sum, sumSq, sumCu, n, isPopulation) : 0;
         }
@@ -383,34 +383,34 @@ public sealed class Skew : AbstractBase
             var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
             vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
             var vP1 = Avx.Add(vDelta, vShift1);
-            
+
             // Shift 2: [0, 0, d0, d0+d1]
             var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
             vShift2 = Avx.Blend(vZero, vShift2, 0b_1100);
             var vP2 = Avx.Add(vP1, vShift2);
-            
+
             var vSums = Avx.Add(Vector256.Create(sum), vP2);
 
             // Prefix sum for SumSq
             var vShiftSq1 = Avx2.Permute4x64(vDeltaSq.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
             vShiftSq1 = Avx.Blend(vZero, vShiftSq1, 0b_1110);
             var vP1Sq = Avx.Add(vDeltaSq, vShiftSq1);
-            
+
             var vShiftSq2 = Avx2.Permute4x64(vP1Sq.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
             vShiftSq2 = Avx.Blend(vZero, vShiftSq2, 0b_1100);
             var vP2Sq = Avx.Add(vP1Sq, vShiftSq2);
-            
+
             var vSumSqs = Avx.Add(Vector256.Create(sumSq), vP2Sq);
 
             // Prefix sum for SumCu
             var vShiftCu1 = Avx2.Permute4x64(vDeltaCu.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
             vShiftCu1 = Avx.Blend(vZero, vShiftCu1, 0b_1110);
             var vP1Cu = Avx.Add(vDeltaCu, vShiftCu1);
-            
+
             var vShiftCu2 = Avx2.Permute4x64(vP1Cu.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
             vShiftCu2 = Avx.Blend(vZero, vShiftCu2, 0b_1100);
             var vP2Cu = Avx.Add(vP1Cu, vShiftCu2);
-            
+
             var vSumCus = Avx.Add(Vector256.Create(sumCu), vP2Cu);
 
             // Calculate Skewness
@@ -440,13 +440,13 @@ public sealed class Skew : AbstractBase
             // g1 = m3 / (m2 * sqrt(m2))
             var vM2Sqrt = Avx.Sqrt(vM2);
             var vDenom = Avx.Multiply(vM2, vM2Sqrt);
-            
+
             // Check for small m2
             var vMask = Avx.Compare(vM2, vEpsilon, FloatComparisonMode.OrderedGreaterThanNonSignaling);
-            
+
             var vG1 = Avx.Divide(vM3, vDenom);
             var vSkew = Avx.Multiply(vG1, vCorrection);
-            
+
             // Apply mask
             vSkew = Avx.BlendVariable(vZero, vSkew, vMask);
 
@@ -481,11 +481,11 @@ public sealed class Skew : AbstractBase
         {
             double val = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            
+
             sum = sum - oldVal + val;
             sumSq = sumSq - (oldVal * oldVal) + (val * val);
             sumCu = sumCu - (oldVal * oldVal * oldVal) + (val * val * val);
-            
+
             Unsafe.Add(ref outRef, i) = CalculateSkewFromSums(sum, sumSq, sumCu, n, isPopulation);
         }
     }

@@ -44,7 +44,7 @@ public class AdlValidationTests
         var close = _data.Bars.Close.Values.ToArray();
         var volume = _data.Bars.Volume.Values.ToArray();
         var talibValues = new double[high.Length];
-        
+
         var retCode = TALib.Functions.Ad(high, low, close, volume, 0..^0, talibValues, out var outRange);
         Assert.Equal(TALib.Core.RetCode.Success, retCode);
 
@@ -67,7 +67,7 @@ public class AdlValidationTests
         var low = _data.Bars.Low.Values.ToArray();
         var close = _data.Bars.Close.Values.ToArray();
         var volume = _data.Bars.Volume.Values.ToArray();
-        
+
         var tulipIndicator = Tulip.Indicators.ad;
         double[][] inputs = { high, low, close, volume };
         double[] options = Array.Empty<double>();

@@ -13,11 +13,11 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Variance is calculated as the average of the squared differences from the Mean.
-/// 
+///
 /// Formula:
 /// Population Variance = Sum((x - Mean)^2) / N
 /// Sample Variance = Sum((x - Mean)^2) / (N - 1)
-/// 
+///
 /// This implementation uses the O(1) running sum of squares formula:
 /// Variance = (SumSq - (Sum * Sum) / N) / (N - 1) (for Sample)
 /// </remarks>
@@ -76,7 +76,7 @@ public sealed class Variance : AbstractBase
             // Differential update
             double oldNewest = _buffer.Newest;
             _buffer.UpdateNewest(input.Value);
-            
+
             // Reconstruct SumSq from previous state is safer/cleaner than differential on current
             // But we updated buffer already.
             // _sumSq currently includes oldNewest^2.
@@ -93,12 +93,12 @@ public sealed class Variance : AbstractBase
             // Var = (SumSq - 2*Mean*(N*Mean) + N*Mean^2) / ...
             // Var = (SumSq - 2*N*Mean^2 + N*Mean^2) / ...
             // Var = (SumSq - N*Mean^2) / ...
-            
+
             // Using Sum:
             // Var = (SumSq - (Sum*Sum)/N) / ...
-            
+
             double numerator = _sumSq - (_buffer.Sum * _buffer.Sum) / n;
-            
+
             // Handle floating point noise
             if (numerator < 0) numerator = 0;
 
@@ -221,14 +221,14 @@ public sealed class Variance : AbstractBase
         int len = source.Length;
         double sum = 0;
         double sumSq = 0;
-        
+
         // We need a buffer to handle the sliding window removal
         // For scalar path, we can use a simple array or stackalloc
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
             : new double[period];
-        
+
         int bufferIndex = 0;
         int i = 0;
 
@@ -265,11 +265,11 @@ public sealed class Variance : AbstractBase
             if (!double.IsFinite(val)) val = 0; // Fallback
 
             double oldVal = buffer[bufferIndex];
-            
+
             sum = sum - oldVal + val;
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
-            
+
             buffer[bufferIndex] = val;
             bufferIndex++;
             if (bufferIndex >= period) bufferIndex = 0;
@@ -300,7 +300,7 @@ public sealed class Variance : AbstractBase
             double val = Unsafe.Add(ref srcRef, i);
             sum += val;
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
-            
+
             double n = i + 1;
             if (n > 1)
             {
@@ -382,9 +382,9 @@ public sealed class Variance : AbstractBase
             var vSumSquared = Avx512F.Multiply(vSums, vSums);
             var vMeanTerm = Avx512F.Multiply(vSumSquared, vInvN);
             var vNumerator = Avx512F.Subtract(vSumSqs, vMeanTerm);
-            
+
             vNumerator = Avx512F.Max(vZero, vNumerator);
-            
+
             var vResult = Avx512F.Multiply(vNumerator, vInvDenom);
             Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
 
@@ -414,11 +414,11 @@ public sealed class Variance : AbstractBase
         {
             double val = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            
+
             sum = sum - oldVal + val;
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
-            
+
             double numerator = sumSq - (sum * sum) * invN;
             if (numerator < 0) numerator = 0;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
@@ -479,9 +479,9 @@ public sealed class Variance : AbstractBase
             var vSumSquared = AdvSimd.Arm64.Multiply(vSums, vSums);
             var vMeanTerm = AdvSimd.Arm64.Multiply(vSumSquared, vInvN);
             var vNumerator = AdvSimd.Arm64.Subtract(vSumSqs, vMeanTerm);
-            
+
             vNumerator = AdvSimd.Arm64.Max(vZero, vNumerator);
-            
+
             var vResult = AdvSimd.Arm64.Multiply(vNumerator, vInvDenom);
             Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
 
@@ -511,11 +511,11 @@ public sealed class Variance : AbstractBase
         {
             double val = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            
+
             sum = sum - oldVal + val;
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
-            
+
             double numerator = sumSq - (sum * sum) * invN;
             if (numerator < 0) numerator = 0;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
@@ -593,10 +593,10 @@ public sealed class Variance : AbstractBase
             var vSumSquared = Avx.Multiply(vSums, vSums);
             var vMeanTerm = Avx.Multiply(vSumSquared, vInvN);
             var vNumerator = Avx.Subtract(vSumSqs, vMeanTerm);
-            
+
             // Max(0, numerator) to handle floating point noise
             vNumerator = Avx.Max(vZero, vNumerator);
-            
+
             var vResult = Avx.Multiply(vNumerator, vInvDenom);
             Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
 
@@ -628,11 +628,11 @@ public sealed class Variance : AbstractBase
         {
             double val = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
-            
+
             sum = sum - oldVal + val;
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
-            
+
             double numerator = sumSq - (sum * sum) * invN;
             if (numerator < 0) numerator = 0;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;

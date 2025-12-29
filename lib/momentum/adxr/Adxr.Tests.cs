@@ -67,13 +67,13 @@ public class AdxrTests
         adxr.Reset();
         Assert.Equal(0, adxr.Last.Value);
         Assert.False(adxr.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             adxr.Update(bars[i]);
         }
-        
+
         Assert.True(double.IsFinite(adxr.Last.Value));
     }
 
@@ -99,22 +99,22 @@ public class AdxrTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void StaticCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var adxr = new Adxr(14);
         var streamingResults = new List<double>();
         for (int i = 0; i < bars.Count; i++)
         {
             streamingResults.Add(adxr.Update(bars[i]).Value);
         }
-        
+
         var staticResults = Adxr.Batch(bars, 14);
-        
+
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
         {
@@ -135,12 +135,12 @@ public class AdxrTests
         var adxr = new Adxr(14);
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // Test TBarSeries chain
         var result = adxr.Update(bars);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TBar chain (returns TValue)
         var result2 = adxr.Update(bars[0]);
         Assert.IsType<TValue>(result2);

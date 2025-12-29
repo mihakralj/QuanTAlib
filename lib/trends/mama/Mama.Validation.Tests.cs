@@ -49,7 +49,7 @@ public class MamaValidationTests
         // The optimized version handles quadrants correctly (-pi to pi) and wraps phase differences (-pi to pi),
         // while original (and Skender) uses Atan (-pi/2 to pi/2) and ignores phase wrapping, causing divergence.
         ValidationHelper.VerifyData(qResult, sResult, x => x.Mama, skip: 100, tolerance: 40.0);
-        
+
         _output.WriteLine("MAMA Batch validated successfully against Skender");
     }
 
@@ -78,7 +78,7 @@ public class MamaValidationTests
         // 3. Verify MAMA
         // Tolerance increased to 40.0 due to optimized Phase calculation and Phase Wrapping correction.
         ValidationHelper.VerifyData(qMamaResults, sResult, x => x.Mama, skip: 100, tolerance: 40.0);
-        
+
         // 4. Verify FAMA
         ValidationHelper.VerifyData(qFamaResults, sResult, x => x.Fama, skip: 100, tolerance: 40.0);
 
@@ -117,14 +117,14 @@ public class MamaValidationTests
         // 2. Precision: Ooples uses 4-decimal constants, QuanTAlib uses exact fractions.
         // 3. Phase Wrapping: QuanTAlib correctly handles phase wrapping, Ooples does not.
         ValidationHelper.VerifyData(qResult, oMama, x => x, skip: 100, tolerance: 40.0);
-        
+
         // 4. Verify FAMA
         // QuanTAlib stores Fama in a separate property, not in the main TSeries result
         // We need to extract Fama from the indicator instance or capture it during streaming
         // But Update(TSeries) returns only the main series (Mama).
         // To verify Fama batch, we might need to iterate or expose it.
         // For now, let's verify Mama.
-        
+
         _output.WriteLine("MAMA Batch validated successfully against Ooples");
     }
 }

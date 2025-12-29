@@ -255,10 +255,10 @@ public class AlmaTests
     {
         var alma = new Alma(10);
         alma.Update(new TValue(DateTime.UtcNow, 100));
-        
+
         var r1 = alma.Update(new TValue(DateTime.UtcNow, double.NaN));
         var r2 = alma.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         Assert.True(double.IsFinite(r1.Value));
         Assert.True(double.IsFinite(r2.Value));
     }
@@ -271,7 +271,7 @@ public class AlmaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Alma.Batch(series, period);
         double expected = batchSeries.Last.Value;

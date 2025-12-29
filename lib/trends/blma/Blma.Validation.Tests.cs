@@ -50,15 +50,15 @@ public class BlmaValidationTests
         for (int i = 0; i < source.Count; i++)
         {
             buffer.Add(source[i].Value);
-            
+
             // PineScript logic:
             // int p = math.min(bar_index + 1, period)
             int p = Math.Min(buffer.Count, period);
-            
+
             // Calculate weights
             var weights = new double[p];
             double totalWeight = 0;
-            
+
             if (p == 1)
             {
                 weights[0] = 1.0;
@@ -88,15 +88,15 @@ public class BlmaValidationTests
             // float price = source[i] (where source[0] is newest)
             // float w = array.get(weights, i)
             // So weights[0] * newest, weights[1] * 2nd newest...
-            
+
             // My C# buffer is chronological (0 is oldest).
             // So buffer[buffer.Count - 1] is newest.
             // buffer[buffer.Count - 1 - j] is j-th lag.
-            
+
             // Wait, in Blma.cs I implemented:
             // sum += buffer[i] * weights[i] (where buffer[0] is oldest)
             // So weights[0] * oldest.
-            
+
             // PineScript: weights[0] * newest.
             // Since Blackman window is symmetric, weights[0] == weights[p-1].
             // So weights[0] * newest == weights[p-1] * newest (if symmetric).
@@ -111,11 +111,11 @@ public class BlmaValidationTests
             // cos(4pi * (1-r)) = cos(4pi - 4pi*r) = cos(4pi*r).
             // So yes, w(j) == w(p-1-j).
             // So applying weights[0] to newest or oldest doesn't matter for the sum.
-            
+
             // However, I should match my implementation in Blma.cs.
             // In Blma.cs: sum += buffer[i] * weights[i] (buffer[0] is oldest).
             // So weights[0] * oldest.
-            
+
             // In this reference implementation, let's do the same.
             // Use the last p elements of buffer.
             int start = buffer.Count - p;

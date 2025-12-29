@@ -191,7 +191,7 @@ public sealed class KamaValidationTests : IDisposable
             var kamaIndicator = Tulip.Indicators.kama;
             double[][] inputs = { cData };
             double[] options = { period };
-            
+
             // Tulip KAMA lookback
             int lookback = kamaIndicator.Start(options);
             double[][] outputs = { new double[cData.Length - lookback] };
@@ -227,7 +227,7 @@ public sealed class KamaValidationTests : IDisposable
             var kamaIndicator = Tulip.Indicators.kama;
             double[][] inputs = { cData };
             double[] options = { period };
-            
+
             // Tulip KAMA lookback
             int lookback = kamaIndicator.Start(options);
             double[][] outputs = { new double[cData.Length - lookback] };

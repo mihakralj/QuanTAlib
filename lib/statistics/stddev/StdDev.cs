@@ -14,10 +14,10 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// Standard Deviation is the square root of Variance.
-/// 
+///
 /// Formula:
 /// StdDev = Sqrt(Variance)
-/// 
+///
 /// This implementation wraps the optimized Variance indicator and applies a square root.
 /// </remarks>
 [SkipLocalsInit]
@@ -47,7 +47,7 @@ public sealed class StdDev : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         TValue varResult = _variance.Update(input, isNew);
-        
+
         // Sqrt(Variance)
         // Handle potential negative zero or extremely small negative noise from Variance
         double val = varResult.Value;
@@ -73,12 +73,12 @@ public sealed class StdDev : AbstractBase
 
         // 1. Calculate Variance
         Variance.Batch(source.Values, vSpan, _period, _isPopulation);
-        
+
         // 2. Calculate Sqrt in-place
         SqrtSpan(vSpan);
 
         source.Times.CopyTo(tSpan);
-        
+
         // Prime the state
         // We need to feed the last 'period' values into the _variance instance
         // so that subsequent streaming updates work correctly.
@@ -122,7 +122,7 @@ public sealed class StdDev : AbstractBase
     {
         // 1. Calculate Variance
         Variance.Batch(source, output, period, isPopulation);
-        
+
         // 2. Sqrt
         SqrtSpan(output);
     }
@@ -139,7 +139,7 @@ public sealed class StdDev : AbstractBase
             const int VectorWidth = 8;
             int simdEnd = len - (len % VectorWidth);
             ref double dataRef = ref MemoryMarshal.GetReference(data);
-            
+
             for (; i < simdEnd; i += VectorWidth)
             {
                 var v = Vector512.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
@@ -153,7 +153,7 @@ public sealed class StdDev : AbstractBase
             const int VectorWidth = 4;
             int simdEnd = len - (len % VectorWidth);
             ref double dataRef = ref MemoryMarshal.GetReference(data);
-            
+
             for (; i < simdEnd; i += VectorWidth)
             {
                 var v = Vector256.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
@@ -167,7 +167,7 @@ public sealed class StdDev : AbstractBase
             const int VectorWidth = 2;
             int simdEnd = len - (len % VectorWidth);
             ref double dataRef = ref MemoryMarshal.GetReference(data);
-            
+
             for (; i < simdEnd; i += VectorWidth)
             {
                 var v = Vector128.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));

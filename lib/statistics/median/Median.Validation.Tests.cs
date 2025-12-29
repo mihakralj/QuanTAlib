@@ -17,7 +17,7 @@ public sealed class MedianValidationTests : IDisposable
         _data.Dispose();
     }
 
-    // Note: Standard TA libraries (Skender, TA-Lib, Tulip, Ooples) do not provide a 
+    // Note: Standard TA libraries (Skender, TA-Lib, Tulip, Ooples) do not provide a
     // "Rolling Median" indicator. They typically provide "Median Price" which is (High+Low)/2.
     // Therefore, we validate against a robust LINQ-based reference implementation and MathNet.
 

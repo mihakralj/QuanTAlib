@@ -78,7 +78,7 @@ public class ButterValidationTests
 
         // Compare
         Assert.Equal(quantalibResult.Count, ooplesValues.Count);
-        
+
         // Check last 100 bars
         for (int i = quantalibResult.Count - 100; i < quantalibResult.Count; i++)
         {
@@ -91,7 +91,7 @@ public class ButterValidationTests
     private static IReadOnlyList<double> CalculateReference(TSeries source, int period)
     {
         var result = new List<double>();
-        
+
         // PineScript logic:
         // float pi = math.pi
         // int safe_length = math.max(length, 2)
@@ -105,7 +105,7 @@ public class ButterValidationTests
         // float b0 = (1.0 - cos_omega) / 2.0
         // float b1 = 1.0 - cos_omega
         // float b2 = (1.0 - cos_omega) / 2.0
-        
+
         int safe_length = Math.Max(period, 2);
         double omega = 2.0 * Math.PI / safe_length;
         double sin_omega = Math.Sin(omega);
@@ -117,22 +117,22 @@ public class ButterValidationTests
         double b0 = (1.0 - cos_omega) / 2.0;
         double b1 = 1.0 - cos_omega;
         double b2 = (1.0 - cos_omega) / 2.0;
-        
+
         double filt = 0;
         double filt1 = 0;
         double filt2 = 0;
-        
+
         // Need to track history for src[1], src[2]
         // In PineScript, src[1] is previous bar's src.
         // We iterate through source.
-        
+
         double src1 = 0;
         double src2 = 0;
 
         for (int i = 0; i < source.Count; i++)
         {
             double src = source[i].Value;
-            
+
             // if bar_index < 2
             //     filt := nz(src, 0.0)
             if (i < 2)
@@ -142,38 +142,38 @@ public class ButterValidationTests
                 // In PineScript, src[1] at index 0 is NaN (nz -> 0.0 or something?)
                 // Actually, nz(src, 0.0) means if src is NaN, use 0.0.
                 // But here src is valid.
-                
+
                 // At i=0: src[1] is NaN, src[2] is NaN.
                 // At i=1: src[1] is src[i-1], src[2] is NaN.
-                
+
                 // But the PineScript code says:
                 // if bar_index < 2: filt := nz(src, 0.0)
                 // else: ... formula ...
-                
+
                 // So for i=0 and i=1, filt = src.
             }
             else
             {
                 // float ssrc = nz(src, src[1]) -> if src is NaN use src[1]. Assuming src is valid.
                 double ssrc = src;
-                
+
                 // float src1 = nz(src[1], ssrc) -> previous src.
                 // float src2 = nz(src[2], src1) -> 2nd previous src.
-                
+
                 // float filt1 = nz(filt[1], ssrc) -> previous filt.
                 // float filt2 = nz(filt[2], filt1) -> 2nd previous filt.
-                
+
                 // filt := (b0 * ssrc + b1 * src1 + b2 * src2 - a1 * filt1 - a2 * filt2) / a0
-                
+
                 filt = (b0 * ssrc + b1 * src1 + b2 * src2 - a1 * filt1 - a2 * filt2) / a0;
             }
-            
+
             result.Add(filt);
-            
+
             // Update history
             src2 = src1;
             src1 = src;
-            
+
             filt2 = filt1;
             filt1 = filt;
         }

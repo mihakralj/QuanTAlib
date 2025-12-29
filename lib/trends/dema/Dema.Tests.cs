@@ -22,7 +22,7 @@ public class DemaTests
             var tVal = new TValue(bar.Time, bar.Close);
 
             var dVal = dema.Update(tVal);
-            
+
             var e1Val = ema1.Update(tVal);
             var e2Val = ema2.Update(e1Val);
             double expected = 2 * e1Val.Value - e2Val.Value;
@@ -48,7 +48,7 @@ public class DemaTests
         // Act
         var demaSeries = Dema.Calculate(source, period);
         var demaObj = new Dema(period);
-        
+
         // Assert
         for (int i = 0; i < source.Count; i++)
         {
@@ -134,7 +134,7 @@ public class DemaTests
         // Act
         var demaSeries = Dema.Calculate(source, alpha);
         var demaObj = new Dema(alpha);
-        
+
         // Assert
         for (int i = 0; i < source.Count; i++)
         {
@@ -193,9 +193,9 @@ public class DemaTests
         var dema = new Dema(10);
         dema.Update(new TValue(DateTime.UtcNow, 100));
         dema.Update(new TValue(DateTime.UtcNow, 110));
-        
+
         dema.Reset();
-        
+
         Assert.Equal(0, dema.Last.Value);
         Assert.False(dema.IsHot);
     }
@@ -278,7 +278,7 @@ public class DemaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Dema.Calculate(series, period);
         double expected = batchSeries.Last.Value;
@@ -321,11 +321,11 @@ public class DemaTests
 
         Dema.Calculate(source, output, 3);
 
-        // We expect the first two outputs to be NaN because the input was NaN 
+        // We expect the first two outputs to be NaN because the input was NaN
         Assert.True(double.IsNaN(output[0]), $"Output[0] should be NaN, but was {output[0]}");
         Assert.True(double.IsNaN(output[1]), $"Output[1] should be NaN, but was {output[1]}");
 
-        // The first valid value is 10.0. 
+        // The first valid value is 10.0.
         Assert.Equal(10.0, output[2], 1e-9);
     }
 }

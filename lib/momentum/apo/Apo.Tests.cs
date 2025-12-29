@@ -67,13 +67,13 @@ public class ApoTests
         apo.Reset();
         Assert.Equal(0, apo.Last.Value);
         Assert.False(apo.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             apo.Update(bars[i]);
         }
-        
+
         Assert.True(double.IsFinite(apo.Last.Value));
     }
 
@@ -99,22 +99,22 @@ public class ApoTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void StaticCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         var apo = new Apo(12, 26);
         var streamingResults = new List<double>();
         for (int i = 0; i < bars.Count; i++)
         {
             streamingResults.Add(apo.Update(bars[i]).Value);
         }
-        
+
         var staticResults = Apo.Batch(bars.Close, 12, 26);
-        
+
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
         {
@@ -128,12 +128,12 @@ public class ApoTests
         var apo = new Apo(12, 26);
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // Test TBarSeries chain
         var result = apo.Update(bars.Close);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TBar chain (returns TValue)
         var result2 = apo.Update(bars[0]);
         Assert.IsType<TValue>(result2);

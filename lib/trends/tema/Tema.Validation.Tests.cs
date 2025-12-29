@@ -85,9 +85,9 @@ public class TemaValidationTests
             var temaIndicator = Tulip.Indicators.tema;
             double[][] inputs = { _testData.RawData.ToArray() };
             double[] options = { period };
-            
+
             // Tulip TEMA lookback is 3*(period-1)
-            int lookback = 3 * (period - 1); 
+            int lookback = 3 * (period - 1);
             double[][] outputs = { new double[_testData.RawData.Length - lookback] };
 
             temaIndicator.Run(inputs, options, outputs);

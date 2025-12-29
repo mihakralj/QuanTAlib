@@ -9,7 +9,7 @@ public class MedianTests
     {
         // Arrange
         var median = new Median(3);
-        
+
         // Act
         median.Update(new TValue(DateTime.MinValue, 10));
         median.Update(new TValue(DateTime.MinValue, 30));
@@ -25,7 +25,7 @@ public class MedianTests
     {
         // Arrange
         var median = new Median(4);
-        
+
         // Act
         median.Update(new TValue(DateTime.MinValue, 10));
         median.Update(new TValue(DateTime.MinValue, 40));
@@ -42,13 +42,13 @@ public class MedianTests
     {
         // Arrange
         var median = new Median(3);
-        
+
         // Act
         median.Update(new TValue(DateTime.MinValue, 10));
         median.Update(new TValue(DateTime.MinValue, 20));
-        
+
         // Update with 30 (isNew=true)
-        var r1 = median.Update(new TValue(DateTime.MinValue, 30)); 
+        var r1 = median.Update(new TValue(DateTime.MinValue, 30));
         // Window: [10, 20, 30] -> Median 20
         Assert.Equal(20, r1.Value);
 
@@ -79,7 +79,7 @@ public class MedianTests
         var medianBatch = Median.Batch(source, period);
         var medianStream = new Median(period);
         var streamResults = new List<double>();
-        
+
         foreach (var val in source)
         {
             streamResults.Add(medianStream.Update(val).Value);
@@ -91,7 +91,7 @@ public class MedianTests
             Assert.Equal(medianBatch.Values[i], streamResults[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void Median_StaticBatch_Matches_ClassBatch()
     {
@@ -99,11 +99,11 @@ public class MedianTests
         int period = 5;
         double[] data = new double[20];
         for(int i=0; i<data.Length; i++) data[i] = i;
-        
+
         // Act
         double[] output = new double[data.Length];
         Median.Batch(data, output, period);
-        
+
         var series = new TSeries();
         for(int i=0; i<data.Length; i++) series.Add(new TValue(DateTime.MinValue, data[i]));
         var batchSeries = Median.Batch(series, period);

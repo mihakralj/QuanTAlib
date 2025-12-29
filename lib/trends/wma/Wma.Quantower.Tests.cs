@@ -68,7 +68,7 @@ public class WmaIndicatorTests
         for (int i = 0; i < 10; i++)
         {
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 102);
-            
+
             // Process update
             var args = new UpdateArgs(UpdateReason.HistoricalBar);
             indicator.ProcessUpdate(args);

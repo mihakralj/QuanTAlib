@@ -19,10 +19,10 @@ public class UsfIndicatorTests
     public void Indicator_ProcessesData()
     {
         var indicator = new UsfIndicator();
-        
+
         // Simulate Init
         indicator.GetType().GetMethod("OnInit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.Invoke(indicator, null);
-        
+
         Assert.NotNull(indicator);
     }
 }

@@ -27,7 +27,7 @@ public class HmaTests
         // Full WMA needs 9
         // Half WMA needs 4
         // Sqrt WMA needs 3
-        // Pipeline: 
+        // Pipeline:
         // 1. Full/Half produce valid values immediately (but with warmup ramp)
         // 2. Sqrt consumes them.
         // IsHot is defined as Full.IsHot && Sqrt.IsHot.
@@ -160,9 +160,9 @@ public class HmaTests
         var hma = new Hma(10);
         hma.Update(new TValue(DateTime.UtcNow, 100));
         hma.Update(new TValue(DateTime.UtcNow, 110));
-        
+
         hma.Reset();
-        
+
         Assert.Equal(0, hma.Last.Value);
         Assert.False(hma.IsHot);
     }
@@ -245,7 +245,7 @@ public class HmaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Hma.Batch(series, period);
         double expected = batchSeries.Last.Value;

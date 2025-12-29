@@ -472,7 +472,7 @@ public class SmaTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Sma.Batch(series, period);
         double expected = batchSeries.Last.Value;
@@ -512,7 +512,7 @@ public class SmaTests
     {
         var source = new TSeries();
         var sma = new Sma(source, 10);
-        
+
         source.Add(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, sma.Last.Value);
     }
@@ -529,12 +529,12 @@ public class SmaTests
     {
         var sma = new Sma(5);
         double[] history = [10, 20, 30, 40, 50]; // SMA(5) = 30
-        
+
         sma.Prime(history);
 
         Assert.True(sma.IsHot);
         Assert.Equal(30.0, sma.Last.Value, 1e-10);
-        
+
         // Verify it continues correctly
         sma.Update(new TValue(DateTime.UtcNow, 60)); // 20,30,40,50,60 -> 40
         Assert.Equal(40.0, sma.Last.Value, 1e-10);
@@ -544,8 +544,8 @@ public class SmaTests
     public void Prime_WithInsufficientHistory_IsNotHot()
     {
         var sma = new Sma(10);
-        double[] history = [10, 20, 30, 40, 50]; 
-        
+        double[] history = [10, 20, 30, 40, 50];
+
         sma.Prime(history);
 
         Assert.False(sma.IsHot);
@@ -556,14 +556,14 @@ public class SmaTests
     public void Prime_HandlesNaN_InHistory()
     {
         var sma = new Sma(3);
-        double[] history = [10, 20, double.NaN, 40]; 
+        double[] history = [10, 20, double.NaN, 40];
         // 10
         // 10, 20
         // 10, 20, 20 (NaN replaced by 20) -> Avg(10,20,20) = 16.666...
         // 20, 20, 40 -> Avg(20,20,40) = 26.666...
-        
+
         sma.Prime(history);
-        
+
         Assert.True(sma.IsHot);
         Assert.Equal(80.0 / 3.0, sma.Last.Value, 1e-9);
     }
@@ -574,7 +574,7 @@ public class SmaTests
         var series = new TSeries();
         for (int i = 1; i <= 10; i++) series.Add(DateTime.UtcNow, i * 10);
         // 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
-        
+
         // SMA(5)
         var (results, indicator) = Sma.Calculate(series, 5);
 
@@ -589,7 +589,7 @@ public class SmaTests
         Assert.Equal(5, indicator.WarmupPeriod);
 
         // Verify indicator continues correctly
-        indicator.Update(new TValue(DateTime.UtcNow, 110)); 
+        indicator.Update(new TValue(DateTime.UtcNow, 110));
         // Window was [60, 70, 80, 90, 100] -> Avg 80
         // New Window [70, 80, 90, 100, 110] -> Avg 90
         Assert.Equal(90.0, indicator.Last.Value);

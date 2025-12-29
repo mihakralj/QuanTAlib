@@ -29,7 +29,7 @@ public sealed class LinRegValidationTests : IDisposable
     {
         var period = 14;
         var skender = _data.SkenderQuotes.GetSlope(period).ToList();
-        
+
         var linreg = new LinReg(period);
         var slopeSeries = new TSeries();
         foreach (var item in _data.Data)
@@ -47,7 +47,7 @@ public sealed class LinRegValidationTests : IDisposable
     {
         var period = 14;
         var skender = _data.SkenderQuotes.GetSlope(period).ToList();
-        
+
         var linreg = new LinReg(period);
         var r2Series = new TSeries();
         foreach (var item in _data.Data)

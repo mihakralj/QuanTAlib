@@ -66,13 +66,13 @@ public class WmaTests
         wma.Reset();
         Assert.Equal(0, wma.Last.Value);
         Assert.False(wma.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             wma.Update(new TValue(bars[i].Time, bars[i].Close));
         }
-        
+
         Assert.True(double.IsFinite(wma.Last.Value));
     }
 
@@ -99,23 +99,23 @@ public class WmaTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void StaticBatch_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         var wma = new Wma(10);
         var streamingResults = new List<double>();
         for (int i = 0; i < series.Count; i++)
         {
             streamingResults.Add(wma.Update(series[i]).Value);
         }
-        
+
         var staticResults = Wma.Batch(series, 10);
-        
+
         Assert.Equal(streamingResults.Count, staticResults.Count);
         for (int i = 0; i < staticResults.Count; i++)
         {
@@ -129,17 +129,17 @@ public class WmaTests
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         var wma = new Wma(10);
         var streamingResults = new List<double>();
         for (int i = 0; i < series.Count; i++)
         {
             streamingResults.Add(wma.Update(series[i]).Value);
         }
-        
+
         var spanResults = new double[series.Count];
         Wma.Batch(series.Values, spanResults, 10);
-        
+
         for (int i = 0; i < spanResults.Length; i++)
         {
             Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
@@ -153,12 +153,12 @@ public class WmaTests
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // Test TSeries chain
         var result = wma.Update(series);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TValue chain
         var result2 = wma.Update(series[0]);
         Assert.IsType<TValue>(result2);
@@ -176,14 +176,14 @@ public class WmaTests
     {
         var source = new TSeries();
         var wma = new Wma(source, 10);
-        
+
         // Verify subscription works
         source.Add(new TValue(DateTime.UtcNow, 100));
         Assert.Equal(100, wma.Last.Value);
-        
+
         // Dispose
         wma.Dispose();
-        
+
         // Verify unsubscription
         source.Add(new TValue(DateTime.UtcNow, 200));
         // Last value should remain unchanged if unsubscribed
@@ -251,11 +251,11 @@ public class WmaTests
     public void Update_IsNewFalse_OnEmptyBuffer_ThrowsInvalidOperationException()
     {
         var wma = new Wma(10);
-        
+
         // Calling Update with isNew=false on an empty buffer should throw
         var exception = Assert.Throws<InvalidOperationException>(() =>
             wma.Update(new TValue(DateTime.UtcNow, 100.0), isNew: false));
-        
+
         Assert.Contains("isNew=false", exception.Message, StringComparison.Ordinal);
         Assert.Contains("buffer is empty", exception.Message, StringComparison.Ordinal);
         Assert.Contains("isNew=true", exception.Message, StringComparison.Ordinal);
@@ -267,20 +267,20 @@ public class WmaTests
         var wma = new Wma(10);
         var gbm = new GBM();
         var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // Feed some data
         for (int i = 0; i < 10; i++)
         {
             wma.Update(new TValue(bars[i].Time, bars[i].Close));
         }
-        
+
         // Reset clears the buffer
         wma.Reset();
-        
+
         // Calling Update with isNew=false after reset should throw
         var exception = Assert.Throws<InvalidOperationException>(() =>
             wma.Update(new TValue(bars[10].Time, bars[10].Close), isNew: false));
-        
+
         Assert.Contains("isNew=false", exception.Message, StringComparison.Ordinal);
         Assert.Contains("buffer is empty", exception.Message, StringComparison.Ordinal);
     }
@@ -291,16 +291,16 @@ public class WmaTests
         var wma = new Wma(10);
         var gbm = new GBM();
         var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         // Feed some data first
         for (int i = 0; i < 5; i++)
         {
             wma.Update(new TValue(bars[i].Time, bars[i].Close), isNew: true);
         }
-        
+
         // Now isNew=false should work (buffer has data)
         var result = wma.Update(new TValue(bars[4].Time, bars[4].Close + 10), isNew: false);
-        
+
         // Should not throw and should return a finite value
         Assert.True(double.IsFinite(result.Value));
     }

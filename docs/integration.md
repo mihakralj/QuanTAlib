@@ -36,7 +36,7 @@ public class MySmaIndicator : Indicator
     {
         // Get price from Quantower
         double price = ClosePrice;
-        
+
         // Update QuanTAlib
         // Note: Quantower handles bar updates, so a check is performed to determine whether this is a new bar or an update
         bool isNew = args.Reason == UpdateReason.NewBar;
@@ -73,10 +73,10 @@ protected override void OnBarUpdate()
 {
     // NinjaTrader calls OnBarUpdate for every tick (if Calculate = OnEachTick)
     // or once per bar (if Calculate = OnBarClose)
-    
+
     bool isNew = IsFirstTickOfBar; // Logic depends on Calculate mode
     var result = _sma.Update(new TValue(Time[0], Close[0]), isNew);
-    
+
     Value[0] = result.Value;
 }
 ```
@@ -104,7 +104,7 @@ public class MyAlgorithm : QCAlgorithm
         {
             var bar = data.Bars["SPY"];
             var result = _mySma.Update(new TValue(bar.EndTime, (double)bar.Close));
-            
+
             if (_mySma.IsHot)
             {
                 Plot("Indicators", "SMA", result.Value);

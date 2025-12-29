@@ -58,7 +58,7 @@ public sealed class Butter : AbstractBase
         double a0 = 1.0 + alpha;
         a1 = -2.0 * cosOmega;
         a2 = 1.0 - alpha;
-        
+
         b0 = (1.0 - cosOmega) / 2.0;
         b1 = 1.0 - cosOmega;
         b2 = (1.0 - cosOmega) / 2.0;
@@ -123,7 +123,7 @@ public sealed class Butter : AbstractBase
         _state.X1 = x;
         _state.Y2 = _state.Y1;
         _state.Y1 = y;
-        
+
         if (_state.Count < 2)
         {
             _state.Count++;
@@ -140,7 +140,7 @@ public sealed class Butter : AbstractBase
         var result = new TSeries();
         Span<double> output = new double[source.Count];
         Calculate(source.Values, output, _period, double.NaN);
-        
+
         for (int i = 0; i < source.Count; i++)
         {
             result.Add(new TValue(source[i].Time, output[i]));
@@ -148,11 +148,11 @@ public sealed class Butter : AbstractBase
 
         // Restore state
         Reset();
-        
+
         // Replay a reasonable amount (e.g. 4*period) for convergence of IIR state.
         int replayCount = Math.Min(source.Count, 4 * _period);
         int start = source.Count - replayCount;
-        
+
         for (int i = start; i < source.Count; i++)
         {
             Update(source[i]);

@@ -62,9 +62,9 @@ public sealed class MacdValidationTests : IDisposable
         // Compare last 100 records
         // MACD Line
         ValidationHelper.VerifyData(qResult, sResult, (s) => s.Macd);
-        
+
         // Signal Line
-        // We need to extract Signal line from QuanTAlib result. 
+        // We need to extract Signal line from QuanTAlib result.
         // Since Update returns TSeries of MACD line, we need to access Signal property from the indicator instance
         // But for batch update, we need to re-run or capture signal.
         // The Macd.Update(TSeries) returns the MACD line series.
@@ -180,7 +180,7 @@ public sealed class MacdValidationTests : IDisposable
         // Calculate Ooples MACD
         var stockData = new StockData(ooplesData);
         var oResult = stockData.CalculateMovingAverageConvergenceDivergence(fastLength: fastPeriod, slowLength: slowPeriod, signalLength: signalPeriod);
-        
+
         var oMacd = oResult.OutputValues["Macd"];
         var oSignal = oResult.OutputValues["Signal"];
         var oHist = oResult.OutputValues["Histogram"];
@@ -223,10 +223,10 @@ public sealed class MacdValidationTests : IDisposable
         var macdIndicator = Tulip.Indicators.macd;
         double[][] inputs = { tData };
         double[] options = { fastPeriod, slowPeriod, signalPeriod };
-        
+
         // Tulip MACD lookback
         int lookback = macdIndicator.Start(options);
-        double[][] outputs = { 
+        double[][] outputs = {
             new double[tData.Length - lookback], // MACD
             new double[tData.Length - lookback], // Signal
             new double[tData.Length - lookback]  // Histogram

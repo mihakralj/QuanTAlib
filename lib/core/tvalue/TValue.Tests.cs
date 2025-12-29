@@ -54,9 +54,9 @@ namespace QuanTAlib.Tests
         public void ImplicitConversion_ToDouble_ReturnsValue()
         {
             var tValue = new TValue(DateTime.UtcNow.Ticks, 42.0);
-            
+
             double val = tValue;
-            
+
             Assert.Equal(42.0, val);
         }
 

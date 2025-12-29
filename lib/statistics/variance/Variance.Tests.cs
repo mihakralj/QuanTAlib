@@ -23,7 +23,7 @@ public class VarianceTests
         // Sample Variance (N-1=7): 32 / 7 = 4.571428...
 
         var data = new double[] { 2, 4, 4, 4, 5, 5, 7, 9 };
-        
+
         // Test Population Variance
         var popVar = new Variance(8, isPopulation: true);
         foreach (var val in data)
@@ -46,7 +46,7 @@ public class VarianceTests
     {
         int period = 5;
         var variance = new Variance(period);
-        
+
         for (int i = 0; i < period; i++)
         {
             Assert.False(variance.IsHot);
@@ -75,18 +75,18 @@ public class VarianceTests
     {
         // Test differential update
         var variance = new Variance(3, isPopulation: true);
-        
+
         // Add 1, 2, 3. Mean=2. Var = ((1-2)^2 + (2-2)^2 + (3-2)^2)/3 = (1+0+1)/3 = 2/3 = 0.666...
         variance.Update(new TValue(DateTime.UtcNow, 1));
         variance.Update(new TValue(DateTime.UtcNow, 2));
         variance.Update(new TValue(DateTime.UtcNow, 3));
-        
+
         Assert.Equal(2.0/3.0, variance.Last.Value, precision: 6);
 
         // Update last value from 3 to 6.
         // Data: 1, 2, 6. Mean=3. Var = ((1-3)^2 + (2-3)^2 + (6-3)^2)/3 = (4+1+9)/3 = 14/3 = 4.666...
         variance.Update(new TValue(DateTime.UtcNow, 6), isNew: false);
-        
+
         Assert.Equal(14.0/3.0, variance.Last.Value, precision: 6);
     }
 
@@ -97,7 +97,7 @@ public class VarianceTests
         int count = 1000;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        
+
         for (int i = 0; i < count; i++)
         {
             data[i] = gbm.Next().Close;
@@ -144,7 +144,7 @@ public class VarianceTests
         variance.Update(new TValue(DateTime.UtcNow, 1));
         variance.Update(new TValue(DateTime.UtcNow, 2));
         variance.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         var result = variance.Last.Value;
         Assert.True(double.IsNaN(result));
     }
@@ -155,12 +155,12 @@ public class VarianceTests
         // Run for > 1000 updates to trigger Resync
         var variance = new Variance(10);
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        
+
         for (int i = 0; i < 1100; i++)
         {
             variance.Update(new TValue(DateTime.UtcNow, gbm.Next().Close));
         }
-        
+
         Assert.True(double.IsFinite(variance.Last.Value));
         Assert.True(variance.Last.Value >= 0);
     }
@@ -174,10 +174,10 @@ public class VarianceTests
         for (int i = 0; i < count; i++) data[i] = (double)i;
 
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
-        
+
         // Batch calculation
         var batchResult = Variance.Calculate(series, 10);
-        
+
         // Verify last value against streaming
         var variance = new Variance(10);
         double lastStreaming = 0;

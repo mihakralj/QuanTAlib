@@ -6,7 +6,7 @@ namespace QuanTAlib;
 /// APO: Absolute Price Oscillator
 /// </summary>
 /// <remarks>
-/// The Absolute Price Oscillator (APO) is a momentum indicator that shows the difference 
+/// The Absolute Price Oscillator (APO) is a momentum indicator that shows the difference
 /// between two Exponential Moving Averages (EMAs) of a security's price.
 ///
 /// Calculation:

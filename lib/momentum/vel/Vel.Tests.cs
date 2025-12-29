@@ -62,7 +62,7 @@ public class VelTests
         vel.Update(new TValue(DateTime.UtcNow, 50));
         // First value is 0 because PWMA(50) = 50 and WMA(50) = 50
         Assert.Equal(0, vel.Last.Value);
-        
+
         vel.Update(new TValue(DateTime.UtcNow, 60));
         Assert.NotEqual(0, vel.Last.Value);
         Assert.NotEqual(valueBefore, vel.Last.Value);
@@ -97,7 +97,7 @@ public class VelTests
         // PWMA(3) of 10,20,30 = 360/14 = 25.7142857...
         // WMA(3) of 10,20,30 = 140/6 = 23.3333333...
         // VEL = PWMA - WMA = 2.38095238...
-        
+
         double expectedPwma = 360.0 / 14.0;
         double expectedWma = 140.0 / 6.0;
         double expectedVel = expectedPwma - expectedWma;
@@ -116,7 +116,7 @@ public class VelTests
         var results = Vel.Batch(series, 3);
 
         Assert.Equal(3, results.Count);
-        
+
         double expectedPwma = 360.0 / 14.0;
         double expectedWma = 140.0 / 6.0;
         double expectedVel = expectedPwma - expectedWma;
@@ -157,7 +157,7 @@ public class VelTests
     {
         var vel = new Vel(10);
         var vel2 = new Vel(vel, 10);
-        
+
         vel.Update(new TValue(DateTime.UtcNow, 100));
         Assert.False(double.IsNaN(vel2.Last.Value));
     }

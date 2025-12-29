@@ -247,8 +247,8 @@ public sealed class Alma : AbstractBase, IDisposable
         // Precompute weights
         // Use stackalloc for small periods to avoid heap allocation, ArrayPool for large
         double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
-        Span<double> weights = period <= 256 
-            ? stackalloc double[period] 
+        Span<double> weights = period <= 256
+            ? stackalloc double[period]
             : weightsArray!.AsSpan(0, period);
 
         double m = offset * (period - 1);
@@ -266,8 +266,8 @@ public sealed class Alma : AbstractBase, IDisposable
 
         // Buffer for sliding window
         double[]? bufferArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
-        Span<double> buffer = period <= 256 
-            ? stackalloc double[period] 
+        Span<double> buffer = period <= 256
+            ? stackalloc double[period]
             : bufferArray!.AsSpan(0, period);
 
         int bufferIdx = 0;
@@ -288,7 +288,7 @@ public sealed class Alma : AbstractBase, IDisposable
                 // Add to circular buffer
                 buffer[bufferIdx] = val;
                 bufferIdx = (bufferIdx + 1) % period;
-                
+
                 if (count < period)
                 {
                     count++;

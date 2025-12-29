@@ -23,14 +23,14 @@ public class VarianceValidationTests
         // Skender StdDev uses Population Standard Deviation (N) for calculation,
         // despite documentation often implying Sample (N-1).
         // Variance(isPopulation: true) should match StdDev^2.
-        
+
         int period = 20;
         var variance = new Variance(period, isPopulation: true);
         var skenderStdDev = _data.SkenderQuotes.GetStdDev(period);
 
         var skenderList = skenderStdDev.ToList();
         var quotes = _data.SkenderQuotes.ToList();
-        
+
         for (int i = 0; i < quotes.Count; i++)
         {
             var tValue = variance.Update(new TValue(quotes[i].Date, (double)quotes[i].Close));
@@ -50,7 +50,7 @@ public class VarianceValidationTests
         // TA-Lib VAR uses Population Variance (N)
         int period = 20;
         var variance = new Variance(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
         double[] output = new double[input.Length];
@@ -78,18 +78,18 @@ public class VarianceValidationTests
         // Tulip VAR uses Population Variance (N)
         int period = 20;
         var variance = new Variance(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
-        
+
         // Tulip calculation
         var varInd = Tulip.Indicators.var;
         double[][] inputs = { input };
         double[] options = { period };
         double[][] outputs = { new double[input.Length - varInd.Start(options)] };
-        
+
         varInd.Run(inputs, options, outputs);
-        
+
         double[] output = outputs[0];
         int lookback = varInd.Start(options);
 
@@ -111,7 +111,7 @@ public class VarianceValidationTests
         int period = 20;
         var variance = new Variance(period, isPopulation: false);
         var popVariance = new Variance(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
 
@@ -125,7 +125,7 @@ public class VarianceValidationTests
                 var window = input[(i - period + 1)..(i + 1)];
                 double expected = Statistics.Variance(window);
                 double expectedPop = Statistics.PopulationVariance(window);
-                
+
                 Assert.Equal(expected, val.Value, ValidationHelper.DefaultTolerance);
                 Assert.Equal(expectedPop, popVal.Value, ValidationHelper.DefaultTolerance);
             }

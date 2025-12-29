@@ -46,24 +46,24 @@ public sealed class DwmaValidationTests : IDisposable
     public void Validate_Against_DoubleWma()
     {
         // DWMA should be exactly WMA(WMA(source, period), period)
-        
+
         int period = 10;
-        
+
         var dwma = new Dwma(period);
         var wma1 = new Wma(period);
         var wma2 = new Wma(period);
-        
+
         for (int i = 0; i < _testData.Data.Count; i++)
         {
             var val = _testData.Data[i];
-            
+
             // Calculate DWMA
             var dwmaVal = dwma.Update(val);
-            
+
             // Calculate WMA(WMA) manually
             var wma1Val = wma1.Update(val);
             var wma2Val = wma2.Update(wma1Val);
-            
+
             Assert.Equal(wma2Val.Value, dwmaVal.Value, ValidationHelper.DefaultTolerance);
         }
     }
@@ -73,24 +73,24 @@ public sealed class DwmaValidationTests : IDisposable
     {
         // Ooples Finance does not have a specific DWMA indicator, but it can be calculated
         // by chaining two Weighted Moving Averages
-        
+
         int period = 14;
-        
+
         var dwma = new Dwma(period);
         var wma1 = new Wma(period); // Simulates first CalculateWeightedMovingAverage
         var wma2 = new Wma(period); // Simulates second CalculateWeightedMovingAverage
-        
+
         for (int i = 0; i < _testData.Data.Count; i++)
         {
             var val = _testData.Data[i];
-            
+
             // QuanTAlib DWMA
             var qVal = dwma.Update(val);
-            
+
             // Ooples Logic (Chained WMA)
             var w1 = wma1.Update(val);
             var w2 = wma2.Update(w1);
-            
+
             Assert.Equal(w2.Value, qVal.Value, ValidationHelper.DefaultTolerance);
         }
     }

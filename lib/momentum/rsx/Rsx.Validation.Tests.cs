@@ -53,7 +53,7 @@ public class RsxValidationTests
         // Internal state variables for filter registers:
         private double f28, f30, f38, f40, f48, f50;
         private double f58, f60, f68, f70, f78, f80;
-        
+
         // Added state for f10 logic
         private double lastF8;
         private bool initialized;
@@ -76,14 +76,14 @@ public class RsxValidationTests
         {
             // Core RSX calculations (assuming price input as closing price):
             double f8 = 100 * price;
-            
-            
+
+
             if (!initialized)
             {
                 lastF8 = f8;
                 initialized = true;
             }
-            
+
             double v8 = f8 - lastF8;
             lastF8 = f8;
 

@@ -310,7 +310,7 @@ public sealed class Htit : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             double price = source[i];
-            
+
             // Handle non-finite input: skip processing if no valid price seen yet
             if (!double.IsFinite(price))
             {

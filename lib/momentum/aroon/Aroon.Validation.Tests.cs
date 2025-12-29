@@ -43,10 +43,10 @@ public sealed class AroonValidationTests : IDisposable
 
         // Verify Oscillator
         ValidationHelper.VerifyData(results, skenderResults, x => x.Oscillator);
-        
+
         // Verify Up
         ValidationHelper.VerifyData(upResults, skenderResults, x => x.AroonUp);
-        
+
         // Verify Down
         ValidationHelper.VerifyData(downResults, skenderResults, x => x.AroonDown);
     }
@@ -82,13 +82,13 @@ public sealed class AroonValidationTests : IDisposable
         Assert.Equal(Core.RetCode.Success, retCodeOsc);
 
         int lookback = TALib.Functions.AroonLookback(14);
-        
+
         // Verify Up
         ValidationHelper.VerifyData(upResults, outAroonUp, outRange, lookback);
-        
+
         // Verify Down
         ValidationHelper.VerifyData(downResults, outAroonDown, outRange, lookback);
-        
+
         // Verify Oscillator
         ValidationHelper.VerifyData(results, outAroonOsc, outRangeOsc, lookback);
     }

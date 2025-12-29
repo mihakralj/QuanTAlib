@@ -113,7 +113,7 @@ public class SimdExtensionsTests
         double[] data = new double[1000];
         for (int i = 0; i < data.Length; i++)
             data[i] = i + 1.0;
-        
+
         var span = new ReadOnlySpan<double>(data);
         double expected = 1000.0 * 1001.0 / 2.0;
         Assert.Equal(expected, span.SumSIMD(), precision: 8);
@@ -324,7 +324,7 @@ public class SimdExtensionsTests
     {
         double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         var span = new ReadOnlySpan<double>(data);
-        
+
         double variance = span.VarianceSIMD();
         Assert.True(Math.Abs(variance - 4.571428) < 0.0001);
     }
@@ -334,10 +334,10 @@ public class SimdExtensionsTests
     {
         double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         var span = new ReadOnlySpan<double>(data);
-        
+
         double mean = 5.0;
         double variance = span.VarianceSIMD(mean);
-        
+
         Assert.True(variance > 0);
     }
 
@@ -379,7 +379,7 @@ public class SimdExtensionsTests
     {
         double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         var span = new ReadOnlySpan<double>(data);
-        
+
         double stdDev = span.StdDevSIMD();
         Assert.True(Math.Abs(stdDev - 2.138) < 0.01);
     }
@@ -389,7 +389,7 @@ public class SimdExtensionsTests
     {
         double[] data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         var span = new ReadOnlySpan<double>(data);
-        
+
         double stdDev = span.StdDevSIMD(5.0);
         Assert.True(stdDev > 0);
     }
@@ -556,14 +556,14 @@ public class SimdExtensionsTests
     public void SIMD_WorksWithTSeriesValues()
     {
         var series = new TSeries(100);
-        
+
         for (int i = 0; i < 100; i++)
         {
             series.Add(DateTime.UtcNow.Ticks + i, i + 1.0);
         }
 
         var values = series.Values;
-        
+
         double sum = values.SumSIMD();
         double avg = values.AverageSIMD();
         double min = values.MinSIMD();
@@ -587,7 +587,7 @@ public class SimdExtensionsTests
         var bars = gbm.Fetch(1000, startTime, interval);
 
         var closeValues = bars.Close.Values;
-        
+
         double sum = closeValues.SumSIMD();
         double avg = closeValues.AverageSIMD();
         double min = closeValues.MinSIMD();
@@ -611,7 +611,7 @@ public class SimdExtensionsTests
         _ = closeValues.SumSIMD();
 
         var sw = System.Diagnostics.Stopwatch.StartNew();
-        
+
         double sum = closeValues.SumSIMD();
         double avg = closeValues.AverageSIMD();
         double min = closeValues.MinSIMD();
@@ -619,7 +619,7 @@ public class SimdExtensionsTests
         var (minAlt, maxAlt) = closeValues.MinMaxSIMD();
         double variance = closeValues.VarianceSIMD();
         double stdDev = closeValues.StdDevSIMD();
-        
+
         sw.Stop();
 
         Assert.True(sum > 0);
@@ -630,8 +630,8 @@ public class SimdExtensionsTests
         Assert.Equal(max, maxAlt);
         Assert.True(variance > 0);
         Assert.True(stdDev > 0);
-        
-        Assert.True(sw.ElapsedMilliseconds < 50, 
+
+        Assert.True(sw.ElapsedMilliseconds < 50,
             $"SIMD operations took {sw.ElapsedMilliseconds}ms, expected < 50ms");
     }
 
@@ -640,12 +640,12 @@ public class SimdExtensionsTests
     {
         double[] data = [1.0, 2.0, 3.0];
         var span = new ReadOnlySpan<double>(data);
-        
+
         Assert.Equal(6.0, span.SumSIMD());
         Assert.Equal(1.0, span.MinSIMD());
         Assert.Equal(3.0, span.MaxSIMD());
         Assert.Equal(2.0, span.AverageSIMD());
-        
+
         var (min, max) = span.MinMaxSIMD();
         Assert.Equal(1.0, min);
         Assert.Equal(3.0, max);

@@ -57,7 +57,7 @@ public class AdoscTests
 
         var modifiedBar = new TBar(_bars[0].Time, _bars[0].Open, _bars[0].High, _bars[0].Low, _bars[0].Close * 1.1, _bars[0].Volume);
         adosc.Update(modifiedBar, isNew: false);
-        
+
         Assert.NotEqual(firstResult, adosc.Last.Value);
     }
 
@@ -87,7 +87,7 @@ public class AdoscTests
     {
         var adosc = new Adosc(3, 10);
         var batchResult = Adosc.Batch(_bars, 3, 10);
-        
+
         var streamResult = new List<double>();
         foreach (var bar in _bars)
         {

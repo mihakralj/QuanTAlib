@@ -50,7 +50,7 @@ public class ButterIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        
+
         TValue result = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
         _series!.SetValue(result.Value, _ma.IsHot, ShowColdValues);

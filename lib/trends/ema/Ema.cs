@@ -22,7 +22,7 @@ namespace QuanTAlib;
 /// No buffer required, only previous EMA value and compensator state.
 ///
 /// IsHot:
-/// Becomes true when n = ln(0.05) / ln(1 - alpha) 
+/// Becomes true when n = ln(0.05) / ln(1 - alpha)
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Ema : AbstractBase
@@ -303,7 +303,7 @@ public sealed class Ema : AbstractBase
                 else
                     val = lastValidValue;
 
-                 
+
                 state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
                 state.E *= decay;
 

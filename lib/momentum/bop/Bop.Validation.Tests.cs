@@ -42,10 +42,10 @@ public sealed class BopValidationTests : IDisposable
         var high = _data.Bars.High.Values.ToArray();
         var low = _data.Bars.Low.Values.ToArray();
         var close = _data.Bars.Close.Values.ToArray();
-        
+
         var talibResult = new double[_data.Bars.Count];
         var retCode = TALib.Functions.Bop(open, high, low, close, 0..^0, talibResult, out var outRange);
-        
+
         Assert.Equal(Core.RetCode.Success, retCode);
 
         var quanTAlibResult = Bop.Batch(_data.Bars);
@@ -60,7 +60,7 @@ public sealed class BopValidationTests : IDisposable
         var high = _data.Bars.High.Values.ToArray();
         var low = _data.Bars.Low.Values.ToArray();
         var close = _data.Bars.Close.Values.ToArray();
-        
+
         double[][] inputs = { open, high, low, close };
         double[] options = Array.Empty<double>(); // No options for BOP
 
@@ -89,7 +89,7 @@ public sealed class BopValidationTests : IDisposable
 
         var stockData = new StockData(ooplesData);
         var ooplesResult = stockData.CalculateBalanceOfPower().OutputValues["Bop"].ToArray();
-        
+
         var quanTAlibResult = Bop.Batch(_data.Bars);
 
         ValidationHelper.VerifyData(quanTAlibResult, ooplesResult, lookback: 0, skip: 0, tolerance: ValidationHelper.OoplesTolerance);

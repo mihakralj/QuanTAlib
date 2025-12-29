@@ -66,7 +66,7 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        
+
         TValue result = _conv!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
         Series!.SetValue(result.Value, _conv.IsHot, ShowColdValues);

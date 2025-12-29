@@ -22,7 +22,7 @@ public sealed class SkewValidationTests : IDisposable
         int period = 20;
         var skew = new Skew(period, isPopulation: false);
         var popSkew = new Skew(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
 
@@ -37,7 +37,7 @@ public sealed class SkewValidationTests : IDisposable
                 var window = input[(i - period + 1)..(i + 1)];
                 double expected = Statistics.Skewness(window);
                 double expectedPop = Statistics.PopulationSkewness(window);
-                
+
                 Assert.Equal(expected, val.Value, 1e-6);
                 Assert.Equal(expectedPop, popVal.Value, 1e-6);
             }

@@ -63,7 +63,7 @@ public sealed class CovarianceIndicator : Indicator, IWatchlistIndicator
 
         var input1 = new TValue(time, val1);
         var input2 = new TValue(time, val2);
-        
+
         TValue result = _cov!.Update(input1, input2, args.IsNewBar());
 
         _series!.SetValue(result.Value, _cov.IsHot, ShowColdValues);

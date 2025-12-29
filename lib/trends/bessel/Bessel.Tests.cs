@@ -12,7 +12,7 @@ public class BesselTests
 
         var bessel = new Bessel(2);
         Assert.NotNull(bessel);
-        
+
         var bessel14 = new Bessel(14);
         Assert.NotNull(bessel14);
     }

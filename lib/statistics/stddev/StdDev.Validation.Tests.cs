@@ -27,7 +27,7 @@ public class StdDevValidationTests
 
         var skenderList = skenderStdDev.ToList();
         var quotes = _data.SkenderQuotes.ToList();
-        
+
         for (int i = 0; i < quotes.Count; i++)
         {
             var tValue = stdDev.Update(new TValue(quotes[i].Date, (double)quotes[i].Close));
@@ -46,7 +46,7 @@ public class StdDevValidationTests
         // TA-Lib STDDEV uses Population Standard Deviation (N)
         int period = 20;
         var stdDev = new StdDev(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
         double[] output = new double[input.Length];
@@ -74,18 +74,18 @@ public class StdDevValidationTests
         // Tulip STDDEV uses Population Standard Deviation (N)
         int period = 20;
         var stdDev = new StdDev(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
-        
+
         // Tulip calculation
         var stdDevInd = Tulip.Indicators.stddev;
         double[][] inputs = { input };
         double[] options = { period };
         double[][] outputs = { new double[input.Length - stdDevInd.Start(options)] };
-        
+
         stdDevInd.Run(inputs, options, outputs);
-        
+
         double[] output = outputs[0];
         int lookback = stdDevInd.Start(options);
 
@@ -107,7 +107,7 @@ public class StdDevValidationTests
         int period = 20;
         var stdDev = new StdDev(period, isPopulation: false);
         var popStdDev = new StdDev(period, isPopulation: true);
-        
+
         var quotes = _data.SkenderQuotes.ToList();
         double[] input = quotes.Select(q => (double)q.Close).ToArray();
 
@@ -121,7 +121,7 @@ public class StdDevValidationTests
                 var window = input[(i - period + 1)..(i + 1)];
                 double expected = Statistics.StandardDeviation(window);
                 double expectedPop = Statistics.PopulationStandardDeviation(window);
-                
+
                 Assert.Equal(expected, val.Value, ValidationHelper.DefaultTolerance);
                 Assert.Equal(expectedPop, popVal.Value, ValidationHelper.DefaultTolerance);
             }

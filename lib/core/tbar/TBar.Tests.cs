@@ -168,9 +168,9 @@ public class TBarTests
         {
             long time = DateTime.UtcNow.Ticks;
             var bar = new TBar(time, 100, 110, 90, 105, 1000);
-            
+
             TValue tv = bar;
-            
+
             Assert.Equal(time, tv.Time);
             Assert.Equal(105.0, tv.Value);
         }

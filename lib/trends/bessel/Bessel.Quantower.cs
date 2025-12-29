@@ -49,7 +49,7 @@ public class BesselIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        
+
         TValue result = _filter!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
 
         Series!.SetValue(result.Value, _filter.IsHot, ShowColdValues);

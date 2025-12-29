@@ -8,19 +8,19 @@ namespace QuanTAlib;
 /// T3: Tillson T3 Moving Average
 /// </summary>
 /// <remarks>
-/// T3 works by running price data through a series of six EMAs, then combining the outputs 
+/// T3 works by running price data through a series of six EMAs, then combining the outputs
 /// of these EMAs using carefully calculated weights.
-/// 
+///
 /// Formula:
 /// T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
-/// 
+///
 /// Where:
 /// e1..e6 are cascaded EMAs
 /// c1 = -v^3
 /// c2 = 3(v^2 + v^3)
 /// c3 = -3(2v^2 + v + v^3)
 /// c4 = 1 + 3v + 3v^2 + v^3
-/// 
+///
 /// v is volume factor (default 0.7)
 /// alpha = 2 / (period + 1)
 /// </remarks>
@@ -154,7 +154,7 @@ public sealed class T3 : AbstractBase, IDisposable
         // Since Compute returns the result but also updates state, we can't easily get the last result without re-running or storing it.
         // However, Prime is usually followed by Update or we just need the state ready.
         // If we want Last to be correct, we should probably store the last result.
-        // But AbstractBase.Prime doesn't strictly require Last to be set to the very last value of source, 
+        // But AbstractBase.Prime doesn't strictly require Last to be set to the very last value of source,
         // though it's good practice.
         // Let's re-run the last value computation to set Last correctly.
         if (len > 0)

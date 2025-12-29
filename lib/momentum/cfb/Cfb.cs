@@ -235,9 +235,9 @@ public sealed class Cfb : ITValuePublisher
         Batch(source.Values, vSpan, _lengths);
         source.Times.CopyTo(tSpan);
 
-        // Restore state logic would go here if needed for continuity, 
+        // Restore state logic would go here if needed for continuity,
         // but for batch processing we usually just return the result.
-        // To properly support "Update(TValue)" after "Update(TSeries)", we would need to 
+        // To properly support "Update(TValue)" after "Update(TSeries)", we would need to
         // replay the last MaxLen bars to populate the buffers.
 
         // Replay last MaxLen bars to restore state

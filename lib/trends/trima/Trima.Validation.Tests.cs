@@ -36,14 +36,14 @@ public class TrimaValidationTests
             int p2 = (period + 1) / 2;
 
             var sma1Results = _testData.SkenderQuotes.GetSma(p1).ToList();
-            
+
             // Map SMA1 results to Quotes for the second pass
             // Note: We use 0 for null values during warmup, which might affect early values
             // but should stabilize for the verification window (last 100 records)
-            var quotes2 = sma1Results.Select(r => new Quote 
-            { 
-                Date = r.Date, 
-                Close = (decimal)(r.Sma ?? 0) 
+            var quotes2 = sma1Results.Select(r => new Quote
+            {
+                Date = r.Date,
+                Close = (decimal)(r.Sma ?? 0)
             }).ToList();
 
             var sResult = quotes2.GetSma(p2).ToList();
@@ -99,10 +99,10 @@ public class TrimaValidationTests
             // Usually it's period-1 for simple averages, but TRIMA is double smoothed.
             // We'll rely on the output length to align.
             // Tulip.Indicators.trima.Run expects outputs to be sized correctly.
-            // We can try to run it with a large buffer and see what happens, 
+            // We can try to run it with a large buffer and see what happens,
             // or calculate the expected lookback.
             // For TRIMA(n), lookback is roughly n-1.
-            int lookback = period - 1; 
+            int lookback = period - 1;
             double[][] outputs = { new double[_testData.RawData.Length - lookback] };
 
             trimaIndicator.Run(inputs, options, outputs);

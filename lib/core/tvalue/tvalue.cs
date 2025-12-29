@@ -14,7 +14,7 @@ public readonly record struct TValue(long Time, double Value)
     public DateTime AsDateTime => new(Time, DateTimeKind.Utc);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue(DateTime time, double value) 
+    public TValue(DateTime time, double value)
         : this(time.Kind == DateTimeKind.Utc ? time.Ticks : time.ToUniversalTime().Ticks, value)
     {
     }

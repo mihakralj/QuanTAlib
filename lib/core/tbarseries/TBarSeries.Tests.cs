@@ -40,9 +40,9 @@ public class TBarSeriesTests
         {
             var series = new TBarSeries();
             var bar = new TBar(DateTime.UtcNow.Ticks, 100, 110, 90, 105, 1000);
-            
+
             series.Add(bar, isNew: true);
-            
+
             Assert.Single(series);
             Assert.Equal(105.0, series.Last.Close);
         }
@@ -54,10 +54,10 @@ public class TBarSeriesTests
             long time = DateTime.UtcNow.Ticks;
             var bar1 = new TBar(time, 100, 110, 90, 105, 1000);
             var bar2 = new TBar(time, 100, 112, 90, 108, 1200);
-            
+
             series.Add(bar1, isNew: true);
             series.Add(bar2, isNew: false);
-            
+
             Assert.Single(series);
             Assert.Equal(108.0, series.Last.Close);
             Assert.Equal(112.0, series.Last.High);
@@ -68,9 +68,9 @@ public class TBarSeriesTests
         {
             var series = new TBarSeries();
             var bar = new TBar(DateTime.UtcNow.Ticks, 100, 110, 90, 105, 1000);
-            
+
             series.Add(bar, isNew: false);
-            
+
             Assert.Single(series);
         }
 
@@ -79,9 +79,9 @@ public class TBarSeriesTests
         {
             var series = new TBarSeries();
             long time = DateTime.UtcNow.Ticks;
-            
+
             series.Add(time, 100, 110, 90, 105, 1000, isNew: true);
-            
+
             Assert.Single(series);
             Assert.Equal(time, series.Last.Time);
         }
@@ -91,9 +91,9 @@ public class TBarSeriesTests
         {
             var series = new TBarSeries();
             var dt = new DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Utc);
-            
+
             series.Add(dt, 100, 110, 90, 105, 1000, isNew: true);
-            
+
             Assert.Single(series);
             Assert.Equal(dt.Ticks, series.Last.Time);
         }
@@ -108,9 +108,9 @@ public class TBarSeriesTests
             var lows = new double[] { 5, 15, 25 };
             var closes = new double[] { 12, 22, 32 };
             var volumes = new double[] { 100, 200, 300 };
-            
+
             series.Add(times, opens, highs, lows, closes, volumes);
-            
+
             Assert.Equal(3, series.Count);
             Assert.Equal(10, series[0].Open);
             Assert.Equal(32, series[2].Close);
@@ -121,15 +121,15 @@ public class TBarSeriesTests
         {
             var series = new TBarSeries();
             var bar = new TBar(DateTime.UtcNow.Ticks, 100, 110, 90, 105, 1000);
-            
+
             series.Add(bar, isNew: true);
-            
+
             Assert.Single(series.Open);
             Assert.Single(series.High);
             Assert.Single(series.Low);
             Assert.Single(series.Close);
             Assert.Single(series.Volume);
-            
+
             Assert.Equal(100.0, series.Open.Last.Value);
             Assert.Equal(110.0, series.High.Last.Value);
             Assert.Equal(90.0, series.Low.Last.Value);
@@ -143,7 +143,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             var bar = new TBar(DateTime.UtcNow.Ticks, 100, 110, 90, 105, 1000);
             series.Add(bar, isNew: true);
-            
+
             Assert.Same(series.Open, series.O);
             Assert.Same(series.High, series.H);
             Assert.Same(series.Low, series.L);
@@ -155,7 +155,7 @@ public class TBarSeriesTests
         public void SubSeries_HaveCorrectNames()
         {
             var series = new TBarSeries();
-            
+
             Assert.Equal("Open", series.Open.Name);
             Assert.Equal("High", series.High.Name);
             Assert.Equal("Low", series.Low.Name);
@@ -167,9 +167,9 @@ public class TBarSeriesTests
         public void Last_EmptySeries_ReturnsDefault()
         {
             var series = new TBarSeries();
-            
+
             var last = series.Last;
-            
+
             Assert.Equal(0, last.Time);
             Assert.Equal(0.0, last.Open);
             Assert.Equal(0.0, last.Close);
@@ -181,9 +181,9 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             var last = series.Last;
-            
+
             Assert.Equal(200, last.Time);
             Assert.Equal(22.0, last.Close);
         }
@@ -201,7 +201,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(200, series.LastTime);
         }
 
@@ -218,7 +218,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(20.0, series.LastOpen);
         }
 
@@ -235,7 +235,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(25.0, series.LastHigh);
         }
 
@@ -252,7 +252,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(15.0, series.LastLow);
         }
 
@@ -269,7 +269,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(22.0, series.LastClose);
         }
 
@@ -286,7 +286,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(200.0, series.LastVolume);
         }
 
@@ -297,7 +297,7 @@ public class TBarSeriesTests
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
             series.Add(300, 30, 35, 25, 32, 300);
-            
+
             Assert.Equal(100, series[0].Time);
             Assert.Equal(10.0, series[0].Open);
             Assert.Equal(200, series[1].Time);
@@ -310,12 +310,12 @@ public class TBarSeriesTests
         public void Count_ReturnsCorrectValue()
         {
             var series = new TBarSeries();
-            
+
             Assert.Empty(series);
-            
+
             series.Add(100, 10, 15, 5, 12, 100);
             Assert.Single(series);
-            
+
             series.Add(200, 20, 25, 15, 22, 200);
             Assert.Equal(2, series.Count);
         }
@@ -327,9 +327,9 @@ public class TBarSeriesTests
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
             series.Add(300, 30, 35, 25, 32, 300);
-            
+
             var list = series.ToList();
-            
+
             Assert.Equal(3, list.Count);
             Assert.Equal(10.0, list[0].Open);
             Assert.Equal(22.0, list[1].Close);
@@ -349,7 +349,7 @@ public class TBarSeriesTests
         {
                 list.Add(item);
             }
-            
+
             Assert.Equal(2, list.Count);
         }
 
@@ -362,7 +362,7 @@ public class TBarSeriesTests
 
             var barToAdd = new TBar(100, 10, 15, 5, 12, 100);
             series.Add(barToAdd, isNew: true);
-            
+
             Assert.NotNull(received);
             Assert.Equal(100, received.Value.Time);
             Assert.Equal(12.0, received.Value.Close);
@@ -377,7 +377,7 @@ public class TBarSeriesTests
             series.Pub += (object? sender, in TBarEventArgs args) => received = args.Value;
 
             series.Add(100, 10, 18, 5, 15, 150, isNew: false);
-            
+
             Assert.NotNull(received);
             Assert.Equal(15.0, received.Value.Close);
             Assert.Equal(18.0, received.Value.High);
@@ -389,7 +389,7 @@ public class TBarSeriesTests
             var series = new TBarSeries();
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
-            
+
             Assert.Equal(series.Open.Times[0], series.Close.Times[0]);
             Assert.Equal(series.High.Times[1], series.Volume.Times[1]);
         }
@@ -398,11 +398,11 @@ public class TBarSeriesTests
         public void Add_MultipleBars_MaintainsOrder()
         {
             var series = new TBarSeries();
-            
+
             series.Add(100, 10, 15, 5, 12, 100);
             series.Add(200, 20, 25, 15, 22, 200);
             series.Add(300, 30, 35, 25, 32, 300);
-            
+
             Assert.Equal(3, series.Count);
             Assert.Equal(100, series[0].Time);
             Assert.Equal(200, series[1].Time);

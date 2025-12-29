@@ -42,7 +42,7 @@ public class CfbValidationTests
     {
         // Verify that Batch(TSeries) and Batch(Span) produce identical results
         var batchResult = Cfb.Batch(_testData.Data);
-        
+
         var spanInput = _testData.Data.Values.ToArray().AsSpan();
         var spanOutput = new double[spanInput.Length];
         Cfb.Batch(spanInput, spanOutput);

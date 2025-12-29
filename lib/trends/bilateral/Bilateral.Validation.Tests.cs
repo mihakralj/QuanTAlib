@@ -115,12 +115,12 @@ public sealed class BilateralValidationTests : IDisposable
     {
         var reference = new BilateralReference(period, sigmaSRatio, sigmaRMult);
         var results = new List<double>();
-        
+
         foreach (var item in _testData.Data)
         {
             results.Add(reference.Update(item.Value));
         }
-        
+
         return results;
     }
 
@@ -149,7 +149,7 @@ public sealed class BilateralValidationTests : IDisposable
             if (_history.Count == 0) return double.NaN;
 
             double sigmaS = Math.Max(_length * _sigmaSRatio, 1e-10);
-            
+
             // Calculate StDev of current window
             double stdev = CalculateStDev(_history);
             double sigmaR = Math.Max(stdev * _sigmaRMult, 1e-10);
@@ -161,18 +161,18 @@ public sealed class BilateralValidationTests : IDisposable
             // Iterate through history
             // i=0 is newest (index Count-1)
             int loopLen = _history.Count;
-            
+
             for (int i = 0; i < loopLen; i++)
             {
                 double valI = _history[_history.Count - 1 - i];
                 double diffSpatial = i;
                 double diffRange = centerVal - valI;
-                
+
                 double weightSpatial = Math.Exp(-(diffSpatial * diffSpatial) / (2.0 * sigmaS * sigmaS));
                 double weightRange = Math.Exp(-(diffRange * diffRange) / (2.0 * sigmaR * sigmaR));
-                
+
                 double weight = weightSpatial * weightRange;
-                
+
                 sumWeights += weight;
                 sumWeightedSrc += weight * valI;
             }
@@ -183,7 +183,7 @@ public sealed class BilateralValidationTests : IDisposable
         private static double CalculateStDev(IReadOnlyList<double> values)
         {
             if (values.Count < 2) return 0;
-            
+
             double avg = values.Average();
             double sumSqDiff = values.Sum(d => (d - avg) * (d - avg));
             // Population StDev to match implementation

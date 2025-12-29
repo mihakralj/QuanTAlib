@@ -270,7 +270,7 @@ public class RsiTests
         }
 
         var result = rsi.Update(series);
-        
+
         // Flat line: no gains or losses, RSI = 50
         Assert.Equal(50, result.Last.Value);
     }
@@ -362,12 +362,12 @@ public class RsiTests
         var source = new double[20];
         var gbm = new GBM();
         var series = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        
+
         for (int i = 0; i < 20; i++)
         {
             source[i] = series.Close[i].Value;
         }
-        
+
         source[10] = double.NaN;
         source[15] = double.NaN;
 

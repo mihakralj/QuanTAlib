@@ -65,7 +65,7 @@ public sealed class AroonOscValidationTests : IDisposable
         Assert.Equal(Core.RetCode.Success, retCodeOsc);
 
         int lookback = TALib.Functions.AroonLookback(14);
-        
+
         // Verify Oscillator
         ValidationHelper.VerifyData(results, outAroonOsc, outRangeOsc, lookback);
     }

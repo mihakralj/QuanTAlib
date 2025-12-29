@@ -106,7 +106,7 @@ public sealed class HtitValidationTests : IDisposable
         // Calculate QuanTAlib HTIT Streaming
         var htit = new Htit();
         var streamingResults = new List<double>();
-        
+
         foreach (var item in _data.Data)
         {
             streamingResults.Add(htit.Update(item).Value);

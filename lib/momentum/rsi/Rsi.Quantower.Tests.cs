@@ -80,18 +80,18 @@ public class RsiIndicatorTests
 
         // Process updates
         var args = new UpdateArgs(UpdateReason.HistoricalBar);
-        
+
         // We need to process updates sequentially to build state
         // But the mock might not support full stateful replay easily without calling ProcessUpdate multiple times
         // Let's just verify it runs without error and produces a value
-        
+
         indicator.ProcessUpdate(args); // Bar 0
         indicator.ProcessUpdate(args); // Bar 1
         indicator.ProcessUpdate(args); // Bar 2
 
         // Line series should have a value
         double rsi = indicator.LinesSeries[0].GetValue(0);
-        
+
         // We just check it's a valid number (0-100)
         Assert.True(rsi >= 0 && rsi <= 100);
     }

@@ -35,7 +35,7 @@ public class HtitTests
         var series = data;
 
         var resultSeries = htit.Update(series);
-        
+
         // Reset and calculate streaming
         htit.Reset();
         var streamingResults = new List<double>();
@@ -58,10 +58,10 @@ public class HtitTests
         var series = data;
 
         var resultSeries = htit.Update(series);
-        
+
         var spanInput = data.Values.ToArray();
         var spanOutput = new double[spanInput.Length];
-        
+
         Htit.Calculate(spanInput, spanOutput);
 
         for (int i = 0; i < resultSeries.Count; i++)
@@ -76,7 +76,7 @@ public class HtitTests
         var htit = new Htit();
         htit.Update(new TValue(DateTime.UtcNow.Ticks, 100.0));
         htit.Update(new TValue(DateTime.UtcNow.Ticks, double.NaN));
-        
+
         Assert.Equal(100.0, htit.Last.Value);
     }
 
@@ -94,9 +94,9 @@ public class HtitTests
         var htit = new Htit();
         htit.Update(new TValue(DateTime.UtcNow, 100));
         htit.Update(new TValue(DateTime.UtcNow, 110));
-        
+
         htit.Reset();
-        
+
         Assert.True(double.IsNaN(htit.Last.Value));
         Assert.False(htit.IsHot);
     }
@@ -163,7 +163,7 @@ public class HtitTests
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // 1. Batch Mode
         var batchSeries = Htit.Batch(series);
         double expected = batchSeries.Last.Value;

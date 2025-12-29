@@ -24,7 +24,7 @@ public class MacdTests
         }
 
         var batchResult = macd.Update(series);
-        
+
         macd.Reset();
         var streamResults = new System.Collections.Generic.List<double>();
         foreach (var item in series)
@@ -38,7 +38,7 @@ public class MacdTests
             Assert.Equal(batchResult[i].Value, streamResults[i], 8);
         }
     }
-    
+
     [Fact]
     public void SpanMatchesBatch()
     {
@@ -49,12 +49,12 @@ public class MacdTests
         {
             series.Add(new TValue(DateTime.UtcNow.AddMinutes(i), 100 + Math.Sin(i * 0.1) * 10));
         }
-        
+
         var batchResult = macd.Update(series);
-        
+
         var output = new double[series.Count];
         Macd.Calculate(series.Values, output, 12, 26);
-        
+
         for (int i = 0; i < series.Count; i++)
         {
             Assert.Equal(batchResult[i].Value, output[i], 8);

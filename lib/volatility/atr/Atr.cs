@@ -59,8 +59,8 @@ public sealed class Atr : AbstractBase
         var tr = CalculateTrueRange(source);
         _rma.Prime(tr.Values);
         Last = _rma.Last;
-        // We can't automatically subscribe to TBarSeries updates via this constructor 
-        // because AbstractBase doesn't enforce TBarSeries subscription structure, 
+        // We can't automatically subscribe to TBarSeries updates via this constructor
+        // because AbstractBase doesn't enforce TBarSeries subscription structure,
         // but we can rely on manual updates or the user subscribing.
     }
 
@@ -73,8 +73,8 @@ public sealed class Atr : AbstractBase
 
     /// <summary>
     /// Initializes the indicator state using the provided history.
-    /// Note: ATR needs OHLCV data to calculate TR properly. 
-    /// This Prime method expects pre-calculated TR values or handles basic priming 
+    /// Note: ATR needs OHLCV data to calculate TR properly.
+    /// This Prime method expects pre-calculated TR values or handles basic priming
     /// if the user erroneously passes non-TR data. Ideally, use Batched TBarSeries.
     /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)

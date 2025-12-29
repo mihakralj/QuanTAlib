@@ -66,13 +66,13 @@ public class UsfTests
         usf.Reset();
         Assert.Equal(0, usf.Last.Value);
         Assert.False(usf.IsHot);
-        
+
         // Feed again
         for (int i = 0; i < bars.Count; i++)
         {
             usf.Update(new TValue(bars[i].Time, bars[i].Close));
         }
-        
+
         Assert.True(double.IsFinite(usf.Last.Value));
     }
 
@@ -99,23 +99,23 @@ public class UsfTests
             Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void BatchCalculate_Matches_Streaming()
     {
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         var usf = new Usf(10);
         var streamingResults = new List<double>();
         for (int i = 0; i < series.Count; i++)
         {
             streamingResults.Add(usf.Update(series[i]).Value);
         }
-        
+
         var batchResults = Usf.Calculate(series, 10).Results;
-        
+
         Assert.Equal(streamingResults.Count, batchResults.Count);
         for (int i = 0; i < batchResults.Count; i++)
         {
@@ -129,17 +129,17 @@ public class UsfTests
         var gbm = new GBM();
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         var usf = new Usf(10);
         var streamingResults = new List<double>();
         for (int i = 0; i < series.Count; i++)
         {
             streamingResults.Add(usf.Update(series[i]).Value);
         }
-        
+
         var spanResults = new double[series.Count];
         Usf.Calculate(series.Values, spanResults, 10);
-        
+
         for (int i = 0; i < spanResults.Length; i++)
         {
             Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
@@ -153,12 +153,12 @@ public class UsfTests
         var gbm = new GBM();
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        
+
         // Test TSeries chain
         var result = usf.Update(series);
         Assert.NotNull(result);
         Assert.IsType<TSeries>(result);
-        
+
         // Test TValue chain
         var result2 = usf.Update(series[0]);
         Assert.IsType<TValue>(result2);
