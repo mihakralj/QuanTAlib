@@ -372,7 +372,7 @@ public class RingBufferTests
         buffer.Add(20.0);
         buffer.Add(30.0);
 
-        var values = new List<double>();
+        List<double> values = [];
         foreach (var v in buffer)
         {
             values.Add(v);
@@ -395,7 +395,7 @@ public class RingBufferTests
         buffer.Add(40.0);
         buffer.Add(50.0);
 
-        var values = new List<double>();
+        List<double> values = [];
         foreach (var v in buffer)
         {
             values.Add(v);
@@ -637,7 +637,7 @@ public class RingBufferTests
         buffer.Add(20.0);
 
         IEnumerable<double> enumerable = buffer;
-        var values = new List<double>();
+        List<double> values = [];
         foreach (var v in enumerable)
         {
             values.Add(v);
@@ -656,7 +656,7 @@ public class RingBufferTests
         buffer.Add(20.0);
 
         IEnumerable enumerable = buffer;
-        var values = new List<double>();
+        List<double> values = [];
         foreach (var v in enumerable)
         {
             values.Add((double)v);

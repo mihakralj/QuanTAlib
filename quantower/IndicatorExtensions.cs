@@ -115,7 +115,7 @@ public static class IndicatorExtensions
         int count = leftIndex - rightIndex;
         if (count <= 0) return Array.Empty<Point>();
 
-        Point[] allPoints = new Point[count];
+        var allPoints = new Point[count];
 
         for (int i = 0; i < count; i++)
         {
@@ -191,7 +191,7 @@ public static class IndicatorExtensions
                 if (showColdValues)
                 {
                     int coldStart = Math.Max(0, hotCount);
-                    int coldSegments = (count - 1) - coldStart;
+                    int coldSegments = count -  coldStart - 1;
 
                     if (coldSegments > 0)
                     {

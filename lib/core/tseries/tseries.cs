@@ -99,8 +99,8 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
         }
         else
         {
-            _t = new List<long>(time);
-            _v = new List<double>(values);
+            _t = [..time];
+            _v = [..values];
         }
     }
 

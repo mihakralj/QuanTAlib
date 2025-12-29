@@ -106,14 +106,12 @@ public delegate void TBarPublishedHandler(object? sender, in TBarEventArgs args)
 
 public class TBarSeries : IReadOnlyList<TBar>
 {
-#pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
-    protected readonly List<long> _t;
-    protected readonly List<double> _o;
-    protected readonly List<double> _h;
-    protected readonly List<double> _l;
-    protected readonly List<double> _c;
-    protected readonly List<double> _v;
-#pragma warning restore MA0016
+    private readonly List<long> _t;
+    private readonly List<double> _o;
+    private readonly List<double> _h;
+    private readonly List<double> _l;
+    private readonly List<double> _c;
+    private readonly List<double> _v;
 
     public string Name { get; set; } = "Bar";
     public event TBarPublishedHandler? Pub;

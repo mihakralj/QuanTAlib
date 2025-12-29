@@ -526,10 +526,10 @@ public sealed class RingBuffer : IEnumerable<double>
             _index == other._index &&
             _current.Equals(other._current);
 
-        public override readonly bool Equals(object? obj) =>
+        public readonly override bool Equals(object? obj) =>
             obj is Enumerator other && Equals(other);
 
-        public override readonly int GetHashCode() =>
+        public readonly override int GetHashCode() =>
             HashCode.Combine(RuntimeHelpers.GetHashCode(_buffer), _start, _count, _index, _current);
 
         public static bool operator ==(Enumerator left, Enumerator right) => left.Equals(right);
