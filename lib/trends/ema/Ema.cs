@@ -303,7 +303,6 @@ public sealed class Ema : AbstractBase
                 else
                     val = lastValidValue;
 
-
                 state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
                 state.E *= decay;
 

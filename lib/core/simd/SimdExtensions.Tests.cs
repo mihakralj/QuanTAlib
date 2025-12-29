@@ -805,4 +805,191 @@ public class SimdScalarFallbackTests
         Assert.Equal(42.5, min);
         Assert.Equal(42.5, max);
     }
+
+    // Additional edge case tests
+    [Fact]
+    public void DotProduct_ContainsNaN_PropagatesNaN()
+    {
+        double[] a = [1.0, double.NaN, 3.0];
+        double[] b = [4.0, 5.0, 6.0];
+        double result = SimdExtensions.DotProduct(a, b);
+        Assert.True(double.IsNaN(result));
+    }
+
+    [Fact]
+    public void DotProduct_ContainsInfinity_PropagatesCorrectly()
+    {
+        double[] a = [1.0, double.PositiveInfinity, 3.0];
+        double[] b = [4.0, 5.0, 6.0];
+        double result = SimdExtensions.DotProduct(a, b);
+        Assert.True(double.IsPositiveInfinity(result));
+    }
+
+    [Fact]
+    public void Add_ContainsNaN_PropagatesNaN()
+    {
+        double[] left = [1.0, double.NaN, 3.0];
+        double[] right = [4.0, 5.0, 6.0];
+        double[] result = new double[3];
+
+        SimdExtensions.Add(left, right, result);
+
+        Assert.Equal(5.0, result[0]);
+        Assert.True(double.IsNaN(result[1]));
+        Assert.Equal(9.0, result[2]);
+    }
+
+    [Fact]
+    public void Subtract_ContainsNaN_PropagatesNaN()
+    {
+        double[] left = [10.0, double.NaN, 30.0];
+        double[] right = [1.0, 2.0, 3.0];
+        double[] result = new double[3];
+
+        SimdExtensions.Subtract(left, right, result);
+
+        Assert.Equal(9.0, result[0]);
+        Assert.True(double.IsNaN(result[1]));
+        Assert.Equal(27.0, result[2]);
+    }
+
+    [Fact]
+    public void ContainsNonFinite_NegativeInfinityAtStart_ReturnsTrue()
+    {
+        double[] data = [double.NegativeInfinity, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void ContainsNonFinite_NegativeInfinityAtEnd_ReturnsTrue()
+    {
+        double[] data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, double.NegativeInfinity];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(span.ContainsNonFinite());
+    }
+
+    [Fact]
+    public void VarianceSIMD_SingleElement_ReturnsNaN()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.VarianceSIMD()));
+    }
+
+    [Fact]
+    public void StdDevSIMD_SingleElement_ReturnsNaN()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.True(double.IsNaN(span.StdDevSIMD()));
+    }
+
+    [Fact]
+    public void StdDevSIMD_EmptySpan_ReturnsNaN()
+    {
+        var span = ReadOnlySpan<double>.Empty;
+        Assert.True(double.IsNaN(span.StdDevSIMD()));
+    }
+
+    [Fact]
+    public void SumSIMD_SingleElement_ReturnsElement()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(42.5, span.SumSIMD());
+    }
+
+    [Fact]
+    public void AverageSIMD_SingleElement_ReturnsElement()
+    {
+        double[] data = [42.5];
+        var span = new ReadOnlySpan<double>(data);
+        Assert.Equal(42.5, span.AverageSIMD());
+    }
+
+    [Fact]
+    public void DotProduct_SingleElement_ReturnsProduct()
+    {
+        double[] a = [3.0];
+        double[] b = [4.0];
+        Assert.Equal(12.0, SimdExtensions.DotProduct(a, b));
+    }
+
+    [Fact]
+    public void DotProduct_TwoElements_ReturnsCorrect()
+    {
+        double[] a = [2.0, 3.0];
+        double[] b = [4.0, 5.0];
+        // 2*4 + 3*5 = 8 + 15 = 23
+        Assert.Equal(23.0, SimdExtensions.DotProduct(a, b));
+    }
+
+    [Fact]
+    public void Add_SingleElement_Works()
+    {
+        double[] left = [5.0];
+        double[] right = [3.0];
+        double[] result = new double[1];
+
+        SimdExtensions.Add(left, right, result);
+
+        Assert.Equal(8.0, result[0]);
+    }
+
+    [Fact]
+    public void Subtract_SingleElement_Works()
+    {
+        double[] left = [5.0];
+        double[] right = [3.0];
+        double[] result = new double[1];
+
+        SimdExtensions.Subtract(left, right, result);
+
+        Assert.Equal(2.0, result[0]);
+    }
+
+    [Fact]
+    public void Add_EmptyArrays_Works()
+    {
+        double[] left = [];
+        double[] right = [];
+        double[] result = [];
+
+        SimdExtensions.Add(left, right, result); // Should not throw
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Subtract_EmptyArrays_Works()
+    {
+        double[] left = [];
+        double[] right = [];
+        double[] result = [];
+
+        SimdExtensions.Subtract(left, right, result); // Should not throw
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Add_ResultTooSmall_ThrowsArgumentException()
+    {
+        double[] left = [1.0, 2.0, 3.0];
+        double[] right = [4.0, 5.0, 6.0];
+        double[] result = new double[2]; // Too small
+
+        Assert.Throws<ArgumentException>(() => SimdExtensions.Add(left, right, result));
+    }
+
+    [Fact]
+    public void Subtract_ResultTooSmall_ThrowsArgumentException()
+    {
+        double[] left = [1.0, 2.0, 3.0];
+        double[] right = [4.0, 5.0, 6.0];
+        double[] result = new double[2]; // Too small
+
+        Assert.Throws<ArgumentException>(() => SimdExtensions.Subtract(left, right, result));
+    }
 }

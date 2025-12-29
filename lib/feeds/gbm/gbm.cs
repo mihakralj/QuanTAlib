@@ -11,10 +11,11 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 #pragma warning disable S101 // Rename class 'GBM' to match pascal case naming rules
 #pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
-public class GBM : IFeed
+public sealed class GBM : IFeed
 #pragma warning restore S101
 {
     private readonly Random? _rnd;
+    private readonly double _startPrice;
 
     private double _lastPrice;
     private long _lastTime;
@@ -36,13 +37,42 @@ public class GBM : IFeed
     private bool _hasCachedZ;
 
     /// <summary>
+    /// Gets the annual drift/return rate.
+    /// </summary>
+    public double Mu => _mu;
+
+    /// <summary>
+    /// Gets the annual volatility.
+    /// </summary>
+    public double Sigma => _sigma;
+
+    /// <summary>
+    /// Gets the starting price.
+    /// </summary>
+    public double StartPrice => _startPrice;
+
+    /// <summary>
+    /// Gets the current price state.
+    /// </summary>
+    public double CurrentPrice => _lastPrice;
+
+    /// <summary>
+    /// Gets whether the generator has a current bar in progress.
+    /// </summary>
+    public bool HasCurrentBar => _hasCurrentBar;
+
+    /// <summary>
     /// Creates a new GBM generator.
     /// </summary>
-    /// <param name="startPrice">Initial price (default: 100.0, must be positive)</param>
-    /// <param name="mu">Annual drift/return rate (default: 0.05 = 5%)</param>
-    /// <param name="sigma">Annual volatility (default: 0.2 = 20%, must be non-negative)</param>
-    /// <param name="defaultTimeframe">Default timeframe for bars (default: 1 minute)</param>
+    /// <param name="startPrice">Initial price (default: 100.0, must be positive and finite)</param>
+    /// <param name="mu">Annual drift/return rate (default: 0.05 = 5%, must be finite)</param>
+    /// <param name="sigma">Annual volatility (default: 0.2 = 20%, must be non-negative and finite)</param>
+    /// <param name="defaultTimeframe">Default timeframe for bars (default: 1 minute, must be positive)</param>
     /// <param name="seed">Optional random seed for reproducibility (default: null for non-deterministic)</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when startPrice is not positive/finite, sigma is negative/non-finite,
+    /// mu is non-finite, or defaultTimeframe is non-positive.
+    /// </exception>
     public GBM(
         double startPrice = 100.0,
         double mu = 0.05,
@@ -50,18 +80,33 @@ public class GBM : IFeed
         TimeSpan? defaultTimeframe = null,
         int? seed = null)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(startPrice);
-        ArgumentOutOfRangeException.ThrowIfNegative(sigma);
+        // Validate startPrice
+        if (startPrice <= 0 || !double.IsFinite(startPrice))
+            throw new ArgumentOutOfRangeException(nameof(startPrice), startPrice, "Start price must be positive and finite");
+
+        // Validate mu
+        if (!double.IsFinite(mu))
+            throw new ArgumentOutOfRangeException(nameof(mu), mu, "Drift (mu) must be finite");
+
+        // Validate sigma
+        if (sigma < 0 || !double.IsFinite(sigma))
+            throw new ArgumentOutOfRangeException(nameof(sigma), sigma, "Volatility (sigma) must be non-negative and finite");
+
+        // Use provided timeframe or default to 1 minute
+        var timeframe = defaultTimeframe ?? TimeSpan.FromMinutes(1);
+
+        // Validate timeframe
+        if (timeframe <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(defaultTimeframe), defaultTimeframe, "Timeframe must be positive");
 
         _rnd = seed.HasValue ? new Random(seed.Value) : null;
+        _startPrice = startPrice;
         _lastPrice = startPrice;
         _lastTime = DateTime.UtcNow.Ticks;
 
         _mu = mu;
         _sigma = sigma;
 
-        // Use provided timeframe or default to 1 minute
-        var timeframe = defaultTimeframe ?? TimeSpan.FromMinutes(1);
         _defaultTimeStep = timeframe.Ticks;
 
         // Calculate dt based on timeframe (assuming 252 trading days/year, 6.5 hours/day)
@@ -70,6 +115,33 @@ public class GBM : IFeed
 
         _drift = (mu - 0.5 * sigma * sigma) * dt;
         _vol = sigma * Math.Sqrt(dt);
+    }
+
+    /// <summary>
+    /// Resets the generator to its initial state.
+    /// </summary>
+    public void Reset()
+    {
+        _lastPrice = _startPrice;
+        _lastTime = DateTime.UtcNow.Ticks;
+        _currentBar = default;
+        _hasCurrentBar = false;
+        _cachedZ = 0;
+        _hasCachedZ = false;
+    }
+
+    /// <summary>
+    /// Resets the generator to its initial state with a specific start time.
+    /// </summary>
+    /// <param name="startTime">The start time in ticks.</param>
+    public void Reset(long startTime)
+    {
+        _lastPrice = _startPrice;
+        _lastTime = startTime;
+        _currentBar = default;
+        _hasCurrentBar = false;
+        _cachedZ = 0;
+        _hasCachedZ = false;
     }
 
     /// <summary>
@@ -103,6 +175,11 @@ public class GBM : IFeed
 
         double u1 = 1.0 - NextDouble();
         double u2 = 1.0 - NextDouble();
+
+        // Guard against log(0) which produces -Infinity
+        if (u1 <= double.Epsilon)
+            u1 = double.Epsilon;
+
         double mag = Math.Sqrt(-2.0 * Math.Log(u1));
         double angle = 2.0 * Math.PI * u2;
 
@@ -128,17 +205,26 @@ public class GBM : IFeed
 
             double z = NextNormal();
             double price = _lastPrice * Math.Exp(_drift + _vol * z);
+
+            // Ensure price stays positive and finite
+            if (!double.IsFinite(price) || price <= 0)
+                price = _lastPrice;
+
             double volume = 1000 + NextDouble() * 1000;
 
             double open = _lastPrice;
             double close = price;
-            double high = Math.Max(open, close) * (1.0 + Math.Abs(NextDouble()) * 0.01);
-            double low = Math.Min(open, close) * (1.0 - Math.Abs(NextDouble()) * 0.01);
 
-            // Ensure valid OHLC
+            double rnd1 = NextDouble();
+            double rnd2 = NextDouble();
+
+            double high = Math.Max(open, close) * (1.0 + rnd1 * 0.01);
+            double low = Math.Min(open, close) * (1.0 - rnd2 * 0.01);
+
+            // Ensure valid OHLC constraints
             high = Math.Max(high, Math.Max(open, close));
             low = Math.Min(low, Math.Min(open, close));
-            low = Math.Max(0.0, low);
+            low = Math.Max(double.Epsilon, low); // Ensure positive
 
             _currentBar = new TBar(currentTime, open, high, low, close, volume);
             _hasCurrentBar = true;
@@ -151,12 +237,18 @@ public class GBM : IFeed
             // Update current bar (intra-bar tick)
             double z = NextNormal();
             double price = _lastPrice * Math.Exp(_drift + _vol * z);
+
+            // Ensure price stays positive and finite
+            if (!double.IsFinite(price) || price <= 0)
+                price = _lastPrice;
+
             double additionalVolume = 1000 + NextDouble() * 1000;
 
             var bar = _currentBar;
             double newClose = price;
             double newHigh = Math.Max(bar.High, newClose);
             double newLow = Math.Min(bar.Low, newClose);
+            newLow = Math.Max(double.Epsilon, newLow); // Ensure positive
             double newVolume = bar.Volume + additionalVolume;
 
             _currentBar = new TBar(bar.Time, bar.Open, newHigh, newLow, newClose, newVolume);
@@ -179,13 +271,19 @@ public class GBM : IFeed
     /// <summary>
     /// Generates a batch of bars using optimized batch processing with explicit time parameters.
     /// </summary>
+    /// <param name="count">Number of bars to generate (must be positive)</param>
+    /// <param name="startTime">Starting timestamp in ticks</param>
+    /// <param name="interval">Time interval between bars (must be positive)</param>
+    /// <returns>A TBarSeries containing the generated bars</returns>
+    /// <exception cref="ArgumentException">Thrown when count is not positive</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when interval is not positive</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBarSeries Fetch(int count, long startTime, TimeSpan interval)
     {
         if (count <= 0)
             throw new ArgumentException("Count must be positive", nameof(count));
         if (interval <= TimeSpan.Zero)
-            throw new ArgumentOutOfRangeException(nameof(interval), "Interval must be positive");
+            throw new ArgumentOutOfRangeException(nameof(interval), interval, "Interval must be positive");
 
         var series = new TBarSeries(count);
 
@@ -212,6 +310,10 @@ public class GBM : IFeed
             double z = NextNormal();
             double price = currentPrice * Math.Exp(drift + vol * z);
 
+            // Ensure price stays positive and finite
+            if (!double.IsFinite(price) || price <= 0)
+                price = currentPrice;
+
             double open = currentPrice;
             double close = price;
 
@@ -223,13 +325,13 @@ public class GBM : IFeed
             o[i] = open;
             c[i] = close;
 
-            double high = Math.Max(open, close) * (1.0 + Math.Abs(rnd1) * 0.01);
-            double low = Math.Min(open, close) * (1.0 - Math.Abs(rnd2) * 0.01);
+            double high = Math.Max(open, close) * (1.0 + rnd1 * 0.01);
+            double low = Math.Min(open, close) * (1.0 - rnd2 * 0.01);
 
-            // Ensure valid OHLC
+            // Ensure valid OHLC constraints
             high = Math.Max(high, Math.Max(open, close));
             low = Math.Min(low, Math.Min(open, close));
-            low = Math.Max(0.0, low);
+            low = Math.Max(double.Epsilon, low); // Ensure positive
 
             h[i] = high;
             l[i] = low;
@@ -252,3 +354,4 @@ public class GBM : IFeed
         return series;
     }
 }
+#pragma warning restore S2245

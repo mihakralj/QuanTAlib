@@ -32,7 +32,7 @@ public sealed class Bessel : AbstractBase, IDisposable
             F2 = 0,
             LastValidValue = 0,
             Count = 0,
-            IsHot = false
+            IsHot = false,
         };
     }
 

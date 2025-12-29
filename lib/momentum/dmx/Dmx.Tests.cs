@@ -7,6 +7,17 @@ namespace QuanTAlib;
 public class DmxTests
 {
     [Fact]
+    public void Constructor_InvalidParameters_ThrowsException()
+    {
+        // Dmx delegates to Jma which throws ArgumentOutOfRangeException (subclass of ArgumentException)
+        var ex1 = Assert.ThrowsAny<ArgumentException>(() => new Dmx(0));
+        Assert.Contains("period", ex1.Message, StringComparison.OrdinalIgnoreCase);
+
+        var ex2 = Assert.ThrowsAny<ArgumentException>(() => new Dmx(-1));
+        Assert.Contains("period", ex2.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void BasicCalculation_DoesNotCrash()
     {
         var dmx = new Dmx(14);
@@ -53,6 +64,28 @@ public class DmxTests
     }
 
     [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var dmx = new Dmx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 50; i++)
+            dmx.Update(bars[i]);
+
+        var originalValue = dmx.Last;
+
+        for (int m = 0; m < 5; m++)
+        {
+            var modified = new TBar(bars[49].Time, bars[49].Open, bars[49].High + m, bars[49].Low - m, bars[49].Close, bars[49].Volume);
+            dmx.Update(modified, isNew: false);
+        }
+
+        var restored = dmx.Update(bars[49], isNew: false);
+        Assert.Equal(originalValue.Value, restored.Value, 9);
+    }
+
+    [Fact]
     public void Reset_Works()
     {
         var dmx = new Dmx(14);
@@ -74,6 +107,57 @@ public class DmxTests
         }
 
         Assert.True(double.IsFinite(dmx.Last.Value));
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var dmx = new Dmx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 30; i++)
+            dmx.Update(bars[i]);
+
+        var nanBar = new TBar(DateTime.UtcNow, double.NaN, double.NaN, double.NaN, double.NaN, 100);
+        var result = dmx.Update(nanBar);
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var dmx = new Dmx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 30; i++)
+            dmx.Update(bars[i]);
+
+        var infBar = new TBar(DateTime.UtcNow, double.PositiveInfinity, double.PositiveInfinity, 0, 100, 100);
+        var result = dmx.Update(infBar);
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        var gbm = new GBM(seed: 123);
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // 1. Batch Mode
+        var batchResult = Dmx.Batch(bars, 14);
+        double expected = batchResult.Last.Value;
+
+        // 2. Streaming Mode
+        var streamDmx = new Dmx(14);
+        for (int i = 0; i < bars.Count; i++)
+            streamDmx.Update(bars[i]);
+        double streamResult = streamDmx.Last.Value;
+
+        Assert.Equal(expected, streamResult, 9);
     }
 
     [Fact]

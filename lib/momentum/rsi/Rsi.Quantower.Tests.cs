@@ -22,7 +22,7 @@ public class RsiIndicatorTests
     {
         var indicator = new RsiIndicator
         {
-            Period = 20
+            Period = 20,
         };
 
         Assert.Equal(0, RsiIndicator.MinHistoryDepths);
@@ -35,7 +35,7 @@ public class RsiIndicatorTests
     {
         var indicator = new RsiIndicator
         {
-            Period = 20
+            Period = 20,
         };
         indicator.Initialize();
 
@@ -68,7 +68,7 @@ public class RsiIndicatorTests
     {
         var indicator = new RsiIndicator
         {
-            Period = 2 // Short period for testing
+            Period = 2, // Short period for testing
         };
         indicator.Initialize();
 

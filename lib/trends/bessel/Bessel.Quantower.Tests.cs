@@ -132,7 +132,7 @@ public class BesselIndicatorTests
             SourceType.Low,
             SourceType.Close,
             SourceType.HL2,
-            SourceType.HLC3
+            SourceType.HLC3,
         };
 
         foreach (var source in sources)

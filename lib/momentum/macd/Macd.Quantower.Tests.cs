@@ -26,7 +26,7 @@ public class MacdIndicatorTests
         {
             FastPeriod = 12,
             SlowPeriod = 26,
-            SignalPeriod = 9
+            SignalPeriod = 9,
         };
 
         // 26 + 9 = 35
@@ -72,7 +72,7 @@ public class MacdIndicatorTests
         {
             FastPeriod = 2,
             SlowPeriod = 5,
-            SignalPeriod = 2
+            SignalPeriod = 2,
         };
         indicator.Initialize();
 

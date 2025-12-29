@@ -71,7 +71,7 @@ public static class IndicatorExtensions
             SourceType.HLC3 => item => (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.333333333333333333,
             SourceType.OHLC4 => item => (item[PriceType.Open] + item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close]) * 0.25,
             SourceType.HLCC4 => item => (item[PriceType.High] + item[PriceType.Low] + item[PriceType.Close] + item[PriceType.Close]) * 0.25,
-            _ => item => item[PriceType.Close]
+            _ => item => item[PriceType.Close],
         };
     }
 

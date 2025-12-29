@@ -24,7 +24,7 @@ public class AdoscIndicatorTests
     {
         var indicator = new AdoscIndicator
         {
-            SlowPeriod = 20
+            SlowPeriod = 20,
         };
 
         Assert.Equal(0, AdoscIndicator.MinHistoryDepths);
@@ -37,7 +37,7 @@ public class AdoscIndicatorTests
     {
         var indicator = new AdoscIndicator
         {
-            SlowPeriod = 40
+            SlowPeriod = 40,
         };
 
         Assert.Equal(40, indicator.SlowPeriod);

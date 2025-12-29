@@ -156,4 +156,129 @@ public class AroonOscTests
 
         Assert.Equal(-50.0, result.Value, 1e-9);
     }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var aroon = new AroonOsc(5);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 20 new values
+        TBar twentiethInput = default;
+        for (int i = 0; i < 20; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            twentiethInput = bar;
+            aroon.Update(bar, isNew: true);
+        }
+
+        // Remember state after 20 values
+        double stateAfterTwenty = aroon.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            aroon.Update(bar, isNew: false);
+        }
+
+        // Feed the remembered 20th input again with isNew=false
+        TValue finalResult = aroon.Update(twentiethInput, isNew: false);
+
+        // State should match the original state after 20 values
+        Assert.Equal(stateAfterTwenty, finalResult.Value, 1e-10);
+    }
+
+    [Fact]
+    public void IsHot_BecomesTrueWhenBufferFull()
+    {
+        var aroon = new AroonOsc(5);
+        var gbm = new GBM();
+
+        Assert.False(aroon.IsHot);
+
+        // Feed bars until IsHot becomes true
+        int count = 0;
+        while (!aroon.IsHot && count < 50)
+        {
+            var bar = gbm.Next(isNew: true);
+            aroon.Update(bar, isNew: true);
+            count++;
+        }
+
+        Assert.True(aroon.IsHot);
+        Assert.True(count >= 5); // Should take at least period bars
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var aroon = new AroonOsc(5);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed some valid bars first
+        for (int i = 0; i < 15; i++)
+        {
+            aroon.Update(bars[i]);
+        }
+
+        // Create a bar with NaN values
+        var nanBar = new TBar(DateTime.UtcNow, double.NaN, double.NaN, double.NaN, double.NaN, double.NaN);
+        var result = aroon.Update(nanBar);
+
+        // Should not crash and should return a finite value
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var aroon = new AroonOsc(5);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed some valid bars first
+        for (int i = 0; i < 15; i++)
+        {
+            aroon.Update(bars[i]);
+        }
+
+        // Create a bar with Infinity values
+        var infBar = new TBar(DateTime.UtcNow, double.PositiveInfinity, double.PositiveInfinity, double.NegativeInfinity, double.PositiveInfinity, double.PositiveInfinity);
+        var result = aroon.Update(infBar);
+
+        // Should not crash and should return a finite value
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 14;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // 1. Batch Mode (static method)
+        var batchSeries = AroonOsc.Batch(bars, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Streaming Mode (instance, one bar at a time)
+        var streamingInd = new AroonOsc(period);
+        for (int i = 0; i < bars.Count; i++)
+        {
+            streamingInd.Update(bars[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 3. Instance Update with TBarSeries
+        var instanceInd = new AroonOsc(period);
+        var instanceResult = instanceInd.Update(bars);
+        double instanceValue = instanceResult.Last.Value;
+
+        // Assert all modes produce identical results
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, instanceValue, precision: 9);
+    }
 }

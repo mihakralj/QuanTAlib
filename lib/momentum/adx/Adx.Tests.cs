@@ -55,6 +55,28 @@ public class AdxTests
     }
 
     [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var adx = new Adx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 50; i++)
+            adx.Update(bars[i]);
+
+        var originalValue = adx.Last;
+
+        for (int m = 0; m < 5; m++)
+        {
+            var modified = new TBar(bars[49].Time, bars[49].Open, bars[49].High + m, bars[49].Low - m, bars[49].Close, bars[49].Volume);
+            adx.Update(modified, isNew: false);
+        }
+
+        var restored = adx.Update(bars[49], isNew: false);
+        Assert.Equal(originalValue.Value, restored.Value, 9);
+    }
+
+    [Fact]
     public void Reset_Works()
     {
         var adx = new Adx(14);
@@ -77,6 +99,75 @@ public class AdxTests
         }
 
         Assert.True(double.IsFinite(adx.Last.Value));
+    }
+
+    [Fact]
+    public void IsHot_BecomesTrueWhenBufferFull()
+    {
+        var adx = new Adx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        Assert.False(adx.IsHot);
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            adx.Update(bars[i]);
+            if (adx.IsHot) break;
+        }
+
+        Assert.True(adx.IsHot);
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var adx = new Adx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 40; i++)
+            adx.Update(bars[i]);
+
+        var nanBar = new TBar(DateTime.UtcNow, double.NaN, double.NaN, double.NaN, double.NaN, 100);
+        var result = adx.Update(nanBar);
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var adx = new Adx(14);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 40; i++)
+            adx.Update(bars[i]);
+
+        var infBar = new TBar(DateTime.UtcNow, double.PositiveInfinity, double.PositiveInfinity, 0, 100, 100);
+        var result = adx.Update(infBar);
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        var gbm = new GBM(seed: 123);
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // 1. Batch Mode
+        var batchResult = Adx.Batch(bars, 14);
+        double expected = batchResult.Last.Value;
+
+        // 2. Streaming Mode
+        var streamAdx = new Adx(14);
+        for (int i = 0; i < bars.Count; i++)
+            streamAdx.Update(bars[i]);
+        double streamResult = streamAdx.Last.Value;
+
+        Assert.Equal(expected, streamResult, 9);
     }
 
     [Fact]

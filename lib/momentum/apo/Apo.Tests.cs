@@ -146,4 +146,131 @@ public class ApoTests
         Assert.Throws<ArgumentException>(() => new Apo(12, 0));
         Assert.Throws<ArgumentException>(() => new Apo(26, 12)); // Fast >= Slow
     }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var apo = new Apo(12, 26);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 50 new values (more than slow period)
+        TBar fiftiethInput = default;
+        for (int i = 0; i < 50; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            fiftiethInput = bar;
+            apo.Update(bar, isNew: true);
+        }
+
+        // Remember state after 50 values
+        double stateAfterFifty = apo.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            apo.Update(bar, isNew: false);
+        }
+
+        // Feed the remembered 50th input again with isNew=false
+        TValue finalResult = apo.Update(fiftiethInput, isNew: false);
+
+        // State should match the original state after 50 values
+        Assert.Equal(stateAfterFifty, finalResult.Value, 1e-10);
+    }
+
+    [Fact]
+    public void IsHot_BecomesTrueWhenBufferFull()
+    {
+        var apo = new Apo(12, 26);
+        var gbm = new GBM();
+
+        Assert.False(apo.IsHot);
+
+        // Feed bars until IsHot becomes true
+        int count = 0;
+        while (!apo.IsHot && count < 100)
+        {
+            var bar = gbm.Next(isNew: true);
+            apo.Update(bar, isNew: true);
+            count++;
+        }
+
+        Assert.True(apo.IsHot);
+        Assert.True(count >= 26); // Should take at least slow period bars
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var apo = new Apo(12, 26);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed some valid bars first
+        for (int i = 0; i < 40; i++)
+        {
+            apo.Update(bars[i]);
+        }
+
+        // Create a bar with NaN close value
+        var nanBar = new TBar(DateTime.UtcNow, 100, 105, 95, double.NaN, 1000);
+        var result = apo.Update(nanBar);
+
+        // Should not crash and should return a finite value
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var apo = new Apo(12, 26);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed some valid bars first
+        for (int i = 0; i < 40; i++)
+        {
+            apo.Update(bars[i]);
+        }
+
+        // Create a bar with Infinity close value
+        var infBar = new TBar(DateTime.UtcNow, 100, 105, 95, double.PositiveInfinity, 1000);
+        var result = apo.Update(infBar);
+
+        // Should not crash and should return a finite value
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int fastPeriod = 12;
+        int slowPeriod = 26;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var closeSeries = bars.Close;
+
+        // 1. Batch Mode (static method)
+        var batchSeries = Apo.Batch(closeSeries, fastPeriod, slowPeriod);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Streaming Mode (instance, one bar at a time)
+        var streamingInd = new Apo(fastPeriod, slowPeriod);
+        for (int i = 0; i < bars.Count; i++)
+        {
+            streamingInd.Update(bars[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 3. Instance Update with TSeries
+        var instanceInd = new Apo(fastPeriod, slowPeriod);
+        var instanceResult = instanceInd.Update(closeSeries);
+        double instanceValue = instanceResult.Last.Value;
+
+        // Assert all modes produce identical results
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, instanceValue, precision: 9);
+    }
 }

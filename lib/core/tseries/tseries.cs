@@ -7,6 +7,66 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
+/// High-performance enumerator for TSeries.
+/// </summary>
+public struct TSeriesEnumerator : IEnumerator<TValue>, IEquatable<TSeriesEnumerator>
+{
+    private readonly List<long> _t;
+    private readonly List<double> _v;
+    private readonly int _count;
+    private int _index;
+    private TValue _current;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TSeriesEnumerator(List<long> t, List<double> v)
+    {
+        _t = t;
+        _v = v;
+        _count = v.Count;
+        _index = -1;
+        _current = default;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool MoveNext()
+    {
+        if (_index + 1 >= _count)
+            return false;
+
+        _index++;
+        _current = new TValue(_t[_index], _v[_index]);
+        return true;
+    }
+
+    public readonly TValue Current => _current;
+    readonly object IEnumerator.Current => Current;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Reset()
+    {
+        _index = -1;
+        _current = default;
+    }
+
+    public readonly void Dispose() { }
+
+    public readonly bool Equals(TSeriesEnumerator other) =>
+        ReferenceEquals(_t, other._t) &&
+        ReferenceEquals(_v, other._v) &&
+        _count == other._count &&
+        _index == other._index;
+
+    public override readonly bool Equals(object? obj) =>
+        obj is TSeriesEnumerator other && Equals(other);
+
+    public override readonly int GetHashCode() =>
+        HashCode.Combine(RuntimeHelpers.GetHashCode(_t), RuntimeHelpers.GetHashCode(_v), _count, _index);
+
+    public static bool operator ==(TSeriesEnumerator left, TSeriesEnumerator right) => left.Equals(right);
+    public static bool operator !=(TSeriesEnumerator left, TSeriesEnumerator right) => !left.Equals(right);
+}
+
+/// <summary>
 /// A high-performance time series implementation using Structure of Arrays (SoA) layout.
 /// Stores Time (long) and Value (double) in separate contiguous arrays for SIMD efficiency.
 /// Supports "New Bar" vs "Update Last" streaming semantics.
@@ -132,14 +192,10 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
         }
     }
 
-    // IEnumerable implementation
-    public IEnumerator<TValue> GetEnumerator()
-    {
-        for (int i = 0; i < _v.Count; i++)
-        {
-            yield return new TValue(_t[i], _v[i]);
-        }
-    }
+    // IEnumerable implementation with struct enumerator for zero-allocation iteration
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TSeriesEnumerator GetEnumerator() => new(_t, _v);
 
+    IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

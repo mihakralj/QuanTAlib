@@ -65,10 +65,12 @@ public sealed class Pwma : AbstractBase
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#pragma warning disable RCS1032 // Remove redundant parentheses
     private double GetValidValue(double input, double lastValid)
     {
         return double.IsFinite(input) ? input : lastValid;
     }
+#pragma warning restore RCS1032
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UpdateLastValidValue(double val)

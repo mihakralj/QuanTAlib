@@ -719,4 +719,175 @@ public class RingBufferTests
         Assert.Equal(21.666666666666668, buffer.Average, 1e-10);
         Assert.NotEqual(avgBeforeCorrection, buffer.Average);
     }
+
+    [Fact]
+    public void Snapshot_CapturesCurrentState()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+
+        buffer.Snapshot();
+
+        // Modify buffer after snapshot
+        buffer.Add(40.0);
+
+        Assert.Equal(4, buffer.Count);
+        Assert.Equal(100.0, buffer.Sum); // 10 + 20 + 30 + 40
+    }
+
+    [Fact]
+    public void Restore_ReturnsToSnapshotState()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+
+        buffer.Snapshot();
+        double sumBeforeModification = buffer.Sum;
+        int countBeforeModification = buffer.Count;
+
+        // Modify buffer after snapshot
+        buffer.Add(40.0);
+        Assert.Equal(4, buffer.Count);
+
+        // Restore to snapshot state
+        buffer.Restore();
+
+        Assert.Equal(countBeforeModification, buffer.Count);
+        Assert.Equal(sumBeforeModification, buffer.Sum);
+    }
+
+    [Fact]
+    public void Snapshot_Restore_WithWrapping()
+    {
+        var buffer = new RingBuffer(3);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+
+        buffer.Snapshot();
+
+        // Add value that causes wrap
+        buffer.Add(40.0);
+        Assert.Equal(90.0, buffer.Sum); // 20 + 30 + 40
+
+        buffer.Restore();
+
+        Assert.Equal(60.0, buffer.Sum); // 10 + 20 + 30
+        Assert.Equal(30.0, buffer.Newest);
+    }
+
+    [Fact]
+    public void RecalculateSum_CorrectsDrift()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+
+        double recalculated = buffer.RecalculateSum();
+
+        Assert.Equal(60.0, recalculated);
+        Assert.Equal(60.0, buffer.Sum);
+    }
+
+    [Fact]
+    public void RecalculateSum_AfterMultipleOperations()
+    {
+        var buffer = new RingBuffer(3);
+
+        // Simulate many operations that could accumulate floating-point drift
+        for (int i = 0; i < 100; i++)
+        {
+            buffer.Add(i * 0.1);
+        }
+
+        double recalculated = buffer.RecalculateSum();
+
+        // Should be equal (or very close) since we're using exact values
+        Assert.Equal(recalculated, buffer.Sum);
+    }
+
+    [Fact]
+    public void StartIndex_EmptyBuffer_ReturnsZero()
+    {
+        var buffer = new RingBuffer(5);
+
+        Assert.Equal(0, buffer.StartIndex);
+    }
+
+    [Fact]
+    public void StartIndex_PartiallyFilled_ReturnsZero()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+
+        Assert.Equal(0, buffer.StartIndex);
+    }
+
+    [Fact]
+    public void StartIndex_FullBuffer_ReturnsHead()
+    {
+        var buffer = new RingBuffer(3);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+        buffer.Add(40.0); // Wraps
+
+        // StartIndex should point to oldest element
+        Assert.True(buffer.StartIndex >= 0 && buffer.StartIndex < buffer.Capacity);
+        Assert.Equal(20.0, buffer.Oldest);
+    }
+
+    [Fact]
+    public void Indexer_NegativeIndexViaFromEnd_ThrowsWhenOutOfBounds()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+
+        // ^4 when count=3 should throw
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = buffer[^4]);
+    }
+
+    [Fact]
+    public void CopyTo_InsufficientDestinationBuffer_Behavior()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+        buffer.Add(30.0);
+
+        var dest = new double[2]; // Too small
+
+        // This will throw IndexOutOfRangeException since we're copying 3 elements to size-2 array
+        Assert.Throws<ArgumentException>(() => buffer.CopyTo(dest, 0));
+    }
+
+    [Fact]
+    public void CopyTo_StartIndexOutOfRange_Behavior()
+    {
+        var buffer = new RingBuffer(5);
+
+        buffer.Add(10.0);
+        buffer.Add(20.0);
+
+        var dest = new double[5];
+
+        // Starting at index 4 with 2 elements should fail
+        Assert.Throws<ArgumentException>(() => buffer.CopyTo(dest, 4));
+    }
 }

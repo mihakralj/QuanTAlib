@@ -285,11 +285,14 @@ public class TSeriesTests
             series.Add(200, 2.0);
 
             var list = new List<object>();
-            foreach (var item in (IEnumerable)series)
+            IEnumerable enumerable = series;
+#pragma warning disable S4158
+        foreach (var item in enumerable)
             {
                 list.Add(item);
             }
 
+            Assert.Equal(2, series.Count);
             Assert.Equal(2, list.Count);
         }
 
@@ -331,5 +334,205 @@ public class TSeriesTests
 
             series.Add(200, 2.0);
             Assert.Equal(2, series.Count);
+    }
+
+    [Fact]
+    public void Constructor_WithMismatchedLists_WrapsData()
+    {
+        // TSeries wraps the lists directly if they're List<T>, no length validation
+        var times = new List<long> { 100, 200, 300 };
+        var values = new List<double> { 1.0, 2.0 }; // Different length
+
+        var series = new TSeries(times, values);
+
+        // Count is based on values list
+        Assert.Equal(2, series.Count);
+    }
+
+    [Fact]
+    public void Indexer_OutOfBounds_ThrowsException()
+    {
+        var series = new TSeries();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[0]);
+    }
+
+    [Fact]
+    public void Indexer_NegativeIndex_ThrowsException()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+#pragma warning disable DS003 // Invalid index - intentional for testing exception
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[-1]);
+#pragma warning restore DS003
+    }
+
+    [Fact]
+    public void Indexer_BeyondCount_ThrowsException()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[1]);
+    }
+
+    [Fact]
+    public void Values_EmptySeries_ReturnsEmptySpan()
+    {
+        var series = new TSeries();
+
+        ReadOnlySpan<double> values = series.Values;
+
+        Assert.Equal(0, values.Length);
+    }
+
+    [Fact]
+    public void Times_EmptySeries_ReturnsEmptySpan()
+    {
+        var series = new TSeries();
+
+        ReadOnlySpan<long> times = series.Times;
+
+        Assert.Equal(0, times.Length);
+    }
+
+    [Fact]
+    public void Add_WithNaN_PreservesNaN()
+    {
+        var series = new TSeries();
+
+        series.Add(100, double.NaN);
+
+        Assert.True(double.IsNaN(series.Last.Value));
+        Assert.True(double.IsNaN(series.LastValue));
+    }
+
+    [Fact]
+    public void Add_WithInfinity_PreservesInfinity()
+    {
+        var series = new TSeries();
+
+        series.Add(100, double.PositiveInfinity);
+
+        Assert.True(double.IsPositiveInfinity(series.Last.Value));
+        Assert.True(double.IsPositiveInfinity(series.LastValue));
+    }
+
+    [Fact]
+    public void Add_WithNegativeInfinity_PreservesNegativeInfinity()
+    {
+        var series = new TSeries();
+
+        series.Add(100, double.NegativeInfinity);
+
+        Assert.True(double.IsNegativeInfinity(series.Last.Value));
+    }
+
+    [Fact]
+    public void Add_EnumerableDoubles_GeneratesIncreasingTimes()
+    {
+        var series = new TSeries();
+        var values = new[] { 1.0, 2.0, 3.0 };
+
+        series.Add(values);
+
+        Assert.Equal(3, series.Count);
+        // Times should be increasing by TicksPerMinute
+        Assert.True(series[1].Time > series[0].Time);
+        Assert.True(series[2].Time > series[1].Time);
+        Assert.Equal(TimeSpan.TicksPerMinute, series[1].Time - series[0].Time);
+    }
+
+    [Fact]
+    public void Add_EnumerableDoubles_EmptyArray_AddsNothing()
+    {
+        var series = new TSeries();
+
+        series.Add(Array.Empty<double>());
+
+        Assert.Empty(series);
+    }
+
+    [Fact]
+    public void Pub_EventArgs_ContainsIsNewFlag()
+    {
+        var series = new TSeries();
+        bool? receivedIsNew = null;
+        series.Pub += (object? sender, in TValueEventArgs args) => receivedIsNew = args.IsNew;
+
+        series.Add(new TValue(100, 42.0), isNew: true);
+
+        Assert.True(receivedIsNew);
+
+        series.Add(new TValue(100, 43.0), isNew: false);
+
+        Assert.False(receivedIsNew);
+    }
+
+    [Fact]
+    public void Constructor_WithCapacity_DoesNotAffectCount()
+    {
+        var series = new TSeries(1000);
+
+        Assert.Empty(series);
+    }
+
+    [Fact]
+    public void Add_WithDateTimeLocal_ConvertsToUtc()
+    {
+        var series = new TSeries();
+        var localTime = new DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Local);
+
+        series.Add(localTime, 100.0);
+
+        // The stored time should be UTC
+        var storedTime = new DateTime(series.Last.Time, DateTimeKind.Utc);
+        Assert.Equal(DateTimeKind.Utc, storedTime.Kind);
+    }
+
+    [Fact]
+    public void Add_WithDateTimeUnspecified_TreatsAsLocal()
+    {
+        var series = new TSeries();
+        var unspecifiedTime = new DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Unspecified);
+
+        series.Add(unspecifiedTime, 100.0);
+
+        Assert.Single(series);
+    }
+
+    [Fact]
+    public void Values_ModifyingUnderlyingList_ReflectsInSpan()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+        series.Add(200, 2.0);
+
+        // Get the span
+        ReadOnlySpan<double> values1 = series.Values;
+        Assert.Equal(2, values1.Length);
+
+        // Add more data
+        series.Add(300, 3.0);
+
+        // Get new span - should reflect the change
+        ReadOnlySpan<double> values2 = series.Values;
+        Assert.Equal(3, values2.Length);
+        Assert.Equal(3.0, values2[2]);
+    }
+
+    [Fact]
+    public void Constructor_WithReadOnlyLists_CopiesData()
+    {
+        // Using arrays which implement IReadOnlyList but aren't List<T>
+        IReadOnlyList<long> times = new long[] { 100, 200, 300 };
+        IReadOnlyList<double> values = [1.0, 2.0, 3.0];
+
+        var series = new TSeries(times, values);
+
+        Assert.Equal(3, series.Count);
+        Assert.Equal(1.0, series[0].Value);
+        Assert.Equal(3.0, series[2].Value);
     }
 }

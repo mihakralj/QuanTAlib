@@ -7,6 +7,24 @@ namespace QuanTAlib;
 public class CfbTests
 {
     [Fact]
+    public void Constructor_EmptyLengths_UsesDefaults()
+    {
+        // Cfb uses default lengths (2, 4, ..., 192) when given empty or null lengths
+        var cfb = new Cfb(Array.Empty<int>());
+        Assert.NotNull(cfb);
+        Assert.Equal("Jurik Composite Fractal Behavior", cfb.Name);
+    }
+
+    [Fact]
+    public void Constructor_CustomLengths_Works()
+    {
+        // Cfb accepts custom lengths
+        var cfb = new Cfb(new[] { 5, 10, 20 });
+        Assert.NotNull(cfb);
+        Assert.Equal("Jurik Composite Fractal Behavior", cfb.Name);
+    }
+
+    [Fact]
     public void BasicCalculation_DoesNotCrash()
     {
         var cfb = new Cfb();
@@ -108,6 +126,81 @@ public class CfbTests
         var val3 = cfb2.Update(modified, true);
 
         Assert.Equal(val3.Value, val2.Value);
+    }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var cfb = new Cfb();
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 50; i++)
+            cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+
+        var originalValue = cfb.Last;
+
+        for (int m = 0; m < 5; m++)
+        {
+            var modified = new TValue(bars.Close.Times[49], bars.Close.Values[49] + m);
+            cfb.Update(modified, isNew: false);
+        }
+
+        var restored = cfb.Update(new TValue(bars.Close.Times[49], bars.Close.Values[49]), isNew: false);
+        Assert.Equal(originalValue.Value, restored.Value, 9);
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var cfb = new Cfb();
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 30; i++)
+            cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+
+        var result = cfb.Update(new TValue(DateTime.UtcNow, double.NaN));
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var cfb = new Cfb();
+        var gbm = new GBM();
+        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < 30; i++)
+            cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+
+        var result = cfb.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        var gbm = new GBM(seed: 123);
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // 1. Batch Mode
+        var batchResult = Cfb.Batch(bars.Close);
+        double expected = batchResult.Last.Value;
+
+        // 2. Span Mode
+        var spanOutput = new double[bars.Count];
+        Cfb.Batch(bars.Close.Values.ToArray(), spanOutput);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamCfb = new Cfb();
+        for (int i = 0; i < bars.Count; i++)
+            streamCfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        double streamResult = streamCfb.Last.Value;
+
+        Assert.Equal(expected, spanResult, 9);
+        Assert.Equal(expected, streamResult, 9);
     }
 
     [Fact]

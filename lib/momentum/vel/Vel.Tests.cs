@@ -161,4 +161,119 @@ public class VelTests
         vel.Update(new TValue(DateTime.UtcNow, 100));
         Assert.False(double.IsNaN(vel2.Last.Value));
     }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var vel = new Vel(5);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 20 new values
+        TValue twentiethInput = default;
+        for (int i = 0; i < 20; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            twentiethInput = new TValue(bar.Time, bar.Close);
+            vel.Update(twentiethInput, isNew: true);
+        }
+
+        // Remember state after 20 values
+        double stateAfterTwenty = vel.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            vel.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered 20th input again with isNew=false
+        TValue finalResult = vel.Update(twentiethInput, isNew: false);
+
+        // State should match the original state after 20 values
+        Assert.Equal(stateAfterTwenty, finalResult.Value, 1e-10);
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var vel = new Vel(5);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed some valid values first
+        for (int i = 0; i < 15; i++)
+        {
+            vel.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        // Feed NaN
+        var result = vel.Update(new TValue(DateTime.UtcNow, double.NaN));
+
+        // Should not crash and should return a finite value
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var vel = new Vel(5);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed some valid values first
+        for (int i = 0; i < 15; i++)
+        {
+            vel.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        // Feed Infinity
+        var resultPos = vel.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
+        Assert.True(double.IsFinite(resultPos.Value));
+
+        var resultNeg = vel.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
+        Assert.True(double.IsFinite(resultNeg.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        // 1. Batch Mode (static method)
+        var batchSeries = Vel.Batch(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode (static method with spans)
+        var spanInput = series.Values.ToArray();
+        var spanOutput = new double[spanInput.Length];
+        Vel.Batch(spanInput.AsSpan(), spanOutput.AsSpan(), period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode (instance, one value at a time)
+        var streamingInd = new Vel(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode (chained via ITValuePublisher)
+        var pubSource = new TSeries();
+        var eventingInd = new Vel(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert all modes produce identical results
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
+    }
 }

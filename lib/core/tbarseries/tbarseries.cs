@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -14,6 +15,74 @@ public readonly struct TBarEventArgs
 {
     public TBar Value { get; init; }
     public bool IsNew { get; init; }
+}
+
+/// <summary>
+/// High-performance enumerator for TBarSeries.
+/// </summary>
+public struct TBarSeriesEnumerator : IEnumerator<TBar>, IEquatable<TBarSeriesEnumerator>
+{
+    private readonly List<long> _t;
+    private readonly List<double> _o;
+    private readonly List<double> _h;
+    private readonly List<double> _l;
+    private readonly List<double> _c;
+    private readonly List<double> _v;
+    private readonly int _count;
+    private int _index;
+    private TBar _current;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TBarSeriesEnumerator(List<long> t, List<double> o, List<double> h, List<double> l, List<double> c, List<double> v)
+    {
+        _t = t;
+        _o = o;
+        _h = h;
+        _l = l;
+        _c = c;
+        _v = v;
+        _count = c.Count;
+        _index = -1;
+        _current = default;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool MoveNext()
+    {
+        if (_index + 1 >= _count)
+            return false;
+
+        _index++;
+        _current = new TBar(_t[_index], _o[_index], _h[_index], _l[_index], _c[_index], _v[_index]);
+        return true;
+    }
+
+    public readonly TBar Current => _current;
+    readonly object IEnumerator.Current => Current;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Reset()
+    {
+        _index = -1;
+        _current = default;
+    }
+
+    public readonly void Dispose() { }
+
+    public readonly bool Equals(TBarSeriesEnumerator other) =>
+        ReferenceEquals(_t, other._t) &&
+        ReferenceEquals(_c, other._c) &&
+        _count == other._count &&
+        _index == other._index;
+
+    public override readonly bool Equals(object? obj) =>
+        obj is TBarSeriesEnumerator other && Equals(other);
+
+    public override readonly int GetHashCode() =>
+        HashCode.Combine(RuntimeHelpers.GetHashCode(_t), RuntimeHelpers.GetHashCode(_c), _count, _index);
+
+    public static bool operator ==(TBarSeriesEnumerator left, TBarSeriesEnumerator right) => left.Equals(right);
+    public static bool operator !=(TBarSeriesEnumerator left, TBarSeriesEnumerator right) => !left.Equals(right);
 }
 
 // Performance-focused event args struct; not derived from EventArgs by design.
@@ -94,6 +163,60 @@ public class TBarSeries : IReadOnlyList<TBar>
     public double LastClose { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _c.Count > 0 ? _c[^1] : double.NaN; }
     public double LastVolume { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _v.Count > 0 ? _v[^1] : double.NaN; }
 
+    /// <summary>
+    /// Direct access to the underlying Time array as a Span.
+    /// </summary>
+    public ReadOnlySpan<long> Times
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_t);
+    }
+
+    /// <summary>
+    /// Direct access to the underlying Open array as a Span for SIMD operations.
+    /// </summary>
+    public ReadOnlySpan<double> OpenValues
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_o);
+    }
+
+    /// <summary>
+    /// Direct access to the underlying High array as a Span for SIMD operations.
+    /// </summary>
+    public ReadOnlySpan<double> HighValues
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_h);
+    }
+
+    /// <summary>
+    /// Direct access to the underlying Low array as a Span for SIMD operations.
+    /// </summary>
+    public ReadOnlySpan<double> LowValues
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_l);
+    }
+
+    /// <summary>
+    /// Direct access to the underlying Close array as a Span for SIMD operations.
+    /// </summary>
+    public ReadOnlySpan<double> CloseValues
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_c);
+    }
+
+    /// <summary>
+    /// Direct access to the underlying Volume array as a Span for SIMD operations.
+    /// </summary>
+    public ReadOnlySpan<double> VolumeValues
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => CollectionsMarshal.AsSpan(_v);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(TBar bar, bool isNew = true)
     {
@@ -150,13 +273,10 @@ public class TBarSeries : IReadOnlyList<TBar>
         }
     }
 
-    public IEnumerator<TBar> GetEnumerator()
-    {
-        for (int i = 0; i < _c.Count; i++)
-        {
-            yield return new TBar(_t[i], _o[i], _h[i], _l[i], _c[i], _v[i]);
-        }
-    }
+    // IEnumerable implementation with struct enumerator for zero-allocation iteration
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TBarSeriesEnumerator GetEnumerator() => new(_t, _o, _h, _l, _c, _v);
 
+    IEnumerator<TBar> IEnumerable<TBar>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

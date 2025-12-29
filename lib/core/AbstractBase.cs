@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
 
@@ -36,6 +37,7 @@ public abstract class AbstractBase : ITValuePublisher
     /// <summary>
     /// Helper to invoke the Pub event.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void PubEvent(TValue value, bool isNew = true)
     {
         Pub?.Invoke(this, new TValueEventArgs { Value = value, IsNew = isNew });

@@ -344,7 +344,8 @@ public class TBarSeriesTests
         series.Add(200, 20, 25, 15, 22, 200, isNew: true);
 
         var list = new List<object>();
-
+        
+#pragma warning disable S4158
         foreach (var item in (IEnumerable)series)
         {
                 list.Add(item);
@@ -407,5 +408,147 @@ public class TBarSeriesTests
             Assert.Equal(100, series[0].Time);
             Assert.Equal(200, series[1].Time);
         Assert.Equal(300, series[2].Time);
+    }
+
+    [Fact]
+    public void Add_WithEnumerables_MismatchedLengths_ThrowsArgumentException()
+    {
+        var series = new TBarSeries();
+        var times = new long[] { 100, 200, 300 };
+        var opens = new double[] { 10, 20 }; // Mismatched length
+        var highs = new double[] { 15, 25, 35 };
+        var lows = new double[] { 5, 15, 25 };
+        var closes = new double[] { 12, 22, 32 };
+        var volumes = new double[] { 100, 200, 300 };
+
+        Assert.Throws<ArgumentException>(() =>
+            series.Add(times, opens, highs, lows, closes, volumes));
+    }
+
+    [Fact]
+    public void Indexer_OutOfBounds_ThrowsException()
+    {
+        var series = new TBarSeries();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[0]);
+    }
+
+    [Fact]
+    public void Indexer_NegativeIndex_ThrowsException()
+    {
+        var series = new TBarSeries();
+        series.Add(100, 10, 15, 5, 12, 100);
+
+        int invalidIndex = -1;
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[invalidIndex]);
+    }
+
+    [Fact]
+    public void Indexer_BeyondCount_ThrowsException()
+    {
+        var series = new TBarSeries();
+        series.Add(100, 10, 15, 5, 12, 100);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[1]);
+    }
+
+    [Fact]
+    public void Add_WithNaN_PreservesNaN()
+    {
+        var series = new TBarSeries();
+        var bar = new TBar(DateTime.UtcNow.Ticks, double.NaN, 110, 90, 105, 1000);
+
+        series.Add(bar, isNew: true);
+
+        Assert.True(double.IsNaN(series.Last.Open));
+        Assert.True(double.IsNaN(series.Open.Last.Value));
+    }
+
+    [Fact]
+    public void Add_WithInfinity_PreservesInfinity()
+    {
+        var series = new TBarSeries();
+        var bar = new TBar(DateTime.UtcNow.Ticks, 100, double.PositiveInfinity, 90, 105, 1000);
+
+        series.Add(bar, isNew: true);
+
+        Assert.True(double.IsPositiveInfinity(series.Last.High));
+        Assert.True(double.IsPositiveInfinity(series.High.Last.Value));
+    }
+
+    [Fact]
+    public void SubSeries_EmptySeries_HaveZeroCount()
+    {
+        var series = new TBarSeries();
+
+        Assert.Empty(series.Open);
+        Assert.Empty(series.High);
+        Assert.Empty(series.Low);
+        Assert.Empty(series.Close);
+        Assert.Empty(series.Volume);
+    }
+
+    [Fact]
+    public void SubSeries_ValuesSpan_ReturnsCorrectData()
+    {
+        var series = new TBarSeries();
+        series.Add(100, 10, 15, 5, 12, 100);
+        series.Add(200, 20, 25, 15, 22, 200);
+
+        ReadOnlySpan<double> closeValues = series.Close.Values;
+
+        Assert.Equal(2, closeValues.Length);
+        Assert.Equal(12.0, closeValues[0]);
+        Assert.Equal(22.0, closeValues[1]);
+    }
+
+    [Fact]
+    public void SubSeries_TimesSpan_ReturnsCorrectData()
+    {
+        var series = new TBarSeries();
+        series.Add(100, 10, 15, 5, 12, 100);
+        series.Add(200, 20, 25, 15, 22, 200);
+
+        ReadOnlySpan<long> times = series.Close.Times;
+
+        Assert.Equal(2, times.Length);
+        Assert.Equal(100, times[0]);
+        Assert.Equal(200, times[1]);
+    }
+
+    [Fact]
+    public void Pub_EventArgs_ContainsIsNewFlag()
+    {
+        var series = new TBarSeries();
+        bool? receivedIsNew = null;
+        series.Pub += (object? sender, in TBarEventArgs args) => receivedIsNew = args.IsNew;
+
+        series.Add(new TBar(100, 10, 15, 5, 12, 100), isNew: true);
+
+        Assert.True(receivedIsNew);
+
+        series.Add(new TBar(100, 10, 18, 5, 15, 150), isNew: false);
+
+        Assert.False(receivedIsNew);
+    }
+
+    [Fact]
+    public void Add_WithEnumerables_EmptyArrays_AddsNothing()
+    {
+        var series = new TBarSeries();
+        var empty = Array.Empty<long>();
+        var emptyD = Array.Empty<double>();
+
+        series.Add(empty, emptyD, emptyD, emptyD, emptyD, emptyD);
+
+        Assert.Empty(series);
+    }
+
+    [Fact]
+    public void Constructor_WithCapacity_DoesNotAffectCount()
+    {
+        var series = new TBarSeries(1000);
+
+        Assert.Empty(series);
     }
 }
