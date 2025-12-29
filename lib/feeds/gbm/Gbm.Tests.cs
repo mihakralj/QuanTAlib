@@ -272,7 +272,8 @@ public class GBMTests
         }
         
         // GBM should not expose any history storage
-        var type = gbm.GetType();
+        // Use typeof() instead of GetType() to satisfy trimming analyzer
+        var type = typeof(GBM);
         var barsProperty = type.GetProperty("Bars");
         
         Assert.Null(barsProperty);

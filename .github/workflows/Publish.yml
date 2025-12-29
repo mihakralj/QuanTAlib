@@ -187,6 +187,7 @@ jobs:
   Qodana_Scan:
     needs: Build_Test_Coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       checks: write
