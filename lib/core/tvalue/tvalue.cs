@@ -26,5 +26,15 @@ public readonly record struct TValue(long Time, double Value)
     public static implicit operator DateTime(TValue tv) => new(tv.Time, DateTimeKind.Utc);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}, {Value:F2}]";
+    public override string ToString()
+    {
+        string valueStr = Value switch
+        {
+            double.PositiveInfinity => ((char)0x221E).ToString(),
+            double.NegativeInfinity => "-" + (char)0x221E,
+            _ when double.IsNaN(Value) => "NaN",
+            _ => Value.ToString("F2")
+        };
+        return $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}, {valueStr}]";
+    }
 }
