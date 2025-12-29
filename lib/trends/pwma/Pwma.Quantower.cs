@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
@@ -54,5 +54,4 @@ public sealed class PwmaIndicator : Indicator, IWatchlistIndicator
         double value = _pwma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
         _series!.SetValue(value, _pwma.IsHot, ShowColdValues);
     }
-
 }

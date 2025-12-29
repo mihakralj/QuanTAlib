@@ -152,4 +152,3 @@ public sealed class AlmaValidationTests : IDisposable
         _output.WriteLine("ALMA Batch validated successfully against Ooples");
     }
 }
-

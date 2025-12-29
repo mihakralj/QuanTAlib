@@ -113,6 +113,18 @@ public sealed class Bessel : AbstractBase, IDisposable
             }
         }
 
+        // Handle case where all inputs are NaN
+        if (_state.Count == 0)
+        {
+            _state.LastValidValue = double.NaN;
+            _state.F1 = double.NaN;
+            _state.F2 = double.NaN;
+            _state.IsHot = false;
+            Last = new TValue(DateTime.MinValue, double.NaN);
+            _p_state = _state;
+            return;
+        }
+
         for (; i < len; i++)
         {
             double val = source[i];

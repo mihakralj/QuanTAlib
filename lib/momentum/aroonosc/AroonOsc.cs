@@ -241,4 +241,3 @@ public sealed class AroonOsc : ITValuePublisher
         return new TSeries(tList, [.. v]);
     }
 }
-

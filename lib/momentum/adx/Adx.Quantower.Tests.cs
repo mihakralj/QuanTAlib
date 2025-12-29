@@ -28,7 +28,6 @@ public class AdxIndicatorTests
         Assert.Equal(0, watchlistIndicator.MinHistoryDepths);
     }
 
-
     [Fact]
     public void AdxIndicator_Initialize_CreatesInternalAdx()
     {

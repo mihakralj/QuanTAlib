@@ -262,8 +262,14 @@ public sealed class Mama : AbstractBase
         return new TSeries(t, v);
     }
 
+    /// <summary>
+    /// Primes the indicator with historical data.
+    /// </summary>
+    /// <param name="source">Historical price data</param>
+    /// <param name="step">Time step parameter (unused for this indicator but required by base signature)</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        _ = step; // Parameter required by base signature but not used by MAMA
         foreach (var value in source)
         {
             Step(value, true);
@@ -447,11 +453,8 @@ public sealed class Mama : AbstractBase
                 // Set initial p_state
                 p_mama = avg;
                 p_fama = avg;
-                p_period = 0; // Initial period state
+                p_period = 0;
                 p_phase = 0;
-
-                // Initialize other state variables if needed for next iteration logic?
-                // Actually they just stay 0/default until we hit count > 6
             }
 
             output[i] = mama;

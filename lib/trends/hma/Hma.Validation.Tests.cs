@@ -192,4 +192,3 @@ public sealed class HmaValidationTests : IDisposable
         _output.WriteLine("HMA Batch(TSeries) validated successfully against Ooples");
     }
 }
-

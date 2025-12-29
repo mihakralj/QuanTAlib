@@ -195,4 +195,3 @@ public sealed class DemaValidationTests : IDisposable
         _output.WriteLine("DEMA validated successfully against Ooples logic (2*EMA - EMA(EMA))");
     }
 }
-

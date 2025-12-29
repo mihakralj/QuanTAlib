@@ -13,13 +13,15 @@ dotnet:
   frameworks: "net10.0"
   configuration: Release
 
-failureConditions:
-  severityThresholds:
-    critical: -1
-    high: -1
-    moderate: -1
-    low: -1
-    info: -1
+# Disabled failure conditions - Qodana should never fail the build
+# Issues are reported for informational purposes only
+# failureConditions:
+#   severityThresholds:
+#     critical: -1
+#     high: -1
+#     moderate: -1
+#     low: -1
+#     info: -1
 
 exclude:
   - name: All

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Xunit;
@@ -58,5 +58,4 @@ public sealed class LinRegValidationTests : IDisposable
 
         ValidationHelper.VerifyData(r2Series, skender, x => x.RSquared, tolerance: ValidationHelper.DefaultTolerance);
     }
-
 }

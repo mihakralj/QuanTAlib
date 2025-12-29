@@ -36,6 +36,7 @@ public sealed class Sma : AbstractBase
     private record struct State(double Sum, double LastInput, double LastValidValue, int TickCount);
     private State _state;
     private State _p_state;
+    private double _currentBarValue;  // Value added during isNew=true, survives state restore
 
     private const int ResyncInterval = 1000;
 
@@ -186,19 +187,27 @@ public sealed class Sma : AbstractBase
     {
         if (isNew)
         {
+            // Capture previous state BEFORE any mutation
+            _p_state = _state;
+            
             double val = GetValidValue(input.Value);
             UpdateState(val);
             _state.LastInput = val;
-
-            _p_state = _state;
+            _currentBarValue = val;  // Store the value added for this bar
         }
         else
         {
+            // Restore scalar state to pre-mutation values
             _state = _p_state;
+            
             double val = GetValidValue(input.Value);
-
-            _state.Sum = _state.Sum - _state.LastInput + val;
+            // Update sum: remove the value that was added during isNew=true, add the new correction value
+            _state.Sum = _state.Sum - _currentBarValue + val;
+            
+            // Update the buffer's newest value and sync its internal sum with our state sum
             _buffer.UpdateNewest(val);
+            _state.Sum = _buffer.RecalculateSum(); // Ensure sums stay in sync
+            // DO NOT update _currentBarValue here - it must remain the original value from isNew=true
         }
 
         double result = _buffer.Count > 0 ? _state.Sum / _buffer.Count : double.NaN;
@@ -597,6 +606,7 @@ public sealed class Sma : AbstractBase
         _buffer.Clear();
         _state = default;
         _p_state = default;
+        _currentBarValue = default;
         Last = default;
     }
 }

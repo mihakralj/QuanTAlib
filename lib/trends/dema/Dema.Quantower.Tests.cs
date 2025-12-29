@@ -1,4 +1,4 @@
-using Xunit;
+﻿using Xunit;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib.Tests;
@@ -111,7 +111,6 @@ public class DemaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-
     [Fact]
     public void DemaIndicator_MultipleUpdates_ProducesCorrectDemaSequence()
     {
@@ -153,5 +152,4 @@ public class DemaIndicatorTests
                 $"Source {source} should produce finite value");
         }
     }
-
 }

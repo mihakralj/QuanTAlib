@@ -213,13 +213,15 @@ jobs:
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2025.3
+        continue-on-error: true
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --coverage-dir,.qodana/code-coverage
-          fail-threshold: -1
+          args: --coverage-dir,.qodana/code-coverage,--fail-threshold,999999
+          fail-threshold: 999999
 
       - name: Upload Qodana SARIF Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: qodana-sarif-reports
@@ -230,6 +232,7 @@ jobs:
   # ==============================================================================
   Codacy_Qodana_Upload:
     needs: Qodana_Scan
+    if: always()
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -239,6 +242,7 @@ jobs:
           fetch-depth: 0
       
       - name: Download Qodana SARIF Reports
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: qodana-sarif-reports

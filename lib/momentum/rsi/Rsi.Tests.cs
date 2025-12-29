@@ -377,7 +377,7 @@ public class RsiTests
         // Should not crash and produce finite results
         for (int i = 0; i < output.Length; i++)
         {
-            Assert.True(double.IsFinite(output[i]) || output[i] == 0);
+            Assert.True(double.IsFinite(output[i]) || Math.Abs(output[i]) < 1e-10);
         }
     }
 

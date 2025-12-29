@@ -269,4 +269,3 @@ public sealed class RsiValidationTests : IDisposable
         _output.WriteLine("RSI validated successfully against Ooples");
     }
 }
-

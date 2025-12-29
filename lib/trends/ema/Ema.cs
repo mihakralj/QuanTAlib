@@ -215,7 +215,7 @@ public sealed class Ema : AbstractBase
         double val = GetValidValue(input.Value);
         val = Compute(val, _alpha, _decay, ref _state);
         Last = new TValue(input.Time, val);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 

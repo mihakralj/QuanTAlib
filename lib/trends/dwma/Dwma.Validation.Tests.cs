@@ -186,4 +186,3 @@ public sealed class DwmaValidationTests : IDisposable
         _output.WriteLine("DWMA validated against TA-Lib (Chained WMA)");
     }
 }
-

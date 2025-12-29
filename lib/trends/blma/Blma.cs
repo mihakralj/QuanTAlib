@@ -63,11 +63,12 @@ public sealed class Blma : AbstractBase, IDisposable
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        TimeSpan increment = step ?? TimeSpan.FromMilliseconds(1);
         DateTime time = DateTime.UtcNow;
         foreach (var value in source)
         {
             Update(new TValue(time, value));
-            time = time.AddMilliseconds(1);
+            time = time.Add(increment);
         }
     }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Skender.Stock.Indicators;
@@ -139,5 +139,4 @@ public class TrimaValidationTests
         }
         _output.WriteLine("TRIMA Span validated successfully against TA-Lib");
     }
-
 }

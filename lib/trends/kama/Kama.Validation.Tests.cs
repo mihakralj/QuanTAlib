@@ -276,4 +276,3 @@ public sealed class KamaValidationTests : IDisposable
         _output.WriteLine("KAMA validated successfully against Ooples");
     }
 }
-

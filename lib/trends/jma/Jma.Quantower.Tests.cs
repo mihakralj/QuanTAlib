@@ -113,7 +113,6 @@ public class JmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-
     [Fact]
     public void JmaIndicator_MultipleUpdates_ProducesCorrectSequence()
     {

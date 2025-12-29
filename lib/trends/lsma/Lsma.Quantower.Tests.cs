@@ -112,7 +112,6 @@ public class LsmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-
     [Fact]
     public void LsmaIndicator_MultipleUpdates_ProducesCorrectSequence()
     {

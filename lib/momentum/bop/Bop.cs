@@ -180,4 +180,3 @@ public sealed class Bop : ITValuePublisher
         return new TSeries(t, v);
     }
 }
-

@@ -254,4 +254,3 @@ public sealed class AtrValidationTests : IDisposable
         _output.WriteLine("ATR Batch(TSeries) validated successfully against Ooples");
     }
 }
-

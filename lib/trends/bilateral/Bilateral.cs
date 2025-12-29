@@ -168,11 +168,21 @@ public sealed class Bilateral : AbstractBase
             _state.SumSq = currentSumSq;
             
             double val = GetValidValue(input.Value);
-            double oldNewest = _buffer.Newest; // Get current newest before overwriting
-            _buffer.UpdateNewest(val);
             
-            _state.SumSq -= (oldNewest * oldNewest);
-            _state.SumSq += (val * val);
+            // Defensive check: if buffer is empty, treat as first value
+            if (_buffer.Count == 0)
+            {
+                _buffer.Add(val);
+                _state.SumSq += (val * val);
+            }
+            else
+            {
+                double oldNewest = _buffer.Newest; // Get current newest before overwriting
+                _buffer.UpdateNewest(val);
+                
+                _state.SumSq -= (oldNewest * oldNewest);
+                _state.SumSq += (val * val);
+            }
         }
 
         double result = CalculateBilateral();

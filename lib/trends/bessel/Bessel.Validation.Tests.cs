@@ -58,4 +58,3 @@ public sealed class BesselValidationTests : IDisposable
         _output.WriteLine("Bessel validated internally: Span vs TSeries are consistent.");
     }
 }
-

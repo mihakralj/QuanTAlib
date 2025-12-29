@@ -113,7 +113,6 @@ public class BilateralIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-
     [Fact]
     public void BilateralIndicator_MultipleUpdates_ProducesCorrectSequence()
     {

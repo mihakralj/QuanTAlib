@@ -112,7 +112,6 @@ public class ConvIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-
     [Fact]
     public void ConvIndicator_MultipleUpdates_ProducesCorrectSequence()
     {

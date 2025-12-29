@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using OoplesFinance.StockIndicators;
@@ -83,5 +83,4 @@ public class LsmaValidationTests
         }
         _output.WriteLine("LSMA Span validated successfully against Skender");
     }
-
 }

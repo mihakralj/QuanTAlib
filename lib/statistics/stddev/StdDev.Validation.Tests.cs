@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Xunit;
 using QuanTAlib;
@@ -127,5 +127,4 @@ public class StdDevValidationTests
             }
         }
     }
-
 }

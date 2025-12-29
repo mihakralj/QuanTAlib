@@ -709,5 +709,4 @@ public static class SimdExtensions
 
         return sum;
     }
-
 }

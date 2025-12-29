@@ -191,4 +191,3 @@ public sealed class BilateralValidationTests : IDisposable
         }
     }
 }
-

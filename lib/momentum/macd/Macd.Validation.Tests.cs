@@ -245,4 +245,3 @@ public sealed class MacdValidationTests : IDisposable
         _output.WriteLine("MACD Streaming validated successfully against Tulip");
     }
 }
-

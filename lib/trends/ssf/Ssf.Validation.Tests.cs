@@ -75,4 +75,3 @@ public sealed class SsfValidationTests : IDisposable
         _output.WriteLine("SSF validated successfully against Ooples");
     }
 }
-

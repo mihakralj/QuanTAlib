@@ -36,7 +36,6 @@ public class SmaIndicatorTests
         Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
     }
 
-
     [Fact]
     public void SmaIndicator_Initialize_CreatesInternalSma()
     {
@@ -102,7 +101,6 @@ public class SmaIndicatorTests
         Assert.True(double.IsFinite(firstValue));
         Assert.True(double.IsFinite(secondValue));
     }
-
 
     [Fact]
     public void SmaIndicator_MultipleUpdates_ProducesCorrectSmaSequence()

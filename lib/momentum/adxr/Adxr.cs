@@ -233,4 +233,3 @@ public sealed class Adxr : ITValuePublisher
         return new TSeries(tList, [.. v]);
     }
 }
-

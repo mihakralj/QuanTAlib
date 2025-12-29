@@ -197,4 +197,3 @@ public sealed class Adl : ITValuePublisher
         }
     }
 }
-

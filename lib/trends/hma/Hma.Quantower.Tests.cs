@@ -112,7 +112,6 @@ public class HmaIndicatorTests
         Assert.True(double.IsFinite(secondValue));
     }
 
-
     [Fact]
     public void HmaIndicator_MultipleUpdates_ProducesCorrectHmaSequence()
     {

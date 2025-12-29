@@ -79,8 +79,8 @@ public sealed class Htit : AbstractBase
 
     public override void Reset()
     {
-        _state = default;
-        _p_state = default;
+        _state = new State();
+        _p_state = new State();
 
         _priceBuffer.Clear();
         _smoothBuffer.Clear();

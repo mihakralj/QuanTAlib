@@ -176,4 +176,3 @@ public sealed class Adosc : ITValuePublisher
         SimdExtensions.Subtract(fastEma, slowEma, output);
     }
 }
-

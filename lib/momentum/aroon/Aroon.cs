@@ -255,4 +255,3 @@ public sealed class Aroon : ITValuePublisher
         return new TSeries(tList, [.. v]);
     }
 }
-

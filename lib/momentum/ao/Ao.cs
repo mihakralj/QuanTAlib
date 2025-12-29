@@ -99,7 +99,7 @@ public sealed class Ao : ITValuePublisher
 
         double ao = sFast.Value - sSlow.Value;
         Last = new TValue(input.Time, ao);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -117,7 +117,7 @@ public sealed class Ao : ITValuePublisher
 
         double ao = sFast.Value - sSlow.Value;
         Last = new TValue(input.Time, ao);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

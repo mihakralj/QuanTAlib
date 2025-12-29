@@ -256,7 +256,6 @@ public class JmaTests
         Assert.NotEqual(jmaPowerDefault.Last.Value, jmaPower2.Last.Value);
     }
 
-
     [Fact]
     public void Jma_SpanCalc_HandlesNaN()
     {

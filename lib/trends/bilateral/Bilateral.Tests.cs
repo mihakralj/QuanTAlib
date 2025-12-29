@@ -106,6 +106,37 @@ public class BilateralTests
         Assert.False(indicator.IsHot);
         Assert.Equal(1, indicator.Update(new TValue(DateTime.UtcNow, 1)).Value); // Center val 1, weights 0? No, center val is returned if weights 0.
     }
+
+    [Fact]
+    public void Update_IsNew_False_OnEmptyBuffer_DoesNotCrash()
+    {
+        // Test edge case: calling Update with isNew:false before any isNew:true
+        var indicator = new Bilateral(3);
+        
+        // This should not crash - buffer is empty, so we treat it as first value
+        var result = indicator.Update(new TValue(DateTime.UtcNow, 5.0), isNew: false);
+        
+        // Should have added the value to the buffer
+        Assert.True(double.IsFinite(result.Value));
+        Assert.Equal(5.0, result.Value); // Single value, so result is that value
+    }
+
+    [Fact]
+    public void Update_IsNew_False_AfterReset_DoesNotCrash()
+    {
+        // Test edge case: calling Update with isNew:false after Reset
+        var indicator = new Bilateral(3);
+        
+        indicator.Update(new TValue(DateTime.UtcNow, 1));
+        indicator.Update(new TValue(DateTime.UtcNow, 2));
+        indicator.Reset();
+        
+        // Buffer is now empty, isNew:false should not crash
+        var result = indicator.Update(new TValue(DateTime.UtcNow, 7.0), isNew: false);
+        
+        Assert.True(double.IsFinite(result.Value));
+        Assert.Equal(7.0, result.Value);
+    }
     
     [Fact]
     public void AllModes_ProduceSameResult()

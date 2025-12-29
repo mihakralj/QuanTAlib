@@ -188,7 +188,6 @@ public sealed class Cfb : ITValuePublisher
 
             double ratio = netMove / _runningSums[i];
 
-
             if (ratio >= 0.25)
             {
                 sumWeightedLen += L * ratio;

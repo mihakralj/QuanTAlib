@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Skender.Stock.Indicators;
@@ -96,5 +96,4 @@ public sealed class AroonOscValidationTests : IDisposable
         // Verify Oscillator
         ValidationHelper.VerifyData(results, tulipOsc, lookback: 14);
     }
-
 }
