@@ -103,4 +103,121 @@ public class AdoscTests
             Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-6);
         }
     }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var adosc = new Adosc(3, 10);
+
+        // Feed some valid data
+        for (int i = 0; i < 15; i++)
+        {
+            adosc.Update(_bars[i]);
+        }
+
+        // Create a bar with NaN close
+        var nanBar = new TBar(_bars[15].Time, _bars[15].Open, _bars[15].High, _bars[15].Low, double.NaN, _bars[15].Volume);
+        var result = adosc.Update(nanBar);
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var adosc = new Adosc(3, 10);
+
+        // Feed some valid data
+        for (int i = 0; i < 15; i++)
+        {
+            adosc.Update(_bars[i]);
+        }
+
+        // Create a bar with Infinity close
+        var infBar = new TBar(_bars[15].Time, _bars[15].Open, _bars[15].High, _bars[15].Low, double.PositiveInfinity, _bars[15].Volume);
+        var result = adosc.Update(infBar);
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var adosc = new Adosc(3, 10);
+
+        // Feed 20 bars
+        TBar bar20 = default;
+        for (int i = 0; i < 20; i++)
+        {
+            bar20 = _bars[i];
+            adosc.Update(bar20, isNew: true);
+        }
+
+        // Remember state after 20 bars
+        double stateAfter20 = adosc.Last.Value;
+
+        // Apply 5 corrections with different values
+        for (int i = 0; i < 5; i++)
+        {
+            var correctedBar = new TBar(bar20.Time, bar20.Open * (1 + i * 0.01), bar20.High * (1 + i * 0.01),
+                bar20.Low * (1 + i * 0.01), bar20.Close * (1 + i * 0.01), bar20.Volume);
+            adosc.Update(correctedBar, isNew: false);
+        }
+
+        // Restore original bar
+        adosc.Update(bar20, isNew: false);
+
+        Assert.Equal(stateAfter20, adosc.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void SpanBatch_CalculatesValidOutput()
+    {
+        double[] high = [100, 101, 102, 103, 104];
+        double[] low = [98, 99, 100, 101, 102];
+        double[] close = [99, 100, 101, 102, 103];
+        double[] volume = [1000, 1100, 1200, 1300, 1400];
+        double[] output = new double[5];
+
+        Adosc.Calculate(high, low, close, volume, output, 3, 5);
+
+        // Verify output is finite
+        for (int i = 0; i < output.Length; i++)
+        {
+            Assert.True(double.IsFinite(output[i]), $"Output at index {i} should be finite");
+        }
+    }
+
+    [Fact]
+    public void SpanBatch_MatchesTSeriesBatch()
+    {
+        var batchResult = Adosc.Batch(_bars, 3, 10);
+
+        var spanOutput = new double[_bars.Count];
+        Adosc.Calculate(_bars.High.Values, _bars.Low.Values, _bars.Close.Values, _bars.Volume.Values, spanOutput, 3, 10);
+
+        for (int i = 0; i < _bars.Count; i++)
+        {
+            Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-6);
+        }
+    }
+
+    [Fact]
+    public void BatchCalc_MatchesIterativeCalc()
+    {
+        var iterativeAdosc = new Adosc(3, 10);
+        var iterativeResults = new List<double>();
+
+        foreach (var bar in _bars)
+        {
+            iterativeResults.Add(iterativeAdosc.Update(bar).Value);
+        }
+
+        var batchResult = Adosc.Batch(_bars, 3, 10);
+
+        for (int i = 0; i < _bars.Count; i++)
+        {
+            Assert.Equal(iterativeResults[i], batchResult[i].Value, 1e-10);
+        }
+    }
 }

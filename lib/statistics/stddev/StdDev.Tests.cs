@@ -9,6 +9,138 @@ public class StdDevTests
     public void Constructor_ValidatesPeriod()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new StdDev(1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new StdDev(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new StdDev(-1));
+    }
+
+    [Fact]
+    public void Properties_Accessible()
+    {
+        var stddev = new StdDev(5);
+        Assert.Equal(0, stddev.Last.Value);
+        Assert.False(stddev.IsHot);
+        Assert.Contains("StdDev", stddev.Name, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Calc_IsNew_False_UpdatesValue()
+    {
+        var stddev = new StdDev(3);
+        stddev.Update(new TValue(DateTime.UtcNow, 10));
+        stddev.Update(new TValue(DateTime.UtcNow, 20));
+        stddev.Update(new TValue(DateTime.UtcNow, 30));
+
+        double valueBefore = stddev.Last.Value;
+
+        // Update with isNew=false should change the result
+        stddev.Update(new TValue(DateTime.UtcNow, 100), isNew: false);
+        double valueAfter = stddev.Last.Value;
+
+        Assert.NotEqual(valueBefore, valueAfter);
+    }
+
+    [Fact]
+    public void NaN_Input_UsesLastValidValue()
+    {
+        var stddev = new StdDev(5);
+        stddev.Update(new TValue(DateTime.UtcNow, 10));
+        stddev.Update(new TValue(DateTime.UtcNow, 20));
+
+        var result = stddev.Update(new TValue(DateTime.UtcNow, double.NaN));
+
+        Assert.True(double.IsFinite(result.Value));
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var stddev = new StdDev(5);
+        stddev.Update(new TValue(DateTime.UtcNow, 10));
+        stddev.Update(new TValue(DateTime.UtcNow, 20));
+
+        var resultPosInf = stddev.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
+        Assert.True(double.IsFinite(resultPosInf.Value));
+
+        var resultNegInf = stddev.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
+        Assert.True(double.IsFinite(resultNegInf.Value));
+    }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var stddev = new StdDev(5);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+
+        // Feed 10 new values
+        TValue tenthInput = default;
+        for (int i = 0; i < 10; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            tenthInput = new TValue(bar.Time, bar.Close);
+            stddev.Update(tenthInput, isNew: true);
+        }
+
+        // Remember state after 10 values
+        double stateAfterTen = stddev.Last.Value;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            stddev.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered 10th input again with isNew=false
+        TValue finalResult = stddev.Update(tenthInput, isNew: false);
+
+        // State should match the original state after 10 values
+        Assert.Equal(stateAfterTen, finalResult.Value, 1e-10);
+    }
+
+    [Fact]
+    public void SpanBatch_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        // Period must be > 1
+        Assert.Throws<ArgumentException>(() =>
+            StdDev.Batch(source.AsSpan(), output.AsSpan(), 1));
+
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() =>
+            StdDev.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        // 1. Batch Mode (static span)
+        var tValues = series.Values.ToArray();
+        var batchOutput = new double[tValues.Length];
+        StdDev.Batch(tValues, batchOutput, period);
+        double expected = batchOutput[^1];
+
+        // 2. Streaming Mode
+        var streamingInd = new StdDev(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 3. TSeries Batch Mode
+        var batchSeriesResult = StdDev.Calculate(series, period);
+        double tseriesResult = batchSeriesResult.Last.Value;
+
+        Assert.Equal(expected, streamingResult, precision: 6);
+        Assert.Equal(expected, tseriesResult, precision: 6);
     }
 
     [Fact]

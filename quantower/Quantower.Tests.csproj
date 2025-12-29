@@ -37,6 +37,8 @@
     <Compile Include="..\lib\volume\**\*.cs" Exclude="..\lib\volume\**\*.Tests.cs;..\lib\volume\**\*.Validation.Tests.cs;..\lib\volume\**\obj\**;..\lib\volume\**\bin\**" />
     <!-- Include statistics implementations -->
     <Compile Include="..\lib\statistics\**\*.cs" Exclude="..\lib\statistics\**\*.Tests.cs;..\lib\statistics\**\*.Validation.Tests.cs;..\lib\statistics\**\obj\**;..\lib\statistics\**\bin\**" />
+    <!-- Include volatility implementations -->
+    <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\*.Validation.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
   </ItemGroup>

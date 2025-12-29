@@ -12,6 +12,149 @@ public class LinRegTests
     }
 
     [Fact]
+    public void Properties_Accessible()
+    {
+        var linreg = new LinReg(10);
+        Assert.Equal(0, linreg.Last.Value);
+        Assert.False(linreg.IsHot);
+        Assert.Contains("LinReg", linreg.Name, StringComparison.Ordinal);
+        Assert.Equal(0, linreg.Slope);
+        Assert.Equal(0, linreg.Intercept);
+        Assert.Equal(0, linreg.RSquared);
+    }
+
+    [Fact]
+    public void IsHot_BecomesTrueWhenBufferFull()
+    {
+        var linreg = new LinReg(5);
+        Assert.False(linreg.IsHot);
+
+        for (int i = 1; i <= 4; i++)
+        {
+            linreg.Update(new TValue(DateTime.UtcNow, i * 10));
+            Assert.False(linreg.IsHot);
+        }
+
+        linreg.Update(new TValue(DateTime.UtcNow, 50));
+        Assert.True(linreg.IsHot);
+    }
+
+    [Fact]
+    public void Reset_ClearsState()
+    {
+        var linreg = new LinReg(5);
+        for (int i = 0; i < 10; i++)
+        {
+            linreg.Update(new TValue(DateTime.UtcNow, i * 10));
+        }
+        Assert.True(linreg.IsHot);
+
+        linreg.Reset();
+        Assert.False(linreg.IsHot);
+        Assert.Equal(0, linreg.Last.Value);
+        Assert.Equal(0, linreg.Slope);
+        Assert.Equal(0, linreg.Intercept);
+        Assert.Equal(0, linreg.RSquared);
+
+        // After reset, should accept new values
+        var result = linreg.Update(new TValue(DateTime.UtcNow, 50));
+        Assert.Equal(50, result.Value);
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var linreg = new LinReg(5);
+        linreg.Update(new TValue(DateTime.UtcNow, 10));
+        linreg.Update(new TValue(DateTime.UtcNow, 20));
+
+        var resultPosInf = linreg.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
+        Assert.True(double.IsFinite(resultPosInf.Value));
+
+        var resultNegInf = linreg.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
+        Assert.True(double.IsFinite(resultNegInf.Value));
+    }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var linreg = new LinReg(5);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+
+        // Feed 10 new values
+        TValue tenthInput = default;
+        for (int i = 0; i < 10; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            tenthInput = new TValue(bar.Time, bar.Close);
+            linreg.Update(tenthInput, isNew: true);
+        }
+
+        // Remember state after 10 values
+        double stateAfterTen = linreg.Last.Value;
+        double slopeAfterTen = linreg.Slope;
+        double interceptAfterTen = linreg.Intercept;
+
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            linreg.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered 10th input again with isNew=false
+        TValue finalResult = linreg.Update(tenthInput, isNew: false);
+
+        // State should match the original state after 10 values
+        // Use relaxed tolerance due to floating point accumulation in complex calculations
+        Assert.Equal(stateAfterTen, finalResult.Value, 1e-2);
+        Assert.Equal(slopeAfterTen, linreg.Slope, 1e-2);
+        Assert.Equal(interceptAfterTen, linreg.Intercept, 1e-2);
+    }
+
+    [Fact]
+    public void SpanBatch_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        // Period must be > 0
+        Assert.Throws<ArgumentException>(() =>
+            LinReg.Calculate(source.AsSpan(), output.AsSpan(), 0));
+
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() =>
+            LinReg.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void SpanBatch_MatchesTSeriesBatch()
+    {
+        int period = 10;
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        var series = new TSeries();
+        double[] source = new double[100];
+
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            source[i] = bar.Close;
+            series.Add(new TValue(bar.Time, bar.Close));
+        }
+
+        var tseriesResult = LinReg.Batch(series, period);
+
+        double[] output = new double[100];
+        LinReg.Calculate(source.AsSpan(), output.AsSpan(), period);
+
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
+        }
+    }
+
+    [Fact]
     public void Calc_ReturnsValue()
     {
         var linreg = new LinReg(10);

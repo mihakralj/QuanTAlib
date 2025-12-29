@@ -36,7 +36,7 @@ public sealed class Atr : AbstractBase
 
         _rma = new Rma(period);
         Name = $"Atr({period})";
-        WarmupPeriod = period;
+        WarmupPeriod = _rma.WarmupPeriod;
         _isInitialized = false;
         _handler = Handle;
     }

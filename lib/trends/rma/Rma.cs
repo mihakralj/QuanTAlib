@@ -86,7 +86,7 @@ public sealed class Rma : AbstractBase
     {
         TValue result = _ema.Update(input, isNew);
         Last = result;
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return result;
     }
 

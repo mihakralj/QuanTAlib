@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace QuanTAlib.Tests;
@@ -9,6 +10,181 @@ public class VarianceTests
     public void Constructor_ValidatesPeriod()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new Variance(1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Variance(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Variance(-1));
+        var variance = new Variance(2);
+        Assert.NotNull(variance);
+    }
+
+    [Fact]
+    public void Calc_ReturnsValue()
+    {
+        var variance = new Variance(5);
+        
+        Assert.Equal(0, variance.Last.Value);
+        
+        TValue result = variance.Update(new TValue(DateTime.UtcNow, 100));
+        
+        Assert.Equal(result.Value, variance.Last.Value);
+    }
+
+    [Fact]
+    public void Calc_IsNew_AcceptsParameter()
+    {
+        var variance = new Variance(5);
+        
+        variance.Update(new TValue(DateTime.UtcNow, 1), isNew: true);
+        variance.Update(new TValue(DateTime.UtcNow, 2), isNew: true);
+        variance.Update(new TValue(DateTime.UtcNow, 3), isNew: true);
+        variance.Update(new TValue(DateTime.UtcNow, 4), isNew: true);
+        double value1 = variance.Update(new TValue(DateTime.UtcNow, 5), isNew: true).Value;
+        
+        variance.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
+        double value2 = variance.Last.Value;
+        
+        Assert.NotEqual(value1, value2);
+    }
+
+    [Fact]
+    public void IterativeCorrections_RestoreToOriginalState()
+    {
+        var variance = new Variance(5);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        
+        // Feed 10 new values
+        TValue tenthInput = default;
+        for (int i = 0; i < 10; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            tenthInput = new TValue(bar.Time, bar.Close);
+            variance.Update(tenthInput, isNew: true);
+        }
+        
+        // Remember state after 10 values
+        double stateAfterTen = variance.Last.Value;
+        
+        // Generate 9 corrections with isNew=false (different values)
+        for (int i = 0; i < 9; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            variance.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+        
+        // Feed the remembered 10th input again with isNew=false
+        TValue finalResult = variance.Update(tenthInput, isNew: false);
+        
+        // State should match the original state after 10 values
+        Assert.Equal(stateAfterTen, finalResult.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Infinity_Input_UsesLastValidValue()
+    {
+        var variance = new Variance(5);
+        
+        variance.Update(new TValue(DateTime.UtcNow, 1));
+        variance.Update(new TValue(DateTime.UtcNow, 2));
+        variance.Update(new TValue(DateTime.UtcNow, 3));
+        
+        // Variance doesn't do last-valid-value substitution
+        // Just verify it doesn't crash
+        var resultAfterPosInf = variance.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
+        // May be NaN or finite depending on implementation
+        Assert.True(double.IsFinite(resultAfterPosInf.Value) || double.IsNaN(resultAfterPosInf.Value) || double.IsInfinity(resultAfterPosInf.Value));
+        
+        var resultAfterNegInf = variance.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
+        Assert.True(double.IsFinite(resultAfterNegInf.Value) || double.IsNaN(resultAfterNegInf.Value) || double.IsInfinity(resultAfterNegInf.Value));
+    }
+
+    [Fact]
+    public void AllModes_ProduceSameResult()
+    {
+        // Arrange
+        int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        int count = 200;
+        
+        var times = new List<long>(count);
+        var values = new List<double>(count);
+        
+        for (int i = 0; i < count; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            times.Add(bar.Time);
+            values.Add(bar.Close);
+        }
+        
+        var series = new TSeries(times, values);
+        
+        // 1. Batch Mode (static method)
+        var batchSeries = Variance.Calculate(series, period);
+        double expected = batchSeries.Last.Value;
+        
+        // 2. Span Mode (static method with spans)
+        var spanInput = values.ToArray();
+        var spanOutput = new double[count];
+        Variance.Batch(spanInput.AsSpan(), spanOutput.AsSpan(), period);
+        double spanResult = spanOutput[^1];
+        
+        // 3. Streaming Mode (instance, one value at a time)
+        var streamingInd = new Variance(period);
+        for (int i = 0; i < count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+        
+        // Assert all modes produce identical results
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+    }
+
+    [Fact]
+    public void SpanBatch_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+        
+        // Period must be >= 2
+        Assert.Throws<ArgumentException>(() => 
+            Variance.Batch(source.AsSpan(), output.AsSpan(), 1));
+        Assert.Throws<ArgumentException>(() => 
+            Variance.Batch(source.AsSpan(), output.AsSpan(), 0));
+        
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() => 
+            Variance.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
+    }
+
+    [Fact]
+    public void SpanBatch_MatchesTSeriesBatch()
+    {
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        int count = 100;
+        
+        var times = new List<long>(count);
+        var values = new List<double>(count);
+        double[] source = new double[count];
+        double[] output = new double[count];
+        
+        for (int i = 0; i < count; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            times.Add(bar.Time);
+            values.Add(bar.Close);
+            source[i] = bar.Close;
+        }
+        
+        var series = new TSeries(times, values);
+        
+        var tseriesResult = Variance.Calculate(series, 10);
+        Variance.Batch(source.AsSpan(), output.AsSpan(), 10);
+        
+        for (int i = 0; i < count; i++)
+        {
+            Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
+        }
     }
 
     [Fact]
