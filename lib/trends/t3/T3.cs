@@ -108,7 +108,7 @@ public sealed class T3 : AbstractBase, IDisposable
         _publisher.Pub += _handler;
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// True if the T3 has been initialized (received at least one value).

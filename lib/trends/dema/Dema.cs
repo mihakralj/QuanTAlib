@@ -337,5 +337,5 @@ public sealed class Dema : AbstractBase, IDisposable
         }
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 }

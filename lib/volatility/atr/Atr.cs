@@ -64,7 +64,7 @@ public sealed class Atr : AbstractBase
         // but we can rely on manual updates or the user subscribing.
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// True if the ATR has warmed up and is providing valid results.

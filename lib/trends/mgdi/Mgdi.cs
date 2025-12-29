@@ -49,7 +49,7 @@ public sealed class Mgdi : AbstractBase
         source.Pub += _handler;
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     private void Init()
     {

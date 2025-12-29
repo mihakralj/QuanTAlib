@@ -50,7 +50,7 @@ public sealed class Blma : AbstractBase, IDisposable
         }
     }
 
-    private void Handle(object? sender, TValueEventArgs args)
+    private void Handle(object? sender, in TValueEventArgs args)
     {
         Update(args.Value, args.IsNew);
     }

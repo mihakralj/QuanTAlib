@@ -109,8 +109,7 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
             _v[lastIdx] = value.Value;
         }
 
-        var args = new TValueEventArgs { Value = value, IsNew = isNew };
-        Pub?.Invoke(this, args);
+        Pub?.Invoke(this, new TValueEventArgs { Value = value, IsNew = isNew });
     }
 
     // Overload for backward compatibility (assumes isNew=true)

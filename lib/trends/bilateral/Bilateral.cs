@@ -117,7 +117,7 @@ public sealed class Bilateral : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
+    private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     public override TSeries Update(TSeries source)
     {

@@ -93,7 +93,7 @@ public sealed class Rsx : ITValuePublisher
     public bool IsHot => _state.IsInitialized;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
+    private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     public TValue Update(TValue input, bool isNew = true)
     {

@@ -99,7 +99,7 @@ public sealed class Trima : AbstractBase, IDisposable
         return new TSeries(t, v);
     }
 
-    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
+    private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {

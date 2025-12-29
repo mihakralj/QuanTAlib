@@ -80,7 +80,7 @@ public sealed class Rma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override TValue Update(TValue input, bool isNew = true)
     {

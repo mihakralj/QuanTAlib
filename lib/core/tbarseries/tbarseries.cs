@@ -6,9 +6,8 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// A high-performance OHLCV time series implementation using Structure of Arrays (SoA) layout.
-/// Stores Time, Open, High, Low, Close, Volume in separate contiguous arrays for SIMD efficiency.
-/// Exposes TSeries views for each component that share the underlying Time array.
+/// Performance-focused event args for TBar updates.
+/// Implemented as struct to avoid heap allocations in high-frequency event dispatch.
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TBarEventArgs

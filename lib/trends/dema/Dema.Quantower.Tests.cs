@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using TradingPlatform.BusinessLayer;
 
 namespace QuanTAlib.Tests;

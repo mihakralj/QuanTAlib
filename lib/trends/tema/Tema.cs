@@ -85,7 +85,7 @@ public sealed class Tema : AbstractBase
         _handler = Handle;
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
     /// Initializes the indicator state using the provided history.

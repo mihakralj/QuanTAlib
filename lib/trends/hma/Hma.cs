@@ -117,7 +117,7 @@ public sealed class Hma : AbstractBase
         return new TSeries(t, v);
     }
 
-    private void Handle(object? sender, TValueEventArgs args)
+    private void Handle(object? sender, in TValueEventArgs args)
     {
         Update(args.Value, args.IsNew);
     }

@@ -93,7 +93,7 @@ public sealed class Cfb : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Handle(object? sender, TValueEventArgs args) => Update(args.Value, args.IsNew);
+    private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()

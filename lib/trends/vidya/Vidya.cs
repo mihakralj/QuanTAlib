@@ -72,7 +72,7 @@ public sealed class Vidya : AbstractBase, IDisposable
         }
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override bool IsHot => _state.BarCount >= _period;
 

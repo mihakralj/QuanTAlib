@@ -194,7 +194,7 @@ public sealed class Wma : AbstractBase, IDisposable
         return new TSeries(t, v);
     }
 
-    private void Handle(object? sender, TValueEventArgs e) => Update(e.Value, e.IsNew);
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {

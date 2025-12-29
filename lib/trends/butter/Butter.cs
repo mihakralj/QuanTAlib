@@ -42,7 +42,7 @@ public sealed class Butter : AbstractBase
         source.Pub += _handler;
     }
 
-    private void Handle(object? sender, TValueEventArgs args)
+    private void Handle(object? sender, in TValueEventArgs args)
     {
         Update(args.Value, args.IsNew);
     }
