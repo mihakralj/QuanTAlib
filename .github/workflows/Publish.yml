@@ -218,7 +218,6 @@ jobs:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
           args: --coverage-dir,.qodana/code-coverage,--fail-threshold,999999
-          fail-threshold: 999999
 
       - name: Upload Qodana SARIF Artifacts
         if: always()
