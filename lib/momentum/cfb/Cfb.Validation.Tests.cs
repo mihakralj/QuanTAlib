@@ -1,5 +1,3 @@
-using System;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;

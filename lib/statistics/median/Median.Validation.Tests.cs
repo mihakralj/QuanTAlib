@@ -1,8 +1,3 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using Xunit;
-using QuanTAlib;
 using QuanTAlib.Tests;
 using MathNet.Numerics.Statistics;
 

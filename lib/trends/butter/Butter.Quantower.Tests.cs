@@ -1,5 +1,3 @@
-using System;
-using Xunit;
 using TradingPlatform.BusinessLayer;
 using QuanTAlib;
 

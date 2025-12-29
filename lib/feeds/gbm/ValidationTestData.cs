@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Skender.Stock.Indicators;
 
 namespace QuanTAlib.Tests;

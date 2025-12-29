@@ -1,5 +1,3 @@
-using Xunit;
-using QuanTAlib;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;

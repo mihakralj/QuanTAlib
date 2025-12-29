@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using TradingPlatform.BusinessLayer;
-using Xunit;
 
 namespace QuanTAlib.Quantower.Tests;
 

@@ -175,8 +175,8 @@ public class RingBufferTests
 
         // Valid indices are 0 and 1 (2 elements)
         // Index 2 should throw ArgumentOutOfRangeException
-        Assert.Throws<ArgumentOutOfRangeException>(() => _ = buffer[(Index)2]);
-        Assert.Throws<ArgumentOutOfRangeException>(() => _ = buffer[(Index)10]);
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = buffer[2]);
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = buffer[10]);
     }
 
     [Fact]
@@ -522,7 +522,7 @@ public class RingBufferTests
 
         Assert.Equal(60.0, buffer.Sum);
 
-        buffer[(Index)1] = 25.0; // Change 20.0 to 25.0
+        buffer[1] = 25.0; // Change 20.0 to 25.0
 
         Assert.Equal(65.0, buffer.Sum);
         Assert.Equal(25.0, buffer[1]);
@@ -675,7 +675,7 @@ public class RingBufferTests
         buffer.Add(30.0);
         buffer.Add(40.0); // Wraps - now has 20, 30, 40
 
-        buffer[(Index)0] = 25.0; // Change oldest (20.0) to 25.0
+        buffer[0] = 25.0; // Change oldest (20.0) to 25.0
 
         Assert.Equal(95.0, buffer.Sum); // 25 + 30 + 40
         Assert.Equal(25.0, buffer[0]);

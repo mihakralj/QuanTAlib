@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Skender.Stock.Indicators;
 using TALib;
 using Tulip;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;

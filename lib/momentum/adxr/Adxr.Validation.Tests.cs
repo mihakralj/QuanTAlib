@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using TALib;
 using Tulip;
-using Xunit;
 using QuanTAlib.Tests;
 
 namespace QuanTAlib;

@@ -1,7 +1,5 @@
-using System;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
-using Xunit;
 
 namespace QuanTAlib.Tests;
 

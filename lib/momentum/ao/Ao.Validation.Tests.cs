@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Skender.Stock.Indicators;
 using Tulip;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
-using Xunit;
 using QuanTAlib.Tests;
 
 namespace QuanTAlib;

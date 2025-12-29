@@ -1,5 +1,3 @@
-using Xunit;
-using System;
 
 namespace QuanTAlib.Tests;
 

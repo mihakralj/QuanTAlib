@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
-using QuanTAlib;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 
