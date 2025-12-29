@@ -25,6 +25,7 @@ public sealed class Rsx : ITValuePublisher
 {
     private readonly int _period;
     private readonly double _alpha;
+    private readonly double _decay;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State
@@ -72,6 +73,7 @@ public sealed class Rsx : ITValuePublisher
         _period = period;
         WarmupPeriod = period;
         _alpha = 3.0 / (period + 2.0);
+        _decay = 1.0 - _alpha;
         Name = $"Rsx({period})";
         _handler = Handle;
     }
@@ -129,33 +131,34 @@ public sealed class Rsx : ITValuePublisher
             _state.LastPrice = price;
         }
 
-        // --- Momentum Smoothing ---
-        double m1_1 = _state.M1_1 + _alpha * (momentum - _state.M1_1);
-        double m1_2 = _state.M1_2 + _alpha * (m1_1 - _state.M1_2);
-        double m1_out = (3.0 * m1_1 - m1_2) * 0.5;
+        // --- Momentum Smoothing (using FMA for precision and performance) ---
+        // EMA update: new = old + alpha * (input - old) = old * (1-alpha) + alpha * input = old * decay + alpha * input
+        double m1_1 = Math.FusedMultiplyAdd(_state.M1_1, _decay, _alpha * momentum);
+        double m1_2 = Math.FusedMultiplyAdd(_state.M1_2, _decay, _alpha * m1_1);
+        double m1_out = Math.FusedMultiplyAdd(3.0, m1_1, -m1_2) * 0.5;
 
-        double m2_1 = _state.M2_1 + _alpha * (m1_out - _state.M2_1);
-        double m2_2 = _state.M2_2 + _alpha * (m2_1 - _state.M2_2);
-        double m2_out = (3.0 * m2_1 - m2_2) * 0.5;
+        double m2_1 = Math.FusedMultiplyAdd(_state.M2_1, _decay, _alpha * m1_out);
+        double m2_2 = Math.FusedMultiplyAdd(_state.M2_2, _decay, _alpha * m2_1);
+        double m2_out = Math.FusedMultiplyAdd(3.0, m2_1, -m2_2) * 0.5;
 
-        double m3_1 = _state.M3_1 + _alpha * (m2_out - _state.M3_1);
-        double m3_2 = _state.M3_2 + _alpha * (m3_1 - _state.M3_2);
-        double smoothedMomentum = (3.0 * m3_1 - m3_2) * 0.5;
+        double m3_1 = Math.FusedMultiplyAdd(_state.M3_1, _decay, _alpha * m2_out);
+        double m3_2 = Math.FusedMultiplyAdd(_state.M3_2, _decay, _alpha * m3_1);
+        double smoothedMomentum = Math.FusedMultiplyAdd(3.0, m3_1, -m3_2) * 0.5;
 
-        // --- Absolute Momentum Smoothing ---
+        // --- Absolute Momentum Smoothing (using FMA) ---
         double absMomentum = Math.Abs(momentum);
 
-        double a1_1 = _state.A1_1 + _alpha * (absMomentum - _state.A1_1);
-        double a1_2 = _state.A1_2 + _alpha * (a1_1 - _state.A1_2);
-        double a1_out = (3.0 * a1_1 - a1_2) * 0.5;
+        double a1_1 = Math.FusedMultiplyAdd(_state.A1_1, _decay, _alpha * absMomentum);
+        double a1_2 = Math.FusedMultiplyAdd(_state.A1_2, _decay, _alpha * a1_1);
+        double a1_out = Math.FusedMultiplyAdd(3.0, a1_1, -a1_2) * 0.5;
 
-        double a2_1 = _state.A2_1 + _alpha * (a1_out - _state.A2_1);
-        double a2_2 = _state.A2_2 + _alpha * (a2_1 - _state.A2_2);
-        double a2_out = (3.0 * a2_1 - a2_2) * 0.5;
+        double a2_1 = Math.FusedMultiplyAdd(_state.A2_1, _decay, _alpha * a1_out);
+        double a2_2 = Math.FusedMultiplyAdd(_state.A2_2, _decay, _alpha * a2_1);
+        double a2_out = Math.FusedMultiplyAdd(3.0, a2_1, -a2_2) * 0.5;
 
-        double a3_1 = _state.A3_1 + _alpha * (a2_out - _state.A3_1);
-        double a3_2 = _state.A3_2 + _alpha * (a3_1 - _state.A3_2);
-        double smoothedAbsMomentum = (3.0 * a3_1 - a3_2) * 0.5;
+        double a3_1 = Math.FusedMultiplyAdd(_state.A3_1, _decay, _alpha * a2_out);
+        double a3_2 = Math.FusedMultiplyAdd(_state.A3_2, _decay, _alpha * a3_1);
+        double smoothedAbsMomentum = Math.FusedMultiplyAdd(3.0, a3_1, -a3_2) * 0.5;
 
         if (isNew)
         {
@@ -231,6 +234,7 @@ public sealed class Rsx : ITValuePublisher
         if (len == 0) return;
 
         double alpha = 3.0 / (period + 2.0);
+        double decay = 1.0 - alpha;
 
         // Momentum filters
         double m1_1 = 0, m1_2 = 0;
@@ -267,33 +271,33 @@ public sealed class Rsx : ITValuePublisher
             double momentum = (price - lastPrice) * 100.0;
             lastPrice = price;
 
-            // Momentum Smoothing
-            m1_1 += alpha * (momentum - m1_1);
-            m1_2 += alpha * (m1_1 - m1_2);
-            double m1_out = (3.0 * m1_1 - m1_2) * 0.5;
+            // Momentum Smoothing (using FMA for precision and performance)
+            m1_1 = Math.FusedMultiplyAdd(m1_1, decay, alpha * momentum);
+            m1_2 = Math.FusedMultiplyAdd(m1_2, decay, alpha * m1_1);
+            double m1_out = Math.FusedMultiplyAdd(3.0, m1_1, -m1_2) * 0.5;
 
-            m2_1 += alpha * (m1_out - m2_1);
-            m2_2 += alpha * (m2_1 - m2_2);
-            double m2_out = (3.0 * m2_1 - m2_2) * 0.5;
+            m2_1 = Math.FusedMultiplyAdd(m2_1, decay, alpha * m1_out);
+            m2_2 = Math.FusedMultiplyAdd(m2_2, decay, alpha * m2_1);
+            double m2_out = Math.FusedMultiplyAdd(3.0, m2_1, -m2_2) * 0.5;
 
-            m3_1 += alpha * (m2_out - m3_1);
-            m3_2 += alpha * (m3_1 - m3_2);
-            double smoothedMomentum = (3.0 * m3_1 - m3_2) * 0.5;
+            m3_1 = Math.FusedMultiplyAdd(m3_1, decay, alpha * m2_out);
+            m3_2 = Math.FusedMultiplyAdd(m3_2, decay, alpha * m3_1);
+            double smoothedMomentum = Math.FusedMultiplyAdd(3.0, m3_1, -m3_2) * 0.5;
 
-            // Abs Momentum Smoothing
+            // Abs Momentum Smoothing (using FMA)
             double absMomentum = Math.Abs(momentum);
 
-            a1_1 += alpha * (absMomentum - a1_1);
-            a1_2 += alpha * (a1_1 - a1_2);
-            double a1_out = (3.0 * a1_1 - a1_2) * 0.5;
+            a1_1 = Math.FusedMultiplyAdd(a1_1, decay, alpha * absMomentum);
+            a1_2 = Math.FusedMultiplyAdd(a1_2, decay, alpha * a1_1);
+            double a1_out = Math.FusedMultiplyAdd(3.0, a1_1, -a1_2) * 0.5;
 
-            a2_1 += alpha * (a1_out - a2_1);
-            a2_2 += alpha * (a2_1 - a2_2);
-            double a2_out = (3.0 * a2_1 - a2_2) * 0.5;
+            a2_1 = Math.FusedMultiplyAdd(a2_1, decay, alpha * a1_out);
+            a2_2 = Math.FusedMultiplyAdd(a2_2, decay, alpha * a2_1);
+            double a2_out = Math.FusedMultiplyAdd(3.0, a2_1, -a2_2) * 0.5;
 
-            a3_1 += alpha * (a2_out - a3_1);
-            a3_2 += alpha * (a3_1 - a3_2);
-            double smoothedAbsMomentum = (3.0 * a3_1 - a3_2) * 0.5;
+            a3_1 = Math.FusedMultiplyAdd(a3_1, decay, alpha * a2_out);
+            a3_2 = Math.FusedMultiplyAdd(a3_2, decay, alpha * a3_1);
+            double smoothedAbsMomentum = Math.FusedMultiplyAdd(3.0, a3_1, -a3_2) * 0.5;
 
             // Final RSX
             double rsx;

@@ -58,7 +58,7 @@
 | **Conditional Volatility** | Cv | - | - | - | - |
 | **Convolution Moving Average** | [Conv](../lib/trends/conv/conv.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Correlation** | Correlation | CORREL | - | Correlation | - |
-| **Cumulative Mean (Average)** | Cummean | - | - | - | - |
+| **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - |
 | **Decay Min-Max Channel** | Decaychannel | - | - | - | - |
 | **DeMark Pivot Points** | Pivotdem | - | - | - | ❔ |
 | **Detrended Price Oscillator** | Dpo | - | dpo | Dpo | ❔ |

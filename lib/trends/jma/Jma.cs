@@ -216,13 +216,17 @@ public sealed class Jma : AbstractBase
             prevJma = value;
 
         double alpha = Math.Exp(_logLengthDivider * d);
+        double decay = 1.0 - alpha;
         double alpha2 = alpha * alpha;
 
-        double c0 = (1.0 - alpha) * value + alpha * _state.LastC0;
-        double c8 = (value - c0) * (1.0 - _lengthDivider) + _lengthDivider * _state.LastC8;
-        double a8 = (_phaseParam * c8 + c0 - prevJma) *
-                    (alpha * (-2.0) + alpha2 + 1.0) +
-                    alpha2 * _state.LastA8;
+        // EMA smoothing: c0 = decay * value + alpha * LastC0
+        double c0 = Math.FusedMultiplyAdd(_state.LastC0, alpha, decay * value);
+        // EMA smoothing: c8 = (value - c0) * (1 - lengthDivider) + lengthDivider * LastC8
+        double lengthDecay = 1.0 - _lengthDivider;
+        double c8 = Math.FusedMultiplyAdd(_state.LastC8, _lengthDivider, lengthDecay * (value - c0));
+        // IIR filter: a8 = (phase * c8 + c0 - prevJma) * coef + alpha2 * LastA8
+        double coef = Math.FusedMultiplyAdd(alpha, -2.0, alpha2 + 1.0);
+        double a8 = Math.FusedMultiplyAdd(_state.LastA8, alpha2, Math.FusedMultiplyAdd(_phaseParam, c8, c0 - prevJma) * coef);
 
         double jma = prevJma + a8;
 

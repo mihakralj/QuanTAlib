@@ -170,17 +170,17 @@ public sealed class Mama : AbstractBase
             double i2_val = i1 - jQ;
             double q2_val = q1 + jI;
 
-            // Smooth i2, q2
-            _state.I2 = SmoothCoef * i2_val + SmoothPrev * _p_state.I2;
-            _state.Q2 = SmoothCoef * q2_val + SmoothPrev * _p_state.Q2;
+            // Smooth i2, q2 (using FMA for precision)
+            _state.I2 = Math.FusedMultiplyAdd(SmoothCoef, i2_val, SmoothPrev * _p_state.I2);
+            _state.Q2 = Math.FusedMultiplyAdd(SmoothCoef, q2_val, SmoothPrev * _p_state.Q2);
 
             // Homodyne discriminator
-            double re_val = (_state.I2 * _p_state.I2) + (_state.Q2 * _p_state.Q2);
-            double im_val = (_state.I2 * _p_state.Q2) - (_state.Q2 * _p_state.I2);
+            double re_val = Math.FusedMultiplyAdd(_state.I2, _p_state.I2, _state.Q2 * _p_state.Q2);
+            double im_val = Math.FusedMultiplyAdd(_state.I2, _p_state.Q2, -_state.Q2 * _p_state.I2);
 
-            // Smooth re, im
-            _state.Re = SmoothCoef * re_val + SmoothPrev * _p_state.Re;
-            _state.Im = SmoothCoef * im_val + SmoothPrev * _p_state.Im;
+            // Smooth re, im (using FMA)
+            _state.Re = Math.FusedMultiplyAdd(SmoothCoef, re_val, SmoothPrev * _p_state.Re);
+            _state.Im = Math.FusedMultiplyAdd(SmoothCoef, im_val, SmoothPrev * _p_state.Im);
 
             // Calculate Period
             double angle = Math.Atan2(_state.Im, _state.Re);
@@ -198,8 +198,8 @@ public sealed class Mama : AbstractBase
             if (period < MinPeriod) period = MinPeriod;
             if (period > MaxPeriod) period = MaxPeriod;
 
-            // Smooth Period
-            _state.Period = SmoothCoef * period + SmoothPrev * _p_state.Period;
+            // Smooth Period (using FMA)
+            _state.Period = Math.FusedMultiplyAdd(SmoothCoef, period, SmoothPrev * _p_state.Period);
 
             // Phase calculation
             _state.Phase = Math.Atan2(q1, i1);
@@ -380,17 +380,17 @@ public sealed class Mama : AbstractBase
                 double i2_val = i1 - jQ;
                 double q2_val = q1 + jI;
 
-                // Smooth i2, q2
-                i2 = SmoothCoef * i2_val + SmoothPrev * p_i2;
-                q2 = SmoothCoef * q2_val + SmoothPrev * p_q2;
+                // Smooth i2, q2 (using FMA for precision)
+                i2 = Math.FusedMultiplyAdd(SmoothCoef, i2_val, SmoothPrev * p_i2);
+                q2 = Math.FusedMultiplyAdd(SmoothCoef, q2_val, SmoothPrev * p_q2);
 
                 // Homodyne discriminator
-                double re_val = (i2 * p_i2) + (q2 * p_q2);
-                double im_val = (i2 * p_q2) - (q2 * p_i2);
+                double re_val = Math.FusedMultiplyAdd(i2, p_i2, q2 * p_q2);
+                double im_val = Math.FusedMultiplyAdd(i2, p_q2, -q2 * p_i2);
 
-                // Smooth re, im
-                re = SmoothCoef * re_val + SmoothPrev * p_re;
-                im = SmoothCoef * im_val + SmoothPrev * p_im;
+                // Smooth re, im (using FMA)
+                re = Math.FusedMultiplyAdd(SmoothCoef, re_val, SmoothPrev * p_re);
+                im = Math.FusedMultiplyAdd(SmoothCoef, im_val, SmoothPrev * p_im);
 
                 // Calculate Period
                 double angle = Math.Atan2(im, re);
@@ -408,8 +408,8 @@ public sealed class Mama : AbstractBase
                 if (newPeriod < MinPeriod) newPeriod = MinPeriod;
                 if (newPeriod > MaxPeriod) newPeriod = MaxPeriod;
 
-                // Smooth Period
-                period = SmoothCoef * newPeriod + SmoothPrev * p_period;
+                // Smooth Period (using FMA)
+                period = Math.FusedMultiplyAdd(SmoothCoef, newPeriod, SmoothPrev * p_period);
 
                 // Phase calculation
                 double phase = Math.Atan2(q1, i1);

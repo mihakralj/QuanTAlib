@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
@@ -7,10 +8,26 @@ namespace QuanTAlib;
 /// Implemented as struct to avoid heap allocations in high-frequency event dispatch.
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TValueEventArgs
+public readonly struct TValueEventArgs : IEquatable<TValueEventArgs>
 {
     public TValue Value { get; init; }
     public bool IsNew { get; init; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(TValueEventArgs other) =>
+        Value.Equals(other.Value) && IsNew == other.IsNew;
+
+    public override bool Equals(object? obj) =>
+        obj is TValueEventArgs other && Equals(other);
+
+    public override int GetHashCode() =>
+        HashCode.Combine(Value, IsNew);
+
+    public static bool operator ==(TValueEventArgs left, TValueEventArgs right) =>
+        left.Equals(right);
+
+    public static bool operator !=(TValueEventArgs left, TValueEventArgs right) =>
+        !left.Equals(right);
 }
 
 // Performance-focused event args struct; not derived from EventArgs by design.

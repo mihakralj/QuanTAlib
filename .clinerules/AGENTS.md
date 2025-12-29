@@ -44,6 +44,43 @@ We do not store objects in lists. We store primitive arrays.
 3. **SIMD**: Batch operations (`Calculate`) should use `System.Runtime.Intrinsics` (AVX2) or `System.Numerics.Vector<T>` where possible. Use `Vector.ConditionalSelect` to handle edge cases (e.g., division by zero) without branching. If SIMD is not possible due to recursive dependencies, use `stackalloc` for internal buffers to avoid heap allocations.
 4. **Inlining**: Use `[MethodImpl(MethodImplOptions.AggressiveInlining)]` on hot methods.
 5. **Locals**: Use `[SkipLocalsInit]` to avoid zero-init costs in tight loops.
+6. **Fused Multiply-Add (FMA)**: Use `Math.FusedMultiplyAdd(a, b, c)` for `a*b+c` operations. FMA performs the operation with a single rounding step, improving both precision and potentially performance.
+
+### FMA Patterns
+
+Use `Math.FusedMultiplyAdd()` for these common patterns:
+
+| Pattern | Before | After |
+| ------- | ------ | ----- |
+| **EMA Smoothing** | `x + alpha * (y - x)` | `Math.FusedMultiplyAdd(x, decay, alpha * y)` where `decay = 1 - alpha` |
+| **Weighted Sum** | `a * w1 + b * w2` | `Math.FusedMultiplyAdd(a, w1, b * w2)` |
+| **Linear Combo** | `3.0 * a - b` | `Math.FusedMultiplyAdd(3.0, a, -b)` |
+| **Cross Product** | `(a * b) + (c * d)` | `Math.FusedMultiplyAdd(a, b, c * d)` |
+| **IIR Filter** | `coef * input + feedback * state` | `Math.FusedMultiplyAdd(coef, input, feedback * state)` |
+
+**When to use FMA:**
+
+* EMA-style smoothing operations (most moving averages)
+* IIR filter calculations (Butterworth, Chebyshev, SSF)
+* Homodyne discriminator calculations (HTIT, MAMA)
+* Any `a*b+c` pattern in hot paths
+
+**When NOT to use FMA:**
+
+* Simple additions or multiplications (no benefit)
+* When intermediate rounding is mathematically required
+* In SIMD paths (use `Fma.MultiplyAdd`, `Avx512F.FusedMultiplyAdd`, or `AdvSimd.Arm64.FusedMultiplyAdd` instead)
+
+**Pre-compute decay constants:**
+
+```csharp
+// In constructor or field initialization
+private readonly double _alpha;
+private readonly double _decay; // = 1 - _alpha
+
+// In hot path
+result = Math.FusedMultiplyAdd(prevState, _decay, _alpha * newInput);
+```
 
 ## 3. Indicator Implementation Standards
 

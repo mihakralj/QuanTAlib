@@ -29,6 +29,8 @@ namespace QuanTAlib;
 public sealed class Adx : ITValuePublisher
 {
     private readonly int _period;
+    private readonly double _decay;      // (period - 1) / period for RMA
+    private readonly double _invPeriod;  // 1 / period
     private TBar _prevBar;
     private TBar _p_prevBar;
     private bool _isInitialized;
@@ -93,6 +95,8 @@ public sealed class Adx : ITValuePublisher
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         _period = period;
+        _decay = (period - 1.0) / period;
+        _invPeriod = 1.0 / period;
         Name = $"Adx({period})";
         WarmupPeriod = period * 2; // Needs period for TR/DM smoothing, then period for ADX smoothing
         _isInitialized = false;
@@ -211,16 +215,11 @@ public sealed class Adx : ITValuePublisher
         }
         else
         {
-            // RMA: Previous + (Input - Previous) / Period
-            // Or: Previous * (1 - 1/Period) + Input * (1/Period)
-            // Or: (Previous * (Period - 1) + Input) / Period
-            // Wilder uses sums, but effectively it's RMA.
-            // Standard formula:
-            // Smooth = Smooth - (Smooth / Period) + Input
-
-            _trSmooth = _trSmooth - (_trSmooth / _period) + tr;
-            _dmPlusSmooth = _dmPlusSmooth - (_dmPlusSmooth / _period) + dmPlus;
-            _dmMinusSmooth = _dmMinusSmooth - (_dmMinusSmooth / _period) + dmMinus;
+            // RMA: Smooth = Smooth * decay + Input * invPeriod
+            // Using FMA for precision
+            _trSmooth = Math.FusedMultiplyAdd(_trSmooth, _decay, tr * _invPeriod);
+            _dmPlusSmooth = Math.FusedMultiplyAdd(_dmPlusSmooth, _decay, dmPlus * _invPeriod);
+            _dmMinusSmooth = Math.FusedMultiplyAdd(_dmMinusSmooth, _decay, dmMinus * _invPeriod);
         }
 
         // Calculate DI and DX
@@ -250,13 +249,13 @@ public sealed class Adx : ITValuePublisher
 
                 if (_dxSamples == _period)
                 {
-                    _adx = _dxSum / _period; // First ADX is SMA of DX
+                    _adx = _dxSum * _invPeriod; // First ADX is SMA of DX
                 }
             }
             else
             {
-                // ADX = (Prior ADX * (Period - 1) + Current DX) / Period
-                _adx = ((_adx * (_period - 1)) + dx) / _period;
+                // ADX = Prior ADX * decay + DX * invPeriod (RMA smoothing)
+                _adx = Math.FusedMultiplyAdd(_adx, _decay, dx * _invPeriod);
             }
         }
 
@@ -339,9 +338,10 @@ public sealed class Adx : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Smooth(double input, int period, ref double smoothed)
+    private static void Smooth(double input, double decay, double invPeriod, ref double smoothed)
     {
-        smoothed = smoothed - (smoothed / period) + input;
+        // RMA: smoothed = smoothed * decay + input * invPeriod
+        smoothed = Math.FusedMultiplyAdd(smoothed, decay, input * invPeriod);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -353,6 +353,9 @@ public sealed class Adx : ITValuePublisher
             destination.Clear();
             return;
         }
+
+        double decay = (period - 1.0) / period;
+        double invPeriod = 1.0 / period;
 
         // Phase 1: Accumulate TR, +DM, -DM for the first 'period' bars
         double trSum = 0;
@@ -387,9 +390,9 @@ public sealed class Adx : ITValuePublisher
         {
             CalcTrDm(i, high, low, close, out double tr, out double dmPlus, out double dmMinus);
 
-            Smooth(tr, period, ref trSmooth);
-            Smooth(dmPlus, period, ref dmPlusSmooth);
-            Smooth(dmMinus, period, ref dmMinusSmooth);
+            Smooth(tr, decay, invPeriod, ref trSmooth);
+            Smooth(dmPlus, decay, invPeriod, ref dmPlusSmooth);
+            Smooth(dmMinus, decay, invPeriod, ref dmMinusSmooth);
 
             dx = CalcDx(trSmooth, dmPlusSmooth, dmMinusSmooth);
             dxSum += dx;
@@ -397,7 +400,7 @@ public sealed class Adx : ITValuePublisher
         }
 
         // Initialize ADX (SMA of DX)
-        double adx = dxSum / period;
+        double adx = dxSum * invPeriod;
         destination[adxStart] = adx;
 
         // Phase 3: Calculate ADX for the rest of the series
@@ -405,14 +408,14 @@ public sealed class Adx : ITValuePublisher
         {
             CalcTrDm(i, high, low, close, out double tr, out double dmPlus, out double dmMinus);
 
-            Smooth(tr, period, ref trSmooth);
-            Smooth(dmPlus, period, ref dmPlusSmooth);
-            Smooth(dmMinus, period, ref dmMinusSmooth);
+            Smooth(tr, decay, invPeriod, ref trSmooth);
+            Smooth(dmPlus, decay, invPeriod, ref dmPlusSmooth);
+            Smooth(dmMinus, decay, invPeriod, ref dmMinusSmooth);
 
             dx = CalcDx(trSmooth, dmPlusSmooth, dmMinusSmooth);
 
             // ADX Smoothing (RMA)
-            Smooth(dx / period, period, ref adx);
+            Smooth(dx, decay, invPeriod, ref adx);
             destination[i] = adx;
         }
     }

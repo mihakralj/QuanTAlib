@@ -104,6 +104,7 @@ These measure the spread of data points around the mean.
 
 ### Statistics
 
+- [**CMA**](../lib/statistics/cma/Cma.md) - Cumulative Moving Average
 - [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) - Covariance
 - [**LINREG**](../lib/statistics/linreg/LinReg.md) - Linear Regression Curve
 - [**MEDIAN**](../lib/statistics/median/Median.md) - Rolling Median

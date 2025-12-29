@@ -113,9 +113,14 @@ public sealed class Butter : AbstractBase
         }
 
         double x = input.Value;
+        // IIR: y = (b0*x + b1*x1 + b2*x2 - a1*y1 - a2*y2) * invA0
+        // Using chained FMA for precision
         double y = _state.Count < 2
             ? x
-            : (_b0 * x + _b1 * _state.X1 + _b2 * _state.X2 - _a1 * _state.Y1 - _a2 * _state.Y2) * _invA0;
+            : Math.FusedMultiplyAdd(-_a2, _state.Y2,
+                Math.FusedMultiplyAdd(-_a1, _state.Y1,
+                    Math.FusedMultiplyAdd(_b2, _state.X2,
+                        Math.FusedMultiplyAdd(_b1, _state.X1, _b0 * x)))) * _invA0;
 
         // Update state
         _state.X2 = _state.X1;
@@ -185,9 +190,14 @@ public sealed class Butter : AbstractBase
                 destination[i] = i > 0 ? destination[i - 1] : initialLast;
                 continue;
             }
+            // IIR: y = (b0*x + b1*x1 + b2*x2 - a1*y1 - a2*y2) * invA0
+            // Using chained FMA for precision
             double y = i < 2
                 ? x
-                : (b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) * invA0;
+                : Math.FusedMultiplyAdd(-a2, y2,
+                    Math.FusedMultiplyAdd(-a1, y1,
+                        Math.FusedMultiplyAdd(b2, x2,
+                            Math.FusedMultiplyAdd(b1, x1, b0 * x)))) * invA0;
 
             x2 = x1;
             x1 = x;

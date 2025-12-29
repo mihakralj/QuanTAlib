@@ -131,7 +131,8 @@ public sealed class Vidya : AbstractBase, IDisposable
         }
 
         double dynamicAlpha = _alpha * vi;
-        _state.CurrentVidya = dynamicAlpha * price + (1.0 - dynamicAlpha) * _state.LastVidya;
+        double dynamicDecay = 1.0 - dynamicAlpha;
+        _state.CurrentVidya = Math.FusedMultiplyAdd(_state.LastVidya, dynamicDecay, dynamicAlpha * price);
         _state.CurrentClose = price;
 
         Last = new TValue(input.Time, _state.CurrentVidya);
@@ -239,7 +240,8 @@ public sealed class Vidya : AbstractBase, IDisposable
             }
 
             double dynamicAlpha = _alpha * vi;
-            double currentVidya = dynamicAlpha * price + (1.0 - dynamicAlpha) * lastVidya;
+            double dynamicDecay = 1.0 - dynamicAlpha;
+            double currentVidya = Math.FusedMultiplyAdd(lastVidya, dynamicDecay, dynamicAlpha * price);
 
             _state.CurrentVidya = currentVidya;
             _state.CurrentClose = price;
@@ -337,7 +339,8 @@ public sealed class Vidya : AbstractBase, IDisposable
                 }
 
                 double dynamicAlpha = alpha * vi;
-                double currentVidya = dynamicAlpha * price + (1.0 - dynamicAlpha) * lastVidya;
+                double dynamicDecay = 1.0 - dynamicAlpha;
+                double currentVidya = Math.FusedMultiplyAdd(lastVidya, dynamicDecay, dynamicAlpha * price);
 
                 output[i] = currentVidya;
 

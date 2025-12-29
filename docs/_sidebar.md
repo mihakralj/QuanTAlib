@@ -69,6 +69,7 @@
 
 - **Statistics**
   - [Overview](../lib/statistics/_index.md)
+  - [CMA - Cumulative MA](../lib/statistics/cma/Cma.md)
   - [COVARIANCE - Covariance](../lib/statistics/covariance/Covariance.md)
   - [LINREG - Linear Regression Curve](../lib/statistics/linreg/LinReg.md)
   - [MEDIAN - Rolling Median](../lib/statistics/median/Median.md)

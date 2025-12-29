@@ -9,7 +9,7 @@ Statistical analysis tools applied to price/returns.
 | COINTEGRATION | Cointegration | |
 | CORRELATION | Correlation (Pearson's) | |
 | [COVARIANCE](covariance/Covariance.md) | Covariance | |
-| CUMMEAN | Cumulative Mean (Average) | |
+| [CMA](cma/Cma.md) | Cumulative Moving Average | Running average of ALL values (Welford's algorithm). No window. |
 | ENTROPY | Normalized Shannon Entropy | |
 | GEOMEAN | Geometric Mean | |
 | GRANGER | Granger Causality Test | |

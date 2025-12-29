@@ -434,7 +434,7 @@ public static class ValidationHelper
         for (int i = 0; i < qSeries.Count; i++)
         {
             double? sValue = selector(sSeries[i]);
-            if (!sValue.HasValue || sValue.Value == 0) continue;
+            if (!sValue.HasValue || Math.Abs(sValue.Value) < double.Epsilon) continue;
 
             double relDiff = Math.Abs((qSeries[i].Value - sValue.Value) / sValue.Value);
             if (relDiff > maxDiff)

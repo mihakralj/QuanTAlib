@@ -148,8 +148,13 @@ public sealed class Adosc : ITValuePublisher
         return adosc.Update(source);
     }
 
+    // EMA compensator threshold (same as in Ema.cs)
+    private const double COMPENSATOR_THRESHOLD = 1e-10;
+
     /// <summary>
-    /// Calculates ADOSC for the entire span.
+    /// Calculates ADOSC for the entire span using a single-pass algorithm.
+    /// Zero allocation for maximum performance.
+    /// Uses compensator pattern from EMA for proper early-stage bias correction.
     /// </summary>
     /// <param name="high">High prices</param>
     /// <param name="low">Low prices</param>
@@ -161,18 +166,101 @@ public sealed class Adosc : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int fastPeriod = 3, int slowPeriod = 10)
     {
-        if (high.Length != output.Length)
-            throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
+        if (high.Length != low.Length || high.Length != close.Length ||
+            high.Length != volume.Length || high.Length != output.Length)
+            throw new ArgumentException("All spans must be of the same length.", nameof(output));
 
-        Span<double> adl = high.Length <= 1024 ? stackalloc double[high.Length] : new double[high.Length];
-        Adl.Calculate(high, low, close, volume, adl);
+        if (fastPeriod <= 0)
+            throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        if (slowPeriod <= 0)
+            throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
 
-        Span<double> fastEma = high.Length <= 1024 ? stackalloc double[high.Length] : new double[high.Length];
-        Span<double> slowEma = high.Length <= 1024 ? stackalloc double[high.Length] : new double[high.Length];
+        int len = high.Length;
+        if (len == 0) return;
 
-        Ema.Batch(adl, fastEma, fastPeriod);
-        Ema.Batch(adl, slowEma, slowPeriod);
+        // EMA parameters (same formula as Ema.cs: alpha = 2 / (period + 1))
+        double alphaFast = 2.0 / (fastPeriod + 1);
+        double alphaSlow = 2.0 / (slowPeriod + 1);
+        double decayFast = 1.0 - alphaFast;
+        double decaySlow = 1.0 - alphaSlow;
 
-        SimdExtensions.Subtract(fastEma, slowEma, output);
+        // State variables (no heap allocations)
+        double adl = 0;
+        double emaFast = 0;
+        double emaSlow = 0;
+        double eFast = 1.0;  // Compensation factor for fast EMA (starts at 1, decays toward 0)
+        double eSlow = 1.0;  // Compensation factor for slow EMA
+        bool fastCompensated = false;
+        bool slowCompensated = false;
+
+        // Single pass: compute ADL, both EMAs, and output in one loop
+        for (int i = 0; i < len; i++)
+        {
+            double h = high[i];
+            double l = low[i];
+            double c = close[i];
+            double vol = volume[i];
+
+            // 1. Compute Money Flow Multiplier and Volume
+            double hl = h - l;
+            double mfm = 0;
+            if (hl > double.Epsilon)
+            {
+                mfm = ((c - l) - (h - c)) / hl;
+            }
+            double mfv = mfm * vol;
+
+            // 2. Update ADL (cumulative)
+            adl += mfv;
+
+            // 3. Update Fast EMA with FMA (same pattern as Ema.cs Compute method)
+            // state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input)
+            emaFast = Math.FusedMultiplyAdd(emaFast, decayFast, alphaFast * adl);
+
+            // 4. Update Slow EMA with FMA
+            emaSlow = Math.FusedMultiplyAdd(emaSlow, decaySlow, alphaSlow * adl);
+
+            // 5. Compute compensated EMA values (same logic as Ema.cs Compute method)
+            // Compensator decays: e *= decay, then result = ema / (1 - e) until e <= threshold
+            double fastValue, slowValue;
+
+            if (!fastCompensated)
+            {
+                eFast *= decayFast;
+                if (eFast <= COMPENSATOR_THRESHOLD)
+                {
+                    fastCompensated = true;
+                    fastValue = emaFast;
+                }
+                else
+                {
+                    fastValue = emaFast / (1.0 - eFast);
+                }
+            }
+            else
+            {
+                fastValue = emaFast;
+            }
+
+            if (!slowCompensated)
+            {
+                eSlow *= decaySlow;
+                if (eSlow <= COMPENSATOR_THRESHOLD)
+                {
+                    slowCompensated = true;
+                    slowValue = emaSlow;
+                }
+                else
+                {
+                    slowValue = emaSlow / (1.0 - eSlow);
+                }
+            }
+            else
+            {
+                slowValue = emaSlow;
+            }
+
+            output[i] = fastValue - slowValue;
+        }
     }
 }

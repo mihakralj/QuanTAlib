@@ -100,7 +100,7 @@ public class IndicatorBenchmarks
         {
             _quotes.Add(new Quote
             {
-                Date = new DateTime(_closeTseries.Times[i]),
+                Date = new DateTime(_closeTseries.Times[i], DateTimeKind.Utc),
                 Open = (decimal)bars.Open.Values[i],
                 High = (decimal)bars.High.Values[i],
                 Low = (decimal)bars.Low.Values[i],
@@ -115,7 +115,7 @@ public class IndicatorBenchmarks
         {
             _ooplesData.Add(new TickerData
             {
-                Date = new DateTime(_closeTseries.Times[i]),
+                Date = new DateTime(_closeTseries.Times[i], DateTimeKind.Utc),
                 Open = bars.Open.Values[i],
                 High = bars.High.Values[i],
                 Low = bars.Low.Values[i],

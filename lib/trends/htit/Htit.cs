@@ -161,17 +161,17 @@ public sealed class Htit : AbstractBase
         double i2_val = i1 - jQ;
         double q2_val = q1 + jI;
 
-        // Smooth i2, q2
-        _state.I2 = 0.2 * i2_val + 0.8 * _p_state.I2;
-        _state.Q2 = 0.2 * q2_val + 0.8 * _p_state.Q2;
+        // Smooth i2, q2 (using FMA for precision)
+        _state.I2 = Math.FusedMultiplyAdd(0.2, i2_val, 0.8 * _p_state.I2);
+        _state.Q2 = Math.FusedMultiplyAdd(0.2, q2_val, 0.8 * _p_state.Q2);
 
         // 6. Homodyne Discriminator
-        double re_val = (_state.I2 * _p_state.I2) + (_state.Q2 * _p_state.Q2);
-        double im_val = (_state.I2 * _p_state.Q2) - (_state.Q2 * _p_state.I2);
+        double re_val = Math.FusedMultiplyAdd(_state.I2, _p_state.I2, _state.Q2 * _p_state.Q2);
+        double im_val = Math.FusedMultiplyAdd(_state.I2, _p_state.Q2, -_state.Q2 * _p_state.I2);
 
-        // Smooth re, im
-        _state.Re = 0.2 * re_val + 0.8 * _p_state.Re;
-        _state.Im = 0.2 * im_val + 0.8 * _p_state.Im;
+        // Smooth re, im (using FMA)
+        _state.Re = Math.FusedMultiplyAdd(0.2, re_val, 0.8 * _p_state.Re);
+        _state.Im = Math.FusedMultiplyAdd(0.2, im_val, 0.8 * _p_state.Im);
 
         // 7. Calculate Period
         double angle = Math.Atan2(_state.Im, _state.Re);
@@ -190,9 +190,9 @@ public sealed class Htit : AbstractBase
         if (period < 6) period = 6;
         if (period > 50) period = 50;
 
-        // Smooth the period
-        _state.Period = 0.2 * period + 0.8 * prevPeriod;
-        _state.SmoothPeriod = 0.33 * _state.Period + 0.67 * _p_state.SmoothPeriod;
+        // Smooth the period (using FMA)
+        _state.Period = Math.FusedMultiplyAdd(0.2, period, 0.8 * prevPeriod);
+        _state.SmoothPeriod = Math.FusedMultiplyAdd(0.33, _state.Period, 0.67 * _p_state.SmoothPeriod);
 
         // 8. Instantaneous Trend
         int dcPeriods = (int)(double.IsNaN(_state.SmoothPeriod) ? 0 : _state.SmoothPeriod + 0.5);
@@ -376,15 +376,15 @@ public sealed class Htit : AbstractBase
                 double i2_val = i1 - jQ;
                 double q2_val = q1 + jI;
 
-                i2 = 0.2 * i2_val + 0.8 * p_i2;
-                q2 = 0.2 * q2_val + 0.8 * p_q2;
+                i2 = Math.FusedMultiplyAdd(0.2, i2_val, 0.8 * p_i2);
+                q2 = Math.FusedMultiplyAdd(0.2, q2_val, 0.8 * p_q2);
 
                 // 6. Homodyne Discriminator
-                double re_val = (i2 * p_i2) + (q2 * p_q2);
-                double im_val = (i2 * p_q2) - (q2 * p_i2);
+                double re_val = Math.FusedMultiplyAdd(i2, p_i2, q2 * p_q2);
+                double im_val = Math.FusedMultiplyAdd(i2, p_q2, -q2 * p_i2);
 
-                re = 0.2 * re_val + 0.8 * p_re;
-                im = 0.2 * im_val + 0.8 * p_im;
+                re = Math.FusedMultiplyAdd(0.2, re_val, 0.8 * p_re);
+                im = Math.FusedMultiplyAdd(0.2, im_val, 0.8 * p_im);
 
                 // 7. Calculate Period
                 double angle = Math.Atan2(im, re);
@@ -402,8 +402,8 @@ public sealed class Htit : AbstractBase
                 if (newPeriod < 6) newPeriod = 6;
                 if (newPeriod > 50) newPeriod = 50;
 
-                period = 0.2 * newPeriod + 0.8 * p_period;
-                smoothPeriod = 0.33 * period + 0.67 * p_smoothPeriod;
+                period = Math.FusedMultiplyAdd(0.2, newPeriod, 0.8 * p_period);
+                smoothPeriod = Math.FusedMultiplyAdd(0.33, period, 0.67 * p_smoothPeriod);
 
                 // 8. Instantaneous Trend
                 double safeSmooth = double.IsNaN(smoothPeriod) ? 0 : smoothPeriod;

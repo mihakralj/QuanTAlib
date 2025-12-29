@@ -9,10 +9,26 @@ namespace QuanTAlib;
 /// Implemented as struct to avoid heap allocations in high-frequency event dispatch.
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TBarEventArgs
+public readonly struct TBarEventArgs : IEquatable<TBarEventArgs>
 {
     public TBar Value { get; init; }
     public bool IsNew { get; init; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(TBarEventArgs other) =>
+        Value.Equals(other.Value) && IsNew == other.IsNew;
+
+    public override bool Equals(object? obj) =>
+        obj is TBarEventArgs other && Equals(other);
+
+    public override int GetHashCode() =>
+        HashCode.Combine(Value, IsNew);
+
+    public static bool operator ==(TBarEventArgs left, TBarEventArgs right) =>
+        left.Equals(right);
+
+    public static bool operator !=(TBarEventArgs left, TBarEventArgs right) =>
+        !left.Equals(right);
 }
 
 /// <summary>

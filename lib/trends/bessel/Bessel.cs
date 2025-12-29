@@ -135,7 +135,8 @@ public sealed class Bessel : AbstractBase, IDisposable
 
             double filt = _state.Count < 3
                 ? val
-                : (_c1 * val) + (_c2 * _state.F1) + (_c3 * _state.F2);
+                : Math.FusedMultiplyAdd(_c3, _state.F2,
+                    Math.FusedMultiplyAdd(_c2, _state.F1, _c1 * val));
 
             _state.F2 = _state.F1;
             _state.F1 = filt;
@@ -184,7 +185,8 @@ public sealed class Bessel : AbstractBase, IDisposable
 
         double filt = _state.Count < 3
             ? val
-            : (_c1 * val) + (_c2 * _state.F1) + (_c3 * _state.F2);
+            : Math.FusedMultiplyAdd(_c3, _state.F2,
+                Math.FusedMultiplyAdd(_c2, _state.F1, _c1 * val));
 
         _state.F2 = _state.F1;
         _state.F1 = filt;
@@ -276,7 +278,8 @@ public sealed class Bessel : AbstractBase, IDisposable
 
             double filt = state.Count < 3
                 ? val
-                : (c1 * val) + (c2 * state.F1) + (c3 * state.F2);
+                : Math.FusedMultiplyAdd(c3, state.F2,
+                    Math.FusedMultiplyAdd(c2, state.F1, c1 * val));
 
             state.F2 = state.F1;
             state.F1 = filt;

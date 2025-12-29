@@ -127,7 +127,8 @@ public sealed class Ssf : AbstractBase
 
             double ssf = (_state.Count < 4)
                 ? val
-                : (_c1 * (val + _state.PrevInput) * 0.5) + (_c2 * _state.Ssf1) + (_c3 * _state.Ssf2);
+                : Math.FusedMultiplyAdd(_c3, _state.Ssf2,
+                    Math.FusedMultiplyAdd(_c2, _state.Ssf1, _c1 * (val + _state.PrevInput) * 0.5));
 
             _state.Ssf2 = _state.Ssf1;
             _state.Ssf1 = ssf;
@@ -177,7 +178,8 @@ public sealed class Ssf : AbstractBase
 
         double ssf = (_state.Count < 4)
             ? val
-            : (_c1 * (val + _state.PrevInput) * 0.5) + (_c2 * _state.Ssf1) + (_c3 * _state.Ssf2);
+            : Math.FusedMultiplyAdd(_c3, _state.Ssf2,
+                Math.FusedMultiplyAdd(_c2, _state.Ssf1, _c1 * (val + _state.PrevInput) * 0.5));
 
         _state.Ssf2 = _state.Ssf1;
         _state.Ssf1 = ssf;
@@ -268,7 +270,8 @@ public sealed class Ssf : AbstractBase
 
             double ssf = (state.Count < 4)
                 ? val
-                : (c1 * (val + state.PrevInput) * 0.5) + (c2 * state.Ssf1) + (c3 * state.Ssf2);
+                : Math.FusedMultiplyAdd(c3, state.Ssf2,
+                    Math.FusedMultiplyAdd(c2, state.Ssf1, c1 * (val + state.PrevInput) * 0.5));
 
             state.Ssf2 = state.Ssf1;
             state.Ssf1 = ssf;
