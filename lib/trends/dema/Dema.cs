@@ -97,7 +97,7 @@ public sealed class Dema : AbstractBase, IDisposable
         if (double.IsNaN(val))
         {
             Last = new TValue(input.Time, double.NaN);
-            PubEvent(Last);
+            PubEvent(Last, isNew);
             return Last;
         }
 
@@ -108,7 +108,7 @@ public sealed class Dema : AbstractBase, IDisposable
 
         double result = 2 * e1 - e2;
         Last = new TValue(input.Time, result);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
