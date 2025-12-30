@@ -110,4 +110,5 @@ These measure the spread of data points around the mean.
 - [**MEDIAN**](../lib/statistics/median/Median.md) - Rolling Median
 - [**SKEW**](../lib/statistics/skew/Skew.md) - Skewness
 - [**STDDEV**](../lib/statistics/stddev/StdDev.md) - Standard Deviation
+- [**SUM**](../lib/statistics/sum/Sum.md) - Rolling Sum
 - [**VARIANCE**](../lib/statistics/variance/Variance.md) - Population and Sample Variance

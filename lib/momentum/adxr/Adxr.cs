@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using QuanTAlib;
 
 namespace QuanTAlib;
 
@@ -107,7 +106,7 @@ public sealed class Adxr : ITValuePublisher
 
         _adxHistory.Add(currentAdx);
 
-        double adxr = 0;
+        double adxr;
         // We calculate ADXR even if not fully hot, as long as we have history
         if (!double.IsNaN(prevAdx))
         {

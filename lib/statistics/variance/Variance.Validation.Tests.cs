@@ -1,10 +1,5 @@
 using QuanTAlib.Tests;
 using Skender.Stock.Indicators;
-using TALib;
-using Tulip;
-using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Models;
-using OoplesFinance.StockIndicators.Enums;
 using MathNet.Numerics.Statistics;
 
 namespace QuanTAlib.Validation;

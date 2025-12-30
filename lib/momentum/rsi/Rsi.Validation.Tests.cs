@@ -2,26 +2,19 @@ using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using TALib;
-using Tulip;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public sealed class RsiValidationTests : IDisposable
+public sealed class RsiValidationTests(ITestOutputHelper output) : IDisposable
 {
-    private readonly ValidationTestData _testData;
-    private readonly ITestOutputHelper _output;
+    private readonly ValidationTestData _testData = new();
+    private readonly ITestOutputHelper _output = output;
     private bool _disposed;
-
-    public RsiValidationTests(ITestOutputHelper output)
-    {
-        _output = output;
-        _testData = new ValidationTestData();
-    }
 
     public void Dispose()
     {
-        Dispose(true);
+        Dispose(disposing: true);
     }
 
     private void Dispose(bool disposing)
@@ -60,27 +53,25 @@ public sealed class RsiValidationTests : IDisposable
     }
 
     [Fact]
-    public void Validate_Skender_Streaming()
+    public void Validate_Talib_Span()
     {
-        int[] periods = { 9, 14, 25 };
+        int[] periods = { 14, 20, 50, 100 };
+        double[] tData = _testData.RawData.ToArray();
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib RSI (streaming)
-            var rsi = new global::QuanTAlib.Rsi(period);
-            var qResults = new List<double>();
-            foreach (var item in _testData.Data)
-            {
-                qResults.Add(rsi.Update(item).Value);
-            }
+            double[] qOutput = new double[tData.Length];
+            Rsi.Calculate(tData.AsSpan(), qOutput.AsSpan(), period);
 
-            // Calculate Skender RSI
-            var sResult = _testData.SkenderQuotes.GetRsi(period).ToList();
+            double[] tOutput = new double[tData.Length];
+            var retCode = TALib.Functions.Rsi<double>(tData, 0..^0, tOutput, out var outRange, period);
+            Assert.Equal(Core.RetCode.Success, retCode);
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, sResult, (s) => s.Rsi);
+            int lookback = TALib.Functions.RsiLookback(period);
+
+            QuanTAlib.Tests.ValidationHelper.VerifyData(qOutput, tOutput, outRange, lookback);
         }
-        _output.WriteLine("RSI Streaming validated successfully against Skender");
+        _output.WriteLine("RSI Span validated against TA-Lib");
     }
 
     [Fact]
@@ -107,30 +98,28 @@ public sealed class RsiValidationTests : IDisposable
     }
 
     [Fact]
-    public void Validate_Talib_Batch()
+    public void Validate_Tulip_Span()
     {
-        int[] periods = { 9, 14, 25 };
-
-        // Prepare data for TA-Lib (double[])
+        int[] periods = { 14, 20, 50, 100 };
         double[] tData = _testData.RawData.ToArray();
-        double[] output = new double[tData.Length];
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib RSI (batch TSeries)
-            var rsi = new global::QuanTAlib.Rsi(period);
-            var qResult = rsi.Update(_testData.Data);
+            double[] qOutput = new double[tData.Length];
+            Rsi.Calculate(tData.AsSpan(), qOutput.AsSpan(), period);
 
-            // Calculate TA-Lib RSI
-            var retCode = TALib.Functions.Rsi<double>(tData, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
+            var rsiIndicator = Tulip.Indicators.rsi;
+            double[][] inputs = { tData };
+            double[] options = { period };
+            int lookback = period;
+            double[][] outputs = { new double[tData.Length - lookback] };
 
-            int lookback = TALib.Functions.RsiLookback(period);
+            rsiIndicator.Run(inputs, options, outputs);
+            var tResult = outputs[0];
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback);
+            QuanTAlib.Tests.ValidationHelper.VerifyData(qOutput, tResult, lookback);
         }
-        _output.WriteLine("RSI Batch(TSeries) validated successfully against TA-Lib");
+        _output.WriteLine("RSI Span validated against Tulip");
     }
 
     [Fact]
@@ -140,7 +129,7 @@ public sealed class RsiValidationTests : IDisposable
 
         // Prepare data for TA-Lib (double[])
         double[] tData = _testData.RawData.ToArray();
-        double[] output = new double[tData.Length];
+        double[] tOutput = new double[tData.Length];
 
         foreach (var period in periods)
         {
@@ -153,13 +142,13 @@ public sealed class RsiValidationTests : IDisposable
             }
 
             // Calculate TA-Lib RSI
-            var retCode = TALib.Functions.Rsi<double>(tData, 0..^0, output, out var outRange, period);
+            var retCode = TALib.Functions.Rsi<double>(tData, 0..^0, tOutput, out var outRange, period);
             Assert.Equal(Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.RsiLookback(period);
 
             // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, output, outRange, lookback);
+            ValidationHelper.VerifyData(qResults, tOutput, outRange, lookback);
         }
         _output.WriteLine("RSI Streaming validated successfully against TA-Lib");
     }

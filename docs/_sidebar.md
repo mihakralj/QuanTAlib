@@ -74,6 +74,7 @@
   - [LINREG - Linear Regression Curve](../lib/statistics/linreg/LinReg.md)
   - [MEDIAN - Rolling Median](../lib/statistics/median/Median.md)
   - [SKEW - Skewness](../lib/statistics/skew/Skew.md)
+  - [SUM - Rolling Sum](../lib/statistics/sum/Sum.md)
   - [VARIANCE - Population and Sample Variance](../lib/statistics/variance/Variance.md)
 
 - **Numerics**

@@ -1,4 +1,3 @@
-
 namespace QuanTAlib.Tests;
 
 public class VarianceTests
@@ -180,38 +179,71 @@ public class VarianceTests
         
         for (int i = 0; i < count; i++)
         {
-            Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
+            Assert.Equal(tseriesResult[i].Value, output[i], precision: 10);
+        }
+    }
+
+
+
+    [Fact]
+    public void Batch_SimdPath_Triggered()
+    {
+        // Create dataset that should trigger SIMD (clean, large)
+        int count = 300;
+        var data = new double[count];
+        var output = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = Math.Sin(i * 0.1); // Clean finite values
+        }
+
+        Variance.Batch(data, output, 10);
+
+        // Should complete without error and produce finite values
+        for (int i = 9; i < count; i++) // Start from period-1
+        {
+            Assert.True(double.IsFinite(output[i]));
+            Assert.True(output[i] >= 0);
         }
     }
 
     [Fact]
-    public void Calculation_KnownValues()
+    public void Batch_LargeDataset_ForceSimd()
     {
-        // Data: 2, 4, 4, 4, 5, 5, 7, 9
-        // Mean: 5
-        // Deviations: -3, -1, -1, -1, 0, 0, 2, 4
-        // Sq Devs: 9, 1, 1, 1, 0, 0, 4, 16
-        // Sum Sq Devs: 32
-        // Population Variance (N=8): 32 / 8 = 4
-        // Sample Variance (N-1=7): 32 / 7 = 4.571428...
+        // Force SIMD path with large clean dataset
+        int count = 1000;
+        var data = new double[count];
+        var output = new double[count];
 
-        var data = new double[] { 2, 4, 4, 4, 5, 5, 7, 9 };
-
-        // Test Population Variance
-        var popVar = new Variance(8, isPopulation: true);
-        foreach (var val in data)
+        // Generate clean, finite data
+        for (int i = 0; i < count; i++)
         {
-            popVar.Update(new TValue(DateTime.UtcNow, val));
+            data[i] = Math.Sin(i * 0.01) + 10; // Clean finite values, positive
         }
-        Assert.Equal(4.0, popVar.Last.Value, precision: 6);
 
-        // Test Sample Variance
-        var sampVar = new Variance(8, isPopulation: false);
-        foreach (var val in data)
+        Variance.Batch(data, output, 10);
+
+        // Verify results are finite and reasonable
+        for (int i = 9; i < count; i++)
         {
-            sampVar.Update(new TValue(DateTime.UtcNow, val));
+            Assert.True(double.IsFinite(output[i]));
+            Assert.True(output[i] >= 0);
         }
-        Assert.Equal(32.0 / 7.0, sampVar.Last.Value, precision: 6);
+
+        // Verify against streaming calculation for correctness
+        var variance = new Variance(10);
+        double[] streamingOutput = new double[count];
+        for (int i = 0; i < count; i++)
+        {
+            streamingOutput[i] = variance.Update(new TValue(DateTime.UtcNow, data[i])).Value;
+        }
+
+        // Compare last 100 values
+        for (int i = count - 100; i < count; i++)
+        {
+            Assert.Equal(streamingOutput[i], output[i], precision: 10);
+        }
     }
 
     [Fact]
@@ -323,22 +355,6 @@ public class VarianceTests
     }
 
     [Fact]
-    public void Resync_DoesNotDrift()
-    {
-        // Run for > 1000 updates to trigger Resync
-        var variance = new Variance(10);
-        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-
-        for (int i = 0; i < 1100; i++)
-        {
-            variance.Update(new TValue(DateTime.UtcNow, gbm.Next().Close));
-        }
-
-        Assert.True(double.IsFinite(variance.Last.Value));
-        Assert.True(variance.Last.Value >= 0);
-    }
-
-    [Fact]
     public void Batch_LargeDataset_Simd()
     {
         // Create large dataset to trigger SIMD path (>= 256)
@@ -350,6 +366,8 @@ public class VarianceTests
 
         // Batch calculation
         var batchResult = Variance.Calculate(series, 10);
+        Assert.True(double.IsFinite(batchResult.Last.Value));
+        Assert.True(batchResult.Last.Value >= 0);
 
         // Verify last value against streaming
         var variance = new Variance(10);
@@ -360,5 +378,349 @@ public class VarianceTests
         }
 
         Assert.Equal(lastStreaming, batchResult.Last.Value, precision: 10);
+    }
+
+    [Fact]
+    public void Prime_Method_Works()
+    {
+        var variance = new Variance(5);
+        double[] primeData = [10, 20, 30, 40, 50];
+
+        variance.Prime(primeData.AsSpan());
+
+        Assert.True(variance.IsHot);
+        Assert.Equal(250.0, variance.Last.Value, precision: 6); // Variance of [10,20,30,40,50] = 1000/4 = 250
+    }
+
+    [Fact]
+    public void Prime_WithInsufficientData()
+    {
+        var variance = new Variance(5);
+        double[] primeData = [10, 20]; // Less than period
+
+        variance.Prime(primeData.AsSpan());
+
+        Assert.False(variance.IsHot);
+        Assert.Equal(50.0, variance.Last.Value, precision: 6); // Variance of [10,20] = 50/1 = 50
+    }
+
+    [Fact]
+    public void Prime_WithEmptySpan()
+    {
+        var variance = new Variance(5);
+
+        variance.Prime(ReadOnlySpan<double>.Empty);
+
+        Assert.False(variance.IsHot);
+        Assert.Equal(0, variance.Last.Value);
+    }
+
+    [Fact]
+    public void Update_TSeries_ReturnsCorrectSeries()
+    {
+        var source = new TSeries();
+        source.Add(DateTime.UtcNow.Ticks, 10);
+        source.Add(DateTime.UtcNow.Ticks + 1, 20);
+        source.Add(DateTime.UtcNow.Ticks + 2, 30);
+        source.Add(DateTime.UtcNow.Ticks + 3, 40);
+        source.Add(DateTime.UtcNow.Ticks + 4, 50);
+
+        var variance = new Variance(3);
+        var result = variance.Update(source);
+
+        Assert.Equal(5, result.Count);
+        Assert.Equal(source.Times[0], result.Times[0]);
+        Assert.Equal(source.Times[4], result.Times[4]);
+
+        // Check variance values
+        Assert.Equal(0, result[0].Value); // N=1, no variance
+        Assert.Equal(50.0, result[1].Value, precision: 6); // Var([10,20]) = 50
+        Assert.Equal(100.0, result[2].Value, precision: 6); // Var([10,20,30]) = 200/2 = 100
+        Assert.Equal(100.0, result[3].Value, precision: 6); // Var([20,30,40]) = 200/2 = 100
+        Assert.Equal(100.0, result[4].Value, precision: 6); // Var([30,40,50]) = 200/2 = 100
+    }
+
+    [Fact]
+    public void Update_TSeries_EmptySource()
+    {
+        var variance = new Variance(5);
+        var result = variance.Update(new TSeries());
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Update_TSeries_PrimesState()
+    {
+        var source = new TSeries();
+        for (int i = 0; i < 10; i++)
+        {
+            source.Add(DateTime.UtcNow.Ticks + i, i * 10);
+        }
+
+        var variance = new Variance(5);
+        variance.Update(source);
+
+        // Should be primed with last 5 values
+        Assert.True(variance.IsHot);
+
+        // Add one more value and check it continues correctly
+        var newValue = variance.Update(new TValue(DateTime.UtcNow, 100));
+        Assert.True(double.IsFinite(newValue.Value));
+    }
+
+    [Fact]
+    public void Calculate_StaticMethod_Works()
+    {
+        var source = new TSeries();
+        source.Add(DateTime.UtcNow.Ticks, 10);
+        source.Add(DateTime.UtcNow.Ticks + 1, 20);
+        source.Add(DateTime.UtcNow.Ticks + 2, 30);
+
+        var result = Variance.Calculate(source, 3); // Sample variance by default
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(100.0, result.Last.Value, precision: 6); // Sample variance: 200/2 = 100
+    }
+
+    [Fact]
+    public void Calculate_StaticMethod_PopulationVariance()
+    {
+        var source = new TSeries();
+        source.Add(DateTime.UtcNow.Ticks, 10);
+        source.Add(DateTime.UtcNow.Ticks + 1, 20);
+        source.Add(DateTime.UtcNow.Ticks + 2, 30);
+
+        var result = Variance.Calculate(source, 3, isPopulation: true);
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(66.666666, result.Last.Value, precision: 5); // Population variance: 200/3 ≈ 66.67
+    }
+
+    [Fact]
+    public void Batch_WithNaNInData()
+    {
+        double[] source = [10, 20, double.NaN, 40, 50];
+        double[] output = new double[5];
+
+        Variance.Batch(source, output, 3);
+
+        // Should handle NaN gracefully
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val) || double.IsNaN(val));
+        }
+    }
+
+    [Fact]
+    public void Batch_PeriodEqualsTwo()
+    {
+        double[] source = [10, 20, 30, 40];
+        double[] output = new double[4];
+
+        Variance.Batch(source, output, 2);
+
+        Assert.Equal(0, output[0]); // N=1
+        Assert.Equal(50, output[1]); // Var([10,20]) = 50
+        Assert.Equal(50, output[2]); // Var([20,30]) = 50
+        Assert.Equal(50, output[3]); // Var([30,40]) = 50
+    }
+
+    [Fact]
+    public void Batch_VeryLargePeriod()
+    {
+        double[] source = [10, 20, 30, 40, 50];
+        double[] output = new double[5];
+
+        Variance.Batch(source, output, 5);
+
+        Assert.Equal(0, output[0]); // N=1, variance undefined
+        Assert.Equal(50, output[1]); // Var([10,20]) = 50
+        Assert.Equal(100, output[2]); // Var([10,20,30]) = 200/2 = 100
+        Assert.Equal(500.0/3.0, output[3], precision: 6); // Var([10,20,30,40]) = 500/3 ≈ 166.67
+        Assert.Equal(250, output[4], precision: 6); // Var([10,20,30,40,50]) = 1000/4 = 250
+    }
+
+    [Fact]
+    public void Batch_SingleElement()
+    {
+        double[] source = [42];
+        double[] output = new double[1];
+
+        Variance.Batch(source, output, 2);
+
+        Assert.Equal(0, output[0]);
+    }
+
+    [Fact]
+    public void Batch_ConstantValues_ZeroVariance()
+    {
+        double[] source = [5, 5, 5, 5, 5];
+        double[] output = new double[5];
+
+        Variance.Batch(source, output, 3);
+
+        Assert.Equal(0, output[0]);
+        Assert.Equal(0, output[1]);
+        Assert.Equal(0, output[2]);
+        Assert.Equal(0, output[3]);
+        Assert.Equal(0, output[4]);
+    }
+
+    [Fact]
+    public void Batch_PopulationVsSample()
+    {
+        double[] source = [10, 20, 30];
+        double[] outputPop = new double[3];
+        double[] outputSamp = new double[3];
+
+        Variance.Batch(source, outputPop, 3, isPopulation: true);
+        Variance.Batch(source, outputSamp, 3, isPopulation: false);
+
+        // Population variance should be smaller than sample variance
+        Assert.True(outputPop[2] < outputSamp[2]);
+        Assert.Equal(66.666666, outputPop[2], precision: 5); // 200/3
+        Assert.Equal(100, outputSamp[2], precision: 6); // 200/2
+    }
+
+
+
+    [Fact]
+    public void Resync_PreventsDrift_Extended()
+    {
+        // Test that resync works by running many updates
+        var variance = new Variance(5);
+        var gbm = new GBM(startPrice: 100, mu: 0.0, sigma: 0.1, seed: 42);
+
+        // Run enough updates to trigger multiple resyncs
+        for (int i = 0; i < 2500; i++)
+        {
+            variance.Update(new TValue(DateTime.UtcNow, gbm.Next().Close));
+        }
+
+        Assert.True(double.IsFinite(variance.Last.Value));
+        Assert.True(variance.Last.Value >= 0);
+    }
+
+    [Fact]
+    public void Update_WithNegativeValues()
+    {
+        var variance = new Variance(3);
+
+        variance.Update(new TValue(DateTime.UtcNow, -10));
+        variance.Update(new TValue(DateTime.UtcNow, -5));
+        variance.Update(new TValue(DateTime.UtcNow, 0));
+
+        Assert.Equal(25, variance.Last.Value, precision: 6); // Var([-10,-5,0]) = 25
+    }
+
+    [Fact]
+    public void Update_MixedPositiveNegative()
+    {
+        var variance = new Variance(4);
+
+        variance.Update(new TValue(DateTime.UtcNow, -2));
+        variance.Update(new TValue(DateTime.UtcNow, -1));
+        variance.Update(new TValue(DateTime.UtcNow, 1));
+        variance.Update(new TValue(DateTime.UtcNow, 2));
+
+        Assert.Equal(10.0/3.0, variance.Last.Value, precision: 6); // Var([-2,-1,1,2]) = 10/3 ≈ 3.333
+    }
+
+    [Fact]
+    public void Batch_SimdFallback_WithNaN()
+    {
+        // Dataset with NaN should fall back to scalar path
+        int count = 300;
+        double[] source = new double[count];
+        double[] output = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            source[i] = i * 0.1;
+        }
+        source[150] = double.NaN; // Insert NaN
+
+        Variance.Batch(source, output, 10);
+
+        // Should complete without error
+        for (int i = 0; i < count; i++)
+        {
+            Assert.True(double.IsFinite(output[i]) || double.IsNaN(output[i]));
+        }
+    }
+
+    [Fact]
+    public void Constructor_WithPopulationFlag()
+    {
+        var popVariance = new Variance(5, isPopulation: true);
+        var sampVariance = new Variance(5, isPopulation: false);
+
+        // Both should be valid
+        Assert.NotNull(popVariance);
+        Assert.NotNull(sampVariance);
+    }
+
+    [Fact]
+    public void Name_Property_ContainsPeriod()
+    {
+        var variance = new Variance(10);
+        Assert.Contains("10", variance.Name, StringComparison.Ordinal);
+        Assert.Contains("Variance", variance.Name, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void WarmupPeriod_Property()
+    {
+        var variance = new Variance(7);
+        Assert.Equal(7, variance.WarmupPeriod);
+    }
+
+    [Fact]
+    public void Update_AfterReset_Works()
+    {
+        var variance = new Variance(3);
+
+        // Fill buffer
+        variance.Update(new TValue(DateTime.UtcNow, 1));
+        variance.Update(new TValue(DateTime.UtcNow, 2));
+        variance.Update(new TValue(DateTime.UtcNow, 3));
+        double valueBefore = variance.Last.Value;
+
+        variance.Reset();
+
+        // Update after reset
+        variance.Update(new TValue(DateTime.UtcNow, 10));
+        variance.Update(new TValue(DateTime.UtcNow, 20));
+        variance.Update(new TValue(DateTime.UtcNow, 30));
+        double valueAfter = variance.Last.Value;
+
+        Assert.NotEqual(valueBefore, valueAfter);
+        Assert.Equal(100.0, valueAfter, precision: 6);
+    }
+
+    [Fact]
+    public void Batch_ZeroLengthSpans()
+    {
+        double[] emptySource = [];
+        double[] emptyOutput = [];
+
+        // Should not throw
+        Variance.Batch(emptySource, emptyOutput, 2);
+
+        Assert.Empty(emptySource);
+        Assert.Empty(emptyOutput);
+    }
+
+    [Fact]
+    public void Batch_MinimalValidData()
+    {
+        double[] source = [10, 20];
+        double[] output = new double[2];
+
+        Variance.Batch(source, output, 2);
+
+        Assert.Equal(0, output[0]); // N=1
+        Assert.Equal(50, output[1]); // Var([10,20]) = 50
     }
 }

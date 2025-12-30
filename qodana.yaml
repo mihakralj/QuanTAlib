@@ -58,3 +58,4 @@ exclude:
   - name: EnforceIfStatementBraces
   - name: CheckNamespace
   - name: LoopCanBeConvertedToQuery
+  - name: UnusedAutoPropertyAccessor.Global

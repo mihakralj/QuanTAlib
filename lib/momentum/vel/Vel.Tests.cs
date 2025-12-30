@@ -3,6 +3,12 @@ namespace QuanTAlib.Tests;
 
 public class VelTests
 {
+    // Expected values for VEL(3) with input [10, 20, 30]
+    // PWMA(3) = 360/14, WMA(3) = 140/6, VEL = PWMA - WMA
+    private const double ExpectedPwma = 360.0 / 14.0;  // 25.7142857...
+    private const double ExpectedWma = 140.0 / 6.0;    // 23.3333333...
+    private const double ExpectedVel = ExpectedPwma - ExpectedWma;  // 2.38095238...
+
     [Fact]
     public void Constructor_InvalidPeriod_ThrowsArgumentException()
     {
@@ -31,14 +37,14 @@ public class VelTests
         var vel = new Vel(10);
         var time = DateTime.UtcNow;
 
-        // Update with isNew=true
-        var val1 = vel.Update(new TValue(time, 100), true);
+        // Update with default isNew=true
+        var val1 = vel.Update(new TValue(time, 100));
 
         // Update with isNew=false (same time, different value)
-        vel.Update(new TValue(time, 105), false);
+        vel.Update(new TValue(time, 105), isNew: false);
 
         // Update with isNew=false (same time, original value) - should match val1 if state rollback works
-        var val3 = vel.Update(new TValue(time, 100), false);
+        var val3 = vel.Update(new TValue(time, 100), isNew: false);
 
         Assert.Equal(val1.Value, val3.Value, 1e-9);
     }
@@ -96,11 +102,7 @@ public class VelTests
         // WMA(3) of 10,20,30 = 140/6 = 23.3333333...
         // VEL = PWMA - WMA = 2.38095238...
 
-        double expectedPwma = 360.0 / 14.0;
-        double expectedWma = 140.0 / 6.0;
-        double expectedVel = expectedPwma - expectedWma;
-
-        Assert.Equal(expectedVel, vel.Last.Value, 1e-10);
+        Assert.Equal(ExpectedVel, vel.Last.Value, 1e-10);
     }
 
     [Fact]
@@ -115,11 +117,7 @@ public class VelTests
 
         Assert.Equal(3, results.Count);
 
-        double expectedPwma = 360.0 / 14.0;
-        double expectedWma = 140.0 / 6.0;
-        double expectedVel = expectedPwma - expectedWma;
-
-        Assert.Equal(expectedVel, results.Last.Value, 1e-10);
+        Assert.Equal(ExpectedVel, results.Last.Value, 1e-10);
     }
 
     [Fact]

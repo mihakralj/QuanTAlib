@@ -18,20 +18,18 @@ public sealed class UsfIndicator : Indicator, IWatchlistIndicator
 
     private Usf? _ma;
     private readonly LineSeries? _series;
-    private string? _sourceName;
     private Func<IHistoryItem, double>? _priceSelector;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"USF {Period}:{_sourceName}";
+    public override string ShortName => $"USF {Period}:{Source}";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/usf/Usf.Quantower.cs";
 
     public UsfIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
-        _sourceName = Source.ToString();
         Name = "USF - Ultimate Smoother Filter";
         Description = "Ehlers Ultimate Smoother Filter";
         _series = new(name: $"USF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
@@ -42,7 +40,6 @@ public sealed class UsfIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         _ma = new Usf(Period);
-        _sourceName = Source.ToString();
         _priceSelector = Source.GetPriceSelector();
         base.OnInit();
     }

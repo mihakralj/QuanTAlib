@@ -11,12 +11,12 @@ public abstract class AbstractBase : ITValuePublisher
     /// <summary>
     /// Display name for the indicator.
     /// </summary>
-    public string Name { get; protected set; } = string.Empty;
+    public string Name { get; protected init; } = string.Empty;
 
     /// <summary>
     /// Number of periods before the indicator is considered "hot" (valid).
     /// </summary>
-    public int WarmupPeriod { get; protected set; }
+    public int WarmupPeriod { get; protected init; }
 
     /// <summary>
     /// Current value of the indicator.

@@ -51,6 +51,9 @@ public sealed class VarianceIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
+        if (args.Reason != UpdateReason.NewBar && args.Reason != UpdateReason.HistoricalBar)
+            return;
+
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
         double value = _priceSelector!(item);
         var time = this.HistoricalData.Time();

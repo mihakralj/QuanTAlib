@@ -10,9 +10,9 @@ public class AdxrTests
         var gbm = new GBM();
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            adxr.Update(bars[i]);
+            adxr.Update(bar);
         }
 
         Assert.True(double.IsFinite(adxr.Last.Value));
@@ -56,9 +56,9 @@ public class AdxrTests
         var gbm = new GBM();
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            adxr.Update(bars[i]);
+            adxr.Update(bar);
         }
 
         adxr.Reset();
@@ -66,9 +66,9 @@ public class AdxrTests
         Assert.False(adxr.IsHot);
 
         // Feed again
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            adxr.Update(bars[i]);
+            adxr.Update(bar);
         }
 
         Assert.True(double.IsFinite(adxr.Last.Value));
@@ -82,9 +82,9 @@ public class AdxrTests
         var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         var streamingResults = new List<double>();
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            streamingResults.Add(adxr.Update(bars[i]).Value);
+            streamingResults.Add(adxr.Update(bar).Value);
         }
 
         var adxr2 = new Adxr(14);
@@ -105,9 +105,9 @@ public class AdxrTests
 
         var adxr = new Adxr(14);
         var streamingResults = new List<double>();
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            streamingResults.Add(adxr.Update(bars[i]).Value);
+            streamingResults.Add(adxr.Update(bar).Value);
         }
 
         var staticResults = Adxr.Batch(bars, 14);
@@ -253,9 +253,9 @@ public class AdxrTests
 
         // 2. Streaming Mode (instance, one bar at a time)
         var streamingInd = new Adxr(period);
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            streamingInd.Update(bars[i]);
+            streamingInd.Update(bar);
         }
         double streamingResult = streamingInd.Last.Value;
 

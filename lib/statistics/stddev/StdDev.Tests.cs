@@ -176,7 +176,7 @@ public class StdDevTests
     [Fact]
     public void IsHot_BecomesTrueAfterPeriod()
     {
-        int period = 5;
+        const int period = 5;
         var stdDev = new StdDev(period);
 
         for (int i = 0; i < period; i++)

@@ -283,4 +283,5 @@
 | **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
 | **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |
 | **Standard Deviation** | [StdDev](../lib/statistics/stddev/StdDev.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Sum (Rolling)** | [Sum](../lib/statistics/sum/Sum.md) | - | ✔️ | ✔️ | - |
 | **Variance** | [Variance](../lib/statistics/variance/Variance.md) | ✔️ | ✔️ | ✔️ | ✔️ |

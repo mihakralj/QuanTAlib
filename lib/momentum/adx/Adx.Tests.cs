@@ -31,12 +31,12 @@ public class AdxTests
             adx.Update(bars[i]);
         }
 
-        // Update with 100th point (isNew=true)
-        adx.Update(bars[99], true);
+        // Update with 100th point (isNew=true is default, so omit it)
+        adx.Update(bars[99]);
 
         // Update with modified 100th point (isNew=false)
         var modifiedBar = new TBar(bars[99].Time, bars[99].Open, bars[99].High + 1.0, bars[99].Low - 1.0, bars[99].Close, bars[99].Volume);
-        var val2 = adx.Update(modifiedBar, false);
+        var val2 = adx.Update(modifiedBar, isNew: false);
 
         // Create new instance and feed up to modified
         var adx2 = new Adx(14);
@@ -44,7 +44,7 @@ public class AdxTests
         {
             adx2.Update(bars[i]);
         }
-        var val3 = adx2.Update(modifiedBar, true);
+        var val3 = adx2.Update(modifiedBar);
 
         Assert.Equal(val3.Value, val2.Value, 1e-9);
         Assert.Equal(adx2.DiPlus.Value, adx.DiPlus.Value, 1e-9);

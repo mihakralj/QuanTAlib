@@ -27,6 +27,7 @@ Statistical analysis tools applied to price/returns.
 | [SKEW](skew/Skew.md) | Skewness | |
 | SPEARMAN | Spearman Rank Correlation | |
 | [STDDEV](stddev/StdDev.md) | Standard Deviation | |
+| [SUM](sum/Sum.md) | Rolling Sum | Kahan-Babuška summation for numerical stability. |
 | THEIL | Theil Index | |
 | [VARIANCE](variance/Variance.md) | Variance | |
 | ZSCORE | Z-score standardization | |
