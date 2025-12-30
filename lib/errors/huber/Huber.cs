@@ -1,5 +1,8 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -55,9 +58,11 @@ public sealed class Huber : AbstractBase
     private double CalculateHuberLoss(double error)
     {
         double absError = Math.Abs(error);
+        // Use FMA for the linear portion: delta * absError - halfDeltaSquared
+        // = FMA(delta, absError, -halfDeltaSquared)
         return absError <= _delta
             ? 0.5 * error * error
-            : _delta * absError - _halfDeltaSquared;
+            : Math.FusedMultiplyAdd(_delta, absError, -_halfDeltaSquared);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,63 +178,37 @@ public sealed class Huber : AbstractBase
         if (len == 0) return;
 
         double halfDeltaSquared = 0.5 * delta * delta;
+        double negHalfDeltaSquared = -halfDeltaSquared;
 
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
             : new double[period];
 
+        // Pre-compute Huber losses using SIMD if available and data is clean
+        // Then apply rolling window average
+        Span<double> huberLosses = len <= StackAllocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        ComputeHuberLosses(actual, predicted, huberLosses, delta, halfDeltaSquared, negHalfDeltaSquared);
+
+        // Apply rolling window average with O(1) per element
         double sum = 0;
-        double lastValidActual = 0;
-        double lastValidPredicted = 0;
-
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
-        }
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
-        }
-
         int bufferIndex = 0;
-        int i = 0;
 
         int warmupEnd = Math.Min(period, len);
-        for (; i < warmupEnd; i++)
+        for (int i = 0; i < warmupEnd; i++)
         {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = act - pred;
-            double absError = Math.Abs(error);
-            double huberLoss = absError <= delta
-                ? 0.5 * error * error
-                : delta * absError - halfDeltaSquared;
-
-            sum += huberLoss;
-            buffer[i] = huberLoss;
+            sum += huberLosses[i];
+            buffer[i] = huberLosses[i];
             output[i] = sum / (i + 1);
         }
 
         int tickCount = 0;
-        for (; i < len; i++)
+        for (int i = warmupEnd; i < len; i++)
         {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = act - pred;
-            double absError = Math.Abs(error);
-            double huberLoss = absError <= delta
-                ? 0.5 * error * error
-                : delta * absError - halfDeltaSquared;
-
+            double huberLoss = huberLosses[i];
             sum = sum - buffer[bufferIndex] + huberLoss;
             buffer[bufferIndex] = huberLoss;
 
@@ -246,6 +225,136 @@ public sealed class Huber : AbstractBase
                 for (int k = 0; k < period; k++) recalcSum += buffer[k];
                 sum = recalcSum;
             }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeHuberLosses(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> huberLosses,
+        double delta,
+        double halfDeltaSquared,
+        double negHalfDeltaSquared)
+    {
+        int len = actual.Length;
+        double lastValidActual = 0;
+        double lastValidPredicted = 0;
+
+        // Find first valid values
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+        }
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+        }
+
+        // Try SIMD path for clean data (no NaN/Inf)
+        if (Avx2.IsSupported && len >= Vector256<double>.Count)
+        {
+            // Check if data is clean (no NaN/Inf) - sample check
+            bool dataClean = true;
+            int checkStep = Math.Max(1, len / 32);
+            for (int i = 0; i < len && dataClean; i += checkStep)
+            {
+                dataClean = double.IsFinite(actual[i]) && double.IsFinite(predicted[i]);
+            }
+
+            if (dataClean)
+            {
+                ComputeHuberLossesSimd(actual, predicted, huberLosses, delta, halfDeltaSquared, negHalfDeltaSquared);
+                return;
+            }
+        }
+
+        // Scalar fallback with NaN handling
+        ComputeHuberLossesScalar(actual, predicted, huberLosses, delta, negHalfDeltaSquared, lastValidActual, lastValidPredicted);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeHuberLossesSimd(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> huberLosses,
+        double delta,
+        double halfDeltaSquared,
+        double negHalfDeltaSquared)
+    {
+        int len = actual.Length;
+        int vectorSize = Vector256<double>.Count;
+        int vectorEnd = len - (len % vectorSize);
+
+        Vector256<double> deltaVec = Vector256.Create(delta);
+        Vector256<double> halfVec = Vector256.Create(0.5);
+        Vector256<double> negHalfDeltaSqVec = Vector256.Create(negHalfDeltaSquared);
+
+        int i = 0;
+        for (; i < vectorEnd; i += vectorSize)
+        {
+            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
+            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
+
+            // error = actual - predicted
+            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
+
+            // absError = |error|
+            Vector256<double> absErrorVec = Avx.And(errorVec, Vector256.Create(~(1L << 63)).AsDouble());
+
+            // quadratic = 0.5 * error * error
+            Vector256<double> quadraticVec = Avx.Multiply(halfVec, Avx.Multiply(errorVec, errorVec));
+
+            // linear = delta * absError - halfDeltaSquared (using FMA)
+            Vector256<double> linearVec = Fma.IsSupported
+                ? Fma.MultiplyAdd(deltaVec, absErrorVec, negHalfDeltaSqVec)
+                : Avx.Add(Avx.Multiply(deltaVec, absErrorVec), negHalfDeltaSqVec);
+
+            // mask = absError <= delta
+            Vector256<double> maskVec = Avx.CompareLessThanOrEqual(absErrorVec, deltaVec);
+
+            // result = mask ? quadratic : linear
+            Vector256<double> resultVec = Avx.BlendVariable(linearVec, quadraticVec, maskVec);
+
+            resultVec.StoreUnsafe(ref MemoryMarshal.GetReference(huberLosses.Slice(i)));
+        }
+
+        // Handle remainder with scalar
+        for (; i < len; i++)
+        {
+            double error = actual[i] - predicted[i];
+            double absError = Math.Abs(error);
+            huberLosses[i] = absError <= delta
+                ? 0.5 * error * error
+                : Math.FusedMultiplyAdd(delta, absError, negHalfDeltaSquared);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeHuberLossesScalar(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> huberLosses,
+        double delta,
+        double negHalfDeltaSquared,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        int len = actual.Length;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
+            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+
+            double error = act - pred;
+            double absError = Math.Abs(error);
+            huberLosses[i] = absError <= delta
+                ? 0.5 * error * error
+                : Math.FusedMultiplyAdd(delta, absError, negHalfDeltaSquared);
         }
     }
 }

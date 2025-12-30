@@ -1,5 +1,8 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -213,58 +216,31 @@ public sealed class Mae : AbstractBase
             ? stackalloc double[period]
             : new double[period];
 
+        // Pre-compute absolute errors using SIMD if available and data is clean
+        Span<double> absErrors = len <= StackAllocThreshold
+            ? stackalloc double[len]
+            : new double[len];
+
+        ComputeAbsoluteErrors(actual, predicted, absErrors);
+
+        // Apply rolling window average with O(1) per element
         double sum = 0;
-        double lastValidActual = 0;
-        double lastValidPredicted = 0;
-
-        // Find first valid values
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(actual[k]))
-            {
-                lastValidActual = actual[k];
-                break;
-            }
-        }
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(predicted[k]))
-            {
-                lastValidPredicted = predicted[k];
-                break;
-            }
-        }
-
         int bufferIndex = 0;
-        int i = 0;
 
         int warmupEnd = Math.Min(period, len);
-        for (; i < warmupEnd; i++)
+        for (int i = 0; i < warmupEnd; i++)
         {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = Math.Abs(act - pred);
-            sum += error;
-            buffer[i] = error;
+            sum += absErrors[i];
+            buffer[i] = absErrors[i];
             output[i] = sum / (i + 1);
         }
 
         int tickCount = 0;
-        for (; i < len; i++)
+        for (int i = warmupEnd; i < len; i++)
         {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = Math.Abs(act - pred);
-            sum = sum - buffer[bufferIndex] + error;
-            buffer[bufferIndex] = error;
+            double absError = absErrors[i];
+            sum = sum - buffer[bufferIndex] + absError;
+            buffer[bufferIndex] = absError;
 
             bufferIndex++;
             if (bufferIndex >= period) bufferIndex = 0;
@@ -276,12 +252,108 @@ public sealed class Mae : AbstractBase
             {
                 tickCount = 0;
                 double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += buffer[k];
-                }
+                for (int k = 0; k < period; k++) recalcSum += buffer[k];
                 sum = recalcSum;
             }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeAbsoluteErrors(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> absErrors)
+    {
+        int len = actual.Length;
+        double lastValidActual = 0;
+        double lastValidPredicted = 0;
+
+        // Find first valid values
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+        }
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+        }
+
+        // Try SIMD path for clean data (no NaN/Inf)
+        if (Avx2.IsSupported && len >= Vector256<double>.Count)
+        {
+            // Check if data is clean (no NaN/Inf) - sample check
+            bool dataClean = true;
+            int checkStep = Math.Max(1, len / 32);
+            for (int i = 0; i < len && dataClean; i += checkStep)
+            {
+                dataClean = double.IsFinite(actual[i]) && double.IsFinite(predicted[i]);
+            }
+
+            if (dataClean)
+            {
+                ComputeAbsoluteErrorsSimd(actual, predicted, absErrors);
+                return;
+            }
+        }
+
+        // Scalar fallback with NaN handling
+        ComputeAbsoluteErrorsScalar(actual, predicted, absErrors, lastValidActual, lastValidPredicted);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeAbsoluteErrorsSimd(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> absErrors)
+    {
+        int len = actual.Length;
+        int vectorSize = Vector256<double>.Count;
+        int vectorEnd = len - (len % vectorSize);
+
+        // Create mask for absolute value (clear sign bit)
+        Vector256<double> absMask = Vector256.Create(~(1L << 63)).AsDouble();
+
+        int i = 0;
+        for (; i < vectorEnd; i += vectorSize)
+        {
+            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
+            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
+
+            // error = actual - predicted
+            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
+
+            // absError = |error| (clear sign bit)
+            Vector256<double> absErrorVec = Avx.And(errorVec, absMask);
+
+            absErrorVec.StoreUnsafe(ref MemoryMarshal.GetReference(absErrors.Slice(i)));
+        }
+
+        // Handle remainder with scalar
+        for (; i < len; i++)
+        {
+            absErrors[i] = Math.Abs(actual[i] - predicted[i]);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeAbsoluteErrorsScalar(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> absErrors,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        int len = actual.Length;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
+            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+
+            absErrors[i] = Math.Abs(act - pred);
         }
     }
 }
