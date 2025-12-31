@@ -413,6 +413,29 @@ public sealed class RingBuffer : IEnumerable<double>
     }
 
     /// <summary>
+    /// Copies elements to a destination span in chronological order.
+    /// Destination must have at least Count elements.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopyTo(Span<double> destination)
+    {
+        if (_count == 0) return;
+
+        int start = _count == _capacity ? _head : 0;
+
+        if (start + _count <= _capacity)
+        {
+            _buffer.AsSpan(start, _count).CopyTo(destination);
+        }
+        else
+        {
+            int firstPartLength = _capacity - start;
+            _buffer.AsSpan(start, firstPartLength).CopyTo(destination);
+            _buffer.AsSpan(0, _count - firstPartLength).CopyTo(destination.Slice(firstPartLength));
+        }
+    }
+
+    /// <summary>
     /// Creates a copy of the current state for bar correction support.
     /// </summary>
     public RingBuffer Clone()

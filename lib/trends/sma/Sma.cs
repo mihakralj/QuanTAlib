@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -35,7 +36,6 @@ public sealed class Sma : AbstractBase
     private record struct State(double Sum, double LastInput, double LastValidValue, int TickCount);
     private State _state;
     private State _p_state;
-    private double _currentBarValue;  // Value added during isNew=true, survives state restore
 
     private const int ResyncInterval = 1000;
 
@@ -192,21 +192,20 @@ public sealed class Sma : AbstractBase
             double val = GetValidValue(input.Value);
             UpdateState(val);
             _state.LastInput = val;
-            _currentBarValue = val;  // Store the value added for this bar
         }
         else
         {
-            // Restore scalar state to pre-mutation values
-            _state = _p_state;
+            // Restore scalar state to pre-mutation values (except Sum which we'll recalculate)
+            var restoredState = _p_state;
 
             double val = GetValidValue(input.Value);
-            // Update sum: remove the value that was added during isNew=true, add the new correction value
-            _state.Sum = _state.Sum - _currentBarValue + val;
 
-            // Update the buffer's newest value and sync its internal sum with our state sum
+            // Update the buffer's newest value - this also updates buffer's internal sum
             _buffer.UpdateNewest(val);
-            _state.Sum = _buffer.RecalculateSum(); // Ensure sums stay in sync
-            // DO NOT update _currentBarValue here - it must remain the original value from isNew=true
+
+            // Use buffer's authoritative sum (UpdateNewest already did the differential update internally)
+            _state = restoredState with { Sum = _buffer.Sum };
+            // Note: Resync is only done on isNew=true path via UpdateState()
         }
 
         double result = _buffer.Count > 0 ? _state.Sum / _buffer.Count : double.NaN;
@@ -321,69 +320,78 @@ public sealed class Sma : AbstractBase
         int len = source.Length;
 
         const int StackAllocThreshold = 256;
-        Span<double> buffer = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
+        double[]? rented = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> buffer = rented != null
+            ? rented.AsSpan(0, period)
+            : stackalloc double[period];
 
-        double sum = 0;
-        double lastValid = double.NaN;
-
-        // Find first valid value to seed lastValid
-        for (int k = 0; k < len; k++)
+        try
         {
-            if (double.IsFinite(source[k]))
+            double sum = 0;
+            double lastValid = double.NaN;
+
+            // Find first valid value to seed lastValid
+            for (int k = 0; k < len; k++)
             {
-                lastValid = source[k];
-                break;
-            }
-        }
-
-        int bufferIndex = 0;
-        int i = 0;
-
-        int warmupEnd = Math.Min(period, len);
-        for (; i < warmupEnd; i++)
-        {
-            double val = source[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
-
-            sum += val;
-            buffer[i] = val;
-            output[i] = sum / (i + 1);
-        }
-
-        int tickCount = 0;
-        for (; i < len; i++)
-        {
-            double val = source[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
-
-            sum = sum - buffer[bufferIndex] + val;
-            buffer[bufferIndex] = val;
-
-            bufferIndex++;
-            if (bufferIndex >= period)
-                bufferIndex = 0;
-
-            output[i] = sum / period;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
+                if (double.IsFinite(source[k]))
                 {
-                    recalcSum += buffer[k];
+                    lastValid = source[k];
+                    break;
                 }
-                sum = recalcSum;
             }
+
+            int bufferIndex = 0;
+            int i = 0;
+
+            int warmupEnd = Math.Min(period, len);
+            for (; i < warmupEnd; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                    lastValid = val;
+                else
+                    val = lastValid;
+
+                sum += val;
+                buffer[i] = val;
+                output[i] = sum / (i + 1);
+            }
+
+            int tickCount = 0;
+            for (; i < len; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                    lastValid = val;
+                else
+                    val = lastValid;
+
+                sum = sum - buffer[bufferIndex] + val;
+                buffer[bufferIndex] = val;
+
+                bufferIndex++;
+                if (bufferIndex >= period)
+                    bufferIndex = 0;
+
+                output[i] = sum / period;
+
+                tickCount++;
+                if (tickCount >= ResyncInterval)
+                {
+                    tickCount = 0;
+                    double recalcSum = 0;
+                    for (int k = 0; k < period; k++)
+                    {
+                        recalcSum += buffer[k];
+                    }
+                    sum = recalcSum;
+                }
+            }
+        }
+        finally
+        {
+            if (rented != null)
+                ArrayPool<double>.Shared.Return(rented);
         }
     }
 
@@ -605,7 +613,6 @@ public sealed class Sma : AbstractBase
         _buffer.Clear();
         _state = default;
         _p_state = default;
-        _currentBarValue = default;
         Last = default;
     }
 }

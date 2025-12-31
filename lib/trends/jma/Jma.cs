@@ -30,7 +30,6 @@ public sealed class Jma : AbstractBase
     // Buffers
     private readonly RingBuffer _devBuffer;
     private readonly RingBuffer _volBuffer;
-    private readonly double[] _sorted;
     private readonly TValuePublishedHandler _handler;
 
     // Streaming state (current + previous snapshot for isNew=false)
@@ -102,7 +101,6 @@ public sealed class Jma : AbstractBase
 
         _devBuffer = new RingBuffer(DevWindowSize);
         _volBuffer = new RingBuffer(VolWindowSize);
-        _sorted = new double[VolWindowSize];
 
         Reset();
     }
@@ -120,7 +118,6 @@ public sealed class Jma : AbstractBase
         _p_state = default;
         _devBuffer.Clear();
         _volBuffer.Clear();
-        Array.Clear(_sorted, 0, _sorted.Length);
         Last = default;
     }
 
@@ -262,35 +259,17 @@ public sealed class Jma : AbstractBase
 
         source.Times.CopyTo(tSpan);
 
-        // Use static Calculate for performance
-        // But JMA has complex parameters, so we need to pass them.
-        // We can use the instance to calculate, but we need to be careful about state.
-        // Or we can just loop using Step, which is what the original code did.
-        // Since JMA is complex and not easily vectorizable, looping is fine.
-        // But we should restore state afterwards.
-
-        // RingBuffers are reference types, so we need to clone them or replay.
-        // Replaying is safer and cleaner for complex state.
-
+        // Reset and calculate in a single pass.
+        // The IIR filter state after processing the full series is mathematically correct.
+        // No need for a second replay - that would truncate the infinite impulse response
+        // and actually reduce precision.
         Reset();
         for (int i = 0; i < len; i++)
         {
-            double j = Step(source.Values[i], true);
-            vSpan[i] = j;
-        }
-
-        // Restore state by replaying history
-        // JMA needs a lot of history (128 bars for volatility).
-        Reset();
-        int lookback = Math.Max(VolWindowSize + 10, WarmupPeriod + 10);
-        int startIndex = Math.Max(0, len - lookback);
-        for (int i = startIndex; i < len; i++)
-        {
-            Step(source.Values[i], true);
+            vSpan[i] = Step(source.Values[i], true);
         }
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
-
         return new TSeries(t, v);
     }
 
@@ -338,9 +317,11 @@ public sealed class Jma : AbstractBase
             return fallback;
         }
 
-        // Copy current buffer to _sorted for sorting
-        _volBuffer.CopyTo(_sorted, 0);
-        Array.Sort(_sorted, 0, count);
+        // Stack-allocate scratch buffer for sorting (max 128 * 8 bytes = 1KB)
+        // This eliminates the heap-allocated _sorted field and improves cache locality
+        Span<double> sorted = stackalloc double[count];
+        _volBuffer.CopyTo(sorted);
+        sorted.Sort();
 
         int start, end;
         if (count >= VolWindowSize)
@@ -364,6 +345,6 @@ public sealed class Jma : AbstractBase
         if (end >= count) end = count - 1;
 
         int len = end - start + 1;
-        return ((ReadOnlySpan<double>)_sorted.AsSpan(start, len)).SumSIMD() / len;
+        return ((ReadOnlySpan<double>)sorted.Slice(start, len)).SumSIMD() / len;
     }
 }
