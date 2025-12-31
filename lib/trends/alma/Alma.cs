@@ -1,8 +1,6 @@
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -11,14 +9,10 @@ namespace QuanTAlib;
 /// </summary>
 /// <remarks>
 /// ALMA uses a Gaussian distribution to determine weights for the moving average.
-/// It allows for adjusting smoothness and responsiveness via Offset and Sigma parameters.
-///
-/// Formula:
-/// Weights are calculated using the Gaussian function:
-/// W_i = exp( - (i - offset)^2 / (2 * sigma^2) )
-/// where:
-/// offset = floor(period * offset_param)
-/// sigma = period / sigma_param
+/// Definition:
+/// m = offset * (period - 1)
+/// s = period / sigma
+/// W_i = exp( - (i - m)^2 / (2 * s^2) )
 ///
 /// The final ALMA is the weighted sum of the price window divided by the sum of weights.
 /// </remarks>
@@ -34,7 +28,8 @@ public sealed class Alma : AbstractBase, IDisposable
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
 
-    private record struct State(double LastValidValue);
+    [StructLayout(LayoutKind.Auto)]
+    private record struct State(double LastValidValue, bool IsInitialized);
     private State _state;
     private State _p_state;
 
@@ -63,20 +58,7 @@ public sealed class Alma : AbstractBase, IDisposable
         Name = $"Alma({period}, {offset:F2}, {sigma:F2})";
         WarmupPeriod = period;
 
-        // Precompute weights
-        double m = offset * (period - 1);
-        double s = period / sigma;
-        double s2 = 2 * s * s;
-        double sum = 0;
-
-        for (int i = 0; i < period; i++)
-        {
-            double v = i - m;
-            _weights[i] = Math.Exp(-(v * v) / s2);
-            sum += _weights[i];
-        }
-
-        _invWeightSum = 1.0 / sum;
+        ComputeWeights(_weights, period, offset, sigma, out _invWeightSum);
     }
 
     public Alma(ITValuePublisher source, int period, double offset = 0.85, double sigma = 6.0)
@@ -98,10 +80,36 @@ public sealed class Alma : AbstractBase, IDisposable
         }
     }
 
+    /// <summary>
+    /// Computes Gaussian weights for ALMA.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeWeights(Span<double> weights, int period, double offset, double sigma, out double invWeightSum)
+    {
+        double m = offset * (period - 1);
+        double s = period / sigma;
+        double s2 = 2 * s * s;
+        double sum = 0;
+
+        for (int i = 0; i < period; i++)
+        {
+            double v = i - m;
+            double w = Math.Exp(-(v * v) / s2);
+            weights[i] = w;
+            sum += w;
+        }
+
+        invWeightSum = 1.0 / sum;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
     {
-        return double.IsFinite(input) ? input : _state.LastValidValue;
+        if (double.IsFinite(input))
+        {
+            return input;
+        }
+        return _state.IsInitialized ? _state.LastValidValue : 0.0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,11 +130,13 @@ public sealed class Alma : AbstractBase, IDisposable
             _state = _p_state;
         }
 
-        double val = GetValidValue(input.Value);
         if (double.IsFinite(input.Value))
         {
-            _state.LastValidValue = input.Value;
+            _state = _state with { LastValidValue = input.Value, IsInitialized = true };
         }
+
+        // Retrieve valid value (handles NaN propagation prevention)
+        double val = GetValidValue(input.Value);
 
         _buffer.Add(val, isNew);
 
@@ -243,35 +253,23 @@ public sealed class Alma : AbstractBase, IDisposable
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length", nameof(output));
 
-        // Precompute weights
-        // Use stackalloc for small periods to avoid heap allocation, ArrayPool for large
+        // Allocation Strategy: Stack for small periods, Pool for large
         double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
         Span<double> weights = period <= 256
             ? stackalloc double[period]
             : weightsArray!.AsSpan(0, period);
 
-        double m = offset * (period - 1);
-        double s = period / sigma;
-        double s2 = 2 * s * s;
-        double weightSum = 0;
-
-        for (int i = 0; i < period; i++)
-        {
-            double v = i - m;
-            weights[i] = Math.Exp(-(v * v) / s2);
-            weightSum += weights[i];
-        }
-        double invWeightSum = 1.0 / weightSum;
-
-        // Buffer for sliding window
         double[]? bufferArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
         Span<double> buffer = period <= 256
             ? stackalloc double[period]
             : bufferArray!.AsSpan(0, period);
 
+        // Precompute weights using shared helper
+        ComputeWeights(weights, period, offset, sigma, out double invWeightSum);
+
         int bufferIdx = 0;
         int count = 0;
-        double lastValid = 0;
+        double lastValid = double.NaN;  // Start with NaN to detect first valid value
         double currentWeightSum = 0;
 
         try
@@ -279,10 +277,20 @@ public sealed class Alma : AbstractBase, IDisposable
             for (int i = 0; i < source.Length; i++)
             {
                 double val = source[i];
+
+                // Strict NaN handling: maintain NaN until first valid value
                 if (double.IsFinite(val))
+                {
                     lastValid = val;
-                else
+                }
+                else if (double.IsFinite(lastValid))
+                {
                     val = lastValid;
+                }
+                else
+                {
+                    val = 0.0; // Fallback if series starts with NaN
+                }
 
                 // Add to circular buffer
                 buffer[bufferIdx] = val;
@@ -292,7 +300,6 @@ public sealed class Alma : AbstractBase, IDisposable
                 {
                     count++;
                     // Incremental weight sum update for warmup
-                    // We added weights[period - count] to the active set
                     currentWeightSum += weights[period - count];
                 }
 
@@ -301,15 +308,14 @@ public sealed class Alma : AbstractBase, IDisposable
                 if (count == period)
                 {
                     // Buffer is full. bufferIdx points to the oldest element (next write position)
-                    // We split the dot product into two parts to handle the circular buffer wrap-around
+                    // Split the dot product to handle circular buffer wrap-around
 
-                    // Part 1: From bufferIdx to End of buffer
-                    // Matches the beginning of the weights
                     int part1Len = period - bufferIdx;
+
+                    // Part 1: Oldest data (at bufferIdx..End) * Start of Weights
                     sum += buffer.Slice(bufferIdx, part1Len).DotProduct(weights.Slice(0, part1Len));
 
-                    // Part 2: From Start of buffer to bufferIdx
-                    // Matches the rest of the weights
+                    // Part 2: Newest data (at 0..bufferIdx) * End of Weights
                     sum += buffer.Slice(0, bufferIdx).DotProduct(weights.Slice(part1Len));
 
                     output[i] = sum * invWeightSum;

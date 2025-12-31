@@ -6,15 +6,46 @@ public class BesselTests
     [Fact]
     public void Bessel_Constructor_Length_ValidatesInput()
     {
-        Assert.Throws<ArgumentException>(() => new Bessel(0));
-        Assert.Throws<ArgumentException>(() => new Bessel(-1));
-        Assert.Throws<ArgumentException>(() => new Bessel(1));
+        var ex0 = Assert.Throws<ArgumentException>(() => new Bessel(0));
+        Assert.Equal("length", ex0.ParamName);
+
+        var exNeg = Assert.Throws<ArgumentException>(() => new Bessel(-1));
+        Assert.Equal("length", exNeg.ParamName);
+
+        var ex1 = Assert.Throws<ArgumentException>(() => new Bessel(1));
+        Assert.Equal("length", ex1.ParamName);
 
         var bessel = new Bessel(2);
         Assert.NotNull(bessel);
 
         var bessel14 = new Bessel(14);
         Assert.NotNull(bessel14);
+    }
+
+    [Fact]
+    public void Bessel_SpanCalculate_ValidatesLength()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+
+        var exLength = Assert.Throws<ArgumentException>(() =>
+            Bessel.Calculate(source.AsSpan(), output.AsSpan(), 1));
+        Assert.Equal("length", exLength.ParamName);
+
+        var exLengthZero = Assert.Throws<ArgumentException>(() =>
+            Bessel.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Equal("length", exLengthZero.ParamName);
+    }
+
+    [Fact]
+    public void Bessel_SpanCalculate_ValidatesBufferLength()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] wrongSizeOutput = new double[3];
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Bessel.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 14));
+        Assert.Equal("output", ex.ParamName);
     }
 
     [Fact]

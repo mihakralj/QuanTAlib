@@ -125,6 +125,21 @@ public sealed class Bessel : AbstractBase, IDisposable
             return;
         }
 
+        // Warmup phase: pass-through until enough history (Count >= 2)
+        for (; i < len && _state.Count < 2; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                _state.LastValidValue = val;
+            else
+                val = _state.LastValidValue;
+
+            _state.F2 = _state.F1;
+            _state.F1 = val;
+            _state.Count++;
+        }
+
+        // Hot phase: main filtering loop (no warmup check)
         for (; i < len; i++)
         {
             double val = source[i];
@@ -133,10 +148,8 @@ public sealed class Bessel : AbstractBase, IDisposable
             else
                 val = _state.LastValidValue;
 
-            double filt = _state.Count < 3
-                ? val
-                : Math.FusedMultiplyAdd(_c3, _state.F2,
-                    Math.FusedMultiplyAdd(_c2, _state.F1, _c1 * val));
+            double filt = Math.FusedMultiplyAdd(_c3, _state.F2,
+                Math.FusedMultiplyAdd(_c2, _state.F1, _c1 * val));
 
             _state.F2 = _state.F1;
             _state.F1 = filt;
@@ -183,7 +196,8 @@ public sealed class Bessel : AbstractBase, IDisposable
             _state.F2 = val;
         }
 
-        double filt = _state.Count < 3
+        // 2nd-order filter needs 2 history points (Count >= 2)
+        double filt = _state.Count < 2
             ? val
             : Math.FusedMultiplyAdd(_c3, _state.F2,
                 Math.FusedMultiplyAdd(_c2, _state.F1, _c1 * val));
@@ -268,6 +282,22 @@ public sealed class Bessel : AbstractBase, IDisposable
             }
         }
 
+        // Warmup phase: pass-through until enough history (Count >= 2)
+        for (; i < len && state.Count < 2; i++)
+        {
+            double val = source[i];
+            if (double.IsFinite(val))
+                state.LastValidValue = val;
+            else
+                val = state.LastValidValue;
+
+            state.F2 = state.F1;
+            state.F1 = val;
+            output[i] = val;
+            state.Count++;
+        }
+
+        // Hot phase: main filtering loop (no warmup check)
         for (; i < len; i++)
         {
             double val = source[i];
@@ -276,10 +306,8 @@ public sealed class Bessel : AbstractBase, IDisposable
             else
                 val = state.LastValidValue;
 
-            double filt = state.Count < 3
-                ? val
-                : Math.FusedMultiplyAdd(c3, state.F2,
-                    Math.FusedMultiplyAdd(c2, state.F1, c1 * val));
+            double filt = Math.FusedMultiplyAdd(c3, state.F2,
+                Math.FusedMultiplyAdd(c2, state.F1, c1 * val));
 
             state.F2 = state.F1;
             state.F1 = filt;

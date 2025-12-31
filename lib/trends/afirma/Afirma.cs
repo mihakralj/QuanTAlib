@@ -4,35 +4,35 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// AFIRMA: Autoregressive Finite Impulse Response Moving Average
-/// A hybrid filter combining ARMA modeling, FIR filtering, and cubic spline fitting.
-/// Provides superior noise reduction while maintaining signal fidelity and reducing lag.
+/// AFIRMA: Adaptive FIR Moving Average (Windowed Sinc Filter)
+/// A high-quality FIR low-pass filter using windowed sinc coefficients for
+/// optimal frequency response and superior noise reduction.
 /// </summary>
 /// <remarks>
-/// AFIRMA combines three components:
+/// AFIRMA implements a Finite Impulse Response (FIR) filter using the mathematically
+/// optimal sinc function—the ideal low-pass filter impulse response—tempered by
+/// window functions to minimize spectral leakage.
 ///
-/// 1. ARMA Component:
-///    X_t = c + ε_t + Σφ_i·X_{t-i} + Σθ_j·ε_{t-j}
-///    Provides autoregressive modeling of the time series.
-///
-/// 2. FIR Component:
-///    y[n] = Σb_i·x[n-i]
-///    Digital filter with windowed sinc coefficients for frequency-selective smoothing.
-///
-/// 3. Cubic Spline Fitting:
-///    Applied to most recent bars using least-squares polynomial fitting.
-///    Ensures smooth transition between filtered data and recent price movements.
+/// The filter equation:
+///    y[n] = Σ w_k · x[n-k]  where w_k = Window(k) · sinc(π(k-c)/P)
 ///
 /// Key features:
 /// - Windowed sinc filter for optimal frequency response
 /// - Supports Rectangular, Hanning, Hamming, Blackman, and Blackman-Harris windows
-/// - Least-squares cubic polynomial fitting for reduced lag at the leading edge
-/// - O(n) per update where n = taps
+/// - Blackman-Harris provides -92 dB sidelobe suppression for maximum noise rejection
+/// - O(taps) per update with SIMD-optimized batch processing
+///
+/// Window Functions and Sidelobe Suppression:
+/// - Rectangular: -13 dB (maximum frequency resolution, high leakage)
+/// - Hanning: -31 dB (general purpose smoothing)
+/// - Hamming: -42 dB (reduced leakage with decent resolution)
+/// - Blackman: -58 dB (low leakage, good for noisy data)
+/// - Blackman-Harris: -92 dB (minimum leakage, maximum smoothing)
 ///
 /// Parameters:
-/// - Period: Affects overall smoothness of the indicator
-/// - Taps: Filter length, influences filter complexity
-/// - Window: Type of window function applied to sinc filter
+/// - Period: Controls cutoff frequency. Higher values = more smoothing.
+/// - Taps: Filter length. More taps = sharper frequency response but more lag.
+/// - Window: Type of window function applied to sinc filter.
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Afirma : AbstractBase
@@ -244,24 +244,27 @@ public sealed class Afirma : AbstractBase
         int count = _buffer.Count;
         if (count == 0) return double.NaN;
 
-        double result = 0.0;
-        for (int k = 0; k < count; k++)
-        {
-            result += _buffer[k] * _weights[k];
-        }
-
+        // Warmup path: calculate both sum and effective weight sum in single pass
         if (count < _taps)
         {
-            // During warmup, adjust weight sum for partial buffer
+            double result = 0.0;
             double effectiveWeightSum = 0.0;
             for (int k = 0; k < count; k++)
             {
-                effectiveWeightSum += _weights[k];
+                double w = _weights[k];
+                result = Math.FusedMultiplyAdd(_buffer[k], w, result);
+                effectiveWeightSum += w;
             }
             return effectiveWeightSum > 0 ? result / effectiveWeightSum : _buffer.Newest;
         }
 
-        return result * _invWeightSum;
+        // Steady state: use pre-computed inverse weight sum
+        double sum = 0.0;
+        for (int k = 0; k < _taps; k++)
+        {
+            sum = Math.FusedMultiplyAdd(_buffer[k], _weights[k], sum);
+        }
+        return sum * _invWeightSum;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -320,6 +323,7 @@ public sealed class Afirma : AbstractBase
 
     /// <summary>
     /// Calculates AFIRMA in-place, writing results to pre-allocated output span.
+    /// Optimized with stackalloc and FMA.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int taps = 6, WindowType window = WindowType.BlackmanHarris)
@@ -334,8 +338,14 @@ public sealed class Afirma : AbstractBase
         int len = source.Length;
         if (len == 0) return;
 
-        // Calculate weights once
-        double[] weights = new double[taps];
+        const int StackAllocThreshold = 256;
+
+        // Allocate weights with stackalloc to avoid heap allocation
+        Span<double> weights = taps <= StackAllocThreshold
+            ? stackalloc double[taps]
+            : new double[taps];
+
+        // Pre-calculate weights
         double centerTap = (taps - 1) / 2.0;
         int tapsMinusOne = taps - 1;
         double weightSum = 0.0;
@@ -345,20 +355,17 @@ public sealed class Afirma : AbstractBase
             double windowWeight = GetWindowWeightStatic(k, tapsMinusOne, window);
             double x = Math.PI * (k - centerTap) / period;
             double sincWeight = Math.Abs(x) < 1e-10 ? 1.0 : Math.Sin(x) / x;
-
             weights[k] = windowWeight * sincWeight;
             weightSum += weights[k];
         }
 
-        // Allocate buffer
-        const int StackAllocThreshold = 256;
+        // Allocate circular buffer with stackalloc
         Span<double> buffer = taps <= StackAllocThreshold
             ? stackalloc double[taps]
             : new double[taps];
 
+        // Find first valid value for NaN handling
         double lastValid = double.NaN;
-
-        // Find first valid value
         for (int k = 0; k < len; k++)
         {
             if (double.IsFinite(source[k]))
@@ -384,7 +391,7 @@ public sealed class Afirma : AbstractBase
             bufferIndex = (bufferIndex + 1) % taps;
             if (bufferCount < taps) bufferCount++;
 
-            // Calculate weighted sum
+            // Calculate weighted sum using FMA
             double result = 0.0;
             double effectiveWeightSum = 0.0;
             int readIndex = (bufferIndex - bufferCount + taps) % taps;
@@ -392,7 +399,7 @@ public sealed class Afirma : AbstractBase
             for (int k = 0; k < bufferCount; k++)
             {
                 int idx = (readIndex + k) % taps;
-                result += buffer[idx] * weights[k];
+                result = Math.FusedMultiplyAdd(buffer[idx], weights[k], result);
                 effectiveWeightSum += weights[k];
             }
 

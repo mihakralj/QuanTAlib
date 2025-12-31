@@ -6,10 +6,17 @@ public class AlmaTests
     [Fact]
     public void Alma_Constructor_ValidatesInput()
     {
-        Assert.Throws<ArgumentException>(() => new Alma(0));
-        Assert.Throws<ArgumentException>(() => new Alma(10, sigma: 0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Alma(10, offset: -0.1));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Alma(10, offset: 1.1));
+        var ex1 = Assert.Throws<ArgumentException>(() => new Alma(0));
+        Assert.Equal("period", ex1.ParamName);
+
+        var ex2 = Assert.Throws<ArgumentException>(() => new Alma(10, sigma: 0));
+        Assert.Equal("sigma", ex2.ParamName);
+
+        var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() => new Alma(10, offset: -0.1));
+        Assert.Equal("offset", ex3.ParamName);
+
+        var ex4 = Assert.Throws<ArgumentOutOfRangeException>(() => new Alma(10, offset: 1.1));
+        Assert.Equal("offset", ex4.ParamName);
 
         var alma = new Alma(10);
         Assert.NotNull(alma);

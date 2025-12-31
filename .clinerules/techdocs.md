@@ -55,7 +55,7 @@ The Magic Number Test: Are all constants explained or replaced with their mathem
 DOCUMENTATION STRUCTURE TEMPLATE
 Every indicator documentation file must follow this structure:
 
-# [Indicator Name]: [Full Name]
+## [Indicator Name]: [Full Name]
 
 > [Punchy, cynical, or insightful quote about the indicator's purpose or philosophy.]
 

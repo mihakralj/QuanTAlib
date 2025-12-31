@@ -1,28 +1,43 @@
-# AFIRMA: Autoregressive Finite Impulse Response Moving Average
+# AFIRMA: Adaptive FIR Moving Average
 
-> "When ARMA met FIR at a signal processing conference and they had a baby with cubic spline DNA. The result filters noise like a surgeon and tracks price like a stalker."
+> "When engineers realized that the mathematically perfect filter requires infinite memory, they reached for window functions—the art of graceful compromise between theory and reality."
 
-AFIRMA is a hybrid smoothing filter that combines three signal processing techniques: autoregressive (AR) modeling, finite impulse response (FIR) filtering with windowed sinc coefficients, and cubic spline fitting for the leading edge. The result is a filter that achieves superior noise reduction while maintaining signal fidelity and minimizing lag.
+AFIRMA is a high-quality FIR (Finite Impulse Response) low-pass filter using windowed sinc coefficients. It attempts to solve the fundamental paradox of technical analysis: the inverse relationship between smoothness and timeliness. The sinc function represents the theoretically optimal low-pass filter, but it extends to infinity. AFIRMA truncates it using window functions to create a practical, finite-length filter with excellent noise rejection.
+
+AFIRMA does not offer "vision." It offers a convolution engine that trades CPU cycles for signal fidelity.
 
 ## Historical Context
 
-AFIRMA emerged from the intersection of econometric time series analysis (ARMA models from Box-Jenkins methodology, circa 1970) and digital signal processing (FIR filters with window functions). The combination addresses a fundamental problem: traditional moving averages either lag badly (SMA, EMA) or introduce ringing artifacts (sharp cutoff filters). AFIRMA uses the mathematically optimal sinc function—the ideal low-pass filter impulse response—tempered by window functions that trade off main lobe width against sidelobe suppression.
+In the 1970s, Box and Jenkins formalized ARMA models for econometrics. Simultaneously, digital signal processing (DSP) engineers were perfecting FIR filters using window functions to chop infinite Sinc waves into usable finite buffers.
+
+The two worlds rarely spoke. Economists accepted lag; engineers accepted latency.
+
+AFIRMA is a modern synthesis. It acknowledges that financial time series data is neither a pure radio wave nor a predictable economic cycle. It is a noisy, non-stationary mess. Traditional Moving Averages (SMA, EMA) use simple averaging which leaks high-frequency noise (lag) or reacts too violently (overshoot). AFIRMA uses the mathematically optimal Sinc function—the theoretical limit of a perfect low-pass filter—tempered by window functions to exist in reality.
 
 ## Architecture & Physics
 
-AFIRMA operates through a convolution of the input signal with pre-computed windowed sinc coefficients.
+AFIRMA operates through a convolution of the input signal with pre-computed windowed sinc coefficients. It is not a recursive loop (like EMA); it is a sliding weighted ruler.
 
-### The Sinc Function
+### The Physics of the Sinc
 
-The sinc function is the impulse response of an ideal low-pass filter:
+The heart of the filter is the normalized sinc function:
 
-$$ \text{sinc}(x) = \begin{cases} 1 & \text{if } x = 0 \\ \frac{\sin(x)}{x} & \text{otherwise} \end{cases} $$
+$$ \text{sinc}(x) = \frac{\sin(\pi x)}{\pi x} $$
 
-In practice, the sinc function extends infinitely—inconvenient for real-time processing. AFIRMA truncates it to a finite number of taps and applies a window function to minimize the resulting spectral leakage.
+In the frequency domain, this is a brick wall: it passes everything below a certain frequency and kills everything above it. Perfect.
 
-### Window Functions
+**The catch:** To achieve this perfection in the time domain, the sinc function must extend from negative infinity to positive infinity. Since systems do not have infinite RAM or a time machine, the function must be truncated.
 
-Window functions control the trade-off between frequency resolution (main lobe width) and spectral leakage (sidelobe suppression).
+### The Windowing Compromise
+
+Chopping a sinc function abruptly (a "Rectangular" window) causes the Gibbs phenomenon—ringing artifacts where the filter oscillates wildly around sharp price changes. To prevent this, a "Window Function" gently tapers the edges of the filter to zero.
+
+This is a trade-off:
+
+1. **Main Lobe Width:** Determines frequency resolution (sharpness).
+2. **Sidelobe Amplitude:** Determines spectral leakage (noise suppression).
+
+You cannot optimize both simultaneously. This is the Heisenberg uncertainty principle applied to moving averages.
 
 | Window | Main Lobe | Sidelobe | Use Case |
 | :--- | :--- | :--- | :--- |
@@ -33,10 +48,6 @@ Window functions control the trade-off between frequency resolution (main lobe w
 | **Blackman-Harris** | Widest | Best (-92 dB) | Minimum leakage, maximum smoothing |
 
 The default Blackman-Harris window provides the best sidelobe suppression, making AFIRMA robust to impulsive noise in price data.
-
-### Cubic Spline Component
-
-The ARMA polynomial coefficients are precomputed during initialization to support least-squares cubic fitting at the leading edge. This reduces end-point distortion common in FIR filters, where the filter "sees" incomplete data at the boundaries.
 
 ## Mathematical Foundation
 
@@ -160,16 +171,19 @@ For the same Period and Taps, different windows produce different smoothing char
 
 ## Common Pitfalls
 
-1. **Too Many Taps**: More taps mean more lag. Don't use 50 taps "just because." Start with 5-9.
+1. **Tap Inflation:** There is a temptation to set `Taps = 50` thinking it provides "more accuracy." It provides more lag. Keep taps between 5 and 15 for trading. If you need 50 taps, you don't need a filter; you need a weekly chart.
 
-2. **Period vs. Taps Confusion**: Period controls smoothness (like EMA period). Taps control filter sharpness. They're independent parameters.
+2. **Period vs. Taps Confusion:**
+   - **Period** is the *what* (which frequencies to remove).
+   - **Taps** is the *how* (how much math to throw at the removal).
+   - Increasing Taps without changing Period just makes the filter steeper, not smoother.
 
-3. **Rectangular Window**: Almost never the right choice for financial data. The severe sidelobe leakage introduces ringing.
+3. **The "Cold Start" Reality:** AFIRMA is an FIR filter. It requires `Taps` number of bars to fill its buffer. The first `Taps-1` values are approximations. Check `.IsHot` before trading real money.
 
-4. **Cold Values**: AFIRMA needs `taps` bars of history to be fully warmed up. The `IsHot` property indicates when the filter is primed.
+4. **Rectangular Windows:** Do not use the Rectangular window unless you enjoy seeing price oscillations that don't exist. The severe sidelobe leakage (-13 dB) introduces ringing artifacts around sharp price changes.
 
 ## See Also
 
-- [ALMA](../alma/Alma.md) - Gaussian-weighted moving average with offset
-- [CONV](../conv/Conv.md) - General convolution filter
-- [SSF](../ssf/Ssf.md) - Ehlers Super Smooth Filter (2-pole IIR)
+- [ALMA](../alma/Alma.md) - Arnaud Legoux's Gaussian approach (similar goal, different math)
+- [JMA](../jma/Jma.md) - Jurik's proprietary-turned-open filter (often slower, high overshoot)
+- [SSF](../ssf/Ssf.md) - Ehlers Super Smoother (2-pole IIR, infinite memory)
