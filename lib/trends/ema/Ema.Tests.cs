@@ -1,13 +1,13 @@
 namespace QuanTAlib.Tests;
 
-#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
+#pragma warning disable S2245 // GBM provides deterministic random walks for testing; System.Random usage is controlled
 public class EmaTests
 {
     [Fact]
     public void Ema_Constructor_Period_ValidatesInput()
     {
-        Assert.Throws<ArgumentException>(() => new Ema(0));
-        Assert.Throws<ArgumentException>(() => new Ema(-1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Ema(0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Ema(-1));
 
         var ema = new Ema(10);
         Assert.NotNull(ema);
@@ -647,5 +647,51 @@ public class EmaTests
         Assert.Equal(expected, spanResult, precision: 9);
         Assert.Equal(expected, streamingResult, precision: 9);
         Assert.Equal(expected, eventingResult, precision: 9);
+    }
+
+    [Fact]
+    public void Prime_SingleValue_SetsState()
+    {
+        var ema = new Ema(5);
+        double[] history = [100];
+
+        ema.Prime(history);
+
+        // Single value should be returned as-is (bias-corrected to itself)
+        Assert.Equal(100.0, ema.Last.Value, 1e-10);
+        Assert.False(ema.IsHot); // Not hot with only 1 value
+
+        // Verify against streaming
+        var verifyEma = new Ema(5);
+        verifyEma.Update(new TValue(DateTime.UtcNow, 100));
+        Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Prime_ThenUpdate_StateWorksCorrectly()
+    {
+        var ema = new Ema(5);
+        double[] history = [10, 20, 30, 40, 50];
+
+        ema.Prime(history);
+        double afterPrime = ema.Last.Value;
+
+        // After Prime, an isNew=true should advance the state
+        ema.Update(new TValue(DateTime.UtcNow, 60), isNew: true);
+        double afterNewBar = ema.Last.Value;
+
+        // Values should be different
+        Assert.NotEqual(afterPrime, afterNewBar);
+
+        // isNew=false with a different value should recalculate from previous state
+        ema.Update(new TValue(DateTime.UtcNow, 70), isNew: false);
+        double afterCorrection = ema.Last.Value;
+
+        // Correction with 70 should give different result than 60
+        Assert.NotEqual(afterNewBar, afterCorrection);
+
+        // isNew=false with original value (60) should restore to afterNewBar
+        ema.Update(new TValue(DateTime.UtcNow, 60), isNew: false);
+        Assert.Equal(afterNewBar, ema.Last.Value, 1e-10);
     }
 }
