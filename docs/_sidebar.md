@@ -11,6 +11,7 @@
 - **Trends**
   - [Overview](../lib/trends/_index.md)
   - [Trend Comparison](trendcomparison.md)
+  - [AFIRMA - Autoregressive FIR MA](../lib/trends/afirma/Afirma.md)
   - [ALMA - Arnaud Legoux MA](../lib/trends/alma/Alma.md)
   - [BESSEL - Bessel Filter](../lib/trends/bessel/Bessel.md)
   - [BILATERAL - Bilateral Filter](../lib/trends/bilateral/Bilateral.md)

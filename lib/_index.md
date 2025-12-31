@@ -29,7 +29,7 @@
 | ADR | Average Daily Range | Volatility |
 | [ADX](momentum/adx/Adx.md) | Average Directional Index | Momentum |
 | [ADXR](momentum/adxr/Adxr.md) | Average Directional Movement Rating | Momentum |
-| AFIRMA | Autoregressive FIR MA | Forecasts |
+| [AFIRMA](trends/afirma/Afirma.md) | Autoregressive FIR MA | Trends |
 | ALLIGATOR | Williams Alligator | Trends |
 | [ALMA](trends/alma/Alma.md) | Arnaud Legoux MA | Trends |
 | AMAT | Archer Moving Averages Trends | Trends |

@@ -65,6 +65,7 @@ These measure the spread of data points around the mean.
 
 ### Trends
 
+- [**AFIRMA**](../lib/trends/afirma/Afirma.md) - Autoregressive FIR MA
 - [**ALMA**](../lib/trends/alma/Alma.md) - Arnaud Legoux MA
 - [**BESSEL**](../lib/trends/bessel/Bessel.md) - Bessel Filter
 - [**BILATERAL**](../lib/trends/bilateral/Bilateral.md) - Bilateral Filter

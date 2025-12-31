@@ -16,7 +16,7 @@
 | **Aroon** | [Aroon](../lib/momentum/aroon/aroon.md) | ✔️ | ✔️ | ✔️ | - |
 | **Aroon Oscillator** | [AroonOsc](../lib/momentum/aroonosc/AroonOsc.md) | ✔️ | ✔️ | ✔️ | - |
 | **ATR Bands** | Atrbands | - | - | - | ❔ |
-| **Autoregressive FIR MA** | Afirma | - | - | - | - |
+| **Autoregressive FIR MA** | [Afirma](../lib/trends/afirma/Afirma.md) | - | - | - | - |
 | **Average Daily Range** | Adr | - | - | - | - |
 | **Average Directional Index** | [Adx](../lib/momentum/adx/adx.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Average Directional Movement Rating** | [Adxr](../lib/momentum/adxr/Adxr.md) | ✔️ | ✔️ | - | - |

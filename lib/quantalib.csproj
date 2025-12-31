@@ -21,7 +21,7 @@
       AlgoTrading;Financial;Strategy;Chart;Charting;Oscillator;Overlay;Equity;Bitcoin;Crypto;Cryptocurrency;Forex;
       Quantitative;Historical;Quotes;
     </PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/.github/QuanTAlib2.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/mihakralj/QuanTAlib/main/docs/img/QuanTAlib2.png</PackageIconUrl>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <Version>$(GitVersion_MajorMinorPatch)</Version>
@@ -45,7 +45,7 @@
 
 
   <ItemGroup>
-    <None Include="..\.github\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />
+    <None Include="..\docs\img\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
 </Project>

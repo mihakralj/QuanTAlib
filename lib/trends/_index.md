@@ -10,6 +10,7 @@ Trend indicators are the bread and butter of technical analysis—and often just
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [AFIRMA](afirma/Afirma.md) | Autoregressive FIR MA | Hybrid filter combining ARMA modeling, FIR filtering, and cubic spline fitting. |
 | ALLIGATOR | Williams Alligator | |
 | [ALMA](alma/Alma.md) | Arnaud Legoux MA | Gaussian distribution weights for the perfect balance of smoothness and responsiveness. |
 | AMAT | Archer Moving Averages Trends | |
