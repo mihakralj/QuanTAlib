@@ -18,13 +18,13 @@ Aroon is purely time-based. It normalizes the "days since" metric into a 0-100 o
 
 ### The Logic of Freshness
 
-- **Aroon Up**: Quantifies the recency of the High.
-  - 100: New high today.
-  - 0: No new high for the entire period.
-- **Aroon Down**: Quantifies the recency of the Low.
-  - 100: New low today.
-  - 0: No new low for the entire period.
-- **Oscillator**: The net difference ($Up - Down$), showing the dominant temporal force.
+* **Aroon Up**: Quantifies the recency of the High.
+  * 100: New high today.
+  * 0: No new high for the entire period.
+* **Aroon Down**: Quantifies the recency of the Low.
+  * 100: New low today.
+  * 0: No new low for the entire period.
+* **Oscillator**: The net difference ($Up - Down$), showing the dominant temporal force.
 
 ## Mathematical Foundation
 
@@ -68,5 +68,5 @@ Validation is performed against industry-standard libraries.
 | **Ooples** | N/A | Not implemented. |
 ### Common Pitfalls
 
-- **Single Value Updates**: If you feed Aroon only `Close` prices (instead of High/Low), it degrades into a "Time Since Highest Close" metric. It works, but it loses the nuance of intraday extremes.
-- **The 70/30 Rule**: A common interpretation is that a trend is strong only if the primary line is > 70. Values between 30 and 70 often indicate noise or consolidation.
+* **Single Value Updates**: If you feed Aroon only `Close` prices (instead of High/Low), it degrades into a "Time Since Highest Close" metric. It works, but it loses the nuance of intraday extremes.
+* **The 70/30 Rule**: A common interpretation is that a trend is strong only if the primary line is > 70. Values between 30 and 70 often indicate noise or consolidation.

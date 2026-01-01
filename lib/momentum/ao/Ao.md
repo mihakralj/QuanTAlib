@@ -32,8 +32,8 @@ $$ AO_t = SMA(\text{Median Price}, n_{fast}) - SMA(\text{Median Price}, n_{slow}
 
 Where:
 
-- $n_{fast}$ is the fast period (default 5).
-- $n_{slow}$ is the slow period (default 34).
+* $n_{fast}$ is the fast period (default 5).
+* $n_{slow}$ is the slow period (default 34).
 
 ## Performance Profile
 
@@ -67,5 +67,5 @@ Validation is performed against industry-standard libraries.
 
 ### Common Pitfalls
 
-- **The "Awesome" Misnomer**: Do not let the name fool you. It is a lagging indicator (it uses SMAs). It confirms trends; it does not predict them.
-- **Twin Peaks**: The "Twin Peaks" signal is often cited but rarely backtested successfully in isolation. It requires trend confirmation (e.g., via the Alligator).
+* **The "Awesome" Misnomer**: Do not let the name fool you. It is a lagging indicator (it uses SMAs). It confirms trends; it does not predict them.
+* **Twin Peaks**: The "Twin Peaks" signal is often cited but rarely backtested successfully in isolation. It requires trend confirmation (e.g., via the Alligator).

@@ -16,10 +16,10 @@ The calculation is optimized for streaming data using O(1) updates. Instead of r
 
 ### Implementation Details
 
-- **O(1) Update Formula**: The incremental update for $\sum xy$ is mathematically elegant. When removing the oldest value and shifting all x-coordinates by +1, the sum increases by the previous sum of y minus the contribution of the oldest value: `sum_xy_new = sum_xy_old + prev_sum_y - n * oldest`.
-- **Floating-Point Drift Protection**: To combat the accumulation of rounding errors inherent in incremental algorithms, the indicator performs a full recalculation from scratch every 1000 updates (`ResyncInterval`).
-- **R-Squared Stability**: Handles edge cases where variance is zero (all values identical) by setting $R^2$ to 1.0 (perfect fit to a horizontal line), avoiding division by zero.
-- **Slope Sign Convention**: The internal coordinate system uses $x=0$ for the present and increases into the past. This results in a negative slope for rising prices in x-space. The public `Slope` property negates this value (`Slope = -m`) to provide a standard time-forward slope interpretation.
+* **O(1) Update Formula**: The incremental update for $\sum xy$ is mathematically elegant. When removing the oldest value and shifting all x-coordinates by +1, the sum increases by the previous sum of y minus the contribution of the oldest value: `sum_xy_new = sum_xy_old + prev_sum_y - n * oldest`.
+* **Floating-Point Drift Protection**: To combat the accumulation of rounding errors inherent in incremental algorithms, the indicator performs a full recalculation from scratch every 1000 updates (`ResyncInterval`).
+* **R-Squared Stability**: Handles edge cases where variance is zero (all values identical) by setting $R^2$ to 1.0 (perfect fit to a horizontal line), avoiding division by zero.
+* **Slope Sign Convention**: The internal coordinate system uses $x=0$ for the present and increases into the past. This results in a negative slope for rising prices in x-space. The public `Slope` property negates this value (`Slope = -m`) to provide a standard time-forward slope interpretation.
 
 ### Complexity
 
@@ -37,9 +37,9 @@ $$ y = mx + b $$
 
 Where:
 
-- $m$ is the slope.
-- $b$ is the y-intercept.
-- $x$ is the time index (0 for the current bar, increasing into the past).
+* $m$ is the slope.
+* $b$ is the y-intercept.
+* $x$ is the time index (0 for the current bar, increasing into the past).
 
 The coefficients are calculated as:
 
@@ -51,9 +51,9 @@ The `LinReg` value at the current bar (offset 0) is simply the intercept $b$ (si
 
 ### Properties
 
-- **Slope**: The rate of change of the regression line. Positive slope indicates an uptrend, negative slope indicates a downtrend.
-- **Intercept**: The value of the regression line at the current bar.
-- **RSquared**: The coefficient of determination ($r^2$), indicating how well the line fits the data (0 to 1).
+* **Slope**: The rate of change of the regression line. Positive slope indicates an uptrend, negative slope indicates a downtrend.
+* **Intercept**: The value of the regression line at the current bar.
+* **RSquared**: The coefficient of determination ($r^2$), indicating how well the line fits the data (0 to 1).
 
 ## Performance Profile
 

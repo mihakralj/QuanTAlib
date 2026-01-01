@@ -179,13 +179,13 @@ The initial portion of the output contains "cold" values.
 
 **How many values are cold?**
 
-- **Fixed-Window** (SMA, RSI): `WarmupPeriod` (usually `period - 1`).
-- **Recursive** (EMA, MACD): Technically infinite, practically `3-4 * period`.
+* **Fixed-Window** (SMA, RSI): `WarmupPeriod` (usually `period - 1`).
+* **Recursive** (EMA, MACD): Technically infinite, practically `3-4 * period`.
 
 **Checking Validity:**
 
-- **Property:** Use `WarmupPeriod` to determine how many initial values to skip.
-- **Process API:** The returned instance's `IsHot` property confirms if the batch was long enough.
+* **Property:** Use `WarmupPeriod` to determine how many initial values to skip.
+* **Process API:** The returned instance's `IsHot` property confirms if the batch was long enough.
 
 ---
 

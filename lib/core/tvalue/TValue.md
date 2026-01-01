@@ -32,7 +32,7 @@ public readonly record struct TValue(long Time, double Value);
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ------ | ------ | ------ |
 | `Time` | `long` | Timestamp in ticks (UTC). |
 | `Value` | `double` | The data value. |
 | `AsDateTime` | `DateTime` | Helper to view `Time` as a `DateTime` object. |
@@ -40,7 +40,7 @@ public readonly record struct TValue(long Time, double Value);
 ### Constructors
 
 | Constructor | Description |
-|-------------|-------------|
+| ------ | ------ |
 | `new TValue(long time, double value)` | Creates a TValue from raw ticks. |
 | `new TValue(DateTime time, double value)` | Creates a TValue from a DateTime object. |
 

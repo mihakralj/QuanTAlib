@@ -7,13 +7,13 @@ QuanTAlib is designed to be platform-agnostic. It can be integrated into any .NE
 Quantower allows custom indicators via C#.
 
 1. **Reference the DLL**:
-    - Build QuanTAlib or download the NuGet package.
-    - In your Quantower indicator project, add a reference to `QuanTAlib.dll`.
+    * Build QuanTAlib or download the NuGet package.
+    * In your Quantower indicator project, add a reference to `QuanTAlib.dll`.
 
 2. **Wrapper Class**:
-    - Create a class that inherits from `Indicator`.
-    - Instantiate the QuanTAlib indicator in `OnInit`.
-    - Call `Update` in `OnUpdate`.
+    * Create a class that inherits from `Indicator`.
+    * Instantiate the QuanTAlib indicator in `OnInit`.
+    * Call `Update` in `OnUpdate`.
 
 ```csharp
 using Quantower.API.Indicators;

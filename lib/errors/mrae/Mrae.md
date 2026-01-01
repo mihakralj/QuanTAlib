@@ -14,10 +14,10 @@ MRAE divides each absolute error by the actual value, providing context for the 
 
 ### Properties
 
-- **Scale-independent**: Comparable across different data magnitudes
-- **Non-negative**: MRAE ≥ 0, with 0 indicating perfect prediction
-- **Interpretable**: A value of 0.1 means 10% average relative error
-- **Denominator sensitivity**: Undefined when actual values are zero (handled via substitution)
+* **Scale-independent**: Comparable across different data magnitudes
+* **Non-negative**: MRAE ≥ 0, with 0 indicating perfect prediction
+* **Interpretable**: A value of 0.1 means 10% average relative error
+* **Denominator sensitivity**: Undefined when actual values are zero (handled via substitution)
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ For each observation, calculate the relative error:
 $$e_i = \frac{|y_i - \hat{y}_i|}{|y_i|}$$
 
 Where:
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Mean Calculation
 
@@ -114,13 +114,13 @@ Mrae.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 
 ## Edge Cases
 
-- **Zero Actual Values**: Substitutes with small epsilon (1e-10) to avoid division by zero
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current relative absolute error
+* **Zero Actual Values**: Substitutes with small epsilon (1e-10) to avoid division by zero
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current relative absolute error
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (non-relative)
-- [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error
-- [SMAPE](../smape/Smape.md) - Symmetric Mean Absolute Percentage Error
+* [MAE](../mae/Mae.md) - Mean Absolute Error (non-relative)
+* [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error
+* [SMAPE](../smape/Smape.md) - Symmetric Mean Absolute Percentage Error

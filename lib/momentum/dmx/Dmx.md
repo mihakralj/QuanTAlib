@@ -81,5 +81,5 @@ Validation is performed against internal consistency checks and Jurik's publishe
 | **Ooples** | N/A | Not implemented. |
 ### Common Pitfalls
 
-- **Period Selection**: Because JMA is so efficient, you can often use slightly longer periods than you would with DMI (e.g., 20 instead of 14) to get even smoother results without incurring a lag penalty.
-- **Dependency**: This indicator depends on the `Jma` class. Ensure `Jma` is validated and performant.
+* **Period Selection**: Because JMA is so efficient, you can often use slightly longer periods than you would with DMI (e.g., 20 instead of 14) to get even smoother results without incurring a lag penalty.
+* **Dependency**: This indicator depends on the `Jma` class. Ensure `Jma` is validated and performant.

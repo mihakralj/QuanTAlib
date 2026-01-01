@@ -22,8 +22,8 @@ ADXR is a composite indicator. It does not interact with price directly; it inte
 
 ADXR is intentionally slow.
 
-- **ADX** lags price because of its multiple smoothing layers.
-- **ADXR** lags ADX because it averages the current value with a value from the distant past.
+* **ADX** lags price because of its multiple smoothing layers.
+* **ADXR** lags ADX because it averages the current value with a value from the distant past.
 
 This double lag makes ADXR useless for entry timing. Its only valid architectural purpose is **regime filtering**: determining *if* a trend-following system should be active, not *when* it should trade.
 
@@ -35,9 +35,9 @@ $$ ADXR_t = \frac{ADX_t + ADX_{t-(n-1)}}{2} $$
 
 Where:
 
-- $ADX_t$ is the current ADX value.
-- $n$ is the Period (typically 14).
-- $ADX_{t-(n-1)}$ is the ADX value from `n-1` periods ago.
+* $ADX_t$ is the current ADX value.
+* $n$ is the Period (typically 14).
+* $ADX_{t-(n-1)}$ is the ADX value from `n-1` periods ago.
 
 *Note: The `n-1` lag is used to match TA-Lib's implementation exactly. Some sources cite `n`, but standard reference implementations use `n-1`.*
 
@@ -73,5 +73,5 @@ Validation is performed against industry-standard libraries.
 
 ### Common Pitfalls
 
-- **Using for Entries**: Do not use ADXR crossovers for entries. The signal is too late.
-- **Short Periods**: Using a short period (e.g., 3) defeats the purpose of ADXR. If you want responsiveness, use ADX. ADXR is for stability.
+* **Using for Entries**: Do not use ADXR crossovers for entries. The signal is too late.
+* **Short Periods**: Using a short period (e.g., 3) defeats the purpose of ADXR. If you want responsiveness, use ADX. ADXR is for stability.

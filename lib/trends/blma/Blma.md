@@ -58,5 +58,5 @@ BLMA is validated against a reference implementation using the standard Blackman
 
 ### Common Pitfalls
 
-- **Lag**: BLMA has more lag than EMA or WMA because it suppresses the most recent data. It is a smoothing filter, not a leading indicator.
-- **Warmup**: During the first $N$ bars, the window expands dynamically. The full noise-suppression characteristics are only achieved after $N$ bars.
+* **Lag**: BLMA has more lag than EMA or WMA because it suppresses the most recent data. It is a smoothing filter, not a leading indicator.
+* **Warmup**: During the first $N$ bars, the window expands dynamically. The full noise-suppression characteristics are only achieved after $N$ bars.

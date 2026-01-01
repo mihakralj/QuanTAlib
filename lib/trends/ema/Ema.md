@@ -12,8 +12,8 @@ The EMA was brought to the financial world to solve the "drop-off effect" of the
 
 The EMA is defined by its smoothing factor, $\alpha$:
 
-- **High $\alpha$ (close to 1)**: Fast decay, responsive, noisy. Every tick matters. Your signal will fire at shadows.
-- **Low $\alpha$ (close to 0)**: Slow decay, smooth, laggy. You'll catch the trend, but you'll also be late to every party.
+* **High $\alpha$ (close to 1)**: Fast decay, responsive, noisy. Every tick matters. Your signal will fire at shadows.
+* **Low $\alpha$ (close to 0)**: Slow decay, smooth, laggy. You'll catch the trend, but you'll also be late to every party.
 
 The relationship between period $N$ and $\alpha$ is: $\alpha = \frac{2}{N + 1}$. A 10-period EMA has $\alpha \approx 0.18$. A 100-period EMA has $\alpha \approx 0.02$. The period is just a human-friendly way to express exponential decay.
 

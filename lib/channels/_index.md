@@ -1,11 +1,9 @@
 # Channels
 
-Price channel and band overlays on the chart, typically derived from price extremes or volatility.
-
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| ABBER | Aberration | |
-| ACCBANDS | Acceleration Bands | |
+| [ABBER](abber/abber.md) | Aberration Bands | Absolute deviation-based volatility bands |
+| [ACCBANDS](accbands/accbands.md) | Acceleration Bands | Volatility-based adaptive channel by Price Headley |
 | APCHANNEL | Andrews' Pitchfork | |
 | APZ | Adaptive Price Zone | |
 | ATRBANDS | ATR Bands | |

@@ -4,11 +4,11 @@
 
 ## Key Features
 
-- **Geometric Brownian Motion**: Uses the standard mathematical model for asset price dynamics.
-- **Configurable Parameters**: Control drift (trend) and volatility (noise).
-- **Stateless Design**: Minimal memory footprint; only maintains state needed for continuity.
-- **Dual Modes**: Supports both streaming (bar-by-bar) and batch generation.
-- **Intra-bar Updates**: Can simulate real-time price updates within a single bar.
+* **Geometric Brownian Motion**: Uses the standard mathematical model for asset price dynamics.
+* **Configurable Parameters**: Control drift (trend) and volatility (noise).
+* **Stateless Design**: Minimal memory footprint; only maintains state needed for continuity.
+* **Dual Modes**: Supports both streaming (bar-by-bar) and batch generation.
+* **Intra-bar Updates**: Can simulate real-time price updates within a single bar.
 
 ## Mathematical Model
 
@@ -18,10 +18,10 @@ $$ dS_t = \mu S_t dt + \sigma S_t dW_t $$
 
 Where:
 
-- $S_t$: Asset price at time $t$
-- $\mu$: Drift (expected return)
-- $\sigma$: Volatility (standard deviation of returns)
-- $W_t$: Wiener process (Brownian motion)
+* $S_t$: Asset price at time $t$
+* $\mu$: Drift (expected return)
+* $\sigma$: Volatility (standard deviation of returns)
+* $W_t$: Wiener process (Brownian motion)
 
 ## Class Definition
 

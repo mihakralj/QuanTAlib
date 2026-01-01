@@ -1,0 +1,67 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Super Trend Bands (STBANDS)", "STBANDS", overlay=true)
+
+//@function Calculates Super Trend Bands using ATR-based dynamic support/resistance
+//@param source Series to calculate bands from
+//@param period Lookback period for ATR calculation
+//@param multiplier ATR multiplier for band distance
+//@returns [upper_band, lower_band, trend] Super Trend band values and trend direction
+//@optimized for performance and dirty data
+stbands(series float source, simple int period, simple float multiplier) =>
+    if period <= 0 or multiplier <= 0.0
+        runtime.error("Period and multiplier must be greater than 0")
+    var int p = math.max(1, period), var int head = 0, var int count = 0
+    var array<float> tr_buffer = array.new_float(p, na)
+    var float tr_sum = 0.0
+    float high_val = nz(high), float low_val = nz(low), float close_val = nz(source)
+    float prev_close = nz(source[1], source)
+    float tr = math.max(high_val - low_val, math.max(math.abs(high_val - prev_close), math.abs(low_val - prev_close)))
+    float oldest_tr = array.get(tr_buffer, head)
+    if not na(oldest_tr)
+        tr_sum -= oldest_tr
+        count -= 1
+    tr_sum += tr
+    count += 1
+    array.set(tr_buffer, head, tr)
+    head := (head + 1) % p
+    float atr = count > 0 ? tr_sum / count : tr
+    float hl2_val = (high_val + low_val) / 2
+    float basic_upper = hl2_val + multiplier * atr
+    float basic_lower = hl2_val - multiplier * atr
+    var float final_upper = na, var float final_lower = na
+    var int trend = 1
+    
+    // Initialize on first bar
+    if bar_index == 0
+        final_upper := basic_upper
+        final_lower := basic_lower
+        trend := 1
+    else
+        prev_upper = nz(final_upper[1], basic_upper)
+        prev_lower = nz(final_lower[1], basic_lower)
+        prev_close_val = nz(source[1], source)
+        
+        final_upper := basic_upper < prev_upper or prev_close_val > prev_upper ? basic_upper : prev_upper
+        final_lower := basic_lower > prev_lower or prev_close_val < prev_lower ? basic_lower : prev_lower
+        
+        prev_trend = nz(trend[1], 1)
+        trend := close_val <= prev_lower ? 1 : close_val >= prev_upper ? -1 : prev_trend
+    
+    [final_upper, final_lower, trend]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "ATR Period", minval=1)
+i_source = input.source(close, "Source")
+i_multiplier = input.float(3.0, "ATR Multiplier", minval=0.001)
+
+// Calculation
+[upper_band, lower_band, trend] = stbands(i_source, i_period, i_multiplier)
+
+// Plot
+p_upper = plot(upper_band, "Upper Band", color=color.yellow, linewidth=2)
+p_lower = plot(lower_band, "Lower Band", color=color.yellow, linewidth=2)
+fill(p_upper, p_lower, color=color.new(color.blue, 90), title="Band Fill")

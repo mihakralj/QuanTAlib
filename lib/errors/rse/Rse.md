@@ -11,7 +11,7 @@ RSE computes a ratio of summed squared errors. The numerator is the residual sum
 ### Interpretation Guide
 
 | RSE Value | R² Value | Interpretation |
-|:----------|:---------|:---------------|
+| :-------- | :------- | :------------- |
 | **RSE = 0** | **R² = 1** | Perfect predictions |
 | **RSE < 1** | **R² > 0** | Better than mean predictor |
 | **RSE = 1** | **R² = 0** | Same as mean predictor |
@@ -42,7 +42,7 @@ $$R^2 = 1 - \text{RSE}$$
 ## Performance Profile
 
 | Metric | Score | Notes |
-|:-------|:------|:------|
+| :----- | :---- | :---- |
 | **Throughput** | ~40 ns/bar | Three running sums maintained |
 | **Allocations** | 0 | Zero-allocation implementation |
 | **Complexity** | O(1) | Constant time per update |
@@ -86,7 +86,7 @@ Rse.Batch(actualSpan, predictedSpan, outputSpan, 14);
 ## RSE vs R² Quick Reference
 
 | Scenario | RSE | R² | Quality |
-|:---------|:----|:---|:--------|
+| :------- | :-- | :- | :------ |
 | Perfect model | 0.00 | 1.00 | Excellent |
 | Very good model | 0.05 | 0.95 | Very good |
 | Good model | 0.20 | 0.80 | Good |
@@ -97,7 +97,7 @@ Rse.Batch(actualSpan, predictedSpan, outputSpan, 14);
 ## Comparison with RAE
 
 | Property | RSE | RAE |
-|:---------|:----|:----|
+| :------- | :-- | :-- |
 | **Error type** | Squared (L2) | Absolute (L1) |
 | **Outlier sensitivity** | High | Low |
 | **Related to** | R² | — |

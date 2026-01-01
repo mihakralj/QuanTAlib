@@ -14,10 +14,10 @@ WMAPE accumulates both absolute errors and actual values, then computes their ra
 
 ### Properties
 
-- **Volume-weighted**: High-value items contribute more to the metric
-- **Scale-independent**: Result is always a percentage
-- **Non-negative**: WMAPE ≥ 0, with 0 indicating perfect prediction
-- **Aggregate interpretation**: Represents total error as percentage of total actual
+* **Volume-weighted**: High-value items contribute more to the metric
+* **Scale-independent**: Result is always a percentage
+* **Non-negative**: WMAPE ≥ 0, with 0 indicating perfect prediction
+* **Aggregate interpretation**: Represents total error as percentage of total actual
 
 ## Mathematical Foundation
 
@@ -126,14 +126,14 @@ WMAPE gives less weight to the small-volume item with high percentage error.
 
 ## Edge Cases
 
-- **Zero Actual Sum**: Returns 0 when total actual is zero (handled via substitution)
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current weighted percentage error
-- **All Zero Actuals**: Uses epsilon substitution
+* **Zero Actual Sum**: Returns 0 when total actual is zero (handled via substitution)
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current weighted percentage error
+* **All Zero Actuals**: Uses epsilon substitution
 
 ## Related Indicators
 
-- [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error (unweighted)
-- [MAE](../mae/Mae.md) - Mean Absolute Error (non-percentage)
-- [SMAPE](../smape/Smape.md) - Symmetric MAPE
+* [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error (unweighted)
+* [MAE](../mae/Mae.md) - Mean Absolute Error (non-percentage)
+* [SMAPE](../smape/Smape.md) - Symmetric MAPE

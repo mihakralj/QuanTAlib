@@ -14,10 +14,10 @@ The loss function applies a multiplier of τ (tau) to under-predictions and (1-�
 
 ### Properties
 
-- **Asymmetric**: Different penalties for under vs. over prediction
-- **Non-negative**: Always ≥ 0, with 0 for perfect prediction
-- **Interpretable**: τ directly controls the penalty asymmetry
-- **Distribution-free**: No assumptions about error distribution
+* **Asymmetric**: Different penalties for under vs. over prediction
+* **Non-negative**: Always ≥ 0, with 0 for perfect prediction
+* **Interpretable**: τ directly controls the penalty asymmetry
+* **Distribution-free**: No assumptions about error distribution
 
 ## Mathematical Foundation
 
@@ -35,9 +35,9 @@ Or equivalently:
 $$L_\tau(y, \hat{y}) = \max(\tau(y - \hat{y}), (\tau - 1)(y - \hat{y}))$$
 
 Where:
-- $y$ = actual value
-- $\hat{y}$ = predicted value
-- $\tau$ = target quantile (0 < τ < 1)
+* $y$ = actual value
+* $\hat{y}$ = predicted value
+* $\tau$ = target quantile (0 < τ < 1)
 
 ### 2. Mean Quantile Loss
 
@@ -47,9 +47,9 @@ $$QL = \frac{1}{n} \sum_{i=1}^{n} L_\tau(y_i, \hat{y}_i)$$
 
 ### 3. Special Cases
 
-- **τ = 0.5**: Symmetric loss = 0.5 × MAE (equivalent to median regression)
-- **τ = 0.9**: 9:1 penalty ratio for under:over prediction
-- **τ = 0.1**: 1:9 penalty ratio for under:over prediction
+* **τ = 0.5**: Symmetric loss = 0.5 × MAE (equivalent to median regression)
+* **τ = 0.9**: 9:1 penalty ratio for under:over prediction
+* **τ = 0.1**: 1:9 penalty ratio for under:over prediction
 
 ### 4. Running Update (O(1))
 
@@ -130,14 +130,14 @@ With τ=0.9, under-predictions are penalized 9x more than over-predictions.
 
 ## Edge Cases
 
-- **Perfect Predictions**: Returns exactly 0
-- **τ = 0 or 1**: Invalid (returns division issues)
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current quantile loss
+* **Perfect Predictions**: Returns exactly 0
+* **τ = 0 or 1**: Invalid (returns division issues)
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current quantile loss
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (equivalent to τ=0.5 × 2)
-- [Huber](../huber/Huber.md) - Huber Loss (robust symmetric)
-- [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error
+* [MAE](../mae/Mae.md) - Mean Absolute Error (equivalent to τ=0.5 × 2)
+* [Huber](../huber/Huber.md) - Huber Loss (robust symmetric)
+* [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error

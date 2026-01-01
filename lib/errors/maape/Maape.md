@@ -14,10 +14,10 @@ MAAPE applies `arctan(|error/actual|)` to each error before averaging. The arcta
 
 ### Properties
 
-- **Bounded**: Always between 0 and π/2 (≈ 1.571)
-- **Scale-independent**: Percentage-based like MAPE
-- **Smooth compression**: Large errors are dampened, not truncated
-- **Zero-safe**: Handles near-zero actuals gracefully
+* **Bounded**: Always between 0 and π/2 (≈ 1.571)
+* **Scale-independent**: Percentage-based like MAPE
+* **Smooth compression**: Large errors are dampened, not truncated
+* **Zero-safe**: Handles near-zero actuals gracefully
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ For each observation, compute:
 $$e_i = \arctan\left(\frac{|y_i - \hat{y}_i|}{|y_i|}\right)$$
 
 Where:
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Mean Calculation
 
@@ -43,8 +43,8 @@ The function is bounded:
 
 $$0 \leq MAAPE \leq \frac{\pi}{2}$$
 
-- When error = 0: arctan(0) = 0
-- When error → ∞: arctan(∞) → π/2
+* When error = 0: arctan(0) = 0
+* When error → ∞: arctan(∞) → π/2
 
 ### 4. Running Update (O(1))
 
@@ -130,14 +130,14 @@ The arctangent compression means that the difference between 100% and 1000% erro
 
 ## Edge Cases
 
-- **Zero Actual Values**: Uses arctan(∞) = π/2 (maximum bounded error)
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current arctangent percentage error
-- **Perfect Predictions**: Returns exactly 0
+* **Zero Actual Values**: Uses arctan(∞) = π/2 (maximum bounded error)
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current arctangent percentage error
+* **Perfect Predictions**: Returns exactly 0
 
 ## Related Indicators
 
-- [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error (unbounded)
-- [SMAPE](../smape/Smape.md) - Symmetric MAPE (different bounding approach)
-- [LogCosh](../logcosh/LogCosh.md) - Log-Cosh Loss (similar compression philosophy)
+* [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error (unbounded)
+* [SMAPE](../smape/Smape.md) - Symmetric MAPE (different bounding approach)
+* [LogCosh](../logcosh/LogCosh.md) - Log-Cosh Loss (similar compression philosophy)

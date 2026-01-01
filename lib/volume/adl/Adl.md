@@ -16,9 +16,9 @@ ADL is a cumulative indicator, meaning it has infinite memory. Today's value dep
 
 The core mechanic is the **Money Flow Multiplier (MFM)**, also known as the Close Location Value (CLV). This value ranges from -1 to +1:
 
-- **+1**: Close = High (Maximum Accumulation)
-- **-1**: Close = Low (Maximum Distribution)
-- **0**: Close is exactly in the middle
+* **+1**: Close = High (Maximum Accumulation)
+* **-1**: Close = Low (Maximum Distribution)
+* **0**: Close is exactly in the middle
 
 This multiplier is then applied to the volume to determine the "Money Flow Volume" for the period.
 
@@ -66,6 +66,6 @@ $$
 
 ### Common Pitfalls
 
-- **Gaps**: ADL ignores gaps. If a stock gaps up but closes near its low, ADL will register distribution, even if the price is higher than yesterday.
-- **Scale**: The absolute value of ADL is meaningless; it depends on the start date of the data. Only the *trend* and *divergence* matter.
-- **Volume Spikes**: A single bad data point with erroneous volume can permanently skew the ADL. Sanitize your data.
+* **Gaps**: ADL ignores gaps. If a stock gaps up but closes near its low, ADL will register distribution, even if the price is higher than yesterday.
+* **Scale**: The absolute value of ADL is meaningless; it depends on the start date of the data. Only the *trend* and *divergence* matter.
+* **Volume Spikes**: A single bad data point with erroneous volume can permanently skew the ADL. Sanitize your data.

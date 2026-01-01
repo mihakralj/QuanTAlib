@@ -17,8 +17,8 @@ The architecture is a direct application of the Hilbert Transform Homodyne Discr
 1. **Hilbert Transform**: Decomposes price into In-Phase (I) and Quadrature (Q) components.
 2. **Phase Calculation**: Computes the phase angle from I and Q.
 3. **Alpha Adaptation**: The smoothing alpha is derived from the rate of change of the phase.
-    - Fast Phase Change = High Alpha (Fast MA).
-    - Slow Phase Change = Low Alpha (Slow MA).
+    * Fast Phase Change = High Alpha (Fast MA).
+    * Slow Phase Change = Low Alpha (Slow MA).
 
 Ehlers' genius was recognizing that market cycles have *phase*. When phase advances steadily (trending), use slow alpha. When phase stutters or reverses (cycle breakdown), use fast alpha. This is why MAMA responds instantly to trend changes while staying smooth in established trends.
 
@@ -168,9 +168,9 @@ _state.Phase = Math.Atan2(q1, i1);
 
 Benefits:
 
-- No conditional branches (atan2 handles i1=0 internally)
-- Proper quadrant handling (range [-π, π] instead of [-π/2, π/2])
-- Fewer edge cases during quadrant crossings
+* No conditional branches (atan2 handles i1=0 internally)
+* Proper quadrant handling (range [-π, π] instead of [-π/2, π/2])
+* Fewer edge cases during quadrant crossings
 
 The absolute value in period calculation ensures we always get positive periods, even when the angle is in quadrants 3 or 4. Ehlers' original could produce negative periods that got clamped to 6.0. We handle it mathematically.
 
@@ -180,17 +180,17 @@ QuanTALib MAMA values will diverge slightly from TA-Lib and Skender libraries. E
 
 **Early period (bars 0-100):**
 
-- ±1-5% difference due to initialization and coefficient accumulation
+* ±1-5% difference due to initialization and coefficient accumulation
 
 **Steady state (bars 100+):**
 
-- ±0.01-0.05% difference from constant precision errors
-- Larger spikes (±0.1-1%) during quadrant transitions where atan2's range helps
+* ±0.01-0.05% difference from constant precision errors
+* Larger spikes (±0.1-1%) during quadrant transitions where atan2's range helps
 
 **Trading signals:**
 
-- MAMA/FAMA crossovers will match 98%+ of the time
-- Exact numerical values will differ
+* MAMA/FAMA crossovers will match 98%+ of the time
+* Exact numerical values will differ
 
 This is a feature, not a bug. QuanTAlib is computing the mathematically correct MAMA. Everyone else is computing an approximation that accumulated 20 years of copy-paste errors.
 

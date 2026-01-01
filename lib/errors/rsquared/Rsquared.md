@@ -11,7 +11,7 @@ R² is computed as 1 minus the ratio of residual sum of squares (RSS) to total s
 ### Interpretation Guide
 
 | R² Value | Interpretation |
-|:---------|:---------------|
+| :------- | :------------- |
 | **R² = 1** | Perfect predictions (all variance explained) |
 | **R² > 0.9** | Excellent model |
 | **R² > 0.7** | Good model |
@@ -42,7 +42,7 @@ $$R^2 = 1 - \text{RSE}$$
 ## Performance Profile
 
 | Metric | Score | Notes |
-|:-------|:------|:------|
+| :----- | :---- | :---- |
 | **Throughput** | ~40 ns/bar | Three running sums maintained |
 | **Allocations** | 0 | Zero-allocation implementation |
 | **Complexity** | O(1) | Constant time per update |
@@ -89,7 +89,7 @@ Rsquared.Batch(actualSpan, predictedSpan, outputSpan, 14);
 ## R² Quick Reference
 
 | R² Value | Quality | Description |
-|:---------|:--------|:------------|
+| :------- | :------ | :---------- |
 | 1.00 | Perfect | Model explains all variance |
 | 0.95 | Excellent | Model explains 95% of variance |
 | 0.80 | Good | Model explains 80% of variance |
@@ -100,7 +100,7 @@ Rsquared.Batch(actualSpan, predictedSpan, outputSpan, 14);
 ## Comparison with RSE
 
 | Property | R² | RSE |
-|:---------|:---|:----|
+| :------- | :- | :-- |
 | **Range** | (-∞, 1] | [0, +∞) |
 | **Perfect score** | 1 | 0 |
 | **Mean predictor** | 0 | 1 |
@@ -109,6 +109,6 @@ Rsquared.Batch(actualSpan, predictedSpan, outputSpan, 14);
 
 ## When to Use R²
 
-- **Use R²** when you want an intuitive measure of model quality (0-1 scale for good models)
-- **Use RSE** when you want to compare error magnitudes directly
-- **Use both** to get complementary perspectives on model performance
+* **Use R²** when you want an intuitive measure of model quality (0-1 scale for good models)
+* **Use RSE** when you want to compare error magnitudes directly
+* **Use both** to get complementary perspectives on model performance

@@ -18,9 +18,9 @@ $$\text{RMSLE} = \sqrt{\text{MSLE}}$$
 
 RMSLE values correspond directly to log-scale error:
 
-- RMSLE = 0.1 → approximately 10% ratio error
-- RMSLE = 0.69 → approximately 100% ratio error (2:1 or 1:2 ratio)
-- RMSLE = 1.0 → approximately 170% ratio error (~2.7:1 ratio)
+* RMSLE = 0.1 → approximately 10% ratio error
+* RMSLE = 0.69 → approximately 100% ratio error (2:1 or 1:2 ratio)
+* RMSLE = 1.0 → approximately 170% ratio error (~2.7:1 ratio)
 
 ## Mathematical Foundation
 
@@ -185,6 +185,6 @@ Small absolute values near zero can produce large RMSLE:
 
 ## See Also
 
-- [MSLE](../msle/Msle.md) - Squared version without root
-- [RMSE](../rmse/Rmse.md) - Linear-scale root mean squared error
-- [MAPE](../mape/Mape.md) - Percentage error without log transform
+* [MSLE](../msle/Msle.md) - Squared version without root
+* [RMSE](../rmse/Rmse.md) - Linear-scale root mean squared error
+* [MAPE](../mape/Mape.md) - Percentage error without log transform

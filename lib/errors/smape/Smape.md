@@ -18,13 +18,13 @@ Consider predicting a value of 80 when actual is 100, versus predicting 100 when
 
 **MAPE calculations:**
 
-- Case 1: $100 \times |100-80|/100 = 20\%$
-- Case 2: $100 \times |80-100|/80 = 25\%$
+* Case 1: $100 \times |100-80|/100 = 20\%$
+* Case 2: $100 \times |80-100|/80 = 25\%$
 
 **SMAPE calculations:**
 
-- Case 1: $200 \times |100-80|/(100+80) = 22.2\%$
-- Case 2: $200 \times |80-100|/(80+100) = 22.2\%$
+* Case 1: $200 \times |100-80|/(100+80) = 22.2\%$
+* Case 2: $200 \times |80-100|/(80+100) = 22.2\%$
 
 SMAPE assigns identical penalties regardless of which value is larger.
 
@@ -46,9 +46,9 @@ $$\text{SMAPE}_t = \frac{1}{n} \sum_{i=t-n+1}^{t} e_i$$
 
 SMAPE is bounded between 0% and 200%:
 
-- **0%**: Perfect prediction (actual = predicted)
-- **200%**: Maximum error (one value is 0, other is non-zero)
-- **100%**: Occurs when |actual - predicted| = (|actual| + |predicted|)/2
+* **0%**: Perfect prediction (actual = predicted)
+* **200%**: Maximum error (one value is 0, other is non-zero)
+* **100%**: Occurs when |actual - predicted| = (|actual| + |predicted|)/2
 
 ## Performance Profile
 
@@ -142,6 +142,6 @@ This scales to 0-100% but is mathematically equivalent to the 0-200% version. Qu
 
 ## See Also
 
-- [MAPE](../mape/Mape.md) - Asymmetric percentage error
-- [MPE](../mpe/Mpe.md) - Signed percentage error for bias
-- [MAE](../mae/Mae.md) - Absolute error without scaling
+* [MAPE](../mape/Mape.md) - Asymmetric percentage error
+* [MPE](../mpe/Mpe.md) - Signed percentage error for bias
+* [MAE](../mae/Mae.md) - Absolute error without scaling

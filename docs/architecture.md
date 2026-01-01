@@ -50,10 +50,10 @@ Extends streaming mode with full event infrastructure. Indicators raise events w
 
 The library uses a Structure of Arrays (SoA) approach for its core data structures.
 
-- **TSeries**: Internally maintains two `List<T>` collections:
-  - `List<long> _t`: Timestamps (ticks)
-  - `List<double> _v`: Values
-- **Access**: Data is exposed via `ReadOnlySpan<double>` properties, allowing zero-copy access to the underlying memory for SIMD operations.
+* **TSeries**: Internally maintains two `List<T>` collections:
+  * `List<long> _t`: Timestamps (ticks)
+  * `List<double> _v`: Values
+* **Access**: Data is exposed via `ReadOnlySpan<double>` properties, allowing zero-copy access to the underlying memory for SIMD operations.
 
 This layout is cache-friendly. When calculating an average, the CPU loads a cache line filled entirely with values, without wasting space on interleaved timestamps or object headers.
 
@@ -61,9 +61,9 @@ This layout is cache-friendly. When calculating an average, the CPU loads a cach
 
 QuanTAlib leverages .NET's `System.Runtime.Intrinsics` to access hardware-specific instructions (AVX2, AVX-512).
 
-- **Vectorization**: Operations like summation, min/max finding, and element-wise arithmetic are vectorized.
-- **Fallback**: The library checks for hardware support at runtime. If AVX2 is not available, it falls back to scalar implementations, ensuring compatibility with older hardware (though at reduced speed).
-- **Zero-Allocation**: SIMD operations are performed on `Span<T>` and `ReadOnlySpan<T>`, ensuring no heap allocations occur during the calculation phase.
+* **Vectorization**: Operations like summation, min/max finding, and element-wise arithmetic are vectorized.
+* **Fallback**: The library checks for hardware support at runtime. If AVX2 is not available, it falls back to scalar implementations, ensuring compatibility with older hardware (though at reduced speed).
+* **Zero-Allocation**: SIMD operations are performed on `Span<T>` and `ReadOnlySpan<T>`, ensuring no heap allocations occur during the calculation phase.
 
 ## Design Philosophy
 

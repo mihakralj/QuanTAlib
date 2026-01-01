@@ -12,9 +12,9 @@ Introduced by Karl Pearson in 1895, Skewness (along with Kurtosis) provides the 
 
 The `Skew` indicator uses a sliding window (RingBuffer) to maintain the last $N$ samples. To ensure O(1) performance, it maintains running sums of the first three powers of the input:
 
-- $\sum x$
-- $\sum x^2$
-- $\sum x^3$
+* $\sum x$
+* $\sum x^2$
+* $\sum x^3$
 
 This allows calculating the 2nd and 3rd central moments instantly without re-iterating the buffer.
 

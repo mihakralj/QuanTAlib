@@ -16,9 +16,9 @@ ALMA is a weighted moving average where weights follow a normal distribution (be
 
 The physics of ALMA rely on shifting the "center of gravity" of the window.
 
-- **SMA:** Center of gravity is always the middle ($0.5$). Lag is fixed.
-- **EMA:** Center of gravity is front-loaded but has an infinite tail.
-- **ALMA:** You move the center. An offset of $0.85$ pushes the bulk of the weight to the most recent 15% of the window.
+* **SMA:** Center of gravity is always the middle ($0.5$). Lag is fixed.
+* **EMA:** Center of gravity is front-loaded but has an infinite tail.
+* **ALMA:** You move the center. An offset of $0.85$ pushes the bulk of the weight to the most recent 15% of the window.
 
 This shift allows the indicator to capture momentum (high responsiveness) while the Gaussian decay kills high-frequency noise (smoothness). It behaves less like a lagging indicator and more like a mass-dampener system.
 
@@ -117,7 +117,7 @@ QuanTAlib validates against reference implementations that respect the Gaussian 
 1. **Offset Abuse**: Setting offset to `0.99` creates a filter that barely filters. It tracks price so closely you might as well use `Price[0]`. Setting it to `0.5` makes it a centered moving average (great for smoothing, terrible for trading due to repainting if used as such, but ALMA does not repaint). The magic is in the `0.85` region.
 
 2. **Sigma Confusion**:
-   - $\sigma = 1$: The curve is flat. You have reinvented the Simple Moving Average (badly).
-   - $\sigma = 10$: The curve is a needle. You are sampling one specific bar in history.
+   * $\sigma = 1$: The curve is flat. You have reinvented the Simple Moving Average (badly).
+   * $\sigma = 10$: The curve is a needle. You are sampling one specific bar in history.
 
 3. **Cold Start**: ALMA requires a full window ($L$) to be mathematically valid. First $L-1$ bars are convergence noise. Ignore them.

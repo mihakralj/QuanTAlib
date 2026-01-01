@@ -11,7 +11,7 @@ RAE computes a ratio of summed absolute errors. The numerator is the sum of abso
 ### Interpretation Guide
 
 | RAE Value | Interpretation |
-|:----------|:---------------|
+| ------ | ------ |
 | **RAE < 1** | Predictions are better than mean predictor |
 | **RAE = 1** | Predictions equal mean predictor performance |
 | **RAE > 1** | Predictions are worse than mean predictor |
@@ -38,7 +38,7 @@ $$\text{RAE} = \frac{\sum_{t=1}^{n} |y_t - \hat{y}_t|}{\sum_{t=1}^{n} |y_t - \ba
 ## Performance Profile
 
 | Metric | Score | Notes |
-|:-------|:------|:------|
+| ------ | ------ | ------ |
 | **Throughput** | ~40 ns/bar | Three running sums maintained |
 | **Allocations** | 0 | Zero-allocation implementation |
 | **Complexity** | O(1) | Constant time per update |
@@ -59,9 +59,9 @@ The baseline error is calculated against the rolling mean, which updates each ti
 ### Different from R²
 
 RAE and R² (coefficient of determination) are related but distinct:
-- RAE uses absolute errors (L1 norm)
-- R² uses squared errors (L2 norm)
-- Both use mean-predictor as baseline
+* RAE uses absolute errors (L1 norm)
+* R² uses squared errors (L2 norm)
+* Both use mean-predictor as baseline
 
 ## Usage
 
@@ -84,7 +84,7 @@ Rae.Batch(actualSpan, predictedSpan, outputSpan, 14);
 ## Comparison with Related Metrics
 
 | Metric | Error Type | Baseline | Range | Units |
-|:-------|:-----------|:---------|:------|:------|
+| ------ | ------ | ------ | ------ | ------ |
 | **RAE** | Absolute | Mean predictor | [0, ∞) | Ratio |
 | **RSE** | Squared | Mean predictor | [0, ∞) | Ratio |
 | **R²** | Squared | Mean predictor | (-∞, 1] | Coefficient |
@@ -92,6 +92,6 @@ Rae.Batch(actualSpan, predictedSpan, outputSpan, 14);
 
 RAE is preferable when:
 
-- You want robustness to outliers (absolute vs squared errors)
-- You need a ratio interpretation (< 1 is good, > 1 is bad)
-- The mean predictor is a relevant baseline for your domain
+* You want robustness to outliers (absolute vs squared errors)
+* You need a ratio interpretation (< 1 is good, > 1 is bad)
+* The mean predictor is a relevant baseline for your domain

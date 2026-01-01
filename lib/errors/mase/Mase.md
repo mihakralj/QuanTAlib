@@ -10,8 +10,8 @@ MASE computes a ratio: the mean absolute error of your predictions divided by th
 
 ### Interpretation Guide
 
-| MASE Value   | Interpretation |
-|:-------------|:---------------|
+| MASE Value | Interpretation |
+| ---------- | -------------- |
 | **MASE < 1** | Forecast is better than naive (good) |
 | **MASE = 1** | Forecast equals naive performance |
 | **MASE > 1** | Forecast is worse than naive (bad) |
@@ -42,7 +42,7 @@ $$\text{MASE} = \frac{\text{MAE}}{\text{Scale}}$$
 ## Performance Profile
 
 | Metric | Score | Notes |
-|:-------|:------|:------|
+| ------ | ----- | ----- |
 | **Throughput** | ~35 ns/bar | Dual running sums for error and scale |
 | **Allocations** | 0 | Zero-allocation implementation |
 | **Complexity** | O(1) | Constant time per update |
@@ -85,7 +85,7 @@ Mase.Batch(actualSpan, predictedSpan, outputSpan, 14);
 ## Comparison with Other Error Metrics
 
 | Metric | Scale-Independent | Handles Zero | Symmetric | Interpretable |
-|:-------|:------------------|:-------------|:----------|:--------------|
+| ------ | ----------------- | ------------ | --------- | ------------- |
 | **MASE** | ✅ | ✅ | ✅ | ✅ (vs naive) |
 | **MAPE** | ✅ | ❌ | ❌ | ✅ (% error) |
 | **SMAPE** | ✅ | ⚠️ | ✅ | ⚠️ (bounded %) |
@@ -94,7 +94,7 @@ Mase.Batch(actualSpan, predictedSpan, outputSpan, 14);
 
 MASE is particularly valuable when:
 
-- Comparing forecasts across different series
-- Evaluating against a natural baseline (naive forecast)
-- Working with data that includes zeros
-- Needing symmetric treatment of over/under predictions
+* Comparing forecasts across different series
+* Evaluating against a natural baseline (naive forecast)
+* Working with data that includes zeros
+* Needing symmetric treatment of over/under predictions

@@ -14,10 +14,10 @@ MAE treats all errors equally, making it more robust to outliers compared to squ
 
 ### Properties
 
-- **Non-negative**: MAE ≥ 0, with 0 indicating perfect prediction
-- **Same units**: Unlike MSE, MAE is in the same units as the original data
-- **Linear sensitivity**: Each unit of error contributes equally to the final metric
-- **Robust**: Less sensitive to outliers than squared-error metrics
+* **Non-negative**: MAE ≥ 0, with 0 indicating perfect prediction
+* **Same units**: Unlike MSE, MAE is in the same units as the original data
+* **Linear sensitivity**: Each unit of error contributes equally to the final metric
+* **Robust**: Less sensitive to outliers than squared-error metrics
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ For each observation, calculate the absolute difference between actual and predi
 $$e_i = |y_i - \hat{y}_i|$$
 
 Where:
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Mean Calculation
 
@@ -113,13 +113,13 @@ Mae.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 
 ## Edge Cases
 
-- **Identical Values**: Returns 0 when actual equals predicted
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current absolute error
+* **Identical Values**: Returns 0 when actual equals predicted
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current absolute error
 
 ## Related Indicators
 
-- [MSE](../mse/Mse.md) - Mean Squared Error
-- [RMSE](../rmse/Rmse.md) - Root Mean Squared Error
-- [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error
+* [MSE](../mse/Mse.md) - Mean Squared Error
+* [RMSE](../rmse/Rmse.md) - Root Mean Squared Error
+* [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error

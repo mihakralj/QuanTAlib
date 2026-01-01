@@ -20,9 +20,9 @@
 
 | Indicator | Full Name | Category |
 | :--- | :--- | :--- |
-| ABBER | Aberration | Channels |
+| [ABBER](channels/abber/abber.md) | Aberration Bands | Channels |
 | AC | Acceleration Oscillator | Momentum |
-| ACCBANDS | Acceleration Bands | Channels |
+| [ACCBANDS](channels/accbands/accbands.md) | Acceleration Bands | Channels |
 | ACCEL | Momentum change; 2nd derivative | Numerics |
 | [ADL](volume/adl/Adl.md) | Accumulation/Distribution Line | Volume |
 | [ADOSC](volume/adosc/Adosc.md) | Chaikin A/D Oscillator | Volume |

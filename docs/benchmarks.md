@@ -4,10 +4,10 @@ Performance claims require measurement. QuanTAlib is benchmarked against establi
 
 ## Test Environment
 
-- **Data**: 500,000 bars
-- **Parameters**: Period 220 (sufficient scale to expose algorithmic inefficiencies)
-- **Framework**: NET 10.0.0 (10.0.25.52411), X64 AOT AVX-512F+CD+BW+DQ+VL+VBMI
-- **Hardware**: AMD Ryzen 9 9950X 16-Core Processor (4.30 GHz) supporting **AVX-512** SIMD and **FMA** (Fused Multiply-Add)
+* **Data**: 500,000 bars
+* **Parameters**: Period 220 (sufficient scale to expose algorithmic inefficiencies)
+* **Framework**: NET 10.0.0 (10.0.25.52411), X64 AOT AVX-512F+CD+BW+DQ+VL+VBMI
+* **Hardware**: AMD Ryzen 9 9950X 16-Core Processor (4.30 GHz) supporting **AVX-512** SIMD and **FMA** (Fused Multiply-Add)
 
 These results represent what current-generation server CPUs achieve in production.
 
@@ -15,9 +15,9 @@ These results represent what current-generation server CPUs achieve in productio
 
 The library automatically detects and utilizes the highest available instruction set (AVX-512, AVX2, or NEON). This allows processing multiple data points simultaneously:
 
-- **AVX-512**: Processes 8 `double` values per cycle (512-bit vectors).
-- **AVX2**: Processes 4 `double` values per cycle (256-bit vectors).
-- **NEON**: Processes 2 `double` values per cycle (128-bit vectors).
+* **AVX-512**: Processes 8 `double` values per cycle (512-bit vectors).
+* **AVX2**: Processes 4 `double` values per cycle (256-bit vectors).
+* **NEON**: Processes 2 `double` values per cycle (128-bit vectors).
 
 QuanTAlib also leverages **Fused Multiply-Add (FMA)** instructions (FMA3) wherever possible - for scalar and vector math. FMA performs a multiplication and addition in a single CPU cycle (`a * b + c`) with a single rounding step. This provides two distinct advantages:
 
@@ -93,10 +93,10 @@ Even QuanTAlib's slowest mode (Eventing with complete event infrastructure and 1
 
 [BenchmarkDotNet](https://benchmarkdotnet.org/) is used for all performance testing. This ensures:
 
-- Warmup iterations to stabilize JIT compilation
-- Statistical analysis of results (mean, standard deviation)
-- Memory allocation tracking
-- Environment isolation
+* Warmup iterations to stabilize JIT compilation
+* Statistical analysis of results (mean, standard deviation)
+* Memory allocation tracking
+* Environment isolation
 
 ## How to Run Benchmarks Yourself
 

@@ -22,9 +22,9 @@ APO is built on the foundation of the high-performance QuanTAlib `Ema` kernel. I
 
 The EMAs are not recalculated from scratch. The state of both the fast and slow EMAs is maintained, allowing the APO update to be computed in constant time, regardless of the lookback period.
 
-- **Time Complexity**: $O(1)$ per update.
-- **Space Complexity**: $O(1)$ (two EMA state structs).
-- **Allocations**: 0 bytes on the hot path.
+* **Time Complexity**: $O(1)$ per update.
+* **Space Complexity**: $O(1)$ (two EMA state structs).
+* **Allocations**: 0 bytes on the hot path.
 
 ## Mathematical Foundation
 
@@ -34,9 +34,9 @@ $$ APO_t = EMA(P, n_{fast}) - EMA(P, n_{slow}) $$
 
 Where:
 
-- $EMA$ is the recursive Exponential Moving Average.
-- $n_{fast}$ is the fast period (default 12).
-- $n_{slow}$ is the slow period (default 26).
+* $EMA$ is the recursive Exponential Moving Average.
+* $n_{fast}$ is the fast period (default 12).
+* $n_{slow}$ is the slow period (default 26).
 
 ## Performance Profile
 
@@ -69,5 +69,5 @@ Validation is performed against industry-standard libraries.
 
 ### Common Pitfalls
 
-- **Scale Sensitivity**: APO values are not normalized. An APO of 10.0 on Bitcoin is noise; on EUR/USD, it's a catastrophe. Use PPO for cross-asset comparisons.
-- **Lag**: As a derivative of moving averages, APO lags price. The lag is a function of the slow period.
+* **Scale Sensitivity**: APO values are not normalized. An APO of 10.0 on Bitcoin is noise; on EUR/USD, it's a catastrophe. Use PPO for cross-asset comparisons.
+* **Lag**: As a derivative of moving averages, APO lags price. The lag is a function of the slow period.

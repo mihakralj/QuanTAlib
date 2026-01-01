@@ -14,12 +14,12 @@ ME preserves the sign of errors, allowing positive and negative errors to cancel
 
 ### Properties
 
-- **Can be negative**: ME can be positive, negative, or zero
-- **Positive ME**: Model under-predicts (actual > predicted on average)
-- **Negative ME**: Model over-predicts (actual < predicted on average)
-- **Zero ME**: No systematic bias (but not necessarily accurate)
-- **Same units**: ME is in the same units as the original data
-- **Cancellation**: Errors can cancel out, hiding large individual errors
+* **Can be negative**: ME can be positive, negative, or zero
+* **Positive ME**: Model under-predicts (actual > predicted on average)
+* **Negative ME**: Model over-predicts (actual < predicted on average)
+* **Zero ME**: No systematic bias (but not necessarily accurate)
+* **Same units**: ME is in the same units as the original data
+* **Cancellation**: Errors can cancel out, hiding large individual errors
 
 ## Mathematical Foundation
 
@@ -31,8 +31,8 @@ $$e_i = y_i - \hat{y}_i$$
 
 Where:
 
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Mean Calculation
 
@@ -131,14 +131,14 @@ Always use ME alongside MAE or MSE to get a complete picture.
 
 ## Edge Cases
 
-- **Identical Values**: Returns 0 when actual equals predicted
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current signed error
-- **Balanced Errors**: Can return 0 even with large individual errors
+* **Identical Values**: Returns 0 when actual equals predicted
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current signed error
+* **Balanced Errors**: Can return 0 even with large individual errors
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (magnitude only)
-- [MSE](../mse/Mse.md) - Mean Squared Error
-- [MPE](../mpe/Mpe.md) - Mean Percentage Error (relative bias)
+* [MAE](../mae/Mae.md) - Mean Absolute Error (magnitude only)
+* [MSE](../mse/Mse.md) - Mean Squared Error
+* [MPE](../mpe/Mpe.md) - Mean Percentage Error (relative bias)

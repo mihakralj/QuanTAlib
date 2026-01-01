@@ -14,10 +14,10 @@ The function `log(cosh(x))` has remarkable properties: for small x, it approxima
 
 ### Properties
 
-- **Smooth everywhere**: Infinitely differentiable
-- **Non-negative**: Always ≥ 0, with 0 for perfect prediction
-- **Robust**: Large errors grow linearly, not quadratically
-- **Convex**: Guarantees a unique minimum for optimization
+* **Smooth everywhere**: Infinitely differentiable
+* **Non-negative**: Always ≥ 0, with 0 for perfect prediction
+* **Robust**: Large errors grow linearly, not quadratically
+* **Convex**: Guarantees a unique minimum for optimization
 
 ## Mathematical Foundation
 
@@ -28,9 +28,9 @@ For each observation, compute:
 $$e_i = \log(\cosh(y_i - \hat{y}_i))$$
 
 Where:
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
-- $\cosh(x) = \frac{e^x + e^{-x}}{2}$
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
+* $\cosh(x) = \frac{e^x + e^{-x}}{2}$
 
 ### 2. Approximations
 
@@ -131,15 +131,15 @@ For large errors, Log-Cosh grows approximately linearly (like L1), avoiding the 
 
 ## Edge Cases
 
-- **Perfect Predictions**: Returns exactly 0 (log(cosh(0)) = log(1) = 0)
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current log-cosh error
-- **Large Errors**: Numerically stable via cosh implementation
+* **Perfect Predictions**: Returns exactly 0 (log(cosh(0)) = log(1) = 0)
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current log-cosh error
+* **Large Errors**: Numerically stable via cosh implementation
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (pure L1)
-- [MSE](../mse/Mse.md) - Mean Squared Error (pure L2)
-- [Huber](../huber/Huber.md) - Huber Loss (piecewise L1/L2)
-- [PseudoHuber](../pseudohuber/PseudoHuber.md) - Smooth Huber approximation
+* [MAE](../mae/Mae.md) - Mean Absolute Error (pure L1)
+* [MSE](../mse/Mse.md) - Mean Squared Error (pure L2)
+* [Huber](../huber/Huber.md) - Huber Loss (piecewise L1/L2)
+* [PseudoHuber](../pseudohuber/PseudoHuber.md) - Smooth Huber approximation

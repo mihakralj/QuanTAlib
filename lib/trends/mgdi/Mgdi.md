@@ -12,8 +12,8 @@ Published by John McGinley in the *Market Technicians Association Journal* (1991
 
 The MGDI formula is unique. It looks like an EMA, but the smoothing constant is dynamic and depends on the ratio of Price to the previous MGDI value.
 
-- **Price > MGDI**: The market is speeding up (or recovering). The denominator grows, slowing the adjustment to prevent overshoot.
-- **Price < MGDI**: The market is falling. The formula adapts to hug the price without breaking.
+* **Price > MGDI**: The market is speeding up (or recovering). The denominator grows, slowing the adjustment to prevent overshoot.
+* **Price < MGDI**: The market is falling. The formula adapts to hug the price without breaking.
 
 ## Mathematical Foundation
 
@@ -21,9 +21,9 @@ $$ \text{MGDI}_t = \text{MGDI}_{t-1} + \frac{P_t - \text{MGDI}_{t-1}}{k \times N
 
 Where:
 
-- $N$ is the period (roughly analogous to an EMA period).
-- $k$ is a constant (usually 0.6).
-- The term $(P_t / \text{MGDI}_{t-1})^4$ is the accelerator/decelerator.
+* $N$ is the period (roughly analogous to an EMA period).
+* $k$ is a constant (usually 0.6).
+* The term $(P_t / \text{MGDI}_{t-1})^4$ is the accelerator/decelerator.
 
 ## Performance Profile
 

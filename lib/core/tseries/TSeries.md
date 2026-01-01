@@ -34,7 +34,7 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
 ### Core Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ------ | ------ | ------ |
 | `Values` | `ReadOnlySpan<double>` | Direct access to the value array (SIMD-ready). |
 | `Times` | `ReadOnlySpan<long>` | Direct access to the timestamp array. |
 | `Last` | `TValue` | The most recent time-value pair. |
@@ -44,7 +44,7 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
 ### Events
 
 | Event | Type | Description |
-|-------|------|-------------|
+| ------ | ------ | ------ |
 | `Pub` | `Action<TValue>` | Fired whenever a new value is added or updated. |
 
 ## Usage

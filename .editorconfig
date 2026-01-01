@@ -18,6 +18,18 @@ dotnet_diagnostic.S3776.severity = none
 # Intentional for exact struct comparison and zero checks in high-performance code
 dotnet_diagnostic.S1244.severity = none
 
+# Suppress ReSharper CheckNamespace - Namespace does not correspond to file location
+# QuanTAlib uses flat namespace structure (QuanTAlib) regardless of folder hierarchy
+resharper_check_namespace_highlighting = none
+
+# Suppress ReSharper RedundantArgumentDefaultValue - Redundant argument with default value
+# Explicit default values improve code readability for indicator parameters
+resharper_redundant_argument_default_value_highlighting = none
+
+# Suppress ReSharper InvalidXmlDocComment - Invalid XML documentation comment
+# Documentation uses simplified format without full XML compliance
+resharper_invalid_xml_doc_comment_highlighting = none
+
 #### C# Coding Conventions ####
 
 # "var" preferences

@@ -8,9 +8,9 @@ Covariance measures the joint variability of two random variables. It indicates 
 
 Covariance is calculated using a sliding window approach. It maintains running sums of $x$, $y$, and $xy$ to allow for $O(1)$ updates.
 
-- **Positive Covariance**: Indicates that the two variables tend to move in the same direction.
-- **Negative Covariance**: Indicates that the two variables tend to move in opposite directions.
-- **Zero Covariance**: Indicates that the two variables are uncorrelated.
+* **Positive Covariance**: Indicates that the two variables tend to move in the same direction.
+* **Negative Covariance**: Indicates that the two variables tend to move in opposite directions.
+* **Zero Covariance**: Indicates that the two variables are uncorrelated.
 
 ## Mathematical Foundation
 

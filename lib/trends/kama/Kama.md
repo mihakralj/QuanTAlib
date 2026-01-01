@@ -13,9 +13,9 @@ Perry Kaufman introduced KAMA in his book *Smarter Trading* (1998). It was one o
 KAMA uses an **Efficiency Ratio (ER)** to drive the smoothing constant of an EMA.
 
 1. **Efficiency Ratio (ER)**: Measures the fractal efficiency of price movement.
-    - $ER = \frac{\text{Net Change}}{\text{Sum of Absolute Changes}}$
-    - ER approaches 1.0 in a straight line trend.
-    - ER approaches 0.0 in pure noise.
+    * $ER = \frac{\text{Net Change}}{\text{Sum of Absolute Changes}}$
+    * ER approaches 1.0 in a straight line trend.
+    * ER approaches 0.0 in pure noise.
 2. **Smoothing Constant (SC)**: Scales between a "Fast" EMA (e.g., 2-period) and a "Slow" EMA (e.g., 30-period) based on ER.
 
 ## Mathematical Foundation
