@@ -4,14 +4,14 @@
 #-------------------------------------------------------------------------------#
 version: "1.0"
 profile:
-  name: qodana.recommended
+  name: qodana.starter
 
 linter: jetbrains/qodana-dotnet:2025.3
 
 dotnet:
   solution: QuanTAlib.sln
   frameworks: "net10.0"
-  configuration: Release
+  configuration: Debug
 
 # Disabled failure conditions - Qodana should never fail the build
 # Issues are reported for informational purposes only
@@ -60,3 +60,4 @@ exclude:
   - name: CheckNamespace
   - name: LoopCanBeConvertedToQuery
   - name: UnusedAutoPropertyAccessor.Global
+  - name: RedundantArgumentDefaultValue

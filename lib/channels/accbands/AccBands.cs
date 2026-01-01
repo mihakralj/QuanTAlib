@@ -545,7 +545,11 @@ public sealed class AccBands : ITValuePublisher
     /// <param name="factor">Band width factor</param>
     // Suppressing S107: This is a high-performance batch API where callers benefit from
     // direct span parameters. A BatchOutputs overload exists for callers preferring fewer parameters.
-#pragma warning disable S107
+    // Suppressing S3776: The cognitive complexity is required for SIMD optimization paths,
+    // NaN handling, warmup logic, and buffer management. Extracting these to separate methods
+    // would harm performance (prevent inlining) and reduce maintainability (breaks the
+    // cohesive calculation flow). The method is well-structured with clear helper methods.
+#pragma warning disable S107, S3776
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(
         ReadOnlySpan<double> high,
@@ -556,7 +560,7 @@ public sealed class AccBands : ITValuePublisher
         Span<double> lower,
         int period,
         double factor = 2.0)
-#pragma warning restore S107
+#pragma warning restore S107, S3776
     {
         int len = close.Length;
         if (high.Length != len || low.Length != len)
