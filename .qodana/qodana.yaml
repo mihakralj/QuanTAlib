@@ -54,6 +54,7 @@ exclude:
       - "**/results/**"
       - "**/TestResults/**"
       - "**/BenchmarkDotNet.Artifacts/**"
+      - "**/*.md"
   - name: InvalidXmlDocComment
   - name: EnforceIfStatementBraces
   - name: CheckNamespace
