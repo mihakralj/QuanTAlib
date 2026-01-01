@@ -53,6 +53,7 @@ Validated against Skender.
 
 | **Tulip** | N/A | Not implemented. |
 | **Ooples** | N/A | Not implemented. |
+
 ### Common Pitfalls
 
 1. **Overshoot**: Because it projects a trend, LSMA will overshoot significantly when the trend reverses. It assumes the trend continues.

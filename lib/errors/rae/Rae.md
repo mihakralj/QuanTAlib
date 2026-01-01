@@ -59,6 +59,10 @@ The baseline error is calculated against the rolling mean, which updates each ti
 ### Different from R²
 
 RAE and R² (coefficient of determination) are related but distinct:
+<<<<<<< HEAD
+=======
+
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
 * RAE uses absolute errors (L1 norm)
 * R² uses squared errors (L2 norm)
 * Both use mean-predictor as baseline

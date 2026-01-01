@@ -19,7 +19,13 @@ profile:
 
 #Disable inspections
 exclude:
+<<<<<<< HEAD
   - name: S3776  # Cognitive Complexity
+=======
+  - name: All
+    paths:
+      - "**/*.md"
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
 #bootstrap: sh ./prepare-qodana.sh
@@ -30,7 +36,10 @@ exclude:
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
 linter: qodana-cdnet-EAP
+<<<<<<< HEAD
 
 # Specify solution file for .NET analysis
 dotnet:
   solution: QuanTAlib.sln
+=======
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a

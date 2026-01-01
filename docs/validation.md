@@ -10,7 +10,7 @@
 | **Accumulation/Distribution Oscillator** | [Adosc](../lib/volume/adosc/adosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Adaptive Price Zone** | Apz | - | - | - | ❔ |
 | **Andrews' Pitchfork** | Apchannel | - | - | - | - |
-| **Archer Moving Averages Trends** | Amat | - | - | - | - |
+| **Archer Moving Averages Trends** | [Amat](../lib/momentum/amat/Amat.md) | - | - | ✔️ | ✔️ |
 | **Archer On-Balance Volume** | Aobv | - | - | - | - |
 | **Arnaud Legoux Moving Average** | [Alma](../lib/trends/alma/alma.md) | - | - | ✔️ | ✔️ |
 | **Aroon** | [Aroon](../lib/momentum/aroon/aroon.md) | ✔️ | ✔️ | ✔️ | - |
@@ -243,7 +243,7 @@
 | **Ulcer Index** | Ui | - | - | UlcerIndex | ❔ |
 | **Ultimate Bands** | Ubands | - | - | - | ❔ |
 | **Ultimate Channel** | Uchannel | - | - | - | - |
-| **Ultimate Oscillator** | Ultosc | ULTOSC | ultosc | Ultimate | ❔ |
+| **Ultimate Oscillator** | [Ultosc](../lib/momentum/ultosc/Ultosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | vidya | - | ❔ |
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
 | **Volatility Adjusted Moving Average** | Vama | - | - | - | ❔ |

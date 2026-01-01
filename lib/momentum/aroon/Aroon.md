@@ -66,6 +66,7 @@ Validation is performed against industry-standard libraries.
 | **Tulip** | ✅ | Matches `ti.aroon` and `ti.aroonosc`. |
 
 | **Ooples** | N/A | Not implemented. |
+
 ### Common Pitfalls
 
 * **Single Value Updates**: If you feed Aroon only `Close` prices (instead of High/Low), it degrades into a "Time Since Highest Close" metric. It works, but it loses the nuance of intraday extremes.

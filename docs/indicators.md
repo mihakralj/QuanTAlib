@@ -53,6 +53,7 @@ These measure the spread of data points around the mean.
 
 ### Momentum
 
+<<<<<<< HEAD
 * [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
 * [**ADXR**](../lib/momentum/adxr/Adxr.md) - Average Directional Movement Rating
 * [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
@@ -62,6 +63,18 @@ These measure the spread of data points around the mean.
 * [**DMX**](../lib/momentum/dmx/Dmx.md) - Jurik Directional Movement Index
 * [**RSX**](../lib/momentum/rsx/Rsx.md) - Jurik Relative Strength Quality Index
 * [**VEL**](../lib/momentum/vel/Vel.md) - Jurik Velocity
+=======
+- [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
+- [**ADXR**](../lib/momentum/adxr/Adxr.md) - Average Directional Movement Rating
+- [**AMAT**](../lib/momentum/amat/Amat.md) - Archer Moving Averages Trends
+- [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
+- [**AROON**](../lib/momentum/aroon/Aroon.md) - Aroon
+- [**AROONOSC**](../lib/momentum/aroonosc/AroonOsc.md) - Aroon Oscillator
+- [**CFB**](../lib/momentum/cfb/Cfb.md) - Jurik Composite Fractal Behavior
+- [**DMX**](../lib/momentum/dmx/Dmx.md) - Jurik Directional Movement Index
+- [**RSX**](../lib/momentum/rsx/Rsx.md) - Jurik Relative Strength Quality Index
+- [**VEL**](../lib/momentum/vel/Vel.md) - Jurik Velocity
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
 
 ### Trends
 

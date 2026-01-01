@@ -40,6 +40,7 @@
   * [VIDYA - Variable Index Dynamic Average](../lib/trends/vidya/Vidya.md)
   * [WMA - Weighted MA](../lib/trends/wma/Wma.md)
 
+<<<<<<< HEAD
 * **Momentum**
   * [Overview](../lib/momentum/_index.md)
   * [ADX - Average Directional Index](../lib/momentum/adx/Adx.md)
@@ -55,6 +56,24 @@
   * [RSI - Relative Strength Index](../lib/momentum/rsi/Rsi.md)
   * [RSX - Jurik Relative Strength X](../lib/momentum/rsx/Rsx.md)
   * [VEL - Jurik Velocity](../lib/momentum/vel/Vel.md)
+=======
+- **Momentum**
+  - [Overview](../lib/momentum/_index.md)
+  - [ADX - Average Directional Index](../lib/momentum/adx/Adx.md)
+  - [AMAT - Archer Moving Averages Trends](../lib/momentum/amat/Amat.md)
+  - [ADXR - Average Directional Movement Rating](../lib/momentum/adxr/Adxr.md)
+  - [AO - Awesome Oscillator](../lib/momentum/ao/Ao.md)
+  - [APO - Absolute Price Oscillator](../lib/momentum/apo/Apo.md)
+  - [AROON - Aroon](../lib/momentum/aroon/Aroon.md)
+  - [AROONOSC - Aroon Oscillator](../lib/momentum/aroonosc/AroonOsc.md)
+  - [BOP - Balance of Power](../lib/momentum/bop/Bop.md)
+  - [CFB - Jurik Composite Fractal Behavior](../lib/momentum/cfb/Cfb.md)
+  - [DMX - Jurik Directional Movement Index](../lib/momentum/dmx/Dmx.md)
+  - [MACD - Moving Average Convergence Divergence](../lib/momentum/macd/Macd.md)
+  - [RSI - Relative Strength Index](../lib/momentum/rsi/Rsi.md)
+  - [RSX - Jurik Relative Strength X](../lib/momentum/rsx/Rsx.md)
+  - [VEL - Jurik Velocity](../lib/momentum/vel/Vel.md)
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
 
 * **Volatility**
   * [Overview](../lib/volatility/_index.md)

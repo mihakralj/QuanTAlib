@@ -12,7 +12,7 @@ WMAPE emerged from retail and supply chain forecasting where aggregate accuracy 
 
 WMAPE accumulates both absolute errors and actual values, then computes their ratio. This approach means larger actual values contribute proportionally more to the final metric, providing a volume-weighted view of accuracy.
 
-### Properties
+### Characteristics
 
 * **Volume-weighted**: High-value items contribute more to the metric
 * **Scale-independent**: Result is always a percentage

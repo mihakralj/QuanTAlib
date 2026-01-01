@@ -51,6 +51,7 @@ Validated against Skender and Ooples.
 | **TA-Lib** | N/A | Not implemented |
 
 | **Tulip** | N/A | Not implemented. |
+
 ### Common Pitfalls
 
 1. **Not an EMA**: Do not treat it like an EMA. It does not have a fixed alpha.
