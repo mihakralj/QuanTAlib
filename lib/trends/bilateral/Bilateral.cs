@@ -31,7 +31,6 @@ public sealed class Bilateral : AbstractBase
     private record struct State(double SumSq, double LastValidValue);
     private State _state;
     private State _p_state;
-    private readonly TValuePublishedHandler _handler;
 
     /// <summary>
     /// Creates a Bilateral Filter with specified parameters.
@@ -50,7 +49,6 @@ public sealed class Bilateral : AbstractBase
         _buffer = new RingBuffer(period);
         Name = $"Bilateral({period}, {sigmaSRatio:F2}, {sigmaRMult:F2})";
         WarmupPeriod = period;
-        _handler = Handle;
 
         _spatialWeights = new double[period];
         PrecalculateSpatialWeights();
@@ -59,7 +57,7 @@ public sealed class Bilateral : AbstractBase
     public Bilateral(ITValuePublisher source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
         : this(period, sigmaSRatio, sigmaRMult)
     {
-        source.Pub += _handler;
+        source.Pub += Handle;
     }
 
     public override bool IsHot => _buffer.IsFull;
@@ -142,6 +140,25 @@ public sealed class Bilateral : AbstractBase
         return new TSeries(t, v);
     }
 
+    /// <summary>
+    /// Updates the indicator with a new value.
+    /// </summary>
+    /// <param name="input">The input value with timestamp.</param>
+    /// <param name="isNew">True for a new bar, false to update the current bar (intra-bar correction).</param>
+    /// <returns>The calculated bilateral filter value.</returns>
+    /// <remarks>
+    /// <para>
+    /// <b>Bar Correction Limitation:</b> For windowed indicators like Bilateral, the isNew=false
+    /// behavior only corrects the most recent value in the buffer. It does NOT restore the full
+    /// buffer state from before the last isNew=true call. This means multiple consecutive
+    /// isNew=false calls work correctly, but the correction is limited to the current bar only.
+    /// </para>
+    /// <para>
+    /// For scalar-state indicators (EMA, SMA running sum), full state rollback is possible.
+    /// For buffer-based indicators, consider using Batch/Calculate methods for historical
+    /// recalculation if perfect state restoration is required.
+    /// </para>
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -212,7 +229,9 @@ public sealed class Bilateral : AbstractBase
 
         // Variance = (SumSq - (Sum*Sum)/N) / N
         // Use Math.Max(0, ...) to handle potential floating point negative zero
-        double variance = Math.Max(0, (_state.SumSq - (sum * sum) / count) / count);
+        // Pre-compute inverse for efficiency
+        double invCount = 1.0 / count;
+        double variance = Math.Max(0, (_state.SumSq - sum * sum * invCount) * invCount);
         double stdev = Math.Sqrt(variance);
 
         double sigmaR = Math.Max(stdev * _sigmaRMult, 1e-10);
@@ -276,6 +295,19 @@ public sealed class Bilateral : AbstractBase
         Last = default;
     }
 
+    /// <summary>
+    /// Calculates bilateral filter values for a TSeries and returns both results and a primed indicator.
+    /// </summary>
+    public static (TSeries Results, Bilateral Indicator) Calculate(TSeries source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
+    {
+        var indicator = new Bilateral(period, sigmaSRatio, sigmaRMult);
+        var results = indicator.Update(source);
+        return (results, indicator);
+    }
+
+    /// <summary>
+    /// Calculates bilateral filter values using spans (zero allocation in hot path).
+    /// </summary>
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
     {
         if (period <= 0)
@@ -349,7 +381,8 @@ public sealed class Bilateral : AbstractBase
             if (count < period) count++;
 
             // Calculate StDev
-            double variance = Math.Max(0, (sumSq - (sum * sum) / count) / count);
+            double invCount = 1.0 / count;
+            double variance = Math.Max(0, (sumSq - sum * sum * invCount) * invCount);
             double stdev = Math.Sqrt(variance);
 
             double sigmaR = Math.Max(stdev * sigmaRMult, 1e-10);
@@ -379,5 +412,22 @@ public sealed class Bilateral : AbstractBase
 
             destination[i] = sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
         }
+    }
+
+    /// <summary>
+    /// Batch calculates bilateral filter values for a TSeries.
+    /// </summary>
+    public static TSeries Batch(TSeries source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
+    {
+        var indicator = new Bilateral(period, sigmaSRatio, sigmaRMult);
+        return indicator.Update(source);
+    }
+
+    /// <summary>
+    /// Batch calculates bilateral filter values using spans (zero allocation in hot path).
+    /// </summary>
+    public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
+    {
+        Calculate(source, destination, period, sigmaSRatio, sigmaRMult);
     }
 }

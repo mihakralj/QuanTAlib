@@ -6,6 +6,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | :--- | :--- | :--- |
 | AC | Acceleration Oscillator | |
 | [ADX](adx/Adx.md) | Average Directional Index | Quantifies trend intensity by smoothing the expansion of daily ranges, independent of direction. |
+| [AMAT](amat/Amat.md) | Archer Moving Averages Trends | Identifies trend direction and strength using dual EMAs with slope confirmation. |
 | [ADXR](adxr/Adxr.md) | Average Directional Movement Rating | Quantifies the change in momentum of the ADX by averaging current and historical values. |
 | [AO](ao/Ao.md) | Awesome Oscillator | Measures immediate velocity vs. broader trend using the difference between fast and slow median-price SMAs. |
 | [APO](apo/Apo.md) | Absolute Price Oscillator | Measures the absolute difference between two moving averages (Fast EMA - Slow EMA). |
@@ -43,7 +44,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | STOCHRSI | Stochastic RSI | |
 | TRIX | Triple Exponential Average | |
 | TSI | True Strength Index | |
-| ULTOSC | Ultimate Oscillator | |
+| [ULTOSC](ultosc/Ultosc.md) | Ultimate Oscillator | Combines three time frames with weighted averages to reduce volatility and false signals. |
 | [VEL](vel/Vel.md) | Jurik Velocity | Measures market "acceleration" by comparing parabolic vs. linear weighting schemes. |
 | VORTEX | Vortex Indicator | |
 | WILLR | Williams %R | |

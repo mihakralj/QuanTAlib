@@ -55,6 +55,7 @@ These measure the spread of data points around the mean.
 
 - [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
 - [**ADXR**](../lib/momentum/adxr/Adxr.md) - Average Directional Movement Rating
+- [**AMAT**](../lib/momentum/amat/Amat.md) - Archer Moving Averages Trends
 - [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
 - [**AROON**](../lib/momentum/aroon/Aroon.md) - Aroon
 - [**AROONOSC**](../lib/momentum/aroonosc/AroonOsc.md) - Aroon Oscillator

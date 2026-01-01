@@ -1,18 +1,19 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using QuanTAlib;
 
 namespace QuanTAlib;
 
-public sealed class Blma : AbstractBase, IDisposable
+/// <summary>
+/// BLMA: Blackman Moving Average
+/// A weighted moving average using the Blackman window function for smoother transitions.
+/// </summary>
+[SkipLocalsInit]
+public sealed class Blma : AbstractBase
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly double[] _weights;
     private readonly double _weightSum;
-    private readonly TValuePublishedHandler _handler;
-    private ITValuePublisher? _publisher;
-    private bool _hasLast;
 
     public override bool IsHot => _buffer.Count >= _period;
 
@@ -31,24 +32,14 @@ public sealed class Blma : AbstractBase, IDisposable
 
         // Pre-calculate weights for the full period
         _weightSum = CalculateWeights(period, _weights);
-        _handler = Handle;
     }
 
     public Blma(ITValuePublisher source, int period) : this(period)
     {
-        _publisher = source;
-        source.Pub += _handler;
+        source.Pub += Handle;
     }
 
-    public void Dispose()
-    {
-        if (_publisher != null)
-        {
-            _publisher.Pub -= _handler;
-            _publisher = null;
-        }
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs args)
     {
         Update(args.Value, args.IsNew);
@@ -57,7 +48,7 @@ public sealed class Blma : AbstractBase, IDisposable
     public override void Reset()
     {
         _buffer.Clear();
-        _hasLast = false;
+        Last = default;
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -81,12 +72,14 @@ public sealed class Blma : AbstractBase, IDisposable
 
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
+        // Handle NaN/Infinity - return last result without changing state
+        double val = input.Value;
+        if (!double.IsFinite(val))
         {
-            return _hasLast ? Last : default;
+            return Last;
         }
 
-        _buffer.Add(input.Value, isNew);
+        _buffer.Add(val, isNew);
 
         double result;
         if (_buffer.Count < _period)
@@ -95,31 +88,29 @@ public sealed class Blma : AbstractBase, IDisposable
             int count = _buffer.Count;
             if (count == 1)
             {
-                result = input.Value;
+                result = val;
             }
             else
             {
                 Span<double> currentWeights = stackalloc double[count];
                 double currentWeightSum = CalculateWeights(count, currentWeights);
-
-                // Fallback for cases where weights sum to zero (e.g. N=2)
-                result = Math.Abs(currentWeightSum) < double.Epsilon
-                    ? _buffer.Average()
-                    : CalculateWeightedSum(_buffer, currentWeights) / currentWeightSum;
+                result = ComputeWeightedAverage(
+                    currentWeightSum,
+                    CalculateWeightedSum(_buffer, currentWeights),
+                    _buffer.Average());
             }
         }
         else
         {
             // Full period, use pre-calculated weights
-            // Fallback for cases where weights sum to zero (e.g. N=2)
-            result = Math.Abs(_weightSum) < double.Epsilon
-                ? _buffer.Average()
-                : CalculateWeightedSum(_buffer, _weights) / _weightSum;
+            result = ComputeWeightedAverage(
+                _weightSum,
+                CalculateWeightedSum(_buffer, _weights),
+                _buffer.Average());
         }
 
         var tValue = new TValue(input.Time, result);
         Last = tValue;
-        _hasLast = true;
         PubEvent(tValue, isNew);
         return tValue;
     }
@@ -145,6 +136,15 @@ public sealed class Blma : AbstractBase, IDisposable
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Computes weighted average with fallback for zero weight sum.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double ComputeWeightedAverage(double weightSum, double weightedSum, double fallbackAverage)
+    {
+        return Math.Abs(weightSum) < double.Epsilon ? fallbackAverage : weightedSum / weightSum;
     }
 
     private static double CalculateWeights(int n, Span<double> weights)
@@ -176,6 +176,7 @@ public sealed class Blma : AbstractBase, IDisposable
         return totalWeight;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateWeightedSum(RingBuffer buffer, ReadOnlySpan<double> weights)
     {
         int start = buffer.StartIndex;
@@ -196,6 +197,19 @@ public sealed class Blma : AbstractBase, IDisposable
         return sum1 + sum2;
     }
 
+    /// <summary>
+    /// Calculates BLMA values for a TSeries and returns both results and a primed indicator.
+    /// </summary>
+    public static (TSeries Results, Blma Indicator) Calculate(TSeries source, int period)
+    {
+        var indicator = new Blma(period);
+        var results = indicator.Update(source);
+        return (results, indicator);
+    }
+
+    /// <summary>
+    /// Calculates BLMA values using spans (high-performance batch API).
+    /// </summary>
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period)
     {
         if (period < 1)
@@ -215,8 +229,29 @@ public sealed class Blma : AbstractBase, IDisposable
         // Buffer for warmup weights to avoid stackalloc in loop
         Span<double> warmupWeightsBuffer = period <= 256 ? stackalloc double[period] : new double[period];
 
+        // Handle NaN via last-valid-value substitution
+        double lastValid = double.NaN;
         for (int i = 0; i < source.Length; i++)
         {
+            if (double.IsFinite(source[i]))
+            {
+                lastValid = source[i];
+                break;
+            }
+        }
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            double val = source[i];
+            if (!double.IsFinite(val))
+            {
+                val = double.IsNaN(lastValid) ? 0 : lastValid;
+            }
+            else
+            {
+                lastValid = val;
+            }
+
             int count = Math.Min(i + 1, period);
 
             if (count < period)
@@ -224,49 +259,69 @@ public sealed class Blma : AbstractBase, IDisposable
                 // Warmup: dynamic weights
                 if (count == 1)
                 {
-                    destination[i] = source[i];
+                    destination[i] = val;
                 }
                 else
                 {
                     Span<double> currentWeights = warmupWeightsBuffer.Slice(0, count);
                     double currentWeightSum = CalculateWeights(count, currentWeights);
 
-                    if (Math.Abs(currentWeightSum) < double.Epsilon)
+                    double sum = 0;
+                    for (int j = 0; j < count; j++)
                     {
-                        // Fallback for zero sum weights (e.g. N=2)
-                        double sum = 0;
-                        for (int j = 0; j < count; j++)
-                        {
-                            sum += source[i - count + 1 + j];
-                        }
-                        destination[i] = sum / count;
+                        int srcIdx = i - count + 1 + j;
+                        double srcVal = source[srcIdx];
+                        if (!double.IsFinite(srcVal)) srcVal = lastValid;
+                        sum += srcVal * currentWeights[j];
                     }
-                    else
+
+                    double avg = 0;
+                    for (int j = 0; j < count; j++)
                     {
-                        double sum = source.Slice(i - count + 1, count).DotProduct(currentWeights);
-                        destination[i] = sum / currentWeightSum;
+                        int srcIdx = i - count + 1 + j;
+                        double srcVal = source[srcIdx];
+                        if (!double.IsFinite(srcVal)) srcVal = lastValid;
+                        avg += srcVal;
                     }
+                    avg /= count;
+
+                    destination[i] = ComputeWeightedAverage(currentWeightSum, sum, avg);
                 }
             }
             else
             {
                 // Full period
-                if (Math.Abs(weightSum) < double.Epsilon)
+                double sum = 0;
+                double avg = 0;
+                for (int j = 0; j < period; j++)
                 {
-                    // Fallback for zero sum weights (e.g. N=2)
-                    double sum = 0;
-                    for (int j = 0; j < period; j++)
-                    {
-                        sum += source[i - period + 1 + j];
-                    }
-                    destination[i] = sum / period;
+                    int srcIdx = i - period + 1 + j;
+                    double srcVal = source[srcIdx];
+                    if (!double.IsFinite(srcVal)) srcVal = lastValid;
+                    sum += srcVal * weights[j];
+                    avg += srcVal;
                 }
-                else
-                {
-                    double sum = source.Slice(i - period + 1, period).DotProduct(weights);
-                    destination[i] = sum / weightSum;
-                }
+                avg /= period;
+
+                destination[i] = ComputeWeightedAverage(weightSum, sum, avg);
             }
         }
+    }
+
+    /// <summary>
+    /// Batch calculates BLMA values for a TSeries.
+    /// </summary>
+    public static TSeries Batch(TSeries source, int period)
+    {
+        var indicator = new Blma(period);
+        return indicator.Update(source);
+    }
+
+    /// <summary>
+    /// Batch calculates BLMA values using spans.
+    /// </summary>
+    public static void Batch(ReadOnlySpan<double> source, Span<double> destination, int period)
+    {
+        Calculate(source, destination, period);
     }
 }

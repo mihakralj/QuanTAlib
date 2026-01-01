@@ -54,6 +54,12 @@
     <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\*.Validation.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
+    <!-- Include Quantower adapter implementations -->
+    <Compile Include="Momentum\*.cs" Exclude="Momentum\*.Tests.cs" />
+    <Compile Include="Volume\*.cs" Exclude="Volume\*.Tests.cs" />
+    <Compile Include="Statistics\*.cs" Exclude="Statistics\*.Tests.cs" />
+    <Compile Include="Volatility\*.cs" Exclude="Volatility\*.Tests.cs" />
+    <Compile Include="Trends\*.cs" Exclude="Trends\*.Tests.cs" />
   </ItemGroup>
 
 </Project>

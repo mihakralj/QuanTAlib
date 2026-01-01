@@ -32,7 +32,7 @@
 | [AFIRMA](trends/afirma/Afirma.md) | Autoregressive FIR MA | Trends |
 | ALLIGATOR | Williams Alligator | Trends |
 | [ALMA](trends/alma/Alma.md) | Arnaud Legoux MA | Trends |
-| AMAT | Archer Moving Averages Trends | Trends |
+| [AMAT](momentum/amat/Amat.md) | Archer Moving Averages Trends | Momentum |
 | [AO](momentum/ao/Ao.md) | Awesome Oscillator | Momentum |
 | AOBV | Archer On-Balance Volume | Volume |
 | APCHANNEL | Andrews' Pitchfork | Channels |

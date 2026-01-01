@@ -43,6 +43,7 @@
 - **Momentum**
   - [Overview](../lib/momentum/_index.md)
   - [ADX - Average Directional Index](../lib/momentum/adx/Adx.md)
+  - [AMAT - Archer Moving Averages Trends](../lib/momentum/amat/Amat.md)
   - [ADXR - Average Directional Movement Rating](../lib/momentum/adxr/Adxr.md)
   - [AO - Awesome Oscillator](../lib/momentum/ao/Ao.md)
   - [APO - Absolute Price Oscillator](../lib/momentum/apo/Apo.md)
