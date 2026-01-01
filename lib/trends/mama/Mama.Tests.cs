@@ -261,6 +261,50 @@ public class MamaTests
     }
 
     [Fact]
+    public void Calculate_Span_InvalidParameters_ThrowsArgumentOutOfRangeException()
+    {
+        var data = new double[10];
+        var output = new double[10];
+
+        // fastLimit <= 0
+        var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, fastLimit: 0.0));
+        Assert.Equal("fastLimit", ex1.ParamName);
+
+        var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, fastLimit: -0.1));
+        Assert.Equal("fastLimit", ex2.ParamName);
+
+        // slowLimit <= 0
+        var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, slowLimit: 0.0));
+        Assert.Equal("slowLimit", ex3.ParamName);
+
+        var ex4 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, slowLimit: -0.1));
+        Assert.Equal("slowLimit", ex4.ParamName);
+
+        // fastLimit > 1
+        var ex5 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, fastLimit: 1.1));
+        Assert.Equal("fastLimit", ex5.ParamName);
+
+        // slowLimit > 1
+        var ex6 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, slowLimit: 1.1));
+        Assert.Equal("slowLimit", ex6.ParamName);
+
+        // fastLimit <= slowLimit
+        var ex7 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, fastLimit: 0.05, slowLimit: 0.5));
+        Assert.Equal("fastLimit", ex7.ParamName);
+
+        var ex8 = Assert.Throws<ArgumentOutOfRangeException>(() => 
+            Mama.Calculate(data, output, fastLimit: 0.5, slowLimit: 0.5));
+        Assert.Equal("fastLimit", ex8.ParamName);
+    }
+
+    [Fact]
     public void Prime_PreloadsState()
     {
         var data = new double[60];

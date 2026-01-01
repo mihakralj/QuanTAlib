@@ -196,8 +196,10 @@ public sealed class Blma : AbstractBase, IDisposable
         return sum1 + sum2;
     }
 
+#pragma warning disable S3776 // Cognitive Complexity: necessary for SIMD optimization and edge case handling
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period)
     {
+#pragma warning restore S3776
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");

@@ -201,7 +201,7 @@ public sealed class T3 : AbstractBase, IDisposable
         double val = GetValidValue(input.Value);
         val = Compute(val, _params, ref _state);
         Last = new TValue(input.Time, val);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 

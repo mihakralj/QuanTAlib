@@ -282,6 +282,27 @@ public sealed class Mama : AbstractBase
 
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double fastLimit = 0.5, double slowLimit = 0.05, Span<double> famaOutput = default)
     {
+        if (fastLimit <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fastLimit), "FastLimit must be > 0");
+        }
+        if (slowLimit <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slowLimit), "SlowLimit must be > 0");
+        }
+        if (fastLimit > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fastLimit), "FastLimit must be <= 1");
+        }
+        if (slowLimit > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slowLimit), "SlowLimit must be <= 1");
+        }
+        if (fastLimit <= slowLimit)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fastLimit), "FastLimit must be > SlowLimit");
+        }
+
         if (source.Length == 0) return;
         if (output.Length < source.Length)
         {

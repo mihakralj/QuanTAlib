@@ -79,26 +79,39 @@ jobs:
           name: sarif-reports
           path: sarif-reports/
 
-      - name: Run Tests
+      - name: Run Tests with Coverage
         run: |
           dotnet test --no-build --configuration Debug \
             --collect:"XPlat Code Coverage" \
             --results-directory:./TestResults \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
 
       - name: Collect Coverage Files
         run: |
           mkdir -p coverage
+          # Collect opencover format (for SonarCloud)
           count=1
           find TestResults -name "coverage.opencover.xml" | while read file; do
             cp "$file" "coverage/coverage_${count}.opencover.xml"
             count=$((count+1))
           done
+          # Collect cobertura format (for Codacy and Qodana)
+          count=1
+          find TestResults -name "coverage.cobertura.xml" | while read file; do
+            cp "$file" "coverage/coverage_${count}.cobertura.xml"
+            count=$((count+1))
+          done
 
-      - name: Debug Coverage Paths
+      - name: Debug Coverage Files
         run: |
-          echo "=== Coverage file paths ==="
-          grep -h "fullPath=" coverage/*.xml | head -20 || true
+          echo "=== Coverage files generated ==="
+          ls -la coverage/
+          echo ""
+          echo "=== Sample paths from opencover ==="
+          grep -h "fullPath=" coverage/*.opencover.xml 2>/dev/null | head -5 || true
+          echo ""
+          echo "=== Sample paths from cobertura ==="
+          grep -h "filename=" coverage/*.cobertura.xml 2>/dev/null | head -5 || true
 
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -171,7 +184,7 @@ jobs:
           dotnet sonarscanner begin /k:mihakralj_QuanTAlib /o:mihakralj-quantalib \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.opencover.xml" \
             /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
             /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
@@ -204,13 +217,16 @@ jobs:
           name: coverage-reports
           path: .qodana/code-coverage
 
-      - name: Debug Coverage Paths
+      - name: Prepare Coverage for Qodana
         run: |
-          echo "=== Coverage XML paths sample ==="
-          grep -h 'fullPath=' .qodana/code-coverage/*.xml | head -10
+          echo "=== Coverage files available ==="
+          ls -la .qodana/code-coverage/
           echo ""
-          echo "=== Project structure ==="
-          find . -name "*.cs" -type f | grep -E "lib/|quantower/" | head -10
+          # Qodana prefers cobertura format - keep only those
+          mkdir -p .qodana/coverage
+          cp .qodana/code-coverage/*.cobertura.xml .qodana/coverage/ 2>/dev/null || true
+          echo "=== Files for Qodana ==="
+          ls -la .qodana/coverage/
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2025.3
@@ -218,7 +234,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --coverage-dir,.qodana/code-coverage,--fail-threshold,999999
+          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/coverage,--fail-threshold,999999
 
       - name: Upload Qodana SARIF Artifacts
         if: always()
@@ -308,13 +324,15 @@ jobs:
           # Download the reporter script
           curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
           chmod +x codacy.sh
-          
-          # Upload each file
-          for file in coverage/*.xml; do
-            echo "Uploading $file..."
-            ./codacy.sh report -r "$file" --partial
+
+          # Upload cobertura files (preferred format for Codacy)
+          for file in coverage/*.cobertura.xml; do
+            if [ -f "$file" ]; then
+              echo "Uploading $file..."
+              ./codacy.sh report -r "$file" --partial
+            fi
           done
-          
+
           # Finalize
           ./codacy.sh final
         continue-on-error: true
