@@ -67,12 +67,12 @@ if (result.IsHot)
 
 QuanTAlib is designed for speed. Here is how it compares calculating a 500,000 bar SMA against other libraries:
 
-| Library              | Mean Time    | Allocations | Relative Speed       |
-|----------------------|--------------|-------------|----------------------|
-| **QuanTAlib (Span)** | **318.3 μs** | **0 B**     | **1.00x (baseline)** |
-| TA-Lib               | 356.4 μs     | 34 B        | 1.12x slower         |
-| Tulip Indicators     | 359.3 μs     | 0 B         | 1.13x slower         |
-| Skender Indicators   | 71,277 μs    | 50.8 MB     | 224x slower          |
+| Library | Mean Time | Allocations | Relative Speed |
+| ------- | --------- | ----------- | -------------- |
+| **QuanTAlib (Span)** | **318.3 μs** | **0 B** | **1.00x (baseline)** |
+| TA-Lib | 356.4 μs | 34 B | 1.12x slower |
+| Tulip Indicators | 359.3 μs | 0 B | 1.13x slower |
+| Skender Indicators | 71,277 μs | 50.8 MB | 224x slower |
 
 *See [Benchmarks](benchmarks.md) for full details and methodology.*
 
