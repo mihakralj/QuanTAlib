@@ -12,17 +12,17 @@ $$\text{MPE} = \frac{100}{n} \sum_{i=1}^{n} \frac{(\text{actual}_i - \text{predi
 
 The sign preservation makes MPE invaluable for bias detection:
 
-- **Positive MPE**: Model systematically under-predicts (actual > predicted)
-- **Negative MPE**: Model systematically over-predicts (actual < predicted)
-- **MPE near zero**: No systematic bias (though individual errors may be large)
+* **Positive MPE**: Model systematically under-predicts (actual > predicted)
+* **Negative MPE**: Model systematically over-predicts (actual < predicted)
+* **MPE near zero**: No systematic bias (though individual errors may be large)
 
 ### Bias Detection
 
 Consider a weather forecasting model:
 
-- If MPE = +15%, the model consistently predicts temperatures 15% lower than actual
-- If MPE = -10%, the model consistently predicts temperatures 10% higher than actual
-- If MPE ≈ 0% but MAPE = 20%, errors cancel out (no bias) but magnitude is still significant
+* If MPE = +15%, the model consistently predicts temperatures 15% lower than actual
+* If MPE = -10%, the model consistently predicts temperatures 10% higher than actual
+* If MPE ≈ 0% but MAPE = 20%, errors cancel out (no bias) but magnitude is still significant
 
 ## Mathematical Foundation
 
@@ -122,20 +122,20 @@ Errors of opposite signs cancel out. A model alternating between +50% and -50% e
 
 **Solution**: Use MPE alongside MAPE:
 
-- Low MAPE + Low |MPE|: Good model
-- Low MAPE + High |MPE|: Unlikely (mathematically constrained)
-- High MAPE + Low |MPE|: High variance, no bias
-- High MAPE + High |MPE|: High variance with bias
+* Low MAPE + Low |MPE|: Good model
+* Low MAPE + High |MPE|: Unlikely (mathematically constrained)
+* High MAPE + Low |MPE|: High variance, no bias
+* High MAPE + High |MPE|: High variance with bias
 
 ### 3. Asymmetric Bounds
 
 Unlike MAPE (bounded at 0% to ∞), MPE can range from -∞ to +100%:
 
-- Maximum positive: actual = 100, predicted = 0 → MPE = +100%
-- No upper bound on negative: actual = 100, predicted = 1000 → MPE = -900%
+* Maximum positive: actual = 100, predicted = 0 → MPE = +100%
+* No upper bound on negative: actual = 100, predicted = 1000 → MPE = -900%
 
 ## See Also
 
-- [MAPE](../mape/Mape.md) - Unsigned percentage error for magnitude
-- [ME](../me/Me.md) - Signed absolute error for absolute bias
-- [MAE](../mae/Mae.md) - Unsigned absolute error for magnitude
+* [MAPE](../mape/Mape.md) - Unsigned percentage error for magnitude
+* [ME](../me/Me.md) - Signed absolute error for absolute bias
+* [MAE](../mae/Mae.md) - Unsigned absolute error for magnitude

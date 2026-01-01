@@ -4,18 +4,18 @@
 
 ## Key Features
 
-- **Historical Data Loading**: Reads standard OHLCV CSV files.
-- **Chronological Ordering**: Automatically reverses data if needed (assumes newest-first in file, provides oldest-first).
-- **Streaming Interface**: Implements `IFeed` for consistent usage with other feed types.
-- **Batch Retrieval**: Supports fetching specific time ranges via `Fetch()`.
+* **Historical Data Loading**: Reads standard OHLCV CSV files.
+* **Chronological Ordering**: Automatically reverses data if needed (assumes newest-first in file, provides oldest-first).
+* **Streaming Interface**: Implements `IFeed` for consistent usage with other feed types.
+* **Batch Retrieval**: Supports fetching specific time ranges via `Fetch()`.
 
 ## CSV Format Requirements
 
 The file must have a header row and follow this column order:
 `timestamp, open, high, low, close, volume`
 
-- **Timestamp**: `YYYY-MM-DD` (assumed UTC midnight)
-- **Prices/Volume**: Numeric values
+* **Timestamp**: `YYYY-MM-DD` (assumed UTC midnight)
+* **Prices/Volume**: Numeric values
 
 Example:
 

@@ -68,5 +68,5 @@ Validation is performed by verifying the mathematical relationship between VEL, 
 
 ### Common Pitfalls
 
-- **Not Normalized**: Unlike RSI or Stochastic, VEL is not bounded. It can go to +Infinity or -Infinity. You cannot use fixed overbought/oversold levels (e.g., +80/-80) across different assets or timeframes.
-- **Zero Cross**: The zero line is the most important level. Crossing zero indicates a shift in momentum direction.
+* **Not Normalized**: Unlike RSI or Stochastic, VEL is not bounded. It can go to +Infinity or -Infinity. You cannot use fixed overbought/oversold levels (e.g., +80/-80) across different assets or timeframes.
+* **Zero Cross**: The zero line is the most important level. Crossing zero indicates a shift in momentum direction.

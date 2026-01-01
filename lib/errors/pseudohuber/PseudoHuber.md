@@ -14,10 +14,10 @@ Pseudo-Huber uses the formula δ²(√(1 + (x/δ)²) - 1), which smoothly interp
 
 ### Properties
 
-- **Smooth everywhere**: Infinitely differentiable (unlike Huber's kink)
-- **Non-negative**: Always ≥ 0, with 0 for perfect prediction
-- **Robust**: Large errors grow linearly, not quadratically
-- **Tunable**: δ (delta) controls the L2-to-L1 transition point
+* **Smooth everywhere**: Infinitely differentiable (unlike Huber's kink)
+* **Non-negative**: Always ≥ 0, with 0 for perfect prediction
+* **Robust**: Large errors grow linearly, not quadratically
+* **Tunable**: δ (delta) controls the L2-to-L1 transition point
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ For each error, compute:
 $$L_\delta(e) = \delta^2 \left(\sqrt{1 + \left(\frac{e}{\delta}\right)^2} - 1\right)$$
 
 Where:
-- $e = y - \hat{y}$ = prediction error
-- $\delta$ = tuning parameter (transition width)
+* $e = y - \hat{y}$ = prediction error
+* $\delta$ = tuning parameter (transition width)
 
 ### 2. Asymptotic Behavior
 
@@ -46,8 +46,8 @@ $$L_\delta(e) \approx \delta|e| - \delta^2$$
 $$\frac{dL}{de} = \frac{e}{\sqrt{1 + (e/\delta)^2}}$$
 
 This approaches:
-- e for small errors (like L2)
-- δ·sign(e) for large errors (like L1)
+* e for small errors (like L2)
+* δ·sign(e) for large errors (like L1)
 
 ### 4. Running Update (O(1))
 
@@ -142,15 +142,15 @@ Pseudo-Huber produces slightly smaller values but follows the same qualitative b
 
 ## Edge Cases
 
-- **Perfect Predictions**: Returns exactly 0
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **δ = 0**: Invalid (division by zero)
-- **Large Errors**: Numerically stable (no overflow)
+* **Perfect Predictions**: Returns exactly 0
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **δ = 0**: Invalid (division by zero)
+* **Large Errors**: Numerically stable (no overflow)
 
 ## Related Indicators
 
-- [Huber](../huber/Huber.md) - Huber Loss (piecewise, with kink)
-- [LogCosh](../logcosh/LogCosh.md) - Log-Cosh Loss (different smooth approximation)
-- [MAE](../mae/Mae.md) - Mean Absolute Error (pure L1)
-- [MSE](../mse/Mse.md) - Mean Squared Error (pure L2)
+* [Huber](../huber/Huber.md) - Huber Loss (piecewise, with kink)
+* [LogCosh](../logcosh/LogCosh.md) - Log-Cosh Loss (different smooth approximation)
+* [MAE](../mae/Mae.md) - Mean Absolute Error (pure L1)
+* [MSE](../mse/Mse.md) - Mean Squared Error (pure L2)

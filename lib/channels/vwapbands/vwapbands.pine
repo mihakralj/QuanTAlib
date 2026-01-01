@@ -1,0 +1,92 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("VWAP Bands (VWAPBANDS)", "VWAPBANDS", overlay=true)
+
+//@function Calculates VWAP Bands with standard deviation bands
+//@param src Source price series (typically hlc3)
+//@param vol Volume series
+//@param reset_condition Condition to reset VWAP calculation
+//@param multiplier Standard deviation multiplier for bands
+//@returns [vwap_value, upper_band1, lower_band1, upper_band2, lower_band2, stdev] VWAP and band values
+//@optimized for performance and dirty data
+vwapbands(series float src, series float vol, series bool reset_condition, series float multiplier) =>
+    var float sum_pv = 0.0, var float sum_vol = 0.0, var float sum_pv2 = 0.0, var int count = 0
+    float current_price = nz(src), float current_vol = nz(vol, 0.0)
+    if reset_condition
+        if current_vol > 0.0
+            sum_pv := current_price * current_vol
+            sum_vol := current_vol
+            sum_pv2 := current_price * current_price * current_vol
+            count := 1
+        else
+            sum_pv := 0.0, sum_vol := 0.0, sum_pv2 := 0.0, count := 0
+    else
+        if current_vol > 0.0
+            sum_pv += current_price * current_vol
+            sum_vol += current_vol
+            sum_pv2 += current_price * current_price * current_vol
+            count += 1
+    float vwap_val = sum_vol > 0.0 ? sum_pv / sum_vol : src
+    float variance = 0.0
+    if sum_vol > 0.0 and count > 1
+        mean_p2 = sum_pv2 / sum_vol
+        vwap_squared = vwap_val * vwap_val
+        variance := math.max(0.0, mean_p2 - vwap_squared)
+    float stdev = math.sqrt(variance)
+    float upper1 = vwap_val + multiplier * stdev
+    float lower1 = vwap_val - multiplier * stdev
+    float upper2 = vwap_val + 2.0 * multiplier * stdev
+    float lower2 = vwap_val - 2.0 * multiplier * stdev
+    [vwap_val, upper1, lower1, upper2, lower2, stdev]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(hlc3, "Source")
+i_session_type = input.string("1D", "Session Reset", options=["1m", "2m", "3m", "5m", "10m", "15m", "30m", "45m", "1H", "2H", "3H", "4H", "1D", "1W", "1M", "3M", "6M", "12M", "Never"])
+i_multiplier = input.float(1.0, "Standard Deviation Multiplier", minval=0.1, step=0.1)
+i_show_bands2 = input.bool(true, "Show 2nd Standard Deviation Bands")
+
+// Calculate reset condition
+reset_condition = switch i_session_type
+    "1m" => ta.change(time("1")) != 0
+    "2m" => ta.change(time("2")) != 0
+    "3m" => ta.change(time("3")) != 0
+    "5m" => ta.change(time("5")) != 0
+    "10m" => ta.change(time("10")) != 0
+    "15m" => ta.change(time("15")) != 0
+    "30m" => ta.change(time("30")) != 0
+    "45m" => ta.change(time("45")) != 0
+    "1H" => ta.change(time("60")) != 0
+    "2H" => ta.change(time("120")) != 0
+    "3H" => ta.change(time("180")) != 0
+    "4H" => ta.change(time("240")) != 0
+    "1D" => ta.change(time("1D")) != 0
+    "1W" => ta.change(time("1W")) != 0
+    "1M" => ta.change(time("1M")) != 0
+    "3M" => ta.change(time("3M")) != 0
+    "6M" => ta.change(time("6M")) != 0
+    "12M" => ta.change(time("12M")) != 0
+    "Never" => bar_index == 0
+    => false
+
+// Calculation
+[vwap_value, upper_band1, lower_band1, upper_band2, lower_band2, stdev] = vwapbands(i_source, volume, reset_condition, i_multiplier)
+
+// Colors
+vwap_color = color.yellow
+band1_color = color.blue
+band2_color = color.purple
+fill_color1 = color.blue
+fill_color2 = color.purple
+
+// Plot
+p_vwap = plot(vwap_value, "VWAP", color=color.yellow, linewidth=2)
+p_upper1 = plot(upper_band1, "Upper Band 1σ", color=color.yellow, linewidth=2)
+p_lower1 = plot(lower_band1, "Lower Band 1σ", color=color.yellow, linewidth=2)
+p_upper2 = plot(i_show_bands2 ? upper_band2 : na, "Upper Band 2σ", color=color.yellow, linewidth=2)
+p_lower2 = plot(i_show_bands2 ? lower_band2 : na, "Lower Band 2σ", color=color.yellow, linewidth=2)
+fill(p_upper1, p_lower1, color=color.new(color.blue, 90), title="1σ Band Fill")
+fill(p_upper2, p_upper1, color=i_show_bands2 ? color.new(color.purple, 90) : na, title="Upper 2σ Fill")
+fill(p_lower1, p_lower2, color=i_show_bands2 ? color.new(color.purple, 90) : na, title="Lower 2σ Fill")

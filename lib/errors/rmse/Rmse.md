@@ -12,10 +12,10 @@ $$RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2} = \sqrt{MSE}$$
 
 ## Properties
 
-- **Non-negative**: RMSE ≥ 0
-- **Same units**: Unlike MSE, RMSE is in original data units
-- **Outlier sensitive**: Inherits MSE's penalty for large errors
-- **Always ≥ MAE**: RMSE ≥ MAE due to Jensen's inequality
+* **Non-negative**: RMSE ≥ 0
+* **Same units**: Unlike MSE, RMSE is in original data units
+* **Outlier sensitive**: Inherits MSE's penalty for large errors
+* **Always ≥ MAE**: RMSE ≥ MAE due to Jensen's inequality
 
 ## Usage
 
@@ -37,5 +37,5 @@ var results = Rmse.Calculate(actualSeries, predictedSeries, period: 20);
 
 ## Related Indicators
 
-- [MSE](../mse/Mse.md) - Mean Squared Error
-- [MAE](../mae/Mae.md) - Mean Absolute Error
+* [MSE](../mse/Mse.md) - Mean Squared Error
+* [MAE](../mae/Mae.md) - Mean Absolute Error

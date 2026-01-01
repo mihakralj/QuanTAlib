@@ -88,6 +88,6 @@ Validation is performed against industry-standard libraries.
 
 ### Common Pitfalls
 
-- **Period Sensitivity**: The standard period is 14. Lowering it (e.g., 7) makes ADX twitchy and prone to false positives. Raising it (e.g., 30) turns it into a geological indicator—accurate, but late.
-- **The "Turn"**: ADX peaks *after* the trend has exhausted. It is a lagging indicator of trend strength, not a leading indicator of price reversal.
-- **Convergence**: Do not trust the first $2 \times N$ values. They are mathematically correct but statistically immature.
+* **Period Sensitivity**: The standard period is 14. Lowering it (e.g., 7) makes ADX twitchy and prone to false positives. Raising it (e.g., 30) turns it into a geological indicator—accurate, but late.
+* **The "Turn"**: ADX peaks *after* the trend has exhausted. It is a lagging indicator of trend strength, not a leading indicator of price reversal.
+* **Convergence**: Do not trust the first $2 \times N$ values. They are mathematically correct but statistically immature.

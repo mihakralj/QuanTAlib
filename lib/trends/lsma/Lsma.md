@@ -12,9 +12,9 @@ Linear regression is as old as Gauss (c. 1809). Applying it as a moving window t
 
 LSMA is computationally heavier than an SMA because it minimizes the sum of squared errors for a line equation $y = mx + b$.
 
-- **Slope ($m$)**: Represents the trend strength/direction.
-- **Intercept ($b$)**: Represents the value at the start of the window.
-- **Endpoint**: The value at the current bar ($y = m \times 0 + b$ in our coordinate system where current bar is 0).
+* **Slope ($m$)**: Represents the trend strength/direction.
+* **Intercept ($b$)**: Represents the value at the start of the window.
+* **Endpoint**: The value at the current bar ($y = m \times 0 + b$ in our coordinate system where current bar is 0).
 
 ## Mathematical Foundation
 
@@ -53,6 +53,7 @@ Validated against Skender.
 
 | **Tulip** | N/A | Not implemented. |
 | **Ooples** | N/A | Not implemented. |
+
 ### Common Pitfalls
 
 1. **Overshoot**: Because it projects a trend, LSMA will overshoot significantly when the trend reverses. It assumes the trend continues.

@@ -12,9 +12,9 @@ John Ehlers introduced the Super Smooth Filter to address the limitations of tra
 
 The SSF is an Infinite Impulse Response (IIR) filter.
 
-- **2-Pole Design**: Uses two poles in the Z-domain to create a sharper cutoff than single-pole filters (like EMA).
-- **Butterworth Characteristic**: Maximally flat passband response, minimizing distortion of the trend.
-- **Minimal Lag**: Despite its smoothing power, it reacts relatively quickly to significant price changes.
+* **2-Pole Design**: Uses two poles in the Z-domain to create a sharper cutoff than single-pole filters (like EMA).
+* **Butterworth Characteristic**: Maximally flat passband response, minimizing distortion of the trend.
+* **Minimal Lag**: Despite its smoothing power, it reacts relatively quickly to significant price changes.
 
 ## Mathematical Foundation
 
@@ -34,9 +34,9 @@ $$ \text{SSF}_t = c_1 \cdot \frac{P_t + P_{t-1}}{2} + c_2 \cdot \text{SSF}_{t-1}
 
 Where:
 
-- $P_t$ is the current price.
-- $P_{t-1}$ is the previous price.
-- $\text{SSF}_{t-1}$ and $\text{SSF}_{t-2}$ are the previous filter outputs.
+* $P_t$ is the current price.
+* $P_{t-1}$ is the previous price.
+* $\text{SSF}_{t-1}$ and $\text{SSF}_{t-2}$ are the previous filter outputs.
 
 > **Note:** This implementation uses high-precision constants (`Math.Sqrt(2)` and `Math.PI`) rather than the approximations (`1.414` and `3.14159`) found in some reference implementations.
 

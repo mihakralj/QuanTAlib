@@ -23,9 +23,9 @@ ATR is built on two concepts: **True Range (TR)** and **Wilder's Smoothing (RMA)
 
 Standard range ($High - Low$) fails when markets gap.
 
-- **Scenario**: Close = 100. Next Open = 110. High = 112. Low = 109.
-- **Standard Range**: $112 - 109 = 3$.
-- **True Range**: $112 - 100 = 12$.
+* **Scenario**: Close = 100. Next Open = 110. High = 112. Low = 109.
+* **Standard Range**: $112 - 109 = 3$.
+* **True Range**: $112 - 100 = 12$.
 
 ATR correctly identifies the volatility as 12, not 3.
 
@@ -39,9 +39,9 @@ $$
 
 Where:
 
-- $H_t$: Current High
-- $L_t$: Current Low
-- $C_{t-1}$: Previous Close
+* $H_t$: Current High
+* $L_t$: Current Low
+* $C_{t-1}$: Previous Close
 
 ### 2. Average True Range (ATR)
 
@@ -79,6 +79,6 @@ $$
 
 ### Common Pitfalls
 
-- **Directionality**: ATR is non-directional. A crashing market has high ATR. A rallying market has high ATR. Do not use it to predict direction.
-- **Scale Dependence**: ATR is absolute, not relative. An ATR of 5.0 on a \$100 stock is different from an ATR of 5.0 on a \$10 stock. Use `ATRP` (ATR Percent) for comparisons across assets.
-- **Lag**: Because it uses RMA (a slow-decaying average), ATR lags actual volatility spikes. It tells you what *has* happened, not what *will* happen.
+* **Directionality**: ATR is non-directional. A crashing market has high ATR. A rallying market has high ATR. Do not use it to predict direction.
+* **Scale Dependence**: ATR is absolute, not relative. An ATR of 5.0 on a \$100 stock is different from an ATR of 5.0 on a \$10 stock. Use `ATRP` (ATR Percent) for comparisons across assets.
+* **Lag**: Because it uses RMA (a slow-decaying average), ATR lags actual volatility spikes. It tells you what *has* happened, not what *will* happen.

@@ -2,10 +2,10 @@
 
 Scale 1–10 where **10 = better** for every column. Detailed evaluation criteria at the bottom of this doc.
 
-- **Accuracy**: Preserve true movement structure (major trends and turning points) without distortion or artificial patterns.
-- **Timeliness**: Minimal lag. Fast response to genuine movement changes and reversals.
-- O**vershoot Control**: Remain within min/max of input, avoid generating artificial over-reaching levels and false threshold triggers.
-- **Smoothness**: Noise suppression. Stable output with smooth derivatives (no erratic velocity/acceleration).
+* **Accuracy**: Preserve true movement structure (major trends and turning points) without distortion or artificial patterns.
+* **Timeliness**: Minimal lag. Fast response to genuine movement changes and reversals.
+* O**vershoot Control**: Remain within min/max of input, avoid generating artificial over-reaching levels and false threshold triggers.
+* **Smoothness**: Noise suppression. Stable output with smooth derivatives (no erratic velocity/acceleration).
 
 | Indicator | Accuracy | Timeliness | Overshoot Control | Smoothness | Notes (revised) |
 | :--- | :---: | :---: | :---: | :---: | :--- |

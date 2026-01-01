@@ -75,5 +75,5 @@ Validation is performed against a reference implementation of Jurik's algorithm.
 
 ### Common Pitfalls
 
-- **Overbought/Oversold**: Because RSX is so smooth, it doesn't "chatter" in and out of the OB/OS zones. When it crosses 70, it tends to stay there until the trend truly reverses. This requires a different trading mindset than the "fading" often used with RSI.
-- **Divergence**: RSX is the ultimate tool for divergence trading because its peaks are distinct and unambiguous.
+* **Overbought/Oversold**: Because RSX is so smooth, it doesn't "chatter" in and out of the OB/OS zones. When it crosses 70, it tends to stay there until the trend truly reverses. This requires a different trading mindset than the "fading" often used with RSI.
+* **Divergence**: RSX is the ultimate tool for divergence trading because its peaks are distinct and unambiguous.

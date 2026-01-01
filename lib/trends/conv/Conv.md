@@ -12,10 +12,10 @@ Convolution is the fundamental operation of digital signal processing (DSP). Whi
 
 CONV applies a sliding dot product between the data window and your custom kernel. The "physics" are entirely defined by the kernel you provide.
 
-- **Symmetric Kernel**: Zero phase shift (if centered correctly).
-- **Asymmetric Kernel**: Introduces lag or lead.
-- **Positive Weights**: Smoothing.
-- **Mixed Weights**: Differentiation or band-pass filtering.
+* **Symmetric Kernel**: Zero phase shift (if centered correctly).
+* **Asymmetric Kernel**: Introduces lag or lead.
+* **Positive Weights**: Smoothing.
+* **Mixed Weights**: Differentiation or band-pass filtering.
 
 ## Mathematical Foundation
 
@@ -25,8 +25,8 @@ $$ \text{CONV}_t = \sum_{i=0}^{N-1} P_{t-i} \cdot K_i $$
 
 Where:
 
-- $N$ is the length of the kernel.
-- $K_0$ multiplies the most recent price (or oldest, depending on convention; the QuanTAlib implementation aligns $K_0$ with the oldest data in the window and $K_{N-1}$ with the newest).
+* $N$ is the length of the kernel.
+* $K_0$ multiplies the most recent price (or oldest, depending on convention; the QuanTAlib implementation aligns $K_0$ with the oldest data in the window and $K_{N-1}$ with the newest).
 
 ## Performance Profile
 

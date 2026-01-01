@@ -53,7 +53,7 @@ public class TBarSeries : IReadOnlyList<TBar>
 ### Core Methods
 
 | Method | Description |
-|--------|-------------|
+| ------ | ------ |
 | `Add(TBar bar, bool isNew)` | Adds a bar or updates the last one. |
 | `Add(DateTime time, double o, double h, double l, double c, double v)` | Adds raw values directly. |
 | `Count` | Returns the number of bars. |

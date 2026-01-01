@@ -12,16 +12,16 @@ MSE is fundamental to least-squares regression, dating back to Gauss and Legendr
 
 MSE squares each error before averaging, which has significant implications:
 
-- Large errors contribute disproportionately to the metric
-- The quadratic penalty creates a smooth, differentiable loss surface
-- Optimal for normally distributed errors
+* Large errors contribute disproportionately to the metric
+* The quadratic penalty creates a smooth, differentiable loss surface
+* Optimal for normally distributed errors
 
 ### Properties
 
-- **Non-negative**: MSE ≥ 0, with 0 indicating perfect prediction
-- **Squared units**: If data is in dollars, MSE is in dollars²
-- **Outlier sensitive**: Single large error dominates the metric
-- **Differentiable**: Smooth gradient for optimization algorithms
+* **Non-negative**: MSE ≥ 0, with 0 indicating perfect prediction
+* **Squared units**: If data is in dollars, MSE is in dollars²
+* **Outlier sensitive**: Single large error dominates the metric
+* **Differentiable**: Smooth gradient for optimization algorithms
 
 ## Mathematical Foundation
 
@@ -101,12 +101,12 @@ RMSE has the advantage of being in the same units as the original data.
 
 ## Edge Cases
 
-- **Identical Values**: Returns 0 when actual equals predicted
-- **NaN Handling**: Uses last valid value substitution
-- **Large Errors**: Can produce very large values due to squaring
+* **Identical Values**: Returns 0 when actual equals predicted
+* **NaN Handling**: Uses last valid value substitution
+* **Large Errors**: Can produce very large values due to squaring
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (robust to outliers)
-- [RMSE](../rmse/Rmse.md) - Root Mean Squared Error (same units as data)
-- [Huber](../huber/Huber.md) - Combines MSE and MAE benefits
+* [MAE](../mae/Mae.md) - Mean Absolute Error (robust to outliers)
+* [RMSE](../rmse/Rmse.md) - Root Mean Squared Error (same units as data)
+* [Huber](../huber/Huber.md) - Combines MSE and MAE benefits

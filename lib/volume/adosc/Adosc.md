@@ -19,9 +19,9 @@ ADOSC is a derivative indicator. It depends on:
 
 The physics here is identical to MACD:
 
-- **Fast EMA (3)**: Represents the immediate, short-term money flow.
-- **Slow EMA (10)**: Represents the established, medium-term money flow.
-- **Difference**: The spread between them represents the momentum of accumulation.
+* **Fast EMA (3)**: Represents the immediate, short-term money flow.
+* **Slow EMA (10)**: Represents the established, medium-term money flow.
+* **Difference**: The spread between them represents the momentum of accumulation.
 
 ## Mathematical Foundation
 
@@ -31,8 +31,8 @@ $$
 
 Where:
 
-- $ADL$ is the Accumulation/Distribution Line.
-- $EMA(X, N)$ is the Exponential Moving Average of X over N periods.
+* $ADL$ is the Accumulation/Distribution Line.
+* $EMA(X, N)$ is the Exponential Moving Average of X over N periods.
 
 ## Performance Profile
 
@@ -62,6 +62,6 @@ Validation is performed against **TA-Lib**, **Skender**, **Tulip**, and **Ooples
 
 ### Common Pitfalls
 
-- **Volatility**: ADOSC is extremely volatile. It whipsaws frequently. It should never be used in isolation.
-- **Trend Confirmation**: Use it to confirm a trend, not to predict it. If price is rising but ADOSC is falling (divergence), the rally is running on fumes.
-- **Zero Line**: Crosses above zero indicate that short-term accumulation is overpowering long-term accumulation (Bullish). Crosses below zero indicate the opposite (Bearish).
+* **Volatility**: ADOSC is extremely volatile. It whipsaws frequently. It should never be used in isolation.
+* **Trend Confirmation**: Use it to confirm a trend, not to predict it. If price is rising but ADOSC is falling (divergence), the rally is running on fumes.
+* **Zero Line**: Crosses above zero indicate that short-term accumulation is overpowering long-term accumulation (Bullish). Crosses below zero indicate the opposite (Bearish).

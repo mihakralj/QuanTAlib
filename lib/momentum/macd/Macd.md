@@ -16,9 +16,9 @@ MACD is composed of three components:
 2. **Signal Line**: An EMA of the MACD Line.
 3. **Histogram**: The difference between the MACD Line and the Signal Line.
 
-- **Inertia**: Moderate (dependent on EMA periods).
-- **Momentum**: Tracks the convergence/divergence of trends.
-- **Range**: Unbounded.
+* **Inertia**: Moderate (dependent on EMA periods).
+* **Momentum**: Tracks the convergence/divergence of trends.
+* **Range**: Unbounded.
 
 ## Mathematical Foundation
 
@@ -28,9 +28,9 @@ $$ \text{Histogram} = \text{MACD Line} - \text{Signal Line} $$
 
 Standard parameters are (12, 26, 9):
 
-- Fast EMA: 12 periods
-- Slow EMA: 26 periods
-- Signal EMA: 9 periods
+* Fast EMA: 12 periods
+* Slow EMA: 26 periods
+* Signal EMA: 9 periods
 
 ## Performance Profile
 
@@ -64,5 +64,5 @@ Validated against multiple external libraries to ensure correctness.
 
 ### Common Pitfalls
 
-- **Lag**: As a trend-following indicator based on moving averages, MACD lags price action.
-- **Whipsaws**: In sideways markets, MACD can generate false signals (whipsaws) as the moving averages cross frequently.
+* **Lag**: As a trend-following indicator based on moving averages, MACD lags price action.
+* **Whipsaws**: In sideways markets, MACD can generate false signals (whipsaws) as the moving averages cross frequently.

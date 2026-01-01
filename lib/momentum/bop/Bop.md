@@ -12,9 +12,9 @@ Developed by Igor Livshin and published in the August 2001 issue of *Stocks & Co
 
 BOP is a stateless, zero-lag indicator in its raw form. It evaluates each bar independently, calculating the ratio of the body (Close - Open) to the range (High - Low).
 
-- **Inertia**: None (raw).
-- **Momentum**: Instantaneous.
-- **Range**: Bounded [-1, 1].
+* **Inertia**: None (raw).
+* **Momentum**: Instantaneous.
+* **Range**: Bounded [-1, 1].
 
 ### The Zero-Range Challenge
 
@@ -28,10 +28,10 @@ $$ BOP = \frac{Close - Open}{High - Low} $$
 
 Where:
 
-- **Close > Open**: Positive BOP (Buyers dominate)
-- **Close < Open**: Negative BOP (Sellers dominate)
-- **Close = Open**: Zero BOP (Balance)
-- **High = Low**: Zero BOP (No movement)
+* **Close > Open**: Positive BOP (Buyers dominate)
+* **Close < Open**: Negative BOP (Sellers dominate)
+* **Close = Open**: Zero BOP (Balance)
+* **High = Low**: Zero BOP (No movement)
 
 ## Performance Profile
 
@@ -64,8 +64,8 @@ BOP is validated against major technical analysis libraries to ensure correctnes
 
 ### Common Pitfalls
 
-- **Noise**: The raw BOP is very volatile. It is often smoothed with a Moving Average (e.g., SMA-14) to identify trends. QuanTAlib provides the raw signal, allowing you to chain any smoothing algorithm you prefer.
-- **Doji Candles**: When Open equals Close, BOP is 0. This is mathematically correct but can be interpreted as a lack of momentum.
+* **Noise**: The raw BOP is very volatile. It is often smoothed with a Moving Average (e.g., SMA-14) to identify trends. QuanTAlib provides the raw signal, allowing you to chain any smoothing algorithm you prefer.
+* **Doji Candles**: When Open equals Close, BOP is 0. This is mathematically correct but can be interpreted as a lack of momentum.
 
 ## Usage
 

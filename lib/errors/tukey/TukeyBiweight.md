@@ -14,10 +14,10 @@ The biweight function is a smooth, bell-shaped curve that rises from 0, peaks at
 
 ### Properties
 
-- **Redescending**: Large errors contribute zero loss (complete outlier rejection)
-- **Smooth**: Continuously differentiable everywhere
-- **Bounded**: Maximum loss is c²/6, regardless of error magnitude
-- **Tunable**: Parameter c controls the outlier threshold
+* **Redescending**: Large errors contribute zero loss (complete outlier rejection)
+* **Smooth**: Continuously differentiable everywhere
+* **Bounded**: Maximum loss is c²/6, regardless of error magnitude
+* **Tunable**: Parameter c controls the outlier threshold
 
 ## Mathematical Foundation
 
@@ -31,8 +31,8 @@ $$\rho(e) = \begin{cases}
 \end{cases}$$
 
 Where:
-- $e = y - \hat{y}$ = prediction error
-- $c$ = tuning constant (threshold)
+* $e = y - \hat{y}$ = prediction error
+* $c$ = tuning constant (threshold)
 
 ### 2. Alternative Form
 
@@ -44,9 +44,9 @@ where $u = e/c$
 
 ### 3. Key Values
 
-- At $e = 0$: $\rho(0) = 0$
-- At $e = c$: $\rho(c) = c^2/6$ (maximum)
-- For $|e| > c$: $\rho(e) = c^2/6$ (constant, flat)
+* At $e = 0$: $\rho(0) = 0$
+* At $e = c$: $\rho(c) = c^2/6$ (maximum)
+* For $|e| > c$: $\rho(e) = c^2/6$ (constant, flat)
 
 ### 4. Running Update (O(1))
 
@@ -133,15 +133,15 @@ Tukey's biweight is the only loss function that completely stops penalizing erro
 
 ## Edge Cases
 
-- **Perfect Predictions**: Returns exactly 0
-- **All Outliers**: Returns c²/6 (maximum bounded loss)
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **c = 0**: Invalid (division issues)
-- **Errors exactly at c**: Smooth transition (differentiable)
+* **Perfect Predictions**: Returns exactly 0
+* **All Outliers**: Returns c²/6 (maximum bounded loss)
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **c = 0**: Invalid (division issues)
+* **Errors exactly at c**: Smooth transition (differentiable)
 
 ## Related Indicators
 
-- [Huber](../huber/Huber.md) - Huber Loss (linear, not redescending)
-- [MdAE](../mdae/Mdae.md) - Median Absolute Error (robust via median)
-- [LogCosh](../logcosh/LogCosh.md) - Log-Cosh Loss (smooth L1/L2 hybrid)
+* [Huber](../huber/Huber.md) - Huber Loss (linear, not redescending)
+* [MdAE](../mdae/Mdae.md) - Median Absolute Error (robust via median)
+* [LogCosh](../logcosh/LogCosh.md) - Log-Cosh Loss (smooth L1/L2 hybrid)

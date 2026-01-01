@@ -68,5 +68,5 @@ Validation is performed against industry-standard libraries.
 
 ### Common Pitfalls
 
-- **Lag**: Because it looks back `Period` bars, it will not signal a reversal until the previous extreme "ages out" or is superseded. It is a lagging indicator of trend changes.
-- **Flatlining**: In strong trends, the oscillator can peg at +100 or -100 for extended periods. This is a feature, not a bug—it indicates a "fresh" extreme on every bar.
+* **Lag**: Because it looks back `Period` bars, it will not signal a reversal until the previous extreme "ages out" or is superseded. It is a lagging indicator of trend changes.
+* **Flatlining**: In strong trends, the oscillator can peg at +100 or -100 for extended periods. This is a feature, not a bug—it indicates a "fresh" extreme on every bar.

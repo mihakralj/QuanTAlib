@@ -4,15 +4,15 @@
 
 ## Key Features
 
-- **Hardware Acceleration**: Uses CPU vector registers to process multiple elements in parallel.
-- **Automatic Fallback**: Gracefully handles non-SIMD hardware or small arrays.
-- **Zero-Allocation**: Operates directly on spans without creating new arrays.
-- **Aggressive Inlining**: Methods are marked for inlining to minimize call overhead.
+* **Hardware Acceleration**: Uses CPU vector registers to process multiple elements in parallel.
+* **Automatic Fallback**: Gracefully handles non-SIMD hardware or small arrays.
+* **Zero-Allocation**: Operates directly on spans without creating new arrays.
+* **Aggressive Inlining**: Methods are marked for inlining to minimize call overhead.
 
 ## Available Methods
 
 | Method | Description |
-|--------|-------------|
+| ------ | ------ |
 | `ContainsNonFinite()` | Checks if span contains any non-finite values (NaN or Infinity). |
 | `SumSIMD()` | Calculates the sum of elements. |
 | `MinSIMD()` | Finds the minimum value. |

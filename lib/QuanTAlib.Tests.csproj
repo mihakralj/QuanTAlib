@@ -9,18 +9,10 @@
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);CS8892</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <!-- Coverage configuration for coverlet.msbuild -->
-    <CollectCoverage>true</CollectCoverage>
-    <CoverletOutputFormat>opencover</CoverletOutputFormat>
-    <CoverletOutput>TestResults/coverage.opencover.xml</CoverletOutput>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
-    <PackageReference Include="coverlet.msbuild" Version="6.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="OoplesFinance.StockIndicators" Version="1.1.1" />

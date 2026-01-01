@@ -14,10 +14,10 @@ MdAPE first normalizes each error as a percentage of the actual value, then find
 
 ### Properties
 
-- **Scale-independent**: Comparable across different data magnitudes
-- **Outlier-robust**: Extreme errors don't skew results
-- **Percentage-based**: Results are interpretable as "typical % error"
-- **Non-negative**: MdAPE ≥ 0, with 0 indicating perfect prediction
+* **Scale-independent**: Comparable across different data magnitudes
+* **Outlier-robust**: Extreme errors don't skew results
+* **Percentage-based**: Results are interpretable as "typical % error"
+* **Non-negative**: MdAPE ≥ 0, with 0 indicating perfect prediction
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ For each observation, calculate the percentage error:
 $$e_i = \frac{|y_i - \hat{y}_i|}{|y_i|} \times 100$$
 
 Where:
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Median Calculation
 
@@ -116,14 +116,14 @@ Mdape.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 
 ## Edge Cases
 
-- **Zero Actual Values**: Substitutes with small epsilon to avoid division by zero
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current absolute percentage error
-- **All Perfect**: Returns 0%
+* **Zero Actual Values**: Substitutes with small epsilon to avoid division by zero
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current absolute percentage error
+* **All Perfect**: Returns 0%
 
 ## Related Indicators
 
-- [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error (uses mean)
-- [MdAE](../mdae/Mdae.md) - Median Absolute Error (non-percentage)
-- [SMAPE](../smape/Smape.md) - Symmetric MAPE (different normalization)
+* [MAPE](../mape/Mape.md) - Mean Absolute Percentage Error (uses mean)
+* [MdAE](../mdae/Mdae.md) - Median Absolute Error (non-percentage)
+* [SMAPE](../smape/Smape.md) - Symmetric MAPE (different normalization)

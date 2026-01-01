@@ -36,9 +36,9 @@ $$ USF_t = (1 - c_1) \cdot src_t + (2 \cdot c_1 - c_2) \cdot src_{t-1} - (c_1 + 
 
 Where:
 
-- $src_t$ is the input value at time $t$.
-- $USF_t$ is the filter output at time $t$.
-- $period$ is the smoothing period.
+* $src_t$ is the input value at time $t$.
+* $USF_t$ is the filter output at time $t$.
+* $period$ is the smoothing period.
 
 ## Performance Profile
 
@@ -64,8 +64,8 @@ Where:
 
 ### Common Pitfalls
 
-- **Period Sensitivity**: Like all filters, the choice of period is critical. A period that is too short may not filter enough noise, while a period that is too long may introduce lag or miss important trend changes.
-- **Warmup**: The filter requires a few bars to stabilize. The `IsHot` property indicates when the filter has processed enough data to be considered reliable.
+* **Period Sensitivity**: Like all filters, the choice of period is critical. A period that is too short may not filter enough noise, while a period that is too long may introduce lag or miss important trend changes.
+* **Warmup**: The filter requires a few bars to stabilize. The `IsHot` property indicates when the filter has processed enough data to be considered reliable.
 
 ## C# Usage Examples
 

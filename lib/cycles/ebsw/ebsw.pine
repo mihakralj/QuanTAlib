@@ -1,0 +1,43 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ehlers Even Better Sinewave (EBSW)", "EBSW", overlay=false)
+
+//@function Calculates Ehlers Even Better Sinewave using HPF, SSF, and AGC
+//@param src Series to calculate EBSW from
+//@param hpLength int Period for the High-Pass Filter
+//@param ssfLength int Period for the Super Smoother Filter
+//@returns single normalized sinewave value
+//@optimized for performance and dirty data
+ebsw(series float src, simple int hpLength, simple int ssfLength) =>
+    if hpLength <= 0 or ssfLength <= 0
+        runtime.error("Periods must be greater than 0")
+    float pi = 2 * math.asin(1)
+    float angle_hp = 2 * pi / hpLength
+    float alpha1_hp = (1 - math.sin(angle_hp)) / math.cos(angle_hp)
+    var float hp = 0.0
+    hp := (0.5 * (1 + alpha1_hp) * (src - nz(src[1]))) + (alpha1_hp * nz(hp[1]))
+    float angle_ssf = math.sqrt(2) * pi / ssfLength
+    float alpha2_ssf = math.exp(-angle_ssf)
+    float beta_ssf = 2 * alpha2_ssf * math.cos(angle_ssf)
+    float c2 = beta_ssf, c3 = -alpha2_ssf * alpha2_ssf, c1 = 1 - c2 - c3
+    var float filt = 0.0
+    filt := c1 * ((hp + nz(hp[1])) / 2) + c2 * nz(filt[1]) + c3 * nz(filt[2])
+    float waveVal = (filt + nz(filt[1]) + nz(filt[2])) / 3.0
+    float pwr = (math.pow(filt, 2) + math.pow(nz(filt[1]), 2) + math.pow(nz(filt[2]), 2)) / 3.0
+    float sineWave = pwr == 0 ? 0 : waveVal / math.sqrt(pwr)
+    math.min(1, math.max(-1, sineWave))
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_hpLength = input.int(40, "High-Pass Filter Length", minval=1, tooltip="Period for detrending the price data.")
+i_ssfLength = input.int(10, "Super Smoother Filter Length", minval=1, tooltip="Period for smoothing the cycle component.")
+
+// Calculation
+ebsw_wave = ebsw(i_source, i_hpLength, i_ssfLength)
+
+// Plot
+plot(ebsw_wave, "EBSW", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color.gray, linestyle=hline.style_dashed)

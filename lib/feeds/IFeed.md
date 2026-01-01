@@ -4,9 +4,9 @@
 
 ## Key Concepts
 
-- **Bidirectional Control**: The `Next(ref bool isNew)` method allows the consumer to request a new bar (`isNew = true`) or an update to the current bar (`isNew = false`).
-- **Streaming**: Designed for bar-by-bar processing, simulating real-time data flow.
-- **Batching**: Supports fetching historical data ranges via `Fetch()`.
+* **Bidirectional Control**: The `Next(ref bool isNew)` method allows the consumer to request a new bar (`isNew = true`) or an update to the current bar (`isNew = false`).
+* **Streaming**: Designed for bar-by-bar processing, simulating real-time data flow.
+* **Batching**: Supports fetching historical data ranges via `Fetch()`.
 
 ## Interface Definition
 
@@ -41,5 +41,5 @@ When implementing `IFeed`:
 
 ## Implementations
 
-- **`GBM`**: Geometric Brownian Motion generator (Synthetic).
-- **`CsvFeed`**: Reads OHLCV data from CSV files (Historical).
+* **`GBM`**: Geometric Brownian Motion generator (Synthetic).
+* **`CsvFeed`**: Reads OHLCV data from CSV files (Historical).

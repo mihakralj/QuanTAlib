@@ -77,7 +77,8 @@ Validation is performed against internal consistency checks and Jurik's publishe
 | **Tulip** | N/A | Not implemented in Tulip. |
 
 | **Ooples** | N/A | Not implemented. |
+
 ### Common Pitfalls
 
-- **Not a Directional Signal**: CFB tells you *how long* a trend has lasted, not which way it is going. A high CFB can occur in a crash or a rally.
-- **Modulation**: Its best use is to dynamically adjust the period of other indicators (e.g., `RSI(Period = CFB)`). Using it as a standalone crossover signal is usually a mistake.
+* **Not a Directional Signal**: CFB tells you *how long* a trend has lasted, not which way it is going. A high CFB can occur in a crash or a rally.
+* **Modulation**: Its best use is to dynamically adjust the period of other indicators (e.g., `RSI(Period = CFB)`). Using it as a standalone crossover signal is usually a mistake.

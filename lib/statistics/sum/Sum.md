@@ -27,9 +27,9 @@ With 64-bit doubles, adding a small value to a large sum can result in the small
 
 The algorithm maintains three running values:
 
-- `sum`: The accumulated sum
-- `c`: First-order compensation (captures primary rounding error)
-- `cc`: Second-order compensation (captures error of the error)
+* `sum`: The accumulated sum
+* `c`: First-order compensation (captures primary rounding error)
+* `cc`: Second-order compensation (captures error of the error)
 
 For each value `x` to add:
 
@@ -167,14 +167,14 @@ source.Add(new TValue(DateTime.UtcNow, 100.0));
 
 **Use it when:**
 
-- Writing a numerical or statistics library
-- Inputs span many orders of magnitude
-- Correctness matters more than raw throughput
-- Long-running streaming calculations
+* Writing a numerical or statistics library
+* Inputs span many orders of magnitude
+* Correctness matters more than raw throughput
+* Long-running streaming calculations
 
 **Skip it when:**
 
-- Values are similar magnitude
-- Sequence length is bounded and small
-- Maximum throughput is critical
-- Using `decimal` type instead
+* Values are similar magnitude
+* Sequence length is bounded and small
+* Maximum throughput is critical
+* Using `decimal` type instead

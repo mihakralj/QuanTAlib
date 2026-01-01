@@ -21,7 +21,7 @@ Mae.Batch(actualSpan, predictedSpan, outputSpan, period: 14);
 ## Indicator Reference
 
 | Indicator | Full Name | Description |
-|:----------|:----------|:------------|
+| ------ | ------ | ------ |
 | [HUBER](huber/Huber.md) | Huber Loss | Combines MSE and MAE; less sensitive to outliers |
 | [MAE](mae/Mae.md) | Mean Absolute Error | Average of absolute differences |
 | [MAPD](mapd/Mapd.md) | Mean Absolute Percentage Deviation | Percentage error relative to mean of actual and predicted |
@@ -43,7 +43,7 @@ Mae.Batch(actualSpan, predictedSpan, outputSpan, period: 14);
 ### By Use Case
 
 | Use Case | Recommended Metrics |
-|:---------|:--------------------|
+| ------ | ------ |
 | General accuracy | MAE, RMSE |
 | Outlier-robust | MAE, Huber, MASE |
 | Percentage interpretation | MAPE, SMAPE, MAPD |
@@ -55,7 +55,7 @@ Mae.Batch(actualSpan, predictedSpan, outputSpan, period: 14);
 ### By Properties
 
 | Metric | Scale | Outlier Sensitivity | Interpretability |
-|:-------|:------|:--------------------|:-----------------|
+| ------ | ------ | ------ | ------ |
 | MAE | Original units | Low | High |
 | MSE | Squared units | High | Medium |
 | RMSE | Original units | High | High |

@@ -28,8 +28,8 @@ $$ \beta = \frac{Cov(R_a, R_m)}{Var(R_m)} $$
 
 Where:
 
-- $R_a$ is the return of the asset.
-- $R_m$ is the return of the market.
+* $R_a$ is the return of the asset.
+* $R_m$ is the return of the market.
 
 In terms of linear regression, Beta is the slope ($b$) of the line $R_a = \alpha + \beta R_m + \epsilon$.
 

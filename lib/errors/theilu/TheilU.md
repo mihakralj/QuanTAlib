@@ -14,10 +14,10 @@ Theil's U computes two parallel error metrics: one for the forecast and one for 
 
 ### Properties
 
-- **Relative benchmark**: Compares against naive no-change forecast
-- **Scale-independent**: Ratio is unitless
-- **Interpretable threshold**: U = 1 is the break-even point
-- **Range**: 0 to ∞, with 0 being perfect and > 1 being worse than naive
+* **Relative benchmark**: Compares against naive no-change forecast
+* **Scale-independent**: Ratio is unitless
+* **Interpretable threshold**: U = 1 is the break-even point
+* **Range**: 0 to ∞, with 0 being perfect and > 1 being worse than naive
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ Calculate squared errors for the actual forecast:
 $$FPE = \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
 
 Where:
-- $y_i$ = actual value at time i
-- $\hat{y}_i$ = predicted value at time i
+* $y_i$ = actual value at time i
+* $\hat{y}_i$ = predicted value at time i
 
 ### 2. Naive Error
 
@@ -123,14 +123,14 @@ TheilU.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 
 ## Edge Cases
 
-- **Zero Naive Error**: Returns infinity when series is perfectly flat (naive is perfect)
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns 0 (insufficient data for naive comparison)
-- **First Value**: Needs at least 2 values for naive benchmark
+* **Zero Naive Error**: Returns infinity when series is perfectly flat (naive is perfect)
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns 0 (insufficient data for naive comparison)
+* **First Value**: Needs at least 2 values for naive benchmark
 
 ## Related Indicators
 
-- [RMSE](../rmse/Rmse.md) - Root Mean Squared Error (absolute, not relative)
-- [MASE](../mase/Mase.md) - Mean Absolute Scaled Error (similar concept)
-- [R-Squared](../rsquared/RSquared.md) - Coefficient of Determination
+* [RMSE](../rmse/Rmse.md) - Root Mean Squared Error (absolute, not relative)
+* [MASE](../mase/Mase.md) - Mean Absolute Scaled Error (similar concept)
+* [R-Squared](../rsquared/RSquared.md) - Coefficient of Determination

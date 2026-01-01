@@ -14,11 +14,11 @@ MAPE divides each absolute error by the actual value, converting errors to perce
 
 ### Properties
 
-- **Scale-independent**: Expressed as percentage
-- **Asymmetric**: Penalizes over-prediction more than under-prediction
-- **Undefined at zero**: Cannot compute when actual value is zero
-- **Non-negative**: MAPE ≥ 0, with 0 indicating perfect prediction
-- **No upper bound**: Can exceed 100% for large errors
+* **Scale-independent**: Expressed as percentage
+* **Asymmetric**: Penalizes over-prediction more than under-prediction
+* **Undefined at zero**: Cannot compute when actual value is zero
+* **Non-negative**: MAPE ≥ 0, with 0 indicating perfect prediction
+* **No upper bound**: Can exceed 100% for large errors
 
 ## Mathematical Foundation
 
@@ -30,8 +30,8 @@ $$APE_i = 100 \times \left| \frac{y_i - \hat{y}_i}{y_i} \right|$$
 
 Where:
 
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Mean Calculation
 
@@ -143,15 +143,15 @@ Same absolute error (50), but over-prediction shows higher MAPE.
 
 ## Edge Cases
 
-- **Identical Values**: Returns 0% when actual equals predicted
-- **Zero Actual**: Uses epsilon (1e-10) to avoid division by zero
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current percentage error
+* **Identical Values**: Returns 0% when actual equals predicted
+* **Zero Actual**: Uses epsilon (1e-10) to avoid division by zero
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current percentage error
 
 ## Related Indicators
 
-- [MAPD](../mapd/Mapd.md) - Mean Absolute Percentage Deviation (divides by predicted)
-- [SMAPE](../smape/Smape.md) - Symmetric Mean Absolute Percentage Error
-- [MPE](../mpe/Mpe.md) - Mean Percentage Error (signed)
-- [MAE](../mae/Mae.md) - Mean Absolute Error (same units)
+* [MAPD](../mapd/Mapd.md) - Mean Absolute Percentage Deviation (divides by predicted)
+* [SMAPE](../smape/Smape.md) - Symmetric Mean Absolute Percentage Error
+* [MPE](../mpe/Mpe.md) - Mean Percentage Error (signed)
+* [MAE](../mae/Mae.md) - Mean Absolute Error (same units)

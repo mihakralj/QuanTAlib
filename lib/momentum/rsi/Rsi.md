@@ -12,9 +12,9 @@ Introduced in Wilder's seminal book *New Concepts in Technical Trading Systems*,
 
 RSI is built on the concept of "Average Gain" and "Average Loss". Crucially, Wilder used a smoothing method (now known as RMA or Wilder's Smoothing) rather than a simple moving average. This gives RSI a long memory—technically infinite, though the influence decays exponentially.
 
-- **Inertia**: High (due to RMA smoothing).
-- **Momentum**: Tracks price velocity.
-- **Range**: Bounded [0, 100].
+* **Inertia**: High (due to RMA smoothing).
+* **Momentum**: Tracks price velocity.
+* **Range**: Bounded [0, 100].
 
 ### The Smoothing Nuance
 
@@ -28,9 +28,9 @@ $$ RSI = 100 - \frac{100}{1 + RS} $$
 
 Where:
 
-- **Gain**: $Close_{t} - Close_{t-1}$ (if positive, else 0)
-- **Loss**: $Close_{t-1} - Close_{t}$ (if positive, else 0)
-- **Average**: Smoothed using RMA (Wilder's Smoothing).
+* **Gain**: $Close_{t} - Close_{t-1}$ (if positive, else 0)
+* **Loss**: $Close_{t-1} - Close_{t}$ (if positive, else 0)
+* **Average**: Smoothed using RMA (Wilder's Smoothing).
 
 ## Performance Profile
 
@@ -63,8 +63,8 @@ Validated against multiple external libraries to ensure correctness.
 
 ### Common Pitfalls
 
-- **Initialization**: RSI requires a warmup period. The first value is typically an SMA of the initial gains/losses, followed by the RMA calculation. QuanTAlib handles this transition seamlessly.
-- **Data Length**: Because of the RMA's infinite memory, RSI values can vary slightly depending on the amount of historical data provided. This is a feature, not a bug.
+* **Initialization**: RSI requires a warmup period. The first value is typically an SMA of the initial gains/losses, followed by the RMA calculation. QuanTAlib handles this transition seamlessly.
+* **Data Length**: Because of the RMA's infinite memory, RSI values can vary slightly depending on the amount of historical data provided. This is a feature, not a bug.
 
 ## Usage
 

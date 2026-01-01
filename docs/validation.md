@@ -2,9 +2,9 @@
 
 | Indicator | QuanTAlib | TA-Lib | Tulip | Skender | Ooples |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **Aberration** | Abber | - | - | - | - |
+| **Aberration Bands** | [Abber](../lib/channels/abber/abber.md) | - | - | - | - |
 | **Absolute Price Oscillator** | [Apo](../lib/momentum/apo/apo.md) | ✔️ | ✔️ | - | ✔️ |
-| **Acceleration Bands** | Accbands | - | - | - | ❔ |
+| **Acceleration Bands** | [AccBands](../lib/channels/accbands/accbands.md) | - | - | - | - |
 | **Acceleration Oscillator** | Ac | - | - | - | ❔ |
 | **Accumulation/Distribution Line** | [Adl](../lib/volume/adl/adl.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Accumulation/Distribution Oscillator** | [Adosc](../lib/volume/adosc/adosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |

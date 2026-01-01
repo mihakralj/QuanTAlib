@@ -1,0 +1,57 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Lunar Phase (LUNAR)", "LUNAR", overlay=false)
+
+//@function Calculates precise lunar phase using orbital mechanics
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/lunar.md
+//@param none Uses timestamp of open (start of the bar) for calculations
+//@returns float Lunar phase from 0.0 (new moon) through 1.0 (full moon)
+//@Includes orbital perturbation terms and epoch corrections
+lunar() =>
+    jd = (time / 86400000.0) + 2440587.5
+    T = (jd - 2451545.0) / 36525.0
+    Lp = (218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + T * T * T / 538841.0 - T * T * T * T / 65194000.0) % 360.0
+    D = (297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + T * T * T / 545868.0 - T * T * T * T / 113065000.0) % 360.0
+    M = (357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + T * T * T / 24490000.0) % 360.0
+    Mp = (134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + T * T * T / 69699.0 - T * T * T * T / 14712000.0) % 360.0
+    F = (93.2720950 + 483202.0175233 * T - 0.0036539 * T * T - T * T * T / 3526000.0 + T * T * T * T / 863310000.0) % 360.0
+    Lp_rad = Lp * math.pi / 180.0
+    D_rad = D * math.pi / 180.0
+    M_rad = M * math.pi / 180.0
+    Mp_rad = Mp * math.pi / 180.0
+    F_rad = F * math.pi / 180.0
+    dL = 6288.016 * math.sin(Mp_rad) + 1274.242 * math.sin(2.0 * D_rad - Mp_rad) +
+         658.314 * math.sin(2.0 * D_rad) + 214.818 * math.sin(2.0 * Mp_rad) +
+         186.986 * math.sin(M_rad) + 109.154 * math.sin(2.0 * F_rad)
+    L_moon = Lp + dL / 1000000.0
+    M_sun = (357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + T * T * T / 24490000.0) % 360.0
+    L_sun = (280.46646 + 36000.76983 * T + 0.0003032 * T * T) % 360.0
+    phase_angle = ((L_moon - L_sun) % 360.0) * math.pi / 180.0
+    phase = (1.0 - math.cos(phase_angle)) / 2.0
+    phase
+
+// Calculation
+lunarPhase = lunar()
+
+// Plot
+plot(lunarPhase, "Lunar Phase", color=color.yellow, linewidth=2)
+
+// Calculate derivatives to find local maxima/minima and inflection points
+delta1 = lunarPhase - lunarPhase[1]
+
+// New Moon detection (at the trough)
+newMoonCondition = lunarPhase < 0.1 and lunarPhase[1] < 0.1 and delta1 > 0 and delta1[1] < 0
+plotchar(newMoonCondition ? lunarPhase : na, "New Moon", "🌑", location.absolute, color.white, size = size.small)
+
+// First Quarter detection (crossing 0.5 going up)
+firstQuarterCondition = lunarPhase[1] < 0.5 and lunarPhase >= 0.5 and delta1 > 0
+plotchar(firstQuarterCondition ? lunarPhase : na, "First Quarter", "🌓", location.absolute, color.white, size = size.small)
+
+// Full Moon detection (at the peak)
+fullMoonCondition = lunarPhase > 0.9 and lunarPhase[1] > 0.9 and delta1 < 0 and delta1[1] > 0
+plotchar(fullMoonCondition ? lunarPhase : na, "Full Moon", "🌕", location.absolute, color.white, size = size.small)
+
+// Last Quarter detection (crossing 0.5 going down)
+lastQuarterCondition = lunarPhase[1] > 0.5 and lunarPhase <= 0.5 and delta1 < 0
+plotchar(lastQuarterCondition ? lunarPhase : na, "Last Quarter", "🌗", location.absolute, color.white, size = size.small)

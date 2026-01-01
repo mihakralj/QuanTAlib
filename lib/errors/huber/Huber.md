@@ -12,17 +12,17 @@ Introduced by Peter J. Huber in 1964 as part of robust statistics, Huber Loss wa
 
 Huber Loss uses a threshold parameter (delta) to switch between quadratic and linear behavior:
 
-- **Small errors (|e| ≤ δ)**: Quadratic penalty, like MSE
-- **Large errors (|e| > δ)**: Linear penalty, like MAE
+* **Small errors (|e| ≤ δ)**: Quadratic penalty, like MSE
+* **Large errors (|e| > δ)**: Linear penalty, like MAE
 
 This makes it differentiable everywhere (unlike MAE) while being robust to outliers (unlike MSE).
 
 ### Properties
 
-- **Non-negative**: Huber ≥ 0, with 0 indicating perfect prediction
-- **Differentiable**: Smooth at the transition point (unlike MAE)
-- **Robust**: Less sensitive to outliers than MSE
-- **Configurable**: Delta controls the transition between quadratic and linear
+* **Non-negative**: Huber ≥ 0, with 0 indicating perfect prediction
+* **Differentiable**: Smooth at the transition point (unlike MAE)
+* **Robust**: Less sensitive to outliers than MSE
+* **Configurable**: Delta controls the transition between quadratic and linear
 
 ## Mathematical Foundation
 
@@ -34,9 +34,9 @@ $$L_{\delta}(e) = \begin{cases} \frac{1}{2}e^2 & \text{if } |e| \leq \delta \\ \
 
 Where:
 
-- $y$ = actual value
-- $\hat{y}$ = predicted value
-- $\delta$ = threshold parameter (default: 1.345)
+* $y$ = actual value
+* $\hat{y}$ = predicted value
+* $\delta$ = threshold parameter (default: 1.345)
 
 ### 2. Mean Huber Loss
 
@@ -137,14 +137,14 @@ huber.Update(110, 100); // Returns ~12.546
 
 ## Edge Cases
 
-- **Identical Values**: Returns 0 when actual equals predicted
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current Huber loss
-- **Error at delta**: Uses quadratic formula (continuous transition)
+* **Identical Values**: Returns 0 when actual equals predicted
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current Huber loss
+* **Error at delta**: Uses quadratic formula (continuous transition)
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (linear everywhere)
-- [MSE](../mse/Mse.md) - Mean Squared Error (quadratic everywhere)
-- [RMSE](../rmse/Rmse.md) - Root Mean Squared Error
+* [MAE](../mae/Mae.md) - Mean Absolute Error (linear everywhere)
+* [MSE](../mse/Mse.md) - Mean Squared Error (quadratic everywhere)
+* [RMSE](../rmse/Rmse.md) - Root Mean Squared Error

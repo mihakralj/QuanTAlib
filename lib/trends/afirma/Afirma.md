@@ -59,9 +59,9 @@ $$ w_k = W(k) \cdot \text{sinc}\left(\frac{\pi (k - c)}{P}\right) $$
 
 Where:
 
-- $c = \frac{N-1}{2}$ is the center tap
-- $P$ is the period parameter
-- $W(k)$ is the window function value at tap $k$
+* $c = \frac{N-1}{2}$ is the center tap
+* $P$ is the period parameter
+* $W(k)$ is the window function value at tap $k$
 
 ### 2. Window Functions
 
@@ -91,9 +91,9 @@ $$ \text{AFIRMA}_t = \frac{\sum_{k=0}^{N-1} w_k \cdot P_{t-k}}{\sum_{k=0}^{N-1} 
 
 ### Parameter Selection Guide
 
-- **Period**: Start with half your expected cycle length. For intraday on 1-minute bars with 20-minute cycles, use Period=10.
-- **Taps**: Use odd numbers (5, 7, 9...) for symmetric response. More taps = more lag but sharper cutoff. 6-12 is typical.
-- **Window**: Blackman-Harris for noisy data, Hamming for faster response, Rectangular only for experimentation.
+* **Period**: Start with half your expected cycle length. For intraday on 1-minute bars with 20-minute cycles, use Period=10.
+* **Taps**: Use odd numbers (5, 7, 9...) for symmetric response. More taps = more lag but sharper cutoff. 6-12 is typical.
+* **Window**: Blackman-Harris for noisy data, Hamming for faster response, Rectangular only for experimentation.
 
 ## Usage
 
@@ -174,9 +174,9 @@ For the same Period and Taps, different windows produce different smoothing char
 1. **Tap Inflation:** There is a temptation to set `Taps = 50` thinking it provides "more accuracy." It provides more lag. Keep taps between 5 and 15 for trading. If you need 50 taps, you don't need a filter; you need a weekly chart.
 
 2. **Period vs. Taps Confusion:**
-   - **Period** is the *what* (which frequencies to remove).
-   - **Taps** is the *how* (how much math to throw at the removal).
-   - Increasing Taps without changing Period just makes the filter steeper, not smoother.
+   * **Period** is the *what* (which frequencies to remove).
+   * **Taps** is the *how* (how much math to throw at the removal).
+   * Increasing Taps without changing Period just makes the filter steeper, not smoother.
 
 3. **The "Cold Start" Reality:** AFIRMA is an FIR filter. It requires `Taps` number of bars to fill its buffer. The first `Taps-1` values are approximations. Check `.IsHot` before trading real money.
 
@@ -184,6 +184,6 @@ For the same Period and Taps, different windows produce different smoothing char
 
 ## See Also
 
-- [ALMA](../alma/Alma.md) - Arnaud Legoux's Gaussian approach (similar goal, different math)
-- [JMA](../jma/Jma.md) - Jurik's proprietary-turned-open filter (often slower, high overshoot)
-- [SSF](../ssf/Ssf.md) - Ehlers Super Smoother (2-pole IIR, infinite memory)
+* [ALMA](../alma/Alma.md) - Arnaud Legoux's Gaussian approach (similar goal, different math)
+* [JMA](../jma/Jma.md) - Jurik's proprietary-turned-open filter (often slower, high overshoot)
+* [SSF](../ssf/Ssf.md) - Ehlers Super Smoother (2-pole IIR, infinite memory)

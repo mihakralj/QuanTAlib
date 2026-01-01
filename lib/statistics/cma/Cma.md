@@ -50,10 +50,10 @@ $$ M_n = M_{n-1} + \frac{x_n - M_{n-1}}{n} $$
 
 Where:
 
-- $M_n$ = cumulative mean after $n$ values
-- $M_{n-1}$ = previous cumulative mean
-- $x_n$ = new value
-- $n$ = total count of values
+* $M_n$ = cumulative mean after $n$ values
+* $M_{n-1}$ = previous cumulative mean
+* $x_n$ = new value
+* $n$ = total count of values
 
 ### 2. Algebraic Equivalence
 

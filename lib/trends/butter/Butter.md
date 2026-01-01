@@ -6,9 +6,9 @@ The Butterworth Filter is a signal processing tool designed to provide maximally
 
 ## Core Concepts
 
-- **Maximally flat response**: Provides smooth frequency response with no ripples in the passband, ensuring consistent filtering across all frequencies below the cutoff.
-- **Optimal roll-off**: Offers steeper attenuation of high frequencies than Bessel filters while maintaining better phase characteristics than Chebyshev filters.
-- **Market application**: Particularly effective for identifying underlying trends in noisy market conditions while introducing minimal waveform distortion.
+* **Maximally flat response**: Provides smooth frequency response with no ripples in the passband, ensuring consistent filtering across all frequencies below the cutoff.
+* **Optimal roll-off**: Offers steeper attenuation of high frequencies than Bessel filters while maintaining better phase characteristics than Chebyshev filters.
+* **Market application**: Particularly effective for identifying underlying trends in noisy market conditions while introducing minimal waveform distortion.
 
 The core innovation of the Butterworth filter is its mathematically optimal balance between opposing design constraints. The filter achieves the flattest possible frequency response in the passband without sacrificing roll-off steepness, providing traders with clean signals that maintain essential trend information while effectively eliminating random market noise.
 

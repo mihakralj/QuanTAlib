@@ -14,10 +14,10 @@ MdAE maintains a sorted view of errors through a specialized ring buffer. When n
 
 ### Properties
 
-- **Outlier-robust**: Unaffected by extreme values
-- **Non-negative**: MdAE ≥ 0, with 0 indicating perfect prediction
-- **Same units**: Results are in the same units as the original data
-- **Stable**: Small changes in data produce small changes in output
+* **Outlier-robust**: Unaffected by extreme values
+* **Non-negative**: MdAE ≥ 0, with 0 indicating perfect prediction
+* **Same units**: Results are in the same units as the original data
+* **Stable**: Small changes in data produce small changes in output
 
 ## Mathematical Foundation
 
@@ -28,8 +28,8 @@ For each observation, calculate the absolute difference:
 $$e_i = |y_i - \hat{y}_i|$$
 
 Where:
-- $y_i$ = actual value
-- $\hat{y}_i$ = predicted value
+* $y_i$ = actual value
+* $\hat{y}_i$ = predicted value
 
 ### 2. Median Calculation
 
@@ -119,14 +119,14 @@ Mdae.Batch(actualSpan, predictedSpan, outputSpan, period: 20);
 
 ## Edge Cases
 
-- **Identical Values**: Returns 0 when actual equals predicted
-- **NaN Handling**: Uses last valid value substitution
-- **Single Input**: Not supported (requires two series)
-- **Period = 1**: Returns current absolute error
-- **All Same Errors**: Returns that error value
+* **Identical Values**: Returns 0 when actual equals predicted
+* **NaN Handling**: Uses last valid value substitution
+* **Single Input**: Not supported (requires two series)
+* **Period = 1**: Returns current absolute error
+* **All Same Errors**: Returns that error value
 
 ## Related Indicators
 
-- [MAE](../mae/Mae.md) - Mean Absolute Error (uses mean)
-- [MdAPE](../mdape/Mdape.md) - Median Absolute Percentage Error
-- [Huber](../huber/Huber.md) - Huber Loss (robust but differentiable)
+* [MAE](../mae/Mae.md) - Mean Absolute Error (uses mean)
+* [MdAPE](../mdape/Mdape.md) - Median Absolute Percentage Error
+* [Huber](../huber/Huber.md) - Huber Loss (robust but differentiable)

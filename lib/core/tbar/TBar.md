@@ -33,7 +33,7 @@ public readonly record struct TBar(long Time, double Open, double High, double L
 ### Core Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ------ | ------ | ------ |
 | `Time` | `long` | Timestamp in ticks (UTC). |
 | `Open` | `double` | Opening price. |
 | `High` | `double` | Highest price. |
@@ -44,7 +44,7 @@ public readonly record struct TBar(long Time, double Open, double High, double L
 ### Computed Properties (Zero-Storage)
 
 | Property | Formula | Description |
-|----------|---------|-------------|
+| ------ | ------ | ------ |
 | `HL2` | `(H + L) / 2` | Median Price. |
 | `OC2` | `(O + C) / 2` | Midpoint Price. |
 | `OHL3` | `(O + H + L) / 3` | Typical Price (Variant). |

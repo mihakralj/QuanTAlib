@@ -165,6 +165,6 @@ Near zero, small absolute differences create large MSLE:
 
 ## See Also
 
-- [RMSLE](../rmsle/Rmsle.md) - Root of MSLE for interpretable units
-- [MSE](../mse/Mse.md) - Linear-scale squared error
-- [MAPE](../mape/Mape.md) - Percentage-based comparison
+* [RMSLE](../rmsle/Rmsle.md) - Root of MSLE for interpretable units
+* [MSE](../mse/Mse.md) - Linear-scale squared error
+* [MAPE](../mape/Mape.md) - Percentage-based comparison

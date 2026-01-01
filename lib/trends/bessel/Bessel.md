@@ -12,9 +12,9 @@ Originally derived from Friedrich Bessel’s work on Bessel polynomials and late
 
 In trading terms:
 
-- You keep the **relative timing** of swings.
-- You avoid overshoot and ringing common in sharper filters.
-- You accept a gentler roll-off as the price of cleaner turning points.
+* You keep the **relative timing** of swings.
+* You avoid overshoot and ringing common in sharper filters.
+* You accept a gentler roll-off as the price of cleaner turning points.
 
 QuanTAlib implements the **2nd-order low-pass** variant used in Ehlers-style digital filters.
 
@@ -22,31 +22,31 @@ QuanTAlib implements the **2nd-order low-pass** variant used in Ehlers-style dig
 
 BESSEL is implemented as a **2nd-order IIR filter** with a fixed structure:
 
-- State: last two filtered values plus last valid input
-- Behavior:
-  - Short warmup period (a few bars)
-  - Stable, monotonic smoothing
-  - Minimal overshoot on sharp transitions
+* State: last two filtered values plus last valid input
+* Behavior:
+  * Short warmup period (a few bars)
+  * Stable, monotonic smoothing
+  * Minimal overshoot on sharp transitions
 
 Conceptually:
 
-- High frequencies are attenuated gradually.
-- Phase is nearly linear in the passband, so local structures (peaks, troughs, breakout steps) keep their relative timing.
-- It runs as an **O(1)** streaming update:
-  - One input in, one output out, constant work per bar.
+* High frequencies are attenuated gradually.
+* Phase is nearly linear in the passband, so local structures (peaks, troughs, breakout steps) keep their relative timing.
+* It runs as an **O(1)** streaming update:
+  * One input in, one output out, constant work per bar.
 
 ### Specific Architectural Challenge
 
 The main tension is:
 
-- The design demands **IIR smoothness** and responsiveness.
-- Recursive instability or phase warping in turning zones cannot be tolerated.
+* The design demands **IIR smoothness** and responsiveness.
+* Recursive instability or phase warping in turning zones cannot be tolerated.
 
 BESSEL solves this by:
 
-- Fixing a 2nd-order topology with coefficients derived from the Bessel prototype.
-- Using a **safe minimum length** (at least 2) to keep coefficients in a numerically stable region.
-- Treating non-finite values via a last-valid-value cache so NaNs and infinities never poison the state.
+* Fixing a 2nd-order topology with coefficients derived from the Bessel prototype.
+* Using a **safe minimum length** (at least 2) to keep coefficients in a numerically stable region.
+* Treating non-finite values via a last-valid-value cache so NaNs and infinities never poison the state.
 
 ## Mathematical Foundation
 
@@ -70,17 +70,17 @@ $$ \text{BESSEL}[n] = c_1 s[n] + c_2\, \text{BESSEL}[n-1] + c_3\, \text{BESSEL}[
 
 with initialization:
 
-- For the first few bars, the filter output is seeded directly from the price (no recursion) to avoid transient garbage.
+* For the first few bars, the filter output is seeded directly from the price (no recursion) to avoid transient garbage.
 
 ### NaN and Infinity Handling
 
 For robustness:
 
-- Maintain a `LastValidValue` cache $v_{\text{last}}$.
-- For each input $x$:
-  - If $x$ is finite, set $v_{\text{last}} = x$.
-  - If $x$ is `NaN` or infinite, use $x \leftarrow v_{\text{last}}$.
-- The recursive update always runs on a finite input.
+* Maintain a `LastValidValue` cache $v_{\text{last}}$.
+* For each input $x$:
+  * If $x$ is finite, set $v_{\text{last}} = x$.
+  * If $x$ is `NaN` or infinite, use $x \leftarrow v_{\text{last}}$.
+* The recursive update always runs on a finite input.
 
 ## Performance Profile
 
@@ -111,9 +111,9 @@ Validation focuses on internal consistency between streaming, TSeries, and Span 
 
 ### Common Pitfalls
 
-- **Expecting razor-sharp cutoff:** Bessel is **not** a Chebyshev or elliptic filter. Roll-off is gentler by design to preserve shape and timing. If you want violent attenuation of high-frequency noise, pick Butterworth, Chebyshev, or a band-pass.
-- **Over-smoothing with large length:** Very large $L$ values will still preserve shape, but you will delay turning points more than necessary. Typical sweet spot for daily data is $L \in [10, 30]$.
-- **Misinterpreting flat response as “weak” filter:** The goal is not to crush all noise. The goal is to keep enough structure that pattern recognition, divergence analysis, and multi-stream alignment still make sense.
-- **Ignoring NaN propagation:** If your upstream feed throws `NaN` or infinities and you do not clean it, BESSEL will fall back to the last valid value. This is intentional. If you want gaps instead, preprocess the series and pass explicit masked values.
+* **Expecting razor-sharp cutoff:** Bessel is **not** a Chebyshev or elliptic filter. Roll-off is gentler by design to preserve shape and timing. If you want violent attenuation of high-frequency noise, pick Butterworth, Chebyshev, or a band-pass.
+* **Over-smoothing with large length:** Very large $L$ values will still preserve shape, but you will delay turning points more than necessary. Typical sweet spot for daily data is $L \in [10, 30]$.
+* **Misinterpreting flat response as “weak” filter:** The goal is not to crush all noise. The goal is to keep enough structure that pattern recognition, divergence analysis, and multi-stream alignment still make sense.
+* **Ignoring NaN propagation:** If your upstream feed throws `NaN` or infinities and you do not clean it, BESSEL will fall back to the last valid value. This is intentional. If you want gaps instead, preprocess the series and pass explicit masked values.
 
 Used correctly, BESSEL gives you a **shape-faithful trend line** with clean timing and low overshoot, ideal for traders who care more about *when* than *how loudly* the filter shouts.
