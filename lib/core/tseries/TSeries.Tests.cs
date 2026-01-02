@@ -535,4 +535,52 @@ public class TSeriesTests
         Assert.Equal(1.0, series[0].Value);
         Assert.Equal(3.0, series[2].Value);
     }
+
+
+    [Fact]
+    public void GetEnumerator_ExplicitGenericInterface_Works()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+        series.Add(200, 2.0);
+        series.Add(300, 3.0);
+
+        // Explicitly call IEnumerable<TValue>.GetEnumerator() through interface cast
+        IEnumerable<TValue> genericEnumerable = series;
+        using var enumerator = genericEnumerable.GetEnumerator();
+
+        var values = new List<double>();
+        while (enumerator.MoveNext())
+        {
+            values.Add(enumerator.Current.Value);
+        }
+
+        Assert.Equal(3, values.Count);
+        Assert.Equal(1.0, values[0]);
+        Assert.Equal(2.0, values[1]);
+        Assert.Equal(3.0, values[2]);
+    }
+
+    [Fact]
+    public void GetEnumerator_ExplicitNonGenericInterface_Works()
+    {
+        var series = new TSeries();
+        series.Add(100, 1.0);
+        series.Add(200, 2.0);
+
+        // Explicitly call IEnumerable.GetEnumerator() through interface cast
+        IEnumerable nonGenericEnumerable = series;
+        var enumerator = nonGenericEnumerable.GetEnumerator();
+
+        var values = new List<double>();
+        while (enumerator.MoveNext())
+        {
+            var tv = (TValue)enumerator.Current;
+            values.Add(tv.Value);
+        }
+
+        Assert.Equal(2, values.Count);
+        Assert.Equal(1.0, values[0]);
+        Assert.Equal(2.0, values[1]);
+    }
 }

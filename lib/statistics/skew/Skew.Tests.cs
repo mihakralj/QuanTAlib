@@ -343,7 +343,7 @@ public class SkewTests
         for (int i = 0; i < 5; i++)
         {
             var result = skew.Update(new TValue(DateTime.UtcNow, 10));
-            Assert.Equal(0, result.Value); // Skew is undefined or 0 for constant values
+            Assert.Equal(0, result.Value, precision: 10); // Skew is undefined or 0 for constant values
         }
     }
 
@@ -356,7 +356,7 @@ public class SkewTests
         skew.Update(new TValue(DateTime.UtcNow, double.NaN)); // Should be treated as 0 or handled gracefully
 
         var result = skew.Last.Value;
-        Assert.True(double.IsNaN(result) || result == 0);
+        Assert.True(double.IsNaN(result) || Math.Abs(result) < 1e-14);
     }
 
     [Fact]

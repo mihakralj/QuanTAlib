@@ -26,8 +26,11 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
-    <ErrorLog>$(MSBuildProjectDirectory)/roslyn.sarif</ErrorLog>
-    <ErrorLogFormat>SARIF2.1</ErrorLogFormat>
+  </PropertyGroup>
+
+  <!-- SARIF output for NDepend Roslyn Analyzer import -->
+  <PropertyGroup Condition="'$(SolutionDir)' != ''">
+    <ErrorLog>$(SolutionDir).sarif/$(MSBuildProjectName).json</ErrorLog>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -76,7 +79,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.183">
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.267">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

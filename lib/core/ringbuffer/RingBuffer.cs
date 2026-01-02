@@ -241,7 +241,9 @@ public sealed class RingBuffer : IEnumerable<double>
     private double GetAt(Index index)
     {
         int actualIndex = index.IsFromEnd ? _count - index.Value : index.Value;
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count);
+#pragma warning disable S3236 // Caller information arguments should not be provided explicitly - intentionally using cleaner parameter name
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count, nameof(index));
+#pragma warning restore S3236
 
         int start = _count == _capacity ? _head : 0;
         int bufferIdx = (start + actualIndex) % _capacity;
@@ -252,7 +254,9 @@ public sealed class RingBuffer : IEnumerable<double>
     private void SetAt(Index index, double value)
     {
         int actualIndex = index.IsFromEnd ? _count - index.Value : index.Value;
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count);
+#pragma warning disable S3236 // Caller information arguments should not be provided explicitly - intentionally using cleaner parameter name
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count, nameof(index));
+#pragma warning restore S3236
 
         int start = _count == _capacity ? _head : 0;
         int bufferIdx = (start + actualIndex) % _capacity;

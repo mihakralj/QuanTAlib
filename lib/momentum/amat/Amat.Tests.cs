@@ -68,7 +68,7 @@ public class AmatTests
 
         Assert.Equal(0, amat.Last.Value);
         Assert.False(amat.IsHot);
-        Assert.Contains("Amat", amat.Name);
+        Assert.Contains("Amat", amat.Name, StringComparison.Ordinal);
 
         amat.Update(new TValue(DateTime.UtcNow, 100));
         Assert.True(double.IsFinite(amat.Last.Value));
@@ -90,7 +90,7 @@ public class AmatTests
 
         // Trend should be +1, -1, or 0
         Assert.True(amat.Last.Value >= -1 && amat.Last.Value <= 1);
-        Assert.True(amat.Last.Value == -1 || amat.Last.Value == 0 || amat.Last.Value == 1);
+        Assert.True(Math.Abs(amat.Last.Value - (-1)) < 1e-10 || Math.Abs(amat.Last.Value) < 1e-10 || Math.Abs(amat.Last.Value - 1) < 1e-10);
     }
 
     [Fact]
@@ -248,7 +248,7 @@ public class AmatTests
 
         amat.Update(new TValue(DateTime.UtcNow, 100));
         amat.Update(new TValue(DateTime.UtcNow, 110));
-        double fastEmaBeforeNaN = amat.FastEma.Value;
+        _ = amat.FastEma.Value;
 
         var resultAfterNaN = amat.Update(new TValue(DateTime.UtcNow, double.NaN));
 

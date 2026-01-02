@@ -503,7 +503,7 @@ public class GBMTests
         bool anyDifferent = false;
         for (int i = 0; i < series1.Count; i++)
         {
-            if (series1[i].Close != series2[i].Close)
+            if (Math.Abs(series1[i].Close - series2[i].Close) > 1e-14)
             {
                 anyDifferent = true;
                 break;
@@ -523,11 +523,12 @@ public class GBMTests
         var bar1 = gbm1.Next();
         var bar2 = gbm2.Next();
 
-        // At least one value should be different
-        bool anyDifferent = bar1.Close != bar2.Close ||
-                           bar1.High != bar2.High ||
-                           bar1.Low != bar2.Low ||
-                           bar1.Volume != bar2.Volume;
+        // At least one value should be different (use tolerance for floating-point comparison)
+        const double tolerance = 1e-14;
+        bool anyDifferent = Math.Abs(bar1.Close - bar2.Close) > tolerance ||
+                           Math.Abs(bar1.High - bar2.High) > tolerance ||
+                           Math.Abs(bar1.Low - bar2.Low) > tolerance ||
+                           Math.Abs(bar1.Volume - bar2.Volume) > tolerance;
 
         Assert.True(anyDifferent, "Unseeded generators should produce different results");
     }
@@ -607,11 +608,12 @@ public class GBMTests
         double initialClose = bar1.Close;
 
         bool changed = false;
+        const double tolerance = 1e-14;
         for (int i = 0; i < 10; i++)
         {
             var bar = gbm.Next(isNew: false);
             Assert.Equal(initialTime, bar.Time);
-            if (Math.Abs(bar.Close - initialClose) > double.Epsilon)
+            if (Math.Abs(bar.Close - initialClose) > tolerance)
             {
                 changed = true;
                 break;

@@ -551,4 +551,51 @@ public class TBarSeriesTests
 
         Assert.Empty(series);
     }
+
+    [Fact]
+    public void GetEnumerator_ExplicitGenericInterface_Works()
+    {
+        var series = new TBarSeries();
+        series.Add(100, 10, 15, 5, 12, 100);
+        series.Add(200, 20, 25, 15, 22, 200);
+        series.Add(300, 30, 35, 25, 32, 300);
+
+        // Explicitly call IEnumerable<TBar>.GetEnumerator() through interface cast
+        IEnumerable<TBar> genericEnumerable = series;
+        using var enumerator = genericEnumerable.GetEnumerator();
+
+        var closes = new List<double>();
+        while (enumerator.MoveNext())
+        {
+            closes.Add(enumerator.Current.Close);
+        }
+
+        Assert.Equal(3, closes.Count);
+        Assert.Equal(12.0, closes[0]);
+        Assert.Equal(22.0, closes[1]);
+        Assert.Equal(32.0, closes[2]);
+    }
+
+    [Fact]
+    public void GetEnumerator_ExplicitNonGenericInterface_Works()
+    {
+        var series = new TBarSeries();
+        series.Add(100, 10, 15, 5, 12, 100);
+        series.Add(200, 20, 25, 15, 22, 200);
+
+        // Explicitly call IEnumerable.GetEnumerator() through interface cast
+        IEnumerable nonGenericEnumerable = series;
+        var enumerator = nonGenericEnumerable.GetEnumerator();
+
+        var closes = new List<double>();
+        while (enumerator.MoveNext())
+        {
+            var bar = (TBar)enumerator.Current;
+            closes.Add(bar.Close);
+        }
+
+        Assert.Equal(2, closes.Count);
+        Assert.Equal(12.0, closes[0]);
+        Assert.Equal(22.0, closes[1]);
+    }
 }

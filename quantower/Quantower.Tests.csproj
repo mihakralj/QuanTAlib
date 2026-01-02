@@ -44,6 +44,8 @@
     <Compile Include="..\lib\statistics\**\*.cs" Exclude="..\lib\statistics\**\*.Tests.cs;..\lib\statistics\**\*.Validation.Tests.cs;..\lib\statistics\**\obj\**;..\lib\statistics\**\bin\**" />
     <!-- Include volatility implementations -->
     <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\*.Validation.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
+    <!-- Include channels implementations -->
+    <Compile Include="..\lib\channels\**\*.cs" Exclude="..\lib\channels\**\*.Tests.cs;..\lib\channels\**\*.Validation.Tests.cs;..\lib\channels\**\obj\**;..\lib\channels\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
     <!-- Include Quantower adapter implementations -->

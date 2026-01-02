@@ -8,7 +8,7 @@
 | **Acceleration Oscillator** | Ac | - | - | - | ❔ |
 | **Accumulation/Distribution Line** | [Adl](../lib/volume/adl/adl.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Accumulation/Distribution Oscillator** | [Adosc](../lib/volume/adosc/adosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Adaptive Price Zone** | Apz | - | - | - | ❔ |
+| **Adaptive Price Zone** | [Apz](../lib/channels/apz/apz.md) | - | - | - | ❔ |
 | **Andrews' Pitchfork** | Apchannel | - | - | - | - |
 | **Archer Moving Averages Trends** | [Amat](../lib/momentum/amat/Amat.md) | - | - | ✔️ | ✔️ |
 | **Archer On-Balance Volume** | Aobv | - | - | - | - |

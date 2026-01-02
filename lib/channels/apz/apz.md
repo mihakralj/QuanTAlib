@@ -113,3 +113,106 @@ lower_band = middle_line - (band_multiplier × adaptive_range)
 **External:** Leibfarth 2006 original article, Investopedia definition, TradingView implementations
 **API:** ref-tools verified input.int, input.float, input.source, plot signatures
 **Planning:** sequential-thinking phases = research, formula_analysis, nested_ema_structure, warmup_strategy, category_placement, parameter_validation, documentation_requirements, implementation_summary
+
+## C# Usage Examples
+
+### Basic Streaming Usage
+
+```csharp
+// Create APZ indicator with period 20 and band multiplier 2.0
+var apz = new Apz(period: 20, multiplier: 2.0);
+
+// Process bars one at a time (streaming)
+foreach (var bar in barSeries)
+{
+    apz.Update(bar);
+    
+    // Access the three output values
+    double middle = apz.Last.Value;    // Double-smoothed EMA middle line
+    double upper = apz.Upper.Value;    // Upper band
+    double lower = apz.Lower.Value;    // Lower band
+    
+    // Check if indicator has warmed up
+    if (apz.IsHot)
+    {
+        // Mean reversion signals
+        if (bar.Close > upper)
+            Console.WriteLine("Price above upper band - potential sell signal");
+        else if (bar.Close < lower)
+            Console.WriteLine("Price below lower band - potential buy signal");
+    }
+}
+```
+
+### Batch Processing
+
+```csharp
+// Static batch method for processing entire series at once
+var (middle, upper, lower) = Apz.Batch(barSeries, period: 20, multiplier: 2.0);
+
+// Access results as TSeries
+for (int i = 0; i < middle.Count; i++)
+{
+    Console.WriteLine($"Bar {i}: Middle={middle[i].Value:F2}, " +
+                      $"Upper={upper[i].Value:F2}, Lower={lower[i].Value:F2}");
+}
+```
+
+### High-Performance Span-Based Calculation
+
+```csharp
+// Zero-allocation span-based calculation for maximum performance
+double[] highArr = barSeries.High.Values.ToArray();
+double[] lowArr = barSeries.Low.Values.ToArray();
+double[] closeArr = barSeries.Close.Values.ToArray();
+
+double[] middleOutput = new double[closeArr.Length];
+double[] upperOutput = new double[closeArr.Length];
+double[] lowerOutput = new double[closeArr.Length];
+
+Apz.Batch(
+    highArr.AsSpan(), lowArr.AsSpan(), closeArr.AsSpan(),
+    middleOutput.AsSpan(), upperOutput.AsSpan(), lowerOutput.AsSpan(),
+    period: 20, multiplier: 2.0);
+```
+
+### Event-Driven Architecture
+
+```csharp
+// Subscribe to bar source for reactive updates
+var barSource = new TBarSeries();
+var apz = new Apz(barSource, period: 20, multiplier: 2.0);
+
+// APZ automatically updates when bars are added to the source
+barSource.Add(newBar);
+Console.WriteLine($"Current APZ: {apz.Last.Value:F2}");
+```
+
+### Calculate with Primed Indicator
+
+```csharp
+// Get both results and a primed indicator for continued streaming
+var ((middle, upper, lower), indicator) = Apz.Calculate(barSeries, period: 20, multiplier: 2.0);
+
+// Indicator is now "hot" and ready for streaming
+Console.WriteLine($"Indicator ready: IsHot={indicator.IsHot}");
+
+// Continue streaming new bars
+indicator.Update(newBar);
+```
+
+### Bar Correction (Intra-Bar Updates)
+
+```csharp
+var apz = new Apz(period: 20, multiplier: 2.0);
+
+// First update creates a new bar
+apz.Update(bar, isNew: true);
+
+// Subsequent updates within the same bar use isNew: false
+apz.Update(updatedBar, isNew: false);  // Corrects the current bar
+apz.Update(finalBar, isNew: false);    // Further correction
+
+// Next bar starts with isNew: true again
+apz.Update(nextBar, isNew: true);
+```

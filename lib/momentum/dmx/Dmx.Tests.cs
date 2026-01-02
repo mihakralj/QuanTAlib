@@ -227,6 +227,6 @@ public class DmxTests
             dmx.Update(bars[i]);
         }
 
-        Assert.True(sma.Last.Value != 0);
+        Assert.True(Math.Abs(sma.Last.Value) > 1e-14);
     }
 }

@@ -37,7 +37,7 @@
 | AOBV | Archer On-Balance Volume | Volume |
 | APCHANNEL | Andrews' Pitchfork | Channels |
 | [APO](momentum/apo/Apo.md) | Absolute Price Oscillator | Momentum |
-| APZ | Adaptive Price Zone | Channels |
+| [APZ](channels/apz/apz.md) | Adaptive Price Zone | Channels |
 | [AROON](momentum/aroon/Aroon.md) | Aroon | Momentum |
 | [AROONOSC](momentum/aroonosc/AroonOsc.md) | Aroon Oscillator | Momentum |
 | ATAN2 | Two-Argument Arctangent | Numerics |
