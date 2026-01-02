@@ -1,5 +1,4 @@
 using TALib;
-using Tulip;
 using QuanTAlib.Tests;
 
 namespace QuanTAlib;

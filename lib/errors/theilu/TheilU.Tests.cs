@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class TheilUTests
@@ -273,7 +271,7 @@ public class TheilUTests
     public void Prime_ThrowsNotSupported()
     {
         var theilU = new TheilU(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => theilU.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => theilU.Prime([1, 2, 3]));
     }
 
     [Fact]

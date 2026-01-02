@@ -508,7 +508,7 @@ public sealed class StdDevValidationTests : IDisposable
         // 100, 110: mean = 105, deviations = -5, 5, squared = 25, 25, sum = 50
         // Population variance = 50/2 = 25, StdDev = 5
         // Sample variance = 50/1 = 50, StdDev = 7.071...
-        
+
         // Default is sample (isPopulation=false)
         Assert.Equal(Math.Sqrt(50), stdDev.Last.Value, 1e-10);
     }

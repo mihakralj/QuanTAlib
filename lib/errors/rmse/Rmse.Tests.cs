@@ -180,7 +180,7 @@ public class RmseTests
         var rmse = new Rmse(10);
         Assert.Throws<NotSupportedException>(() => rmse.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => rmse.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => rmse.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => rmse.Prime([1, 2, 3]));
     }
 
     [Fact]

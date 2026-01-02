@@ -154,7 +154,7 @@ public class StdDevTests
         // Sample Variance (N-1=7): 32 / 7 = 4.571428...
         // Sample StdDev: Sqrt(4.571428...) = 2.1380899...
 
-        var data = new double[] { 2, 4, 4, 4, 5, 5, 7, 9 };
+        double[] data = [2, 4, 4, 4, 5, 5, 7, 9];
 
         // Test Population StdDev
         var popStd = new StdDev(8, isPopulation: true);

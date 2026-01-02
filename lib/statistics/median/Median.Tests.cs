@@ -264,14 +264,14 @@ public class MedianTests
         // Arrange
         int period = 5;
         double[] data = new double[20];
-        for(int i=0; i<data.Length; i++) data[i] = i;
+        for (int i = 0; i < data.Length; i++) data[i] = i;
 
         // Act
         double[] output = new double[data.Length];
         Median.Batch(data, output, period);
 
         var series = new TSeries();
-        for(int i=0; i<data.Length; i++) series.Add(new TValue(DateTime.MinValue, data[i]));
+        for (int i = 0; i < data.Length; i++) series.Add(new TValue(DateTime.MinValue, data[i]));
         var batchSeries = Median.Batch(series, period);
 
         // Assert

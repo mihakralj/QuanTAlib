@@ -1,8 +1,6 @@
 using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Enums;
 using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
-using Tulip;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;

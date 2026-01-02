@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class MdapeTests
@@ -275,7 +273,7 @@ public class MdapeTests
     public void Prime_ThrowsNotSupported()
     {
         var mdape = new Mdape(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => mdape.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => mdape.Prime([1, 2, 3]));
     }
 
     [Fact]

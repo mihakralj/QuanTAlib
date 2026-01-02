@@ -1,6 +1,5 @@
 using Skender.Stock.Indicators;
 using TALib;
-using Tulip;
 using QuanTAlib.Tests;
 
 namespace QuanTAlib;

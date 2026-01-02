@@ -242,7 +242,7 @@ public sealed class VelValidationTests : IDisposable
         }
 
         // After sufficient warmup, flat line should produce VEL ≈ 0
-        Assert.True(Math.Abs(vel.Last.Value) < 1e-10, 
+        Assert.True(Math.Abs(vel.Last.Value) < 1e-10,
             $"Expected VEL ≈ 0 for flat line, got {vel.Last.Value}");
     }
 
@@ -354,7 +354,7 @@ public sealed class VelValidationTests : IDisposable
     {
         // Period=1 should still work (though not very useful)
         var vel = new Vel(1);
-        
+
         vel.Update(new TValue(DateTime.UtcNow, 100));
         // PWMA(1) = 100, WMA(1) = 100, VEL = 0
         Assert.Equal(0, vel.Last.Value, 1e-10);

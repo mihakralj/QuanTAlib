@@ -1,7 +1,5 @@
 using QuanTAlib.Tests;
 using Skender.Stock.Indicators;
-using TALib;
-using Tulip;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 

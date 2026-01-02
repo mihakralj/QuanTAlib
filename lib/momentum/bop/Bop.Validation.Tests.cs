@@ -1,10 +1,7 @@
 using Skender.Stock.Indicators;
 using TALib;
-using Tulip;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
-using OoplesFinance.StockIndicators.Enums;
-using QuanTAlib.Tests;
 
 namespace QuanTAlib.Tests;
 

@@ -217,7 +217,7 @@ public class MapdTests
         var mapd = new Mapd(10);
         Assert.Throws<NotSupportedException>(() => mapd.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => mapd.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => mapd.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => mapd.Prime([1, 2, 3]));
     }
 
     [Fact]

@@ -3,38 +3,19 @@
 #             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
 #-------------------------------------------------------------------------------#
 version: "1.0"
+
+#Specify inspection profile for code analysis
 profile:
   name: qodana.starter
 
+#Specify Qodana linter for analysis
 linter: jetbrains/qodana-dotnet:2025.3
 
+# Specify solution file for .NET analysis
 dotnet:
   solution: QuanTAlib.sln
-  frameworks: "net10.0"
-  configuration: Debug
-<<<<<<< HEAD
 
-# Coverage configuration
-coverage:
-  include:
-    - "lib/**/*.cs"
-  exclude:
-    - "**/*Tests.cs"
-    - "**/obj/**"
-    - "**/bin/**"
-=======
->>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
-
-# Disabled failure conditions - Qodana should never fail the build
-# Issues are reported for informational purposes only
-# failureConditions:
-#   severityThresholds:
-#     critical: -1
-#     high: -1
-#     moderate: -1
-#     low: -1
-#     info: -1
-
+# Exclusions
 exclude:
   - name: All
     paths:
@@ -48,13 +29,10 @@ exclude:
       - "**/.git/**"
       - ".github/**"
       - "**/.github/**"
-      - ".github/TradingPlatform.BusinessLayer.xml"
-      - "**/TradingPlatform.BusinessLayer.xml"
       - "**/.agent/**"
       - "**/.codacy/**"
       - "**/.config/**"
       - "**/.clinerules/**"
-      - "**/.idea/**"
       - "**/.qodana/**"
       - "**/.sonarlint/**"
       - "**/coverage/**"
@@ -64,16 +42,13 @@ exclude:
       - "**/*.Designer.cs"
       - "**/*.generated.cs"
       - "**/results/**"
-      - "**/TestResults/**"
       - "**/BenchmarkDotNet.Artifacts/**"
       - "**/*.md"
+  - name: S3776  # Cognitive Complexity
   - name: InvalidXmlDocComment
   - name: EnforceIfStatementBraces
   - name: CheckNamespace
   - name: LoopCanBeConvertedToQuery
   - name: UnusedAutoPropertyAccessor.Global
   - name: RedundantArgumentDefaultValue
-<<<<<<< HEAD
   - name: RedundantNameQualifier
-=======
->>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a

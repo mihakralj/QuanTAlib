@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class WmapeTests
@@ -273,7 +271,7 @@ public class WmapeTests
     public void Prime_ThrowsNotSupported()
     {
         var wmape = new Wmape(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => wmape.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => wmape.Prime([1, 2, 3]));
     }
 
     [Fact]

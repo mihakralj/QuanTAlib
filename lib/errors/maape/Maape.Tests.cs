@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class MaapeTests
@@ -293,7 +291,7 @@ public class MaapeTests
     public void Prime_ThrowsNotSupported()
     {
         var maape = new Maape(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => maape.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => maape.Prime([1, 2, 3]));
     }
 
     [Fact]

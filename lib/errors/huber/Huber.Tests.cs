@@ -250,7 +250,7 @@ public class HuberTests
         var huber = new Huber(10);
         Assert.Throws<NotSupportedException>(() => huber.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => huber.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => huber.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => huber.Prime([1, 2, 3]));
     }
 
     [Fact]

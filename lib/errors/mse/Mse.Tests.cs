@@ -221,7 +221,7 @@ public class MseTests
         var mse = new Mse(10);
         Assert.Throws<NotSupportedException>(() => mse.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => mse.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => mse.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => mse.Prime([1, 2, 3]));
     }
 
     [Fact]

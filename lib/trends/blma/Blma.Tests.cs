@@ -131,7 +131,7 @@ public class BlmaTests
     public void Prime_PreservesTimestamps()
     {
         var blma = new Blma(5);
-        var input = new double[] { 1, 2, 3, 4, 5 };
+        double[] input = [1, 2, 3, 4, 5];
         var timestamps = new List<DateTime>();
 
         blma.Pub += (object? sender, in TValueEventArgs args) => timestamps.Add(args.Value.AsDateTime);
@@ -143,7 +143,7 @@ public class BlmaTests
         // Verify timestamps are unique and increasing
         for (int i = 1; i < timestamps.Count; i++)
         {
-            Assert.True(timestamps[i] > timestamps[i-1], $"Timestamp at {i} ({timestamps[i].Ticks}) should be greater than {i-1} ({timestamps[i-1].Ticks})");
+            Assert.True(timestamps[i] > timestamps[i - 1], $"Timestamp at {i} ({timestamps[i].Ticks}) should be greater than {i - 1} ({timestamps[i - 1].Ticks})");
         }
     }
 

@@ -20,7 +20,7 @@ public class BetaTests
         var beta = new Beta(10);
         Assert.Throws<NotSupportedException>(() => beta.Update(new TValue(DateTime.UtcNow, 100)));
         Assert.Throws<NotSupportedException>(() => beta.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => beta.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => beta.Prime([1, 2, 3]));
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class BetaTests
             beta.Update(100 + i, 100 + i);
         }
         Assert.True(beta.IsHot);
-        
+
         // With equal proportional changes, beta should be 1
         Assert.Equal(1.0, beta.Last.Value, precision: 6);
     }

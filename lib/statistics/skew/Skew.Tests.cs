@@ -17,11 +17,11 @@ public class SkewTests
     public void Calc_ReturnsValue()
     {
         var skew = new Skew(5);
-        
+
         Assert.Equal(0, skew.Last.Value);
-        
+
         TValue result = skew.Update(new TValue(DateTime.UtcNow, 100));
-        
+
         Assert.Equal(result.Value, skew.Last.Value);
     }
 
@@ -29,16 +29,16 @@ public class SkewTests
     public void Calc_IsNew_AcceptsParameter()
     {
         var skew = new Skew(5);
-        
+
         skew.Update(new TValue(DateTime.UtcNow, 1), isNew: true);
         skew.Update(new TValue(DateTime.UtcNow, 2), isNew: true);
         skew.Update(new TValue(DateTime.UtcNow, 3), isNew: true);
         skew.Update(new TValue(DateTime.UtcNow, 4), isNew: true);
         double value1 = skew.Update(new TValue(DateTime.UtcNow, 5), isNew: true).Value;
-        
+
         skew.Update(new TValue(DateTime.UtcNow, 10), isNew: true);
         double value2 = skew.Last.Value;
-        
+
         Assert.NotEqual(value1, value2);
     }
 
@@ -47,7 +47,7 @@ public class SkewTests
     {
         var skew = new Skew(5);
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
-        
+
         // Feed 10 new values
         TValue tenthInput = default;
         for (int i = 0; i < 10; i++)
@@ -56,20 +56,20 @@ public class SkewTests
             tenthInput = new TValue(bar.Time, bar.Close);
             skew.Update(tenthInput, isNew: true);
         }
-        
+
         // Remember state after 10 values
         double stateAfterTen = skew.Last.Value;
-        
+
         // Generate 9 corrections with isNew=false (different values)
         for (int i = 0; i < 9; i++)
         {
             var bar = gbm.Next(isNew: false);
             skew.Update(new TValue(bar.Time, bar.Close), isNew: false);
         }
-        
+
         // Feed the remembered 10th input again with isNew=false
         TValue finalResult = skew.Update(tenthInput, isNew: false);
-        
+
         // State should match the original state after 10 values
         // Use looser tolerance due to floating-point accumulation in Skew's 3rd moment calculation
         Assert.Equal(stateAfterTen, finalResult.Value, 1e-3);
@@ -79,15 +79,15 @@ public class SkewTests
     public void IsHot_BecomesTrueWhenBufferFull()
     {
         var skew = new Skew(5);
-        
+
         Assert.False(skew.IsHot);
-        
+
         for (int i = 1; i <= 4; i++)
         {
             skew.Update(new TValue(DateTime.UtcNow, i * 10));
             Assert.False(skew.IsHot);
         }
-        
+
         skew.Update(new TValue(DateTime.UtcNow, 50));
         Assert.True(skew.IsHot);
     }
@@ -96,16 +96,16 @@ public class SkewTests
     public void Infinity_Input_UsesLastValidValue()
     {
         var skew = new Skew(5);
-        
+
         skew.Update(new TValue(DateTime.UtcNow, 1));
         skew.Update(new TValue(DateTime.UtcNow, 2));
         skew.Update(new TValue(DateTime.UtcNow, 3));
-        
+
         // Skew doesn't do last-valid-value substitution - it treats non-finite as 0
         // Just verify it doesn't crash and returns a finite value
         var resultAfterPosInf = skew.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         Assert.True(double.IsFinite(resultAfterPosInf.Value) || double.IsNaN(resultAfterPosInf.Value));
-        
+
         var resultAfterNegInf = skew.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
         Assert.True(double.IsFinite(resultAfterNegInf.Value) || double.IsNaN(resultAfterNegInf.Value));
     }
@@ -117,29 +117,29 @@ public class SkewTests
         int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         int count = 200;
-        
+
         var times = new List<long>(count);
         var values = new List<double>(count);
-        
+
         for (int i = 0; i < count; i++)
         {
             var bar = gbm.Next(isNew: true);
             times.Add(bar.Time);
             values.Add(bar.Close);
         }
-        
+
         var series = new TSeries(times, values);
-        
+
         // 1. Batch Mode (static method)
         var batchSeries = Skew.Calculate(series, period);
         double expected = batchSeries.Last.Value;
-        
+
         // 2. Span Mode (static method with spans)
         var spanInput = values.ToArray();
         var spanOutput = new double[count];
         Skew.Batch(spanInput.AsSpan(), spanOutput.AsSpan(), period);
         double spanResult = spanOutput[^1];
-        
+
         // 3. Streaming Mode (instance, one value at a time)
         var streamingInd = new Skew(period);
         for (int i = 0; i < count; i++)
@@ -147,7 +147,7 @@ public class SkewTests
             streamingInd.Update(series[i]);
         }
         double streamingResult = streamingInd.Last.Value;
-        
+
         // Assert all modes produce identical results
         Assert.Equal(expected, spanResult, precision: 9);
         Assert.Equal(expected, streamingResult, precision: 9);
@@ -159,15 +159,15 @@ public class SkewTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
-        
+
         // Period must be >= 3
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             Skew.Batch(source.AsSpan(), output.AsSpan(), 2));
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             Skew.Batch(source.AsSpan(), output.AsSpan(), 0));
-        
+
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             Skew.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
@@ -176,12 +176,12 @@ public class SkewTests
     {
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
         int count = 100;
-        
+
         var times = new List<long>(count);
         var values = new List<double>(count);
         double[] source = new double[count];
         double[] output = new double[count];
-        
+
         for (int i = 0; i < count; i++)
         {
             var bar = gbm.Next(isNew: true);
@@ -189,12 +189,12 @@ public class SkewTests
             values.Add(bar.Close);
             source[i] = bar.Close;
         }
-        
+
         var series = new TSeries(times, values);
-        
+
         var tseriesResult = Skew.Calculate(series, 10);
         Skew.Batch(source.AsSpan(), output.AsSpan(), 10);
-        
+
         for (int i = 0; i < count; i++)
         {
             Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
@@ -297,7 +297,7 @@ public class SkewTests
     [Fact]
     public void Batch_Matches_Streaming()
     {
-        var data = new double[] { 1, 2, 3, 4, 5, 10, 1, 2, 3 };
+        double[] data = [1, 2, 3, 4, 5, 10, 1, 2, 3];
         int period = 5;
 
         // Streaming

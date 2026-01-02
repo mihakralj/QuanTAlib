@@ -233,7 +233,7 @@ public class MaeTests
         var mae = new Mae(10);
         Assert.Throws<NotSupportedException>(() => mae.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => mae.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => mae.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => mae.Prime([1, 2, 3]));
     }
 
     [Fact]

@@ -16,11 +16,11 @@ public class VarianceTests
     public void Calc_ReturnsValue()
     {
         var variance = new Variance(5);
-        
+
         Assert.Equal(0, variance.Last.Value);
-        
+
         TValue result = variance.Update(new TValue(DateTime.UtcNow, 100));
-        
+
         Assert.Equal(result.Value, variance.Last.Value);
     }
 
@@ -28,16 +28,16 @@ public class VarianceTests
     public void Calc_IsNew_AcceptsParameter()
     {
         var variance = new Variance(5);
-        
+
         variance.Update(new TValue(DateTime.UtcNow, 1), isNew: true);
         variance.Update(new TValue(DateTime.UtcNow, 2), isNew: true);
         variance.Update(new TValue(DateTime.UtcNow, 3), isNew: true);
         variance.Update(new TValue(DateTime.UtcNow, 4), isNew: true);
         double value1 = variance.Update(new TValue(DateTime.UtcNow, 5), isNew: true).Value;
-        
+
         variance.Update(new TValue(DateTime.UtcNow, 100), isNew: true);
         double value2 = variance.Last.Value;
-        
+
         Assert.NotEqual(value1, value2);
     }
 
@@ -46,7 +46,7 @@ public class VarianceTests
     {
         var variance = new Variance(5);
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
-        
+
         // Feed 10 new values
         TValue tenthInput = default;
         for (int i = 0; i < 10; i++)
@@ -55,20 +55,20 @@ public class VarianceTests
             tenthInput = new TValue(bar.Time, bar.Close);
             variance.Update(tenthInput, isNew: true);
         }
-        
+
         // Remember state after 10 values
         double stateAfterTen = variance.Last.Value;
-        
+
         // Generate 9 corrections with isNew=false (different values)
         for (int i = 0; i < 9; i++)
         {
             var bar = gbm.Next(isNew: false);
             variance.Update(new TValue(bar.Time, bar.Close), isNew: false);
         }
-        
+
         // Feed the remembered 10th input again with isNew=false
         TValue finalResult = variance.Update(tenthInput, isNew: false);
-        
+
         // State should match the original state after 10 values
         Assert.Equal(stateAfterTen, finalResult.Value, 1e-10);
     }
@@ -77,17 +77,17 @@ public class VarianceTests
     public void Infinity_Input_UsesLastValidValue()
     {
         var variance = new Variance(5);
-        
+
         variance.Update(new TValue(DateTime.UtcNow, 1));
         variance.Update(new TValue(DateTime.UtcNow, 2));
         variance.Update(new TValue(DateTime.UtcNow, 3));
-        
+
         // Variance doesn't do last-valid-value substitution
         // Just verify it doesn't crash
         var resultAfterPosInf = variance.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         // May be NaN or finite depending on implementation
         Assert.True(double.IsFinite(resultAfterPosInf.Value) || double.IsNaN(resultAfterPosInf.Value) || double.IsInfinity(resultAfterPosInf.Value));
-        
+
         var resultAfterNegInf = variance.Update(new TValue(DateTime.UtcNow, double.NegativeInfinity));
         Assert.True(double.IsFinite(resultAfterNegInf.Value) || double.IsNaN(resultAfterNegInf.Value) || double.IsInfinity(resultAfterNegInf.Value));
     }
@@ -99,29 +99,29 @@ public class VarianceTests
         int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         int count = 200;
-        
+
         var times = new List<long>(count);
         var values = new List<double>(count);
-        
+
         for (int i = 0; i < count; i++)
         {
             var bar = gbm.Next(isNew: true);
             times.Add(bar.Time);
             values.Add(bar.Close);
         }
-        
+
         var series = new TSeries(times, values);
-        
+
         // 1. Batch Mode (static method)
         var batchSeries = Variance.Calculate(series, period);
         double expected = batchSeries.Last.Value;
-        
+
         // 2. Span Mode (static method with spans)
         var spanInput = values.ToArray();
         var spanOutput = new double[count];
         Variance.Batch(spanInput.AsSpan(), spanOutput.AsSpan(), period);
         double spanResult = spanOutput[^1];
-        
+
         // 3. Streaming Mode (instance, one value at a time)
         var streamingInd = new Variance(period);
         for (int i = 0; i < count; i++)
@@ -129,7 +129,7 @@ public class VarianceTests
             streamingInd.Update(series[i]);
         }
         double streamingResult = streamingInd.Last.Value;
-        
+
         // Assert all modes produce identical results
         Assert.Equal(expected, spanResult, precision: 9);
         Assert.Equal(expected, streamingResult, precision: 9);
@@ -141,15 +141,15 @@ public class VarianceTests
         double[] source = [1, 2, 3, 4, 5];
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
-        
+
         // Period must be >= 2
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             Variance.Batch(source.AsSpan(), output.AsSpan(), 1));
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             Variance.Batch(source.AsSpan(), output.AsSpan(), 0));
-        
+
         // Output must be same length as source
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             Variance.Batch(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
@@ -158,12 +158,12 @@ public class VarianceTests
     {
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
         int count = 100;
-        
+
         var times = new List<long>(count);
         var values = new List<double>(count);
         double[] source = new double[count];
         double[] output = new double[count];
-        
+
         for (int i = 0; i < count; i++)
         {
             var bar = gbm.Next(isNew: true);
@@ -171,12 +171,12 @@ public class VarianceTests
             values.Add(bar.Close);
             source[i] = bar.Close;
         }
-        
+
         var series = new TSeries(times, values);
-        
+
         var tseriesResult = Variance.Calculate(series, 10);
         Variance.Batch(source.AsSpan(), output.AsSpan(), 10);
-        
+
         for (int i = 0; i < count; i++)
         {
             Assert.Equal(tseriesResult[i].Value, output[i], precision: 10);
@@ -286,13 +286,13 @@ public class VarianceTests
         variance.Update(new TValue(DateTime.UtcNow, 2));
         variance.Update(new TValue(DateTime.UtcNow, 3));
 
-        Assert.Equal(2.0/3.0, variance.Last.Value, precision: 6);
+        Assert.Equal(2.0 / 3.0, variance.Last.Value, precision: 6);
 
         // Update last value from 3 to 6.
         // Data: 1, 2, 6. Mean=3. Var = ((1-3)^2 + (2-3)^2 + (6-3)^2)/3 = (4+1+9)/3 = 14/3 = 4.666...
         variance.Update(new TValue(DateTime.UtcNow, 6), isNew: false);
 
-        Assert.Equal(14.0/3.0, variance.Last.Value, precision: 6);
+        Assert.Equal(14.0 / 3.0, variance.Last.Value, precision: 6);
     }
 
     [Fact]
@@ -537,7 +537,7 @@ public class VarianceTests
         Assert.Equal(0, output[0]); // N=1, variance undefined
         Assert.Equal(50, output[1]); // Var([10,20]) = 50
         Assert.Equal(100, output[2]); // Var([10,20,30]) = 200/2 = 100
-        Assert.Equal(500.0/3.0, output[3], precision: 6); // Var([10,20,30,40]) = 500/3 ≈ 166.67
+        Assert.Equal(500.0 / 3.0, output[3], precision: 6); // Var([10,20,30,40]) = 500/3 ≈ 166.67
         Assert.Equal(250, output[4], precision: 6); // Var([10,20,30,40,50]) = 1000/4 = 250
     }
 
@@ -624,7 +624,7 @@ public class VarianceTests
         variance.Update(new TValue(DateTime.UtcNow, 1));
         variance.Update(new TValue(DateTime.UtcNow, 2));
 
-        Assert.Equal(10.0/3.0, variance.Last.Value, precision: 6); // Var([-2,-1,1,2]) = 10/3 ≈ 3.333
+        Assert.Equal(10.0 / 3.0, variance.Last.Value, precision: 6); // Var([-2,-1,1,2]) = 10/3 ≈ 3.333
     }
 
     [Fact]

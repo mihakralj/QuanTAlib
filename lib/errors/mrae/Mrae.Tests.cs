@@ -214,7 +214,7 @@ public class MraeTests
         var mrae = new Mrae(10);
         Assert.Throws<NotSupportedException>(() => mrae.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => mrae.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => mrae.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => mrae.Prime([1, 2, 3]));
     }
 
     [Fact]

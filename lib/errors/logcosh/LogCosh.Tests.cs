@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class LogCoshTests
@@ -320,7 +318,7 @@ public class LogCoshTests
     public void Prime_ThrowsNotSupported()
     {
         var logCosh = new LogCosh(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => logCosh.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => logCosh.Prime([1, 2, 3]));
     }
 
     [Fact]

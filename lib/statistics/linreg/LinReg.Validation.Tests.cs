@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
 using Skender.Stock.Indicators;
-using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Models;
 
 namespace QuanTAlib.Tests;
 

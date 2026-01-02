@@ -1,5 +1,3 @@
-using QuanTAlib.Tests;
-
 namespace QuanTAlib;
 
 public class AdoscTests

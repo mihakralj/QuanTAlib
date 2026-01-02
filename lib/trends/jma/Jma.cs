@@ -130,7 +130,7 @@ public sealed class Jma : AbstractBase
     {
         HandleStateSnapshot(isNew);
         value = HandleInvalidInput(value);
-        
+
         _state.Bars++;
 
         if (_state.Bars == 1)
@@ -163,7 +163,7 @@ public sealed class Jma : AbstractBase
         {
             return _state.Bars == 0 ? double.NaN : _state.LastPrice;
         }
-        
+
         _state.LastPrice = value;
         return value;
     }
@@ -232,7 +232,7 @@ public sealed class Jma : AbstractBase
     private double CalculateIIRFilter(double value, double d)
     {
         double prevJma = (double.IsNaN(_state.LastJma) || _state.Bars == 2) ? value : _state.LastJma;
-        
+
         double alpha = Math.Exp(_logLengthDivider * d);
         double decay = 1.0 - alpha;
         double alpha2 = alpha * alpha;

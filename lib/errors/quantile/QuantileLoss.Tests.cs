@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class QuantileLossTests
@@ -325,7 +323,7 @@ public class QuantileLossTests
     public void Prime_ThrowsNotSupported()
     {
         var quantileLoss = new QuantileLoss(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => quantileLoss.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => quantileLoss.Prime([1, 2, 3]));
     }
 
     [Fact]

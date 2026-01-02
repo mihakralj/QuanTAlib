@@ -101,7 +101,7 @@ public class CovarianceTests
         // Cov = ((1-2)(2-4) + (2-2)(4-4) + (3-2)(6-4)) / 3
         //     = (2 + 2) / 3 = 4/3
         var res3 = cov.Update(3, 6);
-        Assert.Equal(4.0/3.0, res3.Value, precision: 10);
+        Assert.Equal(4.0 / 3.0, res3.Value, precision: 10);
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public class CovarianceTests
         var cov = new Covariance(10);
         Assert.Throws<NotSupportedException>(() => cov.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => cov.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => cov.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => cov.Prime([1, 2, 3]));
     }
 
     [Fact]

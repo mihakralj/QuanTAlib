@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
-using QuanTAlib;
 
 namespace QuanTAlib;
 
@@ -101,8 +100,8 @@ public sealed class StdDev : AbstractBase
         // Update Last based on _variance.Last
         if (_variance.Last.Time != default)
         {
-             double val = _variance.Last.Value;
-             Last = new TValue(_variance.Last.Time, (val > 0) ? Math.Sqrt(val) : 0.0);
+            double val = _variance.Last.Value;
+            Last = new TValue(_variance.Last.Time, (val > 0) ? Math.Sqrt(val) : 0.0);
         }
     }
 

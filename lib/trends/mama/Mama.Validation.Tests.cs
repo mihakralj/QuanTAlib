@@ -2,7 +2,6 @@ using Skender.Stock.Indicators;
 using OoplesFinance.StockIndicators;
 using OoplesFinance.StockIndicators.Models;
 using Xunit.Abstractions;
-using QuanTAlib.Tests;
 
 namespace QuanTAlib.Tests;
 
@@ -26,7 +25,7 @@ public class MamaValidationTests
         // Skender uses HL2 by default. We need to feed (H+L)/2 to our Mama to match.
         var hl2Values = new List<double>();
         var hl2Times = new List<long>();
-        foreach(var q in _testData.SkenderQuotes)
+        foreach (var q in _testData.SkenderQuotes)
         {
             hl2Values.Add(((double)q.High + (double)q.Low) / 2.0);
             hl2Times.Add(q.Date.Ticks);
@@ -60,7 +59,7 @@ public class MamaValidationTests
         var qMamaResults = new List<double>();
         var qFamaResults = new List<double>();
 
-        for(int i=0; i < _testData.SkenderQuotes.Count; i++)
+        for (int i = 0; i < _testData.SkenderQuotes.Count; i++)
         {
             double hl2 = ((double)_testData.SkenderQuotes[i].High + (double)_testData.SkenderQuotes[i].Low) / 2.0;
             var result = mama.Update(new TValue(_testData.Data.Times[i], hl2));

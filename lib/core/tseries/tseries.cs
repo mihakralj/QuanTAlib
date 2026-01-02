@@ -99,8 +99,8 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
         }
         else
         {
-            _t = [..time];
-            _v = [..values];
+            _t = [.. time];
+            _v = [.. values];
         }
     }
 

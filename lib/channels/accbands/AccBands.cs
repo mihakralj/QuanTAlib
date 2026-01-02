@@ -468,11 +468,11 @@ public sealed class AccBands : ITValuePublisher
     /// Working buffers for batch calculation.
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
-    private ref struct WorkBuffers
+    private readonly ref struct WorkBuffers
     {
-        public Span<double> High;
-        public Span<double> Low;
-        public Span<double> Close;
+        public readonly Span<double> High;
+        public readonly Span<double> Low;
+        public readonly Span<double> Close;
 
         public WorkBuffers(Span<double> high, Span<double> low, Span<double> close)
         {

@@ -35,7 +35,7 @@ public sealed class BetaValidationTests : IDisposable
 
         for (int i = 1; i < marketQuotes.Count; i++)
         {
-            double marketReturn = (marketQuotes[i].Value - marketQuotes[i-1].Value) / marketQuotes[i-1].Value;
+            double marketReturn = (marketQuotes[i].Value - marketQuotes[i - 1].Value) / marketQuotes[i - 1].Value;
 
             // Get noise from GBM return
             var noiseBar = noiseGbm.Next();

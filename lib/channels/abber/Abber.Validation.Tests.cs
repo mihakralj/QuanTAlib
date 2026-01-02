@@ -79,7 +79,7 @@ public sealed class AbberValidationTests : IDisposable
         var series = new TSeries();
         var time = DateTime.UtcNow;
 
-        double[] values = { 100, 110, 120, 130, 140 };
+        double[] values = [100, 110, 120, 130, 140];
         for (int i = 0; i < values.Length; i++)
         {
             series.Add(new TValue(time.AddMinutes(i), values[i]));
@@ -130,7 +130,7 @@ public sealed class AbberValidationTests : IDisposable
     [Fact]
     public void Validate_AllModes_Consistency_Batch()
     {
-        int[] periods = { 5, 10, 20, 50, 100 };
+        int[] periods = [5, 10, 20, 50, 100];
 
         foreach (var period in periods)
         {
@@ -152,7 +152,7 @@ public sealed class AbberValidationTests : IDisposable
     [Fact]
     public void Validate_AllModes_Consistency_Streaming()
     {
-        int[] periods = { 5, 10, 20, 50, 100 };
+        int[] periods = [5, 10, 20, 50, 100];
 
         foreach (var period in periods)
         {
@@ -183,7 +183,7 @@ public sealed class AbberValidationTests : IDisposable
     [Fact]
     public void Validate_AllModes_Consistency_Span()
     {
-        int[] periods = { 5, 10, 20, 50, 100 };
+        int[] periods = [5, 10, 20, 50, 100];
 
         double[] source = _testData.RawData.ToArray();
 
@@ -215,7 +215,7 @@ public sealed class AbberValidationTests : IDisposable
     [Fact]
     public void Validate_AllModes_Consistency_Eventing()
     {
-        int[] periods = { 5, 10, 20, 50 };
+        int[] periods = [5, 10, 20, 50];
 
         foreach (var period in periods)
         {
@@ -248,7 +248,7 @@ public sealed class AbberValidationTests : IDisposable
     [Fact]
     public void Validate_Calculate_ReturnsHotIndicator()
     {
-        int[] periods = { 5, 10, 20, 50, 100 };
+        int[] periods = [5, 10, 20, 50, 100];
 
         foreach (var period in periods)
         {
@@ -379,7 +379,7 @@ public sealed class AbberValidationTests : IDisposable
         // Use predictable values
         var series = new TSeries();
         var time = DateTime.UtcNow;
-        double[] values = { 100, 120, 80, 110, 90 };
+        double[] values = [100, 120, 80, 110, 90];
         for (int i = 0; i < values.Length; i++)
         {
             series.Add(new TValue(time.AddMinutes(i), values[i]));
@@ -404,7 +404,7 @@ public sealed class AbberValidationTests : IDisposable
     public void Validate_Consistency_AcrossPeriods()
     {
         // Verify behavior is consistent across different periods
-        int[] periods = { 3, 5, 10, 20, 50, 100, 200 };
+        int[] periods = [3, 5, 10, 20, 50, 100, 200];
 
         foreach (var period in periods)
         {

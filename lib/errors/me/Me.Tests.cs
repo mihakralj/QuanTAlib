@@ -259,7 +259,7 @@ public class MeTests
         var me = new Me(10);
         Assert.Throws<NotSupportedException>(() => me.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => me.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => me.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => me.Prime([1, 2, 3]));
     }
 
     [Fact]

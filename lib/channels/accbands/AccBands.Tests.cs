@@ -565,9 +565,9 @@ public class AccBandsTests
 
         // 3. Streaming Mode
         var streamingInd = new AccBands(period, factor);
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            streamingInd.Update(bars[i]);
+            streamingInd.Update(bar);
         }
         double streamingMiddle = streamingInd.Last.Value;
         double streamingUpper = streamingInd.Upper.Value;
@@ -576,9 +576,9 @@ public class AccBandsTests
         // 4. Eventing Mode
         var pubSource = new TBarSeries();
         var eventingInd = new AccBands(pubSource, period, factor);
-        for (int i = 0; i < bars.Count; i++)
+        foreach (var bar in bars)
         {
-            pubSource.Add(bars[i]);
+            pubSource.Add(bar);
         }
         double eventingMiddle = eventingInd.Last.Value;
         double eventingUpper = eventingInd.Upper.Value;

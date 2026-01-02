@@ -233,7 +233,7 @@ public class MapeTests
         var mape = new Mape(10);
         Assert.Throws<NotSupportedException>(() => mape.Update(new TValue(DateTime.UtcNow, 1)));
         Assert.Throws<NotSupportedException>(() => mape.Update(new TSeries()));
-        Assert.Throws<NotSupportedException>(() => mape.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => mape.Prime([1, 2, 3]));
     }
 
     [Fact]

@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace QuanTAlib.Tests;
 
 public class TukeyBiweightTests
@@ -319,7 +317,7 @@ public class TukeyBiweightTests
     public void Prime_ThrowsNotSupported()
     {
         var tukey = new TukeyBiweight(DefaultPeriod);
-        Assert.Throws<NotSupportedException>(() => tukey.Prime(new double[] { 1, 2, 3 }));
+        Assert.Throws<NotSupportedException>(() => tukey.Prime([1, 2, 3]));
     }
 
     [Fact]

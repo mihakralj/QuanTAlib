@@ -500,9 +500,9 @@ public class AbberTests
 
         // 3. Streaming Mode
         var streamingInd = new Abber(period, multiplier);
-        for (int i = 0; i < series.Count; i++)
+        foreach (var item in series)
         {
-            streamingInd.Update(series[i]);
+            streamingInd.Update(item);
         }
         double streamingMiddle = streamingInd.Last.Value;
         double streamingUpper = streamingInd.Upper.Value;
@@ -511,9 +511,9 @@ public class AbberTests
         // 4. Eventing Mode
         var pubSource = new TSeries();
         var eventingInd = new Abber(pubSource, period, multiplier);
-        for (int i = 0; i < series.Count; i++)
+        foreach (var item in series)
         {
-            pubSource.Add(series[i]);
+            pubSource.Add(item);
         }
         double eventingMiddle = eventingInd.Last.Value;
         double eventingUpper = eventingInd.Upper.Value;
@@ -648,7 +648,7 @@ public class AbberTests
     {
         var abber = new Abber(10);
         bool eventFired = false;
-        abber.Pub += (object? sender, in TValueEventArgs args) => eventFired = true;
+        abber.Pub += (object? _, in TValueEventArgs _) => eventFired = true;
 
         abber.Update(new TValue(DateTime.UtcNow, 100));
         Assert.True(eventFired);

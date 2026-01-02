@@ -155,12 +155,13 @@
   "dotnet.server.useOmnisharp": false,
 
   "sonarlint.connectedMode.project": {
-    "connectionId": "mihakralj-quantalib",
+    "connectionId": "QuanTAlib",
     "projectKey": "mihakralj_QuanTAlib"
   },
   "coderabbit.agentType": "Cline",
   "qodana.projectId": "KbxmN",
-  // Note: Native mode is configured in qodana.yaml with withinDocker: false
+  "qodana.pathPrefix": "",
+  "qodana.args": ["--config", ".qodana/qodana.yaml"],
 
   // ?????????????????????????????????????????????????????????????????
   // Terminal Settings
@@ -168,7 +169,7 @@
 
   // Set PowerShell 7 as the default terminal on Windows
   "terminal.integrated.defaultProfile.windows": "PowerShell",
-  
+
   // Terminal profiles for Windows
   "terminal.integrated.profiles.windows": {
     "PowerShell": {

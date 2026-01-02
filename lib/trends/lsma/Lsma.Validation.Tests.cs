@@ -1,5 +1,3 @@
-using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Models;
 using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 

@@ -274,7 +274,7 @@ public class JmaTests
         // where _p_state and buffers weren't updated after batch Update(TSeries)
         var jma = new Jma(10);
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
-        
+
         // Create a batch series with enough bars to reach warmup (203 for JMA(10))
         int warmupBars = jma.WarmupPeriod + 50;
         var series = new TSeries();
@@ -283,25 +283,25 @@ public class JmaTests
             var bar = gbm.Next(isNew: true);
             series.Add(bar.Time, bar.Close);
         }
-        
+
         // Process batch - this should update _state, _p_state, and buffer snapshots
         jma.Update(series);
-        
+
         // Now do a streaming update with isNew=true (new bar)
         var bar51 = gbm.Next(isNew: true);
         jma.Update(new TValue(bar51.Time, bar51.Close), isNew: true);
-        
+
         // Do several corrections with isNew=false
         for (int i = 0; i < 3; i++)
         {
             var correction = gbm.Next(isNew: false);
             jma.Update(new TValue(correction.Time, correction.Close), isNew: false);
         }
-        
+
         // Feed the original bar51 value again with isNew=false
         // It should restore to the state after bar51
         var restoredResult = jma.Update(new TValue(bar51.Time, bar51.Close), isNew: false);
-        
+
         // The key test: After batch processing, we should be able to advance to a new bar
         // and then do corrections without errors. Before the fix, this would fail because
         // _p_state had stale data from before the batch processing.
