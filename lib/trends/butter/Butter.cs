@@ -181,6 +181,7 @@ public sealed class Butter : AbstractBase
 
         double x1 = 0, x2 = 0;
         double y1 = 0, y2 = 0;
+        int validSampleCount = 0;
 
         for (int i = 0; i < source.Length; i++)
         {
@@ -192,7 +193,7 @@ public sealed class Butter : AbstractBase
             }
             // IIR: y = (b0*x + b1*x1 + b2*x2 - a1*y1 - a2*y2) * invA0
             // Using chained FMA for precision
-            double y = i < 2
+            double y = validSampleCount < 2
                 ? x
                 : Math.FusedMultiplyAdd(-a2, y2,
                     Math.FusedMultiplyAdd(-a1, y1,
@@ -203,6 +204,11 @@ public sealed class Butter : AbstractBase
             x1 = x;
             y2 = y1;
             y1 = y;
+
+            if (validSampleCount < 2)
+            {
+                validSampleCount++;
+            }
 
             destination[i] = y;
         }

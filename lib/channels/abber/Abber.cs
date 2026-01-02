@@ -407,8 +407,13 @@ public sealed class Abber : ITValuePublisher
     [StructLayout(LayoutKind.Auto)]
     private ref struct WorkBuffers
     {
+<<<<<<< HEAD
+        public readonly Span<double> Source;
+        public readonly Span<double> Deviation;
+=======
         public Span<double> Source;
         public Span<double> Deviation;
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
 
         public WorkBuffers(Span<double> source, Span<double> deviation)
         {
@@ -659,7 +664,11 @@ public sealed class Abber : ITValuePublisher
         {
             sumVector += new Vector<double>(source.Slice(i, size));
         }
+<<<<<<< HEAD
+
+=======
         
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
         double sum = Vector.Sum(sumVector);
 
         for (; i < len; i++)

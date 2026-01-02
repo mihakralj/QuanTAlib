@@ -5,7 +5,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 ## Full Category Table
 
 | Category | What It Measures | Representative Indicators | When You Need It |
-| --------*| ----------------*| -------------------------*| ----------------*|
+| -------- | ---------------- | ------------------------- | ---------------- |
 | [**Trends**](../lib/trends/_index.md) | Direction and strength of price movement through smoothing and filtering | SMA, EMA, WMA, HMA, JMA, KAMA, ALMA, DEMA, TEMA, T3 | Starting point for most analysis. Simpler variants (SMA, EMA) work for trend identification. Exotic ones (Jurik, Ehlers) trade CPU cycles for reduced lag. |
 | [**Volatility**](../lib/volatility/_index.md) | Size and variability of price movements | ATR, StdDev, Bollinger Bands, Keltner Channels, Historical Volatility | Position sizing, stop-loss placement, and understanding market regime. ATR tells you how much instruments typically move. |
 | [**Momentum**](../lib/momentum/_index.md) | Speed and magnitude of price changes | RSI, Stochastic, CCI, Williams %R, MACD, Momentum, ROC | Identifying overbought/oversold conditions and divergences. RSI oscillates between 0-100 by construction. |
@@ -53,70 +53,81 @@ These measure the spread of data points around the mean.
 
 ### Momentum
 
-* [**ADX**](../lib/momentum/adx/Adx.md) * Average Directional Index
-* [**ADXR**](../lib/momentum/adxr/Adxr.md) * Average Directional Movement Rating
-* [**AMAT**](../lib/momentum/amat/Amat.md) * Archer Moving Averages Trends
-* [**AO**](../lib/momentum/ao/Ao.md) * Awesome Oscillator
-* [**AROON**](../lib/momentum/aroon/Aroon.md) * Aroon
-* [**AROONOSC**](../lib/momentum/aroonosc/AroonOsc.md) * Aroon Oscillator
-* [**CFB**](../lib/momentum/cfb/Cfb.md) * Jurik Composite Fractal Behavior
-* [**DMX**](../lib/momentum/dmx/Dmx.md) * Jurik Directional Movement Index
-* [**RSX**](../lib/momentum/rsx/Rsx.md) * Jurik Relative Strength Quality Index
-* [**VEL**](../lib/momentum/vel/Vel.md) * Jurik Velocity
+<<<<<<< HEAD
+* [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
+* [**ADXR**](../lib/momentum/adxr/Adxr.md) - Average Directional Movement Rating
+* [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
+* [**AROON**](../lib/momentum/aroon/Aroon.md) - Aroon
+* [**AROONOSC**](../lib/momentum/aroonosc/AroonOsc.md) - Aroon Oscillator
+* [**CFB**](../lib/momentum/cfb/Cfb.md) - Jurik Composite Fractal Behavior
+* [**DMX**](../lib/momentum/dmx/Dmx.md) - Jurik Directional Movement Index
+* [**RSX**](../lib/momentum/rsx/Rsx.md) - Jurik Relative Strength Quality Index
+* [**VEL**](../lib/momentum/vel/Vel.md) - Jurik Velocity
+=======
+- [**ADX**](../lib/momentum/adx/Adx.md) - Average Directional Index
+- [**ADXR**](../lib/momentum/adxr/Adxr.md) - Average Directional Movement Rating
+- [**AMAT**](../lib/momentum/amat/Amat.md) - Archer Moving Averages Trends
+- [**AO**](../lib/momentum/ao/Ao.md) - Awesome Oscillator
+- [**AROON**](../lib/momentum/aroon/Aroon.md) - Aroon
+- [**AROONOSC**](../lib/momentum/aroonosc/AroonOsc.md) - Aroon Oscillator
+- [**CFB**](../lib/momentum/cfb/Cfb.md) - Jurik Composite Fractal Behavior
+- [**DMX**](../lib/momentum/dmx/Dmx.md) - Jurik Directional Movement Index
+- [**RSX**](../lib/momentum/rsx/Rsx.md) - Jurik Relative Strength Quality Index
+- [**VEL**](../lib/momentum/vel/Vel.md) - Jurik Velocity
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
 
 ### Trends
 
-* [**AFIRMA**](../lib/trends/afirma/Afirma.md) * Autoregressive FIR MA
-* [**ALMA**](../lib/trends/alma/Alma.md) * Arnaud Legoux MA
-* [**BESSEL**](../lib/trends/bessel/Bessel.md) * Bessel Filter
-* [**BILATERAL**](../lib/trends/bilateral/Bilateral.md) * Bilateral Filter
-* [**BLMA**](../lib/trends/blma/Blma.md) * Blackman Window MA
-* [**BUTTER**](../lib/trends/butter/Butter.md) * Butterworth Filter
-* [**CONV**](../lib/trends/conv/Conv.md) * Convolution MA
-* [**DEMA**](../lib/trends/dema/Dema.md) * Double Exponential MA
-* [**DWMA**](../lib/trends/dwma/Dwma.md) * Double Weighted MA
-* [**EMA**](../lib/trends/ema/Ema.md) * Exponential MA
-* [**HMA**](../lib/trends/hma/Hma.md) * Hull MA
-* [**HTIT**](../lib/trends/htit/Htit.md) * Hilbert Transform Instantaneous Trend
-* [**JMA**](../lib/trends/jma/Jma.md) * Jurik MA
-* [**KAMA**](../lib/trends/kama/Kama.md) * Kaufman Adaptive MA
-* [**LSMA**](../lib/trends/lsma/Lsma.md) * Least Squares MA
-* [**MAMA**](../lib/trends/mama/Mama.md) * MESA Adaptive MA
-* [**MGDI**](../lib/trends/mgdi/Mgdi.md) * McGinley Dynamic
-* [**PWMA**](../lib/trends/pwma/Pwma.md) * Pascal Weighted MA
-* [**RMA**](../lib/trends/rma/Rma.md) * wildeR MA
-* [**SMA**](../lib/trends/sma/Sma.md) * Simple MA
-* [**SSF**](../lib/trends/ssf/Ssf.md) * Ehlers Super Smooth Filter
-* [**SUPER**](../lib/trends/super/Super.md) * SuperTrend
-* [**T3**](../lib/trends/t3/T3.md) * Tillson T3 MA
-* [**TEMA**](../lib/trends/tema/Tema.md) * Triple Exponential MA
-* [**TRIMA**](../lib/trends/trima/Trima.md) * Triangular MA
-* [**USF**](../lib/trends/usf/Usf.md) * Ehlers Ultimate Smoother Filter
-* [**VIDYA**](../lib/trends/vidya/Vidya.md) * Variable Index Dynamic Average
-* [**WMA**](../lib/trends/wma/Wma.md) * Weighted MA
+* [**AFIRMA**](../lib/trends/afirma/Afirma.md) - Autoregressive FIR MA
+* [**ALMA**](../lib/trends/alma/Alma.md) - Arnaud Legoux MA
+* [**BESSEL**](../lib/trends/bessel/Bessel.md) - Bessel Filter
+* [**BILATERAL**](../lib/trends/bilateral/Bilateral.md) - Bilateral Filter
+* [**BLMA**](../lib/trends/blma/Blma.md) - Blackman Window MA
+* [**BUTTER**](../lib/trends/butter/Butter.md) - Butterworth Filter
+* [**CONV**](../lib/trends/conv/Conv.md) - Convolution MA
+* [**DEMA**](../lib/trends/dema/Dema.md) - Double Exponential MA
+* [**DWMA**](../lib/trends/dwma/Dwma.md) - Double Weighted MA
+* [**EMA**](../lib/trends/ema/Ema.md) - Exponential MA
+* [**HMA**](../lib/trends/hma/Hma.md) - Hull MA
+* [**HTIT**](../lib/trends/htit/Htit.md) - Hilbert Transform Instantaneous Trend
+* [**JMA**](../lib/trends/jma/Jma.md) - Jurik MA
+* [**KAMA**](../lib/trends/kama/Kama.md) - Kaufman Adaptive MA
+* [**LSMA**](../lib/trends/lsma/Lsma.md) - Least Squares MA
+* [**MAMA**](../lib/trends/mama/Mama.md) - MESA Adaptive MA
+* [**MGDI**](../lib/trends/mgdi/Mgdi.md) - McGinley Dynamic
+* [**PWMA**](../lib/trends/pwma/Pwma.md) - Pascal Weighted MA
+* [**RMA**](../lib/trends/rma/Rma.md) - wildeR MA
+* [**SMA**](../lib/trends/sma/Sma.md) - Simple MA
+* [**SSF**](../lib/trends/ssf/Ssf.md) - Ehlers Super Smooth Filter
+* [**SUPER**](../lib/trends/super/Super.md) - SuperTrend
+* [**T3**](../lib/trends/t3/T3.md) - Tillson T3 MA
+* [**TEMA**](../lib/trends/tema/Tema.md) - Triple Exponential MA
+* [**TRIMA**](../lib/trends/trima/Trima.md) - Triangular MA
+* [**USF**](../lib/trends/usf/Usf.md) - Ehlers Ultimate Smoother Filter
+* [**VIDYA**](../lib/trends/vidya/Vidya.md) - Variable Index Dynamic Average
+* [**WMA**](../lib/trends/wma/Wma.md) - Weighted MA
 
 ### Volatility
 
-* [**ATR**](../lib/volatility/atr/Atr.md) * Average True Range
+* [**ATR**](../lib/volatility/atr/Atr.md) - Average True Range
 
 ### Volume
 
-* [**ADL**](../lib/volume/adl/Adl.md) * Accumulation/Distribution Line
-* [**ADOSC**](../lib/volume/adosc/Adosc.md) * Chaikin A/D Oscillator
+* [**ADL**](../lib/volume/adl/Adl.md) - Accumulation/Distribution Line
+* [**ADOSC**](../lib/volume/adosc/Adosc.md) - Chaikin A/D Oscillator
 
 ### Channels
 
-* [**ABBER**](../lib/channels/abber/abber.md) * Aberration Bands
-* [**ACCBANDS**](../lib/channels/accbands/accbands.md) * Acceleration Bands
-* [**APZ**](../lib/channels/apz/apz.md) * Adaptive Price Zone
+* [**ABBER**](../lib/channels/abber/abber.md) - Aberration Bands
+* [**ACCBANDS**](../lib/channels/accbands/accbands.md) - Acceleration Bands
 
 ### Statistics
 
-* [**CMA**](../lib/statistics/cma/Cma.md) * Cumulative Moving Average
-* [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) * Covariance
-* [**LINREG**](../lib/statistics/linreg/LinReg.md) * Linear Regression Curve
-* [**MEDIAN**](../lib/statistics/median/Median.md) * Rolling Median
-* [**SKEW**](../lib/statistics/skew/Skew.md) * Skewness
-* [**STDDEV**](../lib/statistics/stddev/StdDev.md) * Standard Deviation
-* [**SUM**](../lib/statistics/sum/Sum.md) * Rolling Sum
-* [**VARIANCE**](../lib/statistics/variance/Variance.md) * Population and Sample Variance
+* [**CMA**](../lib/statistics/cma/Cma.md) - Cumulative Moving Average
+* [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) - Covariance
+* [**LINREG**](../lib/statistics/linreg/LinReg.md) - Linear Regression Curve
+* [**MEDIAN**](../lib/statistics/median/Median.md) - Rolling Median
+* [**SKEW**](../lib/statistics/skew/Skew.md) - Skewness
+* [**STDDEV**](../lib/statistics/stddev/StdDev.md) - Standard Deviation
+* [**SUM**](../lib/statistics/sum/Sum.md) - Rolling Sum
+* [**VARIANCE**](../lib/statistics/variance/Variance.md) - Population and Sample Variance

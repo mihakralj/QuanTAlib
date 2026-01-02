@@ -128,7 +128,20 @@ public sealed class Jma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double Step(double value, bool isNew)
     {
-        // --- Snapshot/rollback support for "amending" last bar ---
+        HandleStateSnapshot(isNew);
+        value = HandleInvalidInput(value);
+        
+        _state.Bars++;
+
+        if (_state.Bars == 1)
+            return InitializeFirstBar(value);
+
+        return CalculateJma(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void HandleStateSnapshot(bool isNew)
+    {
         if (isNew)
         {
             _p_state = _state;
@@ -141,35 +154,35 @@ public sealed class Jma : AbstractBase
             _devBuffer.Restore();
             _volBuffer.Restore();
         }
+    }
 
-        // --- Handle NaN/inf: reuse last finite price ---
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double HandleInvalidInput(double value)
+    {
         if (!double.IsFinite(value))
         {
-            if (_state.Bars == 0)
-            {
-                return double.NaN;
-            }
-            value = _state.LastPrice;
+            return _state.Bars == 0 ? double.NaN : _state.LastPrice;
         }
-        else
-        {
-            _state.LastPrice = value;
-        }
+        
+        _state.LastPrice = value;
+        return value;
+    }
 
-        _state.Bars++;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double InitializeFirstBar(double value)
+    {
+        _state.UpperBand = value;
+        _state.LowerBand = value;
+        _state.LastC0 = value;
+        _state.LastC8 = 0.0;
+        _state.LastA8 = 0.0;
+        _state.LastJma = value;
+        return value;
+    }
 
-        // --- First bar: initialize anchors and IIR state ---
-        if (_state.Bars == 1)
-        {
-            _state.UpperBand = value;
-            _state.LowerBand = value;
-            _state.LastC0 = value;
-            _state.LastC8 = 0.0;
-            _state.LastA8 = 0.0;
-            _state.LastJma = value;
-            return value;
-        }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateJma(double value)
+    {
         // 1. Local deviation: |price - {UpperBand, LowerBand}|
         double diffA = value - _state.UpperBand;
         double diffB = value - _state.LowerBand;
@@ -185,33 +198,41 @@ public sealed class Jma : AbstractBase
         // 3. 128-bar volatility history + middle-65 trimmed mean
         _volBuffer.Add(volatility);
         double refVolatility = CalculateTrimmedMean(volatility);
-
-        if (refVolatility <= 0.0)
-            refVolatility = deviation;
+        refVolatility = refVolatility <= 0.0 ? deviation : refVolatility;
 
         // 4. Jurik dynamic exponent d from abs/refVolatility
-        // d = clamp( (abs/refVolatility)^p, 1 .. logParam )
-        double ratio = absValue / refVolatility;
-        if (ratio < 0.0) ratio = 0.0;
+        double d = CalculateJurikExponent(absValue, refVolatility);
 
+        // 5. Update UpperBand / LowerBand using sqrtDivider ^ sqrt(d)
+        UpdateBands(value, d);
+
+        // 6. 2-pole IIR core using d as the "speed"
+        return CalculateIIRFilter(value, d);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateJurikExponent(double absValue, double refVolatility)
+    {
+        double ratio = Math.Max(absValue / refVolatility, 0.0);
         double d = Math.Pow(ratio, _power);
         if (d > _logParam) d = _logParam;
         if (d < 1.0) d = 1.0;
+        return d;
+    }
 
-        // 5. Update UpperBand / LowerBand using sqrtDivider ^ sqrt(d)
-        // Optimization: Use Exp(log(x) * y) instead of Pow(x, y)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateBands(double value, double d)
+    {
         double adapt = Math.Exp(_logSqrtDivider * Math.Sqrt(d));
-
         _state.UpperBand = (value > _state.UpperBand) ? value : value - (value - _state.UpperBand) * adapt;
         _state.LowerBand = (value < _state.LowerBand) ? value : value - (value - _state.LowerBand) * adapt;
+    }
 
-        // 6. 2-pole IIR core using d as the "speed"
-        // alpha = lengthDivider ^ d
-        // matches the Jurik decompiled structure (fC0/fC8/fA8)
-        double prevJma = _state.LastJma;
-        if (double.IsNaN(prevJma) || _state.Bars == 2)
-            prevJma = value;
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateIIRFilter(double value, double d)
+    {
+        double prevJma = (double.IsNaN(_state.LastJma) || _state.Bars == 2) ? value : _state.LastJma;
+        
         double alpha = Math.Exp(_logLengthDivider * d);
         double decay = 1.0 - alpha;
         double alpha2 = alpha * alpha;
@@ -268,6 +289,12 @@ public sealed class Jma : AbstractBase
         {
             vSpan[i] = Step(source.Values[i], true);
         }
+
+        // Synchronize previous-state mirror to current state AND snapshot buffers
+        // so subsequent streaming Update calls with isNew=false will use correct _p_state
+        _p_state = _state;
+        _devBuffer.Snapshot();
+        _volBuffer.Snapshot();
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);

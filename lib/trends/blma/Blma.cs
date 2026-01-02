@@ -197,6 +197,9 @@ public sealed class Blma : AbstractBase
         return sum1 + sum2;
     }
 
+<<<<<<< HEAD
+#pragma warning disable S3776 // Cognitive Complexity: necessary for SIMD optimization and edge case handling
+=======
     /// <summary>
     /// Calculates BLMA values for a TSeries and returns both results and a primed indicator.
     /// </summary>
@@ -210,8 +213,10 @@ public sealed class Blma : AbstractBase
     /// <summary>
     /// Calculates BLMA values using spans (high-performance batch API).
     /// </summary>
+>>>>>>> d493bfd42fe5d6238736660aaaa808279cb3a27a
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period)
     {
+#pragma warning restore S3776
         if (period < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");

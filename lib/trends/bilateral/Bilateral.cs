@@ -52,6 +52,9 @@ public sealed class Bilateral : AbstractBase
 
         _spatialWeights = new double[period];
         PrecalculateSpatialWeights();
+        
+        // Initialize LastValidValue to NaN so it propagates until a real value is seen
+        _state = _state with { LastValidValue = double.NaN };
     }
 
     public Bilateral(ITValuePublisher source, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
