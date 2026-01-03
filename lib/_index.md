@@ -127,7 +127,7 @@
 | HT_PHASOR | Ehlers Hilbert Transform Phasor Components | Cycles |
 | HT_SINE | Ehlers Hilbert Transform SineWave | Cycles |
 | HT_TRENDMODE | Ehlers Hilbert Transform Trend Mode | Trends |
-| HUBER | Huber Loss | Errors |
+| [HUBER](errors/huber/Huber.md) | Huber Loss | Errors |
 | HURST | Hurst | Statistics |
 | HV | Historical Volatility | Volatility |
 | HWMA | Holt Weighted MA | Trends |
@@ -150,6 +150,7 @@
 | KURTOSIS | Kurtosis | Statistics |
 | KVO | Klinger Volume Oscillator | Volume |
 | LINEAR | Linear Transformation | Numerics |
+| [LOGCOSH](errors/logcosh/LogCosh.md) | Log-Cosh Loss | Errors |
 | LINREG | Linear Regression Curve | Statistics |
 | LOESS | LOESS/LOWESS Smoothing | Trends |
 | LOG | Logarithmic Transformation | Numerics |
@@ -157,15 +158,18 @@
 | [LSMA](trends/lsma/Lsma.md) | Least Squares Moving Average | Trends |
 | LTMA | Linear Trend MA | Trends |
 | LUNAR | Lunar Phase | Cycles |
+| [MAAPE](errors/maape/Maape.md) | Mean Arctangent Absolute Percentage Error | Errors |
 | MACD | Moving Average Convergence Divergence | Momentum |
-| MAE | Mean Absolute Error | Errors |
+| [MAE](errors/mae/Mae.md) | Mean Absolute Error | Errors |
 | MAENV | Moving Average Envelope | Channels |
 | [MAMA](trends/mama/Mama.md) | Ehlers MESA Adaptive MA | Trends |
-| MAPD | Mean Absolute Percentage Difference | Errors |
-| MAPE | Mean Absolute Percentage Error | Errors |
-| MASE | Mean Absolute Scaled Error | Errors |
+| [MAPD](errors/mapd/Mapd.md) | Mean Absolute Percentage Deviation | Errors |
+| [MAPE](errors/mape/Mape.md) | Mean Absolute Percentage Error | Errors |
+| [MASE](errors/mase/Mase.md) | Mean Absolute Scaled Error | Errors |
 | MASS | Mass Index | Volatility |
-| ME | Mean Error | Errors |
+| [MDAE](errors/mdae/Mdae.md) | Median Absolute Error | Errors |
+| [MDAPE](errors/mdape/Mdape.md) | Median Absolute Percentage Error | Errors |
+| [ME](errors/me/Me.md) | Mean Error | Errors |
 | [MEDIAN](statistics/median/Median.md) | Median (Statistical) | Statistics |
 | MFI | Money Flow Index | Volume |
 | MGDI | McGinley Dynamic Indicator | Trends |
@@ -175,9 +179,10 @@
 | MODE | Mode (Most Frequent) | Statistics |
 | MOM | Momentum | Momentum |
 | MOON | Moon Phase | Cycles |
-| MPE | Mean Percentage Error | Errors |
-| MSE | Mean Squared Error | Errors |
-| MSLE | Mean Squared Logarithmic Error | Errors |
+| [MPE](errors/mpe/Mpe.md) | Mean Percentage Error | Errors |
+| [MRAE](errors/mrae/Mrae.md) | Mean Relative Absolute Error | Errors |
+| [MSE](errors/mse/Mse.md) | Mean Squared Error | Errors |
+| [MSLE](errors/msle/Msle.md) | Mean Squared Logarithmic Error | Errors |
 | NATR | Normalized Average True Range | Volatility |
 | NORMALIZE | Min-Max Scaling (Normalization) | Numerics |
 | NOTCH | Notch Filter | Trends |
@@ -205,25 +210,27 @@
 | PVI | Positive Volume Index | Volume |
 | PVO | Percentage Volume Oscillator | Volume |
 | PVR | Price Volume Rank | Volume |
+| [PSEUDOHUBER](errors/pseudohuber/PseudoHuber.md) | Pseudo-Huber Loss | Errors |
 | PVT | Price Volume Trend | Volume |
 | [PWMA](trends/pwma/Pwma.md) | Pascal Weighted MA | Trends |
 | QEMA | Quadruple Exponential MA | Trends |
 | QSTICK | Qstick Indicator | Momentum |
 | QUANTILE | Quantile | Statistics |
-| RAE | Relative Absolute Error | Errors |
+| [QUANTILELOSS](errors/quantile/QuantileLoss.md) | Quantile Loss | Errors |
+| [RAE](errors/rae/Rae.md) | Relative Absolute Error | Errors |
 | REGCHANNEL | Regression Channels | Channels |
 | RELU | Rectified Linear Unit | Numerics |
 | REMA | Regularized Exponential MA | Trends |
 | RGMA | Recursive Gaussian MA | Trends |
 | [RMA](trends/rma/Rma.md) | wildeR MA (SMMA, MMA) | Trends |
-| RMSE | Root Mean Squared Error | Errors |
-| RMSLE | Root Mean Squared Logarithmic Error | Errors |
+| [RMSE](errors/rmse/Rmse.md) | Root Mean Squared Error | Errors |
+| [RMSLE](errors/rmsle/Rmsle.md) | Root Mean Squared Logarithmic Error | Errors |
 | ROC | Rate of Change | Momentum |
 | ROCP | Rate of Change Percentage | Momentum |
 | ROCR | Rate of Change Ratio | Momentum |
-| RSE | Relative Squared Error | Errors |
+| [RSE](errors/rse/Rse.md) | Relative Squared Error | Errors |
 | RSI | Relative Strength Index | Momentum |
-| RSQUARED | R-Squared | Errors |
+| [RSQUARED](errors/rsquared/Rsquared.md) | Coefficient of Determination (R²) | Errors |
 | RSV | Rogers-Satchell Volatility | Volatility |
 | [RSX](momentum/rsx/Rsx.md) | Jurik Relative Strength Quality Index | Momentum |
 | RV | Realized Volatility | Volatility |
@@ -237,7 +244,7 @@
 | SKEW | Skewness | Statistics |
 | SLOPE | Rate of change; 1st derivative | Numerics |
 | [SMA](trends/sma/Sma.md) | Simple MA | Trends |
-| SMAPE | Symmetric Mean Absolute Percentage Error | Errors |
+| [SMAPE](errors/smape/Smape.md) | Symmetric Mean Absolute Percentage Error | Errors |
 | SMI | Stochastic Momentum Index | Momentum |
 | SOLAR | Solar Activity Cycle | Cycles |
 | SPEARMAN | Spearman Rank Correlation | Statistics |
@@ -259,12 +266,14 @@
 | TANH | Hyperbolic Tangent | Numerics |
 | [TEMA](trends/tema/Tema.md) | Triple Exponential MA | Trends |
 | THEIL | Theil Index | Statistics |
+| [THEILU](errors/theilu/TheilU.md) | Theil's U Statistic | Errors |
 | TR | True Range | Volatility |
 | [TRIMA](trends/trima/Trima.md) | Triangular MA | Trends |
 | TRIX | Triple Exponential Average | Momentum |
 | TSF | Time Series Forecast | Forecasts |
 | TSI | True Strength Index | Momentum |
 | TTM | TTM Trend | Trends |
+| [TUKEY](errors/tukey/TukeyBiweight.md) | Tukey Biweight Loss | Errors |
 | TVI | Trade Volume Index | Volume |
 | TWAP | Time Weighted Average Price | Volume |
 | UBANDS | Ultimate Bands | Channels |
@@ -292,6 +301,7 @@
 | WIENER | Wiener Filter | Trends |
 | WILLR | Williams %R | Momentum |
 | [WMA](trends/wma/Wma.md) | Weighted MA | Trends |
+| [WMAPE](errors/wmape/Wmape.md) | Weighted Mean Absolute Percentage Error | Errors |
 | YZV | Yang-Zhang Volatility | Volatility |
 | YZVAMA | Yang-Zhang Volatility Adjusted MA | Trends |
 | ZLDEMA | Zero-Lag Double Exponential MA | Trends |

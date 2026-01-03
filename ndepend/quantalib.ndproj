@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <NDepend AppName="quantalib" Platform="DotNet" FileWrittenByProductVersion="2026.1.1.9785">
-  <OutputDir KeepXmlFiles="False">./NDependOut</OutputDir>
+  <OutputDir KeepXmlFiles="True">./NDependOut</OutputDir>
   <IDEFiles>
     <IDEFile FilePath="../QuanTAlib.sln" Filters="-test" Configuration="Debug|AnyCPU">
       <RootDirResolvingInfo Enabled="False" Hints="Debug|bin|.bin|b|AnyCPU|x64|x86|v*.*|net*" TimeOut="10">
