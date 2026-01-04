@@ -155,7 +155,7 @@
   "dotnet.server.useOmnisharp": false,
 
   "sonarlint.connectedMode.project": {
-    "connectionId": "QuanTAlib",
+    "connectionId": "mihakralj-quantalib",
     "projectKey": "mihakralj_QuanTAlib"
   },
   "coderabbit.agentType": "Cline",
