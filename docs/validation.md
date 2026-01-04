@@ -285,3 +285,33 @@
 | **Standard Deviation** | [StdDev](../lib/statistics/stddev/StdDev.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sum (Rolling)** | [Sum](../lib/statistics/sum/Sum.md) | - | ✔️ | ✔️ | - |
 | **Variance** | [Variance](../lib/statistics/variance/Variance.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+
+## Error Metrics
+
+| Indicator | QuanTAlib | MathNet | Notes |
+| :--- | :--- | :---: | :--- |
+| **Mean Absolute Error** | [Mae](../lib/errors/mae/Mae.md) | ✔️ | Validated via `Distance.MAE()` |
+| **Mean Squared Error** | [Mse](../lib/errors/mse/Mse.md) | ✔️ | Validated via `Distance.MSE()` |
+| **Root Mean Squared Error** | [Rmse](../lib/errors/rmse/Rmse.md) | ✔️ | Validated via `sqrt(Distance.MSE())` |
+| **R-Squared** | [Rsquared](../lib/errors/rsquared/Rsquared.md) | | Uses streaming-optimized TSS calculation |
+| **Huber Loss** | [Huber](../lib/errors/huber/Huber.md) | - | No external validation available |
+| **Pseudo-Huber Loss** | [PseudoHuber](../lib/errors/pseudohuber/PseudoHuber.md) | - | No external validation available |
+| **Log-Cosh Loss** | [LogCosh](../lib/errors/logcosh/LogCosh.md) | - | No external validation available |
+| **Tukey Loss** | [Tukey](../lib/errors/tukey/Tukey.md) | - | No external validation available |
+| **Quantile Loss** | [Quantile](../lib/errors/quantile/Quantile.md) | - | No external validation available |
+| **MAPE** | [Mape](../lib/errors/mape/Mape.md) | - | No external validation available |
+| **SMAPE** | [Smape](../lib/errors/smape/Smape.md) | - | No external validation available |
+| **MAAPE** | [Maape](../lib/errors/maape/Maape.md) | - | No external validation available |
+| **MASE** | [Mase](../lib/errors/mase/Mase.md) | - | No external validation available |
+| **MSLE** | [Msle](../lib/errors/msle/Msle.md) | - | No external validation available |
+| **RMSLE** | [Rmsle](../lib/errors/rmsle/Rmsle.md) | - | No external validation available |
+| **Theil U** | [TheilU](../lib/errors/theilu/TheilU.md) | - | No external validation available |
+| **Mean Error** | [Me](../lib/errors/me/Me.md) | - | No external validation available |
+| **MPE** | [Mpe](../lib/errors/mpe/Mpe.md) | - | No external validation available |
+| **RSE** | [Rse](../lib/errors/rse/Rse.md) | - | No external validation available |
+| **RAE** | [Rae](../lib/errors/rae/Rae.md) | - | No external validation available |
+| **MRAE** | [Mrae](../lib/errors/mrae/Mrae.md) | - | No external validation available |
+| **MdAE** | [MdAE](../lib/errors/mdae/MdAE.md) | - | No external validation available |
+| **MdAPE** | [MdAPE](../lib/errors/mdape/MdAPE.md) | - | No external validation available |
+| **MAPD** | [Mapd](../lib/errors/mapd/Mapd.md) | - | No external validation available |
+| **WMAPE** | [Wmape](../lib/errors/wmape/Wmape.md) | - | No external validation available |

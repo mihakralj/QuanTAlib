@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
@@ -36,7 +35,7 @@ public sealed class Wma : AbstractBase, IDisposable
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount, bool HasSeenValidData);
     private State _state;
-    private State _p_state;
+    private State _pState;
 
     /// <summary>
     /// Default value to use for LastValidValue when no valid data has been seen yet.
@@ -46,12 +45,12 @@ public sealed class Wma : AbstractBase, IDisposable
 
     private const int ResyncInterval = 10000;
 
-    private static readonly Vector512<long> V512_Idx_1 = Vector512.Create(0L, 0, 1, 2, 3, 4, 5, 6);
-    private static readonly Vector512<long> V512_Idx_2 = Vector512.Create(0L, 0, 0, 1, 2, 3, 4, 5);
-    private static readonly Vector512<long> V512_Idx_4 = Vector512.Create(0L, 0, 0, 0, 0, 1, 2, 3);
-    private static readonly Vector512<double> V512_Mask_1 = Vector512.Create(0.0, 1, 1, 1, 1, 1, 1, 1);
-    private static readonly Vector512<double> V512_Mask_2 = Vector512.Create(0.0, 0, 1, 1, 1, 1, 1, 1);
-    private static readonly Vector512<double> V512_Mask_4 = Vector512.Create(0.0, 0, 0, 0, 1, 1, 1, 1);
+    private static readonly Vector512<long> V512Idx1 = Vector512.Create(0L, 0, 1, 2, 3, 4, 5, 6);
+    private static readonly Vector512<long> V512Idx2 = Vector512.Create(0L, 0, 0, 1, 2, 3, 4, 5);
+    private static readonly Vector512<long> V512Idx4 = Vector512.Create(0L, 0, 0, 0, 0, 1, 2, 3);
+    private static readonly Vector512<double> V512Mask1 = Vector512.Create(0.0, 1, 1, 1, 1, 1, 1, 1);
+    private static readonly Vector512<double> V512Mask2 = Vector512.Create(0.0, 0, 1, 1, 1, 1, 1, 1);
+    private static readonly Vector512<double> V512Mask4 = Vector512.Create(0.0, 0, 0, 0, 1, 1, 1, 1);
 
     public Wma(int period)
     {
@@ -142,7 +141,7 @@ public sealed class Wma : AbstractBase, IDisposable
             UpdateState(val);
             _state.LastInput = val;
 
-            _p_state = _state;
+            _pState = _state;
         }
         else
         {
@@ -154,7 +153,7 @@ public sealed class Wma : AbstractBase, IDisposable
                     "The first update must have isNew=true to initialize state.");
             }
 
-            _state = _p_state;
+            _state = _pState;
             double val = GetValidValue(input.Value);
 
             int weight = _buffer.IsFull ? _period : _buffer.Count;
@@ -236,14 +235,14 @@ public sealed class Wma : AbstractBase, IDisposable
         double currentDivisor = _buffer.IsFull ? _divisor : (double)_buffer.Count * (_buffer.Count + 1) * 0.5;
         Last = new TValue(DateTime.MinValue, _state.WSum / currentDivisor);
 
-        _p_state = _state;
+        _pState = _state;
     }
 
     public override void Reset()
     {
         _buffer.Clear();
         _state = default;
-        _p_state = default;
+        _pState = default;
         Last = default;
     }
 
@@ -264,20 +263,20 @@ public sealed class Wma : AbstractBase, IDisposable
         int len = source.Length;
         if (len == 0) return;
 
-        const int SimdThreshold = 256;
-        if (Avx512F.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
+        const int simdThreshold = 256;
+        if (Avx512F.IsSupported && len >= simdThreshold && !source.ContainsNonFinite())
         {
             CalculateAvx512Core(source, output, period);
             return;
         }
 
-        if (Avx2.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
+        if (Avx2.IsSupported && len >= simdThreshold && !source.ContainsNonFinite())
         {
             CalculateSimdCore(source, output, period);
             return;
         }
 
-        if (AdvSimd.Arm64.IsSupported && len >= SimdThreshold && !source.ContainsNonFinite())
+        if (AdvSimd.Arm64.IsSupported && len >= simdThreshold && !source.ContainsNonFinite())
         {
             CalculateNeonCore(source, output, period);
             return;
@@ -364,7 +363,7 @@ public sealed class Wma : AbstractBase, IDisposable
     private static void CalculateAvx512Core(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
-        const int VectorWidth = 8;
+        const int vectorWidth = 8;
 
         ref double srcRef = ref MemoryMarshal.GetReference(source);
         ref double outRef = ref MemoryMarshal.GetReference(output);
@@ -389,7 +388,7 @@ public sealed class Wma : AbstractBase, IDisposable
 
         var vInvDivisor = Vector512.Create(invDivisor);
         var vPeriod = Vector512.Create((double)period);
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;
 
         var vSumState = Vector512.Create(sum);
         var vWsumState = Vector512.Create(wsum);
@@ -399,7 +398,7 @@ public sealed class Wma : AbstractBase, IDisposable
         {
             int nextSync = Math.Min(simdEnd, idx + ResyncInterval);
 
-            for (; idx < nextSync; idx += VectorWidth)
+            for (; idx < nextSync; idx += vectorWidth)
             {
                 var vNew = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
                 var vOld = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
@@ -407,35 +406,35 @@ public sealed class Wma : AbstractBase, IDisposable
                 var vDeltaS = Avx512F.Subtract(vNew, vOld);
 
                 // Prefix sum of DeltaS
-                var vShiftS1 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vDeltaS, V512_Idx_1), V512_Mask_1);
-                var vPS1 = Avx512F.Add(vDeltaS, vShiftS1);
+                var vShiftS1 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vDeltaS, V512Idx1), V512Mask1);
+                var vPs1 = Avx512F.Add(vDeltaS, vShiftS1);
 
-                var vShiftS2 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPS1, V512_Idx_2), V512_Mask_2);
-                var vPS2 = Avx512F.Add(vPS1, vShiftS2);
+                var vShiftS2 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPs1, V512Idx2), V512Mask2);
+                var vPs2 = Avx512F.Add(vPs1, vShiftS2);
 
-                var vShiftS4 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPS2, V512_Idx_4), V512_Mask_4);
-                var vPS4 = Avx512F.Add(vPS2, vShiftS4);
+                var vShiftS4 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPs2, V512Idx4), V512Mask4);
+                var vPs4 = Avx512F.Add(vPs2, vShiftS4);
 
-                var vSums = Avx512F.Add(vSumState, vPS4);
+                var vSums = Avx512F.Add(vSumState, vPs4);
 
                 // Calculate Wsum update
                 var vSumsShifted = Avx512F.Subtract(vSums, vDeltaS);
                 var vU = Avx512F.FusedMultiplySubtract(vPeriod, vNew, vSumsShifted);
 
                 // Prefix sum of vU
-                var vShiftW1 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vU, V512_Idx_1), V512_Mask_1);
-                var vPW1 = Avx512F.Add(vU, vShiftW1);
+                var vShiftW1 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vU, V512Idx1), V512Mask1);
+                var vPw1 = Avx512F.Add(vU, vShiftW1);
 
-                var vShiftW2 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPW1, V512_Idx_2), V512_Mask_2);
-                var vPW2 = Avx512F.Add(vPW1, vShiftW2);
+                var vShiftW2 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPw1, V512Idx2), V512Mask2);
+                var vPw2 = Avx512F.Add(vPw1, vShiftW2);
 
-                var vShiftW4 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPW2, V512_Idx_4), V512_Mask_4);
-                var vPW4 = Avx512F.Add(vPW2, vShiftW4);
+                var vShiftW4 = Avx512F.Multiply(Avx512F.PermuteVar8x64(vPw2, V512Idx4), V512Mask4);
+                var vPw4 = Avx512F.Add(vPw2, vShiftW4);
 
-                var vWsums = Avx512F.Add(vWsumState, vPW4);
+                var vWsums = Avx512F.Add(vWsumState, vPw4);
 
                 var vResult = Avx512F.Multiply(vWsums, vInvDivisor);
-                Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, idx));
+                vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
 
                 // Update state for next iteration
                 vSumState = Vector512.Create(vSums.GetElement(7));
@@ -479,7 +478,7 @@ public sealed class Wma : AbstractBase, IDisposable
     private static void CalculateSimdCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
-        const int VectorWidth = 4;
+        const int vectorWidth = 4;
 
         ref double srcRef = ref MemoryMarshal.GetReference(source);
         ref double outRef = ref MemoryMarshal.GetReference(output);
@@ -505,7 +504,7 @@ public sealed class Wma : AbstractBase, IDisposable
         var vInvDivisor = Vector256.Create(invDivisor);
         var vPeriod = Vector256.Create((double)period);
         var vZero = Vector256<double>.Zero;
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;
 
         var vSumState = Vector256.Create(sum);
         var vWsumState = Vector256.Create(wsum);
@@ -515,34 +514,34 @@ public sealed class Wma : AbstractBase, IDisposable
         {
             int nextSync = Math.Min(simdEnd, idx + ResyncInterval);
 
-            int unrolledSync = nextSync - (2 * VectorWidth);
-            for (; idx <= unrolledSync; idx += 2 * VectorWidth)
+            int unrolledSync = nextSync - (2 * vectorWidth);
+            for (; idx <= unrolledSync; idx += 2 * vectorWidth)
             {
                 var vNew1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
                 var vOld1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
-                var vNew2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + VectorWidth));
-                var vOld2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + VectorWidth - period));
+                var vNew2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + vectorWidth));
+                var vOld2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + vectorWidth - period));
 
                 var vDeltaS1 = Avx.Subtract(vNew1, vOld1);
                 var vDeltaS2 = Avx.Subtract(vNew2, vOld2);
 
-                var vShiftS1_1 = Avx2.Permute4x64(vDeltaS1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftS1_1 = Avx.Blend(vZero, vShiftS1_1, 0b_1110);
-                var vPS_DeltaS1 = Avx.Add(vDeltaS1, vShiftS1_1);
-                var vShiftS2_1 = Avx2.Permute4x64(vPS_DeltaS1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftS2_1 = Avx.Blend(vZero, vShiftS2_1, 0b_1100);
-                vPS_DeltaS1 = Avx.Add(vPS_DeltaS1, vShiftS2_1);
+                var vShiftS11 = Avx2.Permute4x64(vDeltaS1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftS11 = Avx.Blend(vZero, vShiftS11, 0b_1110);
+                var vPsDeltaS1 = Avx.Add(vDeltaS1, vShiftS11);
+                var vShiftS21 = Avx2.Permute4x64(vPsDeltaS1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftS21 = Avx.Blend(vZero, vShiftS21, 0b_1100);
+                vPsDeltaS1 = Avx.Add(vPsDeltaS1, vShiftS21);
 
-                var vShiftS1_2 = Avx2.Permute4x64(vDeltaS2.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftS1_2 = Avx.Blend(vZero, vShiftS1_2, 0b_1110);
-                var vPS_DeltaS2 = Avx.Add(vDeltaS2, vShiftS1_2);
-                var vShiftS2_2 = Avx2.Permute4x64(vPS_DeltaS2.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftS2_2 = Avx.Blend(vZero, vShiftS2_2, 0b_1100);
-                vPS_DeltaS2 = Avx.Add(vPS_DeltaS2, vShiftS2_2);
+                var vShiftS12 = Avx2.Permute4x64(vDeltaS2.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftS12 = Avx.Blend(vZero, vShiftS12, 0b_1110);
+                var vPsDeltaS2 = Avx.Add(vDeltaS2, vShiftS12);
+                var vShiftS22 = Avx2.Permute4x64(vPsDeltaS2.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftS22 = Avx.Blend(vZero, vShiftS22, 0b_1100);
+                vPsDeltaS2 = Avx.Add(vPsDeltaS2, vShiftS22);
 
-                var vSums1 = Avx.Add(vSumState, vPS_DeltaS1);
+                var vSums1 = Avx.Add(vSumState, vPsDeltaS1);
                 var vLastS1 = Avx2.Permute4x64(vSums1.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
-                var vSums2 = Avx.Add(vLastS1, vPS_DeltaS2);
+                var vSums2 = Avx.Add(vLastS1, vPsDeltaS2);
 
                 var vSumsShifted1 = Avx.Subtract(vSums1, vDeltaS1);
                 var vSumsShifted2 = Avx.Subtract(vSums2, vDeltaS2);
@@ -559,32 +558,32 @@ public sealed class Wma : AbstractBase, IDisposable
                     vU2 = Avx.Subtract(Avx.Multiply(vPeriod, vNew2), vSumsShifted2);
                 }
 
-                var vShiftW1_1 = Avx2.Permute4x64(vU1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftW1_1 = Avx.Blend(vZero, vShiftW1_1, 0b_1110);
-                var vPW1_1 = Avx.Add(vU1, vShiftW1_1);
-                var vShiftW2_1 = Avx2.Permute4x64(vPW1_1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftW2_1 = Avx.Blend(vZero, vShiftW2_1, 0b_1100);
-                var vPW2_1 = Avx.Add(vPW1_1, vShiftW2_1);
+                var vShiftW11 = Avx2.Permute4x64(vU1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftW11 = Avx.Blend(vZero, vShiftW11, 0b_1110);
+                var vPw11 = Avx.Add(vU1, vShiftW11);
+                var vShiftW21 = Avx2.Permute4x64(vPw11.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftW21 = Avx.Blend(vZero, vShiftW21, 0b_1100);
+                var vPw21 = Avx.Add(vPw11, vShiftW21);
 
-                var vShiftW1_2 = Avx2.Permute4x64(vU2.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftW1_2 = Avx.Blend(vZero, vShiftW1_2, 0b_1110);
-                var vPW1_2 = Avx.Add(vU2, vShiftW1_2);
-                var vShiftW2_2 = Avx2.Permute4x64(vPW1_2.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
-                vShiftW2_2 = Avx.Blend(vZero, vShiftW2_2, 0b_1100);
-                var vPW2_2 = Avx.Add(vPW1_2, vShiftW2_2);
+                var vShiftW12 = Avx2.Permute4x64(vU2.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftW12 = Avx.Blend(vZero, vShiftW12, 0b_1110);
+                var vPw12 = Avx.Add(vU2, vShiftW12);
+                var vShiftW22 = Avx2.Permute4x64(vPw12.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
+                vShiftW22 = Avx.Blend(vZero, vShiftW22, 0b_1100);
+                var vPw22 = Avx.Add(vPw12, vShiftW22);
 
-                var vWsums1 = Avx.Add(vWsumState, vPW2_1);
+                var vWsums1 = Avx.Add(vWsumState, vPw21);
                 var vLastW1 = Avx2.Permute4x64(vWsums1.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
-                var vWsums2 = Avx.Add(vLastW1, vPW2_2);
+                var vWsums2 = Avx.Add(vLastW1, vPw22);
 
                 Vector256.StoreUnsafe(Avx.Multiply(vWsums1, vInvDivisor), ref Unsafe.Add(ref outRef, idx));
-                Vector256.StoreUnsafe(Avx.Multiply(vWsums2, vInvDivisor), ref Unsafe.Add(ref outRef, idx + VectorWidth));
+                Vector256.StoreUnsafe(Avx.Multiply(vWsums2, vInvDivisor), ref Unsafe.Add(ref outRef, idx + vectorWidth));
 
                 vSumState = Avx2.Permute4x64(vSums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 vWsumState = Avx2.Permute4x64(vWsums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
             }
 
-            for (; idx < nextSync; idx += VectorWidth)
+            for (; idx < nextSync; idx += vectorWidth)
             {
                 var vNew = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
                 var vOld = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
@@ -593,13 +592,13 @@ public sealed class Wma : AbstractBase, IDisposable
 
                 var vShiftS1 = Avx2.Permute4x64(vDeltaS.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS1 = Avx.Blend(vZero, vShiftS1, 0b_1110);
-                var vPS1 = Avx.Add(vDeltaS, vShiftS1);
+                var vPs1 = Avx.Add(vDeltaS, vShiftS1);
 
-                var vShiftS2 = Avx2.Permute4x64(vPS1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
+                var vShiftS2 = Avx2.Permute4x64(vPs1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftS2 = Avx.Blend(vZero, vShiftS2, 0b_1100);
-                var vPS2 = Avx.Add(vPS1, vShiftS2);
+                var vPs2 = Avx.Add(vPs1, vShiftS2);
 
-                var vSums = Avx.Add(vSumState, vPS2);
+                var vSums = Avx.Add(vSumState, vPs2);
 
                 var vSumsShifted = Avx.Subtract(vSums, vDeltaS);
                 var vTerm1 = Avx.Multiply(vPeriod, vNew);
@@ -607,16 +606,16 @@ public sealed class Wma : AbstractBase, IDisposable
 
                 var vShiftW1 = Avx2.Permute4x64(vU.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW1 = Avx.Blend(vZero, vShiftW1, 0b_1110);
-                var vPW1 = Avx.Add(vU, vShiftW1);
+                var vPw1 = Avx.Add(vU, vShiftW1);
 
-                var vShiftW2 = Avx2.Permute4x64(vPW1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
+                var vShiftW2 = Avx2.Permute4x64(vPw1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW2 = Avx.Blend(vZero, vShiftW2, 0b_1100);
-                var vPW2 = Avx.Add(vPW1, vShiftW2);
+                var vPw2 = Avx.Add(vPw1, vShiftW2);
 
-                var vWsums = Avx.Add(vWsumState, vPW2);
+                var vWsums = Avx.Add(vWsumState, vPw2);
 
                 var vResult = Avx.Multiply(vWsums, vInvDivisor);
-                Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, idx));
+                vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
 
                 vSumState = Avx2.Permute4x64(vSums.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 vWsumState = Avx2.Permute4x64(vWsums.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
@@ -659,7 +658,7 @@ public sealed class Wma : AbstractBase, IDisposable
     private static void CalculateNeonCore(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         int len = source.Length;
-        const int VectorWidth = 2;
+        const int vectorWidth = 2;
 
         ref double srcRef = ref MemoryMarshal.GetReference(source);
         ref double outRef = ref MemoryMarshal.GetReference(output);
@@ -683,7 +682,7 @@ public sealed class Wma : AbstractBase, IDisposable
             return;
 
         var vInvDivisor = Vector128.Create(invDivisor);
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;
 
         double sumState = sum;
         double wsumState = wsum;
@@ -694,57 +693,57 @@ public sealed class Wma : AbstractBase, IDisposable
             int nextSync = Math.Min(simdEnd, idx + ResyncInterval);
 
             // Unrolled loop: process 4 elements (2 vectors) at a time
-            int unrolledSync = nextSync - (2 * VectorWidth);
-            for (; idx <= unrolledSync; idx += 2 * VectorWidth)
+            int unrolledSync = nextSync - (2 * vectorWidth);
+            for (; idx <= unrolledSync; idx += 2 * vectorWidth)
             {
                 var vNew1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
                 var vOld1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
-                var vNew2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + VectorWidth));
-                var vOld2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + VectorWidth - period));
+                var vNew2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + vectorWidth));
+                var vOld2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx + vectorWidth - period));
 
                 var vDeltaS1 = AdvSimd.Arm64.Subtract(vNew1, vOld1);
                 var vDeltaS2 = AdvSimd.Arm64.Subtract(vNew2, vOld2);
 
                 // Prefix sum for first vector: [d0, d0+d1]
-                double d1_0 = vDeltaS1.GetElement(0);
-                double d1_1 = vDeltaS1.GetElement(1);
-                double ps1_0 = sumState + d1_0;
-                double ps1_1 = ps1_0 + d1_1;
+                double d10 = vDeltaS1.GetElement(0);
+                double d11 = vDeltaS1.GetElement(1);
+                double ps10 = sumState + d10;
+                double ps11 = ps10 + d11;
 
                 // Prefix sum for second vector
-                double d2_0 = vDeltaS2.GetElement(0);
-                double d2_1 = vDeltaS2.GetElement(1);
-                double ps2_0 = ps1_1 + d2_0;
-                double ps2_1 = ps2_0 + d2_1;
+                double d20 = vDeltaS2.GetElement(0);
+                double d21 = vDeltaS2.GetElement(1);
+                double ps20 = ps11 + d20;
+                double ps21 = ps20 + d21;
 
                 // Calculate Wsum update: W_new = W_old - S_prev + n*new
                 // For element i: u_i = period * new_i - S_(i-1)
-                double u1_0 = period * vNew1.GetElement(0) - sumState;
-                double u1_1 = period * vNew1.GetElement(1) - ps1_0;
-                double u2_0 = period * vNew2.GetElement(0) - ps1_1;
-                double u2_1 = period * vNew2.GetElement(1) - ps2_0;
+                double u10 = period * vNew1.GetElement(0) - sumState;
+                double u11 = period * vNew1.GetElement(1) - ps10;
+                double u20 = period * vNew2.GetElement(0) - ps11;
+                double u21 = period * vNew2.GetElement(1) - ps20;
 
                 // Prefix sum of U values
-                double pw1_0 = wsumState + u1_0;
-                double pw1_1 = pw1_0 + u1_1;
-                double pw2_0 = pw1_1 + u2_0;
-                double pw2_1 = pw2_0 + u2_1;
+                double pw10 = wsumState + u10;
+                double pw11 = pw10 + u11;
+                double pw20 = pw11 + u20;
+                double pw21 = pw20 + u21;
 
-                var vWsums1 = Vector128.Create(pw1_0, pw1_1);
-                var vWsums2 = Vector128.Create(pw2_0, pw2_1);
+                var vWsums1 = Vector128.Create(pw10, pw11);
+                var vWsums2 = Vector128.Create(pw20, pw21);
 
                 var vResult1 = AdvSimd.Arm64.Multiply(vWsums1, vInvDivisor);
                 var vResult2 = AdvSimd.Arm64.Multiply(vWsums2, vInvDivisor);
 
-                Vector128.StoreUnsafe(vResult1, ref Unsafe.Add(ref outRef, idx));
-                Vector128.StoreUnsafe(vResult2, ref Unsafe.Add(ref outRef, idx + VectorWidth));
+                vResult1.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
+                vResult2.StoreUnsafe(ref Unsafe.Add(ref outRef, idx + vectorWidth));
 
-                sumState = ps2_1;
-                wsumState = pw2_1;
+                sumState = ps21;
+                wsumState = pw21;
             }
 
             // Process remaining pairs
-            for (; idx < nextSync; idx += VectorWidth)
+            for (; idx < nextSync; idx += vectorWidth)
             {
                 var vNew = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx));
                 var vOld = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, idx - period));
@@ -765,7 +764,7 @@ public sealed class Wma : AbstractBase, IDisposable
                 var vWsums = Vector128.Create(pw0, pw1);
                 var vResult = AdvSimd.Arm64.Multiply(vWsums, vInvDivisor);
 
-                Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, idx));
+                vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
 
                 sumState = ps1;
                 wsumState = pw1;

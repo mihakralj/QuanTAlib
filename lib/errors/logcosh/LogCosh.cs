@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -22,28 +21,21 @@ namespace QuanTAlib;
 /// - Numerically stable (uses stable computation for large values)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class LogCosh : AbstractBase
+public sealed class LogCosh : BiInputIndicatorBase
 {
-    private readonly RingBuffer _logCoshBuffer;
+    /// <summary>
+    /// Creates LogCosh with specified period.
+    /// </summary>
+    /// <param name="period">Number of values to average (must be > 0)</param>
+    public LogCosh(int period) : base(period, $"LogCosh({period})") { }
 
-    [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LogCoshSum, double LastValidActual, double LastValidPredicted, int TickCount);
-    private State _state;
-    private State _p_state;
-
-    private const int ResyncInterval = 1000;
-
-    public LogCosh(int period)
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override double ComputeError(double actual, double predicted)
     {
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
-
-        _logCoshBuffer = new RingBuffer(period);
-        Name = $"LogCosh({period})";
-        WarmupPeriod = period;
+        double error = actual - predicted;
+        return StableLogCosh(error);
     }
-
-    public override bool IsHot => _logCoshBuffer.IsFull;
 
     /// <summary>
     /// Computes log(cosh(x)) in a numerically stable way.
@@ -59,186 +51,29 @@ public sealed class LogCosh : AbstractBase
         return Math.Log(Math.Cosh(x));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue actual, TValue predicted, bool isNew = true)
-    {
-        double actualVal = actual.Value;
-        double predictedVal = predicted.Value;
-
-        if (!double.IsFinite(actualVal))
-            actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
-        else
-            _state.LastValidActual = actualVal;
-
-        if (!double.IsFinite(predictedVal))
-            predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
-        else
-            _state.LastValidPredicted = predictedVal;
-
-        double error = actualVal - predictedVal;
-        double logCoshValue = StableLogCosh(error);
-
-        if (isNew)
-        {
-            _p_state = _state;
-
-            double removedLogCosh = _logCoshBuffer.Count == _logCoshBuffer.Capacity ? _logCoshBuffer.Oldest : 0.0;
-            _state.LogCoshSum = _state.LogCoshSum - removedLogCosh + logCoshValue;
-            _logCoshBuffer.Add(logCoshValue);
-
-            _state.TickCount++;
-            if (_logCoshBuffer.IsFull && _state.TickCount >= ResyncInterval)
-            {
-                _state.TickCount = 0;
-                _state.LogCoshSum = _logCoshBuffer.RecalculateSum();
-            }
-        }
-        else
-        {
-            _state = _p_state;
-
-            double removedLogCosh = _logCoshBuffer.Count == _logCoshBuffer.Capacity ? _logCoshBuffer.Oldest : 0.0;
-            _state.LogCoshSum = _state.LogCoshSum - removedLogCosh + logCoshValue;
-            _logCoshBuffer.UpdateNewest(logCoshValue);
-            _state.LogCoshSum = _logCoshBuffer.RecalculateSum();
-        }
-
-        // LogCosh = (1/n) * Σ log(cosh(error))
-        double result = _logCoshBuffer.Count > 0 ? _state.LogCoshSum / _logCoshBuffer.Count : 0.0;
-
-        Last = new TValue(actual.Time, result);
-        PubEvent(Last, isNew);
-        return Last;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(double actual, double predicted, bool isNew = true)
-    {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
-    }
-
-    public override TValue Update(TValue input, bool isNew = true)
-    {
-        throw new NotSupportedException("LogCosh requires two inputs. Use Update(actual, predicted).");
-    }
-
-    public override TSeries Update(TSeries source)
-    {
-        throw new NotSupportedException("LogCosh requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
-    }
-
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
-    {
-        throw new NotSupportedException("LogCosh requires two inputs.");
-    }
-
-    public override void Reset()
-    {
-        _logCoshBuffer.Clear();
-        _state = default;
-        _p_state = default;
-        Last = default;
-    }
-
+    /// <summary>
+    /// Calculates LogCosh for entire series.
+    /// </summary>
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
-    {
-        if (actual.Count != predicted.Count)
-            throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        => CalculateImpl(actual, predicted, period, Batch);
 
-        int len = actual.Count;
-        var t = new List<long>(len);
-        var v = new List<double>(len);
-        CollectionsMarshal.SetCount(t, len);
-        CollectionsMarshal.SetCount(v, len);
-
-        var tSpan = CollectionsMarshal.AsSpan(t);
-        var vSpan = CollectionsMarshal.AsSpan(v);
-
-        Batch(actual.Values, predicted.Values, vSpan, period);
-        actual.Times.CopyTo(tSpan);
-
-        return new TSeries(t, v);
-    }
-
+    /// <summary>
+    /// Batch calculation using log-cosh error computation with rolling mean.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
-        if (actual.Length != predicted.Length || actual.Length != output.Length)
-            throw new ArgumentException("All spans must have the same length", nameof(output));
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
         if (len == 0) return;
 
         const int StackAllocThreshold = 256;
-        Span<double> logCoshBuffer = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
+        Span<double> errors = len <= StackAllocThreshold
+            ? stackalloc double[len]
+            : new double[len];
 
-        double logCoshSum = 0;
-        double lastValidActual = 0;
-        double lastValidPredicted = 0;
-
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
-        }
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
-        }
-
-        int bufferIndex = 0;
-        int i = 0;
-
-        int warmupEnd = Math.Min(period, len);
-        for (; i < warmupEnd; i++)
-        {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = act - pred;
-            double logCoshValue = StableLogCosh(error);
-
-            logCoshSum += logCoshValue;
-            logCoshBuffer[i] = logCoshValue;
-
-            output[i] = logCoshSum / (i + 1);
-        }
-
-        int tickCount = 0;
-        for (; i < len; i++)
-        {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = act - pred;
-            double logCoshValue = StableLogCosh(error);
-
-            logCoshSum = logCoshSum - logCoshBuffer[bufferIndex] + logCoshValue;
-            logCoshBuffer[bufferIndex] = logCoshValue;
-
-            bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
-
-            output[i] = logCoshSum / period;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                    recalcSum += logCoshBuffer[k];
-                logCoshSum = recalcSum;
-            }
-        }
+        ErrorHelpers.ComputeLogCoshErrors(actual, predicted, errors);
+        ErrorHelpers.ApplyRollingMean(errors, output, period);
     }
 }

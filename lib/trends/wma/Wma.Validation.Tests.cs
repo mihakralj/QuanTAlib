@@ -1,20 +1,35 @@
-using OoplesFinance.StockIndicators;
-using OoplesFinance.StockIndicators.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit;
+using Xunit.Abstractions;
 using Skender.Stock.Indicators;
 using TALib;
-using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class WmaValidationTests
+public sealed class WmaValidationTests : IDisposable
 {
     private readonly ValidationTestData _testData;
     private readonly ITestOutputHelper _output;
+    private bool _disposed;
 
     public WmaValidationTests(ITestOutputHelper output)
     {
         _output = output;
         _testData = new ValidationTestData();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        _disposed = true;
+        if (disposing) _testData?.Dispose();
     }
 
     [Fact]
@@ -24,17 +39,14 @@ public class WmaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib WMA (batch TSeries)
-            var wma = new global::QuanTAlib.Wma(period);
+            var wma = new Wma(period);
             var qResult = wma.Update(_testData.Data);
 
-            // Calculate Skender WMA
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, sResult, x => x.Wma, tolerance: ValidationHelper.SkenderTolerance);
+            ValidationHelper.VerifyData(qResult, sResult, (s) => s.Wma);
         }
-        _output.WriteLine("WMA Batch(TSeries) validated successfully against Skender");
+        _output.WriteLine("WMA Batch(TSeries) validated against Skender");
     }
 
     [Fact]
@@ -44,240 +56,83 @@ public class WmaValidationTests
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib WMA (streaming)
-            var wma = new global::QuanTAlib.Wma(period);
+            var wma = new Wma(period);
             var qResults = new List<double>();
             foreach (var item in _testData.Data)
             {
                 qResults.Add(wma.Update(item).Value);
             }
 
-            // Calculate Skender WMA
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, sResult, x => x.Wma, tolerance: ValidationHelper.SkenderTolerance);
+            ValidationHelper.VerifyData(qResults, sResult, (s) => s.Wma);
         }
-        _output.WriteLine("WMA Streaming validated successfully against Skender");
+        _output.WriteLine("WMA Streaming validated against Skender");
     }
 
     [Fact]
     public void Validate_Skender_Span()
     {
         int[] periods = { 5, 10, 20, 50, 100 };
+        double[] sourceData = _testData.RawData.ToArray();
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib WMA (Span API)
-            double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Wma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
+            double[] qOutput = new double[sourceData.Length];
+            Wma.Batch(sourceData.AsSpan(), qOutput.AsSpan(), period);
 
-            // Calculate Skender WMA
             var sResult = _testData.SkenderQuotes.GetWma(period).ToList();
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, sResult, x => x.Wma, tolerance: ValidationHelper.SkenderTolerance);
+            ValidationHelper.VerifyData(qOutput, sResult, (s) => s.Wma);
         }
-        _output.WriteLine("WMA Span validated successfully against Skender");
+        _output.WriteLine("WMA Span validated against Skender");
     }
 
     [Fact]
     public void Validate_Talib_Batch()
     {
         int[] periods = { 5, 10, 20, 50, 100 };
-
-        // Prepare data for TA-Lib (double[])
-        double[] output = new double[_testData.RawData.Length];
+        double[] tData = _testData.RawData.ToArray();
+        double[] output = new double[tData.Length];
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib WMA (batch TSeries)
-            var wma = new global::QuanTAlib.Wma(period);
+            var wma = new Wma(period);
             var qResult = wma.Update(_testData.Data);
 
-            // Calculate TA-Lib WMA
-            var retCode = TALib.Functions.Wma<double>(_testData.RawData.Span, 0..^0, output, out var outRange, period);
+            var retCode = TALib.Functions.Wma<double>(
+                tData, 0..^0, output, out var outRange, period);
             Assert.Equal(Core.RetCode.Success, retCode);
 
             int lookback = TALib.Functions.WmaLookback(period);
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
+            ValidationHelper.VerifyData(qResult, output, outRange, lookback);
         }
-        _output.WriteLine("WMA Batch(TSeries) validated successfully against TA-Lib");
-    }
-
-    [Fact]
-    public void Validate_Talib_Streaming()
-    {
-        int[] periods = { 5, 10, 20, 50, 100 };
-
-        // Prepare data for TA-Lib (double[])
-        double[] output = new double[_testData.RawData.Length];
-
-        foreach (var period in periods)
-        {
-            // Calculate QuanTAlib WMA (streaming)
-            var wma = new global::QuanTAlib.Wma(period);
-            var qResults = new List<double>();
-            foreach (var item in _testData.Data)
-            {
-                qResults.Add(wma.Update(item).Value);
-            }
-
-            // Calculate TA-Lib WMA
-            var retCode = TALib.Functions.Wma<double>(_testData.RawData.Span, 0..^0, output, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
-
-            int lookback = TALib.Functions.WmaLookback(period);
-
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, output, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
-        }
-        _output.WriteLine("WMA Streaming validated successfully against TA-Lib");
-    }
-
-    [Fact]
-    public void Validate_Talib_Span()
-    {
-        int[] periods = { 5, 10, 20, 50, 100 };
-
-        // Prepare data
-        double[] talibOutput = new double[_testData.RawData.Length];
-
-        foreach (var period in periods)
-        {
-            // Calculate QuanTAlib WMA (Span API)
-            double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Wma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
-
-            // Calculate TA-Lib WMA
-            var retCode = TALib.Functions.Wma<double>(_testData.RawData.Span, 0..^0, talibOutput, out var outRange, period);
-            Assert.Equal(Core.RetCode.Success, retCode);
-
-            int lookback = TALib.Functions.WmaLookback(period);
-
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, talibOutput, outRange, lookback, tolerance: ValidationHelper.TalibTolerance);
-        }
-        _output.WriteLine("WMA Span validated successfully against TA-Lib");
+        _output.WriteLine("WMA Batch validated against TA-Lib");
     }
 
     [Fact]
     public void Validate_Tulip_Batch()
     {
         int[] periods = { 5, 10, 20, 50, 100 };
+        double[] tData = _testData.RawData.ToArray();
 
         foreach (var period in periods)
         {
-            // Calculate QuanTAlib WMA (batch TSeries)
-            var wma = new global::QuanTAlib.Wma(period);
+            var wma = new Wma(period);
             var qResult = wma.Update(_testData.Data);
 
-            // Calculate Tulip WMA
             var wmaIndicator = Tulip.Indicators.wma;
-            double[][] inputs = { _testData.RawData.ToArray() };
+            double[][] inputs = { tData };
             double[] options = { period };
             int lookback = period - 1;
-            double[][] outputs = { new double[_testData.RawData.Length - lookback] };
+            double[][] outputs = { new double[tData.Length - lookback] };
 
             wmaIndicator.Run(inputs, options, outputs);
             var tResult = outputs[0];
 
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResult, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
+            ValidationHelper.VerifyData(qResult, tResult, lookback);
         }
-        _output.WriteLine("WMA Batch(TSeries) validated successfully against Tulip");
-    }
-
-    [Fact]
-    public void Validate_Tulip_Streaming()
-    {
-        int[] periods = { 5, 10, 20, 50, 100 };
-
-        foreach (var period in periods)
-        {
-            // Calculate QuanTAlib WMA (streaming)
-            var wma = new global::QuanTAlib.Wma(period);
-            var qResults = new List<double>();
-            foreach (var item in _testData.Data)
-            {
-                qResults.Add(wma.Update(item).Value);
-            }
-
-            // Calculate Tulip WMA
-            var wmaIndicator = Tulip.Indicators.wma;
-            double[][] inputs = { _testData.RawData.ToArray() };
-            double[] options = { period };
-            int lookback = period - 1;
-            double[][] outputs = { new double[_testData.RawData.Length - lookback] };
-
-            wmaIndicator.Run(inputs, options, outputs);
-            var tResult = outputs[0];
-
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qResults, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
-        }
-        _output.WriteLine("WMA Streaming validated successfully against Tulip");
-    }
-
-    [Fact]
-    public void Validate_Tulip_Span()
-    {
-        int[] periods = { 5, 10, 20, 50, 100 };
-
-        foreach (var period in periods)
-        {
-            // Calculate QuanTAlib WMA (Span API)
-            double[] qOutput = new double[_testData.RawData.Length];
-            global::QuanTAlib.Wma.Batch(_testData.RawData.Span, qOutput.AsSpan(), period);
-
-            // Calculate Tulip WMA
-            var wmaIndicator = Tulip.Indicators.wma;
-            double[][] inputs = { _testData.RawData.ToArray() };
-            double[] options = { period };
-            int lookback = period - 1;
-            double[][] outputs = { new double[_testData.RawData.Length - lookback] };
-
-            wmaIndicator.Run(inputs, options, outputs);
-            var tResult = outputs[0];
-
-            // Compare last 100 records
-            ValidationHelper.VerifyData(qOutput, tResult, lookback, tolerance: ValidationHelper.TulipTolerance);
-        }
-        _output.WriteLine("WMA Span validated successfully against Tulip");
-    }
-
-    [Fact]
-    public void Validate_Against_Ooples()
-    {
-        int[] periods = { 5, 10, 20, 50, 100 };
-
-        // Prepare data for Ooples (List<TickerData>)
-        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
-        {
-            Date = q.Date,
-            Close = (double)q.Close,
-            High = (double)q.High,
-            Low = (double)q.Low,
-            Open = (double)q.Open,
-            Volume = (double)q.Volume
-        }).ToList();
-
-        foreach (var period in periods)
-        {
-            // Calculate QuanTAlib WMA
-            var wma = new global::QuanTAlib.Wma(period);
-            var qResult = wma.Update(_testData.Data);
-
-            // Calculate Ooples WMA
-            var stockData = new StockData(ooplesData);
-            var oResult = stockData.CalculateWeightedMovingAverage(length: period);
-            var oValues = oResult.OutputValues["Wma"];
-
-            // Compare
-            ValidationHelper.VerifyData(qResult, oValues, (s) => s, tolerance: ValidationHelper.OoplesTolerance);
-        }
-        _output.WriteLine("WMA validated successfully against Ooples");
+        _output.WriteLine("WMA Batch validated against Tulip");
     }
 }

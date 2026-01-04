@@ -2,6 +2,48 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Build & Audit (Roslyn + JetBrains)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Create .sarif Dir", "Build: QuanTAlib", "JetBrains: Inspect"],
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Create .sarif Dir",
+      "type": "shell",
+      "command": "mkdir -p .sarif",
+      "windows": {
+        "command": "powershell",
+        "args": ["-Command", "if (!(Test-Path .sarif)) { New-Item -Path .sarif -ItemType Directory }"]
+      },
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "Build: QuanTAlib",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/QuanTAlib.sln",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "JetBrains: Inspect",
+      "type": "shell",
+      "command": "jb inspectcode QuanTAlib.sln --output=.sarif/jb-results.sarif --format=Sarif",
+      "presentation": { "reveal": "always" },
+      "problemMatcher": [],
+      "postLines": ["Analysis complete. Open .sarif/jb-results.sarif to view results."]
+    },
+    {
+      "label": "JetBrains: Cleanup",
+      "type": "shell",
+      "command": "jb cleanupcode QuanTAlib.sln",
+      "problemMatcher": []
+    },
+    {
       "label": "test-net10",
       "command": "dotnet",
       "type": "process",
@@ -12,43 +54,8 @@
         "net10.0"
       ],
       "problemMatcher": "$msCompile",
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      }
-    },
-    {
-      "label": "test-all-frameworks",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "test",
-        "${workspaceFolder}/lib/QuanTAlib.Tests.csproj"
-      ],
-      "problemMatcher": "$msCompile",
-      "group": "test",
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      }
-    },
-    {
-      "label": "build",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/QuanTAlib.sln"
-      ],
-      "problemMatcher": "$msCompile",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "new" }
     }
   ]
 }
