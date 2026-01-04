@@ -157,7 +157,7 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "QuanTAlib",
     "projectKey": "mihakralj_QuanTAlib"
-  },
+},
   "coderabbit.agentType": "Cline",
   "qodana.projectId": "KbxmN",
   "qodana.pathPrefix": "",

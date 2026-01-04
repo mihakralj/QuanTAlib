@@ -4,6 +4,21 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
+/// Delegate for bi-input batch calculation methods.
+/// This custom delegate is required because Action&lt;T1,T2,T3,T4&gt; cannot accept
+/// ref struct types (Span, ReadOnlySpan) as generic parameters in .NET 8.0.
+/// </summary>
+/// <param name="actual">Actual values span</param>
+/// <param name="predicted">Predicted values span</param>
+/// <param name="output">Output span for results</param>
+/// <param name="period">Calculation period</param>
+public delegate void BiInputBatchDelegate(
+    ReadOnlySpan<double> actual,
+    ReadOnlySpan<double> predicted,
+    Span<double> output,
+    int period);
+
+/// <summary>
 /// Abstract base class for bi-input indicators (indicators that require two inputs like error metrics).
 /// Provides common infrastructure for RingBuffer-based sliding window calculations with O(1) updates.
 /// </summary>
@@ -217,7 +232,7 @@ public abstract class BiInputIndicatorBase : AbstractBase
         TSeries actual,
         TSeries predicted,
         int period,
-        Action<ReadOnlySpan<double>, ReadOnlySpan<double>, Span<double>, int> batchMethod)
+        BiInputBatchDelegate batchMethod)
     {
         if (actual.Count != predicted.Count)
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
