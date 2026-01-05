@@ -11,11 +11,9 @@ image: jetbrains/qodana-dotnet:2025.3
 # Specify solution file for .NET analysis
 dotnet:
   solution: QuanTAlib.sln
-# Coverage configuration - expects OpenCover/Cobertura XML format
+# Code coverage configuration
 coverage:
-  reports:
-    - coverage/coverage.opencover.xml
-    - coverage/coverage.cobertura.xml
+  reportProblems: true
 # Exclusions
 exclude:
   - name: All

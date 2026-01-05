@@ -71,19 +71,37 @@ jobs:
             /p:ReportAnalyzer=true \
             /p:ErrorLog=sarif/roslyn.sarif
 
-      - name: Test with Coverage
+      - name: Install dotCover CLI
+        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+
+      - name: Test with Coverage (OpenCover/Cobertura for SonarCloud/Codacy)
         run: |
           dotnet test --no-build --configuration Release \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
 
+      - name: Test with dotCover (for Qodana)
+        run: |
+          dotnet dotcover test --no-build --configuration Release \
+            --dcReportType=DetailedXML \
+            --dcOutput=./TestResults/dotcover.xml
+
       - name: Consolidate Coverage
         run: |
           mkdir -p coverage
+          mkdir -p coverage-dotcover
+          # OpenCover/Cobertura for SonarCloud and Codacy
           find TestResults -name "coverage.opencover.xml" -exec cp {} coverage/ \;
           find TestResults -name "coverage.cobertura.xml" -exec cp {} coverage/ \;
+          # dotCover for Qodana
+          if [ -f "TestResults/dotcover.xml" ]; then
+            cp TestResults/dotcover.xml coverage-dotcover/
+          fi
+          echo "=== OpenCover/Cobertura Coverage ==="
           ls -la coverage/
+          echo "=== dotCover Coverage ==="
+          ls -la coverage-dotcover/
 
       # Upload reusable artifacts
       - name: Upload Build Artifacts
@@ -100,6 +118,13 @@ jobs:
         with:
           name: coverage
           path: coverage/
+          retention-days: 1
+
+      - name: Upload dotCover Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-dotcover
+          path: coverage-dotcover/
           retention-days: 1
 
       - name: Upload Roslyn SARIF
@@ -183,18 +208,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Coverage
+      - name: Download dotCover Coverage
         uses: actions/download-artifact@v4
         with:
-          name: coverage
-          path: .qodana/coverage
+          name: coverage-dotcover
+          path: .qodana/code-coverage
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2025.3
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/coverage
+          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/code-coverage
 
       - name: Upload Qodana SARIF
         uses: actions/upload-artifact@v4

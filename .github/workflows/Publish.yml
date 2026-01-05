@@ -80,28 +80,42 @@ jobs:
           name: sarif-reports
           path: sarif-reports/
 
-      - name: Run Tests with Coverage
+      - name: Install dotCover CLI
+        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+
+      - name: Run Tests with Coverage (OpenCover/Cobertura)
         run: |
           dotnet test --no-build --configuration Debug \
             --collect:"XPlat Code Coverage" \
             --results-directory:./TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
 
+      - name: Run Tests with dotCover (for Qodana)
+        run: |
+          dotnet dotcover test --no-build --configuration Debug \
+            --dcReportType=DetailedXML \
+            --dcOutput=./TestResults/dotcover.xml
+
       - name: Collect Coverage Files
         run: |
           mkdir -p coverage
+          mkdir -p coverage-dotcover
           # Collect opencover format (for SonarCloud)
           count=1
           find TestResults -name "coverage.opencover.xml" | while read file; do
             cp "$file" "coverage/coverage_${count}.opencover.xml"
             count=$((count+1))
           done
-          # Collect cobertura format (for Codacy and Qodana)
+          # Collect cobertura format (for Codacy)
           count=1
           find TestResults -name "coverage.cobertura.xml" | while read file; do
             cp "$file" "coverage/coverage_${count}.cobertura.xml"
             count=$((count+1))
           done
+          # Collect dotCover (for Qodana)
+          if [ -f "TestResults/dotcover.xml" ]; then
+            cp TestResults/dotcover.xml coverage-dotcover/
+          fi
 
       - name: Debug Coverage Files
         run: |
@@ -119,6 +133,12 @@ jobs:
         with:
           name: coverage-reports
           path: coverage/
+
+      - name: Upload dotCover Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-dotcover
+          path: coverage-dotcover/
 
   # ==============================================================================
   # 2. SonarCloud Analysis
@@ -212,22 +232,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Coverage Reports
+      - name: Download dotCover Coverage
         uses: actions/download-artifact@v4
         with:
-          name: coverage-reports
+          name: coverage-dotcover
           path: .qodana/code-coverage
-
-      - name: Prepare Coverage for Qodana
-        run: |
-          echo "=== Coverage files available ==="
-          ls -la .qodana/code-coverage/
-          echo ""
-          # Qodana prefers cobertura format - keep only those
-          mkdir -p .qodana/coverage
-          cp .qodana/code-coverage/*.cobertura.xml .qodana/coverage/ 2>/dev/null || true
-          echo "=== Files for Qodana ==="
-          ls -la .qodana/coverage/
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2025.3
@@ -235,7 +244,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/coverage,--fail-threshold,999999
+          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/code-coverage,--fail-threshold,999999
 
       - name: Upload Qodana SARIF Artifacts
         if: always()
