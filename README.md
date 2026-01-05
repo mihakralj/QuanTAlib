@@ -1,13 +1,21 @@
 [![Codacy grade](https://app.codacy.com/project/badge/Grade/c8be6c08f5514e95b84d37e661a6ec27)](https://app.codacy.com/gh/mihakralj/QuanTAlib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![codecov](https://codecov.io/gh/mihakralj/QuanTAlib/branch/main/graph/badge.svg?style=flat-square&token=YNMJRGKMTJ?style=flat-square)](https://codecov.io/gh/mihakralj/QuanTAlib)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=mihakralj_QuanTAlib&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=mihakralj_QuanTAlib)
-[![CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/badge/main)](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)
-
+[![CodeFactor](https://www.codefactor.io/repository/github/mihakralj/quantalib/badge/main)](https://www.codefactor.io/repository/github/mihakralj/quantalib/overview/main)  
 [![Nuget](https://img.shields.io/nuget/v/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/mihakralj/QuanTAlib)
 [![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
 [![GitHub watchers](https://img.shields.io/github/watchers/mihakralj/QuanTAlib?style=flat-square)](https://github.com/mihakralj/QuanTAlib/watchers)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20|%2010.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
+
+Code Analysis by [ndepend](https://www.ndepend.com/):  
+[![Files](..\ndepend/badges/files.svg)](https://www.ndepend.com/)
+[![Classes](..\ndepend/badges/classes.svg)](https://www.ndepend.com/)
+[![Methods](..\ndepend/badges/methods.svg)](https://www.ndepend.com/)
+[![LoC](..\ndepend/badges/loc.svg)](https://www.ndepend.com/)  
+[![Public API](..\ndepend/badges/public-api.svg)](https://www.ndepend.com/)
+[![Comments](..\ndepend/badges/comments.svg)](https://www.ndepend.com/)
+[![Complexity](..\ndepend/badges/complexity.svg)](https://www.ndepend.com/)
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 

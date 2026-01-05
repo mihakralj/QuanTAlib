@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<NDepend AppName="quantalib" Platform="DotNet" FileWrittenByProductVersion="2026.1.1.9785">
-  <OutputDir KeepXmlFiles="True">./NDependOut</OutputDir>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<NDepend AppName="quantalib" Platform="DotNet" FileWrittenByProductVersion="2026.1.2.9787">
+  <OutputDir KeepXmlFiles="True">.\NDependOut</OutputDir>
   <IDEFiles>
-    <IDEFile FilePath="../QuanTAlib.sln" Filters="-test" Configuration="Debug|AnyCPU">
+    <IDEFile FilePath="..\QuanTAlib.sln" Filters="-test" Configuration="DEBUG|AnyCPU">
       <RootDirResolvingInfo Enabled="False" Hints="Debug|bin|.bin|b|AnyCPU|x64|x86|v*.*|net*" TimeOut="10">
         <RootDir>.</RootDir>
       </RootDirResolvingInfo>
@@ -18,7 +18,9 @@
   <Report Kind="0" SectionsEnabled="110591" XslPath="" DefaultTheme="dark" Flags="4455424" NbItemsToUnfold="3" NbItemsPerRule="20" MaxNbSourceFiles="2000" />
   <BuildComparisonSetting ProjectMode="CurrentProject" BuildMode="NDaysAgoAnalysisResult" ProjectFileToCompareWith="" BuildFileToCompareWith="" NDaysAgo="30" />
   <BaselineInUISetting ProjectMode="CurrentProject" BuildMode="NDaysAgoAnalysisResult" ProjectFileToCompareWith="" BuildFileToCompareWith="" NDaysAgo="30" />
-  <CoverageFiles CoverageDir="" CoverageDirFilter="" UncoverableAttribute="" CoverageExclusionFile="coverage-exclusions.runsettings" />
+  <CoverageFiles CoverageDir="" CoverageDirFilter="" UncoverableAttribute="" CoverageExclusionFile="">
+    <CoverageFile>.\coverage\43fa2c87-f47e-4cfd-bc4d-2b640a2a37d6\coverage.opencover.xml</CoverageFile>
+  </CoverageFiles>
   <TrendMetrics UseCustomLog="False" LogRecurrence="3" LogLabel="2" UseCustomDir="False" CustomDir="">
     <Chart Name="Size" ShowInReport="True">
       <Serie MetricName="# Lines of Code" MetricUnit="Loc" Color="#FF00BFFF" ChartType="Line" ScaleExp="0" />
@@ -81,8 +83,7 @@
       <High2Critical_SeverityThreshold>72000000000</High2Critical_SeverityThreshold>
       <Critical2Blocker_SeverityThreshold>360000000000</Critical2Blocker_SeverityThreshold>
     </DebtSettings>
-  </ProjectDebtSettings>
-  <Queries>
+  </ProjectDebtSettings><Queries>
     <Group Name="Custom Rules" Active="True" ShownInReport="False">
       <!-- ND1000: Avoid types too big - threshold increased to 500 for complex financial indicators -->
       <Query Active="True" DisplayList="True" DisplayStat="False" DisplaySelectionView="False" IsCriticalRule="True"><![CDATA[// <Name>ND1000: Avoid types too big</Name>
@@ -561,6 +562,4 @@ select new {
         <Query Active="False" DisplayList="True" DisplayStat="False" DisplaySelectionView="False" IsCriticalRule="False"><![CDATA[$ND9916$]]></Query>
       </Group>
     </Group>
-  </Queries>
-  <WarnFilter />
-</NDepend>
+  </Queries></NDepend>
