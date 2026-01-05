@@ -32,10 +32,10 @@
     {
       "label": "JetBrains: Inspect",
       "type": "shell",
-      "command": "jb inspectcode QuanTAlib.sln --output=.sarif/jb-results.sarif --format=Sarif",
+      "command": "jb inspectcode QuanTAlib.sln --output=.sarif/jetbrains.sarif --format=Sarif",
       "presentation": { "reveal": "always" },
       "problemMatcher": [],
-      "postLines": ["Analysis complete. Open .sarif/jb-results.sarif to view results."]
+      "postLines": ["Analysis complete. Open .sarif/jetbrains.sarif to view results."]
     },
     {
       "label": "JetBrains: Cleanup",
