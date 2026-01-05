@@ -6,11 +6,16 @@ version: "1.0"
 #Specify inspection profile for code analysis
 profile:
   name: qodana.starter
-#Specify Qodana linter for analysis
-linter: jetbrains/qodana-dotnet:2025.3
+#Specify Qodana linter for analysis (use image: instead of deprecated linter:)
+image: jetbrains/qodana-dotnet:2025.3
 # Specify solution file for .NET analysis
 dotnet:
   solution: QuanTAlib.sln
+# Coverage configuration - expects OpenCover/Cobertura XML format
+coverage:
+  reports:
+    - coverage/coverage.opencover.xml
+    - coverage/coverage.cobertura.xml
 # Exclusions
 exclude:
   - name: All
