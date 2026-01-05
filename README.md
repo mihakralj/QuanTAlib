@@ -9,13 +9,13 @@
 [![.NET](https://img.shields.io/badge/.NET-8.0%20|%2010.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
 
 Code Analysis by [ndepend](https://www.ndepend.com/):  
-[![Files](..\ndepend/badges/files.svg)](https://www.ndepend.com/)
-[![Classes](..\ndepend/badges/classes.svg)](https://www.ndepend.com/)
-[![Methods](..\ndepend/badges/methods.svg)](https://www.ndepend.com/)
-[![LoC](..\ndepend/badges/loc.svg)](https://www.ndepend.com/)  
-[![Public API](..\ndepend/badges/public-api.svg)](https://www.ndepend.com/)
-[![Comments](..\ndepend/badges/comments.svg)](https://www.ndepend.com/)
-[![Complexity](..\ndepend/badges/complexity.svg)](https://www.ndepend.com/)
+[![Files](ndepend/badges/files.svg)](https://www.ndepend.com/)
+[![Classes](ndepend/badges/classes.svg)](https://www.ndepend.com/)
+[![Methods](ndepend/badges/methods.svg)](https://www.ndepend.com/)
+[![LoC](ndepend/badges/loc.svg)](https://www.ndepend.com/)  
+[![Public API](ndepend/badges/public-api.svg)](https://www.ndepend.com/)
+[![Comments](ndepend/badges/comments.svg)](https://www.ndepend.com/)
+[![Complexity](ndepend/badges/complexity.svg)](https://www.ndepend.com/)
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 
