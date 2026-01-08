@@ -23,6 +23,7 @@ public sealed class Cheby2 : AbstractBase
         public double Src1, Src2;
         public double Filt1, Filt2;
         public double LastValid;
+        public int Count;
     }
 
     private State _state;
@@ -78,11 +79,23 @@ public sealed class Cheby2 : AbstractBase
         double b2z = dcGain * (1.0 + Kz);
 
         // Normalize
-        _b0 = b0z / a0z;
-        _b1 = b1z / a0z;
-        _b2 = b2z / a0z;
-        _a1 = a1z / a0z;
-        _a2 = a2z / a0z;
+        double b0 = b0z / a0z;
+        double b1 = b1z / a0z;
+        double b2 = b2z / a0z;
+        double a1 = a1z / a0z;
+        double a2 = a2z / a0z;
+
+        // Apply Gain Correction (matching Pine Script)
+        // Ensure strictly unity gain at DC
+        double sumB = b0 + b1 + b2;
+        double sumA = 1.0 + a1 + a2;
+        double norm = sumA / sumB;
+        
+        _b0 = b0 * norm;
+        _b1 = b1 * norm;
+        _b2 = b2 * norm;
+        _a1 = a1; // A coeff don't change relative to output scale (except output is scaled by norm, so feedback is same)
+        _a2 = a2;
     }
 
     public Cheby2(ITValuePublisher source, int period, double attenuation = 5.0) : this(period, attenuation)
@@ -161,12 +174,21 @@ public sealed class Cheby2 : AbstractBase
         double term3 = Math.FusedMultiplyAdd(-_a1, _state.Filt1, term2);
         double filt = Math.FusedMultiplyAdd(-_a2, _state.Filt2, term3);
 
+        // Handle warmup for first 2 samples
+        if (_state.Count < 2)
+        {
+            filt = val;
+        }
+
         if (isNew)
         {
             _state.Src2 = _state.Src1;
             _state.Src1 = val;
             _state.Filt2 = _state.Filt1;
             _state.Filt1 = filt;
+
+            if (_state.Count < 2)
+                _state.Count++;
         }
 
         Last = new TValue(input.Time, filt);
@@ -223,10 +245,20 @@ public sealed class Cheby2 : AbstractBase
         double a1 = a1z / a0z;
         double a2 = a2z / a0z;
 
+        // Apply Gain Correction
+        double sumB = b0 + b1 + b2;
+        double sumA = 1.0 + a1 + a2;
+        double norm = sumA / sumB;
+        
+        b0 *= norm;
+        b1 *= norm;
+        b2 *= norm;
+
         // State variables
         double src1 = 0, src2 = 0;
         double filt1 = 0, filt2 = 0;
         double lastValid = 0;
+        int count = 0;
 
         // Handle first value initialization
         if (source.Length > 0)
@@ -251,6 +283,12 @@ public sealed class Cheby2 : AbstractBase
             double term2 = Math.FusedMultiplyAdd(b2, src2, term1);
             double term3 = Math.FusedMultiplyAdd(-a1, filt1, term2);
             double filt = Math.FusedMultiplyAdd(-a2, filt2, term3);
+
+            if (count < 2)
+            {
+                filt = val;
+                count++;
+            }
 
             output[i] = filt;
 

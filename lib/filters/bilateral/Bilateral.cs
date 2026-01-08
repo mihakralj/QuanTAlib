@@ -226,7 +226,10 @@ public sealed class Bilateral : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateBilateral()
     {
-        if (_buffer.Count == 0) return double.NaN;
+        if (_buffer.Count == 0)
+        {
+            return double.NaN;
+        }
 
         // Calculate StDev
         double count = _buffer.Count;
@@ -241,41 +244,51 @@ public sealed class Bilateral : AbstractBase
 
         double sigmaR = Math.Max(stdev * _sigmaRMult, 1e-10);
         double twoSigmaRSq = 2.0 * sigmaR * sigmaR;
+        double negInvTwoSigmaRSq = -1.0 / twoSigmaRSq;
 
         double sumWeights = 0.0;
         double sumWeightedSrc = 0.0;
         double centerVal = _buffer.Newest; // src[0]
 
-        // Iterate from 0 to Count-1
-        // i=0 corresponds to Newest (src[0])
-        // i corresponds to buffer[Count - 1 - i]
-
-        // Use InternalBuffer to avoid allocations from GetSpan() when wrapped
+        // Use InternalBuffer to avoid allocations
         ReadOnlySpan<double> buffer = _buffer.InternalBuffer;
         int capacity = _buffer.Capacity;
         int startIndex = _buffer.StartIndex;
 
-        // Newest element index
-        int newestIndex = (startIndex + (int)count - 1) % capacity;
-
-        for (int i = 0; i < count; i++)
+        // Newest depends on StartIndex and Count
+        int newestIndex = startIndex + (int)count - 1;
+        if (newestIndex >= capacity)
         {
-            // Calculate index of element i steps back from newest
-            // (newestIndex - i) handling wrap-around
-            int idx = newestIndex - i;
-            if (idx < 0) idx += capacity;
+            newestIndex -= capacity;
+        }
 
+        int i = 0; // distance counter for spatial weights
+
+        // Loop 1: From newestIndex down to 0
+        for (int idx = newestIndex; idx >= 0 && i < count; idx--, i++)
+        {
             double val = buffer[idx];
             double diffRange = centerVal - val;
-
-            // weight_spatial = _spatialWeights[i]
-            // weight_range = exp(-(diff^2) / (2 * sigma_r^2))
-
-            double weightRange = Math.Exp(-(diffRange * diffRange) / twoSigmaRSq);
+            double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
             double weight = _spatialWeights[i] * weightRange;
 
             sumWeights += weight;
-            sumWeightedSrc += weight * val;
+            sumWeightedSrc = Math.FusedMultiplyAdd(weight, val, sumWeightedSrc);
+        }
+
+        // Loop 2: Wrap around to end of buffer if needed
+        if (i < count)
+        {
+            for (int idx = capacity - 1; i < count; idx--, i++)
+            {
+                double val = buffer[idx];
+                double diffRange = centerVal - val;
+                double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
+                double weight = _spatialWeights[i] * weightRange;
+
+                sumWeights += weight;
+                sumWeightedSrc = Math.FusedMultiplyAdd(weight, val, sumWeightedSrc);
+            }
         }
 
         return sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
@@ -392,27 +405,45 @@ public sealed class Bilateral : AbstractBase
 
             double sigmaR = Math.Max(stdev * sigmaRMult, 1e-10);
             double twoSigmaRSq = 2.0 * sigmaR * sigmaR;
+            double negInvTwoSigmaRSq = -1.0 / twoSigmaRSq;
 
             double sumWeights = 0.0;
             double sumWeightedSrc = 0.0;
             double centerVal = val; // Newest value
 
-            // Iterate backwards through the window
-            for (int k = 0; k < count; k++)
-            {
-                // k=0 is newest (currentNewestIdx)
-                // k=1 is previous...
-                int idx = currentNewestIdx - k;
-                if (idx < 0) idx += period;
+            // Split loop to avoid modulo
+            // window is length 'period'.
+            // currentNewestIdx is the index of the newest element.
+            // We iterate k from 0 to count-1.
+            // idx goes from currentNewestIdx down.
 
+            int k = 0;
+
+            // Loop 1: From currentNewestIdx down to 0
+            for (int idx = currentNewestIdx; idx >= 0 && k < count; idx--, k++)
+            {
                 double wVal = window[idx];
                 double diffRange = centerVal - wVal;
-
-                double weightRange = Math.Exp(-(diffRange * diffRange) / twoSigmaRSq);
+                double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
                 double weight = spatialWeights[k] * weightRange;
 
                 sumWeights += weight;
-                sumWeightedSrc += weight * wVal;
+                sumWeightedSrc = Math.FusedMultiplyAdd(weight, wVal, sumWeightedSrc);
+            }
+
+            // Loop 2: Wrap around
+            if (k < count)
+            {
+                for (int idx = period - 1; k < count; idx--, k++)
+                {
+                    double wVal = window[idx];
+                    double diffRange = centerVal - wVal;
+                    double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
+                    double weight = spatialWeights[k] * weightRange;
+
+                    sumWeights += weight;
+                    sumWeightedSrc = Math.FusedMultiplyAdd(weight, wVal, sumWeightedSrc);
+                }
             }
 
             destination[i] = sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;

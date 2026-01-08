@@ -11,14 +11,14 @@ Signal processing filters adapted for financial time series.
 | Cheby1 | Chebyshev I Filter | Steeper roll-off with passband ripples. |
 | Cheby2 | Chebyshev II Filter | Equiripple in stopband, monotonic in passband. |
 | [Elliptic](elliptic/Elliptic.md) | Elliptic Filter | Equiripple in both passband and stopband. |
-| Gauss | Gaussian Filter | Gaussian Smoothing Filter. |
-| Hann | Hann Filter | Hann Window Smoothing. |
-| HP | Hodrick-Prescott | Trend and Cycle decomposition. |
-| HPF | High Pass Filter | Attenuates signals below cutoff frequency. |
-| KALMAN | Kalman Filter | Recursive state estimation filter. |
-| Loess | Loess Smoothing | Locally Estimated Scatterplot Smoothing. |
-| Notch | Notch Filter | Rejects a specific frequency band. |
-| SGF | Savitzky-Golay | Polynomial smoothing filter. |
+| [Gauss](gauss/Gauss.md) | Gaussian Filter | Gaussian Smoothing Filter. |
+| [Hann](hann/Hann.md) | Hann Filter | Hann Window Smoothing. |
+| [Hp](hp/Hp.md) | Hodrick-Prescott | Causal Trend and Cycle decomposition. |
+| [Hpf](hpf/Hpf.md) | High Pass Filter | Attenuates signals below cutoff frequency. |
+| [Kalman](kalman/Kalman.md) | Kalman Filter | Recursive state estimation filter. |
+| [Loess](loess/Loess.md) | Loess Smoothing | Locally Estimated Scatterplot Smoothing. |
+| [Notch](notch/Notch.md) | Notch Filter | Band-stop filter (2-pole IIR). |
+| [SGF](sgf/Sgf.md) | Savitzky-Golay | Polynomial smoothing filter. |
 | [SSF](ssf/Ssf.md) | Super Smoother | Ehlers Super Smoother Filter. |
 | [USF](usf/Usf.md) | Ultra Smoother | Ehlers Ultra Smoother Filter. |
 | Wiener | Wiener Filter | Optimum signal estimation filter. |

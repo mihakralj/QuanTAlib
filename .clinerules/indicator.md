@@ -10,6 +10,7 @@ trigger: always_on
 
 **QuanTAlib** is a high-performance, zero-allocation C# library for quantitative technical analysis.
 
+* **Model**: If pinescript of the indicator already exists in the same directory where indicator will be, this pinescript algorithm is used as the foundation.
 * **Target**: Quantower and custom C# trading engines.
 * **Core Philosophy**: Speed, Correctness, and Memory Efficiency.
 * **Key Constraint**: Hot paths must be allocation-free (GC pressure is the enemy).
@@ -189,7 +190,8 @@ public TValue Update(TValue input, bool isNew = true)
 * **Content**: Title, Description, Parameters, Formula (LaTeX), C# Usage Examples.
 * **Index**: Add the new indicator to the category index (e.g., `lib/trends/_index.md`) AND the main index (`lib/_index.md`).
 * **Linting**: Ensure that markdownlint shows no issues for the file.
-  * **MD030:** Ensure exactly one space after list markers.
+  * **MD022/MD031:** Headers and fenced code blocks MUST be surrounded by blank lines.
+  * **MD030/list-marker-space:** Ensure exactly one space after list markers.
   * **MD032:** Ensure lists are surrounded by blank lines.
 
 ## 6. Quantower Adapter

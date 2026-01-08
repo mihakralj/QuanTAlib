@@ -76,7 +76,7 @@
 | **Ehlers Center of Gravity** | Cg | - | - | - | ❔ |
 | **Ehlers Even Better Sinewave** | Ebsw | - | - | - | ❔ |
 | **Ehlers Fractal Adaptive MA** | Frama | - | - | - | ❔ |
-| **Ehlers Highpass Filter** | Hpf | - | - | - | ❔ |
+| **Ehlers Highpass Filter** | [Hpf](../lib/filters/hpf/Hpf.md) | - | - | - | ❔ |
 | **Ehlers Phasor Analysis** | Phasor | - | - | - | - |
 | **Ehlers Sine Wave** | Sine | - | - | - | ❔ |
 | **Ehlers SSF-Based Detrended Synthetic Price** | Ssfdsp | - | - | - | - |
@@ -92,12 +92,12 @@
 | **Force Index** | Efi | - | - | ForceIndex | ❔ |
 | **Fractal Chaos Bands** | Fcb | - | - | Fcb | ❔ |
 | **Garman-Klass Volatility** | Gkv | - | - | - | ❔ |
-| **Gaussian Filter** | Gauss | - | - | - | ❔ |
+| **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
 | **Gaussian-Weighted MA** | Gwma | - | - | - | - |
 | **Geometric Mean** | Geomean | - | - | - | - |
 | **Granger Causality Test** | Granger | - | - | - | - |
 | **Hamming Window MA** | Hamma | - | - | - | ❔ |
-| **Hann FIR Filter** | Hann | - | - | - | - |
+| **Hann FIR Filter** | [Hann](../lib/filters/hann/Hann.md) | - | - | - | - |
 | **Hanning Window MA** | Hanma | - | - | - | ❔ |
 | **Harmonic Mean** | Harmean | - | - | - | - |
 | **High-Low Volatility** | Hlv | - | - | - | - |
@@ -109,7 +109,7 @@
 | **Hilbert Transform Sine Wave** | Ht_sine | HT_SINE | msw | - | - |
 | **Hilbert Transform Trend Mode** | Ht_trendmode | HT_TRENDMODE | - | - | - |
 | **Historical Volatility** | Hv | - | - | - | ❔ |
-| **Hodrick-Prescott Filter** | Hp | - | - | - | - |
+| **Hodrick-Prescott Filter** | [Hp](../lib/filters/hp/Hp.md) | - | - | - | - |
 | **Holt Weighted MA** | Hwma | - | - | - | ❔ |
 | **Homodyne Discriminator Dominant Cycle** | Homod | - | - | - | ❔ |
 | **Huber Loss** | Huber | - | - | - | - |
@@ -126,7 +126,7 @@
 | **Jurik Volatility** | Jvolty | - | - | - | - |
 | **Jurik Volatility Bands** | Jbands | - | - | - | - |
 | **Jurik Volatility Normalized [0,1]** | Jvoltyn | - | - | - | - |
-| **Kalman Filter** | Kf | - | - | - | ❔ |
+| **Kalman Filter** | [Kalman](../lib/filters/kalman/Kalman.md) | - | - | - | - |
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends/kama/kama.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **KDJ Indicator** | Kdj | - | - | - | - |
 | **Keltner Channel** | Kchannel | - | - | Keltner | ❔ |
@@ -137,7 +137,7 @@
 | **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | LINEARREG | linreg | Slope | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
 | **Linear Transformation** | Linear | - | - | - | - |
 | **Linear Trend MA** | Ltma | - | - | - | - |
-| **LOESS/LOWESS Smoothing** | Loess | - | - | - | - |
+| **LOESS/LOWESS Smoothing** | [Loess](../lib/filters/loess/Loess.md) | - | - | - | - |
 | **Logarithmic Transformation** | Log | - | - | - | - |
 | **Logistic Function** | Sigmoid | - | - | - | - |
 | **Lowest value** | Lowest | - | - | - | - |
@@ -166,7 +166,7 @@
 | **Negative Volume Index** | Nvi | - | nvi | - | ❔ |
 | **Normalized Average True Range** | Natr | NATR | natr | - | - |
 | **Normalized Shannon Entropy** | Entropy | - | - | - | - |
-| **Notch Filter** | Notch | - | - | - | - |
+| **Notch Filter** | [Notch](../lib/filters/notch/Notch.md) | - | - | - | - |
 | **On Balance Volume** | Obv | OBV | obv | Obv | ❔ |
 | **Parabolic SAR** | Psar | SAR | psar | ParabolicSar | ❔ |
 | **Parkinson Volatility** | Pv | - | - | - | - |
@@ -207,7 +207,7 @@
 | **Root Mean Squared Error** | Rmse | - | - | - | - |
 | **Root Mean Squared Logarithmic Error** | Rmsle | - | - | - | - |
 | **R-Squared** | [RSquared](../lib/statistics/linreg/LinReg.md) | - | - | RSquared | ❔ |
-| **Savitzky-Golay Filter** | Sgf | - | - | - | - |
+| **Savitzky-Golay Filter** | [Sgf](../lib/filters/sgf/Sgf.md) | - | - | - | - |
 | **Savitzky-Golay MA** | Sgma | - | - | - | - |
 | **Schaff Trend Cycle** | Stc | - | - | Stc | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends/sma/sma.md) | ✔️ | ✔️ | ✔️ | ✔️ |

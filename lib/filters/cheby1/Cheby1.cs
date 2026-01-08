@@ -23,6 +23,7 @@ public sealed class Cheby1 : AbstractBase
         public double Src1, Src2;
         public double Filt1, Filt2;
         public double LastValid;
+        public int Count;
     }
 
     private State _state;
@@ -159,12 +160,21 @@ public sealed class Cheby1 : AbstractBase
         double term3 = Math.FusedMultiplyAdd(-_a1, _state.Filt1, term2);
         double filt = Math.FusedMultiplyAdd(-_a2, _state.Filt2, term3);
 
+        // Handle warmup for first 2 samples
+        if (_state.Count < 2)
+        {
+            filt = val;
+        }
+
         if (isNew)
         {
             _state.Src2 = _state.Src1;
             _state.Src1 = val;
             _state.Filt2 = _state.Filt1;
             _state.Filt1 = filt;
+
+            if (_state.Count < 2)
+                _state.Count++;
         }
 
         Last = new TValue(input.Time, filt);
@@ -219,6 +229,7 @@ public sealed class Cheby1 : AbstractBase
         double src1 = 0, src2 = 0;
         double filt1 = 0, filt2 = 0;
         double lastValid = 0;
+        int count = 0;
 
         // Handle first value initialization
         if (source.Length > 0)
@@ -243,6 +254,12 @@ public sealed class Cheby1 : AbstractBase
             double term2 = Math.FusedMultiplyAdd(b2, src2, term1);
             double term3 = Math.FusedMultiplyAdd(-a1, filt1, term2);
             double filt = Math.FusedMultiplyAdd(-a2, filt2, term3);
+
+            if (count < 2)
+            {
+                filt = val;
+                count++;
+            }
 
             output[i] = filt;
 

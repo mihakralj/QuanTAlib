@@ -293,6 +293,36 @@ public sealed class RingBuffer : IEnumerable<double>
     public ReadOnlySpan<double> GetInternalSpan() => _buffer.AsSpan();
 
     /// <summary>
+    /// Gets the two sequential spans that make up the buffer contents in chronological order (Oldest to Newest).
+    /// <param name="first">The first segment of data.</param>
+    /// <param name="second">The second segment of data (empty if buffer is contiguous).</param>
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetSequencedSpans(out ReadOnlySpan<double> first, out ReadOnlySpan<double> second)
+    {
+        if (_count == 0)
+        {
+            first = default;
+            second = default;
+            return;
+        }
+
+        int start = _count == _capacity ? _head : 0;
+        int firstLen = Math.Min(_count, _capacity - start);
+
+        first = new ReadOnlySpan<double>(_buffer, start, firstLen);
+        
+        if (_count > firstLen)
+        {
+            second = new ReadOnlySpan<double>(_buffer, 0, _count - firstLen);
+        }
+        else
+        {
+            second = default;
+        }
+    }
+
+    /// <summary>
     /// Returns the maximum value in the buffer using SIMD acceleration.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -234,7 +234,8 @@ public TValue Update(TValue input, bool isNew = true)
   * Indicators list (`docs/indicators.md`)
   * Validation table (`docs/validation.md`)
 * **Linting**: Ensure that markdownlint shows no issues for the file.
-  * **MD030:** Ensure exactly one space after list markers.
+  * **MD022/MD031:** Headers and fenced code blocks MUST be surrounded by blank lines.
+  * **MD030/list-marker-space:** Ensure exactly one space after list markers.
   * **MD032:** Ensure lists are surrounded by blank lines.
 
 ## 6. Quantower Adapter

@@ -25,7 +25,7 @@ public class ButterIndicator : Indicator, IWatchlistIndicator
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"BUTTER {Period}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/butter/Butter.Quantower.cs";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/filters/butter/Butter.Quantower.cs";
 
     public ButterIndicator()
     {

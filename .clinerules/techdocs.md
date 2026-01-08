@@ -39,8 +39,11 @@ Structural Tells: Avoid lists of exactly 3 or 5, perfectly balanced pros/cons, a
 No Em-Dashes: A clear AI signature. Use colons or periods.
 
 FORMATTING & LINTING (Strict CommonMark)
+**Global Rule:** All markdown generation MUST pass ALL markdownlint validations. Zero tolerance for linting errors.
+
+Specific common violations to watch:
 MD022/MD031: Headers and fenced code blocks MUST be surrounded by blank lines.
-MD030: Lists must have exactly one space after the marker (e.g., "1. Item", not "1.  Item").
+MD030/list-marker-space: Lists must have exactly one space after the marker (e.g., "- Item" or "1. Item", not "-  Item").
 MD032: Lists must be surrounded by blank lines. Use only for 4-6 distinct items. Never for narrative flow.
 Code as Evidence: Include liberal snippets. Architects trust code more than prose.
 Performance Data: Include test environment specs (e.g., AVX2, Turbo mode status) and sample sizes.

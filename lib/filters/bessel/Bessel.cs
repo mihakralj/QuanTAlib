@@ -4,30 +4,64 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// BESSEL: 2nd-order Bessel Low-pass Filter
+/// BESSEL: 2nd-order Bessel Low-pass Filter with maximally flat group delay.
 /// </summary>
 /// <remarks>
-/// Bessel filter is a 2nd-order IIR low-pass filter with maximally flat group delay,
-/// adapted from John Ehlers' work for financial time series.
+/// <para>
+/// The Bessel filter is a 2nd-order IIR low-pass filter designed to preserve signal shape
+/// and timing. Unlike sharper filters (Butterworth, Chebyshev) that prioritize steep roll-off,
+/// the Bessel family is engineered for <b>maximally flat group delay</b>: signals are delayed
+/// uniformly across frequencies, preserving waveform integrity without overshoot or ringing.
+/// </para>
 ///
-/// Coefficients for a given length L:
-/// a  = exp(-PI / L)
-/// b  = 2 * a * cos(1.738 * PI / L)
-/// c2 = b
-/// c3 = -a * a
-/// c1 = 1 - c2 - c3
+/// <para><b>Coefficient Derivation (for cutoff length L):</b></para>
+/// <code>
+/// a  = exp(-π / L)
+/// b  = 2 · a · cos(1.738 · π / L)     // 1.738 ≈ √3 for 2nd-order Bessel characteristics
+/// c₂ = b
+/// c₃ = -a²
+/// c₁ = 1 - c₂ - c₃
+/// </code>
 ///
-/// Recursive form:
-/// F[n] = c1 * Src[n] + c2 * F[n-1] + c3 * F[n-2]
+/// <para><b>Recursive IIR Form:</b></para>
+/// <code>
+/// F[n] = c₁ · Src[n] + c₂ · F[n-1] + c₃ · F[n-2]
+/// </code>
 ///
-/// Computation: 3 multiplications, 2 additions per cycle
+/// <para><b>Complexity:</b></para>
+/// <list type="bullet">
+///   <item><description>Time: O(1) per update - constant 3 multiplications + 2 additions</description></item>
+///   <item><description>Space: O(1) - only 2 previous filter values stored</description></item>
+///   <item><description>SIMD: Not applicable due to IIR recursive data dependency</description></item>
+/// </list>
+///
+/// <para><b>Numerical Considerations:</b></para>
+/// <list type="bullet">
+///   <item><description>Uses <see cref="Math.FusedMultiplyAdd"/> for improved precision and potential performance</description></item>
+///   <item><description>NaN/Infinity inputs are substituted with last valid value to prevent state corruption</description></item>
+///   <item><description>Minimum length of 2 required for 2nd-order filter numerical stability</description></item>
+/// </list>
+///
+/// <para><b>Sources:</b></para>
+/// <list type="bullet">
+///   <item><description>John Ehlers - "Cybernetic Analysis for Stocks and Futures"</description></item>
+///   <item><description>Friedrich Bessel - Bessel polynomials and filter theory</description></item>
+/// </list>
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Bessel : AbstractBase, IDisposable
 {
+    /// <summary>
+    /// Internal state for the Bessel filter, stored as a value type for performance.
+    /// </summary>
+    /// <remarks>
+    /// Uses <see cref="LayoutKind.Auto"/> for optimal memory layout.
+    /// Record struct provides value semantics for safe state rollback on bar corrections.
+    /// </remarks>
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double F1, double F2, double LastValidValue, int Count, bool IsHot)
     {
+        /// <summary>Creates a new default state instance.</summary>
         public static State New() => new()
         {
             F1 = 0,
@@ -38,16 +72,31 @@ public sealed class Bessel : AbstractBase, IDisposable
         };
     }
 
-    private readonly double _c1, _c2, _c3;
+    /// <summary>Filter coefficient for current input: c₁ = 1 - c₂ - c₃.</summary>
+    private readonly double _c1;
+
+    /// <summary>Filter coefficient for F[n-1]: c₂ = 2a·cos(1.738π/L).</summary>
+    private readonly double _c2;
+
+    /// <summary>Filter coefficient for F[n-2]: c₃ = -a².</summary>
+    private readonly double _c3;
+
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
     private State _state = State.New();
     private State _p_state = State.New();
 
     /// <summary>
-    /// Creates Bessel filter with specified length.
+    /// Initializes a new Bessel filter with the specified cutoff length.
     /// </summary>
-    /// <param name="length">Cutoff length (must be >= 2 for 2nd-order filter stability).</param>
+    /// <param name="length">
+    /// Cutoff period in bars. Larger values produce smoother output with more lag.
+    /// Must be at least 2 for 2nd-order filter numerical stability.
+    /// </param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="length"/> is less than 2.</exception>
+    /// <remarks>
+    /// Coefficient computation: O(1) - performed once at construction using exp/cos.
+    /// </remarks>
     public Bessel(int length)
     {
         if (length < 2)
@@ -64,8 +113,15 @@ public sealed class Bessel : AbstractBase, IDisposable
     }
 
     /// <summary>
-    /// Creates Bessel filter subscribed to a source publisher.
+    /// Initializes a Bessel filter subscribed to a source publisher for reactive updates.
     /// </summary>
+    /// <param name="source">The data source to subscribe to. Updates are received via the Pub event.</param>
+    /// <param name="length">Cutoff period in bars (must be >= 2).</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="length"/> is less than 2.</exception>
+    /// <remarks>
+    /// The filter subscribes directly to the source's Pub event for zero-copy reactive updates.
+    /// Call <see cref="Dispose"/> to unsubscribe when the filter is no longer needed.
+    /// </remarks>
     public Bessel(ITValuePublisher source, int length) : this(length)
     {
         _publisher = source;
@@ -74,8 +130,18 @@ public sealed class Bessel : AbstractBase, IDisposable
     }
 
     /// <summary>
-    /// Creates Bessel filter pre-primed with an existing TSeries and subscribed for future updates.
+    /// Initializes a Bessel filter pre-primed with historical data and subscribed for future updates.
     /// </summary>
+    /// <param name="source">
+    /// The TSeries containing historical data for priming and future updates.
+    /// All existing values are processed immediately via <see cref="Prime"/>.
+    /// </param>
+    /// <param name="length">Cutoff period in bars (must be >= 2).</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="length"/> is less than 2.</exception>
+    /// <remarks>
+    /// <para>Complexity: O(n) for initial priming where n = source.Count, then O(1) per update.</para>
+    /// <para>After construction, the filter is ready to produce valid output if source.Count >= WarmupPeriod.</para>
+    /// </remarks>
     public Bessel(TSeries source, int length) : this(length)
     {
         Prime(source.Values);
@@ -89,8 +155,19 @@ public sealed class Bessel : AbstractBase, IDisposable
         source.Pub += _handler;
     }
 
+    /// <inheritdoc />
     public override bool IsHot => _state.IsHot;
 
+    /// <summary>
+    /// Initializes the filter state using historical data without producing output.
+    /// </summary>
+    /// <param name="source">Historical values to process for state initialization.</param>
+    /// <param name="step">Time interval between values (unused for Bessel, included for API compatibility).</param>
+    /// <remarks>
+    /// <para><b>Complexity:</b> O(n) where n = source.Length</para>
+    /// <para>After priming, the filter's <see cref="IsHot"/> property reflects whether enough data was provided.</para>
+    /// <para>NaN values in source are handled via last-valid-value substitution.</para>
+    /// </remarks>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
@@ -166,6 +243,9 @@ public sealed class Bessel : AbstractBase, IDisposable
         _p_state = _state;
     }
 
+    /// <summary>
+    /// Returns a finite value for calculation, substituting last valid value for NaN/Infinity.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
     {
@@ -178,6 +258,23 @@ public sealed class Bessel : AbstractBase, IDisposable
         return _state.LastValidValue;
     }
 
+    /// <summary>
+    /// Updates the filter with a single input value.
+    /// </summary>
+    /// <param name="input">The input value containing timestamp and price data.</param>
+    /// <param name="isNew">
+    /// True if this is a new bar (advances state), False if updating current bar (rolls back then recomputes).
+    /// </param>
+    /// <returns>The filtered output value with the same timestamp as input.</returns>
+    /// <remarks>
+    /// <para><b>Complexity:</b> O(1) - constant time regardless of filter length or history.</para>
+    /// <para><b>Operations:</b> 3 multiplications + 2 additions using FMA for precision.</para>
+    /// <para><b>Allocations:</b> Zero heap allocations on hot path.</para>
+    /// <para>
+    /// Bar correction: When <paramref name="isNew"/> is false, the filter rolls back to the
+    /// previous state before applying the update, enabling intra-bar recalculation.
+    /// </para>
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
@@ -220,6 +317,16 @@ public sealed class Bessel : AbstractBase, IDisposable
         return Last;
     }
 
+    /// <summary>
+    /// Processes an entire time series and returns filtered results.
+    /// </summary>
+    /// <param name="source">The input time series to filter.</param>
+    /// <returns>A new TSeries containing filtered values with preserved timestamps.</returns>
+    /// <remarks>
+    /// <para><b>Complexity:</b> O(n) where n = source.Count</para>
+    /// <para>Uses optimized span-based batch processing internally.</para>
+    /// <para>Updates internal state to match the end of the processed series.</para>
+    /// </remarks>
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0)
@@ -251,6 +358,14 @@ public sealed class Bessel : AbstractBase, IDisposable
         return new TSeries(t, v);
     }
 
+    /// <summary>
+    /// Core calculation loop shared by all batch processing methods.
+    /// </summary>
+    /// <remarks>
+    /// <para><b>Complexity:</b> O(n) where n = source.Length</para>
+    /// <para>Handles warmup, NaN substitution, and state management in a single pass.</para>
+    /// <para>Uses FMA for the IIR calculation: F = c1*val + c2*F1 + c3*F2</para>
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CalculateCore(
         ReadOnlySpan<double> source,
@@ -321,6 +436,23 @@ public sealed class Bessel : AbstractBase, IDisposable
             state.IsHot = true;
     }
 
+    /// <summary>
+    /// Calculates filtered values for a time series and returns both results and a primed indicator.
+    /// </summary>
+    /// <param name="source">The input time series to filter.</param>
+    /// <param name="length">Cutoff period in bars (must be >= 2).</param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    ///   <item><description>Results: TSeries with filtered values</description></item>
+    ///   <item><description>Indicator: A primed Bessel instance ready for streaming updates</description></item>
+    /// </list>
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="length"/> is less than 2.</exception>
+    /// <remarks>
+    /// <para><b>Complexity:</b> O(n) where n = source.Count</para>
+    /// <para>The returned indicator maintains state and can continue processing new values.</para>
+    /// </remarks>
     public static (TSeries Results, Bessel Indicator) Calculate(TSeries source, int length)
     {
         var bessel = new Bessel(length);
@@ -328,6 +460,21 @@ public sealed class Bessel : AbstractBase, IDisposable
         return (results, bessel);
     }
 
+    /// <summary>
+    /// Calculates filtered values for a span of doubles (stateless batch processing).
+    /// </summary>
+    /// <param name="source">Input values to filter.</param>
+    /// <param name="output">Output span to write filtered values (must be same length as source).</param>
+    /// <param name="length">Cutoff period in bars (must be >= 2).</param>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="length"/> is less than 2 or when source and output lengths differ.
+    /// </exception>
+    /// <remarks>
+    /// <para><b>Complexity:</b> O(n) where n = source.Length</para>
+    /// <para><b>Allocations:</b> Zero heap allocations (state is stack-allocated).</para>
+    /// <para>This is the highest-performance API for batch processing without state persistence.</para>
+    /// <para>SIMD optimization is not applicable due to IIR recursive data dependency.</para>
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int length)
     {
@@ -351,9 +498,19 @@ public sealed class Bessel : AbstractBase, IDisposable
         CalculateCore(source, output, c1, c2, c3, length, ref state);
     }
 
+    /// <summary>
+    /// Event handler for reactive updates from subscribed publishers.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
+    /// <summary>
+    /// Resets the filter to its initial state, clearing all history.
+    /// </summary>
+    /// <remarks>
+    /// After reset, <see cref="IsHot"/> will be false and the filter will need to
+    /// reaccumulate warmup data before producing valid filtered output.
+    /// </remarks>
     public override void Reset()
     {
         _state = State.New();
@@ -361,6 +518,13 @@ public sealed class Bessel : AbstractBase, IDisposable
         Last = default;
     }
 
+    /// <summary>
+    /// Unsubscribes from the source publisher if one was provided during construction.
+    /// </summary>
+    /// <remarks>
+    /// Call this method when the filter is no longer needed to prevent memory leaks
+    /// from dangling event subscriptions. Safe to call multiple times.
+    /// </remarks>
     public void Dispose()
     {
         if (_publisher != null && _handler != null)

@@ -5,13 +5,13 @@ using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
 [SkipLocalsInit]
-public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
+public class NotchIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 3, 1000, 1, 0)]
-    public int Period { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, 2, 2000, 1, 0)]
+    public int Period { get; set; } = 14;
 
-    [InputParameter("Ripple (dB)", sortIndex: 2, 0.001, 100, 0.1, 2)]
-    public double Ripple { get; set; } = 0.5;
+    [InputParameter("Q Factor", sortIndex: 2, 0.1, 100, 0.1, 1)]
+    public double Q { get; set; } = 1.0;
 
     [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
@@ -19,24 +19,23 @@ public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Cheby1? _ma;
+    private Notch? _ma;
     private readonly LineSeries? _series;
     private string? _sourceName;
     private Func<IHistoryItem, double>? _priceSelector;
 
-    public static int MinHistoryDepths => 5;
+    public static int MinHistoryDepths => 14; // Approximate default
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"Cheby1 {Period}:{Ripple}:{_sourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/filters/cheby1/Cheby1.Quantower.cs";
+    public override string ShortName => $"Notch({Period}, {Q:F1}):{_sourceName}";
 
-    public Cheby1Indicator()
+    public NotchIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
-        Name = "Cheby1 - Chebyshev Type I Filter";
-        Description = "Chebyshev Type I low-pass filter with passband ripple";
-        _series = new(name: $"Cheby1 {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        Name = "Notch - Notch Filter";
+        Description = "Band-stop filter with a narrow bandwidth.";
+        _series = new(name: $"Notch {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 
@@ -44,7 +43,7 @@ public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
     {
         _priceSelector = Source.GetPriceSelector();
         _sourceName = Source.ToString();
-        _ma = new Cheby1(Period, Ripple);
+        _ma = new Notch(Period, Q);
         base.OnInit();
     }
 
@@ -53,7 +52,8 @@ public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
+        var input = new TValue(item.TimeLeft.Ticks, _priceSelector!(item));
+        double value = _ma!.Update(input, isNew).Value;
         _series!.SetValue(value, _ma.IsHot, ShowColdValues);
     }
 }

@@ -11,8 +11,6 @@ namespace QuanTAlib;
 /// <remarks>
 /// Complexity: O(1)
 /// Computation: 5 multiplications, 4 additions per cycle
-/// Sources:
-/// https://github.com/mihakralj/pinescript/blob/main/indicators/filters/elliptic/elliptic.pine
 /// </remarks>
 [SkipLocalsInit]
 public sealed class Elliptic : AbstractBase

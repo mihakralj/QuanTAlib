@@ -31,7 +31,7 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
     public override string ShortName => $"Bilateral {Period}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/bilateral/Bilateral.Quantower.cs";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/filters/bilateral/Bilateral.Quantower.cs";
 
     public BilateralIndicator()
     {
