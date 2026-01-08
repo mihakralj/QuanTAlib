@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Kaufman's Adaptive Moving Average (KAMA)", "KAMA", overlay=true)
+
+//@function Calculates KAMA using adaptive smoothing based on market volatility
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/kama.md
+//@param source Series to calculate KAMA from
+//@param period Length of the efficiency ratio lookback period
+//@param fast_alpha Fastest EMA constant (2/(2+1))
+//@param slow_alpha Slowest EMA constant (2/(30+1))
+//@returns KAMA value with efficiency ratio-based adaptive smoothing
+//@optimized Uses efficiency ratio calculation for O(n) complexity per bar due to lookback sum
+kama(series float source, simple int period, simple float fast_alpha=0.666667, simple float slow_alpha=0.0645) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if fast_alpha <= 0 or slow_alpha <= 0
+        runtime.error("Alpha values must be greater than 0")
+    if fast_alpha <= slow_alpha
+        runtime.error("Fast alpha must be greater than slow alpha")
+    var float kama_state = na
+    float current_kama = na
+    if not na(source)
+        float change_val = math.abs(source - source[period])
+        float volatility_val = math.sum(math.abs(source - source[1]), period)
+        float er = 0.0
+        if not na(change_val) and not na(volatility_val) and volatility_val != 0.0
+            er := change_val / volatility_val
+        float sc = math.pow(er * (fast_alpha - slow_alpha) + slow_alpha, 2)
+        kama_state := na(kama_state) ? source : kama_state + sc * (source - kama_state)
+        current_kama := kama_state
+    current_kama
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+i_fast = input.int(2, "Fast EMA Period", minval=2)
+i_slow = input.int(30, "Slow EMA Period", minval=2)
+
+// Calculation
+float fast_alpha = 2.0 / (float(i_fast) + 1.0)
+float slow_alpha = 2.0 / (float(i_slow) + 1.0)
+kama_value = kama(i_source, i_period, fast_alpha, slow_alpha)
+
+// Plot
+plot(kama_value, "KAMA", color=color.yellow, linewidth=2)

@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(Configuration)' == 'Release'">net10.0;net8.0</TargetFrameworks>
-    <TargetFramework Condition="'$(Configuration)' == 'Debug'">net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Trends</AssemblyName>
     <AlgoType>Indicator</AlgoType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -18,7 +17,8 @@
   <ItemGroup>
     <Compile Include="IndicatorExtensions.cs" />
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
-    <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\obj\**;..\lib\trends\**\bin\**" />
+    <Compile Include="..\lib\trends_FIR\**\*.cs" Exclude="..\lib\trends_FIR\**\*.Tests.cs;..\lib\trends_FIR\**\obj\**;..\lib\trends_FIR\**\bin\**" />
+    <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

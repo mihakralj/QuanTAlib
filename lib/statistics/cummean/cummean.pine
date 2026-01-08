@@ -1,0 +1,27 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Cumulative Mean (CUMMEAN)", "CUMMEAN", overlay=false, precision=8)
+
+//@function Calculates the cumulative arithmetic mean (average) of a series from the start of the data.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/cummean.md
+//@param src series float Input data series.
+//@returns series float The cumulative mean of the series, or na if all data so far is na.
+cummean(series float src) =>
+    var float cumulative_sum = 0.0
+    var int valid_data_count = 0
+    if not na(src)
+        cumulative_sum += src
+        valid_data_count += 1
+    valid_data_count > 0 ? cumulative_sum / valid_data_count : na
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+
+// Calculation
+cummean_value = cummean(i_source)
+
+// Plot
+plot(cummean_value, "CumMean", color=color.new(color.blue, 0, color=color.yellow, linewidth=2), linewidth=2)

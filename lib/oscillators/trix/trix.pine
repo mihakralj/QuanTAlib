@@ -1,0 +1,51 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("TRIX", "TRIX", overlay=false)
+
+//@function Calculates TRIX oscillator with compensation
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/trix.md
+//@param source Series to calculate TRIX from
+//@param period Period for triple exponential smoothing
+//@returns TRIX value (percentage rate of change of triple EMA)
+trix(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be positive")
+    float src = na(source) ? source[1] : source
+    float alpha = 2.0 / (period + 1)
+    float d = 1 - alpha
+    var float e1 = 1.0, var float e2 = 1.0, var float e3 = 1.0
+    var bool warmup = true
+    var float rema1 = 0, var float rema2 = 0, var float rema3 = 0
+    var float ema1 = src, var float ema2 = src, var float ema3 = src
+    var float prev_ema3 = src
+    rema1 := alpha * (src - rema1) + rema1
+    if warmup
+        e1 *= d, e2 *= d, e3 *= d
+        ema1 := rema1 / (1.0 - e1)
+        rema2 := alpha * (ema1 - rema2) + rema2
+        ema2 := rema2 / (1.0 - e2)
+        rema3 := alpha * (ema2 - rema3) + rema3
+        ema3 := rema3 / (1.0 - e3)
+        warmup := e1 > 1e-10
+    else
+        ema1 := rema1
+        rema2 := alpha * (ema1 - rema2) + rema2
+        ema2 := rema2
+        rema3 := alpha * (ema2 - rema3) + rema3
+        ema3 := rema3
+    trix_value = prev_ema3 != 0 ? 100 * (ema3 - prev_ema3) / prev_ema3 : 0
+    prev_ema3 := ema3
+    na(source) ? na : trix_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, maxval=100, tooltip="Period for triple exponential smoothing")
+i_source = input.source(close, "Source", tooltip="Price series to analyze")
+
+// Calculation
+trix_value = trix(i_source, i_period)
+
+// Plot
+plot(trix_value, "TRIX", color=color.yellow, linewidth=2)

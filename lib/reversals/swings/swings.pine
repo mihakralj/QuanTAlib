@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Swing High/Low Detection", "SWINGS", overlay=true)
+
+//@function Detects swing highs and swing lows using lookback period
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/swings.md
+//@param lookback Number of bars on each side to confirm swing point
+//@param source_high Price series for swing high detection (typically high)
+//@param source_low Price series for swing low detection (typically low)
+//@returns Tuple [swing_high, swing_low] with swing point values (na if no swing)
+swings(simple int lookback, series float source_high, series float source_low) =>
+    if lookback <= 0
+        runtime.error("Lookback must be greater than 0")
+    if lookback > 100
+        runtime.error("Lookback exceeds maximum of 100")
+    bool is_swing_high = true
+    bool is_swing_low = true
+    if bar_index < lookback * 2
+        is_swing_high := false
+        is_swing_low := false
+    else
+        float center_high = source_high[lookback]
+        float center_low = source_low[lookback]
+        for i = 1 to lookback
+            if source_high[lookback - i] > center_high or source_high[lookback + i] > center_high
+                is_swing_high := false
+            if source_low[lookback - i] < center_low or source_low[lookback + i] < center_low
+                is_swing_low := false
+    float swing_high_value = is_swing_high ? source_high[lookback] : na
+    float swing_low_value = is_swing_low ? source_low[lookback] : na
+    [swing_high_value, swing_low_value]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_lookback = input.int(5, "Lookback Period", minval=1, maxval=100, tooltip="Number of bars on each side to confirm swing point")
+i_source_high = input.source(high, "Source High", tooltip="Price series for swing high detection")
+i_source_low = input.source(low, "Source Low", tooltip="Price series for swing low detection")
+i_show_high = input.bool(true, "Show Swing High Lines")
+i_show_low = input.bool(true, "Show Swing Low Lines")
+i_color_high = input.color(color.red, "Swing High Color")
+i_color_low = input.color(color.green, "Swing Low Color")
+
+// Calculation
+[swing_high, swing_low] = swings(i_lookback, i_source_high, i_source_low)
+
+// Track last confirmed swing points
+var float last_swing_high = na
+var float last_swing_low = na
+
+// Update swing levels
+if not na(swing_high)
+    last_swing_high := swing_high
+
+if not na(swing_low)
+    last_swing_low := swing_low
+
+// Plot swing levels as continuous lines
+plot(i_show_high ? last_swing_high : na, "Swing High", color=i_color_high, linewidth=2, style=plot.style_line)
+plot(i_show_low ? last_swing_low : na, "Swing Low", color=i_color_low, linewidth=2, style=plot.style_line)

@@ -10,7 +10,7 @@
 | BBANDS | Bollinger Bands | |
 | DCHANNEL | Donchian Channels | |
 | DECAYCHANNEL | Decay Min-Max Channel | |
-| FCB | Fractal Chaos Bands | |
+| FCB | Fractal Chaos Bands | Tracks fractal chaos by using highs and lows |
 | JBANDS | Jurik Volatility Bands | |
 | KCHANNEL | Keltner Channel | |
 | MAENV | Moving Average Envelope | |

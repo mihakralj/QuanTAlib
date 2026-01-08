@@ -1,0 +1,51 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Pivot Points (Fibonacci)", "PIVOTFIB", overlay=true)
+
+//@function Calculates Fibonacci pivot points using Fibonacci ratios
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotfib.md
+//@param tf Timeframe for pivot calculation ("D", "W", "M")
+//@returns Tuple [pp, r1, r2, r3, s1, s2, s3] with pivot levels
+//@references Fibonacci retracement levels applied to pivot points
+pivotfib(simple string tf) =>
+    [hi, lo, cl] = request.security(syminfo.tickerid, tf, [high[1], low[1], close[1]], lookahead=barmerge.lookahead_on)
+    if na(hi) or na(lo) or na(cl)
+        [na, na, na, na, na, na, na]
+    else
+        float pp = (hi + lo + cl) / 3.0
+        float hl_range = hi - lo
+        float r1 = pp + 0.382 * hl_range
+        float s1 = pp - 0.382 * hl_range
+        float r2 = pp + 0.618 * hl_range
+        float s2 = pp - 0.618 * hl_range
+        float r3 = pp + 1.000 * hl_range
+        float s3 = pp - 1.000 * hl_range
+        [pp, r1, r2, r3, s1, s2, s3]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_timeframe = input.timeframe("D", "Pivot Timeframe", options=["D", "W", "M"])
+i_show_pp = input.bool(true, "Show Pivot Point")
+i_show_r1 = input.bool(true, "Show R1 (38.2%)")
+i_show_r2 = input.bool(true, "Show R2 (61.8%)")
+i_show_r3 = input.bool(true, "Show R3 (100%)")
+i_show_s1 = input.bool(true, "Show S1 (38.2%)")
+i_show_s2 = input.bool(true, "Show S2 (61.8%)")
+i_show_s3 = input.bool(true, "Show S3 (100%)")
+i_color_pp = input.color(color.yellow, "PP Color")
+i_color_r = input.color(color.red, "Resistance Color")
+i_color_s = input.color(color.green, "Support Color")
+
+// Calculation
+[pp, r1, r2, r3, s1, s2, s3] = pivotfib(i_timeframe)
+
+// Plot
+plot(i_show_pp ? pp : na, "PP", color=i_color_pp, linewidth=2, style=plot.style_stepline)
+plot(i_show_r1 ? r1 : na, "R1", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_r2 ? r2 : na, "R2", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_r3 ? r3 : na, "R3", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_s1 ? s1 : na, "S1", color=i_color_s, linewidth=1, style=plot.style_stepline)
+plot(i_show_s2 ? s2 : na, "S2", color=i_color_s, linewidth=1, style=plot.style_stepline)
+plot(i_show_s3 ? s3 : na, "S3", color=i_color_s, linewidth=1, style=plot.style_stepline)

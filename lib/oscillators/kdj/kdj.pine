@@ -1,0 +1,127 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("KDJ", "KDJ", overlay=false)
+
+//@function Calculates KDJ (K, D, J) lines - enhanced Stochastic Oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/kdj.md
+//@param high Series of high prices
+//@param low Series of low prices
+//@param close Series of close prices
+//@param length Lookback period for highest/lowest calculation
+//@param signal Smoothing period for K and D lines
+//@returns Tuple [K line, D line, J line]
+//@optimized Uses Wilder's RMA smoothing and deque min/max for highest/lowest, O(n) amortized
+kdj(series float high, series float low, series float close, simple int length, simple int signal) =>
+    if length <= 0 or signal <= 0
+        runtime.error("Length and signal must be greater than 0")
+    if length > 500
+        runtime.error("Length exceeds maximum of 500")
+
+    float alpha = 1.0 / signal
+    float beta = 1.0 - alpha
+    var bool warmupK = true
+    var bool warmupD = true
+    var float eK = 1.0
+    var float eD = 1.0
+    var float k = 0.0
+    var float d = 0.0
+    var float resultK = 50.0
+    var float resultD = 50.0
+
+    var int lastLength = 0
+    var array<int> maxDeque = array.new_int(0)
+    var array<int> minDeque = array.new_int(0)
+    var array<float> highBuffer = array.new_float(0)
+    var array<float> lowBuffer = array.new_float(0)
+
+    if length != lastLength
+        lastLength := length
+        maxDeque := array.new_int(0)
+        minDeque := array.new_int(0)
+        highBuffer := array.new_float(length, na)
+        lowBuffer := array.new_float(length, na)
+        warmupK := true
+        warmupD := true
+        eK := 1.0
+        eD := 1.0
+        k := 0.0
+        d := 0.0
+        resultK := 50.0
+        resultD := 50.0
+
+    if not na(high) and not na(low) and not na(close)
+        int currentBar = bar_index
+        int slot = currentBar % length
+
+        array.set(highBuffer, slot, high)
+        array.set(lowBuffer, slot, low)
+
+        while array.size(maxDeque) > 0 and array.get(maxDeque, 0) <= currentBar - length
+            array.shift(maxDeque)
+
+        while array.size(minDeque) > 0 and array.get(minDeque, 0) <= currentBar - length
+            array.shift(minDeque)
+
+        while array.size(maxDeque) > 0 and array.get(highBuffer, array.get(maxDeque, array.size(maxDeque) - 1) % length) <= high
+            array.pop(maxDeque)
+
+        while array.size(minDeque) > 0 and array.get(lowBuffer, array.get(minDeque, array.size(minDeque) - 1) % length) >= low
+            array.pop(minDeque)
+
+        array.push(maxDeque, currentBar)
+        array.push(minDeque, currentBar)
+
+        float highest = high
+        float lowest = low
+        if array.size(maxDeque) > 0
+            highest := array.get(highBuffer, array.get(maxDeque, 0) % length)
+        if array.size(minDeque) > 0
+            lowest := array.get(lowBuffer, array.get(minDeque, 0) % length)
+
+        float price_range = highest - lowest
+
+        float rsv = price_range > 0 ? 100.0 * (close - lowest) / price_range : 50.0
+
+        k := alpha * rsv + beta * k
+        d := alpha * k + beta * d
+
+        if warmupK
+            eK *= beta
+            float cK = 1.0 / (1.0 - eK)
+            resultK := math.max(0.0, math.min(100.0, cK * k))
+            warmupK := eK > 1e-10
+        else
+            resultK := math.max(0.0, math.min(100.0, k))
+
+        if warmupD
+            eD *= beta
+            float cD = 1.0 / (1.0 - eD)
+            resultD := math.max(0.0, math.min(100.0, cD * d))
+            warmupD := eD > 1e-10
+        else
+            resultD := math.max(0.0, math.min(100.0, d))
+
+    float j = 3.0 * resultK - 2.0 * resultD
+
+    [resultK, resultD, j]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(9, "Length", minval=1, maxval=500)
+i_signal = input.int(3, "Signal", minval=1, maxval=50)
+
+// Calculation
+[k, d, j] = kdj(high, low, close, i_length, i_signal)
+
+// Plot
+plot(k, "K", color=color.blue, linewidth=2)
+plot(d, "D", color=color.red, linewidth=2)
+plot(j, "J", color=color.yellow, linewidth=2)
+
+hline(80, "Overbought K", color=color.red, linestyle=hline.style_dotted)
+hline(70, "Overbought D", color=color.orange, linestyle=hline.style_dotted)
+hline(50, "Midline", color=color.gray, linestyle=hline.style_solid)
+hline(30, "Oversold D", color=color.lime, linestyle=hline.style_dotted)
+hline(20, "Oversold K", color=color.green, linestyle=hline.style_dotted)

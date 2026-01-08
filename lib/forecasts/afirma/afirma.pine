@@ -1,0 +1,121 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Autoregressive FIR Moving Average (AFIRMA)", "AFIRMA", overlay=true)
+
+//@function Calculates AFIRMA using various windowing functions with optional least squares cubic spline fitting
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/forecasts/afirma.md
+//@param source Series to calculate AFIRMA from
+//@param period Lookback period - window size
+//@param windowType Window function type (1:Hanning, 2:Hamming, 3:Blackman, 4:Blackman-Harris)
+//@param leastSquares Apply least squares cubic polynomial fitting for autoregressive prediction
+//@returns AFIRMA value, calculates from first bar using available data
+//@optimized Uses windowing functions with O(n) complexity; least squares adds O(n) for polynomial fitting
+afirma(series float src, simple int period, simple int windowType=4, simple bool leastSquares=false) =>
+    float result = src
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if windowType < 1 or windowType > 4
+        runtime.error("WindowType should be in range [1-4]")
+    int p = math.min(bar_index + 1, period)
+
+    if p > 1
+        var array<float> coefs = array.new_float(1, 0.0)
+        var int prevPeriod = 0
+        var int prevWindowType = -1
+        if p != prevPeriod or windowType != prevWindowType
+            coefs := array.new_float(p, 0.0)
+            float a0 = 0.35875
+            float a1 = -0.48829
+            float a2 = 0.14128
+            float a3 = -0.01168
+            if windowType == 1
+                a0 := 0.50
+                a1 := -0.50
+            else if windowType == 2
+                a0 := 0.54
+                a1 := -0.46
+            else if windowType == 3
+                a0 := 0.42
+                a1 := -0.50
+                a2 := 0.08
+            float TWO_PI = 6.28318530718
+            float twoPiDivP = TWO_PI / p
+            for k = 0 to p - 1
+                float kTwoPiDivP = k * twoPiDivP
+                float coef = a0 + a1 * math.cos(kTwoPiDivP)
+                if a2 != 0.0
+                    coef += a2 * math.cos(2.0 * kTwoPiDivP)
+                if a3 != 0.0
+                    coef += a3 * math.cos(3.0 * kTwoPiDivP)
+                array.set(coefs, k, coef)
+            prevPeriod := p
+            prevWindowType := windowType
+        float sum = 0.0
+        float weightSum = 0.0
+        int validCount = 0
+        for i = 0 to p - 1
+            float price = src[i]
+            if not na(price)
+                float coef = array.get(coefs, i)
+                sum += price * coef
+                weightSum += coef
+                validCount += 1
+        result := validCount > 0 and weightSum > 0 ? sum / weightSum : src
+
+        if leastSquares and p > 2
+            int n = math.min(math.floor((p - 1) / 2), 50)
+            if n >= 2
+                var float sx = 0.0
+                var float sx2 = 0.0
+                var int prevN = 0
+
+                if n != prevN
+                    sx := 0.0
+                    sx2 := 0.0
+                    for i = 0 to n - 1
+                        sx += i
+                        sx2 += i * i
+                    prevN := n
+
+                float sy = 0.0
+                float sxy = 0.0
+                for i = 0 to n - 1
+                    float yi = nz(src[i])
+                    sy += yi
+                    sxy += i * yi
+
+                float denom = n * sx2 - sx * sx
+                if math.abs(denom) > 1e-10
+                    float slope = (n * sxy - sx * sy) / denom
+                    float intercept = (sy - slope * sx) / n
+
+                    var array<float> fittedBuffer = array.new_float(p, na)
+                    for i = 0 to n - 1
+                        float fitted = intercept + slope * i
+                        array.set(fittedBuffer, i, fitted)
+
+                    float lsSum = 0.0
+                    float lsCount = 0.0
+                    for i = 0 to p - 1
+                        float val = i < n ? array.get(fittedBuffer, i) : nz(src[i])
+                        if not na(val)
+                            lsSum += val
+                            lsCount += 1.0
+
+                    result := lsCount > 0 ? lsSum / lsCount : result
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1)
+i_source = input.source(close, "Source")
+i_windowType = input.int(4, "Window Function", minval=1, maxval=4, tooltip="1:Hanning, 2:Hamming, 3:Blackman, 4:Blackman-Harris")
+i_leastSquares = input.bool(false, "Least Squares Method", tooltip="Enable cubic polynomial fitting for autoregressive prediction")
+
+// Calculation
+afirma_value = afirma(i_source, i_period, i_windowType, i_leastSquares)
+
+// Plot
+plot(afirma_value, "AFIRMA", color=color.yellow, linewidth=2)

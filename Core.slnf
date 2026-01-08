@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "QuanTAlib.sln",
+    "projects": [
+      "lib\\quantalib.csproj",
+      "lib\\QuanTAlib.Tests.csproj"
+    ]
+  }
+}

@@ -16,7 +16,7 @@
 | **Aroon** | [Aroon](../lib/momentum/aroon/aroon.md) | ✔️ | ✔️ | ✔️ | - |
 | **Aroon Oscillator** | [AroonOsc](../lib/momentum/aroonosc/AroonOsc.md) | ✔️ | ✔️ | ✔️ | - |
 | **ATR Bands** | Atrbands | - | - | - | ❔ |
-| **Autoregressive FIR MA** | [Afirma](../lib/trends/afirma/Afirma.md) | - | - | - | - |
+| **Adaptive FIR Moving Average** | [Afirma](../lib/forecasts/afirma/Afirma.md) | - | - | - | - |
 | **Average Daily Range** | Adr | - | - | - | - |
 | **Average Directional Index** | [Adx](../lib/momentum/adx/adx.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Average Directional Movement Rating** | [Adxr](../lib/momentum/adxr/Adxr.md) | ✔️ | ✔️ | - | - |
@@ -72,7 +72,7 @@
 | **Double Weighted Moving Average** | [Dwma](../lib/trends/dwma/dwma.md) | - | - | - | - |
 | **Ease of Movement** | Eome | - | - | - | ❔ |
 | **Ehlers Autocorrelation Periodogram** | Eacp | - | - | - | ❔ |
-| **Ehlers Bandpass Filter** | Bpf | - | - | - | ❔ |
+| **BandPass Filter** | [Bpf](../lib/filters/bpf/Bpf.md) | ✔️ | - | - | - |
 | **Ehlers Center of Gravity** | Cg | - | - | - | ❔ |
 | **Ehlers Even Better Sinewave** | Ebsw | - | - | - | ❔ |
 | **Ehlers Fractal Adaptive MA** | Frama | - | - | - | ❔ |
@@ -82,7 +82,7 @@
 | **Ehlers SSF-Based Detrended Synthetic Price** | Ssfdsp | - | - | - | - |
 | **Ehlers Super Smooth Filter** | [Ssf](../lib/trends/ssf/Ssf.md) | - | - | - | ✔️ |
 | **Ehlers Ultrasmooth Filter** | Usf | - | - | - | - |
-| **Elliptic (Cauer) Filter** | Elliptic | - | - | - | ❔ |
+| **Elliptic (Cauer) Filter** | [Elliptic](../lib/filters/elliptic/Elliptic.md) | - | - | - | ❔ |
 | **Exponential Moving Average** | [Ema](../lib/trends/ema/ema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Exponential Transformation** | Exp | - | - | - | - |
 | **Exponential Weighted MA Volatility** | Ewma | - | - | - | - |

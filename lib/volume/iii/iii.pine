@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Intraday Intensity Index (III)", "III", overlay=false)
+
+//@function Calculates Intraday Intensity Index
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/iii.md
+//@param period Smoothing period for the intensity index
+//@param cumulative Whether to accumulate intensity values
+//@param h High price series
+//@param l Low price series
+//@param c Close price series
+//@param vol Volume series
+//@returns Smoothed or raw intensity value
+iii(simple int period, simple bool cumulative=false, series float h=high, series float l=low, series float c=close, series float vol=volume) =>
+    high_val = nz(h, close)
+    low_val = nz(l, close)
+    close_val = nz(c, close)
+    volume_val = math.max(nz(vol, 0.0), 1.0)
+    range_val = high_val - low_val
+    position_multiplier = range_val > 0 ? (2 * close_val - high_val - low_val) / range_val : 0.0
+    raw_iii = position_multiplier * volume_val
+    var buffer = array.new_float(period, na)
+    var head = 0, var sum = 0.0, var valid_count = 0, var cumulative_value = 0.0
+    oldest = array.get(buffer, head)
+    sum := not na(oldest) ? sum - oldest : sum
+    valid_count := not na(oldest) ? valid_count - 1 : valid_count
+    sum := not na(raw_iii) ? sum + raw_iii : sum
+    valid_count := not na(raw_iii) ? valid_count + 1 : valid_count
+    array.set(buffer, head, raw_iii)
+    head := (head + 1) % period
+    smoothed_iii = sum / period
+    cumulative_value := cumulative_value + raw_iii
+    cumulative ? cumulative_value : smoothed_iii
+
+
+// ---------- Main Calculation ----------
+
+// Parameters
+period = input.int(14, "Period", minval=1, maxval=100, tooltip="Smoothing period for the intensity index")
+cumulative = input.bool(false, "Cumulative Mode", tooltip="Accumulate intensity values for trend analysis")
+
+// Calculation
+iii_value = iii(period, cumulative)
+
+// ---------- Plots ----------
+
+plot(iii_value, "III", color=color.yellow, linewidth=2)

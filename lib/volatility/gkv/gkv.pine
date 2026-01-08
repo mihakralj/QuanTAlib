@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Garman-Klass Volatility (GKV)", "GKV", overlay=false)
+
+//@function Calculates Garman-Klass Volatility.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/gkv.md
+//@param length The period length for smoothing the Garman-Klass estimator.
+//@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
+//@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.
+//@returns float The Garman-Klass Volatility value.
+//@optimized for performance and dirty data
+gkv(simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    if annualize and annualPeriods <= 0
+        runtime.error("Annual periods must be greater than 0 if annualizing")
+    float lnH = math.log(high), float lnL = math.log(low), float lnO = math.log(open), float lnC = math.log(close)
+    float C_2LN2_1 = 0.3862941611 // 2 * math.log(2) - 1
+    float term1 = 0.5 * math.pow(lnH - lnL, 2)
+    float term2 = C_2LN2_1 * math.pow(lnC - lnO, 2)
+    float gkEstimator = term1 - term2
+    var float raw_rma_gk = 0.0, var float e_rma = 1.0
+    float rma_alpha = 1.0 / float(length)
+    if not na(gkEstimator)
+        raw_rma_gk := na(raw_rma_gk[1]) ? gkEstimator : (nz(raw_rma_gk[1], gkEstimator) * (length - 1) + gkEstimator) / length
+        e_rma := na(e_rma[1]) ? (1.0 - rma_alpha) : (1.0 - rma_alpha) * nz(e_rma[1], 1.0)
+    float EPSILON = 1e-10
+    float corrected_rma_gk = e_rma > EPSILON and not na(raw_rma_gk) ? raw_rma_gk / (1.0 - e_rma) : raw_rma_gk
+    float smoothedGkEstimator = nz(corrected_rma_gk, gkEstimator)
+    float volatility = smoothedGkEstimator < 0 ? na : math.sqrt(smoothedGkEstimator)
+    annualize and not na(volatility) ? volatility * math.sqrt(float(annualPeriods)) : volatility
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=1, tooltip="Period for smoothing the Garman-Klass estimator")
+i_annualize = input.bool(true, "Annualize Volatility", tooltip="Annualize the volatility output")
+i_annualPeriods = input.int(252, "Annual Periods", minval=1, tooltip="Number of periods in a year for annualization (e.g., 252 for daily, 52 for weekly)")
+
+// Calculation
+gkvValue = gkv(i_length, i_annualize, i_annualPeriods)
+
+// Plot
+plot(gkvValue, "GKV", color=color.yellow, linewidth=2)

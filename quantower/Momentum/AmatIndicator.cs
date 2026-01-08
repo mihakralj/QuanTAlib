@@ -89,9 +89,21 @@ public class AmatIndicator : Indicator, IWatchlistIndicator
         if (isHot || ShowColdValues)
         {
             double trend = _amat.Last.Value;
-            Color trendColor = trend > 0 ? Color.Green :
-                               trend < 0 ? Color.Red :
-                               Color.Gray;
+            Color trendColor;
+
+            if (trend > 0)
+            {
+                trendColor = Color.Green;
+            }
+            else if (trend < 0)
+            {
+                trendColor = Color.Red;
+            }
+            else
+            {
+                trendColor = Color.Gray;
+            }
+
             LinesSeries[0].SetMarker(0, new IndicatorLineMarker(trendColor));
         }
     }

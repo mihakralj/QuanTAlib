@@ -1,0 +1,152 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Bollinger Band Squeeze (BBS)", "BBS", overlay=true)
+
+//@function Calculates Bollinger Bands for squeeze detection
+//@param source Series to calculate from
+//@param period Lookback period
+//@returns tuple with [middle, deviation] values
+bbands_calc(series float source, simple int period) =>
+    var int p = math.max(1, period)
+    var int head = 0
+    var int count = 0
+    var array<float> buffer = array.new_float(p, na)
+    var float sum = 0.0
+    var float sumSq = 0.0
+    
+    float oldest = array.get(buffer, head)
+    float current_val = nz(source)
+    
+    if not na(oldest)
+        sum -= oldest
+        sumSq -= oldest * oldest
+    else
+        count := math.min(count + 1, p)
+    
+    sum += current_val
+    sumSq += current_val * current_val
+    array.set(buffer, head, current_val)
+    head := (head + 1) % p
+    
+    int n = math.max(1, count)
+    float basis = sum / n
+    float variance = n > 1 ? math.max(0.0, (sumSq / n) - (basis * basis)) : 0.0
+    float dev = math.sqrt(variance)
+    
+    [basis, dev]
+
+//@function Calculates Average True Range for Keltner Channels
+//@param period Lookback period for ATR calculation
+//@returns ATR value with proper warmup
+atr_calc(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    
+    float tr = math.max(high - low, math.max(math.abs(high - nz(close[1])), math.abs(low - nz(close[1]))))
+    float alpha = 2.0 / (period + 1)
+    float beta = 1.0 - alpha
+    
+    var bool warmup = true
+    var float e = 1.0
+    var float atr = 0.0
+    
+    atr := alpha * tr + beta * atr
+    
+    float result = tr
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        result := c * atr
+        warmup := e > 1e-10
+    else
+        result := atr
+    
+    result
+
+//@function Calculates Keltner Channels using SMA and ATR
+//@param source Series to calculate from
+//@param period Lookback period
+//@param atr_mult ATR multiplier for channel width
+//@param atr_val Pre-calculated ATR value
+//@returns tuple with [middle, upper, lower] channel values
+keltner_calc(series float source, simple int period, simple float atr_mult, series float atr_val) =>
+    var int p = math.max(1, period)
+    var int head = 0
+    var int count = 0
+    var array<float> buffer = array.new_float(p, na)
+    var float sum = 0.0
+    
+    float oldest = array.get(buffer, head)
+    float current_val = nz(source)
+    
+    if not na(oldest)
+        sum -= oldest
+    else
+        count := math.min(count + 1, p)
+    
+    sum += current_val
+    array.set(buffer, head, current_val)
+    head := (head + 1) % p
+    
+    int n = math.max(1, count)
+    float middle = sum / n
+    float offset = atr_mult * atr_val
+    
+    [middle, middle + offset, middle - offset]
+
+//@function Detects Bollinger Band Squeeze condition
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/bbs.md
+//@param source Series to analyze
+//@param bb_period Bollinger Band period
+//@param bb_mult Bollinger Band standard deviation multiplier
+//@param kc_period Keltner Channel period
+//@param kc_mult Keltner Channel ATR multiplier
+//@returns tuple with [squeeze_on, bandwidth, bands and channels]
+bbs(series float source, simple int bb_period, simple float bb_mult, simple int kc_period, simple float kc_mult) =>
+    if bb_period <= 0 or kc_period <= 0
+        runtime.error("Periods must be greater than 0")
+    if bb_mult <= 0.0 or kc_mult <= 0.0
+        runtime.error("Multipliers must be greater than 0")
+    
+    [bb_middle, bb_dev] = bbands_calc(source, bb_period)
+    float bb_upper = bb_middle + (bb_mult * bb_dev)
+    float bb_lower = bb_middle - (bb_mult * bb_dev)
+    
+    float atr_val = atr_calc(kc_period)
+    [kc_middle, kc_upper, kc_lower] = keltner_calc(source, kc_period, kc_mult, atr_val)
+    
+    bool squeeze_on = bb_upper < kc_upper and bb_lower > kc_lower
+    float bandwidth = bb_middle == 0 ? 0 : ((bb_upper - bb_lower) / bb_middle) * 100
+    
+    [squeeze_on, bandwidth, bb_middle, bb_upper, bb_lower, kc_middle, kc_upper, kc_lower]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_bb_period = input.int(20, "Bollinger Band Period", minval=1, maxval=500)
+i_bb_mult = input.float(2.0, "BB StdDev Multiplier", minval=0.1, maxval=5.0, step=0.1)
+i_kc_period = input.int(20, "Keltner Channel Period", minval=1, maxval=500)
+i_kc_mult = input.float(1.5, "KC ATR Multiplier", minval=0.1, maxval=5.0, step=0.1)
+i_source = input.source(close, "Source")
+i_show_bands = input.bool(true, "Show Bands", group="Display Options")
+i_show_channels = input.bool(true, "Show Channels", group="Display Options")
+
+// Calculation
+[squeeze_on, bandwidth, bb_middle, bb_upper, bb_lower, kc_middle, kc_upper, kc_lower] = bbs(i_source, i_bb_period, i_bb_mult, i_kc_period, i_kc_mult)
+
+// Plot squeeze dots
+plotshape(squeeze_on, "Squeeze ON", shape.circle, location.bottom, color=color.red, size=size.tiny)
+plotshape(not squeeze_on, "Squeeze OFF", shape.circle, location.bottom, color=color.green, size=size.tiny)
+
+// Optional: Plot bands and channels
+plot(i_show_bands ? bb_upper : na, "BB Upper", color=color.new(color.blue, 50), linewidth=1)
+plot(i_show_bands ? bb_middle : na, "BB Middle", color=color.new(color.blue, 50), linewidth=1)
+plot(i_show_bands ? bb_lower : na, "BB Lower", color=color.new(color.blue, 50), linewidth=1)
+
+plot(i_show_channels ? kc_upper : na, "KC Upper", color=color.new(color.orange, 50), linewidth=1)
+plot(i_show_channels ? kc_middle : na, "KC Middle", color=color.new(color.orange, 50), linewidth=1)
+plot(i_show_channels ? kc_lower : na, "KC Lower", color=color.new(color.orange, 50), linewidth=1)
+
+// Background color during squeeze
+bgcolor(squeeze_on ? color.new(color.red, 95) : na, title="Squeeze Background")

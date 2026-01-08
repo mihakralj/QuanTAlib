@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Kurtosis, tailedness (KURTOSIS)", "KURTOSIS", overlay=false, precision=8)
+
+//@function Calculates the excess kurtosis of a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/kurtosis.md
+//@param src Source series.
+//@param len Lookback period. Must be greater than 1.
+//@returns The excess kurtosis value.
+kurtosis(series float src, simple int len) =>
+    if len <= 1
+        runtime.error("Length must be greater than 1")
+    var float sumY = 0.0, var float sumY2 = 0.0, var float sumY3 = 0.0, var float sumY4 = 0.0
+    var int validCount = 0, var array<float> y_values = array.new_float(len), var int head = 0, var bool filled = false
+    float oldY = filled ? array.get(y_values, head) : na
+    if not na(oldY)
+        sumY -= oldY, sumY2 -= oldY * oldY, sumY3 -= oldY * oldY * oldY, sumY4 -= oldY * oldY * oldY * oldY, validCount -= 1
+    float currentY = src
+    array.set(y_values, head, currentY)
+    if not na(currentY)
+        sumY += currentY, sumY2 += currentY * currentY, sumY3 += currentY * currentY * currentY, sumY4 += currentY * currentY * currentY * currentY, validCount += 1
+    head := (head + 1) % len
+    if not filled and head == 0
+        filled := true
+    float excessKurtosis = na
+    if validCount >= 4
+        float n = float(validCount), mean = sumY / n, m2 = sumY2 / n, m3 = sumY3 / n, m4 = sumY4 / n
+        float variance = math.max(m2 - mean * mean, 0.0)
+        if variance > 1e-10
+            float moment4 = m4 - 4 * mean * m3 + 6 * mean * mean * m2 - 3 * mean * mean * mean * mean
+            excessKurtosis := moment4 / (variance * variance) - 3.0
+        else
+            excessKurtosis := 0.0
+    excessKurtosis
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=4) // Minval 4 for kurtosis
+i_source = input.source(close, "Source")
+
+// Calculation
+k = kurtosis(i_source, i_period)
+
+// Plot
+plot(k, "Kurtosis", color=color.yellow, linewidth=2)

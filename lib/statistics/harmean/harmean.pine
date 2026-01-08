@@ -1,0 +1,49 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Harmonic Mean (HARMEAN)", "HARMEAN", overlay=false, precision=6)
+
+//@function Calculates the Harmonic Mean of a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/harmean.md
+//@param src series float Input data series (must contain positive values).
+//@param len simple int Lookback period (must be > 0).
+//@returns series float The Harmonic Mean, or na if data is not suitable (e.g., non-positive values, insufficient data).
+//@optimized for performance and dirty data
+harmean(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0. Found: " + str.tostring(len))
+    var float sum_reciprocal_src = 0.0
+    var int n_valid = 0
+    var float[] src_buffer = array.new_float(len, na)
+    var int current_index = 0
+    float current_val = src
+    bool current_val_is_valid = false
+    if not na(current_val) and current_val > 0
+        current_val_is_valid := true
+    float old_val_from_buffer = array.get(src_buffer, current_index)
+    if not na(old_val_from_buffer) and old_val_from_buffer > 0 
+        sum_reciprocal_src -= (1.0 / old_val_from_buffer)
+        n_valid -= 1
+    if current_val_is_valid
+        sum_reciprocal_src += (1.0 / current_val)
+        n_valid += 1
+        array.set(src_buffer, current_index, current_val)
+    else
+        array.set(src_buffer, current_index, na)
+    current_index := (current_index + 1) % len
+    if n_valid > 0 and sum_reciprocal_src > 1e-10
+        n_valid / sum_reciprocal_src
+    else
+        float(na)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, title="Source (must be positive values)")
+i_length = input.int(14, title="Lookback Period", minval=1)
+
+// Calculation
+harmean_value = harmean(i_source, i_length)
+
+// Plot
+plot(harmean_value, "HARMEAN", color=color.yellow, linewidth=2)

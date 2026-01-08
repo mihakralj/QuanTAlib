@@ -1,0 +1,132 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Yang-Zhang Volatility Adjusted Moving Average (YZVAMA)", "YZVAMA", overlay=true)
+
+//@function Calculates YZVAMA by adjusting MA length based on percentile rank of short-term YZV
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/yzvama.md
+//@param source Series to calculate YZVAMA from
+//@param yzv_short_period Short-term YZV period for current volatility
+//@param yzv_long_period Long-term YZV period for baseline volatility
+//@param percentile_lookback Lookback for percentile calculation
+//@param min_length Minimum allowed adjusted length
+//@param max_length Maximum allowed adjusted length
+//@returns YZVAMA value
+//@optimized Uses RMA compensators for YZV and circular buffers for O(1) sum updates
+yzvama(series float source, simple int yzv_short_period=3, simple int yzv_long_period=50, simple int percentile_lookback=100, simple int min_length=5, simple int max_length=100) =>
+    if yzv_short_period <= 0 or yzv_long_period <= 0
+        runtime.error("All periods must be greater than 0")
+    if min_length <= 0 or max_length <= 0
+        runtime.error("Min and max length must be greater than 0")
+    if min_length > max_length
+        runtime.error("Min length must be less than or equal to max length")
+    if percentile_lookback <= 0
+        runtime.error("Percentile lookback must be greater than 0")
+    var float prev_close = close
+    float o = open
+    float h = high
+    float l = low
+    float c = close
+    float pc = na(prev_close) ? open : prev_close
+    prev_close := c
+    float ro = math.log(o / pc)
+    float rc = math.log(c / o)
+    float rh = math.log(h / o)
+    float rl = math.log(l / o)
+    float s_o_sq = ro * ro
+    float s_c_sq = rc * rc
+    float s_rs_sq = rh * (rh - rc) + rl * (rl - rc)
+    float ratio_N_short = yzv_short_period <= 1 ? 1.0 : (float(yzv_short_period) + 1.0) / (float(yzv_short_period) - 1.0)
+    float k_yz_short = 0.34 / (1.34 + ratio_N_short)
+    float s_sq_daily_short = s_o_sq + k_yz_short * s_c_sq + (1.0 - k_yz_short) * s_rs_sq
+    float EPSILON = 1e-10
+    var float raw_rma_short = 0.0
+    var float e_comp_short = 1.0
+    float yzv_short = na
+    if not na(s_sq_daily_short)
+        float rma_alpha_short = 1.0 / float(yzv_short_period)
+        float rma_beta_short = 1.0 - rma_alpha_short
+        raw_rma_short := (raw_rma_short * (yzv_short_period - 1) + s_sq_daily_short) / yzv_short_period
+        e_comp_short := rma_beta_short * e_comp_short
+        float smoothed_s_sq_short = e_comp_short > EPSILON ? raw_rma_short / (1.0 - e_comp_short) : raw_rma_short
+        yzv_short := math.sqrt(smoothed_s_sq_short)
+    float ratio_N_long = yzv_long_period <= 1 ? 1.0 : (float(yzv_long_period) + 1.0) / (float(yzv_long_period) - 1.0)
+    float k_yz_long = 0.34 / (1.34 + ratio_N_long)
+    float s_sq_daily_long = s_o_sq + k_yz_long * s_c_sq + (1.0 - k_yz_long) * s_rs_sq
+    var float raw_rma_long = 0.0
+    var float e_comp_long = 1.0
+    float yzv_long = na
+    if not na(s_sq_daily_long)
+        float rma_alpha_long = 1.0 / float(yzv_long_period)
+        float rma_beta_long = 1.0 - rma_alpha_long
+        raw_rma_long := (raw_rma_long * (yzv_long_period - 1) + s_sq_daily_long) / yzv_long_period
+        e_comp_long := rma_beta_long * e_comp_long
+        float smoothed_s_sq_long = e_comp_long > EPSILON ? raw_rma_long / (1.0 - e_comp_long) : raw_rma_long
+        yzv_long := math.sqrt(smoothed_s_sq_long)
+    var array<float> yzv_buffer = array.new_float(percentile_lookback, na)
+    var int yzv_head = 0
+    if not na(yzv_short)
+        array.set(yzv_buffer, yzv_head, yzv_short)
+        yzv_head := (yzv_head + 1) % percentile_lookback
+    array<float> sorted_yzv = array.new_float()
+    for i = 0 to percentile_lookback - 1
+        float val = array.get(yzv_buffer, i)
+        if not na(val)
+            array.push(sorted_yzv, val)
+    int n_valid = array.size(sorted_yzv)
+    float percentile_value = 50.0
+    if n_valid > 1 and not na(yzv_short)
+        array.sort(sorted_yzv)
+        int rank_pos = 0
+        for i = 0 to n_valid - 1
+            if array.get(sorted_yzv, i) < yzv_short
+                rank_pos += 1
+        percentile_value := (float(rank_pos) / float(n_valid - 1)) * 100.0
+    float length_range = max_length - min_length
+    float adjusted_length_f = max_length - (percentile_value / 100.0) * length_range
+    int adjusted_length = int(math.max(min_length, math.min(max_length, adjusted_length_f)))
+    var array<float> buffer = array.new_float(max_length, na)
+    var int head = 0
+    var float sum = 0.0
+    var int valid_count = 0
+    if array.size(buffer) != max_length
+        buffer := array.new_float(max_length, na)
+        head := 0
+        sum := 0.0
+        valid_count := 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        valid_count -= 1
+    if not na(source)
+        sum += source
+        valid_count += 1
+    array.set(buffer, head, source)
+    head := (head + 1) % max_length
+    float avg = valid_count > 0 ? sum / valid_count : source
+    int actual_count = math.min(valid_count, adjusted_length)
+    float partial_sum = 0.0
+    int partial_count = 0
+    for i = 0 to actual_count - 1
+        int idx = (head - 1 - i + max_length) % max_length
+        float val = array.get(buffer, idx)
+        if not na(val)
+            partial_sum += val
+            partial_count += 1
+    partial_count > 0 ? partial_sum / partial_count : nz(avg, source)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_yzv_short = input.int(3, "Short YZV Period", minval=1)
+i_yzv_long = input.int(50, "Long YZV Period", minval=1)
+i_percentile_lookback = input.int(100, "Percentile Lookback", minval=1)
+i_min_length = input.int(5, "Minimum Length", minval=1)
+i_max_length = input.int(100, "Maximum Length", minval=1)
+
+// Calculation
+yzvama_value = yzvama(i_source, i_yzv_short, i_yzv_long, i_percentile_lookback, i_min_length, i_max_length)
+
+// Plot
+plot(yzvama_value, "YZVAMA", color=color.yellow, linewidth=2)

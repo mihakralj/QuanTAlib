@@ -1,0 +1,26 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Price Volume Rank (PVR)", "PVR", overlay=false)
+
+//@function Calculates Price Volume Rank
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvr.md
+//@param price Price series for comparison
+//@param vol Volume series for comparison
+//@returns Price Volume Rank (0-4)
+//@optimized for performance and dirty data
+pvr(series float price, series float vol=volume) =>
+    float p = nz(price, close), float v = nz(vol, 0.0)
+    float pp = nz(p[1], p), float pv = nz(v[1], v)
+    p > pp ? (v > pv ? 1 : 2) : p < pp ? (v < pv ? 3 : 4) : 0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_price_source = input.source(close, "Price Source")
+
+// Calculation
+pvr_value = pvr(i_price_source)
+
+// Plot
+plot(pvr_value, "PVR", color=color.yellow, linewidth=2, plot.style_stepline)

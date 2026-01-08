@@ -1,0 +1,42 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Average Directional Movement Index (ADX)", "ADX", overlay=false)
+
+//@function Calculates ADX using Wilder's smoothing with compensated RMA
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/adx.md
+//@param period Number of bars used in the calculation
+//@returns tuple of ADX value, +DI, -DI
+adx(simple int period = 14) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float tr = na(close[1]) ? high - low : math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+    float plus_dm = na(high[1]) ? 0.0 : high - high[1] > low[1] - low and high - high[1] > 0 ? high - high[1] : 0.0
+    float minus_dm = na(low[1]) ? 0.0 : low[1] - low > high - high[1] and low[1] - low > 0 ? low[1] - low : 0.0
+    var float tr_sum = 0.0
+    var float plus_dm_sum = 0.0
+    var float minus_dm_sum = 0.0
+
+    tr_sum := nz(tr_sum) - nz(tr_sum[period]) + tr
+    plus_dm_sum := nz(plus_dm_sum) - nz(plus_dm_sum[period]) + plus_dm
+    minus_dm_sum := nz(minus_dm_sum) - nz(minus_dm_sum[period]) + minus_dm
+
+    float plus_di = tr_sum != 0.0 ? math.min(100 * plus_dm_sum / tr_sum, 50.0) : 0.0
+    float minus_di = tr_sum != 0.0 ? math.min(100 * minus_dm_sum / tr_sum, 50.0) : 0.0
+    float dx = plus_di + minus_di != 0.0 ? 100 * math.abs(plus_di - minus_di) / (plus_di + minus_di) : 0.0
+
+    var float dx_sum = 0.0
+    dx_sum := nz(dx_sum) - nz(dx_sum[period]) + dx
+    float adx_value = dx_sum / period
+    [adx_value, plus_di, minus_di]
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculate ADX
+[adx_value, plus_di, minus_di] = adx(i_period)
+
+// Plot
+plot(adx_value, "ADX", color=color.yellow, linewidth=2)
+plot(plus_di, "+DI", color=color.yellow, linewidth=2)
+plot(minus_di, "-DI", color=color.yellow, linewidth=2)

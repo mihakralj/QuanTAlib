@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Aroon (AROON)", "AROON", overlay=false)
+
+//@function Calculates Aroon Up and Down values
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/aroon.md
+//@param period Number of bars used in the calculation
+//@returns tuple of Aroon Up and Aroon Down values
+aroon(simple int period = 25) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+
+    // Find highest high and lowest low positions
+    float highest_pos = ta.highestbars(high, period)
+    float lowest_pos = ta.lowestbars(low, period)
+
+    // Calculate Aroon values
+    float aroon_up = 100 * (period + highest_pos) / period
+    float aroon_down = 100 * (period + lowest_pos) / period
+
+    [aroon_up, aroon_down]
+
+// Inputs
+i_period = input.int(25, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculate Aroon
+[aroon_up, aroon_down] = aroon(i_period)
+
+// Plot
+plot(aroon_up, "Aroon Up", color=color.yellow, linewidth=2)
+plot(aroon_down, "Aroon Down", color=color.yellow, linewidth=2)
+hline(50, "Mid Level", color.gray)
+hline(70, "Upper Level", color.gray)
+hline(30, "Lower Level", color.gray)
+
+// Alert conditions
+alertcondition(ta.crossover(aroon_up, aroon_down), "Aroon Up crosses above Down", "Bullish crossover on {{ticker}}")
+alertcondition(ta.crossunder(aroon_up, aroon_down), "Aroon Down crosses above Up", "Bearish crossover on {{ticker}}")
+alertcondition(aroon_up > 70 and aroon_down < 30, "Strong uptrend", "Strong uptrend detected on {{ticker}}")
+alertcondition(aroon_down > 70 and aroon_up < 30, "Strong downtrend", "Strong downtrend detected on {{ticker}}")

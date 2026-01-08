@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(Configuration)' == 'Release'">net10.0;net8.0</TargetFrameworks>
-    <TargetFramework Condition="'$(Configuration)' == 'Debug'">net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -35,7 +34,10 @@
     <!-- Include core library types -->
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
     <!-- Include trends implementations -->
-    <Compile Include="..\lib\trends\**\*.cs" Exclude="..\lib\trends\**\*.Tests.cs;..\lib\trends\**\*.Validation.Tests.cs;..\lib\trends\**\obj\**;..\lib\trends\**\bin\**" />
+    <Compile Include="..\lib\trends_FIR\**\*.cs" Exclude="..\lib\trends_FIR\**\*.Tests.cs;..\lib\trends_FIR\**\*.Validation.Tests.cs;..\lib\trends_FIR\**\obj\**;..\lib\trends_FIR\**\bin\**" />
+    <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\*.Validation.Tests.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />
+    <!-- Include forecasts implementations -->
+    <Compile Include="..\lib\forecasts\**\*.cs" Exclude="..\lib\forecasts\**\*.Tests.cs;..\lib\forecasts\**\*.Validation.Tests.cs;..\lib\forecasts\**\obj\**;..\lib\forecasts\**\bin\**" />
     <!-- Include momentum implementations -->
     <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs;..\lib\momentum\**\*.Validation.Tests.cs;..\lib\momentum\**\obj\**;..\lib\momentum\**\bin\**" />
     <!-- Include volume implementations -->
@@ -46,6 +48,14 @@
     <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\*.Validation.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
     <!-- Include channels implementations -->
     <Compile Include="..\lib\channels\**\*.cs" Exclude="..\lib\channels\**\*.Tests.cs;..\lib\channels\**\*.Validation.Tests.cs;..\lib\channels\**\obj\**;..\lib\channels\**\bin\**" />
+    <!-- Include dynamics implementations -->
+    <Compile Include="..\lib\dynamics\**\*.cs" Exclude="..\lib\dynamics\**\*.Tests.cs;..\lib\dynamics\**\*.Validation.Tests.cs;..\lib\dynamics\**\obj\**;..\lib\dynamics\**\bin\**" />
+    <!-- Include filters implementations -->
+    <Compile Include="..\lib\filters\**\*.cs" Exclude="..\lib\filters\**\*.Tests.cs;..\lib\filters\**\*.Validation.Tests.cs;..\lib\filters\**\obj\**;..\lib\filters\**\bin\**" />
+    <!-- Include oscillators implementations -->
+    <Compile Include="..\lib\oscillators\**\*.cs" Exclude="..\lib\oscillators\**\*.Tests.cs;..\lib\oscillators\**\*.Validation.Tests.cs;..\lib\oscillators\**\obj\**;..\lib\oscillators\**\bin\**" />
+    <!-- Include cycles implementations -->
+    <Compile Include="..\lib\cycles\**\*.cs" Exclude="..\lib\cycles\**\*.Tests.cs;..\lib\cycles\**\*.Validation.Tests.cs;..\lib\cycles\**\obj\**;..\lib\cycles\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
     <!-- Include Quantower adapter implementations -->

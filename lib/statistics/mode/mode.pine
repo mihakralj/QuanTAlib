@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Mode", "MODE", overlay=false)
+
+//@function Calculates the mode (most frequent value) of a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/mode.md
+//@param src series float Input data series.
+//@param len simple int Lookback period (must be > 0).
+//@returns series float The mode of the series over the period.
+mode(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    value_counts = map.new<float, int>()
+    actual_lookback = math.min(len, bar_index + 1)
+    for i = 0 to actual_lookback - 1
+        val = src[i]
+        if not na(val)
+            count = na(map.get(value_counts, val)) ? 0 : map.get(value_counts, val)
+            map.put(value_counts, val, count + 1)
+    float mode_val = na
+    int max_freq = 0
+    if map.size(value_counts) > 0
+        keys = map.keys(value_counts)
+        for key_val in keys
+            current_freq = map.get(value_counts, key_val)
+            if current_freq > max_freq
+                max_freq := current_freq
+                mode_val := key_val
+        if max_freq <= 1 and map.size(value_counts) > 1
+            mode_val := na
+    mode_val
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(14, "Period", minval=1)
+
+// Calculation
+mode_value = mode(i_source, i_length)
+
+// Plot
+plot(mode_value, "Mode", color=color.new(color.green, 0, color=color.yellow, linewidth=2), linewidth=2)

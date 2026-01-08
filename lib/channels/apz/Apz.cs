@@ -454,7 +454,6 @@ public sealed class Apz : ITValuePublisher
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarQube", "S3776:Cognitive Complexity of methods should not be too high")]
     private static void CalculateScalarCore(
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,

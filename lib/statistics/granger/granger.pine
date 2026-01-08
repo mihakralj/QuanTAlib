@@ -1,0 +1,210 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Granger Causality Test (GRANGER)", "GRANGER", overlay=false, precision=4)
+
+// Helper function to calculate mean over a period using circular buffer
+_mean(series float src, simple int len) =>
+    var float sum = 0.0
+    var int count = 0
+    var array<float> buffer = array.new_float(len, na)
+    var int head = 0
+
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        count -=1
+
+    if not na(src)
+        sum += src
+        count += 1
+        array.set(buffer, head, src)
+    else
+        array.set(buffer, head, na) // Store na to correctly pop it later
+
+    head := (head + 1) % len
+    count > 0 ? sum / count : na
+
+// Helper function to calculate variance over a period using circular buffer
+_variance(series float src, simple int len, series float src_mean) =>
+    var float sumSqDev = 0.0
+    var int count = 0
+    var array<float> buffer_dev = array.new_float(len, na)
+    var int head = 0
+
+    float val = nz(src) // Align with variance.pine by using nz() on source
+    float current_dev = na
+    if not na(src_mean) // src is now always a number (0 if was na)
+        current_dev := val - src_mean
+
+    float oldest_dev = array.get(buffer_dev, head)
+    if not na(oldest_dev)
+        sumSqDev -= oldest_dev * oldest_dev
+        count -=1
+
+    if not na(current_dev) // current_dev can still be na if src_mean was na
+        sumSqDev += current_dev * current_dev
+        count += 1
+        array.set(buffer_dev, head, current_dev)
+    else
+        array.set(buffer_dev, head, na) // If current_dev is na, store na
+
+    head := (head + 1) % len
+    count > 1 ? sumSqDev / count : 0.0 // Align with variance.pine return for insufficient data
+
+// Helper function to calculate covariance over a period using circular buffer
+_covariance(series float src1, series float src2, simple int len, series float mean1, series float mean2) =>
+    var float sumProdDev = 0.0
+    var int count = 0
+    var array<float> buffer_dev1 = array.new_float(len, na)
+    var array<float> buffer_dev2 = array.new_float(len, na)
+    var int head = 0
+
+    float current_dev1 = na
+    float current_dev2 = na
+
+    if not na(src1) and not na(mean1)
+        current_dev1 := src1 - mean1
+    if not na(src2) and not na(mean2)
+        current_dev2 := src2 - mean2
+
+    float oldest_dev1 = array.get(buffer_dev1, head)
+    float oldest_dev2 = array.get(buffer_dev2, head)
+
+    if not na(oldest_dev1) and not na(oldest_dev2)
+        sumProdDev -= oldest_dev1 * oldest_dev2
+        count -= 1
+
+    if not na(current_dev1) and not na(current_dev2)
+        sumProdDev += current_dev1 * current_dev2
+        count += 1
+        array.set(buffer_dev1, head, current_dev1)
+        array.set(buffer_dev2, head, current_dev2)
+    else
+        // If one is na, effectively the product is na for this point
+        array.set(buffer_dev1, head, na)
+        array.set(buffer_dev2, head, na)
+
+    head := (head + 1) % len
+    count > 1 ? sumProdDev / count : na
+
+
+//@function Calculates Granger Causality F-Statistic for Y ~ X with lag 1.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/granger.md
+//@param y_series series float The series to be predicted (dependent variable).
+//@param x_series series float The series hypothesized to cause y_series (independent variable).
+//@param period simple int Lookback period for calculations. Must be greater than 3.
+//@returns float F-Statistic for Granger Causality. Higher values suggest x_series Granger-causes y_series.
+granger_causality_statistic(series float y_series, series float x_series, simple int period) =>
+    if period <= 3
+        runtime.error("Period must be greater than 3 for Granger causality test with 1 lag.")
+        [na, na] // Should not reach here due to runtime.error
+
+    // Lagged series (lag = 1)
+    float y_lag1 = y_series[1]
+    float x_lag1 = x_series[1]
+
+    // Means
+    float mean_y = _mean(y_series, period)
+    float mean_y_lag1 = _mean(y_lag1, period)
+    float mean_x_lag1 = _mean(x_lag1, period)
+
+    // Variances (Note: _variance here takes pre-calculated mean)
+    float var_y_lag1 = _variance(y_lag1, period, mean_y_lag1)
+    float var_x_lag1 = _variance(x_lag1, period, mean_x_lag1)
+
+    // Covariances
+    float cov_y_ylag1 = _covariance(y_series, y_lag1, period, mean_y, mean_y_lag1)
+    float cov_y_xlag1 = _covariance(y_series, x_lag1, period, mean_y, mean_x_lag1)
+    float cov_ylag1_xlag1 = _covariance(y_lag1, x_lag1, period, mean_y_lag1, mean_x_lag1)
+
+    // SSR for Restricted Model: y_t = c0 + c1*y_lag1_t + e1_t
+    float slope_restricted = na
+    if not na(var_y_lag1) and var_y_lag1 > 1e-10
+        slope_restricted := cov_y_ylag1 / var_y_lag1
+
+    float intercept_restricted = na
+    if not na(slope_restricted)
+        intercept_restricted := mean_y - slope_restricted * mean_y_lag1
+
+    float ssr1 = na
+    if not na(intercept_restricted)
+        // residuals1_t = y_t - (intercept_restricted + slope_restricted * y_lag1_t)
+        // SSR1 = sum(residuals1_t^2) = period * var(residuals1_t)
+        // var(residuals1_t) = var(y) - slope_restricted^2 * var(y_lag1) // if y_lag1 is uncorrelated with error
+        // More directly: SSR = sum( (y - (c0+c1*ylag))^2 )
+        // This requires summing squares of residuals, let's calculate var_y for residuals
+        // var_res1 = var_y - 2*slope_restricted*cov_y_ylag1 + slope_restricted^2*var_y_lag1 (this is complex)
+        // Simpler: SSR1 = (var_y - (cov_y_ylag1^2 / var_y_lag1)) * period if var_y is available
+        // Let's calculate residuals and their sum of squares directly (less efficient but clearer)
+        var float sum_sq_resid1 = 0.0
+        var int count_resid1 = 0
+        for i = 0 to period - 1
+            float y_val = y_series[i]
+            float y_lag_val = y_lag1[i]
+            if not na(y_val) and not na(y_lag_val) and not na(intercept_restricted) and not na(slope_restricted)
+                float resid = y_val - (intercept_restricted + slope_restricted * y_lag_val)
+                sum_sq_resid1 += resid * resid
+                count_resid1 += 1
+        if count_resid1 > 1
+            ssr1 := sum_sq_resid1
+
+
+    // SSR for Unrestricted Model: y_t = d0 + d1*y_lag1_t + d2*x_lag1_t + e2_t
+    // Coefficients for y = b0 + b1*X1 + b2*X2 (where X1=y_lag1, X2=x_lag1)
+    float b1 = na, float b2 = na, float intercept_unrestricted = na
+    if not na(var_y_lag1) and not na(var_x_lag1) and not na(cov_ylag1_xlag1)
+        float denominator = (var_y_lag1 * var_x_lag1 - cov_ylag1_xlag1 * cov_ylag1_xlag1)
+        if denominator > 1e-10
+            if not na(cov_y_ylag1) and not na(cov_y_xlag1)
+                b1 := (cov_y_ylag1 * var_x_lag1 - cov_y_xlag1 * cov_ylag1_xlag1) / denominator
+                b2 := (cov_y_xlag1 * var_y_lag1 - cov_y_ylag1 * cov_ylag1_xlag1) / denominator
+                if not na(b1) and not na(b2)
+                    intercept_unrestricted := mean_y - b1 * mean_y_lag1 - b2 * mean_x_lag1
+
+    float ssr2 = na
+    if not na(intercept_unrestricted)
+        var float sum_sq_resid2 = 0.0
+        var int count_resid2 = 0
+        for i = 0 to period - 1
+            float y_val = y_series[i]
+            float y_lag_val = y_lag1[i]
+            float x_lag_val = x_lag1[i]
+            if not na(y_val) and not na(y_lag_val) and not na(x_lag_val) and not na(b1) and not na(b2)
+                float resid = y_val - (intercept_unrestricted + b1 * y_lag_val + b2 * x_lag_val)
+                sum_sq_resid2 += resid * resid
+                count_resid2 +=1
+        if count_resid2 > 1
+            ssr2 := sum_sq_resid2
+
+    // F-Statistic
+    // q = 1 (number of restrictions, i.e., d2=0)
+    // k_unrestricted = 3 (number of parameters in unrestricted model: d0, d1, d2)
+    // N = period (number of observations)
+    float f_statistic = na
+    if not na(ssr1) and not na(ssr2) and ssr2 > 1e-10
+        if period - 3 > 0 // N - k_unrestricted > 0
+            f_statistic := ((ssr1 - ssr2) / 1) / (ssr2 / (period - 3))
+            // Ensure F is non-negative; ssr1 should be >= ssr2
+            f_statistic := math.max(0, f_statistic)
+
+    // Explicitly cast to float for the tuple components to avoid potential NA type issues
+    float return_f_stat = float(f_statistic)
+    float return_b2_coeff = float(ssr1 > ssr2 ? b2 : na)
+    [return_f_stat, return_b2_coeff] // Return F-stat and coefficient of x_lag1 if model improved
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source 1")
+i_source2_ticker = input.symbol("SPY", "Source 2 Ticker (e.g., SPY, AAPL)")
+i_period = input.int(20, "Period", minval=2)
+
+i_source2 = request.security(i_source2_ticker, timeframe.period, close, lookahead=barmerge.lookahead_off)
+
+// Calculation
+[f_stat_yx, x_coeff_yx] = granger_causality_statistic(i_source1, i_source2, i_period)
+
+// Plot
+plot(f_stat_yx, "F-Stat (X Granger-causes Y, color=color.yellow, linewidth=2)", color=color.yellow, linewidth=2)
+

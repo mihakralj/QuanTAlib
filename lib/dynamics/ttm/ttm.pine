@@ -1,0 +1,59 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("TTM Trend", "TTM", overlay=true)
+
+//@function Calculates TTM Trend using 6-period moving average with color-coded trend
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/ttm.md
+//@param source Series to calculate TTM from
+//@param period Lookback period for moving average
+//@returns Tuple [ttm_line, trend, strength] where trend is -1/0/1 and strength is percentage change
+ttm(series float source, simple int period = 6) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    
+    float alpha = 2.0 / (period + 1)
+    var float ema = source
+    var float ema_prev = source
+    
+    ema := alpha * (source - ema) + ema
+    
+    float trend = math.sign(ema - ema_prev)
+    float strength = math.abs(ema - ema_prev) / math.max(ema_prev, 1e-10) * 100
+    
+    ema_prev := ema
+    
+    [ema, trend, strength]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(6, "Period", minval=1)
+i_source = input.source(hlc3, "Source")
+i_show_strength = input.bool(true, "Show Trend Strength %")
+
+// Calculation
+[ttm_line, trend, strength] = ttm(i_source, i_period)
+
+// Colors
+color up_color = color.new(color.green, 0)
+color down_color = color.new(color.red, 0)
+color neutral_color = color.new(color.gray, 50)
+color line_color = trend > 0 ? up_color : trend < 0 ? down_color : neutral_color
+
+// Plot
+plot(ttm_line, "TTM Trend", color=line_color, linewidth=3, style=plot.style_line)
+
+// Strength band (optional)
+float strength_multiplier = 0.01
+float upper_band = i_show_strength ? ttm_line + (ttm_line * strength * strength_multiplier) : na
+float lower_band = i_show_strength ? ttm_line - (ttm_line * strength * strength_multiplier) : na
+
+p1 = plot(upper_band, "Upper Strength", color=color.new(color.blue, 80), linewidth=1)
+p2 = plot(lower_band, "Lower Strength", color=color.new(color.blue, 80), linewidth=1)
+fill(p1, p2, color=color.new(color.blue, 90), title="Strength Band")
+
+// Optional: Plot trend change signals
+bool trend_change = trend != nz(trend[1], 0) and bar_index > 0
+plotshape(trend_change and trend > 0, "Up", shape.triangleup, location.belowbar, color=up_color, size=size.tiny)
+plotshape(trend_change and trend < 0, "Down", shape.triangledown, location.abovebar, color=down_color, size=size.tiny)

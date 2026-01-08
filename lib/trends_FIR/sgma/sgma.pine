@@ -1,0 +1,107 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Savitzky-Golay Moving Average (SGMA)", "SGMA", overlay=true)
+
+//@function Calculates SGMA using Savitzky-Golay filter with polynomial fitting
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/sgma.md
+//@param source Series to calculate SGMA from
+//@param period Lookback period - FIR window size (must be odd)
+//@param deg Polynomial degree (default: 2)
+//@returns SGMA value, calculates from first bar using available data
+//@optimized Uses Savitzky-Golay coefficients with O(n) complexity per bar due to lookback loop
+sgma(series float source, simple int period, simple int deg=2) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int use_period = period % 2 == 0 ? period + 1 : period
+    int use_deg = deg < 0 or deg >= use_period ? 2 : math.min(deg, 4)
+    int p = math.min(bar_index + 1, use_period)
+    var array<float> weights = array.new_float(1, 1.0)
+    var int last_p = 1
+    var int last_deg = use_deg
+    if last_p != p or last_deg != use_deg
+        weights := array.new_float(p, 0.0)
+        if use_deg == 2
+            if p == 5
+                array.set(weights, 0, -0.0857)
+                array.set(weights, 1, 0.3429)
+                array.set(weights, 2, 0.4857)
+                array.set(weights, 3, 0.3429)
+                array.set(weights, 4, -0.0857)
+            else if p == 7
+                array.set(weights, 0, -0.0476)
+                array.set(weights, 1, 0.0952)
+                array.set(weights, 2, 0.2857)
+                array.set(weights, 3, 0.3333)
+                array.set(weights, 4, 0.2857)
+                array.set(weights, 5, 0.0952)
+                array.set(weights, 6, -0.0476)
+            else if p == 9
+                array.set(weights, 0, -0.0281)
+                array.set(weights, 1, 0.0337)
+                array.set(weights, 2, 0.1236)
+                array.set(weights, 3, 0.2247)
+                array.set(weights, 4, 0.2921)
+                array.set(weights, 5, 0.2247)
+                array.set(weights, 6, 0.1236)
+                array.set(weights, 7, 0.0337)
+                array.set(weights, 8, -0.0281)
+            else
+                float half_window = (p - 1) / 2.0
+                float total_weight = 0.0
+                for i = 0 to p - 1
+                    float x = i - half_window
+                    float norm_x = x / half_window
+                    float w = 1.0 - norm_x * norm_x
+                    array.set(weights, i, w)
+                    total_weight += w
+                float inv_total = 1.0 / total_weight
+                for i = 0 to p - 1
+                    array.set(weights, i, array.get(weights, i) * inv_total)
+        else
+            float half_window = (p - 1) / 2.0
+            float total_weight = 0.0
+            for i = 0 to p - 1
+                float x = i - half_window
+                float norm_x = x / half_window
+                float w = 0.0
+                if use_deg == 0
+                    w := 1.0
+                else if use_deg == 1
+                    w := 1.0 - math.abs(norm_x)
+                else if use_deg == 3
+                    w := 1.0 - math.abs(math.pow(norm_x, 3.0))
+                else if use_deg == 4
+                    w := 1.0 - math.pow(norm_x, 4.0)
+                else
+                    w := 1.0 - norm_x * norm_x
+                array.set(weights, i, w)
+                total_weight += w
+            if total_weight > 0.0
+                float inv_total = 1.0 / total_weight
+                for i = 0 to p - 1
+                    array.set(weights, i, array.get(weights, i) * inv_total)
+        last_p := p
+        last_deg := use_deg
+    float sum = 0.0
+    float weight_sum = 0.0
+    for i = 0 to p - 1
+        float price = source[i]
+        if not na(price)
+            float w = array.get(weights, i)
+            sum += price * w
+            weight_sum += w
+    nz(sum / weight_sum, source)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(9, "Period", minval=3, step=2, tooltip="Must be odd number (will be adjusted if even)")
+i_degree = input.int(2, "Polynomial Degree", minval=0, maxval=4, tooltip="Higher degrees fit more complex shapes but risk overfitting")
+i_source = input.source(close, "Source")
+
+// Calculation
+sgma_value = sgma(i_source, i_period, i_degree)
+
+// Plot
+plot(sgma_value, "SGMA", color=color.yellow, linewidth=2)

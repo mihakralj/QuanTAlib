@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Volume Weighted Accumulation/Distribution (VWAD)", "VWAD", overlay=false)
+
+//@function Calculates VWAD using volume weighting for enhanced sensitivity
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vwad.md
+//@param src_high High price series
+//@param src_low Low price series
+//@param src_close Close price series
+//@param src_vol Volume series
+//@param period Lookback period for volume weighting
+//@returns VWAD value representing volume-weighted accumulation/distribution
+//@optimized for performance and dirty data
+vwad(simple int period, series float src_high = high, series float src_low = low, series float src_close = close, series float src_vol = volume) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, period), var int head = 0
+    var array<float> vol_buffer = array.new_float(p, na)
+    var float sum_vol = 0.0
+    float old_vol = array.get(vol_buffer, head)
+    if not na(old_vol)
+        sum_vol -= old_vol
+    float current_vol = nz(src_vol, 0.0)
+    sum_vol += current_vol
+    array.set(vol_buffer, head, current_vol)
+    head := (head + 1) % p
+    float mfm = 0.0
+    if not na(src_high) and not na(src_low) and not na(src_close)
+        mfm := (src_close - src_low) - (src_high - src_close)
+        mfm := src_high != src_low ? mfm / (src_high - src_low) : 0.0
+    float vol_weight = sum_vol > 0.0 ? current_vol / sum_vol : 0.0
+    float weighted_mfv = current_vol * mfm * vol_weight
+    var float cumulative_vwad = 0.0
+    cumulative_vwad += weighted_mfv
+    cumulative_vwad
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Volume Weight Period", minval=1)
+
+// Calculation
+vwad_value = vwad(i_period)
+
+// Plot
+plot(vwad_value, "VWAD", color=color.yellow, linewidth=2)

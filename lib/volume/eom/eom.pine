@@ -1,0 +1,46 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ease of Movement (EOM)", "EOM", overlay=false)
+
+//@function Calculate Ease of Movement Volume
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/eom.md
+//@param i_length integer Length for box ratio calculation
+//@param i_smoothing integer Smoothing length for EOM
+//@returns float Ease of Movement value
+//@optimized for performance and dirty data
+eom(i_smoothing, i_vol_scale, i_high=high, i_low=low, i_volume=volume) =>
+    if i_smoothing < 1 or i_vol_scale <= 0
+        runtime.error("Smoothing or Volume scale out or range")
+    var float oldMidPoint = na
+    midPoint = (i_high + i_low) * 0.5
+    midPointChange = midPoint - nz(oldMidPoint, midPoint)
+    oldMidPoint := midPoint
+    priceRange = i_high - i_low
+    boxRatio = priceRange > 0 and i_volume > 0 ? (i_volume / i_vol_scale) / priceRange : na
+    rawEom = not na(boxRatio) and boxRatio != 0 ? midPointChange / boxRatio : 0.0
+    var array<float> buffer = array.new_float(i_smoothing, 0.0)
+    var int head = 0
+    var float sum = 0.0
+    float oldest = array.get(buffer, head)
+    if bar_index >= i_smoothing
+        sum -= oldest
+    currentValue = nz(rawEom)
+    sum += currentValue
+    array.set(buffer, head, currentValue)
+    head := (head + 1) % i_smoothing
+    average = bar_index < i_smoothing ? sum / (bar_index + 1) : sum / i_smoothing
+    average
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Period", minval=1)
+i_smoothing = input.int(14, "Smoothing", minval=1)
+
+// Calculation
+eomValue = eom(i_length, i_smoothing)
+
+// Plot
+plot(eomValue, "EOM", color=color.yellow, linewidth=2)

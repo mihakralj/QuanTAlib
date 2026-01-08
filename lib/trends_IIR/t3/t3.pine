@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Tillson T3 Moving Average (T3)", "T3", overlay=true)
+
+//@function Calculates T3 using six EMAs with volume factor optimization
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/t3.md
+//@param source Series to calculate T3 from
+//@param period Smoothing period
+//@param v Volume factor controlling smoothing (default 0.7)
+//@returns T3 value with optimized coefficients
+//@optimized Uses six cascaded EMAs with precomputed coefficients for O(1) complexity
+t3(series float src, simple int period, simple float v) =>
+    if period <= 0
+        runtime.error("T3 period must be > 0")
+    float a = 2.0 / (period + 1)
+    float v2 = v * v
+    float v3 = v2 * v
+    float c1 = -v3
+    float c2 = 3.0 * (v2 + v3)
+    float c3 = -3.0 * (2.0 * v2 + v + v3)
+    float c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3
+    var float e1 = na
+    var float e2 = na
+    var float e3 = na
+    var float e4 = na
+    var float e5 = na
+    var float e6 = na
+    float res = na
+    if not na(src)
+        if na(e1)
+            e1 := src
+            e2 := src
+            e3 := src
+            e4 := src
+            e5 := src
+            e6 := src
+            res := src
+        else
+            e1 := e1 + a * (src - e1)
+            e2 := e2 + a * (e1 - e2)
+            e3 := e3 + a * (e2 - e3)
+            e4 := e4 + a * (e3 - e4)
+            e5 := e5 + a * (e4 - e5)
+            e6 := e6 + a * (e5 - e6)
+            res := c1 * e6 + c2 * e5 + c3 * e4 + c4 * e3
+    res
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(10, "Period", minval=1)
+i_vfactor = input.float(0.7, "Volume Factor", minval=0.0, maxval=1.0, step=0.1)
+
+// Calculation
+t3_value = t3(i_source, i_period, i_vfactor)
+
+// Plot
+plot(t3_value, "T3", color=color.yellow, linewidth=2)

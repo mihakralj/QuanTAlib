@@ -1,0 +1,76 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("One-Sample t-Test (ZTEST)", "t-TEST", overlay=false)
+
+//@function Calculates the t-statistic for a one-sample hypothesis test
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/ztest.md
+//@param source Source series to test (use returns for meaningful results)
+//@param period Lookback period for calculating sample mean and standard deviation
+//@param mu0 Hypothesized population mean to test against
+//@returns t-statistic (positive values indicate sample mean > mu0, negative indicate sample mean < mu0)
+//@optimized Uses circular buffer with running sums for O(1) complexity, Bessel correction for sample variance
+ztest(series float source, simple int period, simple float mu0) =>
+    if period <= 1
+        runtime.error("Period must be greater than 1")
+    
+    int p = period
+    var array<float> buffer = array.new_float(0)
+    var int head = 0
+    var int n = 0
+    var float sum = 0.0
+    var float sumSq = 0.0
+    
+    if array.size(buffer) != p
+        buffer := array.new_float(p, na)
+        head := 0
+        n := 0
+        sum := 0.0
+        sumSq := 0.0
+    
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        sumSq -= oldest * oldest
+        n -= 1
+    
+    if not na(source)
+        sum += source
+        sumSq += source * source
+        n += 1
+        array.set(buffer, head, source)
+    else
+        array.set(buffer, head, na)
+    
+    head := (head + 1) % p
+    
+    float result = na
+    if n >= 2
+        float nf = float(n)
+        float mean = sum / nf
+        float variance = math.max(0.0, (sumSq / nf) - (mean * mean)) * (nf / (nf - 1.0))
+        float stddev = math.sqrt(variance)
+        float standard_error = stddev / math.sqrt(nf)
+        
+        if standard_error > 1e-10
+            result := (mean - mu0) / standard_error
+    
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(30, "Period", minval=2, tooltip="Minimum 30 recommended for z-critical approximation")
+i_mu0 = input.float(0.0, "Hypothesized Mean (μ₀)", step=0.01, tooltip="Use 0 when testing returns")
+
+// Calculation
+t_stat = ztest(i_source, i_period, i_mu0)
+
+// Plot
+plot(t_stat, "t-statistic", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_dotted)
+hline(2.04, "95% ~t(30)", color=color.new(color.green, 70), linestyle=hline.style_dashed)
+hline(-2.04, "95% ~t(30)", color=color.new(color.green, 70), linestyle=hline.style_dashed)
+hline(2.75, "99% ~t(30)", color=color.new(color.red, 70), linestyle=hline.style_dashed)
+hline(-2.75, "99% ~t(30)", color=color.new(color.red, 70), linestyle=hline.style_dashed)

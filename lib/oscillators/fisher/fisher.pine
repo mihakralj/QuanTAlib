@@ -1,0 +1,50 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Fisher Transform", "FISHER", overlay=false)
+
+//@function Calculates the Fisher Transform oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/fisher.md
+//@param source Source price (typically hl2)
+//@param period Lookback period for min/max normalization
+//@returns [fisher, signal] Fisher Transform value and signal line
+fisher(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if period > 500
+        runtime.error("Period exceeds maximum of 500")
+
+    var float value = 0.0
+    var float fisher = 0.0
+    var float signal = 0.0
+
+    float highest = ta.highest(source, period)
+    float lowest = ta.lowest(source, period)
+
+    float price_range = highest - lowest
+    float normalized = price_range > 0 ? (source - lowest) / price_range : 0.5
+    normalized := 2.0 * normalized - 1.0
+
+    float alpha = 0.33
+    value := alpha * normalized + (1.0 - alpha) * value
+
+    value := math.max(-0.999, math.min(0.999, value))
+
+    fisher := 0.5 * math.log((1.0 + value) / (1.0 - value))
+
+    signal := alpha * fisher + (1.0 - alpha) * signal
+
+    [fisher, signal]
+
+// ---------- Main loop ----------
+
+i_period = input.int(10, "Period", minval=1, maxval=500)
+i_source = input.source(hl2, "Source")
+
+[fisher_line, signal_line] = fisher(i_source, i_period)
+
+plot(fisher_line, "Fisher", color=color.yellow, linewidth=2)
+plot(signal_line, "Signal", color=color.orange, linewidth=1)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+hline(2, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(-2, "Oversold", color=color.green, linestyle=hline.style_dashed)

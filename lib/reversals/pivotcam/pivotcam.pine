@@ -1,0 +1,57 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Pivot Points (Camarilla)", "PIVOTCAM", overlay=true)
+
+//@function Calculates Camarilla pivot points with 8 levels for short-term trading
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotcam.md
+//@param tf Timeframe for pivot calculation ("D", "W", "M")
+//@returns Tuple [pp, r1, r2, r3, r4, s1, s2, s3, s4] with pivot levels
+//@references Nick Scott, Camarilla equation
+pivotcam(simple string tf) =>
+    [hi, lo, cl] = request.security(syminfo.tickerid, tf, [high[1], low[1], close[1]], lookahead=barmerge.lookahead_on)
+    if na(hi) or na(lo) or na(cl)
+        [na, na, na, na, na, na, na, na, na]
+    else
+        float pp = (hi + lo + cl) / 3.0
+        float hl_range = hi - lo
+        float r1 = cl + hl_range * 1.0833 / 12.0
+        float s1 = cl - hl_range * 1.0833 / 12.0
+        float r2 = cl + hl_range * 1.1666 / 12.0
+        float s2 = cl - hl_range * 1.1666 / 12.0
+        float r3 = cl + hl_range * 1.2500 / 12.0
+        float s3 = cl - hl_range * 1.2500 / 12.0
+        float r4 = cl + hl_range * 1.5000 / 12.0
+        float s4 = cl - hl_range * 1.5000 / 12.0
+        [pp, r1, r2, r3, r4, s1, s2, s3, s4]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_timeframe = input.timeframe("D", "Pivot Timeframe", options=["D", "W", "M"])
+i_show_pp = input.bool(true, "Show Pivot Point")
+i_show_r1 = input.bool(true, "Show R1")
+i_show_r2 = input.bool(true, "Show R2")
+i_show_r3 = input.bool(true, "Show R3")
+i_show_r4 = input.bool(true, "Show R4")
+i_show_s1 = input.bool(true, "Show S1")
+i_show_s2 = input.bool(true, "Show S2")
+i_show_s3 = input.bool(true, "Show S3")
+i_show_s4 = input.bool(true, "Show S4")
+i_color_pp = input.color(color.yellow, "PP Color")
+i_color_r = input.color(color.red, "Resistance Color")
+i_color_s = input.color(color.green, "Support Color")
+
+// Calculation
+[pp, r1, r2, r3, r4, s1, s2, s3, s4] = pivotcam(i_timeframe)
+
+// Plot
+plot(i_show_pp ? pp : na, "PP", color=i_color_pp, linewidth=2, style=plot.style_stepline)
+plot(i_show_r1 ? r1 : na, "R1", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_r2 ? r2 : na, "R2", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_r3 ? r3 : na, "R3", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_r4 ? r4 : na, "R4", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_s1 ? s1 : na, "S1", color=i_color_s, linewidth=1, style=plot.style_stepline)
+plot(i_show_s2 ? s2 : na, "S2", color=i_color_s, linewidth=1, style=plot.style_stepline)
+plot(i_show_s3 ? s3 : na, "S3", color=i_color_s, linewidth=1, style=plot.style_stepline)
+plot(i_show_s4 ? s4 : na, "S4", color=i_color_s, linewidth=1, style=plot.style_stepline)

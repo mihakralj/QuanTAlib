@@ -1,0 +1,38 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Williams Accumulation/Distribution (WAD)", "WAD", overlay=false)
+
+//@function Calculates Williams A/D using price relationships and volume
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/wad.md
+//@param src_high High price series
+//@param src_low Low price series
+//@param src_close Close price series
+//@param src_open Open price series (if available)
+//@param src_vol Volume series
+//@returns WAD value representing Williams accumulation/distribution
+//@optimized for performance and dirty data
+wad( series float src_open=open, series float src_high=high, series float src_low=low, series float src_close=close, series float src_vol=volume) =>
+    float close_prev = nz(src_close[1], src_close)
+    float true_range_high = math.max(src_high, close_prev)
+    float true_range_low = math.min(src_low, close_prev)
+    float pm = 0.0
+    if not na(src_close) and not na(close_prev)
+        if src_close > close_prev
+            pm := src_close - true_range_low
+        else if src_close < close_prev
+            pm := src_close - true_range_high
+        else
+            pm := 0.0
+    float ad_value = pm * nz(src_vol, 0.0)
+    var float cumulative_wad = 0.0
+    cumulative_wad += ad_value
+    cumulative_wad
+
+// ---------- Main loop ----------
+
+// Calculation
+wad_value = wad()
+
+// Plot
+plot(wad_value, "WAD", color=color.yellow, linewidth=2)

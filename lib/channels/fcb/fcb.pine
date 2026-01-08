@@ -1,0 +1,74 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Fractal Chaos Bands (FCB)", "FCB", overlay=true)
+
+//@function Calculates Fractal Chaos Bands based on fractal highs and lows
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/channels/fcb.md
+//@param period Lookback period for highest/lowest calculation
+//@returns [upper_band, lower_band] Fractal Chaos Band values
+//@optimized Uses monotonic deque for O(1) amortized complexity
+fcb(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    bool is_fractal_high = high[1] > high[2] and high[1] > high[0]
+    bool is_fractal_low = low[1] < low[2] and low[1] < low[0]
+    var float hi_fractal = high
+    var float lo_fractal = low
+    if is_fractal_high
+        hi_fractal := high[1]
+    if is_fractal_low
+        lo_fractal := low[1]
+    var hi_deque = array.new_int(0)
+    var hi_buffer = array.new_float(period, na)
+    var int hi_current_index = 0
+    float hi_current_val = nz(hi_fractal)
+    array.set(hi_buffer, hi_current_index, hi_current_val)
+    while array.size(hi_deque) > 0 and array.get(hi_deque, 0) <= bar_index - period
+        array.shift(hi_deque)
+    while array.size(hi_deque) > 0
+        int last_index = array.get(hi_deque, array.size(hi_deque) - 1)
+        int buffer_lookup = last_index % period
+        if array.get(hi_buffer, buffer_lookup) <= hi_current_val
+            array.pop(hi_deque)
+        else
+            break
+    array.push(hi_deque, bar_index)
+    int highest_index = array.get(hi_deque, 0)
+    int highest_buffer_index = highest_index % period
+    float upper_band = array.get(hi_buffer, highest_buffer_index)
+    hi_current_index := (hi_current_index + 1) % period
+    var lo_deque = array.new_int(0)
+    var lo_buffer = array.new_float(period, na)
+    var int lo_current_index = 0
+    float lo_current_val = nz(lo_fractal)
+    array.set(lo_buffer, lo_current_index, lo_current_val)
+    while array.size(lo_deque) > 0 and array.get(lo_deque, 0) <= bar_index - period
+        array.shift(lo_deque)
+    while array.size(lo_deque) > 0
+        int last_index = array.get(lo_deque, array.size(lo_deque) - 1)
+        int buffer_lookup = last_index % period
+        if array.get(lo_buffer, buffer_lookup) >= lo_current_val
+            array.pop(lo_deque)
+        else
+            break
+    array.push(lo_deque, bar_index)
+    int lowest_index = array.get(lo_deque, 0)
+    int lowest_buffer_index = lowest_index % period
+    float lower_band = array.get(lo_buffer, lowest_buffer_index)
+    lo_current_index := (lo_current_index + 1) % period
+    [upper_band, lower_band]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1, maxval=999)
+plot_fractal_points = input.bool(false, "Show Fractal Points")
+
+// Calculation
+[upper_band, lower_band] = fcb(i_period)
+
+// Plots
+p_upper = plot(upper_band, "Upper Band", color=color.yellow, linewidth=2)
+p_lower = plot(lower_band, "Lower Band", color=color.yellow, linewidth=2)
+fill(p_upper, p_lower, color=color.new(color.blue, 90), title="Band Fill")

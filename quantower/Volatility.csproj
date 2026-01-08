@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(Configuration)' == 'Release'">net10.0;net8.0</TargetFrameworks>
-    <TargetFramework Condition="'$(Configuration)' == 'Debug'">net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Volatility</AssemblyName>
     <AlgoType>Indicator</AlgoType>
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -20,8 +19,8 @@
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
     <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
     <Compile Include="..\lib\channels\**\*.cs" Exclude="..\lib\channels\**\*.Tests.cs;..\lib\channels\**\obj\**;..\lib\channels\**\bin\**" />
-    <Compile Include="..\lib\trends\ema\*.cs" Exclude="..\lib\trends\ema\*.Tests.cs" />
-    <Compile Include="..\lib\trends\rma\*.cs" Exclude="..\lib\trends\rma\*.Tests.cs" />
+    <Compile Include="..\lib\trends_IIR\ema\*.cs" Exclude="..\lib\trends_IIR\ema\*.Tests.cs" />
+    <Compile Include="..\lib\trends_IIR\rma\*.cs" Exclude="..\lib\trends_IIR\rma\*.Tests.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

@@ -1,0 +1,55 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Price Volume Divergence (PVD)", "PVD", overlay=false)
+
+//@function Calculates Price Volume Divergence
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvd.md
+//@param price_period Lookback period for price momentum
+//@param volume_period Lookback period for volume momentum
+//@param smoothing_period Period for smoothing divergence signals
+//@param c Close price series
+//@param vol Volume series
+//@returns Smoothed divergence value
+//@optimized for performance and dirty data
+pvd(simple int price_period, simple int volume_period, simple int smoothing_period, series float c=close, series float vol=volume ) =>
+    if smoothing_period <= 0
+        runtime.error("Smoothing period must be greater than 0")
+    float close_price = nz(c, close)
+    float volume_val = math.max(nz(vol, 0.0), 1.0)
+    float prev_close = bar_index < price_period ? close_price[math.max(bar_index, 1)] : close_price[price_period]
+    float prev_volume = bar_index < volume_period ? volume_val[math.max(bar_index, 1)] : volume_val[volume_period]
+    float price_roc = prev_close > 0 ? (close_price - prev_close) / prev_close * 100 : 0.0
+    float volume_roc = prev_volume > 0 ? (volume_val - prev_volume) / prev_volume * 100 : 0.0
+    int price_momentum = price_roc > 0 ? 1 : price_roc < 0 ? -1 : 0
+    int volume_momentum = volume_roc > 0 ? 1 : volume_roc < 0 ? -1 : 0
+    float magnitude = math.abs(price_roc) + math.abs(volume_roc)
+    float divergence_raw = price_momentum * -volume_momentum * magnitude
+    var int p = smoothing_period
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0, var float sum = 0.0, var int valid_count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        valid_count -= 1
+    if not na(divergence_raw)
+        sum += divergence_raw
+        valid_count += 1
+    array.set(buffer, head, divergence_raw)
+    head := (head + 1) % p
+    valid_count > 0 ? sum / valid_count : divergence_raw
+
+// ---------- Inputs ----------
+
+price_period = input.int(14, "Price Period", minval=1, maxval=100)
+volume_period = input.int(14, "Volume Period", minval=1, maxval=100)
+divergence_threshold = input.float(50.0, "Divergence Threshold", minval=0)
+smoothing_period = input.int(3, "Smoothing Period", minval=1, maxval=20)
+
+// ---------- Main loop ----------
+
+// Calculation
+pvd_value = pvd(price_period, volume_period, smoothing_period)
+
+// Plot main line
+plot(pvd_value, "PVD", color=color.yellow, linewidth=2)

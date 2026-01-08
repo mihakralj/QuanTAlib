@@ -1,0 +1,31 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Rate of Change Percentage (ROCP)", "ROCP", overlay=false)
+
+//@function Calculates percentage Rate of Change between current price and N periods ago
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/rocp.md
+//@param source Source price series
+//@param length Lookback period
+//@returns Percentage price change value
+rocp(series float source, simple int length)=>
+    if length<=0
+        runtime.error("Length must be greater than 0")
+    var int count = 0
+    float change = na
+    if not na(source[count]) and source[count] != 0
+        change := 100 * (source - source[count]) / source[count]
+        count := math.min(count + 1, length)
+    change
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(9, "Length", minval=1)
+
+// Calculate ROCP
+float rocp_val = rocp(i_source, i_length)
+
+// Plot
+plot(rocp_val, "ROCP", color=color.yellow, linewidth=2)

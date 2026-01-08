@@ -1,0 +1,65 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Hull Exponential Moving Average (HEMA)", "HEMA", overlay=true)
+
+//@function Calculates HEMA (Hull Exponential Moving Average) combining multiple EMA calculations
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/hema.md
+//@param source Series to calculate HEMA from
+//@param period Lookback period for calculation
+//@returns HEMA value that combines fast and slow EMAs with logarithmic weighting
+//@optimized Uses three-stage exponential warmup compensators for O(1) complexity
+hema(series float src, simple int N) =>
+    float alphaSlow = 3.0 / (2.0 * N - 1.0)
+    float lambdaSlow = -math.log(1.0 - alphaSlow)
+    float ratio = math.log(2.0) / (1.0 + math.log(2.0))
+    float alphaFast = 1.0 - math.exp(-lambdaSlow / ratio)
+    float alphaSmooth = 2.0 / (math.sqrt(N) / 2.0 + 1.0)
+    float betaSlow = 1.0 - alphaSlow
+    float betaFast = 1.0 - alphaFast
+    float betaSmooth = 1.0 - alphaSmooth
+    float chkSlow = nz(alphaSlow, 1.0)
+    float chkFast = nz(alphaFast, 1.0)
+    float chkSmth = nz(alphaSmooth, 1.0)
+    float alphaMin = math.min(chkSlow, chkFast, chkSmth, 0.000001)
+    var bool warmup = true
+    var float decaySlow = 1.0
+    var float decayFast = 1.0
+    var float decaySmooth = 1.0
+    var float emaSlowRaw = 0.0
+    var float emaFastRaw = 0.0
+    var float emaSmoothRaw = 0.0
+    float emaSlow = na
+    float emaFast = na
+    float hemaVal = na
+    emaSlowRaw := alphaSlow * (src - emaSlowRaw) + emaSlowRaw
+    emaFastRaw := alphaFast * (src - emaFastRaw) + emaFastRaw
+    if warmup
+        decaySlow *= betaSlow
+        decayFast *= betaFast
+        decaySmooth *= betaSmooth
+        emaSlow := (1.0 / (1.0 - decaySlow)) * emaSlowRaw
+        emaFast := (1.0 / (1.0 - decayFast)) * emaFastRaw
+        float deLag = emaFast / (1.0 - ratio) - ratio * emaSlow / (1.0 - ratio)
+        emaSmoothRaw := alphaSmooth * (deLag - emaSmoothRaw) + emaSmoothRaw
+        hemaVal := (1.0 / (1.0 - decaySmooth)) * emaSmoothRaw
+        warmup := decaySlow > 1e-10
+    else
+        emaSlow := emaSlowRaw
+        emaFast := emaFastRaw
+        float deLag = emaFast / (1.0 - ratio) - ratio * emaSlow / (1.0 - ratio)
+        emaSmoothRaw := alphaSmooth * (deLag - emaSmoothRaw) + emaSmoothRaw
+        hemaVal := emaSmoothRaw
+    hemaVal
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+hema_value = hema(i_source, i_period)
+
+// Plot
+plot(hema_value, "HEMA", color=color.yellow, linewidth=2)

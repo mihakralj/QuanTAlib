@@ -1,0 +1,51 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Geometric Mean (GEOMEAN)", "GEOMEAN", overlay=true)
+
+//@function Calculates the Geometric Mean of a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/geomean.md
+//@param src series float Input data series (must contain positive values).
+//@param len simple int Lookback period (must be > 0).
+//@returns series float The Geometric Mean, or na if data is not suitable (e.g., non-positive values, insufficient data).
+//@optimized for performance and dirty data
+geomean(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0. Found: " + str.tostring(len))
+    var float sum_log_src = 0.0
+    var int n_valid = 0
+    var float[] src_buffer = array.new_float(len, na)
+    var int current_index = 0
+    float current_val = src
+    float current_log_val = na
+    bool current_val_is_valid = false
+    if not na(current_val) and current_val > 0
+        current_log_val := math.log(current_val)
+        current_val_is_valid := true
+    float old_src_from_buffer = array.get(src_buffer, current_index)
+    if not na(old_src_from_buffer) and old_src_from_buffer > 0
+        sum_log_src -= math.log(old_src_from_buffer)
+        n_valid -= 1
+    if current_val_is_valid
+        sum_log_src += current_log_val
+        n_valid += 1
+        array.set(src_buffer, current_index, current_val)
+    else
+        array.set(src_buffer, current_index, na)
+    current_index := (current_index + 1) % len
+    if n_valid > 0
+        math.exp(sum_log_src / n_valid)
+    else
+        float(na)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, title="Source (must be positive values)")
+i_length = input.int(14, title="Lookback Period", minval=1)
+
+// Calculation
+geomean_value = geomean(i_source, i_length)
+
+// Plot
+plot(geomean_value, "GEOMEAN", color=color.yellow, linewidth=2)

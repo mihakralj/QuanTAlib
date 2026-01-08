@@ -1,0 +1,39 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Williams %R (WILLR)", "WILLR", overlay=false)
+
+//@function Calculates Williams %R oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/willr.md
+//@param period Lookback period for highest high and lowest low calculation
+//@returns Williams %R value (-100 to 0 scale)
+willr(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be positive")
+    var array<float> high_buffer = array.new_float(period, na)
+    var array<float> low_buffer = array.new_float(period, na)
+    var int head = 0, var int count = 0
+    idx = head % period
+    old_high = array.get(high_buffer, idx)
+    if not na(old_high)
+        count := count - 1
+    array.set(high_buffer, idx, high)
+    array.set(low_buffer, idx, low)
+    count := count + 1
+    head := head + 1
+    highest_high = array.max(high_buffer)
+    lowest_low = array.min(low_buffer)
+    range_val = highest_high - lowest_low
+    range_val > 0 ? -100 * (highest_high - close) / range_val : -50
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, maxval=100, tooltip="Lookback period for highest high and lowest low calculation")
+
+// Calculation
+willr_value = willr(i_period)
+
+// Plots
+plot(willr_value, "Williams %R", color=color.yellow, linewidth=2)

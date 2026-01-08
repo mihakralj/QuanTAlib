@@ -1,0 +1,78 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ichimoku Cloud", "ICHIMOKU", overlay=true)
+
+//@function Calculate Ichimoku Cloud components
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/ichimoku.md
+//@param tenkan_period Tenkan-sen (Conversion Line) period
+//@param kijun_period Kijun-sen (Base Line) period
+//@param senkou_b_period Senkou Span B (Leading Span B) period
+//@returns [tenkan, kijun, senkou_a, senkou_b, chikou] Five Ichimoku components
+//@optimized Single-pass calculation of all three Donchian midpoints
+ichimoku(simple int tenkan_period, simple int kijun_period, simple int senkou_b_period) =>
+    if tenkan_period <= 0
+        runtime.error("Tenkan period must be greater than 0")
+    if kijun_period <= 0
+        runtime.error("Kijun period must be greater than 0")
+    if senkou_b_period <= 0
+        runtime.error("Senkou B period must be greater than 0")
+    
+    int max_period = math.max(tenkan_period, math.max(kijun_period, senkou_b_period))
+    int effective_period = math.min(bar_index + 1, max_period)
+    
+    float tenkan_high = high
+    float tenkan_low = low
+    float kijun_high = high
+    float kijun_low = low
+    float senkou_b_high = high
+    float senkou_b_low = low
+    
+    for i = 1 to effective_period - 1
+        float h = nz(high[i])
+        float l = nz(low[i])
+        
+        if not na(h) and not na(l)
+            if i < tenkan_period
+                if h > tenkan_high
+                    tenkan_high := h
+                if l < tenkan_low
+                    tenkan_low := l
+            
+            if i < kijun_period
+                if h > kijun_high
+                    kijun_high := h
+                if l < kijun_low
+                    kijun_low := l
+            
+            if i < senkou_b_period
+                if h > senkou_b_high
+                    senkou_b_high := h
+                if l < senkou_b_low
+                    senkou_b_low := l
+    
+    float tenkan = (tenkan_high + tenkan_low) / 2.0
+    float kijun = (kijun_high + kijun_low) / 2.0
+    float senkou_a = (tenkan + kijun) / 2.0
+    float senkou_b = (senkou_b_high + senkou_b_low) / 2.0
+    float chikou = close
+    
+    [tenkan, kijun, senkou_a, senkou_b, chikou]
+
+// ---------- Main loop ----------
+
+i_tenkan = input.int(9, "Tenkan Period", minval=1, maxval=5000)
+i_kijun = input.int(26, "Kijun Period", minval=1, maxval=5000)
+i_senkou_b = input.int(52, "Senkou B Period", minval=1, maxval=5000)
+i_displacement = input.int(26, "Displacement", minval=1, maxval=500)
+
+[tenkan, kijun, senkou_a, senkou_b, chikou] = ichimoku(i_tenkan, i_kijun, i_senkou_b)
+
+plot(tenkan, "Tenkan-sen", color=color.blue, linewidth=1)
+plot(kijun, "Kijun-sen", color=color.red, linewidth=1)
+plot(chikou, "Chikou Span", color=color.purple, linewidth=1, offset=-i_displacement)
+
+p1 = plot(senkou_a, "Senkou Span A", color=color.green, linewidth=1, offset=i_displacement)
+p2 = plot(senkou_b, "Senkou Span B", color=color.red, linewidth=1, offset=i_displacement)
+
+fill(p1, p2, color=senkou_a > senkou_b ? color.new(color.green, 90) : color.new(color.red, 90), title="Kumo Cloud")

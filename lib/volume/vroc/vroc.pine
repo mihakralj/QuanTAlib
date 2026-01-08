@@ -1,0 +1,37 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Volume Rate of Change (VROC)", "VROC", overlay=false)
+
+//@function Calculates Volume Rate of Change
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vroc.md
+//@param vol Volume series for rate of change calculation
+//@param period Number of periods for comparison
+//@param calc_type Calculation type: true for percentage, false for point change
+//@returns Volume Rate of Change value
+//@optimized for performance and dirty data
+vroc(simple int period, simple bool calc_type, series float vol = volume) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    
+    float current_volume = vol
+    float historical_volume = vol[period]
+    if na(current_volume) or na(historical_volume)
+        na
+    else if calc_type
+        historical_volume != 0.0 ? ((current_volume - historical_volume) / historical_volume) * 100.0 : na
+    else
+        current_volume - historical_volume
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(12, "Period", minval=1, tooltip="Number of periods for comparison")
+i_calc_type = input.string("Point", "Calculation Type", options=["Point", "Percent"], tooltip="Point or Percent calculation")
+
+// Calculation
+is_percent = i_calc_type == "Percent"
+vroc_value = vroc(i_period, is_percent)
+
+// Plot
+plot(vroc_value, "VROC", color=color.yellow, linewidth=2)

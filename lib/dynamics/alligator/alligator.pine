@@ -1,0 +1,80 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Williams Alligator", "ALLIGATOR", overlay=true)
+
+//@function Calculates Williams Alligator indicator using SMMA (RMA)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/alligator.md
+//@param source Series to calculate Alligator from
+//@param jawPeriod Period for Jaw line (typically 13)
+//@param jawOffset Forward offset for Jaw line (typically 8)
+//@param teethPeriod Period for Teeth line (typically 8)
+//@param teethOffset Forward offset for Teeth line (typically 5)
+//@param lipsPeriod Period for Lips line (typically 5)
+//@param lipsOffset Forward offset for Lips line (typically 3)
+//@returns Tuple [jaw, teeth, lips] values
+//@optimized Uses Wilder's RMA (SMMA) with exponential warmup compensator for O(1) complexity
+alligator(series float source, simple int jawPeriod, simple int jawOffset, simple int teethPeriod, simple int teethOffset, simple int lipsPeriod, simple int lipsOffset) =>
+    if jawPeriod <= 0 or teethPeriod <= 0 or lipsPeriod <= 0
+        runtime.error("All periods must be greater than 0")
+    if jawOffset < 0 or teethOffset < 0 or lipsOffset < 0
+        runtime.error("All offsets must be non-negative")
+    float alphaJaw = 1.0 / float(jawPeriod)
+    float alphaTeeth = 1.0 / float(teethPeriod)
+    float alphaLips = 1.0 / float(lipsPeriod)
+    var bool warmupJaw = true
+    var bool warmupTeeth = true
+    var bool warmupLips = true
+    var float eJaw = 1.0
+    var float eTeeth = 1.0
+    var float eLips = 1.0
+    var float emaJaw = 0.0
+    var float emaTeeth = 0.0
+    var float emaLips = 0.0
+    var float jaw = source
+    var float teeth = source
+    var float lips = source
+    emaJaw := alphaJaw * (source - emaJaw) + emaJaw
+    emaTeeth := alphaTeeth * (source - emaTeeth) + emaTeeth
+    emaLips := alphaLips * (source - emaLips) + emaLips
+    if warmupJaw
+        eJaw *= (1.0 - alphaJaw)
+        float cJaw = 1.0 / (1.0 - eJaw)
+        jaw := cJaw * emaJaw
+        warmupJaw := eJaw > 1e-10
+    else
+        jaw := emaJaw
+    if warmupTeeth
+        eTeeth *= (1.0 - alphaTeeth)
+        float cTeeth = 1.0 / (1.0 - eTeeth)
+        teeth := cTeeth * emaTeeth
+        warmupTeeth := eTeeth > 1e-10
+    else
+        teeth := emaTeeth
+    if warmupLips
+        eLips *= (1.0 - alphaLips)
+        float cLips = 1.0 / (1.0 - eLips)
+        lips := cLips * emaLips
+        warmupLips := eLips > 1e-10
+    else
+        lips := emaLips
+    [jaw, teeth, lips]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(hlc3, "Source")
+i_jawPeriod = input.int(13, "Jaw Period", minval=1)
+i_jawOffset = input.int(8, "Jaw Offset", minval=0)
+i_teethPeriod = input.int(8, "Teeth Period", minval=1)
+i_teethOffset = input.int(5, "Teeth Offset", minval=0)
+i_lipsPeriod = input.int(5, "Lips Period", minval=1)
+i_lipsOffset = input.int(3, "Lips Offset", minval=0)
+
+// Calculation
+[jaw, teeth, lips] = alligator(i_source, i_jawPeriod, i_jawOffset, i_teethPeriod, i_teethOffset, i_lipsPeriod, i_lipsOffset)
+
+// Plot with offsets
+plot(jaw[i_jawOffset], "Jaw", color=color.blue, linewidth=2)
+plot(teeth[i_teethOffset], "Teeth", color=color.red, linewidth=2)
+plot(lips[i_lipsOffset], "Lips", color=color.green, linewidth=2)

@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Bias (BIAS)", "BIAS", overlay=false)
+
+//@function Calculates the deviation of a signal from its moving average (BIAS).
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/bias.md
+//@param src The source series.
+//@param len The lookback period for the SMA. Must be > 0.
+//@returns The BIAS value.
+//@optimized for performance and dirty data
+bias(series float src, int len) =>
+    if len <= 0
+        runtime.error("BIAS length must be greater than 0")
+    var float sma_sum = 0.0
+    var float[] sma_buffer = array.new_float(len, na)
+    var int sma_head = 0
+    var int sma_validCount = 0
+    float sma_oldestVal = array.get(sma_buffer, sma_head)
+    if not na(sma_oldestVal)
+        sma_sum -= sma_oldestVal
+    else if not na(src)
+        sma_validCount +=1
+    sma_sum += nz(src, 0.0)
+    array.set(sma_buffer, sma_head, src)
+    sma_head := (sma_head + 1) % len
+    float movingAverage = na
+    if sma_validCount >= len or bar_index + 1 >= len 
+        movingAverage := sma_sum / math.max(sma_validCount, 1) 
+    if bar_index < len -1
+        movingAverage := sma_sum / math.max(bar_index + 1, 1)
+    float bias_result = na
+    if not na(movingAverage) and movingAverage != 0
+        bias_result := (src - movingAverage) / movingAverage
+    bias_result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(20, "Length", minval=1)
+
+// Calculation
+biasValue = bias(i_source, i_length)
+
+// Plot
+plot(biasValue, "BIAS", color=color.yellow, linewidth=2)

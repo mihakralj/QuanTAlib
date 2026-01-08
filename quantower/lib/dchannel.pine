@@ -1,0 +1,50 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Donchian Channels (DCHANNEL)", "DCHANNEL", overlay=true)
+
+//@function Calculates the Donchian Channel (DC) efficiently using monotonic deques
+//@param hi Source series for the highest high calculation (usually high)
+//@param lo Source series for the lowest low calculation (usually low)
+//@param p Lookback period (p > 0)
+//@returns Tuple containing [basis, upper_band, lower_band]
+//@optimized Uses monotonic deque for O(1) amortized complexity per bar
+dchannel(series float hi, series float lo, simple int p) =>
+    if p <= 0
+        runtime.error("Period must be > 0")
+    var float[] hbuf = array.new_float(p, na)
+    var float[] lbuf = array.new_float(p, na)
+    var int[] hq = array.new_int()
+    var int[] lq = array.new_int()
+    int idx = bar_index % p
+    array.set(hbuf, idx, hi)
+    array.set(lbuf, idx, lo)
+    while array.size(hq) > 0 and array.get(hq, 0) <= bar_index - p
+        array.shift(hq)
+    while array.size(hq) > 0 and array.get(hbuf, array.get(hq, -1) % p) <= hi
+        array.pop(hq)
+    array.push(hq, bar_index)
+    while array.size(lq) > 0 and array.get(lq, 0) <= bar_index - p
+        array.shift(lq)
+    while array.size(lq) > 0 and array.get(lbuf, array.get(lq, -1) % p) >= lo
+        array.pop(lq)
+    array.push(lq, bar_index)
+    float top = array.get(hbuf, array.get(hq, 0) % p)
+    float bot = array.get(lbuf, array.get(lq, 0) % p)
+    [math.avg(top, bot), top, bot]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1)
+i_high = input.source(high, "High Source")
+i_low = input.source(low, "Low Source")
+
+// Calculation
+[basis, upper, lower] = dchannel(i_high, i_low, i_period)
+
+// Plot
+plot(basis, "Basis", color=color.yellow, linewidth=2)
+p1 = plot(upper, "Upper", color=color.yellow, linewidth=2)
+p2 = plot(lower, "Lower", color=color.yellow, linewidth=2)
+fill(p1, p2, color=color.new(color.blue, 90), title="Band Fill")

@@ -1,0 +1,62 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("AOBV - Archer On-Balance Volume (AOBV)", "AOBV", overlay=false)
+
+//@function Computes AOBV Fast and Slow from OBV using custom EMA calculations without helper functions.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/aobv.md
+//@param src (series float) Price source.
+//@param vol (series float) Volume data.
+//@returns ([float, float]) Tuple with AOBV Fast and AOBV Slow values.
+//@optimized Beta precomputation for EMA warmup compensation
+aobv(src, vol) =>
+    var float prev_src = na
+    safe_src = not na(src) ? src : (not na(prev_src) ? prev_src : 0)
+    safe_vol = not na(vol) ? vol : 0
+    safe_prev = not na(prev_src) ? prev_src : safe_src
+    var float obv_val = 0.0
+    obv_val := bar_index == 0 ? (safe_src > safe_prev ? safe_vol : safe_src < safe_prev ? -safe_vol : 0) : obv_val + (safe_src > safe_prev ? safe_vol : safe_src < safe_prev ? -safe_vol : 0)
+    if not na(src)
+        prev_src := src
+    periods = array.from(4, 14)
+    var emaArr = array.new_float(2, na)
+    var eArr = array.new_float(2, 1.0)
+    var warmupArr = array.new_bool(2, true)
+    var betaArr = array.new_float(2, 0.0)
+    resArr = array.new_float(2, na)
+    for i = 0 to array.size(periods) - 1
+        period = array.get(periods, i)
+        alpha = 2.0 / math.max(period, 1)
+        beta = array.get(betaArr, i)
+        if beta == 0.0
+            beta := 1.0 - alpha
+            array.set(betaArr, i, beta)
+        ema_val = array.get(emaArr, i)
+        if na(ema_val)
+            ema_val := 0.0
+            array.set(emaArr, i, ema_val)
+            array.set(resArr, i, obv_val)
+        else
+            ema_val := alpha * (obv_val - ema_val) + ema_val
+            array.set(emaArr, i, ema_val)
+            if array.get(warmupArr, i)
+                new_e = array.get(eArr, i) * beta
+                array.set(eArr, i, new_e)
+                c = 1.0 / (1.0 - new_e)
+                array.set(resArr, i, c * ema_val)
+                if new_e <= 1e-10
+                    array.set(warmupArr, i, false)
+            else
+                array.set(resArr, i, ema_val)
+    [array.get(resArr, 0), array.get(resArr, 1)]
+
+// ---------- Inputs ----------
+src = input(close, "Source")
+vol = input(volume, "Volume")
+
+// ---------- Calculations ----------
+[aobvFast, aobvSlow] = aobv(src, vol)
+
+// ---------- Plotting ----------
+plot(aobvFast, "AOBV Fast", color.blue, linewidth=2)
+plot(aobvSlow, "AOBV Slow", color.red, linewidth=2)

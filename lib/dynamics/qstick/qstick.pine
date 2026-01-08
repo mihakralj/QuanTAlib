@@ -1,0 +1,63 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Qstick Indicator", "QSTICK", overlay=false)
+
+//@function Calculates Qstick (moving average of close-open difference)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/qstick.md
+//@param source_close Closing price series
+//@param source_open Opening price series
+//@param length Lookback period for moving average
+//@param use_ema Use EMA (true) or SMA (false)
+//@returns Qstick value
+qstick(series float source_close, series float source_open, simple int length, simple bool use_ema) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    
+    float diff = source_close - source_open
+    
+    float result = 0.0
+    if use_ema
+        float alpha = 2.0 / (length + 1)
+        var float ema = 0.0
+        ema := alpha * (diff - ema) + ema
+        result := ema
+    else
+        var int count = 0
+        var float sum = 0.0
+        var int head = 0
+        var array<float> buffer = array.new_float(length, na)
+        
+        float oldest = array.get(buffer, head)
+        if not na(oldest)
+            sum -= oldest
+        else
+            count += 1
+        
+        float current = nz(diff)
+        sum += current
+        array.set(buffer, head, current)
+        head := (head + 1) % length
+        
+        result := sum / math.max(1, count)
+    
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1, tooltip="Lookback period for moving average calculation")
+i_ma_type = input.string("SMA", "MA Type", options=["SMA", "EMA"], tooltip="Simple (SMA) or Exponential (EMA) moving average")
+i_source_close = input.source(close, "Close Source", tooltip="Source for closing price")
+i_source_open = input.source(open, "Open Source", tooltip="Source for opening price")
+
+// Calculation
+bool use_ema = i_ma_type == "EMA"
+qstick_value = qstick(i_source_close, i_source_open, i_length, use_ema)
+
+// Plot
+plot(qstick_value, "Qstick", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_dashed)
+
+// Color fill for positive/negative regions
+bgcolor(qstick_value > 0 ? color.new(color.green, 90) : color.new(color.red, 90), title="Background")

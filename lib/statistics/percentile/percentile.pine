@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Percentile", "PERCENTILE", overlay=true, precision=8)
+
+//@function Calculates the value at a given percentile for a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/percentile.md
+//@param src series float Input data series.
+//@param len simple int Lookback period (must be > 0).
+//@param p simple float Percentile to calculate (0-100). For example, 50 for median.
+//@returns series float The value at the specified percentile, or na if insufficient data.
+percentile(series float src, simple int len, simple float p) => // p is the target percentile (0-100)
+    if len <= 0
+        runtime.error("Length must be greater than 0.")
+    if p < 0 or p > 100
+        runtime.error("Percentile 'p' must be between 0 and 100.")
+    data_points = array.new_float()
+    for i = 0 to len - 1
+        val = src[i]
+        if not na(val)
+            array.push(data_points, val)
+    n_valid = array.size(data_points)
+    float result = na
+    if n_valid == 0
+        result := na
+    else if n_valid == 1
+        result := array.get(data_points, 0)
+    else
+        array.sort(data_points)
+        rank = (p / 100.0) * (n_valid - 1)
+        if p == 0.0
+            result := array.get(data_points, 0)
+        else if p == 100.0
+            result := array.get(data_points, n_valid - 1)
+        else
+            k_floor_idx = math.floor(rank)
+            k_ceil_idx = math.ceil(rank)
+            int_k_floor = int(k_floor_idx)
+            int_k_ceil = int(k_ceil_idx)
+            if int_k_floor == int_k_ceil
+                result := array.get(data_points, int_k_floor)
+            else
+                val_floor = array.get(data_points, int_k_floor)
+                val_ceil = array.get(data_points, int_k_ceil)
+                result := val_floor + (rank - k_floor_idx) * (val_ceil - val_floor)
+    result
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(14, "Period", minval=1)
+i_percentile = input.float(25, "Percentile (0-100)", minval=0, maxval=100, step=0.1)
+
+// Calculation
+percentile_value = percentile(i_source, i_length, i_percentile)
+
+// Plot
+plot(percentile_value, "Percentile", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)

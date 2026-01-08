@@ -1,0 +1,43 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Rogers-Satchell Volatility (RSV)", "RSV", overlay=false)
+
+//@function Calculates Rogers-Satchell Volatility.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/rsv.md
+//@param length The lookback period for the SMA smoothing of the Rogers-Satchell variance. Default is 20.
+//@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
+//@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.
+//@returns float The Rogers-Satchell Volatility value.
+rsv(simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    if annualize and annualPeriods <= 0
+        runtime.error("Annual periods must be greater than 0 if annualizing")
+    float h = math.max(high, 0.0000001)
+    float l = math.max(low, 0.0000001)
+    float o = math.max(open, 0.0000001)
+    float c = math.max(close, 0.0000001)
+    float term1 = math.log(h / o)
+    float term2 = math.log(h / c)
+    float term3 = math.log(l / o)
+    float term4 = math.log(l / c)
+    float rs_variance_period = (term1 * term2) + (term3 * term4)
+    float smoothed_rs_variance = ta.sma(rs_variance_period, length)
+    float volatility_period = math.sqrt(math.max(0.0, smoothed_rs_variance))
+    float final_volatility = volatility_period
+    if annualize and not na(final_volatility)
+        final_volatility := final_volatility * math.sqrt(float(annualPeriods))
+    final_volatility
+
+// ---------- Main loop ----------
+// Inputs
+i_length_rsv = input.int(20, "Length", minval=1, tooltip="Lookback period for SMA smoothing of Rogers-Satchell variance.")
+i_annualize_rsv = input.bool(true, "Annualize Volatility", tooltip="Annualize the Rogers-Satchell Volatility output.")
+i_annualPeriods_rsv = input.int(252, "Annual Periods", minval=1, tooltip="Number of periods in a year for annualization (e.g., 252 for daily, 52 for weekly).")
+
+// Calculation
+rsvValue = rsv(i_length_rsv, i_annualize_rsv, i_annualPeriods_rsv)
+
+// Plot
+plot(rsvValue, "RSV", color=color.yellow, linewidth=2)

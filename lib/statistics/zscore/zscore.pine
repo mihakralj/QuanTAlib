@@ -1,0 +1,50 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Z-Score (ZSCORE)", "ZSCORE", overlay=false)
+
+//@function Calculates the Z-Score of a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/zscore.md
+//@param src Source series.
+//@param len Lookback period. Must be greater than 1.
+//@returns The Z-Score value.
+zscore(series float src, simple int len) =>
+    if len <= 1
+        runtime.error("Length must be greater than 1")
+    var float sumY = 0.0, var float sumY2 = 0.0
+    var int validCount = 0
+    var array<float> y_values = array.new_float(len)
+    var int head = 0
+    var bool filled = false
+    float oldY = filled ? array.get(y_values, head) : na
+    if not na(oldY)
+        sumY -= oldY, sumY2 -= oldY * oldY, validCount -= 1
+    float currentY = src
+    array.set(y_values, head, currentY)
+    if not na(currentY)
+        sumY += currentY, sumY2 += currentY * currentY, validCount += 1
+    head := (head + 1) % len
+    if not filled and head == 0
+        filled := true
+    float zScoreValue = na
+    if validCount >= 2
+        float n = float(validCount), mean = sumY / n
+        float variance = math.max(sumY2 / n - mean * mean, 0.0)
+        float stdDev = math.sqrt(variance)
+        if stdDev > 1e-10
+            zScoreValue := (currentY - mean) / stdDev
+        else
+            zScoreValue := 0.0
+    zScoreValue
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+z = zscore(i_source, i_period)
+
+// Plot
+plot(z, "Z-Score", color=color.yellow, linewidth=2)
