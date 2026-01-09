@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Wilder's Moving Average (RMA)", "RMA", overlay=true)
+
+//@function Calculates Welles Wilder's Relative Moving Average (RMA/SMMA)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/rma.md
+//@param source Series to calculate RMA from
+//@param period Smoothing period
+//@returns RMA value from first bar with proper compensation for early values
+//@optimized Uses exponential warmup compensator with Wilder's alpha (1/period) for O(1) complexity
+rma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be provided")
+    float a = 1.0 / float(period)
+    float beta = 1.0 - a
+    var bool warmup = true
+    var float e = 1.0
+    var float ema = 0.0
+    var float result = source
+    ema := a * (source - ema) + ema
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        result := c * ema
+        warmup := e > 1e-10
+    else
+        result := ema
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+rma_value = rma(i_source, i_period)
+
+// Plot
+plot(rma_value, "RMA", color=color.yellow, linewidth=2)

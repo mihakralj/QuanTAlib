@@ -1,0 +1,35 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Williams Fractals", "FRACTALS", overlay=true)
+
+//@function Detects Williams Fractal patterns (5-bar pattern)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/fractals.md
+//@returns Tuple [up_fractal, down_fractal] with fractal values (na if no fractal)
+fractals() =>
+    bool is_up_fractal = false
+    bool is_down_fractal = false
+    
+    if bar_index >= 4
+        is_up_fractal := high[2] > high[4] and high[2] > high[3] and high[2] > high[1] and high[2] > high[0]
+        is_down_fractal := low[2] < low[4] and low[2] < low[3] and low[2] < low[1] and low[2] < low[0]
+    
+    float up_fractal_value = is_up_fractal ? high[2] : na
+    float down_fractal_value = is_down_fractal ? low[2] : na
+    
+    [up_fractal_value, down_fractal_value]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_show_up = input.bool(true, "Show Up Fractals", tooltip="Display bearish fractals (resistance)")
+i_show_down = input.bool(true, "Show Down Fractals", tooltip="Display bullish fractals (support)")
+i_color_up = input.color(color.red, "Up Fractal Color")
+i_color_down = input.color(color.green, "Down Fractal Color")
+
+// Calculation
+[up_fractal, down_fractal] = fractals()
+
+// Plot fractal markers
+plotshape(i_show_up and not na(up_fractal) ? up_fractal : na, "Up Fractal", style=shape.triangledown, location=location.absolute, color=i_color_up, size=size.small, offset=-2)
+plotshape(i_show_down and not na(down_fractal) ? down_fractal : na, "Down Fractal", style=shape.triangleup, location=location.absolute, color=i_color_down, size=size.small, offset=-2)

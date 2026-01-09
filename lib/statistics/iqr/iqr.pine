@@ -1,0 +1,66 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=5
+indicator("Interquartile Range (IQR)", "IQR", overlay=false, precision=4)
+
+//@function Function to calculate percentile using linear interpolation
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/iqr.md
+//@param src Source series for calculation
+//@param len Lookback period for data collection
+//@param p Percentile value (0-100)
+//@returns Calculated percentile value
+// Adapted from percentile.pine
+iqr(series float src, simple int len, simple float p) =>
+    if len <= 0 // Should not happen due to input minval=2
+        runtime.error("Lookback Period must be greater than 0.")
+        float(na)
+    if p < 0 or p > 100
+        runtime.error("Percentile 'p' must be between 0 and 100.")
+        float(na)
+    data_points = array.new_float()
+    for i = 0 to len - 1
+        val = src[i]
+        if not na(val)
+            array.push(data_points, val)
+    n_valid = array.size(data_points)
+    float result = na
+    if n_valid == 0
+        result := na
+    else if n_valid == 1
+        result := array.get(data_points, 0)
+    else
+        array.sort(data_points)
+        rank = (p / 100.0) * (n_valid - 1) 
+        if p == 0.0
+            result := array.get(data_points, 0)
+        else if p == 100.0
+            result := array.get(data_points, n_valid - 1) 
+        else
+            k_floor_idx = math.floor(rank)
+            k_ceil_idx = math.ceil(rank)
+            int_k_floor = math.max(0, math.min(n_valid - 1, int(k_floor_idx)))
+            int_k_ceil = math.max(0, math.min(n_valid - 1, int(k_ceil_idx)))
+            if int_k_floor == int_k_ceil 
+                result := array.get(data_points, int_k_floor)
+            else 
+                val_floor = array.get(data_points, int_k_floor)
+                val_ceil = array.get(data_points, int_k_ceil)
+                if val_floor == val_ceil
+                    result := val_floor
+                else
+                    result := val_floor + (rank - k_floor_idx) * (val_ceil - val_floor)
+    result
+
+// Inputs
+i_source = input.source(close, title="Source")
+i_length = input.int(20, title="Lookback Period", minval=2)
+
+// Calculate Q1 (25th percentile) and Q3 (75th percentile)
+q1 = iqr(i_source, i_length, 25.0)
+q3 = iqr(i_source, i_length, 75.0)
+
+// Calculate IQR
+iqr_value = q3 - q1
+
+// Plot IQR
+plot(iqr_value, title="IQR", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)

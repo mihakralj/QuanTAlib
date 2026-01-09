@@ -1,0 +1,68 @@
+// The MIT License (MIT)
+// © mihakralj
+// Ultimate Channel logic based on work by John F. Ehlers (c) 2024
+//@version=6
+indicator("Ultimate Channel (UCHANNEL)", "UCHANNEL", overlay=true)
+
+//@function Calculates Ultimate Channel
+//@param src Source series for the centerline (typically close)
+//@param high_src Source series for high prices
+//@param low_src Source series for low prices
+//@param strLength Lookback period for smoothing the True Range
+//@param length Lookback period for smoothing the centerline
+//@param numSTRs Multiplier for the Smoothed True Range to define channel width
+//@returns tuple [upperChannel, middleChannel, lowerChannel]
+uchannel(series float src_centerline, series float high_src, series float low_src, simple int strLength_param, simple int length_param, simple float numSTRs_param) =>
+    if strLength_param <= 0 or length_param <= 0 or numSTRs_param <= 0
+        runtime.error("strLength, numSTR and length must be greater than 0")
+    var float usf_s = na, var float usf_c = na
+    var float c1_s = 0.0, var float c2_s = 0.0, var float c3_s = 0.0
+    var float c1_c = 0.0, var float c2_c = 0.0, var float c3_c = 0.0
+    var int prev_sLen = 0, var int prev_cLen = 0
+    float th = math.max(high_src, nz(src_centerline[1], high_src))
+    float tl = math.min(low_src, nz(src_centerline[1], low_src))
+    series float tr_s = th - tl // true_range_series
+    if prev_sLen != strLength_param or na(c1_s)
+        float arg = (math.sqrt(2)*math.pi)/float(strLength_param)
+        float exp_arg = math.exp(-arg)
+        c2_s := 2*exp_arg*math.cos(arg)
+        c3_s := -exp_arg*exp_arg
+        c1_s := (1+c2_s-c3_s)/4.0
+        prev_sLen := strLength_param
+        usf_s := na
+    float s_str = nz(tr_s, tr_s[1]), s1_str = nz(tr_s[1], s_str), s2_str = nz(tr_s[2], s1_str)
+    float cur_usf_s = na(usf_s) or na(usf_s[1]) or na(usf_s[2]) ? s_str : (1-c1_s)*s_str + (2*c1_s-c2_s)*s1_str - (c1_s+c3_s)*s2_str + c2_s*nz(usf_s[1],s1_str) + c3_s*nz(usf_s[2],s2_str)
+    usf_s := cur_usf_s
+    float str_val = usf_s
+    if prev_cLen != length_param or na(c1_c)
+        float arg = (math.sqrt(2)*math.pi)/float(length_param)
+        float exp_arg = math.exp(-arg)
+        c2_c := 2*exp_arg*math.cos(arg)
+        c3_c := -exp_arg*exp_arg
+        c1_c := (1+c2_c-c3_c)/4.0
+        prev_cLen := length_param
+        usf_c := na
+    float s_cen = nz(src_centerline,src_centerline[1]), s1_cen = nz(src_centerline[1],s_cen), s2_cen = nz(src_centerline[2],s1_cen)
+    float cur_usf_c = na(usf_c) or na(usf_c[1]) or na(usf_c[2]) ? s_cen : (1-c1_c)*s_cen + (2*c1_c-c2_c)*s1_cen - (c1_c+c3_c)*s2_cen + c2_c*nz(usf_c[1],s1_cen) + c3_c*nz(usf_c[2],s2_cen)
+    usf_c := cur_usf_c
+    float centerline = usf_c
+    [centerline + numSTRs_param*str_val, centerline, centerline - numSTRs_param*str_val]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source for Centerline")
+i_high = input.source(high, "Source for High")
+i_low = input.source(low, "Source for Low")
+i_strLength = input.int(20, "STR Length", minval=1, tooltip="Lookback period for smoothing the True Range.")
+i_length = input.int(20, "Centerline Length", minval=1, tooltip="Lookback period for smoothing the centerline (close price).")
+i_numSTRs = input.float(1.0, "STR Multiplier", minval=0.01, tooltip="Number of Smoothed True Ranges for channel width.")
+
+// Calculation
+[upperCh, middleCh, lowerCh] = uchannel(i_source, i_high, i_low, i_strLength, i_length, i_numSTRs)
+
+// Plot
+plot(middleCh, "Middle Channel", color=color.yellow, linewidth=2)
+p_upper = plot(upperCh, "Upper Channel", color=color.yellow, linewidth=2)
+p_lower = plot(lowerCh, "Lower Channel", color=color.yellow, linewidth=2)
+fill(p_upper, p_lower, color=color.new(color.blue, 90), title="Channel Fill")

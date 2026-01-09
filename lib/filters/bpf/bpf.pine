@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Bandpass Filter (BPF)", "BPF", overlay=true)
+
+//@function Optimized Bandpass Filter combining highpass and lowpass filters
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/bpf.md
+//@param source Series to calculate bandpass from
+//@param lp Lower cutoff period for highpass filter
+//@param up Upper cutoff period for lowpass filter
+//@returns Optimized bandpass filtered series
+//@optimized Uses combined HP and LP IIR filters with O(1) complexity per bar
+bpf(series float src, simple int lp, simple int up) =>
+    var float SQRT2_PI = math.sqrt(2.0) * math.pi
+    var float hp = na
+    var float hp_c1 = 0.0
+    var float hp_c2 = 0.0
+    var float hp_c3 = 0.0
+    var int prev_hp_length = 0
+    var float bpf_val = na
+    var float lp_c1 = 0.0
+    var float lp_c2 = 0.0
+    var float lp_c3 = 0.0
+    var int prev_lp_length = 0
+    if prev_hp_length != lp
+        float hp_arg = SQRT2_PI / float(lp)
+        float hp_exp_arg = math.exp(-hp_arg)
+        hp_c2 := 2.0 * hp_exp_arg * math.cos(hp_arg)
+        hp_c3 := -hp_exp_arg * hp_exp_arg
+        hp_c1 := (1.0 + hp_c2 - hp_c3) / 4.0
+        prev_hp_length := lp
+    if prev_lp_length != up
+        float lp_arg = SQRT2_PI / float(up)
+        float lp_exp_arg = math.exp(-lp_arg)
+        lp_c2 := 2.0 * lp_exp_arg * math.cos(lp_arg)
+        lp_c3 := -lp_exp_arg * lp_exp_arg
+        lp_c1 := 1.0 - lp_c2 - lp_c3
+        prev_lp_length := up
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    float hp1 = nz(hp[1], 0.0)
+    float hp2 = nz(hp[2], 0.0)
+    hp := hp_c1 * (ssrc - 2.0 * src1 + src2) + hp_c2 * hp1 + hp_c3 * hp2
+    float bp1 = nz(bpf_val[1], hp)
+    float bp2 = nz(bpf_val[2], bp1)
+    bpf_val := lp_c1 * hp + lp_c2 * bp1 + lp_c3 * bp2
+    bpf_val
+
+// ---------- Main loop ----------
+
+// Inputs
+i_lower = input.int(10, "Lower Cutoff", minval=1)
+i_upper = input.int(20, "Higher Cutoff", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+filt = bpf(i_source, i_lower, i_upper)
+
+// Plot
+plot(i_source - filt, "Bandpass", color=color.yellow, linewidth=2)

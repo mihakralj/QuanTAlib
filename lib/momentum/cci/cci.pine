@@ -1,0 +1,46 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Commodity Channel Index (CCI)", "CCI", overlay=false)
+
+//@function Calculates Commodity Channel Index using circular buffer for efficiency
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/cci.md
+//@param length Lookback period for calculations
+//@returns CCI value measuring price deviation from its moving average
+cci(simple int length) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    float tp = (high + low + close) / 3.0
+    var int p = math.max(1, length)
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0, var float sum = 0.0, var int count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        count -= 1
+    if not na(tp)
+        sum += tp
+        count += 1
+    array.set(buffer, head, tp)
+    head := (head + 1) % p
+    float sma = count > 0 ? sum / count : tp
+    float dev_sum = 0.0
+    int dev_count = 0
+    for i = 0 to p - 1
+        float val = array.get(buffer, i)
+        if not na(val)
+            dev_sum += math.abs(val - sma)
+            dev_count += 1
+    float mean_dev = dev_count > 0 ? dev_sum / dev_count : 0.0
+    mean_dev > 0.0 ? (tp - sma) / (0.015 * mean_dev) : 0.0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=1)
+
+// Calculation
+cci_value = cci(i_length)
+
+// Plot
+plot(cci_value, "CCI", color=color.yellow, linewidth=2)

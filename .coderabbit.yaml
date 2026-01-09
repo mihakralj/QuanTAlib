@@ -1,0 +1,69 @@
+# CodeRabbit Configuration File
+# Documentation: https://docs.coderabbit.ai/getting-started/yaml-configuration
+
+reviews:
+  path_filters:
+    # Include C# source files first
+    - "lib/trends/**/*.cs"
+
+    # Exclude test files
+    - "!**/*.Tests.cs"
+    - "!**/*Tests.cs"
+    - "!**/*.Validation.Tests.cs"
+
+    # Exclude Quantower adapters
+    - "!**/*.Quantower.Tests.cs"
+    - "!**/*.Quantower.cs"
+    - "!**/quantower/**"
+    - "!**/docs/*.md"
+
+    # Exclude build/IDE artifacts
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/.vs/**"
+    - "!**/.git/**"
+    - "!**/.idea/**"
+    - "!**/.vscode/**"
+    - "!**/.sonarqube/**"
+    - "!**/.sonarlint/**"
+    - "!**/.codacy/**"
+    - "!**/BenchmarkDotNet.Artifacts/**"
+    - "!**/ilspy/**"
+    - "!**/perf/**"
+    - "!**/Mocks/**"
+
+    # Exclude non-source files
+    - "!**/*.md"
+    - "!**/*.dib"
+    - "!**/*.csv"
+    - "!**/*.xml"
+    - "!**/*.json"
+    - "!**/*.yml"
+    - "!**/*.yaml"
+    - "!**/*.sln"
+    - "!**/*.csproj"
+    - "!**/*.ndproj"
+    - "!**/*.user"
+    - "!**/*.suo"
+    - "!**/*.cache"
+    - "!**/*.lock"
+    - "!**/*.props"
+    - "!**/*.targets"
+
+    # Exclude binaries
+    - "!**/*.dll"
+    - "!**/*.pdb"
+    - "!**/*.nupkg"
+    - "!**/*.snupkg"
+    - "!**/*.so"
+    - "!**/*.dylib"
+    - "!**/*.exe"
+
+    # Exclude data/media files
+    - "!**/*.db"
+    - "!**/*.sqlite"
+    - "!**/*.log"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"

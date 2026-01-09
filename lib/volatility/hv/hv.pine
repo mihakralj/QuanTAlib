@@ -1,0 +1,62 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Historical Volatility (HV)", "HV", overlay=false)
+
+//@function Calculates Historical Volatility (Close-to-Close).
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/hv.md
+//@param src_price The source series to calculate returns from. Default is close.
+//@param length_hv The period length for calculating the standard deviation of returns.
+//@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
+//@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.
+//@returns float The Historical Volatility value.
+//@optimized for performance and dirty data
+hv(series float src_price, simple int length_hv, simple bool annualize = true, simple int annualPeriods = 252) =>
+    if length_hv <= 1
+        runtime.error("Length for HV must be greater than 1")
+    if annualize and annualPeriods <= 0
+        runtime.error("Annual periods must be greater than 0 if annualizing")
+    var array<float> _buffer_hv = array.new_float(length_hv, na)
+    var int _head_idx_hv = 0
+    var int _current_fill_count_hv = 0
+    var float _sum_val_hv = 0.0
+    var float _sum_sq_val_hv = 0.0
+    float logReturn = na(src_price[1]) or src_price[1] == 0 ? na : math.log(src_price / nz(src_price[1], src_price))
+    float stdDevLogReturns = na
+    if not na(logReturn)
+        float _oldest_val_in_buffer_hv = array.get(_buffer_hv, _head_idx_hv)
+        if not na(_oldest_val_in_buffer_hv)
+            _sum_val_hv -= _oldest_val_in_buffer_hv
+            _sum_sq_val_hv -= _oldest_val_in_buffer_hv * _oldest_val_in_buffer_hv
+            _current_fill_count_hv -= 1
+        float _current_log_return_val = nz(logReturn) 
+        _sum_val_hv += _current_log_return_val
+        _sum_sq_val_hv += _current_log_return_val * _current_log_return_val
+        _current_fill_count_hv += 1
+        array.set(_buffer_hv, _head_idx_hv, _current_log_return_val)
+        _head_idx_hv := (_head_idx_hv + 1) % length_hv
+        if _current_fill_count_hv > 1
+            float _variance_hv = (_sum_sq_val_hv / _current_fill_count_hv) - math.pow(_sum_val_hv / _current_fill_count_hv, 2)
+            stdDevLogReturns := math.sqrt(math.max(0.0, _variance_hv))
+        else
+            stdDevLogReturns := 0.0
+    else
+        stdDevLogReturns := na 
+    float volatility = stdDevLogReturns
+    if annualize and not na(volatility)
+        volatility := volatility * math.sqrt(float(annualPeriods))
+    volatility
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(20, "Length", minval=2, tooltip="Period for calculating standard deviation of returns")
+i_annualize = input.bool(true, "Annualize Volatility", tooltip="Annualize the volatility output")
+i_annualPeriods = input.int(252, "Annual Periods", minval=1, tooltip="Number of periods in a year for annualization (e.g., 252 for daily, 52 for weekly)")
+
+// Calculation
+hvValue = hv(i_source, i_length, i_annualize, i_annualPeriods)
+
+// Plot
+plot(hvValue, "HV", color=color.yellow, linewidth=2)

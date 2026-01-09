@@ -1,0 +1,39 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Mass Index (MASSI)", "MASSI", overlay=false)
+
+//@function Calculates the Mass Index indicator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/massi.md
+//@param ema_length Period for EMA smoothing of high-low range
+//@param sum_length Period for summing the EMA ratio
+//@returns float Mass Index value
+//@optimized for performance and dirty data
+massi(simple int ema_length, simple int sum_length) =>
+    if ema_length <= 0 or sum_length <= 0
+        runtime.error("Periods must be greater than 0")
+    float a = 2.0 / (ema_length + 1)
+    float beta = 1.0 - a
+    var bool warmup = true, var float e = 1.0
+    var float ema1_raw = 0.0, var float ema2_raw = 0.0
+    float span = nz(high - low)
+    ema1_raw := a * (span - ema1_raw) + ema1_raw
+    ema2_raw := a * (ema1_raw - ema2_raw) + ema2_raw
+    if warmup
+        e *= beta
+        warmup := e > 1e-10
+    float c = warmup ? 1.0 / (1.0 - e) : 1.0
+    float ema1 = c * ema1_raw
+    float ema2 = c * ema2_raw
+    math.sum(ema2 != 0 ? ema1 / ema2 : 0, sum_length)
+
+// ---------- Main loop ----------
+// Inputs
+i_ema_length = input.int(9, "EMA Length", minval=1, tooltip="Period for EMA smoothing of high-low range")
+i_sum_length = input.int(25, "Sum Length", minval=1, tooltip="Period for summing the EMA ratio")
+
+// Calculation
+massi_value = massi(i_ema_length, i_sum_length)
+
+// Plot
+plot(massi_value, "MASSI", color=color.yellow, linewidth=2)

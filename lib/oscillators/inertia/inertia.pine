@@ -1,0 +1,46 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Inertia", "INERTIA", overlay=false)
+
+//@function Calculates Inertia oscillator measuring trend strength based on distance from linear regression
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/inertia.md
+//@param source Source series to calculate Inertia for
+//@param length Period for linear regression calculation
+//@returns Inertia value measuring trend strength
+inertia(series float source, simple int length) =>
+    if length <= 0
+        runtime.error("Length must be positive")
+    if na(source)
+        na
+    else
+        available_bars = bar_index + 1
+        effective_length = math.min(length, available_bars)
+        sum_x = 0.0, sum_y = 0.0, sum_xy = 0.0, sum_x2 = 0.0
+        for i = 0 to effective_length - 1
+            x = effective_length - 1 - i
+            y = nz(source[i])
+            sum_x += x, sum_y += y
+            sum_xy += x * y, sum_x2 += x * x
+        n = effective_length
+        denominator = n * sum_x2 - sum_x * sum_x
+        if denominator == 0
+            0.0 
+        else
+            slope = (n * sum_xy - sum_x * sum_y) / denominator
+            intercept = (sum_y - slope * sum_x) / n
+            regression_value = slope * (effective_length - 1) + intercept
+            source - regression_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=1, maxval=500, tooltip="Period for linear regression calculation")
+i_source = input.source(close, "Source", tooltip="Price series to analyze")
+
+// Calculation
+inertia_value = inertia(i_source, i_length)
+
+// Plots
+plot(inertia_value, "Inertia", color=color.yellow, linewidth=2)
+

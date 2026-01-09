@@ -1,0 +1,58 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Notch Filter (NOTCH)", "NOTCH", overlay=true)
+
+//@function Applies a second-order IIR notch filter to remove a specific frequency component
+//@param src Input series
+//@param period The period of the cycle to remove (center frequency of the notch)
+//@param bandwidth The relative bandwidth of the notch (e.g., 0.1 for 10%)
+//@returns Filtered series with the specified frequency component attenuated
+//@optimized Uses 2nd order IIR notch filter with O(1) complexity per bar
+notch(series float src, simple int period, simple float bandwidth) =>
+    if period < 2
+        runtime.error("Period must be >= 2")
+    if bandwidth <= 0.0 or bandwidth >= 1.0
+        runtime.error("Bandwidth must be > 0 and < 1")
+    float omega = 2.0 * math.pi / period
+    float bw_abs = bandwidth * omega
+    float alpha_tan_arg = bw_abs / 2.0
+    alpha_tan_arg := math.max(math.min(alpha_tan_arg, math.pi * 0.499), 0.0001)
+    float tan_bw_half = math.tan(alpha_tan_arg)
+    float alpha = (1.0 - tan_bw_half) / (1.0 + tan_bw_half)
+    float beta = math.cos(omega)
+    float a1 = -2.0 * beta * alpha
+    float a2 = alpha * alpha
+    float b0 = (1.0 + alpha * alpha) / 2.0
+    float b1 = a1
+    float b2 = b0
+    var float y1 = 0.0
+    var float y2 = 0.0
+    var float x1 = 0.0
+    var float x2 = 0.0
+    float x0 = nz(src, 0.0)
+    if bar_index < 1
+        x1 := x0
+        x2 := x0
+        y1 := x0
+        y2 := x0
+    float y0 = 0.0
+    y0 := b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+    y2 := y1
+    y1 := y0
+    x2 := x1
+    x1 := x0
+    y0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(14, "Period to Remove", minval=2)
+i_bandwidth = input.float(0.3, "Relative Bandwidth", minval=0.01, maxval=0.99, step=0.01)
+
+// Calculation
+notch_val = notch(i_source, i_period, i_bandwidth)
+
+// Plot
+plot(notch_val, "Notch", color=color.yellow, linewidth=2)

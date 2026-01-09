@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+
+//@version=6
+indicator("Quantile (QUANTILE)", shorttitle="QUANTILE", overlay=true, precision=8)
+
+//@function Calculates the quantile of a series over a lookback period using linear interpolation.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/quantile.md
+//@param src {series float} The source series to calculate the quantile from.
+//@param len {simple int} The lookback period. Must be greater than 0.
+//@param q_level {simple float} The quantile level to calculate (between 0.0 and 1.0).
+//@returns {series float} The calculated quantile value, or na if insufficient data.
+quantile(series float src, simple int len, simple float q_level) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0.")
+    if q_level < 0.0 or q_level > 1.0
+        runtime.error("Quantile Level must be between 0.0 and 1.0.")
+    var float[] values_arr = array.new_float(0)
+    array.clear(values_arr)
+    for i = 0 to len - 1
+        if not na(src[i])
+            array.push(values_arr, src[i])
+    int n_valid = array.size(values_arr)
+    if n_valid == 0
+        na
+    else if n_valid == 1
+        array.get(values_arr, 0)
+    else
+        array.sort(values_arr)
+        if q_level == 0.0
+            array.min(values_arr)
+        else if q_level == 1.0
+            array.max(values_arr)
+        else
+            float rank = q_level * (n_valid - 1)
+            int k_floor = int(math.floor(rank))
+            int k_ceil = int(math.ceil(rank))
+            if k_floor == k_ceil
+                array.get(values_arr, k_floor)
+            else
+                float val_floor = array.get(values_arr, k_floor)
+                float val_ceil = array.get(values_arr, k_ceil)
+                val_floor + (rank - k_floor) * (val_ceil - val_floor)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, title="Source")
+i_length = input.int(14, title="Period", minval=1)
+i_quantile_level = input.float(0.25, title="Quantile Level (0.0-1.0)", minval=0.0, maxval=1.0, step=0.01)
+
+// Calculate Quantile
+quantile_value = quantile(i_source, i_length, i_quantile_level)
+
+// Plot
+plot(quantile_value, title="Quantile", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)

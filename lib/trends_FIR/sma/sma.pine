@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Simple Moving Average (SMA)", "SMA", overlay=true)
+
+//@function Calculates SMA using simple smoothing with compensator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/sma.md
+//@param source Series to calculate SMA from
+//@param period Lookback period - FIR window size
+//@returns SMA value, calculates from first bar using available data
+//@optimized Uses circular buffer and running sum for O(1) complexity
+sma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = period
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0
+    var float sum = 0.0
+    var int count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+    else
+        count += 1
+    float current = nz(source)
+    sum += current
+    array.set(buffer, head, current)
+    head := (head + 1) % p
+    sum / math.max(1, count)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+sma_value = sma(i_source, i_period)
+
+// Plot
+plot(sma_value, "SMA", color=color.yellow, linewidth=2)

@@ -1,0 +1,23 @@
+# Git Line Ending Configuration for QuanTAlib
+
+# Default behavior: let Git normalize line endings to LF on checkin
+* text=auto
+
+# Shell scripts must always use LF
+*.sh text eol=lf
+
+# Windows-specific files use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.dll binary
+*.exe binary
+*.snupkg binary
+*.nupkg binary

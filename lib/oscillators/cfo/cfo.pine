@@ -1,0 +1,62 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chande Forecast Oscillator", "CFO", overlay=false)
+
+//@function Chande Forecast Oscillator - measures percentage difference between price and forecasted price
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/cfo.md
+//@param source Price data to analyze
+//@param period Number of bars for linear regression calculation
+//@returns Oscillator value showing forecast error percentage
+//@optimized O(1) complexity using incremental sumXY maintenance
+cfo(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if period > 5000
+        runtime.error("Period exceeds maximum of 5000")
+    
+    var int count = 0
+    var int head = 0
+    var float sumY = 0.0
+    var float sumXY = 0.0
+    var array<float> buffer = array.new_float(period, na)
+    
+    if na(source)
+        na
+    else
+        float oldest = array.get(buffer, head)
+        if not na(oldest)
+            sumY -= oldest
+            sumXY -= sumY
+            sumXY += (period - 1) * source
+        else
+            sumXY += count * source
+            count += 1
+        
+        sumY += source
+        array.set(buffer, head, source)
+        head := (head + 1) % period
+        
+        if count < period
+            na
+        else
+            float sumX = period * (period - 1) / 2
+            float sumX2 = period * (period - 1) * (2 * period - 1) / 6
+            float denomX = period * sumX2 - sumX * sumX
+            
+            float slope = (period * sumXY - sumX * sumY) / denomX
+            float intercept = (sumY - slope * sumX) / period
+            float tsf = intercept + slope * (period - 1)
+            
+            float result = source == 0.0 ? na : 100.0 * (source - tsf) / source
+            result
+
+// ---------- Main loop ----------
+
+i_period = input.int(14, "Period", minval=1, maxval=5000)
+i_source = input.source(close, "Source")
+
+result = cfo(i_source, i_period)
+
+plot(result, "CFO", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_dotted)

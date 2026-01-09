@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chaikin Money Flow (CMF)", "CMF", overlay=false)
+
+//@function Calculates the Chaikin Money Flow (CMF), measuring buying and selling pressure through price and volume
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/cmf.md
+//@param len Lookback period length (default: 20)
+//@param src_high The high price (default: built-in high)
+//@param src_low The low price (default: built-in low)
+//@param src_close The close price (default: built-in close)
+//@param src_vol The volume (default: built-in volume)
+//@returns float CMF value between -1 and 1
+cmf(len = 20, src_high = high, src_low = low, src_close = close, src_vol = volume) =>
+    // Validate parameters
+    if len < 1
+        runtime.error("Length must be >= 1")
+
+    // Calculate Money Flow Multiplier
+    float mfm = 0.0
+    if not na(src_high) and not na(src_low) and not na(src_close)
+        mfm := (src_close - src_low) - (src_high - src_close)
+        mfm := src_high != src_low ? mfm / (src_high - src_low) : 0.0
+
+    // Calculate Money Flow Volume
+    float mfv = na(src_vol) ? 0.0 : mfm * src_vol
+
+    // Calculate CMF
+    var float sum_mfv = 0.0
+    var float sum_vol = 0.0
+
+    // Update rolling sums
+    sum_mfv := sum_mfv + mfv - (bar_index >= len ? mfv[len] : 0)
+    sum_vol := sum_vol + src_vol - (bar_index >= len ? src_vol[len] : 0)
+
+    // Calculate CMF value
+    float cmf_value = sum_vol != 0 ? sum_mfv / sum_vol : 0.0
+    cmf_value
+
+// ---------- Inputs ----------
+i_length = input.int(20, "Length", minval=1)
+
+// ---------- Calculations ----------
+cmf_val = cmf(i_length)
+
+// ---------- Plotting ----------
+plot(cmf_val, "CMF", color=color.yellow, linewidth=2)

@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Wiener Filter (WIENER)", "WIENER", overlay=true)
+
+//@function Calculates Wiener Filter that minimizes mean square error
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/wiener.md
+//@param src Series to filter
+//@param length Window size for noise estimation
+//@param smooth_len Length for signal power estimation
+//@returns Wiener filtered value
+//@optimized Uses adaptive noise estimation with O(n) complexity per bar
+wiener(series float src, simple int length, simple int smooth_len = 10) =>
+    var array<float> diffs = array.new_float(0)
+    array.clear(diffs)
+    for i = 0 to length - 2
+        float diff = src[i] - src[i + 1]
+        array.push(diffs, diff * diff)
+    float noise_var = 0.0
+    float sum_diffs = array.sum(diffs)
+    int num_diffs = array.size(diffs)
+    if num_diffs > 0
+        noise_var := sum_diffs / (2.0 * float(num_diffs))
+    float signal_plus_noise = ta.sma(math.pow(src - ta.sma(src, smooth_len), 2.0), smooth_len)
+    float signal_var = math.max(signal_plus_noise - noise_var, 0.0)
+    float k = signal_var / (signal_var + noise_var)
+    float mean = ta.sma(src, smooth_len)
+    mean + k * (src - mean)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=5, maxval=500)
+i_smooth = input.int(10, "Smoothing", minval=2, maxval=100)
+i_source = input.source(close, "Source")
+
+// Calculation
+wiener_val = wiener(i_source, i_length, i_smooth)
+
+// Plot
+plot(wiener_val, "Wiener", color=color.yellow, linewidth=2)

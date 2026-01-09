@@ -1,0 +1,53 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Archer Moving Averages Trends (AMAT)", "AMAT", overlay=false)
+
+//@function Calculates AMAT using multiple EMAs to identify trend direction
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/amat.md
+//@param source Series to calculate AMAT from
+//@param fast Fast EMA period
+//@param slow Slow EMA period
+//@returns Tuple [bullish_count, bearish_count, trend_strength]
+amat(series float source, simple int fast = 10, simple int slow = 50) =>
+    if fast <= 0 or slow <= 0
+        runtime.error("Periods must be greater than 0")
+    if fast >= slow
+        runtime.error("Fast period must be less than slow period")
+    
+    float alpha_fast = 2.0 / (fast + 1)
+    float alpha_slow = 2.0 / (slow + 1)
+    
+    var float ema_fast = source
+    var float ema_slow = source
+    var float ema_fast_prev = source
+    var float ema_slow_prev = source
+    
+    ema_fast := alpha_fast * (source - ema_fast) + ema_fast
+    ema_slow := alpha_slow * (source - ema_slow) + ema_slow
+    
+    float long_trend = ema_fast > ema_slow and ema_fast > ema_fast_prev and ema_slow > ema_slow_prev ? 1.0 : 0.0
+    float short_trend = ema_fast < ema_slow and ema_fast < ema_fast_prev and ema_slow < ema_slow_prev ? -1.0 : 0.0
+    
+    ema_fast_prev := ema_fast
+    ema_slow_prev := ema_slow
+    
+    float trend = long_trend + short_trend
+    float strength = math.abs(ema_fast - ema_slow) / ema_slow * 100
+    
+    [trend, strength, ema_fast, ema_slow]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_fast = input.int(10, "Fast Period", minval=1)
+i_slow = input.int(50, "Slow Period", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+[trend, strength, ema_fast, ema_slow] = amat(i_source, i_fast, i_slow)
+
+// Plot
+plot(trend, "AMAT Trend", color=trend > 0 ? color.green : trend < 0 ? color.red : color.gray, style=plot.style_columns, linewidth=3)
+plot(strength, "Trend Strength %", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dashed)

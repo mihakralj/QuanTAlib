@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="QuanTAlib" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include mock types -->
+    <Compile Include="Mocks\*.cs" />
+    <!-- Include test files -->
+    <Compile Include="**\*.Tests.cs" />
+    <Compile Include="..\lib\**\*.Quantower.Tests.cs" />
+    <!-- Include core library types -->
+    <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
+    <!-- Include trends implementations -->
+    <Compile Include="..\lib\trends_FIR\**\*.cs" Exclude="..\lib\trends_FIR\**\*.Tests.cs;..\lib\trends_FIR\**\*.Validation.Tests.cs;..\lib\trends_FIR\**\obj\**;..\lib\trends_FIR\**\bin\**" />
+    <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\*.Validation.Tests.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />
+    <!-- Include forecasts implementations -->
+    <Compile Include="..\lib\forecasts\**\*.cs" Exclude="..\lib\forecasts\**\*.Tests.cs;..\lib\forecasts\**\*.Validation.Tests.cs;..\lib\forecasts\**\obj\**;..\lib\forecasts\**\bin\**" />
+    <!-- Include momentum implementations -->
+    <Compile Include="..\lib\momentum\**\*.cs" Exclude="..\lib\momentum\**\*.Tests.cs;..\lib\momentum\**\*.Validation.Tests.cs;..\lib\momentum\**\obj\**;..\lib\momentum\**\bin\**" />
+    <!-- Include volume implementations -->
+    <Compile Include="..\lib\volume\**\*.cs" Exclude="..\lib\volume\**\*.Tests.cs;..\lib\volume\**\*.Validation.Tests.cs;..\lib\volume\**\obj\**;..\lib\volume\**\bin\**" />
+    <!-- Include statistics implementations -->
+    <Compile Include="..\lib\statistics\**\*.cs" Exclude="..\lib\statistics\**\*.Tests.cs;..\lib\statistics\**\*.Validation.Tests.cs;..\lib\statistics\**\obj\**;..\lib\statistics\**\bin\**" />
+    <!-- Include volatility implementations -->
+    <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\*.Validation.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
+    <!-- Include channels implementations -->
+    <Compile Include="..\lib\channels\**\*.cs" Exclude="..\lib\channels\**\*.Tests.cs;..\lib\channels\**\*.Validation.Tests.cs;..\lib\channels\**\obj\**;..\lib\channels\**\bin\**" />
+    <!-- Include dynamics implementations -->
+    <Compile Include="..\lib\dynamics\**\*.cs" Exclude="..\lib\dynamics\**\*.Tests.cs;..\lib\dynamics\**\*.Validation.Tests.cs;..\lib\dynamics\**\obj\**;..\lib\dynamics\**\bin\**" />
+    <!-- Include filters implementations -->
+    <Compile Include="..\lib\filters\**\*.cs" Exclude="..\lib\filters\**\*.Tests.cs;..\lib\filters\**\*.Validation.Tests.cs;..\lib\filters\**\obj\**;..\lib\filters\**\bin\**" />
+    <!-- Include oscillators implementations -->
+    <Compile Include="..\lib\oscillators\**\*.cs" Exclude="..\lib\oscillators\**\*.Tests.cs;..\lib\oscillators\**\*.Validation.Tests.cs;..\lib\oscillators\**\obj\**;..\lib\oscillators\**\bin\**" />
+    <!-- Include cycles implementations -->
+    <Compile Include="..\lib\cycles\**\*.cs" Exclude="..\lib\cycles\**\*.Tests.cs;..\lib\cycles\**\*.Validation.Tests.cs;..\lib\cycles\**\obj\**;..\lib\cycles\**\bin\**" />
+    <!-- Include IndicatorExtensions -->
+    <Compile Include="IndicatorExtensions.cs" />
+    <!-- Include Quantower adapter implementations -->
+    <Compile Include="Momentum\*.cs" Exclude="Momentum\*.Tests.cs" />
+    <Compile Include="Volume\*.cs" Exclude="Volume\*.Tests.cs" />
+    <Compile Include="Statistics\*.cs" Exclude="Statistics\*.Tests.cs" />
+    <Compile Include="Volatility\*.cs" Exclude="Volatility\*.Tests.cs" />
+    <Compile Include="Trends\*.cs" Exclude="Trends\*.Tests.cs" />
+  </ItemGroup>
+
+</Project>

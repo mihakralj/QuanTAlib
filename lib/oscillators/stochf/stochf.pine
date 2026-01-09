@@ -1,0 +1,73 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Stochastic Fast (STOCHF)", "STOCHF", overlay=false)
+
+//@function Calculates the Stochastic Fast oscillator (%K and %D)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/stochf.md
+//@param kLength Period for calculating the raw %K line
+//@param dLength Smoothing period for the %D signal line
+//@returns [%K value, %D value] - fast stochastic oscillator values
+stochf(simple int kLength, simple int dLength) =>
+    if kLength <= 0 or dLength <= 0
+        runtime.error("Both periods must be positive")
+    var array<int> lowestDeque = array.new_int(0)
+    var array<float> lowestBuffer = array.new_float(kLength, na)
+    var array<int> highestDeque = array.new_int(0)
+    var array<float> highestBuffer = array.new_float(kLength, na)
+    var array<float> dBuffer = array.new_float(dLength, na)
+    var int dHead = 0, var float dSum = 0.0, var int dCount = 0
+    int idx = bar_index % kLength
+    lv = nz(low), hv = nz(high), cv = nz(close)
+    array.set(lowestBuffer, idx, lv)
+    array.set(highestBuffer, idx, hv)
+    while array.size(lowestDeque) > 0
+        if array.get(lowestDeque, 0) <= bar_index - kLength
+            array.shift(lowestDeque)
+        else
+            break
+    while array.size(lowestDeque) > 0
+        if array.get(lowestBuffer, array.get(lowestDeque, array.size(lowestDeque) - 1) % kLength) >= lv
+            array.pop(lowestDeque)
+        else
+            break
+    array.push(lowestDeque, bar_index)
+    while array.size(highestDeque) > 0
+        if array.get(highestDeque, 0) <= bar_index - kLength
+            array.shift(highestDeque)
+        else
+            break
+    while array.size(highestDeque) > 0
+        if array.get(highestBuffer, array.get(highestDeque, array.size(highestDeque) - 1) % kLength) <= hv
+            array.pop(highestDeque)
+        else
+            break
+    array.push(highestDeque, bar_index)
+    li = array.get(lowestDeque, 0), hi = array.get(highestDeque, 0)
+    lowestLow = array.get(lowestBuffer, li % kLength)
+    highestHigh = array.get(highestBuffer, hi % kLength)
+    range_val = highestHigh - lowestLow
+    kVal = range_val > 0 ? 100 * (cv - lowestLow) / range_val : 0.0
+    oldest = array.get(dBuffer, dHead)
+    dSum := not na(oldest) ? dSum - oldest : dSum
+    dCount := not na(oldest) ? dCount - 1 : dCount
+    dSum := not na(kVal) ? dSum + kVal : dSum
+    dCount := not na(kVal) ? dCount + 1 : dCount
+    array.set(dBuffer, dHead, kVal)
+    dHead := (dHead + 1) % dLength
+    dVal = dCount > 0 ? dSum / dCount : kVal
+    [kVal, dVal]
+
+// ---------- Main loop ----------
+
+// Inputs
+kLength = input.int(5, "K Length", minval=1, maxval=100, tooltip="Period for calculating the raw %K line")
+dLength = input.int(3, "D Length", minval=1, maxval=50, tooltip="Smoothing period for the %D signal line")
+
+// Calculation
+[kValue, dValue] = stochf(kLength, dLength)
+
+// Plots
+plot(kValue, "Fast %K", color=color.yellow, linewidth=2)
+plot(dValue, "Fast %D", color=color.blue, linewidth=2)
+

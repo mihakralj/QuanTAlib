@@ -1,0 +1,69 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Directional Movement Index (DX)", "DX", overlay=false)
+
+//@function Calculates DX using Wilder's smoothing with compensated RMA
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/dx.md
+//@param period Number of bars used in the calculation
+//@returns tuple of DX value, +DI, -DI
+//@optimized Uses Wilder's smoothing (RMA) with warmup compensation for accurate values from bar 1
+dx(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float alpha = 1.0 / period
+    float beta = 1.0 - alpha
+    float tr = 0.0
+    float plus_dm = 0.0
+    float minus_dm = 0.0
+    if na(close[1])
+        tr := high - low
+    else
+        tr := math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+        float upMove = high - high[1]
+        float downMove = low[1] - low
+        if upMove > downMove and upMove > 0
+            plus_dm := upMove
+        if downMove > upMove and downMove > 0
+            minus_dm := downMove
+    var bool warmup = true
+    var float e = 1.0
+    var float tr_ema = 0.0
+    var float tr_result = tr
+    var float plus_dm_ema = 0.0
+    var float plus_dm_result = plus_dm
+    var float minus_dm_ema = 0.0
+    var float minus_dm_result = minus_dm
+    tr_ema := alpha * (tr - tr_ema) + tr_ema
+    plus_dm_ema := alpha * (plus_dm - plus_dm_ema) + plus_dm_ema
+    minus_dm_ema := alpha * (minus_dm - minus_dm_ema) + minus_dm_ema
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        tr_result := c * tr_ema
+        plus_dm_result := c * plus_dm_ema
+        minus_dm_result := c * minus_dm_ema
+        warmup := e > 1e-10
+    else
+        tr_result := tr_ema
+        plus_dm_result := plus_dm_ema
+        minus_dm_result := minus_dm_ema
+    float plus_di = tr_result != 0.0 ? 100.0 * plus_dm_result / tr_result : 0.0
+    float minus_di = tr_result != 0.0 ? 100.0 * minus_dm_result / tr_result : 0.0
+    float di_sum = plus_di + minus_di
+    float dx_value = di_sum != 0.0 ? 100.0 * math.abs(plus_di - minus_di) / di_sum : 0.0
+    [dx_value, plus_di, minus_di]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculation
+[dx_value, plus_di, minus_di] = dx(i_period)
+
+// Plot
+plot(dx_value, "DX", color=color.yellow, linewidth=2)
+plot(plus_di, "+DI", color=color.green, linewidth=1)
+plot(minus_di, "-DI", color=color.red, linewidth=1)
+hline(25, "Strong Trend Threshold", color=color.gray, linestyle=hline.style_dashed)

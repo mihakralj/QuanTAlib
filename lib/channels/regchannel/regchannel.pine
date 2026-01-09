@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Regression Channels (REGCHANNEL)", "REGCHANNEL", overlay=true)
+
+//@function Calculates Regression Channels with parallel lines equidistant from a central linear regression line
+//@param period Lookback period for regression calculation (period > 1)
+//@param source Source series for regression calculation (usually close)
+//@param multiplier Distance multiplier for channel bands (multiplier > 0)
+//@returns Tuple containing [upper_band, regression_line, lower_band]
+//@optimized Uses linear regression with O(n) complexity per bar
+regchannel(simple int period, series float source = close, simple float multiplier = 2.0) =>
+    if period <= 1
+        runtime.error("Period must be > 1")
+    if multiplier <= 0.0
+        runtime.error("Multiplier must be > 0")
+    float sumX = 0.0
+    float sumY = 0.0
+    float sumXY = 0.0
+    float sumX2 = 0.0
+    for i = 0 to period - 1
+        float x = float(i)
+        float y = source[period - 1 - i]
+        sumX := sumX + x
+        sumY := sumY + y
+        sumXY := sumXY + x * y
+        sumX2 := sumX2 + x * x
+    float n = float(period)
+    float slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
+    float intercept = (sumY - slope * sumX) / n
+    float currentX = float(period - 1)
+    float regression = slope * currentX + intercept
+    float sumResiduals2 = 0.0
+    for i = 0 to period - 1
+        float x = float(i)
+        float y = source[period - 1 - i]
+        float predicted = slope * x + intercept
+        float residual = y - predicted
+        sumResiduals2 := sumResiduals2 + residual * residual
+    float stdDev = math.sqrt(sumResiduals2 / n)
+    float upperBand = regression + multiplier * stdDev
+    float lowerBand = regression - multiplier * stdDev
+    [upperBand, regression, lowerBand]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=2)
+i_source = input.source(close, "Source")
+i_multiplier = input.float(2.0, "Standard Deviation Multiplier", minval=0.1, step=0.1)
+
+// Calculation
+[upperBand, midLine, lowerBand] = regchannel(i_period, i_source, i_multiplier)
+
+// Plot
+p1 = plot(upperBand, "Upper Band", color=color.yellow, linewidth=2)
+p2 = plot(midLine, "Regression Line", color=color.yellow, linewidth=2)
+p3 = plot(lowerBand, "Lower Band", color=color.yellow, linewidth=2)
+fill(p1, p2, color=color.new(color.red, 90), title="Upper Fill")
+fill(p2, p3, color=color.new(color.green, 90), title="Lower Fill")

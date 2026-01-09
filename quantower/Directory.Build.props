@@ -1,0 +1,19 @@
+<Project>
+  <!-- Import parent Directory.Build.props first -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="Exists('$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildThisFileDirectory)../`))')" />
+
+  <!-- Set project-specific intermediate output paths before SDK import -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Averages'">
+    <BaseIntermediateOutputPath>obj\Averages\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Quantower.Tests'">
+    <BaseIntermediateOutputPath>obj\Tests\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <!-- Common settings for all quantower projects -->
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

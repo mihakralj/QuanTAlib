@@ -1,0 +1,79 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Pretty Good Oscillator", "PGO", overlay=false)
+
+//@function Calculate Pretty Good Oscillator (PGO)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/pgo.md
+//@param source Price data to analyze
+//@param period Number of bars for SMA and ATR calculation
+//@returns PGO value normalized by ATR
+pgo(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if period > 5000
+        runtime.error("Period exceeds maximum of 5000")
+    
+    var array<float> sma_buffer = array.new_float(period, na)
+    var int sma_head = 0
+    var float sma_sum = 0.0
+    var int valid_count = 0
+    
+    float oldest = array.get(sma_buffer, sma_head)
+    if not na(oldest)
+        sma_sum -= oldest
+        valid_count -= 1
+    
+    if not na(source)
+        sma_sum += source
+        valid_count += 1
+    
+    array.set(sma_buffer, sma_head, source)
+    sma_head := (sma_head + 1) % period
+    
+    float sma_value = nz(sma_sum / valid_count, source)
+    
+    float prevClose = nz(close[1], close)
+    float tr1 = high - low
+    float tr2 = math.abs(high - prevClose)
+    float tr3 = math.abs(low - prevClose)
+    float tr = math.max(tr1, math.max(tr2, tr3))
+    
+    float a = 1.0 / float(period)
+    float beta = 1.0 - a
+    var bool warmup = true
+    var float e = 1.0
+    var float ema = 0.0
+    var float atr = nz(tr)
+    
+    ema := a * (nz(tr) - ema) + ema
+    
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        atr := c * ema
+        warmup := e > 1e-10
+    else
+        atr := ema
+    
+    float pgo_value = atr > 0 ? (source - sma_value) / atr : na
+    
+    pgo_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, maxval=500, tooltip="Number of bars for SMA and ATR calculation")
+i_source = input.source(close, "Source")
+
+// Calculation
+result = pgo(i_source, i_period)
+
+// Plot
+plot(result, "PGO", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_solid)
+hline(3, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(-3, "Oversold", color=color.green, linestyle=hline.style_dashed)
+
+// Background coloring for extreme zones
+bgcolor(not na(result) and result > 3 ? color.new(color.red, 85) : not na(result) and result < -3 ? color.new(color.green, 85) : na)

@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Holt-Winters Moving Average (HWMA)", "HWMA", overlay=true)
+
+//@function Calculates HWMA using triple exponential smoothing with level, velocity, and acceleration components
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/hwma.md
+//@param source Series to calculate HWMA from
+//@param alpha Level smoothing factor
+//@param beta Velocity smoothing factor
+//@param gamma Acceleration smoothing factor
+//@param period When used, calculate alpha/beta/gamma from period
+//@returns HWMA value from first bar with proper compensation
+//@optimized Uses triple exponential smoothing with O(1) complexity per bar
+hwma(series float source, float alpha=0.0, float beta=0.0, float gamma=0.0, simple int period=0) =>
+    float a = period > 0 ? 2.0 / (float(period) + 1.0) : alpha
+    float b = period > 0 ? 1.0 / float(period) : beta
+    float g = period > 0 ? 1.0 / float(period) : gamma
+    var float F = na
+    var float V = 0.0
+    var float A = 0.0
+    if na(source)
+        if na(F)
+            na
+        else
+            float prevF = F
+            float prevV = V
+            float prevA = A
+            F := prevF + prevV + 0.5 * prevA
+            V := prevV + prevA
+            A := 0.9 * prevA
+            F
+    else
+        if na(F)
+            F := source
+            F
+        else
+            float prevF = F
+            float prevV = V
+            float prevA = A
+            F := a * source + (1.0 - a) * (prevF + prevV + 0.5 * prevA)
+            V := b * (F - prevF) + (1.0 - b) * (prevV + prevA)
+            A := g * (V - prevV) + (1.0 - g) * prevA
+            F + V + 0.5 * A
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+hwma_value = hwma(i_source, period=i_period)
+
+// Plot
+plot(hwma_value, "HWMA", color=color.yellow, linewidth=2)

@@ -1,0 +1,40 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Kalman Filter (KALMAN)", "KALMAN", overlay=true)
+
+//@function Applies a Kalman Filter to the input series
+//@param src Input series (measurement)
+//@param q Process noise covariance
+//@param r Measurement noise covariance
+//@returns Filtered series
+//@optimized Uses Kalman filter with O(1) complexity per bar
+kalman(series float src, simple float q, simple float r) =>
+    if q <= 0.0 or r <= 0.0
+        runtime.error("Process noise covariance (q) and measurement noise covariance (r) must be positive")
+    var float x = na
+    var float p = na
+    float measurement = nz(src, 0.0)
+    if bar_index == 0 or na(x)
+        x := measurement
+        p := 1.0
+    float x_pred = x
+    float p_pred = p + q
+    float denom = p_pred + r
+    float k_gain = denom == 0.0 ? 0.0 : p_pred / denom
+    x := x_pred + k_gain * (measurement - x_pred)
+    p := (1.0 - k_gain) * p_pred
+    x
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_q = input.float(0.01, "Process Noise (Q)", minval=1e-9, step=0.01)
+i_r = input.float(0.1, "Measurement Noise (R)", minval=1e-9, step=0.1)
+
+// Calculation
+kf_val = kalman(i_source, i_q, i_r)
+
+// Plot
+plot(kf_val, "KF", color=color.yellow, linewidth=2)

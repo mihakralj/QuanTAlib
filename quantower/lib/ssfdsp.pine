@@ -1,0 +1,64 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("SSF-Based Detrended Synthetic Price", "SSF-DSP", overlay=false)
+
+//@function Calculates SSF-based Detrended Synthetic Price using dual Super Smooth Filters
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/ssfdsp.md
+//@param source Series to detrend
+//@param period Dominant cycle period for quarter/half-cycle SSF calculation
+//@returns Detrended synthetic price (difference between quarter-cycle and half-cycle SSFs)
+ssfdsp(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int fast_period = math.max(2, int(math.round(period / 4.0)))
+    int slow_period = math.max(3, int(math.round(period / 2.0)))
+    float SQRT2_PI = math.sqrt(2.0) * math.pi
+    float arg_fast = SQRT2_PI / float(fast_period)
+    float exp_fast = math.exp(-arg_fast)
+    float c2_fast = 2.0 * exp_fast * math.cos(arg_fast)
+    float c3_fast = -exp_fast * exp_fast
+    float c1_fast = 1.0 - c2_fast - c3_fast
+    float arg_slow = SQRT2_PI / float(slow_period)
+    float exp_slow = math.exp(-arg_slow)
+    float c2_slow = 2.0 * exp_slow * math.cos(arg_slow)
+    float c3_slow = -exp_slow * exp_slow
+    float c1_slow = 1.0 - c2_slow - c3_slow
+    var float ssf_fast_1 = 0.0
+    var float ssf_fast_2 = 0.0
+    var int prev_fast_period = 0
+    var float ssf_slow_1 = 0.0
+    var float ssf_slow_2 = 0.0
+    var int prev_slow_period = 0
+    float current = nz(source)
+    float src_1 = nz(source[1], current)
+    float input = (current + src_1) * 0.5
+    if prev_fast_period != fast_period
+        ssf_fast_1 := input
+        ssf_fast_2 := input
+        prev_fast_period := fast_period
+    if prev_slow_period != slow_period
+        ssf_slow_1 := input
+        ssf_slow_2 := input
+        prev_slow_period := slow_period
+    float ssf_fast = c1_fast * input + c2_fast * ssf_fast_1 + c3_fast * ssf_fast_2
+    ssf_fast_2 := ssf_fast_1
+    ssf_fast_1 := ssf_fast
+    float ssf_slow = c1_slow * input + c2_slow * ssf_slow_1 + c3_slow * ssf_slow_2
+    ssf_slow_2 := ssf_slow_1
+    ssf_slow_1 := ssf_slow
+    ssf_fast - ssf_slow
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(hlc3, "Source")
+i_period = input.int(40, "Dominant Cycle Period", minval=4, maxval=200, 
+  tooltip="Dominant cycle period. Quarter-cycle and half-cycle SSFs calculated from this value.")
+
+// Calculation
+ssfdsp_val = ssfdsp(i_source, i_period)
+
+// Plot
+plot(ssfdsp_val, "SSF-DSP", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_solid)

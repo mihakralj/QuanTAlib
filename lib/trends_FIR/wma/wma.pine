@@ -1,0 +1,52 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Weighted Moving Average (WMA)", "WMA", overlay=true)
+
+//@function Calculates WMA using circular buffer with O(1) complexity
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/wma.md
+//@param source Series to calculate WMA from
+//@param period Lookback period - FIR window size
+//@returns WMA value, calculates from first bar using available data
+//@optimized Uses dual running sums with cached denominator for O(1) complexity per bar
+wma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    var float sum = 0.0
+    var float weighted_sum = 0.0
+    var int count = 0
+    var float norm = 0.0
+    
+    float oldest = array.get(buffer, head)
+    float current = nz(source)
+    
+    if not na(oldest)
+        float old_sum = sum
+        sum -= oldest
+        sum += current
+        weighted_sum := weighted_sum - old_sum + (period * current)
+    else
+        count += 1
+        sum += current
+        weighted_sum := weighted_sum + (count * current)
+        norm := count * (count + 1) * 0.5
+    
+    array.set(buffer, head, current)
+    head := (head + 1) % period
+    
+    weighted_sum / norm
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+wma_value = wma(i_source, i_period)
+
+// Plot
+plot(wma_value, "WMA", color=color.yellow, linewidth=2)

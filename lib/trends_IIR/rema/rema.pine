@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Regularized EMA (REMA)", "REMA", overlay=true)
+
+//@function Calculates REMA using exponential smoothing with regularization term
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/rema.md
+//@param source Series to calculate REMA from
+//@param period Lookback period used to determine alpha value
+//@param lambda Regularization parameter (0-1) controlling smoothness
+//@returns REMA value, calculates from first bar using available data
+//@optimized Uses regularization term to reduce noise for O(1) complexity
+rema(series float source, simple int period, simple float lambda=0.5) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if lambda < 0.0 or lambda > 1.0
+        runtime.error("Lambda must be between 0 and 1")
+    float alpha = 2.0 / (period + 1.0)
+    var float rema_val = na
+    var float prev_rema = na
+    float result = na
+    if not na(source)
+        if na(rema_val)
+            rema_val := source
+            prev_rema := source
+            result := rema_val
+        else
+            prev_rema := rema_val
+            float ema_component = alpha * (source - rema_val) + rema_val
+            float reg_component = rema_val + (rema_val - prev_rema)
+            rema_val := lambda * (ema_component - reg_component) + reg_component
+            result := rema_val
+    else
+        result := rema_val
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_lambda = input.float(0.5, "Lambda", minval=0.0, maxval=1.0, step=0.1, tooltip="Regularization parameter: 0 = maximum regularization, 1 = standard EMA")
+i_source = input.source(close, "Source")
+
+// Calculation
+rema_value = rema(i_source, i_period, i_lambda)
+
+// Plot
+plot(rema_value, "REMA", color=color.yellow, linewidth=2)

@@ -1,0 +1,534 @@
+name: Release Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_publish:
+        description: 'Skip publishing (analysis only)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+env:
+  DOTNET_VERSION: '10.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ============================================================================
+  # Stage 1: Build, Test, Coverage, Roslyn SARIF (single source of truth)
+  # ============================================================================
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.gitversion.outputs.MajorMinorPatch }}
+      semver: ${{ steps.gitversion.outputs.SemVer }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.x'
+          includePrerelease: true
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.2.0
+
+      - name: Restore
+        run: dotnet restore
+
+      # Build with Roslyn analyzers emitting SARIF
+      - name: Build with SARIF
+        run: |
+          mkdir -p sarif
+          dotnet build --no-restore --configuration Release \
+            /p:RunAnalyzers=true \
+            /p:ReportAnalyzer=true \
+            /p:ErrorLog=sarif/roslyn.sarif
+
+      - name: Install dotCover CLI
+        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
+
+      - name: Test with Coverage (OpenCover/Cobertura for SonarCloud/Codacy)
+        run: |
+          dotnet test --no-build --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
+
+      - name: Test with dotCover (for Qodana)
+        run: |
+          dotnet dotcover test --no-build --configuration Release \
+            --dcReportType=DetailedXML \
+            --dcOutput=./TestResults/dotcover.xml
+
+      - name: Consolidate Coverage
+        run: |
+          mkdir -p coverage
+          mkdir -p coverage-dotcover
+          # OpenCover/Cobertura for SonarCloud and Codacy
+          find TestResults -name "coverage.opencover.xml" -exec cp {} coverage/ \;
+          find TestResults -name "coverage.cobertura.xml" -exec cp {} coverage/ \;
+          # dotCover for Qodana
+          if [ -f "TestResults/dotcover.xml" ]; then
+            cp TestResults/dotcover.xml coverage-dotcover/
+          fi
+          echo "=== OpenCover/Cobertura Coverage ==="
+          ls -la coverage/
+          echo "=== dotCover Coverage ==="
+          ls -la coverage-dotcover/
+
+      # Upload reusable artifacts
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            lib/bin/Release/
+            quantower/bin/Release/
+          retention-days: 1
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 1
+
+      - name: Upload dotCover Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-dotcover
+          path: coverage-dotcover/
+          retention-days: 1
+
+      - name: Upload Roslyn SARIF
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-roslyn
+          path: sarif/
+          retention-days: 1
+
+  # ============================================================================
+  # Stage 2: Parallel Analysis Jobs
+  # ============================================================================
+
+  sonar:
+    name: SonarCloud
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: zulu
+
+      - name: Download Coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner --version 9.0.0
+
+      - name: SonarCloud Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "::error::SONAR_TOKEN not set"
+            exit 1
+          fi
+
+          dotnet restore
+
+          dotnet sonarscanner begin \
+            /k:mihakralj_QuanTAlib \
+            /o:mihakralj-quantalib \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.opencover.xml" \
+            /d:sonar.coverage.exclusions="**Tests.cs,**/docs/**,**/obj/**,**/bin/**" \
+            /d:sonar.exclusions="**/TestResults/**,**/bin/**,**/obj/**,**/docs/**"
+
+          dotnet build --no-restore --configuration Release
+
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+  qodana:
+    name: Qodana
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download dotCover Coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-dotcover
+          path: .qodana/code-coverage
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2025.3
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/code-coverage
+
+      - name: Upload Qodana SARIF
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-qodana
+          path: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+          retention-days: 1
+
+  codeql:
+    name: CodeQL
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: csharp
+          queries: security-and-quality
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: Build for CodeQL
+        run: dotnet build --configuration Release
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: codeql
+          output: sarif-results
+          upload: always
+
+      - name: Upload CodeQL SARIF
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-codeql
+          path: sarif-results/
+          retention-days: 1
+
+  snyk:
+    name: Snyk
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Snyk Test (SARIF)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test --all-projects --sarif-file-output=snyk.sarif || true
+
+      - name: Upload Snyk SARIF
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-snyk
+          path: snyk.sarif
+          retention-days: 1
+
+  # ============================================================================
+  # Stage 3: Consolidate SARIF & Upload to GitHub Code Scanning
+  # ============================================================================
+  upload-sarif:
+    name: Upload SARIF to GitHub
+    needs: [build, qodana, codeql, snyk]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Roslyn SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-roslyn
+          path: sarif/roslyn
+
+      - name: Download Qodana SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-qodana
+          path: sarif/qodana
+        continue-on-error: true
+
+      - name: Download Snyk SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-snyk
+          path: sarif/snyk
+        continue-on-error: true
+
+      - name: List SARIF Files
+        run: find sarif -name "*.sarif*" -type f
+
+      # Upload Roslyn SARIF
+      - name: Upload Roslyn to Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif/roslyn/
+          category: roslyn
+        continue-on-error: true
+
+      # Upload Qodana SARIF
+      - name: Upload Qodana to Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif/qodana/
+          category: qodana
+        continue-on-error: true
+
+      # Upload Snyk SARIF
+      - name: Upload Snyk to Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif/snyk/
+          category: snyk
+        continue-on-error: true
+
+  # ============================================================================
+  # Stage 4: Upload to Codacy (coverage + SARIF)
+  # ============================================================================
+  codacy:
+    name: Codacy Upload
+    needs: [build, qodana]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Download Roslyn SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-roslyn
+          path: sarif/roslyn
+
+      - name: Download Qodana SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-qodana
+          path: sarif/qodana
+        continue-on-error: true
+
+      - name: Upload Coverage to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "::warning::CODACY_PROJECT_TOKEN not set, skipping"
+            exit 0
+          fi
+
+          curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
+          chmod +x codacy.sh
+
+          for f in coverage/*.cobertura.xml; do
+            [ -f "$f" ] && ./codacy.sh report -r "$f" --partial
+          done
+          ./codacy.sh final
+
+      - name: Upload SARIF to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "::warning::CODACY_PROJECT_TOKEN not set, skipping"
+            exit 0
+          fi
+
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-cli
+          chmod +x codacy-cli
+
+          # Roslyn
+          for f in sarif/roslyn/*.sarif; do
+            [ -f "$f" ] && ./codacy-cli upload-results \
+              --provider gh --owner mihakralj --repository QuanTAlib \
+              --commit ${{ github.sha }} --tool roslyn --results-file "$f"
+          done
+
+          # Qodana
+          for f in sarif/qodana/*.sarif*; do
+            [ -f "$f" ] && ./codacy-cli upload-results \
+              --provider gh --owner mihakralj --repository QuanTAlib \
+              --commit ${{ github.sha }} --tool qodana --results-file "$f"
+          done
+        continue-on-error: true
+
+  # ============================================================================
+  # Stage 5: Publish (only if all gates pass)
+  # ============================================================================
+  publish:
+    name: Publish Package
+    needs: [build, sonar, qodana, codeql, snyk, upload-sarif, codacy]
+    if: ${{ !inputs.skip_publish }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: artifacts
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.x'
+          includePrerelease: true
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.2.0
+
+      - name: Build Package
+        run: |
+          dotnet restore
+          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
+          dotnet build ./quantower/Momentum.csproj --configuration Release --nologo
+          dotnet build ./quantower/Trends.csproj --configuration Release --nologo
+          dotnet build ./quantower/Volume.csproj --configuration Release --nologo
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
+            --title "v${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            --generate-notes \
+            lib/bin/Release/net10.0/QuanTAlib.dll \
+            quantower/bin/Release/Momentum.dll \
+            quantower/bin/Release/Trends.dll \
+            quantower/bin/Release/Volume.dll
+
+      - name: Push to NuGet
+        if: github.ref == 'refs/heads/main'
+        run: |
+          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate \
+            --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+
+      - name: Create Dev Release
+        if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete development --yes 2>/dev/null || true
+          gh release create development \
+            --title "Development Build" \
+            --notes "Dev build from ${{ github.sha }}" \
+            --prerelease \
+            lib/bin/Release/net10.0/QuanTAlib.dll \
+            quantower/bin/Release/Momentum.dll \
+            quantower/bin/Release/Trends.dll \
+            quantower/bin/Release/Volume.dll
+
+      - name: Push to MyGet
+        if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
+        run: |
+          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+            --source https://www.myget.org/F/quantalib/api/v3/index.json \
+            --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
+        continue-on-error: true

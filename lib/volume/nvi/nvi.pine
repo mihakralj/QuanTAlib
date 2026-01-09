@@ -1,0 +1,27 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Negative Volume Index (NVI)", "NVI", overlay=false)
+
+//@function Calculates Negative Volume Index, tracks price changes on days with lower volume
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/nvi.md
+//@param src Price series to use for calculation
+//@param vol Volume series
+//@param start_value Starting value for NVI (typically 100 or 1000)
+//@returns float The NVI value
+nvi(series float src, series float vol = volume, simple float start_value = 100.0) =>
+    var float nvi_value = start_value
+    if not (na(src) or na(vol) or na(src[1]) or na(vol[1]) or src[1] == 0.0 or vol[1] <= 0.0) and vol < vol[1]
+        nvi_value := nvi_value * src / src[1]
+    nvi_value
+
+// ---------- Main Calculation ----------
+
+// Parameters
+src = input.source(close, "Price Source")
+
+// Calculations
+nvi_line = nvi(src, volume)
+
+// Plot
+plot(nvi_line, "NVI", color=color.yellow, linewidth=2)

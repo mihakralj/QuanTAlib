@@ -1,0 +1,86 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Percentage Price Oscillator (PPO)", "PPO", overlay=false)
+
+//@function Calculates Percentage Price Oscillator using compensated EMAs
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/ppo.md
+//@param src Source series to calculate PPO for
+//@param fast_len Fast EMA period
+//@param slow_len Slow EMA period
+//@param signal_len Signal line period
+//@returns Tuple containing PPO line and signal line values
+ppo(series float src, simple int fast_len, simple int slow_len, simple int signal_len)=>
+    if fast_len<=0 or slow_len<=0 or signal_len<=0
+        runtime.error("Lengths must be greater than 0")
+    if fast_len>=slow_len
+        runtime.error("Fast length must be less than slow length")
+    float alpha_fast = 2.0/math.max(fast_len,1)
+    var float fast_ema = na, var float fast_result = na
+    var float fast_e = 1.0, var bool fast_warmup = true
+    float alpha_slow = 2.0/math.max(slow_len,1)
+    var float slow_ema = na, var float slow_result = na
+    var float slow_e = 1.0, var bool slow_warmup = true
+    float alpha_signal = 2.0/math.max(signal_len,1)
+    var float signal_ema = na, var float signal_result = na
+    var float signal_e = 1.0, var bool signal_warmup = true
+    if not na(src)
+        if na(fast_ema)
+            fast_ema := 0.0
+            fast_result := src
+        else
+            fast_ema := alpha_fast*(src-fast_ema)+fast_ema
+            if fast_warmup
+                fast_e *= (1-alpha_fast)
+                float fast_c = 1.0/(1.0-fast_e)
+                fast_result := fast_c*fast_ema
+                if fast_e<=1e-10
+                    fast_warmup := false
+            else
+                fast_result := fast_ema
+        if na(slow_ema)
+            slow_ema := 0.0
+            slow_result := src
+        else
+            slow_ema := alpha_slow*(src-slow_ema)+slow_ema
+            if slow_warmup
+                slow_e *= (1-alpha_slow)
+                float slow_c = 1.0/(1.0-slow_e)
+                slow_result := slow_c*slow_ema
+                if slow_e<=1e-10
+                    slow_warmup := false
+            else
+                slow_result := slow_ema
+    float ppo_line = 100 * (fast_result - slow_result) / slow_result
+    if not na(ppo_line)
+        if na(signal_ema)
+            signal_ema := 0.0
+            signal_result := ppo_line
+        else
+            signal_ema := alpha_signal*(ppo_line-signal_ema)+signal_ema
+            if signal_warmup
+                signal_e *= (1-alpha_signal)
+                float signal_c = 1.0/(1.0-signal_e)
+                signal_result := signal_c*signal_ema
+                if signal_e<=1e-10
+                    signal_warmup := false
+            else
+                signal_result := signal_ema
+    float hist = ppo_line - signal_result
+    [ppo_line, signal_result, hist]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_fast_len = input.int(12, "Fast Length", minval=1)
+i_slow_len = input.int(26, "Slow Length", minval=1)
+i_signal_len = input.int(9, "Signal Length", minval=1)
+
+// Calculation
+[ppo_line, signal_line, hist] = ppo(i_source, i_fast_len, i_slow_len, i_signal_len)
+
+// Plot
+plot(ppo_line, "PPO", color=color.blue, linewidth=2)
+plot(signal_line, "Signal", color=color.red, linewidth=2)
+plot(hist, "Histogram", color.gray, style=plot.style_histogram)

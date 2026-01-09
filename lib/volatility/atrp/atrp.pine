@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Average True Range Percent (ATRP)", "ATRP", overlay=false, format=format.percent, precision=2)
+
+//@function Calculates the Average True Range Percent (ATRP)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/atrp.md
+//@param length The period length for the ATR calculation.
+//@returns The ATRP value.
+//@optimized Beta precomputation for RMA warmup compensation
+atrp(simple int length) =>
+    if length <= 0
+        runtime.error("Period must be greater than 0")
+    var float prevClose = close
+    float tr1 = high - low
+    float tr2 = math.abs(high - prevClose)
+    float tr3 = math.abs(low - prevClose)
+    float trueRange = math.max(tr1, tr2, tr3)
+    prevClose := close
+    float alpha = 1.0 / float(length)
+    float beta = 1.0 - alpha
+    var float EPSILON = 1e-10
+    var float raw_rma = 0.0
+    var float e = 1.0
+    float atr = na
+    if not na(trueRange)
+        raw_rma := (raw_rma * (length - 1) + trueRange) / length
+        e *= beta
+        atr := e > EPSILON ? raw_rma / (1.0 - e) : raw_rma
+    close != 0.0 ? atr / close * 100 : na
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1, tooltip="Number of bars used for the ATR calculation")
+
+// Calculation
+atrpValue = atrp(i_length)
+
+// Plot
+plot(atrpValue, "ATRP", color=color.yellow, linewidth=2)

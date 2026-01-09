@@ -1,0 +1,77 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Decay Min-Max Channel (DECAYCHANNEL)", "DECAYCHANNEL", overlay=true)
+
+//@function Calculates the Decaying Min-Max Channel with decay towards midpoint
+//@param period Lookback period (period > 0)
+//@param hi Source series for the highest high calculation (usually high)
+//@param lo Source series for the lowest low calculation (usually low)
+//@returns Tuple containing [decaying_highest_high, decaying_lowest_low]
+//@optimized Uses exponential decay with O(n) complexity per bar
+decaychannel(simple int period, series float hi = high, series float lo = low) =>
+    if period <= 0
+        runtime.error("Period must be > 0")
+    float decayLambda = math.log(2.0) / period
+    var float[] hbuf = array.new_float(period, na)
+    var float[] lbuf = array.new_float(period, na)
+    var float currentMax = na
+    var float currentMin = na
+    var int timeSinceNewMax = 0
+    var int timeSinceNewMin = 0
+    int idx = bar_index % period
+    array.set(hbuf, idx, hi)
+    array.set(lbuf, idx, lo)
+    float periodMax = na
+    float periodMin = na
+    float periodSum = 0.0
+    int validCount = 0
+    for i = 0 to period - 1
+        float hVal = array.get(hbuf, i)
+        float lVal = array.get(lbuf, i)
+        if not na(hVal) and not na(lVal)
+            periodMax := na(periodMax) ? hVal : math.max(periodMax, hVal)
+            periodMin := na(periodMin) ? lVal : math.min(periodMin, lVal)
+            periodSum := periodSum + (hVal + lVal) / 2.0
+            validCount := validCount + 1
+    float periodAverage = validCount > 0 ? periodSum / validCount : (hi + lo) / 2.0
+    if na(currentMax) or na(currentMin)
+        currentMax := na(periodMax) ? hi : periodMax
+        currentMin := na(periodMin) ? lo : periodMin
+        timeSinceNewMax := 0
+        timeSinceNewMin := 0
+    else
+        if hi >= currentMax
+            currentMax := hi
+            timeSinceNewMax := 0
+        else
+            timeSinceNewMax := timeSinceNewMax + 1
+        if lo <= currentMin
+            currentMin := lo
+            timeSinceNewMin := 0
+        else
+            timeSinceNewMin := timeSinceNewMin + 1
+        if validCount > 0
+            float midpoint = (currentMax + currentMin) / 2.0
+            float maxDecayRate = 1 - math.exp(-decayLambda * timeSinceNewMax)
+            float minDecayRate = 1 - math.exp(-decayLambda * timeSinceNewMin)
+            currentMax := currentMax - maxDecayRate * (currentMax - midpoint)
+            currentMin := currentMin - minDecayRate * (currentMin - midpoint)
+            if not na(periodMax)
+                currentMax := math.min(currentMax, periodMax)
+            if not na(periodMin)
+                currentMin := math.max(currentMin, periodMin)
+    [currentMax, currentMin]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(100, "Period", minval=1)
+
+// Calculation
+[highest, lowest] = decaychannel(i_period)
+
+// Plot
+p1 = plot(highest, "Decaying High", color=color.yellow, linewidth=2)
+p2 = plot(lowest, "Decaying Low", color=color.yellow, linewidth=2)
+fill(p1, p2, color=color.new(color.blue, 90), title="Channel Fill")

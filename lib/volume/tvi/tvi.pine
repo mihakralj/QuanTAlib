@@ -1,0 +1,33 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Trade Volume Index (TVI)", "TVI", overlay=false)
+
+//@function Calculates Trade Volume Index
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/tvi.md
+//@param price Price series for tick direction analysis
+//@param vol Volume series for weighting
+//@param min_tick Minimum price movement to register direction change
+//@returns Trade Volume Index value
+//@optimized for performance and dirty data
+tvi(series float price, simple float min_tick, series float vol=volume) =>
+    float p = nz(price, close), float v = nz(vol, 0.0)
+    float pp = nz(p[1], p)
+    float price_change = p - pp
+    var int direction = 1
+    var float tvi_sum = 0.0
+    direction := price_change > min_tick ? 1 : price_change < -min_tick ? 0 : direction
+    tvi_sum += direction == 1 ? v : -v
+    tvi_sum
+
+// ---------- Main loop ----------
+
+// Inputs
+i_price_source = input.source(close, "Price Field", tooltip="Open, High, Low or Closing price")
+i_min_tick = input.float(0.125, "Min. Move", minval=0.0001, tooltip="Minimum price change to register direction")
+
+// Calculation
+tvi_value = tvi(i_price_source, i_min_tick)
+
+// Plot
+plot(tvi_value, "TVI", color=color.yellow, linewidth=2)

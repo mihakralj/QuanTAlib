@@ -1,0 +1,13 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'QuanTAlib.Tests'">
+    <BaseIntermediateOutputPath>obj\tests\</BaseIntermediateOutputPath>
+    <BaseOutputPath>bin\tests\</BaseOutputPath>
+    <OutputPath>bin\tests\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+</Project>

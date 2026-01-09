@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Pivot Points (DeMark)", "PIVOTDEM", overlay=true)
+
+//@function Calculates DeMark pivot points with conditional open/close logic
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/pivotdem.md
+//@param tf Timeframe for pivot calculation ("D", "W", "M")
+//@returns Tuple [pp, r1, s1] with pivot levels (only 3 levels)
+//@references Tom DeMark, conditional pivot formula
+pivotdem(simple string tf) =>
+    [hi, lo, op, cl] = request.security(syminfo.tickerid, tf, [high[1], low[1], open[1], close[1]], lookahead=barmerge.lookahead_on)
+    if na(hi) or na(lo) or na(op) or na(cl)
+        [na, na, na]
+    else
+        float x = 0.0
+        if cl < op
+            x := hi + 2.0 * lo + cl
+        else if cl > op
+            x := 2.0 * hi + lo + cl
+        else
+            x := hi + lo + 2.0 * cl
+        float pp = x / 4.0
+        float r1 = x / 2.0 - lo
+        float s1 = x / 2.0 - hi
+        [pp, r1, s1]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_timeframe = input.timeframe("D", "Pivot Timeframe", options=["D", "W", "M"])
+i_show_pp = input.bool(true, "Show Pivot Point")
+i_show_r1 = input.bool(true, "Show R1")
+i_show_s1 = input.bool(true, "Show S1")
+i_color_pp = input.color(color.yellow, "PP Color")
+i_color_r = input.color(color.red, "Resistance Color")
+i_color_s = input.color(color.green, "Support Color")
+
+// Calculation
+[pp, r1, s1] = pivotdem(i_timeframe)
+
+// Plot
+plot(i_show_pp ? pp : na, "PP", color=i_color_pp, linewidth=2, style=plot.style_stepline)
+plot(i_show_r1 ? r1 : na, "R1", color=i_color_r, linewidth=1, style=plot.style_stepline)
+plot(i_show_s1 ? s1 : na, "S1", color=i_color_s, linewidth=1, style=plot.style_stepline)

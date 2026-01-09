@@ -1,0 +1,78 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Parabolic SAR", "PSAR", overlay=true)
+
+//@function Calculates Parabolic Stop And Reverse (SAR)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/reversals/psar.md
+//@param af_start Initial acceleration factor (Wilder's original: 0.02)
+//@param af_increment Acceleration factor increment per new extreme (Wilder's original: 0.02)
+//@param af_max Maximum acceleration factor (Wilder's original: 0.20)
+//@returns SAR value (stop level for current trend)
+//@optimized Minimal state variables, O(1) per bar
+psar(simple float af_start=0.02, simple float af_increment=0.02, simple float af_max=0.20) =>
+    if af_start <= 0 or af_start > af_max
+        runtime.error("Start AF must be > 0 and <= Max AF")
+    if af_increment <= 0
+        runtime.error("AF increment must be > 0")
+    if af_max <= af_start
+        runtime.error("Max AF must be > Start AF")
+    var bool is_long = true
+    var float sar = low
+    var float ep = high
+    var float af = af_start
+    if bar_index == 0
+        is_long := close > open
+        sar := is_long ? low : high
+        ep := is_long ? high : low
+        af := af_start
+    else
+        float new_sar = sar + af * (ep - sar)
+        bool reverse = false
+        if is_long
+            new_sar := math.min(new_sar, low[1])
+            if bar_index > 1
+                new_sar := math.min(new_sar, low[2])
+            if low < new_sar
+                reverse := true
+                is_long := false
+                new_sar := ep
+                ep := low
+                af := af_start
+            else
+                if high > ep
+                    ep := high
+                    af := math.min(af + af_increment, af_max)
+        else
+            new_sar := math.max(new_sar, high[1])
+            if bar_index > 1
+                new_sar := math.max(new_sar, high[2])
+            if high > new_sar
+                reverse := true
+                is_long := true
+                new_sar := ep
+                ep := high
+                af := af_start
+            else
+                if low < ep
+                    ep := low
+                    af := math.min(af + af_increment, af_max)
+        sar := new_sar
+    sar
+
+// ---------- Main loop ----------
+
+// Inputs
+i_af_start = input.float(0.02, "Start AF", minval=0.001, maxval=1.0, step=0.001)
+i_af_increment = input.float(0.02, "AF Increment", minval=0.001, maxval=1.0, step=0.001)
+i_af_max = input.float(0.20, "Max AF", minval=0.001, maxval=1.0, step=0.01)
+
+// Calculation
+psar = psar(i_af_start, i_af_increment, i_af_max)
+psar_above = psar > close ? psar : na
+psar_below = psar < close ? psar : na
+
+// Plot
+plot(psar_above, "PSAR Above", color=color.red,   style=plot.style_linebr, linewidth=2)
+plot(psar_below, "PSAR Below", color=color.green, style=plot.style_linebr, linewidth=2)
+

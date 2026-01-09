@@ -1,0 +1,36 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Hodrick-Prescott Filter (HP)", "HP", overlay=false)
+
+//@function Calculates a causal approximation of the Hodrick-Prescott Filter trend component
+//@param src Input series
+//@param lambda Smoothing parameter (lambda)
+//@returns HP Filter trend component series
+//@optimized Uses causal HP approximation with O(1) complexity per bar
+hp(series float src, simple float lambda) =>
+    if lambda <= 0.0
+        runtime.error("Lambda must be positive")
+    float alpha = (math.sqrt(lambda) * 0.5 - 1.0) / (math.sqrt(lambda) * 0.5 + 1.0)
+    alpha := math.max(alpha, 0.0001)
+    alpha := math.min(alpha, 0.9999)
+    float price = nz(src, 0.0)
+    var float hp_trend = na
+    float prev_trend = nz(hp_trend[1], price)
+    float prev_price = nz(src[1], price)
+    hp_trend := bar_index >= 1 ? (1.0 - alpha) * price + alpha * prev_trend + 0.5 * alpha * (prev_trend - nz(hp_trend[2], prev_trend)) : price
+    hp_trend
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_lambda = input.float(677.0, "Lambda (Smoothing)", minval=0.1, step=10.0)
+
+// Calculation
+hp_trend_val = hp(i_source, i_lambda)
+hp_cycle_val = i_source - hp_trend_val
+
+// Plot
+plot(hp_trend_val, "HP Trend", color=color.yellow, linewidth=2, force_overlay=true)
+plot(hp_cycle_val, "HP Cycle", color=color.blue, linewidth=2, force_overlay=false)

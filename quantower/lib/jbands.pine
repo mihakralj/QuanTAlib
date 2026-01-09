@@ -1,0 +1,51 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Jurik Volatility Bands (JBANDS)", "JBANDS", overlay=true)
+
+//@function Calculates JBANDS using adaptive techniques to adjust width to market volatility
+//@param source Series to calculate Jvolty from
+//@param period Number of bars used in the calculation
+//@returns JBANDS volatility bands
+//@optimized Uses adaptive volatility weighting with O(1) complexity per bar
+jbands(series float source, simple int period) =>
+    var simple float LEN1 = math.max((math.log(math.sqrt(0.5 * (period - 1))) / math.log(2.0)) + 2.0, 0.0)
+    var simple float POW1 = math.max(LEN1 - 2.0, 0.5)
+    var simple float LEN2 = math.sqrt(0.5 * (period - 1)) * LEN1
+    var simple float AVG_VOLTY_ALPHA = 2.0 / (math.max(4.0 * period, 65.0) + 1.0)
+    var simple float DIV = 1.0 / (10.0 + 10.0 * (math.min(math.max(period - 10, 0), 100) / 100.0))
+    var float upperBand = nz(source)
+    var float lowerBand = nz(source)
+    var float vSum = 0.0
+    var float avgVolty = 0.0
+    if na(source)
+        na
+    else
+        float del1 = (low + high) * 0.5 - upperBand
+        float del2 = (low + high) * 0.5 - lowerBand
+        float volty = math.max(math.abs(del1), math.abs(del2))
+        float past_volty = na(volty[10]) ? 0.0 : volty[10]
+        vSum := vSum + (volty - past_volty) * DIV
+        avgVolty := na(avgVolty) ? vSum : avgVolty + AVG_VOLTY_ALPHA * (vSum - avgVolty)
+        float rvolty = 1.0
+        if avgVolty > 0.0
+            rvolty := volty / avgVolty
+            rvolty := math.min(math.max(rvolty, 1.0), math.pow(LEN1, 1.0 / POW1))
+        float Kv = math.pow(LEN2 / (LEN2 + 1.0), math.sqrt(math.pow(rvolty, POW1)))
+        upperBand := del1 > 0.0 ? high : high - Kv * del1
+        lowerBand := del2 < 0.0 ? low : low - Kv * del2
+        [upperBand, lowerBand]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+[upperBand, lowerBand] = jbands(i_source, i_period)
+
+// Plot
+p1 = plot(upperBand, "Upper", color=color.yellow, linewidth=2)
+p2 = plot(lowerBand, "Lower", color=color.yellow, linewidth=2)
+fill(p1, p2, color=color.new(color.blue, 90), title="Band Fill")

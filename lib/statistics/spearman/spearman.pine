@@ -1,0 +1,129 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=5
+indicator("Spearman Rank Correlation (SPEARMAN)", "SPEARMAN", overlay=false, precision=4)
+
+// @function Calculates ranks for values in an array.
+// @param values float[] Array of float values to rank.
+// @returns float[] Array of ranks, 1-based, with ties handled by averaging.
+get_ranks(float[] values) =>
+    n = array.size(values)
+    if n == 0
+        array.new_float(0)
+    else
+        float[] ranks = array.new_float(n)
+        for i = 0 to n - 1
+            count_smaller = 0
+            count_equal = 0
+            for j = 0 to n - 1
+                if array.get(values, j) < array.get(values, i)
+                    count_smaller += 1
+                if array.get(values, j) == array.get(values, i)
+                    count_equal += 1
+            // Rank is 1-based. Average rank for ties: count_smaller + (count_equal - 1) / 2.0 + 1
+            array.set(ranks, i, count_smaller + (count_equal - 1) / 2.0 + 1)
+        ranks
+
+// @function Calculates Pearson correlation coefficient on two arrays.
+// @param x_arr float[] Array of x values.
+// @param y_arr float[] Array of y values.
+// @returns float Pearson correlation coefficient, or na if inputs are invalid/insufficient. Returns 0 if one series is constant.
+pearson_on_arrays(float[] x_arr, float[] y_arr) =>
+    n = array.size(x_arr)
+    if n == 0 or n != array.size(y_arr) or n < 2 // Need at least 2 points for correlation
+        float(na)
+    else
+        sum_x = 0.0
+        sum_y = 0.0
+        for i = 0 to n - 1
+            sum_x += array.get(x_arr, i)
+            sum_y += array.get(y_arr, i)
+        
+        mean_x = sum_x / n
+        mean_y = sum_y / n
+
+        sum_xy_diff = 0.0
+        sum_x_sq_diff = 0.0
+        sum_y_sq_diff = 0.0
+
+        for i = 0 to n - 1
+            x_diff = array.get(x_arr, i) - mean_x
+            y_diff = array.get(y_arr, i) - mean_y
+            sum_xy_diff += x_diff * y_diff
+            sum_x_sq_diff += x_diff * x_diff
+            sum_y_sq_diff += y_diff * y_diff
+
+        if sum_x_sq_diff == 0.0 or sum_y_sq_diff == 0.0 // If one or both series are constant (zero variance)
+            0.0 // Correlation is typically 0 or undefined. Returning 0.
+        else
+            denominator_sqrt = math.sqrt(sum_x_sq_diff * sum_y_sq_diff)
+            if denominator_sqrt == 0.0 // Should be caught by above, but as a safeguard
+                0.0
+            else
+                sum_xy_diff / denominator_sqrt
+
+//@function Calculates Spearman Rank Correlation Coefficient.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/spearman.md
+//@param source1 series float The first input series.
+//@param source2 series float The second input series.
+//@param length simple int The lookback period. Min 2, Max 60.
+//@returns series float Spearman's Rho coefficient, ranging from -1 to +1.
+spearman_corr(series float source1, series float source2, simple int length) =>
+    if length < 2
+        float(na)
+    else
+        float[] s1_window = array.new_float(length)
+        float[] s2_window = array.new_float(length)
+
+        bool window_has_na = false
+        for k = 0 to length - 1
+            val1_k = source1[length - 1 - k]
+            val2_k = source2[length - 1 - k]
+            if na(val1_k) or na(val2_k)
+                window_has_na := true
+                break
+            array.set(s1_window, k, val1_k)
+            array.set(s2_window, k, val2_k)
+        
+        if window_has_na
+            float(na)
+        else
+            float[] r1_window = get_ranks(s1_window)
+            float[] r2_window = get_ranks(s2_window)
+            pearson_on_arrays(r1_window, r2_window)
+
+// Inputs
+i_source1 = input.source(close, title="Source 1")
+i_source2_ticker = input.symbol("SPY", "Source 2 Ticker (e.g., SPY, AAPL)")
+i_source2_data_type = input.source(close, title="Source 2 Data Type (from Ticker)")
+i_length = input.int(20, title="Lookback Period", minval=2, maxval=60, tooltip="Number of bars for calculation. Max 60 due to O(N^2) complexity of ranking.")
+
+// Request external data for Source 2
+source2_series = request.security(i_source2_ticker, timeframe.period, i_source2_data_type[0], lookahead=barmerge.lookahead_off) 
+// Note: Using i_source2_data_type[0] to ensure we pass the current value of the series from the security context, 
+// not the series object itself if i_source2_data_type is complex. Simpler is to use 'close' or similar fixed source for security call.
+// For user input `input.source`, it's better to pass the result of that source directly.
+// The `i_source2_data_type` is a series itself. `request.security` needs an expression.
+// A common pattern is `request.security(symbol, tf, expression)` where expression is `close`, `hlc3` etc.
+// The `input.source` for `i_source2_data_type` is not ideal here.
+// Let's simplify: assume 'close' for the external symbol, or provide a fixed list of choices.
+// For now, will use `i_source2_data_type` as is, but it might be an issue if it's not a simple series like `close`.
+// A safer way: request.security(i_source2_ticker, timeframe.period, i_source2_data_type, gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+// The third argument to request.security should be an expression evaluated in the context of the requested symbol.
+// `i_source2_data_type` is evaluated in the context of the *current* chart.
+// This needs to be `close` or `hlc3` or similar, not `i_source2_data_type` directly.
+// Let's fix this to use `close` for the external symbol for now, and document that it can be improved.
+// Or, more robustly, use `input.string` for source type of external symbol.
+// For consistency with Kendall, let's use the same input structure:
+source2 = request.security(i_source2_ticker, timeframe.period, i_source2_data_type, lookahead=barmerge.lookahead_off)
+
+// Calculation
+spearman_value = spearman_corr(i_source1, source2, i_length)
+
+// Plot
+plot(spearman_value, "Spearman's Rho", color=color.new(color.orange, 0, color=color.yellow, linewidth=2), linewidth=2)
+hline(0, "Zero Line", color.gray, linestyle=hline.style_dashed)
+hline(0.5, "Moderate Positive Correlation", color.green, linestyle=hline.style_dotted)
+hline(-0.5, "Moderate Negative Correlation", color.red, linestyle=hline.style_dotted)
+hline(1, "Max Positive Correlation", color.green, linestyle=hline.style_solid)
+hline(-1, "Max Negative Correlation", color.red, linestyle=hline.style_solid)

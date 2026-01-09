@@ -1,0 +1,59 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Deviation-Scaled Moving Average (DSMA)", "DSMA", overlay=true)
+
+//@function Calculates DSMA using standard deviation to scale the averaging factor
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/dsma.md
+//@param source Series to calculate DSMA from
+//@param period Length of the lookback period for both average and deviation calculation
+//@param scaleFactor Combined scaling/smoothing factor (0.01-0.9)
+//@returns DSMA value that adapts to market volatility through deviation scaling
+//@optimized Uses circular buffer for RMS calculation and adaptive alpha for O(1) complexity
+dsma(series float source, simple int period, simple float scaleFactor=0.5) =>
+    float a1 = math.exp(-1.414 * math.pi / (period * 0.5))
+    float b1 = 2.0 * a1 * math.cos(1.414 * math.pi / (period * 0.5))
+    float c1 = 1.0 - b1 + (a1 * a1)
+    float c1Half = c1 * 0.5
+    float periodRecip = 1.0 / period
+    float scaleAdjustment = scaleFactor * 5.0 * periodRecip
+    var float result = na
+    var float filt = 0.0
+    var float filt1 = 0.0
+    var float filt2 = 0.0
+    var float zeros1 = 0.0
+    var float sumSquared = 0.0
+    var array<float> filtSquared = array.new_float(period, 0.0)
+    var int bufferIndex = 0
+    if na(source)
+        result
+    else
+        if na(result)
+            result := source
+        else
+            float zeros = source - result
+            filt := c1Half * (zeros + zeros1) + b1 * filt1 - (a1 * a1) * filt2
+            float filtSq = filt * filt
+            sumSquared := sumSquared + filtSq - array.get(filtSquared, bufferIndex)
+            array.set(filtSquared, bufferIndex, filtSq)
+            bufferIndex := (bufferIndex + 1) % period
+            float rms = math.sqrt(math.max(sumSquared * periodRecip, 1e-10))
+            float alpha = math.min(scaleAdjustment * math.abs(filt / rms), 1.0)
+            result := alpha * source + (1 - alpha) * result
+            zeros1 := zeros
+            filt2 := filt1
+            filt1 := filt
+        result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_period = input.int(25, "Period", minval=2)
+i_scale = input.float(0.9, "Scale Factor", minval=0.01, maxval=0.9, step=0.01)
+
+// Calculation
+dsma_value = dsma(i_source, i_period, i_scale)
+
+// Plot
+plot(dsma_value, "DSMA", color=color.yellow, linewidth=2)

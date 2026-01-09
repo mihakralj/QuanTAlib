@@ -1,0 +1,11 @@
+name: "CodeQL Config"
+
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+
+query-filters:
+  - exclude:
+      problem.severity:
+        - warning
+        - recommendation

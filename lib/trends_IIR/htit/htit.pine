@@ -1,0 +1,63 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Hilbert Trendline (HTIT)", "HTIT", overlay=true)
+
+//@function Calculates the Hilbert Transform Instantaneous Trendline (HTIT)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/htit.md
+//@param source Series to calculate HTIT from
+//@returns HTIT value using Hilbert Transform with adaptive period estimation
+//@optimized Uses Hilbert Transform quadrature components for O(1) complexity per bar
+htit(series float source) =>
+    var float price = na
+    var float smooth = na
+    var float detrender = 0.0
+    var float I1 = 0.0
+    var float Q1 = 0.0
+    var float I2 = 0.0
+    var float Q2 = 0.0
+    var float Re = 0.0
+    var float Im = 0.0
+    var float periodEst = 10.0
+    var float iTrend = na
+    var float iTrend1 = na
+    var float iTrend2 = na
+    float result = na
+    price := (4 * source + 3 * source[1] + 2 * source[2] + source[3]) / 10
+    smooth := (4 * price + 3 * price[1] + 2 * price[2] + price[3]) / 10
+    float padAdj = 0.075 * periodEst + 0.54
+    detrender := (0.0962 * smooth + 0.5769 * smooth[2] - 0.5769 * smooth[4] - 0.0962 * smooth[6]) * padAdj
+    I1 := nz(detrender[3])
+    Q1 := (0.0962 * detrender + 0.5769 * detrender[2] - 0.5769 * detrender[4] - 0.0962 * detrender[6]) * padAdj
+    float jI = (0.0962 * I1 + 0.5769 * I1[2] - 0.5769 * I1[4] - 0.0962 * I1[6]) * padAdj
+    float jQ = (0.0962 * Q1 + 0.5769 * Q1[2] - 0.5769 * Q1[4] - 0.0962 * Q1[6]) * padAdj
+    I2 := 0.2 * (I1 - jQ) + 0.8 * nz(I2[1])
+    Q2 := 0.2 * (Q1 + jI) + 0.8 * nz(Q2[1])
+    Re := 0.2 * (I2 * nz(I2[1]) + Q2 * nz(Q2[1])) + 0.8 * nz(Re[1])
+    Im := 0.2 * (I2 * nz(Q2[1]) - Q2 * nz(I2[1])) + 0.8 * nz(Im[1])
+    float newP = Im != 0 and Re != 0 ? 2 * math.pi / math.atan(Im / Re) : periodEst
+    periodEst := math.max(6, math.min(50, 0.2 * newP + 0.8 * periodEst))
+    float angle = I1 != 0 ? math.atan(Q1 / I1) : math.pi / 2 * math.sign(Q1)
+    angle += I1 < 0 ? math.pi : Q1 < 0 and I1 > 0 ? 2 * math.pi : 0
+    angle := angle % (2 * math.pi)
+    float trendPower = math.sqrt(I1 * I1 + Q1 * Q1)
+    float newITrendComponent = smooth + 0.07 * trendPower * math.sin(angle)
+    float currentITrend2 = nz(iTrend1[1], smooth)
+    float currentITrend1 = nz(iTrend[1], smooth)
+    float currentITrend = 0.9 * newITrendComponent + 1.1 * currentITrend1 - 1.0 * currentITrend2
+    iTrend2 := currentITrend1
+    iTrend1 := currentITrend
+    iTrend := currentITrend
+    result := currentITrend
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+
+// Calculation
+htit_value = htit(i_source)
+
+// Plot
+plot(htit_value, "HTIT", color=color.yellow, linewidth=2)

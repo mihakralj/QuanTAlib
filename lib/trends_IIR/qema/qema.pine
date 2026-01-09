@@ -1,0 +1,76 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Quadruple EMA (QEMA)", "QEMA", overlay=true)
+
+//@function Calculates QEMA using quadruple exponential smoothing with compensator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/qema.md
+//@param source Series to calculate QEMA from
+//@param period Lookback period for QEMA calculation
+//@param alpha Optional smoothing factor (overrides period if provided)
+//@returns QEMA value from first bar with proper compensation
+//@optimized Uses exponential warmup compensator on all four EMA stages for O(1) complexity
+qema(series float source, simple int period=0, simple float alpha=0.0) =>
+    if alpha <= 0 and period <= 0
+        runtime.error("Alpha or period must be provided")
+    float a1 = alpha > 0 ? alpha : (period > 0 ? 2.0 / (period + 1) : 0.1)
+    float r = math.pow(1.0 / a1, 1.0 / 3.0)
+    float a2 = a1 * r
+    float a3 = a2 * r
+    float a4 = a3 * r
+    float beta1 = 1.0 - a1
+    float beta2 = 1.0 - a2
+    float beta3 = 1.0 - a3
+    float beta4 = 1.0 - a4
+    var float e1 = 1.0
+    var float e2 = 1.0
+    var float e3 = 1.0
+    var float e4 = 1.0
+    var bool warmup = true
+    var float rema1 = 0.0
+    var float rema2 = 0.0
+    var float rema3 = 0.0
+    var float rema4 = 0.0
+    var float ema1 = source
+    var float ema2 = source
+    var float ema3 = source
+    var float ema4 = source
+    rema1 := a1 * (source - rema1) + rema1
+    if warmup
+        e1 *= beta1
+        e2 *= beta2
+        e3 *= beta3
+        e4 *= beta4
+        float c1 = 1.0 / (1.0 - e1)
+        float c2 = 1.0 / (1.0 - e2)
+        float c3 = 1.0 / (1.0 - e3)
+        float c4 = 1.0 / (1.0 - e4)
+        ema1 := rema1 * c1
+        rema2 := a2 * (ema1 - rema2) + rema2
+        ema2 := rema2 * c2
+        rema3 := a3 * (ema2 - rema3) + rema3
+        ema3 := rema3 * c3
+        rema4 := a4 * (ema3 - rema4) + rema4
+        ema4 := rema4 * c4
+        warmup := e1 > 1e-10
+    else
+        ema1 := rema1
+        rema2 := a2 * (ema1 - rema2) + rema2
+        ema2 := rema2
+        rema3 := a3 * (ema2 - rema3) + rema3
+        ema3 := rema3
+        rema4 := a4 * (ema3 - rema4) + rema4
+        ema4 := rema4
+    4 * ema1 - 6 * ema2 + 4 * ema3 - ema4
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+qema_value = qema(i_source, i_period)
+
+// Plot
+plot(qema_value, "QEMA", color=color.yellow, linewidth=2)

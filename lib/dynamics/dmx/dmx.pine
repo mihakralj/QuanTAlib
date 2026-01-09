@@ -1,0 +1,96 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Jurik Directional Movement Index (DMX)", "DMX", overlay=false)
+
+//@function Calculates DMX using Jurik's smoothing of ADX
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/dmx.md
+//@param period Number of bars used in the calculation
+//@returns dmx value
+dmx(simple int period = 14) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float tr = na(close[1]) ? high - low : math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+    float upDm = na(high[1]) ? 0.0 : high - high[1] > low[1] - low and high - high[1] > 0 ? high - high[1] : 0.0
+    float downDm = na(low[1]) ? 0.0 : low[1] - low > high - high[1] and low[1] - low > 0 ? low[1] - low : 0.0
+    float wilderAlpha = 1.0 / period
+    var float upEma = na, var float upDi = na, var float upE = 1.0
+    var bool upWarmup = true
+    if not na(upDm)
+        if na(upEma)
+            upEma := 0
+            upDi := upDm
+        else
+            upEma := wilderAlpha * (upDm - upEma) + upEma
+            if upWarmup
+                upE *= (1 - wilderAlpha)
+                float upC = 1.0 / (1.0 - upE)
+                upDi := upC * upEma
+                if upE <= 1e-10
+                    upWarmup := false
+            else
+                upDi := upEma
+    var float downEma = na, var float downDi = na, var float downE = 1.0, var bool downWarmup = true
+    if not na(downDm)
+        if na(downEma)
+            downEma := 0
+            downDi := downDm
+        else
+            downEma := wilderAlpha * (downDm - downEma) + downEma
+            if downWarmup
+                downE *= (1 - wilderAlpha)
+                float downC = 1.0 / (1.0 - downE)
+                downDi := downC * downEma
+                if downE <= 1e-10
+                    downWarmup := false
+            else
+                downDi := downEma
+    float sumDi = upDi + downDi
+    float source = sumDi != 0.0 ? (upDi - downDi) / sumDi : 0.0
+    var simple float PHASE_VALUE = 0.5
+    var float power = 0.20
+    var simple float BETA = power * (period - 1) / ((power * (period - 1)) + 2)
+    var simple float LEN1 = math.max((math.log(math.sqrt(0.5*(period-1))) / math.log(2.0)) + 2.0, 0)
+    var simple float POW1 = math.max(LEN1 - 2.0, 0.5)
+    var simple float LEN2 = math.sqrt(0.5*(period-1))*LEN1
+    var simple float POW1_RECIPROCAL = 1.0 / POW1
+    var simple float AVG_VOLTY_ALPHA = 2.0 / (math.max(4.0 * period, 65) + 1.0)
+    var simple float DIV = 1.0/(10.0 + 10.0*(math.min(math.max(period-10,0),100))/100.0)
+    var float upperBand_state = na, var float lowerBand_state = na, var float ma1_state = na, var float jma_state = na
+    var float vSum_state = 0.0, var float det0_state = 0.0, var float det1_state = 0.0, var float avgVolty_state = na
+    var volty_array_state = array.new_float(11, 0.0)
+    float dmx = na
+    if not na(source)
+        float del1 = source - nz(upperBand_state, source)
+        float del2 = source - nz(lowerBand_state, source)
+        float volty = math.abs(del1) == math.abs(del2) ? 0.0 : math.max(math.abs(del1), math.abs(del2))
+        array.unshift(volty_array_state, nz(volty, 0.0))
+        array.pop(volty_array_state)
+        if not na(volty)
+            vSum_state := vSum_state + (volty - array.get(volty_array_state, 10)) * DIV
+            avgVolty_state := nz(avgVolty_state, vSum_state) + AVG_VOLTY_ALPHA * (vSum_state - nz(avgVolty_state, vSum_state))
+        float rvolty = math.min(math.max(nz(avgVolty_state, 0) > 0 ? nz(volty, 0.0) / nz(avgVolty_state, 1.0) : 1.0, 1.0), math.pow(LEN1, POW1_RECIPROCAL))
+        float pow2 = math.pow(rvolty, POW1)
+        float Kv = math.pow(LEN2/(LEN2+1), math.sqrt(pow2))
+        upperBand_state := del1 > 0 ? source : source - Kv * del1
+        lowerBand_state := del2 < 0 ? source : source - Kv * del2
+        float alpha = math.pow(BETA, pow2)
+        float alphaSquared = alpha * alpha
+        float oneMinusAlpha = 1.0 - alpha
+        float oneMinusAlphaSquared = oneMinusAlpha * oneMinusAlpha
+        ma1_state := source + (alpha * (nz(ma1_state, source) - source))
+        det0_state := (source - ma1_state) * (1 - BETA) + BETA * nz(det0_state, 0)
+        float ma2 = ma1_state + (PHASE_VALUE * det0_state)
+        det1_state := ((ma2 - nz(jma_state, source)) * oneMinusAlphaSquared) + (alphaSquared * nz(det1_state, 0))
+        jma_state := nz(jma_state, source) + det1_state
+        dmx := jma_state
+    dmx
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculate ADX
+dmx = dmx(i_period)
+
+// Plot
+plot(dmx, "DMX", color=color.yellow, linewidth=2)

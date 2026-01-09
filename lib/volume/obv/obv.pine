@@ -1,0 +1,26 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("On Balance Volume (OBV)", "OBV", overlay=false)
+
+//@function Calculates On Balance Volume
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/obv.md
+//@param c Close price series
+//@param vol Volume series
+//@returns Cumulative On Balance Volume value
+//@optimized for performance and dirty data
+obv(series float c = close, series float vol = volume) =>
+    float close_price = nz(c, close)
+    float volume_val = nz(vol, 0.0)
+    float prev_close = nz(close_price[1], close_price)
+    var float obv_cumulative = 0.0
+    obv_cumulative += close_price > prev_close ? volume_val : close_price < prev_close ? -volume_val : 0.0
+    obv_cumulative
+
+// ---------- Main loop ----------
+
+// Calculation
+obv_value = obv(close, volume)
+
+// Plot
+plot(obv_value, "OBV", color=color.yellow, linewidth=2)

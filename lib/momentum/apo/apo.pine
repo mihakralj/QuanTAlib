@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Absolute Price Oscillator (APO)", "APO", overlay=false)
+
+//@function Calculates Absolute Price Oscillator using compensated EMAs
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/apo.md
+//@param src Source series to calculate APO for
+//@param fast_len Fast EMA period
+//@param slow_len Slow EMA period
+//@returns APO value (difference between fast and slow EMAs)
+//@optimized Uses embedded EMA with unified warmup compensation for accuracy from bar 1
+apo(series float src, simple int fast_len, simple int slow_len) =>
+    if fast_len <= 0 or slow_len <= 0
+        runtime.error("Lengths must be greater than 0")
+    if fast_len >= slow_len
+        runtime.error("Fast length must be less than slow length")
+    float alpha_fast = 2.0 / (fast_len + 1)
+    float beta_fast = 1.0 - alpha_fast
+    float alpha_slow = 2.0 / (slow_len + 1)
+    float beta_slow = 1.0 - alpha_slow
+    var bool warmup = true
+    var float e_fast = 1.0
+    var float e_slow = 1.0
+    var float ema_fast = 0.0
+    var float ema_slow = 0.0
+    var float result_fast = src
+    var float result_slow = src
+    ema_fast := alpha_fast * (src - ema_fast) + ema_fast
+    ema_slow := alpha_slow * (src - ema_slow) + ema_slow
+    if warmup
+        e_fast *= beta_fast
+        e_slow *= beta_slow
+        float c_fast = 1.0 / (1.0 - e_fast)
+        float c_slow = 1.0 / (1.0 - e_slow)
+        result_fast := c_fast * ema_fast
+        result_slow := c_slow * ema_slow
+        warmup := e_fast > 1e-10 or e_slow > 1e-10
+    else
+        result_fast := ema_fast
+        result_slow := ema_slow
+    result_fast - result_slow
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_fast_len = input.int(12, "Fast Length", minval=1)
+i_slow_len = input.int(26, "Slow Length", minval=1)
+
+// Calculation
+apo_value = apo(i_source, i_fast_len, i_slow_len)
+
+// Plot
+plot(apo_value, "APO", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray)

@@ -1,0 +1,76 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("MESA Adaptive Moving Average (MAMA)", "MAMA", overlay=true)
+
+//@function Calculates MAMA and FAMA using Ehlers' MESA adaptive algorithm
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/mama.md
+//@param source Series to calculate MAMA from
+//@param fastLimit Maximum rate of adaptation (0.5 typical)
+//@param slowLimit Minimum rate of adaptation (0.05 typical)
+//@returns [mama, fama] array containing MAMA and FAMA values
+//@optimized Uses Hilbert Transform phase detection for O(1) complexity per bar
+mama(series float source, float fastLimit=0.5, float slowLimit=0.05) =>
+    if fastLimit < slowLimit or fastLimit <= 0 or slowLimit < 0
+        runtime.error("MAMA: fastLimit must be > slowLimit > 0")
+    var float mama_val = na
+    var float fama_val = na
+    var float period = 0.0
+    var float phase = 0.0
+    var float smooth = na
+    var float dt = na
+    var float I1 = 0.0
+    var float Q1 = 0.0
+    var float I2 = 0.0
+    var float Q2 = 0.0
+    var float Re = 0.0
+    var float Im = 0.0
+    float TWOPI = 2.0 * math.pi
+    float c1 = 0.0962
+    float c2 = 0.5769
+    float price = not na(source[3]) ? (4.0 * source + 3.0 * source[1] + 2.0 * source[2] + source[3]) / 10.0 : not na(source[2]) ? (4.0 * source + 3.0 * source[1] + 2.0 * source[2]) / 9.0 : not na(source[1]) ? (4.0 * source + 3.0 * source[1]) / 7.0 : source
+    if na(mama_val)
+        mama_val := price
+        fama_val := price
+        smooth := price
+    else
+        smooth := (4.0 * price + 3.0 * price[1] + 2.0 * price[2] + price[3]) / 10.0
+        float padj = 0.075 * period + 0.54
+        dt := (c1 * smooth + c2 * smooth[2] - c2 * smooth[4] - c1 * smooth[6]) * padj
+        I1 := dt[3]
+        Q1 := (c1 * dt + c2 * dt[2] - c2 * dt[4] - c1 * dt[6]) * padj
+        float jI = (c1 * I1 + c2 * I1[2] - c2 * I1[4] - c1 * I1[6]) * padj
+        float jQ = (c1 * Q1 + c2 * Q1[2] - c2 * Q1[4] - c1 * Q1[6]) * padj
+        I2 := 0.2 * (I1 - jQ) + 0.8 * I2[1]
+        Q2 := 0.2 * (Q1 + jI) + 0.8 * Q2[1]
+        Re := 0.2 * (I2 * I2[1] + Q2 * Q2[1]) + 0.8 * Re[1]
+        Im := 0.2 * (I2 * Q2[1] - Q2 * I2[1]) + 0.8 * Im[1]
+        if Im != 0.0 and Re != 0.0
+            period := TWOPI / math.atan(Im / Re)
+        period := 0.2 * math.max(6.0, math.min(50.0, period)) + 0.8 * period[1]
+        if I1 != 0.0
+            phase := math.atan(Q1 / I1)
+        float deltaPhase = phase[1] - phase
+        if deltaPhase >= 1.0
+            deltaPhase := 0.0
+        if deltaPhase < 0.0
+            deltaPhase += TWOPI
+        float alpha = math.min(fastLimit, math.max(slowLimit, fastLimit / math.pow(deltaPhase / 0.5, 2)))
+        float oneMinusAlpha = 1.0 - alpha
+        mama_val := alpha * price + oneMinusAlpha * mama_val[1]
+        fama_val := 0.5 * alpha * mama_val + (1.0 - 0.5 * alpha) * fama_val[1]
+    [mama_val, fama_val]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_fastLimit = input.float(0.5, "Fast Limit", minval=0.01, maxval=0.99, step=0.01)
+i_slowLimit = input.float(0.05, "Slow Limit", minval=0.001, maxval=0.5, step=0.01)
+
+// Calculation
+[mama_value, fama_value] = mama(i_source, i_fastLimit, i_slowLimit)
+
+// Plot
+plot(mama_value, "MAMA", color=color.yellow, linewidth=2)
+plot(fama_value, "FAMA", color=color.yellow, linewidth=2)

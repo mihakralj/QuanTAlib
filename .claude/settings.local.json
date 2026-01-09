@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRemove coverlet.msbuild to fix BadImageFormatException warnings\n\nSwitch from coverlet.msbuild to coverlet.collector approach to eliminate\nPDB-related warnings on .NET 10. Add runsettings file for optional coverage.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(dotnet build:*)",
+      "Bash(where:*)",
+      "Bash(findstr:*)",
+      "Bash(qodana scan:*)",
+      "Bash(dir:*)",
+      "Bash(docker info:*)",
+      "Bash(npx markdownlint-cli:*)"
+    ]
+  }
+}

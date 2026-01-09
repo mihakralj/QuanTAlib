@@ -1,0 +1,23 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("True Range", "TR", overlay=false)
+
+//@function Calculates the True Range
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/tr.md
+//@returns The True Range value for the current bar.
+tr() =>
+    float prevClose = nz(close[1], close)
+    float tr1 = high - low
+    float tr2 = math.abs(high - prevClose)
+    float tr3 = math.abs(low - prevClose)
+    float trueRange = math.max(tr1, math.max(tr2, tr3))
+    trueRange
+
+// ---------- Main loop ----------
+
+// Calculation
+trValue = tr()
+
+// Plot
+plot(trValue, "TR", color=color.yellow, linewidth=2)

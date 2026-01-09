@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Intraday Momentum Index (IMI)", "IMI", overlay=false)
+
+//@function Calculates IMI using intraday price ranges (open vs close)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/imi.md
+//@param period Number of bars used in the calculation
+//@returns IMI value (0-100)
+//@optimized Uses circular buffer for O(1) per-bar complexity
+imi(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float gain = 0.0
+    float loss = 0.0
+    if close > open
+        gain := close - open
+    else if close < open
+        loss := open - close
+    var array<float> gain_buffer = array.new_float(period, 0.0)
+    var array<float> loss_buffer = array.new_float(period, 0.0)
+    var int idx = 0
+    var float gain_sum = 0.0
+    var float loss_sum = 0.0
+    gain_sum -= array.get(gain_buffer, idx)
+    loss_sum -= array.get(loss_buffer, idx)
+    array.set(gain_buffer, idx, gain)
+    array.set(loss_buffer, idx, loss)
+    gain_sum += gain
+    loss_sum += loss
+    idx := (idx + 1) % period
+    float total = gain_sum + loss_sum
+    float imi_value = total != 0.0 ? 100.0 * gain_sum / total : 50.0
+    imi_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculate IMI
+imi_value = imi(i_period)
+
+// Plot
+plot(imi_value, "IMI", color=color.yellow, linewidth=2)

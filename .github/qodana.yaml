@@ -1,0 +1,54 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+
+#Specify Qodana linter for analysis
+linter: jetbrains/qodana-dotnet:2025.3
+
+# Specify solution file for .NET analysis
+dotnet:
+  solution: QuanTAlib.sln
+
+# Exclusions
+exclude:
+  - name: All
+    paths:
+      - "**/bin/**"
+      - "**/obj/**"
+      - "**/packages/**"
+      - "**/TestResults/**"
+      - "**/.vs/**"
+      - "**/.vscode/**"
+      - "**/.idea/**"
+      - "**/.git/**"
+      - ".github/**"
+      - "**/.github/**"
+      - "**/.agent/**"
+      - "**/.codacy/**"
+      - "**/.config/**"
+      - "**/.clinerules/**"
+      - "**/.qodana/**"
+      - "**/.sonarlint/**"
+      - "**/coverage/**"
+      - "**/CoverageReport/**"
+      - "**/archive/**"
+      - "**/notebooks/**"
+      - "**/*.Designer.cs"
+      - "**/*.generated.cs"
+      - "**/results/**"
+      - "**/BenchmarkDotNet.Artifacts/**"
+      - "**/*.md"
+  - name: S3776  # Cognitive Complexity
+  - name: InvalidXmlDocComment
+  - name: EnforceIfStatementBraces
+  - name: CheckNamespace
+  - name: LoopCanBeConvertedToQuery
+  - name: UnusedAutoPropertyAccessor.Global
+  - name: RedundantArgumentDefaultValue
+  - name: RedundantNameQualifier

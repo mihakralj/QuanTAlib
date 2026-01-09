@@ -1,0 +1,29 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Momentum (MOM)", "MOM", overlay=false)
+
+//@function Calculates price momentum over specified period
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/mom.md
+//@param src Source series to calculate momentum for
+//@param len Lookback period for momentum calculation
+//@returns Momentum value measuring rate of price change
+mom(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    float result = 0.0
+    if not na(src) and not na(src[len])
+        result := src - src[len]
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(10, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+mom_value = mom(i_source, i_length)
+
+// Plot
+plot(mom_value, "MOM", color=color.yellow, linewidth=2)
