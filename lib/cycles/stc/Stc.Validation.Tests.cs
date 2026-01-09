@@ -28,14 +28,14 @@ public sealed class StcValidationTests : IDisposable
         // Skender's STC implementation uses a "Single Smoothed" approach (Stoch of MACD).
         // QuanTAlib implements the standard "Double Smoothed" approach (Stoch of Stoch of MACD),
         // as originally defined by Schaff.
-        // 
+        //
         // Example mismatch at index 333:
         // QuanTAlib (Double Smoothed) = 50.0
         // Skender (Single Smoothed) = 97.05
         //
         // This test documents this known deviation rather than failing on it.
 
-        int cycle = 10;
+        const int cycle = 10;
         int fast = 23;
         int slow = 50;
 
@@ -47,7 +47,7 @@ public sealed class StcValidationTests : IDisposable
         int skip = 310;
         double sumSq = 0;
         int count = 0;
-        
+
         for (int i = skip; i < qResult.Count; i++)
         {
            double sVal = sResult[i].Stc ?? double.NaN;
@@ -59,14 +59,14 @@ public sealed class StcValidationTests : IDisposable
                count++;
            }
         }
-        
+
         double rmse = Math.Sqrt(sumSq / count);
         _output.WriteLine($"Known Methodology Deviation - RMSE: {rmse:F4}");
-        
+
         // Assert that we are essentially different (RMSE > 5.0 implies significant deviation)
         // If they accidentally matched (e.g. if we broke our logic to match Skender), this should fail.
         Assert.True(rmse > 5.0, "QuanTAlib STC matches Skender STC, which suggests regression to Single Smoothed logic.");
-        
+
         // Assert values are valid
         for(int i = skip; i < qResult.Count; i++)
         {

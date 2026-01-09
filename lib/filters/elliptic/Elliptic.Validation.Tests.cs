@@ -22,11 +22,11 @@ public sealed class EllipticValidationTests : IDisposable
     {
         // Elliptic filters are efficient at removing high-frequency noise.
         // We generate a noisy signal (Constant + White Noise) and verify variance reduction.
-        
+
         var filter = new Elliptic(10);
         var noisySignal = new List<double>();
         var random = new Random(42);
-        
+
         // Generate 1000 points of White Noise around 100
         for (int i = 0; i < 1000; i++)
         {

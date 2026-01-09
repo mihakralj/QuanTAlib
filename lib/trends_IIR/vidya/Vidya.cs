@@ -32,6 +32,7 @@ public sealed class Vidya : AbstractBase
     private readonly RingBuffer _downs;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
+    private bool _isNew = true;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -53,6 +54,7 @@ public sealed class Vidya : AbstractBase
         _downs = new RingBuffer(period);
         Name = $"Vidya({period})";
         WarmupPeriod = period;
+        InitState();
     }
 
     public Vidya(ITValuePublisher source, int period) : this(period)
@@ -73,11 +75,13 @@ public sealed class Vidya : AbstractBase
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
+    public bool IsNew => _isNew;
     public override bool IsHot => _state.BarCount >= _period;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             _state.BarCount++;
@@ -265,9 +269,21 @@ public sealed class Vidya : AbstractBase
     {
         _ups.Clear();
         _downs.Clear();
-        _state = default;
-        _p_state = default;
+        InitState();
+        _p_state = _state;
         Last = default;
+    }
+
+    private void InitState()
+    {
+        _state = new State(
+            PrevClose: double.NaN,
+            LastVidya: double.NaN,
+            CurrentClose: double.NaN,
+            CurrentVidya: double.NaN,
+            IsInitialized: false,
+            BarCount: 0
+        );
     }
 
     public static TSeries Batch(TSeries source, int period)
@@ -329,7 +345,7 @@ public sealed class Vidya : AbstractBase
                 sumUp += up;
                 sumDown += down;
 
-                head = (head + 1);
+                head++;
                 if (head >= period) head = 0;
 
                 double sum = sumUp + sumDown;

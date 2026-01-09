@@ -281,7 +281,7 @@ public sealed class Adx : ITValuePublisher
         var v = new double[len];
 
         // Use the static Calculate method for performance
-        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, _period, v);
+        Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
 
         // Create lists for TSeries
         var tList = new List<long>(len);
@@ -302,7 +302,7 @@ public sealed class Adx : ITValuePublisher
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return new TSeries(tList, vList);
@@ -345,7 +345,7 @@ public sealed class Adx : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
+    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
     {
         int len = high.Length;
         if (len < period * 2)
@@ -426,7 +426,7 @@ public sealed class Adx : ITValuePublisher
         if (source.Count == 0) return new TSeries([], []);
         var len = source.Count;
         var v = new double[len];
-        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, period, v);
+        Calculate(source.High.Values, source.Low.Values, source.Close.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;

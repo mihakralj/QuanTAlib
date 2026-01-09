@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<NamespacesMetrics>
+  <Namespace Namespace="" NTypes="2" NILInstruction="114" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="1" EfferentCoupling="5" />
+  <Namespace Namespace="QuanTAlib" NTypes="172" NILInstruction="91766" NbLinesOfCode="13202" NbLinesOfComment="5375" PercentageComment="28.93" PercentageCoverage="87.18" AfferentCoupling="0" EfferentCoupling="22" />
+</NamespacesMetrics>

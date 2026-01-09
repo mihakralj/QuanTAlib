@@ -32,7 +32,7 @@ public sealed class SmaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "SMA - Simple Moving Average";
         Description = "Simple Moving Average";
-        _series = new(name: $"SMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"SMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

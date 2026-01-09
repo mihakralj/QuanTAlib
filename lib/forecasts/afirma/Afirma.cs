@@ -45,7 +45,7 @@ public sealed class Afirma : AbstractBase
         /// <summary>Blackman window (3-term)</summary>
         Blackman,
         /// <summary>Blackman-Harris window (4-term, minimum sidelobe)</summary>
-        BlackmanHarris
+        BlackmanHarris,
     }
 
     private readonly int _period;
@@ -55,11 +55,17 @@ public sealed class Afirma : AbstractBase
     private readonly double[] _weights;
     private readonly double _invWeightSum;
     private readonly TValuePublishedHandler _handler;
+    private ITValuePublisher? _publisher;
+    private bool _isNew;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LastValidValue);
-    private State _state;
-    private State _p_state;
+    private record struct State(double LastValidValue)
+    {
+        public static State New() => new() { LastValidValue = double.NaN };
+    }
+
+    private State _state = State.New();
+    private State _p_state = State.New();
 
     /// <summary>
     /// Creates AFIRMA with specified parameters.
@@ -90,6 +96,7 @@ public sealed class Afirma : AbstractBase
     public Afirma(ITValuePublisher source, int period, WindowType window = WindowType.BlackmanHarris, bool leastSquares = false)
         : this(period, window, leastSquares)
     {
+        _publisher = source;
         source.Pub += _handler;
     }
 
@@ -99,6 +106,7 @@ public sealed class Afirma : AbstractBase
     public Afirma(TSeries source, int period, WindowType window = WindowType.BlackmanHarris, bool leastSquares = false)
         : this(period, window, leastSquares)
     {
+        _publisher = source;
         Prime(source.Values);
         if (source.Count > 0)
         {
@@ -108,6 +116,11 @@ public sealed class Afirma : AbstractBase
     }
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
+
+    /// <summary>
+    /// Gets a value indicating whether the most recent update was a new data point.
+    /// </summary>
+    public bool IsNew => _isNew;
 
     /// <summary>
     /// True if the AFIRMA has enough data to produce valid results.
@@ -123,8 +136,8 @@ public sealed class Afirma : AbstractBase
 
         // Reset state
         _buffer.Clear();
-        _state = default;
-        _p_state = default;
+        _state = State.New();
+        _p_state = State.New();
 
         int warmupLength = Math.Min(source.Length, WarmupPeriod);
         int startIndex = source.Length - warmupLength;
@@ -180,6 +193,7 @@ public sealed class Afirma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             _p_state = _state;
@@ -317,7 +331,7 @@ public sealed class Afirma : AbstractBase
                             val = _buffer[count - 1 - i];
                         }
                         lsSum += val;
-                        lsCount += 1.0;
+                        lsCount++;
                     }
                     if (lsCount > 0)
                     {
@@ -507,7 +521,7 @@ public sealed class Afirma : AbstractBase
                                 v_ls = buffer[idx];
                             }
                             lsSum += v_ls;
-                            lsCount += 1.0;
+                            lsCount++;
                         }
                         if (lsCount > 0)
                         {
@@ -535,8 +549,18 @@ public sealed class Afirma : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
-        _state = default;
-        _p_state = default;
+        _state = State.New();
+        _p_state = State.New();
         Last = default;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _publisher != null)
+        {
+            _publisher.Pub -= _handler;
+            _publisher = null;
+        }
+        base.Dispose(disposing);
     }
 }

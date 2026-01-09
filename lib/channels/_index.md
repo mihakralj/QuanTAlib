@@ -2,10 +2,10 @@
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [ABBER](abber/abber.md) | Aberration Bands | Absolute deviation-based volatility bands |
-| [ACCBANDS](accbands/accbands.md) | Acceleration Bands | Volatility-based adaptive channel by Price Headley |
+| [ABBER](lib/channels/abber/abber.md) | Aberration Bands | Absolute deviation-based volatility bands |
+| [ACCBANDS](lib/channels/accbands/accbands.md) | Acceleration Bands | Volatility-based adaptive channel by Price Headley |
 | APCHANNEL | Andrews' Pitchfork | |
-| [APZ](apz/apz.md) | Adaptive Price Zone | Double-smoothed EMA volatility channel by Lee Leibfarth |
+| [APZ](lib/channels/apz/apz.md) | Adaptive Price Zone | Double-smoothed EMA volatility channel by Lee Leibfarth |
 | ATRBANDS | ATR Bands | |
 | BBANDS | Bollinger Bands | |
 | DCHANNEL | Donchian Channels | |

@@ -7,24 +7,24 @@ namespace QuanTAlib;
 public sealed class Notch : AbstractBase
 {
     private readonly double _b0, _b1, _b2, _a1, _a2;
-    private readonly int _period;
-    private readonly double _q;
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
     private int _index;
 
     private State _state;
-    private State _p_state; // Previous state for rollback
+    private State _p_state;
 
     [StructLayout(LayoutKind.Auto)]
+    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
     private struct State
     {
         public double X1, X2, Y1, Y2;
         public double LastValue;
     }
+    #pragma warning restore CA1066
 
-    public int Period => _period;
-    public double Q => _q;
+    public int NotchFreq { get; }
+    public double Bandwidth { get; }
     public override bool IsHot => _index >= WarmupPeriod;
 
     public Notch(int period, double q = 1.0)
@@ -38,8 +38,8 @@ public sealed class Notch : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(q), "Q factor must be positive.");
         }
 
-        _period = period;
-        _q = q;
+        NotchFreq = period;
+        Bandwidth = q;
         WarmupPeriod = period;
         Name = $"Notch({period},{q})";
 
@@ -52,9 +52,9 @@ public sealed class Notch : AbstractBase
         double invA0 = 1.0 / a0;
 
         _b0 = invA0;
-        _b1 = (-2.0 * cs) * invA0;
+        _b1 = -2.0 * cs * invA0;
         _b2 = invA0;
-        _a1 = (-2.0 * cs) * invA0;
+        _a1 = -2.0 * cs * invA0;
         _a2 = (1.0 - alpha) * invA0;
 
         Init();
@@ -140,14 +140,13 @@ public sealed class Notch : AbstractBase
         ReadOnlySpan<double> srcSpan = source.Values;
         double[] outArray = new double[srcSpan.Length];
 
-        Calculate(srcSpan, outArray.AsSpan(), _period, _q);
+        Calculate(srcSpan, outArray.AsSpan(), NotchFreq, Bandwidth);
 
         for (int i = 0; i < outArray.Length; i++)
         {
             result.Add(new TValue(source.Times[i], outArray[i]));
         }
 
-        // Update state to the end of the series
         if (srcSpan.Length > 0)
         {
             _index += srcSpan.Length;
@@ -192,9 +191,9 @@ public sealed class Notch : AbstractBase
         double invA0 = 1.0 / a0;
 
         double b0 = invA0;
-        double b1 = (-2.0 * cs) * invA0;
+        double b1 = -2.0 * cs * invA0;
         double b2 = invA0;
-        double a1 = (-2.0 * cs) * invA0;
+        double a1 = -2.0 * cs * invA0;
         double a2 = (1.0 - alpha) * invA0;
 
         double x1 = 0, x2 = 0, y1 = 0, y2 = 0;

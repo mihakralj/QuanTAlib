@@ -34,7 +34,7 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "CONV - Convolution";
         Description = "Convolution with custom kernel";
-        Series = new(name: "CONV", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: "CONV", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
@@ -42,9 +42,12 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
     {
         try
         {
-            var weights = WeightsInput.Split(',')
-                .Select(s => double.Parse(s.Trim(), System.Globalization.CultureInfo.InvariantCulture))
-                .ToArray();
+            var weightStrings = WeightsInput.Split(',');
+            var weights = new double[weightStrings.Length];
+            for (int i = 0; i < weightStrings.Length; i++)
+            {
+                weights[i] = double.Parse(weightStrings[i].Trim(), System.Globalization.CultureInfo.InvariantCulture);
+            }
 
             _conv = new Conv(weights.Length == 0 ? [1.0] : weights);
         }

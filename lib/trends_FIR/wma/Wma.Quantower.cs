@@ -34,7 +34,7 @@ public sealed class WmaIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "WMA - Weighted Moving Average";
         Description = "Weighted Moving Average with linear weighting";
-        _series = new(name: $"WMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"WMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

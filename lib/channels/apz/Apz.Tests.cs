@@ -370,7 +370,7 @@ public class ApzTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 10;
+        const int period = 10;
         double multiplier = 2.0;
 
         // 1. Batch Mode (static method)

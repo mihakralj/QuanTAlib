@@ -6,7 +6,7 @@ public class TValueEventArgsTests
     public void Constructor_WithValueAndIsNew_SetsPropertiesCorrectly()
     {
         var tValue = new TValue(DateTime.UtcNow.Ticks, 123.45);
-        bool isNew = true;
+        const bool isNew = true;
 
         var eventArgs = new TValueEventArgs { Value = tValue, IsNew = isNew };
 

@@ -31,7 +31,7 @@
   <!-- SARIF output for NDepend Roslyn Analyzer import -->
   <PropertyGroup Condition="'$(SolutionDir)' != ''">
     <SarifOutputDir>$(SolutionDir).sarif</SarifOutputDir>
-    <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).json</ErrorLog>
+    <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).json,version=2.1</ErrorLog>
   </PropertyGroup>
 
   <!-- Ensure SARIF output directory exists before build -->
@@ -62,7 +62,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);S1144;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0048;MA0051;MA0076;RCS1123;RCS1159</NoWarn>
+    <NoWarn>$(NoWarn);S1144;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0048;MA0051;MA0076;RCS1123;RCS1159;IDE0007</NoWarn>
   </PropertyGroup>
 
   <!-- Code Coverage Configuration (for NDepend integration) -->

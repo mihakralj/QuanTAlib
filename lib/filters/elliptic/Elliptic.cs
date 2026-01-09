@@ -59,16 +59,16 @@ public sealed class Elliptic : AbstractBase
         double omega_z_scaled = C_wz * Wc;
         double sigma_scaled = C_sigma * Wc;
         double Kp_scaled = C_Kp_norm * Wc * Wc;
-        
+
         double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
         if (Math.Abs(a0_denom) < 1e-9) a0_denom = 1e-9;
 
-        double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
-        
+        const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
+
         double b0_val = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom;
         double b1_val = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom;
         double b2_val = b0_val;
-        
+
         double a1_val = (2.0 * Kp_scaled - 2.0) / a0_denom;
         double a2_val = (1.0 + 2.0 * sigma_scaled + Kp_scaled) / a0_denom;
 
@@ -78,7 +78,7 @@ public sealed class Elliptic : AbstractBase
         // Transfer function H(z) denominator is 1 + a1*z^-1 + a2*z^-2
         double sum_b = b0_val + b1_val + b2_val;
         double sum_a = 1.0 + a1_val + a2_val;
-        
+
         double gain_corr = sum_a / sum_b;
 
         _b0 = b0_val * gain_corr;
@@ -111,14 +111,14 @@ public sealed class Elliptic : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
         Calculate(values, results, Period);
 
-        TSeries output = new TSeries();
+        TSeries output = [];
         for (int i = 0; i < values.Length; i++)
         {
             output.Add(source[i].Time, results[i]);
@@ -168,7 +168,7 @@ public sealed class Elliptic : AbstractBase
 
         // Apply filter:
         // filt = b0 * s0 + b1 * s1 + b2 * s2 - a1 * f1 - a2 * f2
-        
+
         // Use FMA for precision and performance
         double term1 = Math.FusedMultiplyAdd(_b1, _state.Src1, _b0 * val);
         double term2 = Math.FusedMultiplyAdd(_b2, _state.Src2, term1);
@@ -211,16 +211,16 @@ public sealed class Elliptic : AbstractBase
         double omega_z_scaled = C_wz * Wc;
         double sigma_scaled = C_sigma * Wc;
         double Kp_scaled = C_Kp_norm * Wc * Wc;
-        
+
         double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
         if (Math.Abs(a0_denom) < 1e-9) a0_denom = 1e-9;
 
-        double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
-        
+        const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
+
         double b0 = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom;
         double b1 = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom;
         double b2 = b0;
-        
+
         double a1 = (2.0 * Kp_scaled - 2.0) / a0_denom;
         double a2 = (1.0 + 2.0 * sigma_scaled + Kp_scaled) / a0_denom;
 

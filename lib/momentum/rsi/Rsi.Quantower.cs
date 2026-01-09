@@ -35,7 +35,7 @@ public sealed class RsiIndicator : Indicator, IWatchlistIndicator
         Name = "RSI - Relative Strength Index";
         Description = "Measures the speed and change of price movements";
 
-        _series = new(name: "RSI", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "RSI", color: Color.Blue, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

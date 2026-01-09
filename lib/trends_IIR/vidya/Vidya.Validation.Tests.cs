@@ -25,7 +25,7 @@ public class VidyaValidationTests
         // Therefore, we cannot validate against Tulip.
         // We validate against a simple, readable reference implementation of the CMO-based VIDYA.
 
-        var period = 14;
+        const int period = 14;
 
         // QuanTAlib
         var vidya = new Vidya(period);
@@ -47,7 +47,7 @@ public class VidyaValidationTests
     [Fact]
     public void ValidateBatchAgainstReference()
     {
-        var period = 14;
+        const int period = 14;
 
         // QuanTAlib Batch
         var qResults = Vidya.Batch(_testData.Data, period);
@@ -61,7 +61,7 @@ public class VidyaValidationTests
         _output.WriteLine("VIDYA Batch validated successfully against reference implementation");
     }
 
-    private static IReadOnlyList<double> CalculateVidyaReference(TSeries data, int period)
+    private static List<double> CalculateVidyaReference(TSeries data, int period)
     {
         var results = new List<double>();
         var prices = data.Select(x => x.Value).ToList();
@@ -90,7 +90,7 @@ public class VidyaValidationTests
             var recentChanges = changes.TakeLast(period).ToList();
 
             sumUp = recentChanges.Where(x => x > 0).Sum();
-            sumDown = recentChanges.Where(x => x < 0).Select(x => -x).Sum();
+            sumDown = recentChanges.Sum(x => x < 0 ? -x : 0);
 
             double sum = sumUp + sumDown;
             double vi = 0;

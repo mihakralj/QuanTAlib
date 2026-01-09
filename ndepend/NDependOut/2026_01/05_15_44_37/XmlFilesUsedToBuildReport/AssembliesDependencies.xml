@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<AssemblyDependencies>
+  <Dependencies_For Assembly="QuanTAlib v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Security.Cryptography v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+</AssemblyDependencies>

@@ -66,7 +66,7 @@ public sealed class Apz : ITValuePublisher
             LastValidPrice = double.NaN,
             LastValidHigh = double.NaN,
             LastValidLow = double.NaN,
-            IsHot = false
+            IsHot = false,
         };
     }
 
@@ -302,22 +302,9 @@ public sealed class Apz : ITValuePublisher
         _p_state = _state;
 
         // Use all available data for priming to ensure proper convergence
-        int startIndex = 0;
+        const int startIndex = 0;
 
-        // Seed LastValidValues from data before warmup window
-        for (int i = startIndex - 1; i >= 0; i--)
-        {
-            var bar = source[i];
-            if (double.IsFinite(bar.Close))
-            {
-                _state.LastValidPrice = bar.Close;
-                _state.LastValidHigh = bar.High;
-                _state.LastValidLow = bar.Low;
-                break;
-            }
-        }
-
-        // Find valid values in warmup window if not found
+        // Find first valid values in the data
         if (double.IsNaN(_state.LastValidPrice))
         {
             for (int i = startIndex; i < source.Count; i++)
@@ -452,7 +439,6 @@ public sealed class Apz : ITValuePublisher
         CalculateScalarCore(high, low, close, outputs, period, multiplier);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CalculateScalarCore(
         ReadOnlySpan<double> high,
@@ -483,7 +469,7 @@ public sealed class Apz : ITValuePublisher
             LastValidPrice = double.NaN,
             LastValidHigh = double.NaN,
             LastValidLow = double.NaN,
-            IsHot = false
+            IsHot = false,
         };
 
         // Seed first valid values

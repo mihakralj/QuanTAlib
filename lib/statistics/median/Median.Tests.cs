@@ -175,7 +175,7 @@ public class MedianTests
     public void Median_Batch_Matches_Streaming()
     {
         // Arrange
-        int period = 5;
+        const int period = 5;
         var source = new TSeries();
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         for (int i = 0; i < 100; i++)

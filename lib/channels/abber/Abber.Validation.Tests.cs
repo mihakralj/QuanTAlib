@@ -62,7 +62,7 @@ public sealed class AbberValidationTests : IDisposable
         Assert.Equal(110.0, middle.Last.Value, 1e-10);
 
         // AvgDev = (0 + 10 + 15) / 3 = 25/3
-        double expectedAvgDev = 25.0 / 3.0;
+        const double expectedAvgDev = 25.0 / 3.0;
         double expectedBandWidth = 2.0 * expectedAvgDev;
 
         Assert.Equal(110.0 + expectedBandWidth, upper.Last.Value, 1e-10);

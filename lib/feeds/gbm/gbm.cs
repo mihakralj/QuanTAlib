@@ -15,41 +15,34 @@ public sealed class GBM : IFeed
 #pragma warning restore S101
 {
     private readonly Random? _rnd;
-    private readonly double _startPrice;
 
     private double _lastPrice;
     private long _lastTime;
 
-    private readonly double _mu;
-    private readonly double _sigma;
-
-    // Precomputed GBM constants
     private readonly double _drift;
     private readonly double _vol;
     private readonly long _defaultTimeStep;
 
-    // State for streaming bar formation (only when isNew=false)
     private TBar _currentBar;
     private bool _hasCurrentBar;
 
-    // Box-Muller optimization: cache second normal
     private double _cachedZ;
     private bool _hasCachedZ;
 
     /// <summary>
     /// Gets the annual drift/return rate.
     /// </summary>
-    public double Mu => _mu;
+    public double Mu { get; }
 
     /// <summary>
     /// Gets the annual volatility.
     /// </summary>
-    public double Sigma => _sigma;
+    public double Sigma { get; }
 
     /// <summary>
     /// Gets the starting price.
     /// </summary>
-    public double StartPrice => _startPrice;
+    public double StartPrice { get; }
 
     /// <summary>
     /// Gets the current price state.
@@ -100,17 +93,16 @@ public sealed class GBM : IFeed
             throw new ArgumentOutOfRangeException(nameof(defaultTimeframe), defaultTimeframe, "Timeframe must be positive");
 
         _rnd = seed.HasValue ? new Random(seed.Value) : null;
-        _startPrice = startPrice;
+        StartPrice = startPrice;
         _lastPrice = startPrice;
         _lastTime = DateTime.UtcNow.Ticks;
 
-        _mu = mu;
-        _sigma = sigma;
+        Mu = mu;
+        Sigma = sigma;
 
         _defaultTimeStep = timeframe.Ticks;
 
-        // Calculate dt based on timeframe (assuming 252 trading days/year, 6.5 hours/day)
-        double minutesPerYear = 252.0 * 6.5 * 60.0;
+        const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = timeframe.TotalMinutes / minutesPerYear;
 
         _drift = (mu - 0.5 * sigma * sigma) * dt;
@@ -122,7 +114,7 @@ public sealed class GBM : IFeed
     /// </summary>
     public void Reset()
     {
-        _lastPrice = _startPrice;
+        _lastPrice = StartPrice;
         _lastTime = DateTime.UtcNow.Ticks;
         _currentBar = default;
         _hasCurrentBar = false;
@@ -136,7 +128,7 @@ public sealed class GBM : IFeed
     /// <param name="startTime">The start time in ticks.</param>
     public void Reset(long startTime)
     {
-        _lastPrice = _startPrice;
+        _lastPrice = StartPrice;
         _lastTime = startTime;
         _currentBar = default;
         _hasCurrentBar = false;
@@ -295,11 +287,10 @@ public sealed class GBM : IFeed
         double[] c = new double[count];
         double[] v = new double[count];
 
-        // Calculate dt for this specific interval
-        double minutesPerYear = 252.0 * 6.5 * 60.0;
+        const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = interval.TotalMinutes / minutesPerYear;
-        double drift = (_mu - 0.5 * _sigma * _sigma) * dt;
-        double vol = _sigma * Math.Sqrt(dt);
+        double drift = (Mu - 0.5 * Sigma * Sigma) * dt;
+        double vol = Sigma * Math.Sqrt(dt);
 
         long timeStep = interval.Ticks;
         double currentPrice = _lastPrice;

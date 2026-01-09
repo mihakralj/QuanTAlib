@@ -11,7 +11,7 @@ namespace QuanTAlib;
 
 public enum SourceType
 {
-    Open, High, Low, Close, HL2, OC2, OHL3, HLC3, OHLC4, HLCC4
+    Open, High, Low, Close, HL2, OC2, OHL3, HLC3, OHLC4, HLCC4,
 }
 
 public static class IndicatorExtensions
@@ -39,12 +39,12 @@ public static class IndicatorExtensions
                 "OHL/3 (Mean)", SourceType.OHL3,
                 "HLC/3 (Typical)", SourceType.HLC3,
                 "OHLC/4 (Average)", SourceType.OHLC4,
-                "HLCC/4 (Weighted)", SourceType.HLCC4
+                "HLCC/4 (Weighted)", SourceType.HLCC4,
             })
         { }
     }
 
-    public static TBar GetInputBar(this Indicator indicator, UpdateArgs args)
+    public static TBar GetInputBar(this Indicator indicator, UpdateArgs _)
     {
         var historicalData = indicator.HistoricalData;
         return new TBar(
@@ -178,7 +178,7 @@ public static class IndicatorExtensions
                 using Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) };
                 using Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot };
 
-                int hotCount = (warmupPeriod >= 0) ? (indicator.Count - warmupPeriod - rightIndex) : 0;
+                int hotCount = warmupPeriod >= 0 ? indicator.Count - warmupPeriod - rightIndex : 0;
 
                 // Draw the hot part
                 int hotSegments = Math.Min(hotCount, count - 1);

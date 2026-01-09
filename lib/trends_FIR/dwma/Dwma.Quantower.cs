@@ -34,7 +34,7 @@ public class DwmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "DWMA - Double Weighted Moving Average";
         Description = "Double Weighted Moving Average";
-        Series = new(name: $"DWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"DWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

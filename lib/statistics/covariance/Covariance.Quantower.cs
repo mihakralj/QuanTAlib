@@ -40,7 +40,7 @@ public sealed class CovarianceIndicator : Indicator, IWatchlistIndicator
         Name = "Covariance";
         Description = "Measures the joint variability of two random variables.";
 
-        _series = new(name: "Covariance", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Covariance", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

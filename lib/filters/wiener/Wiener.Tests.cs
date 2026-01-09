@@ -16,7 +16,7 @@ public class WienerTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new Wiener(1));
         Assert.Throws<ArgumentOutOfRangeException>(() => new Wiener(10, smoothPeriod: 1));
-        
+
         var wiener = new Wiener(10, smoothPeriod: 10);
         Assert.NotNull(wiener);
         Assert.Equal("Wiener(10,10)", wiener.Name);
@@ -27,7 +27,7 @@ public class WienerTests
     {
         var data = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;
-        int period = 20;
+        const int period = 20;
         int smoothPeriod = 5;
 
         // 1. Batch Mode
@@ -70,11 +70,11 @@ public class WienerTests
     public void HandlesNaN()
     {
         var wiener = new Wiener(5, 5);
-        
+
         wiener.Update(new TValue(DateTime.UtcNow, 100));
         wiener.Update(new TValue(DateTime.UtcNow, double.NaN));
         wiener.Update(new TValue(DateTime.UtcNow, 102));
-        
+
         // Should produce valid result if sufficient valid data exists within window (or handle it gracefully)
         Assert.True(double.IsFinite(wiener.Last.Value));
     }
@@ -93,7 +93,7 @@ public class WienerTests
         {
             wiener.Update(new TValue(DateTime.UtcNow, 100));
         }
-        
+
         Assert.True(wiener.IsHot);
     }
 

@@ -21,7 +21,7 @@ public sealed class LinRegValidationTests : IDisposable
     [Fact]
     public void Validate_Against_Skender_Slope()
     {
-        var period = 14;
+        const int period = 14;
         var skender = _data.SkenderQuotes.GetSlope(period).ToList();
 
         var linreg = new LinReg(period);
@@ -39,7 +39,7 @@ public sealed class LinRegValidationTests : IDisposable
     [Fact]
     public void Validate_Against_Skender_RSquared()
     {
-        var period = 14;
+        const int period = 14;
         var skender = _data.SkenderQuotes.GetSlope(period).ToList();
 
         var linreg = new LinReg(period);

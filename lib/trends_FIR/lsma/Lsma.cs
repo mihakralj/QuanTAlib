@@ -47,10 +47,12 @@ public sealed class Lsma : AbstractBase
     private State _p_state;
 
     private int _tickCount;
+    private bool _isNew;
 
     private const int ResyncInterval = 1000;
 
     public override bool IsHot => _buffer.IsFull;
+    public bool IsNew => _isNew;
 
     /// <summary>
     /// Creates LSMA with specified period and offset.
@@ -78,6 +80,7 @@ public sealed class Lsma : AbstractBase
 
         // denominator = n * sum_x2 - sum_x^2
         _denominator = period * sum_x2 - _sum_x * _sum_x;
+        _state.LastValidValue = double.NaN;
     }
 
     public Lsma(ITValuePublisher source, int period, int offset = 0) : this(period, offset)
@@ -149,6 +152,7 @@ public sealed class Lsma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             double val = GetValidValue(input.Value);
@@ -394,6 +398,7 @@ public sealed class Lsma : AbstractBase
     {
         _buffer.Clear();
         _state = default;
+        _state.LastValidValue = double.NaN;
         _p_state = default;
         Last = default;
         _tickCount = 0;

@@ -10,14 +10,11 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Hpf : AbstractBase
 {
-    // Ehlers commonly uses 0.707 * 360/Len in the alpha expression (Roofing Filter HP stage).
-    // 0.70710678... = sqrt(2)/2.
     private const double OmegaFactor = 0.70710678118654752440084436210485;
 
-    private readonly int _length;
-    private readonly double _c1; // (1 - a/2)^2
-    private readonly double _c2; // 2*(1-a)
-    private readonly double _c3; // (1-a)^2  (note: subtracted in recursion)
+    private readonly double _c1;
+    private readonly double _c2;
+    private readonly double _c3;
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
 
@@ -25,31 +22,30 @@ public sealed class Hpf : AbstractBase
     private State _pState;
 
     [StructLayout(LayoutKind.Sequential)]
+    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
     private struct State
     {
-        public double Hp1;      // y[t-1]
-        public double Hp2;      // y[t-2]
-        public double Src1;     // x[t-1]
-        public double Src2;     // x[t-2]
-        public int Samples;     // number of valid (finite) samples seen
-        public bool HasSrc;     // whether we have ever seen a finite source
+        public double Hp1;
+        public double Hp2;
+        public double Src1;
+        public double Src2;
+        public int Samples;
+        public bool HasSrc;
     }
+    #pragma warning restore CA1066
 
-    public int Length => _length;
+    public int Length { get; }
 
     public Hpf(int length = 40)
     {
         if (length < 2) throw new ArgumentOutOfRangeException(nameof(length), "Length must be at least 2.");
 
-        _length = length;
+        Length = length;
 
-        // ω = 0.707 * 2π/Len  (matches commonly published Roofing Filter HP stage)
         double omega = OmegaFactor * (2.0 * Math.PI / length);
         double cosW = Math.Cos(omega);
         double sinW = Math.Sin(omega);
 
-        // cosW should not hit 0 for integer lengths with the 0.707 factor,
-        // but guard anyway for pathological input.
         if (Math.Abs(cosW) < 1e-15)
             throw new ArgumentOutOfRangeException(nameof(length), "Length produces an unstable coefficient set (cos(ω)≈0).");
 
@@ -64,7 +60,7 @@ public sealed class Hpf : AbstractBase
         _c3 = oneMinusA * oneMinusA;
 
         Name = $"HPF({length})";
-        WarmupPeriod = length; // heuristic; you can tighten this if you want
+        WarmupPeriod = length;
         Reset();
     }
 
@@ -92,7 +88,7 @@ public sealed class Hpf : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
-            Update(new TValue(DateTime.MinValue, v), true);
+            Update(new TValue(DateTime.MinValue, v), isNew: true);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -149,14 +145,11 @@ public sealed class Hpf : AbstractBase
         double hp1  = _state.Hp1;
         double hp2  = _state.Hp2;
 
-        // d2 = price - 2*src1 + src2  (use FMA)
         double d2 = Math.FusedMultiplyAdd(-2.0, src1, price + src2);
 
-        // hp = c1*d2 + c2*hp1 - c3*hp2  (2 FMAs)
         double hp = Math.FusedMultiplyAdd(_c1, d2, _c2 * hp1);
         hp = Math.FusedMultiplyAdd(-_c3, hp2, hp);
 
-        // shift state
         _state.Hp2 = hp1;
         _state.Hp1 = hp;
         _state.Src2 = src1;
@@ -170,23 +163,11 @@ public sealed class Hpf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         var output = new double[source.Count];
 
-        Calculate(source.Values, output, _length);
-
-        var result = new TSeries();
-        var times = source.Times;
-        for (int i = 0; i < source.Count; i++)
-            result.Add(new TValue(times[i], output[i]));
-
-        // To restore state, we could use the new Calculate overload that returns state,
-        // or just accept that TSeries update re-runs logic.
-        // But for perfromance, we want to capture state.
-        // Let's use the explicit Calculate overload.
-        
-        Calculate(source.Values, output, _length, out var endState);
+        Calculate(source.Values, output, Length, out var endState);
 
         _state = new State
         {
@@ -195,10 +176,16 @@ public sealed class Hpf : AbstractBase
             Src1 = endState.Src1,
             Src2 = endState.Src2,
             Samples = endState.Samples,
-            HasSrc = endState.HasSrc
+            HasSrc = endState.HasSrc,
         };
         _pState = _state;
+
+        var result = new TSeries();
+        var times = source.Times;
         Last = new TValue(times[^1], output[^1]);
+
+        for (int i = 0; i < source.Count; i++)
+            result.Add(new TValue(times[i], output[i]));
 
         return result;
     }
@@ -228,7 +215,6 @@ public sealed class Hpf : AbstractBase
             return;
         }
 
-        // coeffs
         const double omegaFactor = OmegaFactor;
         double omega = omegaFactor * (2.0 * Math.PI / length);
         double cosW = Math.Cos(omega);

@@ -38,7 +38,7 @@ public sealed class ApoValidationTests : IDisposable
     [Fact]
     public void Validate_Against_TALib_Apo()
     {
-        int fastPeriod = 12;
+        const int fastPeriod = 12;
         int slowPeriod = 26;
         double[] input = _testData.Data.Values.ToArray();
         double[] output = new double[input.Length];

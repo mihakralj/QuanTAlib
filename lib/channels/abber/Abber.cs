@@ -203,7 +203,7 @@ public sealed class Abber : ITValuePublisher
             _state = _state with
             {
                 SumSource = _sourceBuffer.Sum,
-                SumDeviation = _deviationBuffer.Sum
+                SumDeviation = _deviationBuffer.Sum,
             };
         }
 
@@ -270,6 +270,51 @@ public sealed class Abber : ITValuePublisher
         Prime(source);
 
         return (new TSeries(tMiddle, vMiddle), new TSeries(tUpper, vUpper), new TSeries(tLower, vLower));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ResyncSums(int period, ref WorkBuffers buffers, ref ScalarState state)
+    {
+        state.TickCount = 0;
+
+        if (Vector.IsHardwareAccelerated && period >= Vector<double>.Count)
+        {
+            state.SumSource = SumSimd(buffers.Source);
+            state.SumDeviation = SumSimd(buffers.Deviation);
+        }
+        else
+        {
+            double recalcSumSource = 0, recalcSumDeviation = 0;
+            for (int k = 0; k < period; k++)
+            {
+                recalcSumSource += buffers.Source[k];
+                recalcSumDeviation += buffers.Deviation[k];
+            }
+            state.SumSource = recalcSumSource;
+            state.SumDeviation = recalcSumDeviation;
+        }
+    }
+
+    private static double SumSimd(ReadOnlySpan<double> source)
+    {
+        var sumVector = Vector<double>.Zero;
+        int i = 0;
+        int size = Vector<double>.Count;
+        int len = source.Length;
+
+        for (; i <= len - size; i += size)
+        {
+            sumVector += new Vector<double>(source.Slice(i, size));
+        }
+
+        double sum = Vector.Sum(sumVector);
+
+        for (; i < len; i++)
+        {
+            sum += source[i];
+        }
+
+        return sum;
     }
 
     /// <summary>
@@ -499,7 +544,7 @@ public sealed class Abber : ITValuePublisher
 
             var state = new ScalarState
             {
-                LastValidValue = double.NaN
+                LastValidValue = double.NaN,
             };
 
             SeedFirstValidValue(source, ref state);
@@ -623,51 +668,6 @@ public sealed class Abber : ITValuePublisher
                 ResyncSums(period, ref buffers, ref state);
             }
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ResyncSums(int period, ref WorkBuffers buffers, ref ScalarState state)
-    {
-        state.TickCount = 0;
-
-        if (Vector.IsHardwareAccelerated && period >= Vector<double>.Count)
-        {
-            state.SumSource = SumSimd(buffers.Source);
-            state.SumDeviation = SumSimd(buffers.Deviation);
-        }
-        else
-        {
-            double recalcSumSource = 0, recalcSumDeviation = 0;
-            for (int k = 0; k < period; k++)
-            {
-                recalcSumSource += buffers.Source[k];
-                recalcSumDeviation += buffers.Deviation[k];
-            }
-            state.SumSource = recalcSumSource;
-            state.SumDeviation = recalcSumDeviation;
-        }
-    }
-
-    private static double SumSimd(ReadOnlySpan<double> source)
-    {
-        var sumVector = Vector<double>.Zero;
-        int i = 0;
-        int size = Vector<double>.Count;
-        int len = source.Length;
-
-        for (; i <= len - size; i += size)
-        {
-            sumVector += new Vector<double>(source.Slice(i, size));
-        }
-
-        double sum = Vector.Sum(sumVector);
-
-        for (; i < len; i++)
-        {
-            sum += source[i];
-        }
-
-        return sum;
     }
 
     /// <summary>

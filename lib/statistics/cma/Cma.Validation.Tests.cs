@@ -128,7 +128,7 @@ public sealed class CmaValidationTests : IDisposable
         // Welford's algorithm should handle this without overflow
         var cma = new Cma();
         double[] largeValues = new double[1000];
-        double baseValue = 1e10;
+        const double baseValue = 1e10;
 
         for (int i = 0; i < largeValues.Length; i++)
         {

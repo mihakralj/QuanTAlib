@@ -110,7 +110,7 @@ public class LoessIndicatorTests
             SourceType.HLC3,
             SourceType.OC2,
             SourceType.OHL3,
-            SourceType.OHLC4
+            SourceType.OHLC4,
         };
 
         foreach (var source in sources)
@@ -126,5 +126,4 @@ public class LoessIndicatorTests
                 $"Source {source} should produce finite value");
         }
     }
-
 }

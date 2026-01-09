@@ -153,7 +153,7 @@ public class AfirmaIndicatorTests
             Afirma.WindowType.Hanning,
             Afirma.WindowType.Hamming,
             Afirma.WindowType.Blackman,
-            Afirma.WindowType.BlackmanHarris
+            Afirma.WindowType.BlackmanHarris,
         };
 
         foreach (var window in windows)

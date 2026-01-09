@@ -32,7 +32,7 @@ public sealed class ApoIndicator : Indicator, IWatchlistIndicator
         Name = "APO - Absolute Price Oscillator";
         Description = "Momentum indicator showing the difference between two EMAs";
 
-        _series = new(name: "APO", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "APO", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

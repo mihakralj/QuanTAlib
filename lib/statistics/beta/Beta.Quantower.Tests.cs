@@ -81,7 +81,7 @@ public class BetaIndicatorTests
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
-        
+
         // Add initial bars
         for (int i = 0; i < 10; i++)
         {

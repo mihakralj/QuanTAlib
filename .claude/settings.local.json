@@ -11,7 +11,62 @@
       "Bash(qodana scan:*)",
       "Bash(dir:*)",
       "Bash(docker info:*)",
-      "Bash(npx markdownlint-cli:*)"
+      "Bash(npx markdownlint-cli:*)",
+      "Bash(dotnet restore:*)",
+      "WebSearch",
+      "WebFetch(domain:www.jetbrains.com)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -NoProfile -File -:*)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File C:githubquantalibfix-whitespace.ps1)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\github\\\\quantalib\\\\fix-whitespace.ps1\")",
+      "Bash(dotnet clean:*)"
     ]
+  },
+  "mcpServers": {
+    "MCP Docs": {
+      "type": "sse",
+      "url": "https://gitmcp.io/docs"
+    },
+    "tavily": {
+      "command": "npx",
+      "args": ["-y", "tavily-mcp@latest"],
+      "env": {
+        "TAVILY_API_KEY": "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"
+      }
+    },
+    "Ref": {
+      "command": "npx",
+      "args": ["ref-tools-mcp@latest"],
+      "env": {
+        "REF_API_KEY": "ref-c60dc6e79ca35aaccf30"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "wolfram-mcp": {
+      "command": "npx",
+      "args": ["-y", "wolfram-mcp@latest"],
+      "env": {
+        "WOLFRAM_APP_ID": "83E9X2U98T"
+      }
+    },
+    "qdrant": {
+      "command": "uvx",
+      "args": ["mcp-server-qdrant"],
+      "env": {
+        "QDRANT_URL": "http://192.168.1.85:6333",
+        "COLLECTION_NAME": "agent_memory",
+        "EMBEDDING_MODEL": "sentence-transformers/all-MiniLM-L6-v2"
+      }
+    },
+    "codacy": {
+      "command": "npx",
+      "args": ["-y", "@codacy/codacy-mcp"],
+      "env": {
+        "CODACY_ACCOUNT_TOKEN": "HJgLyN2VclacmCEVxhkT"
+      }
+    }
   }
 }

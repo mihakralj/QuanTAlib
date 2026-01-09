@@ -31,9 +31,9 @@ public sealed class AdxIndicator : Indicator, IWatchlistIndicator
         Name = "ADX - Average Directional Index";
         Description = "Measures the strength of a trend";
 
-        _adxSeries = new(name: "ADX", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        _diPlusSeries = new(name: "+DI", color: Color.Green, width: 1, style: LineStyle.Solid);
-        _diMinusSeries = new(name: "-DI", color: Color.Red, width: 1, style: LineStyle.Solid);
+        _adxSeries = new LineSeries(name: "ADX", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _diPlusSeries = new LineSeries(name: "+DI", color: Color.Green, width: 1, style: LineStyle.Solid);
+        _diMinusSeries = new LineSeries(name: "-DI", color: Color.Red, width: 1, style: LineStyle.Solid);
 
         AddLineSeries(_adxSeries);
         AddLineSeries(_diPlusSeries);

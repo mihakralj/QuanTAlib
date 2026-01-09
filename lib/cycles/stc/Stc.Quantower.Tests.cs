@@ -37,13 +37,13 @@ public class StcIndicatorTests
             CycleLength = 10,
             FastLength = 23,
             SlowLength = 50,
-            Smoothing = StcSmoothing.Ema
+            Smoothing = StcSmoothing.Ema,
         };
 
         // Format is "STC {CycleLength}:{FastLength}:{SlowLength}:{Smoothing}:{Source}"
         // e.g. "STC 10:23:50:Ema:Close"
         string shortName = indicator.ShortName;
-        
+
         Assert.Contains("STC", shortName, StringComparison.Ordinal);
         Assert.Contains("10", shortName, StringComparison.Ordinal);
         Assert.Contains("23", shortName, StringComparison.Ordinal);
@@ -72,7 +72,7 @@ public class StcIndicatorTests
 
         // Add historical data
         var now = DateTime.UtcNow;
-        
+
         // We must feed bars one by one to simulate history for stateful indicators
         for (int i = 0; i < 50; i++)
         {
@@ -93,7 +93,7 @@ public class StcIndicatorTests
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
-        
+
         // Feed enough history to warm up
         for (int i = 0; i < 50; i++)
         {
@@ -114,7 +114,7 @@ public class StcIndicatorTests
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
-        
+
         // Feed warmup bars
         for (int i = 0; i < 50; i++)
         {
@@ -166,17 +166,17 @@ public class StcIndicatorTests
 
         foreach (var source in sources)
         {
-            var indicator = new StcIndicator 
-            { 
-                CycleLength = 10, 
-                FastLength = 23, 
-                SlowLength = 50, 
-                Source = source 
+            var indicator = new StcIndicator
+            {
+                CycleLength = 10,
+                FastLength = 23,
+                SlowLength = 50,
+                Source = source,
             };
             indicator.Initialize();
 
             var now = DateTime.UtcNow;
-            
+
             // Feed enough bars to produce a value
             // Warmup = 50 + 20 = 70 approx
             for (int i = 0; i < 80; i++)
@@ -194,7 +194,7 @@ public class StcIndicatorTests
     public void StcIndicator_Parameters_CanBeChanged()
     {
         var indicator = new StcIndicator();
-        
+
         indicator.CycleLength = 20;
         Assert.Equal(20, indicator.CycleLength);
 
@@ -203,7 +203,7 @@ public class StcIndicatorTests
 
         indicator.SlowLength = 26;
         Assert.Equal(26, indicator.SlowLength);
-        
+
         indicator.Smoothing = StcSmoothing.Digital;
         Assert.Equal(StcSmoothing.Digital, indicator.Smoothing);
     }

@@ -10,11 +10,10 @@ namespace QuanTAlib;
 /// WMA: Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// WMA applies linear weighting to data points, giving more weight to recent values.
-/// Uses dual running sums for O(1) complexity per update.
-///
-/// Calculation:
-/// WMA = (n*P_n + (n-1)*P_(n-1) + ... + 1*P_1) / (n*(n+1)/2)
+/// <para>WMA applies linear weighting to data points, giving more weight to recent values.
+/// Uses dual running sums for O(1) complexity per update.</para>
+/// <para>Calculation:
+/// WMA = (n*P_n + (n-1)*P_(n-1) + ... + 1*P_1) / (n*(n+1)/2)</para>
 ///
 /// O(1) update:
 /// S_new = S - oldest + newest
@@ -80,6 +79,7 @@ public sealed class Wma : AbstractBase
     }
 
     public override bool IsHot => _buffer.IsFull;
+    public bool IsNew { get; private set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -100,14 +100,14 @@ public sealed class Wma : AbstractBase
         {
             double oldSum = _state.Sum;
             double oldest = _buffer.Oldest;
-            _state.Sum = _state.Sum - oldest + val;
-            _state.WSum = _state.WSum - oldSum + (_period * val);
+            _state.Sum = Math.FusedMultiplyAdd(-1.0, oldest, _state.Sum + val);
+            _state.WSum = Math.FusedMultiplyAdd(-1.0, oldSum, _state.WSum + _period * val);
         }
         else
         {
             int count = _buffer.Count + 1;
             _state.Sum += val;
-            _state.WSum += count * val;
+            _state.WSum = Math.FusedMultiplyAdd(count, val, _state.WSum);
         }
 
         _buffer.Add(val);
@@ -125,7 +125,7 @@ public sealed class Wma : AbstractBase
             foreach (double item in _buffer)
             {
                 recalcSum += item;
-                recalcWsum += weight * item;
+                recalcWsum = Math.FusedMultiplyAdd(weight, item, recalcWsum);
                 weight++;
             }
             _state.Sum = recalcSum;
@@ -136,6 +136,7 @@ public sealed class Wma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        IsNew = isNew;
         if (isNew)
         {
             double val = GetValidValue(input.Value);
@@ -158,8 +159,8 @@ public sealed class Wma : AbstractBase
             double val = GetValidValue(input.Value);
 
             int weight = _buffer.IsFull ? _period : _buffer.Count;
-            _state.Sum = _state.Sum - _state.LastInput + val;
-            _state.WSum += weight * (val - _state.LastInput);
+            _state.Sum = Math.FusedMultiplyAdd(-1.0, _state.LastInput, _state.Sum + val);
+            _state.WSum = Math.FusedMultiplyAdd(weight, val - _state.LastInput, _state.WSum);
 
             _buffer.UpdateNewest(val);
         }
@@ -309,7 +310,7 @@ public sealed class Wma : AbstractBase
                 val = lastValid;
 
             sum += val;
-            wsum += (i + 1) * val;
+            wsum = Math.FusedMultiplyAdd(i + 1, val, wsum);
             buffer[i] = val;
 
             double currentDivisor = (double)(i + 1) * (i + 2) * 0.5;
@@ -327,8 +328,8 @@ public sealed class Wma : AbstractBase
 
             double oldSum = sum;
             double oldest = buffer[bufferIdx];
-            sum = sum - oldest + val;
-            wsum = wsum - oldSum + (period * val);
+            sum = Math.FusedMultiplyAdd(-1.0, oldest, sum + val);
+            wsum = Math.FusedMultiplyAdd(-1.0, oldSum, wsum + period * val);
 
             buffer[bufferIdx] = val;
             bufferIdx++;
@@ -352,7 +353,7 @@ public sealed class Wma : AbstractBase
 
                     double v = buffer[idx];
                     recalcSum += v;
-                    recalcWsum += (k + 1) * v;
+                    recalcWsum = Math.FusedMultiplyAdd(k + 1, v, recalcWsum);
                 }
                 sum = recalcSum;
                 wsum = recalcWsum;
@@ -389,7 +390,7 @@ public sealed class Wma : AbstractBase
 
         var vInvDivisor = Vector512.Create(invDivisor);
         var vPeriod = Vector512.Create((double)period);
-        int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;
+        int simdEnd = period + (len - period) / vectorWidth * vectorWidth;
 
         var vSumState = Vector512.Create(sum);
         var vWsumState = Vector512.Create(wsum);
@@ -470,7 +471,7 @@ public sealed class Wma : AbstractBase
             double oldSum = sum;
             double oldest = Unsafe.Add(ref srcRef, idx - period);
             sum = sum - oldest + val;
-            wsum = wsum - oldSum + (period * val);
+            wsum = wsum - oldSum + period * val;
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }
@@ -555,8 +556,10 @@ public sealed class Wma : AbstractBase
                 }
                 else
                 {
-                    vU1 = Avx.Subtract(Avx.Multiply(vPeriod, vNew1), vSumsShifted1);
-                    vU2 = Avx.Subtract(Avx.Multiply(vPeriod, vNew2), vSumsShifted2);
+                    var vTerm1 = Avx.Multiply(vPeriod, vNew1);
+                    var vTerm2 = Avx.Multiply(vPeriod, vNew2);
+                    vU1 = Avx.Subtract(vTerm1, vSumsShifted1);
+                    vU2 = Avx.Subtract(vTerm2, vSumsShifted2);
                 }
 
                 var vShiftW11 = Avx2.Permute4x64(vU1.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
@@ -577,8 +580,19 @@ public sealed class Wma : AbstractBase
                 var vLastW1 = Avx2.Permute4x64(vWsums1.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 var vWsums2 = Avx.Add(vLastW1, vPw22);
 
-                Vector256.StoreUnsafe(Avx.Multiply(vWsums1, vInvDivisor), ref Unsafe.Add(ref outRef, idx));
-                Vector256.StoreUnsafe(Avx.Multiply(vWsums2, vInvDivisor), ref Unsafe.Add(ref outRef, idx + vectorWidth));
+                Vector256<double> vResult1, vResult2;
+                if (Fma.IsSupported)
+                {
+                    vResult1 = Fma.MultiplyAdd(vWsums1, vInvDivisor, vZero);
+                    vResult2 = Fma.MultiplyAdd(vWsums2, vInvDivisor, vZero);
+                }
+                else
+                {
+                    vResult1 = Avx.Multiply(vWsums1, vInvDivisor);
+                    vResult2 = Avx.Multiply(vWsums2, vInvDivisor);
+                }
+                vResult1.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
+                vResult2.StoreUnsafe(ref Unsafe.Add(ref outRef, idx + vectorWidth));
 
                 vSumState = Avx2.Permute4x64(vSums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 vWsumState = Avx2.Permute4x64(vWsums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
@@ -602,8 +616,16 @@ public sealed class Wma : AbstractBase
                 var vSums = Avx.Add(vSumState, vPs2);
 
                 var vSumsShifted = Avx.Subtract(vSums, vDeltaS);
-                var vTerm1 = Avx.Multiply(vPeriod, vNew);
-                var vU = Avx.Subtract(vTerm1, vSumsShifted);
+                Vector256<double> vU;
+                if (Fma.IsSupported)
+                {
+                    vU = Fma.MultiplySubtract(vPeriod, vNew, vSumsShifted);
+                }
+                else
+                {
+                    var vTerm1 = Avx.Multiply(vPeriod, vNew);
+                    vU = Avx.Subtract(vTerm1, vSumsShifted);
+                }
 
                 var vShiftW1 = Avx2.Permute4x64(vU.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
                 vShiftW1 = Avx.Blend(vZero, vShiftW1, 0b_1110);
@@ -615,7 +637,15 @@ public sealed class Wma : AbstractBase
 
                 var vWsums = Avx.Add(vWsumState, vPw2);
 
-                var vResult = Avx.Multiply(vWsums, vInvDivisor);
+                Vector256<double> vResult;
+                if (Fma.IsSupported)
+                {
+                    vResult = Fma.MultiplyAdd(vWsums, vInvDivisor, vZero);
+                }
+                else
+                {
+                    vResult = Avx.Multiply(vWsums, vInvDivisor);
+                }
                 vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
 
                 vSumState = Avx2.Permute4x64(vSums.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
@@ -649,8 +679,8 @@ public sealed class Wma : AbstractBase
             double val = Unsafe.Add(ref srcRef, idx);
             double oldSum = sum;
             double oldest = Unsafe.Add(ref srcRef, idx - period);
-            sum = sum - oldest + val;
-            wsum = wsum - oldSum + (period * val);
+            sum = Math.FusedMultiplyAdd(-1.0, oldest, sum + val);
+            wsum = Math.FusedMultiplyAdd(-1.0, oldSum, wsum + period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }
@@ -719,10 +749,10 @@ public sealed class Wma : AbstractBase
 
                 // Calculate Wsum update: W_new = W_old - S_prev + n*new
                 // For element i: u_i = period * new_i - S_(i-1)
-                double u10 = period * vNew1.GetElement(0) - sumState;
-                double u11 = period * vNew1.GetElement(1) - ps10;
-                double u20 = period * vNew2.GetElement(0) - ps11;
-                double u21 = period * vNew2.GetElement(1) - ps20;
+                double u10 = Math.FusedMultiplyAdd(period, vNew1.GetElement(0), -sumState);
+                double u11 = Math.FusedMultiplyAdd(period, vNew1.GetElement(1), -ps10);
+                double u20 = Math.FusedMultiplyAdd(period, vNew2.GetElement(0), -ps11);
+                double u21 = Math.FusedMultiplyAdd(period, vNew2.GetElement(1), -ps20);
 
                 // Prefix sum of U values
                 double pw10 = wsumState + u10;
@@ -756,8 +786,8 @@ public sealed class Wma : AbstractBase
                 double ps0 = sumState + d0;
                 double ps1 = ps0 + d1;
 
-                double u0 = period * vNew.GetElement(0) - sumState;
-                double u1 = period * vNew.GetElement(1) - ps0;
+                double u0 = Math.FusedMultiplyAdd(period, vNew.GetElement(0), -sumState);
+                double u1 = Math.FusedMultiplyAdd(period, vNew.GetElement(1), -ps0);
 
                 double pw0 = wsumState + u0;
                 double pw1 = pw0 + u1;
@@ -781,7 +811,7 @@ public sealed class Wma : AbstractBase
                 {
                     double val = Unsafe.Add(ref srcRef, lastIdx - k);
                     recalcSum += val;
-                    recalcWsum += (period - k) * val;
+                    recalcWsum = Math.FusedMultiplyAdd(period - k, val, recalcWsum);
                 }
                 sumState = recalcSum;
                 wsumState = recalcWsum;
@@ -797,8 +827,8 @@ public sealed class Wma : AbstractBase
             double val = Unsafe.Add(ref srcRef, idx);
             double oldSum = sum;
             double oldest = Unsafe.Add(ref srcRef, idx - period);
-            sum = sum - oldest + val;
-            wsum = wsum - oldSum + (period * val);
+            sum = Math.FusedMultiplyAdd(-1.0, oldest, sum + val);
+            wsum = Math.FusedMultiplyAdd(-1.0, oldSum, wsum + period * val);
             Unsafe.Add(ref outRef, idx) = wsum * invDivisor;
         }
     }

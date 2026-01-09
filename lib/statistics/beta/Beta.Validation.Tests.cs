@@ -26,7 +26,7 @@ public sealed class BetaValidationTests : IDisposable
         // Asset Returns = 1.5 * Market Returns + Noise
         var assetQuotes = new List<TBar>();
         double assetPrice = 100;
-        double targetBeta = 1.5;
+        const double targetBeta = 1.5;
 
         // Use GBM for noise generation (sigma=0.2 gives ~0.0006 per step noise which matches original random noise level)
         var noiseGbm = new GBM(startPrice: 100, mu: 0, sigma: 0.2, seed: 777);

@@ -19,7 +19,7 @@ public sealed class SmaToleranceTests : IDisposable
     [Fact]
     public void Check_Skender_Tolerance()
     {
-        int period = 20;
+        const int period = 20;
         var sma = new Sma(period);
         var qResult = sma.Update(_testData.Data);
         var sResult = _testData.SkenderQuotes.GetSma(period).ToList();

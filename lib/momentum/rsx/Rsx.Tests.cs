@@ -58,7 +58,7 @@ public class RsxTests
     [Fact]
     public void StaticBatch_Matches_Streaming()
     {
-        int period = 14;
+        const int period = 14;
         int count = 100;
         var bars = _gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;

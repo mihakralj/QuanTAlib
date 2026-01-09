@@ -15,7 +15,7 @@ public class RsxValidationTests
     public void Validate_Against_Reference_Implementation()
     {
         // Generate data
-        int count = 1000;
+        const int count = 1000;
         int period = 14;
         var bars = _gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var prices = bars.Close.Values;

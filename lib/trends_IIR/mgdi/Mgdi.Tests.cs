@@ -25,7 +25,7 @@ public class MgdiTests
         mgdi.Update(new TValue(DateTime.UtcNow, double.NaN));
 
         // First valid value
-        double firstValid = 100.0;
+        const double firstValid = 100.0;
         var result = mgdi.Update(new TValue(DateTime.UtcNow, firstValid));
 
         Assert.Equal(firstValid, result.Value);

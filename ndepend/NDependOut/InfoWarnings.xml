@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<InfoWarnings>
+  <Info>Begin full analysis with NDepend v2026.1.2 on 09 Jan 2026 20:51:29. Runtime .NET 10.0.0</Info>
+  <Info>Visual Studio solution file resolved to absolute file path: from    {..\QuanTAlib.sln}    to    {C:\github\quantalib\QuanTAlib.sln}</Info>
+  <Info>Output directory resolved to absolute directory path: C:\github\quantalib\ndepend\NDependOut</Info>
+  <Info>Coverage file added from the command line argument: C:\github\quantalib\ndepend\coverage\1b7e3cf9-4e67-432c-a1eb-50aafeb7af99\coverage.opencover.xml</Info>
+  <Info>Coverage file added from the command line argument: C:\github\quantalib\ndepend\coverage\b2b89a72-afa4-4019-b69a-a0977e3034a6\coverage.opencover.xml</Info>
+  <Info>Compare with analysis result obtained on 05 Jan 2026 15:44:37  (which is the analysis result with date closest to 30 days ago)</Info>
+  <Info>.NET Assemblies resolved from the Visual Studio solution file {C:\github\quantalib\QuanTAlib.sln}
+   C:\github\quantalib\lib\bin\Debug\net10.0\QuanTAlib.dll
+   C:\github\quantalib\quantower\bin\Debug\Dynamics.dll
+   C:\github\quantalib\quantower\bin\Debug\Filters.dll
+   C:\github\quantalib\quantower\bin\Debug\Forecasts.dll
+   C:\github\quantalib\quantower\bin\Debug\Momentum.dll
+   C:\github\quantalib\quantower\bin\Debug\Oscillators.dll
+   C:\github\quantalib\quantower\bin\Debug\Statistics.dll
+   C:\github\quantalib\quantower\bin\Debug\Trends.dll
+   C:\github\quantalib\quantower\bin\Debug\Volatility.dll
+   C:\github\quantalib\quantower\bin\Debug\Volume.dll</Info>
+  <Info>.NET Assemblies filtered out from the Visual Studio solution file {C:\github\quantalib\QuanTAlib.sln}
+   QuanTAlib.Tests
+   Quantower.Tests</Info>
+  <Info>Serial mode</Info>
+  <Info>.NET Assemblies loaded from {C:\Program Files\dotnet\shared\Microsoft.NETCore.App\10.0.0} 
+   System.Collections.dll   v10.0.0.0
+   System.Drawing.Primitives.dll   v10.0.0.0
+   System.Linq.dll   v10.0.0.0
+   System.Memory.dll   v10.0.0.0
+   System.Numerics.Vectors.dll   v10.0.0.0
+   System.Runtime.dll   v10.0.0.0
+   System.Runtime.InteropServices.dll   v10.0.0.0
+   System.Runtime.Intrinsics.dll   v10.0.0.0
+   System.Security.Cryptography.dll   v10.0.0.0
+   System.Threading.dll   v10.0.0.0</Info>
+  <Info>833 source files parsed ; all source files found ; all source files in-sync with PDB</Info>
+  <Info>0 code rule has been extracted from code.</Info>
+  <Info>No dependency cycle detected in assemblies reference graph.</Info>
+  <Info>No coverage exclusion file provided (a file with extension .runsettings).</Info>
+  <Info>2 coverage files correctly parsed:
+   C:\github\quantalib\ndepend\coverage\1b7e3cf9-4e67-432c-a1eb-50aafeb7af99\coverage.opencover.xml
+   C:\github\quantalib\ndepend\coverage\b2b89a72-afa4-4019-b69a-a0977e3034a6\coverage.opencover.xml</Info>
+  <Warning>The assembly {QuanTAlib} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Forecasts} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Filters} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Oscillators} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Dynamics} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Momentum} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Statistics} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Trends} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Volatility} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Warning>The assembly {Volume} is not in sync with corresponding coverage data.
+The analysis found 4 methods in the assembly that have no associated coverage data.
+For example, one of this method is {QuanTAlib.TSeries.System.Collections.Generic.IEnumerable&lt;QuanTAlib.TValue&gt;.GetEnumerator()}</Warning>
+  <Info>Do merge code generated by compiler into application code.</Info>
+  <Info>SARIF .json files parsed successfully and number of issues imported:
+All these files are in the folder {C:\github\quantalib\.sarif}.
+  Dynamics.json  (6)
+  Filters.json  (2)
+  Forecasts.json  (2)
+  jetbrains.sarif  (1 326)
+  Momentum.json  (4)
+  Oscillators.json  (6)
+  quantalib.json  (13)
+  QuanTAlib.Tests.json  (772)
+  Quantower.Tests.json  (18)
+  Statistics.json  (2)
+  Trends.json  (6)
+  Volatility.json  (2)
+  Volume.json  (3)</Info>
+  <Info>467 issues emitted by 37 rules have been imported.</Info>
+  <Info>Analysis Results Retention: No previous analysis result older than 60 days found to delete.</Info>
+  <Info>Analyze dependencies of your application.</Info>
+  <Info>No SuppressMessageAttribute found in the analyzed code base. Since NDepend v2018.2 SuppressMessageAttribute can be used to suppress NDepend issues. Don't forget to set in your projects the compilation symbol CODE_ANALYSIS to use this attribute to suppress NDepend issues.</Info>
+  <Info>Persisting code model snapshot in {C:\github\quantalib\ndepend\NDependOut\NDependAnalysisResult_quantalib_2026Jan09_20h51m29.ndar}</Info>
+  <Info>Log trend metrics values.</Info>
+  <Info>Execute queries and rules</Info>
+  <Info>Output report projects</Info>
+  <Info>Output report source files</Info>
+  <Info>The report lists 177 sources files (28 new and 59 modified since the baseline) on a total of 446 source files for the application analyzed.
+See 'Project Properties &gt; Report' to adjust the set of source files listed in the report.</Info>
+  <Warning>3 quality gates warn:
+  - 'Percentage Coverage' value 78.75 % lower than warn threshold 80 %
+  - 'Percentage Coverage on New Code' value 71.68 % lower than warn threshold 80 %
+  - 'Critical Issues' value 1 issues greater than warn threshold 0 issues</Warning>
+  <Error>4 quality gates fail:
+  - 'New Blocker / Critical / High Issues' value 709 issues greater than fail threshold 0 issues
+  - 'Critical Rules Violated' value 1 rules greater than fail threshold 0 rules
+  - 'New Debt since Baseline' value 32.39 man-days greater than fail threshold 2 man-days
+  - 'New Annual Interest since Baseline' value 45.78 man-days greater than fail threshold 2 man-days</Error>
+  <Info>Building the report (standard, compressed).</Info>
+  <Info>NDepend analysis done. Duration: 00:07.875</Info>
+</InfoWarnings>

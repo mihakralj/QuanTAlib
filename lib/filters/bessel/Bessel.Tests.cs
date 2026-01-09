@@ -127,7 +127,7 @@ public class BesselTests
     [Fact]
     public void Bessel_IsHot_BecomesTrueAfterWarmup()
     {
-        int length = 14;
+        const int length = 14;
         var bessel = new Bessel(length);
 
         // Initially IsHot should be false

@@ -1,0 +1,54 @@
+name: Deploy Docsify to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Explicitly disable Jekyll
+          enabler_jekyll: false
+
+      - name: List files (Debug)
+        run: ls -R
+
+      - name: Ensure .nojekyll exists in root
+        run: |
+          if [ ! -f .nojekyll ]; then
+            echo "Creating .nojekyll file"
+            touch .nojekyll
+          else
+            echo ".nojekyll already exists"
+          fi
+          ls -la .nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository so Docsify can access 'lib/' and other root files
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -32,7 +32,7 @@ public sealed class RmaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "RMA - Running Moving Average";
         Description = "Running Moving Average (Wilder's Smoothing)";
-        _series = new(name: $"RMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"RMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

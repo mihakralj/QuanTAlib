@@ -185,7 +185,7 @@ public class AdlTests
     [Fact]
     public void Adl_CalculateSpan_SimdPath_ReturnsCorrectValues()
     {
-        int count = 100; // Enough to trigger SIMD
+        const int count = 100; // Enough to trigger SIMD
         double[] high = new double[count];
         double[] low = new double[count];
         double[] close = new double[count];

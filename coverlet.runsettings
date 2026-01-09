@@ -10,6 +10,7 @@
           <SingleHit>false</SingleHit>
           <UseSourceLink>false</UseSourceLink>
           <SkipAutoProps>true</SkipAutoProps>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
         </Configuration>
       </DataCollector>
     </DataCollectors>

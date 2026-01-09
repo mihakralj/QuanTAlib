@@ -218,7 +218,7 @@ public class HistoricalData
             High = high,
             Low = low,
             Close = close,
-            Volume = volume
+            Volume = volume,
         });
     }
 
@@ -426,7 +426,7 @@ public abstract class Indicator
 
     public int Count => HistoricalData.Count;
 
-    public IList<LineSeries> LinesSeries => _lineSeries.ToArray();
+    public IReadOnlyList<LineSeries> LinesSeries => _lineSeries;
 
     protected void AddLineSeries(LineSeries series)
     {

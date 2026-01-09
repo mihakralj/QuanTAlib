@@ -34,7 +34,7 @@ public sealed class VidyaIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "VIDYA - Variable Index Dynamic Average";
         Description = "Variable Index Dynamic Average (Chande)";
-        _series = new(name: $"VIDYA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"VIDYA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

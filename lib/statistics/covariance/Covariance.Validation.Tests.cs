@@ -7,7 +7,7 @@ public class CovarianceValidationTests
     public void Covariance_Matches_ManualCalculation()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var cov = new Covariance(period, isPopulation: false);
         var gbmX = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var gbmY = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 456);

@@ -72,7 +72,7 @@ public class TukeyBiweightTests
         // Small error within threshold
         tukey.Update(100, 99);  // error = 1 < 4.685
 
-        double cSquaredOver6 = (4.685 * 4.685) / 6.0;
+        const double cSquaredOver6 = (4.685 * 4.685) / 6.0;
         Assert.True(tukey.Last.Value < cSquaredOver6);
         Assert.True(tukey.Last.Value > 0);
     }

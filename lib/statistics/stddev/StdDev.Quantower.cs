@@ -36,7 +36,7 @@ public sealed class StdDevIndicator : Indicator, IWatchlistIndicator
         Name = "StdDev - Standard Deviation";
         Description = "Measures the amount of variation or dispersion of a set of values";
 
-        _series = new(name: "StdDev", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "StdDev", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

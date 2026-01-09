@@ -76,7 +76,7 @@ public sealed class Bop : ITValuePublisher
         }
 
         Last = new TValue(input.Time, bop);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -92,7 +92,7 @@ public sealed class Bop : ITValuePublisher
         // Or we could throw NotSupportedException.
         // Given the interface contract, returning 0 is safer than crashing.
         Last = new TValue(input.Time, 0);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

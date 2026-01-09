@@ -72,7 +72,7 @@ public class WmapeTests
         wmape.Update(10, 5);   // |10-5| = 5
         wmape.Update(100, 95); // |100-95| = 5
 
-        double expected = (10.0 / 110.0) * 100.0;
+        const double expected = (10.0 / 110.0) * 100.0;
         Assert.Equal(expected, wmape.Last.Value, Precision);
     }
 

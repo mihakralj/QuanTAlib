@@ -40,7 +40,7 @@ public sealed class CfbIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "CFB - Jurik Composite Fractal Behavior";
         Description = "Trend Duration Index using fractal efficiency";
-        _series = new(name: "CFB", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "CFB", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

@@ -241,7 +241,7 @@ public sealed class AtrValidationTests : IDisposable
 
             // Calculate Ooples ATR
             var stockData = new StockData(ooplesData);
-            var sResult = Calculations.CalculateAverageTrueRange(stockData, MovingAvgType.WildersSmoothingMethod, period).OutputValues.Values.First();
+            var sResult = stockData.CalculateAverageTrueRange(MovingAvgType.WildersSmoothingMethod, period).OutputValues.Values.First();
 
             // Compare last 100 records
             ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, ValidationHelper.OoplesTolerance);

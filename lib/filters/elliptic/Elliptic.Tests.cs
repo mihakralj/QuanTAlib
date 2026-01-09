@@ -23,7 +23,7 @@ public class EllipticTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 20;
+        const int period = 20;
         var data = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;
 
@@ -56,7 +56,7 @@ public class EllipticTests
     {
         var filter = new Elliptic(10);
         double val = 100.0;
-        
+
         // Warmup
         for (int i = 0; i < 20; i++)
         {
@@ -74,7 +74,7 @@ public class EllipticTests
         var filter = new Elliptic(5);
         filter.Update(new TValue(DateTime.UtcNow, 100));
         var result = filter.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         Assert.Equal(100.0, result.Value, 0.1); // Should stay close to last valid
     }
 
@@ -97,7 +97,7 @@ public class EllipticTests
         var filter = new Elliptic(10);
         filter.Update(new TValue(DateTime.UtcNow, 100));
         filter.Reset();
-        
+
         Assert.False(filter.IsHot);
         Assert.Equal(0, filter.Last.Value);
     }

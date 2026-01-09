@@ -34,7 +34,7 @@ public sealed class TemaIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "TEMA - Triple Exponential Moving Average";
         Description = "Triple Exponential Moving Average";
-        _series = new(name: $"TEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"TEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

@@ -105,14 +105,14 @@ public sealed class Cheby1 : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
         Calculate(values, results, Period, Ripple);
 
-        TSeries output = new TSeries();
+        TSeries output = [];
         for (int i = 0; i < values.Length; i++)
         {
             output.Add(source[i].Time, results[i]);
@@ -157,7 +157,7 @@ public sealed class Cheby1 : AbstractBase
 
         // Apply filter:
         // filt = B0 * src + B1 * src1 + B2 * src2 - A1 * filt1 - A2 * filt2
-        
+
         // Use FMA for precision and performance
         double term1 = Math.FusedMultiplyAdd(_b1, _state.Src1, _b0 * val);
         double term2 = Math.FusedMultiplyAdd(_b2, _state.Src2, term1);

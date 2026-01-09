@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<AssemblyDependencies>
+  <Dependencies_For Assembly="QuanTAlib v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Security.Cryptography v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Forecasts v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Filters v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Oscillators v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Dynamics v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Momentum v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Statistics v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Trends v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Volatility v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+  <Dependencies_For Assembly="Volume v0.8.0.0">
+    <DependsOn>
+      <DependsOn_Name>System.Runtime v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>TradingPlatform.BusinessLayer v1.141.9.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Primitives v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Drawing.Common v9.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Threading v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Collections v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.InteropServices v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Memory v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Numerics.Vectors v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Runtime.Intrinsics v10.0.0.0</DependsOn_Name>
+      <DependsOn_Name>System.Linq v10.0.0.0</DependsOn_Name>
+    </DependsOn>
+  </Dependencies_For>
+</AssemblyDependencies>

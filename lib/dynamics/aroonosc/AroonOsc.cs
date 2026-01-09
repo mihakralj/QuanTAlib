@@ -127,8 +127,8 @@ public sealed class AroonOsc : ITValuePublisher
         }
 
         // Calculate days since (0 means current bar is the high/low)
-        int daysSinceHigh = (count - 1) - maxIdxRelative;
-        int daysSinceLow = (count - 1) - minIdxRelative;
+        int daysSinceHigh = count - 1 - maxIdxRelative;
+        int daysSinceLow = count - 1 - minIdxRelative;
 
         double up = ((double)(_period - daysSinceHigh) / _period) * 100.0;
         double down = ((double)(_period - daysSinceLow) / _period) * 100.0;
@@ -136,7 +136,7 @@ public sealed class AroonOsc : ITValuePublisher
 
         Last = new TValue(input.Time, osc);
 
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -166,7 +166,7 @@ public sealed class AroonOsc : ITValuePublisher
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return new TSeries(tList, vList);

@@ -30,6 +30,31 @@ resharper_redundant_argument_default_value_highlighting = none
 # Documentation uses simplified format without full XML compliance
 resharper_invalid_xml_doc_comment_highlighting = none
 
+# Suppress IDE0028 - Collection initialization can be simplified
+# False positives with custom collection types (RingBuffer, TSeries, TBarSeries)
+# These types implement collection interfaces but cannot use collection expressions
+dotnet_diagnostic.IDE0028.severity = none
+
+# Suppress CA1416 - Platform compatibility
+# Quantower is a Windows-only trading platform using GDI+ (System.Drawing)
+# Already suppressed via #pragma in quantower/IndicatorExtensions.cs
+dotnet_diagnostic.CA1416.severity = none
+
+# Suppress S3236 - Caller information arguments should not be provided explicitly  
+# Already suppressed via #pragma in specific locations where parameter names are intentionally cleaner
+dotnet_diagnostic.S3236.severity = none
+
+# Suppress MA0046 - Use EventArgs.Empty
+# Already suppressed via #pragma for custom event handlers (TValuePublishedHandler, TBarPublishedHandler)
+# These use custom delegates that don't inherit from EventArgs
+dotnet_diagnostic.MA0046.severity = none
+
+# Suppress MA0003 - Add parameter name to argument
+# While named arguments can improve readability, this is a style preference
+# 96 violations across test files - would be tedious to fix manually
+# Tests are already clear with good variable names
+dotnet_diagnostic.MA0003.severity = suggestion
+
 #### C# Coding Conventions ####
 
 # "var" preferences
@@ -39,6 +64,11 @@ csharp_style_var_for_built_in_types = false:silent
 csharp_style_var_when_type_is_apparent = true:suggestion
 # Prefer explicit types in other cases to improve readability of math formulas
 csharp_style_var_elsewhere = false:silent
+# Exclude ndepend directory from all analyzers
+[ndepend/**]
+dotnet_analyzer_diagnostic.severity = none
+generated_code = true
+
 # Shell scripts
 [*.sh]
 end_of_line = lf

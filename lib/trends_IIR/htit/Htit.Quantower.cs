@@ -32,7 +32,7 @@ public sealed class HtitIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "HTIT - Ehlers Hilbert Transform Instantaneous Trend";
         Description = "Ehlers Hilbert Transform Instantaneous Trend";
-        _series = new(name: "HTIT", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "HTIT", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

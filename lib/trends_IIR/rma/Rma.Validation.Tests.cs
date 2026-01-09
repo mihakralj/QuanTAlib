@@ -38,7 +38,7 @@ public sealed class RmaValidationTests : IDisposable
     public void Rma_Matches_Skender_Smma()
     {
         // Arrange
-        int period = 14;
+        const int period = 14;
 
         // QuanTAlib RMA
         var rma = new Rma(period);

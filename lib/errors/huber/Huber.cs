@@ -24,13 +24,12 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Huber : BiInputIndicatorBase
 {
-    private readonly double _delta;
     private readonly double _negHalfDeltaSquared;
 
     /// <summary>
     /// Gets the delta parameter (transition threshold).
     /// </summary>
-    public double Delta => _delta;
+    public double Delta { get; }
 
     /// <summary>
     /// Creates a Huber Loss indicator.
@@ -43,7 +42,7 @@ public sealed class Huber : BiInputIndicatorBase
         if (delta <= 0)
             throw new ArgumentException("Delta must be greater than 0", nameof(delta));
 
-        _delta = delta;
+        Delta = delta;
         _negHalfDeltaSquared = -0.5 * delta * delta;
     }
 
@@ -58,9 +57,9 @@ public sealed class Huber : BiInputIndicatorBase
 
         // Quadratic for small errors, linear for large errors
         // Linear: delta * |diff| - 0.5 * delta² = FMA(delta, |diff|, -0.5*delta²)
-        return absDiff <= _delta
+        return absDiff <= Delta
             ? 0.5 * diff * diff
-            : Math.FusedMultiplyAdd(_delta, absDiff, _negHalfDeltaSquared);
+            : Math.FusedMultiplyAdd(Delta, absDiff, _negHalfDeltaSquared);
     }
 
     /// <summary>

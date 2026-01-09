@@ -23,6 +23,7 @@ $CoverageDir = Join-Path $ScriptDir "coverage"
 $SarifDir = Join-Path $ProjectRoot ".sarif"
 $SolutionFile = Join-Path $ProjectRoot "QuanTAlib.sln"
 $TestProject = Join-Path $ProjectRoot "lib/QuanTAlib.Tests.csproj"
+$TestProject2 = Join-Path $ProjectRoot "quantower/Quantower.Tests.csproj"
 $RunSettingsFile = Join-Path $ProjectRoot "coverlet.runsettings"
 $NdependProject = Join-Path $ScriptDir "quantalib.ndproj"
 
@@ -78,8 +79,8 @@ try {
     dotnet build $SolutionFile -c Debug --no-incremental
     if ($LASTEXITCODE -ne 0) { throw "Build failed with exit code $LASTEXITCODE" }
 
-    # Run tests with coverage
-    Write-Section "Running tests with coverage"
+    # Run tests with coverage (QuanTAlib.Tests)
+    Write-Section "Running tests with coverage (QuanTAlib.Tests)"
     dotnet test $TestProject `
         -c Debug `
         --no-build `
@@ -87,17 +88,30 @@ try {
         --settings $RunSettingsFile `
         --results-directory:$CoverageDir
     
-    if ($LASTEXITCODE -ne 0) { throw "Tests failed with exit code $LASTEXITCODE" }
+    if ($LASTEXITCODE -ne 0) { throw "Tests failed for QuanTAlib.Tests with exit code $LASTEXITCODE" }
 
-    # Find coverage file
-    Write-Host "`nSearching for coverage file..." -ForegroundColor Gray
-    $CoverageFile = Get-ChildItem -Path $CoverageDir -Filter "coverage.opencover.xml" -Recurse -File | 
-        Select-Object -First 1 -ExpandProperty FullName
+    # Run tests with coverage (Quantower.Tests)
+    Write-Section "Running tests with coverage (Quantower.Tests)"
+    dotnet test $TestProject2 `
+        -c Debug `
+        --no-build `
+        --collect:"XPlat Code Coverage" `
+        --settings $RunSettingsFile `
+        --results-directory:$CoverageDir
+        
+    if ($LASTEXITCODE -ne 0) { throw "Tests failed for Quantower.Tests with exit code $LASTEXITCODE" }
 
-    if (-not $CoverageFile) {
-        Write-Warning "Coverage file not found in $CoverageDir"
+    # Find coverage files
+    Write-Host "`nSearching for coverage files..." -ForegroundColor Gray
+    $CoverageFiles = Get-ChildItem -Path $CoverageDir -Filter "coverage.opencover.xml" -Recurse -File | 
+        Select-Object -ExpandProperty FullName
+
+    if (-not $CoverageFiles) {
+        Write-Warning "No coverage files found in $CoverageDir"
     } else {
-        Write-Host "Coverage file: $CoverageFile" -ForegroundColor Green
+        $CoverageFiles | ForEach-Object {
+            Write-Host "Coverage file: $_" -ForegroundColor Green
+        }
     }
 
     # List SARIF files
@@ -123,9 +137,11 @@ try {
     # Run NDepend analysis
     Write-Section "Running NDepend analysis"
     $NdependArgs = @($NdependProject)
-    if ($CoverageFile) {
+    if ($CoverageFiles) {
         $NdependArgs += "/CoverageFiles"
-        $NdependArgs += $CoverageFile
+        foreach ($file in $CoverageFiles) {
+            $NdependArgs += $file
+        }
     }
 
     dotnet $NdependDll @NdependArgs
@@ -145,6 +161,39 @@ try {
         if ($LASTEXITCODE -ne 0) { Write-Warning "License deactivation returned exit code $LASTEXITCODE" }
     } else {
         Write-Host "Skipping license deactivation (no license provided)" -ForegroundColor Gray
+    }
+
+    # Generate badges from NDepend trend data
+    Write-Section "Generating quality badges"
+    $NDBadgePath = Join-Path $ScriptDir "NDBadge.exe"
+    $TrendXml = Join-Path $ScriptDir "NDependOut\TrendMetrics\NDependTrendData2026.xml"
+    $BadgeDir = Join-Path $ScriptDir "badges"
+
+    if ((Test-Path $NDBadgePath) -and (Test-Path $TrendXml)) {
+        if (-not (Test-Path $BadgeDir)) {
+            New-Item -ItemType Directory -Path $BadgeDir -Force | Out-Null
+        }
+
+        $Badges = @(
+            @{ Metric = "# Lines of Code"; Output = "loc.svg" },
+            @{ Metric = "# Source Files"; Output = "files.svg" },
+            @{ Metric = "# Classes"; Output = "classes.svg" },
+            @{ Metric = "# Methods"; Output = "methods.svg" },
+            @{ Metric = "# Public Types"; Output = "public-api.svg" },
+            @{ Metric = "Percentage of Comments"; Output = "comments.svg" },
+            @{ Metric = "Average Cyclomatic Complexity for Methods"; Output = "complexity.svg" }
+        )
+
+        foreach ($badge in $Badges) {
+            $outputPath = Join-Path $BadgeDir $badge.Output
+            & $NDBadgePath --xml $TrendXml --metric $badge.Metric --output $outputPath 2>$null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  Generated: $($badge.Output)" -ForegroundColor Gray
+            }
+        }
+        Write-Host "Badges saved to: $BadgeDir" -ForegroundColor Green
+    } else {
+        Write-Host "Skipping badge generation (NDBadge.exe or trend data not found)" -ForegroundColor Yellow
     }
 
     Write-Section "Done"

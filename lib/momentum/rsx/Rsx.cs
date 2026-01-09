@@ -209,7 +209,7 @@ public sealed class Rsx : ITValuePublisher
         int warmup = Math.Max(0, len - 200);
         for (int i = warmup; i < len; i++)
         {
-            Update(new TValue(source.Times[i], source.Values[i]), true);
+            Update(new TValue(source.Times[i], source.Values[i]), isNew: true);
         }
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);

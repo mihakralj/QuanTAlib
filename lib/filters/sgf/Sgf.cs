@@ -28,7 +28,7 @@ public sealed class Sgf : AbstractBase
         Name = $"Sgf({_period},{_polyOrder})";
         CalculateWeights();
         WarmupPeriod = _period;
-        
+
         Init();
     }
 
@@ -101,7 +101,7 @@ public sealed class Sgf : AbstractBase
     {
         if (isNew)
         {
-            _buffer.Add(input.Value, true);
+            _buffer.Add(input.Value, isNew: true);
         }
         else
         {
@@ -115,7 +115,7 @@ public sealed class Sgf : AbstractBase
             double wSum = 0;
             int count = _buffer.Count;
             // Map buffer to end of weights: _buffer[0] (oldest available) -> _weights[_period - count]
-            
+
             for (int i = 0; i < count; i++)
             {
                 double val = _buffer[i];
@@ -148,7 +148,7 @@ public sealed class Sgf : AbstractBase
                 }
             }
 
-            if (wSum > double.Epsilon && wSum < 0.999999) 
+            if (wSum > double.Epsilon && wSum < 0.999999)
             {
                 result /= wSum;
             }
@@ -166,7 +166,7 @@ public sealed class Sgf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         var resultValues = new double[source.Count];
         Calculate(source.Values, resultValues, _period, _polyOrder);
@@ -183,7 +183,7 @@ public sealed class Sgf : AbstractBase
         Reset();
         for (int i = startup; i < source.Count; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return result;
@@ -193,7 +193,7 @@ public sealed class Sgf : AbstractBase
     {
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.MinValue, value), true);
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
         }
     }
 
@@ -225,7 +225,7 @@ public sealed class Sgf : AbstractBase
             double wSum = 0;
 
             int count = Math.Min(i + 1, adjPeriod);
-            
+
             // Loop over available data for this point
             for (int j = 0; j < count; j++)
             {

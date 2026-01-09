@@ -207,7 +207,7 @@ public sealed class Hma : AbstractBase
                 var vHalf = Vector512.LoadUnsafe(ref Unsafe.Add(ref halfRef, i));
                 var vFull = Vector512.LoadUnsafe(ref Unsafe.Add(ref fullRef, i));
                 var vResult = Avx512F.Subtract(Avx512F.Multiply(vHalf, vTwo), vFull);
-                Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+                vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
         else if (Avx2.IsSupported && len >= Vector256<double>.Count)
@@ -218,7 +218,7 @@ public sealed class Hma : AbstractBase
                 var vHalf = Vector256.LoadUnsafe(ref Unsafe.Add(ref halfRef, i));
                 var vFull = Vector256.LoadUnsafe(ref Unsafe.Add(ref fullRef, i));
                 var vResult = Avx.Subtract(Avx.Multiply(vHalf, vTwo), vFull);
-                Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+                vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
         else if (AdvSimd.Arm64.IsSupported && len >= Vector128<double>.Count)
@@ -229,7 +229,7 @@ public sealed class Hma : AbstractBase
                 var vHalf = Vector128.LoadUnsafe(ref Unsafe.Add(ref halfRef, i));
                 var vFull = Vector128.LoadUnsafe(ref Unsafe.Add(ref fullRef, i));
                 var vResult = AdvSimd.Arm64.Subtract(AdvSimd.Arm64.Multiply(vHalf, vTwo), vFull);
-                Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+                vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
 

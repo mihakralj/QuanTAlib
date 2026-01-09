@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<NamespacesMetrics>
+  <Namespace Namespace="QuanTAlib.dll::" NTypes="2" NILInstruction="114" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="1" EfferentCoupling="5" />
+  <Namespace Namespace="QuanTAlib.dll::QuanTAlib" NTypes="199" NILInstruction="104915" NbLinesOfCode="15345" NbLinesOfComment="6139" PercentageComment="28.57" PercentageCoverage="86.11" AfferentCoupling="0" EfferentCoupling="22" />
+  <Namespace Namespace="Forecasts.dll::" NTypes="1" NILInstruction="0" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="0" EfferentCoupling="3" />
+  <Namespace Namespace="Forecasts.dll::QuanTAlib" NTypes="26" NILInstruction="11164" NbLinesOfCode="1655" NbLinesOfComment="634" PercentageComment="27.7" PercentageCoverage="75.93" AfferentCoupling="0" EfferentCoupling="23" />
+  <Namespace Namespace="Filters.dll::" NTypes="1" NILInstruction="0" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="0" EfferentCoupling="3" />
+  <Namespace Namespace="Filters.dll::QuanTAlib" NTypes="74" NILInstruction="29560" NbLinesOfCode="4373" NbLinesOfComment="1329" PercentageComment="23.31" PercentageCoverage="72.02" AfferentCoupling="0" EfferentCoupling="23" />
+  <Namespace Namespace="Oscillators.dll::" NTypes="2" NILInstruction="114" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="1" EfferentCoupling="5" />
+  <Namespace Namespace="Oscillators.dll::QuanTAlib" NTypes="86" NILInstruction="42772" NbLinesOfCode="6167" NbLinesOfComment="1810" PercentageComment="22.69" PercentageCoverage="74.57" AfferentCoupling="0" EfferentCoupling="25" />
+  <Namespace Namespace="Dynamics.dll::" NTypes="2" NILInstruction="114" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="1" EfferentCoupling="5" />
+  <Namespace Namespace="Dynamics.dll::QuanTAlib" NTypes="96" NILInstruction="47926" NbLinesOfCode="6886" NbLinesOfComment="1985" PercentageComment="22.38" PercentageCoverage="75.95" AfferentCoupling="0" EfferentCoupling="25" />
+  <Namespace Namespace="Momentum.dll::" NTypes="1" NILInstruction="0" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="0" EfferentCoupling="3" />
+  <Namespace Namespace="Momentum.dll::QuanTAlib" NTypes="47" NILInstruction="24556" NbLinesOfCode="3578" NbLinesOfComment="1185" PercentageComment="24.88" PercentageCoverage="78.6" AfferentCoupling="0" EfferentCoupling="23" />
+  <Namespace Namespace="Statistics.dll::" NTypes="1" NILInstruction="0" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="0" EfferentCoupling="3" />
+  <Namespace Namespace="Statistics.dll::QuanTAlib" NTypes="46" NILInstruction="21449" NbLinesOfCode="3402" NbLinesOfComment="1054" PercentageComment="23.65" PercentageCoverage="73.48" AfferentCoupling="0" EfferentCoupling="23" />
+  <Namespace Namespace="Trends.dll::" NTypes="1" NILInstruction="0" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="0" EfferentCoupling="3" />
+  <Namespace Namespace="Trends.dll::QuanTAlib" NTypes="81" NILInstruction="40361" NbLinesOfCode="5803" NbLinesOfComment="1598" PercentageComment="21.59" PercentageCoverage="74.42" AfferentCoupling="0" EfferentCoupling="24" />
+  <Namespace Namespace="Volatility.dll::" NTypes="1" NILInstruction="0" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="0" EfferentCoupling="3" />
+  <Namespace Namespace="Volatility.dll::QuanTAlib" NTypes="46" NILInstruction="18990" NbLinesOfCode="2689" NbLinesOfComment="1214" PercentageComment="31.1" PercentageCoverage="81.07" AfferentCoupling="0" EfferentCoupling="23" />
+  <Namespace Namespace="Volume.dll::" NTypes="2" NILInstruction="114" NbLinesOfCode="0" NbLinesOfComment="-" PercentageComment="-" PercentageCoverage="-" AfferentCoupling="1" EfferentCoupling="5" />
+  <Namespace Namespace="Volume.dll::QuanTAlib" NTypes="28" NILInstruction="12170" NbLinesOfCode="1773" NbLinesOfComment="771" PercentageComment="30.31" PercentageCoverage="79.55" AfferentCoupling="0" EfferentCoupling="24" />
+</NamespacesMetrics>

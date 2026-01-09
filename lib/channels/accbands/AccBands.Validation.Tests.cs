@@ -322,8 +322,8 @@ public sealed class AccBandsValidationTests : IDisposable
 
         // Calculate SMA(High) and SMA(Low) separately for verification
         _ = middle; // Suppress unused variable warning - middle is not needed for symmetry test
-        var smaHigh = new global::QuanTAlib.Sma(20);
-        var smaLow = new global::QuanTAlib.Sma(20);
+        var smaHigh = new Sma(20);
+        var smaLow = new Sma(20);
 
         var smaHighResults = new TSeries();
         var smaLowResults = new TSeries();
@@ -351,7 +351,7 @@ public sealed class AccBandsValidationTests : IDisposable
     public void Validate_Prime_ProducesCorrectState()
     {
         // Prime with history and verify state matches full calculation
-        int period = 20;
+        const int period = 20;
 
         // Full batch calculation
         var (batchMiddle, batchUpper, batchLower) = AccBands.Batch(_testData.Bars, period, 2.0);

@@ -33,7 +33,7 @@ public sealed class PwmaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "PWMA - Parabolic Weighted Moving Average";
         Description = "Parabolic Weighted Moving Average";
-        _series = new(name: $"PWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"PWMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

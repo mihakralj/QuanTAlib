@@ -23,7 +23,7 @@ public class AfirmaTests
 
         var afirma3 = new Afirma(5, Afirma.WindowType.Rectangular);
         Assert.NotNull(afirma3);
-        
+
         var afirma4 = new Afirma(10, Afirma.WindowType.BlackmanHarris, leastSquares: true);
         Assert.NotNull(afirma4);
     }
@@ -57,7 +57,7 @@ public class AfirmaTests
     public void Afirma_LeastSquares_AffectsResult()
     {
         // Generate trend data where LS regression should differ from raw window
-        var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.01, seed: 42); 
+        var gbm = new GBM(startPrice: 100.0, mu: 0.05, sigma: 0.01, seed: 42);
         var data = new List<TValue>();
         for (int i = 0; i < 20; i++)
         {
@@ -81,7 +81,7 @@ public class AfirmaTests
         Assert.NotEqual(lastDefault, lastLS, 1e-6);
         Assert.True(double.IsFinite(lastLS));
     }
-    
+
     [Fact]
     public void Afirma_LeastSquares_HandlesNaN()
     {
@@ -89,10 +89,10 @@ public class AfirmaTests
 
         afirma.Update(new TValue(DateTime.UtcNow, 100));
         afirma.Update(new TValue(DateTime.UtcNow, 110));
-        
+
         // Feed NaN - should handle gracefully (typically carries forward last valid or handles via regression on existing points)
         var result = afirma.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         Assert.True(double.IsFinite(result.Value));
     }
 
@@ -466,7 +466,7 @@ public class AfirmaTests
     public void Afirma_AllModes_ProduceSameResult()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var window = Afirma.WindowType.BlackmanHarris;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));

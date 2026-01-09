@@ -19,7 +19,7 @@ public sealed class TrimaToleranceTests : IDisposable
     [Fact]
     public void Check_Talib_Tolerance()
     {
-        int period = 20;
+        const int period = 20;
         var trima = new Trima(period);
         var qResult = trima.Update(_testData.Data);
 

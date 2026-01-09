@@ -22,12 +22,10 @@ namespace QuanTAlib;
 public sealed class RingBuffer : IEnumerable<double>
 {
     private readonly double[] _buffer;
-    private readonly int _capacity;
     private int _head;
     private int _count;
     private double _sum;
 
-    // Snapshot state
     private int _savedHead;
     private int _savedCount;
     private double _savedSum;
@@ -43,7 +41,7 @@ public sealed class RingBuffer : IEnumerable<double>
         if (capacity <= 0)
             throw new ArgumentException("Capacity must be greater than 0", nameof(capacity));
 
-        _capacity = capacity;
+        Capacity = capacity;
         _buffer = GC.AllocateArray<double>(capacity, pinned: true);
         _head = 0;
         _count = 0;
@@ -53,11 +51,7 @@ public sealed class RingBuffer : IEnumerable<double>
     /// <summary>
     /// Maximum number of elements the buffer can hold.
     /// </summary>
-    public int Capacity
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _capacity;
-    }
+    public int Capacity { get; }
 
     /// <summary>
     /// Current number of elements in the buffer.
@@ -74,7 +68,7 @@ public sealed class RingBuffer : IEnumerable<double>
     public bool IsFull
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _count == _capacity;
+        get => _count == Capacity;
     }
 
     /// <summary>
@@ -123,7 +117,7 @@ public sealed class RingBuffer : IEnumerable<double>
         get
         {
             if (_count == 0) return double.NaN;
-            int idx = (_head - 1 + _capacity) % _capacity;
+            int idx = (_head - 1 + Capacity) % Capacity;
             return _buffer[idx];
         }
     }
@@ -138,7 +132,7 @@ public sealed class RingBuffer : IEnumerable<double>
         get
         {
             if (_count == 0) return double.NaN;
-            int start = _count == _capacity ? _head : 0;
+            int start = _count == Capacity ? _head : 0;
             return _buffer[start];
         }
     }
@@ -149,7 +143,7 @@ public sealed class RingBuffer : IEnumerable<double>
     public int StartIndex
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _count == _capacity ? _head : 0;
+        get => _count == Capacity ? _head : 0;
     }
 
     /// <summary>
@@ -173,19 +167,19 @@ public sealed class RingBuffer : IEnumerable<double>
     {
         double removed = 0;
 
-        if (_count == _capacity)
+        if (_count == Capacity)
         {
             removed = _buffer[_head];
-            _sum -= removed;
+            _sum = Math.FusedMultiplyAdd(-1.0, removed, _sum + value);
         }
         else
         {
             _count++;
+            _sum += value;
         }
 
         _buffer[_head] = value;
-        _sum += value;
-        _head = (_head + 1) % _capacity;
+        _head = (_head + 1) % Capacity;
 
         return removed;
     }
@@ -218,10 +212,9 @@ public sealed class RingBuffer : IEnumerable<double>
     {
         if (_count == 0) return;
 
-        int idx = (_head - 1 + _capacity) % _capacity;
+        int idx = (_head - 1 + Capacity) % Capacity;
         double oldValue = _buffer[idx];
-        _sum -= oldValue;
-        _sum += value;
+        _sum = Math.FusedMultiplyAdd(-1.0, oldValue, _sum + value);
         _buffer[idx] = value;
     }
 
@@ -245,8 +238,8 @@ public sealed class RingBuffer : IEnumerable<double>
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count, nameof(index));
 #pragma warning restore S3236
 
-        int start = _count == _capacity ? _head : 0;
-        int bufferIdx = (start + actualIndex) % _capacity;
+        int start = _count == Capacity ? _head : 0;
+        int bufferIdx = (start + actualIndex) % Capacity;
         return _buffer[bufferIdx];
     }
 
@@ -258,11 +251,11 @@ public sealed class RingBuffer : IEnumerable<double>
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count, nameof(index));
 #pragma warning restore S3236
 
-        int start = _count == _capacity ? _head : 0;
-        int bufferIdx = (start + actualIndex) % _capacity;
+        int start = _count == Capacity ? _head : 0;
+        int bufferIdx = (start + actualIndex) % Capacity;
 
-        _sum -= _buffer[bufferIdx];
-        _sum += value;
+        double oldValue = _buffer[bufferIdx];
+        _sum = Math.FusedMultiplyAdd(-1.0, oldValue, _sum + value);
         _buffer[bufferIdx] = value;
     }
 
@@ -276,9 +269,9 @@ public sealed class RingBuffer : IEnumerable<double>
     {
         if (_count == 0) return ReadOnlySpan<double>.Empty;
 
-        int start = _count == _capacity ? _head : 0;
+        int start = _count == Capacity ? _head : 0;
 
-        if (start + _count <= _capacity)
+        if (start + _count <= Capacity)
         {
             return new ReadOnlySpan<double>(_buffer, start, _count);
         }
@@ -307,19 +300,14 @@ public sealed class RingBuffer : IEnumerable<double>
             return;
         }
 
-        int start = _count == _capacity ? _head : 0;
-        int firstLen = Math.Min(_count, _capacity - start);
+        int start = _count == Capacity ? _head : 0;
+        int firstLen = Math.Min(_count, Capacity - start);
 
         first = new ReadOnlySpan<double>(_buffer, start, firstLen);
-        
-        if (_count > firstLen)
-        {
-            second = new ReadOnlySpan<double>(_buffer, 0, _count - firstLen);
-        }
-        else
-        {
-            second = default;
-        }
+
+        second = _count > firstLen
+            ? new ReadOnlySpan<double>(_buffer, 0, _count - firstLen)
+            : default;
     }
 
     /// <summary>
@@ -432,15 +420,15 @@ public sealed class RingBuffer : IEnumerable<double>
     {
         if (_count == 0) return;
 
-        int start = _count == _capacity ? _head : 0;
+        int start = _count == Capacity ? _head : 0;
 
-        if (start + _count <= _capacity)
+        if (start + _count <= Capacity)
         {
             Array.Copy(_buffer, start, destination, destinationIndex, _count);
         }
         else
         {
-            int firstPartLength = _capacity - start;
+            int firstPartLength = Capacity - start;
             Array.Copy(_buffer, start, destination, destinationIndex, firstPartLength);
             Array.Copy(_buffer, 0, destination, destinationIndex + firstPartLength, _count - firstPartLength);
         }
@@ -455,15 +443,15 @@ public sealed class RingBuffer : IEnumerable<double>
     {
         if (_count == 0) return;
 
-        int start = _count == _capacity ? _head : 0;
+        int start = _count == Capacity ? _head : 0;
 
-        if (start + _count <= _capacity)
+        if (start + _count <= Capacity)
         {
             _buffer.AsSpan(start, _count).CopyTo(destination);
         }
         else
         {
-            int firstPartLength = _capacity - start;
+            int firstPartLength = Capacity - start;
             _buffer.AsSpan(start, firstPartLength).CopyTo(destination);
             _buffer.AsSpan(0, _count - firstPartLength).CopyTo(destination.Slice(firstPartLength));
         }
@@ -474,8 +462,8 @@ public sealed class RingBuffer : IEnumerable<double>
     /// </summary>
     public RingBuffer Clone()
     {
-        var clone = new RingBuffer(_capacity);
-        Array.Copy(_buffer, clone._buffer, _capacity);
+        var clone = new RingBuffer(Capacity);
+        Array.Copy(_buffer, clone._buffer, Capacity);
         clone._head = _head;
         clone._count = _count;
         clone._sum = _sum;
@@ -488,10 +476,10 @@ public sealed class RingBuffer : IEnumerable<double>
     /// </summary>
     public void CopyFrom(RingBuffer source)
     {
-        if (source._capacity != _capacity)
+        if (source.Capacity != Capacity)
             throw new ArgumentException("Source buffer must have same capacity", nameof(source));
 
-        Array.Copy(source._buffer, _buffer, _capacity);
+        Array.Copy(source._buffer, _buffer, Capacity);
         _head = source._head;
         _count = source._count;
         _sum = source._sum;
@@ -547,9 +535,9 @@ public sealed class RingBuffer : IEnumerable<double>
         {
             _buffer = buffer;
             _count = buffer._count;
-            _start = buffer._count == buffer._capacity ? buffer._head : 0;
+            _start = buffer._count == buffer.Capacity ? buffer._head : 0;
             _index = -1;
-            _current = default;
+            _current = 0.0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -559,7 +547,7 @@ public sealed class RingBuffer : IEnumerable<double>
                 return false;
 
             _index++;
-            int bufferIdx = (_start + _index) % _buffer._capacity;
+            int bufferIdx = (_start + _index) % _buffer.Capacity;
             _current = _buffer._buffer[bufferIdx];
             return true;
         }
@@ -571,7 +559,7 @@ public sealed class RingBuffer : IEnumerable<double>
         public void Reset()
         {
             _index = -1;
-            _current = default;
+            _current = 0.0;
         }
 
         public readonly void Dispose() { }

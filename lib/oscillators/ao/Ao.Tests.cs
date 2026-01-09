@@ -243,7 +243,7 @@ public class AoTests
     public void AllModes_ProduceSameResult()
     {
         // Arrange
-        int fastPeriod = 5;
+        const int fastPeriod = 5;
         int slowPeriod = 34;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));

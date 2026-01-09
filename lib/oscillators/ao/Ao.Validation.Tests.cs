@@ -66,7 +66,7 @@ public sealed class AoValidationTests : IDisposable
         double[][] inputs = { high, low };
         double[] options = Array.Empty<double>();
 
-        int lookback = 33;
+        const int lookback = 33;
         double[][] outputs = [new double[_data.Bars.Count - lookback]];
 
         tulipIndicator.Run(inputs, options, outputs);

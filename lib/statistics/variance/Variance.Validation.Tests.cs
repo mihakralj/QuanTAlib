@@ -15,7 +15,7 @@ public class VarianceValidationTests
         // despite documentation often implying Sample (N-1).
         // Variance(isPopulation: true) should match StdDev^2.
 
-        int period = 20;
+        const int period = 20;
         var variance = new Variance(period, isPopulation: true);
         var skenderStdDev = _data.SkenderQuotes.GetStdDev(period);
 
@@ -114,8 +114,8 @@ public class VarianceValidationTests
             if (i >= input.Length - 100)
             {
                 var window = input[(i - period + 1)..(i + 1)];
-                double expected = Statistics.Variance(window);
-                double expectedPop = Statistics.PopulationVariance(window);
+                double expected = window.Variance();
+                double expectedPop = window.PopulationVariance();
 
                 Assert.Equal(expected, val.Value, ValidationHelper.DefaultTolerance);
                 Assert.Equal(expectedPop, popVal.Value, ValidationHelper.DefaultTolerance);

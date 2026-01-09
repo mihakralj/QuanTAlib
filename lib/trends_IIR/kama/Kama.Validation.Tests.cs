@@ -42,7 +42,7 @@ public sealed class KamaValidationTests : IDisposable
     public void Validate_Skender_Batch()
     {
         int[] periods = { 10, 14, 20 };
-        int fastPeriod = 2;
+        const int fastPeriod = 2;
         int slowPeriod = 30;
 
         foreach (var period in periods)

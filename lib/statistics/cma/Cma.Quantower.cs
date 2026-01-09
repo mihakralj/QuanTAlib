@@ -29,7 +29,7 @@ public sealed class CmaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "CMA - Cumulative Moving Average";
         Description = "Cumulative Moving Average (Running Average)";
-        _series = new(name: "CMA", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "CMA", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

@@ -29,7 +29,16 @@ public sealed class T3 : AbstractBase
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double E1, double E2, double E3, double E4, double E5, double E6, bool IsInitialized)
     {
-        public static State New() => new() { IsInitialized = false };
+        public static State New() => new()
+        {
+            E1 = double.NaN,
+            E2 = double.NaN,
+            E3 = double.NaN,
+            E4 = double.NaN,
+            E5 = double.NaN,
+            E6 = double.NaN,
+            IsInitialized = false,
+        };
     }
 
     [StructLayout(LayoutKind.Auto)]
@@ -38,10 +47,11 @@ public sealed class T3 : AbstractBase
     private readonly Parameters _params;
     private State _state = State.New();
     private State _p_state = State.New();
-    private double _lastValidValue;
-    private double _p_lastValidValue;
+    private double _lastValidValue = double.NaN;
+    private double _p_lastValidValue = double.NaN;
     private ITValuePublisher? _publisher;
     private TValuePublishedHandler? _handler;
+    private bool _isNew;
 
     /// <summary>
     /// Creates T3 with specified period and volume factor.
@@ -110,6 +120,11 @@ public sealed class T3 : AbstractBase
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
 
     /// <summary>
+    /// Gets a value indicating whether the most recent update was a new data point.
+    /// </summary>
+    public bool IsNew => _isNew;
+
+    /// <summary>
     /// True if the T3 has been initialized (received at least one value).
     /// </summary>
     public override bool IsHot => _state.IsInitialized;
@@ -125,8 +140,8 @@ public sealed class T3 : AbstractBase
         // Reset state
         _state = State.New();
         _p_state = State.New();
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
+        _lastValidValue = double.NaN;
+        _p_lastValidValue = double.NaN;
 
         // Run the calculation on the history to update state
         // We don't need the output, just the final state
@@ -187,6 +202,7 @@ public sealed class T3 : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             _p_state = _state;
@@ -322,8 +338,8 @@ public sealed class T3 : AbstractBase
     {
         _state = State.New();
         _p_state = _state;
-        _lastValidValue = 0;
-        _p_lastValidValue = 0;
+        _lastValidValue = double.NaN;
+        _p_lastValidValue = double.NaN;
         Last = default;
     }
 

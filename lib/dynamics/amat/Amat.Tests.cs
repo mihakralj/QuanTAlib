@@ -317,7 +317,7 @@ public class AmatTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int fastPeriod = 10;
+        const int fastPeriod = 10;
         int slowPeriod = 30;
 
         // 1. Batch Mode (static method)

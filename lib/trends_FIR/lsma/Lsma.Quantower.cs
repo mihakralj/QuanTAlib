@@ -36,7 +36,7 @@ public sealed class LsmaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "LSMA - Least Squares Moving Average";
         Description = "Least Squares Moving Average";
-        _series = new(name: $"LSMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"LSMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

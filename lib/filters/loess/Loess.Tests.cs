@@ -9,7 +9,7 @@ public sealed class LoessTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new Loess(2));
         Assert.Throws<ArgumentOutOfRangeException>(() => new Loess(0));
-        
+
         var loess = new Loess(5);
         Assert.NotNull(loess);
         Assert.Equal(5, loess.Period);
@@ -29,7 +29,7 @@ public sealed class LoessTests
     {
         var loess = new Loess(5);
         var result = loess.Update(new TValue(DateTime.UtcNow, 100));
-        
+
         Assert.Equal(100.0, result.Value); // First value fallback
         Assert.Equal(result.Value, loess.Last.Value);
     }
@@ -38,13 +38,13 @@ public sealed class LoessTests
     public void IsHot_BecomesTrueWhenBufferFull()
     {
         var loess = new Loess(3);
-        
+
         loess.Update(new TValue(DateTime.UtcNow, 1));
         Assert.False(loess.IsHot);
-        
+
         loess.Update(new TValue(DateTime.UtcNow, 2));
         Assert.False(loess.IsHot);
-        
+
         loess.Update(new TValue(DateTime.UtcNow, 3));
         Assert.True(loess.IsHot);
     }
@@ -53,21 +53,21 @@ public sealed class LoessTests
     public void Calc_IsNew_AcceptsParameter()
     {
         var loess = new Loess(5);
-        
+
         // Feed 4 values
         for (int i = 0; i < 4; i++)
         {
             loess.Update(new TValue(DateTime.UtcNow, i), isNew: true);
         }
-        
+
         // 5th value
         loess.Update(new TValue(DateTime.UtcNow, 10), isNew: true);
         double val1 = loess.Last.Value;
-        
+
         // 6th value
         loess.Update(new TValue(DateTime.UtcNow, 20), isNew: true);
         double val2 = loess.Last.Value;
-        
+
         Assert.NotEqual(val1, val2);
     }
 
@@ -75,26 +75,26 @@ public sealed class LoessTests
     public void Calc_IsNew_False_UpdatesValue()
     {
         var loess = new Loess(3);
-        
+
         // 1, 2
         loess.Update(new TValue(DateTime.UtcNow, 1), isNew: true);
         loess.Update(new TValue(DateTime.UtcNow, 2), isNew: true);
-        
+
         // New bar: 3
         loess.Update(new TValue(DateTime.UtcNow, 3), isNew: true);
         double val1 = loess.Last.Value;
-        
+
         // Update current bar: 3 -> 4
         loess.Update(new TValue(DateTime.UtcNow, 4), isNew: false);
         double val2 = loess.Last.Value;
-        
+
         Assert.NotEqual(val1, val2);
     }
 
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 10;
+        const int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
@@ -128,11 +128,11 @@ public sealed class LoessTests
     {
         // Loess implementation handles NaN robustly by using last finite value
         var loess = new Loess(3);
-        
+
         loess.Update(new TValue(DateTime.UtcNow, 1));
         loess.Update(new TValue(DateTime.UtcNow, 2));
         var res = loess.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         Assert.False(double.IsNaN(res.Value));
         Assert.True(double.IsFinite(res.Value));
     }

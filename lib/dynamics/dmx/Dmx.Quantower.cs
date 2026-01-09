@@ -28,7 +28,7 @@ public sealed class DmxIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         Name = "DMX - Jurik Directional Movement Index";
         Description = "Jurik's smoother, lower-lag alternative to DMI/ADX";
-        _series = new(name: $"DMX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"DMX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

@@ -156,8 +156,8 @@ public sealed class Blma : AbstractBase
 
         double totalWeight = 0;
         double invNMinus1 = 1.0 / (n - 1);
-        double pi2 = 2.0 * Math.PI;
-        double pi4 = 4.0 * Math.PI;
+        const double pi2 = 2.0 * Math.PI;
+        const double pi4 = 4.0 * Math.PI;
 
         // Blackman window coefficients
         const double a0 = 0.42;

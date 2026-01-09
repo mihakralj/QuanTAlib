@@ -16,7 +16,7 @@ public class BlmaValidationTests
         // Generate test data
         var bars = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        int period = 14;
+        const int period = 14;
 
         // 1. QuanTAlib Implementation
         var blma = new Blma(period);
@@ -38,7 +38,7 @@ public class BlmaValidationTests
         }
     }
 
-    private static IReadOnlyList<double> CalculateReference(TSeries source, int period)
+    private static List<double> CalculateReference(TSeries source, int period)
     {
         var result = new List<double>();
         var buffer = new List<double>();

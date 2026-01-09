@@ -93,7 +93,7 @@ public class LogCoshTests
         // For small errors, log(cosh(x)) ≈ x²/2
         var logCosh = new LogCosh(1);
 
-        double smallError = 0.1;
+        const double smallError = 0.1;
         logCosh.Update(100, 100 - smallError);
 
         double l2Approx = (smallError * smallError) / 2.0;

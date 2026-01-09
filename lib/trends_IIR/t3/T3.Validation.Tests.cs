@@ -21,7 +21,7 @@ public class T3ValidationTests
     public void Validate_Skender_Batch()
     {
         int[] periods = { 5, 10, 20 };
-        double vFactor = 0.7;
+        const double vFactor = 0.7;
 
         foreach (var period in periods)
         {

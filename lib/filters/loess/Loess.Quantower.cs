@@ -32,7 +32,7 @@ public sealed class LoessIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Loess - Locally Estimated Scatterplot Smoothing";
         Description = "Locally Estimated Scatterplot Smoothing";
-        _series = new(name: "Loess", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Loess", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

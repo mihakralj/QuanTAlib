@@ -96,7 +96,7 @@ public sealed class Adosc : ITValuePublisher
 
         double adosc = eFast.Value - eSlow.Value;
         Last = new TValue(input.Time, adosc);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -127,7 +127,7 @@ public sealed class Adosc : ITValuePublisher
 
         for (int i = 0; i < source.Count; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
@@ -168,12 +168,17 @@ public sealed class Adosc : ITValuePublisher
     {
         if (high.Length != low.Length || high.Length != close.Length ||
             high.Length != volume.Length || high.Length != output.Length)
+        {
             throw new ArgumentException("All spans must be of the same length.", nameof(output));
-
+        }
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
 
         int len = high.Length;
         if (len == 0) return;
@@ -206,7 +211,7 @@ public sealed class Adosc : ITValuePublisher
             double mfm = 0;
             if (hl > double.Epsilon)
             {
-                mfm = ((c - l) - (h - c)) / hl;
+                mfm = (c - l - (h - c)) / hl;
             }
             double mfv = mfm * vol;
 

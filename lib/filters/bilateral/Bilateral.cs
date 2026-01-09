@@ -273,7 +273,7 @@ public sealed class Bilateral : AbstractBase
         {
             double val = buffer[idx];
             double diffRange = centerVal - val;
-            double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
+            double weightRange = Math.Exp(diffRange * diffRange * negInvTwoSigmaRSq);
             double weight = _spatialWeights[i] * weightRange;
 
             sumWeights += weight;
@@ -287,7 +287,7 @@ public sealed class Bilateral : AbstractBase
             {
                 double val = buffer[idx];
                 double diffRange = centerVal - val;
-                double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
+                double weightRange = Math.Exp(diffRange * diffRange * negInvTwoSigmaRSq);
                 double weight = _spatialWeights[i] * weightRange;
 
                 sumWeights += weight;
@@ -428,7 +428,7 @@ public sealed class Bilateral : AbstractBase
             {
                 double wVal = window[idx];
                 double diffRange = centerVal - wVal;
-                double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
+                double weightRange = Math.Exp(diffRange * diffRange * negInvTwoSigmaRSq);
                 double weight = spatialWeights[k] * weightRange;
 
                 sumWeights += weight;
@@ -442,7 +442,7 @@ public sealed class Bilateral : AbstractBase
                 {
                     double wVal = window[idx];
                     double diffRange = centerVal - wVal;
-                    double weightRange = Math.Exp((diffRange * diffRange) * negInvTwoSigmaRSq);
+                    double weightRange = Math.Exp(diffRange * diffRange * negInvTwoSigmaRSq);
                     double weight = spatialWeights[k] * weightRange;
 
                     sumWeights += weight;

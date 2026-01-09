@@ -34,7 +34,7 @@ public sealed class VelIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "VEL - Jurik Velocity";
         Description = "Momentum oscillator calculated as PWMA - WMA";
-        _series = new(name: $"VEL {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"VEL {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

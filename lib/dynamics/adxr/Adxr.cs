@@ -129,7 +129,7 @@ public sealed class Adxr : ITValuePublisher
         }
 
         Last = new TValue(input.Time, adxr);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -146,7 +146,7 @@ public sealed class Adxr : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, _period, v);
+        Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
 
         var tList = new List<long>(len);
         var vList = new List<double>(v);
@@ -160,17 +160,17 @@ public sealed class Adxr : ITValuePublisher
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return new TSeries(tList, vList);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> open, ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
+    public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, int period, Span<double> destination)
     {
         int len = high.Length;
-        if (len == 0 || len != low.Length || len != close.Length || len != open.Length || len != destination.Length)
+        if (len == 0 || len != low.Length || len != close.Length || len != destination.Length)
         {
             if (destination.Length > 0)
             {
@@ -184,7 +184,7 @@ public sealed class Adxr : ITValuePublisher
             ? stackalloc double[len]
             : new double[len];
 
-        Adx.Calculate(open, high, low, close, period, adxSpan);
+        Adx.Calculate(high, low, close, period, adxSpan);
 
         destination.Clear();
 
@@ -220,7 +220,7 @@ public sealed class Adxr : ITValuePublisher
         int len = source.Count;
         var v = new double[len];
 
-        Calculate(source.Open.Values, source.High.Values, source.Low.Values, source.Close.Values, period, v);
+        Calculate(source.High.Values, source.Low.Values, source.Close.Values, period, v);
 
         var tList = new List<long>(len);
         var times = source.Open.Times;

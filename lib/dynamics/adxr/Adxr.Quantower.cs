@@ -29,7 +29,7 @@ public sealed class AdxrIndicator : Indicator, IWatchlistIndicator
         Name = "ADXR - Average Directional Movement Rating";
         Description = "Quantifies the change in momentum of the ADX";
 
-        _adxrSeries = new(name: "ADXR", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _adxrSeries = new LineSeries(name: "ADXR", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_adxrSeries);
     }
 

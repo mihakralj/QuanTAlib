@@ -23,7 +23,7 @@ public sealed class BopIndicator : Indicator, IWatchlistIndicator
         Name = "BOP - Balance of Power";
         Description = "Measures the strength of buyers vs sellers";
 
-        _bopSeries = new(name: "BOP", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _bopSeries = new LineSeries(name: "BOP", color: Color.Blue, width: 2, style: LineStyle.Solid);
         AddLineSeries(_bopSeries);
     }
 

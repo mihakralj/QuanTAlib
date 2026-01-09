@@ -114,13 +114,13 @@ public sealed class Sum : AbstractBase
         // Primary Kahan step
         double y = x - _state.C;
         double t = _state.Sum + y;
-        _state.C = (t - _state.Sum) - y;
+        _state.C = t - _state.Sum - y;
         _state.Sum = t;
 
         // Secondary compensation (Babuška improvement)
         double z = _state.C - _state.Cc;
         double tt = _state.Sum + z;
-        _state.Cc = (tt - _state.Sum) - z;
+        _state.Cc = tt - _state.Sum - z;
         _state.Sum = tt;
     }
 
@@ -384,12 +384,12 @@ public sealed class Sum : AbstractBase
             // Kahan-Babuška add
             double y = val - c;
             double t = sum + y;
-            c = (t - sum) - y;
+            c = t - sum - y;
             sum = t;
 
             double z = c - cc;
             double tt = sum + z;
-            cc = (tt - sum) - z;
+            cc = tt - sum - z;
             sum = tt;
 
             buffer[i] = val;
@@ -410,23 +410,23 @@ public sealed class Sum : AbstractBase
             // Kahan-Babuška subtract old value
             double yS = -oldVal - c;
             double tS = sum + yS;
-            c = (tS - sum) - yS;
+            c = tS - sum - yS;
             sum = tS;
 
             double zS = c - cc;
             double ttS = sum + zS;
-            cc = (ttS - sum) - zS;
+            cc = ttS - sum - zS;
             sum = ttS;
 
             // Kahan-Babuška add new value
             double yA = val - c;
             double tA = sum + yA;
-            c = (tA - sum) - yA;
+            c = tA - sum - yA;
             sum = tA;
 
             double zA = c - cc;
             double ttA = sum + zA;
-            cc = (ttA - sum) - zA;
+            cc = ttA - sum - zA;
             sum = ttA;
 
             buffer[bufferIndex] = val;
@@ -449,12 +449,12 @@ public sealed class Sum : AbstractBase
                     double bVal = buffer[k];
                     double yR = bVal - c;
                     double tR = sum + yR;
-                    c = (tR - sum) - yR;
+                    c = tR - sum - yR;
                     sum = tR;
 
                     double zR = c - cc;
                     double ttR = sum + zR;
-                    cc = (ttR - sum) - zR;
+                    cc = ttR - sum - zR;
                     sum = ttR;
                 }
             }

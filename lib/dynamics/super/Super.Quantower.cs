@@ -33,9 +33,9 @@ public sealed class SuperIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "SuperTrend";
         Description = "SuperTrend Indicator";
-        _series = new(name: "SuperTrend", color: Color.Orange, width: 2, style: LineStyle.Solid);
-        _upperBand = new(name: "Upper Band", color: Color.Red, width: 1, style: LineStyle.Dot);
-        _lowerBand = new(name: "Lower Band", color: Color.Green, width: 1, style: LineStyle.Dot);
+        _series = new LineSeries(name: "SuperTrend", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _upperBand = new LineSeries(name: "Upper Band", color: Color.Red, width: 1, style: LineStyle.Dot);
+        _lowerBand = new LineSeries(name: "Lower Band", color: Color.Green, width: 1, style: LineStyle.Dot);
         AddLineSeries(_series);
         AddLineSeries(_upperBand);
         AddLineSeries(_lowerBand);

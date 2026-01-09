@@ -37,7 +37,7 @@ public sealed class BetaIndicator : Indicator, IWatchlistIndicator
         Name = "Beta Coefficient";
         Description = "Measures the volatility of an asset in relation to the overall market.";
 
-        _series = new(name: "Beta", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Beta", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

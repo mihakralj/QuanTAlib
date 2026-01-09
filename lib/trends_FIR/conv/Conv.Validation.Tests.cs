@@ -50,7 +50,7 @@ public sealed class ConvValidationTests : IDisposable
     public void Validate_Against_Sma()
     {
         // SMA(10) is equivalent to Conv with 10 weights of 1/10
-        int period = 10;
+        const int period = 10;
         double weight = 1.0 / period;
         double[] kernel = new double[period];
         Array.Fill(kernel, weight);

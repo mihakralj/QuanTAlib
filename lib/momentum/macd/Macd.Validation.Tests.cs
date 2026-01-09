@@ -42,9 +42,9 @@ public sealed class MacdValidationTests : IDisposable
     public void Validate_Skender_Batch()
     {
         // Standard MACD parameters
-        int fastPeriod = 12;
-        int slowPeriod = 26;
-        int signalPeriod = 9;
+        const int fastPeriod = 12;
+        const int slowPeriod = 26;
+        const int signalPeriod = 9;
 
         // Calculate QuanTAlib MACD (batch TSeries)
         var macd = new global::QuanTAlib.Macd(fastPeriod, slowPeriod, signalPeriod);
@@ -69,9 +69,9 @@ public sealed class MacdValidationTests : IDisposable
     [Fact]
     public void Validate_Skender_Streaming()
     {
-        int fastPeriod = 12;
-        int slowPeriod = 26;
-        int signalPeriod = 9;
+        const int fastPeriod = 12;
+        const int slowPeriod = 26;
+        const int signalPeriod = 9;
 
         // Calculate QuanTAlib MACD (streaming)
         var macd = new global::QuanTAlib.Macd(fastPeriod, slowPeriod, signalPeriod);
@@ -101,9 +101,9 @@ public sealed class MacdValidationTests : IDisposable
     [Fact]
     public void Validate_Talib_Streaming()
     {
-        int fastPeriod = 12;
-        int slowPeriod = 26;
-        int signalPeriod = 9;
+        const int fastPeriod = 12;
+        const int slowPeriod = 26;
+        const int signalPeriod = 9;
 
         // Prepare data for TA-Lib (double[])
         double[] tData = _testData.RawData.ToArray();
@@ -142,9 +142,9 @@ public sealed class MacdValidationTests : IDisposable
     [Fact]
     public void Validate_Against_Ooples()
     {
-        int fastPeriod = 12;
-        int slowPeriod = 26;
-        int signalPeriod = 9;
+        const int fastPeriod = 12;
+        const int slowPeriod = 26;
+        const int signalPeriod = 9;
 
         // Prepare data for Ooples (List<TickerData>)
         var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
@@ -192,9 +192,9 @@ public sealed class MacdValidationTests : IDisposable
     {
         // Tulip has a hardcoded override for 12/26 that uses 0.15 and 0.075 instead of standard alpha
         // We use different periods to validate the algorithm correctness without this quirk
-        int fastPeriod = 10;
-        int slowPeriod = 20;
-        int signalPeriod = 9;
+        const int fastPeriod = 10;
+        const int slowPeriod = 20;
+        const int signalPeriod = 9;
 
         // Prepare data for Tulip (double[])
         double[] tData = _testData.RawData.ToArray();

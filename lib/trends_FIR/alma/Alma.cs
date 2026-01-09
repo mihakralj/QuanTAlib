@@ -27,12 +27,14 @@ public sealed class Alma : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _pubHandler;
+    private bool _isNew = true;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValidValue, bool IsInitialized);
     private State _state;
     private State _p_state;
 
+    public bool IsNew => _isNew;
     public override bool IsHot => _buffer.IsFull;
 
     /// <summary>
@@ -59,6 +61,7 @@ public sealed class Alma : AbstractBase
         WarmupPeriod = period;
 
         ComputeWeights(_weights, period, offset, sigma, out _invWeightSum);
+        _state = new State(double.NaN, IsInitialized: false);
     }
 
     public Alma(ITValuePublisher source, int period, double offset = 0.85, double sigma = 6.0)
@@ -110,13 +113,14 @@ public sealed class Alma : AbstractBase
         {
             return input;
         }
-        return _state.IsInitialized ? _state.LastValidValue : 0.0;
+        return _state.IsInitialized ? _state.LastValidValue : double.NaN;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        return Update(input, isNew, true);
+        _isNew = isNew;
+        return Update(input, isNew, publish: true);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -179,7 +183,7 @@ public sealed class Alma : AbstractBase
         int startIndex = Math.Max(0, len - _period);
         for (int i = startIndex; i < len; i++)
         {
-            Update(source[i], true, false);
+            Update(source[i], isNew: true, publish: false);
         }
 
         return new TSeries(t, v);
@@ -356,8 +360,8 @@ public sealed class Alma : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
-        _state = default;
-        _p_state = default;
+        _state = new State(double.NaN, IsInitialized: false);
+        _p_state = _state;
         Last = default;
     }
 }

@@ -20,7 +20,7 @@ public sealed class StcIndicator : Indicator, IWatchlistIndicator
         "None", StcSmoothing.None,
         "EMA", StcSmoothing.Ema,
         "Sigmoid", StcSmoothing.Sigmoid,
-        "Digital", StcSmoothing.Digital
+        "Digital", StcSmoothing.Digital,
     })]
     public StcSmoothing Smoothing { get; set; } = StcSmoothing.Sigmoid;
 
@@ -46,7 +46,7 @@ public sealed class StcIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         Name = "STC - Schaff Trend Cycle";
         Description = "Schaff Trend Cycle Oscillator";
-        _series = new(name: $"STC", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "STC", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

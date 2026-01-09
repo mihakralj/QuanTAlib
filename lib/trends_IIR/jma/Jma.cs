@@ -287,7 +287,7 @@ public sealed class Jma : AbstractBase
         Reset();
         for (int i = 0; i < len; i++)
         {
-            vSpan[i] = Step(source.Values[i], true);
+            vSpan[i] = Step(source.Values[i], isNew: true);
         }
 
         // Synchronize previous-state mirror to current state AND snapshot buffers
@@ -331,7 +331,7 @@ public sealed class Jma : AbstractBase
         var jma = new Jma(period, phase, power);
         for (int i = 0; i < source.Length; i++)
         {
-            output[i] = jma.Step(source[i], true);
+            output[i] = jma.Step(source[i], isNew: true);
         }
     }
 
@@ -372,6 +372,6 @@ public sealed class Jma : AbstractBase
         if (end >= count) end = count - 1;
 
         int len = end - start + 1;
-        return ((ReadOnlySpan<double>)sorted.Slice(start, len)).SumSIMD() / len;
+        return sorted.Slice(start, len).SumSIMD() / len;
     }
 }

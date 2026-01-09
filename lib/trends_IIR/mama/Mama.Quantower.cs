@@ -36,8 +36,8 @@ public sealed class MamaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "MAMA - MESA Adaptive Moving Average";
         Description = "MESA Adaptive Moving Average";
-        _series = new(name: "MAMA", color: Color.Orange, width: 2, style: LineStyle.Solid);
-        _famaSeries = new(name: "FAMA", color: Color.Red, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "MAMA", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _famaSeries = new LineSeries(name: "FAMA", color: Color.Red, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
         AddLineSeries(_famaSeries);
     }

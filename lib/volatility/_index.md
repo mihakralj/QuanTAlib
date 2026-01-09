@@ -9,7 +9,7 @@ These indicators don't tell you where the price is going. They tell you how scar
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
 | ADR | Average Daily Range | Measures the average daily price movement range over a specified period. |
-| [ATR](atr/Atr.md) | Average True Range | The standard for measuring market "heat." Decomposes range to account for gaps. |
+| [ATR](lib/volatility/atr/Atr.md) | Average True Range | The standard for measuring market "heat." Decomposes range to account for gaps. |
 | ATRN | Average True Range Normalized [0,1] | ATR normalized to a 0-1 scale for comparative analysis. |
 | ATRP | Average True Range Percent | ATR expressed as a percentage of the closing price. |
 | BBW | Bollinger Band Width | Measures the difference between the upper and lower Bollinger Bands. |

@@ -57,8 +57,10 @@ public sealed class Apchannel : AbstractBase
     public Apchannel(double alpha = 0.2)
     {
         if (alpha <= 0 || alpha > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(alpha),
                 "Alpha must be greater than 0 and less than or equal to 1.");
+        }
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -124,7 +126,7 @@ public sealed class Apchannel : AbstractBase
             HighEma = highEma,
             LowEma = lowEma,
             LastValidHigh = validHigh,
-            LastValidLow = validLow
+            LastValidLow = validLow,
         };
 
         double mid = (highEma + lowEma) * 0.5;
@@ -146,7 +148,7 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar bar, bool isNew = true)
     {
-        UpdateCore(bar.High, bar.Low, bar.Time, isNew);
+        _ = UpdateCore(bar.High, bar.Low, bar.Time, isNew);
         return Last;
     }
 
@@ -163,7 +165,7 @@ public sealed class Apchannel : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
@@ -174,7 +176,7 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        UpdateCore(input.Value, input.Value, input.Time, isNew);
+        _ = UpdateCore(input.Value, input.Value, input.Time, isNew);
         return Last;
     }
 
@@ -191,7 +193,7 @@ public sealed class Apchannel : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
@@ -254,10 +256,14 @@ public sealed class Apchannel : AbstractBase
         if (upperBand.Length != length)
             throw new ArgumentException("Upper band array must match source length.", nameof(upperBand));
         if (lowerBand.Length != length)
+        {
             throw new ArgumentException("Lower band array must match source length.", nameof(lowerBand));
+        }
         if (alpha <= 0 || alpha > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(alpha),
                 "Alpha must be greater than 0 and less than or equal to 1.");
+        }
 
         if (length == 0)
             return;

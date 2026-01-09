@@ -228,7 +228,7 @@ public sealed class Super : ITValuePublisher
 
         for (int i = 0; i < source.Count; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }

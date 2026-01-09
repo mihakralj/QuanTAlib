@@ -41,7 +41,7 @@ public class BetaTests
     [Fact]
     public void IsHot_BecomesTrueAfterPeriod()
     {
-        int period = 5;
+        const int period = 5;
         var beta = new Beta(period);
 
         // We need period returns.

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+
+<Dashboard>
+  <Table>
+    <Row>
+      <Cell>
+        <Table>
+          <Row>
+            <Cell>
+              <Table>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="# Lines of Code" Value="51 564"  DiffDesc="+38 362" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="(NotMyCode)" Value="1 389"  DiffDesc="+942" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Estimated Dev Effort" Value="1 258d" NameBeforeValue="True" DiffDesc="+949d" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Separator Orientation="Horizontal"  />
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="# Types" Value="719"  DiffDesc="+557" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Assemblies" Value="10"  DiffDesc="+9" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Namespaces" Value="20"  DiffDesc="+18" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Methods" Value="6 044"  DiffDesc="+4 795" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Fields" Value="2 643"  DiffDesc="+2 055" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Source Files" Value="446"  DiffDesc="+78" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Line Feed" Value="100 021"  DiffDesc="+12 087" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Third-Party Elements" Value="632"  DiffDesc="+158" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Separator Orientation="Horizontal"  />
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="Comment" Value="31.6%"  DiffDesc="from 42.47%" DiffImage="Down"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Lines of Comment" Value="23 818"  DiffDesc="+14 070" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+              </Table>
+            </Cell>
+            <Cell>
+              <Separator Orientation="Vertical"  />
+            </Cell>
+            <Cell>
+              <Table>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="Debt" Value="3.97%"  DiffDesc="from 9.45%" DiffImage="GreenDown"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell><ItemDebtRating DebtRating="A"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Debt" Value="49d" NameBeforeValue="True" DiffDesc="+20d" DiffImage="RedUp"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Annual Interest" Value="44d" NameBeforeValue="True" DiffDesc="+31d" DiffImage="RedUp"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Breaking Point" Value="13m" NameBeforeValue="True" DiffDesc="-12m" DiffImage="Down"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Separator Orientation="Horizontal"  />
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <Table>
+                            <Row>
+                              <Cell>
+                                <ItemMetricTitle Name="Coverage" Value="84.96%"  DiffDesc="from 87.18%" DiffImage="RedDown"  />
+                              </Cell>
+                              <Cell>
+                                <ItemMetricPieCov Val="84"  />
+                              </Cell>
+                            </Row>
+                          </Table>
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Lines of Code Covered" Value="38 566"  DiffDesc="+27 567" DiffImage="GreenUp"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Lines of Code Not Covered" Value="6 825"  DiffDesc="+5 207" DiffImage="RedUp"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Lines of Code Uncoverable" Value="6 173"  DiffDesc="+5 588" DiffImage="Up"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Separator Orientation="Horizontal"  />
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="Method Complexity"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Max" Value="28"  DiffDesc="+1" DiffImage="RedUp"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemMetricSub Name="Average" Value="2.14"  DiffDesc="-0.28" DiffImage="GreenDown"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+              </Table>
+            </Cell>
+            <Cell>
+              <Separator Orientation="Vertical"  />
+            </Cell>
+            <Cell>
+              <Table>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="Quality Gates"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Fail" Path=";StatusQGFail.png" Value="4" ValueIsRed="True" ValueRed="+1"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Warn" Path=";StatusQGWarn.png" Value="1"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Pass" Path=";StatusQGPass.png" Value="7" ValueIsGreen="True" ValueRed="-1"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Separator Orientation="Horizontal"  />
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="Rules"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Critical" Path=";StatusWarningCritical.png" Value="1" ValueIsRed="True"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Violated" Path=";StatusWarning.png" Value="89" ValueIsRed="True" ValueRed="+4"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Ok" Path=";StatusBigOk.png" Value="129" ValueIsGreen="True"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Separator Orientation="Horizontal"  />
+                  </Cell>
+                </Row>
+                <Row>
+                  <Cell>
+                    <Table IsVisible="True">
+                      <Row>
+                        <Cell>
+                          <ItemMetricTitle Name="Issues"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="All" Path=";Empty.png" Value="2 409" ValueRed="+1 151" ValueGreen="-25"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <TinySeparator Orientation="Vertical"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Blocker" Path=";Severity_Blocker.png" Value="0"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Critical" Path=";Severity_Critical.png" Value="0"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="High" Path=";Severity_High.png" Value="977" ValueIsRed="True" ValueRed="+690" ValueGreen="-6"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Medium" Path=";Severity_Medium.png" Value="1 071" ValueRed="+245" ValueGreen="-19"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Low" Path=";Severity_Low.png" Value="361" ValueRed="+216"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <TinySeparator Orientation="Vertical"  />
+                        </Cell>
+                      </Row>
+                      <Row>
+                        <Cell>
+                          <ItemSummaryLine Name="Suppressed" Path=";Empty.png" Value="0"  />
+                        </Cell>
+                      </Row>
+                    </Table>
+                  </Cell>
+                </Row>
+              </Table>
+            </Cell>
+          </Row>
+        </Table>
+      </Cell>
+    </Row>
+  </Table>
+</Dashboard>

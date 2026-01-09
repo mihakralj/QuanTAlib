@@ -250,7 +250,7 @@ public sealed class VelValidationTests : IDisposable
     public void Vel_LargeDataset_MaintainsPrecision()
     {
         // Test with large dataset to ensure no drift
-        int period = 20;
+        const int period = 20;
         var vel = new Vel(period);
         var pwma = new Pwma(period);
         var wma = new Wma(period);

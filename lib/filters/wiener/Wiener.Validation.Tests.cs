@@ -73,7 +73,7 @@ public class WienerValidationTests : IDisposable
             // 2. Signal Variance
             // Lookback: min(count, smoothPeriod)
             int signalLen = Math.Min(count, smoothPeriod);
-            
+
             // a. Mean
             double sumSrc = 0;
             for (int k = 0; k < signalLen; k++)
@@ -110,9 +110,9 @@ public class WienerValidationTests : IDisposable
     public void Validate_AgainstReference_Batch()
     {
         var source = _testData.Data.Select(x => x.Value).ToArray();
-        
-        var scenarios = new[] 
-        { 
+
+        var scenarios = new[]
+        {
             (period: 5, smooth: 10),
             (period: 10, smooth: 5),
             (period: 20, smooth: 20),
@@ -134,9 +134,9 @@ public class WienerValidationTests : IDisposable
     public void Validate_AgainstReference_Streaming()
     {
         var source = _testData.Data.Select(x => x.Value).ToArray();
-        
-        var scenarios = new[] 
-        { 
+
+        var scenarios = new[]
+        {
             (period: 5, smooth: 10),
             (period: 10, smooth: 5),
             (period: 20, smooth: 20)
@@ -146,14 +146,14 @@ public class WienerValidationTests : IDisposable
         {
             var filter = new Wiener(period, smooth);
             var qResults = new List<double>();
-            
+
             foreach (var item in _testData.Data)
             {
                 qResults.Add(filter.Update(item).Value);
             }
-            
+
             var expected = CalculateExpectedWiener(source, period, smooth);
-            
+
             ValidationHelper.VerifyData(qResults, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Streaming mode successfully validated against reference implementation");
@@ -163,9 +163,9 @@ public class WienerValidationTests : IDisposable
     public void Validate_AgainstReference_Span()
     {
         var source = _testData.Data.Select(x => x.Value).ToArray();
-        
-        var scenarios = new[] 
-        { 
+
+        var scenarios = new[]
+        {
             (period: 5, smooth: 10),
             (period: 10, smooth: 5),
             (period: 20, smooth: 20)
@@ -175,9 +175,9 @@ public class WienerValidationTests : IDisposable
         {
             double[] output = new double[source.Length];
             Wiener.Calculate(source.AsSpan(), output.AsSpan(), period, smooth);
-            
+
             var expected = CalculateExpectedWiener(source, period, smooth);
-            
+
             ValidationHelper.VerifyData(output, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Span mode successfully validated against reference implementation");

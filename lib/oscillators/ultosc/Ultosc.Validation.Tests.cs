@@ -268,7 +268,7 @@ public sealed class UltoscValidationTests : IDisposable
 
             // Calculate Ooples Ultimate Oscillator
             var stockData = new StockData(ooplesData);
-            var sResult = Calculations.CalculateUltimateOscillator(stockData, p1, p2, p3).OutputValues.Values.First();
+            var sResult = stockData.CalculateUltimateOscillator(p1, p2, p3).OutputValues.Values.First();
 
             // Compare last 100 records
             ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, ValidationHelper.OoplesTolerance);
@@ -279,7 +279,7 @@ public sealed class UltoscValidationTests : IDisposable
     [Fact]
     public void Validate_Span_MatchesTBarSeries()
     {
-        int p1 = 7;
+        const int p1 = 7;
         int p2 = 14;
         int p3 = 28;
 

@@ -7,14 +7,14 @@
 [![Nuget](https://img.shields.io/nuget/dt/QuanTAlib?style=flat-square)](https://www.nuget.org/packages/QuanTAlib/)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20|%2010.0-blue?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet)
 
-Code Analysis by [ndepend](https://www.ndepend.com/):  
-[![Files](ndepend/badges/files.svg)](https://www.ndepend.com/)
-[![Classes](ndepend/badges/classes.svg)](https://www.ndepend.com/)
-[![Methods](ndepend/badges/methods.svg)](https://www.ndepend.com/)
-[![LoC](ndepend/badges/loc.svg)](https://www.ndepend.com/)  
-[![Public API](ndepend/badges/public-api.svg)](https://www.ndepend.com/)
-[![Comments](ndepend/badges/comments.svg)](https://www.ndepend.com/)
-[![Complexity](ndepend/badges/complexity.svg)](https://www.ndepend.com/)
+Static code analysis provided by [ndepend](https://www.ndepend.com/):  
+[![Files](ndepend/badges/files.svg)](ndepend/ndependout/ndependreport.html)
+[![Classes](ndepend/badges/classes.svg)](ndepend/ndependout/ndependreport.html)
+[![Methods](ndepend/badges/methods.svg)](ndepend/ndependout/ndependreport.html)
+[![LoC](ndepend/badges/loc.svg)](ndepend/ndependout/ndependreport.html)  
+[![Public API](ndepend/badges/public-api.svg)](ndepend/ndependout/ndependreport.html)
+[![Comments](ndepend/badges/comments.svg)](ndepend/ndependout/ndependreport.html)
+[![Complexity](ndepend/badges/complexity.svg)](ndepend/ndependout/ndependreport.html)
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 
@@ -34,16 +34,21 @@ TA libraries face a fundamental choice: accept approximations for simplicity OR 
 
 | Category | What It Measures | Representative Indicators |
 | -------- | ---------------- | ------------------------- |
-| [**Trends**](../lib/trends/_index.md) | Direction and strength of price movement through smoothing and filtering | SMA, EMA, WMA, HMA, JMA, KAMA, ALMA, DEMA, TEMA, T3 |
-| [**Volatility**](../lib/volatility/_index.md) | Size and variability of price movements | ATR, StdDev, Bollinger Bands, Keltner Channels, Historical Volatility |
-| [**Momentum**](../lib/momentum/_index.md) | Speed and magnitude of price changes | RSI, Stochastic, CCI, Williams %R, MACD, Momentum, ROC |
-| [**Volume**](../lib/volume/_index.md) | Trading activity and price-volume relationships | OBV, VWAP, Volume ROC, A/D, MFI |
-| [**Channels**](../lib/channels/_index.md) | Price boundaries and range definitions | Donchian Channels, Keltner Channels, Price Channels |
-| [**Statistics**](../lib/statistics/_index.md) | Mathematical relationships between price series | Correlation, Covariance, Beta, Z-Score, Linear Regression |
-| [**Numerics**](../lib/numerics/_index.md) | Mathematical transformations and signal processing | Convolution, Filters, Integration, Differentiation, Smoothing |
-| [**Errors**](../lib/errors/_index.md) | Measurement accuracy and model fit quality | MAE, RMSE, Residuals, R-Squared |
-| [**Forecasts**](../lib/forecasts/_index.md) | Future price prediction and projection | Linear Regression Forecast, Moving Average Projection |
-| [**Cycles**](../lib/cycles/_index.md) | Periodic patterns and dominant frequencies | Hilbert Transform, Dominant Cycle, Instantaneous Phase, Sine Wave |
+| [**Trends (FIR)**](lib/trends_FIR/_index.md) | Finite Impulse Response moving averages | SMA, WMA, HMA, ALMA, TRIMA, LSMA, EPMA |
+| [**Trends (IIR)**](lib/trends_IIR/_index.md) | Infinite Impulse Response moving averages | EMA, DEMA, TEMA, T3, JMA, KAMA, VIDYA |
+| [**Filters**](lib/filters/_index.md) | Signal processing and noise reduction filters | Bessel, Butterworth, Gaussian, Savitzky-Golay, Ehlers Super Smoother |
+| [**Oscillators**](lib/oscillators/_index.md) | Indicators that fluctuate around a center line | RSI, MACD, Stochastic, AO, APO, CCI, Ultimate Oscillator |
+| [**Dynamics**](lib/dynamics/_index.md) | Trend strength and direction indicators | ADX, Aroon, SuperTrend, Vortex, Chop, Ichimoku |
+| [**Momentum**](lib/momentum/_index.md) | Speed and magnitude of price changes | Momentum, ROC, Velocity, RSX, Qstick, KDJ |
+| [**Volatility**](lib/volatility/_index.md) | Size and variability of price movements | ATR, Bollinger Band Width, Historical Volatility, True Range |
+| [**Volume**](lib/volume/_index.md) | Trading activity and price-volume relationships | OBV, VWAP, MFI, ADL, CMF, TVI, Force Index |
+| [**Statistics**](lib/statistics/_index.md) | Statistical measures and tests | Correlation, Variance, StdDev, Skewness, Kurtosis, Z-Score |
+| [**Channels**](lib/channels/_index.md) | Price boundaries and range definitions | Bollinger Bands, Keltner Channels, Donchian Channels |
+| [**Cycles**](lib/cycles/_index.md) | Cycle analysis and signal processing | Hilbert Transform, Homodyne, Phasor, Ehlers Sine Wave |
+| [**Reversals**](lib/reversals/_index.md) | Pattern recognition and reversal detection | Pivot Points, Fractals, Swings, Pivot Components |
+| [**Forecasts**](lib/forecasts/_index.md) | Predictive indicators and projections | Time Series Forecast, AFIRMA, Chande Forecast Oscillator |
+| [**Errors**](lib/errors/_index.md) | Error metrics and loss functions | RMSE, MAE, MAPE, SMAPE, MASE, R-Squared |
+| [**Numerics**](lib/numerics/_index.md) | Mathematical transformations | Log, Exp, Sqrt, Tanh, ReLU, Sigmoid |
 
 ## Quick Start
 
@@ -81,13 +86,23 @@ QuanTAlib is designed for speed. Here is how it compares calculating a 500,000 b
 | Tulip Indicators | 359.3 μs | 0 B | 1.13x slower |
 | Skender Indicators | 71,277 μs | 50.8 MB | 224x slower |
 
-*See [Benchmarks](benchmarks.md) for full details and methodology.*
+*See [Benchmarks](docs/benchmarks.md) for full details and methodology.*
 
 ## Documentation
 
-- [**Architecture**](architecture.md): Learn about SoA layout, SIMD, and design philosophy.
-- [**Indicators**](INDICATORS.md): Full catalog of available indicators and their mathematical families.
-- [**Benchmarks**](benchmarks.md): Detailed performance evidence and test methodology.
-- [**Usage Guides**](usage.md): Detailed patterns for Span, Streaming, Batch, and Eventing modes.
-- [**Integration**](integration.md): Setup guides for Quantower, NinjaTrader, and QuantConnect.
-- [**Glossary**](glossary.md): Definitions of core QuanTAlib concepts, types, and terminology.
+### Core Concepts
+
+- [**Architecture**](docs/architecture.md): Learn about SoA layout, SIMD, and design philosophy.
+- [**API Reference**](docs/api.md): Deep dive into the Tri-Modal Architecture (Batch, Streaming, Priming).
+- [**Indicators**](docs/indicators.md): Full catalog of available indicators and their mathematical families.
+- [**Usage Guides**](docs/usage.md): Detailed patterns for Span, Streaming, Batch, and Eventing modes.
+- [**Integration**](docs/integration.md): Setup guides for Quantower, NinjaTrader, and QuantConnect.
+
+### Analysis & Validation
+
+- [**Benchmarks**](docs/benchmarks.md): Detailed performance evidence and test methodology.
+- [**Error Metrics**](docs/errors.md): Implementation details for 20+ error metrics and loss functions.
+- [**Trend Comparison**](docs/trendcomparison.md): Comparative analysis of lag, smoothness, and accuracy.
+- [**MA Qualities**](docs/ma-qualities.md): Theoretical framework for evaluating moving averages.
+- [**Validation**](docs/validation.md): Verification matrices against TA-Lib, Skender, and other libraries.
+- [**Glossary**](docs/glossary.md): Definitions of core QuanTAlib concepts, types, and terminology.

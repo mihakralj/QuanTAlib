@@ -20,7 +20,7 @@ public sealed class MedianValidationTests : IDisposable
     public void Median_Matches_LinqImplementation()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var quotes = _data.SkenderQuotes.ToList();
         double[] data = quotes.Select(q => (double)q.Close).ToArray();
         int count = data.Length;
@@ -77,13 +77,13 @@ public sealed class MedianValidationTests : IDisposable
             if (i >= count - 100)
             {
                 var window = data[(i - period + 1)..(i + 1)];
-                double expected = Statistics.Median(window);
+                double expected = window.Median();
                 Assert.Equal(expected, tValue.Value, ValidationHelper.DefaultTolerance);
             }
         }
     }
 
-    private static double CalculateMedian(IReadOnlyList<double> sortedWindow)
+    private static double CalculateMedian(List<double> sortedWindow)
     {
         int count = sortedWindow.Count;
         if (count == 0) return 0; // Or NaN
