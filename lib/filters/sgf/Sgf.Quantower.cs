@@ -21,13 +21,12 @@ public sealed class SgfIndicator : Indicator, IWatchlistIndicator
 
     private Sgf? _sgf;
     private readonly LineSeries? _series;
-    private string? _sourceName;
     private Func<IHistoryItem, double>? _priceSelector;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"SGF({Period},{PolyOrder}):{_sourceName}";
+    public override string ShortName => $"SGF({Period},{PolyOrder}):{Source}";
 
     public SgfIndicator()
     {
@@ -42,7 +41,6 @@ public sealed class SgfIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         _priceSelector = Source.GetPriceSelector();
-        _sourceName = Source.ToString();
         
         // Validation handled by SGF constructor, but Quantower might let users set invalid values
         // We ensure Period > PolyOrder via Min/Max constraints in attributes if possible, 

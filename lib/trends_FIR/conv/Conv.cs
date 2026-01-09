@@ -21,7 +21,7 @@ namespace QuanTAlib;
 /// you MUST dispose the instance to unsubscribe from the source event and prevent memory leaks.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Conv : AbstractBase, IDisposable
+public sealed class Conv : AbstractBase
 {
     private readonly int _period;
     private readonly double[] _kernel;
@@ -57,12 +57,13 @@ public sealed class Conv : AbstractBase, IDisposable
         _source.Pub += _subHandler;
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
         if (_source != null && _subHandler != null)
         {
             _source.Pub -= _subHandler;
         }
+        base.Dispose(disposing);
     }
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);

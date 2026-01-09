@@ -248,12 +248,9 @@ public sealed class Bpf : AbstractBase
     /// </summary>
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && _publisher != null && _handler != null)
         {
-            if (_publisher != null && _handler != null)
-            {
-                _publisher.Pub -= _handler;
-            }
+            _publisher.Pub -= _handler;
         }
         base.Dispose(disposing);
     }

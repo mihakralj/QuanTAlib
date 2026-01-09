@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// alpha = 2 / (period + 1)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class T3 : AbstractBase, IDisposable
+public sealed class T3 : AbstractBase
 {
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double E1, double E2, double E3, double E4, double E5, double E6, bool IsInitialized)
@@ -327,13 +327,14 @@ public sealed class T3 : AbstractBase, IDisposable
         Last = default;
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        if (_publisher != null && _handler != null)
+        if (disposing && _publisher != null && _handler != null)
         {
             _publisher.Pub -= _handler;
             _publisher = null;
             _handler = null;
         }
+        base.Dispose(disposing);
     }
 }

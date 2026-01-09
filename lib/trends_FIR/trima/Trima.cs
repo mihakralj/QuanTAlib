@@ -23,7 +23,7 @@ namespace QuanTAlib;
 /// Becomes true when both internal SMAs are hot.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Trima : AbstractBase, IDisposable
+public sealed class Trima : AbstractBase
 {
     private readonly int _period;
     private readonly Sma _sma1;
@@ -53,13 +53,14 @@ public sealed class Trima : AbstractBase, IDisposable
         source.Pub += _handler;
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
         if (_publisher != null)
         {
             _publisher.Pub -= _handler;
             _publisher = null;
         }
+        base.Dispose(disposing);
     }
 
     public override bool IsHot => _sma1.IsHot && _sma2.IsHot;

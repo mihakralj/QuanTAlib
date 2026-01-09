@@ -56,7 +56,7 @@ public sealed class Stc : AbstractBase
         _slowAlpha = 2.0 / (slowLength + 1.0);
         _dAlpha = 2.0 / (dPeriod + 1.0);
 
-        int bufSize = kPeriod; 
+        int bufSize = kPeriod;
         _macdBuf = new RingBuffer(bufSize);
         _stoch1Buf = new RingBuffer(bufSize);
 
@@ -133,7 +133,7 @@ public sealed class Stc : AbstractBase
             max = double.NegativeInfinity;
             foreach (double v in span)
             {
-                if (double.IsNaN(v)) continue; 
+                if (double.IsNaN(v)) continue;
                 if (v < min) min = v;
                 if (v > max) max = v;
             }
@@ -181,7 +181,7 @@ public sealed class Stc : AbstractBase
         else _s = _ps;
 
         var s = _s;
-        
+
         double x = input.Value;
 
         if (!double.IsFinite(x))
@@ -229,15 +229,11 @@ public sealed class Stc : AbstractBase
         if (_macdBuf.IsFull)
         {
             double span = s.MacdMax - s.MacdMin;
-            if (_samples >= 328 && _samples <= 335) {
-                 Console.WriteLine($"Smp={_samples} Macd={macd:F4} MMin={s.MacdMin:F4} MMax={s.MacdMax:F4} S1Raw={(span > double.Epsilon ? 100.0 * (macd - s.MacdMin) / span : -1):F2} S1Ema={s.Stoch1Ema:F2} S1Min={s.Stoch1Min:F2} S1Max={s.Stoch1Max:F2}");
-            }
-
             if (span > double.Epsilon)
                 stoch1Raw = 100.0 * (macd - s.MacdMin) / span;
             else
                 stoch1Raw = double.IsNaN(s.Stoch1Ema) ? 50.0 : s.Stoch1Ema;
-            
+
             stoch1Raw = Clamp100(stoch1Raw);
         }
         else
@@ -252,12 +248,12 @@ public sealed class Stc : AbstractBase
                 ? stoch1Raw
                 : Math.FusedMultiplyAdd(_dAlpha, stoch1Raw - s.Stoch1Ema, s.Stoch1Ema);
         }
-        
+
         double stoch1 = double.NaN;
         if (!double.IsNaN(s.Stoch1Ema))
         {
             stoch1 = Clamp100(s.Stoch1Ema);
-            
+
             double removedStoch1 = 0;
             bool hasRemovedStoch1;
             if (isNew)
@@ -283,12 +279,12 @@ public sealed class Stc : AbstractBase
                 stoch2Raw = 100.0 * (stoch1 - s.Stoch1Min) / span;
             else
                 stoch2Raw = double.IsNaN(s.Stoch2Ema) ? stoch1 : s.Stoch2Ema;
-            
+
             stoch2Raw = Clamp100(stoch2Raw);
         }
         else
         {
-            stoch2Raw = stoch1; 
+            stoch2Raw = stoch1;
         }
 
         // 4) Final Smooth
@@ -301,10 +297,6 @@ public sealed class Stc : AbstractBase
                     s.Stoch2Ema = double.IsNaN(s.Stoch2Ema)
                         ? stoch2Raw
                         : Math.FusedMultiplyAdd(_dAlpha, stoch2Raw - s.Stoch2Ema, s.Stoch2Ema);
-                    
-                    if (_samples >= 328 && _samples <= 335) {
-                       Console.WriteLine($" > S2Raw={stoch2Raw:F2} S2Ema={s.Stoch2Ema:F2} Result={Clamp100(s.Stoch2Ema):F2}");
-                    }
                     stc = Clamp100(s.Stoch2Ema);
                     break;
 
@@ -325,7 +317,7 @@ public sealed class Stc : AbstractBase
         }
 
         if (isNew) _samples++;
-        
+
         _s = s;
         Last = new TValue(input.Time, stc);
         PubEvent(Last, isNew);
@@ -399,20 +391,18 @@ public sealed class Stc : AbstractBase
             // 1) MACD
             fastEma = double.IsNaN(fastEma) ? x : Math.FusedMultiplyAdd(fastAlpha, x - fastEma, fastEma);
             slowEma = double.IsNaN(slowEma) ? x : Math.FusedMultiplyAdd(slowAlpha, x - slowEma, slowEma);
-            
+
             double macd = fastEma - slowEma;
 
             // Buffer MACD
-            {
-                bool hasRemoved = macdCount == kPeriod;
-                double removed = macdBuf[macdIdx];
-                macdBuf[macdIdx] = macd;
-                macdIdx = (macdIdx + 1) % kPeriod;
-                if (!hasRemoved) macdCount++;
-                
-                var validSpan = new ReadOnlySpan<double>(macdBuf, 0, macdCount);
-                UpdateMinMax(ref macdMin, ref macdMax, macd, removed, hasRemoved, validSpan);
-            }
+            bool macdHasRemoved = macdCount == kPeriod;
+            double macdRemoved = macdBuf[macdIdx];
+            macdBuf[macdIdx] = macd;
+            macdIdx = (macdIdx + 1) % kPeriod;
+            if (!macdHasRemoved) macdCount++;
+
+            var macdValidSpan = new ReadOnlySpan<double>(macdBuf, 0, macdCount);
+            UpdateMinMax(ref macdMin, ref macdMax, macd, macdRemoved, macdHasRemoved, macdValidSpan);
 
             // 2) Stoch1
             double stoch1Raw;
@@ -423,7 +413,7 @@ public sealed class Stc : AbstractBase
                     stoch1Raw = 100.0 * (macd - macdMin) / span;
                 else
                     stoch1Raw = double.IsNaN(stoch1Ema) ? 50.0 : stoch1Ema;
-                
+
                 stoch1Raw = Clamp100(stoch1Raw);
             }
             else
@@ -434,8 +424,8 @@ public sealed class Stc : AbstractBase
             // Smooth Stoch1
             if (!double.IsNaN(stoch1Raw))
             {
-                stoch1Ema = double.IsNaN(stoch1Ema) 
-                    ? stoch1Raw 
+                stoch1Ema = double.IsNaN(stoch1Ema)
+                    ? stoch1Raw
                     : Math.FusedMultiplyAdd(dAlpha, stoch1Raw - stoch1Ema, stoch1Ema);
             }
 
@@ -443,18 +433,16 @@ public sealed class Stc : AbstractBase
             if (!double.IsNaN(stoch1Ema))
             {
                 stoch1 = Clamp100(stoch1Ema);
-                
+
                 // Buffer Stoch1
-                {
-                    bool hasRemoved = stoch1Count == kPeriod;
-                    double removed = stoch1Buf[stoch1Idx];
-                    stoch1Buf[stoch1Idx] = stoch1;
-                    stoch1Idx = (stoch1Idx + 1) % kPeriod;
-                    if (!hasRemoved) stoch1Count++;
-                    
-                    var validSpan = new ReadOnlySpan<double>(stoch1Buf, 0, stoch1Count);
-                    UpdateMinMax(ref stoch1Min, ref stoch1Max, stoch1, removed, hasRemoved, validSpan);
-                }
+                bool stochHasRemoved = stoch1Count == kPeriod;
+                double stochRemoved = stoch1Buf[stoch1Idx];
+                stoch1Buf[stoch1Idx] = stoch1;
+                stoch1Idx = (stoch1Idx + 1) % kPeriod;
+                if (!stochHasRemoved) stoch1Count++;
+
+                var stochValidSpan = new ReadOnlySpan<double>(stoch1Buf, 0, stoch1Count);
+                UpdateMinMax(ref stoch1Min, ref stoch1Max, stoch1, stochRemoved, stochHasRemoved, stochValidSpan);
             }
 
             // 3) Stoch2

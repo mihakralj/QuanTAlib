@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// - Reacts quickly in trending markets (high volatility)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Vidya : AbstractBase, IDisposable
+public sealed class Vidya : AbstractBase
 {
     private readonly int _period;
     private readonly double _alpha;
@@ -62,12 +62,13 @@ public sealed class Vidya : AbstractBase, IDisposable
         source.Pub += _pubHandler;
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        if (_source != null && _pubHandler != null)
+        if (disposing && _source != null && _pubHandler != null)
         {
             _source.Pub -= _pubHandler;
         }
+        base.Dispose(disposing);
     }
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);

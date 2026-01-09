@@ -17,7 +17,7 @@ public sealed class LoessIndicator : Indicator, IWatchlistIndicator
     public bool ShowColdValues { get; set; } = true;
 
     private Loess? _ma;
-    private LineSeries? _series;
+    private readonly LineSeries? _series;
     private string? _sourceName;
     private Func<IHistoryItem, double>? _priceSelector;
 

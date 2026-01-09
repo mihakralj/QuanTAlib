@@ -24,7 +24,7 @@ namespace QuanTAlib;
 /// Becomes true when the buffer is full (period samples processed).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Wma : AbstractBase, IDisposable
+public sealed class Wma : AbstractBase
 {
     private readonly int _period;
     private readonly double _divisor;
@@ -70,12 +70,13 @@ public sealed class Wma : AbstractBase, IDisposable
         source.Pub += _handler;
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
         if (_source != null && _handler != null)
         {
             _source.Pub -= _handler;
         }
+        base.Dispose(disposing);
     }
 
     public override bool IsHot => _buffer.IsFull;

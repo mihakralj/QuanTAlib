@@ -7,7 +7,7 @@ namespace QuanTAlib;
 /// Abstract base class for all indicators.
 /// Enforces a consistent contract for State, Name, WarmupPeriod, and core methods.
 /// </summary>
-public abstract class AbstractBase : ITValuePublisher
+public abstract class AbstractBase : ITValuePublisher, IDisposable
 {
     /// <summary>
     /// Display name for the indicator.

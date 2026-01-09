@@ -21,13 +21,12 @@ public sealed class WienerIndicator : Indicator, IWatchlistIndicator
 
     private Wiener? _wiener;
     private readonly LineSeries? _series;
-    private string? _sourceName;
     private Func<IHistoryItem, double>? _priceSelector;
 
     public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"Wiener({Period},{SmoothPeriod}):{_sourceName}";
+    public override string ShortName => $"Wiener({Period},{SmoothPeriod}):{Source}";
 
     public WienerIndicator()
     {
@@ -42,7 +41,6 @@ public sealed class WienerIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         _priceSelector = Source.GetPriceSelector();
-        _sourceName = Source.ToString();
         
         _wiener = new Wiener(Period, SmoothPeriod);
         base.OnInit();

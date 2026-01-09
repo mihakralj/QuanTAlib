@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -21,7 +22,7 @@ namespace QuanTAlib;
 /// Becomes true when the second EMA converges (approx. 2x EMA convergence time).
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Dema : AbstractBase, IDisposable
+public sealed class Dema : AbstractBase
 {
     [StructLayout(LayoutKind.Auto)]
     private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
@@ -328,12 +329,13 @@ public sealed class Dema : AbstractBase, IDisposable
         Last = default;
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        if (_publisher != null && _listener != null)
+        if (disposing && _publisher != null && _listener != null)
         {
             _publisher.Pub -= _listener;
         }
+        base.Dispose(disposing);
     }
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);

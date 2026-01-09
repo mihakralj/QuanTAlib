@@ -29,7 +29,7 @@ namespace QuanTAlib;
 /// or when creating many short-lived indicator instances.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Lsma : AbstractBase, IDisposable
+public sealed class Lsma : AbstractBase
 {
     private readonly int _period;
     private readonly int _offset;
@@ -403,7 +403,7 @@ public sealed class Lsma : AbstractBase, IDisposable
     /// Disposes the Lsma instance, unsubscribing from the source publisher if subscribed.
     /// This method is idempotent and thread-safe.
     /// </summary>
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
         // Use Interlocked.CompareExchange for thread-safe, idempotent disposal
         if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0 && _source != null)
@@ -411,6 +411,6 @@ public sealed class Lsma : AbstractBase, IDisposable
             _source.Pub -= _handler;
             _source = null;
         }
-        GC.SuppressFinalize(this);
+        base.Dispose(disposing);
     }
 }
