@@ -86,7 +86,9 @@ jobs:
           path: sarif-reports/
 
       - name: Install dotCover CLI
-        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
+        run: |
+          dotnet tool install --global JetBrains.dotCover.CommandLineTools
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Run Tests with Coverage (OpenCover/Cobertura)
         run: |
@@ -238,6 +240,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download dotCover Coverage
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: coverage-dotcover
