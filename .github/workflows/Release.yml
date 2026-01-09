@@ -72,7 +72,7 @@ jobs:
             /p:ErrorLog=sarif/roslyn.sarif
 
       - name: Install dotCover CLI
-        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
+        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
 
       - name: Test with Coverage (OpenCover/Cobertura for SonarCloud/Codacy)
         run: |
