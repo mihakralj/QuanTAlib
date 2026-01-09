@@ -22,6 +22,7 @@ public sealed class Bpf : AbstractBase
     private readonly double _lpC1, _lpC2, _lpC3;
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
+    private bool _isNew;
 
     // State buffer: [src1, src2, hp1, hp2, bp1, bp2]
     [StructLayout(LayoutKind.Auto)]
@@ -46,6 +47,7 @@ public sealed class Bpf : AbstractBase
     /// </summary>
     public int UpperPeriod { get; }
 
+    public bool IsNew => _isNew;
     public override bool IsHot => double.IsFinite(_state.Bp2); // Sufficiently warm when we have history
 
     public Bpf(int lowerPeriod, int upperPeriod)
@@ -74,6 +76,8 @@ public sealed class Bpf : AbstractBase
         _lpC2 = 2.0 * lpExpArg * Math.Cos(lpArg);
         _lpC3 = -lpExpArg * lpExpArg;
         _lpC1 = 1.0 - _lpC2 - _lpC3;
+
+        _state.LastValid = double.NaN;
     }
 
     public Bpf(ITValuePublisher source, int lowerPeriod, int upperPeriod) : this(lowerPeriod, upperPeriod)
@@ -119,6 +123,7 @@ public sealed class Bpf : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             _p_state = _state;
@@ -166,6 +171,7 @@ public sealed class Bpf : AbstractBase
     public override void Reset()
     {
         _state = default;
+        _state.LastValid = double.NaN;
         _p_state = default;
         Last = default;
     }

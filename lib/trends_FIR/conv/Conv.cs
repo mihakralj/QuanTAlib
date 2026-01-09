@@ -28,11 +28,13 @@ public sealed class Conv : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _subHandler;
+    private bool _isNew = true;
 
     private record struct State(double LastValidValue);
     private State _state;
     private State _p_state;
 
+    public bool IsNew => _isNew;
     public override bool IsHot => _buffer.IsFull;
 
     public Conv(double[] kernel)
@@ -82,6 +84,7 @@ public sealed class Conv : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             _p_state = _state;

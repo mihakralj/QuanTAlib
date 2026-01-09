@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ApplicationMetrics NAsm="1" NbSourceFiles="368" NbLinesOfCode="13202" NbLinesOfComment="9748" PercentageComment="42.47" NType="174" NClass="108" NAbstractClass="2" NInterface="2" NValueType="63" NExceptionType="0" NAttributeType="0" NDelegateType="3" NEnumType="1" NGenericMethodsDefinition="0" NGenericTypesDefinition="1" NILInstruction="91880" NMethods="2286" NFields="1029" NNamespaces="2" NThirdPartyAssemblies="9" NThirdPartyNamespaces="25" NThirdPartyTypes="130" NThirdPartyMethods="260" NThirdPartyFields="10" PercentCodeCoverage="83.31" PercentPublicType="63.22" PercentPublicMethod="83.07" PercentClassWithAtLeastOnePublicField="0">
+  <PropertyOnInterface Occ="2" Avg="0" StdDev="0" MaxVal="0" MaxName="QuanTAlib.ITValuePublisher" />
+  <MethodOnInterface Occ="2" Avg="2.5" StdDev="0.5" MaxVal="3" MaxName="QuanTAlib.IFeed" />
+  <ArgOnMethodOnInterface Occ="5" Avg="1.4" StdDev="0.8" MaxVal="3" MaxName="QuanTAlib.IFeed.Fetch(Int32,Int64,TimeSpan)" />
+  <PublicPropertyOnClass Occ="108" Avg="1.95" StdDev="3.02" MaxVal="25" MaxName="QuanTAlib.TBarSeries" />
+  <PublicMethodOnClass Occ="108" Avg="9.19" StdDev="5.79" MaxVal="36" MaxName="QuanTAlib.TBarSeries" />
+  <ArgOnPublicMethodOnClass Occ="993" Avg="1.52" StdDev="1.44" MaxVal="8" MaxName="QuanTAlib.AccBands.Batch(ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;,Span&lt;Double&gt;,Span&lt;Double&gt;,Int32,Double)" />
+  <ILInstructionInNonAbstractMethods Occ="2275" Avg="40.39" StdDev="75.37" MaxVal="730" MaxName="QuanTAlib.Mama.Calculate(ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;,Double,Double,Span&lt;Double&gt;)" />
+  <TypeWithTheMostILInstruction Occ="108" Avg="724.11" StdDev="557.48" MaxVal="2759" MaxName="QuanTAlib.Wma" />
+  <MethodCC Occ="2275" Avg="2.95" StdDev="4.85" MaxVal="43" MaxName="QuanTAlib.Mase.Batch(ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;,Int32)" />
+</ApplicationMetrics>

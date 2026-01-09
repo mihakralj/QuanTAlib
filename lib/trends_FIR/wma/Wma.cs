@@ -31,6 +31,7 @@ public sealed class Wma : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler? _handler;
+    private bool _isNew;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double WSum, double LastInput, double LastValidValue, int TickCount, bool HasSeenValidData);
@@ -80,6 +81,7 @@ public sealed class Wma : AbstractBase
     }
 
     public override bool IsHot => _buffer.IsFull;
+    public bool IsNew => _isNew;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetValidValue(double input)
@@ -136,6 +138,7 @@ public sealed class Wma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             double val = GetValidValue(input.Value);

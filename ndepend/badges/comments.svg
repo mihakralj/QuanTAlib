@@ -1,22 +1,22 @@
 <svg xmlns='http://www.w3.org/2000/svg'
-    xmlns:xlink='http://www.w3.org/1999/xlink' width='188.0957' height='20' role='img' aria-label='languages: 5'>
-    <title>Percentage of Comments: 42.47</title>
+    xmlns:xlink='http://www.w3.org/1999/xlink' width='181.42188' height='20' role='img' aria-label='languages: 5'>
+    <title>Percentage of Comments: 31.6</title>
     <linearGradient id='s' x2='0' y2='100%'>
         <stop offset='0' stop-color='#bbb' stop-opacity='.1'/>
         <stop offset='1' stop-opacity='.1'/>
     </linearGradient>
     <clipPath id='r'>
-        <rect width='188.0957' height='20' rx='3' fill='#fff'/>
+        <rect width='181.42188' height='20' rx='3' fill='#fff'/>
     </clipPath>
     <g clip-path='url(#r)'>
         <rect width='146.0664' height='20' fill='#555'/>
-        <rect x='146.0664' width='42.029297' height='20' fill='#007ec6'/>
-        <rect width='188.0957' height='20' fill='url(#s)'/>
+        <rect x='146.0664' width='35.35547' height='20' fill='#007ec6'/>
+        <rect width='181.42188' height='20' fill='url(#s)'/>
     </g>
     <g fill='#FFF' text-anchor='center' font-family='Verdana,Geneva,DejaVu Sans,sans-serif' text-rendering='geometricPrecision' font-size='110'>
         <text aria-hidden='true' x='40' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='1360.6641'>Percentage of Comments</text>
         <text x='40' y='140' transform='scale(.1)' fill='#FFF' textLength='1360.6641'>Percentage of Comments</text>
-        <text aria-hidden='true' x='1500.6641' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='300.29297'>42.47</text>
-        <text x='1500.6641' y='140' transform='scale(.1)' fill='#FFF' textLength='300.29297'>42.47</text>
+        <text aria-hidden='true' x='1500.6641' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='233.55469'>31.6</text>
+        <text x='1500.6641' y='140' transform='scale(.1)' fill='#FFF' textLength='233.55469'>31.6</text>
     </g>
 </svg>

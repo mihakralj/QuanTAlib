@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -17,6 +18,9 @@ public sealed class Stc : AbstractBase
 
     private readonly RingBuffer _macdBuf;
     private readonly RingBuffer _stoch1Buf;
+    private readonly ITValuePublisher? _publisher;
+    private readonly TValuePublishedHandler? _handler;
+    private bool _isNew;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct State
@@ -68,11 +72,19 @@ public sealed class Stc : AbstractBase
 
     public Stc(ITValuePublisher source, int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
         : this(kPeriod, dPeriod, fastLength, slowLength, smoothing)
-        => source.Pub += Handle;
+    {
+        _publisher = source;
+        _handler = Handle;
+        source.Pub += _handler;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Handle(object? _, in TValueEventArgs args) => Update(args.Value, args.IsNew);
+    private void Handle(object? sender, in TValueEventArgs args)
+    {
+        Update(args.Value, args.IsNew);
+    }
 
+    public bool IsNew => _isNew;
     public override bool IsHot => _samples >= WarmupPeriod;
 
     public override void Reset()
@@ -106,6 +118,7 @@ public sealed class Stc : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [SuppressMessage("SonarQube", "S3776:Cognitive Complexity", Justification = "High-performance SIMD code with intentionally optimized control flow")]
     private static void UpdateMinMax(ref double min, ref double max, double added, double removed, bool hasRemoved, RingBuffer buf)
     {
         if (double.IsNaN(added)) return;
@@ -177,6 +190,7 @@ public sealed class Stc : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew) _ps = _s;
         else _s = _ps;
 
@@ -339,6 +353,15 @@ public sealed class Stc : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _publisher != null && _handler != null)
+        {
+            _publisher.Pub -= _handler;
+        }
+        base.Dispose(disposing);
+    }
+
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
         int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
     {

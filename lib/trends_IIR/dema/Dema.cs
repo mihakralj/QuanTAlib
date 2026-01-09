@@ -40,9 +40,11 @@ public sealed class Dema : AbstractBase
 
     private double _lastValidValue = double.NaN;
     private double _p_lastValidValue = double.NaN;
+    private bool _isNew = true;
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _listener;
 
+    public bool IsNew => _isNew;
     public override bool IsHot => _state2.IsHot;
 
     public Dema(int period)
@@ -75,6 +77,7 @@ public sealed class Dema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         if (isNew)
         {
             _p_state1 = _state1;

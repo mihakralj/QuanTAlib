@@ -30,6 +30,7 @@ public sealed class Trima : AbstractBase
     private readonly Sma _sma2;
     private readonly TValuePublishedHandler _handler;
     private ITValuePublisher? _publisher;
+    private bool _isNew;
 
     public Trima(int period)
     {
@@ -64,10 +65,12 @@ public sealed class Trima : AbstractBase
     }
 
     public override bool IsHot => _sma1.IsHot && _sma2.IsHot;
+    public bool IsNew => _isNew;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        _isNew = isNew;
         TValue v1 = _sma1.Update(input, isNew);
         TValue v2 = _sma2.Update(v1, isNew);
 
