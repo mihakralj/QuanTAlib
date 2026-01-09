@@ -1,13 +1,13 @@
 * **Core concepts**
-  * [Architecture](architecture.md)
-  * [API](api.md)
-  * [Benchmarks](benchmarks.md)
-  * [Indicators](indicators.md)
-  * [Usage Guides](usage.md)
-  * [Integration](integration.md)
-  * [Validation](validation.md)
-  * [MA Qualities](ma-qualities.md)
-  * [Error Metrics](errors.md)
+  * [Architecture](docs/architecture.md)
+  * [API](docs/api.md)
+  * [Benchmarks](docs/benchmarks.md)
+  * [Indicators](docs/indicators.md)
+  * [Usage Guides](docs/usage.md)
+  * [Integration](docs/integration.md)
+  * [Validation](docs/validation.md)
+  * [MA Qualities](docs/ma-qualities.md)
+  * [Error Metrics](docs/errors.md)
 
 * **Trends (FIR)**
   * [Overview](lib/trends_FIR/_index.md)
