@@ -26,12 +26,22 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # Explicitly disable Jekyll
+          enabler_jekyll: false
 
       - name: List files (Debug)
         run: ls -R
 
-      - name: Create .nojekyll to disable Jekyll processing
-        run: touch .nojekyll
+      - name: Ensure .nojekyll exists in root
+        run: |
+          if [ ! -f .nojekyll ]; then
+            echo "Creating .nojekyll file"
+            touch .nojekyll
+          else
+            echo ".nojekyll already exists"
+          fi
+          ls -la .nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
