@@ -86,7 +86,7 @@ jobs:
           path: sarif-reports/
 
       - name: Install dotCover CLI
-        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
 
       - name: Run Tests with Coverage (OpenCover/Cobertura)
         run: |
