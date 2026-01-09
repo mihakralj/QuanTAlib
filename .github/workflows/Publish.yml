@@ -97,7 +97,7 @@ jobs:
 
       - name: Run Tests with dotCover (for Qodana)
         run: |
-          dotnet dotcover test --no-build --configuration Debug \
+          dotCover test --no-build --configuration Debug \
             --dcReportType=DetailedXML \
             --dcOutput=./TestResults/dotcover.xml
 
