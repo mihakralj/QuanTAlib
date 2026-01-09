@@ -72,7 +72,7 @@ jobs:
             /p:ErrorLog=sarif/roslyn.sarif
 
       - name: Install dotCover CLI
-        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
 
       - name: Test with Coverage (OpenCover/Cobertura for SonarCloud/Codacy)
         run: |
@@ -83,7 +83,7 @@ jobs:
 
       - name: Test with dotCover (for Qodana)
         run: |
-          dotnet dotcover test --no-build --configuration Release \
+          dotCover test --no-build --configuration Release \
             --dcReportType=DetailedXML \
             --dcOutput=./TestResults/dotcover.xml
 
