@@ -30,6 +30,9 @@ jobs:
       - name: List files (Debug)
         run: ls -R
 
+      - name: Create .nojekyll to disable Jekyll processing
+        run: touch .nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
