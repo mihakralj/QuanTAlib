@@ -422,3 +422,5 @@ dotnet-install.sh
 roslyn.sarif
 .sarif/
 .aider*
+
+lib/filters/nul

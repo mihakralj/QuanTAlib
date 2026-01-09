@@ -14,6 +14,11 @@ on:
       - '.gitignore'
       - 'LICENSE'
   workflow_dispatch:
+    inputs:
+      skip_publish:
+        description: 'Skip publishing (analysis only)'
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -466,7 +471,7 @@ jobs:
     needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)
     runs-on: ubuntu-latest
     permissions:
       contents: write
