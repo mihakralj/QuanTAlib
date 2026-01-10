@@ -15,7 +15,7 @@ public class BpfValidationTests
         // LP Cutoff (Low Freq / Long Period) = 10. Passes P > 10.
         // Bandpass: [10, 40].
 
-        int T = 1000;
+        const int T = 1000;
         double[] sine5 = new double[T];   // Period 5 (Too fast, should be blocked by LP(10)). LP(10) passes P > 10.
         double[] sine15 = new double[T];  // Period 15 (Inside band, 10 < P < 40). Should pass.
         double[] sine100 = new double[T]; // Period 100 (Too slow, should be blocked by HP(40)). HP(40) passes P < 40.

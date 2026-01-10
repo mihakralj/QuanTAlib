@@ -6,7 +6,7 @@ public class TValueTests
     public void Constructor_WithLongTime_SetsPropertiesCorrectly()
     {
         long time = DateTime.UtcNow.Ticks;
-        double value = 123.45;
+        const double value = 123.45;
 
         var tValue = new TValue(time, value);
 

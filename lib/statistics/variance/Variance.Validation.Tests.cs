@@ -15,7 +15,7 @@ public class VarianceValidationTests
         // despite documentation often implying Sample (N-1).
         // Variance(isPopulation: true) should match StdDev^2.
 
-        int period = 20;
+        const int period = 20;
         var variance = new Variance(period, isPopulation: true);
         var skenderStdDev = _data.SkenderQuotes.GetStdDev(period);
 

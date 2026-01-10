@@ -81,7 +81,7 @@ public class DwmaTests
     [Fact]
     public void StaticCalculate_MatchesInstance()
     {
-        int period = 10;
+        const int period = 10;
         int count = 100;
         var source = new TSeries();
         var dwma = new Dwma(period);

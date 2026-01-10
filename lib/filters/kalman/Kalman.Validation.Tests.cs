@@ -39,7 +39,7 @@ public class KalmanValidationTests : IDisposable
     {
         // Manual calculation check for a small dataset
         double[] input = { 10.0, 10.5, 10.2, 10.8, 10.0 };
-        double q = 0.01;
+        const double q = 0.01;
         double r = 0.1;
         var kalman = new Kalman(q, r);
 

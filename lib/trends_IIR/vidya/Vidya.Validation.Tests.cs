@@ -25,7 +25,7 @@ public class VidyaValidationTests
         // Therefore, we cannot validate against Tulip.
         // We validate against a simple, readable reference implementation of the CMO-based VIDYA.
 
-        var period = 14;
+        const int period = 14;
 
         // QuanTAlib
         var vidya = new Vidya(period);
@@ -47,7 +47,7 @@ public class VidyaValidationTests
     [Fact]
     public void ValidateBatchAgainstReference()
     {
-        var period = 14;
+        const int period = 14;
 
         // QuanTAlib Batch
         var qResults = Vidya.Batch(_testData.Data, period);

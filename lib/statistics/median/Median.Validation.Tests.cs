@@ -20,7 +20,7 @@ public sealed class MedianValidationTests : IDisposable
     public void Median_Matches_LinqImplementation()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var quotes = _data.SkenderQuotes.ToList();
         double[] data = quotes.Select(q => (double)q.Close).ToArray();
         int count = data.Length;

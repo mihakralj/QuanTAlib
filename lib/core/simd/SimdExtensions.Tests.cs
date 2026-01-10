@@ -115,7 +115,7 @@ public class SimdExtensionsTests
             data[i] = i + 1.0;
 
         var span = new ReadOnlySpan<double>(data);
-        double expected = 1000.0 * 1001.0 / 2.0;
+        const double expected = 1000.0 * 1001.0 / 2.0;
         Assert.Equal(expected, span.SumSIMD(), precision: 8);
     }
 

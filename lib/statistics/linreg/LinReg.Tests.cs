@@ -130,7 +130,7 @@ public class LinRegTests
     [Fact]
     public void SpanBatch_MatchesTSeriesBatch()
     {
-        int period = 10;
+        const int period = 10;
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
         var series = new TSeries();
         double[] source = new double[100];

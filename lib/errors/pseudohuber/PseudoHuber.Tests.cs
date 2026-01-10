@@ -87,7 +87,7 @@ public class PseudoHuberTests
     {
         // For small errors, Pseudo-Huber ≈ 0.5 * error²
         var pseudoHuber = new PseudoHuber(1, delta: 10.0);
-        double error = 0.1; // Small relative to delta
+        const double error = 0.1; // Small relative to delta
         pseudoHuber.Update(100.0 + error, 100.0);
 
         // Pseudo-Huber = δ² * (√(1 + (x/δ)²) - 1)

@@ -96,9 +96,9 @@ public class VarianceTests
     public void AllModes_ProduceSameResult()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        int count = 200;
+        const int count = 200;
 
         var times = new List<long>(count);
         var values = new List<double>(count);
@@ -157,7 +157,7 @@ public class VarianceTests
     public void SpanBatch_MatchesTSeriesBatch()
     {
         var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
-        int count = 100;
+        const int count = 100;
 
         var times = new List<long>(count);
         var values = new List<double>(count);
@@ -189,7 +189,7 @@ public class VarianceTests
     public void Batch_SimdPath_Triggered()
     {
         // Create dataset that should trigger SIMD (clean, large)
-        int count = 300;
+        const int count = 300;
         var data = new double[count];
         var output = new double[count];
 
@@ -212,7 +212,7 @@ public class VarianceTests
     public void Batch_LargeDataset_ForceSimd()
     {
         // Force SIMD path with large clean dataset
-        int count = 1000;
+        const int count = 1000;
         var data = new double[count];
         var output = new double[count];
 
@@ -249,7 +249,7 @@ public class VarianceTests
     [Fact]
     public void IsHot_BecomesTrueAfterPeriod()
     {
-        int period = 5;
+        const int period = 5;
         var variance = new Variance(period);
 
         for (int i = 0; i < period; i++)
@@ -298,8 +298,8 @@ public class VarianceTests
     [Fact]
     public void Batch_Matches_Iterative()
     {
-        int period = 10;
-        int count = 1000;
+        const int period = 10;
+        const int count = 1000;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
 
@@ -358,7 +358,7 @@ public class VarianceTests
     public void Batch_LargeDataset_Simd()
     {
         // Create large dataset to trigger SIMD path (>= 256)
-        int count = 1000;
+        const int count = 1000;
         var data = new double[count];
         for (int i = 0; i < count; i++) data[i] = (double)i;
 
@@ -631,7 +631,7 @@ public class VarianceTests
     public void Batch_SimdFallback_WithNaN()
     {
         // Dataset with NaN should fall back to scalar path
-        int count = 300;
+        const int count = 300;
         double[] source = new double[count];
         double[] output = new double[count];
 

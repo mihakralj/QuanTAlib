@@ -95,7 +95,7 @@ public sealed class ApchannelValidationTests : IDisposable
         var gbm = new GBM(startPrice: 100, mu: 0.0, sigma: 0.1, seed: 123);
         var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        double alpha = 0.3;
+        const double alpha = 0.3;
         double decay = 1.0 - alpha;
 
         // Calculate manually

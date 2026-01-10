@@ -28,7 +28,7 @@ public class MseTests
     [Fact]
     public void IsHot_BecomesTrueWhenBufferFull()
     {
-        int period = 5;
+        const int period = 5;
         var mse = new Mse(period);
 
         for (int i = 0; i < period - 1; i++)

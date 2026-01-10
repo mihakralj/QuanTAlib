@@ -8,7 +8,7 @@ public class DemaTests
     public void Dema_Matches_ManualCalculation()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var dema = new Dema(period);
         var ema1 = new Ema(period);
         var ema2 = new Ema(period);
@@ -34,7 +34,7 @@ public class DemaTests
     public void StaticCalculate_Matches_ObjectUpdate()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var source = new TSeries();
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
@@ -60,8 +60,8 @@ public class DemaTests
     public void ZeroAllocCalculate_Matches_ObjectUpdate()
     {
         // Arrange
-        int period = 10;
-        int count = 100;
+        const int period = 10;
+        const int count = 100;
         var source = new double[count];
         var output = new double[count];
 
@@ -87,7 +87,7 @@ public class DemaTests
     public void Alpha_Constructor_Matches_Period_Constructor()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         double alpha = 2.0 / (period + 1);
         var demaPeriod = new Dema(period);
         var demaAlpha = new Dema(alpha);
@@ -110,7 +110,7 @@ public class DemaTests
     [Fact]
     public void Alpha_Constructor_Sets_WarmupPeriod()
     {
-        int period = 10;
+        const int period = 10;
         double alpha = 2.0 / (period + 1);
         var dema = new Dema(alpha);
         Assert.Equal(period, dema.WarmupPeriod);
@@ -120,7 +120,7 @@ public class DemaTests
     public void StaticCalculate_Alpha_Matches_ObjectUpdate()
     {
         // Arrange
-        double alpha = 0.15;
+        const double alpha = 0.15;
         var source = new TSeries();
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
@@ -146,8 +146,8 @@ public class DemaTests
     public void ZeroAllocCalculate_Alpha_Matches_ObjectUpdate()
     {
         // Arrange
-        double alpha = 0.15;
-        int count = 100;
+        const double alpha = 0.15;
+        const int count = 100;
         var source = new double[count];
         var output = new double[count];
 
@@ -273,7 +273,7 @@ public class DemaTests
     public void Dema_AllModes_ProduceSameResult()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;

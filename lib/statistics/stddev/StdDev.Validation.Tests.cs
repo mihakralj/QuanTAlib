@@ -246,7 +246,7 @@ public sealed class StdDevValidationTests : IDisposable
     [Fact]
     public void StdDev_Matches_MathNet_Sample()
     {
-        int period = 20;
+        const int period = 20;
         var stdDev = new StdDev(period, isPopulation: false);
         double[] input = _testData.RawData.ToArray();
 

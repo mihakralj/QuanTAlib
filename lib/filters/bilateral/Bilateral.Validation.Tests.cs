@@ -38,7 +38,7 @@ public sealed class BilateralValidationTests : IDisposable
     public void Validate_Reference_Batch()
     {
         int[] periods = { 5, 10, 20, 50 };
-        double sigmaSRatio = 0.5;
+        const double sigmaSRatio = 0.5;
         double sigmaRMult = 1.0;
 
         foreach (var period in periods)

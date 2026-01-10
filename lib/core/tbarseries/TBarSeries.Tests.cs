@@ -439,7 +439,7 @@ public class TBarSeriesTests
         var series = new TBarSeries();
         series.Add(100, 10, 15, 5, 12, 100);
 
-        int invalidIndex = -1;
+        const int invalidIndex = -1;
         Assert.Throws<ArgumentOutOfRangeException>(() => _ = series[invalidIndex]);
     }
 

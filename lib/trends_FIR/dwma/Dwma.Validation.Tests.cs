@@ -42,7 +42,7 @@ public sealed class DwmaValidationTests : IDisposable
     {
         // DWMA should be exactly WMA(WMA(source, period), period)
 
-        int period = 10;
+        const int period = 10;
 
         var dwma = new Dwma(period);
         var wma1 = new Wma(period);

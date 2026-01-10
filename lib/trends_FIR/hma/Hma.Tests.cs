@@ -241,7 +241,7 @@ public class HmaTests
     public void Hma_AllModes_ProduceSameResult()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;

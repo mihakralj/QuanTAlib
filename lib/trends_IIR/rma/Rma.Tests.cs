@@ -105,7 +105,7 @@ public class RmaTests
     [Fact]
     public void Rma_EquivalentToEmaWithAlpha()
     {
-        int period = 10;
+        const int period = 10;
         double alpha = 1.0 / period;
 
         var rma = new Rma(period);

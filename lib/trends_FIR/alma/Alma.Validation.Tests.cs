@@ -44,7 +44,7 @@ public sealed class AlmaValidationTests : IDisposable
     public void Validate_Skender_Batch()
     {
         int[] periods = { 9, 14, 20, 50 };
-        double offset = 0.85;
+        const double offset = 0.85;
         double sigma = 6.0;
 
         foreach (var period in periods)

@@ -51,8 +51,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_FastEma_Against_Skender()
     {
-        int fastPeriod = 10;
-        int slowPeriod = 50;
+        const int fastPeriod = 10;
+        const int slowPeriod = 50;
 
         // Calculate QuanTAlib AMAT (streaming to access FastEma)
         var amat = new Amat(fastPeriod, slowPeriod);
@@ -79,8 +79,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_SlowEma_Against_Skender()
     {
-        int fastPeriod = 10;
-        int slowPeriod = 50;
+        const int fastPeriod = 10;
+        const int slowPeriod = 50;
 
         // Calculate QuanTAlib AMAT (streaming to access SlowEma)
         var amat = new Amat(fastPeriod, slowPeriod);
@@ -107,8 +107,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_FastEma_Against_Talib()
     {
-        int fastPeriod = 10;
-        int slowPeriod = 50;
+        const int fastPeriod = 10;
+        const int slowPeriod = 50;
 
         // Prepare data for TA-Lib
         double[] tData = _testData.RawData.ToArray();
@@ -142,8 +142,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_SlowEma_Against_Talib()
     {
-        int fastPeriod = 10;
-        int slowPeriod = 50;
+        const int fastPeriod = 10;
+        const int slowPeriod = 50;
 
         // Prepare data for TA-Lib
         double[] tData = _testData.RawData.ToArray();
@@ -177,8 +177,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_BullishTrend_Logic()
     {
-        int fastPeriod = 5;
-        int slowPeriod = 10;
+        const int fastPeriod = 5;
+        const int slowPeriod = 10;
 
         var amat = new Amat(fastPeriod, slowPeriod);
 
@@ -204,8 +204,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_BearishTrend_Logic()
     {
-        int fastPeriod = 5;
-        int slowPeriod = 10;
+        const int fastPeriod = 5;
+        const int slowPeriod = 10;
 
         var amat = new Amat(fastPeriod, slowPeriod);
 
@@ -231,8 +231,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_NeutralTrend_Logic()
     {
-        int fastPeriod = 5;
-        int slowPeriod = 10;
+        const int fastPeriod = 5;
+        const int slowPeriod = 10;
 
         var amat = new Amat(fastPeriod, slowPeriod);
 
@@ -256,8 +256,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_TrendTransition_BullishToBearish()
     {
-        int fastPeriod = 5;
-        int slowPeriod = 10;
+        const int fastPeriod = 5;
+        const int slowPeriod = 10;
 
         var amat = new Amat(fastPeriod, slowPeriod);
         var time = DateTime.UtcNow;
@@ -290,8 +290,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_Streaming_Matches_Batch()
     {
-        int fastPeriod = 10;
-        int slowPeriod = 50;
+        const int fastPeriod = 10;
+        const int slowPeriod = 50;
 
         // Calculate streaming
         var amatStreaming = new Amat(fastPeriod, slowPeriod);
@@ -332,8 +332,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_Span_Matches_Streaming()
     {
-        int fastPeriod = 10;
-        int slowPeriod = 50;
+        const int fastPeriod = 10;
+        const int slowPeriod = 50;
 
         // Calculate streaming
         var amatStreaming = new Amat(fastPeriod, slowPeriod);
@@ -378,8 +378,8 @@ public sealed class AmatValidationTests : IDisposable
     [Fact]
     public void Validate_Strength_Calculation()
     {
-        int fastPeriod = 5;
-        int slowPeriod = 10;
+        const int fastPeriod = 5;
+        const int slowPeriod = 10;
 
         var amat = new Amat(fastPeriod, slowPeriod);
 

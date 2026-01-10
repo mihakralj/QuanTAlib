@@ -279,7 +279,7 @@ public sealed class UltoscValidationTests : IDisposable
     [Fact]
     public void Validate_Span_MatchesTBarSeries()
     {
-        int p1 = 7;
+        const int p1 = 7;
         int p2 = 14;
         int p3 = 28;
 

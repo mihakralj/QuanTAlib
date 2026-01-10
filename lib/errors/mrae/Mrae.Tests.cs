@@ -28,7 +28,7 @@ public class MraeTests
     [Fact]
     public void IsHot_BecomesTrueWhenBufferFull()
     {
-        int period = 5;
+        const int period = 5;
         var mrae = new Mrae(period);
 
         for (int i = 1; i <= period - 1; i++)

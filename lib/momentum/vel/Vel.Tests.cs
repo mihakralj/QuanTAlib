@@ -235,7 +235,7 @@ public class VelTests
     public void AllModes_ProduceSameResult()
     {
         // Arrange
-        int period = 10;
+        const int period = 10;
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;

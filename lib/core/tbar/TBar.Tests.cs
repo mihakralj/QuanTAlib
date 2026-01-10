@@ -7,11 +7,11 @@ public class TBarTests
     public void Constructor_SetsPropertiesCorrectly()
     {
         long time = DateTime.UtcNow.Ticks;
-        double open = 100;
-        double high = 110;
-        double low = 90;
-        double close = 105;
-        double volume = 1000;
+        const double open = 100;
+        const double high = 110;
+        const double low = 90;
+        const double close = 105;
+        const double volume = 1000;
 
         var bar = new TBar(time, open, high, low, close, volume);
 
@@ -27,11 +27,11 @@ public class TBarTests
     public void Constructor_WithDateTime_SetsPropertiesCorrectly()
     {
         var dateTime = new DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Utc);
-        double open = 100;
-        double high = 110;
-        double low = 90;
-        double close = 105;
-        double volume = 1000;
+        const double open = 100;
+        const double high = 110;
+        const double low = 90;
+        const double close = 105;
+        const double volume = 1000;
 
         var bar = new TBar(dateTime, open, high, low, close, volume);
 
@@ -445,7 +445,7 @@ public class TBarTests
     [Fact]
     public void ImplicitConversion_ToTValue_PreservesTimeAndClose()
     {
-        long time = 12_345_678_901_234_567;
+        const long time = 12_345_678_901_234_567;
         var bar = new TBar(time, 100, 110, 90, 105.5, 1000);
 
         TValue tv = bar;

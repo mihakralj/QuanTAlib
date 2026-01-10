@@ -32,7 +32,7 @@ public class NotchTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 10;
+        const int period = 10;
         double q = 1.0;
         var data = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;

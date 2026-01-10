@@ -9,7 +9,7 @@ public class WmaCoverageTests
     public void Cover_Scalar_Fallback_SmallData()
     {
         // Wma.Batch uses Scalar core if len < 256
-        int period = 10;
+        const int period = 10;
         int len = 100; // < 256
         double[] source = new double[len];
         for (int i = 0; i < len; i++) source[i] = i;

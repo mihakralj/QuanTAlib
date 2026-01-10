@@ -18,7 +18,7 @@ public class ButterValidationTests
         // Generate test data
         var bars = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
-        int period = 14;
+        const int period = 14;
 
         // 1. QuanTAlib Implementation
         var butter = new Butter(period);

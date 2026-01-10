@@ -28,7 +28,7 @@ public class MaeTests
     [Fact]
     public void IsHot_BecomesTrueWhenBufferFull()
     {
-        int period = 5;
+        const int period = 5;
         var mae = new Mae(period);
 
         for (int i = 0; i < period - 1; i++)

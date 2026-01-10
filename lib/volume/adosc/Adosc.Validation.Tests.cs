@@ -39,7 +39,7 @@ public sealed class AdoscValidationTests : IDisposable
     [Fact]
     public void Validate_Against_TALib_Adosc()
     {
-        int fastPeriod = 3;
+        const int fastPeriod = 3;
         int slowPeriod = 10;
         double[] high = _testData.Bars.High.Values.ToArray();
         double[] low = _testData.Bars.Low.Values.ToArray();

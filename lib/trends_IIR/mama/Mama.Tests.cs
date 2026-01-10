@@ -236,7 +236,7 @@ public class MamaTests
     [Fact]
     public void Calculate_Span_Matches_Update()
     {
-        int count = 100;
+        const int count = 100;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
         for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;

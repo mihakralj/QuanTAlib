@@ -45,7 +45,7 @@ public class BlmaTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 10;
+        const int period = 10;
         var bars = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = bars.Close;
 

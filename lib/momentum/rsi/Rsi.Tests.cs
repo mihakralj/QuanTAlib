@@ -387,7 +387,7 @@ public class RsiTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 14;
+        const int period = 14;
         var gbm = new GBM();
         var series = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 

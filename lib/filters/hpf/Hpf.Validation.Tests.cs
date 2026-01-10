@@ -81,7 +81,7 @@ public class HpfValidationTests : IDisposable
         // hp_val_internal := (1.0 - alpha_div_2) * (1.0 - alpha_div_2) * (ssrc - 2.0 * src1 + src2) + 2.0 * one_minus_alpha * hp1 - one_minus_alpha * one_minus_alpha * hp2
 
         int safe_length = Math.Max(length, 1);
-        double omegaFactor = 0.70710678118654752440084436210485;
+        const double omegaFactor = 0.70710678118654752440084436210485;
         double omega = omegaFactor * 2.0 * Math.PI / safe_length;
         double alpha = (Math.Cos(omega) + Math.Sin(omega) - 1.0) / Math.Cos(omega);
 

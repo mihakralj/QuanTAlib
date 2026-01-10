@@ -51,10 +51,10 @@ public sealed class Stc : AbstractBase
         int slowLength = 50,
         StcSmoothing smoothing = StcSmoothing.Ema)
     {
-        if (kPeriod < 2) throw new ArgumentOutOfRangeException(nameof(kPeriod));
-        if (dPeriod < 1) throw new ArgumentOutOfRangeException(nameof(dPeriod));
-        if (fastLength < 2) throw new ArgumentOutOfRangeException(nameof(fastLength));
-        if (slowLength < 2) throw new ArgumentOutOfRangeException(nameof(slowLength));
+        ArgumentOutOfRangeException.ThrowIfLessThan(kPeriod, 2);
+        ArgumentOutOfRangeException.ThrowIfLessThan(dPeriod, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(fastLength, 2);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slowLength, 2);
 
         _smoothing = smoothing;
 
@@ -121,7 +121,7 @@ public sealed class Stc : AbstractBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SuppressMessage("SonarQube", "S3776:Cognitive Complexity", Justification = "High-performance SIMD code with intentionally optimized control flow")]
-    private static void UpdateMinMax(ref double min, ref double max, double added, double removed, bool hasRemoved, RingBuffer buf)
+    private static void UpdateMinMax(double added, double removed, bool hasRemoved, RingBuffer buf, ref double min, ref double max)
     {
         if (double.IsNaN(added)) return;
 
@@ -157,7 +157,7 @@ public sealed class Stc : AbstractBase
 
     // Overload for Span based buffers (Calculate)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void UpdateMinMax(ref double min, ref double max, double added, double removed, bool hasRemoved, ReadOnlySpan<double> buf)
+    private static void UpdateMinMax(double added, double removed, bool hasRemoved, ReadOnlySpan<double> buf, ref double min, ref double max)
     {
         if (double.IsNaN(added)) return;
 
@@ -190,6 +190,7 @@ public sealed class Stc : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // skipcq: CS-R1140
     public override TValue Update(TValue input, bool isNew = true)
     {
         _isNew = isNew;
@@ -217,11 +218,9 @@ public sealed class Stc : AbstractBase
         }
 
         // 1) MACD
-        if (double.IsNaN(s.FastEma)) s.FastEma = x;
-        else s.FastEma = Math.FusedMultiplyAdd(_fastAlpha, x - s.FastEma, s.FastEma);
+        s.FastEma = double.IsNaN(s.FastEma) ? x : Math.FusedMultiplyAdd(_fastAlpha, x - s.FastEma, s.FastEma);
 
-        if (double.IsNaN(s.SlowEma)) s.SlowEma = x;
-        else s.SlowEma = Math.FusedMultiplyAdd(_slowAlpha, x - s.SlowEma, s.SlowEma);
+        s.SlowEma = double.IsNaN(s.SlowEma) ? x : Math.FusedMultiplyAdd(_slowAlpha, x - s.SlowEma, s.SlowEma);
 
         double macd = s.FastEma - s.SlowEma;
 
@@ -238,7 +237,7 @@ public sealed class Stc : AbstractBase
             hasRemovedMacd = _macdBuf.Count > 0;
             _macdBuf.UpdateNewest(macd);
         }
-        UpdateMinMax(ref s.MacdMin, ref s.MacdMax, macd, removedMacd, hasRemovedMacd, _macdBuf);
+        UpdateMinMax(macd, removedMacd, hasRemovedMacd, _macdBuf, ref s.MacdMin, ref s.MacdMax);
 
         // 2) Stoch1 of MACD
         double stoch1Raw;
@@ -283,7 +282,7 @@ public sealed class Stc : AbstractBase
                 hasRemovedStoch1 = _stoch1Buf.Count > 0;
                 _stoch1Buf.UpdateNewest(stoch1);
             }
-            UpdateMinMax(ref s.Stoch1Min, ref s.Stoch1Max, stoch1, removedStoch1, hasRemovedStoch1, _stoch1Buf);
+            UpdateMinMax(stoch1, removedStoch1, hasRemovedStoch1, _stoch1Buf, ref s.Stoch1Min, ref s.Stoch1Max);
         }
 
         // 3) Stoch2 of Stoch1
@@ -325,7 +324,12 @@ public sealed class Stc : AbstractBase
                     else if (stoch2Raw < 25) stc = 0;
                     else stc = double.IsNaN(s.PrevStc) ? stoch2Raw : s.PrevStc;
                     break;
+
                 case StcSmoothing.None:
+                    stc = stoch2Raw;
+                    break;
+
+                default:
                     stc = stoch2Raw;
                     break;
             }
@@ -364,6 +368,7 @@ public sealed class Stc : AbstractBase
         base.Dispose(disposing);
     }
 
+    // skipcq: CS-R1140
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
         int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
     {
@@ -427,7 +432,7 @@ public sealed class Stc : AbstractBase
             if (!macdHasRemoved) macdCount++;
 
             var macdValidSpan = new ReadOnlySpan<double>(macdBuf, 0, macdCount);
-            UpdateMinMax(ref macdMin, ref macdMax, macd, macdRemoved, macdHasRemoved, macdValidSpan);
+            UpdateMinMax(macd, macdRemoved, macdHasRemoved, macdValidSpan, ref macdMin, ref macdMax);
 
             // 2) Stoch1
             double stoch1Raw;
@@ -467,7 +472,7 @@ public sealed class Stc : AbstractBase
                 if (!stochHasRemoved) stoch1Count++;
 
                 var stochValidSpan = new ReadOnlySpan<double>(stoch1Buf, 0, stoch1Count);
-                UpdateMinMax(ref stoch1Min, ref stoch1Max, stoch1, stochRemoved, stochHasRemoved, stochValidSpan);
+                UpdateMinMax(stoch1, stochRemoved, stochHasRemoved, stochValidSpan, ref stoch1Min, ref stoch1Max);
             }
 
             // 3) Stoch2

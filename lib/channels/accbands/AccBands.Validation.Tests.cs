@@ -351,7 +351,7 @@ public sealed class AccBandsValidationTests : IDisposable
     public void Validate_Prime_ProducesCorrectState()
     {
         // Prime with history and verify state matches full calculation
-        int period = 20;
+        const int period = 20;
 
         // Full batch calculation
         var (batchMiddle, batchUpper, batchLower) = AccBands.Batch(_testData.Bars, period, 2.0);

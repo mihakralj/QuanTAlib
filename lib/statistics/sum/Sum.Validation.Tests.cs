@@ -104,7 +104,7 @@ public sealed class SumValidationTests : IDisposable
     [Fact]
     public void Validate_MathematicalCorrectness_Batch()
     {
-        int period = 10;
+        const int period = 10;
         var sum = new Sum(period);
         var qResult = sum.Update(_testData.Data);
 

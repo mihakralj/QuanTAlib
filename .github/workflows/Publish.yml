@@ -122,6 +122,8 @@ jobs:
           # Collect dotCover (for Qodana)
           if [ -f "TestResults/dotcover.xml" ]; then
             cp TestResults/dotcover.xml coverage-dotcover/
+          else
+            echo "Warning: dotcover.xml not found" > coverage-dotcover/README.txt
           fi
 
       - name: Debug Coverage Files
@@ -143,6 +145,7 @@ jobs:
 
       - name: Upload dotCover Coverage Artifacts
         uses: actions/upload-artifact@v4
+        if: hashFiles('coverage-dotcover/dotcover.xml') != ''
         with:
           name: coverage-dotcover
           path: coverage-dotcover/

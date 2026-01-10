@@ -446,7 +446,7 @@ public sealed class CsvFeedTests : IDisposable
         var feed = new CsvFeed(TestCsvPath);
 
         // Reset to middle
-        int targetIndex = 50;
+        const int targetIndex = 50;
         feed.Reset(targetIndex);
 
         Assert.Equal(targetIndex, feed.CurrentIndex);

@@ -184,7 +184,7 @@ public sealed class AfirmaValidationTests : IDisposable
             Afirma.WindowType.BlackmanHarris
         };
 
-        int period = 10;
+        const int period = 10;
 
         foreach (var window in windows)
         {

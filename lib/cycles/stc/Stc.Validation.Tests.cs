@@ -35,7 +35,7 @@ public sealed class StcValidationTests : IDisposable
         //
         // This test documents this known deviation rather than failing on it.
 
-        int cycle = 10;
+        const int cycle = 10;
         int fast = 23;
         int slow = 50;
 

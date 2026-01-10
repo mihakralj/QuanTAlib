@@ -27,7 +27,7 @@ public class SgfTests
     {
         var data = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;
-        int period = 21;
+        const int period = 21;
         int polyOrder = 2;
 
         // 1. Batch Mode

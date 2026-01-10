@@ -23,7 +23,7 @@ public class EllipticTests
     [Fact]
     public void AllModes_ProduceSameResult()
     {
-        int period = 20;
+        const int period = 20;
         var data = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;
 

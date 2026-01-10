@@ -27,7 +27,7 @@ public class WienerTests
     {
         var data = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;
-        int period = 20;
+        const int period = 20;
         int smoothPeriod = 5;
 
         // 1. Batch Mode

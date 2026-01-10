@@ -166,7 +166,7 @@ public class EmaTests
     [Fact]
     public void Ema_PeriodEquivalence_BothConstructorsWork()
     {
-        int period = 20;
+        const int period = 20;
         double alpha = 2.0 / (period + 1);
 
         var emaPeriod = new Ema(period);

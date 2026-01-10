@@ -15,7 +15,7 @@ public sealed class SkewValidationTests : IDisposable
     [Fact]
     public void Skew_Matches_MathNet()
     {
-        int period = 20;
+        const int period = 20;
         var skew = new Skew(period, isPopulation: false);
         var popSkew = new Skew(period, isPopulation: true);
 

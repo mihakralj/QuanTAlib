@@ -224,7 +224,7 @@ public class GBMTests
     public void Fetch_GeneratesCorrectCount()
     {
         var gbm = new GBM(startPrice: 100.0, seed: 42);
-        int count = 10;
+        const int count = 10;
         long startTime = DateTime.UtcNow.Ticks;
         var interval = TimeSpan.FromMinutes(1);
 

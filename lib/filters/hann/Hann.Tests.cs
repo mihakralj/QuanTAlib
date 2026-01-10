@@ -40,7 +40,7 @@ public class HannTests
     [Fact]
     public void IsHot_BecomesTrueWhenBufferFull()
     {
-        int length = 5;
+        const int length = 5;
         var hann = new Hann(length);
 
         for (int i = 0; i < length; i++)

@@ -19,7 +19,7 @@ public class MamaValidationTests
     [Fact]
     public void Validate_Skender_Batch()
     {
-        double fastLimit = 0.5;
+        const double fastLimit = 0.5;
         double slowLimit = 0.05;
 
         // Skender uses HL2 by default. We need to feed (H+L)/2 to our Mama to match.

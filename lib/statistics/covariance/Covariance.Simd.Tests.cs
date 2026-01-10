@@ -7,7 +7,7 @@ public class CovarianceSimdTests
     public void Covariance_Simd_Matches_Scalar_LargeDataset()
     {
         // Arrange
-        int count = 1000; // > 256 to trigger SIMD
+        const int count = 1000; // > 256 to trigger SIMD
         int period = 20;
         var gbmX = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         var gbmY = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);

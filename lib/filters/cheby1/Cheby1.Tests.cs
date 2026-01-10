@@ -88,7 +88,7 @@ public class Cheby1Tests
     [Fact]
     public void SpanBatch_MatchesIterative()
     {
-        int period = 10;
+        const int period = 10;
         int count = 100;
         var data = _gbm.Fetch(count, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var values = data.Close.Values.ToArray();

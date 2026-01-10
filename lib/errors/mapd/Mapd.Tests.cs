@@ -28,7 +28,7 @@ public class MapdTests
     [Fact]
     public void IsHot_BecomesTrueWhenBufferFull()
     {
-        int period = 5;
+        const int period = 5;
         var mapd = new Mapd(period);
 
         for (int i = 0; i < period - 1; i++)

@@ -96,7 +96,7 @@ public sealed class UsfValidationTests : IDisposable
     [Fact]
     public void Validate_MathematicalProperties()
     {
-        int period = 10;
+        const int period = 10;
 
         // Test 1: Constant input should produce constant output (after warmup)
         var usfConstant = new Usf(period);

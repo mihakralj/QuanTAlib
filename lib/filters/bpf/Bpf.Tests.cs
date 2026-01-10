@@ -32,7 +32,7 @@ public class BpfTests
     public void AllModes_ProduceSameResult()
     {
         // Arrange
-        int lowerPeriod = 10;
+        const int lowerPeriod = 10;
         int upperPeriod = 20;
         var data = _gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var series = data.Close;

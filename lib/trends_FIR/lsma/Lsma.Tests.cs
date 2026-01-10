@@ -30,7 +30,7 @@ public class LsmaTests
     public void Update_LinearTrend_ReturnsExactValue()
     {
         // For a perfect linear trend y = x, LSMA should return x
-        int period = 10;
+        const int period = 10;
         var lsma = new Lsma(period);
 
         for (int i = 0; i < period * 2; i++)
@@ -46,9 +46,9 @@ public class LsmaTests
     [Fact]
     public void Update_ConstantValue_ReturnsSameValue()
     {
-        int period = 10;
+        const int period = 10;
         var lsma = new Lsma(period);
-        double value = 123.45;
+        const double value = 123.45;
 
         for (int i = 0; i < period * 2; i++)
         {
@@ -64,8 +64,8 @@ public class LsmaTests
         // At x=10, y=21. Slope=2, Intercept=1
         // LSMA(offset=1) should project to x=11 -> y=23
 
-        int period = 5;
-        int offset = 1;
+        const int period = 5;
+        const int offset = 1;
         var lsma = new Lsma(period, offset);
 
         for (int i = 0; i < 20; i++)
@@ -124,8 +124,8 @@ public class LsmaTests
     [Fact]
     public void Calculate_StaticMethod_MatchesObjectInstance()
     {
-        int period = 10;
-        int count = 100;
+        const int period = 10;
+        const int count = 100;
         var source = new TSeries();
         var gbm = new GBM(startPrice: 100, seed: 42);
 
@@ -149,8 +149,8 @@ public class LsmaTests
     [Fact]
     public void Calculate_Span_MatchesSeries()
     {
-        int period = 10;
-        int count = 100;
+        const int period = 10;
+        const int count = 100;
         var values = new double[count];
         var output = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
@@ -195,7 +195,7 @@ public class LsmaTests
     [Fact]
     public void IsHot_BecomesTrueWhenBufferFull()
     {
-        int period = 5;
+        const int period = 5;
         var lsma = new Lsma(period);
 
         for (int i = 0; i < period; i++)
