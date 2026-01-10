@@ -142,7 +142,6 @@ jobs:
 
       - name: Upload LCOV Coverage Artifacts
         uses: actions/upload-artifact@v4
-        if: hashFiles('coverage-lcov/coverage.lcov') != ''
         with:
           name: coverage-lcov
           path: coverage-lcov/
