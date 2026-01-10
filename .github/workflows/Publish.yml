@@ -85,28 +85,24 @@ jobs:
           name: sarif-reports
           path: sarif-reports/
 
-      - name: Install dotCover CLI
+      - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
-          dotnet tool install --global JetBrains.dotCover.CommandLineTools
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      - name: Run Tests with Coverage (OpenCover/Cobertura)
-        run: |
+          # Generate OpenCover and Cobertura for SonarCloud/Codacy
           dotnet test --no-build --configuration Debug \
             --collect:"XPlat Code Coverage" \
             --results-directory:./TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
-
-      - name: Run Tests with dotCover (for Qodana)
-        run: |
-          dotCover test --no-build --configuration Debug \
-            --dcReportType=DetailedXML \
-            --dcOutput=./TestResults/dotcover.xml
+          
+          # Generate LCOV for Qodana
+          dotnet test --no-build --configuration Debug \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./TestResults/ \
+            /p:CoverletOutputFormat=lcov
 
       - name: Collect Coverage Files
         run: |
           mkdir -p coverage
-          mkdir -p coverage-dotcover
+          mkdir -p coverage-lcov
           # Collect opencover format (for SonarCloud)
           count=1
           find TestResults -name "coverage.opencover.xml" | while read file; do
@@ -119,11 +115,12 @@ jobs:
             cp "$file" "coverage/coverage_${count}.cobertura.xml"
             count=$((count+1))
           done
-          # Collect dotCover (for Qodana)
-          if [ -f "TestResults/dotcover.xml" ]; then
-            cp TestResults/dotcover.xml coverage-dotcover/
+          # Collect LCOV (for Qodana)
+          if [ -f "TestResults/coverage.info" ]; then
+            cp TestResults/coverage.info coverage-lcov/coverage.lcov
+            echo "LCOV coverage file collected for Qodana"
           else
-            echo "Warning: dotcover.xml not found" > coverage-dotcover/README.txt
+            echo "Warning: coverage.info not found" > coverage-lcov/README.txt
           fi
 
       - name: Debug Coverage Files
@@ -143,12 +140,12 @@ jobs:
           name: coverage-reports
           path: coverage/
 
-      - name: Upload dotCover Coverage Artifacts
+      - name: Upload LCOV Coverage Artifacts
         uses: actions/upload-artifact@v4
-        if: hashFiles('coverage-dotcover/dotcover.xml') != ''
+        if: hashFiles('coverage-lcov/coverage.lcov') != ''
         with:
-          name: coverage-dotcover
-          path: coverage-dotcover/
+          name: coverage-lcov
+          path: coverage-lcov/
 
   # ==============================================================================
   # 2. SonarCloud Analysis
@@ -242,11 +239,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download dotCover Coverage
+      - name: Download LCOV Coverage
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          name: coverage-dotcover
+          name: coverage-lcov
           path: .qodana/code-coverage
 
       - name: Qodana Scan
