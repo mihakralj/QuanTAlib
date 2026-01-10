@@ -218,7 +218,7 @@ public class HistoricalData
             High = high,
             Low = low,
             Close = close,
-            Volume = volume
+            Volume = volume,
         });
     }
 

@@ -133,7 +133,6 @@ public sealed class Mdape : AbstractBase
         {
             return _sortBuffer[count / 2];
         }
-        
         return (_sortBuffer[count / 2 - 1] + _sortBuffer[count / 2]) * 0.5;
     }
 

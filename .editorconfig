@@ -30,6 +30,16 @@ resharper_redundant_argument_default_value_highlighting = none
 # Documentation uses simplified format without full XML compliance
 resharper_invalid_xml_doc_comment_highlighting = none
 
+# Suppress IDE0028 - Collection initialization can be simplified
+# False positives with custom collection types (RingBuffer, TSeries, TBarSeries)
+# These types implement collection interfaces but cannot use collection expressions
+dotnet_diagnostic.IDE0028.severity = none
+
+# Suppress CA1416 - Platform compatibility
+# Quantower is a Windows-only trading platform using GDI+ (System.Drawing)
+# Already suppressed via #pragma in quantower/IndicatorExtensions.cs
+dotnet_diagnostic.CA1416.severity = none
+
 #### C# Coding Conventions ####
 
 # "var" preferences

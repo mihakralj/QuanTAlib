@@ -65,7 +65,7 @@ public sealed class Pwma : AbstractBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #pragma warning disable RCS1032 // Remove redundant parentheses
-    private double GetValidValue(double input, double lastValid)
+    private static double GetValidValue(double input, double lastValid)
     {
         return double.IsFinite(input) ? input : lastValid;
     }

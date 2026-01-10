@@ -168,12 +168,17 @@ public sealed class Adosc : ITValuePublisher
     {
         if (high.Length != low.Length || high.Length != close.Length ||
             high.Length != volume.Length || high.Length != output.Length)
+        {
             throw new ArgumentException("All spans must be of the same length.", nameof(output));
-
+        }
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
 
         int len = high.Length;
         if (len == 0) return;

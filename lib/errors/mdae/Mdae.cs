@@ -130,7 +130,6 @@ public sealed class Mdae : AbstractBase
         {
             return _sortBuffer[count / 2];
         }
-        
         return (_sortBuffer[count / 2 - 1] + _sortBuffer[count / 2]) * 0.5;
     }
 
@@ -213,7 +212,6 @@ public sealed class Mdae : AbstractBase
                 output[i] = sortBuffer[bufferCount / 2];
                 continue;
             }
-            
             output[i] = (sortBuffer[bufferCount / 2 - 1] + sortBuffer[bufferCount / 2]) * 0.5;
         }
     }
