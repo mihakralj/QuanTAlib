@@ -57,8 +57,10 @@ public sealed class Apchannel : AbstractBase
     public Apchannel(double alpha = 0.2)
     {
         if (alpha <= 0 || alpha > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(alpha),
                 "Alpha must be greater than 0 and less than or equal to 1.");
+        }
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -254,10 +256,14 @@ public sealed class Apchannel : AbstractBase
         if (upperBand.Length != length)
             throw new ArgumentException("Upper band array must match source length.", nameof(upperBand));
         if (lowerBand.Length != length)
+        {
             throw new ArgumentException("Lower band array must match source length.", nameof(lowerBand));
+        }
         if (alpha <= 0 || alpha > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(alpha),
                 "Alpha must be greater than 0 and less than or equal to 1.");
+        }
 
         if (length == 0)
             return;

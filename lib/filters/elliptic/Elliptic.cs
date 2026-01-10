@@ -63,7 +63,7 @@ public sealed class Elliptic : AbstractBase
         double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
         if (Math.Abs(a0_denom) < 1e-9) a0_denom = 1e-9;
 
-        double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
+        const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
 
         double b0_val = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom;
         double b1_val = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom;
@@ -215,7 +215,7 @@ public sealed class Elliptic : AbstractBase
         double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
         if (Math.Abs(a0_denom) < 1e-9) a0_denom = 1e-9;
 
-        double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
+        const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
 
         double b0 = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom;
         double b1 = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom;

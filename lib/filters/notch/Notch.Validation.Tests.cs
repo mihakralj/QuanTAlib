@@ -20,7 +20,7 @@ public class NotchValidationTests
         var notch = new Notch(period: 4, q: 0.5);
 
         // Input: 1, 0, -1, 0 (Sine at period 4)
-        TValue[] input = new TValue[]
+        var input = new TValue[]
         {
             new(DateTime.UtcNow, 1),
             new(DateTime.UtcNow, 0),

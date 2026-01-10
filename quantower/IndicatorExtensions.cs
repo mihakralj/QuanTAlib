@@ -11,7 +11,8 @@ namespace QuanTAlib;
 
 public enum SourceType
 {
-    Open, High, Low, Close, HL2, OC2, OHL3, HLC3, OHLC4, HLCC4
+    Open, High, Low, Close, HL2, OC2, OHL3, HLC3, OHLC4, HLCC4,
+
 }
 
 public static class IndicatorExtensions
@@ -39,7 +40,7 @@ public static class IndicatorExtensions
                 "OHL/3 (Mean)", SourceType.OHL3,
                 "HLC/3 (Typical)", SourceType.HLC3,
                 "OHLC/4 (Average)", SourceType.OHLC4,
-                "HLCC/4 (Weighted)", SourceType.HLCC4
+                "HLCC/4 (Weighted)", SourceType.HLCC4,
             })
         { }
     }
