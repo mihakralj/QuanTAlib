@@ -32,7 +32,7 @@ public sealed class UsfIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "USF - Ultimate Smoother Filter";
         Description = "Ehlers Ultimate Smoother Filter";
-        _series = new(name: $"USF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"USF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

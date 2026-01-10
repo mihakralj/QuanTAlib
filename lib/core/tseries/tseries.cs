@@ -113,7 +113,7 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
     public TValue this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new(_t[index], _v[index]);
+        get => new TValue(_t[index], _v[index]);
     }
 
     public TValue Last

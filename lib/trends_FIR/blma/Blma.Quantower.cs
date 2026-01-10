@@ -34,7 +34,7 @@ public class BlmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "BLMA - Blackman Window Moving Average";
         Description = "A moving average using the Blackman window function for superior noise suppression.";
-        _series = new(name: $"BLMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"BLMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

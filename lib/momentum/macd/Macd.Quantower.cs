@@ -43,9 +43,9 @@ public sealed class MacdIndicator : Indicator, IWatchlistIndicator
         Name = "MACD - Moving Average Convergence Divergence";
         Description = "Trend-following momentum indicator";
 
-        _macdSeries = new(name: "MACD", color: Color.Blue, width: 2, style: LineStyle.Solid);
-        _signalSeries = new(name: "Signal", color: Color.Red, width: 2, style: LineStyle.Solid);
-        _histSeries = new(name: "Histogram", color: Color.Green, width: 2, style: LineStyle.Solid);
+        _macdSeries = new LineSeries(name: "MACD", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _signalSeries = new LineSeries(name: "Signal", color: Color.Red, width: 2, style: LineStyle.Solid);
+        _histSeries = new LineSeries(name: "Histogram", color: Color.Green, width: 2, style: LineStyle.Solid);
 
         AddLineSeries(_macdSeries);
         AddLineSeries(_signalSeries);

@@ -34,7 +34,7 @@ public class HmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "HMA - Hull Moving Average";
         Description = "Hull Moving Average for reduced lag";
-        Series = new(name: $"HMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"HMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

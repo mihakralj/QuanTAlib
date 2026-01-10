@@ -32,7 +32,7 @@ public sealed class SumIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = true;
         Name = "SUM - Rolling Sum";
         Description = "Rolling Sum with Kahan-Babuška summation for numerical stability";
-        _series = new(name: "SUM", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "SUM", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

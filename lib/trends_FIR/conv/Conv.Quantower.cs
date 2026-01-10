@@ -34,7 +34,7 @@ public class ConvIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "CONV - Convolution";
         Description = "Convolution with custom kernel";
-        Series = new(name: "CONV", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: "CONV", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

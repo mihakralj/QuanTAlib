@@ -35,7 +35,7 @@ public sealed class KalmanIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Kalman - Kalman Filter";
         Description = "Kalman Filter";
-        _series = new(name: "Kalman", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Kalman", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

@@ -36,7 +36,7 @@ public sealed class SkewIndicator : Indicator, IWatchlistIndicator
         Name = "Skew - Skewness";
         Description = "Measures the asymmetry of the probability distribution of a real-valued random variable about its mean";
 
-        _series = new(name: "Skew", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Skew", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

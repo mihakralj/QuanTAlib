@@ -32,7 +32,7 @@ public sealed class SsfIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "SSF - Super Smooth Filter";
         Description = "Ehlers Super Smooth Filter";
-        _series = new(name: $"SSF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"SSF {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

@@ -159,7 +159,7 @@ public class TBarSeries : IReadOnlyList<TBar>
     public TBar this[int index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new(_t[index], _o[index], _h[index], _l[index], _c[index], _v[index]);
+        get => new TBar(_t[index], _o[index], _h[index], _l[index], _c[index], _v[index]);
     }
 
     public TBar Last

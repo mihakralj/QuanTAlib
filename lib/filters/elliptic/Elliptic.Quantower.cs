@@ -32,7 +32,7 @@ public sealed class EllipticIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Elliptic - 2nd Order Elliptic Filter";
         Description = "A 2nd order lowpass filter with 1dB passband ripple and 40dB stopband attenuation";
-        _series = new(name: $"Elliptic {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Elliptic {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

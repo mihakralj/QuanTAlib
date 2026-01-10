@@ -34,7 +34,7 @@ public sealed class WienerIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Wiener - Wiener Filter";
         Description = "Adaptive smoothing filter";
-        _series = new(name: $"Wiener {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Wiener {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

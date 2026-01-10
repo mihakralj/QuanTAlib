@@ -33,7 +33,7 @@ public class BesselIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "BESSEL - Bessel Filter";
         Description = "2nd-order Bessel low-pass filter with maximally flat group delay";
-        Series = new(name: $"BESSEL {Length}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"BESSEL {Length}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

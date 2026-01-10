@@ -32,7 +32,7 @@ public class HpIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "HP - Hodrick-Prescott Filter";
         Description = "Causal Hodrick-Prescott Filter";
-        _series = new(name: $"HP {Lambda}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"HP {Lambda}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

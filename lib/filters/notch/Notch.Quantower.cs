@@ -35,7 +35,7 @@ public class NotchIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Notch - Notch Filter";
         Description = "Band-stop filter with a narrow bandwidth.";
-        _series = new(name: $"Notch {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Notch {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

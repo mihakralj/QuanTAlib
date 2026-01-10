@@ -40,7 +40,7 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "Bilateral Filter";
         Description = "Bilateral Filter";
-        Series = new(name: $"Bilateral {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"Bilateral {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

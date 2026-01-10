@@ -36,7 +36,7 @@ public sealed class VarianceIndicator : Indicator, IWatchlistIndicator
         Name = "Variance - Rolling Variance";
         Description = "Measures the dispersion of a set of data points around their mean";
 
-        _series = new(name: "Variance", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Variance", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

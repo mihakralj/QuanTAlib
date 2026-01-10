@@ -32,7 +32,7 @@ public sealed class GaussIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Gauss - Gaussian Filter";
         Description = "Gaussian Filter (FIR)";
-        _series = new(name: $"Gauss {Sigma:F2}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Gauss {Sigma:F2}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

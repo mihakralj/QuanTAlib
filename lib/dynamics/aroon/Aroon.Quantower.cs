@@ -31,9 +31,9 @@ public sealed class AroonIndicator : Indicator, IWatchlistIndicator
         Name = "Aroon";
         Description = "Identifies trend changes and strength";
 
-        _upSeries = new(name: "Aroon Up", color: Color.Green, width: 1, style: LineStyle.Solid);
-        _downSeries = new(name: "Aroon Down", color: Color.Red, width: 1, style: LineStyle.Solid);
-        _oscSeries = new(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _upSeries = new LineSeries(name: "Aroon Up", color: Color.Green, width: 1, style: LineStyle.Solid);
+        _downSeries = new LineSeries(name: "Aroon Down", color: Color.Red, width: 1, style: LineStyle.Solid);
+        _oscSeries = new LineSeries(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
 
         AddLineSeries(_upSeries);
         AddLineSeries(_downSeries);

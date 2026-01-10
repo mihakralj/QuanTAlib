@@ -34,7 +34,7 @@ public sealed class RsxIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "RSX - Jurik Relative Strength Index";
         Description = "Jurik's RSI: A noise-free, zero-lag version of RSI";
-        _series = new(name: $"RSX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"RSX {Period}", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

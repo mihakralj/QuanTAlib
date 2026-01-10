@@ -37,7 +37,7 @@ public sealed class T3Indicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "T3 - Tillson T3 Moving Average";
         Description = "Tillson T3 Moving Average";
-        _series = new(name: $"T3 {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"T3 {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

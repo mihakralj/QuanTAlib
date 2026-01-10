@@ -36,7 +36,7 @@ public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Cheby1 - Chebyshev Type I Filter";
         Description = "Chebyshev Type I low-pass filter with passband ripple";
-        _series = new(name: $"Cheby1 {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Cheby1 {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

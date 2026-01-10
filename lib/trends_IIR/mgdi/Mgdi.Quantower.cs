@@ -36,7 +36,7 @@ public sealed class MgdiIndicator : Indicator, IWatchlistIndicator
         _sourceName = Source.ToString();
         Name = "MGDI - McGinley Dynamic Indicator";
         Description = "McGinley Dynamic Indicator";
-        _series = new(name: $"MGDI {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"MGDI {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

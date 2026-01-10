@@ -35,7 +35,7 @@ public sealed class BpfIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "BPF - Bandpass Filter";
         Description = "A BandPass Filter implemented as a cascade of HighPass and LowPass filters";
-        _series = new(name: $"BPF {LowerPeriod}:{UpperPeriod}", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"BPF {LowerPeriod}:{UpperPeriod}", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

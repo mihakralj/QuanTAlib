@@ -36,7 +36,7 @@ public sealed class LinRegIndicator : Indicator, IWatchlistIndicator
         Name = "LinReg - Linear Regression Curve";
         Description = "Plots the end point of the linear regression line for each bar.";
 
-        _series = new(name: "LinReg", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "LinReg", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 
@@ -91,7 +91,7 @@ public sealed class LinRegSlopeIndicator : Indicator, IWatchlistIndicator
         Name = "LinReg Slope";
         Description = "Plots the slope of the linear regression line.";
 
-        _series = new(name: "Slope", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Slope", color: IndicatorExtensions.Momentum, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 
@@ -146,7 +146,7 @@ public sealed class LinRegInterceptIndicator : Indicator, IWatchlistIndicator
         Name = "LinReg Intercept";
         Description = "Plots the intercept of the linear regression line.";
 
-        _series = new(name: "Intercept", color: IndicatorExtensions.Experiments, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Intercept", color: IndicatorExtensions.Experiments, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 
@@ -201,7 +201,7 @@ public sealed class LinRegRSquaredIndicator : Indicator, IWatchlistIndicator
         Name = "LinReg R-Squared";
         Description = "Plots the R-Squared (coefficient of determination) of the linear regression line.";
 
-        _series = new(name: "RSquared", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "RSquared", color: IndicatorExtensions.Oscillators, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

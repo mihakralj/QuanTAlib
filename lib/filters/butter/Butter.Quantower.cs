@@ -34,7 +34,7 @@ public class ButterIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "BUTTER - Butterworth Filter";
         Description = "A 2nd-order low-pass filter with maximally flat frequency response in the passband.";
-        _series = new(name: $"BUTTER {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"BUTTER {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

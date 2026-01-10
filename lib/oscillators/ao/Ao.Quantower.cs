@@ -33,8 +33,8 @@ public sealed class AoIndicator : Indicator, IWatchlistIndicator
         Name = "AO - Awesome Oscillator";
         Description = "Momentum indicator measuring market momentum";
 
-        _upSeries = new(name: "AO Up", color: Color.Green, width: 2, style: LineStyle.Solid);
-        _downSeries = new(name: "AO Down", color: Color.Red, width: 2, style: LineStyle.Solid);
+        _upSeries = new LineSeries(name: "AO Up", color: Color.Green, width: 2, style: LineStyle.Solid);
+        _downSeries = new LineSeries(name: "AO Down", color: Color.Red, width: 2, style: LineStyle.Solid);
 
         AddLineSeries(_upSeries);
         AddLineSeries(_downSeries);

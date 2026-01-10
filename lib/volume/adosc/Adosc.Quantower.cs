@@ -32,7 +32,7 @@ public sealed class AdoscIndicator : Indicator, IWatchlistIndicator
         Name = "ADOSC - Accumulation/Distribution Oscillator";
         Description = "Momentum indicator for the Accumulation/Distribution Line";
 
-        _series = new(name: "ADOSC", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "ADOSC", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

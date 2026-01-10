@@ -29,7 +29,7 @@ public sealed class AroonOscIndicator : Indicator, IWatchlistIndicator
         Name = "Aroon Oscillator";
         Description = "Aroon Oscillator";
 
-        _oscSeries = new(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _oscSeries = new LineSeries(name: "Aroon Osc", color: Color.Blue, width: 2, style: LineStyle.Solid);
 
         AddLineSeries(_oscSeries);
     }

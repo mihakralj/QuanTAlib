@@ -36,7 +36,7 @@ public sealed class Cheby2Indicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Cheby2 - Chebyshev Type II Filter";
         Description = "Chebyshev Type II (Inverse Chebyshev) low-pass filter";
-        _series = new(name: $"Cheby2 {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Cheby2 {Period}", color: Color.Orange, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

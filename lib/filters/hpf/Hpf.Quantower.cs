@@ -32,7 +32,7 @@ public class HpfIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "HPF - Highpass Filter (2-Pole)";
         Description = "2-Pole Infinite Impulse Response (IIR) highpass filter.";
-        _series = new(name: $"HPF {Length}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"HPF {Length}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

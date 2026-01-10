@@ -29,7 +29,7 @@ public sealed class AtrIndicator : Indicator, IWatchlistIndicator
         Name = "ATR - Average True Range";
         Description = "Measures the volatility of an asset";
 
-        _series = new(name: "ATR", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "ATR", color: Color.Blue, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

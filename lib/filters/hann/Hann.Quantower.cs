@@ -32,7 +32,7 @@ public sealed class HannIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "Hann - Hann Filter";
         Description = "Hann FIR Filter";
-        _series = new(name: $"Hann {Length}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"Hann {Length}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

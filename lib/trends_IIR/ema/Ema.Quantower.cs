@@ -33,7 +33,7 @@ public class EmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "EMA - Exponential Moving Average";
         Description = "Exponential Moving Average";
-        Series = new(name: $"EMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"EMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

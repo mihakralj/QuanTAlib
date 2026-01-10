@@ -38,7 +38,7 @@ public sealed class AfirmaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "AFIRMA - Autoregressive FIR Moving Average";
         Description = "A Windowed Weighted Moving Average using signal processing window functions";
-        _series = new(name: $"AFIRMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"AFIRMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

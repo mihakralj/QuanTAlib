@@ -26,7 +26,7 @@ public sealed class AdlIndicator : Indicator, IWatchlistIndicator
         Name = "ADL - Accumulation/Distribution Line";
         Description = "Accumulation/Distribution Line";
 
-        _series = new(name: "ADL", color: Color.Blue, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "ADL", color: Color.Blue, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

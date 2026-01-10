@@ -43,7 +43,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "JMA - Jurik Moving Average";
         Description = "Jurik Moving Average";
-        Series = new(name: $"JMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"JMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

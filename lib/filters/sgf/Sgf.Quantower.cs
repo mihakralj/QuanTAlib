@@ -34,7 +34,7 @@ public sealed class SgfIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "SGF - Savitzky-Golay Filter";
         Description = "Savitzky-Golay Filter (FIR)";
-        _series = new(name: $"SGF {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"SGF {Period}", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

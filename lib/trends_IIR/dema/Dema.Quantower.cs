@@ -34,7 +34,7 @@ public class DemaIndicator : Indicator, IWatchlistIndicator
         SourceName = Source.ToString();
         Name = "DEMA - Double Exponential Moving Average";
         Description = "Double Exponential Moving Average";
-        Series = new(name: $"DEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Series = new LineSeries(name: $"DEMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 

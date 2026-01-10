@@ -38,7 +38,7 @@ public sealed class KamaIndicator : Indicator, IWatchlistIndicator
         SeparateWindow = false;
         Name = "KAMA - Kaufman's Adaptive Moving Average";
         Description = "Kaufman's Adaptive Moving Average";
-        _series = new(name: $"KAMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: $"KAMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 

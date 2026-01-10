@@ -33,7 +33,7 @@ public sealed class MedianIndicator : Indicator, IWatchlistIndicator
         Name = "Median - Rolling Median";
         Description = "The middle value of a sorted dataset";
 
-        _series = new(name: "Median", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
+        _series = new LineSeries(name: "Median", color: IndicatorExtensions.Statistics, width: 2, style: LineStyle.Solid);
         AddLineSeries(_series);
     }
 
