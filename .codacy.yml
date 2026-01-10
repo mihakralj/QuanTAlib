@@ -1,0 +1,76 @@
+---
+# Codacy Configuration File
+# Documentation: https://docs.codacy.com/repositories-configure/codacy-configuration-file/
+
+# Exclude patterns - files and directories to ignore
+exclude_paths:
+  # NDepend analysis output
+  - "ndepend/**"
+  
+  # Build/IDE artifacts
+  - "bin/**"
+  - "obj/**"
+  - ".vs/**"
+  - ".git/**"
+  - ".idea/**"
+  - ".vscode/**"
+  - ".sonarqube/**"
+  - ".sonarlint/**"
+  - ".codacy/**"
+  - "BenchmarkDotNet.Artifacts/**"
+  - "ilspy/**"
+  
+  # Performance benchmarks
+  - "perf/**"
+  
+  # Test files
+  - "**/*.Tests.cs"
+  - "**/*Tests.cs"
+  - "**/*.Validation.Tests.cs"
+  - "**/Mocks/**"
+  
+  # Quantower adapters
+  - "**/*.Quantower.Tests.cs"
+  - "**/*.Quantower.cs"
+  - "quantower/**"
+  
+  # Documentation
+  - "docs/**"
+  - "**/*.md"
+  
+  # Non-source files
+  - "**/*.dib"
+  - "**/*.csv"
+  - "**/*.xml"
+  - "**/*.json"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.sln"
+  - "**/*.csproj"
+  - "**/*.ndproj"
+  - "**/*.user"
+  - "**/*.suo"
+  - "**/*.cache"
+  - "**/*.lock"
+  - "**/*.props"
+  - "**/*.targets"
+  
+  # Binaries
+  - "**/*.dll"
+  - "**/*.pdb"
+  - "**/*.nupkg"
+  - "**/*.snupkg"
+  - "**/*.so"
+  - "**/*.dylib"
+  - "**/*.exe"
+  
+  # Data/media files
+  - "**/*.db"
+  - "**/*.sqlite"
+  - "**/*.log"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.jpeg"
+  - "**/*.gif"
+  - "**/*.ico"
+  - "**/*.svg"
