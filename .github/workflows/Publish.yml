@@ -130,6 +130,15 @@ jobs:
           category: roslyn-analyzers
         continue-on-error: true
 
+      - name: Upload Roslyn SARIF to DeepSource
+        if: always()
+        run: |
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --analyzer roslyn --analyzer-type community --value-file sarif-reports/roslyn.sarif
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+        continue-on-error: true
+
       - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
           dotnet test --no-build --configuration Debug \
@@ -195,6 +204,15 @@ jobs:
           name: coverage-lcov
           path: coverage-lcov/
 
+      - name: Upload Coverage to DeepSource
+        if: always()
+        run: |
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --analyzer test-coverage --key csharp --value-file ${{ github.workspace }}/coverage-merged/Cobertura.xml
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+        continue-on-error: true
+
   # ==============================================================================
   # 2. Qodana Scan
   # ==============================================================================
@@ -240,6 +258,15 @@ jobs:
         with:
           sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
           category: qodana
+        continue-on-error: true
+
+      - name: Upload Qodana SARIF to DeepSource
+        if: always()
+        run: |
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --analyzer qodana --analyzer-type community --value-file ${{ runner.temp }}/qodana/results/qodana.sarif.json
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
         continue-on-error: true
 
   # ==============================================================================
