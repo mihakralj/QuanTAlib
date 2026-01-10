@@ -39,6 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -120,6 +121,14 @@ jobs:
         with:
           name: sarif-reports
           path: sarif-reports/
+
+      - name: Upload Roslyn SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-reports/
+          category: roslyn-analyzers
+        continue-on-error: true
 
       - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
@@ -224,6 +233,14 @@ jobs:
         with:
           name: qodana-sarif-reports
           path: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+
+      - name: Upload Qodana SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+          category: qodana
+        continue-on-error: true
 
   # ==============================================================================
   # 3. Codacy Qodana SARIF Upload
