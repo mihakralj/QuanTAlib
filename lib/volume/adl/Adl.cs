@@ -82,7 +82,7 @@ public sealed class Adl : ITValuePublisher
 
         if (highLowRange > double.Epsilon)
         {
-            mfm = ((input.Close - input.Low) - (input.High - input.Close)) / highLowRange;
+            mfm = (input.Close - input.Low - (input.High - input.Close)) / highLowRange;
         }
 
         double mfv = mfm * input.Volume;
@@ -119,7 +119,7 @@ public sealed class Adl : ITValuePublisher
 
         for (int i = 0; i < source.Count; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
@@ -161,7 +161,7 @@ public sealed class Adl : ITValuePublisher
                 var vol = new Vector<double>(volume.Slice(i, vectorSize));
 
                 var hl = h - l;
-                var num = (c - l) - (h - c);
+                var num = c - l - (h - c);
 
                 var mask = Vector.GreaterThan(hl, epsilon);
                 var safeHl = Vector.ConditionalSelect(mask, hl, Vector<double>.One);
@@ -184,7 +184,7 @@ public sealed class Adl : ITValuePublisher
             double mfm = 0;
             if (hl > double.Epsilon)
             {
-                mfm = ((c - l) - (h - c)) / hl;
+                mfm = (c - l - (h - c)) / hl;
             }
             output[i] = mfm * vol;
         }

@@ -302,7 +302,7 @@ public sealed class Adx : ITValuePublisher
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return new TSeries(tList, vList);

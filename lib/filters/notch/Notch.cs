@@ -52,9 +52,9 @@ public sealed class Notch : AbstractBase
         double invA0 = 1.0 / a0;
 
         _b0 = invA0;
-        _b1 = (-2.0 * cs) * invA0;
+        _b1 = -2.0 * cs * invA0;
         _b2 = invA0;
-        _a1 = (-2.0 * cs) * invA0;
+        _a1 = -2.0 * cs * invA0;
         _a2 = (1.0 - alpha) * invA0;
 
         Init();
@@ -192,9 +192,9 @@ public sealed class Notch : AbstractBase
         double invA0 = 1.0 / a0;
 
         double b0 = invA0;
-        double b1 = (-2.0 * cs) * invA0;
+        double b1 = -2.0 * cs * invA0;
         double b2 = invA0;
-        double a1 = (-2.0 * cs) * invA0;
+        double a1 = -2.0 * cs * invA0;
         double a2 = (1.0 - alpha) * invA0;
 
         double x1 = 0, x2 = 0, y1 = 0, y2 = 0;

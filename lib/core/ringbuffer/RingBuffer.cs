@@ -311,7 +311,7 @@ public sealed class RingBuffer : IEnumerable<double>
         int firstLen = Math.Min(_count, _capacity - start);
 
         first = new ReadOnlySpan<double>(_buffer, start, firstLen);
-        
+
         if (_count > firstLen)
         {
             second = new ReadOnlySpan<double>(_buffer, 0, _count - firstLen);

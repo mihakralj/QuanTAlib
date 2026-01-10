@@ -92,7 +92,7 @@ public sealed class Hpf : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
-            Update(new TValue(DateTime.MinValue, v), true);
+            Update(new TValue(DateTime.MinValue, v), isNew: true);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,7 +185,7 @@ public sealed class Hpf : AbstractBase
         // or just accept that TSeries update re-runs logic.
         // But for perfromance, we want to capture state.
         // Let's use the explicit Calculate overload.
-        
+
         Calculate(source.Values, output, _length, out var endState);
 
         _state = new State

@@ -67,7 +67,7 @@ public sealed class Cheby2 : AbstractBase
         double sigmaP = -Wc * sinhMu / sqrt2;
         double omegaP = Wc * coshMu / sqrt2;
         double omegaZ = Wc / Math.Cos(Math.PI * 0.25); // Cos(pi/4) = 1/sqrt(2), so this is Wc * sqrt(2)
-        
+
         double Kp = sigmaP * sigmaP + omegaP * omegaP;
         double Kz = omegaZ * omegaZ;
         double dcGain = Kz / Kp;
@@ -75,7 +75,7 @@ public sealed class Cheby2 : AbstractBase
         double a0z = 1.0 - 2.0 * sigmaP + Kp;
         double a1z = 2.0 * Kp - 2.0;
         double a2z = 1.0 + 2.0 * sigmaP + Kp;
-        
+
         double b0z = dcGain * (1.0 + Kz);
         double b1z = dcGain * (2.0 * Kz - 2.0);
         double b2z = dcGain * (1.0 + Kz);
@@ -92,7 +92,7 @@ public sealed class Cheby2 : AbstractBase
         double sumB = b0 + b1 + b2;
         double sumA = 1.0 + a1 + a2;
         double norm = sumA / sumB;
-        
+
         _b0 = b0 * norm;
         _b1 = b1 * norm;
         _b2 = b2 * norm;
@@ -171,7 +171,7 @@ public sealed class Cheby2 : AbstractBase
 
         // Apply filter:
         // filt = B0 * src + B1 * src1 + B2 * src2 - A1 * filt1 - A2 * filt2
-        
+
         // Use FMA for precision and performance
         double term1 = Math.FusedMultiplyAdd(_b1, _state.Src1, _b0 * val);
         double term2 = Math.FusedMultiplyAdd(_b2, _state.Src2, term1);
@@ -230,7 +230,7 @@ public sealed class Cheby2 : AbstractBase
         double sigmaP = -Wc * sinhMu / sqrt2;
         double omegaP = Wc * coshMu / sqrt2;
         double omegaZ = Wc / Math.Cos(Math.PI * 0.25);
-        
+
         double Kp = sigmaP * sigmaP + omegaP * omegaP;
         double Kz = omegaZ * omegaZ;
         double dcGain = Kz / Kp;
@@ -238,7 +238,7 @@ public sealed class Cheby2 : AbstractBase
         double a0z = 1.0 - 2.0 * sigmaP + Kp;
         double a1z = 2.0 * Kp - 2.0;
         double a2z = 1.0 + 2.0 * sigmaP + Kp;
-        
+
         double b0z = dcGain * (1.0 + Kz);
         double b1z = dcGain * (2.0 * Kz - 2.0);
         double b2z = dcGain * (1.0 + Kz);
@@ -253,7 +253,7 @@ public sealed class Cheby2 : AbstractBase
         double sumB = b0 + b1 + b2;
         double sumA = 1.0 + a1 + a2;
         double norm = sumA / sumB;
-        
+
         b0 *= norm;
         b1 *= norm;
         b2 *= norm;

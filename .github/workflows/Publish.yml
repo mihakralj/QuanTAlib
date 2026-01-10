@@ -252,7 +252,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --config,.qodana/qodana.yaml,--coverage-dir,.qodana/code-coverage,--fail-threshold,999999
+          args: --config,qodana.yaml,--coverage-dir,.qodana/code-coverage,--fail-threshold,999999
 
       - name: Upload Qodana SARIF Artifacts
         if: always()

@@ -304,7 +304,7 @@ public sealed class Amat : ITValuePublisher
         Reset();
         for (int i = 0; i < len; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
             t.Add(source[i].Time);
             v.Add(Last.Value);
         }

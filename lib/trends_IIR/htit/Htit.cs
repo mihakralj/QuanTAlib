@@ -260,7 +260,7 @@ public sealed class Htit : AbstractBase
     {
         foreach (var value in source)
         {
-            Step(value, true);
+            Step(value, isNew: true);
         }
     }
 

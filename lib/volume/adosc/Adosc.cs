@@ -127,7 +127,7 @@ public sealed class Adosc : ITValuePublisher
 
         for (int i = 0; i < source.Count; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
@@ -206,7 +206,7 @@ public sealed class Adosc : ITValuePublisher
             double mfm = 0;
             if (hl > double.Epsilon)
             {
-                mfm = ((c - l) - (h - c)) / hl;
+                mfm = (c - l - (h - c)) / hl;
             }
             double mfv = mfm * vol;
 

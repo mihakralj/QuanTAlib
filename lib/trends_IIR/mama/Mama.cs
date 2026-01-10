@@ -270,7 +270,7 @@ public sealed class Mama : AbstractBase
         _ = step; // Parameter required by base signature but not used by MAMA
         foreach (var value in source)
         {
-            Step(value, true);
+            Step(value, isNew: true);
         }
     }
 
@@ -324,9 +324,9 @@ public sealed class Mama : AbstractBase
         int bufferIdx = 0; // Current index for circular buffer
         int count = 0;
 
-        // State variables
-        double period = 0, mama = 0, fama = 0, sumPr = 0;
-        double i2 = 0, q2 = 0, re = 0, im = 0, lastValidPrice = 0;
+        // State variables (initialized: used before assignment; uninitialized: always assigned before read)
+        double period = 0, sumPr = 0, lastValidPrice = 0;
+        double mama, fama, i2, q2, re, im;
         double p_period = 0, p_phase = 0, p_mama = 0, p_fama = 0;
         double p_i2 = 0, p_q2 = 0, p_re = 0, p_im = 0;
 

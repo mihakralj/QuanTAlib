@@ -458,7 +458,7 @@ public sealed class Covariance : AbstractBase
             sumY = sumY - oldY + y;
             sumXY = sumXY - (oldX * oldY) + (x * y);
 
-            double numerator = sumXY - (sumX * sumY) * invN;
+            double numerator = sumXY - sumX * sumY * invN;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }

@@ -55,16 +55,16 @@ public sealed class Loess : AbstractBase
 
         // Round UP to odd number to ensure symmetric window + center
         _period = (period & 1) == 0 ? period + 1 : period;
-        
+
         WarmupPeriod = _period;
         Name = $"Loess({_period})";
-        
+
         _buffer = new RingBuffer(_period);
         _kernel = new double[_period];
-        
+
         // Generate kernel (weights for linear regression projection)
         GenerateKernelOldestFirst(_period, _kernel);
-        
+
         Reset();
     }
 
@@ -141,9 +141,9 @@ public sealed class Loess : AbstractBase
             // _buffer parts are [Oldest -> Newest]
             // _kernel is [Oldest -> Newest]
             // Result = DotProduct
-            
+
             _buffer.GetSequencedSpans(out var span1, out var span2);
-            
+
             y = DotProduct(span1, _kernel.AsSpan(0, span1.Length));
             if (span2.Length > 0)
             {
@@ -177,13 +177,13 @@ public sealed class Loess : AbstractBase
         // (This is less efficient than manual state setting but safer for correctness)
         int startup = Math.Max(0, source.Count - _period);
         Reset();
-        
+
         // Restore Snap history if possible
         if (startup > 0)
         {
              // Try to find a finite value before startup to init LastFiniteInput
              // Just a heuristic:
-             double lastFinite = 0; 
+             double lastFinite = 0;
              bool found = false;
              for(int k=startup-1; k>=0; k--)
              {
@@ -194,17 +194,17 @@ public sealed class Loess : AbstractBase
 
         for (int i = startup; i < source.Count; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return result;
     }
-    
+
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.MinValue, value), true);
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
         }
     }
 
@@ -217,15 +217,15 @@ public sealed class Loess : AbstractBase
         // Let i be the index in the "Newest-First" concept (i=0 is Newest, i=period-1 is Oldest).
         // Then we map to the kernel array: kernel[period - 1 - i] = calculated_weight(i)
         // This ensures the stored kernel is Oldest-First.
-        
+
         int halfWindow = period / 2;
         double weightSum = 0;
         double xSum = 0;
         double x2Sum = 0;
-        
+
         // Use arrays to store temporaries to calculate Delta first
         // Or loop twice. Loop twice is fine for init.
-        
+
         // Ensure bandwidth covers the full window without zeroing edges
         double bandwidth = Math.Max(1.0, halfWindow + 0.5);
 
@@ -235,7 +235,7 @@ public sealed class Loess : AbstractBase
             // i=0 is Newest. i=Period-1 is Oldest.
             // Center is at i = halfWindow?
             // "Newest at -halfWindow, Oldest at +halfWindow" -> implies center is middle of window in time
-            
+
             double dist = Math.Abs(i - halfWindow) / bandwidth;
             if (dist >= 1.0) dist = 0.9999;
 
@@ -253,7 +253,7 @@ public sealed class Loess : AbstractBase
 
         double delta = weightSum * x2Sum - xSum * xSum;
         if (Math.Abs(delta) < double.Epsilon) delta = 1.0;
-        
+
         double targetX = -halfWindow; // We estimate at Newest
 
         // Pass 2: Calculate Kernel Weights
@@ -264,12 +264,12 @@ public sealed class Loess : AbstractBase
             double t = 1.0 - dist * dist * dist;
             double w = t * t * t;
             double xi = i - halfWindow;
-            
+
             double term1 = x2Sum - xi * xSum;
             double term2 = targetX * (xi * weightSum - xSum);
-            
+
             double kValue = (w / delta) * (term1 + term2);
-            
+
             // Store in Oldest-First order
             // i=0 (Newest) -> goes to end of array (Index Length-1)
             // i=Period-1 (Oldest) -> goes to start of array (Index 0)
@@ -283,7 +283,7 @@ public sealed class Loess : AbstractBase
         // a and b expected to be same length (slice called in Update ensures this)
         int length = a.Length;
         if (length == 0) return 0;
-        
+
         int i = 0;
         double sum = 0;
 
@@ -292,7 +292,7 @@ public sealed class Loess : AbstractBase
             var vSum = Vector<double>.Zero;
             ref double rA = ref MemoryMarshal.GetReference(a);
             ref double rB = ref MemoryMarshal.GetReference(b);
-            
+
             int vectorCount = Vector<double>.Count;
             int limit = length - vectorCount;
 
@@ -315,7 +315,7 @@ public sealed class Loess : AbstractBase
         {
             sum += a[i] * b[i];
         }
-        
+
         return sum;
     }
 
@@ -328,11 +328,11 @@ public sealed class Loess : AbstractBase
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
 
-        if (period < 3) 
+        if (period < 3)
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be at least 3.");
 
         int adjPeriod = (period & 1) == 0 ? period + 1 : period;
-        
+
         // Generate kernel (using same logic as instance)
         // Since we slide over contiguous source (Oldest->Newest naturally in array), we need Kernel Oldest-First.
         // But in convolution: Result[t] = Sum(Source[t-k] * Kernel[?])
@@ -343,7 +343,7 @@ public sealed class Loess : AbstractBase
 
         double[] kernel = new double[adjPeriod];
         GenerateKernelOldestFirst(adjPeriod, kernel);
-        
+
         ReadOnlySpan<double> kSpan = new ReadOnlySpan<double>(kernel);
 
         for (int i = 0; i < source.Length; i++)
@@ -359,7 +359,7 @@ public sealed class Loess : AbstractBase
             // This is length Period.
             // i-(Period-1) is Oldest. i is Newest.
             // Matches Kernel [Oldest ... Newest].
-            
+
             var window = source.Slice(i - adjPeriod + 1, adjPeriod);
             output[i] = DotProduct(window, kSpan);
         }

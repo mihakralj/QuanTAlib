@@ -11,7 +11,7 @@ namespace QuanTAlib;
 /// <remarks>
 /// The algorithm is based on a Pine Script implementation:
 /// https://github.com/mihakralj/pinescript/blob/main/indicators/filters/bpf.md
-/// 
+///
 /// Complexity: O(1)
 /// Computation: 7 multiplications, 6 additions per cycle
 /// </remarks>
@@ -100,7 +100,7 @@ public sealed class Bpf : AbstractBase
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
-        
+
         Calculate(values, results, LowerPeriod, UpperPeriod);
 
         // Create TSeries from results
@@ -109,14 +109,14 @@ public sealed class Bpf : AbstractBase
         {
             output.Add(source[i].Time, results[i]);
         }
-        
+
         // Update internal state to match the end of the batch
         Reset();
         for (int i = 0; i < source.Count; i++)
         {
             Update(source[i]);
         }
-        
+
         return output;
     }
 
@@ -143,7 +143,7 @@ public sealed class Bpf : AbstractBase
         {
             _state.LastValid = val;
         }
-        
+
         // Highpass Filter Step
         // hp = hp_c1 * (val - 2*src1 + src2) + hp_c2 * hp1 + hp_c3 * hp2
         double term1 = _hpC1 * (val - 2.0 * _state.Src1 + _state.Src2);

@@ -172,7 +172,7 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
 
     // Overload for backward compatibility (assumes isNew=true)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Add(TValue value) => Add(value, true);
+    public virtual void Add(TValue value) => Add(value, isNew: true);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(long time, double value, bool isNew = true) => Add(new TValue(time, value), isNew);

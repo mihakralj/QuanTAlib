@@ -417,7 +417,7 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
-            double numerator = sumSq - (sum * sum) * invN;
+            double numerator = sumSq - sum * sum * invN;
             if (numerator < 0) numerator = 0;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
@@ -514,7 +514,7 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
-            double numerator = sumSq - (sum * sum) * invN;
+            double numerator = sumSq - sum * sum * invN;
             if (numerator < 0) numerator = 0;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
@@ -631,7 +631,7 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, sumSq);
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
-            double numerator = sumSq - (sum * sum) * invN;
+            double numerator = sumSq - sum * sum * invN;
             if (numerator < 0) numerator = 0;
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }

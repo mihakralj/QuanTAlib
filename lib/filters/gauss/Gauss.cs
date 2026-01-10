@@ -223,7 +223,7 @@ public sealed class Gauss : AbstractBase
         Reset();
         for (int i = startup; i < source.Count; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return result;
@@ -233,7 +233,7 @@ public sealed class Gauss : AbstractBase
     {
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.MinValue, value), true);
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
         }
     }
 

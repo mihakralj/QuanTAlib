@@ -252,7 +252,7 @@ public sealed class Cfb : ITValuePublisher
 
         for (int i = replayStart; i < len; i++)
         {
-            Update(new TValue(source.Times[i], source.Values[i]), true);
+            Update(new TValue(source.Times[i], source.Values[i]), isNew: true);
         }
 
         return new TSeries(t, v);

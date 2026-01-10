@@ -197,7 +197,7 @@ public sealed class Kalman : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
-            Update(new TValue(DateTime.MinValue, v), true);
+            Update(new TValue(DateTime.MinValue, v), isNew: true);
     }
 
     /// <summary>
@@ -267,7 +267,7 @@ public sealed class Kalman : AbstractBase
     // although the original Calculate signature was different anyway (returned void).
     // The previous implementation had: public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double q, double r)
     // We should keep this signature valid.
-    
+
     /// <summary>
     /// Static calculation of Kalman Filter on a span.
     /// </summary>

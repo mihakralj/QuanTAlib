@@ -342,14 +342,14 @@ public sealed class Stc : AbstractBase
     {
         var result = new TSeries();
         foreach (var item in source)
-            result.Add(Update(item, true));
+            result.Add(Update(item, isNew: true));
         return result;
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
-            Update(new TValue(DateTime.MinValue, v), true);
+            Update(new TValue(DateTime.MinValue, v), isNew: true);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

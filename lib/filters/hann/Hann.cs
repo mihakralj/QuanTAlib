@@ -85,10 +85,10 @@ public sealed class Hann : AbstractBase
         // i goes from 0 to len-1
         // Note: Pine script implements this exactly.
         // w[0] and w[len-1] will be 0.
-        
+
         double coefSum = 0;
         double denom = _length - 1;
-        
+
         for (int i = 0; i < _length; i++)
         {
             double w = 0.5 * (1.0 - Math.Cos(2.0 * Math.PI * i / denom));
@@ -96,8 +96,8 @@ public sealed class Hann : AbstractBase
             coefSum += w;
         }
 
-        // Ideally we shouldn't normalize here if we match Pine script logic 
-        // which accumulates 'currentWeightSum' dynamically. 
+        // Ideally we shouldn't normalize here if we match Pine script logic
+        // which accumulates 'currentWeightSum' dynamically.
         // However, for optimization, since we handle NaNs, dynamic normalization is safer.
         // But if 'coefSum' is constant (no NaNs), we could pre-normalize.
         // The Pine script does: nz(currentWeightSum == 0.0 ? src : acc / currentWeightSum, src)
@@ -134,7 +134,7 @@ public sealed class Hann : AbstractBase
 
         // Convolution:
         // We apply weights to the buffer.
-        // In Pine: 
+        // In Pine:
         //   p = min(bar_index + 1, len) -> this is our 'count'
         //   loop i from 0 to p-1
         //   price = src[p - 1 - i] -> this is accessing history. 'i=0' is newest.
@@ -200,7 +200,7 @@ public sealed class Hann : AbstractBase
         Reset();
         for (int i = startup; i < source.Count; i++)
         {
-            Update(source[i], true);
+            Update(source[i], isNew: true);
         }
 
         return result;
@@ -210,7 +210,7 @@ public sealed class Hann : AbstractBase
     {
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.MinValue, value), true);
+            Update(new TValue(DateTime.MinValue, value), isNew: true);
         }
     }
 
@@ -236,7 +236,7 @@ public sealed class Hann : AbstractBase
         // Use stackalloc if small enough, otherwise array pool or heap
         // 256 doubles is 2KB, safe for stack
         Span<double> weights = length <= 256 ? stackalloc double[length] : new double[length];
-        
+
         double denom = length - 1;
         for (int i = 0; i < length; i++)
         {
@@ -254,7 +254,7 @@ public sealed class Hann : AbstractBase
             // Iterate k from 0 to count-1 representing lag.
             // Source index: i - k
             // Weight index: k
-            
+
             for (int k = 0; k < count; k++)
             {
                 double val = source[i - k];

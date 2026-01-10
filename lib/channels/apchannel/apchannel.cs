@@ -163,7 +163,7 @@ public sealed class Apchannel : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
@@ -191,7 +191,7 @@ public sealed class Apchannel : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            var val = Update(source[i], true);
+            var val = Update(source[i], isNew: true);
             t.Add(val.Time);
             v.Add(val.Value);
         }
