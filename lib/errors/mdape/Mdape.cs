@@ -133,10 +133,8 @@ public sealed class Mdape : AbstractBase
         {
             return _sortBuffer[count / 2];
         }
-        else
-        {
-            return (_sortBuffer[count / 2 - 1] + _sortBuffer[count / 2]) * 0.5;
-        }
+        
+        return (_sortBuffer[count / 2 - 1] + _sortBuffer[count / 2]) * 0.5;
     }
 
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)

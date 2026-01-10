@@ -112,7 +112,7 @@ public sealed class Dmx : ITValuePublisher
         double dmxValue = diPlus - diMinus;
 
         Last = new TValue(input.Time, dmxValue);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

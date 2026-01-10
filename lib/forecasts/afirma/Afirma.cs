@@ -331,7 +331,7 @@ public sealed class Afirma : AbstractBase
                             val = _buffer[count - 1 - i];
                         }
                         lsSum += val;
-                        lsCount += 1.0;
+                        lsCount++;
                     }
                     if (lsCount > 0)
                     {
@@ -521,7 +521,7 @@ public sealed class Afirma : AbstractBase
                                 v_ls = buffer[idx];
                             }
                             lsSum += v_ls;
-                            lsCount += 1.0;
+                            lsCount++;
                         }
                         if (lsCount > 0)
                         {

@@ -65,18 +65,24 @@ public class RsiTests
     public void IsNew_True_AdvancesState()
     {
         var rsi = new Rsi(5);
-        var gbm = new GBM();
-        var series = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var gbm = new GBM(startPrice: 100, mu: 0.0, sigma: 0.1, seed: 42);
+        var series = gbm.Fetch(15, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        for (int i = 0; i < 9; i++)
+        // Feed enough values to get past warmup
+        for (int i = 0; i < 10; i++)
         {
             rsi.Update(series.Close[i], isNew: true);
         }
 
-        var val1 = rsi.Update(series.Close[9], isNew: true);
-        var nextTime = series.Close[9].Time + TimeSpan.FromMinutes(1).Ticks;
-        var val2 = rsi.Update(new TValue(nextTime, series.Close[9].Value + 1), isNew: true);
+        // Get stable state
+        var val1 = rsi.Update(series.Close[10], isNew: true);
+        
+        // Advance with a significantly different value
+        var nextTime = series.Close[10].Time + TimeSpan.FromMinutes(1).Ticks;
+        var nextValue = series.Close[10].Value * 1.05; // 5% increase
+        var val2 = rsi.Update(new TValue(nextTime, nextValue), isNew: true);
 
+        // RSI should change when we advance to a new bar with a different value
         Assert.NotEqual(val1.Value, val2.Value);
     }
 

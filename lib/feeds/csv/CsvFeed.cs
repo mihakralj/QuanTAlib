@@ -34,7 +34,6 @@ internal ref struct OhlcvParseState
 public sealed class CsvFeed : IFeed
 {
 
-
     private int _currentIndex;
     private TBar _currentBar;
     private bool _hasCurrentBar;

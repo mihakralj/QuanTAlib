@@ -129,7 +129,7 @@ public sealed class Adxr : ITValuePublisher
         }
 
         Last = new TValue(input.Time, adxr);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

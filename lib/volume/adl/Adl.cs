@@ -90,7 +90,7 @@ public sealed class Adl : ITValuePublisher
 
         _isInitialized = true;
         Last = new TValue(input.Time, _adl);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
@@ -106,7 +106,7 @@ public sealed class Adl : ITValuePublisher
         }
 
         Last = new TValue(input.Time, _adl);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

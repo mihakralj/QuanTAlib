@@ -102,7 +102,7 @@ public sealed class GBM : IFeed
 
         _defaultTimeStep = timeframe.Ticks;
 
-        double minutesPerYear = 252.0 * 6.5 * 60.0;
+        const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = timeframe.TotalMinutes / minutesPerYear;
 
         _drift = (mu - 0.5 * sigma * sigma) * dt;
@@ -287,7 +287,7 @@ public sealed class GBM : IFeed
         double[] c = new double[count];
         double[] v = new double[count];
 
-        double minutesPerYear = 252.0 * 6.5 * 60.0;
+        const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = interval.TotalMinutes / minutesPerYear;
         double drift = (Mu - 0.5 * Sigma * Sigma) * dt;
         double vol = Sigma * Math.Sqrt(dt);

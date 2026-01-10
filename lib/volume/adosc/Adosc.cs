@@ -96,7 +96,7 @@ public sealed class Adosc : ITValuePublisher
 
         double adosc = eFast.Value - eSlow.Value;
         Last = new TValue(input.Time, adosc);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 

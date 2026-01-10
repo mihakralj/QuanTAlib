@@ -136,7 +136,7 @@ public sealed class AroonOsc : ITValuePublisher
 
         Last = new TValue(input.Time, osc);
 
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = true });
+        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
