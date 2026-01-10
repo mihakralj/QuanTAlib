@@ -14,12 +14,12 @@ public class BpfValidationTests
         // HP Cutoff (High Freq / Short Period) = 40. Passes P < 40.
         // LP Cutoff (Low Freq / Long Period) = 10. Passes P > 10.
         // Bandpass: [10, 40].
-        
+
         int T = 1000;
         double[] sine5 = new double[T];   // Period 5 (Too fast, should be blocked by LP(10)). LP(10) passes P > 10.
         double[] sine15 = new double[T];  // Period 15 (Inside band, 10 < P < 40). Should pass.
         double[] sine100 = new double[T]; // Period 100 (Too slow, should be blocked by HP(40)). HP(40) passes P < 40.
-        
+
         for (int i = 0; i < T; i++) {
             sine5[i] = Math.Sin(2 * Math.PI * i / 5.0);
             sine15[i] = Math.Sin(2 * Math.PI * i / 15.0);

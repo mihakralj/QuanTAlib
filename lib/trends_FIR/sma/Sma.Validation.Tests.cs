@@ -309,7 +309,7 @@ public sealed class SmaValidationTests : IDisposable
 
             // Calculate Ooples SMA
             var stockData = new StockData(ooplesData);
-            var sResult = Calculations.CalculateSimpleMovingAverage(stockData, period).OutputValues.Values.First();
+            var sResult = stockData.CalculateSimpleMovingAverage(period).OutputValues.Values.First();
 
             // Compare last 100 records
             ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, ValidationHelper.OoplesTolerance);

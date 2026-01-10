@@ -448,7 +448,7 @@ public sealed class Skew : AbstractBase
             // Apply mask
             vSkew = Avx.BlendVariable(vZero, vSkew, vMask);
 
-            Vector256.StoreUnsafe(vSkew, ref Unsafe.Add(ref outRef, i));
+            vSkew.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(3);
             sumSq = vSumSqs.GetElement(3);

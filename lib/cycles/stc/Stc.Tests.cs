@@ -73,7 +73,7 @@ public class StcTests
 
         Assert.Equal(iterativeStc.Last.Value, batchResult.Last.Value, 1e-9);
     }
-    
+
     [Fact]
     public void SpanBatch_MatchesTSeriesBatch()
     {
@@ -108,7 +108,7 @@ public class StcTests
         // Should be NaN during warmup
         Assert.True(double.IsNaN(result.Value) || double.IsFinite(result.Value));
     }
-    
+
     [Fact]
     public void SmoothingOptions_ProduceDifferentResults()
     {
@@ -117,7 +117,7 @@ public class StcTests
         var stcDigital = new Stc(kPeriod: 10, dPeriod: 10, fastLength: 20, slowLength: 40, smoothing: StcSmoothing.Digital);
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
-        
+
         for (int i = 0; i < 100; i++)
         {
             double val = gbm.Next().Close;

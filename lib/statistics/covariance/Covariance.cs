@@ -414,7 +414,7 @@ public sealed class Covariance : AbstractBase
                 ? Fma.MultiplyAddNegated(vSumXSumY, vInvN, vSumsXY)
                 : Avx.Subtract(vSumsXY, Avx.Multiply(vSumXSumY, vInvN));
             var vResult = Avx.Multiply(vNumerator, vInvDenom);
-            Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sumX = vSumsX.GetElement(3);
             sumY = vSumsY.GetElement(3);

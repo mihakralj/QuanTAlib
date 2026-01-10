@@ -25,11 +25,13 @@ public sealed class Gauss : AbstractBase
     private State _p_state;
 
     [StructLayout(LayoutKind.Auto)]
+    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
     private struct State
     {
         public double LastValue;
         public bool IsHot;
     }
+    #pragma warning restore CA1066
 
     /// <summary>
     /// Gets the kernel size used for the filter.

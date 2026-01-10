@@ -41,13 +41,13 @@ public sealed class SgfIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         _priceSelector = Source.GetPriceSelector();
-        
+
         // Validation handled by SGF constructor, but Quantower might let users set invalid values
-        // We ensure Period > PolyOrder via Min/Max constraints in attributes if possible, 
+        // We ensure Period > PolyOrder via Min/Max constraints in attributes if possible,
         // but robustly we should handle it.
         // If PolyOrder >= Period, SGF constructor throws.
         // Let's ensure reasonable defaults just in case via property normalization or rely on exception.
-        
+
         _sgf = new Sgf(Period, PolyOrder);
         base.OnInit();
     }

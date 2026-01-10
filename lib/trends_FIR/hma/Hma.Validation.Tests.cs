@@ -178,7 +178,7 @@ public sealed class HmaValidationTests : IDisposable
 
             // Calculate Ooples HMA
             var stockData = new StockData(ooplesData);
-            var sResult = Calculations.CalculateHullMovingAverage(stockData, length: period).OutputValues.Values.First();
+            var sResult = stockData.CalculateHullMovingAverage(length: period).OutputValues.Values.First();
 
             // Compare last 100 records
             ValidationHelper.VerifyData(qResult, sResult, (s) => s, 100, 1.0);

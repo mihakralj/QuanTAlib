@@ -57,7 +57,7 @@ public class GaussValidationTests : IDisposable
         }
 
         double[] result = new double[source.Length];
-        
+
         for (int i = 0; i < source.Length; i++)
         {
             double val = 0;
@@ -67,7 +67,7 @@ public class GaussValidationTests : IDisposable
             // For index i, we look at window ending at i.
             // Window: source[i-(kernelSize-1)] ... source[i]
             // Weights: weights[0] ... weights[kernelSize-1]
-            
+
             // Map buffer indices to weights
             // buffer[0] (oldest) -> weights[0]
             // ...
@@ -76,9 +76,9 @@ public class GaussValidationTests : IDisposable
             // We need to iterate over the kernel weights
             for (int k = 0; k < kernelSize; k++)
             {
-                // The source index corresponding to weights[k] 
+                // The source index corresponding to weights[k]
                 // weights[k] is applied to source[i - (kernelSize - 1) + k]
-                // Let's verify: 
+                // Let's verify:
                 // k=kernelSize-1 (newest weight) -> source[i]
                 // k=0 (oldest weight) -> source[i - kernelSize + 1]
 
@@ -133,14 +133,14 @@ public class GaussValidationTests : IDisposable
         {
             var gauss = new Gauss(sigma);
             var qResults = new List<double>();
-            
+
             foreach (var item in _testData.Data)
             {
                 qResults.Add(gauss.Update(item).Value);
             }
-            
+
             var expected = CalculateExpectedGauss(source, sigma);
-            
+
             ValidationHelper.VerifyData(qResults, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Streaming mode successfully validated against reference implementation");
@@ -156,9 +156,9 @@ public class GaussValidationTests : IDisposable
         {
             double[] output = new double[source.Length];
             Gauss.Calculate(source.AsSpan(), output.AsSpan(), sigma);
-            
+
             var expected = CalculateExpectedGauss(source, sigma);
-            
+
             ValidationHelper.VerifyData(output, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Span mode successfully validated against reference implementation");

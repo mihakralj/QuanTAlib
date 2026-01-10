@@ -40,7 +40,7 @@ public class SgfValidationTests : IDisposable
     {
         int adjPeriod = (period % 2 == 0) ? period - 1 : period;
         adjPeriod = Math.Max(1, adjPeriod);
-        
+
         double[] weights = new double[adjPeriod];
         int halfWindow = adjPeriod / 2;
         double sumDenom = 0.0;
@@ -78,7 +78,7 @@ public class SgfValidationTests : IDisposable
         }
 
         double[] result = new double[source.Length];
-        
+
         for (int i = 0; i < source.Length; i++)
         {
             double val = 0;
@@ -89,7 +89,7 @@ public class SgfValidationTests : IDisposable
             {
                 // Align weights relative to history
                 // weights[k] applies to source[i - (adjPeriod - 1) + k]
-                
+
                 int srcIdx = i - (adjPeriod - 1) + k;
 
                 if (srcIdx >= 0 && srcIdx < source.Length)
@@ -127,10 +127,10 @@ public class SgfValidationTests : IDisposable
     public void Validate_AgainstReference_Batch()
     {
         var source = _testData.Data.Select(x => x.Value).ToArray();
-        
+
         // Test combination of periods and orders
-        var scenarios = new[] 
-        { 
+        var scenarios = new[]
+        {
             (period: 5, order: 2),
             (period: 9, order: 2),
             (period: 11, order: 4),
@@ -153,8 +153,8 @@ public class SgfValidationTests : IDisposable
     {
         var source = _testData.Data.Select(x => x.Value).ToArray();
 
-        var scenarios = new[] 
-        { 
+        var scenarios = new[]
+        {
             (period: 5, order: 2),
             (period: 9, order: 2),
             (period: 11, order: 4),
@@ -165,14 +165,14 @@ public class SgfValidationTests : IDisposable
         {
             var sgf = new Sgf(period, order);
             var qResults = new List<double>();
-            
+
             foreach (var item in _testData.Data)
             {
                 qResults.Add(sgf.Update(item).Value);
             }
-            
+
             var expected = CalculateExpectedSgf(source, period, order);
-            
+
             ValidationHelper.VerifyData(qResults, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Streaming mode successfully validated against reference implementation");
@@ -183,8 +183,8 @@ public class SgfValidationTests : IDisposable
     {
         var source = _testData.Data.Select(x => x.Value).ToArray();
 
-        var scenarios = new[] 
-        { 
+        var scenarios = new[]
+        {
             (period: 5, order: 2),
             (period: 9, order: 2),
             (period: 11, order: 4),
@@ -195,9 +195,9 @@ public class SgfValidationTests : IDisposable
         {
             double[] output = new double[source.Length];
             Sgf.Calculate(source.AsSpan(), output.AsSpan(), period, order);
-            
+
             var expected = CalculateExpectedSgf(source, period, order);
-            
+
             ValidationHelper.VerifyData(output, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Span mode successfully validated against reference implementation");

@@ -8,7 +8,7 @@ public class KalmanIndicatorTests
     public void Constructor_SetsDefaults()
     {
         var indicator = new KalmanIndicator();
-        
+
         Assert.Equal(0.01, indicator.Q);
         Assert.Equal(0.1, indicator.R);
         Assert.Equal(SourceType.Close, indicator.Source);
@@ -21,7 +21,7 @@ public class KalmanIndicatorTests
     {
         var indicator = new KalmanIndicator();
         indicator.Initialize();
-        
+
         Assert.Single(indicator.LinesSeries);
     }
 
@@ -30,11 +30,11 @@ public class KalmanIndicatorTests
     {
         var indicator = new KalmanIndicator();
         indicator.Initialize();
-        
+
         indicator.HistoricalData.AddBar(DateTime.UtcNow, 100, 105, 95, 100);
-        
+
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-        
+
         Assert.Equal(1, indicator.LinesSeries[0].Count);
         Assert.True(double.IsFinite(indicator.LinesSeries[0].GetValue(0)));
     }

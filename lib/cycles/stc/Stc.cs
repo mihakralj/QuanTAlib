@@ -23,6 +23,7 @@ public sealed class Stc : AbstractBase
     private bool _isNew;
 
     [StructLayout(LayoutKind.Sequential)]
+    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
     private struct State
     {
         public double FastEma;
@@ -38,6 +39,7 @@ public sealed class Stc : AbstractBase
         public double Stoch1Min;
         public double Stoch1Max;
     }
+    #pragma warning restore CA1066
 
     private State _s, _ps;
     private int _samples;

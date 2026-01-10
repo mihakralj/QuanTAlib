@@ -442,7 +442,7 @@ public sealed class Sma : AbstractBase
             var vSums = Avx512F.Add(vSumPrev, vP4);
 
             var vResult = Avx512F.Multiply(vSums, vInvPeriod);
-            Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(7);
 
@@ -513,7 +513,7 @@ public sealed class Sma : AbstractBase
             var vSums = Avx.Add(vSumPrev, vP2);
 
             var vResult = Avx.Multiply(vSums, vInvPeriod);
-            Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(3);
 
@@ -580,7 +580,7 @@ public sealed class Sma : AbstractBase
             var vSums = Vector128.Create(ps0, ps1);
 
             var vResult = AdvSimd.Arm64.Multiply(vSums, vInvPeriod);
-            Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = ps1;
 

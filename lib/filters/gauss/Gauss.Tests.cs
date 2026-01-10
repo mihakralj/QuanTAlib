@@ -16,13 +16,13 @@ public class GaussTests
     public void Constructor_CalculatesKernelSizeCorrectly()
     {
         // Kernel size = 2 * ceil(3 * sigma) + 1
-        
+
         // sigma = 1.0 -> 3 * 1 = 3 -> ceil(3) = 3 -> 2*3 + 1 = 7
         Assert.Equal(7, new Gauss(1.0).KernelSize);
 
         // sigma = 0.5 -> 3 * 0.5 = 1.5 -> ceil(1.5) = 2 -> 2*2 + 1 = 5
         Assert.Equal(5, new Gauss(0.5).KernelSize);
-        
+
         // sigma = 2.0 -> 3 * 2 = 6 -> ceil(6) = 6 -> 2*6 + 1 = 13
         Assert.Equal(13, new Gauss(2.0).KernelSize);
     }
@@ -67,27 +67,27 @@ public class GaussTests
             Assert.Equal(seriesResult[i].Value, output[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void HandlesNaN()
     {
         var gauss = new Gauss(1.0);
-        
+
         // Fill with numbers
         gauss.Update(new TValue(DateTime.MinValue, 10));
         gauss.Update(new TValue(DateTime.MinValue, 20));
-        
+
         // Update with NaN
         var result = gauss.Update(new TValue(DateTime.MinValue, double.NaN));
-        
+
         // Should return weighted average of non-NaN values (10, 20)
         // With partial history, it processes available valid numbers.
         Assert.False(double.IsNaN(result.Value));
-        
+
         // Fill full buffer with NaNs
-        for (int i=0; i<20; i++) 
+        for (int i=0; i<20; i++)
             gauss.Update(new TValue(DateTime.MinValue, double.NaN));
-            
+
         // Should evaluate to NaN if all are NaN
         Assert.True(double.IsNaN(gauss.Last.Value));
     }
@@ -101,9 +101,9 @@ public class GaussTests
 
         for (int i = 0; i < 6; i++)
             gauss.Update(new TValue(DateTime.MinValue, i));
-            
+
         Assert.False(gauss.IsHot);
-        
+
         gauss.Update(new TValue(DateTime.MinValue, 6));
         Assert.True(gauss.IsHot);
     }

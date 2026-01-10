@@ -580,8 +580,8 @@ public sealed class Wma : AbstractBase
                 var vLastW1 = Avx2.Permute4x64(vWsums1.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 var vWsums2 = Avx.Add(vLastW1, vPw22);
 
-                Vector256.StoreUnsafe(Avx.Multiply(vWsums1, vInvDivisor), ref Unsafe.Add(ref outRef, idx));
-                Vector256.StoreUnsafe(Avx.Multiply(vWsums2, vInvDivisor), ref Unsafe.Add(ref outRef, idx + vectorWidth));
+                Avx.Multiply(vWsums1, vInvDivisor).StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
+                Avx.Multiply(vWsums2, vInvDivisor).StoreUnsafe(ref Unsafe.Add(ref outRef, idx + vectorWidth));
 
                 vSumState = Avx2.Permute4x64(vSums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131
                 vWsumState = Avx2.Permute4x64(vWsums2.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131

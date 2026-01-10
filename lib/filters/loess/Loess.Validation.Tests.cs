@@ -37,12 +37,12 @@ public class LoessValidationTests : IDisposable
     [Fact]
     public void Validate_Against_Linear_Trend()
     {
-        // Loess is a local linear regression. 
+        // Loess is a local linear regression.
         // If we feed it a perfect line, it should produce a perfect line (except maybe at edges if window is partial).
         // Our implementation handles partial windows by doing partial convolution, so it might deviate at start.
 
         var loess = new Loess(10);
-        
+
         // Generate a line y = x
         var input = new List<double>();
         var expected = new List<double>();

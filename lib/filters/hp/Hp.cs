@@ -25,6 +25,7 @@ public sealed class Hp : AbstractBase
     private State _p_state;
 
     [StructLayout(LayoutKind.Auto)]
+    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
     private struct State
     {
         public double Trend;
@@ -32,6 +33,7 @@ public sealed class Hp : AbstractBase
         public double PrevPrice;
         public bool IsInitialized;
     }
+    #pragma warning restore CA1066
 
     /// <summary>
     /// Smoothing parameter (lambda). Common values: 1600 (Quarterly), 14400 (Monthly), 6.25 (Annual).

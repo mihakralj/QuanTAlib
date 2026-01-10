@@ -384,7 +384,7 @@ public sealed class Variance : AbstractBase
             vNumerator = Avx512F.Max(vZero, vNumerator);
 
             var vResult = Avx512F.Multiply(vNumerator, vInvDenom);
-            Vector512.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(7);
             sumSq = vSumSqs.GetElement(7);
@@ -481,7 +481,7 @@ public sealed class Variance : AbstractBase
             vNumerator = AdvSimd.Arm64.Max(vZero, vNumerator);
 
             var vResult = AdvSimd.Arm64.Multiply(vNumerator, vInvDenom);
-            Vector128.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = ps1;
             sumSq = psSq1;
@@ -596,7 +596,7 @@ public sealed class Variance : AbstractBase
             vNumerator = Avx.Max(vZero, vNumerator);
 
             var vResult = Avx.Multiply(vNumerator, vInvDenom);
-            Vector256.StoreUnsafe(vResult, ref Unsafe.Add(ref outRef, i));
+            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             // Update scalar accumulators for next iteration
             sum = vSums.GetElement(3);

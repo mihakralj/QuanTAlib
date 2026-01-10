@@ -31,8 +31,8 @@ public sealed class SkewValidationTests : IDisposable
             if (i >= input.Length - 100)
             {
                 var window = input[(i - period + 1)..(i + 1)];
-                double expected = Statistics.Skewness(window);
-                double expectedPop = Statistics.PopulationSkewness(window);
+                double expected = window.Skewness();
+                double expectedPop = window.PopulationSkewness();
 
                 Assert.Equal(expected, val.Value, 1e-6);
                 Assert.Equal(expectedPop, popVal.Value, 1e-6);

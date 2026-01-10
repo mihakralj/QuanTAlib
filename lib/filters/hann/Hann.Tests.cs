@@ -48,11 +48,11 @@ public class HannTests
             Assert.False(hann.IsHot);
             hann.Update(new TValue(DateTime.UtcNow, 100));
         }
-        
+
         // After length updates calling IsHot property again should return true?
         // Wait, buffer size is length. If we add length items, it becomes full.
         // Update method updates IsHot state.
-        
+
         Assert.True(hann.IsHot);
     }
 
@@ -62,10 +62,10 @@ public class HannTests
         // Hann implementation dynamically normalizes weights.
         // If a value is NaN, it is skipped and weights are renormalized.
         var hann = new Hann(5);
-        
+
         hann.Update(new TValue(DateTime.UtcNow, 100));
         var r1 = hann.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         // At index 1 (second point), if input is NaN:
         // History: [100, NaN] (newest)
         // Only 100 is valid. It will be weighted by _weights[1] (if i=1 in loop).
@@ -73,10 +73,10 @@ public class HannTests
         // i=0: buffer[newest] = NaN. Skipped.
         // i=1: buffer[oldest] = 100. Weight = _weights[1].
         // Result = 100 * w[1] / w[1] = 100.
-        
+
         Assert.Equal(100.0, r1.Value);
     }
-    
+
     [Fact]
     public void AllNaN_ReturnsInput_Or_NaN()
     {
@@ -92,7 +92,7 @@ public class HannTests
         int length = 10;
         var hannBatch = new Hann(length);
         var hannIter = new Hann(length);
-        
+
         var series = new TSeries();
         var bars = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         foreach (var bar in bars)
@@ -101,7 +101,7 @@ public class HannTests
         }
 
         var batchResult = hannBatch.Update(series);
-        
+
         for (int i = 0; i < series.Count; i++)
         {
             var iterResult = hannIter.Update(series[i]);
@@ -116,7 +116,7 @@ public class HannTests
         var series = new TSeries();
         double[] input = new double[100];
         double[] output = new double[100];
-        
+
         var bars = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         for (int i = 0; i < 100; i++)
         {
@@ -132,18 +132,18 @@ public class HannTests
             Assert.Equal(tseriesResult[i].Value, output[i], 1e-9);
         }
     }
-    
+
     [Fact]
     public void Reset_ClearsState()
     {
         var hann = new Hann(5);
         hann.Update(new TValue(DateTime.UtcNow, 100));
         Assert.False(hann.IsHot);
-        
+
         // Fill it
         for(int i=0; i<5; i++) hann.Update(new TValue(DateTime.UtcNow, 100));
         Assert.True(hann.IsHot);
-        
+
         hann.Reset();
         Assert.False(hann.IsHot);
         Assert.Equal(0, hann.Last.Value);

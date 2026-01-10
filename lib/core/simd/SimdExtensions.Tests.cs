@@ -532,7 +532,7 @@ public class SimdExtensionsTests
         double[] a = [1.0, 2.0, 3.0];
         double[] b = [4.0, 5.0, 6.0];
         // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
-        Assert.Equal(32.0, SimdExtensions.DotProduct(a, b));
+        Assert.Equal(32.0, a.DotProduct(b));
     }
 
     [Fact]
@@ -540,7 +540,7 @@ public class SimdExtensionsTests
     {
         double[] a = [1.0, 2.0];
         double[] b = [1.0];
-        Assert.Throws<ArgumentException>(() => SimdExtensions.DotProduct(a, b));
+        Assert.Throws<ArgumentException>(() => a.DotProduct(b));
     }
 
     [Fact]
@@ -548,7 +548,7 @@ public class SimdExtensionsTests
     {
         double[] a = [];
         double[] b = [];
-        Assert.Equal(0.0, SimdExtensions.DotProduct(a, b));
+        Assert.Equal(0.0, a.DotProduct(b));
     }
 
     // Integration tests
@@ -812,7 +812,7 @@ public class SimdScalarFallbackTests
     {
         double[] a = [1.0, double.NaN, 3.0];
         double[] b = [4.0, 5.0, 6.0];
-        double result = SimdExtensions.DotProduct(a, b);
+        double result = a.DotProduct(b);
         Assert.True(double.IsNaN(result));
     }
 
@@ -821,7 +821,7 @@ public class SimdScalarFallbackTests
     {
         double[] a = [1.0, double.PositiveInfinity, 3.0];
         double[] b = [4.0, 5.0, 6.0];
-        double result = SimdExtensions.DotProduct(a, b);
+        double result = a.DotProduct(b);
         Assert.True(double.IsPositiveInfinity(result));
     }
 
@@ -913,7 +913,7 @@ public class SimdScalarFallbackTests
     {
         double[] a = [3.0];
         double[] b = [4.0];
-        Assert.Equal(12.0, SimdExtensions.DotProduct(a, b));
+        Assert.Equal(12.0, a.DotProduct(b));
     }
 
     [Fact]
@@ -922,7 +922,7 @@ public class SimdScalarFallbackTests
         double[] a = [2.0, 3.0];
         double[] b = [4.0, 5.0];
         // 2*4 + 3*5 = 8 + 15 = 23
-        Assert.Equal(23.0, SimdExtensions.DotProduct(a, b));
+        Assert.Equal(23.0, a.DotProduct(b));
     }
 
     [Fact]

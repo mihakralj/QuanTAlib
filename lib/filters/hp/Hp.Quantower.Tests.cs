@@ -31,14 +31,14 @@ public class HpIndicatorTests
     {
         var indicator = new HpIndicator { Lambda = 14400 };
 
-        // We can't fully check ShortName dynamic part easily without Initialize, 
-        // as _sourceName is set in OnInit. 
+        // We can't fully check ShortName dynamic part easily without Initialize,
+        // as _sourceName is set in OnInit.
         // But we can check it returns something containing "HP" based on class definition if accessed before init,
         // or we initialize it to check full string.
-        
+
         // Initialize to set _sourceName
         indicator.Initialize();
-        
+
         Assert.Contains("HP", indicator.ShortName, StringComparison.Ordinal);
         Assert.Contains("14400", indicator.ShortName, StringComparison.Ordinal);
         Assert.Contains("Close", indicator.ShortName, StringComparison.Ordinal);

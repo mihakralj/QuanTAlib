@@ -50,32 +50,32 @@ public class KalmanValidationTests : IDisposable
         }
 
         double[] expected = new double[input.Length];
-        
+
         // Step-by-step manual recursion simulated here to verify implementation logic
-        
+
         double x = 10.0; // Initial measurement sets state
         double p = r;    // Initial P matches implementation (P = R)
         expected[0] = 10.0;
-        
+
         for (int i = 1; i < input.Length; i++)
         {
             // Prediction
             double p_pred = p + q;
-            
+
             // Gain
             double denom = p_pred + r;
             double k = p_pred / denom;
-            
+
             // Update
             x = x + k * (input[i] - x);
-            
+
             // p = (1 - k) * pPred
             // But implementation uses: p = (pPred * r) / denom
             // (1 - pPred/(pPred+r)) * pPred = ( (pPred+r - pPred) / (pPred+r) ) * pPred = (r * pPred) / denom
             // This is mathematically identical but numerically more stable
-            
+
             p = (p_pred * r) / denom;
-            
+
             expected[i] = x;
         }
 

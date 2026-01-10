@@ -31,10 +31,10 @@ public class KalmanTests
     {
         var filter = new Kalman(q: 0.01, r: 0.1);
         filter.Update(new TValue(DateTime.UtcNow, 100), isNew: true); // Init
-        
+
         var v1 = filter.Update(new TValue(DateTime.UtcNow, 101), isNew: true);
         var v2 = filter.Update(new TValue(DateTime.UtcNow, 102), isNew: true);
-        
+
         Assert.NotEqual(v1.Value, v2.Value);
     }
 
@@ -48,7 +48,7 @@ public class KalmanTests
         var res1 = filter.Update(new TValue(DateTime.UtcNow, 105), isNew: true);
         // Bar 1 - update tick (correction)
         var res2 = filter.Update(new TValue(DateTime.UtcNow, 110), isNew: false);
-        
+
         Assert.NotEqual(res1.Value, res2.Value);
     }
 
@@ -56,7 +56,7 @@ public class KalmanTests
     public void IterativeCorrections_RestoreToOriginalState()
     {
         var filter = new Kalman(q: 0.01, r: 0.1);
-        
+
         // Feed 10 values
         TValue lastInput = default;
         for (int i = 0; i < 10; i++)
@@ -87,9 +87,9 @@ public class KalmanTests
         var filter = new Kalman(q: 0.01, r: 0.1);
         filter.Update(new TValue(DateTime.UtcNow, 100));
         filter.Update(new TValue(DateTime.UtcNow, 200));
-        
+
         filter.Reset();
-        
+
         // Should behave as new
         var res = filter.Update(new TValue(DateTime.UtcNow, 50));
         Assert.Equal(50, res.Value); // First value init
@@ -102,12 +102,12 @@ public class KalmanTests
         var filter = new Kalman(q: 0.01, r: 0.1);
         filter.Update(new TValue(DateTime.UtcNow, 100)); // Init
         var v1 = filter.Update(new TValue(DateTime.UtcNow, 101));
-        
+
         var vNaN = filter.Update(new TValue(DateTime.UtcNow, double.NaN));
-        
+
         Assert.Equal(v1.Value, vNaN.Value, 1e-9);
     }
-    
+
     [Fact]
     public void AllModes_ProduceSameResult()
     {

@@ -28,12 +28,14 @@ public sealed class Loess : AbstractBase
     private Snapshot _pSnap;
 
     [StructLayout(LayoutKind.Sequential)]
+    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
     private struct Snapshot
     {
         public double LastOutput;
         public double LastFiniteInput;
         public bool HasFiniteInput;
     }
+    #pragma warning restore CA1066
 
     /// <summary>
     /// Gets the period of the filter.

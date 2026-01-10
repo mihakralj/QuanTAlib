@@ -77,7 +77,7 @@ public sealed class MedianValidationTests : IDisposable
             if (i >= count - 100)
             {
                 var window = data[(i - period + 1)..(i + 1)];
-                double expected = Statistics.Median(window);
+                double expected = window.Median();
                 Assert.Equal(expected, tValue.Value, ValidationHelper.DefaultTolerance);
             }
         }

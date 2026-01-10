@@ -141,7 +141,7 @@ public sealed class StdDev : AbstractBase
             {
                 var v = Vector512.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
                 var vSqrt = Avx512F.Sqrt(v);
-                Vector512.StoreUnsafe(vSqrt, ref Unsafe.Add(ref dataRef, i));
+                vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }
         // AVX
@@ -155,7 +155,7 @@ public sealed class StdDev : AbstractBase
             {
                 var v = Vector256.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
                 var vSqrt = Avx.Sqrt(v);
-                Vector256.StoreUnsafe(vSqrt, ref Unsafe.Add(ref dataRef, i));
+                vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }
         // ARM64 Neon
@@ -169,7 +169,7 @@ public sealed class StdDev : AbstractBase
             {
                 var v = Vector128.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
                 var vSqrt = AdvSimd.Arm64.Sqrt(v);
-                Vector128.StoreUnsafe(vSqrt, ref Unsafe.Add(ref dataRef, i));
+                vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }
 

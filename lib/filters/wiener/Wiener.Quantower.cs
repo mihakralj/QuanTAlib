@@ -41,7 +41,7 @@ public sealed class WienerIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         _priceSelector = Source.GetPriceSelector();
-        
+
         _wiener = new Wiener(Period, SmoothPeriod);
         base.OnInit();
     }

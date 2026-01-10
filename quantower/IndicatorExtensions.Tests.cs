@@ -52,7 +52,7 @@ public class IndicatorExtensionsTests
         indicator.HistoricalData.AddBar(now, open, high, low, close, volume);
         UpdateArgs args = new(UpdateReason.NewBar);
 
-        var bar = IndicatorExtensions.GetInputBar(indicator, args);
+        var bar = indicator.GetInputBar(args);
 
         Assert.Equal(now, bar.AsDateTime);
         Assert.Equal(open, bar.Open);
@@ -156,10 +156,10 @@ public class IndicatorExtensionsTests
             for (int i = 0; i < 20; i++) series.SetValue(100 + i, i);
 
             // Test with warmup and cold values
-            IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: true);
+            indicator.PaintSmoothCurve(args, series, warmupPeriod: 5, showColdValues: true);
 
             // Test without cold values
-            IndicatorExtensions.PaintSmoothCurve(indicator, args, series, warmupPeriod: 5, showColdValues: false);
+            indicator.PaintSmoothCurve(args, series, warmupPeriod: 5, showColdValues: false);
         }
     }
 }

@@ -16,7 +16,7 @@ public class SgfTests
     {
         Assert.Throws<ArgumentException>(() => new Sgf(10, polyOrder: 10)); // Order >= size
         Assert.Throws<ArgumentException>(() => new Sgf(10, polyOrder: 15));
-        
+
         var sgf = new Sgf(10, polyOrder: 2);
         Assert.NotNull(sgf);
         Assert.Equal("Sgf(9,2)", sgf.Name); // Period adjusted to odd
@@ -70,11 +70,11 @@ public class SgfTests
     public void HandlesNaN()
     {
         var sgf = new Sgf(5, 2);
-        
+
         sgf.Update(new TValue(DateTime.UtcNow, 100));
         sgf.Update(new TValue(DateTime.UtcNow, double.NaN));
         sgf.Update(new TValue(DateTime.UtcNow, 102));
-        
+
         // Should produce valid result if sufficient valid data exists within window
         Assert.True(double.IsFinite(sgf.Last.Value));
     }
@@ -90,7 +90,7 @@ public class SgfTests
         {
             sgf.Update(new TValue(DateTime.UtcNow, 100));
         }
-        
+
         Assert.True(sgf.IsHot);
     }
 }

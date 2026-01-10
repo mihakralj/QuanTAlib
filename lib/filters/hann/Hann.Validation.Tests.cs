@@ -49,15 +49,15 @@ public class HannValidationTests : IDisposable
         }
 
         double[] result = new double[source.Length];
-        
+
         for (int i = 0; i < source.Length; i++)
         {
             // p = min(bar_index + 1, len)
             int p = Math.Min(i + 1, length);
-            
+
             double acc = 0;
             double wSum = 0;
-            
+
             for (int k = 0; k < p; k++)
             {
                 int srcIdx = i - (p - 1) + k;
@@ -106,14 +106,14 @@ public class HannValidationTests : IDisposable
         {
             var hann = new Hann(len);
             var qResults = new List<double>();
-            
+
             foreach (var item in _testData.Data)
             {
                 qResults.Add(hann.Update(item).Value);
             }
-            
+
             var expected = CalculateExpectedHann(source, len);
-            
+
             ValidationHelper.VerifyData(qResults, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Streaming mode successfully validated");
@@ -129,9 +129,9 @@ public class HannValidationTests : IDisposable
         {
             double[] output = new double[source.Length];
             Hann.Calculate(source.AsSpan(), output.AsSpan(), len);
-            
+
             var expected = CalculateExpectedHann(source, len);
-            
+
             ValidationHelper.VerifyData(output, expected, (refVal) => refVal, tolerance: 1e-9);
         }
         _output.WriteLine("Span mode successfully validated");

@@ -72,13 +72,13 @@ public class NotchTests
         var notch = new Notch(period: 10, q: 1.0);
         double input = 100.0;
         double output = 0;
-        
+
         // Warmup to stabilize (IIR transient)
         for(int i=0; i<100; i++)
         {
             output = notch.Update(new TValue(DateTime.UtcNow, input)).Value;
         }
-        
+
         Assert.Equal(input, output, precision: 6);
     }
 
@@ -90,22 +90,22 @@ public class NotchTests
         int period = 10;
         double q = 5.0; // High Q for sharp notch
         var notch = new Notch(period, q);
-        
+
         double omega = 2.0 * Math.PI / period;
-        
+
         double maxAmp = 0;
         for (int i = 0; i < 200; i++)
         {
             double val = Math.Sin(omega * i); // Input amplitude 1
             double outVal = notch.Update(new TValue(DateTime.UtcNow, val)).Value;
-            
+
             if (i > 50) // ignore transient
             {
                maxAmp = Math.Max(maxAmp, Math.Abs(outVal));
             }
         }
-        
-        // At exact notch frequency, ideal is 0. 
+
+        // At exact notch frequency, ideal is 0.
         // With Q=5, it should be very small.
         Assert.True(maxAmp < 0.1, $"Amplitude {maxAmp} should be attenuated ( < 0.1 )");
     }
