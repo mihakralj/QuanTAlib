@@ -33,7 +33,7 @@ env:
 
 jobs:
   # ==============================================================================
-  # 1. Build & Test (Generates Coverage)
+  # 1. Build, Test, Coverage & SonarCloud (Single Job for Path Consistency)
   # ==============================================================================
   Build_Test_Coverage:
     runs-on: ubuntu-latest
@@ -50,6 +50,12 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -57,8 +63,38 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: ${{ runner.os }}-nuget-
 
+      - name: Install ReportGenerator
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Install SonarScanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner --version 9.0.0
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       - name: Restore dependencies
         run: dotnet restore
+
+      - name: Begin SonarCloud Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "WARNING: SONAR_TOKEN is not set. Skipping SonarCloud."
+            echo "SKIP_SONAR=true" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          dotnet sonarscanner begin /k:mihakralj_QuanTAlib /o:mihakralj-quantalib \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="coverage-merged/OpenCover.xml" \
+            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
+            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
+            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
+            /d:sonar.scanner.scanAll="false"
 
       - name: Build
         run: dotnet build --no-restore --configuration Debug
@@ -87,71 +123,62 @@ jobs:
 
       - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
-          # Generate OpenCover and Cobertura for SonarCloud/Codacy
           dotnet test --no-build --configuration Debug \
-            --collect:"XPlat Code Coverage" \
-            --results-directory:./TestResults \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
-          
-          # Generate LCOV for Qodana (using absolute path)
-          dotnet test --no-build --configuration Debug \
-            /p:CollectCoverage=true \
-            /p:CoverletOutput=$(pwd)/TestResults/ \
-            /p:CoverletOutputFormat=lcov
+            --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
+            --results-directory ./TestResults \
+            --logger "trx;LogFileName=test_results.trx"
 
-      - name: Collect Coverage Files
+      - name: Merge Coverage Reports
         run: |
-          mkdir -p coverage
+          mkdir -p coverage-merged
+          
+          echo "=== Coverage files before merge ==="
+          find TestResults -name "coverage.*" -o -name "*.info"
+          
+          # Merge all coverage formats into single unified reports
+          reportgenerator \
+            "-reports:TestResults/**/coverage.opencover.xml;TestResults/**/coverage.cobertura.xml;TestResults/**/coverage.info" \
+            "-targetdir:coverage-merged" \
+            "-reporttypes:OpenCover;Cobertura;lcov"
+          
+          echo "=== Merged coverage files ==="
+          ls -lh coverage-merged/
+
+      - name: End SonarCloud Analysis
+        if: env.SKIP_SONAR != 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+      - name: Prepare Coverage Artifacts
+        run: |
+          # Create directories for different consumers
+          mkdir -p coverage-opencover
+          mkdir -p coverage-cobertura
           mkdir -p coverage-lcov
           
-          # Debug: Show all coverage files
-          echo "=== All coverage files in workspace ==="
-          find . -name "coverage.*" -o -name "*.info" | head -20
+          # Copy merged reports
+          cp coverage-merged/OpenCover.xml coverage-opencover/ 2>/dev/null || echo "No OpenCover.xml"
+          cp coverage-merged/Cobertura.xml coverage-cobertura/ 2>/dev/null || echo "No Cobertura.xml"
           
-          # Collect opencover format (for SonarCloud)
-          count=1
-          find TestResults -name "coverage.opencover.xml" | while read file; do
-            cp "$file" "coverage/coverage_${count}.opencover.xml"
-            count=$((count+1))
-          done
-          
-          # Collect cobertura format (for Codacy)
-          count=1
-          find TestResults -name "coverage.cobertura.xml" | while read file; do
-            cp "$file" "coverage/coverage_${count}.cobertura.xml"
-            count=$((count+1))
-          done
-          
-          # Collect LCOV (for Qodana) - search entire workspace
-          lcov_file=$(find . -name "coverage.info" -o -name "*.info" | grep -v node_modules | head -1)
-          if [ -n "$lcov_file" ] && [ -f "$lcov_file" ]; then
-            cp "$lcov_file" coverage-lcov/coverage.lcov
-            echo "LCOV coverage file collected from: $lcov_file"
-            ls -lh coverage-lcov/coverage.lcov
+          # LCOV: ReportGenerator outputs as lowercase 'lcov.info'
+          if [ -f "coverage-merged/lcov.info" ]; then
+            cp coverage-merged/lcov.info coverage-lcov/coverage.lcov
+            echo "LCOV coverage prepared for Qodana"
+            ls -lh coverage-lcov/
           else
-            echo "Warning: coverage.info not found in workspace"
-            echo "Searched paths:"
-            find TestResults -type f -name "*.info" || echo "  No .info files in TestResults"
-            find lib -type f -name "*.info" 2>/dev/null || echo "  No .info files in lib"
-            echo "Warning: coverage.info not found" > coverage-lcov/README.txt
+            echo "Warning: lcov.info not found after merge"
+            echo "Files in coverage-merged:"
+            ls -la coverage-merged/
+            echo "No LCOV coverage available" > coverage-lcov/README.txt
           fi
-
-      - name: Debug Coverage Files
-        run: |
-          echo "=== Coverage files generated ==="
-          ls -la coverage/
-          echo ""
-          echo "=== Sample paths from opencover ==="
-          grep -h "fullPath=" coverage/*.opencover.xml 2>/dev/null | head -5 || true
-          echo ""
-          echo "=== Sample paths from cobertura ==="
-          grep -h "filename=" coverage/*.cobertura.xml 2>/dev/null | head -5 || true
 
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
-          path: coverage/
+          path: coverage-merged/
 
       - name: Upload LCOV Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -160,82 +187,7 @@ jobs:
           path: coverage-lcov/
 
   # ==============================================================================
-  # 2. SonarCloud Analysis
-  # ==============================================================================
-  Sonar_Analysis:
-    needs: Build_Test_Coverage
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu'
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-reports
-          path: coverage
-
-      - name: Install SonarScanner
-        run: |
-          dotnet tool install --global dotnet-sonarscanner --version 9.0.0
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      - name: Run SonarCloud Analysis
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: bash
-        run: |
-          set -e # Fail immediately if any command exits with a non-zero status
-
-          if [ -z "$SONAR_TOKEN" ]; then
-            echo "WARNING: SONAR_TOKEN is not set. Skipping analysis."
-            exit 0
-          fi
-          echo "SONAR_TOKEN is set (Length: ${#SONAR_TOKEN})"
-
-          dotnet restore
-
-          # Added verbose logging to debug 9.0.0 auth issues
-          # Reverted to sonar.token since the token has been updated
-          # Removed quotes from /k and /o to ensure they are parsed correctly
-          dotnet sonarscanner begin /k:mihakralj_QuanTAlib /o:mihakralj-quantalib \
-            /d:sonar.token="$SONAR_TOKEN" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/*.opencover.xml" \
-            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
-            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
-            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
-            /d:sonar.scanner.scanAll="false"
-
-          dotnet build --no-restore --configuration Debug
-
-          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
-
-  # ==============================================================================
-  # 3. Qodana Scan
+  # 2. Qodana Scan
   # ==============================================================================
   Qodana_Scan:
     needs: Build_Test_Coverage
@@ -274,7 +226,7 @@ jobs:
           path: ${{ runner.temp }}/qodana/results/qodana.sarif.json
 
   # ==============================================================================
-  # 4. Codacy Qodana SARIF Upload
+  # 3. Codacy Qodana SARIF Upload
   # ==============================================================================
   Codacy_Qodana_Upload:
     needs: Qodana_Scan
@@ -324,7 +276,7 @@ jobs:
         continue-on-error: true
 
   # ==============================================================================
-  # 5. Codacy Coverage Upload
+  # 4. Codacy Coverage Upload
   # ==============================================================================
   Codacy_Coverage_Upload:
     needs: Build_Test_Coverage
@@ -336,11 +288,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Coverage Reports
+      - name: Download Merged Coverage Reports
         uses: actions/download-artifact@v4
         with:
           name: coverage-reports
-          path: coverage
+          path: coverage-merged
 
       - name: Upload Coverage to Codacy
         env:
@@ -355,20 +307,17 @@ jobs:
           curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
           chmod +x codacy.sh
 
-          # Upload cobertura files (preferred format for Codacy)
-          for file in coverage/*.cobertura.xml; do
-            if [ -f "$file" ]; then
-              echo "Uploading $file..."
-              ./codacy.sh report -r "$file" --partial
-            fi
-          done
-
-          # Finalize
-          ./codacy.sh final
+          # Upload merged Cobertura file
+          if [ -f "coverage-merged/Cobertura.xml" ]; then
+            echo "Uploading merged Cobertura coverage..."
+            ./codacy.sh report -r "coverage-merged/Cobertura.xml"
+          else
+            echo "Warning: Cobertura.xml not found"
+          fi
         continue-on-error: true
 
   # ==============================================================================
-  # 6. Codacy SARIF Upload
+  # 5. Codacy SARIF Upload
   # ==============================================================================
   Codacy_SARIF_Upload:
     needs: Build_Test_Coverage
@@ -483,7 +432,7 @@ jobs:
   # 8. Publish Package
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Sonar_Analysis, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: [Build_Test_Coverage, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)
