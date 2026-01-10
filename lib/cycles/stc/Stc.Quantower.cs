@@ -20,7 +20,7 @@ public sealed class StcIndicator : Indicator, IWatchlistIndicator
         "None", StcSmoothing.None,
         "EMA", StcSmoothing.Ema,
         "Sigmoid", StcSmoothing.Sigmoid,
-        "Digital", StcSmoothing.Digital
+        "Digital", StcSmoothing.Digital,
     })]
     public StcSmoothing Smoothing { get; set; } = StcSmoothing.Sigmoid;
 

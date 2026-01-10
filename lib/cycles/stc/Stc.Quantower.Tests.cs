@@ -37,7 +37,7 @@ public class StcIndicatorTests
             CycleLength = 10,
             FastLength = 23,
             SlowLength = 50,
-            Smoothing = StcSmoothing.Ema
+            Smoothing = StcSmoothing.Ema,
         };
 
         // Format is "STC {CycleLength}:{FastLength}:{SlowLength}:{Smoothing}:{Source}"
@@ -171,7 +171,7 @@ public class StcIndicatorTests
                 CycleLength = 10,
                 FastLength = 23,
                 SlowLength = 50,
-                Source = source
+                Source = source,
             };
             indicator.Initialize();
 

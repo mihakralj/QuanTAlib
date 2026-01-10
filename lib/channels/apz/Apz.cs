@@ -302,7 +302,7 @@ public sealed class Apz : ITValuePublisher
         _p_state = _state;
 
         // Use all available data for priming to ensure proper convergence
-        int startIndex = 0;
+        const int startIndex = 0;
 
         // Seed LastValidValues from data before warmup window
         for (int i = startIndex - 1; i >= 0; i--)
@@ -451,7 +451,6 @@ public sealed class Apz : ITValuePublisher
 
         CalculateScalarCore(high, low, close, outputs, period, multiplier);
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CalculateScalarCore(
