@@ -55,10 +55,10 @@ public sealed class AdxValidationTests : IDisposable
         double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
         double[] outReal = new double[_data.Bars.Count];
 
-        var retCode = TALib.Functions.Adx(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
+        var retCode = Functions.Adx(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
         Assert.Equal(Core.RetCode.Success, retCode);
 
-        int lookback = TALib.Functions.AdxLookback(14);
+        int lookback = Functions.AdxLookback(14);
         ValidationHelper.VerifyData(results, outReal, outRange, lookback);
     }
 

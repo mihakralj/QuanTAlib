@@ -152,7 +152,7 @@ public sealed class ApchannelValidationTests : IDisposable
         Apchannel.Calculate(high, low, apchannelUpper, apchannelLower, alpha);
 
         // Calculate using Skender EMA for comparison
-        var skenderQuotesForHigh = bars.Select(b => new Skender.Stock.Indicators.Quote
+        var skenderQuotesForHigh = bars.Select(b => new Quote
         {
             Date = b.AsDateTime,
             Open = (decimal)b.High,
@@ -162,7 +162,7 @@ public sealed class ApchannelValidationTests : IDisposable
             Volume = (decimal)b.Volume
         });
 
-        var skenderQuotesForLow = bars.Select(b => new Skender.Stock.Indicators.Quote
+        var skenderQuotesForLow = bars.Select(b => new Quote
         {
             Date = b.AsDateTime,
             Open = (decimal)b.Low,
@@ -227,7 +227,7 @@ public sealed class ApchannelValidationTests : IDisposable
         }
 
         // Calculate using Skender EMA
-        var skenderQuotesForHigh = bars.Select(b => new Skender.Stock.Indicators.Quote
+        var skenderQuotesForHigh = bars.Select(b => new Quote
         {
             Date = b.AsDateTime,
             Open = (decimal)b.High,
@@ -237,7 +237,7 @@ public sealed class ApchannelValidationTests : IDisposable
             Volume = (decimal)b.Volume
         });
 
-        var skenderQuotesForLow = bars.Select(b => new Skender.Stock.Indicators.Quote
+        var skenderQuotesForLow = bars.Select(b => new Quote
         {
             Date = b.AsDateTime,
             Open = (decimal)b.Low,

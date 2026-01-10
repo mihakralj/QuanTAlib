@@ -322,8 +322,8 @@ public sealed class AccBandsValidationTests : IDisposable
 
         // Calculate SMA(High) and SMA(Low) separately for verification
         _ = middle; // Suppress unused variable warning - middle is not needed for symmetry test
-        var smaHigh = new global::QuanTAlib.Sma(20);
-        var smaLow = new global::QuanTAlib.Sma(20);
+        var smaHigh = new Sma(20);
+        var smaLow = new Sma(20);
 
         var smaHighResults = new TSeries();
         var smaLowResults = new TSeries();

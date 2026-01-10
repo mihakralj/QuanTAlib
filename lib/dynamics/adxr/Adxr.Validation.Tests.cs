@@ -34,10 +34,10 @@ public sealed class AdxrValidationTests : IDisposable
         double[] cData = _data.Bars.Close.Select(x => x.Value).ToArray();
         double[] outReal = new double[_data.Bars.Count];
 
-        var retCode = TALib.Functions.Adxr(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
+        var retCode = Functions.Adxr(hData, lData, cData, 0..^0, outReal, out var outRange, 14);
         Assert.Equal(Core.RetCode.Success, retCode);
 
-        int lookback = TALib.Functions.AdxrLookback(14);
+        int lookback = Functions.AdxrLookback(14);
         ValidationHelper.VerifyData(results, outReal, outRange, lookback);
     }
 

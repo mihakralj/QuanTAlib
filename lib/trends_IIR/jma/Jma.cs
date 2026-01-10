@@ -372,6 +372,6 @@ public sealed class Jma : AbstractBase
         if (end >= count) end = count - 1;
 
         int len = end - start + 1;
-        return ((ReadOnlySpan<double>)sorted.Slice(start, len)).SumSIMD() / len;
+        return sorted.Slice(start, len).SumSIMD() / len;
     }
 }
