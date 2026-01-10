@@ -105,14 +105,14 @@ public sealed class Cheby1 : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
         Calculate(values, results, Period, Ripple);
 
-        TSeries output = new TSeries();
+        TSeries output = [];
         for (int i = 0; i < values.Length; i++)
         {
             output.Add(source[i].Time, results[i]);

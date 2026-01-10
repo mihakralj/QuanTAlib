@@ -35,8 +35,6 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Kalman : AbstractBase
 {
-    private readonly double _q; // process noise variance
-    private readonly double _r; // measurement noise variance
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
 
@@ -46,9 +44,9 @@ public sealed class Kalman : AbstractBase
     [StructLayout(LayoutKind.Sequential)]
     private struct State
     {
-        public double X;        // estimate
-        public double P;        // error covariance
-        public int Samples;     // 0 => uninitialized
+        public double X;
+        public double P;
+        public int Samples;
     }
 
     /// <summary>
@@ -56,14 +54,14 @@ public sealed class Kalman : AbstractBase
     /// Controls the assumption of how fast the system state changes.
     /// Higher values allow the filter to react faster to changes (less smoothing).
     /// </summary>
-    public double Q => _q;
+    public double ProcessNoise { get; }
 
     /// <summary>
     /// Measurement noise covariance. Defaults to 0.1.
     /// Controls the assumption of how noisy the measurements are.
     /// Higher values make the filter trust the measurement less (more smoothing).
     /// </summary>
-    public double R => _r;
+    public double MeasurementNoise { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Kalman"/> class.
@@ -76,11 +74,11 @@ public sealed class Kalman : AbstractBase
         if (q <= 0) throw new ArgumentOutOfRangeException(nameof(q), "q must be positive.");
         if (r <= 0) throw new ArgumentOutOfRangeException(nameof(r), "r must be positive.");
 
-        _q = q;
-        _r = r;
+        ProcessNoise = q;
+        MeasurementNoise = r;
 
         Name = $"Kalman(q={q},r={r})";
-        WarmupPeriod = 10; // Approximate convergence
+        WarmupPeriod = 10;
         Reset();
     }
 
@@ -119,18 +117,15 @@ public sealed class Kalman : AbstractBase
 
         double z = input.Value;
 
-        // Treat NaN/Inf as missing measurement: do prediction only.
         if (!double.IsFinite(z))
         {
             if (_state.Samples == 0)
             {
-                // No estimate yet: just echo the invalid measurement
                 Last = new TValue(input.Time, z);
             }
             else
             {
-                // Predict only: x unchanged for random walk, p grows
-                _state.P += _q;
+                _state.P += ProcessNoise;
                 Last = new TValue(input.Time, _state.X);
             }
 
@@ -138,11 +133,10 @@ public sealed class Kalman : AbstractBase
             return Last;
         }
 
-        // First valid measurement initializes the filter.
         if (_state.Samples == 0)
         {
             _state.X = z;
-            _state.P = _r;      // scale covariance to measurement noise (more consistent than 1.0)
+            _state.P = MeasurementNoise;
             _state.Samples = 1;
 
             Last = new TValue(input.Time, _state.X);
@@ -150,20 +144,16 @@ public sealed class Kalman : AbstractBase
             return Last;
         }
 
-        // Predict
-        double pPred = _state.P + _q;
+        double pPred = _state.P + ProcessNoise;
 
-        // Update
-        double denom = pPred + _r;
+        double denom = pPred + MeasurementNoise;
         double k = pPred / denom;
 
-        // x = x + k * (z - x)  (use FMA when available)
         double x = _state.X;
         x = Math.FusedMultiplyAdd(k, z - x, x);
         _state.X = x;
 
-        // p = (1 - k) * pPred  (scalar-stable equivalent form)
-        _state.P = (pPred * _r) / denom;
+        _state.P = (pPred * MeasurementNoise) / denom;
 
         _state.Samples++;
 
@@ -174,12 +164,11 @@ public sealed class Kalman : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         var output = new double[source.Count];
 
-        // One pass. Also returns the ending state so we don't replay.
-        Calculate(source.Values, output, _q, _r,
+        Calculate(source.Values, output, ProcessNoise, MeasurementNoise,
             out double endX, out double endP, out int endSamples);
 
         var result = new TSeries();

@@ -166,7 +166,7 @@ public sealed class Sgf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         var resultValues = new double[source.Count];
         Calculate(source.Values, resultValues, _period, _polyOrder);

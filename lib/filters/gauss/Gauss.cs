@@ -16,7 +16,6 @@ namespace QuanTAlib;
 public sealed class Gauss : AbstractBase
 {
     private readonly double _sigma;
-    private readonly int _kernelSize;
     private readonly double[] _weights;
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _publisher;
@@ -35,7 +34,7 @@ public sealed class Gauss : AbstractBase
     /// <summary>
     /// Gets the kernel size used for the filter.
     /// </summary>
-    public int KernelSize => _kernelSize;
+    public int KernelSize { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Gauss"/> class.
@@ -50,11 +49,11 @@ public sealed class Gauss : AbstractBase
         }
 
         _sigma = sigma;
-        _kernelSize = (int)(2 * Math.Ceiling(3.0 * sigma) + 1);
-        WarmupPeriod = _kernelSize;
+        KernelSize = (int)(2 * Math.Ceiling(3.0 * sigma) + 1);
+        WarmupPeriod = KernelSize;
         Name = $"Gauss({sigma:F2})";
-        _buffer = new RingBuffer(_kernelSize);
-        _weights = new double[_kernelSize];
+        _buffer = new RingBuffer(KernelSize);
+        _weights = new double[KernelSize];
 
         GenerateKernel();
         Init();
@@ -89,10 +88,10 @@ public sealed class Gauss : AbstractBase
     private void GenerateKernel()
     {
         double sum = 0;
-        int center = _kernelSize / 2;
+        int center = KernelSize / 2;
         double twoSigmaSq = 2.0 * _sigma * _sigma;
 
-        for (int i = 0; i < _kernelSize; i++)
+        for (int i = 0; i < KernelSize; i++)
         {
             double x = i - center;
             double weight = Math.Exp(-(x * x) / twoSigmaSq);
@@ -100,9 +99,8 @@ public sealed class Gauss : AbstractBase
             sum += weight;
         }
 
-        // Normalize
         double invSum = 1.0 / sum;
-        for (int i = 0; i < _kernelSize; i++)
+        for (int i = 0; i < KernelSize; i++)
         {
             _weights[i] *= invSum;
         }
@@ -134,28 +132,15 @@ public sealed class Gauss : AbstractBase
         double result = 0;
         if (!_buffer.IsFull)
         {
-            // If buffer is not full, we can either return input, or perform a partial convolution.
-            // For simplicity and consistency with other filters, we often return input or a partial average.
-            // PineScript implementation adapts the kernel or the loop for the beginning.
-            // Here we'll do a partial convolution on available data, normalizing on the fly.
-
             double wSum = 0;
             int count = _buffer.Count;
-            // The kernel is designed for the FULL window. If we have less data,
-            // we align the data to the END of the kernel (most recent data matches most recent weight).
-            // _weights are symmetric, so index 0 is oldest, index _kernelSize-1 is newest.
-
-            // Actually, for consistency, let's map:
-            // _buffer[0] (oldest available) -> _weights[_kernelSize - count]
-            // ...
-            // _buffer[count-1] (newest) -> _weights[_kernelSize - 1]
 
             for (int i = 0; i < count; i++)
             {
                 double val = _buffer[i];
                 if (!double.IsNaN(val))
                 {
-                    int weightIdx = _kernelSize - count + i;
+                    int weightIdx = KernelSize - count + i;
                     double w = _weights[weightIdx];
                     result += val * w;
                     wSum += w;
@@ -169,9 +154,8 @@ public sealed class Gauss : AbstractBase
         }
         else
         {
-            // Full kernel convolution with NaN handling
             double wSum = 0;
-            for (int i = 0; i < _kernelSize; i++)
+            for (int i = 0; i < KernelSize; i++)
             {
                 double val = _buffer[i];
                 if (!double.IsNaN(val))
@@ -182,7 +166,7 @@ public sealed class Gauss : AbstractBase
                 }
             }
 
-            if (wSum > double.Epsilon && wSum < 0.999999) // Partial sum due to NaNs
+            if (wSum > double.Epsilon && wSum < 0.999999)
             {
                 result /= wSum;
             }
@@ -203,7 +187,7 @@ public sealed class Gauss : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         // Calculate using static method for performance
         var resultValues = new double[source.Count];
@@ -217,9 +201,7 @@ public sealed class Gauss : AbstractBase
             result.Add(new TValue(times[i], resultValues[i]));
         }
 
-        // Restore state based on last values
-        // We need to feed at least the last _kernelSize values to the buffer
-        int startup = Math.Max(0, source.Count - _kernelSize);
+        int startup = Math.Max(0, source.Count - KernelSize);
         Reset();
         for (int i = startup; i < source.Count; i++)
         {

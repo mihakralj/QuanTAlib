@@ -29,7 +29,6 @@ namespace QuanTAlib;
 public sealed class QuantileLoss : AbstractBase
 {
     private readonly RingBuffer _lossBuffer;
-    private readonly double _quantile;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double LossSum, double LastValidActual, double LastValidPredicted, int TickCount);
@@ -46,12 +45,12 @@ public sealed class QuantileLoss : AbstractBase
             throw new ArgumentException("Quantile must be between 0 and 1 (exclusive)", nameof(quantile));
 
         _lossBuffer = new RingBuffer(period);
-        _quantile = quantile;
+        Quantile = quantile;
         Name = $"QuantileLoss({period},{quantile:F2})";
         WarmupPeriod = period;
     }
 
-    public double Quantile => _quantile;
+    public double Quantile { get; }
     public override bool IsHot => _lossBuffer.IsFull;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -70,9 +69,8 @@ public sealed class QuantileLoss : AbstractBase
         else
             _state.LastValidPredicted = predictedVal;
 
-        // Pinball loss: max(q*(y-p), (q-1)*(y-p))
         double diff = actualVal - predictedVal;
-        double loss = diff >= 0 ? _quantile * diff : (_quantile - 1.0) * diff;
+        double loss = diff >= 0 ? Quantile * diff : (Quantile - 1.0) * diff;
 
         if (isNew)
         {

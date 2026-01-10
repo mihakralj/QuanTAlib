@@ -221,7 +221,7 @@ public sealed class AccBands : ITValuePublisher
             {
                 SumHigh = _highBuffer.Sum,
                 SumLow = _lowBuffer.Sum,
-                SumClose = _closeBuffer.Sum
+                SumClose = _closeBuffer.Sum,
             };
         }
 
@@ -601,7 +601,7 @@ public sealed class AccBands : ITValuePublisher
             {
                 LastValidHigh = double.NaN,
                 LastValidLow = double.NaN,
-                LastValidClose = double.NaN
+                LastValidClose = double.NaN,
             };
 
             SeedFirstValidValues(inputs, ref state);

@@ -27,7 +27,6 @@ namespace QuanTAlib;
 public sealed class TukeyBiweight : AbstractBase
 {
     private readonly RingBuffer _lossBuffer;
-    private readonly double _c;
     private readonly double _cSquaredOver6;
 
     [StructLayout(LayoutKind.Auto)]
@@ -46,13 +45,13 @@ public sealed class TukeyBiweight : AbstractBase
             throw new ArgumentException("Threshold c must be positive", nameof(c));
 
         _lossBuffer = new RingBuffer(period);
-        _c = c;
+        C = c;
         _cSquaredOver6 = (c * c) / 6.0;
         Name = $"TukeyBiweight({period},{c:F3})";
         WarmupPeriod = period;
     }
 
-    public double C => _c;
+    public double C { get; }
     public override bool IsHot => _lossBuffer.IsFull;
 
     /// <summary>
@@ -62,10 +61,10 @@ public sealed class TukeyBiweight : AbstractBase
     private double BiweightLoss(double x)
     {
         double absX = Math.Abs(x);
-        if (absX > _c)
+        if (absX > C)
             return _cSquaredOver6;
 
-        double ratio = x / _c;
+        double ratio = x / C;
         double ratioSq = ratio * ratio;
         double oneMinusRatioSq = 1.0 - ratioSq;
         double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;

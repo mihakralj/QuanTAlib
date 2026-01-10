@@ -65,7 +65,7 @@ public sealed class Wiener : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        TSeries result = new();
+        TSeries result = [];
         for (int i = 0; i < source.Count; i++)
         {
             result.Add(Update(source[i]));

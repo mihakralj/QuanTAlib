@@ -37,7 +37,7 @@ public sealed class T3 : AbstractBase
             E4 = double.NaN,
             E5 = double.NaN,
             E6 = double.NaN,
-            IsInitialized = false
+            IsInitialized = false,
         };
     }
 

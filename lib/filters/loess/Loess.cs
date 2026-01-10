@@ -19,8 +19,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Loess : AbstractBase
 {
-    private readonly int _period;
-    private readonly double[] _kernel; // Stored Oldest-First to match RingBuffer layout
+    private readonly double[] _kernel;
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
@@ -39,7 +38,7 @@ public sealed class Loess : AbstractBase
     /// <summary>
     /// Gets the period of the filter.
     /// </summary>
-    public int Period => _period;
+    public int Period { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Loess"/> class.
@@ -53,17 +52,15 @@ public sealed class Loess : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be at least 3.");
         }
 
-        // Round UP to odd number to ensure symmetric window + center
-        _period = (period & 1) == 0 ? period + 1 : period;
+        Period = (period & 1) == 0 ? period + 1 : period;
 
-        WarmupPeriod = _period;
-        Name = $"Loess({_period})";
+        WarmupPeriod = Period;
+        Name = $"Loess({Period})";
 
-        _buffer = new RingBuffer(_period);
-        _kernel = new double[_period];
+        _buffer = new RingBuffer(Period);
+        _kernel = new double[Period];
 
-        // Generate kernel (weights for linear regression projection)
-        GenerateKernelOldestFirst(_period, _kernel);
+        GenerateKernelOldestFirst(Period, _kernel);
 
         Reset();
     }
@@ -159,11 +156,11 @@ public sealed class Loess : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         // Use static Calculate for performance on the whole series
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, _period);
+        Calculate(source.Values, resultValues, Period);
 
         var result = new TSeries();
         var times = source.Times;
@@ -172,17 +169,12 @@ public sealed class Loess : AbstractBase
             result.Add(new TValue(times[i], resultValues[i]));
         }
 
-        // Restore state based on last window to ensure continuity
-        // Re-run the last _period samples through the instance to sync state
-        // (This is less efficient than manual state setting but safer for correctness)
-        int startup = Math.Max(0, source.Count - _period);
+        int startup = Math.Max(0, source.Count - Period);
         Reset();
 
         // Restore Snap history if possible
         if (startup > 0)
         {
-             // Try to find a finite value before startup to init LastFiniteInput
-             // Just a heuristic:
              double lastFinite = 0;
              bool found = false;
              for(int k=startup-1; k>=0; k--)
@@ -211,39 +203,21 @@ public sealed class Loess : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void GenerateKernelOldestFirst(int period, double[] kernel)
     {
-        // Kernel Generation Logic:
-        // We want to estimate y at x_target.
-        // x coordinates are relative to the window.
-        // Let i be the index in the "Newest-First" concept (i=0 is Newest, i=period-1 is Oldest).
-        // Then we map to the kernel array: kernel[period - 1 - i] = calculated_weight(i)
-        // This ensures the stored kernel is Oldest-First.
-
         int halfWindow = period / 2;
         double weightSum = 0;
         double xSum = 0;
         double x2Sum = 0;
 
-        // Use arrays to store temporaries to calculate Delta first
-        // Or loop twice. Loop twice is fine for init.
-
-        // Ensure bandwidth covers the full window without zeroing edges
         double bandwidth = Math.Max(1.0, halfWindow + 0.5);
 
-        // Pass 1: Compute sums for Cramer's rule
         for (int i = 0; i < period; i++)
         {
-            // i=0 is Newest. i=Period-1 is Oldest.
-            // Center is at i = halfWindow?
-            // "Newest at -halfWindow, Oldest at +halfWindow" -> implies center is middle of window in time
-
             double dist = Math.Abs(i - halfWindow) / bandwidth;
             if (dist >= 1.0) dist = 0.9999;
 
-            // Tricube weight
             double t = 1.0 - dist * dist * dist;
             double w = t * t * t;
 
-            // x coordinate: Newest (i=0) is -halfWindow
             double xi = i - halfWindow;
 
             weightSum += w;
@@ -254,9 +228,8 @@ public sealed class Loess : AbstractBase
         double delta = weightSum * x2Sum - xSum * xSum;
         if (Math.Abs(delta) < double.Epsilon) delta = 1.0;
 
-        double targetX = -halfWindow; // We estimate at Newest
+        double targetX = -halfWindow;
 
-        // Pass 2: Calculate Kernel Weights
         for (int i = 0; i < period; i++)
         {
             double dist = Math.Abs(i - halfWindow) / bandwidth;
@@ -270,9 +243,6 @@ public sealed class Loess : AbstractBase
 
             double kValue = (w / delta) * (term1 + term2);
 
-            // Store in Oldest-First order
-            // i=0 (Newest) -> goes to end of array (Index Length-1)
-            // i=Period-1 (Oldest) -> goes to start of array (Index 0)
             kernel[period - 1 - i] = kValue;
         }
     }
@@ -333,14 +303,6 @@ public sealed class Loess : AbstractBase
 
         int adjPeriod = (period & 1) == 0 ? period + 1 : period;
 
-        // Generate kernel (using same logic as instance)
-        // Since we slide over contiguous source (Oldest->Newest naturally in array), we need Kernel Oldest-First.
-        // But in convolution: Result[t] = Sum(Source[t-k] * Kernel[?])
-        // Source[t] is Newest. Source[t - (period-1)] is Oldest.
-        // Instance Kernel is [Oldest -> Newest].
-        // If we use DotProduct(Source[t-(P-1) .. t+1], Kernel), we are aligning Oldest with Oldest.
-        // Correct.
-
         double[] kernel = new double[adjPeriod];
         GenerateKernelOldestFirst(adjPeriod, kernel);
 
@@ -350,15 +312,9 @@ public sealed class Loess : AbstractBase
         {
             if (i < adjPeriod - 1)
             {
-                // Not enough history
                 output[i] = source[i];
                 continue;
             }
-
-            // Window: [i - (Period-1), ..., i]
-            // This is length Period.
-            // i-(Period-1) is Oldest. i is Newest.
-            // Matches Kernel [Oldest ... Newest].
 
             var window = source.Slice(i - adjPeriod + 1, adjPeriod);
             output[i] = DotProduct(window, kSpan);

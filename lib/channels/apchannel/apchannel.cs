@@ -124,7 +124,7 @@ public sealed class Apchannel : AbstractBase
             HighEma = highEma,
             LowEma = lowEma,
             LastValidHigh = validHigh,
-            LastValidLow = validLow
+            LastValidLow = validLow,
         };
 
         double mid = (highEma + lowEma) * 0.5;

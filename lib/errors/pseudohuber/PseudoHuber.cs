@@ -25,13 +25,12 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class PseudoHuber : BiInputIndicatorBase
 {
-    private readonly double _delta;
     private readonly double _deltaSquared;
 
     /// <summary>
     /// Gets the delta parameter (transition scale).
     /// </summary>
-    public double Delta => _delta;
+    public double Delta { get; }
 
     /// <summary>
     /// Creates a Pseudo-Huber Loss indicator.
@@ -44,7 +43,7 @@ public sealed class PseudoHuber : BiInputIndicatorBase
         if (delta <= 0)
             throw new ArgumentException("Delta must be positive", nameof(delta));
 
-        _delta = delta;
+        Delta = delta;
         _deltaSquared = delta * delta;
     }
 
@@ -55,7 +54,7 @@ public sealed class PseudoHuber : BiInputIndicatorBase
     protected override double ComputeError(double actual, double predicted)
     {
         double diff = actual - predicted;
-        double ratio = diff / _delta;
+        double ratio = diff / Delta;
         return _deltaSquared * (Math.Sqrt(1.0 + ratio * ratio) - 1.0);
     }
 

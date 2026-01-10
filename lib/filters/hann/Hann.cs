@@ -11,7 +11,6 @@ namespace QuanTAlib;
 /// </summary>
 public sealed class Hann : AbstractBase
 {
-    private readonly int _length;
     private readonly double[] _weights;
     private readonly RingBuffer _buffer;
     private readonly ITValuePublisher? _publisher;
@@ -30,7 +29,7 @@ public sealed class Hann : AbstractBase
     /// <summary>
     /// Gets the length of the window (period).
     /// </summary>
-    public int Length => _length;
+    public int Length { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Hann"/> class.
@@ -44,7 +43,7 @@ public sealed class Hann : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(length), "Length must be greater than 1.");
         }
 
-        _length = length;
+        Length = length;
         WarmupPeriod = length;
         Name = $"Hann({length})";
         _buffer = new RingBuffer(length);
@@ -81,27 +80,15 @@ public sealed class Hann : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void GenerateWeights()
     {
-        // Formula: 0.5 * (1.0 - cos(2*pi*i / (len - 1)))
-        // i goes from 0 to len-1
-        // Note: Pine script implements this exactly.
-        // w[0] and w[len-1] will be 0.
-
         double coefSum = 0;
-        double denom = _length - 1;
+        double denom = Length - 1;
 
-        for (int i = 0; i < _length; i++)
+        for (int i = 0; i < Length; i++)
         {
             double w = 0.5 * (1.0 - Math.Cos(2.0 * Math.PI * i / denom));
             _weights[i] = w;
             coefSum += w;
         }
-
-        // Ideally we shouldn't normalize here if we match Pine script logic
-        // which accumulates 'currentWeightSum' dynamically.
-        // However, for optimization, since we handle NaNs, dynamic normalization is safer.
-        // But if 'coefSum' is constant (no NaNs), we could pre-normalize.
-        // The Pine script does: nz(currentWeightSum == 0.0 ? src : acc / currentWeightSum, src)
-        // This implies dynamic normalization. We will follow that for correctness with NaNs.
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,28 +119,11 @@ public sealed class Hann : AbstractBase
         double wSum = 0;
         int count = _buffer.Count;
 
-        // Convolution:
-        // We apply weights to the buffer.
-        // In Pine:
-        //   p = min(bar_index + 1, len) -> this is our 'count'
-        //   loop i from 0 to p-1
-        //   price = src[p - 1 - i] -> this is accessing history. 'i=0' is newest.
-        //   weight = w[i]
-        //   acc += price * weight
-        //
-        // Mapping to RingBuffer:
-        //   _buffer[count - 1] is newest (corresponds to Pine's src[p - 1 - 0])
-        //   _buffer[count - 1 - i] corresponds to Pine's src[p - 1 - i]
-        //   So we iterate i from 0 to count-1.
-        //   weight index is 'i'.
-        //   buffer index is 'count - 1 - i'.
-
         for (int i = 0; i < count; i++)
         {
             double val = _buffer[count - 1 - i];
             if (!double.IsNaN(val))
             {
-                // Align weights to match Pine Script logic (Lag 0 uses weight[count-1])
                 double w = _weights[count - 1 - i];
                 result = Math.FusedMultiplyAdd(val, w, result);
                 wSum += w;
@@ -180,11 +150,10 @@ public sealed class Hann : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
-        // Calculate using static method for performance
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, _length);
+        Calculate(source.Values, resultValues, Length);
 
         // Convert to TSeries
         var result = new TSeries();
@@ -194,9 +163,7 @@ public sealed class Hann : AbstractBase
             result.Add(new TValue(times[i], resultValues[i]));
         }
 
-        // Restore state based on last values
-        // We need to feed at least the last _length values to the buffer
-        int startup = Math.Max(0, source.Count - _length);
+        int startup = Math.Max(0, source.Count - Length);
         Reset();
         for (int i = startup; i < source.Count; i++)
         {

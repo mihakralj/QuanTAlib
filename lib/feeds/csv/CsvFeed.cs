@@ -33,10 +33,8 @@ internal ref struct OhlcvParseState
 [SkipLocalsInit]
 public sealed class CsvFeed : IFeed
 {
-    private readonly TBarSeries _data;
-    private readonly string _filePath;
 
-    // Streaming state
+
     private int _currentIndex;
     private TBar _currentBar;
     private bool _hasCurrentBar;
@@ -44,17 +42,17 @@ public sealed class CsvFeed : IFeed
     /// <summary>
     /// Gets the total number of bars available in the CSV file.
     /// </summary>
-    public int Count => _data.Count;
+    public int Count { get; }
 
     /// <summary>
     /// Gets the file path of the loaded CSV.
     /// </summary>
-    public string FilePath => _filePath;
+    public string FilePath { get; }
 
     /// <summary>
     /// Gets whether there are more bars to stream.
     /// </summary>
-    public bool HasMore => _currentIndex < _data.Count;
+    public bool HasMore => _currentIndex < Count;
 
     /// <summary>
     /// Gets the current streaming position (0-based index).
@@ -83,8 +81,9 @@ public sealed class CsvFeed : IFeed
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"CSV file not found: {filePath}", filePath);
 
-        _filePath = filePath;
-        _data = LoadFromCsv(filePath);
+        FilePath = filePath;
+        Data = LoadFromCsv(filePath);
+        Count = Data.Count;
         _currentIndex = 0;
     }
 
@@ -250,7 +249,7 @@ public sealed class CsvFeed : IFeed
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBar Next(ref bool isNew)
     {
-        if (_data.Count == 0)
+        if (Count == 0)
         {
             isNew = false;
             return default;
@@ -258,20 +257,16 @@ public sealed class CsvFeed : IFeed
 
         if (isNew || !_hasCurrentBar)
         {
-            // Request for new bar
-            if (_currentIndex >= _data.Count)
+            if (_currentIndex >= Count)
             {
-                // End of data - return last bar and signal no more data
                 isNew = false;
                 return _currentBar;
             }
 
-            _currentBar = _data[_currentIndex];
+            _currentBar = Data[_currentIndex];
             _currentIndex++;
             _hasCurrentBar = true;
         }
-        // else: Update current bar - CSV has no intra-bar updates, return same bar
-        // No change to _currentBar or _currentIndex
 
         return _currentBar;
     }
@@ -310,11 +305,11 @@ public sealed class CsvFeed : IFeed
         // Collect bars matching interval
         long expectedTime = startTime;
         int collected = 0;
-        long tolerance = interval.Ticks / 2; // Allow 50% tolerance
+        long tolerance = interval.Ticks / 2;
 
-        for (int i = startIndex; i < _data.Count && collected < count; i++)
+        for (int i = startIndex; i < Count && collected < count; i++)
         {
-            var bar = _data[i];
+            var bar = Data[i];
 
             // Check if bar time matches expected time (within tolerance)
             long timeDiff = Math.Abs(bar.Time - expectedTime);
@@ -353,26 +348,23 @@ public sealed class CsvFeed : IFeed
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int FindStartIndex(long startTime)
     {
-        if (_data.Count == 0)
+        if (Count == 0)
             return -1;
 
-        // If startTime is before first bar, return 0
-        if (_data[0].Time >= startTime)
+        if (Data[0].Time >= startTime)
             return 0;
 
-        // If startTime is after last bar, return -1
-        if (_data[_data.Count - 1].Time < startTime)
+        if (Data[Count - 1].Time < startTime)
             return -1;
 
-        // Binary search for the first bar >= startTime
         int left = 0;
-        int right = _data.Count - 1;
+        int right = Count - 1;
 
         while (left < right)
         {
             int mid = left + (right - left) / 2;
 
-            if (_data[mid].Time < startTime)
+            if (Data[mid].Time < startTime)
                 left = mid + 1;
             else
                 right = mid;
@@ -398,8 +390,8 @@ public sealed class CsvFeed : IFeed
     /// <exception cref="ArgumentOutOfRangeException">Thrown when index is out of range</exception>
     public void Reset(int index)
     {
-        if (index < 0 || index > _data.Count)
-            throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_data.Count}");
+        if (index < 0 || index > Count)
+            throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {Count}");
 
         _currentIndex = index;
         _hasCurrentBar = false;
@@ -414,14 +406,14 @@ public sealed class CsvFeed : IFeed
     /// <exception cref="ArgumentOutOfRangeException">Thrown when index is out of range</exception>
     public TBar GetBar(int index)
     {
-        if (index < 0 || index >= _data.Count)
-            throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {_data.Count - 1}");
+        if (index < 0 || index >= Count)
+            throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {Count - 1}");
 
-        return _data[index];
+        return Data[index];
     }
 
     /// <summary>
     /// Gets the underlying data series (read-only access).
     /// </summary>
-    public TBarSeries Data => _data;
+    public TBarSeries Data { get; }
 }

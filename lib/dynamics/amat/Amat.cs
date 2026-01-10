@@ -56,7 +56,7 @@ public sealed class Amat : ITValuePublisher
             SlowIsHot = false,
             FastIsCompensated = false,
             SlowIsCompensated = false,
-            TickCount = 0
+            TickCount = 0,
         };
     }
 

@@ -203,7 +203,7 @@ public sealed class Abber : ITValuePublisher
             _state = _state with
             {
                 SumSource = _sourceBuffer.Sum,
-                SumDeviation = _deviationBuffer.Sum
+                SumDeviation = _deviationBuffer.Sum,
             };
         }
 
@@ -544,7 +544,7 @@ public sealed class Abber : ITValuePublisher
 
             var state = new ScalarState
             {
-                LastValidValue = double.NaN
+                LastValidValue = double.NaN,
             };
 
             SeedFirstValidValue(source, ref state);

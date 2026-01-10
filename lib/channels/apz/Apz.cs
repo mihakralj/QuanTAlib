@@ -66,7 +66,7 @@ public sealed class Apz : ITValuePublisher
             LastValidPrice = double.NaN,
             LastValidHigh = double.NaN,
             LastValidLow = double.NaN,
-            IsHot = false
+            IsHot = false,
         };
     }
 
@@ -483,7 +483,7 @@ public sealed class Apz : ITValuePublisher
             LastValidPrice = double.NaN,
             LastValidHigh = double.NaN,
             LastValidLow = double.NaN,
-            IsHot = false
+            IsHot = false,
         };
 
         // Seed first valid values

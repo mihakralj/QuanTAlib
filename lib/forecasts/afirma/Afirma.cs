@@ -45,7 +45,7 @@ public sealed class Afirma : AbstractBase
         /// <summary>Blackman window (3-term)</summary>
         Blackman,
         /// <summary>Blackman-Harris window (4-term, minimum sidelobe)</summary>
-        BlackmanHarris
+        BlackmanHarris,
     }
 
     private readonly int _period;

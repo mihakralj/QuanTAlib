@@ -16,7 +16,6 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Hp : AbstractBase
 {
-    private readonly double _lambda;
     private readonly double _alpha;
     private readonly double _oneMinusAlpha;
     private readonly double _halfAlpha;
@@ -37,7 +36,7 @@ public sealed class Hp : AbstractBase
     /// <summary>
     /// Smoothing parameter (lambda). Common values: 1600 (Quarterly), 14400 (Monthly), 6.25 (Annual).
     /// </summary>
-    public double Lambda => _lambda;
+    public double Lambda { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Hp"/> class.
@@ -51,9 +50,8 @@ public sealed class Hp : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(lambda), "Lambda must be positive.");
         }
 
-        _lambda = lambda;
+        Lambda = lambda;
 
-        // Alpha calculation from Pine Script approximation
         double s = Math.Sqrt(lambda);
         _alpha = (s * 0.5 - 1.0) / (s * 0.5 + 1.0);
         _alpha = Math.Clamp(_alpha, 0.0001, 0.9999);
@@ -135,30 +133,7 @@ public sealed class Hp : AbstractBase
         }
 
         double prevTrend = _state.Trend;
-        double prevPrevTrend = _state.PrevTrend; // Pine: nz(hp_trend[2], prev_trend)
-
-        // Manual optimization:
-        // currentTrend = (1 - alpha) * price + alpha * prevTrend + 0.5 * alpha * (prevTrend - prevPrevTrend)
-        // Group alpha terms:
-        // = (1 - alpha) * price + alpha * (prevTrend + 0.5 * (prevTrend - prevPrevTrend))
-
-        // Using FMA:
-        // term1 = prevTrend - prevPrevTrend
-        // term2 = Math.FusedMultiplyAdd(0.5, term1, prevTrend)
-        // term3 = Math.FusedMultiplyAdd(_alpha, term2, _oneMinusAlpha * price) -> FMA not perfect here due to structure
-        // Let's stick to simple FMA chain if possible
-
-        // target: _oneMinusAlpha * price + _alpha * prevTrend + _halfAlpha * (prevTrend - prevPrevTrend)
-        // = _oneMinusAlpha * price + _alpha * prevTrend + _halfAlpha * prevTrend - _halfAlpha * prevPrevTrend
-        // = _oneMinusAlpha * price + (_alpha + _halfAlpha) * prevTrend - _halfAlpha * prevPrevTrend
-
-        // Precompute (_alpha + _halfAlpha) could be useful
-        // But let's use FMA on the original form for precision:
-
-        // val = _oneMinusAlpha * price
-        // val = FMA(_alpha, prevTrend, val)
-        // diff = prevTrend - prevPrevTrend
-        // val = FMA(_halfAlpha, diff, val)
+        double prevPrevTrend = _state.PrevTrend;
 
         double val = _oneMinusAlpha * price;
         val = Math.FusedMultiplyAdd(_alpha, prevTrend, val);
@@ -168,38 +143,13 @@ public sealed class Hp : AbstractBase
 
         if (isNew)
         {
-            _state.PrevTrend = prevTrend; // Shift old trend to prevPrevTrend position effectively?
-            // Wait, logic:
-            // hp_trend[0] = currentTrend
-            // hp_trend[1] = prevTrend
-            // hp_trend[2] = prevPrevTrend
-
-            // In next step:
-            // prevTrend will be currentTrend
-            // prevPrevTrend will be prevTrend
-
-            _state.PrevTrend = prevTrend; // Storing hp_trend[1] for next iteration's hp_trend[2] use
-            // Actually, for next iteration:
-            // next_prevTrend = currentTrend
-            // next_prevPrevTrend = prevTrend (which is current _state.Trend before update)
-
-            // So we need to store currentTrend as Trend
-            // And store prevTrend (the old Trend) as PrevTrend
-
             _state.PrevTrend = prevTrend;
             _state.Trend = currentTrend;
             _state.PrevPrice = price;
         }
         else
         {
-             // For non-new updates, we don't update state permanently, handled by rollback
-             // But we need to update 'Trend' in _state so Last works?
-             // Actually structure is: _state is modified in place.
-             // If isNew=false, we restored _state from _p_state at start.
-
-             // So here we just update _state.Trend to current result
              _state.Trend = currentTrend;
-             // _state.PrevTrend remains what it was in _p_state (correct, as it's history)
         }
 
         Last = new TValue(input.Time, currentTrend);
@@ -209,10 +159,10 @@ public sealed class Hp : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries();
+        if (source.Count == 0) return [];
 
         var resultValues = new double[source.Count];
-        Calculate(source.Values, resultValues, _lambda);
+        Calculate(source.Values, resultValues, Lambda);
 
         var result = new TSeries();
         var times = source.Times;

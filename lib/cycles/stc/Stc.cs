@@ -101,7 +101,7 @@ public sealed class Stc : AbstractBase
             MacdMin = double.PositiveInfinity,
             MacdMax = double.NegativeInfinity,
             Stoch1Min = double.PositiveInfinity,
-            Stoch1Max = double.NegativeInfinity
+            Stoch1Max = double.NegativeInfinity,
         };
         _ps = _s;
         _samples = 0;
