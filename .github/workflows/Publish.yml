@@ -93,33 +93,46 @@ jobs:
             --results-directory:./TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
           
-          # Generate LCOV for Qodana
+          # Generate LCOV for Qodana (using absolute path)
           dotnet test --no-build --configuration Debug \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=./TestResults/ \
+            /p:CoverletOutput=$(pwd)/TestResults/ \
             /p:CoverletOutputFormat=lcov
 
       - name: Collect Coverage Files
         run: |
           mkdir -p coverage
           mkdir -p coverage-lcov
+          
+          # Debug: Show all coverage files
+          echo "=== All coverage files in workspace ==="
+          find . -name "coverage.*" -o -name "*.info" | head -20
+          
           # Collect opencover format (for SonarCloud)
           count=1
           find TestResults -name "coverage.opencover.xml" | while read file; do
             cp "$file" "coverage/coverage_${count}.opencover.xml"
             count=$((count+1))
           done
+          
           # Collect cobertura format (for Codacy)
           count=1
           find TestResults -name "coverage.cobertura.xml" | while read file; do
             cp "$file" "coverage/coverage_${count}.cobertura.xml"
             count=$((count+1))
           done
-          # Collect LCOV (for Qodana)
-          if [ -f "TestResults/coverage.info" ]; then
-            cp TestResults/coverage.info coverage-lcov/coverage.lcov
-            echo "LCOV coverage file collected for Qodana"
+          
+          # Collect LCOV (for Qodana) - search entire workspace
+          lcov_file=$(find . -name "coverage.info" -o -name "*.info" | grep -v node_modules | head -1)
+          if [ -n "$lcov_file" ] && [ -f "$lcov_file" ]; then
+            cp "$lcov_file" coverage-lcov/coverage.lcov
+            echo "LCOV coverage file collected from: $lcov_file"
+            ls -lh coverage-lcov/coverage.lcov
           else
+            echo "Warning: coverage.info not found in workspace"
+            echo "Searched paths:"
+            find TestResults -type f -name "*.info" || echo "  No .info files in TestResults"
+            find lib -type f -name "*.info" 2>/dev/null || echo "  No .info files in lib"
             echo "Warning: coverage.info not found" > coverage-lcov/README.txt
           fi
 
