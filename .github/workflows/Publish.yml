@@ -87,11 +87,14 @@ jobs:
           fi
 
           echo "Installing Codacy CLI v2..."
-          curl -Ls https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-v2_linux_amd64.tar.gz | tar xz
-          chmod +x codacy-cli
+          # Get latest version and download the correct tarball
+          CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
+          echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
+          curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
+          chmod +x codacy-cli-v2
 
           echo "Uploading Qodana SARIF to Codacy..."
-          ./codacy-cli upload \
+          ./codacy-cli-v2 upload \
             --provider gh \
             --owner mihakralj \
             --repository QuanTAlib \
@@ -157,11 +160,13 @@ jobs:
           fi
 
           echo "Installing Codacy CLI v2..."
-          curl -Ls https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-v2_linux_amd64.tar.gz | tar xz
-          chmod +x codacy-cli
+          CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
+          echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
+          curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
+          chmod +x codacy-cli-v2
 
           echo "Uploading Snyk SARIF to Codacy..."
-          ./codacy-cli upload \
+          ./codacy-cli-v2 upload \
             --provider gh \
             --owner mihakralj \
             --repository QuanTAlib \
@@ -238,21 +243,9 @@ jobs:
       - name: Build Solution (Roslyn generates SARIF)
         run: |
           mkdir -p .sarif
-          # Build main library and tests
-          dotnet build lib/quantalib.csproj --no-restore --configuration Debug --framework net10.0
-          dotnet build lib/QuanTAlib.Tests.csproj --no-restore --configuration Debug --framework net10.0
-          
-          # Build all Quantower adapter projects (each generates its own SARIF)
-          dotnet build quantower/Momentum.csproj --no-restore --configuration Debug
-          dotnet build quantower/Trends.csproj --no-restore --configuration Debug
-          dotnet build quantower/Volume.csproj --no-restore --configuration Debug
-          dotnet build quantower/Volatility.csproj --no-restore --configuration Debug
-          dotnet build quantower/Oscillators.csproj --no-restore --configuration Debug
-          dotnet build quantower/Statistics.csproj --no-restore --configuration Debug
-          dotnet build quantower/Dynamics.csproj --no-restore --configuration Debug
-          dotnet build quantower/Filters.csproj --no-restore --configuration Debug
-          dotnet build quantower/Forecasts.csproj --no-restore --configuration Debug
-          dotnet build quantower/Quantower.Tests.csproj --no-restore --configuration Debug
+          # Build entire solution - SonarScanner instruments this build
+          # Each project generates its own SARIF via Directory.Build.props
+          dotnet build QuanTAlib.sln --no-restore --configuration Debug
 
       - name: Verify Roslyn SARIF Generation
         run: |
@@ -267,22 +260,18 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
-          dotnet test lib/QuanTAlib.Tests.csproj --no-build --configuration Debug \
+          # Run ALL tests in solution - automatically discovers test projects
+          dotnet test QuanTAlib.sln --no-build --configuration Debug \
             --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
             --results-directory ./TestResults \
-            --logger "trx;LogFileName=quantalib_tests.trx"
-
-          dotnet test quantower/Quantower.Tests.csproj --no-build --configuration Debug \
-            --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
-            --results-directory ./TestResults \
-            --logger "trx;LogFileName=quantower_tests.trx"
+            --logger "trx;LogFileName=test_results.trx"
 
       - name: Merge Coverage Reports
         run: |
           mkdir -p coverage-merged
           
           echo "=== Coverage files before merge ==="
-          find TestResults -name "coverage.*" -o -name "*.info"
+          find TestResults -name "coverage.*" -o -name "*.info" 2>/dev/null || echo "No coverage files found yet"
           
           # Merge all coverage formats into unified reports
           reportgenerator \
@@ -292,6 +281,13 @@ jobs:
           
           echo "=== Merged coverage files ==="
           ls -lh coverage-merged/
+          
+          # Verify OpenCover.xml exists for SonarCloud
+          if [ -f "coverage-merged/OpenCover.xml" ]; then
+            echo "✓ OpenCover.xml ready for SonarCloud"
+          else
+            echo "✗ Warning: OpenCover.xml not generated"
+          fi
 
       - name: End SonarCloud Analysis
         if: env.SKIP_SONAR != 'true'
@@ -317,8 +313,10 @@ jobs:
           fi
 
           echo "Installing Codacy CLI v2..."
-          curl -Ls https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-v2_linux_amd64.tar.gz | tar xz
-          chmod +x codacy-cli
+          CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
+          echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
+          curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
+          chmod +x codacy-cli-v2
 
           # Upload each SARIF file to Codacy
           echo "=== Uploading all Roslyn SARIF files to Codacy ==="
@@ -326,7 +324,7 @@ jobs:
             if [ -f "$sarif_file" ]; then
               filename=$(basename "$sarif_file" .sarif)
               echo "Uploading $sarif_file (project: $filename)..."
-              ./codacy-cli upload \
+              ./codacy-cli-v2 upload \
                 --provider gh \
                 --owner mihakralj \
                 --repository QuanTAlib \
