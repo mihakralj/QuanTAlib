@@ -156,10 +156,16 @@ jobs:
 
       - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
-          dotnet test --no-build --configuration Debug \
+          dotnet test lib/QuanTAlib.Tests.csproj --no-build --configuration Debug \
             --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
             --results-directory ./TestResults \
-            --logger "trx;LogFileName=test_results.trx"
+            --logger "trx;LogFileName=quantalib_tests.trx"
+
+          dotnet test quantower/Quantower.Tests.csproj --no-build --configuration Debug \
+            --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
+            --results-directory ./TestResults \
+            --logger "trx;LogFileName=quantower_tests.trx"
+
 
       - name: Merge Coverage Reports
         run: |
