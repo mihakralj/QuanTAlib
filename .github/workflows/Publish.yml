@@ -103,6 +103,42 @@ jobs:
           dotnet build lib/QuanTAlib.Tests.csproj --no-restore --configuration Debug --framework net10.0
           dotnet build quantower/Quantower.Tests.csproj --no-restore --configuration Debug
 
+      - name: Verify Roslyn SARIF Generation
+        run: |
+          echo "=== Roslyn SARIF Report ==="
+          if [ -f ".sarif/quantalib.sarif" ]; then
+            ls -lh .sarif/
+            echo "SARIF file generated successfully"
+          else
+            echo "Warning: SARIF file not found at .sarif/quantalib.sarif"
+            find . -name "*.sarif" -type f 2>/dev/null || echo "No SARIF files found"
+          fi
+
+      - name: Upload Roslyn SARIF Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: roslyn-sarif-reports
+          path: .sarif/quantalib.sarif
+          if-no-files-found: warn
+
+      - name: Upload Roslyn SARIF to GitHub Security
+        if: always() && hashFiles('.sarif/quantalib.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: .sarif/quantalib.sarif
+          category: roslyn-analyzers
+        continue-on-error: true
+
+      - name: Upload Roslyn SARIF to DeepSource
+        if: always() && hashFiles('.sarif/quantalib.sarif') != ''
+        run: |
+          curl https://deepsource.io/cli | sh
+          ./bin/deepsource report --analyzer csharp --analyzer-type community --value-file .sarif/quantalib.sarif
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+        continue-on-error: true
+
       - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
           dotnet test lib/QuanTAlib.Tests.csproj --no-build --configuration Debug \
@@ -289,7 +325,58 @@ jobs:
         continue-on-error: true
 
   # ==============================================================================
-  # 4. Codacy Coverage Upload
+  # 4. Codacy Roslyn SARIF Upload
+  # ==============================================================================
+  Codacy_Roslyn_Upload:
+    needs: Build_Test_Coverage
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Roslyn SARIF Reports
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: roslyn-sarif-reports
+          path: roslyn-sarif
+
+      - name: Upload Roslyn SARIF to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
+            exit 0
+          fi
+
+          echo "Installing Codacy Analysis CLI..."
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
+          chmod +x codacy-analysis-cli
+
+          # Upload Roslyn SARIF
+          if [ -f "roslyn-sarif/quantalib.sarif" ]; then
+            echo "Uploading Roslyn SARIF report..."
+            ./codacy-analysis-cli upload-results \
+              --provider gh \
+              --owner mihakralj \
+              --repository QuanTAlib \
+              --commit ${{ github.sha }} \
+              --upload-batch-size 50000 \
+              --tool roslyn \
+              --results-file roslyn-sarif/quantalib.sarif || echo "Warning: Failed to upload Roslyn SARIF"
+          else
+            echo "Warning: Roslyn SARIF file not found"
+            ls -la roslyn-sarif/ 2>/dev/null || echo "roslyn-sarif directory not found"
+          fi
+        continue-on-error: true
+
+  # ==============================================================================
+  # 5. Codacy Coverage Upload
   # ==============================================================================
   Codacy_Coverage_Upload:
     needs: Build_Test_Coverage
@@ -330,7 +417,7 @@ jobs:
         continue-on-error: true
 
   # ==============================================================================
-  # 5. Snyk Scan
+  # 6. Snyk Scan
   # ==============================================================================
   Snyk_Scan:
     runs-on: ubuntu-latest
@@ -359,7 +446,7 @@ jobs:
         run: snyk test --all-projects
 
   # ==============================================================================
-  # 6. CodeQL Analysis
+  # 7. CodeQL Analysis
   # ==============================================================================
   CodeQL_Analysis:
     runs-on: ubuntu-latest
@@ -394,10 +481,10 @@ jobs:
           upload: true
 
   # ==============================================================================
-  # 7. Publish Package
+  # 8. Publish Package
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: [Build_Test_Coverage, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Roslyn_Upload, Codacy_Coverage_Upload, Snyk_Scan, CodeQL_Analysis]
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)

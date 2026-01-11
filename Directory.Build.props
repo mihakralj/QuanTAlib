@@ -28,17 +28,6 @@
     <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <!-- SARIF output for NDepend Roslyn Analyzer import -->
-  <PropertyGroup Condition="'$(SolutionDir)' != ''">
-    <SarifOutputDir>$(SolutionDir).sarif</SarifOutputDir>
-    <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).json,version=2.1</ErrorLog>
-  </PropertyGroup>
-
-  <!-- Ensure SARIF output directory exists before build -->
-  <Target Name="CreateSarifDir" BeforeTargets="CoreCompile" Condition="'$(SarifOutputDir)' != ''">
-    <MakeDir Directories="$(SarifOutputDir)" Condition="!Exists('$(SarifOutputDir)')" />
-  </Target>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>link</TrimMode>

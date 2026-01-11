@@ -47,8 +47,14 @@
     <None Include="..\docs\img\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
+  <!-- SARIF 2.1 output for Roslyn analyzers -->
   <PropertyGroup>
-    <ErrorLog>..\.sarif\quantalib.sarif,version=2.1</ErrorLog>
+    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.sln'))\.sarif</SarifOutputDir>
+    <ErrorLog>$(SarifOutputDir)\quantalib.sarif,version=2.1</ErrorLog>
   </PropertyGroup>
+
+  <Target Name="CreateSarifDir" BeforeTargets="CoreCompile">
+    <MakeDir Directories="$(SarifOutputDir)" Condition="!Exists('$(SarifOutputDir)')" />
+  </Target>
 
 </Project>

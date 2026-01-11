@@ -30,13 +30,13 @@ public sealed class Sma : AbstractBase
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly TValuePublishedHandler _handler;
+    private readonly int _resyncInterval;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double LastValidValue, int TickCount);
     private State _state;
     private State _p_state;
 
-    private const int ResyncInterval = 1000;
 
     /// <summary>
     /// Creates SMA with specified period.
@@ -52,6 +52,8 @@ public sealed class Sma : AbstractBase
         Name = $"Sma({period})";
         WarmupPeriod = period;
         _handler = Handle;
+        _resyncInterval = Math.Max(256, period << 3);
+
     }
 
     public Sma(ITValuePublisher source, int period) : this(period)
@@ -172,11 +174,12 @@ public sealed class Sma : AbstractBase
         _buffer.Add(val);
 
         _state.TickCount++;
-        if (_buffer.IsFull && _state.TickCount >= ResyncInterval)
+        if (_buffer.IsFull && _state.TickCount >= _resyncInterval)
         {
             _state.TickCount = 0;
             _state.Sum = _buffer.RecalculateSum();
         }
+
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -270,33 +273,31 @@ public sealed class Sma : AbstractBase
         int len = source.Length;
         if (len == 0) return;
 
-        // Try SIMD path for large, clean datasets
-        // Requirements: SIMD support, large enough dataset, no NaN values
+        // Try SIMD path for large datasets; NaN detection handled inline
         const int SimdThreshold = 256;
-        if (len >= SimdThreshold && !source.ContainsNonFinite())
+        int resyncInterval = Math.Max(256, period << 3);
+        if (len >= SimdThreshold)
         {
-            if (Avx512F.IsSupported)
+            if (Avx512F.IsSupported && CalculateAvx512Core(source, output, period, resyncInterval))
             {
-                CalculateAvx512Core(source, output, period);
                 return;
             }
 
-            if (Avx2.IsSupported)
+            if (Avx2.IsSupported && CalculateAvx2Core(source, output, period, resyncInterval))
             {
-                CalculateAvx2Core(source, output, period);
                 return;
             }
 
-            if (AdvSimd.Arm64.IsSupported)
+            if (AdvSimd.Arm64.IsSupported && CalculateNeonCore(source, output, period, resyncInterval))
             {
-                CalculateNeonCore(source, output, period);
                 return;
             }
         }
 
         // Scalar path with NaN handling
-        CalculateScalarCore(source, output, period);
+        CalculateScalarCore(source, output, period, resyncInterval);
     }
+
 
     /// <summary>
     /// Runs a high-performance SIMD batch calculation on history and returns
@@ -313,7 +314,8 @@ public sealed class Sma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    private static void CalculateScalarCore(ReadOnlySpan<double> source, Span<double> output, int period, int resyncInterval)
+
     {
         int len = source.Length;
 
@@ -374,7 +376,7 @@ public sealed class Sma : AbstractBase
                 output[i] = sum / period;
 
                 tickCount++;
-                if (tickCount >= ResyncInterval)
+                if (tickCount >= resyncInterval)
                 {
                     tickCount = 0;
                     double recalcSum = 0;
@@ -385,6 +387,7 @@ public sealed class Sma : AbstractBase
                     sum = recalcSum;
                 }
             }
+
         }
         finally
         {
@@ -394,8 +397,13 @@ public sealed class Sma : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void CalculateAvx512Core(ReadOnlySpan<double> source, Span<double> output, int period)
+    private static bool CalculateAvx512Core(ReadOnlySpan<double> source, Span<double> output, int period, int resyncInterval)
     {
+        if (!Avx512F.IsSupported)
+        {
+            return false;
+        }
+
         int len = source.Length;
         const int VectorWidth = 8;
 
@@ -408,14 +416,21 @@ public sealed class Sma : AbstractBase
         double sum = 0;
         for (int i = 0; i < warmupEnd; i++)
         {
-            sum += Unsafe.Add(ref srcRef, i);
+            double val = Unsafe.Add(ref srcRef, i);
+            if (!double.IsFinite(val))
+            {
+                return false;
+            }
+
+            sum += val;
             Unsafe.Add(ref outRef, i) = sum / (i + 1);
         }
 
         if (len <= period)
-            return;
+        {
+            return true;
+        }
 
-        var vInvPeriod = Vector512.Create(invPeriod);
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
         int tickCount = 0;
 
@@ -424,37 +439,28 @@ public sealed class Sma : AbstractBase
             var vNew = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
             var vOld = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - period));
 
-            var vDelta = Avx512F.Subtract(vNew, vOld);
+            if (!IsVectorFinite(vNew) || !IsVectorFinite(vOld))
+            {
+                return false;
+            }
 
-            // Prefix sum of Delta
-            var vShift1 = Vector512.Create(0.0, vDelta.GetElement(0), vDelta.GetElement(1), vDelta.GetElement(2), vDelta.GetElement(3), vDelta.GetElement(4), vDelta.GetElement(5), vDelta.GetElement(6));
-            var vP1 = Avx512F.Add(vDelta, vShift1);
+            double running = sum;
+            for (int lane = 0; lane < VectorWidth; lane++)
+            {
+                double newVal = vNew.GetElement(lane);
+                double oldVal = vOld.GetElement(lane);
+                running = Math.FusedMultiplyAdd(1.0, newVal, running - oldVal);
+                Unsafe.Add(ref outRef, i + lane) = running * invPeriod;
+            }
 
-            var vShift2 = Vector512.Create(0.0, 0.0, vP1.GetElement(0), vP1.GetElement(1), vP1.GetElement(2), vP1.GetElement(3), vP1.GetElement(4), vP1.GetElement(5));
-            var vP2 = Avx512F.Add(vP1, vShift2);
-
-            var vShift4 = Vector512.Create(0.0, 0.0, 0.0, 0.0, vP2.GetElement(0), vP2.GetElement(1), vP2.GetElement(2), vP2.GetElement(3));
-            var vP4 = Avx512F.Add(vP2, vShift4);
-
-            var vSumPrev = Vector512.Create(sum);
-            var vSums = Avx512F.Add(vSumPrev, vP4);
-
-            var vResult = Avx512F.Multiply(vSums, vInvPeriod);
-            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
-
-            sum = vSums.GetElement(7);
+            sum = running;
 
             tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
+            if (tickCount >= resyncInterval)
             {
                 tickCount = 0;
                 int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
-                }
-                sum = recalcSum;
+                sum = RecalculateWindowSum(ref srcRef, lastIdx, period);
             }
         }
 
@@ -462,15 +468,36 @@ public sealed class Sma : AbstractBase
         {
             double newVal = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
+            if (!double.IsFinite(newVal) || !double.IsFinite(oldVal))
+            {
+                return false;
+            }
+
             sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
+
+            tickCount++;
+            if (tickCount >= resyncInterval)
+            {
+                tickCount = 0;
+                sum = RecalculateWindowSum(ref srcRef, i, period);
+            }
         }
+
+        return true;
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void CalculateAvx2Core(ReadOnlySpan<double> source, Span<double> output, int period)
+    private static bool CalculateAvx2Core(ReadOnlySpan<double> source, Span<double> output, int period, int resyncInterval)
     {
+        if (!Avx2.IsSupported)
+        {
+            return false;
+        }
+
         int len = source.Length;
+
         const int VectorWidth = 4;
 
         ref double srcRef = ref MemoryMarshal.GetReference(source);
@@ -482,15 +509,21 @@ public sealed class Sma : AbstractBase
         double sum = 0;
         for (int i = 0; i < warmupEnd; i++)
         {
-            sum += Unsafe.Add(ref srcRef, i);
+            double val = Unsafe.Add(ref srcRef, i);
+            if (!double.IsFinite(val))
+            {
+                return false;
+            }
+
+            sum += val;
             Unsafe.Add(ref outRef, i) = sum / (i + 1);
         }
 
         if (len <= period)
-            return;
+        {
+            return true;
+        }
 
-        var vInvPeriod = Vector256.Create(invPeriod);
-        var vZero = Vector256<double>.Zero;
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
         int tickCount = 0;
 
@@ -499,35 +532,28 @@ public sealed class Sma : AbstractBase
             var vNew = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
             var vOld = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - period));
 
-            var vDelta = Avx.Subtract(vNew, vOld);
+            if (!IsVectorFinite(vNew) || !IsVectorFinite(vOld))
+            {
+                return false;
+            }
 
-            var vShift1 = Avx2.Permute4x64(vDelta.AsUInt64(), 0b_10_01_00_00).AsDouble(); // skipcq: CS-R1131
-            vShift1 = Avx.Blend(vZero, vShift1, 0b_1110);
-            var vP1 = Avx.Add(vDelta, vShift1);
+            double running = sum;
+            for (int lane = 0; lane < VectorWidth; lane++)
+            {
+                double newVal = vNew.GetElement(lane);
+                double oldVal = vOld.GetElement(lane);
+                running = Math.FusedMultiplyAdd(1.0, newVal, running - oldVal);
+                Unsafe.Add(ref outRef, i + lane) = running * invPeriod;
+            }
 
-            var vShift2 = Avx2.Permute4x64(vP1.AsUInt64(), 0b_01_00_00_00).AsDouble(); // skipcq: CS-R1131
-            vShift2 = Avx.Blend(vZero, vShift2, 0b_1100);
-            var vP2 = Avx.Add(vP1, vShift2);
-
-            var vSumPrev = Vector256.Create(sum);
-            var vSums = Avx.Add(vSumPrev, vP2);
-
-            var vResult = Fma.MultiplyAdd(vSums, vInvPeriod, vZero);
-            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
-
-            sum = vSums.GetElement(3);
+            sum = running;
 
             tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
+            if (tickCount >= resyncInterval)
             {
                 tickCount = 0;
                 int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
-                }
-                sum = recalcSum;
+                sum = RecalculateWindowSum(ref srcRef, lastIdx, period);
             }
         }
 
@@ -535,14 +561,34 @@ public sealed class Sma : AbstractBase
         {
             double newVal = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
+            if (!double.IsFinite(newVal) || !double.IsFinite(oldVal))
+            {
+                return false;
+            }
+
             sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
+
+            tickCount++;
+            if (tickCount >= resyncInterval)
+            {
+                tickCount = 0;
+                sum = RecalculateWindowSum(ref srcRef, i, period);
+            }
         }
+
+        return true;
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void CalculateNeonCore(ReadOnlySpan<double> source, Span<double> output, int period)
+    private static bool CalculateNeonCore(ReadOnlySpan<double> source, Span<double> output, int period, int resyncInterval)
     {
+        if (!AdvSimd.Arm64.IsSupported)
+        {
+            return false;
+        }
+
         int len = source.Length;
         const int VectorWidth = 2;
 
@@ -555,14 +601,21 @@ public sealed class Sma : AbstractBase
         double sum = 0;
         for (int i = 0; i < warmupEnd; i++)
         {
-            sum += Unsafe.Add(ref srcRef, i);
+            double val = Unsafe.Add(ref srcRef, i);
+            if (!double.IsFinite(val))
+            {
+                return false;
+            }
+
+            sum += val;
             Unsafe.Add(ref outRef, i) = sum / (i + 1);
         }
 
         if (len <= period)
-            return;
+        {
+            return true;
+        }
 
-        var vInvPeriod = Vector128.Create(invPeriod);
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
         int tickCount = 0;
 
@@ -571,32 +624,30 @@ public sealed class Sma : AbstractBase
             var vNew = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
             var vOld = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - period));
 
-            var vDelta = AdvSimd.Arm64.Subtract(vNew, vOld);
+            if (!IsVectorFinite(vNew) || !IsVectorFinite(vOld))
+            {
+                return false;
+            }
 
-            // Prefix sum of Delta: [d0, d0+d1]
-            double d0 = vDelta.GetElement(0);
-            double d1 = vDelta.GetElement(1);
-            double ps0 = sum + d0;
-            double ps1 = ps0 + d1;
+            double new0 = vNew.GetElement(0);
+            double new1 = vNew.GetElement(1);
+            double old0 = vOld.GetElement(0);
+            double old1 = vOld.GetElement(1);
 
-            var vSums = Vector128.Create(ps0, ps1);
+            double ps0 = sum + (new0 - old0);
+            double ps1 = ps0 + (new1 - old1);
 
-            var vResult = AdvSimd.Arm64.Multiply(vSums, vInvPeriod);
-            vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+            Unsafe.Add(ref outRef, i) = ps0 * invPeriod;
+            Unsafe.Add(ref outRef, i + 1) = ps1 * invPeriod;
 
             sum = ps1;
 
             tickCount += VectorWidth;
-            if (tickCount >= ResyncInterval)
+            if (tickCount >= resyncInterval)
             {
                 tickCount = 0;
                 int lastIdx = i + VectorWidth - 1;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcSum += Unsafe.Add(ref srcRef, lastIdx - k);
-                }
-                sum = recalcSum;
+                sum = RecalculateWindowSum(ref srcRef, lastIdx, period);
             }
         }
 
@@ -604,9 +655,74 @@ public sealed class Sma : AbstractBase
         {
             double newVal = Unsafe.Add(ref srcRef, i);
             double oldVal = Unsafe.Add(ref srcRef, i - period);
+            if (!double.IsFinite(newVal) || !double.IsFinite(oldVal))
+            {
+                return false;
+            }
+
             sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
+
+            tickCount++;
+            if (tickCount >= resyncInterval)
+            {
+                tickCount = 0;
+                sum = RecalculateWindowSum(ref srcRef, i, period);
+            }
         }
+
+        return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double RecalculateWindowSum(ref double srcRef, int endIndex, int period)
+    {
+        int start = endIndex - period + 1;
+        double sum = 0;
+        for (int i = 0; i < period; i++)
+        {
+            sum += Unsafe.Add(ref srcRef, start + i);
+        }
+        return sum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsVectorFinite(Vector512<double> value)
+    {
+        for (int lane = 0; lane < 8; lane++)
+        {
+            if (!double.IsFinite(value.GetElement(lane)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsVectorFinite(Vector256<double> value)
+    {
+        for (int lane = 0; lane < 4; lane++)
+        {
+            if (!double.IsFinite(value.GetElement(lane)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsVectorFinite(Vector128<double> value)
+    {
+        for (int lane = 0; lane < 2; lane++)
+        {
+            if (!double.IsFinite(value.GetElement(lane)))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /// <summary>
@@ -620,3 +736,4 @@ public sealed class Sma : AbstractBase
         Last = default;
     }
 }
+
