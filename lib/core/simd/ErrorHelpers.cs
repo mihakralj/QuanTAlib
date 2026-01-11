@@ -134,8 +134,11 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            double actualValue = double.IsFinite(act) ? act : lastValidActual;
+            double predictedValue = double.IsFinite(pred) ? pred : lastValidPredicted;
+
+            if (double.IsFinite(act)) lastValidActual = act;
+            if (double.IsFinite(pred)) lastValidPredicted = pred;
 
             double absActual = Math.Abs(act);
             if (absActual < epsilon)

@@ -129,7 +129,7 @@ public sealed class Mdape : AbstractBase
         Array.Sort(_sortBuffer, 0, count);
 
         // Return median
-        if (count % 2 == 1)
+        if ((count & 1) != 0)
         {
             return _sortBuffer[count / 2];
         }
@@ -211,7 +211,7 @@ public sealed class Mdape : AbstractBase
             Array.Sort(sortBuffer, 0, bufferCount);
 
             // Calculate median
-            if (bufferCount % 2 == 1)
+            if ((bufferCount & 1) != 0)
             {
                 output[i] = sortBuffer[bufferCount / 2];
             }
