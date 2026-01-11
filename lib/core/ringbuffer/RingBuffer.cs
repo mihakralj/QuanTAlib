@@ -170,15 +170,15 @@ public sealed class RingBuffer : IEnumerable<double>
         if (_count == Capacity)
         {
             removed = _buffer[_head];
-            _sum -= removed;
+            _sum = Math.FusedMultiplyAdd(-1.0, removed, _sum + value);
         }
         else
         {
             _count++;
+            _sum += value;
         }
 
         _buffer[_head] = value;
-        _sum += value;
         _head = (_head + 1) % Capacity;
 
         return removed;
@@ -214,8 +214,7 @@ public sealed class RingBuffer : IEnumerable<double>
 
         int idx = (_head - 1 + Capacity) % Capacity;
         double oldValue = _buffer[idx];
-        _sum -= oldValue;
-        _sum += value;
+        _sum = Math.FusedMultiplyAdd(-1.0, oldValue, _sum + value);
         _buffer[idx] = value;
     }
 
@@ -255,8 +254,8 @@ public sealed class RingBuffer : IEnumerable<double>
         int start = _count == Capacity ? _head : 0;
         int bufferIdx = (start + actualIndex) % Capacity;
 
-        _sum -= _buffer[bufferIdx];
-        _sum += value;
+        double oldValue = _buffer[bufferIdx];
+        _sum = Math.FusedMultiplyAdd(-1.0, oldValue, _sum + value);
         _buffer[bufferIdx] = value;
     }
 
@@ -306,14 +305,9 @@ public sealed class RingBuffer : IEnumerable<double>
 
         first = new ReadOnlySpan<double>(_buffer, start, firstLen);
 
-        if (_count > firstLen)
-        {
-            second = new ReadOnlySpan<double>(_buffer, 0, _count - firstLen);
-        }
-        else
-        {
-            second = default;
-        }
+        second = _count > firstLen
+            ? new ReadOnlySpan<double>(_buffer, 0, _count - firstLen)
+            : default;
     }
 
     /// <summary>
@@ -543,7 +537,7 @@ public sealed class RingBuffer : IEnumerable<double>
             _count = buffer._count;
             _start = buffer._count == buffer.Capacity ? buffer._head : 0;
             _index = -1;
-            _current = default;
+            _current = 0.0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -565,7 +559,7 @@ public sealed class RingBuffer : IEnumerable<double>
         public void Reset()
         {
             _index = -1;
-            _current = default;
+            _current = 0.0;
         }
 
         public readonly void Dispose() { }

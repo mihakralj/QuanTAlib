@@ -12,11 +12,10 @@ namespace QuanTAlib;
 /// SMA: Simple Moving Average
 /// </summary>
 /// <remarks>
-/// SMA calculates the arithmetic mean of the last n values.
-/// Uses a RingBuffer for storage and manual running sum for O(1) complexity per update.
-///
-/// Calculation:
-/// SMA = (P_n + P_(n-1) + ... + P_1) / n
+/// <para>SMA calculates the arithmetic mean of the last n values.
+/// Uses a RingBuffer for storage and manual running sum for O(1) complexity per update.</para>
+/// <para>Calculation:
+/// SMA = (P_n + P_(n-1) + ... + P_1) / n</para>
 ///
 /// O(1) update:
 /// S_new = S_old - oldest + newest
@@ -33,7 +32,7 @@ public sealed class Sma : AbstractBase
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double Sum, double LastInput, double LastValidValue, int TickCount);
+    private record struct State(double Sum, double LastValidValue, int TickCount);
     private State _state;
     private State _p_state;
 
@@ -135,7 +134,6 @@ public sealed class Sma : AbstractBase
         {
             double val = GetValidValue(source[i]);
             UpdateState(val);
-            _state.LastInput = val;
         }
 
         // 3. Finalize State
@@ -169,7 +167,7 @@ public sealed class Sma : AbstractBase
     {
         double removedValue = _buffer.Count == _buffer.Capacity ? _buffer.Oldest : 0.0;
 
-        _state.Sum = _state.Sum - removedValue + val;
+        _state.Sum = Math.FusedMultiplyAdd(-1.0, removedValue, _state.Sum + val);
 
         _buffer.Add(val);
 
@@ -191,7 +189,7 @@ public sealed class Sma : AbstractBase
 
             double val = GetValidValue(input.Value);
             UpdateState(val);
-            _state.LastInput = val;
+
         }
         else
         {
@@ -366,7 +364,7 @@ public sealed class Sma : AbstractBase
                 else
                     val = lastValid;
 
-                sum = sum - buffer[bufferIndex] + val;
+                sum = Math.FusedMultiplyAdd(-1.0, buffer[bufferIndex], sum + val);
                 buffer[bufferIndex] = val;
 
                 bufferIndex++;
@@ -418,7 +416,7 @@ public sealed class Sma : AbstractBase
             return;
 
         var vInvPeriod = Vector512.Create(invPeriod);
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
         int tickCount = 0;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -462,7 +460,9 @@ public sealed class Sma : AbstractBase
 
         for (int i = simdEnd; i < len; i++)
         {
-            sum = sum - Unsafe.Add(ref srcRef, i - period) + Unsafe.Add(ref srcRef, i);
+            double newVal = Unsafe.Add(ref srcRef, i);
+            double oldVal = Unsafe.Add(ref srcRef, i - period);
+            sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }
@@ -491,7 +491,7 @@ public sealed class Sma : AbstractBase
 
         var vInvPeriod = Vector256.Create(invPeriod);
         var vZero = Vector256<double>.Zero;
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
         int tickCount = 0;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -512,7 +512,7 @@ public sealed class Sma : AbstractBase
             var vSumPrev = Vector256.Create(sum);
             var vSums = Avx.Add(vSumPrev, vP2);
 
-            var vResult = Avx.Multiply(vSums, vInvPeriod);
+            var vResult = Fma.MultiplyAdd(vSums, vInvPeriod, vZero);
             vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
 
             sum = vSums.GetElement(3);
@@ -533,7 +533,9 @@ public sealed class Sma : AbstractBase
 
         for (int i = simdEnd; i < len; i++)
         {
-            sum = sum - Unsafe.Add(ref srcRef, i - period) + Unsafe.Add(ref srcRef, i);
+            double newVal = Unsafe.Add(ref srcRef, i);
+            double oldVal = Unsafe.Add(ref srcRef, i - period);
+            sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }
@@ -561,7 +563,7 @@ public sealed class Sma : AbstractBase
             return;
 
         var vInvPeriod = Vector128.Create(invPeriod);
-        int simdEnd = period + ((len - period) / VectorWidth) * VectorWidth;
+        int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
         int tickCount = 0;
 
         for (int i = period; i < simdEnd; i += VectorWidth)
@@ -600,7 +602,9 @@ public sealed class Sma : AbstractBase
 
         for (int i = simdEnd; i < len; i++)
         {
-            sum = sum - Unsafe.Add(ref srcRef, i - period) + Unsafe.Add(ref srcRef, i);
+            double newVal = Unsafe.Add(ref srcRef, i);
+            double oldVal = Unsafe.Add(ref srcRef, i - period);
+            sum = Math.FusedMultiplyAdd(-1.0, oldVal, sum + newVal);
             Unsafe.Add(ref outRef, i) = sum * invPeriod;
         }
     }

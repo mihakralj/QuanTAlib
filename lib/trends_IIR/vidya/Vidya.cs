@@ -345,7 +345,7 @@ public sealed class Vidya : AbstractBase
                 sumUp += up;
                 sumDown += down;
 
-                head = (head + 1);
+                head++;
                 if (head >= period) head = 0;
 
                 double sum = sumUp + sumDown;

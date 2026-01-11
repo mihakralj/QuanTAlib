@@ -40,6 +40,15 @@ dotnet_diagnostic.IDE0028.severity = none
 # Already suppressed via #pragma in quantower/IndicatorExtensions.cs
 dotnet_diagnostic.CA1416.severity = none
 
+# Suppress S3236 - Caller information arguments should not be provided explicitly  
+# Already suppressed via #pragma in specific locations where parameter names are intentionally cleaner
+dotnet_diagnostic.S3236.severity = none
+
+# Suppress MA0046 - Use EventArgs.Empty
+# Already suppressed via #pragma for custom event handlers (TValuePublishedHandler, TBarPublishedHandler)
+# These use custom delegates that don't inherit from EventArgs
+dotnet_diagnostic.MA0046.severity = none
+
 #### C# Coding Conventions ####
 
 # "var" preferences

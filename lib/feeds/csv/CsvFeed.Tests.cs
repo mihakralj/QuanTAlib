@@ -7,6 +7,21 @@ public sealed class CsvFeedTests : IDisposable
     private readonly List<string> _tempFiles = new();
     private bool _disposed;
 
+    // Static test data arrays to avoid CA1861 (constant arrays as arguments)
+    private static readonly string[] HeaderOnlyData = ["timestamp,open,high,low,close,volume"];
+    private static readonly string[] MalformedDateData = ["timestamp,open,high,low,close,volume", "not-a-date,100,101,99,100,1000"];
+    private static readonly string[] MalformedPriceData = ["timestamp,open,high,low,close,volume", "2023-01-01,not-a-number,101,99,100,1000"];
+    private static readonly string[] MissingColumnsData = ["timestamp,open,high,low,close,volume", "2023-01-01,100,101,99,100"];
+    private static readonly string[] ExtraColumnsData = ["timestamp,open,high,low,close,volume,extra", "2023-01-01,100,101,99,100,1000,extra_data"];
+    private static readonly string[] SingleBarData = ["timestamp,open,high,low,close,volume", "2023-01-01,100,101,99,100,1000"];
+    private static readonly string[] DecimalPrecisionData = ["timestamp,open,high,low,close,volume", "2023-01-01,100.1234,101.5678,99.9999,100.0001,1234567.89"];
+    private static readonly string[] NegativeValuesData = ["timestamp,open,high,low,close,volume", "2023-01-01,-100,50,-150,-50,1000"];
+    private static readonly string[] ScientificNotationData = ["timestamp,open,high,low,close,volume", "2023-01-01,1.5e2,2e2,1e2,1.75e2,1e6"];
+    private static readonly string[] GapDataReversed = ["timestamp,open,high,low,close,volume", "2023-01-05,103,104,102,103,1000", "2023-01-04,102,103,101,102,1000", "2023-01-02,101,102,100,101,1000", "2023-01-01,100,101,99,100,1000"];
+    private static readonly string[] WhitespaceData = ["timestamp,open,high,low,close,volume", "  2023-01-01  ,  100  ,  101  ,  99  ,  100  ,  1000  "];
+    private static readonly string[] ZeroValuesData = ["timestamp,open,high,low,close,volume", "2023-01-01,0,0,0,0,0"];
+    private static readonly string[] LargeValuesData = ["timestamp,open,high,low,close,volume", "2023-01-01,999999999.99,1000000000.01,999999999.00,999999999.50,9999999999999"];
+
     public void Dispose()
     {
         if (_disposed) return;
@@ -76,40 +91,28 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void Constructor_HeaderOnlyCsv_ThrowsInvalidDataException()
     {
-        string tempCsv = CreateTempCsv(new[] { "timestamp,open,high,low,close,volume" });
+        string tempCsv = CreateTempCsv(HeaderOnlyData);
         Assert.Throws<InvalidDataException>(() => new CsvFeed(tempCsv));
     }
 
     [Fact]
     public void Constructor_MalformedDate_ThrowsFormatException()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "not-a-date,100,101,99,100,1000"
-        });
+        string tempCsv = CreateTempCsv(MalformedDateData);
         Assert.Throws<FormatException>(() => new CsvFeed(tempCsv));
     }
 
     [Fact]
     public void Constructor_MalformedPrice_ThrowsFormatException()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,not-a-number,101,99,100,1000"
-        });
+        string tempCsv = CreateTempCsv(MalformedPriceData);
         Assert.Throws<FormatException>(() => new CsvFeed(tempCsv));
     }
 
     [Fact]
     public void Constructor_MissingColumns_ThrowsFormatException()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,100,101,99,100"  // Missing volume
-        });
+        string tempCsv = CreateTempCsv(MissingColumnsData);
         Assert.Throws<FormatException>(() => new CsvFeed(tempCsv));
     }
 
@@ -117,11 +120,7 @@ public sealed class CsvFeedTests : IDisposable
     public void Constructor_ExtraColumns_ThrowsFormatException()
     {
         // Extra columns should throw format exception (strict 6-column format)
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume,extra",
-            "2023-01-01,100,101,99,100,1000,extra_data"
-        });
+        string tempCsv = CreateTempCsv(ExtraColumnsData);
         Assert.Throws<FormatException>(() => new CsvFeed(tempCsv));
     }
 
@@ -155,11 +154,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void HasMore_FalseWhenExhausted()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,100,101,99,100,1000"
-        });
+        string tempCsv = CreateTempCsv(SingleBarData);
         var feed = new CsvFeed(tempCsv);
 
         Assert.True(feed.HasMore);
@@ -311,11 +306,7 @@ public sealed class CsvFeedTests : IDisposable
     {
         // Create a mock scenario - but since constructor throws on empty,
         // we test the behavior when all data is consumed
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,100,101,99,100,1000"
-        });
+        string tempCsv = CreateTempCsv(SingleBarData);
         var feed = new CsvFeed(tempCsv);
 
         // Consume all data
@@ -632,11 +623,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void LoadFromCsv_ParsesDecimalsCorrectly()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,100.1234,101.5678,99.9999,100.0001,1234567.89"
-        });
+        string tempCsv = CreateTempCsv(DecimalPrecisionData);
         var feed = new CsvFeed(tempCsv);
         var bar = feed.Next(isNew: true);
 
@@ -651,11 +638,7 @@ public sealed class CsvFeedTests : IDisposable
     public void LoadFromCsv_ParsesNegativeValues()
     {
         // While negative prices are unusual, the parser should handle them
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,-100,50,-150,-50,1000"
-        });
+        string tempCsv = CreateTempCsv(NegativeValuesData);
         var feed = new CsvFeed(tempCsv);
         var bar = feed.Next(isNew: true);
 
@@ -668,11 +651,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void LoadFromCsv_ParsesScientificNotation()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,1.5e2,2e2,1e2,1.75e2,1e6"
-        });
+        string tempCsv = CreateTempCsv(ScientificNotationData);
         var feed = new CsvFeed(tempCsv);
         var bar = feed.Next(isNew: true);
 
@@ -777,14 +756,7 @@ public sealed class CsvFeedTests : IDisposable
     public void Fetch_HandlesGapsCorrectly()
     {
         // Create CSV with gaps using helper
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-05,103,104,102,103,1000",
-            "2023-01-04,102,103,101,102,1000",
-            "2023-01-02,101,102,100,101,1000",
-            "2023-01-01,100,101,99,100,1000"
-        });
+        string tempCsv = CreateTempCsv(GapDataReversed);
 
         var feed = new CsvFeed(tempCsv);
         var startTime = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
@@ -804,11 +776,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void SingleBar_StreamsAndEnds()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,100,101,99,100,1000"
-        });
+        string tempCsv = CreateTempCsv(SingleBarData);
         var feed = new CsvFeed(tempCsv);
 
         Assert.Equal(1, feed.Count);
@@ -830,11 +798,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void WhitespaceInValues_Trimmed()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "  2023-01-01  ,  100  ,  101  ,  99  ,  100  ,  1000  "
-        });
+        string tempCsv = CreateTempCsv(WhitespaceData);
         var feed = new CsvFeed(tempCsv);
         var bar = feed.Next(isNew: true);
 
@@ -848,11 +812,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void ZeroValues_Accepted()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,0,0,0,0,0"
-        });
+        string tempCsv = CreateTempCsv(ZeroValuesData);
         var feed = new CsvFeed(tempCsv);
         var bar = feed.Next(isNew: true);
 
@@ -866,11 +826,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void VeryLargeValues_Parsed()
     {
-        string tempCsv = CreateTempCsv(new[]
-        {
-            "timestamp,open,high,low,close,volume",
-            "2023-01-01,999999999.99,1000000000.01,999999999.00,999999999.50,9999999999999"
-        });
+        string tempCsv = CreateTempCsv(LargeValuesData);
         var feed = new CsvFeed(tempCsv);
         var bar = feed.Next(isNew: true);
 

@@ -29,7 +29,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -59,7 +60,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -89,7 +91,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -120,7 +123,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -161,7 +165,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -200,7 +205,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -234,7 +240,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -270,7 +277,8 @@ public static class ErrorHelpers
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -315,7 +323,8 @@ public static class ErrorHelpers
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         int len = errors.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold
@@ -374,7 +383,8 @@ public static class ErrorHelpers
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
         int len = squaredErrors.Length;
-        if (len == 0) return;
+        if (len == 0)
+            return;
 
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold

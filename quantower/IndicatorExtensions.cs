@@ -44,7 +44,7 @@ public static class IndicatorExtensions
         { }
     }
 
-    public static TBar GetInputBar(this Indicator indicator, UpdateArgs args)
+    public static TBar GetInputBar(this Indicator indicator, UpdateArgs _)
     {
         var historicalData = indicator.HistoricalData;
         return new TBar(
@@ -178,7 +178,7 @@ public static class IndicatorExtensions
                 using Pen defaultPen = new(series.Color, series.Width) { DashStyle = ConvertLineStyleToDashStyle(series.Style) };
                 using Pen coldPen = new(series.Color, series.Width) { DashStyle = DashStyle.Dot };
 
-                int hotCount = (warmupPeriod >= 0) ? (indicator.Count - warmupPeriod - rightIndex) : 0;
+                int hotCount = warmupPeriod >= 0 ? indicator.Count - warmupPeriod - rightIndex : 0;
 
                 // Draw the hot part
                 int hotSegments = Math.Min(hotCount, count - 1);
