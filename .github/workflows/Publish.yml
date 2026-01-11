@@ -134,20 +134,26 @@ jobs:
             
             # Create combined SARIF file if we have valid files
             if [ ${#valid_files[@]} -gt 0 ]; then
-              # Start with the first file
+              echo "Merging ${#valid_files[@]} SARIF files into roslyn.sarif"
+              
+              # Start with the first file as base
               cp "${valid_files[0]}" sarif-reports/roslyn.sarif
               
-              # Merge additional files if present
+              # Merge additional files incrementally to avoid "Argument list too long"
               if [ ${#valid_files[@]} -gt 1 ]; then
-                echo "Merging ${#valid_files[@]} SARIF files into roslyn.sarif"
+                for ((i=1; i<${#valid_files[@]}; i++)); do
+                  file="${valid_files[$i]}"
+                  echo "  Merging file $((i+1))/${#valid_files[@]}: $(basename "$file")"
+                  
+                  # Extract runs from current file and append to merged file
+                  jq -s '.[0].runs += .[1].runs | .[0]' \
+                    sarif-reports/roslyn.sarif \
+                    "$file" > sarif-reports/roslyn.sarif.tmp
+                  
+                  mv sarif-reports/roslyn.sarif.tmp sarif-reports/roslyn.sarif
+                done
                 
-                # Extract runs from all files and combine
-                combined_runs=$(for f in "${valid_files[@]}"; do jq -c '.runs[]' "$f"; done | jq -s '.')
-                
-                # Create merged SARIF with all runs
-                jq --argjson runs "$combined_runs" '.runs = $runs' "${valid_files[0]}" > sarif-reports/roslyn.sarif
-                
-                echo "  ✓ Merged into roslyn.sarif"
+                echo "  ✓ Successfully merged all files into roslyn.sarif"
               else
                 echo "Single SARIF file copied to roslyn.sarif"
               fi
