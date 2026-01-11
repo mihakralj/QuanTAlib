@@ -28,6 +28,16 @@
     <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!-- SARIF 2.1 output for Roslyn analyzers - all projects -->
+  <PropertyGroup>
+    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.sln'))\.sarif</SarifOutputDir>
+    <ErrorLog>$(SarifOutputDir)\$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+  </PropertyGroup>
+
+  <Target Name="CreateSarifDir" BeforeTargets="CoreCompile">
+    <MakeDir Directories="$(SarifOutputDir)" Condition="!Exists('$(SarifOutputDir)')" />
+  </Target>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>link</TrimMode>

@@ -86,19 +86,18 @@ jobs:
             exit 0
           fi
 
-          echo "Installing Codacy Analysis CLI..."
-          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
-          chmod +x codacy-analysis-cli
+          echo "Installing Codacy CLI v2..."
+          curl -Ls https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-v2_linux_amd64.tar.gz | tar xz
+          chmod +x codacy-cli
 
           echo "Uploading Qodana SARIF to Codacy..."
-          ./codacy-analysis-cli upload-results \
+          ./codacy-cli upload \
             --provider gh \
             --owner mihakralj \
             --repository QuanTAlib \
-            --commit ${{ github.sha }} \
-            --upload-batch-size 50000 \
-            --tool qodana \
-            --results-file .sarif/qodana.sarif || echo "Warning: Failed to upload Qodana SARIF"
+            --commit-uuid ${{ github.sha }} \
+            --project-token "$CODACY_PROJECT_TOKEN" \
+            --sarif-path .sarif/qodana.sarif || echo "Warning: Failed to upload Qodana SARIF"
         continue-on-error: true
 
   # ==============================================================================
@@ -157,19 +156,18 @@ jobs:
             exit 0
           fi
 
-          echo "Installing Codacy Analysis CLI..."
-          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
-          chmod +x codacy-analysis-cli
+          echo "Installing Codacy CLI v2..."
+          curl -Ls https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-v2_linux_amd64.tar.gz | tar xz
+          chmod +x codacy-cli
 
           echo "Uploading Snyk SARIF to Codacy..."
-          ./codacy-analysis-cli upload-results \
+          ./codacy-cli upload \
             --provider gh \
             --owner mihakralj \
             --repository QuanTAlib \
-            --commit ${{ github.sha }} \
-            --upload-batch-size 50000 \
-            --tool snyk \
-            --results-file .sarif/snyk.sarif || echo "Warning: Failed to upload Snyk SARIF"
+            --commit-uuid ${{ github.sha }} \
+            --project-token "$CODACY_PROJECT_TOKEN" \
+            --sarif-path .sarif/snyk.sarif || echo "Warning: Failed to upload Snyk SARIF"
         continue-on-error: true
 
   # ==============================================================================
@@ -240,19 +238,31 @@ jobs:
       - name: Build Solution (Roslyn generates SARIF)
         run: |
           mkdir -p .sarif
+          # Build main library and tests
           dotnet build lib/quantalib.csproj --no-restore --configuration Debug --framework net10.0
           dotnet build lib/QuanTAlib.Tests.csproj --no-restore --configuration Debug --framework net10.0
+          
+          # Build all Quantower adapter projects (each generates its own SARIF)
+          dotnet build quantower/Momentum.csproj --no-restore --configuration Debug
+          dotnet build quantower/Trends.csproj --no-restore --configuration Debug
+          dotnet build quantower/Volume.csproj --no-restore --configuration Debug
+          dotnet build quantower/Volatility.csproj --no-restore --configuration Debug
+          dotnet build quantower/Oscillators.csproj --no-restore --configuration Debug
+          dotnet build quantower/Statistics.csproj --no-restore --configuration Debug
+          dotnet build quantower/Dynamics.csproj --no-restore --configuration Debug
+          dotnet build quantower/Filters.csproj --no-restore --configuration Debug
+          dotnet build quantower/Forecasts.csproj --no-restore --configuration Debug
           dotnet build quantower/Quantower.Tests.csproj --no-restore --configuration Debug
 
       - name: Verify Roslyn SARIF Generation
         run: |
           echo "=== Roslyn SARIF Report ==="
-          if [ -f ".sarif/quantalib.sarif" ]; then
-            ls -lh .sarif/
-            echo "SARIF file generated successfully"
+          if [ -d ".sarif" ] && [ "$(ls -A .sarif/*.sarif 2>/dev/null)" ]; then
+            echo "SARIF files generated:"
+            ls -lh .sarif/*.sarif
           else
-            echo "Warning: SARIF file not found at .sarif/quantalib.sarif"
-            find . -name "*.sarif" -type f 2>/dev/null || echo "No SARIF files found"
+            echo "Warning: No SARIF files found in .sarif directory"
+            find . -name "*.sarif" -type f 2>/dev/null || echo "No SARIF files found anywhere"
           fi
 
       - name: Run Tests with Coverage
@@ -290,7 +300,7 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
-      - name: Upload Roslyn SARIF to Codacy
+      - name: Upload All Roslyn SARIF files to Codacy
         if: always()
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -300,24 +310,32 @@ jobs:
             exit 0
           fi
 
-          if [ ! -f ".sarif/quantalib.sarif" ]; then
-            echo "No Roslyn SARIF file to upload"
+          # Check if there are any SARIF files
+          if [ ! -d ".sarif" ] || [ -z "$(ls -A .sarif/*.sarif 2>/dev/null)" ]; then
+            echo "No Roslyn SARIF files to upload"
             exit 0
           fi
 
-          echo "Installing Codacy Analysis CLI..."
-          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
-          chmod +x codacy-analysis-cli
+          echo "Installing Codacy CLI v2..."
+          curl -Ls https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-v2_linux_amd64.tar.gz | tar xz
+          chmod +x codacy-cli
 
-          echo "Uploading Roslyn SARIF to Codacy..."
-          ./codacy-analysis-cli upload-results \
-            --provider gh \
-            --owner mihakralj \
-            --repository QuanTAlib \
-            --commit ${{ github.sha }} \
-            --upload-batch-size 50000 \
-            --tool roslyn \
-            --results-file .sarif/quantalib.sarif || echo "Warning: Failed to upload Roslyn SARIF"
+          # Upload each SARIF file to Codacy
+          echo "=== Uploading all Roslyn SARIF files to Codacy ==="
+          for sarif_file in .sarif/*.sarif; do
+            if [ -f "$sarif_file" ]; then
+              filename=$(basename "$sarif_file" .sarif)
+              echo "Uploading $sarif_file (project: $filename)..."
+              ./codacy-cli upload \
+                --provider gh \
+                --owner mihakralj \
+                --repository QuanTAlib \
+                --commit-uuid ${{ github.sha }} \
+                --project-token "$CODACY_PROJECT_TOKEN" \
+                --sarif-path "$sarif_file" || echo "Warning: Failed to upload $sarif_file"
+            fi
+          done
+          echo "=== SARIF upload complete ==="
         continue-on-error: true
 
       - name: Upload Coverage Artifacts
