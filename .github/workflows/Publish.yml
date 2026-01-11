@@ -113,6 +113,7 @@ jobs:
             
             # Validate and merge SARIF files
             valid_files=()
+            invalid_files=()
             for file in .sarif/*.json; do
               if [ -f "$file" ]; then
                 echo "Validating: $file"
@@ -125,9 +126,34 @@ jobs:
                   echo "  ✗ Invalid JSON - skipping"
                   echo "  Error details:"
                   jq empty "$file" 2>&1 || true
+                  invalid_files+=("$file")
+                  
+                  # For quantalib.json (core library), show context around the error
+                  if [[ "$file" == *"quantalib.json" ]]; then
+                    echo ""
+                    echo "  ⚠️  WARNING: quantalib.json (core library) is invalid!"
+                    echo "  Attempting to show context around line 28793..."
+                    sed -n '28788,28798p' "$file" || echo "  Could not extract lines"
+                    
+                    # Check file size and line count
+                    echo ""
+                    echo "  File size: $(du -h "$file" | cut -f1)"
+                    echo "  Line count: $(wc -l < "$file")"
+                    
+                    # Check if file is truncated (incomplete JSON)
+                    tail -c 100 "$file" | od -c | head -5
+                  fi
                 fi
               fi
             done
+            
+            echo ""
+            if [ ${#invalid_files[@]} -gt 0 ]; then
+              echo "⚠️  WARNING: ${#invalid_files[@]} SARIF file(s) are invalid:"
+              for f in "${invalid_files[@]}"; do
+                echo "  - $(basename "$f")"
+              done
+            fi
             
             echo ""
             echo "Valid SARIF files: ${#valid_files[@]}"
