@@ -77,6 +77,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Create SARIF output directory
+        run: mkdir -p .sarif
+
       - name: Begin SonarCloud Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
