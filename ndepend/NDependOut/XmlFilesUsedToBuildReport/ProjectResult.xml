@@ -1,84 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <ProjectResult NbWithNewIssues="9" NbWithIssues="0" NbWithNoIssues="1">
   <Project Name="QuanTAlib" L="CS" PD="C">
-    <Val CellStyle="m100" SortId="00" Bold="1">463</Val>
-    <Val CellStyle="m100" SortId="00">1 148</Val>
-    <Val CellStyle="m100" SortId="00">135</Val>
-    <Val CellStyle="m100" SortId="00" Bold="1">8d  6h</Val>
+    <Val CellStyle="m100" SortId="00" Bold="1">465</Val>
+    <Val CellStyle="m100" SortId="00">688</Val>
+    <Val CellStyle="m100" SortId="00">595</Val>
+    <Val CellStyle="m100" SortId="00" Bold="1">9d  1h</Val>
     <Val CellStyle="m100" SortId="00">37d</Val>
-    <Val CellStyle="c86" SortId="00">86.11%</Val>
+    <Val CellStyle="c85" SortId="00">85.98%</Val>
     <Val CellStyle="m100" SortId="00">201</Val>
-    <Val CellStyle="m100" SortId="00">15 345</Val>
+    <Val CellStyle="m100" SortId="00">15 341</Val>
   </Project>
   <Project Name="Oscillators" L="CS" PD="N">
     <Val CellStyle="m50" SortId="01" Bold="1">235</Val>
     <Val CellStyle="m0" SortId="03">0</Val>
     <Val CellStyle="m0" SortId="01">0</Val>
-    <Val CellStyle="m72" SortId="01" Bold="1">6d  2h</Val>
-    <Val CellStyle="m16" SortId="01">6d  2h</Val>
-    <Val CellStyle="c74" SortId="06">74.57%</Val>
+    <Val CellStyle="m70" SortId="01" Bold="1">6d  3h</Val>
+    <Val CellStyle="m17" SortId="01">6d  3h</Val>
+    <Val CellStyle="c74" SortId="06">74.17%</Val>
     <Val CellStyle="m35" SortId="02">88</Val>
-    <Val CellStyle="m32" SortId="02">6 167</Val>
+    <Val CellStyle="m33" SortId="02">6 182</Val>
   </Project>
   <Project Name="Filters" L="CS" PD="N">
     <Val CellStyle="m34" SortId="02" Bold="1">162</Val>
     <Val CellStyle="m0" SortId="02">0</Val>
     <Val CellStyle="m0" SortId="02">0</Val>
-    <Val CellStyle="m52" SortId="03" Bold="1">4d  4h</Val>
+    <Val CellStyle="m50" SortId="03" Bold="1">4d  4h</Val>
     <Val CellStyle="m12" SortId="03">4d  4h</Val>
-    <Val CellStyle="c72" SortId="09">72.02%</Val>
+    <Val CellStyle="c71" SortId="09">71.78%</Val>
     <Val CellStyle="m27" SortId="04">75</Val>
-    <Val CellStyle="m19" SortId="04">4 373</Val>
+    <Val CellStyle="m19" SortId="04">4 370</Val>
   </Project>
   <Project Name="Dynamics" L="CS" PD="N">
-    <Val CellStyle="m30" SortId="03" Bold="1">139</Val>
+    <Val CellStyle="m29" SortId="03" Bold="1">139</Val>
     <Val CellStyle="m0" SortId="04">0</Val>
     <Val CellStyle="m0" SortId="03">0</Val>
-    <Val CellStyle="m69" SortId="02" Bold="1">6d  0h</Val>
+    <Val CellStyle="m66" SortId="02" Bold="1">6d  0h</Val>
     <Val CellStyle="m16" SortId="02">6d  0h</Val>
-    <Val CellStyle="c75" SortId="04">75.95%</Val>
+    <Val CellStyle="c75" SortId="04">75.59%</Val>
     <Val CellStyle="m40" SortId="01">98</Val>
-    <Val CellStyle="m38" SortId="01">6 886</Val>
+    <Val CellStyle="m38" SortId="01">6 901</Val>
   </Project>
   <Project Name="Statistics" L="CS" PD="N">
-    <Val CellStyle="m17" SortId="04" Bold="1">79</Val>
+    <Val CellStyle="m16" SortId="04" Bold="1">79</Val>
     <Val CellStyle="m0" SortId="06">0</Val>
     <Val CellStyle="m0" SortId="04">0</Val>
-    <Val CellStyle="m30" SortId="04" Bold="1">2d  5h</Val>
+    <Val CellStyle="m29" SortId="04" Bold="1">2d  5h</Val>
     <Val CellStyle="m7" SortId="04">2d  5h</Val>
-    <Val CellStyle="c73" SortId="08">73.48%</Val>
-    <Val CellStyle="m11" SortId="06">47</Val>
-    <Val CellStyle="m12" SortId="06">3 402</Val>
+    <Val CellStyle="c73" SortId="08">73.18%</Val>
+    <Val CellStyle="m11" SortId="07">47</Val>
+    <Val CellStyle="m12" SortId="06">3 399</Val>
   </Project>
   <Project Name="Forecasts" L="CS" PD="N">
-    <Val CellStyle="m15" SortId="05" Bold="1">73</Val>
+    <Val CellStyle="m15" SortId="05" Bold="1">71</Val>
     <Val CellStyle="m0" SortId="01">0</Val>
     <Val CellStyle="m0" SortId="05">0</Val>
-    <Val CellStyle="m18" SortId="05" Bold="1">1d  5h</Val>
+    <Val CellStyle="m17" SortId="05" Bold="1">1d  5h</Val>
     <Val CellStyle="m4" SortId="05">1d  5h</Val>
-    <Val CellStyle="c75" SortId="05">75.93%</Val>
+    <Val CellStyle="c75" SortId="05">75.31%</Val>
     <Val CellStyle="m0" SortId="09">27</Val>
-    <Val CellStyle="m0" SortId="09">1 655</Val>
+    <Val CellStyle="m0" SortId="09">1 652</Val>
   </Project>
   <Project Name="Momentum" L="CS" PD="N">
     <Val CellStyle="m10" SortId="06" Bold="1">49</Val>
     <Val CellStyle="m0" SortId="05">0</Val>
     <Val CellStyle="m0" SortId="06">0</Val>
     <Val CellStyle="m16" SortId="06" Bold="1">1d  3h</Val>
-    <Val CellStyle="m3" SortId="06">1d  3h</Val>
-    <Val CellStyle="c78" SortId="03">78.6%</Val>
+    <Val CellStyle="m4" SortId="06">1d  3h</Val>
+    <Val CellStyle="c77" SortId="03">78%</Val>
     <Val CellStyle="m12" SortId="05">48</Val>
-    <Val CellStyle="m14" SortId="05">3 578</Val>
+    <Val CellStyle="m14" SortId="05">3 589</Val>
   </Project>
   <Project Name="Volatility" L="CS" PD="N">
-    <Val CellStyle="m9" SortId="07" Bold="1">43</Val>
+    <Val CellStyle="m10" SortId="07" Bold="1">48</Val>
     <Val CellStyle="m0" SortId="08">0</Val>
     <Val CellStyle="m0" SortId="07">0</Val>
-    <Val CellStyle="m8" SortId="07" Bold="1">6h  9min</Val>
-    <Val CellStyle="m2" SortId="07">6h  9min</Val>
-    <Val CellStyle="c81" SortId="01">81.07%</Val>
-    <Val CellStyle="m11" SortId="07">47</Val>
-    <Val CellStyle="m7" SortId="07">2 689</Val>
+    <Val CellStyle="m11" SortId="07" Bold="1">1d  0h</Val>
+    <Val CellStyle="m2" SortId="07">1d  0h</Val>
+    <Val CellStyle="c79" SortId="01">79.98%</Val>
+    <Val CellStyle="m12" SortId="06">48</Val>
+    <Val CellStyle="m7" SortId="07">2 715</Val>
   </Project>
   <Project Name="Volume" L="CS" PD="N">
     <Val CellStyle="m2" SortId="08" Bold="1">12</Val>
@@ -86,9 +86,9 @@
     <Val CellStyle="m0" SortId="08">0</Val>
     <Val CellStyle="m4" SortId="08" Bold="1">3h  0min</Val>
     <Val CellStyle="m1" SortId="08">3h  0min</Val>
-    <Val CellStyle="c79" SortId="02">79.55%</Val>
+    <Val CellStyle="c78" SortId="02">78.87%</Val>
     <Val CellStyle="m1" SortId="08">30</Val>
-    <Val CellStyle="m0" SortId="08">1 773</Val>
+    <Val CellStyle="m0" SortId="08">1 770</Val>
   </Project>
   <Project Name="Trends" L="CS" PD="N">
     <Val CellStyle="m0" SortId="09">0</Val>
@@ -96,8 +96,8 @@
     <Val CellStyle="m0" SortId="09">0</Val>
     <Val CellStyle="m0" SortId="09">0min  0s</Val>
     <Val CellStyle="m0" SortId="09">0min  0s</Val>
-    <Val CellStyle="c74" SortId="07">74.42%</Val>
+    <Val CellStyle="c73" SortId="07">73.99%</Val>
     <Val CellStyle="m31" SortId="03">82</Val>
-    <Val CellStyle="m30" SortId="03">5 803</Val>
+    <Val CellStyle="m30" SortId="03">5 818</Val>
   </Project>
 </ProjectResult>

@@ -1,6 +1,6 @@
 <svg xmlns='http://www.w3.org/2000/svg'
     xmlns:xlink='http://www.w3.org/1999/xlink' width='118.7207' height='20' role='img' aria-label='languages: 5'>
-    <title># Source Files: 446</title>
+    <title># Source Files: 448</title>
     <linearGradient id='s' x2='0' y2='100%'>
         <stop offset='0' stop-color='#bbb' stop-opacity='.1'/>
         <stop offset='1' stop-opacity='.1'/>
@@ -16,7 +16,7 @@
     <g fill='#FFF' text-anchor='center' font-family='Verdana,Geneva,DejaVu Sans,sans-serif' text-rendering='geometricPrecision' font-size='110'>
         <text aria-hidden='true' x='40' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='766.9922'># Source Files</text>
         <text x='40' y='140' transform='scale(.1)' fill='#FFF' textLength='766.9922'># Source Files</text>
-        <text aria-hidden='true' x='906.9922' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='200.21484'>446</text>
-        <text x='906.9922' y='140' transform='scale(.1)' fill='#FFF' textLength='200.21484'>446</text>
+        <text aria-hidden='true' x='906.9922' y='150' fill='#010101' fill-opacity='.3' transform='scale(.1)' textLength='200.21484'>448</text>
+        <text x='906.9922' y='140' transform='scale(.1)' fill='#FFF' textLength='200.21484'>448</text>
     </g>
 </svg>

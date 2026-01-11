@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ApplicationMetrics NAsm="10" NbSourceFiles="833" NbLinesOfCode="51671" NbLinesOfComment="23495" PercentageComment="31.26" NType="743" NClass="478" NAbstractClass="20" NInterface="11" NValueType="242" NExceptionType="0" NAttributeType="9" NDelegateType="30" NEnumType="12" NGenericMethodsDefinition="0" NGenericTypesDefinition="4" NILInstruction="354319" NMethods="10202" NFields="4719" NNamespaces="20" NThirdPartyAssemblies="12" NThirdPartyNamespaces="31" NThirdPartyTypes="161" NThirdPartyMethods="333" NThirdPartyFields="23" PercentCodeCoverage="74.61" PercentPublicType="74.7" PercentPublicMethod="80.98" PercentClassWithAtLeastOnePublicField="1.21">
+<ApplicationMetrics NAsm="10" NbSourceFiles="836" NbLinesOfCode="51737" NbLinesOfComment="23512" PercentageComment="31.25" NType="744" NClass="479" NAbstractClass="20" NInterface="11" NValueType="242" NExceptionType="0" NAttributeType="9" NDelegateType="30" NEnumType="12" NGenericMethodsDefinition="0" NGenericTypesDefinition="4" NILInstruction="354568" NMethods="10211" NFields="4723" NNamespaces="20" NThirdPartyAssemblies="12" NThirdPartyNamespaces="31" NThirdPartyTypes="161" NThirdPartyMethods="331" NThirdPartyFields="23" PercentCodeCoverage="74.26" PercentPublicType="74.73" PercentPublicMethod="80.93" PercentClassWithAtLeastOnePublicField="1.21">
   <PropertyOnInterface Occ="11" Avg="0" StdDev="0" MaxVal="0" MaxName="QuanTAlib.ITValuePublisher" />
   <MethodOnInterface Occ="11" Avg="2.09" StdDev="0.29" MaxVal="3" MaxName="QuanTAlib.IFeed" />
   <ArgOnMethodOnInterface Occ="23" Avg="1.09" StdDev="0.41" MaxVal="3" MaxName="QuanTAlib.IFeed.Fetch(Int32,Int64,TimeSpan)" />
-  <PublicPropertyOnClass Occ="478" Avg="3.36" StdDev="4.11" MaxVal="25" MaxName="QuanTAlib.TBarSeries" />
-  <PublicMethodOnClass Occ="478" Avg="10.38" StdDev="6.21" MaxVal="36" MaxName="QuanTAlib.TBarSeries" />
-  <ArgOnPublicMethodOnClass Occ="4960" Avg="1.17" StdDev="1.37" MaxVal="8" MaxName="QuanTAlib.AccBands.Batch(ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;,Span&lt;Double&gt;,Span&lt;Double&gt;,Int32,Double)" />
-  <ILInstructionInNonAbstractMethods Occ="10119" Avg="35.02" StdDev="66.45" MaxVal="718" MaxName="QuanTAlib.Htit.Calculate(ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;)" />
-  <TypeWithTheMostILInstruction Occ="478" Avg="636.07" StdDev="597.06" MaxVal="2769" MaxName="QuanTAlib.Wma" />
-  <MethodCC Occ="10119" Avg="2.65" StdDev="4.15" MaxVal="45" MaxName="QuanTAlib.Stc.Update(TValue,Boolean)" />
+  <PublicPropertyOnClass Occ="479" Avg="3.37" StdDev="4.11" MaxVal="25" MaxName="QuanTAlib.TBarSeries" />
+  <PublicMethodOnClass Occ="479" Avg="10.38" StdDev="6.21" MaxVal="36" MaxName="QuanTAlib.TBarSeries" />
+  <ArgOnPublicMethodOnClass Occ="4972" Avg="1.17" StdDev="1.37" MaxVal="8" MaxName="QuanTAlib.AccBands.Batch(ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;,Span&lt;Double&gt;,Span&lt;Double&gt;,Int32,Double)" />
+  <ILInstructionInNonAbstractMethods Occ="10128" Avg="35.01" StdDev="66.71" MaxVal="718" MaxName="QuanTAlib.Htit.Calculate(ReadOnlySpan&lt;Double&gt;,Span&lt;Double&gt;)" />
+  <TypeWithTheMostILInstruction Occ="479" Avg="635.69" StdDev="598.83" MaxVal="2834" MaxName="QuanTAlib.Wma" />
+  <MethodCC Occ="10128" Avg="2.65" StdDev="4.16" MaxVal="46" MaxName="QuanTAlib.Stc.Update(TValue,Boolean)" />
 </ApplicationMetrics>

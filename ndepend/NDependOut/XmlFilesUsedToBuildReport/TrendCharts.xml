@@ -76,6 +76,12 @@ ChartValues: [
     x2: 1389,
     x3: 23495,
     tooltip: "v0.8"},
+    {date: new Date(2026,0,11,11,48,37),
+    x0: 51737,
+    x1: 38420,
+    x2: 1379,
+    x3: 23512,
+    tooltip: "v0.8"},
 ]
 };
 var ChartData1 = {
@@ -98,6 +104,10 @@ ChartValues: [
     {date: new Date(2026,0,9,20,51,29),
     x0: 78.75,
     x1: 4.88,
+    tooltip: "v0.8"},
+    {date: new Date(2026,0,11,11,48,37),
+    x0: 78.38,
+    x1: 4.87,
     tooltip: "v0.8"},
 ]
 };
@@ -130,6 +140,12 @@ ChartValues: [
     x2: 895,
     x3: 24.03,
     tooltip: "v0.8"},
+    {date: new Date(2026,0,11,11,48,37),
+    x0: 1260,
+    x1: 0,
+    x2: 891,
+    x3: 19.48,
+    tooltip: "v0.8"},
 ]
 };
 var ChartData3 = {
@@ -156,6 +172,11 @@ ChartValues: [
     x0: 217,
     x1: 88,
     x2: 1,
+    tooltip: "v0.8"},
+    {date: new Date(2026,0,11,11,48,37),
+    x0: 215,
+    x1: 87,
+    x2: 2,
     tooltip: "v0.8"},
 ]
 };
@@ -184,6 +205,11 @@ ChartValues: [
     x1: 3,
     x2: 12,
     tooltip: "v0.8"},
+    {date: new Date(2026,0,11,11,48,37),
+    x0: 4,
+    x1: 3,
+    x2: 12,
+    tooltip: "v0.8"},
 ]
 };
 var ChartData5 = {
@@ -206,6 +232,10 @@ ChartValues: [
     {date: new Date(2026,0,9,20,51,29),
     x0: 61.62,
     x1: 59.42,
+    tooltip: "v0.8"},
+    {date: new Date(2026,0,11,11,48,37),
+    x0: 61.53,
+    x1: 59.15,
     tooltip: "v0.8"},
 ]
 };
