@@ -77,9 +77,6 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Create SARIF output directory
-        run: mkdir -p .sarif
-
       - name: Begin SonarCloud Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -100,62 +97,11 @@ jobs:
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
             /d:sonar.scanner.scanAll="false"
 
-      - name: Build with SARIF Generation
+      - name: Build
         run: |
           dotnet build lib/quantalib.csproj --no-restore --configuration Debug --framework net10.0
           dotnet build lib/QuanTAlib.Tests.csproj --no-restore --configuration Debug --framework net10.0
           dotnet build quantower/Quantower.Tests.csproj --no-restore --configuration Debug
-
-      - name: Verify SARIF Generation
-        run: |
-          echo "=== Checking for quantalib.sarif ==="
-          if [ -f ".sarif/quantalib.sarif" ]; then
-            echo "✓ quantalib.sarif found"
-            ls -lh .sarif/quantalib.sarif
-            
-            # Validate JSON
-            if jq empty .sarif/quantalib.sarif 2>/dev/null; then
-              echo "✓ SARIF file is valid JSON"
-              
-              # Count issues
-              issue_count=$(jq '[.runs[].results[]] | length' .sarif/quantalib.sarif)
-              echo "✓ Issues found: $issue_count"
-              
-              # Create reports directory and copy
-              mkdir -p sarif-reports
-              cp .sarif/quantalib.sarif sarif-reports/quantalib.sarif
-              echo "✓ SARIF copied to sarif-reports/quantalib.sarif"
-            else
-              echo "✗ SARIF file is invalid JSON"
-              exit 1
-            fi
-          else
-            echo "✗ quantalib.sarif not found in .sarif directory"
-            echo "Directory contents:"
-            ls -la .sarif/ || echo ".sarif directory does not exist"
-            exit 1
-          fi
-
-      - name: Upload SARIF Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: quantalib-sarif
-          path: sarif-reports/quantalib.sarif
-
-      - name: Upload QuanTAlib SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: sarif-reports/quantalib.sarif
-          category: quantalib-roslyn
-        continue-on-error: true
-
-      - name: Upload QuanTAlib SARIF to DeepSource
-        run: |
-          curl https://deepsource.io/cli | sh
-          ./bin/deepsource report --analyzer roslyn --analyzer-type community --value-file sarif-reports/quantalib.sarif
-        env:
-          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-        continue-on-error: true
 
       - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
         run: |
@@ -168,7 +114,6 @@ jobs:
             --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
             --results-directory ./TestResults \
             --logger "trx;LogFileName=quantower_tests.trx"
-
 
       - name: Merge Coverage Reports
         run: |
@@ -385,55 +330,7 @@ jobs:
         continue-on-error: true
 
   # ==============================================================================
-  # 5. Codacy SARIF Upload
-  # ==============================================================================
-  Codacy_SARIF_Upload:
-    needs: Build_Test_Coverage
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download QuanTAlib SARIF
-        uses: actions/download-artifact@v4
-        with:
-          name: quantalib-sarif
-          path: sarif-reports
-
-      - name: Upload QuanTAlib SARIF to Codacy
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
-            exit 0
-          fi
-
-          echo "Installing Codacy Analysis CLI..."
-          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
-          chmod +x codacy-analysis-cli
-
-          if [ -f "sarif-reports/quantalib.sarif" ]; then
-            echo "Uploading QuanTAlib SARIF to Codacy..."
-            ./codacy-analysis-cli upload-results \
-              --provider gh \
-              --owner mihakralj \
-              --repository QuanTAlib \
-              --commit ${{ github.sha }} \
-              --upload-batch-size 50000 \
-              --tool roslyn \
-              --results-file sarif-reports/quantalib.sarif || echo "Warning: Failed to upload SARIF"
-          else
-            echo "Error: quantalib.sarif not found"
-            exit 1
-          fi
-        continue-on-error: true
-
-  # ==============================================================================
-  # 6. Snyk Scan
+  # 5. Snyk Scan
   # ==============================================================================
   Snyk_Scan:
     runs-on: ubuntu-latest
@@ -462,7 +359,7 @@ jobs:
         run: snyk test --all-projects
 
   # ==============================================================================
-  # 7. CodeQL Analysis
+  # 6. CodeQL Analysis
   # ==============================================================================
   CodeQL_Analysis:
     runs-on: ubuntu-latest
@@ -497,10 +394,10 @@ jobs:
           upload: true
 
   # ==============================================================================
-  # 8. Publish Package
+  # 7. Publish Package
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Codacy_SARIF_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: [Build_Test_Coverage, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Coverage_Upload, Snyk_Scan, CodeQL_Analysis]
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)
