@@ -101,7 +101,10 @@ jobs:
             /d:sonar.scanner.scanAll="false"
 
       - name: Build with SARIF Generation
-        run: dotnet build lib/quantalib.csproj --no-restore --configuration Debug --framework net10.0
+        run: |
+          dotnet build lib/quantalib.csproj --no-restore --configuration Debug --framework net10.0
+          dotnet build lib/QuanTAlib.Tests.csproj --no-restore --configuration Debug --framework net10.0
+          dotnet build quantower/Quantower.Tests.csproj --no-restore --configuration Debug
 
       - name: Verify SARIF Generation
         run: |
