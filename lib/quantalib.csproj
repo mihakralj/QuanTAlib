@@ -47,4 +47,8 @@
     <None Include="..\docs\img\QuanTAlib2.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <ErrorLog>..\.sarif\quantalib.sarif,version=2.1</ErrorLog>
+  </PropertyGroup>
+
 </Project>
