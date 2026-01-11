@@ -345,27 +345,30 @@ jobs:
       - name: List SARIF Files
         run: find sarif -name "*.sarif*" -type f
 
-      # Upload Roslyn SARIF
-      - name: Upload Roslyn to Code Scanning
+      # Upload Roslyn SARIF (one at a time)
+      - name: Upload Roslyn SARIF
+        if: hashFiles('sarif/roslyn/*.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/roslyn/
+          sarif_file: sarif/roslyn/roslyn.sarif
           category: roslyn
         continue-on-error: true
 
-      # Upload Qodana SARIF
-      - name: Upload Qodana to Code Scanning
+      # Upload Qodana SARIF (one at a time)
+      - name: Upload Qodana SARIF
+        if: hashFiles('sarif/qodana/qodana.sarif.json') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/qodana/
+          sarif_file: sarif/qodana/qodana.sarif.json
           category: qodana
         continue-on-error: true
 
-      # Upload Snyk SARIF
-      - name: Upload Snyk to Code Scanning
+      # Upload Snyk SARIF (one at a time)
+      - name: Upload Snyk SARIF
+        if: hashFiles('sarif/snyk/snyk.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/snyk/
+          sarif_file: sarif/snyk/snyk.sarif
           category: snyk
         continue-on-error: true
 
