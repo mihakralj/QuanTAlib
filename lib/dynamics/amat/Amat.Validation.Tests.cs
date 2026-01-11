@@ -355,21 +355,31 @@ public sealed class AmatValidationTests : IDisposable
 
         // Compare trend values (after warmup period)
         int warmup = slowPeriod * 2; // Allow extra warmup for convergence
-        int matchCount = 0;
+        int trendMatchCount = 0;
+        int strengthMatchCount = 0;
         int totalCount = sourceData.Length - warmup;
 
         for (int i = warmup; i < sourceData.Length; i++)
         {
             if (Math.Abs(streamingTrend[i] - spanTrend[i]) < 1e-10)
             {
-                matchCount++;
+                trendMatchCount++;
+            }
+            if (Math.Abs(streamingStrength[i] - spanStrength[i]) < 1e-6)
+            {
+                strengthMatchCount++;
             }
         }
 
-        double matchRate = (double)matchCount / totalCount;
-        Assert.True(matchRate > 0.95, $"Expected >95% match rate after warmup, got {matchRate:P2}");
+        double trendMatchRate = (double)trendMatchCount / totalCount;
+        double strengthMatchRate = (double)strengthMatchCount / totalCount;
+        
+        Assert.True(trendMatchRate > 0.95, $"Expected >95% trend match rate after warmup, got {trendMatchRate:P2}");
+        Assert.True(strengthMatchRate > 0.95, $"Expected >95% strength match rate after warmup, got {strengthMatchRate:P2}");
 
-        _output.WriteLine($"Streaming vs Span validation: {matchRate:P2} match rate after warmup ({matchCount}/{totalCount})");
+        _output.WriteLine($"Streaming vs Span validation:");
+        _output.WriteLine($"  Trend: {trendMatchRate:P2} match rate ({trendMatchCount}/{totalCount})");
+        _output.WriteLine($"  Strength: {strengthMatchRate:P2} match rate ({strengthMatchCount}/{totalCount})");
     }
 
     /// <summary>

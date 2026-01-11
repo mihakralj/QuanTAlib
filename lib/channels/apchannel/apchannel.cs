@@ -148,7 +148,7 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar bar, bool isNew = true)
     {
-        UpdateCore(bar.High, bar.Low, bar.Time, isNew);
+        _ = UpdateCore(bar.High, bar.Low, bar.Time, isNew);
         return Last;
     }
 
@@ -176,7 +176,7 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        UpdateCore(input.Value, input.Value, input.Time, isNew);
+        _ = UpdateCore(input.Value, input.Value, input.Time, isNew);
         return Last;
     }
 

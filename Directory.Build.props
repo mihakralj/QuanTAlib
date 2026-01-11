@@ -31,7 +31,7 @@
   <!-- SARIF output for NDepend Roslyn Analyzer import -->
   <PropertyGroup Condition="'$(SolutionDir)' != ''">
     <SarifOutputDir>$(SolutionDir).sarif</SarifOutputDir>
-    <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).json</ErrorLog>
+    <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).json,version=2.1</ErrorLog>
   </PropertyGroup>
 
   <!-- Ensure SARIF output directory exists before build -->

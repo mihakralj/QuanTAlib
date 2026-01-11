@@ -107,7 +107,7 @@ public sealed class BilateralValidationTests : IDisposable
         _output.WriteLine("Bilateral Span validated successfully against Reference");
     }
 
-    private IReadOnlyList<double> GetReferenceData(int period, double sigmaSRatio, double sigmaRMult)
+    private List<double> GetReferenceData(int period, double sigmaSRatio, double sigmaRMult)
     {
         var reference = new BilateralReference(period, sigmaSRatio, sigmaRMult);
         var results = new List<double>();
@@ -176,7 +176,7 @@ public sealed class BilateralValidationTests : IDisposable
             return sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
         }
 
-        private static double CalculateStDev(IReadOnlyList<double> values)
+        private static double CalculateStDev(List<double> values)
         {
             if (values.Count < 2) return 0;
 

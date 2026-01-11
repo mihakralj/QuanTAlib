@@ -669,7 +669,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void CsvFeed_WorksWithIFeedInterface()
     {
-        IFeed feed = new CsvFeed(TestCsvPath);
+        CsvFeed feed = new CsvFeed(TestCsvPath);
 
         var bar1 = feed.Next(isNew: true);
         Assert.True(bar1.Time > 0);
@@ -681,7 +681,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void CsvFeed_IFeedRefOverload()
     {
-        IFeed feed = new CsvFeed(TestCsvPath);
+        CsvFeed feed = new CsvFeed(TestCsvPath);
 
         bool isNew = true;
         var bar1 = feed.Next(ref isNew);
@@ -695,7 +695,7 @@ public sealed class CsvFeedTests : IDisposable
     [Fact]
     public void CsvFeed_IFeedFetch()
     {
-        IFeed feed = new CsvFeed(TestCsvPath);
+        CsvFeed feed = new CsvFeed(TestCsvPath);
 
         var startTime = new DateTime(2025, 7, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
         var series = feed.Fetch(5, startTime, TimeSpan.FromDays(1));

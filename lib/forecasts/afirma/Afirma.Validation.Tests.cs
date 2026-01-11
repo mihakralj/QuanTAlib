@@ -238,7 +238,7 @@ public sealed class AfirmaValidationTests : IDisposable
         // Calculate variance of input
         var rawData = _testData.RawData.ToArray();
         double inputMean = rawData.Average();
-        double inputVariance = rawData.Select(x => Math.Pow(x - inputMean, 2)).Average();
+        double inputVariance = rawData.Average(x => Math.Pow(x - inputMean, 2));
 
         // Calculate AFIRMA
         var afirma = new Afirma(period);
@@ -247,7 +247,7 @@ public sealed class AfirmaValidationTests : IDisposable
         // Calculate variance of output (after warmup)
         var outputValues = result.Skip(period).Select(v => v.Value).ToList();
         double outputMean = outputValues.Average();
-        double outputVariance = outputValues.Select(x => Math.Pow(x - outputMean, 2)).Average();
+        double outputVariance = outputValues.Average(x => Math.Pow(x - outputMean, 2));
 
         // Output variance should be less than input variance (smoothing effect)
         Assert.True(outputVariance < inputVariance,
@@ -273,7 +273,7 @@ public sealed class AfirmaValidationTests : IDisposable
         {
             var values = series.Skip(skip).Select(v => v.Value).ToList();
             double mean = values.Average();
-            return values.Select(x => Math.Pow(x - mean, 2)).Average();
+            return values.Average(x => Math.Pow(x - mean, 2));
         }
 
         double var5 = GetVariance(result5, 5);

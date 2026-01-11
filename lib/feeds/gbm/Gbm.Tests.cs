@@ -666,7 +666,7 @@ public class GBMTests
     [Fact]
     public void ImplementsIFeed()
     {
-        IFeed feed = new GBM(startPrice: 100.0, seed: 42);
+        GBM feed = new GBM(startPrice: 100.0, seed: 42);
 
         var bar1 = feed.Next(isNew: true);
         Assert.True(bar1.Time > 0);

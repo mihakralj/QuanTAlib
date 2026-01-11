@@ -49,6 +49,12 @@ dotnet_diagnostic.S3236.severity = none
 # These use custom delegates that don't inherit from EventArgs
 dotnet_diagnostic.MA0046.severity = none
 
+# Suppress MA0003 - Add parameter name to argument
+# While named arguments can improve readability, this is a style preference
+# 96 violations across test files - would be tedious to fix manually
+# Tests are already clear with good variable names
+dotnet_diagnostic.MA0003.severity = suggestion
+
 #### C# Coding Conventions ####
 
 # "var" preferences

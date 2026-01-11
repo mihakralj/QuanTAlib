@@ -304,20 +304,7 @@ public sealed class Apz : ITValuePublisher
         // Use all available data for priming to ensure proper convergence
         const int startIndex = 0;
 
-        // Seed LastValidValues from data before warmup window
-        for (int i = startIndex - 1; i >= 0; i--)
-        {
-            var bar = source[i];
-            if (double.IsFinite(bar.Close))
-            {
-                _state.LastValidPrice = bar.Close;
-                _state.LastValidHigh = bar.High;
-                _state.LastValidLow = bar.Low;
-                break;
-            }
-        }
-
-        // Find valid values in warmup window if not found
+        // Find first valid values in the data
         if (double.IsNaN(_state.LastValidPrice))
         {
             for (int i = startIndex; i < source.Count; i++)

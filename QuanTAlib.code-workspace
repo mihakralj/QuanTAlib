@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../pinescript"
+    }
+  ],
+  "settings": {
+    "dotnet.defaultSolution": "QuanTAlib.sln",
+    "dotnet.testController.enabled": true,
+    "dotnet.testExplorer.enabled": true,
+    
+    "files.watcherExclude": {
+      "**/bin/**": true,
+      "**/obj/**": true,
+      "**/.vs/**": true
+    }
+  }
+}
