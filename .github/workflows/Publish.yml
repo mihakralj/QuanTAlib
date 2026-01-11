@@ -33,13 +33,157 @@ env:
 
 jobs:
   # ==============================================================================
-  # 1. Build, Test, Coverage & SonarCloud (Single Job for Path Consistency)
+  # 1. Qodana Scan (starts immediately - longest running ~15-20 min)
+  #    Generates SARIF and uploads directly to Codacy
+  # ==============================================================================
+  Qodana_Scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create SARIF output directory
+        run: mkdir -p .sarif
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2025.3
+        continue-on-error: true
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          args: --config,qodana.yaml,--fail-threshold,999999
+
+      - name: Copy Qodana SARIF to .sarif directory
+        if: always()
+        run: |
+          if [ -f "${{ runner.temp }}/qodana/results/qodana.sarif.json" ]; then
+            cp "${{ runner.temp }}/qodana/results/qodana.sarif.json" .sarif/qodana.sarif
+            echo "Qodana SARIF copied to .sarif/qodana.sarif"
+            ls -lh .sarif/
+          else
+            echo "Warning: Qodana SARIF not found at expected location"
+            find ${{ runner.temp }} -name "*.sarif*" 2>/dev/null || echo "No SARIF files found"
+          fi
+
+      - name: Upload Qodana SARIF to Codacy
+        if: always()
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy upload."
+            exit 0
+          fi
+
+          if [ ! -f ".sarif/qodana.sarif" ]; then
+            echo "No Qodana SARIF file to upload"
+            exit 0
+          fi
+
+          echo "Installing Codacy Analysis CLI..."
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
+          chmod +x codacy-analysis-cli
+
+          echo "Uploading Qodana SARIF to Codacy..."
+          ./codacy-analysis-cli upload-results \
+            --provider gh \
+            --owner mihakralj \
+            --repository QuanTAlib \
+            --commit ${{ github.sha }} \
+            --upload-batch-size 50000 \
+            --tool qodana \
+            --results-file .sarif/qodana.sarif || echo "Warning: Failed to upload Qodana SARIF"
+        continue-on-error: true
+
+  # ==============================================================================
+  # 2. Snyk Scan (runs in parallel - fast ~2-3 min)
+  #    Generates SARIF and uploads directly to Codacy
+  # ==============================================================================
+  Snyk_Scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb # master
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Create SARIF output directory
+        run: mkdir -p .sarif
+
+      - name: Run Snyk Security Scan
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test --all-projects --sarif-file-output=.sarif/snyk.sarif || true
+          if [ -f ".sarif/snyk.sarif" ]; then
+            echo "Snyk SARIF generated successfully"
+            ls -lh .sarif/snyk.sarif
+          else
+            echo "Warning: Snyk SARIF not generated"
+          fi
+
+      - name: Upload Snyk SARIF to Codacy
+        if: always()
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy upload."
+            exit 0
+          fi
+
+          if [ ! -f ".sarif/snyk.sarif" ]; then
+            echo "No Snyk SARIF file to upload"
+            exit 0
+          fi
+
+          echo "Installing Codacy Analysis CLI..."
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
+          chmod +x codacy-analysis-cli
+
+          echo "Uploading Snyk SARIF to Codacy..."
+          ./codacy-analysis-cli upload-results \
+            --provider gh \
+            --owner mihakralj \
+            --repository QuanTAlib \
+            --commit ${{ github.sha }} \
+            --upload-batch-size 50000 \
+            --tool snyk \
+            --results-file .sarif/snyk.sarif || echo "Warning: Failed to upload Snyk SARIF"
+        continue-on-error: true
+
+  # ==============================================================================
+  # 3. Build, Test, Coverage & SonarCloud (runs in parallel)
+  #    - Builds with Roslyn analyzers → SARIF → Codacy
+  #    - Runs tests with coverage
+  #    - Sends coverage to SonarCloud (OpenCover format)
+  #    - Uploads Roslyn SARIF to Codacy
   # ==============================================================================
   Build_Test_Coverage:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
-      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -51,7 +195,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Set up JDK 17
+      - name: Set up JDK 17 (for SonarCloud)
         uses: actions/setup-java@v4
         with:
           java-version: 17
@@ -64,13 +208,9 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: ${{ runner.os }}-nuget-
 
-      - name: Install ReportGenerator
+      - name: Install Tools
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      - name: Install SonarScanner
-        run: |
           dotnet tool install --global dotnet-sonarscanner --version 9.0.0
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
@@ -97,8 +237,9 @@ jobs:
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
             /d:sonar.scanner.scanAll="false"
 
-      - name: Build
+      - name: Build Solution (Roslyn generates SARIF)
         run: |
+          mkdir -p .sarif
           dotnet build lib/quantalib.csproj --no-restore --configuration Debug --framework net10.0
           dotnet build lib/QuanTAlib.Tests.csproj --no-restore --configuration Debug --framework net10.0
           dotnet build quantower/Quantower.Tests.csproj --no-restore --configuration Debug
@@ -114,32 +255,7 @@ jobs:
             find . -name "*.sarif" -type f 2>/dev/null || echo "No SARIF files found"
           fi
 
-      - name: Upload Roslyn SARIF Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: roslyn-sarif-reports
-          path: .sarif/quantalib.sarif
-          if-no-files-found: warn
-
-      - name: Upload Roslyn SARIF to GitHub Security
-        if: always() && hashFiles('.sarif/quantalib.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: .sarif/quantalib.sarif
-          category: roslyn-analyzers
-        continue-on-error: true
-
-      - name: Upload Roslyn SARIF to DeepSource
-        if: always() && hashFiles('.sarif/quantalib.sarif') != ''
-        run: |
-          curl https://deepsource.io/cli | sh
-          ./bin/deepsource report --analyzer csharp --analyzer-type community --value-file .sarif/quantalib.sarif
-        env:
-          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-        continue-on-error: true
-
-      - name: Run Tests with Coverage (OpenCover/Cobertura/LCOV)
+      - name: Run Tests with Coverage
         run: |
           dotnet test lib/QuanTAlib.Tests.csproj --no-build --configuration Debug \
             --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
@@ -158,7 +274,7 @@ jobs:
           echo "=== Coverage files before merge ==="
           find TestResults -name "coverage.*" -o -name "*.info"
           
-          # Merge all coverage formats into single unified reports
+          # Merge all coverage formats into unified reports
           reportgenerator \
             "-reports:TestResults/**/coverage.opencover.xml;TestResults/**/coverage.cobertura.xml;TestResults/**/coverage.info" \
             "-targetdir:coverage-merged" \
@@ -174,28 +290,35 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
-      - name: Prepare Coverage Artifacts
+      - name: Upload Roslyn SARIF to Codacy
+        if: always()
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
-          # Create directories for different consumers
-          mkdir -p coverage-opencover
-          mkdir -p coverage-cobertura
-          mkdir -p coverage-lcov
-          
-          # Copy merged reports
-          cp coverage-merged/OpenCover.xml coverage-opencover/ 2>/dev/null || echo "No OpenCover.xml"
-          cp coverage-merged/Cobertura.xml coverage-cobertura/ 2>/dev/null || echo "No Cobertura.xml"
-          
-          # LCOV: ReportGenerator outputs as lowercase 'lcov.info'
-          if [ -f "coverage-merged/lcov.info" ]; then
-            cp coverage-merged/lcov.info coverage-lcov/coverage.lcov
-            echo "LCOV coverage prepared for Qodana"
-            ls -lh coverage-lcov/
-          else
-            echo "Warning: lcov.info not found after merge"
-            echo "Files in coverage-merged:"
-            ls -la coverage-merged/
-            echo "No LCOV coverage available" > coverage-lcov/README.txt
+          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
+            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy upload."
+            exit 0
           fi
+
+          if [ ! -f ".sarif/quantalib.sarif" ]; then
+            echo "No Roslyn SARIF file to upload"
+            exit 0
+          fi
+
+          echo "Installing Codacy Analysis CLI..."
+          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
+          chmod +x codacy-analysis-cli
+
+          echo "Uploading Roslyn SARIF to Codacy..."
+          ./codacy-analysis-cli upload-results \
+            --provider gh \
+            --owner mihakralj \
+            --repository QuanTAlib \
+            --commit ${{ github.sha }} \
+            --upload-batch-size 50000 \
+            --tool roslyn \
+            --results-file .sarif/quantalib.sarif || echo "Warning: Failed to upload Roslyn SARIF"
+        continue-on-error: true
 
       - name: Upload Coverage Artifacts
         uses: actions/upload-artifact@v4
@@ -203,184 +326,14 @@ jobs:
           name: coverage-reports
           path: coverage-merged/
 
-      - name: Upload LCOV Coverage Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-lcov
-          path: coverage-lcov/
-
-      - name: Upload Coverage to DeepSource
-        if: hashFiles('coverage-merged/Cobertura.xml') != ''
-        run: |
-          curl https://deepsource.io/cli | sh
-          ./bin/deepsource report --analyzer test-coverage --key csharp --value-file ${{ github.workspace }}/coverage-merged/Cobertura.xml
-        env:
-          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-        continue-on-error: true
-
   # ==============================================================================
-  # 2. Qodana Scan
-  # ==============================================================================
-  Qodana_Scan:
-    needs: Build_Test_Coverage
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      checks: write
-      security-events: write
-      pull-requests: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download LCOV Coverage
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-lcov
-          path: .qodana/code-coverage
-
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2025.3
-        continue-on-error: true
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-        with:
-          args: --config,qodana.yaml,--coverage-dir,.qodana/code-coverage,--fail-threshold,999999
-
-      - name: Upload Qodana SARIF Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: qodana-sarif-reports
-          path: ${{ runner.temp }}/qodana/results/qodana.sarif.json
-
-      - name: Upload Qodana SARIF to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
-          category: qodana
-        continue-on-error: true
-
-      - name: Upload Qodana SARIF to DeepSource
-        if: always()
-        run: |
-          curl https://deepsource.io/cli | sh
-          ./bin/deepsource report --analyzer qodana --analyzer-type community --value-file ${{ runner.temp }}/qodana/results/qodana.sarif.json
-        env:
-          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-        continue-on-error: true
-
-  # ==============================================================================
-  # 3. Codacy Qodana SARIF Upload
-  # ==============================================================================
-  Codacy_Qodana_Upload:
-    needs: Qodana_Scan
-    if: always()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download Qodana SARIF Reports
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: qodana-sarif-reports
-          path: qodana-sarif
-
-      - name: Upload Qodana SARIF to Codacy
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
-            exit 0
-          fi
-
-          echo "Installing Codacy Analysis CLI..."
-          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
-          chmod +x codacy-analysis-cli
-
-          # Upload Qodana SARIF
-          if [ -f "qodana-sarif/qodana.sarif.json" ]; then
-            echo "Uploading Qodana SARIF report..."
-            ./codacy-analysis-cli upload-results \
-              --provider gh \
-              --owner mihakralj \
-              --repository QuanTAlib \
-              --commit ${{ github.sha }} \
-              --upload-batch-size 50000 \
-              --tool qodana \
-              --results-file qodana-sarif/qodana.sarif.json || echo "Warning: Failed to upload Qodana SARIF"
-          else
-            echo "Warning: Qodana SARIF file not found"
-          fi
-        continue-on-error: true
-
-  # ==============================================================================
-  # 4. Codacy Roslyn SARIF Upload
-  # ==============================================================================
-  Codacy_Roslyn_Upload:
-    needs: Build_Test_Coverage
-    if: always()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download Roslyn SARIF Reports
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: roslyn-sarif-reports
-          path: roslyn-sarif
-
-      - name: Upload Roslyn SARIF to Codacy
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
-            exit 0
-          fi
-
-          echo "Installing Codacy Analysis CLI..."
-          curl -L https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-linux -o codacy-analysis-cli
-          chmod +x codacy-analysis-cli
-
-          # Upload Roslyn SARIF
-          if [ -f "roslyn-sarif/quantalib.sarif" ]; then
-            echo "Uploading Roslyn SARIF report..."
-            ./codacy-analysis-cli upload-results \
-              --provider gh \
-              --owner mihakralj \
-              --repository QuanTAlib \
-              --commit ${{ github.sha }} \
-              --upload-batch-size 50000 \
-              --tool roslyn \
-              --results-file roslyn-sarif/quantalib.sarif || echo "Warning: Failed to upload Roslyn SARIF"
-          else
-            echo "Warning: Roslyn SARIF file not found"
-            ls -la roslyn-sarif/ 2>/dev/null || echo "roslyn-sarif directory not found"
-          fi
-        continue-on-error: true
-
-  # ==============================================================================
-  # 5. Codacy Coverage Upload
+  # 4. Codacy Coverage Upload (needs coverage from Build_Test_Coverage)
+  #    Uploads Cobertura format to Codacy
   # ==============================================================================
   Codacy_Coverage_Upload:
     needs: Build_Test_Coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:
@@ -388,7 +341,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Merged Coverage Reports
+      - name: Download Coverage Reports
         uses: actions/download-artifact@v4
         with:
           name: coverage-reports
@@ -407,88 +360,27 @@ jobs:
           curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
           chmod +x codacy.sh
 
-          # Upload merged Cobertura file
+          # Upload Cobertura coverage to Codacy
           if [ -f "coverage-merged/Cobertura.xml" ]; then
-            echo "Uploading merged Cobertura coverage..."
+            echo "Uploading Cobertura coverage to Codacy..."
             ./codacy.sh report -r "coverage-merged/Cobertura.xml"
           else
             echo "Warning: Cobertura.xml not found"
+            ls -la coverage-merged/
           fi
         continue-on-error: true
 
   # ==============================================================================
-  # 6. Snyk Scan
-  # ==============================================================================
-  Snyk_Scan:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Install Snyk CLI
-        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb # master
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Run Snyk on Solution
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --all-projects
-
-  # ==============================================================================
-  # 7. CodeQL Analysis
-  # ==============================================================================
-  CodeQL_Analysis:
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: 'csharp'
-          queries: security-and-quality
-          config-file: ./.github/codeql/codeql-config.yml
-
-      - name: Build
-        run: dotnet build --configuration Debug
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        with:
-          output: results
-          upload: true
-
-  # ==============================================================================
-  # 8. Publish Package
+  # 5. Publish Package (only needs Build_Test_Coverage)
+  #    Does not wait for security scans - they run in parallel
   # ==============================================================================
   Publish_Package:
-    needs: [Build_Test_Coverage, Qodana_Scan, Codacy_Qodana_Upload, Codacy_Roslyn_Upload, Codacy_Coverage_Upload, Snyk_Scan, CodeQL_Analysis]
+    needs: Build_Test_Coverage
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

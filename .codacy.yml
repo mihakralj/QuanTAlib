@@ -4,19 +4,20 @@
 
 # Exclude patterns - files and directories to ignore
 exclude_paths:
+  # All dot-directories (config, IDE, tools, rules)
+  - ".*/**"
+  
+  # Root-level config files
+  - "*.md"
+  - "*.yml"
+  - "*.yaml"
+  
   # NDepend analysis output
   - "ndepend/**"
   
   # Build/IDE artifacts
   - "bin/**"
   - "obj/**"
-  - ".vs/**"
-  - ".git/**"
-  - ".idea/**"
-  - ".vscode/**"
-  - ".sonarqube/**"
-  - ".sonarlint/**"
-  - ".codacy/**"
   - "BenchmarkDotNet.Artifacts/**"
   - "ilspy/**"
   
