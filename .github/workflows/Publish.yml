@@ -87,7 +87,6 @@ jobs:
           fi
 
           echo "Installing Codacy CLI v2..."
-          # Get latest version and download the correct tarball
           CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
           echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
           curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
@@ -95,12 +94,12 @@ jobs:
 
           echo "Uploading Qodana SARIF to Codacy..."
           ./codacy-cli-v2 upload \
-            --provider gh \
-            --owner mihakralj \
-            --repository QuanTAlib \
-            --commit-uuid ${{ github.sha }} \
-            --project-token "$CODACY_PROJECT_TOKEN" \
-            --sarif-path .sarif/qodana.sarif || echo "Warning: Failed to upload Qodana SARIF"
+            -s .sarif/qodana.sarif \
+            -c "${{ github.sha }}" \
+            -t "$CODACY_PROJECT_TOKEN" \
+            -p gh \
+            -o mihakralj \
+            -r QuanTAlib || echo "Warning: Failed to upload Qodana SARIF"
         continue-on-error: true
 
   # ==============================================================================
@@ -167,12 +166,12 @@ jobs:
 
           echo "Uploading Snyk SARIF to Codacy..."
           ./codacy-cli-v2 upload \
-            --provider gh \
-            --owner mihakralj \
-            --repository QuanTAlib \
-            --commit-uuid ${{ github.sha }} \
-            --project-token "$CODACY_PROJECT_TOKEN" \
-            --sarif-path .sarif/snyk.sarif || echo "Warning: Failed to upload Snyk SARIF"
+            -s .sarif/snyk.sarif \
+            -c "${{ github.sha }}" \
+            -t "$CODACY_PROJECT_TOKEN" \
+            -p gh \
+            -o mihakralj \
+            -r QuanTAlib || echo "Warning: Failed to upload Snyk SARIF"
         continue-on-error: true
 
   # ==============================================================================
@@ -325,12 +324,12 @@ jobs:
               filename=$(basename "$sarif_file" .sarif)
               echo "Uploading $sarif_file (project: $filename)..."
               ./codacy-cli-v2 upload \
-                --provider gh \
-                --owner mihakralj \
-                --repository QuanTAlib \
-                --commit-uuid ${{ github.sha }} \
-                --project-token "$CODACY_PROJECT_TOKEN" \
-                --sarif-path "$sarif_file" || echo "Warning: Failed to upload $sarif_file"
+                -s "$sarif_file" \
+                -c "${{ github.sha }}" \
+                -t "$CODACY_PROJECT_TOKEN" \
+                -p gh \
+                -o mihakralj \
+                -r QuanTAlib || echo "Warning: Failed to upload $sarif_file"
             fi
           done
           echo "=== SARIF upload complete ==="
