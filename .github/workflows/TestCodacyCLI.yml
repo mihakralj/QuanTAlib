@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Codacy CLI v2
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           set -euo pipefail
           
@@ -19,7 +21,10 @@ jobs:
           sudo chmod +x /usr/local/bin/codacy-cli
           
           echo "Verifying installation..."
+          codacy-cli download
           codacy-cli version
           codacy-cli init
+          codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
+
           
           echo "Installation successful!"
