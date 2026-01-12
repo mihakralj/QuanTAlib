@@ -168,7 +168,68 @@ jobs:
           if-no-files-found: warn
 
   # ==============================================================================
-  # 3) Build, Test, Coverage, SonarCloud & Roslyn SARIF
+  # 3) Semgrep Security Scan -> SARIF artifact
+  # ==============================================================================
+  Semgrep_Scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Prepare SARIF directory
+        run: mkdir -p .sarif
+
+      - name: Run Semgrep (SARIF)
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        run: |
+          pip install --quiet semgrep
+
+          set +e
+          if [ -n "${SEMGREP_APP_TOKEN:-}" ]; then
+            echo "Running Semgrep with managed policies..."
+            semgrep ci --sarif --output=.sarif/semgrep.sarif
+          else
+            echo "Running Semgrep with OSS rules..."
+            semgrep scan \
+              --config=auto \
+              --sarif \
+              --output=.sarif/semgrep.sarif \
+              --exclude='**/bin/**' \
+              --exclude='**/obj/**' \
+              --exclude='**/*.Tests.cs' \
+              --exclude='**/Mocks/**' \
+              --exclude='**/perf/**' \
+              --exclude='**/quantower/**' \
+              .
+          fi
+          rc=$?
+          set -e
+
+          if [ -f ".sarif/semgrep.sarif" ]; then
+            echo "Semgrep SARIF generated (exit code: $rc):"
+            ls -lh .sarif/semgrep.sarif
+          else
+            echo "WARNING: Semgrep SARIF not generated"
+          fi
+
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-semgrep
+          path: .sarif/semgrep.sarif
+          retention-days: 7
+          if-no-files-found: warn
+
+  # ==============================================================================
+  # 4) Build, Test, Coverage, SonarCloud & Roslyn SARIF
   # ==============================================================================
   Sonar_Analysis:
     runs-on: ubuntu-latest
@@ -335,10 +396,10 @@ jobs:
           if-no-files-found: warn
 
   # ==============================================================================
-  # 4) Codacy SARIF Upload (Codacy ingests; Codacy does NOT run tools)
+  # 5) Codacy SARIF Upload (Codacy ingests; Codacy does NOT run tools)
   # ==============================================================================
   Codacy_SARIF_Upload:
-    needs: [ReSharper_Analysis, Snyk_Scan, Sonar_Analysis]
+    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -381,7 +442,7 @@ jobs:
           set -euo pipefail
           
           # Download the CLI binary directly from GitHub releases
-          CLI_URL="https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_V2_VERSION}/codacy-cli_Linux_x86_64.tar.gz"
+          CLI_URL="https://github.com/codacy/codacy-cli-v2/releases/download/1.0.0-main.365.sha.cf4ddcc/codacy-cli-v2_1.0.0-main.365.sha.cf4ddcc_linux_amd64.tar.gz"
           echo "Downloading Codacy CLI from: ${CLI_URL}"
           
           mkdir -p /tmp/codacy-cli
@@ -390,6 +451,20 @@ jobs:
           
           echo "Codacy CLI version:"
           /tmp/codacy-cli/codacy-cli --version || true
+
+      - name: Initialize Codacy CLI
+        if: steps.check_token.outputs.skip != 'true'
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          # Initialize project context for Codacy CLI
+          # Using project token - provider/org/repo derived from token
+          /tmp/codacy-cli/codacy-cli init \
+            --provider gh \
+            --organization mihakralj \
+            --repository QuanTAlib \
+            --project-token "$CODACY_PROJECT_TOKEN" \
+            || echo "WARNING: codacy-cli init may have failed (continuing anyway)"
 
       - name: Upload SARIF files to Codacy
         if: steps.check_token.outputs.skip != 'true'
@@ -409,15 +484,19 @@ jobs:
           echo "Uploading ${#files[@]} SARIF file(s) to Codacy with commit: ${COMMIT_UUID}"
           for sarif_file in "${files[@]}"; do
             echo "--- Uploading: $sarif_file ---"
+            # Using short flags per codacy-cli-v2 docs:
+            # -s: SARIF file path
+            # -c: commit UUID
+            # -t: project token
             /tmp/codacy-cli/codacy-cli upload \
-              --sarif-path "$sarif_file" \
-              --commit-uuid "$COMMIT_UUID" \
-              --project-token "$CODACY_PROJECT_TOKEN" \
+              -s "$sarif_file" \
+              -c "$COMMIT_UUID" \
+              -t "$CODACY_PROJECT_TOKEN" \
               || echo "WARNING: failed to upload $sarif_file"
           done
 
   # ==============================================================================
-  # 5) Codacy Coverage Upload (Codacy ingests; Codacy does NOT run tools)
+  # 6) Codacy Coverage Upload (Codacy ingests; Codacy does NOT run tools)
   # ==============================================================================
   Codacy_Coverage_Upload:
     needs: Sonar_Analysis
