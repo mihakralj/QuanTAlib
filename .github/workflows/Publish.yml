@@ -271,10 +271,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sarif-build
-          path: |
-            .sarif/*.sarif
-            !.sarif/.gitkeep
+          path: .sarif/
           if-no-files-found: warn
+          include-hidden-files: true
 
   # ==============================================================================
   # 4) Optional: Codacy Client-Side Analysis (containerized tools)
@@ -349,20 +348,16 @@ jobs:
             exit 0
           fi
 
-          # Install Codacy CLI v2 using the official bootstrap script
-          curl -fsSL https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o codacy-cli.sh
-          chmod +x codacy-cli.sh
-
           echo "Uploading SARIF files to Codacy with commit: ${COMMIT_UUID}"
           for sarif_file in sarif/*.sarif; do
             echo "--- Uploading: $sarif_file ---"
-            ./codacy-cli.sh upload \
-              --provider gh \
-              --owner mihakralj \
-              --repository QuanTAlib \
-              --commit-uuid "$COMMIT_UUID" \
-              --project-token "$CODACY_PROJECT_TOKEN" \
-              --sarif-path "$sarif_file" 2>&1 || echo "Warning: failed to upload $sarif_file"
+            
+            # Use Codacy API directly for SARIF upload
+            curl -X POST "https://api.codacy.com/2.0/gh/mihakralj/QuanTAlib/commit/${COMMIT_UUID}/issuesRemoteResults" \
+              -H "project-token: ${CODACY_PROJECT_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data-binary @"$sarif_file" \
+              --fail-with-body 2>&1 || echo "Warning: failed to upload $sarif_file"
           done
 
   # ==============================================================================
