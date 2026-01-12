@@ -33,12 +33,12 @@ env:
 
 jobs:
   # ==============================================================================
-  # 1. Qodana Scan (starts immediately - longest running ~15-20 min)
+  # 1. ReSharper InspectCode Scan (replaces Qodana)
   #    Generates SARIF and uploads directly to Codacy
   # ==============================================================================
-  Qodana_Scan:
+  ReSharper_Scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     permissions:
       contents: read
       checks: write
@@ -48,30 +48,38 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Create SARIF output directory
         run: mkdir -p .sarif
 
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2025.3
-        continue-on-error: true
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-        with:
-          args: --config,qodana.yaml,--fail-threshold,999999
-
-      - name: Copy Qodana SARIF to .sarif directory
-        if: always()
+      - name: Install JetBrains ReSharper GlobalTools
         run: |
-          if [ -f "${{ runner.temp }}/qodana/results/qodana.sarif.json" ]; then
-            cp "${{ runner.temp }}/qodana/results/qodana.sarif.json" .sarif/qodana.sarif
-            echo "Qodana SARIF copied to .sarif/qodana.sarif"
-            ls -lh .sarif/
+          dotnet tool update --global JetBrains.ReSharper.GlobalTools || \
+          dotnet tool install --global JetBrains.ReSharper.GlobalTools
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Run ReSharper InspectCode (SARIF)
+        continue-on-error: true
+        run: |
+          # If you have a custom profile, point to it via --profile
+          # (can be a .DotSettings file or a named profile depending on your setup)
+          jb inspectcode QuanTAlib.sln \
+            --format=sarif \
+            --output=.sarif/resharper.sarif \
+            --verbosity=WARN || true
+
+          if [ -f ".sarif/resharper.sarif" ]; then
+            echo "ReSharper SARIF generated successfully"
+            ls -lh .sarif/resharper.sarif
           else
-            echo "Warning: Qodana SARIF not found at expected location"
-            find ${{ runner.temp }} -name "*.sarif*" 2>/dev/null || echo "No SARIF files found"
+            echo "Warning: ReSharper SARIF not generated"
           fi
 
-      - name: Upload Qodana SARIF to Codacy
+      - name: Upload ReSharper SARIF to Codacy
         if: always()
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -81,8 +89,8 @@ jobs:
             exit 0
           fi
 
-          if [ ! -f ".sarif/qodana.sarif" ]; then
-            echo "No Qodana SARIF file to upload"
+          if [ ! -f ".sarif/resharper.sarif" ]; then
+            echo "No ReSharper SARIF file to upload"
             exit 0
           fi
 
@@ -92,14 +100,14 @@ jobs:
           curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
           chmod +x codacy-cli-v2
 
-          echo "Uploading Qodana SARIF to Codacy..."
+          echo "Uploading ReSharper SARIF to Codacy..."
           ./codacy-cli-v2 upload \
-            -s .sarif/qodana.sarif \
+            -s .sarif/resharper.sarif \
             -c "${{ github.sha }}" \
             -t "$CODACY_PROJECT_TOKEN" \
             -p gh \
             -o mihakralj \
-            -r QuanTAlib || echo "Warning: Failed to upload Qodana SARIF"
+            -r QuanTAlib || echo "Warning: Failed to upload ReSharper SARIF"
         continue-on-error: true
 
   # ==============================================================================
@@ -186,6 +194,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -294,6 +303,35 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+      - name: Export SonarCloud findings to SARIF
+        if: env.SKIP_SONAR != 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          pip install sonar-tools
+          sonar-findings-export \
+            -u https://sonarcloud.io \
+            -t "$SONAR_TOKEN" \
+            -o mihakralj-quantalib \
+            --project mihakralj_QuanTAlib \
+            --branch "${{ github.ref_name }}" \
+            --format sarif \
+            --output .sarif/sonarcloud.sarif || echo "Warning: Failed to export SonarCloud SARIF"
+          
+          if [ -f ".sarif/sonarcloud.sarif" ]; then
+            echo "SonarCloud SARIF exported successfully"
+            ls -lh .sarif/sonarcloud.sarif
+          fi
+        continue-on-error: true
+
+      - name: Upload SonarCloud SARIF to GitHub Code Scanning
+        if: env.SKIP_SONAR != 'true' && always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .sarif/sonarcloud.sarif
+          category: sonarcloud
+        continue-on-error: true
 
       - name: Upload All Roslyn SARIF files to Codacy
         if: always()

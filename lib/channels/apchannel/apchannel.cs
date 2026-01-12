@@ -101,7 +101,7 @@ public sealed class Apchannel : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double UpdateCore(double high, double low, long time, bool isNew)
+    private void UpdateCore(double high, double low, long time, bool isNew)
     {
         ManageState(isNew);
 
@@ -132,7 +132,6 @@ public sealed class Apchannel : AbstractBase
         double mid = (highEma + lowEma) * 0.5;
         Last = new TValue(time, mid);
         PubEvent(Last, isNew);
-        return mid;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,7 +147,7 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar bar, bool isNew = true)
     {
-        _ = UpdateCore(bar.High, bar.Low, bar.Time, isNew);
+        UpdateCore(bar.High, bar.Low, bar.Time, isNew);
         return Last;
     }
 
@@ -176,7 +175,7 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        _ = UpdateCore(input.Value, input.Value, input.Time, isNew);
+        UpdateCore(input.Value, input.Value, input.Time, isNew);
         return Last;
     }
 

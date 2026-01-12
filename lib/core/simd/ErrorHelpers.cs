@@ -129,13 +129,16 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double absActual = Math.Abs(act);
             if (absActual < epsilon)
@@ -171,13 +174,16 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double denominator = (Math.Abs(act) + Math.Abs(pred)) / 2.0;
             if (denominator < epsilon)
@@ -211,13 +217,16 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double diff = act - pred;
             // log(cosh(x)) ≈ |x| - log(2) for large |x|, numerically stable
@@ -247,13 +256,16 @@ public static class ErrorHelpers
         double lastValidPredicted = FindFirstValidValue(predicted);
         double deltaSquared = delta * delta;
 
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double diff = act - pred;
             double ratio = diff / delta;
@@ -284,13 +296,16 @@ public static class ErrorHelpers
         double lastValidPredicted = FindFirstValidValue(predicted);
         double halfDelta = 0.5 * delta;
 
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double diff = act - pred;
             double absDiff = Math.Abs(diff);
@@ -492,14 +507,16 @@ public static class ErrorHelpers
         double lastValidPredicted)
     {
         int len = actual.Length;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
 
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             output[i] = act - pred;
         }
@@ -549,14 +566,16 @@ public static class ErrorHelpers
         double lastValidPredicted)
     {
         int len = actual.Length;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
 
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             output[i] = Math.Abs(act - pred);
         }
@@ -604,14 +623,16 @@ public static class ErrorHelpers
         double lastValidPredicted)
     {
         int len = actual.Length;
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
 
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double diff = act - pred;
             output[i] = diff * diff;
