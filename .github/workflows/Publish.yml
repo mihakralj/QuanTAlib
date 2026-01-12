@@ -257,13 +257,24 @@ jobs:
           name: coverage-reports
           path: coverage-merged/
 
+      - name: Verify SARIF before upload
+        if: always()
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Checking .sarif directory:"
+          ls -la .sarif/ || echo ".sarif directory not found"
+          echo "All SARIF files in workspace:"
+          find . -name "*.sarif" -type f 2>/dev/null | head -20
+
       - name: Upload Roslyn SARIF Artifact(s)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: sarif-build
-          path: .sarif/
-          if-no-files-found: ignore
+          path: |
+            .sarif/*.sarif
+            !.sarif/.gitkeep
+          if-no-files-found: warn
 
   # ==============================================================================
   # 4) Optional: Codacy Client-Side Analysis (containerized tools)
@@ -338,14 +349,14 @@ jobs:
             exit 0
           fi
 
-          # Install Codacy CLI v2
-          curl -fsSL https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-installer.sh | bash
-          export PATH="$HOME/.codacy/bin:$PATH"
+          # Install Codacy CLI v2 using the official bootstrap script
+          curl -fsSL https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o codacy-cli.sh
+          chmod +x codacy-cli.sh
 
           echo "Uploading SARIF files to Codacy with commit: ${COMMIT_UUID}"
           for sarif_file in sarif/*.sarif; do
             echo "--- Uploading: $sarif_file ---"
-            codacy-cli upload \
+            ./codacy-cli.sh upload \
               --provider gh \
               --owner mihakralj \
               --repository QuanTAlib \
