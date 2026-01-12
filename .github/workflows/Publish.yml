@@ -26,23 +26,26 @@ concurrency:
 
 permissions: {}
 
+defaults:
+  run:
+    shell: bash
+
 env:
   DOTNET_VERSION: '10.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # Use PR head SHA for PRs, otherwise the normal SHA.
+  COMMIT_UUID: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   # ==============================================================================
-  # 1. ReSharper InspectCode Scan (replaces Qodana)
-  #    Generates SARIF and uploads directly to Codacy
+  # 1) ReSharper InspectCode -> SARIF artifact (no direct upload)
   # ==============================================================================
   ReSharper_Scan:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
-      checks: write
-      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,63 +56,41 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Create SARIF output directory
+      - name: Prepare SARIF dir
         run: mkdir -p .sarif
 
       - name: Install JetBrains ReSharper GlobalTools
         run: |
           dotnet tool update --global JetBrains.ReSharper.GlobalTools || \
           dotnet tool install --global JetBrains.ReSharper.GlobalTools
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
 
       - name: Run ReSharper InspectCode (SARIF)
-        continue-on-error: true
         run: |
-          # If you have a custom profile, point to it via --profile
-          # (can be a .DotSettings file or a named profile depending on your setup)
+          set +e
           jb inspectcode QuanTAlib.sln \
             --format=sarif \
-            --output=.sarif/resharper.sarif || true
+            --output=.sarif/resharper.sarif
+          rc=$?
+          set -e
 
-          if [ -f ".sarif/resharper.sarif" ]; then
-            echo "ReSharper SARIF generated successfully"
-            ls -lh .sarif/resharper.sarif
-          else
-            echo "Warning: ReSharper SARIF not generated"
-          fi
-
-      - name: Upload ReSharper SARIF to Codacy
-        if: always()
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy upload."
-            exit 0
-          fi
-
+          # jb may return non-zero for findings/config; treat missing SARIF as the real failure signal.
           if [ ! -f ".sarif/resharper.sarif" ]; then
-            echo "No ReSharper SARIF file to upload"
-            exit 0
+            echo "ERROR: ReSharper SARIF not generated (exit code: $rc)"
+            exit 1
           fi
 
-          # Install Codacy Analysis CLI
-          echo "Installing Codacy Analysis CLI..."
-          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
-          chmod +x codacy-analysis-cli.sh
+          echo "ReSharper SARIF generated (exit code: $rc)"
+          ls -lh .sarif/resharper.sarif
 
-          echo "Uploading ReSharper SARIF to Codacy..."
-          ./codacy-analysis-cli.sh upload \
-            --project-token "$CODACY_PROJECT_TOKEN" \
-            --commit-uuid "${{ github.sha }}" \
-            --format sarif \
-            --sarif-path ".sarif/resharper.sarif" \
-            --skip-ssl-verification || echo "Warning: Failed to upload ReSharper SARIF"
-        continue-on-error: true
+      - name: Upload SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-resharper
+          path: .sarif/resharper.sarif
 
   # ==============================================================================
-  # 2. Snyk Scan (runs in parallel - fast ~2-3 min)
-  #    Generates SARIF and uploads directly to Codacy
+  # 2) Snyk -> SARIF artifact (no direct upload)
   # ==============================================================================
   Snyk_Scan:
     runs-on: ubuntu-latest
@@ -127,103 +108,61 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install Snyk CLI
-        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb # master
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Create SARIF output directory
+      - name: Prepare SARIF dir
         run: mkdir -p .sarif
 
-      - name: Run Snyk Security Scan
-        continue-on-error: true
+      - name: Run Snyk Security Scan (SARIF)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          snyk test --all-projects --sarif-file-output=.sarif/snyk.sarif || true
-          if [ -f ".sarif/snyk.sarif" ]; then
-            echo "Snyk SARIF generated successfully"
-            ls -lh .sarif/snyk.sarif
-          else
-            echo "Warning: Snyk SARIF not generated"
+          if [ -z "${SNYK_TOKEN:-}" ]; then
+            echo "SNYK_TOKEN not set. Skipping."
+            exit 0
           fi
 
-      - name: Upload Snyk SARIF to Codacy
-        if: always()
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy upload."
-            exit 0
+          set +e
+          snyk test --all-projects --sarif-file-output=.sarif/snyk.sarif
+          rc=$?
+          set -e
+
+          # Snyk: 0 = no issues, 1 = issues found, >1 = error
+          if [ $rc -gt 1 ]; then
+            echo "ERROR: Snyk failed (exit code: $rc)"
+            exit $rc
           fi
 
           if [ ! -f ".sarif/snyk.sarif" ]; then
-            echo "No Snyk SARIF file to upload"
-            exit 0
+            echo "ERROR: Snyk SARIF not generated"
+            exit 1
           fi
 
-          # Install Codacy Analysis CLI
-          echo "Installing Codacy Analysis CLI..."
-          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
-          chmod +x codacy-analysis-cli.sh
+          echo "Snyk SARIF generated (exit code: $rc)"
+          ls -lh .sarif/snyk.sarif
 
-          echo "Uploading Snyk SARIF to Codacy..."
-          ./codacy-analysis-cli.sh upload \
-            --project-token "$CODACY_PROJECT_TOKEN" \
-            --commit-uuid "${{ github.sha }}" \
-            --format sarif \
-            --sarif-path ".sarif/snyk.sarif" \
-            --skip-ssl-verification || echo "Warning: Failed to upload Snyk SARIF"
-        continue-on-error: true
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-snyk
+          path: .sarif/snyk.sarif
 
   # ==============================================================================
-  # 3. Codacy Client-Side Analysis (runs in parallel)
-  #    Uses Codacy's containerized tools for analysis
-  # ==============================================================================
-  Codacy_Analysis:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Codacy Analysis CLI (Roslyn)
-        uses: codacy/codacy-analysis-cli-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          tool: roslyn
-          upload: true
-          max-allowed-issues: 2147483647
-        continue-on-error: true
-
-      - name: Run Codacy Analysis CLI (All Tools)
-        uses: codacy/codacy-analysis-cli-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          upload: true
-          max-allowed-issues: 2147483647
-        continue-on-error: true
-
-  # ==============================================================================
-  # 4. Build, Test, Coverage & SonarCloud (runs in parallel)
-  #    - Builds with Roslyn analyzers → SARIF → Codacy
-  #    - Runs tests with coverage
-  #    - Sends coverage to SonarCloud (OpenCover format)
-  #    - Uploads Roslyn SARIF to Codacy
+  # 3) Build, Test, Coverage & SonarCloud
+  #    - Produces coverage artifact
+  #    - Produces Roslyn SARIF artifact(s) (if your build generates them)
   # ==============================================================================
   Build_Test_Coverage:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -238,33 +177,25 @@ jobs:
           java-version: 17
           distribution: 'zulu'
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
       - name: Install Tools
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          dotnet tool install --global dotnet-sonarscanner --version 9.0.0
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
       - name: Begin SonarCloud Analysis
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          if [ -z "$SONAR_TOKEN" ]; then
-            echo "WARNING: SONAR_TOKEN is not set. Skipping SonarCloud."
-            echo "SKIP_SONAR=true" >> $GITHUB_ENV
+          if [ -z "${SONAR_TOKEN:-}" ]; then
+            echo "SONAR_TOKEN not set. Skipping SonarCloud."
+            echo "SKIP_SONAR=true" >> "$GITHUB_ENV"
             exit 0
           fi
-          
+
           dotnet sonarscanner begin /k:mihakralj_QuanTAlib /o:mihakralj-quantalib \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
@@ -274,27 +205,26 @@ jobs:
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
             /d:sonar.scanner.scanAll="false"
 
-      - name: Build Solution (Roslyn generates SARIF)
+      - name: Build Solution
+        run: dotnet build QuanTAlib.sln --no-restore --configuration Debug
+
+      - name: Collect Roslyn SARIF (if present)
         run: |
           mkdir -p .sarif
-          # Build entire solution - SonarScanner instruments this build
-          # Each project generates its own SARIF via Directory.Build.props
-          dotnet build QuanTAlib.sln --no-restore --configuration Debug
+          echo "Looking for SARIF files produced by build..."
+          find . -name "*.sarif" -type f -maxdepth 6 -print || true
 
-      - name: Verify Roslyn SARIF Generation
-        run: |
-          echo "=== Roslyn SARIF Report ==="
-          if [ -d ".sarif" ] && [ "$(ls -A .sarif/*.sarif 2>/dev/null)" ]; then
-            echo "SARIF files generated:"
-            ls -lh .sarif/*.sarif
-          else
-            echo "Warning: No SARIF files found in .sarif directory"
-            find . -name "*.sarif" -type f 2>/dev/null || echo "No SARIF files found anywhere"
-          fi
+          # If projects drop SARIF somewhere else, copy them into .sarif for artifact/upload consistency.
+          # Adjust this if you know exact paths.
+          while IFS= read -r f; do
+            cp -f "$f" ".sarif/$(basename "$f")" || true
+          done < <(find . -name "*.sarif" -type f 2>/dev/null | head -n 50)
+
+          echo "SARIF staged in .sarif:"
+          ls -la .sarif || true
 
       - name: Run Tests with Coverage
         run: |
-          # Run ALL tests in solution - automatically discovers test projects
           dotnet test QuanTAlib.sln --no-build --configuration Debug \
             --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
             --results-directory ./TestResults \
@@ -303,109 +233,45 @@ jobs:
       - name: Merge Coverage Reports
         run: |
           mkdir -p coverage-merged
-          
-          echo "=== Coverage files before merge ==="
-          find TestResults -name "coverage.*" -o -name "*.info" 2>/dev/null || echo "No coverage files found yet"
-          
-          # Merge all coverage formats into unified reports
+
           reportgenerator \
             "-reports:TestResults/**/coverage.opencover.xml;TestResults/**/coverage.cobertura.xml;TestResults/**/coverage.info" \
             "-targetdir:coverage-merged" \
             "-reporttypes:OpenCover;Cobertura;lcov"
-          
-          echo "=== Merged coverage files ==="
-          ls -lh coverage-merged/
-          
-          # Verify OpenCover.xml exists for SonarCloud
-          if [ -f "coverage-merged/OpenCover.xml" ]; then
-            echo "✓ OpenCover.xml ready for SonarCloud"
-          else
-            echo "✗ Warning: OpenCover.xml not generated"
+
+          ls -lh coverage-merged/ || true
+
+          if [ ! -f "coverage-merged/OpenCover.xml" ]; then
+            echo "WARNING: OpenCover.xml not generated (Sonar coverage will be missing)"
           fi
 
       - name: End SonarCloud Analysis
         if: env.SKIP_SONAR != 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
-      - name: Export SonarCloud findings to SARIF
-        if: env.SKIP_SONAR != 'true'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          pip install sonar-tools
-          sonar-findings-export \
-            -u https://sonarcloud.io \
-            -t "$SONAR_TOKEN" \
-            -o mihakralj-quantalib \
-            --project mihakralj_QuanTAlib \
-            --branch "${{ github.ref_name }}" \
-            --format sarif \
-            --output .sarif/sonarcloud.sarif || echo "Warning: Failed to export SonarCloud SARIF"
-          
-          if [ -f ".sarif/sonarcloud.sarif" ]; then
-            echo "SonarCloud SARIF exported successfully"
-            ls -lh .sarif/sonarcloud.sarif
-          fi
-        continue-on-error: true
-
-      - name: Upload All SARIF files to Codacy
-        if: always()
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy upload."
-            exit 0
-          fi
-
-          # Check if there are any SARIF files
-          if [ ! -d ".sarif" ] || [ -z "$(ls -A .sarif/*.sarif 2>/dev/null)" ]; then
-            echo "No SARIF files to upload"
-            exit 0
-          fi
-
-          echo "=== SARIF files available for upload ==="
-          ls -lh .sarif/*.sarif || true
-
-          # Install Codacy Analysis CLI (legacy, but still recommended for uploads)
-          echo "Installing Codacy Analysis CLI..."
-          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
-          chmod +x codacy-analysis-cli.sh
-
-          echo "=== Uploading all SARIF files to Codacy ==="
-          for sarif_file in .sarif/*.sarif; do
-            if [ -f "$sarif_file" ]; then
-              filename=$(basename "$sarif_file" .sarif)
-              echo "Uploading $sarif_file (tool: $filename)..."
-              # Use the Codacy Analysis CLI to upload SARIF
-              ./codacy-analysis-cli.sh upload \
-                --project-token "$CODACY_PROJECT_TOKEN" \
-                --commit-uuid "${{ github.sha }}" \
-                --format sarif \
-                --sarif-path "$sarif_file" \
-                --skip-ssl-verification || echo "Warning: Failed to upload $sarif_file"
-            fi
-          done
-          echo "=== SARIF upload complete ==="
-        continue-on-error: true
-
-      - name: Upload Coverage Artifacts
+      - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
           path: coverage-merged/
 
+      - name: Upload Roslyn SARIF Artifact(s)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-build
+          path: .sarif/*.sarif
+          if-no-files-found: ignore
+
   # ==============================================================================
-  # 5. Codacy Coverage Upload (needs coverage from Build_Test_Coverage)
-  #    Uploads Cobertura format to Codacy
+  # 4) Optional: Codacy Client-Side Analysis (containerized tools)
+  #    Pinned version recommended; keep only if it adds value beyond SARIF uploads.
   # ==============================================================================
-  Codacy_Coverage_Upload:
-    needs: Build_Test_Coverage
+  Codacy_Analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -413,6 +279,76 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Run Codacy Analysis CLI (All Supported Tools)
+        # TODO: pin to a tag/commit instead of master
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          upload: true
+          max-allowed-issues: 2147483647
+          verbose: true
+        continue-on-error: true
+
+  # ==============================================================================
+  # 5) Single place to upload all SARIF to Codacy
+  # ==============================================================================
+  Codacy_Sarif_Upload:
+    needs: [ReSharper_Scan, Snyk_Scan, Build_Test_Coverage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    if: ${{ always() && secrets.CODACY_PROJECT_TOKEN != '' }}
+    steps:
+      - name: Download SARIF artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sarif-*
+          path: sarif
+          merge-multiple: true
+
+      - name: List SARIF
+        run: |
+          echo "SARIF files:"
+          find sarif -name "*.sarif" -type f -maxdepth 2 -print -exec ls -lh {} \; || true
+
+      - name: Upload SARIF to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if ! compgen -G "sarif/*.sarif" > /dev/null; then
+            echo "No SARIF files found, skipping."
+            exit 0
+          fi
+
+          # Install Codacy Analysis CLI (script-based). Ideally pin a version/tag.
+          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
+          chmod +x codacy-analysis-cli.sh
+
+          echo "Uploading SARIF files to Codacy with commit: ${COMMIT_UUID}"
+          for sarif_file in sarif/*.sarif; do
+            echo "--- Uploading: $sarif_file ---"
+            ./codacy-analysis-cli.sh upload \
+              --project-token "$CODACY_PROJECT_TOKEN" \
+              --commit-uuid "$COMMIT_UUID" \
+              --format sarif \
+              --sarif-path "$sarif_file" \
+              --verbose 2>&1 || echo "Warning: failed to upload $sarif_file"
+          done
+
+  # ==============================================================================
+  # 6) Codacy Coverage Upload (reads artifact from Build_Test_Coverage)
+  # ==============================================================================
+  Codacy_Coverage_Upload:
+    needs: Build_Test_Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    if: ${{ secrets.CODACY_PROJECT_TOKEN != '' }}
+    steps:
       - name: Download Coverage Reports
         uses: actions/download-artifact@v4
         with:
@@ -423,28 +359,20 @@ jobs:
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
-          if [ -z "$CODACY_PROJECT_TOKEN" ]; then
-            echo "CODACY_PROJECT_TOKEN is not set. Skipping upload."
-            exit 0
-          fi
+          set -euo pipefail
 
-          # Download the reporter script
           curl -Ls https://coverage.codacy.com/get.sh -o codacy.sh
           chmod +x codacy.sh
 
-          # Upload Cobertura coverage to Codacy
           if [ -f "coverage-merged/Cobertura.xml" ]; then
-            echo "Uploading Cobertura coverage to Codacy..."
             ./codacy.sh report -r "coverage-merged/Cobertura.xml"
           else
-            echo "Warning: Cobertura.xml not found"
-            ls -la coverage-merged/
+            echo "Cobertura.xml not found"
+            ls -la coverage-merged/ || true
           fi
-        continue-on-error: true
 
   # ==============================================================================
-  # 6. Publish Package (only needs Build_Test_Coverage)
-  #    Does not wait for security scans - they run in parallel
+  # 7) Publish Package (waits only for Build_Test_Coverage)
   # ==============================================================================
   Publish_Package:
     needs: Build_Test_Coverage
@@ -452,7 +380,7 @@ jobs:
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
@@ -477,7 +405,7 @@ jobs:
         with:
           updateAssemblyInfo: false
 
-      - name: Build & Pack
+      - name: Build
         run: |
           dotnet restore
           dotnet build ./lib/quantalib.csproj --configuration Release --nologo
@@ -485,17 +413,29 @@ jobs:
           dotnet build ./quantower/Trends.csproj --configuration Release --nologo
           dotnet build ./quantower/Volume.csproj --configuration Release --nologo
 
+      - name: Pack NuGet (explicit)
+        run: |
+          dotnet pack ./lib/quantalib.csproj \
+            --configuration Release \
+            --no-build \
+            -p:ContinuousIntegrationBuild=true \
+            -p:PackageVersion=${{ steps.gitversion.outputs.SemVer }}
+
+          ls -lh lib/bin/Release/*.nupkg || true
+
       - name: Create Development Release
         if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Note: gh release delete doesn't always clean up tags. Add tag cleanup if needed.
           gh release delete development --yes || true
           gh release create development \
             --title "Development Build" \
             --notes "Latest development build from commit ${{ github.sha }}" \
             --prerelease \
             --target ${{ github.sha }} \
+            lib/bin/Release/*.nupkg \
             lib/bin/Release/net10.0/QuanTAlib.dll \
             quantower/bin/Release/Momentum.dll \
             quantower/bin/Release/Trends.dll \
@@ -505,7 +445,7 @@ jobs:
         if: github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev')
         continue-on-error: true
         run: |
-          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+          dotnet nuget push 'lib/bin/Release/*.nupkg' \
             --source https://www.myget.org/F/quantalib/api/v3/index.json \
             --force-english-output \
             --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
@@ -516,16 +456,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
-            --title "Release from commit ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
-            --notes "Release notes for this version." \
+            --title "Release ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+            --generate-notes \
+            lib/bin/Release/*.nupkg \
             quantower/bin/Release/Momentum.dll \
             quantower/bin/Release/Trends.dll \
             quantower/bin/Release/Volume.dll
 
       - name: Push to NuGet
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.ref == 'refs/heads/main'
         run: |
-          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
+          dotnet nuget push 'lib/bin/Release/*.nupkg' \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate \
             --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
