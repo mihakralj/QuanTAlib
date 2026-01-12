@@ -41,7 +41,7 @@ jobs:
   # ==============================================================================
   # 1) ReSharper InspectCode -> SARIF artifact (no direct upload)
   # ==============================================================================
-  ReSharper_Scan:
+  ReSharper_Analysis:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -156,7 +156,7 @@ jobs:
   #    - Produces coverage artifact
   #    - Produces Roslyn SARIF artifact(s) (if your build generates them)
   # ==============================================================================
-  Build_Test_Coverage:
+  Sonar_Analysis:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -262,7 +262,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sarif-build
-          path: .sarif/*.sarif
+          path: .sarif/
           if-no-files-found: ignore
 
   # ==============================================================================
@@ -293,7 +293,7 @@ jobs:
   # 5) Single place to upload all SARIF to Codacy
   # ==============================================================================
   Codacy_Sarif_Upload:
-    needs: [ReSharper_Scan, Snyk_Scan, Build_Test_Coverage]
+    needs: [ReSharper_Analysis, Snyk_Scan, Sonar_Analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -338,26 +338,27 @@ jobs:
             exit 0
           fi
 
-          # Install Codacy Analysis CLI (script-based). Ideally pin a version/tag.
-          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
-          chmod +x codacy-analysis-cli.sh
+          # Install Codacy CLI v2
+          curl -fsSL https://github.com/codacy/codacy-cli-v2/releases/latest/download/codacy-cli-installer.sh | bash
+          export PATH="$HOME/.codacy/bin:$PATH"
 
           echo "Uploading SARIF files to Codacy with commit: ${COMMIT_UUID}"
           for sarif_file in sarif/*.sarif; do
             echo "--- Uploading: $sarif_file ---"
-            ./codacy-analysis-cli.sh upload \
-              --project-token "$CODACY_PROJECT_TOKEN" \
+            codacy-cli upload \
+              --provider gh \
+              --owner mihakralj \
+              --repository QuanTAlib \
               --commit-uuid "$COMMIT_UUID" \
-              --format sarif \
-              --sarif-path "$sarif_file" \
-              --verbose 2>&1 || echo "Warning: failed to upload $sarif_file"
+              --project-token "$CODACY_PROJECT_TOKEN" \
+              --sarif-path "$sarif_file" 2>&1 || echo "Warning: failed to upload $sarif_file"
           done
 
   # ==============================================================================
   # 6) Codacy Coverage Upload (reads artifact from Build_Test_Coverage)
   # ==============================================================================
   Codacy_Coverage_Upload:
-    needs: Build_Test_Coverage
+    needs: Sonar_Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -403,7 +404,7 @@ jobs:
   # 7) Publish Package (waits only for Build_Test_Coverage)
   # ==============================================================================
   Publish_Package:
-    needs: Build_Test_Coverage
+    needs: Sonar_Analysis
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || endsWith(github.ref, '-dev'))) ||
       (github.event_name == 'workflow_dispatch' && !inputs.skip_publish)
