@@ -444,10 +444,11 @@ jobs:
           # Install Codacy CLI using official bootstrap script
           # This downloads and caches the CLI binary
           echo "Installing Codacy CLI v2..."
-          bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh) download
+          bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh) 
           
           echo "Codacy CLI version:"
-          bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh) version || true
+          codacy-cli version
+          codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
 
       - name: Upload SARIF files to Codacy
         if: steps.check_token.outputs.skip != 'true'
@@ -471,7 +472,7 @@ jobs:
             # -s: SARIF file path
             # -c: commit UUID
             # -t: project token
-            bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh) upload \
+            codeacy-cli upload \
               -s "$sarif_file" \
               -c "$COMMIT_UUID" \
               -t "$CODACY_PROJECT_TOKEN" \
