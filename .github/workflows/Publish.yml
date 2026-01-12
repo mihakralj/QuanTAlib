@@ -277,10 +277,41 @@ jobs:
           fi
 
       - name: End SonarCloud Analysis
-        if: steps.check_sonar.outputs.skip != 'true'
+        if: env.SKIP_SONAR != 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+      - name: Export SonarCloud findings to SARIF
+        if: env.SKIP_SONAR != 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "Installing sonar-tools..."
+          pip install --quiet sonar-tools
+
+          echo "Exporting SonarCloud findings to SARIF format..."
+          mkdir -p .sarif
+          
+          # Export findings from SonarCloud to SARIF
+          # -u: SonarCloud URL
+          # -t: Token
+          # -o: Organization
+          # --format sarif: Output format
+          # -k: Project key
+          sonar-findings-export \
+            -u "https://sonarcloud.io" \
+            -t "$SONAR_TOKEN" \
+            -o "mihakralj-quantalib" \
+            -k "mihakralj_QuanTAlib" \
+            --format sarif \
+            -f ".sarif/sonarcloud.sarif" \
+            || echo "Warning: SonarCloud SARIF export failed (findings may not be available yet)"
+          
+          if [ -f ".sarif/sonarcloud.sarif" ]; then
+            echo "SonarCloud SARIF exported successfully:"
+            ls -lh .sarif/sonarcloud.sarif
+          fi
 
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
@@ -295,6 +326,15 @@ jobs:
         with:
           name: sarif-roslyn
           path: .sarif/roslyn.sarif
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload SonarCloud SARIF Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-sonarcloud
+          path: .sarif/sonarcloud.sarif
           retention-days: 7
           if-no-files-found: warn
 
