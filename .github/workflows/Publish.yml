@@ -69,8 +69,7 @@ jobs:
           # (can be a .DotSettings file or a named profile depending on your setup)
           jb inspectcode QuanTAlib.sln \
             --format=sarif \
-            --output=.sarif/resharper.sarif \
-            --verbosity=WARN || true
+            --output=.sarif/resharper.sarif || true
 
           if [ -f ".sarif/resharper.sarif" ]; then
             echo "ReSharper SARIF generated successfully"
@@ -94,20 +93,18 @@ jobs:
             exit 0
           fi
 
-          echo "Installing Codacy CLI v2..."
-          CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
-          echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
-          curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
-          chmod +x codacy-cli-v2
+          # Install Codacy Analysis CLI
+          echo "Installing Codacy Analysis CLI..."
+          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
+          chmod +x codacy-analysis-cli.sh
 
           echo "Uploading ReSharper SARIF to Codacy..."
-          ./codacy-cli-v2 upload \
-            -s .sarif/resharper.sarif \
-            -c "${{ github.sha }}" \
-            -t "$CODACY_PROJECT_TOKEN" \
-            -p gh \
-            -o mihakralj \
-            -r QuanTAlib || echo "Warning: Failed to upload ReSharper SARIF"
+          ./codacy-analysis-cli.sh upload \
+            --project-token "$CODACY_PROJECT_TOKEN" \
+            --commit-uuid "${{ github.sha }}" \
+            --format sarif \
+            --sarif-path ".sarif/resharper.sarif" \
+            --skip-ssl-verification || echo "Warning: Failed to upload ReSharper SARIF"
         continue-on-error: true
 
   # ==============================================================================
@@ -166,24 +163,54 @@ jobs:
             exit 0
           fi
 
-          echo "Installing Codacy CLI v2..."
-          CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
-          echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
-          curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
-          chmod +x codacy-cli-v2
+          # Install Codacy Analysis CLI
+          echo "Installing Codacy Analysis CLI..."
+          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
+          chmod +x codacy-analysis-cli.sh
 
           echo "Uploading Snyk SARIF to Codacy..."
-          ./codacy-cli-v2 upload \
-            -s .sarif/snyk.sarif \
-            -c "${{ github.sha }}" \
-            -t "$CODACY_PROJECT_TOKEN" \
-            -p gh \
-            -o mihakralj \
-            -r QuanTAlib || echo "Warning: Failed to upload Snyk SARIF"
+          ./codacy-analysis-cli.sh upload \
+            --project-token "$CODACY_PROJECT_TOKEN" \
+            --commit-uuid "${{ github.sha }}" \
+            --format sarif \
+            --sarif-path ".sarif/snyk.sarif" \
+            --skip-ssl-verification || echo "Warning: Failed to upload Snyk SARIF"
         continue-on-error: true
 
   # ==============================================================================
-  # 3. Build, Test, Coverage & SonarCloud (runs in parallel)
+  # 3. Codacy Client-Side Analysis (runs in parallel)
+  #    Uses Codacy's containerized tools for analysis
+  # ==============================================================================
+  Codacy_Analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Codacy Analysis CLI (Roslyn)
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          tool: roslyn
+          upload: true
+          max-allowed-issues: 2147483647
+        continue-on-error: true
+
+      - name: Run Codacy Analysis CLI (All Tools)
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          upload: true
+          max-allowed-issues: 2147483647
+        continue-on-error: true
+
+  # ==============================================================================
+  # 4. Build, Test, Coverage & SonarCloud (runs in parallel)
   #    - Builds with Roslyn analyzers → SARIF → Codacy
   #    - Runs tests with coverage
   #    - Sends coverage to SonarCloud (OpenCover format)
@@ -194,7 +221,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -325,15 +351,7 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Upload SonarCloud SARIF to GitHub Code Scanning
-        if: env.SKIP_SONAR != 'true' && always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: .sarif/sonarcloud.sarif
-          category: sonarcloud
-        continue-on-error: true
-
-      - name: Upload All Roslyn SARIF files to Codacy
+      - name: Upload All SARIF files to Codacy
         if: always()
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -345,29 +363,30 @@ jobs:
 
           # Check if there are any SARIF files
           if [ ! -d ".sarif" ] || [ -z "$(ls -A .sarif/*.sarif 2>/dev/null)" ]; then
-            echo "No Roslyn SARIF files to upload"
+            echo "No SARIF files to upload"
             exit 0
           fi
 
-          echo "Installing Codacy CLI v2..."
-          CODACY_CLI_VERSION=$(curl -Ls https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest | grep -m 1 tag_name | cut -d'"' -f4)
-          echo "Downloading Codacy CLI v2 version: $CODACY_CLI_VERSION"
-          curl -Ls "https://github.com/codacy/codacy-cli-v2/releases/download/${CODACY_CLI_VERSION}/codacy-cli-v2_${CODACY_CLI_VERSION}_linux_amd64.tar.gz" | tar xz
-          chmod +x codacy-cli-v2
+          echo "=== SARIF files available for upload ==="
+          ls -lh .sarif/*.sarif || true
 
-          # Upload each SARIF file to Codacy
-          echo "=== Uploading all Roslyn SARIF files to Codacy ==="
+          # Install Codacy Analysis CLI (legacy, but still recommended for uploads)
+          echo "Installing Codacy Analysis CLI..."
+          curl -Ls https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli.sh -o codacy-analysis-cli.sh
+          chmod +x codacy-analysis-cli.sh
+
+          echo "=== Uploading all SARIF files to Codacy ==="
           for sarif_file in .sarif/*.sarif; do
             if [ -f "$sarif_file" ]; then
               filename=$(basename "$sarif_file" .sarif)
-              echo "Uploading $sarif_file (project: $filename)..."
-              ./codacy-cli-v2 upload \
-                -s "$sarif_file" \
-                -c "${{ github.sha }}" \
-                -t "$CODACY_PROJECT_TOKEN" \
-                -p gh \
-                -o mihakralj \
-                -r QuanTAlib || echo "Warning: Failed to upload $sarif_file"
+              echo "Uploading $sarif_file (tool: $filename)..."
+              # Use the Codacy Analysis CLI to upload SARIF
+              ./codacy-analysis-cli.sh upload \
+                --project-token "$CODACY_PROJECT_TOKEN" \
+                --commit-uuid "${{ github.sha }}" \
+                --format sarif \
+                --sarif-path "$sarif_file" \
+                --skip-ssl-verification || echo "Warning: Failed to upload $sarif_file"
             fi
           done
           echo "=== SARIF upload complete ==="
@@ -380,7 +399,7 @@ jobs:
           path: coverage-merged/
 
   # ==============================================================================
-  # 4. Codacy Coverage Upload (needs coverage from Build_Test_Coverage)
+  # 5. Codacy Coverage Upload (needs coverage from Build_Test_Coverage)
   #    Uploads Cobertura format to Codacy
   # ==============================================================================
   Codacy_Coverage_Upload:
@@ -424,7 +443,7 @@ jobs:
         continue-on-error: true
 
   # ==============================================================================
-  # 5. Publish Package (only needs Build_Test_Coverage)
+  # 6. Publish Package (only needs Build_Test_Coverage)
   #    Does not wait for security scans - they run in parallel
   # ==============================================================================
   Publish_Package:
