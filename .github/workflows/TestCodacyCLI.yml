@@ -1,0 +1,32 @@
+name: Test Codacy CLI v2 Installation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Test_Install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Codacy CLI v2
+        run: |
+          set -euo pipefail
+          
+          # Install Codacy CLI using official bootstrap script
+          echo "Installing Codacy CLI v2..."
+          
+          # Download the wrapper script to a temporary location
+          curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o codacy-cli-wrapper
+          
+          # Make it executable
+          chmod +x codacy-cli-wrapper
+          
+          # Move to a directory in PATH as 'codacy-cli'
+          sudo mv codacy-cli-wrapper /usr/local/bin/codacy-cli
+          
+          # Initialize/Download the actual binary (optional but good for caching)
+          codacy-cli download
+          
+          echo "Verifying installation..."
+          codacy-cli version
+          
+          echo "Installation successful!"

@@ -406,9 +406,6 @@ jobs:
       contents: read
       actions: read
     if: always()
-    env:
-      # Pin CLI binary version for reproducibility
-      CODACY_CLI_V2_VERSION: "0.1.0-main.84"
     steps:
       - name: Check for Codacy token
         id: check_token
@@ -442,11 +439,22 @@ jobs:
           set -euo pipefail
           
           # Install Codacy CLI using official bootstrap script
-          # This downloads and caches the CLI binary
           echo "Installing Codacy CLI v2..."
-          bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh) 
+
+          # Download the wrapper script to a temporary location
+          curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o codacy-cli-wrapper
+
+          # Make it executable
+          chmod +x codacy-cli-wrapper
+
+          # Move to a directory in PATH as 'codacy-cli'
+          sudo mv codacy-cli-wrapper /usr/local/bin/codacy-cli
+
+          # Initialize/Download the actual binary
+          codacy-cli download
           
           echo "Codacy CLI version:"
+          echo "Token: $CODACY_PROJECT_TOKEN"
           codacy-cli version
           codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
 
@@ -472,7 +480,7 @@ jobs:
             # -s: SARIF file path
             # -c: commit UUID
             # -t: project token
-            codeacy-cli upload \
+            codacy-cli upload \
               -s "$sarif_file" \
               -c "$COMMIT_UUID" \
               -t "$CODACY_PROJECT_TOKEN" \
