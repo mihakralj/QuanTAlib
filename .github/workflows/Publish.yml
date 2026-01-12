@@ -441,16 +441,21 @@ jobs:
         run: |
           set -euo pipefail
           
-          # Download the CLI binary directly from GitHub releases
-          CLI_URL="https://github.com/codacy/codacy-cli-v2/releases/download/1.0.0-main.365.sha.cf4ddcc/codacy-cli-v2_1.0.0-main.365.sha.cf4ddcc_linux_amd64.tar.gz"
-          echo "Downloading Codacy CLI from: ${CLI_URL}"
+          # Fetch latest version from GitHub API
+          LATEST_VERSION=$(curl -Ls "https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest" | grep -m1 '"tag_name"' | cut -d'"' -f4)
+          echo "Latest Codacy CLI version: ${LATEST_VERSION}"
+          
+          # Build download URL (binary name is codacy-cli-v2, not codacy-cli)
+          CLI_URL="https://github.com/codacy/codacy-cli-v2/releases/download/${LATEST_VERSION}/codacy-cli-v2_${LATEST_VERSION}_linux_amd64.tar.gz"
+          echo "Downloading from: ${CLI_URL}"
           
           mkdir -p /tmp/codacy-cli
-          curl -Ls "${CLI_URL}" | tar -xz -C /tmp/codacy-cli
-          chmod +x /tmp/codacy-cli/codacy-cli
+          curl -Ls "${CLI_URL}" -o /tmp/codacy-cli/codacy-cli-v2.tar.gz
+          tar -xzf /tmp/codacy-cli/codacy-cli-v2.tar.gz -C /tmp/codacy-cli
+          chmod +x /tmp/codacy-cli/codacy-cli-v2
           
           echo "Codacy CLI version:"
-          /tmp/codacy-cli/codacy-cli --version || true
+          /tmp/codacy-cli/codacy-cli-v2 --version || true
 
       - name: Initialize Codacy CLI
         if: steps.check_token.outputs.skip != 'true'
@@ -459,7 +464,7 @@ jobs:
         run: |
           # Initialize project context for Codacy CLI
           # Using project token - provider/org/repo derived from token
-          /tmp/codacy-cli/codacy-cli init \
+          /tmp/codacy-cli/codacy-cli-v2 init \
             --provider gh \
             --organization mihakralj \
             --repository QuanTAlib \
@@ -488,7 +493,7 @@ jobs:
             # -s: SARIF file path
             # -c: commit UUID
             # -t: project token
-            /tmp/codacy-cli/codacy-cli upload \
+            /tmp/codacy-cli/codacy-cli-v2 upload \
               -s "$sarif_file" \
               -c "$COMMIT_UUID" \
               -t "$CODACY_PROJECT_TOKEN" \
