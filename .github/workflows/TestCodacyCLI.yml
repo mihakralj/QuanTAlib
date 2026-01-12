@@ -23,8 +23,7 @@ jobs:
           echo "Verifying installation..."
           codacy-cli download
           codacy-cli version
-          codacy-cli init
           codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
-
+          codacy-cli config discover 
           
           echo "Installation successful!"
