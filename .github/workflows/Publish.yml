@@ -442,13 +442,8 @@ jobs:
           echo "Installing Codacy CLI v2..."
 
           # Download the wrapper script to a temporary location
-          curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o codacy-cli-wrapper
-
-          # Make it executable
-          chmod +x codacy-cli-wrapper
-
-          # Move to a directory in PATH as 'codacy-cli'
-          sudo mv codacy-cli-wrapper /usr/local/bin/codacy-cli
+          sudo curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o /usr/local/bin/codacy-cli
+          sudo chmod +x /usr/local/bin/codacy-cli
 
           # Initialize/Download the actual binary
           codacy-cli download
