@@ -1,19 +1,19 @@
 name: Analysis Workflow
 
 on:
-  push:
-    paths-ignore:
-      - "**.md"
-      - "**.pine"
-      - "docs/**"
-      - ".gitignore"
-      - "LICENSE"
-  pull_request:
-    paths-ignore:
-      - "**.md"
-      - "**.pine"
-      - ".gitignore"
-      - "LICENSE"
+  #push:
+  #  paths-ignore:
+  #    - "**.md"
+  #    - "**.pine"
+  #    - "docs/**"
+  #    - ".gitignore"
+  #    - "LICENSE"
+  #pull_request:
+  #  paths-ignore:
+  #    - "**.md"
+  #    - "**.pine"
+  #    - ".gitignore"
+  #    - "LICENSE"
   workflow_dispatch:
 
 concurrency:

@@ -2,14 +2,14 @@ name: Release Workflow
 
 on:
   workflow_dispatch:
-    inputs:
-      release_type:
-        description: "Release type"
-        type: choice
-        options:
-          - development
-          - production
-        default: development
+  #  inputs:
+  #    release_type:
+  #      description: "Release type"
+  #      type: choice
+  #      options:
+  #        - development
+  #        - production
+  #      default: development
 
 permissions: {}
 
