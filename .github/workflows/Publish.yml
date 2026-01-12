@@ -298,9 +298,22 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
-    if: ${{ always() && secrets.CODACY_PROJECT_TOKEN != '' }}
+    if: always()
     steps:
+      - name: Check for Codacy token
+        id: check_token
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "${CODACY_PROJECT_TOKEN:-}" ]; then
+            echo "CODACY_PROJECT_TOKEN not set. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download SARIF artifacts
+        if: steps.check_token.outputs.skip != 'true'
         uses: actions/download-artifact@v4
         with:
           pattern: sarif-*
@@ -308,11 +321,13 @@ jobs:
           merge-multiple: true
 
       - name: List SARIF
+        if: steps.check_token.outputs.skip != 'true'
         run: |
           echo "SARIF files:"
           find sarif -name "*.sarif" -type f -maxdepth 2 -print -exec ls -lh {} \; || true
 
       - name: Upload SARIF to Codacy
+        if: steps.check_token.outputs.skip != 'true'
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
@@ -347,15 +362,28 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-    if: ${{ secrets.CODACY_PROJECT_TOKEN != '' }}
     steps:
+      - name: Check for Codacy token
+        id: check_token
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "${CODACY_PROJECT_TOKEN:-}" ]; then
+            echo "CODACY_PROJECT_TOKEN not set. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download Coverage Reports
+        if: steps.check_token.outputs.skip != 'true'
         uses: actions/download-artifact@v4
         with:
           name: coverage-reports
           path: coverage-merged
 
       - name: Upload Coverage to Codacy
+        if: steps.check_token.outputs.skip != 'true'
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
