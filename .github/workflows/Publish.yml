@@ -454,27 +454,17 @@ jobs:
 
       - name: Install Codacy CLI v2
         if: steps.check_token.outputs.skip != 'true'
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           set -euo pipefail
-
-          if [[ -z "${CODACY_PROJECT_TOKEN:-}" ]]; then
-            echo "::error::CODACY_PROJECT_TOKEN is empty or unset!"
-            exit 1
-          fi
           
           # Install Codacy CLI using official bootstrap script
           echo "Installing Codacy CLI v2..."
 
-          # Download the wrapper script to a temporary location
           sudo curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o /usr/local/bin/codacy-cli
           sudo chmod +x /usr/local/bin/codacy-cli
-
-          # Initialize/Download the actual binary
-          codacy-cli download
+          
+          # Script will fetch binary if needed
           codacy-cli version
-          codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
 
       - name: Upload SARIF files to Codacy
         if: steps.check_token.outputs.skip != 'true'
