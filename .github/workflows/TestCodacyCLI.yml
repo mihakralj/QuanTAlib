@@ -7,11 +7,18 @@ jobs:
   Test_Install:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install Codacy CLI v2
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
-          set -euo pipefail
+          set -eo pipefail
+          
+          if [[ -z "${CODACY_PROJECT_TOKEN:-}" ]]; then
+            echo "::error::CODACY_PROJECT_TOKEN is empty or unset!"
+            exit 1
+          fi
           
           # Install Codacy CLI using official bootstrap script
           echo "Installing Codacy CLI v2..."
@@ -21,9 +28,18 @@ jobs:
           sudo chmod +x /usr/local/bin/codacy-cli
           
           echo "Verifying installation..."
-          codacy-cli download
+          # The script might respond to 'version' differently depending on implementation, 
+          # but based on logs it outputs version info.
           codacy-cli version
-          codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
-          codacy-cli config discover 
+          
+          echo "Run init..."
+          codacy-cli init \
+            --api-token "$CODACY_PROJECT_TOKEN" \
+            --provider gh \
+            --organization mihakralj \
+            --repository QuanTAlib
+            
+          echo "Downloading configured tools..."
+          codacy-cli download
           
           echo "Installation successful!"
