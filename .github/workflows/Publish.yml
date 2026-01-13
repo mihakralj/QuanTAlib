@@ -401,9 +401,9 @@ jobs:
           retention-days: 7
 
   # ==============================================================================
-  # 5) Codacy SARIF Upload (Codacy ingests; Codacy does NOT run tools)
+  # 5) Codacy Upload (SARIF + Coverage)
   # ==============================================================================
-  Codacy_SARIF_Upload:
+  Codacy_Upload:
     needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -428,14 +428,24 @@ jobs:
         if: steps.check_token.outputs.skip != 'true'
         uses: actions/download-artifact@v4
         with:
-          name: sarif-all
+          pattern: sarif-*
           path: sarif
 
-      - name: List SARIF files
+      - name: Download Coverage Reports
+        if: steps.check_token.outputs.skip != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage-merged
+
+      - name: List artifacts
         if: steps.check_token.outputs.skip != 'true'
         run: |
           echo "SARIF files:"
           find sarif -name "*.sarif" -type f -maxdepth 4 -print -exec ls -lh {} \; || true
+          echo ""
+          echo "Coverage files:"
+          ls -la coverage-merged || true
 
       - name: Install Codacy CLI v2
         if: steps.check_token.outputs.skip != 'true'
@@ -480,37 +490,6 @@ jobs:
               || echo "WARNING: failed to upload $sarif_file"
           done
 
-  # ==============================================================================
-  # 6) Codacy Coverage Upload (Codacy ingests; Codacy does NOT run tools)
-  # ==============================================================================
-  Codacy_Coverage_Upload:
-    needs: Sonar_Analysis
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      actions: read
-    if: always()
-    steps:
-      - name: Check for Codacy token
-        id: check_token
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: |
-          if [ -z "${CODACY_PROJECT_TOKEN:-}" ]; then
-            echo "CODACY_PROJECT_TOKEN not set. Skipping coverage upload."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Download Coverage Reports
-        if: steps.check_token.outputs.skip != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-reports
-          path: coverage-merged
-
       - name: Upload Coverage to Codacy
         if: steps.check_token.outputs.skip != 'true'
         env:
@@ -524,6 +503,5 @@ jobs:
           if [ -f "coverage-merged/Cobertura.xml" ]; then
             ./codacy-coverage.sh report -r "coverage-merged/Cobertura.xml"
           else
-            echo "Cobertura.xml not found. Available files:"
-            ls -la coverage-merged || true
+            echo "Cobertura.xml not found. Skipping coverage upload."
           fi
