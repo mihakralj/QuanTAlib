@@ -49,6 +49,8 @@ The categories help you understand what analytical problem each indicator solves
 * [**DEMA**](../lib/trends_IIR/dema/Dema.md) - Double Exponential MA
 * [**DSMA**](../lib/trends_IIR/dsma/Dsma.md) - Deviation-Scaled MA
 * [**EMA**](../lib/trends_IIR/ema/Ema.md) - Exponential MA
+* [**FRAMA**](../lib/trends_IIR/frama/Frama.md) - Fractal Adaptive MA
+* [**HEMA**](../lib/trends_IIR/hema/Hema.md) - Hull Exponential MA
 * [**HTIT**](../lib/trends_IIR/htit/Htit.md) - Hilbert Transform Instantaneous Trend
 * [**JMA**](../lib/trends_IIR/jma/Jma.md) - Jurik MA
 * [**KAMA**](../lib/trends_IIR/kama/Kama.md) - Kaufman Adaptive MA

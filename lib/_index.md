@@ -105,7 +105,7 @@
 | FCB | Fractal Chaos Bands | Channels |
 | FISHER | Ehlers Fisher Transform | Numerics |
 | FRACTALS | Williams Fractals | Reversals |
-| FRAMA | Ehlers Fractal Adaptive MA | Trends (IIR) |
+| [FRAMA](lib/trends_IIR/frama/Frama.md) | Ehlers Fractal Adaptive MA | Trends (IIR) |
 | GAUSS | Gaussian Filter | Filters |
 | GEOMEAN | Geometric Mean | Statistics |
 | GKV | Garman-Klass Volatility | Volatility |
@@ -115,7 +115,7 @@
 | HANMA | Hanning Window MA | Trends (FIR) |
 | HANN | Hann FIR Filter | Filters |
 | HARMEAN | Harmonic Mean | Statistics |
-| HEMA | Hull Exponential MA | Trends (IIR) |
+| [HEMA](lib/trends_IIR/hema/Hema.md) | Hull Exponential MA | Trends (IIR) |
 | HIGHEST | Highest value | Numerics |
 | HL2 | (High + Low) / 2 | Numerics |
 | HLC3 | (High + Low + Close) / 3 | Numerics |

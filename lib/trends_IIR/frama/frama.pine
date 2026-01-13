@@ -1,76 +1,60 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Fractal Adaptive Moving Average (FRAMA)", "FRAMA", overlay=true)
+indicator("Ehlers Fractal Adaptive Moving Average (FRAMA)", "FRAMA", overlay=true)
 
-//@function Calculates FRAMA using fractal dimension to determine the optimal alpha
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/frama.md
-//@param source Series to calculate FRAMA from
-//@param period Number of bars used in the calculation
-//@returns FRAMA value with fractal-based adaptive smoothing
-//@optimized Uses fractal dimension calculation for adaptive alpha, achieving O(n) per bar due to lookback requirements
-frama(series float src, simple int period) =>
-    int p = math.max(2, period)
-    int p_adj = p % 2 == 0 ? p : p + 1
-    int i_h_p = int(p_adj / 2)
-    float n1 = na
-    float n2 = na
-    float n3 = na
-    bool data_available = bar_index >= (p_adj - 1) and not na(src[p_adj - 1])
-    if data_available
-        float hh1 = src
-        float ll1 = src
-        for i = 1 to i_h_p - 1
-            float val = src[i]
-            if not na(val)
-                hh1 := math.max(hh1, val)
-                ll1 := math.min(ll1, val)
-        float hh2_calc = src[i_h_p]
-        float ll2_calc = src[i_h_p]
-        bool second_half_na = na(hh2_calc)
-        if not second_half_na
-            for i = i_h_p + 1 to p_adj - 1
-                float val = src[i]
-                if not na(val)
-                    hh2_calc := math.max(hh2_calc, val)
-                    ll2_calc := math.min(ll2_calc, val)
-                else
-                    second_half_na := true
-                    break
-        float hh3 = src
-        float ll3 = src
-        for i = 1 to p_adj - 1
-            float val = src[i]
-            if not na(val)
-                hh3 := math.max(hh3, val)
-                ll3 := math.min(ll3, val)
-        if not na(hh1) and not na(ll1) and i_h_p > 0
-            n1 := (hh1 - ll1) / i_h_p
-        if not second_half_na and i_h_p > 0
-            n2 := (hh2_calc - ll2_calc) / i_h_p
-        if not na(hh3) and not na(ll3) and p_adj > 0
-            n3 := (hh3 - ll3) / p_adj
-    var float result = na
-    float alpha = 1.0
-    if n1 > 0 and n2 > 0 and n3 > 0
-        float dimen = (math.log(n1 + n2) - math.log(n3)) / math.log(2.0)
-        alpha := math.exp(-4.6 * (dimen - 1.0))
-        alpha := math.max(0.01, math.min(1.0, alpha))
-    if not na(src)
-        float prev_f = nz(result[1], src)
-        result := alpha * src + (1.0 - alpha) * prev_f
+// Ehlers FRAMA:
+// - N1/N2/N3 computed from High/Low ranges (NOT from src).
+// - Price being smoothed is HL2 ( (H+L)/2 ).
+// - alpha = exp(-4.6*(D-1)), clamped to [0.01, 1].
+// - Period forced to even, >= 2.
+// References match the classic Traders' Tips FRAMA definition.
+
+frama_strict(simple int period) =>
+    int p  = math.max(2, period)
+    int pe = (p % 2 == 0) ? p : (p + 1)
+    int h  = int(pe / 2)
+
+    // Price series per Ehlers FRAMA (commonly HL2)
+    float price = hl2
+
+    // Require enough history and non-NA ranges over the needed windows
+    bool ready =
+         bar_index >= pe - 1 and
+         not na(price) and
+         not na(ta.highest(high, pe)) and not na(ta.lowest(low, pe)) and
+         not na(ta.highest(high, h))  and not na(ta.lowest(low, h))  and
+         not na(ta.highest(high[h], h)) and not na(ta.lowest(low[h], h))
+
+    var float fr = na
+
+    if ready
+        // Ranges per Ehlers:
+        // N1: first half range / half
+        // N2: second half range / half (shifted by half)
+        // N3: full range / full
+        float n1 = (ta.highest(high, h) - ta.lowest(low, h)) / h
+        float n2 = (ta.highest(high[h], h) - ta.lowest(low[h], h)) / h
+        float n3 = (ta.highest(high, pe) - ta.lowest(low, pe)) / pe
+
+        float alpha = 1.0
+        if n1 > 0 and n2 > 0 and n3 > 0
+            float dimen = (math.log(n1 + n2) - math.log(n3)) / math.log(2.0)
+            alpha := math.exp(-4.6 * (dimen - 1.0))
+            alpha := math.max(0.01, math.min(1.0, alpha))
+
+        // Warm-start: first computed value seeds to price
+        float prev = nz(fr[1], price)
+        fr := alpha * price + (1.0 - alpha) * prev
     else
-        result := na
-    data_available ? result : na
+        fr := na
 
-// ---------- Main loop ----------
+    fr
 
-// Inputs
-i_period = input.int(16, "Period", minval=2)
-i_source = input.source(close, "Source")
+// -------- Main --------
 
-// Calculation
-frama_value = frama(i_source, i_period)
+i_period = input.int(16, "Period (even enforced)", minval=2)
 
-// Plot
-plot(frama_value, "FRAMA", color=color.yellow, linewidth=2)
+frama_value = frama_strict(i_period)
+
+plot(frama_value, "FRAMA (strict)", color=color.yellow, linewidth=2)

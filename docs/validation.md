@@ -75,7 +75,7 @@
 | **BandPass Filter** | [Bpf](../lib/filters/bpf/Bpf.md) | ✔️ | - | - | - |
 | **Ehlers Center of Gravity** | Cg | - | - | - | ❔ |
 | **Ehlers Even Better Sinewave** | Ebsw | - | - | - | ❔ |
-| **Ehlers Fractal Adaptive MA** | Frama | - | - | - | ❔ |
+| **Ehlers Fractal Adaptive MA** | [Frama](../lib/trends_IIR/frama/Frama.md) | - | - | - | ❔ |
 | **Ehlers Highpass Filter** | [Hpf](../lib/filters/hpf/Hpf.md) | - | - | - | ❔ |
 | **Ehlers Phasor Analysis** | Phasor | - | - | - | - |
 | **Ehlers Sine Wave** | Sine | - | - | - | ❔ |
@@ -113,7 +113,7 @@
 | **Holt Weighted MA** | Hwma | - | - | - | ❔ |
 | **Homodyne Discriminator Dominant Cycle** | Homod | - | - | - | ❔ |
 | **Huber Loss** | Huber | - | - | - | - |
-| **Hull Exponential MA** | Hema | - | - | - | - |
+| **Hull Exponential MA** | [Hema](../lib/trends_IIR/hema/Hema.md) | - | - | - | - |
 | **Hull Moving Average** | [Hma](../lib/trends/hma/hma.md) | - | ✔️ | ✔️ | [⚠️](../lib/trends/hma/hma.md#external-library-discrepancies) |
 | **Hurst Exponent** | Hurst | - | - | Hurst | ❔ |
 | **Ichimoku Cloud** | Ichimoku | - | - | Ichimoku | ❔ |

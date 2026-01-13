@@ -4,22 +4,17 @@ indicator("HEMA (Exponential Hull Analog)", "HEMAx", overlay=true)
 // Half-life -> alpha (exponential definition)
 alphaFromHalfLife(float hl) =>
     hl := math.max(1.0, hl)
-    1.0 - math.exp(-math.log(2.0) / hl)
+    -math.expm1(-math.log(2.0) / hl)
 
 // Exponential Hull Analog (EMA-domain HMA)
 hema(series float src, simple int N) =>
     // --- guardrails ---
     float n = math.max(float(N), 2.0)  // HMA-like structure needs N>=2 to avoid fast==slow weirdness
 
-    // --- "exponential lengths" as half-lives ---
-    float hlSlow   = n
-    float hlFast   = math.max(1.0, n * 0.5)
-    float hlSmooth = math.max(1.0, math.sqrt(n))
-
-    // --- alphas ---
-    float aS = alphaFromHalfLife(hlSlow)
-    float aF = alphaFromHalfLife(hlFast)
-    float aM = alphaFromHalfLife(hlSmooth)
+    // --- alphas (period converted immediately to half-life alpha) ---
+    float aS = alphaFromHalfLife(n)
+    float aF = alphaFromHalfLife(math.max(1.0, n * 0.5))
+    float aM = alphaFromHalfLife(math.max(1.0, math.sqrt(n)))
 
     float bS = 1.0 - aS
     float bF = 1.0 - aF

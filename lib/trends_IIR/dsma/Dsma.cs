@@ -145,6 +145,8 @@ public sealed class Dsma : AbstractBase
     {
         HandleStateSnapshot(isNew);
         value = HandleInvalidInput(value);
+        if (double.IsNaN(value))
+            return double.NaN;
 
         _state.Bars++;
 

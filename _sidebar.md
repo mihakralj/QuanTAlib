@@ -26,6 +26,8 @@
   * [Overview](lib/trends_IIR/_index.md)
   * [DEMA - Double Exponential MA](lib/trends_IIR/dema/Dema.md)
   * [EMA - Exponential MA](lib/trends_IIR/ema/Ema.md)
+  * [FRAMA - Fractal Adaptive MA](lib/trends_IIR/frama/Frama.md)
+  * [HEMA - Hull Exponential MA](lib/trends_IIR/hema/Hema.md)
   * [HTIT - Hilbert Transform Instant Trendline](lib/trends_IIR/htit/Htit.md)
   * [JMA - Jurik MA](lib/trends_IIR/jma/Jma.md)
   * [KAMA - Kaufman Adaptive MA](lib/trends_IIR/kama/Kama.md)

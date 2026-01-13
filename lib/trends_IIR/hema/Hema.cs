@@ -27,27 +27,31 @@ public sealed class Hema : AbstractBase
     private const double CompensatorThreshold = 1e-10;
     private const double MinDenominator = 1e-12;
     private const double MaxRatio = 0.999999;
+    private const double Ln2 = 0.693147180559945309417232121458176568;
 
-    [StructLayout(LayoutKind.Auto)]
-    private record struct State(
-        double EmaSlowRaw,
-        double EmaFastRaw,
-        double EmaSmoothRaw,
-        double DecaySlow,
-        double DecayFast,
-        double DecaySmooth,
-        bool IsHot,
-        bool Warmup)
+    [StructLayout(LayoutKind.Sequential)]
+    private struct State
     {
-        public static State New() => new(
-            EmaSlowRaw: 0,
-            EmaFastRaw: 0,
-            EmaSmoothRaw: 0,
-            DecaySlow: 1.0,
-            DecayFast: 1.0,
-            DecaySmooth: 1.0,
-            IsHot: false,
-            Warmup: true);
+        public double EmaSlowRaw;
+        public double EmaFastRaw;
+        public double EmaSmoothRaw;
+        public double DecaySlow;
+        public double DecayFast;
+        public double DecaySmooth;
+        public bool IsHot;
+        public bool Warmup;
+
+        public static State New() => new()
+        {
+            EmaSlowRaw = 0,
+            EmaFastRaw = 0,
+            EmaSmoothRaw = 0,
+            DecaySlow = 1.0,
+            DecayFast = 1.0,
+            DecaySmooth = 1.0,
+            IsHot = false,
+            Warmup = true
+        };
     }
 
     private readonly double _alphaSlow;
@@ -73,14 +77,10 @@ public sealed class Hema : AbstractBase
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(period);
 
-        double n = Math.Max(period, 2);
-        double halfLifeSlow = n;
-        double halfLifeFast = Math.Max(1.0, n * 0.5);
-        double halfLifeSmooth = Math.Max(1.0, Math.Sqrt(n));
-
-        _alphaSlow = AlphaFromHalfLife(halfLifeSlow);
-        _alphaFast = AlphaFromHalfLife(halfLifeFast);
-        _alphaSmooth = AlphaFromHalfLife(halfLifeSmooth);
+        double n = Math.Max((double)period, 2.0);
+        _alphaSlow = AlphaFromHalfLife(n);
+        _alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
+        _alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));
 
         _betaSlow = 1.0 - _alphaSlow;
         _betaFast = 1.0 - _alphaFast;
@@ -213,6 +213,8 @@ public sealed class Hema : AbstractBase
             double emaSlow = state.EmaSlowRaw * invSlow;
             double emaFast = state.EmaFastRaw * invFast;
             double deLag = Math.FusedMultiplyAdd(-_ratio, emaSlow, emaFast) * _invOneMinusRatio;
+            if (!double.IsFinite(deLag))
+                deLag = input;
 
             state.EmaSmoothRaw = Math.FusedMultiplyAdd(state.EmaSmoothRaw, _betaSmooth, _alphaSmooth * deLag);
 
@@ -224,16 +226,32 @@ public sealed class Hema : AbstractBase
             if (!state.Warmup)
                 state.IsHot = true;
 
-            return state.EmaSmoothRaw * invSmooth;
+            double result = state.EmaSmoothRaw * invSmooth;
+            if (!double.IsFinite(result))
+            {
+                ResetState(ref state, input);
+                return input;
+            }
+
+            return result;
         }
 
         double deLagFast = Math.FusedMultiplyAdd(-_ratio, state.EmaSlowRaw, state.EmaFastRaw) * _invOneMinusRatio;
+        if (!double.IsFinite(deLagFast))
+            deLagFast = input;
         state.EmaSmoothRaw = Math.FusedMultiplyAdd(state.EmaSmoothRaw, _betaSmooth, _alphaSmooth * deLagFast);
 
         if (!state.IsHot)
             state.IsHot = true;
 
-        return state.EmaSmoothRaw;
+        double fastResult = state.EmaSmoothRaw;
+        if (!double.IsFinite(fastResult))
+        {
+            ResetState(ref state, input);
+            return input;
+        }
+
+        return fastResult;
     }
 
     public static TSeries Calculate(TSeries source, int period)
@@ -250,7 +268,7 @@ public sealed class Hema : AbstractBase
 
         if (source.Length == 0) return;
 
-        double n = Math.Max(period, 2);
+        double n = Math.Max((double)period, 2.0);
         double alphaSlow = AlphaFromHalfLife(n);
         double alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
         double alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));
@@ -304,9 +322,24 @@ public sealed class Hema : AbstractBase
                 double emaSlow = emaSlowRaw * invSlow;
                 double emaFast = emaFastRaw * invFast;
                 double deLag = Math.FusedMultiplyAdd(-ratio, emaSlow, emaFast) * invOneMinusRatio;
+                if (!double.IsFinite(deLag))
+                    deLag = val;
 
                 emaSmoothRaw = Math.FusedMultiplyAdd(emaSmoothRaw, betaSmooth, alphaSmooth * deLag);
-                output[i] = emaSmoothRaw * invSmooth;
+                double result = emaSmoothRaw * invSmooth;
+                if (!double.IsFinite(result))
+                {
+                    emaSlowRaw = val;
+                    emaFastRaw = val;
+                    emaSmoothRaw = val;
+                    decaySlow = 1.0;
+                    decayFast = 1.0;
+                    decaySmooth = 1.0;
+                    output[i] = val;
+                    continue;
+                }
+
+                output[i] = result;
 
                 double maxDecay = Math.Max(decaySlow, Math.Max(decayFast, decaySmooth));
                 warmup = maxDecay > CompensatorThreshold;
@@ -314,8 +347,23 @@ public sealed class Hema : AbstractBase
             else
             {
                 double deLag = Math.FusedMultiplyAdd(-ratio, emaSlowRaw, emaFastRaw) * invOneMinusRatio;
+                if (!double.IsFinite(deLag))
+                    deLag = val;
                 emaSmoothRaw = Math.FusedMultiplyAdd(emaSmoothRaw, betaSmooth, alphaSmooth * deLag);
-                output[i] = emaSmoothRaw;
+                double result = emaSmoothRaw;
+                if (!double.IsFinite(result))
+                {
+                    emaSlowRaw = val;
+                    emaFastRaw = val;
+                    emaSmoothRaw = val;
+                    decaySlow = 1.0;
+                    decayFast = 1.0;
+                    decaySmooth = 1.0;
+                    output[i] = val;
+                    continue;
+                }
+
+                output[i] = result;
             }
         }
     }
@@ -345,7 +393,30 @@ public sealed class Hema : AbstractBase
     private static double AlphaFromHalfLife(double halfLife)
     {
         double hl = Math.Max(1.0, halfLife);
-        return 1.0 - Math.Exp(-Math.Log(2.0) / hl);
+        double x = -Ln2 / hl;
+        return -Expm1(x);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double Expm1(double x)
+    {
+        double ax = Math.Abs(x);
+        if (ax < 1e-5)
+        {
+            double x2 = x * x;
+            return x + (x2 * 0.5) + (x2 * x * (1.0 / 6.0));
+        }
+
+        return Math.Exp(x) - 1.0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ResetState(ref State state, double value)
+    {
+        state = State.New();
+        state.EmaSlowRaw = value;
+        state.EmaFastRaw = value;
+        state.EmaSmoothRaw = value;
     }
 
     private int EstimateWarmupPeriod()

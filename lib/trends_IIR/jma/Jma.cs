@@ -62,6 +62,8 @@ public sealed class Jma : AbstractBase
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        if (!double.IsFinite(power) || power <= 0.0)
+            throw new ArgumentException("Power must be finite and > 0.", nameof(power));
 
         // --- Phase parameter: maps -100..100 -> 0.5..2.5 (Jurik convention) ---
         if (phase < -100)
@@ -129,10 +131,18 @@ public sealed class Jma : AbstractBase
     private double Step(double value, bool isNew)
     {
         HandleStateSnapshot(isNew);
-        value = HandleInvalidInput(value);
+        if (!double.IsFinite(value))
+        {
+            if (_state.Bars == 0)
+                return double.NaN;
+            value = _state.LastPrice;
+        }
+        else
+        {
+            _state.LastPrice = value;
+        }
 
         _state.Bars++;
-
         if (_state.Bars == 1)
             return InitializeFirstBar(value);
 
@@ -154,18 +164,6 @@ public sealed class Jma : AbstractBase
             _devBuffer.Restore();
             _volBuffer.Restore();
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double HandleInvalidInput(double value)
-    {
-        if (!double.IsFinite(value))
-        {
-            return _state.Bars == 0 ? double.NaN : _state.LastPrice;
-        }
-
-        _state.LastPrice = value;
-        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -224,8 +222,12 @@ public sealed class Jma : AbstractBase
     private void UpdateBands(double value, double d)
     {
         double adapt = Math.Exp(_logSqrtDivider * Math.Sqrt(d));
-        _state.UpperBand = (value > _state.UpperBand) ? value : value - (value - _state.UpperBand) * adapt;
-        _state.LowerBand = (value < _state.LowerBand) ? value : value - (value - _state.LowerBand) * adapt;
+        _state.UpperBand = (value > _state.UpperBand)
+            ? value
+            : Math.FusedMultiplyAdd(adapt, _state.UpperBand - value, value);
+        _state.LowerBand = (value < _state.LowerBand)
+            ? value
+            : Math.FusedMultiplyAdd(adapt, _state.LowerBand - value, value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -325,8 +327,10 @@ public sealed class Jma : AbstractBase
                                  int phase = 0,
                                  double power = 0.45)
     {
-        if (output.Length < source.Length)
-            throw new ArgumentException("output span is shorter than source span.", nameof(output));
+        if (output.Length != source.Length)
+            throw new ArgumentException("Source and output must have the same length.", nameof(output));
+        if (source.Length == 0)
+            return;
 
         var jma = new Jma(period, phase, power);
         for (int i = 0; i < source.Length; i++)

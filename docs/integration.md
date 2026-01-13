@@ -15,6 +15,8 @@ Quantower allows custom indicators via C#.
     * Instantiate the QuanTAlib indicator in `OnInit`.
     * Call `Update` in `OnUpdate`.
 
+HEMA is available in the Trends (IIR) bundle as `HemaIndicator`.
+
 ```csharp
 using Quantower.API.Indicators;
 using QuanTAlib;

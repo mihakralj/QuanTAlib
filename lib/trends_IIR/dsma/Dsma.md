@@ -40,9 +40,9 @@ RMS is computed incrementally over a rolling window using a circular `RingBuffer
 
 The final EMA-style smoothing coefficient adapts based on the ratio of trend strength to volatility:
 
-$$ \alpha_t = \min\left(\text{scaleFactor} \cdot \frac{5}{\text{period}} \cdot \frac{|\text{filt}_t - \text{filt}_{t-1}|}{\text{RMS}_t}, 1\right) $$
+$$ \alpha_t = \min\left(\text{scaleFactor} \cdot \frac{5}{\text{period}} \cdot \frac{|\text{filt}_t|}{\text{RMS}_t}, 1\right) $$
 
-- **Numerator** ($|\text{filt}_t - \text{filt}_{t-1}|$): Captures the magnitude of the filtered trend change.
+- **Numerator** ($|\text{filt}_t|$): Captures the magnitude of the filtered deviation.
 - **Denominator** ($\text{RMS}_t$): Normalizes by recent volatility, preventing over-reaction to noise.
 - **Scale Factor**: User-adjustable multiplier (default 0.5) to control overall responsiveness.
 - **Clamping**: Alpha is bounded at 1.0 to prevent numerical instability.
