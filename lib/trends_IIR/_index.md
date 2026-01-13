@@ -12,7 +12,6 @@ Trend indicators based on Infinite Impulse Response (IIR) filters.
 | [HTIT](lib/trends_IIR/htit/Htit.md) | Hilbert Transform Instantaneous Trend | Utilizes Hilbert Transform to isolate the instantaneous trend component, providing a zero-lag trendline with hybrid FIR-in-IIR design. |
 | [JMA](lib/trends_IIR/jma/Jma.md) | Jurik MA | Adaptive filter achieving high noise reduction and low phase delay through multi-stage volatility normalization and dynamic parameter optimization. |
 | [KAMA](lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Automatically adjusts sensitivity based on market volatility using an Efficiency Ratio, balancing responsiveness and stability. |
-| [LTMA](lib/trends_IIR/ltma/Ltma.md) | Linear Trend MA | Projects the linear trend of price data using linear regression, focusing on the endpoint of the trendline. |
 | [MAMA](lib/trends_IIR/mama/Mama.md) | MESA Adaptive MA | Applies Hilbert Transform for phase-based adaptation, using a dual-line system (MAMA/FAMA) for cycle-sensitive smoothing. |
 | [MGDI](lib/trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic Indicator | Adjusts speed based on market volatility using a dynamic factor, aiming to hug prices closely. |
 | [MMA](lib/trends_IIR/mma/Mma.md) | Modified MA | Combines simple and weighted components, emphasizing central values for balanced smoothing. |
@@ -25,6 +24,4 @@ Trend indicators based on Infinite Impulse Response (IIR) filters.
 | [VAMA](lib/trends_IIR/vama/Vama.md) | Volatility Adjusted MA | Dynamically adjusts moving average length based on ATR volatility ratio, shortening during high volatility and lengthening during low volatility. |
 | [VIDYA](lib/trends_IIR/vidya/Vidya.md) | Variable Index Dynamic Average | Adjusts smoothing factor based on market volatility using a Volatility Index (ratio of short-term to long-term standard deviation). |
 | [YZVAMA](lib/trends_IIR/yzvama/Yzvama.md) | Yang-Zhang Volatility Adjusted MA | Adjusts MA length based on percentile rank of short-term YZV, providing context-aware volatility adaptation for gap-prone markets. |
-| [ZLDEMA](lib/trends_IIR/zldema/Zldema.md) | Zero-Lag Double Exponential MA | Hybrid dual-stage predictive architecture combining two ZLEMAs with optimized 1.5/0.5 coefficients for reduced lag and noise suppression. |
 | [ZLEMA](lib/trends_IIR/zlema/Zlema.md) | Zero-Lag Exponential MA | Reduces lag by estimating future price based on current momentum, using a dynamically calculated lag period. |
-| [ZLTEMA](lib/trends_IIR/zltema/Zltema.md) | Zero-Lag Triple Exponential MA | Advanced triple-cascade predictive architecture combining three ZLEMAs with optimized 2/2/1 coefficients for maximum lag reduction. |

@@ -156,7 +156,7 @@
 | **Min-Max Channel** | Mmchannel | - | - | - | - |
 | **Min-Max Scaling (Normalization)** | Normalize | - | - | - | - |
 | **Mode (Most Frequent)** | Mode | - | - | - | - |
-| **Modified MA** | Mma | - | - | - | - |
+| **Modified MA** | [Mma](../lib/trends_IIR/mma/Mma.md) | - | - | - | - |
 | **Momentum** | Mom | MOM | mom | - | ❔ |
 | **Momentum change; 2nd derivative** | Accel | - | - | - | - |
 | **Money Flow Index** | Mfi | MFI | mfi | Mfi | ❔ |
@@ -185,7 +185,7 @@
 | **Price Volume Rank** | Pvr | - | - | - | ❔ |
 | **Price Volume Trend** | Pvt | - | - | - | ❔ |
 | **Qstick Indicator** | Qstick | - | - | - | ❔ |
-| **Quadruple Exponential MA** | Qema | - | - | - | ❔ |
+| **Quadruple Exponential MA** | [Qema](../lib/trends_IIR/qema/Qema.md) | - | - | - | ❔ |
 | **Quantile** | Quantile | - | - | - | - |
 | **Rate of acceleration; 3rd derivative** | Jolt | - | - | - | - |
 | **Rate of Change** | Roc | ROC | roc | Roc | ❔ |
@@ -269,7 +269,7 @@
 | **Yang-Zhang Volatility** | Yzv | - | - | - | - |
 | **Yang-Zhang Volatility Adjusted MA** | Yzvama | - | - | - | - |
 | **Zero-Lag Double Exponential MA** | Zldema | - | - | - | - |
-| **Zero-Lag Exponential Moving Average** | Zlema | - | zlema | - | ❔ |
+| **Zero-Lag Exponential Moving Average** | [Zlema](../lib/trends_IIR/zlema/Zlema.md) | - | zlema | - | ❔ |
 | **Zero-Lag Triple Exponential MA** | Zltema | - | - | - | ❔ |
 | **ZigZag** | - | - | - | ZigZag | - |
 | **Z-score standardization** | Zscore | - | - | - | ❔ |

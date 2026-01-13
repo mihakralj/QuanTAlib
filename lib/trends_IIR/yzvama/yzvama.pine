@@ -4,7 +4,6 @@
 indicator("Yang-Zhang Volatility Adjusted Moving Average (YZVAMA)", "YZVAMA", overlay=true)
 
 //@function Calculates YZVAMA by adjusting MA length based on percentile rank of short-term YZV
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/yzvama.md
 //@param source Series to calculate YZVAMA from
 //@param yzv_short_period Short-term YZV period for current volatility
 //@param yzv_long_period Long-term YZV period for baseline volatility

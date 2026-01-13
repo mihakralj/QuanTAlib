@@ -4,7 +4,6 @@
 indicator("Recursive Gaussian Moving Average (RGMA)", "RGMA", overlay=true)
 
 //@function Calculates RGMA using cascaded recursive filters to approximate Gaussian smoothing
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/rgma.md
 //@param source Series to calculate RGMA from
 //@param period Effective smoothing period
 //@param passes Number of recursive passes (higher = more Gaussian-like)

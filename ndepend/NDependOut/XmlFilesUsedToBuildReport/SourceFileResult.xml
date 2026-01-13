@@ -1,1606 +1,1705 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<SourceFileResult NbWithNewIssues="153" NbWithIssues="25" NbWithNoIssues="270">
-  <SrcFile Name="Stc.cs" Url=":Stc.cs.html" P=".\lib\cycles\stc" Pr="quantalib" FD="N">
-    <Val CellStyle="m100" SortId="000" Bold="1">45</Val>
-    <Val CellStyle="m0" SortId="177">0</Val>
-    <Val CellStyle="m0" SortId="177">0</Val>
-    <Val CellStyle="m84" SortId="001" Bold="1">1d  2h</Val>
-    <Val CellStyle="m48" SortId="007">1d  2h</Val>
-    <Val CellStyle="c82" SortId="076">82.4%</Val>
-    <Val CellStyle="m61" SortId="012">527</Val>
-  </SrcFile>
-  <SrcFile Name="Bpf.cs" Url=":Bpf.cs.html" P=".\lib\filters\bpf" Pr="quantalib" FD="N">
-    <Val CellStyle="m86" SortId="001" Bold="1">39</Val>
-    <Val CellStyle="m0" SortId="146">0</Val>
-    <Val CellStyle="m0" SortId="144">0</Val>
-    <Val CellStyle="m28" SortId="010" Bold="1">3h  23min</Val>
-    <Val CellStyle="m15" SortId="032">3h  23min</Val>
-    <Val CellStyle="c82" SortId="075">82.5%</Val>
-    <Val CellStyle="m27" SortId="062">262</Val>
-  </SrcFile>
-  <SrcFile Name="Notch.cs" Url=":Notch.cs.html" P=".\lib\filters\notch" Pr="quantalib" FD="N">
-    <Val CellStyle="m84" SortId="002" Bold="1">38</Val>
-    <Val CellStyle="m0" SortId="145">0</Val>
-    <Val CellStyle="m0" SortId="143">0</Val>
-    <Val CellStyle="m40" SortId="005" Bold="1">4h  49min</Val>
-    <Val CellStyle="m22" SortId="020">4h  49min</Val>
-    <Val CellStyle="c75" SortId="090">75.38%</Val>
-    <Val CellStyle="m27" SortId="064">257</Val>
-  </SrcFile>
-  <SrcFile Name="Cheby2.cs" Url=":Cheby2.cs.html" P=".\lib\filters\cheby2" Pr="quantalib" FD="N">
-    <Val CellStyle="m80" SortId="003" Bold="1">36</Val>
-    <Val CellStyle="m0" SortId="144">0</Val>
-    <Val CellStyle="m0" SortId="142">0</Val>
-    <Val CellStyle="m36" SortId="006" Bold="1">4h  24min</Val>
-    <Val CellStyle="m20" SortId="023">4h  24min</Val>
-    <Val CellStyle="c75" SortId="089">75.9%</Val>
-    <Val CellStyle="m34" SortId="041">318</Val>
-  </SrcFile>
-  <SrcFile Name="Hpf.cs" Url=":Hpf.cs.html" P=".\lib\filters\hpf" Pr="quantalib" FD="N">
-    <Val CellStyle="m80" SortId="004" Bold="1">36</Val>
-    <Val CellStyle="m0" SortId="143">0</Val>
-    <Val CellStyle="m0" SortId="141">0</Val>
-    <Val CellStyle="m48" SortId="003" Bold="1">5h  50min</Val>
-    <Val CellStyle="m27" SortId="015">5h  50min</Val>
-    <Val CellStyle="c75" SortId="091">75.17%</Val>
-    <Val CellStyle="m32" SortId="046">299</Val>
-  </SrcFile>
-  <SrcFile Name="Cheby1.cs" Url=":Cheby1.cs.html" P=".\lib\filters\cheby1" Pr="quantalib" FD="N">
-    <Val CellStyle="m71" SortId="005" Bold="1">32</Val>
-    <Val CellStyle="m0" SortId="142">0</Val>
-    <Val CellStyle="m0" SortId="140">0</Val>
-    <Val CellStyle="m26" SortId="014" Bold="1">3h  9min</Val>
-    <Val CellStyle="m14" SortId="040">3h  9min</Val>
-    <Val CellStyle="c85" SortId="060">85.42%</Val>
-    <Val CellStyle="m31" SortId="052">289</Val>
-  </SrcFile>
+<SourceFileResult NbWithNewIssues="164" NbWithIssues="25" NbWithNoIssues="284">
   <SrcFile Name="Elliptic.cs" Url=":Elliptic.cs.html" P=".\lib\filters\elliptic" Pr="quantalib" FD="N">
-    <Val CellStyle="m66" SortId="006" Bold="1">30</Val>
-    <Val CellStyle="m0" SortId="141">0</Val>
-    <Val CellStyle="m0" SortId="139">0</Val>
-    <Val CellStyle="m25" SortId="017" Bold="1">3h  5min</Val>
-    <Val CellStyle="m14" SortId="046">3h  5min</Val>
-    <Val CellStyle="c88" SortId="040">88.81%</Val>
-    <Val CellStyle="m31" SortId="050">295</Val>
-  </SrcFile>
-  <SrcFile Name="Hp.cs" Url=":Hp.cs.html" P=".\lib\filters\hp" Pr="quantalib" FD="N">
-    <Val CellStyle="m66" SortId="007" Bold="1">30</Val>
-    <Val CellStyle="m0" SortId="140">0</Val>
-    <Val CellStyle="m0" SortId="138">0</Val>
-    <Val CellStyle="m29" SortId="009" Bold="1">3h  35min</Val>
-    <Val CellStyle="m16" SortId="027">3h  35min</Val>
-    <Val CellStyle="c79" SortId="083">79.59%</Val>
-    <Val CellStyle="m25" SortId="068">245</Val>
-  </SrcFile>
-  <SrcFile Name="Afirma.cs" Url=":Afirma.cs.html" P=".\lib\forecasts\afirma" Pr="quantalib" FD="C">
-    <Val CellStyle="m55" SortId="009" Bold="1">25</Val>
-    <Val CellStyle="m3" SortId="077">2</Val>
-    <Val CellStyle="m8" SortId="054">3</Val>
-    <Val CellStyle="m78" SortId="002" Bold="1">1d  1h</Val>
-    <Val CellStyle="m46" SortId="008">1d  1h</Val>
-    <Val CellStyle="c79" SortId="086">79%</Val>
-    <Val CellStyle="m66" SortId="009">567</Val>
-  </SrcFile>
-  <SrcFile Name="Loess.cs" Url=":Loess.cs.html" P=".\lib\filters\loess" Pr="quantalib" FD="N">
-    <Val CellStyle="m55" SortId="008" Bold="1">25</Val>
-    <Val CellStyle="m0" SortId="139">0</Val>
-    <Val CellStyle="m0" SortId="137">0</Val>
-    <Val CellStyle="m27" SortId="011" Bold="1">3h  20min</Val>
-    <Val CellStyle="m15" SortId="034">3h  20min</Val>
-    <Val CellStyle="c87" SortId="050">87.01%</Val>
-    <Val CellStyle="m37" SortId="036">338</Val>
-  </SrcFile>
-  <SrcFile Name="Gauss.cs" Url=":Gauss.cs.html" P=".\lib\filters\gauss" Pr="quantalib" FD="N">
-    <Val CellStyle="m53" SortId="010" Bold="1">24</Val>
-    <Val CellStyle="m0" SortId="138">0</Val>
-    <Val CellStyle="m0" SortId="136">0</Val>
-    <Val CellStyle="m27" SortId="012" Bold="1">3h  16min</Val>
-    <Val CellStyle="m15" SortId="035">3h  16min</Val>
-    <Val CellStyle="c84" SortId="063">84.89%</Val>
-    <Val CellStyle="m34" SortId="042">317</Val>
-  </SrcFile>
-  <SrcFile Name="Hann.cs" Url=":Hann.cs.html" P=".\lib\filters\hann" Pr="quantalib" FD="N">
-    <Val CellStyle="m51" SortId="011" Bold="1">23</Val>
-    <Val CellStyle="m0" SortId="137">0</Val>
-    <Val CellStyle="m0" SortId="135">0</Val>
-    <Val CellStyle="m26" SortId="016" Bold="1">3h  8min</Val>
-    <Val CellStyle="m14" SortId="043">3h  8min</Val>
-    <Val CellStyle="c81" SortId="077">81.48%</Val>
-    <Val CellStyle="m27" SortId="061">263</Val>
-  </SrcFile>
-  <SrcFile Name="Kalman.cs" Url=":Kalman.cs.html" P=".\lib\filters\kalman" Pr="quantalib" FD="N">
-    <Val CellStyle="m51" SortId="012" Bold="1">23</Val>
-    <Val CellStyle="m0" SortId="136">0</Val>
-    <Val CellStyle="m0" SortId="134">0</Val>
-    <Val CellStyle="m32" SortId="007" Bold="1">3h  57min</Val>
-    <Val CellStyle="m18" SortId="024">3h  57min</Val>
-    <Val CellStyle="c74" SortId="092">74.04%</Val>
-    <Val CellStyle="m30" SortId="055">282</Val>
+    <Val CellStyle="m100" SortId="000" Bold="1">58</Val>
+    <Val CellStyle="m0" SortId="188">0</Val>
+    <Val CellStyle="m0" SortId="116">0</Val>
+    <Val CellStyle="m28" SortId="013" Bold="1">3h  33min</Val>
+    <Val CellStyle="m16" SortId="035">3h  33min</Val>
+    <Val CellStyle="c88" SortId="041">88.81%</Val>
+    <Val CellStyle="m32" SortId="055">295</Val>
   </SrcFile>
   <SrcFile Name="tbarseries.cs" Url=":tbarseries.cs.html" P=".\lib\core\tbarseries" Pr="quantalib" FD="C">
-    <Val CellStyle="m37" SortId="014" Bold="1">17</Val>
-    <Val CellStyle="m19" SortId="018">10</Val>
-    <Val CellStyle="m20" SortId="028">7</Val>
-    <Val CellStyle="m30" SortId="008" Bold="1">3h  38min</Val>
-    <Val CellStyle="m21" SortId="022">4h  31min</Val>
-    <Val CellStyle="c77" SortId="087">77.14%</Val>
-    <Val CellStyle="m32" SortId="048">297</Val>
+    <Val CellStyle="m98" SortId="002" Bold="1">57</Val>
+    <Val CellStyle="m24" SortId="022">16</Val>
+    <Val CellStyle="m10" SortId="048">1</Val>
+    <Val CellStyle="m34" SortId="010" Bold="1">4h  18min</Val>
+    <Val CellStyle="m24" SortId="020">5h  17min</Val>
+    <Val CellStyle="c77" SortId="089">77.14%</Val>
+    <Val CellStyle="m32" SortId="052">297</Val>
   </SrcFile>
-  <SrcFile Name="LinReg.Quantower.cs" Url=":LinReg.Quantower.cs.html" P=".\lib\statistics\linreg" Pr="quantalib" FD="C">
-    <Val CellStyle="m37" SortId="013" Bold="1">17</Val>
-    <Val CellStyle="m0" SortId="135">0</Val>
-    <Val CellStyle="m0" SortId="133">0</Val>
-    <Val CellStyle="m45" SortId="004" Bold="1">5h  31min</Val>
-    <Val CellStyle="m26" SortId="017">5h  31min</Val>
-    <Val SortId="141">N/A</Val>
-    <Val CellStyle="m23" SortId="074">229</Val>
+  <SrcFile Name="Cheby2.cs" Url=":Cheby2.cs.html" P=".\lib\filters\cheby2" Pr="quantalib" FD="N">
+    <Val CellStyle="m98" SortId="001" Bold="1">57</Val>
+    <Val CellStyle="m0" SortId="119">0</Val>
+    <Val CellStyle="m0" SortId="136">0</Val>
+    <Val CellStyle="m38" SortId="008" Bold="1">4h  45min</Val>
+    <Val CellStyle="m21" SortId="025">4h  45min</Val>
+    <Val CellStyle="c75" SortId="092">75.9%</Val>
+    <Val CellStyle="m35" SortId="045">318</Val>
   </SrcFile>
-  <SrcFile Name="AccBands.cs" Url=":AccBands.cs.html" P=".\lib\channels\accbands" Pr="quantalib" FD="C">
-    <Val CellStyle="m35" SortId="015" Bold="1">16</Val>
-    <Val CellStyle="m100" SortId="000">51</Val>
-    <Val CellStyle="m22" SortId="022">8</Val>
-    <Val CellStyle="m19" SortId="023" Bold="1">2h  19min</Val>
-    <Val CellStyle="m46" SortId="009">1d  1h</Val>
-    <Val CellStyle="c83" SortId="071">83.54%</Val>
-    <Val CellStyle="m93" SortId="001">780</Val>
+  <SrcFile Name="Cheby1.cs" Url=":Cheby1.cs.html" P=".\lib\filters\cheby1" Pr="quantalib" FD="N">
+    <Val CellStyle="m87" SortId="003" Bold="1">51</Val>
+    <Val CellStyle="m0" SortId="120">0</Val>
+    <Val CellStyle="m0" SortId="137">0</Val>
+    <Val CellStyle="m27" SortId="014" Bold="1">3h  28min</Val>
+    <Val CellStyle="m15" SortId="040">3h  28min</Val>
+    <Val CellStyle="c85" SortId="062">85.42%</Val>
+    <Val CellStyle="m31" SortId="058">289</Val>
   </SrcFile>
-  <SrcFile Name="Bilateral.cs" Url=":Bilateral.cs.html" P=".\lib\filters\bilateral" Pr="quantalib" FD="C">
-    <Val CellStyle="m35" SortId="016" Bold="1">16</Val>
-    <Val CellStyle="m13" SortId="036">7</Val>
-    <Val CellStyle="m14" SortId="043">5</Val>
-    <Val CellStyle="m26" SortId="013" Bold="1">3h  13min</Val>
-    <Val CellStyle="m37" SortId="013">7h  58min</Val>
-    <Val CellStyle="c76" SortId="088">76.27%</Val>
-    <Val CellStyle="m56" SortId="016">486</Val>
+  <SrcFile Name="Stc.cs" Url=":Stc.cs.html" P=".\lib\cycles\stc" Pr="quantalib" FD="N">
+    <Val CellStyle="m82" SortId="004" Bold="1">48</Val>
+    <Val CellStyle="m0" SortId="121">0</Val>
+    <Val CellStyle="m0" SortId="138">0</Val>
+    <Val CellStyle="m81" SortId="001" Bold="1">1d  2h</Val>
+    <Val CellStyle="m46" SortId="007">1d  2h</Val>
+    <Val CellStyle="c82" SortId="078">82.4%</Val>
+    <Val CellStyle="m61" SortId="012">527</Val>
   </SrcFile>
-  <SrcFile Name="Abber.cs" Url=":Abber.cs.html" P=".\lib\channels\abber" Pr="quantalib" FD="C">
-    <Val CellStyle="m33" SortId="018" Bold="1">15</Val>
-    <Val CellStyle="m72" SortId="001">37</Val>
-    <Val CellStyle="m22" SortId="018">8</Val>
-    <Val CellStyle="m18" SortId="024" Bold="1">2h  15min</Val>
-    <Val CellStyle="m100" SortId="000">2d  4h</Val>
-    <Val CellStyle="c87" SortId="045">87.79%</Val>
-    <Val CellStyle="m80" SortId="003">683</Val>
+  <SrcFile Name="Notch.cs" Url=":Notch.cs.html" P=".\lib\filters\notch" Pr="quantalib" FD="N">
+    <Val CellStyle="m75" SortId="005" Bold="1">44</Val>
+    <Val CellStyle="m0" SortId="122">0</Val>
+    <Val CellStyle="m0" SortId="139">0</Val>
+    <Val CellStyle="m39" SortId="007" Bold="1">4h  55min</Val>
+    <Val CellStyle="m22" SortId="023">4h  55min</Val>
+    <Val CellStyle="c75" SortId="093">75.38%</Val>
+    <Val CellStyle="m27" SortId="069">257</Val>
   </SrcFile>
-  <SrcFile Name="Sgf.cs" Url=":Sgf.cs.html" P=".\lib\filters\sgf" Pr="quantalib" FD="N">
-    <Val CellStyle="m33" SortId="017" Bold="1">15</Val>
-    <Val CellStyle="m0" SortId="134">0</Val>
-    <Val CellStyle="m0" SortId="132">0</Val>
-    <Val CellStyle="m26" SortId="015" Bold="1">3h  8min</Val>
-    <Val CellStyle="m14" SortId="042">3h  8min</Val>
-    <Val CellStyle="c80" SortId="081">80.54%</Val>
-    <Val CellStyle="m33" SortId="043">309</Val>
+  <SrcFile Name="Hema.cs" Url=":Hema.cs.html" P=".\lib\trends_IIR\hema" Pr="quantalib" FD="N">
+    <Val CellStyle="m68" SortId="006" Bold="1">40</Val>
+    <Val CellStyle="m0" SortId="123">0</Val>
+    <Val CellStyle="m0" SortId="140">0</Val>
+    <Val CellStyle="m77" SortId="002" Bold="1">1d  1h</Val>
+    <Val CellStyle="m44" SortId="010">1d  1h</Val>
+    <Val CellStyle="c72" SortId="098">72.32%</Val>
+    <Val CellStyle="m49" SortId="023">435</Val>
   </SrcFile>
-  <SrcFile Name="Vidya.cs" Url=":Vidya.cs.html" P=".\lib\trends_IIR\vidya" Pr="quantalib" FD="C">
-    <Val CellStyle="m31" SortId="019" Bold="1">14</Val>
-    <Val CellStyle="m13" SortId="035">7</Val>
-    <Val CellStyle="m5" SortId="068">2</Val>
-    <Val CellStyle="m16" SortId="033" Bold="1">1h  55min</Val>
-    <Val CellStyle="m39" SortId="011">1d  0h</Val>
-    <Val CellStyle="c64" SortId="099">64.9%</Val>
-    <Val CellStyle="m42" SortId="028">375</Val>
+  <SrcFile Name="Bpf.cs" Url=":Bpf.cs.html" P=".\lib\filters\bpf" Pr="quantalib" FD="N">
+    <Val CellStyle="m68" SortId="007" Bold="1">40</Val>
+    <Val CellStyle="m0" SortId="124">0</Val>
+    <Val CellStyle="m0" SortId="141">0</Val>
+    <Val CellStyle="m27" SortId="015" Bold="1">3h  24min</Val>
+    <Val CellStyle="m15" SortId="042">3h  24min</Val>
+    <Val CellStyle="c82" SortId="077">82.5%</Val>
+    <Val CellStyle="m28" SortId="067">262</Val>
   </SrcFile>
   <SrcFile Name="RingBuffer.cs" Url=":RingBuffer.cs.html" P=".\lib\core\ringbuffer" Pr="quantalib" FD="C">
-    <Val CellStyle="m28" SortId="020" Bold="1">13</Val>
-    <Val CellStyle="m23" SortId="012">12</Val>
-    <Val CellStyle="m8" SortId="052">3</Val>
-    <Val CellStyle="m18" SortId="025" Bold="1">2h  14min</Val>
-    <Val CellStyle="m22" SortId="021">4h  42min</Val>
+    <Val CellStyle="m65" SortId="008" Bold="1">38</Val>
+    <Val CellStyle="m18" SortId="030">12</Val>
+    <Val CellStyle="m30" SortId="021">3</Val>
+    <Val CellStyle="m21" SortId="025" Bold="1">2h  39min</Val>
+    <Val CellStyle="m23" SortId="022">5h  7min</Val>
     <Val CellStyle="c94" SortId="020">94.09%</Val>
     <Val CellStyle="m68" SortId="007">584</Val>
   </SrcFile>
-  <SrcFile Name="T3.cs" Url=":T3.cs.html" P=".\lib\trends_IIR\t3" Pr="quantalib" FD="C">
-    <Val CellStyle="m28" SortId="021" Bold="1">13</Val>
-    <Val CellStyle="m23" SortId="011">12</Val>
-    <Val CellStyle="m5" SortId="069">2</Val>
-    <Val CellStyle="m16" SortId="028" Bold="1">2h  1min</Val>
-    <Val CellStyle="m27" SortId="016">5h  42min</Val>
-    <Val CellStyle="c64" SortId="101">64.53%</Val>
-    <Val CellStyle="m39" SortId="030">357</Val>
+  <SrcFile Name="Hpf.cs" Url=":Hpf.cs.html" P=".\lib\filters\hpf" Pr="quantalib" FD="N">
+    <Val CellStyle="m62" SortId="009" Bold="1">36</Val>
+    <Val CellStyle="m0" SortId="125">0</Val>
+    <Val CellStyle="m0" SortId="143">0</Val>
+    <Val CellStyle="m47" SortId="004" Bold="1">5h  50min</Val>
+    <Val CellStyle="m26" SortId="016">5h  50min</Val>
+    <Val CellStyle="c75" SortId="094">75.17%</Val>
+    <Val CellStyle="m32" SortId="051">299</Val>
   </SrcFile>
-  <SrcFile Name="Sma.cs" Url=":Sma.cs.html" P=".\lib\trends_FIR\sma" Pr="quantalib" FD="C">
-    <Val CellStyle="m26" SortId="022" Bold="1">12</Val>
-    <Val CellStyle="m21" SortId="014">11</Val>
-    <Val CellStyle="m40" SortId="005">14</Val>
-    <Val CellStyle="m19" SortId="022" Bold="1">2h  19min</Val>
-    <Val CellStyle="m82" SortId="003">2d  1h</Val>
-    <Val CellStyle="c59" SortId="105">59.49%</Val>
-    <Val CellStyle="m73" SortId="006">623</Val>
+  <SrcFile Name="Afirma.cs" Url=":Afirma.cs.html" P=".\lib\forecasts\afirma" Pr="quantalib" FD="C">
+    <Val CellStyle="m55" SortId="011" Bold="1">32</Val>
+    <Val CellStyle="m6" SortId="071">4</Val>
+    <Val CellStyle="m20" SortId="026">2</Val>
+    <Val CellStyle="m77" SortId="003" Bold="1">1d  1h</Val>
+    <Val CellStyle="m45" SortId="008">1d  1h</Val>
+    <Val CellStyle="c79" SortId="088">79%</Val>
+    <Val CellStyle="m66" SortId="009">567</Val>
   </SrcFile>
-  <SrcFile Name="Tema.cs" Url=":Tema.cs.html" P=".\lib\trends_IIR\tema" Pr="quantalib">
-    <Val CellStyle="m24" SortId="024" Bold="1">11</Val>
-    <Val CellStyle="m43" SortId="006">22</Val>
-    <Val CellStyle="m48" SortId="004">17</Val>
-    <Val CellStyle="m13" SortId="046" Bold="1">1h  35min</Val>
-    <Val CellStyle="m49" SortId="006">1d  2h</Val>
-    <Val CellStyle="c64" SortId="100">64.83%</Val>
-    <Val CellStyle="m51" SortId="020">447</Val>
-  </SrcFile>
-  <SrcFile Name="Wma.cs" Url=":Wma.cs.html" P=".\lib\trends_FIR\wma" Pr="quantalib" FD="C">
-    <Val CellStyle="m24" SortId="026" Bold="1">11</Val>
-    <Val CellStyle="m19" SortId="015">10</Val>
-    <Val CellStyle="m11" SortId="048">4</Val>
-    <Val CellStyle="m17" SortId="027" Bold="1">2h  6min</Val>
-    <Val CellStyle="m93" SortId="002">2d  3h</Val>
-    <Val CellStyle="c70" SortId="097">70.46%</Val>
-    <Val CellStyle="m100" SortId="000">835</Val>
-  </SrcFile>
-  <SrcFile Name="tseries.cs" Url=":tseries.cs.html" P=".\lib\core\tseries" Pr="quantalib" FD="C">
-    <Val CellStyle="m24" SortId="025" Bold="1">11</Val>
-    <Val CellStyle="m17" SortId="021">9</Val>
-    <Val CellStyle="m31" SortId="013">11</Val>
-    <Val CellStyle="m15" SortId="034" Bold="1">1h  50min</Val>
-    <Val CellStyle="m11" SortId="061">2h  27min</Val>
-    <Val CellStyle="c83" SortId="072">83.33%</Val>
-    <Val CellStyle="m20" SortId="082">200</Val>
-  </SrcFile>
-  <SrcFile Name="Mgdi.cs" Url=":Mgdi.cs.html" P=".\lib\trends_IIR\mgdi" Pr="quantalib">
-    <Val CellStyle="m24" SortId="023" Bold="1">11</Val>
-    <Val CellStyle="m17" SortId="019">9</Val>
-    <Val CellStyle="m2" SortId="080">1</Val>
-    <Val CellStyle="m10" SortId="082" Bold="1">1h  19min</Val>
-    <Val CellStyle="m16" SortId="031">3h  24min</Val>
-    <Val CellStyle="c68" SortId="098">68.75%</Val>
-    <Val CellStyle="m23" SortId="077">225</Val>
-  </SrcFile>
-  <SrcFile Name="Apz.cs" Url=":Apz.cs.html" P=".\lib\channels\apz" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="031" Bold="1">10</Val>
-    <Val CellStyle="m62" SortId="003">32</Val>
-    <Val CellStyle="m20" SortId="024">7</Val>
-    <Val CellStyle="m13" SortId="044" Bold="1">1h  37min</Val>
-    <Val CellStyle="m23" SortId="019">4h  53min</Val>
-    <Val CellStyle="c84" SortId="066">84.21%</Val>
-    <Val CellStyle="m66" SortId="008">571</Val>
-  </SrcFile>
-  <SrcFile Name="Ssf.cs" Url=":Ssf.cs.html" P=".\lib\filters\ssf" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="033" Bold="1">10</Val>
-    <Val CellStyle="m19" SortId="017">10</Val>
-    <Val CellStyle="m14" SortId="041">5</Val>
-    <Val CellStyle="m12" SortId="064" Bold="1">1h  28min</Val>
-    <Val CellStyle="m38" SortId="012">1d  0h</Val>
-    <Val CellStyle="c62" SortId="103">62.5%</Val>
-    <Val CellStyle="m37" SortId="034">342</Val>
-  </SrcFile>
-  <SrcFile Name="Blma.cs" Url=":Blma.cs.html" P=".\lib\trends_FIR\blma" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="028" Bold="1">10</Val>
-    <Val CellStyle="m17" SortId="022">9</Val>
-    <Val CellStyle="m17" SortId="036">6</Val>
-    <Val CellStyle="m8" SortId="118" Bold="1">1h  4min</Val>
-    <Val CellStyle="m13" SortId="051">2h  48min</Val>
-    <Val CellStyle="c87" SortId="049">87.16%</Val>
-    <Val CellStyle="m36" SortId="038">327</Val>
-  </SrcFile>
-  <SrcFile Name="Usf.cs" Url=":Usf.cs.html" P=".\lib\filters\usf" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="029" Bold="1">10</Val>
-    <Val CellStyle="m15" SortId="024">8</Val>
-    <Val CellStyle="m20" SortId="023">7</Val>
-    <Val CellStyle="m12" SortId="061" Bold="1">1h  29min</Val>
-    <Val CellStyle="m10" SortId="064">2h  17min</Val>
-    <Val CellStyle="c86" SortId="057">86.03%</Val>
-    <Val CellStyle="m37" SortId="035">339</Val>
-  </SrcFile>
-  <SrcFile Name="Dema.cs" Url=":Dema.cs.html" P=".\lib\trends_IIR\dema" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="030" Bold="1">10</Val>
-    <Val CellStyle="m11" SortId="043">6</Val>
-    <Val CellStyle="m37" SortId="011">13</Val>
-    <Val CellStyle="m12" SortId="054" Bold="1">1h  32min</Val>
-    <Val CellStyle="m12" SortId="060">2h  34min</Val>
-    <Val CellStyle="c85" SortId="059">85.64%</Val>
-    <Val CellStyle="m38" SortId="033">346</Val>
-  </SrcFile>
-  <SrcFile Name="Alma.cs" Url=":Alma.cs.html" P=".\lib\trends_FIR\alma" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="032" Bold="1">10</Val>
-    <Val CellStyle="m5" SortId="064">3</Val>
-    <Val CellStyle="m14" SortId="042">5</Val>
-    <Val CellStyle="m12" SortId="053" Bold="1">1h  32min</Val>
-    <Val CellStyle="m12" SortId="055">2h  41min</Val>
-    <Val CellStyle="c87" SortId="046">87.58%</Val>
-    <Val CellStyle="m41" SortId="029">368</Val>
-  </SrcFile>
-  <SrcFile Name="Conv.cs" Url=":Conv.cs.html" P=".\lib\trends_FIR\conv" Pr="quantalib" FD="C">
-    <Val CellStyle="m22" SortId="027" Bold="1">10</Val>
-    <Val CellStyle="m3" SortId="070">2</Val>
-    <Val CellStyle="m8" SortId="051">3</Val>
-    <Val CellStyle="m12" SortId="065" Bold="1">1h  27min</Val>
-    <Val CellStyle="m9" SortId="068">2h  8min</Val>
-    <Val CellStyle="c88" SortId="043">88.1%</Val>
-    <Val CellStyle="m29" SortId="056">275</Val>
-  </SrcFile>
-  <SrcFile Name="Bessel.cs" Url=":Bessel.cs.html" P=".\lib\filters\bessel" Pr="quantalib" FD="C">
-    <Val CellStyle="m20" SortId="034" Bold="1">9</Val>
-    <Val CellStyle="m19" SortId="016">10</Val>
-    <Val CellStyle="m2" SortId="081">1</Val>
-    <Val CellStyle="m11" SortId="069" Bold="1">1h  25min</Val>
-    <Val CellStyle="m39" SortId="010">1d  0h</Val>
-    <Val CellStyle="c62" SortId="104">62.22%</Val>
-    <Val CellStyle="m62" SortId="011">537</Val>
-  </SrcFile>
-  <SrcFile Name="Atr.cs" Url=":Atr.cs.html" P=".\lib\volatility\atr" Pr="quantalib">
-    <Val CellStyle="m20" SortId="038" Bold="1">9</Val>
-    <Val CellStyle="m11" SortId="037">6</Val>
-    <Val CellStyle="m5" SortId="070">2</Val>
-    <Val CellStyle="m6" SortId="132" Bold="1">49min</Val>
-    <Val CellStyle="m5" SortId="140">1h  12min</Val>
-    <Val CellStyle="c79" SortId="085">79.41%</Val>
-    <Val CellStyle="m20" SortId="081">204</Val>
-  </SrcFile>
-  <SrcFile Name="Lsma.cs" Url=":Lsma.cs.html" P=".\lib\trends_FIR\lsma" Pr="quantalib" FD="C">
-    <Val CellStyle="m20" SortId="036" Bold="1">9</Val>
-    <Val CellStyle="m9" SortId="049">5</Val>
-    <Val CellStyle="m37" SortId="009">13</Val>
-    <Val CellStyle="m11" SortId="077" Bold="1">1h  21min</Val>
-    <Val CellStyle="m13" SortId="052">2h  46min</Val>
-    <Val CellStyle="c86" SortId="053">86.56%</Val>
-    <Val CellStyle="m47" SortId="023">422</Val>
-  </SrcFile>
-  <SrcFile Name="apchannel.cs" Url=":apchannel.cs.html" P=".\lib\channels\apchannel" Pr="quantalib" FD="C">
-    <Val CellStyle="m20" SortId="037" Bold="1">9</Val>
-    <Val CellStyle="m9" SortId="048">5</Val>
-    <Val CellStyle="m20" SortId="025">7</Val>
-    <Val CellStyle="m11" SortId="073" Bold="1">1h  22min</Val>
-    <Val CellStyle="m16" SortId="030">3h  26min</Val>
-    <Val CellStyle="c63" SortId="102">63.43%</Val>
-    <Val CellStyle="m35" SortId="040">322</Val>
-  </SrcFile>
-  <SrcFile Name="Trima.cs" Url=":Trima.cs.html" P=".\lib\trends_FIR\trima" Pr="quantalib" FD="C">
-    <Val CellStyle="m20" SortId="035" Bold="1">9</Val>
-    <Val CellStyle="m5" SortId="057">3</Val>
-    <Val CellStyle="m2" SortId="082">1</Val>
-    <Val CellStyle="m8" SortId="119" Bold="1">1h  3min</Val>
-    <Val CellStyle="m5" SortId="126">1h  16min</Val>
-    <Val CellStyle="c83" SortId="073">83.33%</Val>
-    <Val CellStyle="m15" SortId="088">166</Val>
-  </SrcFile>
-  <SrcFile Name="Butter.cs" Url=":Butter.cs.html" P=".\lib\filters\butter" Pr="quantalib" FD="C">
-    <Val CellStyle="m17" SortId="040" Bold="1">8</Val>
-    <Val CellStyle="m33" SortId="008">17</Val>
-    <Val CellStyle="m2" SortId="090">1</Val>
-    <Val CellStyle="m10" SortId="090" Bold="1">1h  17min</Val>
-    <Val CellStyle="m12" SortId="056">2h  41min</Val>
-    <Val CellStyle="c86" SortId="054">86.46%</Val>
-    <Val CellStyle="m24" SortId="073">232</Val>
-  </SrcFile>
-  <SrcFile Name="BiInputIndicatorBase.cs" Url=":BiInputIndicatorBase.cs.html" P=".\lib\core" Pr="quantalib">
-    <Val CellStyle="m17" SortId="041" Bold="1">8</Val>
-    <Val CellStyle="m11" SortId="044">6</Val>
-    <Val CellStyle="m11" SortId="049">4</Val>
-    <Val CellStyle="m19" SortId="021" Bold="1">2h  24min</Val>
-    <Val CellStyle="m15" SortId="039">3h  11min</Val>
-    <Val CellStyle="c87" SortId="048">87.5%</Val>
-    <Val CellStyle="m28" SortId="059">271</Val>
+  <SrcFile Name="Hp.cs" Url=":Hp.cs.html" P=".\lib\filters\hp" Pr="quantalib" FD="N">
+    <Val CellStyle="m55" SortId="010" Bold="1">32</Val>
+    <Val CellStyle="m0" SortId="126">0</Val>
+    <Val CellStyle="m0" SortId="150">0</Val>
+    <Val CellStyle="m29" SortId="012" Bold="1">3h  37min</Val>
+    <Val CellStyle="m16" SortId="032">3h  37min</Val>
+    <Val CellStyle="c79" SortId="085">79.59%</Val>
+    <Val CellStyle="m26" SortId="074">245</Val>
   </SrcFile>
   <SrcFile Name="IndicatorExtensions.cs" Url=":IndicatorExtensions.cs.html" P=".\quantower" Pr="Forecasts" FD="N">
-    <Val CellStyle="m17" SortId="039" Bold="1">8</Val>
-    <Val CellStyle="m0" SortId="133">0</Val>
-    <Val CellStyle="m0" SortId="131">0</Val>
+    <Val CellStyle="m53" SortId="012" Bold="1">31</Val>
+    <Val CellStyle="m0" SortId="127">0</Val>
+    <Val CellStyle="m0" SortId="144">0</Val>
     <Val CellStyle="m100" SortId="000" Bold="1">1d  4h</Val>
-    <Val CellStyle="m57" SortId="005">1d  4h</Val>
-    <Val CellStyle="c0" SortId="110">0%</Val>
-    <Val CellStyle="m22" SortId="078">221</Val>
+    <Val CellStyle="m56" SortId="005">1d  4h</Val>
+    <Val CellStyle="c0" SortId="115">0%</Val>
+    <Val CellStyle="m23" SortId="083">221</Val>
   </SrcFile>
-  <SrcFile Name="Jma.cs" Url=":Jma.cs.html" P=".\lib\trends_IIR\jma" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="049" Bold="1">7</Val>
-    <Val CellStyle="m50" SortId="004">26</Val>
-    <Val CellStyle="m17" SortId="034">6</Val>
-    <Val CellStyle="m11" SortId="074" Bold="1">1h  22min</Val>
-    <Val CellStyle="m15" SortId="033">3h  23min</Val>
-    <Val CellStyle="c95" SortId="016">95.48%</Val>
-    <Val CellStyle="m42" SortId="026">378</Val>
+  <SrcFile Name="Gauss.cs" Url=":Gauss.cs.html" P=".\lib\filters\gauss" Pr="quantalib" FD="N">
+    <Val CellStyle="m51" SortId="014" Bold="1">30</Val>
+    <Val CellStyle="m0" SortId="128">0</Val>
+    <Val CellStyle="m0" SortId="146">0</Val>
+    <Val CellStyle="m27" SortId="016" Bold="1">3h  22min</Val>
+    <Val CellStyle="m15" SortId="043">3h  22min</Val>
+    <Val CellStyle="c84" SortId="065">84.89%</Val>
+    <Val CellStyle="m35" SortId="046">317</Val>
   </SrcFile>
-  <SrcFile Name="Super.cs" Url=":Super.cs.html" P=".\lib\dynamics\super" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="050" Bold="1">7</Val>
-    <Val CellStyle="m29" SortId="009">15</Val>
-    <Val CellStyle="m14" SortId="040">5</Val>
-    <Val CellStyle="m7" SortId="122" Bold="1">54min</Val>
-    <Val CellStyle="m8" SortId="074">1h  50min</Val>
-    <Val CellStyle="c91" SortId="027">91.67%</Val>
-    <Val CellStyle="m25" SortId="069">245</Val>
+  <SrcFile Name="Dsma.cs" Url=":Dsma.cs.html" P=".\lib\trends_IIR\dsma" Pr="quantalib" FD="N">
+    <Val CellStyle="m51" SortId="013" Bold="1">30</Val>
+    <Val CellStyle="m0" SortId="129">0</Val>
+    <Val CellStyle="m0" SortId="145">0</Val>
+    <Val CellStyle="m21" SortId="023" Bold="1">2h  40min</Val>
+    <Val CellStyle="m12" SortId="064">2h  40min</Val>
+    <Val CellStyle="c99" SortId="010">99.04%</Val>
+    <Val CellStyle="m37" SortId="039">337</Val>
   </SrcFile>
-  <SrcFile Name="Htit.cs" Url=":Htit.cs.html" P=".\lib\trends_IIR\htit" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="051" Bold="1">7</Val>
-    <Val CellStyle="m15" SortId="029">8</Val>
-    <Val CellStyle="m97" SortId="001">34</Val>
-    <Val CellStyle="m10" SortId="105" Bold="1">1h  12min</Val>
-    <Val CellStyle="m15" SortId="038">3h  11min</Val>
-    <Val CellStyle="c89" SortId="038">89.03%</Val>
-    <Val CellStyle="m52" SortId="019">459</Val>
+  <SrcFile Name="tseries.cs" Url=":tseries.cs.html" P=".\lib\core\tseries" Pr="quantalib" FD="C">
+    <Val CellStyle="m46" SortId="015" Bold="1">27</Val>
+    <Val CellStyle="m27" SortId="016">18</Val>
+    <Val CellStyle="m20" SortId="024">2</Val>
+    <Val CellStyle="m17" SortId="033" Bold="1">2h  6min</Val>
+    <Val CellStyle="m13" SortId="057">2h  52min</Val>
+    <Val CellStyle="c83" SortId="074">83.33%</Val>
+    <Val CellStyle="m20" SortId="087">200</Val>
   </SrcFile>
-  <SrcFile Name="Mama.cs" Url=":Mama.cs.html" P=".\lib\trends_IIR\mama" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="048" Bold="1">7</Val>
-    <Val CellStyle="m13" SortId="034">7</Val>
-    <Val CellStyle="m100" SortId="000">35</Val>
-    <Val CellStyle="m9" SortId="115" Bold="1">1h  6min</Val>
-    <Val CellStyle="m14" SortId="045">3h  6min</Val>
-    <Val CellStyle="c88" SortId="042">88.49%</Val>
-    <Val CellStyle="m56" SortId="015">487</Val>
+  <SrcFile Name="Frama.cs" Url=":Frama.cs.html" P=".\lib\trends_IIR\frama" Pr="quantalib" FD="N">
+    <Val CellStyle="m46" SortId="016" Bold="1">27</Val>
+    <Val CellStyle="m0" SortId="130">0</Val>
+    <Val CellStyle="m0" SortId="147">0</Val>
+    <Val CellStyle="m44" SortId="006" Bold="1">5h  30min</Val>
+    <Val CellStyle="m25" SortId="019">5h  30min</Val>
+    <Val CellStyle="c70" SortId="102">70.35%</Val>
+    <Val CellStyle="m35" SortId="043">322</Val>
   </SrcFile>
-  <SrcFile Name="Ultosc.cs" Url=":Ultosc.cs.html" P=".\lib\oscillators\ultosc" Pr="quantalib">
-    <Val CellStyle="m15" SortId="044" Bold="1">7</Val>
-    <Val CellStyle="m13" SortId="033">7</Val>
-    <Val CellStyle="m8" SortId="053">3</Val>
-    <Val CellStyle="m6" SortId="133" Bold="1">48min</Val>
-    <Val CellStyle="m10" SortId="065">2h  14min</Val>
-    <Val CellStyle="c87" SortId="047">87.57%</Val>
-    <Val CellStyle="m42" SortId="027">377</Val>
-  </SrcFile>
-  <SrcFile Name="Alma.Quantower.cs" Url=":Alma.Quantower.cs.html" P=".\lib\trends_FIR\alma" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="052" Bold="1">7</Val>
-    <Val CellStyle="m0" SortId="132">0</Val>
-    <Val CellStyle="m0" SortId="125">0</Val>
-    <Val CellStyle="m13" SortId="040" Bold="1">1h  39min</Val>
-    <Val CellStyle="m7" SortId="082">1h  39min</Val>
-    <Val SortId="152">N/A</Val>
-    <Val CellStyle="m3" SortId="118">65</Val>
-  </SrcFile>
-  <SrcFile Name="Hma.Quantower.cs" Url=":Hma.Quantower.cs.html" P=".\lib\trends_FIR\hma" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="042" Bold="1">7</Val>
+  <SrcFile Name="Hann.cs" Url=":Hann.cs.html" P=".\lib\filters\hann" Pr="quantalib" FD="N">
+    <Val CellStyle="m44" SortId="018" Bold="1">26</Val>
     <Val CellStyle="m0" SortId="131">0</Val>
-    <Val CellStyle="m0" SortId="130">0</Val>
-    <Val CellStyle="m13" SortId="043" Bold="1">1h  37min</Val>
-    <Val CellStyle="m7" SortId="085">1h  37min</Val>
-    <Val SortId="114">N/A</Val>
-    <Val CellStyle="m2" SortId="148">59</Val>
+    <Val CellStyle="m0" SortId="149">0</Val>
+    <Val CellStyle="m25" SortId="020" Bold="1">3h  11min</Val>
+    <Val CellStyle="m14" SortId="049">3h  11min</Val>
+    <Val CellStyle="c81" SortId="079">81.48%</Val>
+    <Val CellStyle="m28" SortId="066">263</Val>
   </SrcFile>
-  <SrcFile Name="Conv.Quantower.cs" Url=":Conv.Quantower.cs.html" P=".\lib\trends_FIR\conv" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="053" Bold="1">7</Val>
-    <Val CellStyle="m0" SortId="130">0</Val>
-    <Val CellStyle="m0" SortId="124">0</Val>
-    <Val CellStyle="m23" SortId="018" Bold="1">2h  49min</Val>
-    <Val CellStyle="m13" SortId="050">2h  49min</Val>
-    <Val SortId="150">N/A</Val>
-    <Val CellStyle="m4" SortId="107">78</Val>
-  </SrcFile>
-  <SrcFile Name="Dema.Quantower.cs" Url=":Dema.Quantower.cs.html" P=".\lib\trends_IIR\dema" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="046" Bold="1">7</Val>
-    <Val CellStyle="m0" SortId="129">0</Val>
-    <Val CellStyle="m0" SortId="127">0</Val>
-    <Val CellStyle="m13" SortId="041" Bold="1">1h  37min</Val>
-    <Val CellStyle="m7" SortId="084">1h  37min</Val>
-    <Val SortId="145">N/A</Val>
-    <Val CellStyle="m2" SortId="142">59</Val>
-  </SrcFile>
-  <SrcFile Name="Ema.Quantower.cs" Url=":Ema.Quantower.cs.html" P=".\lib\trends_IIR\ema" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="043" Bold="1">7</Val>
-    <Val CellStyle="m0" SortId="128">0</Val>
-    <Val CellStyle="m0" SortId="129">0</Val>
-    <Val CellStyle="m13" SortId="045" Bold="1">1h  36min</Val>
-    <Val CellStyle="m7" SortId="086">1h  36min</Val>
-    <Val SortId="127">N/A</Val>
-    <Val CellStyle="m1" SortId="160">56</Val>
-  </SrcFile>
-  <SrcFile Name="Jma.Quantower.cs" Url=":Jma.Quantower.cs.html" P=".\lib\trends_IIR\jma" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="047" Bold="1">7</Val>
-    <Val CellStyle="m0" SortId="127">0</Val>
-    <Val CellStyle="m0" SortId="126">0</Val>
-    <Val CellStyle="m14" SortId="039" Bold="1">1h  43min</Val>
-    <Val CellStyle="m8" SortId="081">1h  43min</Val>
-    <Val SortId="147">N/A</Val>
-    <Val CellStyle="m3" SortId="113">70</Val>
-  </SrcFile>
-  <SrcFile Name="Dwma.Quantower.cs" Url=":Dwma.Quantower.cs.html" P=".\lib\trends_FIR\dwma" Pr="quantalib" FD="C">
-    <Val CellStyle="m15" SortId="045" Bold="1">7</Val>
-    <Val CellStyle="m0" SortId="126">0</Val>
-    <Val CellStyle="m0" SortId="128">0</Val>
-    <Val CellStyle="m13" SortId="042" Bold="1">1h  37min</Val>
-    <Val CellStyle="m7" SortId="083">1h  37min</Val>
-    <Val SortId="144">N/A</Val>
-    <Val CellStyle="m2" SortId="144">59</Val>
-  </SrcFile>
-  <SrcFile Name="Ema.cs" Url=":Ema.cs.html" P=".\lib\trends_IIR\ema" Pr="quantalib">
-    <Val CellStyle="m13" SortId="055" Bold="1">6</Val>
-    <Val CellStyle="m23" SortId="013">12</Val>
-    <Val CellStyle="m17" SortId="038">6</Val>
-    <Val CellStyle="m11" SortId="072" Bold="1">1h  22min</Val>
-    <Val CellStyle="m14" SortId="047">3h  4min</Val>
-    <Val CellStyle="c91" SortId="026">91.91%</Val>
-    <Val CellStyle="m62" SortId="010">539</Val>
-  </SrcFile>
-  <SrcFile Name="Pwma.cs" Url=":Pwma.cs.html" P=".\lib\trends_FIR\pwma" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="058" Bold="1">6</Val>
-    <Val CellStyle="m15" SortId="027">8</Val>
-    <Val CellStyle="m40" SortId="008">14</Val>
-    <Val CellStyle="m10" SortId="103" Bold="1">1h  13min</Val>
-    <Val CellStyle="m10" SortId="066">2h  10min</Val>
-    <Val CellStyle="c90" SortId="032">90.4%</Val>
-    <Val CellStyle="m38" SortId="032">347</Val>
-  </SrcFile>
-  <SrcFile Name="LinReg.cs" Url=":LinReg.cs.html" P=".\lib\statistics\linreg" Pr="quantalib">
-    <Val CellStyle="m13" SortId="061" Bold="1">6</Val>
-    <Val CellStyle="m15" SortId="028">8</Val>
-    <Val CellStyle="m34" SortId="012">12</Val>
-    <Val CellStyle="m7" SortId="121" Bold="1">55min</Val>
-    <Val CellStyle="m12" SortId="054">2h  45min</Val>
-    <Val CellStyle="c84" SortId="065">84.26%</Val>
-    <Val CellStyle="m50" SortId="021">441</Val>
-  </SrcFile>
-  <SrcFile Name="Sum.cs" Url=":Sum.cs.html" P=".\lib\statistics\sum" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="063" Bold="1">6</Val>
-    <Val CellStyle="m11" SortId="038">6</Val>
-    <Val CellStyle="m37" SortId="010">13</Val>
-    <Val CellStyle="m7" SortId="125" Bold="1">52min</Val>
-    <Val CellStyle="m8" SortId="077">1h  49min</Val>
-    <Val CellStyle="c89" SortId="036">89.3%</Val>
-    <Val CellStyle="m54" SortId="017">475</Val>
-  </SrcFile>
-  <SrcFile Name="Kama.cs" Url=":Kama.cs.html" P=".\lib\trends_IIR\kama" Pr="quantalib">
-    <Val CellStyle="m13" SortId="060" Bold="1">6</Val>
-    <Val CellStyle="m9" SortId="045">5</Val>
-    <Val CellStyle="m25" SortId="016">9</Val>
-    <Val CellStyle="m9" SortId="114" Bold="1">1h  7min</Val>
-    <Val CellStyle="m15" SortId="036">3h  13min</Val>
-    <Val CellStyle="c85" SortId="061">85.37%</Val>
-    <Val CellStyle="m37" SortId="037">336</Val>
-  </SrcFile>
-  <SrcFile Name="Cfb.cs" Url=":Cfb.cs.html" P=".\lib\momentum\cfb" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="054" Bold="1">6</Val>
-    <Val CellStyle="m9" SortId="047">5</Val>
-    <Val CellStyle="m17" SortId="031">6</Val>
-    <Val CellStyle="m7" SortId="126" Bold="1">52min</Val>
-    <Val CellStyle="m9" SortId="073">1h  55min</Val>
-    <Val CellStyle="c92" SortId="025">92.66%</Val>
-    <Val CellStyle="m42" SortId="025">382</Val>
-  </SrcFile>
-  <SrcFile Name="Cma.cs" Url=":Cma.cs.html" P=".\lib\statistics\cma" Pr="quantalib">
-    <Val CellStyle="m13" SortId="065" Bold="1">6</Val>
-    <Val CellStyle="m7" SortId="056">4</Val>
-    <Val CellStyle="m2" SortId="094">1</Val>
-    <Val CellStyle="m7" SortId="124" Bold="1">52min</Val>
-    <Val CellStyle="m5" SortId="139">1h  13min</Val>
-    <Val CellStyle="c88" SortId="041">88.57%</Val>
-    <Val CellStyle="m29" SortId="057">273</Val>
-  </SrcFile>
-  <SrcFile Name="Bop.cs" Url=":Bop.cs.html" P=".\lib\momentum\bop" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="066" Bold="1">6</Val>
-    <Val CellStyle="m5" SortId="063">3</Val>
-    <Val CellStyle="m20" SortId="029">7</Val>
-    <Val CellStyle="m5" SortId="142" Bold="1">39min</Val>
-    <Val CellStyle="m3" SortId="158">50min</Val>
-    <Val CellStyle="c89" SortId="037">89.09%</Val>
-    <Val CellStyle="m17" SortId="086">183</Val>
-  </SrcFile>
-  <SrcFile Name="Apo.cs" Url=":Apo.cs.html" P=".\lib\oscillators\apo" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="057" Bold="1">6</Val>
-    <Val CellStyle="m5" SortId="065">3</Val>
-    <Val CellStyle="m11" SortId="045">4</Val>
-    <Val CellStyle="m7" SortId="127" Bold="1">51min</Val>
-    <Val CellStyle="m4" SortId="155">1h  1min</Val>
-    <Val CellStyle="c83" SortId="069">83.67%</Val>
-    <Val CellStyle="m18" SortId="084">188</Val>
-  </SrcFile>
-  <SrcFile Name="ITValuePublisher.cs" Url=":ITValuePublisher.cs.html" P=".\lib\core\tseries" Pr="quantalib">
-    <Val CellStyle="m13" SortId="059" Bold="1">6</Val>
-    <Val CellStyle="m3" SortId="066">2</Val>
-    <Val CellStyle="m5" SortId="067">2</Val>
-    <Val CellStyle="m18" SortId="026" Bold="1">2h  12min</Val>
-    <Val CellStyle="m10" SortId="063">2h  18min</Val>
-    <Val CellStyle="c55" SortId="108">55.56%</Val>
-    <Val CellStyle="m1" SortId="173">50</Val>
-  </SrcFile>
-  <SrcFile Name="Adxr.cs" Url=":Adxr.cs.html" P=".\lib\dynamics\adxr" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="064" Bold="1">6</Val>
-    <Val CellStyle="m1" SortId="093">1</Val>
-    <Val CellStyle="m14" SortId="039">5</Val>
-    <Val CellStyle="m11" SortId="068" Bold="1">1h  26min</Val>
-    <Val CellStyle="m6" SortId="101">1h  28min</Val>
-    <Val CellStyle="c86" SortId="056">86.05%</Val>
-    <Val CellStyle="m24" SortId="072">235</Val>
-  </SrcFile>
-  <SrcFile Name="Wiener.cs" Url=":Wiener.cs.html" P=".\lib\filters\wiener" Pr="quantalib" FD="N">
-    <Val CellStyle="m13" SortId="067" Bold="1">6</Val>
-    <Val CellStyle="m0" SortId="125">0</Val>
-    <Val CellStyle="m0" SortId="121">0</Val>
-    <Val CellStyle="m9" SortId="116" Bold="1">1h  6min</Val>
-    <Val CellStyle="m5" SortId="151">1h  6min</Val>
-    <Val CellStyle="c89" SortId="034">89.87%</Val>
-    <Val CellStyle="m15" SortId="087">167</Val>
-  </SrcFile>
-  <SrcFile Name="Bessel.Quantower.cs" Url=":Bessel.Quantower.cs.html" P=".\lib\filters\bessel" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="062" Bold="1">6</Val>
-    <Val CellStyle="m0" SortId="124">0</Val>
-    <Val CellStyle="m0" SortId="122">0</Val>
-    <Val CellStyle="m11" SortId="081" Bold="1">1h  20min</Val>
-    <Val CellStyle="m6" SortId="112">1h  20min</Val>
-    <Val SortId="118">N/A</Val>
-    <Val CellStyle="m2" SortId="152">58</Val>
-  </SrcFile>
-  <SrcFile Name="Bilateral.Quantower.cs" Url=":Bilateral.Quantower.cs.html" P=".\lib\filters\bilateral" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="056" Bold="1">6</Val>
-    <Val CellStyle="m0" SortId="123">0</Val>
-    <Val CellStyle="m0" SortId="123">0</Val>
-    <Val CellStyle="m12" SortId="066" Bold="1">1h  27min</Val>
-    <Val CellStyle="m6" SortId="102">1h  27min</Val>
-    <Val SortId="154">N/A</Val>
-    <Val CellStyle="m3" SortId="120">65</Val>
-  </SrcFile>
-  <SrcFile Name="Blma.Quantower.cs" Url=":Blma.Quantower.cs.html" P=".\lib\trends_FIR\blma" Pr="quantalib" FD="C">
-    <Val CellStyle="m13" SortId="068" Bold="1">6</Val>
-    <Val CellStyle="m0" SortId="122">0</Val>
-    <Val CellStyle="m0" SortId="120">0</Val>
-    <Val CellStyle="m13" SortId="048" Bold="1">1h  34min</Val>
-    <Val CellStyle="m7" SortId="088">1h  34min</Val>
-    <Val SortId="175">N/A</Val>
-    <Val CellStyle="m2" SortId="141">59</Val>
-  </SrcFile>
-  <SrcFile Name="Rsx.cs" Url=":Rsx.cs.html" P=".\lib\momentum\rsx" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="083" Bold="1">5</Val>
-    <Val CellStyle="m64" SortId="002">33</Val>
-    <Val CellStyle="m97" SortId="002">34</Val>
-    <Val CellStyle="m6" SortId="131" Bold="1">50min</Val>
-    <Val CellStyle="m14" SortId="044">3h  7min</Val>
-    <Val CellStyle="c94" SortId="019">94.16%</Val>
-    <Val CellStyle="m35" SortId="039">325</Val>
+  <SrcFile Name="Loess.cs" Url=":Loess.cs.html" P=".\lib\filters\loess" Pr="quantalib" FD="N">
+    <Val CellStyle="m44" SortId="017" Bold="1">26</Val>
+    <Val CellStyle="m0" SortId="132">0</Val>
+    <Val CellStyle="m0" SortId="148">0</Val>
+    <Val CellStyle="m27" SortId="017" Bold="1">3h  21min</Val>
+    <Val CellStyle="m15" SortId="045">3h  21min</Val>
+    <Val CellStyle="c87" SortId="052">87.01%</Val>
+    <Val CellStyle="m37" SortId="038">338</Val>
   </SrcFile>
   <SrcFile Name="SimdExtensions.cs" Url=":SimdExtensions.cs.html" P=".\lib\core\simd" Pr="quantalib">
-    <Val CellStyle="m11" SortId="077" Bold="1">5</Val>
-    <Val CellStyle="m35" SortId="007">18</Val>
-    <Val CellStyle="m22" SortId="021">8</Val>
-    <Val CellStyle="m10" SortId="101" Bold="1">1h  14min</Val>
-    <Val CellStyle="m64" SortId="004">1d  5h</Val>
-    <Val CellStyle="c72" SortId="094">72.59%</Val>
+    <Val CellStyle="m43" SortId="019" Bold="1">25</Val>
+    <Val CellStyle="m39" SortId="008">26</Val>
+    <Val CellStyle="m0" SortId="135">0</Val>
+    <Val CellStyle="m12" SortId="061" Bold="1">1h  34min</Val>
+    <Val CellStyle="m64" SortId="004">1d  6h</Val>
+    <Val CellStyle="c72" SortId="097">72.59%</Val>
     <Val CellStyle="m84" SortId="002">713</Val>
   </SrcFile>
-  <SrcFile Name="ErrorHelpers.cs" Url=":ErrorHelpers.cs.html" P=".\lib\core\simd" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="087" Bold="1">5</Val>
-    <Val CellStyle="m25" SortId="010">13</Val>
-    <Val CellStyle="m28" SortId="014">10</Val>
-    <Val CellStyle="m12" SortId="055" Bold="1">1h  32min</Val>
-    <Val CellStyle="m32" SortId="014">6h  51min</Val>
-    <Val CellStyle="c83" SortId="068">83.96%</Val>
-    <Val CellStyle="m75" SortId="005">639</Val>
+  <SrcFile Name="Kalman.cs" Url=":Kalman.cs.html" P=".\lib\filters\kalman" Pr="quantalib" FD="N">
+    <Val CellStyle="m39" SortId="020" Bold="1">23</Val>
+    <Val CellStyle="m0" SortId="133">0</Val>
+    <Val CellStyle="m0" SortId="142">0</Val>
+    <Val CellStyle="m31" SortId="011" Bold="1">3h  57min</Val>
+    <Val CellStyle="m18" SortId="027">3h  57min</Val>
+    <Val CellStyle="c74" SortId="095">74.04%</Val>
+    <Val CellStyle="m30" SortId="060">282</Val>
   </SrcFile>
-  <SrcFile Name="Variance.cs" Url=":Variance.cs.html" P=".\lib\statistics\variance" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="081" Bold="1">5</Val>
-    <Val CellStyle="m11" SortId="042">6</Val>
-    <Val CellStyle="m40" SortId="007">14</Val>
-    <Val CellStyle="m6" SortId="129" Bold="1">50min</Val>
-    <Val CellStyle="m94" SortId="001">2d  3h</Val>
-    <Val CellStyle="c57" SortId="107">57.66%</Val>
-    <Val CellStyle="m75" SortId="004">640</Val>
+  <SrcFile Name="Sgf.cs" Url=":Sgf.cs.html" P=".\lib\filters\sgf" Pr="quantalib" FD="N">
+    <Val CellStyle="m37" SortId="021" Bold="1">22</Val>
+    <Val CellStyle="m0" SortId="134">0</Val>
+    <Val CellStyle="m0" SortId="134">0</Val>
+    <Val CellStyle="m26" SortId="018" Bold="1">3h  15min</Val>
+    <Val CellStyle="m14" SortId="047">3h  15min</Val>
+    <Val CellStyle="c80" SortId="083">80.54%</Val>
+    <Val CellStyle="m34" SortId="047">309</Val>
   </SrcFile>
-  <SrcFile Name="Amat.cs" Url=":Amat.cs.html" P=".\lib\dynamics\amat" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="093" Bold="1">5</Val>
-    <Val CellStyle="m9" SortId="046">5</Val>
-    <Val CellStyle="m20" SortId="026">7</Val>
-    <Val CellStyle="m6" SortId="130" Bold="1">50min</Val>
-    <Val CellStyle="m6" SortId="113">1h  19min</Val>
-    <Val CellStyle="c81" SortId="078">81.15%</Val>
-    <Val CellStyle="m58" SortId="013">503</Val>
+  <SrcFile Name="Zlema.cs" Url=":Zlema.cs.html" P=".\lib\trends_IIR\zlema" Pr="quantalib" FD="N">
+    <Val CellStyle="m34" SortId="022" Bold="1">20</Val>
+    <Val CellStyle="m0" SortId="135">0</Val>
+    <Val CellStyle="m0" SortId="124">0</Val>
+    <Val CellStyle="m36" SortId="009" Bold="1">4h  32min</Val>
+    <Val CellStyle="m20" SortId="026">4h  32min</Val>
+    <Val CellStyle="c76" SortId="090">76.92%</Val>
+    <Val CellStyle="m40" SortId="031">360</Val>
   </SrcFile>
-  <SrcFile Name="Rma.cs" Url=":Rma.cs.html" P=".\lib\trends_IIR\rma" Pr="quantalib">
-    <Val CellStyle="m11" SortId="075" Bold="1">5</Val>
-    <Val CellStyle="m7" SortId="053">4</Val>
-    <Val CellStyle="m5" SortId="064">2</Val>
-    <Val CellStyle="m6" SortId="128" Bold="1">50min</Val>
-    <Val CellStyle="m5" SortId="141">1h  12min</Val>
-    <Val CellStyle="c73" SortId="093">73.17%</Val>
-    <Val CellStyle="m14" SortId="089">153</Val>
+  <SrcFile Name="AccBands.cs" Url=":AccBands.cs.html" P=".\lib\channels\accbands" Pr="quantalib" FD="C">
+    <Val CellStyle="m29" SortId="023" Bold="1">17</Val>
+    <Val CellStyle="m81" SortId="001">54</Val>
+    <Val CellStyle="m50" SortId="011">5</Val>
+    <Val CellStyle="m18" SortId="029" Bold="1">2h  20min</Val>
+    <Val CellStyle="m44" SortId="009">1d  1h</Val>
+    <Val CellStyle="c83" SortId="073">83.54%</Val>
+    <Val CellStyle="m93" SortId="001">780</Val>
   </SrcFile>
-  <SrcFile Name="Adx.cs" Url=":Adx.cs.html" P=".\lib\dynamics\adx" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="072" Bold="1">5</Val>
-    <Val CellStyle="m5" SortId="058">3</Val>
-    <Val CellStyle="m40" SortId="006">14</Val>
-    <Val CellStyle="m5" SortId="140" Bold="1">42min</Val>
-    <Val CellStyle="m12" SortId="059">2h  37min</Val>
-    <Val CellStyle="c95" SortId="015">95.65%</Val>
-    <Val CellStyle="m50" SortId="022">441</Val>
-  </SrcFile>
-  <SrcFile Name="Aroon.cs" Url=":Aroon.cs.html" P=".\lib\dynamics\aroon" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="090" Bold="1">5</Val>
-    <Val CellStyle="m3" SortId="069">2</Val>
-    <Val CellStyle="m22" SortId="017">8</Val>
-    <Val CellStyle="m5" SortId="139" Bold="1">42min</Val>
-    <Val CellStyle="m5" SortId="128">1h  15min</Val>
-    <Val CellStyle="c86" SortId="052">86.78%</Val>
-    <Val CellStyle="m27" SortId="063">258</Val>
-  </SrcFile>
-  <SrcFile Name="AroonOsc.cs" Url=":AroonOsc.cs.html" P=".\lib\dynamics\aroonosc" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="086" Bold="1">5</Val>
-    <Val CellStyle="m3" SortId="068">2</Val>
-    <Val CellStyle="m22" SortId="020">8</Val>
-    <Val CellStyle="m5" SortId="138" Bold="1">42min</Val>
-    <Val CellStyle="m5" SortId="127">1h  15min</Val>
-    <Val CellStyle="c89" SortId="035">89.38%</Val>
-    <Val CellStyle="m25" SortId="070">244</Val>
-  </SrcFile>
-  <SrcFile Name="Ao.cs" Url=":Ao.cs.html" P=".\lib\oscillators\ao" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="089" Bold="1">5</Val>
-    <Val CellStyle="m3" SortId="067">2</Val>
-    <Val CellStyle="m17" SortId="037">6</Val>
-    <Val CellStyle="m6" SortId="134" Bold="1">45min</Val>
-    <Val CellStyle="m4" SortId="154">1h  3min</Val>
-    <Val CellStyle="c86" SortId="055">86.25%</Val>
-    <Val CellStyle="m23" SortId="075">227</Val>
-  </SrcFile>
-  <SrcFile Name="Adosc.cs" Url=":Adosc.cs.html" P=".\lib\volume\adosc" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="091" Bold="1">5</Val>
-    <Val CellStyle="m1" SortId="082">1</Val>
-    <Val CellStyle="m17" SortId="032">6</Val>
-    <Val CellStyle="m8" SortId="120" Bold="1">59min</Val>
-    <Val CellStyle="m6" SortId="096">1h  30min</Val>
-    <Val CellStyle="c90" SortId="033">90.11%</Val>
-    <Val CellStyle="m29" SortId="058">272</Val>
-  </SrcFile>
-  <SrcFile Name="Tema.Quantower.cs" Url=":Tema.Quantower.cs.html" P=".\lib\trends_IIR\tema" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="073" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="147">0</Val>
-    <Val CellStyle="m0" SortId="147">0</Val>
-    <Val CellStyle="m16" SortId="032" Bold="1">1h  59min</Val>
-    <Val CellStyle="m9" SortId="070">1h  59min</Val>
-    <Val SortId="162">N/A</Val>
-    <Val CellStyle="m2" SortId="128">63</Val>
-  </SrcFile>
-  <SrcFile Name="Kama.Quantower.cs" Url=":Kama.Quantower.cs.html" P=".\lib\trends_IIR\kama" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="079" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="149">0</Val>
-    <Val CellStyle="m0" SortId="174">0</Val>
-    <Val CellStyle="m12" SortId="059" Bold="1">1h  29min</Val>
-    <Val CellStyle="m6" SortId="097">1h  29min</Val>
-    <Val SortId="164">N/A</Val>
-    <Val CellStyle="m2" SortId="130">62</Val>
-  </SrcFile>
-  <SrcFile Name="Trima.Quantower.cs" Url=":Trima.Quantower.cs.html" P=".\lib\trends_FIR\trima" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="092" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="176">0</Val>
-    <Val CellStyle="m0" SortId="169">0</Val>
-    <Val CellStyle="m16" SortId="030" Bold="1">1h  59min</Val>
-    <Val CellStyle="m9" SortId="071">1h  59min</Val>
-    <Val SortId="158">N/A</Val>
-    <Val CellStyle="m2" SortId="124">63</Val>
-  </SrcFile>
-  <SrcFile Name="Lsma.Quantower.cs" Url=":Lsma.Quantower.cs.html" P=".\lib\trends_FIR\lsma" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="069" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="150">0</Val>
-    <Val CellStyle="m0" SortId="119">0</Val>
-    <Val CellStyle="m12" SortId="051" Bold="1">1h  32min</Val>
-    <Val CellStyle="m7" SortId="092">1h  32min</Val>
-    <Val SortId="174">N/A</Val>
-    <Val CellStyle="m2" SortId="140">60</Val>
-  </SrcFile>
-  <SrcFile Name="Butter.Quantower.cs" Url=":Butter.Quantower.cs.html" P=".\lib\filters\butter" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="074" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="175">0</Val>
-    <Val CellStyle="m0" SortId="176">0</Val>
-    <Val CellStyle="m11" SortId="076" Bold="1">1h  21min</Val>
-    <Val CellStyle="m6" SortId="108">1h  21min</Val>
-    <Val SortId="126">N/A</Val>
-    <Val CellStyle="m2" SortId="145">59</Val>
-  </SrcFile>
-  <SrcFile Name="Sma.Quantower.cs" Url=":Sma.Quantower.cs.html" P=".\lib\trends_FIR\sma" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="088" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="174">0</Val>
-    <Val CellStyle="m0" SortId="116">0</Val>
-    <Val CellStyle="m12" SortId="062" Bold="1">1h  28min</Val>
-    <Val CellStyle="m6" SortId="100">1h  28min</Val>
-    <Val SortId="124">N/A</Val>
-    <Val CellStyle="m1" SortId="158">56</Val>
-  </SrcFile>
-  <SrcFile Name="Vidya.Quantower.cs" Url=":Vidya.Quantower.cs.html" P=".\lib\trends_IIR\vidya" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="071" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="173">0</Val>
-    <Val CellStyle="m0" SortId="145">0</Val>
-    <Val CellStyle="m16" SortId="031" Bold="1">1h  59min</Val>
-    <Val CellStyle="m9" SortId="069">1h  59min</Val>
-    <Val SortId="176">N/A</Val>
-    <Val CellStyle="m2" SortId="127">63</Val>
-  </SrcFile>
-  <SrcFile Name="Pwma.Quantower.cs" Url=":Pwma.Quantower.cs.html" P=".\lib\trends_FIR\pwma" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="078" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="172">0</Val>
-    <Val CellStyle="m0" SortId="175">0</Val>
-    <Val CellStyle="m12" SortId="052" Bold="1">1h  32min</Val>
-    <Val CellStyle="m7" SortId="091">1h  32min</Val>
-    <Val SortId="119">N/A</Val>
-    <Val CellStyle="m2" SortId="153">57</Val>
-  </SrcFile>
-  <SrcFile Name="Mgdi.Quantower.cs" Url=":Mgdi.Quantower.cs.html" P=".\lib\trends_IIR\mgdi" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="080" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="120">0</Val>
-    <Val CellStyle="m0" SortId="173">0</Val>
-    <Val CellStyle="m12" SortId="057" Bold="1">1h  30min</Val>
-    <Val CellStyle="m7" SortId="094">1h  30min</Val>
-    <Val SortId="167">N/A</Val>
-    <Val CellStyle="m2" SortId="133">60</Val>
-  </SrcFile>
-  <SrcFile Name="Htit.Quantower.cs" Url=":Htit.Quantower.cs.html" P=".\lib\trends_IIR\htit" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="084" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="171">0</Val>
-    <Val CellStyle="m0" SortId="171">0</Val>
-    <Val CellStyle="m12" SortId="063" Bold="1">1h  28min</Val>
-    <Val CellStyle="m6" SortId="099">1h  28min</Val>
-    <Val SortId="125">N/A</Val>
-    <Val CellStyle="m1" SortId="159">56</Val>
-  </SrcFile>
-  <SrcFile Name="Rma.Quantower.cs" Url=":Rma.Quantower.cs.html" P=".\lib\trends_IIR\rma" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="076" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="170">0</Val>
-    <Val CellStyle="m0" SortId="148">0</Val>
-    <Val CellStyle="m12" SortId="056" Bold="1">1h  31min</Val>
-    <Val CellStyle="m7" SortId="093">1h  31min</Val>
-    <Val SortId="120">N/A</Val>
-    <Val CellStyle="m1" SortId="154">56</Val>
-  </SrcFile>
-  <SrcFile Name="Wma.Quantower.cs" Url=":Wma.Quantower.cs.html" P=".\lib\trends_FIR\wma" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="082" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="169">0</Val>
-    <Val CellStyle="m0" SortId="172">0</Val>
-    <Val CellStyle="m16" SortId="029" Bold="1">1h  59min</Val>
-    <Val CellStyle="m9" SortId="072">1h  59min</Val>
-    <Val SortId="163">N/A</Val>
-    <Val CellStyle="m2" SortId="129">63</Val>
-  </SrcFile>
-  <SrcFile Name="Mama.Quantower.cs" Url=":Mama.Quantower.cs.html" P=".\lib\trends_IIR\mama" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="085" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="168">0</Val>
-    <Val CellStyle="m0" SortId="170">0</Val>
-    <Val CellStyle="m13" SortId="050" Bold="1">1h  34min</Val>
-    <Val CellStyle="m7" SortId="090">1h  34min</Val>
-    <Val SortId="159">N/A</Val>
-    <Val CellStyle="m2" SortId="125">63</Val>
-  </SrcFile>
-  <SrcFile Name="T3.Quantower.cs" Url=":T3.Quantower.cs.html" P=".\lib\trends_IIR\t3" Pr="quantalib" FD="C">
-    <Val CellStyle="m11" SortId="070" Bold="1">5</Val>
-    <Val CellStyle="m0" SortId="167">0</Val>
+  <SrcFile Name="LinReg.Quantower.cs" Url=":LinReg.Quantower.cs.html" P=".\lib\statistics\linreg" Pr="quantalib" FD="C">
+    <Val CellStyle="m29" SortId="024" Bold="1">17</Val>
+    <Val CellStyle="m0" SortId="136">0</Val>
     <Val CellStyle="m0" SortId="118">0</Val>
-    <Val CellStyle="m13" SortId="047" Bold="1">1h  35min</Val>
-    <Val CellStyle="m7" SortId="087">1h  35min</Val>
-    <Val SortId="161">N/A</Val>
-    <Val CellStyle="m2" SortId="126">63</Val>
-  </SrcFile>
-  <SrcFile Name="Dmx.cs" Url=":Dmx.cs.html" P=".\lib\dynamics\dmx" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="132" Bold="1">4</Val>
-    <Val CellStyle="m9" SortId="050">5</Val>
-    <Val CellStyle="m22" SortId="019">8</Val>
-    <Val CellStyle="m6" SortId="135" Bold="1">45min</Val>
-    <Val CellStyle="m6" SortId="106">1h  22min</Val>
-    <Val CellStyle="c93" SortId="022">93.5%</Val>
-    <Val CellStyle="m26" SortId="066">252</Val>
-  </SrcFile>
-  <SrcFile Name="Skew.cs" Url=":Skew.cs.html" P=".\lib\statistics\skew" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="129" Bold="1">4</Val>
-    <Val CellStyle="m9" SortId="051">5</Val>
-    <Val CellStyle="m11" SortId="046">4</Val>
-    <Val CellStyle="m4" SortId="144" Bold="1">35min</Val>
-    <Val CellStyle="m24" SortId="018">5h  12min</Val>
-    <Val CellStyle="c85" SortId="062">85.09%</Val>
-    <Val CellStyle="m56" SortId="014">491</Val>
-  </SrcFile>
-  <SrcFile Name="Median.cs" Url=":Median.cs.html" P=".\lib\statistics\median" Pr="quantalib">
-    <Val CellStyle="m8" SortId="136" Bold="1">4</Val>
-    <Val CellStyle="m9" SortId="052">5</Val>
-    <Val CellStyle="m2" SortId="075">1</Val>
-    <Val CellStyle="m4" SortId="147" Bold="1">32min</Val>
-    <Val CellStyle="m5" SortId="138">1h  13min</Val>
-    <Val CellStyle="c91" SortId="030">91.07%</Val>
-    <Val CellStyle="m28" SortId="060">270</Val>
-  </SrcFile>
-  <SrcFile Name="Hma.cs" Url=":Hma.cs.html" P=".\lib\trends_FIR\hma" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="128" Bold="1">4</Val>
-    <Val CellStyle="m5" SortId="061">3</Val>
-    <Val CellStyle="m20" SortId="030">7</Val>
-    <Val CellStyle="m5" SortId="141" Bold="1">41min</Val>
-    <Val CellStyle="m10" SortId="067">2h  9min</Val>
-    <Val CellStyle="c87" SortId="044">87.83%</Val>
-    <Val CellStyle="m26" SortId="067">251</Val>
-  </SrcFile>
-  <SrcFile Name="Rsi.cs" Url=":Rsi.cs.html" P=".\lib\momentum\rsi" Pr="quantalib">
-    <Val CellStyle="m8" SortId="133" Bold="1">4</Val>
-    <Val CellStyle="m5" SortId="059">3</Val>
-    <Val CellStyle="m2" SortId="074">1</Val>
-    <Val CellStyle="m4" SortId="143" Bold="1">35min</Val>
-    <Val CellStyle="m5" SortId="122">1h  17min</Val>
-    <Val CellStyle="c93" SortId="021">93.94%</Val>
-    <Val CellStyle="m32" SortId="047">297</Val>
-  </SrcFile>
-  <SrcFile Name="StdDev.cs" Url=":StdDev.cs.html" P=".\lib\statistics\stddev" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="135" Bold="1">4</Val>
-    <Val CellStyle="m3" SortId="076">2</Val>
-    <Val CellStyle="m28" SortId="015">10</Val>
-    <Val CellStyle="m4" SortId="146" Bold="1">34min</Val>
-    <Val CellStyle="m13" SortId="048">2h  51min</Val>
-    <Val CellStyle="c71" SortId="095">71.83%</Val>
-    <Val CellStyle="m18" SortId="085">184</Val>
-  </SrcFile>
-  <SrcFile Name="Dwma.cs" Url=":Dwma.cs.html" P=".\lib\trends_FIR\dwma" Pr="quantalib">
-    <Val CellStyle="m8" SortId="131" Bold="1">4</Val>
-    <Val CellStyle="m3" SortId="071">2</Val>
-    <Val CellStyle="m2" SortId="073">1</Val>
-    <Val CellStyle="m5" SortId="137" Bold="1">42min</Val>
-    <Val CellStyle="m5" SortId="123">1h  17min</Val>
-    <Val CellStyle="c83" SortId="074">83.05%</Val>
-    <Val CellStyle="m12" SortId="093">144</Val>
-  </SrcFile>
-  <SrcFile Name="AbstractBase.cs" Url=":AbstractBase.cs.html" P=".\lib\core" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="138" Bold="1">4</Val>
-    <Val CellStyle="m1" SortId="078">1</Val>
-    <Val CellStyle="m14" SortId="044">5</Val>
-    <Val CellStyle="m22" SortId="019" Bold="1">2h  43min</Val>
-    <Val CellStyle="m12" SortId="053">2h  46min</Val>
-    <Val CellStyle="c30" SortId="109">30%</Val>
-    <Val CellStyle="m5" SortId="103">83</Val>
-  </SrcFile>
-  <SrcFile Name="Beta.cs" Url=":Beta.cs.html" P=".\lib\statistics\beta" Pr="quantalib">
-    <Val CellStyle="m8" SortId="130" Bold="1">4</Val>
-    <Val CellStyle="m1" SortId="079">1</Val>
-    <Val CellStyle="m11" SortId="047">4</Val>
-    <Val CellStyle="m10" SortId="104" Bold="1">1h  13min</Val>
-    <Val CellStyle="m6" SortId="119">1h  18min</Val>
-    <Val CellStyle="c92" SortId="024">92.71%</Val>
-    <Val CellStyle="m22" SortId="079">220</Val>
-  </SrcFile>
-  <SrcFile Name="Cfb.Quantower.cs" Url=":Cfb.Quantower.cs.html" P=".\lib\momentum\cfb" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="112" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="166">0</Val>
-    <Val CellStyle="m0" SortId="150">0</Val>
-    <Val CellStyle="m14" SortId="037" Bold="1">1h  45min</Val>
-    <Val CellStyle="m8" SortId="079">1h  45min</Val>
-    <Val SortId="143">N/A</Val>
-    <Val CellStyle="m4" SortId="110">73</Val>
-  </SrcFile>
-  <SrcFile Name="Adosc.Quantower.cs" Url=":Adosc.Quantower.cs.html" P=".\lib\volume\adosc" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="098" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="165">0</Val>
-    <Val CellStyle="m0" SortId="164">0</Val>
-    <Val CellStyle="m9" SortId="107" Bold="1">1h  11min</Val>
-    <Val CellStyle="m5" SortId="145">1h  11min</Val>
-    <Val SortId="131">N/A</Val>
-    <Val CellStyle="m1" SortId="165">55</Val>
-  </SrcFile>
-  <SrcFile Name="Macd.Quantower.cs" Url=":Macd.Quantower.cs.html" P=".\lib\momentum\macd" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="119" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="164">0</Val>
-    <Val CellStyle="m0" SortId="097">0</Val>
-    <Val CellStyle="m12" SortId="067" Bold="1">1h  26min</Val>
-    <Val CellStyle="m6" SortId="103">1h  26min</Val>
-    <Val SortId="146">N/A</Val>
-    <Val CellStyle="m4" SortId="109">74</Val>
-  </SrcFile>
-  <SrcFile Name="Afirma.Quantower.cs" Url=":Afirma.Quantower.cs.html" P=".\lib\forecasts\afirma" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="117" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="163">0</Val>
-    <Val CellStyle="m0" SortId="113">0</Val>
-    <Val CellStyle="m10" SortId="089" Bold="1">1h  17min</Val>
-    <Val CellStyle="m5" SortId="120">1h  17min</Val>
-    <Val SortId="165">N/A</Val>
-    <Val CellStyle="m2" SortId="131">62</Val>
-  </SrcFile>
-  <SrcFile Name="Wiener.Quantower.cs" Url=":Wiener.Quantower.cs.html" P=".\lib\filters\wiener" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="144" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="162">0</Val>
-    <Val CellStyle="m0" SortId="105">0</Val>
-    <Val CellStyle="m10" SortId="100" Bold="1">1h  14min</Val>
-    <Val CellStyle="m5" SortId="136">1h  14min</Val>
-    <Val SortId="117">N/A</Val>
-    <Val CellStyle="m2" SortId="151">58</Val>
-  </SrcFile>
-  <SrcFile Name="Usf.Quantower.cs" Url=":Usf.Quantower.cs.html" P=".\lib\filters\usf" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="122" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="161">0</Val>
-    <Val CellStyle="m0" SortId="100">0</Val>
-    <Val CellStyle="m13" SortId="049" Bold="1">1h  34min</Val>
-    <Val CellStyle="m7" SortId="089">1h  34min</Val>
-    <Val SortId="170">N/A</Val>
-    <Val CellStyle="m2" SortId="136">60</Val>
-  </SrcFile>
-  <SrcFile Name="Ssf.Quantower.cs" Url=":Ssf.Quantower.cs.html" P=".\lib\filters\ssf" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="134" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="160">0</Val>
-    <Val CellStyle="m0" SortId="109">0</Val>
-    <Val CellStyle="m10" SortId="093" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="130">1h  15min</Val>
-    <Val SortId="123">N/A</Val>
-    <Val CellStyle="m1" SortId="157">56</Val>
-  </SrcFile>
-  <SrcFile Name="Sgf.Quantower.cs" Url=":Sgf.Quantower.cs.html" P=".\lib\filters\sgf" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="113" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="159">0</Val>
-    <Val CellStyle="m0" SortId="149">0</Val>
-    <Val CellStyle="m9" SortId="106" Bold="1">1h  11min</Val>
-    <Val CellStyle="m5" SortId="142">1h  11min</Val>
-    <Val SortId="155">N/A</Val>
-    <Val CellStyle="m2" SortId="121">64</Val>
-  </SrcFile>
-  <SrcFile Name="Bop.Quantower.cs" Url=":Bop.Quantower.cs.html" P=".\lib\momentum\bop" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="123" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="158">0</Val>
-    <Val CellStyle="m0" SortId="101">0</Val>
-    <Val CellStyle="m9" SortId="117" Bold="1">1h  5min</Val>
-    <Val CellStyle="m4" SortId="152">1h  5min</Val>
-    <Val SortId="171">N/A</Val>
-    <Val CellStyle="m0" SortId="176">45</Val>
-  </SrcFile>
-  <SrcFile Name="Rsi.Quantower.cs" Url=":Rsi.Quantower.cs.html" P=".\lib\momentum\rsi" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="120" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="157">0</Val>
-    <Val CellStyle="m0" SortId="098">0</Val>
-    <Val CellStyle="m10" SortId="086" Bold="1">1h  18min</Val>
-    <Val CellStyle="m6" SortId="116">1h  18min</Val>
-    <Val SortId="168">N/A</Val>
-    <Val CellStyle="m2" SortId="134">60</Val>
-  </SrcFile>
-  <SrcFile Name="Cma.Quantower.cs" Url=":Cma.Quantower.cs.html" P=".\lib\statistics\cma" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="102" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="156">0</Val>
-    <Val CellStyle="m0" SortId="160">0</Val>
-    <Val CellStyle="m10" SortId="102" Bold="1">1h  13min</Val>
-    <Val CellStyle="m5" SortId="137">1h  13min</Val>
-    <Val SortId="134">N/A</Val>
-    <Val CellStyle="m1" SortId="168">52</Val>
-  </SrcFile>
-  <SrcFile Name="Vel.Quantower.cs" Url=":Vel.Quantower.cs.html" P=".\lib\momentum\vel" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="141" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="155">0</Val>
-    <Val CellStyle="m0" SortId="108">0</Val>
-    <Val CellStyle="m10" SortId="087" Bold="1">1h  18min</Val>
-    <Val CellStyle="m6" SortId="117">1h  18min</Val>
-    <Val SortId="113">N/A</Val>
-    <Val CellStyle="m2" SortId="147">59</Val>
-  </SrcFile>
-  <SrcFile Name="Ao.Quantower.cs" Url=":Ao.Quantower.cs.html" P=".\lib\oscillators\ao" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="114" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="154">0</Val>
-    <Val CellStyle="m0" SortId="117">0</Val>
-    <Val CellStyle="m22" SortId="020" Bold="1">2h  40min</Val>
-    <Val CellStyle="m12" SortId="057">2h  40min</Val>
-    <Val SortId="153">N/A</Val>
-    <Val CellStyle="m4" SortId="104">80</Val>
-  </SrcFile>
-  <SrcFile Name="Apo.Quantower.cs" Url=":Apo.Quantower.cs.html" P=".\lib\oscillators\apo" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="101" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="153">0</Val>
-    <Val CellStyle="m0" SortId="161">0</Val>
-    <Val CellStyle="m9" SortId="110" Bold="1">1h  11min</Val>
-    <Val CellStyle="m5" SortId="146">1h  11min</Val>
-    <Val SortId="133">N/A</Val>
-    <Val CellStyle="m1" SortId="167">54</Val>
-  </SrcFile>
-  <SrcFile Name="Beta.Quantower.cs" Url=":Beta.Quantower.cs.html" P=".\lib\statistics\beta" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="095" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="152">0</Val>
-    <Val CellStyle="m0" SortId="167">0</Val>
-    <Val CellStyle="m12" SortId="060" Bold="1">1h  29min</Val>
-    <Val CellStyle="m6" SortId="098">1h  29min</Val>
-    <Val SortId="148">N/A</Val>
-    <Val CellStyle="m3" SortId="114">69</Val>
-  </SrcFile>
-  <SrcFile Name="Notch.Quantower.cs" Url=":Notch.Quantower.cs.html" P=".\lib\filters\notch" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="140" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="151">0</Val>
-    <Val CellStyle="m0" SortId="110">0</Val>
-    <Val CellStyle="m11" SortId="078" Bold="1">1h  21min</Val>
-    <Val CellStyle="m6" SortId="109">1h  21min</Val>
-    <Val SortId="112">N/A</Val>
-    <Val CellStyle="m2" SortId="146">59</Val>
-  </SrcFile>
-  <SrcFile Name="Covariance.Quantower.cs" Url=":Covariance.Quantower.cs.html" P=".\lib\statistics\covariance" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="139" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="121">0</Val>
-    <Val CellStyle="m0" SortId="111">0</Val>
-    <Val CellStyle="m12" SortId="058" Bold="1">1h  30min</Val>
-    <Val CellStyle="m7" SortId="095">1h  30min</Val>
-    <Val SortId="111">N/A</Val>
-    <Val CellStyle="m3" SortId="111">72</Val>
-  </SrcFile>
-  <SrcFile Name="Atr.Quantower.cs" Url=":Atr.Quantower.cs.html" P=".\lib\volatility\atr" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="115" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="148">0</Val>
-    <Val CellStyle="m0" SortId="146">0</Val>
-    <Val CellStyle="m9" SortId="109" Bold="1">1h  11min</Val>
-    <Val CellStyle="m5" SortId="144">1h  11min</Val>
-    <Val SortId="136">N/A</Val>
-    <Val CellStyle="m1" SortId="170">52</Val>
-  </SrcFile>
-  <SrcFile Name="Median.Quantower.cs" Url=":Median.Quantower.cs.html" P=".\lib\statistics\median" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="118" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="119">0</Val>
-    <Val CellStyle="m0" SortId="096">0</Val>
-    <Val CellStyle="m11" SortId="075" Bold="1">1h  22min</Val>
-    <Val CellStyle="m6" SortId="107">1h  22min</Val>
+    <Val CellStyle="m44" SortId="005" Bold="1">5h  31min</Val>
+    <Val CellStyle="m25" SortId="018">5h  31min</Val>
     <Val SortId="166">N/A</Val>
-    <Val CellStyle="m2" SortId="132">61</Val>
+    <Val CellStyle="m24" SortId="079">229</Val>
   </SrcFile>
-  <SrcFile Name="Skew.Quantower.cs" Url=":Skew.Quantower.cs.html" P=".\lib\statistics\skew" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="109" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="114">0</Val>
-    <Val CellStyle="m0" SortId="153">0</Val>
-    <Val CellStyle="m11" SortId="071" Bold="1">1h  23min</Val>
-    <Val CellStyle="m6" SortId="105">1h  23min</Val>
-    <Val SortId="157">N/A</Val>
-    <Val CellStyle="m2" SortId="123">64</Val>
+  <SrcFile Name="Bilateral.cs" Url=":Bilateral.cs.html" P=".\lib\filters\bilateral" Pr="quantalib" FD="C">
+    <Val CellStyle="m27" SortId="025" Bold="1">16</Val>
+    <Val CellStyle="m18" SortId="027">12</Val>
+    <Val CellStyle="m0" SortId="119">0</Val>
+    <Val CellStyle="m25" SortId="019" Bold="1">3h  13min</Val>
+    <Val CellStyle="m36" SortId="014">1d  0h</Val>
+    <Val CellStyle="c76" SortId="091">76.27%</Val>
+    <Val CellStyle="m56" SortId="016">486</Val>
   </SrcFile>
-  <SrcFile Name="StdDev.Quantower.cs" Url=":StdDev.Quantower.cs.html" P=".\lib\statistics\stddev" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="111" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="096">0</Val>
-    <Val CellStyle="m0" SortId="151">0</Val>
-    <Val CellStyle="m11" SortId="070" Bold="1">1h  23min</Val>
-    <Val CellStyle="m6" SortId="104">1h  23min</Val>
-    <Val SortId="156">N/A</Val>
-    <Val CellStyle="m2" SortId="122">64</Val>
+  <SrcFile Name="Abber.cs" Url=":Abber.cs.html" P=".\lib\channels\abber" Pr="quantalib" FD="C">
+    <Val CellStyle="m25" SortId="027" Bold="1">15</Val>
+    <Val CellStyle="m60" SortId="003">40</Val>
+    <Val CellStyle="m50" SortId="009">5</Val>
+    <Val CellStyle="m18" SortId="030" Bold="1">2h  15min</Val>
+    <Val CellStyle="m100" SortId="000">2d  5h</Val>
+    <Val CellStyle="c87" SortId="047">87.79%</Val>
+    <Val CellStyle="m80" SortId="003">683</Val>
   </SrcFile>
-  <SrcFile Name="Sum.Quantower.cs" Url=":Sum.Quantower.cs.html" P=".\lib\statistics\sum" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="127" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="097">0</Val>
-    <Val CellStyle="m0" SortId="114">0</Val>
-    <Val CellStyle="m10" SortId="095" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="131">1h  15min</Val>
-    <Val SortId="122">N/A</Val>
-    <Val CellStyle="m1" SortId="156">56</Val>
+  <SrcFile Name="ErrorHelpers.cs" Url=":ErrorHelpers.cs.html" P=".\lib\core\simd" Pr="quantalib" FD="C">
+    <Val CellStyle="m25" SortId="026" Bold="1">15</Val>
+    <Val CellStyle="m25" SortId="019">17</Val>
+    <Val CellStyle="m60" SortId="007">6</Val>
+    <Val CellStyle="m11" SortId="082" Bold="1">1h  24min</Val>
+    <Val CellStyle="m31" SortId="015">6h  59min</Val>
+    <Val CellStyle="c84" SortId="070">84.13%</Val>
+    <Val CellStyle="m78" SortId="004">660</Val>
   </SrcFile>
-  <SrcFile Name="Variance.Quantower.cs" Url=":Variance.Quantower.cs.html" P=".\lib\statistics\variance" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="099" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="098">0</Val>
-    <Val CellStyle="m0" SortId="163">0</Val>
-    <Val CellStyle="m14" SortId="038" Bold="1">1h  43min</Val>
-    <Val CellStyle="m8" SortId="080">1h  43min</Val>
-    <Val SortId="151">N/A</Val>
-    <Val CellStyle="m3" SortId="117">67</Val>
+  <SrcFile Name="Mma.cs" Url=":Mma.cs.html" P=".\lib\trends_IIR\mma" Pr="quantalib" FD="N">
+    <Val CellStyle="m25" SortId="028" Bold="1">15</Val>
+    <Val CellStyle="m0" SortId="137">0</Val>
+    <Val CellStyle="m0" SortId="120">0</Val>
+    <Val CellStyle="m21" SortId="026" Bold="1">2h  38min</Val>
+    <Val CellStyle="m12" SortId="066">2h  38min</Val>
+    <Val CellStyle="c87" SortId="045">87.88%</Val>
+    <Val CellStyle="m33" SortId="050">302</Val>
   </SrcFile>
-  <SrcFile Name="Adl.Quantower.cs" Url=":Adl.Quantower.cs.html" P=".\lib\volume\adl" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="108" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="099">0</Val>
-    <Val CellStyle="m0" SortId="154">0</Val>
-    <Val CellStyle="m9" SortId="111" Bold="1">1h  9min</Val>
-    <Val CellStyle="m5" SortId="147">1h  9min</Val>
-    <Val SortId="140">N/A</Val>
-    <Val CellStyle="m1" SortId="174">49</Val>
-  </SrcFile>
-  <SrcFile Name="Rsx.Quantower.cs" Url=":Rsx.Quantower.cs.html" P=".\lib\momentum\rsx" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="125" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="100">0</Val>
-    <Val CellStyle="m0" SortId="103">0</Val>
-    <Val CellStyle="m10" SortId="085" Bold="1">1h  18min</Val>
-    <Val CellStyle="m6" SortId="118">1h  18min</Val>
-    <Val SortId="160">N/A</Val>
-    <Val CellStyle="m2" SortId="143">59</Val>
-  </SrcFile>
-  <SrcFile Name="Loess.Quantower.cs" Url=":Loess.Quantower.cs.html" P=".\lib\filters\loess" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="100" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="101">0</Val>
-    <Val CellStyle="m0" SortId="162">0</Val>
-    <Val CellStyle="m10" SortId="088" Bold="1">1h  17min</Val>
-    <Val CellStyle="m5" SortId="121">1h  17min</Val>
-    <Val SortId="132">N/A</Val>
-    <Val CellStyle="m1" SortId="166">55</Val>
-  </SrcFile>
-  <SrcFile Name="Cheby2.Quantower.cs" Url=":Cheby2.Quantower.cs.html" P=".\lib\filters\cheby2" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="121" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="102">0</Val>
-    <Val CellStyle="m0" SortId="099">0</Val>
-    <Val CellStyle="m11" SortId="079" Bold="1">1h  21min</Val>
-    <Val CellStyle="m6" SortId="111">1h  21min</Val>
-    <Val SortId="169">N/A</Val>
-    <Val CellStyle="m2" SortId="135">60</Val>
-  </SrcFile>
-  <SrcFile Name="Hpf.Quantower.cs" Url=":Hpf.Quantower.cs.html" P=".\lib\filters\hpf" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="105" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="103">0</Val>
-    <Val CellStyle="m0" SortId="157">0</Val>
-    <Val CellStyle="m10" SortId="099" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="129">1h  15min</Val>
-    <Val SortId="130">N/A</Val>
-    <Val CellStyle="m1" SortId="164">55</Val>
-  </SrcFile>
-  <SrcFile Name="Kalman.Quantower.cs" Url=":Kalman.Quantower.cs.html" P=".\lib\filters\kalman" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="137" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="104">0</Val>
-    <Val CellStyle="m0" SortId="112">0</Val>
-    <Val CellStyle="m10" SortId="092" Bold="1">1h  16min</Val>
-    <Val CellStyle="m5" SortId="125">1h  16min</Val>
-    <Val SortId="116">N/A</Val>
-    <Val CellStyle="m2" SortId="150">58</Val>
-  </SrcFile>
-  <SrcFile Name="Adx.Quantower.cs" Url=":Adx.Quantower.cs.html" P=".\lib\dynamics\adx" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="106" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="105">0</Val>
-    <Val CellStyle="m0" SortId="156">0</Val>
-    <Val CellStyle="m10" SortId="084" Bold="1">1h  19min</Val>
-    <Val CellStyle="m6" SortId="115">1h  19min</Val>
-    <Val SortId="172">N/A</Val>
-    <Val CellStyle="m2" SortId="138">60</Val>
-  </SrcFile>
-  <SrcFile Name="Adxr.Quantower.cs" Url=":Adxr.Quantower.cs.html" P=".\lib\dynamics\adxr" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="124" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="106">0</Val>
-    <Val CellStyle="m0" SortId="102">0</Val>
-    <Val CellStyle="m9" SortId="113" Bold="1">1h  9min</Val>
-    <Val CellStyle="m5" SortId="149">1h  9min</Val>
-    <Val SortId="137">N/A</Val>
-    <Val CellStyle="m1" SortId="171">51</Val>
-  </SrcFile>
-  <SrcFile Name="Aroon.Quantower.cs" Url=":Aroon.Quantower.cs.html" P=".\lib\dynamics\aroon" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="126" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="107">0</Val>
-    <Val CellStyle="m0" SortId="104">0</Val>
-    <Val CellStyle="m10" SortId="083" Bold="1">1h  19min</Val>
-    <Val CellStyle="m6" SortId="114">1h  19min</Val>
-    <Val SortId="177">N/A</Val>
-    <Val CellStyle="m2" SortId="137">60</Val>
-  </SrcFile>
-  <SrcFile Name="AroonOsc.Quantower.cs" Url=":AroonOsc.Quantower.cs.html" P=".\lib\dynamics\aroonosc" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="104" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="108">0</Val>
-    <Val CellStyle="m0" SortId="158">0</Val>
-    <Val CellStyle="m9" SortId="112" Bold="1">1h  9min</Val>
-    <Val CellStyle="m5" SortId="148">1h  9min</Val>
-    <Val SortId="135">N/A</Val>
-    <Val CellStyle="m1" SortId="169">52</Val>
-  </SrcFile>
-  <SrcFile Name="Dmx.Quantower.cs" Url=":Dmx.Quantower.cs.html" P=".\lib\dynamics\dmx" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="116" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="109">0</Val>
-    <Val CellStyle="m0" SortId="115">0</Val>
-    <Val CellStyle="m9" SortId="108" Bold="1">1h  11min</Val>
-    <Val CellStyle="m5" SortId="143">1h  11min</Val>
-    <Val SortId="138">N/A</Val>
-    <Val CellStyle="m1" SortId="172">51</Val>
-  </SrcFile>
-  <SrcFile Name="Abber.Quantower.cs" Url=":Abber.Quantower.cs.html" P=".\lib\channels\abber" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="107" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="110">0</Val>
-    <Val CellStyle="m0" SortId="155">0</Val>
-    <Val CellStyle="m15" SortId="036" Bold="1">1h  49min</Val>
-    <Val CellStyle="m8" SortId="076">1h  49min</Val>
-    <Val SortId="139">N/A</Val>
-    <Val CellStyle="m6" SortId="102">89</Val>
-  </SrcFile>
-  <SrcFile Name="Bpf.Quantower.cs" Url=":Bpf.Quantower.cs.html" P=".\lib\filters\bpf" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="142" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="095">0</Val>
-    <Val CellStyle="m0" SortId="107">0</Val>
-    <Val CellStyle="m10" SortId="091" Bold="1">1h  16min</Val>
-    <Val CellStyle="m5" SortId="124">1h  16min</Val>
-    <Val SortId="115">N/A</Val>
-    <Val CellStyle="m2" SortId="149">58</Val>
-  </SrcFile>
-  <SrcFile Name="Cheby1.Quantower.cs" Url=":Cheby1.Quantower.cs.html" P=".\lib\filters\cheby1" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="103" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="118">0</Val>
-    <Val CellStyle="m0" SortId="159">0</Val>
-    <Val CellStyle="m11" SortId="080" Bold="1">1h  21min</Val>
-    <Val CellStyle="m6" SortId="110">1h  21min</Val>
-    <Val SortId="173">N/A</Val>
-    <Val CellStyle="m2" SortId="139">60</Val>
-  </SrcFile>
-  <SrcFile Name="Elliptic.Quantower.cs" Url=":Elliptic.Quantower.cs.html" P=".\lib\filters\elliptic" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="143" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="117">0</Val>
-    <Val CellStyle="m0" SortId="106">0</Val>
-    <Val CellStyle="m10" SortId="094" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="135">1h  15min</Val>
-    <Val SortId="121">N/A</Val>
-    <Val CellStyle="m1" SortId="155">56</Val>
-  </SrcFile>
-  <SrcFile Name="Gauss.Quantower.cs" Url=":Gauss.Quantower.cs.html" P=".\lib\filters\gauss" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="110" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="116">0</Val>
-    <Val CellStyle="m0" SortId="152">0</Val>
-    <Val CellStyle="m10" SortId="098" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="134">1h  15min</Val>
-    <Val SortId="142">N/A</Val>
-    <Val CellStyle="m1" SortId="161">55</Val>
-  </SrcFile>
-  <SrcFile Name="Hann.Quantower.cs" Url=":Hann.Quantower.cs.html" P=".\lib\filters\hann" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="094" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="115">0</Val>
-    <Val CellStyle="m0" SortId="168">0</Val>
-    <Val CellStyle="m10" SortId="096" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="133">1h  15min</Val>
-    <Val SortId="128">N/A</Val>
-    <Val CellStyle="m1" SortId="162">55</Val>
-  </SrcFile>
-  <SrcFile Name="Hp.Quantower.cs" Url=":Hp.Quantower.cs.html" P=".\lib\filters\hp" Pr="quantalib" FD="N">
-    <Val CellStyle="m8" SortId="096" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="113">0</Val>
-    <Val CellStyle="m0" SortId="166">0</Val>
-    <Val CellStyle="m10" SortId="097" Bold="1">1h  15min</Val>
-    <Val CellStyle="m5" SortId="132">1h  15min</Val>
-    <Val SortId="129">N/A</Val>
-    <Val CellStyle="m1" SortId="163">55</Val>
-  </SrcFile>
-  <SrcFile Name="Super.Quantower.cs" Url=":Super.Quantower.cs.html" P=".\lib\dynamics\super" Pr="quantalib" FD="C">
-    <Val CellStyle="m8" SortId="097" Bold="1">4</Val>
-    <Val CellStyle="m0" SortId="112">0</Val>
-    <Val CellStyle="m0" SortId="165">0</Val>
-    <Val CellStyle="m15" SortId="035" Bold="1">1h  50min</Val>
-    <Val CellStyle="m8" SortId="075">1h  50min</Val>
-    <Val SortId="149">N/A</Val>
-    <Val CellStyle="m3" SortId="115">68</Val>
-  </SrcFile>
-  <SrcFile Name="Covariance.cs" Url=":Covariance.cs.html" P=".\lib\statistics\covariance" Pr="quantalib" FD="C">
-    <Val CellStyle="m6" SortId="148" Bold="1">3</Val>
-    <Val CellStyle="m11" SortId="041">6</Val>
-    <Val CellStyle="m65" SortId="003">23</Val>
-    <Val CellStyle="m4" SortId="150" Bold="1">30min</Val>
-    <Val CellStyle="m14" SortId="041">3h  9min</Val>
-    <Val CellStyle="c93" SortId="023">93.04%</Val>
-    <Val CellStyle="m53" SortId="018">466</Val>
-  </SrcFile>
-  <SrcFile Name="Vel.cs" Url=":Vel.cs.html" P=".\lib\momentum\vel" Pr="quantalib" FD="C">
-    <Val CellStyle="m6" SortId="145" Bold="1">3</Val>
-    <Val CellStyle="m7" SortId="055">4</Val>
-    <Val CellStyle="m8" SortId="050">3</Val>
-    <Val CellStyle="m4" SortId="149" Bold="1">30min</Val>
-    <Val CellStyle="m3" SortId="156">52min</Val>
-    <Val CellStyle="c88" SortId="039">88.89%</Val>
-    <Val CellStyle="m11" SortId="095">136</Val>
-  </SrcFile>
-  <SrcFile Name="Adl.cs" Url=":Adl.cs.html" P=".\lib\volume\adl" Pr="quantalib" FD="C">
-    <Val CellStyle="m6" SortId="149" Bold="1">3</Val>
-    <Val CellStyle="m5" SortId="060">3</Val>
-    <Val CellStyle="m17" SortId="033">6</Val>
-    <Val CellStyle="m4" SortId="148" Bold="1">30min</Val>
-    <Val CellStyle="m3" SortId="160">41min</Val>
-    <Val CellStyle="c95" SortId="017">95.18%</Val>
-    <Val CellStyle="m20" SortId="083">200</Val>
-  </SrcFile>
-  <SrcFile Name="tvalue.cs" Url=":tvalue.cs.html" P=".\lib\core\tvalue" Pr="quantalib">
-    <Val CellStyle="m6" SortId="147" Bold="1">3</Val>
-    <Val CellStyle="m3" SortId="075">2</Val>
-    <Val CellStyle="m2" SortId="077">1</Val>
-    <Val CellStyle="m7" SortId="123" Bold="1">54min</Val>
-    <Val CellStyle="m4" SortId="153">1h  4min</Val>
-    <Val CellStyle="c70" SortId="096">70.59%</Val>
-    <Val CellStyle="m0" SortId="177">41</Val>
-  </SrcFile>
-  <SrcFile Name="Macd.cs" Url=":Macd.cs.html" P=".\lib\momentum\macd" Pr="quantalib" FD="C">
-    <Val CellStyle="m6" SortId="146" Bold="1">3</Val>
-    <Val CellStyle="m1" SortId="085">1</Val>
-    <Val CellStyle="m2" SortId="084">1</Val>
-    <Val CellStyle="m4" SortId="145" Bold="1">35min</Val>
-    <Val CellStyle="m2" SortId="161">38min</Val>
-    <Val CellStyle="c86" SortId="051">86.89%</Val>
-    <Val CellStyle="m12" SortId="094">141</Val>
-  </SrcFile>
-  <SrcFile Name="Mdae.cs" Url=":Mdae.cs.html" P=".\lib\errors\mdae" Pr="quantalib" FD="C">
-    <Val CellStyle="m4" SortId="150" Bold="1">2</Val>
-    <Val CellStyle="m5" SortId="062">3</Val>
-    <Val CellStyle="m5" SortId="059">2</Val>
-    <Val CellStyle="m3" SortId="151" Bold="1">25min</Val>
-    <Val CellStyle="m3" SortId="157">50min</Val>
-    <Val CellStyle="c91" SortId="029">91.38%</Val>
-    <Val CellStyle="m22" SortId="080">219</Val>
+  <SrcFile Name="Vidya.cs" Url=":Vidya.cs.html" P=".\lib\trends_IIR\vidya" Pr="quantalib" FD="C">
+    <Val CellStyle="m24" SortId="029" Bold="1">14</Val>
+    <Val CellStyle="m12" SortId="049">8</Val>
+    <Val CellStyle="m10" SortId="044">1</Val>
+    <Val CellStyle="m15" SortId="039" Bold="1">1h  55min</Val>
+    <Val CellStyle="m37" SortId="012">1d  0h</Val>
+    <Val CellStyle="c64" SortId="104">64.9%</Val>
+    <Val CellStyle="m42" SortId="029">375</Val>
   </SrcFile>
   <SrcFile Name="tbar.cs" Url=":tbar.cs.html" P=".\lib\core\tbar" Pr="quantalib">
-    <Val CellStyle="m4" SortId="151" Bold="1">2</Val>
+    <Val CellStyle="m24" SortId="030" Bold="1">14</Val>
+    <Val CellStyle="m12" SortId="050">8</Val>
+    <Val CellStyle="m0" SortId="121">0</Val>
+    <Val CellStyle="m7" SortId="133" Bold="1">56min</Val>
+    <Val CellStyle="m4" SortId="165">1h  6min</Val>
+    <Val CellStyle="c58" SortId="111">58.62%</Val>
+    <Val CellStyle="m1" SortId="184">49</Val>
+  </SrcFile>
+  <SrcFile Name="AbstractBase.cs" Url=":AbstractBase.cs.html" P=".\lib\core" Pr="quantalib" FD="C">
+    <Val CellStyle="m24" SortId="031" Bold="1">14</Val>
+    <Val CellStyle="m9" SortId="062">6</Val>
+    <Val CellStyle="m0" SortId="122">0</Val>
+    <Val CellStyle="m23" SortId="021" Bold="1">2h  53min</Val>
+    <Val CellStyle="m13" SortId="051">3h  1min</Val>
+    <Val CellStyle="c30" SortId="114">30%</Val>
+    <Val CellStyle="m5" SortId="108">83</Val>
+  </SrcFile>
+  <SrcFile Name="Sma.cs" Url=":Sma.cs.html" P=".\lib\trends_FIR\sma" Pr="quantalib" FD="C">
+    <Val CellStyle="m22" SortId="034" Bold="1">13</Val>
+    <Val CellStyle="m27" SortId="018">18</Val>
+    <Val CellStyle="m70" SortId="003">7</Val>
+    <Val CellStyle="m18" SortId="028" Bold="1">2h  20min</Val>
+    <Val CellStyle="m79" SortId="003">2d  1h</Val>
+    <Val CellStyle="c59" SortId="110">59.49%</Val>
+    <Val CellStyle="m73" SortId="006">623</Val>
+  </SrcFile>
+  <SrcFile Name="T3.cs" Url=":T3.cs.html" P=".\lib\trends_IIR\t3" Pr="quantalib" FD="C">
+    <Val CellStyle="m22" SortId="035" Bold="1">13</Val>
+    <Val CellStyle="m21" SortId="024">14</Val>
+    <Val CellStyle="m0" SortId="123">0</Val>
+    <Val CellStyle="m16" SortId="034" Bold="1">2h  1min</Val>
+    <Val CellStyle="m26" SortId="017">5h  44min</Val>
+    <Val CellStyle="c64" SortId="106">64.53%</Val>
+    <Val CellStyle="m40" SortId="032">357</Val>
+  </SrcFile>
+  <SrcFile Name="Blma.cs" Url=":Blma.cs.html" P=".\lib\trends_FIR\blma" Pr="quantalib" FD="C">
+    <Val CellStyle="m22" SortId="032" Bold="1">13</Val>
+    <Val CellStyle="m18" SortId="028">12</Val>
+    <Val CellStyle="m30" SortId="023">3</Val>
+    <Val CellStyle="m9" SortId="126" Bold="1">1h  7min</Val>
+    <Val CellStyle="m13" SortId="055">2h  54min</Val>
+    <Val CellStyle="c87" SortId="051">87.16%</Val>
+    <Val CellStyle="m36" SortId="041">327</Val>
+  </SrcFile>
+  <SrcFile Name="Ultosc.cs" Url=":Ultosc.cs.html" P=".\lib\oscillators\ultosc" Pr="quantalib">
+    <Val CellStyle="m22" SortId="033" Bold="1">13</Val>
+    <Val CellStyle="m13" SortId="045">9</Val>
+    <Val CellStyle="m10" SortId="047">1</Val>
+    <Val CellStyle="m7" SortId="135" Bold="1">54min</Val>
+    <Val CellStyle="m10" SortId="068">2h  22min</Val>
+    <Val CellStyle="c87" SortId="049">87.57%</Val>
+    <Val CellStyle="m42" SortId="028">377</Val>
+  </SrcFile>
+  <SrcFile Name="Wma.cs" Url=":Wma.cs.html" P=".\lib\trends_FIR\wma" Pr="quantalib" FD="C">
+    <Val CellStyle="m20" SortId="040" Bold="1">12</Val>
+    <Val CellStyle="m15" SortId="040">10</Val>
+    <Val CellStyle="m40" SortId="016">4</Val>
+    <Val CellStyle="m17" SortId="032" Bold="1">2h  7min</Val>
+    <Val CellStyle="m89" SortId="002">2d  3h</Val>
+    <Val CellStyle="c70" SortId="101">70.46%</Val>
+    <Val CellStyle="m100" SortId="000">835</Val>
+  </SrcFile>
+  <SrcFile Name="Bop.cs" Url=":Bop.cs.html" P=".\lib\momentum\bop" Pr="quantalib" FD="C">
+    <Val CellStyle="m20" SortId="037" Bold="1">12</Val>
+    <Val CellStyle="m9" SortId="060">6</Val>
+    <Val CellStyle="m40" SortId="015">4</Val>
+    <Val CellStyle="m6" SortId="149" Bold="1">45min</Val>
+    <Val CellStyle="m4" SortId="168">59min</Val>
+    <Val CellStyle="c89" SortId="038">89.09%</Val>
+    <Val CellStyle="m18" SortId="091">183</Val>
+  </SrcFile>
+  <SrcFile Name="Apo.cs" Url=":Apo.cs.html" P=".\lib\oscillators\apo" Pr="quantalib" FD="C">
+    <Val CellStyle="m20" SortId="036" Bold="1">12</Val>
+    <Val CellStyle="m9" SortId="064">6</Val>
+    <Val CellStyle="m10" SortId="050">1</Val>
+    <Val CellStyle="m7" SortId="131" Bold="1">57min</Val>
+    <Val CellStyle="m5" SortId="158">1h  10min</Val>
+    <Val CellStyle="c83" SortId="071">83.67%</Val>
+    <Val CellStyle="m19" SortId="089">188</Val>
+  </SrcFile>
+  <SrcFile Name="Trima.cs" Url=":Trima.cs.html" P=".\lib\trends_FIR\trima" Pr="quantalib" FD="C">
+    <Val CellStyle="m20" SortId="039" Bold="1">12</Val>
+    <Val CellStyle="m6" SortId="074">4</Val>
+    <Val CellStyle="m0" SortId="125">0</Val>
+    <Val CellStyle="m8" SortId="129" Bold="1">1h  6min</Val>
+    <Val CellStyle="m6" SortId="128">1h  20min</Val>
+    <Val CellStyle="c83" SortId="075">83.33%</Val>
+    <Val CellStyle="m16" SortId="093">166</Val>
+  </SrcFile>
+  <SrcFile Name="Adosc.cs" Url=":Adosc.cs.html" P=".\lib\volume\adosc" Pr="quantalib" FD="C">
+    <Val CellStyle="m20" SortId="038" Bold="1">12</Val>
+    <Val CellStyle="m4" SortId="081">3</Val>
+    <Val CellStyle="m40" SortId="014">4</Val>
+    <Val CellStyle="m8" SortId="128" Bold="1">1h  6min</Val>
+    <Val CellStyle="m7" SortId="088">1h  39min</Val>
+    <Val CellStyle="c90" SortId="034">90.11%</Val>
+    <Val CellStyle="m29" SortId="063">272</Val>
+  </SrcFile>
+  <SrcFile Name="Tema.cs" Url=":Tema.cs.html" P=".\lib\trends_IIR\tema" Pr="quantalib">
+    <Val CellStyle="m18" SortId="045" Bold="1">11</Val>
+    <Val CellStyle="m59" SortId="004">39</Val>
+    <Val CellStyle="m0" SortId="127">0</Val>
+    <Val CellStyle="m12" SortId="056" Bold="1">1h  35min</Val>
+    <Val CellStyle="m48" SortId="006">1d  2h</Val>
+    <Val CellStyle="c64" SortId="105">64.83%</Val>
+    <Val CellStyle="m51" SortId="020">447</Val>
+  </SrcFile>
+  <SrcFile Name="Apz.cs" Url=":Apz.cs.html" P=".\lib\channels\apz" Pr="quantalib" FD="C">
+    <Val CellStyle="m18" SortId="042" Bold="1">11</Val>
+    <Val CellStyle="m50" SortId="006">33</Val>
+    <Val CellStyle="m60" SortId="005">6</Val>
+    <Val CellStyle="m13" SortId="048" Bold="1">1h  38min</Val>
+    <Val CellStyle="m22" SortId="024">4h  55min</Val>
+    <Val CellStyle="c84" SortId="068">84.21%</Val>
+    <Val CellStyle="m66" SortId="008">571</Val>
+  </SrcFile>
+  <SrcFile Name="Jma.cs" Url=":Jma.cs.html" P=".\lib\trends_IIR\jma" Pr="quantalib" FD="C">
+    <Val CellStyle="m18" SortId="041" Bold="1">11</Val>
+    <Val CellStyle="m40" SortId="007">27</Val>
+    <Val CellStyle="m50" SortId="013">5</Val>
+    <Val CellStyle="m13" SortId="046" Bold="1">1h  41min</Val>
+    <Val CellStyle="m16" SortId="033">3h  35min</Val>
+    <Val CellStyle="c93" SortId="022">93.71%</Val>
+    <Val CellStyle="m43" SortId="027">382</Val>
+  </SrcFile>
+  <SrcFile Name="Dema.cs" Url=":Dema.cs.html" P=".\lib\trends_IIR\dema" Pr="quantalib" FD="C">
+    <Val CellStyle="m18" SortId="046" Bold="1">11</Val>
+    <Val CellStyle="m28" SortId="012">19</Val>
+    <Val CellStyle="m0" SortId="128">0</Val>
+    <Val CellStyle="m12" SortId="062" Bold="1">1h  33min</Val>
+    <Val CellStyle="m12" SortId="060">2h  48min</Val>
+    <Val CellStyle="c85" SortId="061">85.64%</Val>
+    <Val CellStyle="m38" SortId="035">346</Val>
+  </SrcFile>
+  <SrcFile Name="Mgdi.cs" Url=":Mgdi.cs.html" P=".\lib\trends_IIR\mgdi" Pr="quantalib">
+    <Val CellStyle="m18" SortId="044" Bold="1">11</Val>
+    <Val CellStyle="m15" SortId="039">10</Val>
+    <Val CellStyle="m0" SortId="126">0</Val>
+    <Val CellStyle="m10" SortId="093" Bold="1">1h  19min</Val>
+    <Val CellStyle="m15" SortId="041">3h  25min</Val>
+    <Val CellStyle="c68" SortId="103">68.75%</Val>
+    <Val CellStyle="m23" SortId="081">225</Val>
+  </SrcFile>
+  <SrcFile Name="Atr.cs" Url=":Atr.cs.html" P=".\lib\volatility\atr" Pr="quantalib">
+    <Val CellStyle="m18" SortId="043" Bold="1">11</Val>
+    <Val CellStyle="m12" SortId="051">8</Val>
+    <Val CellStyle="m0" SortId="132">0</Val>
+    <Val CellStyle="m6" SortId="141" Bold="1">51min</Val>
+    <Val CellStyle="m5" SortId="141">1h  16min</Val>
+    <Val CellStyle="c79" SortId="087">79.41%</Val>
+    <Val CellStyle="m21" SortId="086">204</Val>
+  </SrcFile>
+  <SrcFile Name="apchannel.cs" Url=":apchannel.cs.html" P=".\lib\channels\apchannel" Pr="quantalib" FD="C">
+    <Val CellStyle="m18" SortId="047" Bold="1">11</Val>
+    <Val CellStyle="m9" SortId="061">6</Val>
+    <Val CellStyle="m60" SortId="006">6</Val>
+    <Val CellStyle="m11" SortId="080" Bold="1">1h  26min</Val>
+    <Val CellStyle="m16" SortId="039">3h  31min</Val>
+    <Val CellStyle="c63" SortId="107">63.16%</Val>
+    <Val CellStyle="m35" SortId="044">321</Val>
+  </SrcFile>
+  <SrcFile Name="Lsma.cs" Url=":Lsma.cs.html" P=".\lib\trends_FIR\lsma" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="050" Bold="1">10</Val>
+    <Val CellStyle="m25" SortId="020">17</Val>
+    <Val CellStyle="m10" SortId="035">1</Val>
+    <Val CellStyle="m11" SortId="086" Bold="1">1h  22min</Val>
+    <Val CellStyle="m13" SortId="052">2h  59min</Val>
+    <Val CellStyle="c86" SortId="055">86.56%</Val>
+    <Val CellStyle="m48" SortId="024">422</Val>
+  </SrcFile>
+  <SrcFile Name="Ssf.cs" Url=":Ssf.cs.html" P=".\lib\filters\ssf" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="054" Bold="1">10</Val>
+    <Val CellStyle="m22" SortId="023">15</Val>
+    <Val CellStyle="m0" SortId="129">0</Val>
+    <Val CellStyle="m11" SortId="076" Bold="1">1h  28min</Val>
+    <Val CellStyle="m37" SortId="013">1d  0h</Val>
+    <Val CellStyle="c62" SortId="108">62.5%</Val>
+    <Val CellStyle="m38" SortId="036">342</Val>
+  </SrcFile>
+  <SrcFile Name="Usf.cs" Url=":Usf.cs.html" P=".\lib\filters\usf" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="048" Bold="1">10</Val>
+    <Val CellStyle="m19" SortId="026">13</Val>
+    <Val CellStyle="m20" SortId="028">2</Val>
+    <Val CellStyle="m11" SortId="073" Bold="1">1h  29min</Val>
+    <Val CellStyle="m10" SortId="069">2h  22min</Val>
+    <Val CellStyle="c86" SortId="059">86.03%</Val>
+    <Val CellStyle="m37" SortId="037">339</Val>
+  </SrcFile>
+  <SrcFile Name="Adxr.cs" Url=":Adxr.cs.html" P=".\lib\dynamics\adxr" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="049" Bold="1">10</Val>
+    <Val CellStyle="m10" SortId="052">7</Val>
+    <Val CellStyle="m10" SortId="033">1</Val>
+    <Val CellStyle="m12" SortId="069" Bold="1">1h  30min</Val>
+    <Val CellStyle="m7" SortId="090">1h  38min</Val>
+    <Val CellStyle="c86" SortId="058">86.05%</Val>
+    <Val CellStyle="m24" SortId="077">235</Val>
+  </SrcFile>
+  <SrcFile Name="Alma.cs" Url=":Alma.cs.html" P=".\lib\trends_FIR\alma" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="052" Bold="1">10</Val>
+    <Val CellStyle="m7" SortId="065">5</Val>
+    <Val CellStyle="m30" SortId="020">3</Val>
+    <Val CellStyle="m12" SortId="065" Bold="1">1h  32min</Val>
+    <Val CellStyle="m12" SortId="061">2h  43min</Val>
+    <Val CellStyle="c87" SortId="048">87.58%</Val>
+    <Val CellStyle="m41" SortId="030">368</Val>
+  </SrcFile>
+  <SrcFile Name="Conv.cs" Url=":Conv.cs.html" P=".\lib\trends_FIR\conv" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="053" Bold="1">10</Val>
+    <Val CellStyle="m6" SortId="072">4</Val>
+    <Val CellStyle="m10" SortId="039">1</Val>
+    <Val CellStyle="m11" SortId="077" Bold="1">1h  27min</Val>
+    <Val CellStyle="m9" SortId="073">2h  10min</Val>
+    <Val CellStyle="c88" SortId="044">88.1%</Val>
+    <Val CellStyle="m29" SortId="061">275</Val>
+  </SrcFile>
+  <SrcFile Name="Macd.cs" Url=":Macd.cs.html" P=".\lib\momentum\macd" Pr="quantalib" FD="C">
+    <Val CellStyle="m17" SortId="051" Bold="1">10</Val>
     <Val CellStyle="m1" SortId="094">1</Val>
-    <Val CellStyle="m20" SortId="027">7</Val>
-    <Val CellStyle="m6" SortId="136" Bold="1">44min</Val>
-    <Val CellStyle="m3" SortId="159">47min</Val>
-    <Val CellStyle="c58" SortId="106">58.62%</Val>
-    <Val CellStyle="m1" SortId="175">49</Val>
+    <Val CellStyle="m10" SortId="036">1</Val>
+    <Val CellStyle="m5" SortId="153" Bold="1">42min</Val>
+    <Val CellStyle="m3" SortId="171">45min</Val>
+    <Val CellStyle="c86" SortId="053">86.89%</Val>
+    <Val CellStyle="m13" SortId="099">141</Val>
+  </SrcFile>
+  <SrcFile Name="Bessel.cs" Url=":Bessel.cs.html" P=".\lib\filters\bessel" Pr="quantalib" FD="C">
+    <Val CellStyle="m15" SortId="055" Bold="1">9</Val>
+    <Val CellStyle="m16" SortId="033">11</Val>
+    <Val CellStyle="m0" SortId="130">0</Val>
+    <Val CellStyle="m11" SortId="081" Bold="1">1h  25min</Val>
+    <Val CellStyle="m38" SortId="011">1d  0h</Val>
+    <Val CellStyle="c62" SortId="109">62.22%</Val>
+    <Val CellStyle="m62" SortId="011">537</Val>
+  </SrcFile>
+  <SrcFile Name="BiInputIndicatorBase.cs" Url=":BiInputIndicatorBase.cs.html" P=".\lib\core" Pr="quantalib">
+    <Val CellStyle="m15" SortId="057" Bold="1">9</Val>
+    <Val CellStyle="m15" SortId="035">10</Val>
+    <Val CellStyle="m0" SortId="131">0</Val>
+    <Val CellStyle="m19" SortId="027" Bold="1">2h  25min</Val>
+    <Val CellStyle="m14" SortId="046">3h  16min</Val>
+    <Val CellStyle="c87" SortId="050">87.5%</Val>
+    <Val CellStyle="m29" SortId="064">271</Val>
+  </SrcFile>
+  <SrcFile Name="Ao.cs" Url=":Ao.cs.html" P=".\lib\oscillators\ao" Pr="quantalib" FD="C">
+    <Val CellStyle="m15" SortId="060" Bold="1">9</Val>
+    <Val CellStyle="m10" SortId="054">7</Val>
+    <Val CellStyle="m10" SortId="034">1</Val>
+    <Val CellStyle="m6" SortId="145" Bold="1">49min</Val>
+    <Val CellStyle="m5" SortId="152">1h  12min</Val>
+    <Val CellStyle="c86" SortId="057">86.25%</Val>
+    <Val CellStyle="m23" SortId="080">227</Val>
+  </SrcFile>
+  <SrcFile Name="AroonOsc.cs" Url=":AroonOsc.cs.html" P=".\lib\dynamics\aroonosc" Pr="quantalib" FD="C">
+    <Val CellStyle="m15" SortId="056" Bold="1">9</Val>
+    <Val CellStyle="m9" SortId="059">6</Val>
+    <Val CellStyle="m40" SortId="017">4</Val>
+    <Val CellStyle="m6" SortId="147" Bold="1">46min</Val>
+    <Val CellStyle="m6" SortId="116">1h  23min</Val>
+    <Val CellStyle="c89" SortId="036">89.38%</Val>
+    <Val CellStyle="m26" SortId="075">244</Val>
+  </SrcFile>
+  <SrcFile Name="Aroon.cs" Url=":Aroon.cs.html" P=".\lib\dynamics\aroon" Pr="quantalib" FD="C">
+    <Val CellStyle="m15" SortId="061" Bold="1">9</Val>
+    <Val CellStyle="m9" SortId="063">6</Val>
+    <Val CellStyle="m40" SortId="018">4</Val>
+    <Val CellStyle="m6" SortId="148" Bold="1">46min</Val>
+    <Val CellStyle="m6" SortId="117">1h  23min</Val>
+    <Val CellStyle="c86" SortId="054">86.78%</Val>
+    <Val CellStyle="m27" SortId="068">258</Val>
+  </SrcFile>
+  <SrcFile Name="Vel.cs" Url=":Vel.cs.html" P=".\lib\momentum\vel" Pr="quantalib" FD="C">
+    <Val CellStyle="m15" SortId="058" Bold="1">9</Val>
+    <Val CellStyle="m9" SortId="058">6</Val>
+    <Val CellStyle="m10" SortId="037">1</Val>
+    <Val CellStyle="m4" SortId="158" Bold="1">36min</Val>
+    <Val CellStyle="m4" SortId="167">1h  0min</Val>
+    <Val CellStyle="c88" SortId="040">88.89%</Val>
+    <Val CellStyle="m12" SortId="100">136</Val>
+  </SrcFile>
+  <SrcFile Name="Adl.cs" Url=":Adl.cs.html" P=".\lib\volume\adl" Pr="quantalib" FD="C">
+    <Val CellStyle="m15" SortId="059" Bold="1">9</Val>
+    <Val CellStyle="m6" SortId="073">4</Val>
+    <Val CellStyle="m50" SortId="010">5</Val>
+    <Val CellStyle="m4" SortId="157" Bold="1">36min</Val>
+    <Val CellStyle="m3" SortId="170">48min</Val>
+    <Val CellStyle="c95" SortId="017">95.18%</Val>
+    <Val CellStyle="m20" SortId="088">200</Val>
+  </SrcFile>
+  <SrcFile Name="Mama.cs" Url=":Mama.cs.html" P=".\lib\trends_IIR\mama" Pr="quantalib" FD="C">
+    <Val CellStyle="m13" SortId="065" Bold="1">8</Val>
+    <Val CellStyle="m53" SortId="005">35</Val>
+    <Val CellStyle="m70" SortId="004">7</Val>
+    <Val CellStyle="m9" SortId="124" Bold="1">1h  7min</Val>
+    <Val CellStyle="m16" SortId="034">3h  35min</Val>
+    <Val CellStyle="c88" SortId="043">88.49%</Val>
+    <Val CellStyle="m56" SortId="015">487</Val>
+  </SrcFile>
+  <SrcFile Name="Butter.cs" Url=":Butter.cs.html" P=".\lib\filters\butter" Pr="quantalib" FD="C">
+    <Val CellStyle="m13" SortId="063" Bold="1">8</Val>
+    <Val CellStyle="m27" SortId="017">18</Val>
+    <Val CellStyle="m0" SortId="133">0</Val>
+    <Val CellStyle="m10" SortId="101" Bold="1">1h  17min</Val>
+    <Val CellStyle="m12" SortId="063">2h  42min</Val>
+    <Val CellStyle="c86" SortId="056">86.46%</Val>
+    <Val CellStyle="m24" SortId="078">232</Val>
+  </SrcFile>
+  <SrcFile Name="Adx.cs" Url=":Adx.cs.html" P=".\lib\dynamics\adx" Pr="quantalib" FD="C">
+    <Val CellStyle="m13" SortId="062" Bold="1">8</Val>
+    <Val CellStyle="m24" SortId="021">16</Val>
+    <Val CellStyle="m10" SortId="038">1</Val>
+    <Val CellStyle="m6" SortId="151" Bold="1">45min</Val>
+    <Val CellStyle="m13" SortId="056">2h  53min</Val>
+    <Val CellStyle="c95" SortId="016">95.65%</Val>
+    <Val CellStyle="m50" SortId="021">441</Val>
+  </SrcFile>
+  <SrcFile Name="Dmx.cs" Url=":Dmx.cs.html" P=".\lib\dynamics\dmx" Pr="quantalib" FD="C">
+    <Val CellStyle="m13" SortId="066" Bold="1">8</Val>
+    <Val CellStyle="m18" SortId="029">12</Val>
+    <Val CellStyle="m10" SortId="032">1</Val>
+    <Val CellStyle="m6" SortId="146" Bold="1">49min</Val>
+    <Val CellStyle="m7" SortId="102">1h  33min</Val>
+    <Val CellStyle="c93" SortId="023">93.5%</Val>
+    <Val CellStyle="m27" SortId="071">252</Val>
+  </SrcFile>
+  <SrcFile Name="Rma.cs" Url=":Rma.cs.html" P=".\lib\trends_IIR\rma" Pr="quantalib">
+    <Val CellStyle="m13" SortId="064" Bold="1">8</Val>
+    <Val CellStyle="m9" SortId="055">6</Val>
+    <Val CellStyle="m0" SortId="151">0</Val>
+    <Val CellStyle="m7" SortId="137" Bold="1">53min</Val>
+    <Val CellStyle="m5" SortId="137">1h  17min</Val>
+    <Val CellStyle="c73" SortId="096">73.17%</Val>
+    <Val CellStyle="m14" SortId="094">153</Val>
+  </SrcFile>
+  <SrcFile Name="Htit.cs" Url=":Htit.cs.html" P=".\lib\trends_IIR\htit" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="077" Bold="1">7</Val>
+    <Val CellStyle="m62" SortId="002">41</Val>
+    <Val CellStyle="m10" SortId="041">1</Val>
+    <Val CellStyle="m9" SortId="115" Bold="1">1h  12min</Val>
+    <Val CellStyle="m17" SortId="030">3h  44min</Val>
+    <Val CellStyle="c89" SortId="039">89.03%</Val>
+    <Val CellStyle="m52" SortId="019">459</Val>
+  </SrcFile>
+  <SrcFile Name="LinReg.cs" Url=":LinReg.cs.html" P=".\lib\statistics\linreg" Pr="quantalib">
+    <Val CellStyle="m12" SortId="086" Bold="1">7</Val>
+    <Val CellStyle="m30" SortId="011">20</Val>
+    <Val CellStyle="m0" SortId="185">0</Val>
+    <Val CellStyle="m7" SortId="132" Bold="1">56min</Val>
+    <Val CellStyle="m13" SortId="053">2h  58min</Val>
+    <Val CellStyle="c84" SortId="067">84.26%</Val>
+    <Val CellStyle="m50" SortId="022">441</Val>
+  </SrcFile>
+  <SrcFile Name="Super.cs" Url=":Super.cs.html" P=".\lib\dynamics\super" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="079" Bold="1">7</Val>
+    <Val CellStyle="m28" SortId="014">19</Val>
+    <Val CellStyle="m10" SortId="029">1</Val>
+    <Val CellStyle="m7" SortId="136" Bold="1">54min</Val>
+    <Val CellStyle="m8" SortId="079">1h  54min</Val>
+    <Val CellStyle="c91" SortId="028">91.67%</Val>
+    <Val CellStyle="m26" SortId="073">245</Val>
+  </SrcFile>
+  <SrcFile Name="Median.cs" Url=":Median.cs.html" P=".\lib\statistics\median" Pr="quantalib">
+    <Val CellStyle="m12" SortId="080" Bold="1">7</Val>
+    <Val CellStyle="m9" SortId="057">6</Val>
+    <Val CellStyle="m0" SortId="179">0</Val>
+    <Val CellStyle="m4" SortId="159" Bold="1">35min</Val>
+    <Val CellStyle="m5" SortId="138">1h  17min</Val>
+    <Val CellStyle="c91" SortId="031">91.07%</Val>
+    <Val CellStyle="m29" SortId="065">270</Val>
+  </SrcFile>
+  <SrcFile Name="ITValuePublisher.cs" Url=":ITValuePublisher.cs.html" P=".\lib\core\tseries" Pr="quantalib">
+    <Val CellStyle="m12" SortId="068" Bold="1">7</Val>
+    <Val CellStyle="m6" SortId="070">4</Val>
+    <Val CellStyle="m0" SortId="153">0</Val>
+    <Val CellStyle="m17" SortId="031" Bold="1">2h  13min</Val>
+    <Val CellStyle="m10" SortId="071">2h  21min</Val>
+    <Val CellStyle="c55" SortId="113">55.56%</Val>
+    <Val CellStyle="m1" SortId="183">50</Val>
+  </SrcFile>
+  <SrcFile Name="Rsi.cs" Url=":Rsi.cs.html" P=".\lib\momentum\rsi" Pr="quantalib">
+    <Val CellStyle="m12" SortId="082" Bold="1">7</Val>
+    <Val CellStyle="m6" SortId="069">4</Val>
+    <Val CellStyle="m0" SortId="181">0</Val>
+    <Val CellStyle="m5" SortId="154" Bold="1">38min</Val>
+    <Val CellStyle="m6" SortId="123">1h  21min</Val>
+    <Val CellStyle="c93" SortId="021">93.94%</Val>
+    <Val CellStyle="m32" SortId="053">297</Val>
+  </SrcFile>
+  <SrcFile Name="Hma.cs" Url=":Hma.cs.html" P=".\lib\trends_FIR\hma" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="074" Bold="1">7</Val>
+    <Val CellStyle="m4" SortId="078">3</Val>
+    <Val CellStyle="m70" SortId="002">7</Val>
+    <Val CellStyle="m5" SortId="152" Bold="1">44min</Val>
+    <Val CellStyle="m10" SortId="072">2h  12min</Val>
+    <Val CellStyle="c87" SortId="046">87.83%</Val>
+    <Val CellStyle="m26" SortId="072">251</Val>
+  </SrcFile>
+  <SrcFile Name="Dwma.cs" Url=":Dwma.cs.html" P=".\lib\trends_FIR\dwma" Pr="quantalib">
+    <Val CellStyle="m12" SortId="071" Bold="1">7</Val>
+    <Val CellStyle="m3" SortId="093">2</Val>
+    <Val CellStyle="m10" SortId="030">1</Val>
+    <Val CellStyle="m6" SortId="150" Bold="1">45min</Val>
+    <Val CellStyle="m6" SortId="129">1h  20min</Val>
+    <Val CellStyle="c83" SortId="076">83.05%</Val>
+    <Val CellStyle="m13" SortId="098">144</Val>
+  </SrcFile>
+  <SrcFile Name="Jma.Quantower.cs" Url=":Jma.Quantower.cs.html" P=".\lib\trends_IIR\jma" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="075" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="118">0</Val>
+    <Val CellStyle="m0" SortId="176">0</Val>
+    <Val CellStyle="m13" SortId="045" Bold="1">1h  43min</Val>
+    <Val CellStyle="m7" SortId="087">1h  43min</Val>
+    <Val SortId="159">N/A</Val>
+    <Val CellStyle="m4" SortId="118">70</Val>
+  </SrcFile>
+  <SrcFile Name="Ema.Quantower.cs" Url=":Ema.Quantower.cs.html" P=".\lib\trends_IIR\ema" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="081" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="117">0</Val>
+    <Val CellStyle="m0" SortId="180">0</Val>
+    <Val CellStyle="m12" SortId="055" Bold="1">1h  36min</Val>
+    <Val CellStyle="m7" SortId="097">1h  36min</Val>
+    <Val SortId="130">N/A</Val>
+    <Val CellStyle="m2" SortId="167">56</Val>
+  </SrcFile>
+  <SrcFile Name="Dsma.Quantower.cs" Url=":Dsma.Quantower.cs.html" P=".\lib\trends_IIR\dsma" Pr="quantalib" FD="N">
+    <Val CellStyle="m12" SortId="085" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="097">0</Val>
+    <Val CellStyle="m0" SortId="184">0</Val>
+    <Val CellStyle="m14" SortId="043" Bold="1">1h  44min</Val>
+    <Val CellStyle="m7" SortId="085">1h  44min</Val>
+    <Val SortId="158">N/A</Val>
+    <Val CellStyle="m4" SortId="119">70</Val>
+  </SrcFile>
+  <SrcFile Name="Mma.Quantower.cs" Url=":Mma.Quantower.cs.html" P=".\lib\trends_IIR\mma" Pr="quantalib" FD="N">
+    <Val CellStyle="m12" SortId="072" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="186">0</Val>
+    <Val CellStyle="m0" SortId="174">0</Val>
+    <Val CellStyle="m13" SortId="051" Bold="1">1h  37min</Val>
+    <Val CellStyle="m7" SortId="091">1h  37min</Val>
+    <Val SortId="119">N/A</Val>
+    <Val CellStyle="m2" SortId="162">57</Val>
+  </SrcFile>
+  <SrcFile Name="Dema.Quantower.cs" Url=":Dema.Quantower.cs.html" P=".\lib\trends_IIR\dema" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="083" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="162">0</Val>
+    <Val CellStyle="m0" SortId="182">0</Val>
+    <Val CellStyle="m13" SortId="049" Bold="1">1h  37min</Val>
+    <Val CellStyle="m7" SortId="094">1h  37min</Val>
+    <Val SortId="172">N/A</Val>
+    <Val CellStyle="m2" SortId="147">59</Val>
+  </SrcFile>
+  <SrcFile Name="Hma.Quantower.cs" Url=":Hma.Quantower.cs.html" P=".\lib\trends_FIR\hma" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="070" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="153">0</Val>
+    <Val CellStyle="m0" SortId="173">0</Val>
+    <Val CellStyle="m13" SortId="053" Bold="1">1h  37min</Val>
+    <Val CellStyle="m7" SortId="096">1h  37min</Val>
+    <Val SortId="143">N/A</Val>
+    <Val CellStyle="m2" SortId="152">59</Val>
+  </SrcFile>
+  <SrcFile Name="Dwma.Quantower.cs" Url=":Dwma.Quantower.cs.html" P=".\lib\trends_FIR\dwma" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="078" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="158">0</Val>
+    <Val CellStyle="m0" SortId="178">0</Val>
+    <Val CellStyle="m13" SortId="054" Bold="1">1h  37min</Val>
+    <Val CellStyle="m7" SortId="093">1h  37min</Val>
+    <Val SortId="126">N/A</Val>
+    <Val CellStyle="m2" SortId="155">59</Val>
+  </SrcFile>
+  <SrcFile Name="Conv.Quantower.cs" Url=":Conv.Quantower.cs.html" P=".\lib\trends_FIR\conv" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="067" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="159">0</Val>
+    <Val CellStyle="m0" SortId="152">0</Val>
+    <Val CellStyle="m22" SortId="022" Bold="1">2h  49min</Val>
+    <Val CellStyle="m12" SortId="059">2h  49min</Val>
+    <Val SortId="163">N/A</Val>
+    <Val CellStyle="m5" SortId="112">78</Val>
+  </SrcFile>
+  <SrcFile Name="Hema.Quantower.cs" Url=":Hema.Quantower.cs.html" P=".\lib\trends_IIR\hema" Pr="quantalib" FD="N">
+    <Val CellStyle="m12" SortId="073" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="160">0</Val>
+    <Val CellStyle="m0" SortId="175">0</Val>
+    <Val CellStyle="m13" SortId="050" Bold="1">1h  37min</Val>
+    <Val CellStyle="m7" SortId="095">1h  37min</Val>
+    <Val SortId="128">N/A</Val>
+    <Val CellStyle="m2" SortId="153">59</Val>
+  </SrcFile>
+  <SrcFile Name="Wiener.cs" Url=":Wiener.cs.html" P=".\lib\filters\wiener" Pr="quantalib" FD="N">
+    <Val CellStyle="m12" SortId="076" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="161">0</Val>
+    <Val CellStyle="m0" SortId="177">0</Val>
+    <Val CellStyle="m9" SortId="127" Bold="1">1h  7min</Val>
+    <Val CellStyle="m5" SortId="163">1h  7min</Val>
+    <Val CellStyle="c89" SortId="035">89.87%</Val>
+    <Val CellStyle="m16" SortId="092">167</Val>
+  </SrcFile>
+  <SrcFile Name="Zlema.Quantower.cs" Url=":Zlema.Quantower.cs.html" P=".\lib\trends_IIR\zlema" Pr="quantalib" FD="N">
+    <Val CellStyle="m12" SortId="084" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="096">0</Val>
+    <Val CellStyle="m0" SortId="183">0</Val>
+    <Val CellStyle="m13" SortId="052" Bold="1">1h  37min</Val>
+    <Val CellStyle="m7" SortId="092">1h  37min</Val>
+    <Val SortId="129">N/A</Val>
+    <Val CellStyle="m2" SortId="160">57</Val>
+  </SrcFile>
+  <SrcFile Name="Alma.Quantower.cs" Url=":Alma.Quantower.cs.html" P=".\lib\trends_FIR\alma" Pr="quantalib" FD="C">
+    <Val CellStyle="m12" SortId="069" Bold="1">7</Val>
+    <Val CellStyle="m0" SortId="187">0</Val>
+    <Val CellStyle="m0" SortId="172">0</Val>
+    <Val CellStyle="m13" SortId="047" Bold="1">1h  39min</Val>
+    <Val CellStyle="m7" SortId="089">1h  39min</Val>
+    <Val SortId="153">N/A</Val>
+    <Val CellStyle="m3" SortId="126">65</Val>
+  </SrcFile>
+  <SrcFile Name="Covariance.cs" Url=":Covariance.cs.html" P=".\lib\statistics\covariance" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="091" Bold="1">6</Val>
+    <Val CellStyle="m39" SortId="009">26</Val>
+    <Val CellStyle="m30" SortId="022">3</Val>
+    <Val CellStyle="m4" SortId="160" Bold="1">33min</Val>
+    <Val CellStyle="m16" SortId="038">3h  32min</Val>
+    <Val CellStyle="c93" SortId="024">93.04%</Val>
+    <Val CellStyle="m53" SortId="018">466</Val>
+  </SrcFile>
+  <SrcFile Name="Pwma.cs" Url=":Pwma.cs.html" P=".\lib\trends_FIR\pwma" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="088" Bold="1">6</Val>
+    <Val CellStyle="m28" SortId="013">19</Val>
+    <Val CellStyle="m30" SortId="019">3</Val>
+    <Val CellStyle="m9" SortId="114" Bold="1">1h  13min</Val>
+    <Val CellStyle="m10" SortId="070">2h  21min</Val>
+    <Val CellStyle="c90" SortId="033">90.4%</Val>
+    <Val CellStyle="m38" SortId="034">347</Val>
+  </SrcFile>
+  <SrcFile Name="Ema.cs" Url=":Ema.cs.html" P=".\lib\trends_IIR\ema" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="098" Bold="1">6</Val>
+    <Val CellStyle="m27" SortId="015">18</Val>
+    <Val CellStyle="m0" SortId="154">0</Val>
+    <Val CellStyle="m11" SortId="085" Bold="1">1h  22min</Val>
+    <Val CellStyle="m14" SortId="050">3h  10min</Val>
+    <Val CellStyle="c91" SortId="027">91.91%</Val>
+    <Val CellStyle="m63" SortId="010">540</Val>
+  </SrcFile>
+  <SrcFile Name="Kama.cs" Url=":Kama.cs.html" P=".\lib\trends_IIR\kama" Pr="quantalib">
+    <Val CellStyle="m10" SortId="100" Bold="1">6</Val>
+    <Val CellStyle="m21" SortId="025">14</Val>
+    <Val CellStyle="m0" SortId="156">0</Val>
+    <Val CellStyle="m9" SortId="125" Bold="1">1h  7min</Val>
+    <Val CellStyle="m15" SortId="044">3h  22min</Val>
+    <Val CellStyle="c85" SortId="063">85.37%</Val>
+    <Val CellStyle="m37" SortId="040">336</Val>
+  </SrcFile>
+  <SrcFile Name="Variance.cs" Url=":Variance.cs.html" P=".\lib\statistics\variance" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="089" Bold="1">6</Val>
+    <Val CellStyle="m16" SortId="032">11</Val>
+    <Val CellStyle="m90" SortId="001">9</Val>
+    <Val CellStyle="m6" SortId="142" Bold="1">51min</Val>
+    <Val CellStyle="m91" SortId="001">2d  3h</Val>
+    <Val CellStyle="c57" SortId="112">57.66%</Val>
+    <Val CellStyle="m75" SortId="005">640</Val>
+  </SrcFile>
+  <SrcFile Name="Amat.cs" Url=":Amat.cs.html" P=".\lib\dynamics\amat" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="101" Bold="1">6</Val>
+    <Val CellStyle="m15" SortId="036">10</Val>
+    <Val CellStyle="m20" SortId="025">2</Val>
+    <Val CellStyle="m6" SortId="143" Bold="1">51min</Val>
+    <Val CellStyle="m6" SortId="115">1h  25min</Val>
+    <Val CellStyle="c81" SortId="080">81.15%</Val>
+    <Val CellStyle="m58" SortId="013">503</Val>
+  </SrcFile>
+  <SrcFile Name="Cfb.cs" Url=":Cfb.cs.html" P=".\lib\momentum\cfb" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="094" Bold="1">6</Val>
+    <Val CellStyle="m15" SortId="038">10</Val>
+    <Val CellStyle="m10" SortId="040">1</Val>
+    <Val CellStyle="m6" SortId="140" Bold="1">52min</Val>
+    <Val CellStyle="m9" SortId="074">2h  0min</Val>
+    <Val CellStyle="c92" SortId="026">92.66%</Val>
+    <Val CellStyle="m43" SortId="026">382</Val>
+  </SrcFile>
+  <SrcFile Name="Sum.cs" Url=":Sum.cs.html" P=".\lib\statistics\sum" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="090" Bold="1">6</Val>
+    <Val CellStyle="m13" SortId="042">9</Val>
+    <Val CellStyle="m100" SortId="000">10</Val>
+    <Val CellStyle="m7" SortId="138" Bold="1">52min</Val>
+    <Val CellStyle="m8" SortId="080">1h  52min</Val>
+    <Val CellStyle="c89" SortId="037">89.3%</Val>
+    <Val CellStyle="m54" SortId="017">475</Val>
+  </SrcFile>
+  <SrcFile Name="Skew.cs" Url=":Skew.cs.html" P=".\lib\statistics\skew" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="097" Bold="1">6</Val>
+    <Val CellStyle="m10" SortId="053">7</Val>
+    <Val CellStyle="m20" SortId="027">2</Val>
+    <Val CellStyle="m5" SortId="155" Bold="1">37min</Val>
+    <Val CellStyle="m24" SortId="021">5h  16min</Val>
+    <Val CellStyle="c85" SortId="064">85.09%</Val>
+    <Val CellStyle="m56" SortId="014">491</Val>
+  </SrcFile>
+  <SrcFile Name="StdDev.cs" Url=":StdDev.cs.html" P=".\lib\statistics\stddev" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="087" Bold="1">6</Val>
+    <Val CellStyle="m9" SortId="056">6</Val>
+    <Val CellStyle="m60" SortId="008">6</Val>
+    <Val CellStyle="m4" SortId="156" Bold="1">36min</Val>
+    <Val CellStyle="m13" SortId="054">2h  57min</Val>
+    <Val CellStyle="c71" SortId="099">71.83%</Val>
+    <Val CellStyle="m18" SortId="090">184</Val>
+  </SrcFile>
+  <SrcFile Name="Cma.cs" Url=":Cma.cs.html" P=".\lib\statistics\cma" Pr="quantalib">
+    <Val CellStyle="m10" SortId="093" Bold="1">6</Val>
+    <Val CellStyle="m7" SortId="067">5</Val>
+    <Val CellStyle="m0" SortId="171">0</Val>
+    <Val CellStyle="m7" SortId="139" Bold="1">52min</Val>
+    <Val CellStyle="m5" SortId="150">1h  14min</Val>
+    <Val CellStyle="c88" SortId="042">88.57%</Val>
+    <Val CellStyle="m29" SortId="062">273</Val>
+  </SrcFile>
+  <SrcFile Name="Bessel.Quantower.cs" Url=":Bessel.Quantower.cs.html" P=".\lib\filters\bessel" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="096" Bold="1">6</Val>
+    <Val CellStyle="m0" SortId="157">0</Val>
+    <Val CellStyle="m0" SortId="160">0</Val>
+    <Val CellStyle="m10" SortId="092" Bold="1">1h  20min</Val>
+    <Val CellStyle="m6" SortId="127">1h  20min</Val>
+    <Val SortId="124">N/A</Val>
+    <Val CellStyle="m2" SortId="157">58</Val>
+  </SrcFile>
+  <SrcFile Name="Blma.Quantower.cs" Url=":Blma.Quantower.cs.html" P=".\lib\trends_FIR\blma" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="095" Bold="1">6</Val>
+    <Val CellStyle="m0" SortId="156">0</Val>
+    <Val CellStyle="m0" SortId="169">0</Val>
+    <Val CellStyle="m12" SortId="058" Bold="1">1h  34min</Val>
+    <Val CellStyle="m7" SortId="099">1h  34min</Val>
+    <Val SortId="149">N/A</Val>
+    <Val CellStyle="m2" SortId="151">59</Val>
+  </SrcFile>
+  <SrcFile Name="Bilateral.Quantower.cs" Url=":Bilateral.Quantower.cs.html" P=".\lib\filters\bilateral" Pr="quantalib" FD="C">
+    <Val CellStyle="m10" SortId="092" Bold="1">6</Val>
+    <Val CellStyle="m0" SortId="155">0</Val>
+    <Val CellStyle="m0" SortId="186">0</Val>
+    <Val CellStyle="m11" SortId="078" Bold="1">1h  27min</Val>
+    <Val CellStyle="m6" SortId="113">1h  27min</Val>
+    <Val SortId="154">N/A</Val>
+    <Val CellStyle="m3" SortId="125">65</Val>
+  </SrcFile>
+  <SrcFile Name="Frama.Quantower.cs" Url=":Frama.Quantower.cs.html" P=".\lib\trends_IIR\frama" Pr="quantalib" FD="N">
+    <Val CellStyle="m10" SortId="099" Bold="1">6</Val>
+    <Val CellStyle="m0" SortId="154">0</Val>
+    <Val CellStyle="m0" SortId="155">0</Val>
+    <Val CellStyle="m12" SortId="072" Bold="1">1h  29min</Val>
+    <Val CellStyle="m6" SortId="110">1h  29min</Val>
+    <Val SortId="118">N/A</Val>
+    <Val CellStyle="m2" SortId="163">57</Val>
+  </SrcFile>
+  <SrcFile Name="Rsx.cs" Url=":Rsx.cs.html" P=".\lib\momentum\rsx" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="113" Bold="1">5</Val>
+    <Val CellStyle="m100" SortId="000">66</Val>
+    <Val CellStyle="m10" SortId="045">1</Val>
+    <Val CellStyle="m6" SortId="144" Bold="1">50min</Val>
+    <Val CellStyle="m16" SortId="031">3h  40min</Val>
+    <Val CellStyle="c94" SortId="019">94.16%</Val>
+    <Val CellStyle="m36" SortId="042">325</Val>
+  </SrcFile>
+  <SrcFile Name="Beta.cs" Url=":Beta.cs.html" P=".\lib\statistics\beta" Pr="quantalib">
+    <Val CellStyle="m8" SortId="108" Bold="1">5</Val>
+    <Val CellStyle="m6" SortId="068">4</Val>
+    <Val CellStyle="m10" SortId="046">1</Val>
+    <Val CellStyle="m9" SortId="112" Bold="1">1h  14min</Val>
+    <Val CellStyle="m6" SortId="120">1h  22min</Val>
+    <Val CellStyle="c92" SortId="025">92.71%</Val>
+    <Val CellStyle="m23" SortId="084">220</Val>
+  </SrcFile>
+  <SrcFile Name="Vidya.Quantower.cs" Url=":Vidya.Quantower.cs.html" P=".\lib\trends_IIR\vidya" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="102" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="152">0</Val>
+    <Val CellStyle="m0" SortId="157">0</Val>
+    <Val CellStyle="m16" SortId="038" Bold="1">1h  59min</Val>
+    <Val CellStyle="m9" SortId="078">1h  59min</Val>
+    <Val SortId="186">N/A</Val>
+    <Val CellStyle="m3" SortId="132">63</Val>
+  </SrcFile>
+  <SrcFile Name="Kama.Quantower.cs" Url=":Kama.Quantower.cs.html" P=".\lib\trends_IIR\kama" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="111" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="150">0</Val>
+    <Val CellStyle="m0" SortId="165">0</Val>
+    <Val CellStyle="m12" SortId="070" Bold="1">1h  29min</Val>
+    <Val CellStyle="m6" SortId="108">1h  29min</Val>
+    <Val SortId="182">N/A</Val>
+    <Val CellStyle="m3" SortId="136">62</Val>
+  </SrcFile>
+  <SrcFile Name="Mama.Quantower.cs" Url=":Mama.Quantower.cs.html" P=".\lib\trends_IIR\mama" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="114" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="149">0</Val>
+    <Val CellStyle="m0" SortId="167">0</Val>
+    <Val CellStyle="m12" SortId="060" Bold="1">1h  34min</Val>
+    <Val CellStyle="m7" SortId="101">1h  34min</Val>
+    <Val SortId="169">N/A</Val>
+    <Val CellStyle="m3" SortId="130">63</Val>
+  </SrcFile>
+  <SrcFile Name="Mgdi.Quantower.cs" Url=":Mgdi.Quantower.cs.html" P=".\lib\trends_IIR\mgdi" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="116" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="148">0</Val>
+    <Val CellStyle="m0" SortId="187">0</Val>
+    <Val CellStyle="m12" SortId="067" Bold="1">1h  30min</Val>
+    <Val CellStyle="m6" SortId="106">1h  30min</Val>
+    <Val SortId="174">N/A</Val>
+    <Val CellStyle="m3" SortId="144">60</Val>
+  </SrcFile>
+  <SrcFile Name="Rma.Quantower.cs" Url=":Rma.Quantower.cs.html" P=".\lib\trends_IIR\rma" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="103" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="147">0</Val>
+    <Val CellStyle="m0" SortId="158">0</Val>
+    <Val CellStyle="m12" SortId="066" Bold="1">1h  31min</Val>
+    <Val CellStyle="m6" SortId="105">1h  31min</Val>
+    <Val SortId="116">N/A</Val>
+    <Val CellStyle="m2" SortId="165">56</Val>
+  </SrcFile>
+  <SrcFile Name="Wma.Quantower.cs" Url=":Wma.Quantower.cs.html" P=".\lib\trends_FIR\wma" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="117" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="146">0</Val>
+    <Val CellStyle="m0" SortId="115">0</Val>
+    <Val CellStyle="m16" SortId="036" Bold="1">1h  59min</Val>
+    <Val CellStyle="m9" SortId="077">1h  59min</Val>
+    <Val SortId="185">N/A</Val>
+    <Val CellStyle="m3" SortId="133">63</Val>
+  </SrcFile>
+  <SrcFile Name="Trima.Quantower.cs" Url=":Trima.Quantower.cs.html" P=".\lib\trends_FIR\trima" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="109" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="145">0</Val>
+    <Val CellStyle="m0" SortId="163">0</Val>
+    <Val CellStyle="m16" SortId="035" Bold="1">1h  59min</Val>
+    <Val CellStyle="m9" SortId="076">1h  59min</Val>
+    <Val SortId="184">N/A</Val>
+    <Val CellStyle="m3" SortId="134">63</Val>
+  </SrcFile>
+  <SrcFile Name="Sma.Quantower.cs" Url=":Sma.Quantower.cs.html" P=".\lib\trends_FIR\sma" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="105" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="144">0</Val>
+    <Val CellStyle="m0" SortId="161">0</Val>
+    <Val CellStyle="m11" SortId="074" Bold="1">1h  28min</Val>
+    <Val CellStyle="m6" SortId="111">1h  28min</Val>
+    <Val SortId="125">N/A</Val>
+    <Val CellStyle="m2" SortId="166">56</Val>
+  </SrcFile>
+  <SrcFile Name="Pwma.Quantower.cs" Url=":Pwma.Quantower.cs.html" P=".\lib\trends_FIR\pwma" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="104" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="143">0</Val>
+    <Val CellStyle="m0" SortId="159">0</Val>
+    <Val CellStyle="m12" SortId="064" Bold="1">1h  32min</Val>
+    <Val CellStyle="m7" SortId="103">1h  32min</Val>
+    <Val SortId="120">N/A</Val>
+    <Val CellStyle="m2" SortId="161">57</Val>
+  </SrcFile>
+  <SrcFile Name="Lsma.Quantower.cs" Url=":Lsma.Quantower.cs.html" P=".\lib\trends_FIR\lsma" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="115" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="142">0</Val>
+    <Val CellStyle="m0" SortId="117">0</Val>
+    <Val CellStyle="m12" SortId="063" Bold="1">1h  32min</Val>
+    <Val CellStyle="m7" SortId="104">1h  32min</Val>
+    <Val SortId="173">N/A</Val>
+    <Val CellStyle="m3" SortId="146">60</Val>
+  </SrcFile>
+  <SrcFile Name="T3.Quantower.cs" Url=":T3.Quantower.cs.html" P=".\lib\trends_IIR\t3" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="112" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="151">0</Val>
+    <Val CellStyle="m0" SortId="166">0</Val>
+    <Val CellStyle="m12" SortId="057" Bold="1">1h  35min</Val>
+    <Val CellStyle="m7" SortId="098">1h  35min</Val>
+    <Val SortId="170">N/A</Val>
+    <Val CellStyle="m3" SortId="131">63</Val>
+  </SrcFile>
+  <SrcFile Name="Tema.Quantower.cs" Url=":Tema.Quantower.cs.html" P=".\lib\trends_IIR\tema" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="110" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="163">0</Val>
+    <Val CellStyle="m0" SortId="164">0</Val>
+    <Val CellStyle="m16" SortId="037" Bold="1">1h  59min</Val>
+    <Val CellStyle="m9" SortId="075">1h  59min</Val>
+    <Val SortId="183">N/A</Val>
+    <Val CellStyle="m3" SortId="135">63</Val>
+  </SrcFile>
+  <SrcFile Name="Butter.Quantower.cs" Url=":Butter.Quantower.cs.html" P=".\lib\filters\butter" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="107" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="164">0</Val>
+    <Val CellStyle="m0" SortId="162">0</Val>
+    <Val CellStyle="m11" SortId="088" Bold="1">1h  21min</Val>
+    <Val CellStyle="m6" SortId="122">1h  21min</Val>
+    <Val SortId="127">N/A</Val>
+    <Val CellStyle="m2" SortId="154">59</Val>
+  </SrcFile>
+  <SrcFile Name="Htit.Quantower.cs" Url=":Htit.Quantower.cs.html" P=".\lib\trends_IIR\htit" Pr="quantalib" FD="C">
+    <Val CellStyle="m8" SortId="106" Bold="1">5</Val>
+    <Val CellStyle="m0" SortId="165">0</Val>
+    <Val CellStyle="m0" SortId="168">0</Val>
+    <Val CellStyle="m11" SortId="075" Bold="1">1h  28min</Val>
+    <Val CellStyle="m6" SortId="112">1h  28min</Val>
+    <Val SortId="132">N/A</Val>
+    <Val CellStyle="m2" SortId="169">56</Val>
+  </SrcFile>
+  <SrcFile Name="tvalue.cs" Url=":tvalue.cs.html" P=".\lib\core\tvalue" Pr="quantalib">
+    <Val CellStyle="m6" SortId="151" Bold="1">4</Val>
+    <Val CellStyle="m4" SortId="076">3</Val>
+    <Val CellStyle="m0" SortId="102">0</Val>
+    <Val CellStyle="m7" SortId="134" Bold="1">55min</Val>
+    <Val CellStyle="m5" SortId="164">1h  6min</Val>
+    <Val CellStyle="c70" SortId="100">70.59%</Val>
+    <Val CellStyle="m0" SortId="187">41</Val>
+  </SrcFile>
+  <SrcFile Name="Rsi.Quantower.cs" Url=":Rsi.Quantower.cs.html" P=".\lib\momentum\rsi" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="150" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="185">0</Val>
+    <Val CellStyle="m0" SortId="101">0</Val>
+    <Val CellStyle="m10" SortId="097" Bold="1">1h  18min</Val>
+    <Val CellStyle="m5" SortId="134">1h  18min</Val>
+    <Val SortId="187">N/A</Val>
+    <Val CellStyle="m3" SortId="139">60</Val>
+  </SrcFile>
+  <SrcFile Name="Cfb.Quantower.cs" Url=":Cfb.Quantower.cs.html" P=".\lib\momentum\cfb" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="142" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="184">0</Val>
+    <Val CellStyle="m0" SortId="051">0</Val>
+    <Val CellStyle="m14" SortId="042" Bold="1">1h  45min</Val>
+    <Val CellStyle="m7" SortId="084">1h  45min</Val>
+    <Val SortId="161">N/A</Val>
+    <Val CellStyle="m4" SortId="115">73</Val>
+  </SrcFile>
+  <SrcFile Name="Rsx.Quantower.cs" Url=":Rsx.Quantower.cs.html" P=".\lib\momentum\rsx" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="148" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="183">0</Val>
+    <Val CellStyle="m0" SortId="099">0</Val>
+    <Val CellStyle="m10" SortId="096" Bold="1">1h  18min</Val>
+    <Val CellStyle="m5" SortId="133">1h  18min</Val>
+    <Val SortId="178">N/A</Val>
+    <Val CellStyle="m2" SortId="150">59</Val>
+  </SrcFile>
+  <SrcFile Name="Vel.Quantower.cs" Url=":Vel.Quantower.cs.html" P=".\lib\momentum\vel" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="138" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="182">0</Val>
+    <Val CellStyle="m0" SortId="056">0</Val>
+    <Val CellStyle="m10" SortId="098" Bold="1">1h  18min</Val>
+    <Val CellStyle="m5" SortId="132">1h  18min</Val>
+    <Val SortId="171">N/A</Val>
+    <Val CellStyle="m2" SortId="148">59</Val>
+  </SrcFile>
+  <SrcFile Name="Ao.Quantower.cs" Url=":Ao.Quantower.cs.html" P=".\lib\oscillators\ao" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="145" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="181">0</Val>
+    <Val CellStyle="m0" SortId="105">0</Val>
+    <Val CellStyle="m21" SortId="024" Bold="1">2h  40min</Val>
+    <Val CellStyle="m12" SortId="065">2h  40min</Val>
+    <Val SortId="164">N/A</Val>
+    <Val CellStyle="m5" SortId="110">80</Val>
+  </SrcFile>
+  <SrcFile Name="Bop.Quantower.cs" Url=":Bop.Quantower.cs.html" P=".\lib\momentum\bop" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="157" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="180">0</Val>
+    <Val CellStyle="m0" SortId="108">0</Val>
+    <Val CellStyle="m8" SortId="130" Bold="1">1h  5min</Val>
+    <Val CellStyle="m4" SortId="166">1h  5min</Val>
+    <Val SortId="133">N/A</Val>
+    <Val CellStyle="m1" SortId="186">45</Val>
+  </SrcFile>
+  <SrcFile Name="Apo.Quantower.cs" Url=":Apo.Quantower.cs.html" P=".\lib\oscillators\apo" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="121" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="179">0</Val>
+    <Val CellStyle="m0" SortId="058">0</Val>
+    <Val CellStyle="m9" SortId="120" Bold="1">1h  11min</Val>
+    <Val CellStyle="m5" SortId="157">1h  11min</Val>
+    <Val SortId="140">N/A</Val>
+    <Val CellStyle="m2" SortId="177">54</Val>
+  </SrcFile>
+  <SrcFile Name="Macd.Quantower.cs" Url=":Macd.Quantower.cs.html" P=".\lib\momentum\macd" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="160" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="178">0</Val>
+    <Val CellStyle="m0" SortId="111">0</Val>
+    <Val CellStyle="m11" SortId="079" Bold="1">1h  26min</Val>
+    <Val CellStyle="m6" SortId="114">1h  26min</Val>
+    <Val SortId="162">N/A</Val>
+    <Val CellStyle="m4" SortId="114">74</Val>
+  </SrcFile>
+  <SrcFile Name="Afirma.Quantower.cs" Url=":Afirma.Quantower.cs.html" P=".\lib\forecasts\afirma" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="136" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="177">0</Val>
+    <Val CellStyle="m0" SortId="073">0</Val>
+    <Val CellStyle="m10" SortId="099" Bold="1">1h  17min</Val>
+    <Val CellStyle="m5" SortId="135">1h  17min</Val>
+    <Val SortId="181">N/A</Val>
+    <Val CellStyle="m3" SortId="137">62</Val>
+  </SrcFile>
+  <SrcFile Name="Skew.Quantower.cs" Url=":Skew.Quantower.cs.html" P=".\lib\statistics\skew" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="139" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="176">0</Val>
+    <Val CellStyle="m0" SortId="053">0</Val>
+    <Val CellStyle="m11" SortId="083" Bold="1">1h  23min</Val>
+    <Val CellStyle="m6" SortId="119">1h  23min</Val>
+    <Val SortId="168">N/A</Val>
+    <Val CellStyle="m3" SortId="129">64</Val>
+  </SrcFile>
+  <SrcFile Name="Cma.Quantower.cs" Url=":Cma.Quantower.cs.html" P=".\lib\statistics\cma" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="125" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="175">0</Val>
+    <Val CellStyle="m0" SortId="063">0</Val>
+    <Val CellStyle="m9" SortId="113" Bold="1">1h  13min</Val>
+    <Val CellStyle="m5" SortId="151">1h  13min</Val>
+    <Val SortId="138">N/A</Val>
+    <Val CellStyle="m2" SortId="179">52</Val>
+  </SrcFile>
+  <SrcFile Name="Adl.Quantower.cs" Url=":Adl.Quantower.cs.html" P=".\lib\volume\adl" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="158" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="174">0</Val>
+    <Val CellStyle="m0" SortId="109">0</Val>
+    <Val CellStyle="m9" SortId="121" Bold="1">1h  9min</Val>
+    <Val CellStyle="m5" SortId="159">1h  9min</Val>
+    <Val SortId="134">N/A</Val>
+    <Val CellStyle="m1" SortId="185">49</Val>
+  </SrcFile>
+  <SrcFile Name="Covariance.Quantower.cs" Url=":Covariance.Quantower.cs.html" P=".\lib\statistics\covariance" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="120" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="173">0</Val>
+    <Val CellStyle="m0" SortId="055">0</Val>
+    <Val CellStyle="m12" SortId="068" Bold="1">1h  30min</Val>
+    <Val CellStyle="m6" SortId="107">1h  30min</Val>
+    <Val SortId="160">N/A</Val>
+    <Val CellStyle="m4" SortId="116">72</Val>
+  </SrcFile>
+  <SrcFile Name="Median.Quantower.cs" Url=":Median.Quantower.cs.html" P=".\lib\statistics\median" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="149" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="172">0</Val>
+    <Val CellStyle="m0" SortId="100">0</Val>
+    <Val CellStyle="m11" SortId="087" Bold="1">1h  22min</Val>
+    <Val CellStyle="m6" SortId="121">1h  22min</Val>
+    <Val SortId="180">N/A</Val>
+    <Val CellStyle="m3" SortId="138">61</Val>
+  </SrcFile>
+  <SrcFile Name="StdDev.Quantower.cs" Url=":StdDev.Quantower.cs.html" P=".\lib\statistics\stddev" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="127" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="171">0</Val>
+    <Val CellStyle="m0" SortId="065">0</Val>
+    <Val CellStyle="m11" SortId="084" Bold="1">1h  23min</Val>
+    <Val CellStyle="m6" SortId="118">1h  23min</Val>
+    <Val SortId="152">N/A</Val>
+    <Val CellStyle="m3" SortId="127">64</Val>
+  </SrcFile>
+  <SrcFile Name="Sum.Quantower.cs" Url=":Sum.Quantower.cs.html" P=".\lib\statistics\sum" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="152" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="170">0</Val>
+    <Val CellStyle="m0" SortId="103">0</Val>
+    <Val CellStyle="m10" SortId="107" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="147">1h  15min</Val>
+    <Val SortId="117">N/A</Val>
+    <Val CellStyle="m2" SortId="164">56</Val>
+  </SrcFile>
+  <SrcFile Name="Variance.Quantower.cs" Url=":Variance.Quantower.cs.html" P=".\lib\statistics\variance" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="126" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="169">0</Val>
+    <Val CellStyle="m0" SortId="064">0</Val>
+    <Val CellStyle="m13" SortId="044" Bold="1">1h  43min</Val>
+    <Val CellStyle="m7" SortId="086">1h  43min</Val>
+    <Val SortId="155">N/A</Val>
+    <Val CellStyle="m3" SortId="122">67</Val>
+  </SrcFile>
+  <SrcFile Name="Atr.Quantower.cs" Url=":Atr.Quantower.cs.html" P=".\lib\volatility\atr" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="135" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="168">0</Val>
+    <Val CellStyle="m0" SortId="074">0</Val>
+    <Val CellStyle="m9" SortId="117" Bold="1">1h  11min</Val>
+    <Val CellStyle="m5" SortId="155">1h  11min</Val>
+    <Val SortId="137">N/A</Val>
+    <Val CellStyle="m2" SortId="180">52</Val>
+  </SrcFile>
+  <SrcFile Name="Beta.Quantower.cs" Url=":Beta.Quantower.cs.html" P=".\lib\statistics\beta" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="122" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="167">0</Val>
+    <Val CellStyle="m0" SortId="075">0</Val>
+    <Val CellStyle="m12" SortId="071" Bold="1">1h  29min</Val>
+    <Val CellStyle="m6" SortId="109">1h  29min</Val>
+    <Val SortId="157">N/A</Val>
+    <Val CellStyle="m4" SortId="120">69</Val>
+  </SrcFile>
+  <SrcFile Name="Wiener.Quantower.cs" Url=":Wiener.Quantower.cs.html" P=".\lib\filters\wiener" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="155" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="166">0</Val>
+    <Val CellStyle="m0" SortId="077">0</Val>
+    <Val CellStyle="m10" SortId="111" Bold="1">1h  14min</Val>
+    <Val CellStyle="m5" SortId="149">1h  14min</Val>
+    <Val SortId="123">N/A</Val>
+    <Val CellStyle="m2" SortId="158">58</Val>
+  </SrcFile>
+  <SrcFile Name="Cheby1.Quantower.cs" Url=":Cheby1.Quantower.cs.html" P=".\lib\filters\cheby1" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="141" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="141">0</Val>
+    <Val CellStyle="m0" SortId="060">0</Val>
+    <Val CellStyle="m10" SortId="091" Bold="1">1h  21min</Val>
+    <Val CellStyle="m6" SortId="125">1h  21min</Val>
+    <Val SortId="175">N/A</Val>
+    <Val CellStyle="m3" SortId="143">60</Val>
+  </SrcFile>
+  <SrcFile Name="Ssf.Quantower.cs" Url=":Ssf.Quantower.cs.html" P=".\lib\filters\ssf" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="132" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="140">0</Val>
+    <Val CellStyle="m0" SortId="070">0</Val>
+    <Val CellStyle="m10" SortId="105" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="148">1h  15min</Val>
+    <Val SortId="147">N/A</Val>
+    <Val CellStyle="m2" SortId="170">56</Val>
+  </SrcFile>
+  <SrcFile Name="Usf.Quantower.cs" Url=":Usf.Quantower.cs.html" P=".\lib\filters\usf" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="130" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="139">0</Val>
+    <Val CellStyle="m0" SortId="068">0</Val>
+    <Val CellStyle="m12" SortId="059" Bold="1">1h  34min</Val>
+    <Val CellStyle="m7" SortId="100">1h  34min</Val>
+    <Val SortId="150">N/A</Val>
+    <Val CellStyle="m3" SortId="145">60</Val>
+  </SrcFile>
+  <SrcFile Name="Adosc.Quantower.cs" Url=":Adosc.Quantower.cs.html" P=".\lib\volume\adosc" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="124" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="138">0</Val>
+    <Val CellStyle="m0" SortId="062">0</Val>
+    <Val CellStyle="m9" SortId="119" Bold="1">1h  11min</Val>
+    <Val CellStyle="m5" SortId="154">1h  11min</Val>
+    <Val SortId="142">N/A</Val>
+    <Val CellStyle="m2" SortId="175">55</Val>
+  </SrcFile>
+  <SrcFile Name="Adx.Quantower.cs" Url=":Adx.Quantower.cs.html" P=".\lib\dynamics\adx" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="159" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="114">0</Val>
+    <Val CellStyle="m0" SortId="110">0</Val>
+    <Val CellStyle="m10" SortId="095" Bold="1">1h  19min</Val>
+    <Val CellStyle="m5" SortId="131">1h  19min</Val>
+    <Val SortId="179">N/A</Val>
+    <Val CellStyle="m3" SortId="140">60</Val>
+  </SrcFile>
+  <SrcFile Name="Adxr.Quantower.cs" Url=":Adxr.Quantower.cs.html" P=".\lib\dynamics\adxr" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="137" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="113">0</Val>
+    <Val CellStyle="m0" SortId="057">0</Val>
+    <Val CellStyle="m9" SortId="123" Bold="1">1h  9min</Val>
+    <Val CellStyle="m5" SortId="161">1h  9min</Val>
+    <Val SortId="135">N/A</Val>
+    <Val CellStyle="m1" SortId="182">51</Val>
+  </SrcFile>
+  <SrcFile Name="Aroon.Quantower.cs" Url=":Aroon.Quantower.cs.html" P=".\lib\dynamics\aroon" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="146" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="112">0</Val>
+    <Val CellStyle="m0" SortId="078">0</Val>
+    <Val CellStyle="m10" SortId="094" Bold="1">1h  19min</Val>
+    <Val CellStyle="m5" SortId="130">1h  19min</Val>
+    <Val SortId="177">N/A</Val>
+    <Val CellStyle="m3" SortId="141">60</Val>
+  </SrcFile>
+  <SrcFile Name="AroonOsc.Quantower.cs" Url=":AroonOsc.Quantower.cs.html" P=".\lib\dynamics\aroonosc" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="119" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="111">0</Val>
+    <Val CellStyle="m0" SortId="054">0</Val>
+    <Val CellStyle="m9" SortId="122" Bold="1">1h  9min</Val>
+    <Val CellStyle="m5" SortId="162">1h  9min</Val>
+    <Val SortId="139">N/A</Val>
+    <Val CellStyle="m2" SortId="178">52</Val>
+  </SrcFile>
+  <SrcFile Name="Dmx.Quantower.cs" Url=":Dmx.Quantower.cs.html" P=".\lib\dynamics\dmx" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="147" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="110">0</Val>
+    <Val CellStyle="m0" SortId="098">0</Val>
+    <Val CellStyle="m9" SortId="118" Bold="1">1h  11min</Val>
+    <Val CellStyle="m5" SortId="156">1h  11min</Val>
+    <Val SortId="136">N/A</Val>
+    <Val CellStyle="m1" SortId="181">51</Val>
+  </SrcFile>
+  <SrcFile Name="Super.Quantower.cs" Url=":Super.Quantower.cs.html" P=".\lib\dynamics\super" Pr="quantalib" FD="C">
+    <Val CellStyle="m6" SortId="123" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="109">0</Val>
+    <Val CellStyle="m0" SortId="061">0</Val>
+    <Val CellStyle="m14" SortId="040" Bold="1">1h  50min</Val>
+    <Val CellStyle="m8" SortId="082">1h  50min</Val>
+    <Val SortId="156">N/A</Val>
+    <Val CellStyle="m4" SortId="121">68</Val>
+  </SrcFile>
+  <SrcFile Name="Bpf.Quantower.cs" Url=":Bpf.Quantower.cs.html" P=".\lib\filters\bpf" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="154" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="108">0</Val>
+    <Val CellStyle="m0" SortId="106">0</Val>
+    <Val CellStyle="m10" SortId="103" Bold="1">1h  16min</Val>
+    <Val CellStyle="m5" SortId="139">1h  16min</Val>
+    <Val SortId="122">N/A</Val>
+    <Val CellStyle="m2" SortId="159">58</Val>
+  </SrcFile>
+  <SrcFile Name="Abber.Quantower.cs" Url=":Abber.Quantower.cs.html" P=".\lib\channels\abber" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="143" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="107">0</Val>
+    <Val CellStyle="m0" SortId="059">0</Val>
+    <Val CellStyle="m14" SortId="041" Bold="1">1h  49min</Val>
+    <Val CellStyle="m8" SortId="083">1h  49min</Val>
+    <Val SortId="165">N/A</Val>
+    <Val CellStyle="m6" SortId="107">89</Val>
+  </SrcFile>
+  <SrcFile Name="Elliptic.Quantower.cs" Url=":Elliptic.Quantower.cs.html" P=".\lib\filters\elliptic" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="131" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="106">0</Val>
+    <Val CellStyle="m0" SortId="069">0</Val>
+    <Val CellStyle="m10" SortId="106" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="145">1h  15min</Val>
+    <Val SortId="148">N/A</Val>
+    <Val CellStyle="m2" SortId="168">56</Val>
+  </SrcFile>
+  <SrcFile Name="Gauss.Quantower.cs" Url=":Gauss.Quantower.cs.html" P=".\lib\filters\gauss" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="118" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="115">0</Val>
+    <Val CellStyle="m0" SortId="114">0</Val>
+    <Val CellStyle="m10" SortId="110" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="142">1h  15min</Val>
+    <Val SortId="145">N/A</Val>
+    <Val CellStyle="m2" SortId="172">55</Val>
+  </SrcFile>
+  <SrcFile Name="Cheby2.Quantower.cs" Url=":Cheby2.Quantower.cs.html" P=".\lib\filters\cheby2" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="144" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="105">0</Val>
+    <Val CellStyle="m0" SortId="076">0</Val>
+    <Val CellStyle="m10" SortId="090" Bold="1">1h  21min</Val>
+    <Val CellStyle="m6" SortId="126">1h  21min</Val>
+    <Val SortId="176">N/A</Val>
+    <Val CellStyle="m3" SortId="142">60</Val>
+  </SrcFile>
+  <SrcFile Name="Hann.Quantower.cs" Url=":Hann.Quantower.cs.html" P=".\lib\filters\hann" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="129" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="104">0</Val>
+    <Val CellStyle="m0" SortId="067">0</Val>
+    <Val CellStyle="m10" SortId="104" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="146">1h  15min</Val>
+    <Val SortId="144">N/A</Val>
+    <Val CellStyle="m2" SortId="173">55</Val>
+  </SrcFile>
+  <SrcFile Name="Hp.Quantower.cs" Url=":Hp.Quantower.cs.html" P=".\lib\filters\hp" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="156" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="103">0</Val>
+    <Val CellStyle="m0" SortId="107">0</Val>
+    <Val CellStyle="m10" SortId="108" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="143">1h  15min</Val>
+    <Val SortId="131">N/A</Val>
+    <Val CellStyle="m2" SortId="174">55</Val>
+  </SrcFile>
+  <SrcFile Name="Hpf.Quantower.cs" Url=":Hpf.Quantower.cs.html" P=".\lib\filters\hpf" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="134" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="102">0</Val>
+    <Val CellStyle="m0" SortId="072">0</Val>
+    <Val CellStyle="m10" SortId="109" Bold="1">1h  15min</Val>
+    <Val CellStyle="m5" SortId="144">1h  15min</Val>
+    <Val SortId="141">N/A</Val>
+    <Val CellStyle="m2" SortId="176">55</Val>
+  </SrcFile>
+  <SrcFile Name="Kalman.Quantower.cs" Url=":Kalman.Quantower.cs.html" P=".\lib\filters\kalman" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="153" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="101">0</Val>
+    <Val CellStyle="m0" SortId="104">0</Val>
+    <Val CellStyle="m10" SortId="102" Bold="1">1h  16min</Val>
+    <Val CellStyle="m5" SortId="140">1h  16min</Val>
+    <Val SortId="121">N/A</Val>
+    <Val CellStyle="m2" SortId="156">58</Val>
+  </SrcFile>
+  <SrcFile Name="Loess.Quantower.cs" Url=":Loess.Quantower.cs.html" P=".\lib\filters\loess" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="133" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="100">0</Val>
+    <Val CellStyle="m0" SortId="071">0</Val>
+    <Val CellStyle="m10" SortId="100" Bold="1">1h  17min</Val>
+    <Val CellStyle="m5" SortId="136">1h  17min</Val>
+    <Val SortId="146">N/A</Val>
+    <Val CellStyle="m2" SortId="171">55</Val>
+  </SrcFile>
+  <SrcFile Name="Notch.Quantower.cs" Url=":Notch.Quantower.cs.html" P=".\lib\filters\notch" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="128" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="099">0</Val>
+    <Val CellStyle="m0" SortId="066">0</Val>
+    <Val CellStyle="m10" SortId="089" Bold="1">1h  21min</Val>
+    <Val CellStyle="m6" SortId="124">1h  21min</Val>
+    <Val SortId="151">N/A</Val>
+    <Val CellStyle="m2" SortId="149">59</Val>
+  </SrcFile>
+  <SrcFile Name="Sgf.Quantower.cs" Url=":Sgf.Quantower.cs.html" P=".\lib\filters\sgf" Pr="quantalib" FD="N">
+    <Val CellStyle="m6" SortId="140" Bold="1">4</Val>
+    <Val CellStyle="m0" SortId="098">0</Val>
+    <Val CellStyle="m0" SortId="052">0</Val>
+    <Val CellStyle="m9" SortId="116" Bold="1">1h  11min</Val>
+    <Val CellStyle="m5" SortId="153">1h  11min</Val>
+    <Val SortId="167">N/A</Val>
+    <Val CellStyle="m3" SortId="128">64</Val>
+  </SrcFile>
+  <SrcFile Name="Mdae.cs" Url=":Mdae.cs.html" P=".\lib\errors\mdae" Pr="quantalib" FD="C">
+    <Val CellStyle="m3" SortId="162" Bold="1">2</Val>
+    <Val CellStyle="m6" SortId="075">4</Val>
+    <Val CellStyle="m10" SortId="042">1</Val>
+    <Val CellStyle="m3" SortId="161" Bold="1">25min</Val>
+    <Val CellStyle="m3" SortId="169">51min</Val>
+    <Val CellStyle="c91" SortId="030">91.38%</Val>
+    <Val CellStyle="m22" SortId="085">219</Val>
   </SrcFile>
   <SrcFile Name="Huber.cs" Url=":Huber.cs.html" P=".\lib\errors\huber" Pr="quantalib" FD="C">
-    <Val CellStyle="m2" SortId="152" Bold="1">1</Val>
-    <Val CellStyle="m0" SortId="111">0</Val>
-    <Val CellStyle="m5" SortId="061">2</Val>
-    <Val CellStyle="m0" SortId="152" Bold="1">3min  0s</Val>
-    <Val CellStyle="m0" SortId="175">3min  0s</Val>
-    <Val CellStyle="c96" SortId="010">96.97%</Val>
-    <Val CellStyle="m9" SortId="096">116</Val>
+    <Val CellStyle="m3" SortId="161" Bold="1">2</Val>
+    <Val CellStyle="m1" SortId="095">1</Val>
+    <Val CellStyle="m10" SortId="031">1</Val>
+    <Val CellStyle="m0" SortId="162" Bold="1">4min  0s</Val>
+    <Val CellStyle="m0" SortId="176">5min</Val>
+    <Val CellStyle="c96" SortId="011">96.97%</Val>
+    <Val CellStyle="m10" SortId="101">116</Val>
+  </SrcFile>
+  <SrcFile Name="IFeed.cs" Url=":IFeed.cs.html" P=".\lib\feeds" Pr="quantalib">
+    <Val CellStyle="m1" SortId="163" Bold="1">1</Val>
+    <Val CellStyle="m0" SortId="116">0</Val>
+    <Val CellStyle="m0" SortId="112">0</Val>
+    <Val CellStyle="m0" SortId="163" Bold="1">1min  0s</Val>
+    <Val CellStyle="m0" SortId="188">1min  0s</Val>
+    <Val SortId="188">N/A</Val>
+    <Val CellStyle="m0" SortId="188">36</Val>
   </SrcFile>
   <SrcFile Name="CsvFeed.cs" Url=":CsvFeed.cs.html" P=".\lib\feeds\csv" Pr="quantalib" FD="C">
-    <Val CellStyle="m0" SortId="173">0</Val>
-    <Val CellStyle="m43" SortId="005">22</Val>
-    <Val CellStyle="m5" SortId="056">2</Val>
-    <Val CellStyle="m0" SortId="155">0min  0s</Val>
-    <Val CellStyle="m16" SortId="028">3h  31min</Val>
-    <Val CellStyle="c80" SortId="080">80.61%</Val>
-    <Val CellStyle="m47" SortId="024">418</Val>
-  </SrcFile>
-  <SrcFile Name="Rse.cs" Url=":Rse.cs.html" P=".\lib\errors\rse" Pr="quantalib">
-    <Val CellStyle="m0" SortId="174">0</Val>
-    <Val CellStyle="m17" SortId="023">9</Val>
-    <Val CellStyle="m5" SortId="055">2</Val>
-    <Val CellStyle="m0" SortId="165">0min  0s</Val>
-    <Val CellStyle="m18" SortId="025">3h  53min</Val>
-    <Val CellStyle="c80" SortId="082">80.43%</Val>
-    <Val CellStyle="m33" SortId="045">304</Val>
+    <Val CellStyle="m0" SortId="186">0</Val>
+    <Val CellStyle="m34" SortId="010">23</Val>
+    <Val CellStyle="m10" SortId="049">1</Val>
+    <Val CellStyle="m0" SortId="169">0min  0s</Val>
+    <Val CellStyle="m16" SortId="037">3h  32min</Val>
+    <Val CellStyle="c80" SortId="082">80.61%</Val>
+    <Val CellStyle="m47" SortId="025">418</Val>
   </SrcFile>
   <SrcFile Name="Mase.cs" Url=":Mase.cs.html" P=".\lib\errors\mase" Pr="quantalib">
-    <Val CellStyle="m0" SortId="172">0</Val>
-    <Val CellStyle="m17" SortId="020">9</Val>
-    <Val CellStyle="m5" SortId="057">2</Val>
-    <Val CellStyle="m0" SortId="175">0min  0s</Val>
-    <Val CellStyle="m16" SortId="029">3h  30min</Val>
-    <Val CellStyle="c80" SortId="079">80.81%</Val>
-    <Val CellStyle="m31" SortId="051">293</Val>
+    <Val CellStyle="m0" SortId="185">0</Val>
+    <Val CellStyle="m16" SortId="031">11</Val>
+    <Val CellStyle="m0" SortId="093">0</Val>
+    <Val CellStyle="m0" SortId="184">0min  0s</Val>
+    <Val CellStyle="m16" SortId="036">3h  32min</Val>
+    <Val CellStyle="c80" SortId="081">80.81%</Val>
+    <Val CellStyle="m32" SortId="056">293</Val>
   </SrcFile>
-  <SrcFile Name="gbm.cs" Url=":gbm.cs.html" P=".\lib\feeds\gbm" Pr="quantalib" FD="C">
-    <Val CellStyle="m0" SortId="166">0</Val>
-    <Val CellStyle="m15" SortId="025">8</Val>
-    <Val CellStyle="m17" SortId="035">6</Val>
-    <Val CellStyle="m0" SortId="153">0min  0s</Val>
-    <Val CellStyle="m5" SortId="150">1h  8min</Val>
-    <Val CellStyle="c94" SortId="018">94.89%</Val>
-    <Val CellStyle="m38" SortId="031">349</Val>
+  <SrcFile Name="Rse.cs" Url=":Rse.cs.html" P=".\lib\errors\rse" Pr="quantalib">
+    <Val CellStyle="m0" SortId="164">0</Val>
+    <Val CellStyle="m16" SortId="034">11</Val>
+    <Val CellStyle="m0" SortId="113">0</Val>
+    <Val CellStyle="m0" SortId="176">0min  0s</Val>
+    <Val CellStyle="m17" SortId="028">3h  55min</Val>
+    <Val CellStyle="c80" SortId="084">80.43%</Val>
+    <Val CellStyle="m33" SortId="049">304</Val>
   </SrcFile>
   <SrcFile Name="Rsquared.cs" Url=":Rsquared.cs.html" P=".\lib\errors\rsquared" Pr="quantalib">
-    <Val CellStyle="m0" SortId="164">0</Val>
-    <Val CellStyle="m15" SortId="026">8</Val>
-    <Val CellStyle="m5" SortId="066">2</Val>
-    <Val CellStyle="m0" SortId="169">0min  0s</Val>
-    <Val CellStyle="m8" SortId="078">1h  48min</Val>
-    <Val CellStyle="c90" SortId="031">90.76%</Val>
-    <Val CellStyle="m33" SortId="044">306</Val>
+    <Val CellStyle="m0" SortId="180">0</Val>
+    <Val CellStyle="m15" SortId="037">10</Val>
+    <Val CellStyle="m0" SortId="088">0</Val>
+    <Val CellStyle="m0" SortId="179">0min  0s</Val>
+    <Val CellStyle="m8" SortId="081">1h  50min</Val>
+    <Val CellStyle="c90" SortId="032">90.76%</Val>
+    <Val CellStyle="m33" SortId="048">306</Val>
   </SrcFile>
   <SrcFile Name="Rae.cs" Url=":Rae.cs.html" P=".\lib\errors\rae" Pr="quantalib">
     <Val CellStyle="m0" SortId="175">0</Val>
-    <Val CellStyle="m15" SortId="030">8</Val>
-    <Val CellStyle="m5" SortId="063">2</Val>
-    <Val CellStyle="m0" SortId="171">0min  0s</Val>
-    <Val CellStyle="m17" SortId="026">3h  46min</Val>
-    <Val CellStyle="c79" SortId="084">79.55%</Val>
-    <Val CellStyle="m32" SortId="049">296</Val>
+    <Val CellStyle="m15" SortId="041">10</Val>
+    <Val CellStyle="m0" SortId="085">0</Val>
+    <Val CellStyle="m0" SortId="177">0min  0s</Val>
+    <Val CellStyle="m17" SortId="029">3h  48min</Val>
+    <Val CellStyle="c79" SortId="086">79.55%</Val>
+    <Val CellStyle="m32" SortId="054">296</Val>
+  </SrcFile>
+  <SrcFile Name="gbm.cs" Url=":gbm.cs.html" P=".\lib\feeds\gbm" Pr="quantalib" FD="C">
+    <Val CellStyle="m0" SortId="178">0</Val>
+    <Val CellStyle="m13" SortId="046">9</Val>
+    <Val CellStyle="m50" SortId="012">5</Val>
+    <Val CellStyle="m0" SortId="167">0min  0s</Val>
+    <Val CellStyle="m5" SortId="160">1h  9min</Val>
+    <Val CellStyle="c94" SortId="018">94.89%</Val>
+    <Val CellStyle="m39" SortId="033">349</Val>
   </SrcFile>
   <SrcFile Name="TheilU.cs" Url=":TheilU.cs.html" P=".\lib\errors\theilu" Pr="quantalib">
-    <Val CellStyle="m0" SortId="170">0</Val>
-    <Val CellStyle="m13" SortId="032">7</Val>
-    <Val CellStyle="m5" SortId="062">2</Val>
-    <Val CellStyle="m0" SortId="172">0min  0s</Val>
-    <Val CellStyle="m15" SortId="037">3h  12min</Val>
-    <Val CellStyle="c84" SortId="067">84.15%</Val>
-    <Val CellStyle="m31" SortId="053">289</Val>
+    <Val CellStyle="m0" SortId="183">0</Val>
+    <Val CellStyle="m13" SortId="044">9</Val>
+    <Val CellStyle="m0" SortId="091">0</Val>
+    <Val CellStyle="m0" SortId="182">0min  0s</Val>
+    <Val CellStyle="m14" SortId="048">3h  14min</Val>
+    <Val CellStyle="c84" SortId="069">84.15%</Val>
+    <Val CellStyle="m31" SortId="057">289</Val>
   </SrcFile>
   <SrcFile Name="Wmape.cs" Url=":Wmape.cs.html" P=".\lib\errors\wmape" Pr="quantalib">
-    <Val CellStyle="m0" SortId="171">0</Val>
-    <Val CellStyle="m13" SortId="031">7</Val>
-    <Val CellStyle="m5" SortId="060">2</Val>
-    <Val CellStyle="m0" SortId="173">0min  0s</Val>
-    <Val CellStyle="m13" SortId="049">2h  50min</Val>
-    <Val CellStyle="c83" SortId="070">83.66%</Val>
-    <Val CellStyle="m26" SortId="065">255</Val>
-  </SrcFile>
-  <SrcFile Name="QuantileLoss.cs" Url=":QuantileLoss.cs.html" P=".\lib\errors\quantile" Pr="quantalib" FD="C">
-    <Val CellStyle="m0" SortId="169">0</Val>
-    <Val CellStyle="m11" SortId="039">6</Val>
-    <Val CellStyle="m5" SortId="058">2</Val>
-    <Val CellStyle="m0" SortId="174">0min  0s</Val>
-    <Val CellStyle="m11" SortId="062">2h  21min</Val>
-    <Val CellStyle="c84" SortId="064">84.78%</Val>
-    <Val CellStyle="m25" SortId="071">241</Val>
+    <Val CellStyle="m0" SortId="184">0</Val>
+    <Val CellStyle="m13" SortId="043">9</Val>
+    <Val CellStyle="m0" SortId="092">0</Val>
+    <Val CellStyle="m0" SortId="183">0min  0s</Val>
+    <Val CellStyle="m13" SortId="058">2h  52min</Val>
+    <Val CellStyle="c83" SortId="072">83.66%</Val>
+    <Val CellStyle="m27" SortId="070">255</Val>
   </SrcFile>
   <SrcFile Name="TukeyBiweight.cs" Url=":TukeyBiweight.cs.html" P=".\lib\errors\tukey" Pr="quantalib" FD="C">
-    <Val CellStyle="m0" SortId="168">0</Val>
-    <Val CellStyle="m11" SortId="040">6</Val>
-    <Val CellStyle="m5" SortId="071">2</Val>
-    <Val CellStyle="m0" SortId="168">0min  0s</Val>
-    <Val CellStyle="m12" SortId="058">2h  40min</Val>
-    <Val CellStyle="c85" SortId="058">85.8%</Val>
-    <Val CellStyle="m30" SortId="054">287</Val>
+    <Val CellStyle="m0" SortId="181">0</Val>
+    <Val CellStyle="m12" SortId="047">8</Val>
+    <Val CellStyle="m0" SortId="089">0</Val>
+    <Val CellStyle="m0" SortId="180">0min  0s</Val>
+    <Val CellStyle="m12" SortId="062">2h  42min</Val>
+    <Val CellStyle="c85" SortId="060">85.8%</Val>
+    <Val CellStyle="m31" SortId="059">287</Val>
+  </SrcFile>
+  <SrcFile Name="QuantileLoss.cs" Url=":QuantileLoss.cs.html" P=".\lib\errors\quantile" Pr="quantalib" FD="C">
+    <Val CellStyle="m0" SortId="182">0</Val>
+    <Val CellStyle="m12" SortId="048">8</Val>
+    <Val CellStyle="m0" SortId="090">0</Val>
+    <Val CellStyle="m0" SortId="181">0min  0s</Val>
+    <Val CellStyle="m10" SortId="067">2h  23min</Val>
+    <Val CellStyle="c84" SortId="066">84.78%</Val>
+    <Val CellStyle="m25" SortId="076">241</Val>
   </SrcFile>
   <SrcFile Name="Mdape.cs" Url=":Mdape.cs.html" P=".\lib\errors\mdape" Pr="quantalib" FD="C">
-    <Val CellStyle="m0" SortId="167">0</Val>
-    <Val CellStyle="m7" SortId="054">4</Val>
-    <Val CellStyle="m5" SortId="065">2</Val>
-    <Val CellStyle="m0" SortId="170">0min  0s</Val>
-    <Val CellStyle="m2" SortId="162">31min</Val>
-    <Val CellStyle="c91" SortId="028">91.6%</Val>
-    <Val CellStyle="m23" SortId="076">225</Val>
-  </SrcFile>
-  <SrcFile Name="Mrae.cs" Url=":Mrae.cs.html" P=".\lib\errors\mrae" Pr="quantalib">
-    <Val CellStyle="m0" SortId="176">0</Val>
-    <Val CellStyle="m3" SortId="072">2</Val>
-    <Val CellStyle="m2" SortId="072">1</Val>
-    <Val CellStyle="m0" SortId="167">0min  0s</Val>
-    <Val CellStyle="m1" SortId="164">17min</Val>
-    <Val CellStyle="c96" SortId="013">96.23%</Val>
-    <Val CellStyle="m13" SortId="090">151</Val>
-  </SrcFile>
-  <SrcFile Name="Maape.cs" Url=":Maape.cs.html" P=".\lib\errors\maape" Pr="quantalib">
-    <Val CellStyle="m0" SortId="163">0</Val>
-    <Val CellStyle="m3" SortId="073">2</Val>
-    <Val CellStyle="m2" SortId="079">1</Val>
-    <Val CellStyle="m0" SortId="164">0min  0s</Val>
-    <Val CellStyle="m1" SortId="165">17min</Val>
-    <Val CellStyle="c96" SortId="012">96.36%</Val>
-    <Val CellStyle="m13" SortId="092">149</Val>
+    <Val CellStyle="m0" SortId="179">0</Val>
+    <Val CellStyle="m7" SortId="066">5</Val>
+    <Val CellStyle="m10" SortId="043">1</Val>
+    <Val CellStyle="m0" SortId="168">0min  0s</Val>
+    <Val CellStyle="m2" SortId="172">32min</Val>
+    <Val CellStyle="c91" SortId="029">91.6%</Val>
+    <Val CellStyle="m23" SortId="082">225</Val>
   </SrcFile>
   <SrcFile Name="Mapd.cs" Url=":Mapd.cs.html" P=".\lib\errors\mapd" Pr="quantalib">
-    <Val CellStyle="m0" SortId="165">0</Val>
-    <Val CellStyle="m3" SortId="074">2</Val>
-    <Val CellStyle="m2" SortId="078">1</Val>
-    <Val CellStyle="m0" SortId="166">0min  0s</Val>
-    <Val CellStyle="m1" SortId="163">17min</Val>
+    <Val CellStyle="m0" SortId="187">0</Val>
+    <Val CellStyle="m4" SortId="077">3</Val>
+    <Val CellStyle="m0" SortId="170">0</Val>
+    <Val CellStyle="m0" SortId="164">0min  0s</Val>
+    <Val CellStyle="m1" SortId="173">18min</Val>
     <Val CellStyle="c96" SortId="014">96.23%</Val>
-    <Val CellStyle="m13" SortId="091">150</Val>
+    <Val CellStyle="m14" SortId="096">150</Val>
   </SrcFile>
-  <SrcFile Name="Smape.cs" Url=":Smape.cs.html" P=".\lib\errors\smape" Pr="quantalib">
-    <Val CellStyle="m0" SortId="157">0</Val>
-    <Val CellStyle="m1" SortId="091">1</Val>
-    <Val CellStyle="m2" SortId="089">1</Val>
-    <Val CellStyle="m0" SortId="159">0min  0s</Val>
-    <Val CellStyle="m0" SortId="173">3min  0s</Val>
-    <Val CellStyle="c100" SortId="005">100%</Val>
-    <Val CellStyle="m6" SortId="100">95</Val>
+  <SrcFile Name="Maape.cs" Url=":Maape.cs.html" P=".\lib\errors\maape" Pr="quantalib">
+    <Val CellStyle="m0" SortId="176">0</Val>
+    <Val CellStyle="m4" SortId="080">3</Val>
+    <Val CellStyle="m0" SortId="086">0</Val>
+    <Val CellStyle="m0" SortId="187">0min  0s</Val>
+    <Val CellStyle="m1" SortId="175">18min</Val>
+    <Val CellStyle="c96" SortId="013">96.36%</Val>
+    <Val CellStyle="m14" SortId="097">149</Val>
   </SrcFile>
-  <SrcFile Name="Rmsle.cs" Url=":Rmsle.cs.html" P=".\lib\errors\rmsle" Pr="quantalib">
-    <Val CellStyle="m0" SortId="160">0</Val>
-    <Val CellStyle="m1" SortId="090">1</Val>
-    <Val CellStyle="m2" SortId="086">1</Val>
-    <Val CellStyle="m0" SortId="161">0min  0s</Val>
-    <Val CellStyle="m0" SortId="172">3min  0s</Val>
-    <Val CellStyle="c100" SortId="002">100%</Val>
-    <Val CellStyle="m7" SortId="098">103</Val>
-  </SrcFile>
-  <SrcFile Name="Mpe.cs" Url=":Mpe.cs.html" P=".\lib\errors\mpe" Pr="quantalib">
-    <Val CellStyle="m0" SortId="154">0</Val>
-    <Val CellStyle="m1" SortId="089">1</Val>
-    <Val CellStyle="m2" SortId="092">1</Val>
-    <Val CellStyle="m0" SortId="157">0min  0s</Val>
-    <Val CellStyle="m0" SortId="171">3min  0s</Val>
-    <Val CellStyle="c100" SortId="006">100%</Val>
-    <Val CellStyle="m6" SortId="101">92</Val>
-  </SrcFile>
-  <SrcFile Name="PseudoHuber.cs" Url=":PseudoHuber.cs.html" P=".\lib\errors\pseudohuber" Pr="quantalib" FD="C">
-    <Val CellStyle="m0" SortId="156">0</Val>
-    <Val CellStyle="m1" SortId="088">1</Val>
-    <Val CellStyle="m2" SortId="095">1</Val>
-    <Val CellStyle="m0" SortId="154">0min  0s</Val>
-    <Val CellStyle="m0" SortId="177">3min  0s</Val>
-    <Val CellStyle="c96" SortId="011">96.97%</Val>
-    <Val CellStyle="m8" SortId="097">112</Val>
-  </SrcFile>
-  <SrcFile Name="Rmse.cs" Url=":Rmse.cs.html" P=".\lib\errors\rmse" Pr="quantalib">
-    <Val CellStyle="m0" SortId="158">0</Val>
-    <Val CellStyle="m1" SortId="087">1</Val>
-    <Val CellStyle="m2" SortId="088">1</Val>
-    <Val CellStyle="m0" SortId="177">0min  0s</Val>
-    <Val CellStyle="m0" SortId="170">3min  0s</Val>
-    <Val CellStyle="c100" SortId="004">100%</Val>
-    <Val CellStyle="m3" SortId="112">71</Val>
-  </SrcFile>
-  <SrcFile Name="Msle.cs" Url=":Msle.cs.html" P=".\lib\errors\msle" Pr="quantalib">
-    <Val CellStyle="m0" SortId="161">0</Val>
-    <Val CellStyle="m1" SortId="086">1</Val>
-    <Val CellStyle="m2" SortId="085">1</Val>
-    <Val CellStyle="m0" SortId="162">0min  0s</Val>
-    <Val CellStyle="m0" SortId="169">3min  0s</Val>
-    <Val CellStyle="c100" SortId="001">100%</Val>
-    <Val CellStyle="m7" SortId="099">100</Val>
-  </SrcFile>
-  <SrcFile Name="Mape.cs" Url=":Mape.cs.html" P=".\lib\errors\mape" Pr="quantalib">
-    <Val CellStyle="m0" SortId="162">0</Val>
-    <Val CellStyle="m1" SortId="092">1</Val>
-    <Val CellStyle="m2" SortId="083">1</Val>
-    <Val CellStyle="m0" SortId="163">0min  0s</Val>
-    <Val CellStyle="m0" SortId="174">3min  0s</Val>
-    <Val CellStyle="c100" SortId="008">100%</Val>
-    <Val CellStyle="m3" SortId="116">67</Val>
+  <SrcFile Name="Mrae.cs" Url=":Mrae.cs.html" P=".\lib\errors\mrae" Pr="quantalib">
+    <Val CellStyle="m0" SortId="177">0</Val>
+    <Val CellStyle="m4" SortId="079">3</Val>
+    <Val CellStyle="m0" SortId="087">0</Val>
+    <Val CellStyle="m0" SortId="178">0min  0s</Val>
+    <Val CellStyle="m1" SortId="174">18min</Val>
+    <Val CellStyle="c96" SortId="015">96.23%</Val>
+    <Val CellStyle="m14" SortId="095">151</Val>
   </SrcFile>
   <SrcFile Name="Mae.cs" Url=":Mae.cs.html" P=".\lib\errors\mae" Pr="quantalib">
-    <Val CellStyle="m0" SortId="155">0</Val>
-    <Val CellStyle="m1" SortId="084">1</Val>
-    <Val CellStyle="m2" SortId="091">1</Val>
-    <Val CellStyle="m0" SortId="158">0min  0s</Val>
-    <Val CellStyle="m0" SortId="168">3min  0s</Val>
-    <Val CellStyle="c100" SortId="007">100%</Val>
-    <Val CellStyle="m4" SortId="108">77</Val>
+    <Val CellStyle="m0" SortId="172">0</Val>
+    <Val CellStyle="m3" SortId="084">2</Val>
+    <Val CellStyle="m0" SortId="082">0</Val>
+    <Val CellStyle="m0" SortId="173">0min  0s</Val>
+    <Val CellStyle="m0" SortId="179">4min  0s</Val>
+    <Val CellStyle="c100" SortId="008">100%</Val>
+    <Val CellStyle="m5" SortId="113">77</Val>
   </SrcFile>
   <SrcFile Name="LogCosh.cs" Url=":LogCosh.cs.html" P=".\lib\errors\logcosh" Pr="quantalib">
-    <Val CellStyle="m0" SortId="177">0</Val>
-    <Val CellStyle="m1" SortId="083">1</Val>
-    <Val CellStyle="m2" SortId="076">1</Val>
-    <Val CellStyle="m0" SortId="176">0min  0s</Val>
-    <Val CellStyle="m0" SortId="167">3min  0s</Val>
-    <Val CellStyle="c100" SortId="000">100%</Val>
-    <Val CellStyle="m4" SortId="105">80</Val>
+    <Val CellStyle="m0" SortId="166">0</Val>
+    <Val CellStyle="m3" SortId="082">2</Val>
+    <Val CellStyle="m0" SortId="096">0</Val>
+    <Val CellStyle="m0" SortId="186">0min  0s</Val>
+    <Val CellStyle="m0" SortId="177">4min  0s</Val>
+    <Val CellStyle="c100" SortId="002">100%</Val>
+    <Val CellStyle="m5" SortId="109">80</Val>
   </SrcFile>
-  <SrcFile Name="Me.cs" Url=":Me.cs.html" P=".\lib\errors\me" Pr="quantalib">
-    <Val CellStyle="m0" SortId="153">0</Val>
-    <Val CellStyle="m1" SortId="080">1</Val>
-    <Val CellStyle="m2" SortId="093">1</Val>
-    <Val CellStyle="m0" SortId="156">0min  0s</Val>
-    <Val CellStyle="m0" SortId="176">3min  0s</Val>
+  <SrcFile Name="Mpe.cs" Url=":Mpe.cs.html" P=".\lib\errors\mpe" Pr="quantalib">
+    <Val CellStyle="m0" SortId="165">0</Val>
+    <Val CellStyle="m3" SortId="091">2</Val>
+    <Val CellStyle="m0" SortId="097">0</Val>
+    <Val CellStyle="m0" SortId="166">0min  0s</Val>
+    <Val CellStyle="m0" SortId="185">4min  0s</Val>
+    <Val CellStyle="c100" SortId="001">100%</Val>
+    <Val CellStyle="m7" SortId="106">92</Val>
+  </SrcFile>
+  <SrcFile Name="Rmsle.cs" Url=":Rmsle.cs.html" P=".\lib\errors\rmsle" Pr="quantalib">
+    <Val CellStyle="m0" SortId="170">0</Val>
+    <Val CellStyle="m3" SortId="083">2</Val>
+    <Val CellStyle="m0" SortId="080">0</Val>
+    <Val CellStyle="m0" SortId="171">0min  0s</Val>
+    <Val CellStyle="m0" SortId="178">4min  0s</Val>
+    <Val CellStyle="c100" SortId="006">100%</Val>
+    <Val CellStyle="m8" SortId="103">103</Val>
+  </SrcFile>
+  <SrcFile Name="Rmse.cs" Url=":Rmse.cs.html" P=".\lib\errors\rmse" Pr="quantalib">
+    <Val CellStyle="m0" SortId="173">0</Val>
+    <Val CellStyle="m3" SortId="086">2</Val>
+    <Val CellStyle="m0" SortId="083">0</Val>
+    <Val CellStyle="m0" SortId="174">0min  0s</Val>
+    <Val CellStyle="m0" SortId="181">4min  0s</Val>
     <Val CellStyle="c100" SortId="009">100%</Val>
-    <Val CellStyle="m3" SortId="119">65</Val>
+    <Val CellStyle="m4" SortId="117">71</Val>
+  </SrcFile>
+  <SrcFile Name="PseudoHuber.cs" Url=":PseudoHuber.cs.html" P=".\lib\errors\pseudohuber" Pr="quantalib" FD="C">
+    <Val CellStyle="m0" SortId="174">0</Val>
+    <Val CellStyle="m3" SortId="087">2</Val>
+    <Val CellStyle="m0" SortId="084">0</Val>
+    <Val CellStyle="m0" SortId="175">0min  0s</Val>
+    <Val CellStyle="m0" SortId="187">4min  0s</Val>
+    <Val CellStyle="c96" SortId="012">96.97%</Val>
+    <Val CellStyle="m9" SortId="102">112</Val>
+  </SrcFile>
+  <SrcFile Name="Msle.cs" Url=":Msle.cs.html" P=".\lib\errors\msle" Pr="quantalib">
+    <Val CellStyle="m0" SortId="188">0</Val>
+    <Val CellStyle="m3" SortId="088">2</Val>
+    <Val CellStyle="m0" SortId="188">0</Val>
+    <Val CellStyle="m0" SortId="188">0min  0s</Val>
+    <Val CellStyle="m0" SortId="182">4min  0s</Val>
+    <Val CellStyle="c100" SortId="000">100%</Val>
+    <Val CellStyle="m8" SortId="104">100</Val>
   </SrcFile>
   <SrcFile Name="Mse.cs" Url=":Mse.cs.html" P=".\lib\errors\mse" Pr="quantalib">
-    <Val CellStyle="m0" SortId="159">0</Val>
-    <Val CellStyle="m1" SortId="081">1</Val>
-    <Val CellStyle="m2" SortId="087">1</Val>
-    <Val CellStyle="m0" SortId="160">0min  0s</Val>
-    <Val CellStyle="m0" SortId="166">3min  0s</Val>
+    <Val CellStyle="m0" SortId="167">0</Val>
+    <Val CellStyle="m3" SortId="089">2</Val>
+    <Val CellStyle="m0" SortId="095">0</Val>
+    <Val CellStyle="m0" SortId="185">0min  0s</Val>
+    <Val CellStyle="m0" SortId="183">4min  0s</Val>
     <Val CellStyle="c100" SortId="003">100%</Val>
-    <Val CellStyle="m4" SortId="106">79</Val>
+    <Val CellStyle="m5" SortId="111">79</Val>
+  </SrcFile>
+  <SrcFile Name="Me.cs" Url=":Me.cs.html" P=".\lib\errors\me" Pr="quantalib">
+    <Val CellStyle="m0" SortId="168">0</Val>
+    <Val CellStyle="m3" SortId="090">2</Val>
+    <Val CellStyle="m0" SortId="094">0</Val>
+    <Val CellStyle="m0" SortId="165">0min  0s</Val>
+    <Val CellStyle="m0" SortId="184">4min  0s</Val>
+    <Val CellStyle="c100" SortId="004">100%</Val>
+    <Val CellStyle="m3" SortId="124">65</Val>
+  </SrcFile>
+  <SrcFile Name="Smape.cs" Url=":Smape.cs.html" P=".\lib\errors\smape" Pr="quantalib">
+    <Val CellStyle="m0" SortId="171">0</Val>
+    <Val CellStyle="m3" SortId="085">2</Val>
+    <Val CellStyle="m0" SortId="081">0</Val>
+    <Val CellStyle="m0" SortId="172">0min  0s</Val>
+    <Val CellStyle="m0" SortId="180">4min  0s</Val>
+    <Val CellStyle="c100" SortId="007">100%</Val>
+    <Val CellStyle="m7" SortId="105">95</Val>
+  </SrcFile>
+  <SrcFile Name="Mape.cs" Url=":Mape.cs.html" P=".\lib\errors\mape" Pr="quantalib">
+    <Val CellStyle="m0" SortId="169">0</Val>
+    <Val CellStyle="m3" SortId="092">2</Val>
+    <Val CellStyle="m0" SortId="079">0</Val>
+    <Val CellStyle="m0" SortId="170">0min  0s</Val>
+    <Val CellStyle="m0" SortId="186">4min  0s</Val>
+    <Val CellStyle="c100" SortId="005">100%</Val>
+    <Val CellStyle="m3" SortId="123">67</Val>
   </SrcFile>
   <Msg>The setting &lt;i&gt;"Only list source files with issues"&lt;/i&gt; is enabled. More source files can be listed by changing this setting from &lt;i&gt;NDepend Project Properties &amp;gt; Report&lt;/i&gt;.</Msg>
 </SourceFileResult>

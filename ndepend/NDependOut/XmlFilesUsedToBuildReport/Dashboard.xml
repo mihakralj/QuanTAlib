@@ -13,17 +13,17 @@
                     <Table IsVisible="True">
                       <Row>
                         <Cell>
-                          <ItemMetricTitle Name="# Lines of Code" Value="51 737"  DiffDesc="+38 535" DiffImage="Up"  />
+                          <ItemMetricTitle Name="# Lines of Code" Value="55 775"  DiffDesc="+42 573" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="(NotMyCode)" Value="1 379"  DiffDesc="+932" DiffImage="Up"  />
+                          <ItemMetricSub Name="(NotMyCode)" Value="1 435"  DiffDesc="+988" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Estimated Dev Effort" Value="1 264d" NameBeforeValue="True" DiffDesc="+955d" DiffImage="Up"  />
+                          <ItemMetricSub Name="Estimated Dev Effort" Value="1 363d" NameBeforeValue="True" DiffDesc="+1 054d" DiffImage="Up"  />
                         </Cell>
                       </Row>
                     </Table>
@@ -39,7 +39,7 @@
                     <Table IsVisible="True">
                       <Row>
                         <Cell>
-                          <ItemMetricTitle Name="# Types" Value="720"  DiffDesc="+558" DiffImage="Up"  />
+                          <ItemMetricTitle Name="# Types" Value="775"  DiffDesc="+613" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
@@ -54,27 +54,27 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Methods" Value="6 054"  DiffDesc="+4 805" DiffImage="Up"  />
+                          <ItemMetricSub Name="Methods" Value="6 478"  DiffDesc="+5 229" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Fields" Value="2 648"  DiffDesc="+2 060" DiffImage="Up"  />
+                          <ItemMetricSub Name="Fields" Value="2 978"  DiffDesc="+2 390" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Source Files" Value="448"  DiffDesc="+80" DiffImage="Up"  />
+                          <ItemMetricSub Name="Source Files" Value="473"  DiffDesc="+105" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Line Feed" Value="100 252"  DiffDesc="+12 318" DiffImage="Up"  />
+                          <ItemMetricSub Name="Line Feed" Value="105 322"  DiffDesc="+17 388" DiffImage="Up"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Third-Party Elements" Value="630"  DiffDesc="+156" DiffImage="Up"  />
+                          <ItemMetricSub Name="Third-Party Elements" Value="633"  DiffDesc="+159" DiffImage="Up"  />
                         </Cell>
                       </Row>
                     </Table>
@@ -90,12 +90,12 @@
                     <Table IsVisible="True">
                       <Row>
                         <Cell>
-                          <ItemMetricTitle Name="Comment" Value="31.25%"  DiffDesc="from 42.47%" DiffImage="Down"  />
+                          <ItemMetricTitle Name="Comment" Value="30.31%"  DiffDesc="from 42.47%" DiffImage="Down"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Lines of Comment" Value="23 512"  DiffDesc="+13 764" DiffImage="Up"  />
+                          <ItemMetricSub Name="Lines of Comment" Value="24 253"  DiffDesc="+14 505" DiffImage="Up"  />
                         </Cell>
                       </Row>
                     </Table>
@@ -113,7 +113,7 @@
                     <Table IsVisible="True">
                       <Row>
                         <Cell>
-                          <ItemMetricTitle Name="Debt" Value="4.87%"  DiffDesc="from 9.45%" DiffImage="GreenDown"  />
+                          <ItemMetricTitle Name="Debt" Value="4.95%"  DiffDesc="from 9.45%" DiffImage="GreenDown"  />
                         </Cell>
                       </Row>
                       <Row>
@@ -122,12 +122,12 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Debt" Value="61d" NameBeforeValue="True" DiffDesc="+32d" DiffImage="RedUp"  />
+                          <ItemMetricSub Name="Debt" Value="67d" NameBeforeValue="True" DiffDesc="+38d" DiffImage="RedUp"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Annual Interest" Value="59d" NameBeforeValue="True" DiffDesc="+45d" DiffImage="RedUp"  />
+                          <ItemMetricSub Name="Annual Interest" Value="64d" NameBeforeValue="True" DiffDesc="+51d" DiffImage="RedUp"  />
                         </Cell>
                       </Row>
                       <Row>
@@ -151,7 +151,7 @@
                           <Table>
                             <Row>
                               <Cell>
-                                <ItemMetricTitle Name="Coverage" Value="78.38%"  DiffDesc="from 87.18%" DiffImage="RedDown"  />
+                                <ItemMetricTitle Name="Coverage" Value="78.08%"  DiffDesc="from 87.18%" DiffImage="RedDown"  />
                               </Cell>
                               <Cell>
                                 <ItemMetricPieCov Val="78"  />
@@ -162,17 +162,17 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Lines of Code Covered" Value="38 420"  DiffDesc="+27 421" DiffImage="GreenUp"  />
+                          <ItemMetricSub Name="Lines of Code Covered" Value="41 287"  DiffDesc="+30 288" DiffImage="GreenUp"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Lines of Code Not Covered" Value="10 595"  DiffDesc="+8 977" DiffImage="RedUp"  />
+                          <ItemMetricSub Name="Lines of Code Not Covered" Value="11 592"  DiffDesc="+9 974" DiffImage="RedUp"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemMetricSub Name="Lines of Code Uncoverable" Value="2 722"  DiffDesc="+2 137" DiffImage="Up"  />
+                          <ItemMetricSub Name="Lines of Code Uncoverable" Value="2 896"  DiffDesc="+2 311" DiffImage="Up"  />
                         </Cell>
                       </Row>
                     </Table>
@@ -226,12 +226,12 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="Warn" Path=";StatusQGWarn.png" Value="3" ValueRed="+2"  />
+                          <ItemSummaryLine Name="Warn" Path=";StatusQGWarn.png" Value="4" ValueRed="+3"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="Pass" Path=";StatusQGPass.png" Value="5" ValueIsGreen="True" ValueRed="-3"  />
+                          <ItemSummaryLine Name="Pass" Path=";StatusQGPass.png" Value="4" ValueIsGreen="True" ValueRed="-4"  />
                         </Cell>
                       </Row>
                     </Table>
@@ -257,12 +257,12 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="Violated" Path=";StatusWarning.png" Value="85" ValueIsRed="True" ValueRed="+4" ValueGreen="-1"  />
+                          <ItemSummaryLine Name="Violated" Path=";StatusWarning.png" Value="99" ValueIsRed="True" ValueRed="+4"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="Ok" Path=";StatusBigOk.png" Value="128" ValueIsGreen="True"  />
+                          <ItemSummaryLine Name="Ok" Path=";StatusBigOk.png" Value="127" ValueIsGreen="True"  />
                         </Cell>
                       </Row>
                     </Table>
@@ -283,7 +283,7 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="All" Path=";Empty.png" Value="1 948" ValueRed="+1 260" ValueGreen="-595"  />
+                          <ItemSummaryLine Name="All" Path=";Empty.png" Value="2 906" ValueRed="+1 806" ValueGreen="-183"  />
                         </Cell>
                       </Row>
                       <Row>
@@ -303,17 +303,17 @@
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="High" Path=";Severity_High.png" Value="890" ValueIsRed="True" ValueRed="+710" ValueGreen="-113"  />
+                          <ItemSummaryLine Name="High" Path=";Severity_High.png" Value="951" ValueIsRed="True" ValueRed="+772" ValueGreen="-114"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="Medium" Path=";Severity_Medium.png" Value="791" ValueRed="+328" ValueGreen="-382"  />
+                          <ItemSummaryLine Name="Medium" Path=";Severity_Medium.png" Value="1 343" ValueRed="+533" ValueGreen="-35"  />
                         </Cell>
                       </Row>
                       <Row>
                         <Cell>
-                          <ItemSummaryLine Name="Low" Path=";Severity_Low.png" Value="266" ValueRed="+221" ValueGreen="-100"  />
+                          <ItemSummaryLine Name="Low" Path=";Severity_Low.png" Value="611" ValueRed="+500" ValueGreen="-34"  />
                         </Cell>
                       </Row>
                       <Row>

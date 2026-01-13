@@ -4,7 +4,6 @@
 indicator("Regularized EMA (REMA)", "REMA", overlay=true)
 
 //@function Calculates REMA using exponential smoothing with regularization term
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/rema.md
 //@param source Series to calculate REMA from
 //@param period Lookback period used to determine alpha value
 //@param lambda Regularization parameter (0-1) controlling smoothness

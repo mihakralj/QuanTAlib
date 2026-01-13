@@ -178,7 +178,7 @@
 | MFI | Money Flow Index | Volume |
 | [MGDI](lib/trends_IIR/mgdi/Mgdi.md) | McGinley Dynamic Indicator | Trends (IIR) |
 | MIDPOINT | (Highest + Lowest) / 2 | Numerics |
-| MMA | Modified MA | Trends (IIR) |
+| [MMA](lib/trends_IIR/mma/Mma.md) | Modified MA | Trends (IIR) |
 | MMCHANNEL | Min-Max Channel | Channels |
 | MODE | Mode (Most Frequent) | Statistics |
 | MOM | Momentum | Momentum |
@@ -217,7 +217,7 @@
 | [PSEUDOHUBER](lib/errors/pseudohuber/PseudoHuber.md) | Pseudo-Huber Loss | Errors |
 | PVT | Price Volume Trend | Volume |
 | [PWMA](lib/trends_FIR/pwma/Pwma.md) | Pascal Weighted MA | Trends (FIR) |
-| QEMA | Quadruple Exponential MA | Trends (IIR) |
+| [QEMA](lib/trends_IIR/qema/Qema.md) | Quadruple Exponential MA | Trends (IIR) |
 | QSTICK | Qstick Indicator | Momentum |
 | QUANTILE | Quantile | Statistics |
 | [QUANTILELOSS](lib/errors/quantile/QuantileLoss.md) | Quantile Loss | Errors |

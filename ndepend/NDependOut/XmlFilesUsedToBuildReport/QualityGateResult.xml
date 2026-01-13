@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<QualityGateResult QualityGatesAllUnderDefaultQualityGatesGroup="True" NbQualityGates="12" NbQualityGatesWarn="3" NbQualityGatesFail="4">
+<QualityGateResult QualityGatesAllUnderDefaultQualityGatesGroup="True" NbQualityGates="12" NbQualityGatesWarn="4" NbQualityGatesFail="4">
   <Group Name="Custom Rules" FullName="Custom Rules" GroupId="GQG441574782_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" />
-  <Group Name="Quality Gates" FullName="Quality Gates" GroupId="GQG1092266751" NbQualityGates="12" NbQualityGatesWarn="3" NbQualityGatesFail="4">
-    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Percentage Coverage" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Coverage" QueryId="Query1950158930" NbNodeMatched="0" NbNodeTested="0" RelyOnCodeCoverageData="True" KindOfNode="" Value="78.38 %" Trend="DownKO" BaselineValue="87.18 %" BaselineStatus="QualityGatePass">
+  <Group Name="Quality Gates" FullName="Quality Gates" GroupId="GQG1092266751" NbQualityGates="12" NbQualityGatesWarn="4" NbQualityGatesFail="4">
+    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Percentage Coverage" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Coverage" QueryId="Query1950158930" NbNodeMatched="0" NbNodeTested="0" RelyOnCodeCoverageData="True" KindOfNode="" Value="78.08 %" Trend="DownKO" BaselineValue="87.18 %" BaselineStatus="QualityGatePass">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="3">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 Code coverage is a measure used to describe the degree to which the source code of a program is tested by a particular test suite. A program with high code coverage, measured as a percentage, has had more of its source code executed during testing which suggests it has a lower chance of containing undetected software bugs compared to a program with low code coverage.&lt;/br&gt;&lt;/br&gt;
 Code coverage is certainly the most important quality code metric. But coverage is not enough the team needs to ensure that results are checked at test-time. These checks can be done both in test code, and in application code through assertions. The important part is that a test must fail explicitly when a check gets unvalidated during the test execution.&lt;/br&gt;&lt;/br&gt;
@@ -11,10 +11,10 @@ This quality gate defines a warn threshold (80%) and a fail threshold (70%). The
         <Column>result</Column>
       </Columns>
       <Rows>
-        <Row Name="78.38 %" FullName="None" />
+        <Row Name="78.08 %" FullName="None" />
       </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Percentage Coverage on New Code" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Coverage on New Code" QueryId="Query787623130" NbNodeMatched="0" NbNodeTested="0" RelyOnCodeCoverageData="True" RelyOnCompareContext="True" KindOfNode="" Value="71.25 %" Trend="NoTrend">
+    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Percentage Coverage on New Code" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Coverage on New Code" QueryId="Query787623130" NbNodeMatched="0" NbNodeTested="0" RelyOnCodeCoverageData="True" RelyOnCompareContext="True" KindOfNode="" Value="71.23 %" Trend="NoTrend">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="3">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 &lt;i&gt;New Code&lt;/i&gt; is defined as methods added since the baseline.&lt;/br&gt;&lt;/br&gt;
 To achieve high code coverage it is essential that new code gets properly tested and covered by tests. It is advised that all non-UI new classes gets 100% covered.&lt;/br&gt;&lt;/br&gt;
@@ -23,10 +23,10 @@ Typically 90% of a class is easy to cover by tests and 10% is hard to reach thro
         <Column>result</Column>
       </Columns>
       <Rows>
-        <Row Name="71.25 %" FullName="None" />
+        <Row Name="71.23 %" FullName="None" />
       </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Percentage Coverage on Refactored Code" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Coverage on Refactored Code" QueryId="Query935581016" NbNodeMatched="0" NbNodeTested="0" RelyOnCodeCoverageData="True" RelyOnCompareContext="True" KindOfNode="" Value="84.24 %" Trend="NoTrend">
+    <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Percentage Coverage on Refactored Code" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Coverage on Refactored Code" QueryId="Query935581016" NbNodeMatched="0" NbNodeTested="0" RelyOnCodeCoverageData="True" RelyOnCompareContext="True" KindOfNode="" Value="84.32 %" Trend="NoTrend">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="4">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 &lt;i&gt;Refactored Code&lt;/i&gt; is defined as methods where &lt;i&gt;code was changed&lt;/i&gt; since the baseline.&lt;/br&gt;&lt;/br&gt;
 Comment changes and formatting changes are not considered as refactoring.&lt;/br&gt;&lt;/br&gt;
@@ -36,7 +36,7 @@ Typically 90% of a class is easy to cover by tests and 10% is hard to reach thro
         <Column>result</Column>
       </Columns>
       <Rows>
-        <Row Name="84.24 %" FullName="None" />
+        <Row Name="84.32 %" FullName="None" />
       </Rows>
     </Query>
     <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Blocker Issues" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Blocker Issues" QueryId="Query1051724805" NbNodeMatched="0" NbNodeTested="0" KindOfNode=" issue" Value="0 issues" Trend="NoChange" BaselineValue="0 issues" BaselineStatus="QualityGatePass">
@@ -44,7 +44,7 @@ Typically 90% of a class is easy to cover by tests and 10% is hard to reach thro
 An issue with the severity &lt;b&gt;Blocker&lt;/b&gt; cannot move to production, it must be fixed.&lt;/br&gt;&lt;/br&gt;
 The severity of an issue is either defined explicitly in the rule source code, either inferred from the issue &lt;i&gt;annual interest&lt;/i&gt; and thresholds defined in the NDepend Project Properties &amp;gt; Issue and Debt.</QueryHtml>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Critical Issues" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Critical Issues" QueryId="Query369658407" NbNodeMatched="1" NbNodeTested="1948" KindOfNode=" issue" Value="1 issues" Trend="UpKO" BaselineValue="0 issues" BaselineStatus="QualityGatePass">
+    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Critical Issues" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Critical Issues" QueryId="Query369658407" NbNodeMatched="1" NbNodeTested="2906" KindOfNode=" issue" Value="1 issues" Trend="UpKO" BaselineValue="0 issues" BaselineStatus="QualityGatePass">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="2">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 An issue with a severity level &lt;b&gt;Critical&lt;/b&gt; shouldn't move to production. It still can for business imperative needs purposes, but at worst it must be fixed during the next iterations.&lt;/br&gt;&lt;/br&gt;
 The severity of an issue is either defined explicitly in the rule source code, either inferred from the issue &lt;i&gt;annual interest&lt;/i&gt; and thresholds defined in the NDepend Project Properties &amp;gt; Issue and Debt.</QueryHtml>
@@ -58,18 +58,18 @@ The severity of an issue is either defined explicitly in the rule source code, e
         <Row Name="Critical issue on: {C:QuanTAlib.IndicatorExtensions}§:IndicatorExtensions.cs.html#L17" FullName="Rule violated: Code should be tested">
           <Val CellStyle="svC" SortId="0">Critical</Val>
           <Val CellStyle="m0" SortId="0">1d  0h</Val>
-          <Val CellStyle="aiC" SortId="0">2h  34min</Val>
+          <Val CellStyle="aiC" SortId="0">2h  45min</Val>
         </Row>
       </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="New Blocker / Critical / High Issues" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" NbNodeListed="20" FullName="Project Rules \ Quality Gates \ New Blocker / Critical / High Issues" QueryId="Query40081696" NbNodeMatched="711" NbNodeTested="1948" KindOfNode=" issues" Value="711 issues" Trend="NoTrend">
+    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="New Blocker / Critical / High Issues" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" NbNodeListed="20" FullName="Project Rules \ Quality Gates \ New Blocker / Critical / High Issues" QueryId="Query40081696" NbNodeMatched="773" NbNodeTested="2906" KindOfNode=" issues" Value="773 issues" Trend="NoTrend">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="4">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 An issue with the severity &lt;b&gt;Blocker&lt;/b&gt; cannot move to production, it must be fixed.&lt;/br&gt;&lt;/br&gt;
 An issue with a severity level &lt;b&gt;Critical&lt;/b&gt; shouldn't move to production. It still can for business imperative needs purposes, but at worth it must be fixed during the next iterations.&lt;/br&gt;&lt;/br&gt;
 An issue with a severity level &lt;b&gt;High&lt;/b&gt; should be fixed quickly, but can wait until the next scheduled interval.&lt;/br&gt;&lt;/br&gt;
 The severity of an issue is either defined explicitly in the rule source code, either inferred from the issue &lt;i&gt;annual interest&lt;/i&gt; and thresholds defined in the NDepend Project Properties &amp;gt; Issue and Debt.</QueryHtml>
       <Columns>
-        <Column>711 issues</Column>
+        <Column>773 issues</Column>
         <Column>Severity</Column>
         <Column>Debt</Column>
         <Column>Annual Interest</Column>
@@ -150,34 +150,34 @@ The severity of an issue is either defined explicitly in the rule source code, e
           <Val CellStyle="m1" SortId="15">10min</Val>
           <Val CellStyle="aiJ" SortId="15">1h  0min</Val>
         </Row>
-        <Row Name="High issue on: {C:QuanTAlib.IndicatorExtensions}§:IndicatorExtensions.cs.html#L17" FullName="Rule violated: From now, all types added should be 100% covered by tests">
+        <Row Name="High issue on: {C:QuanTAlib.Dsma}§:Dsma.cs.html#L33" FullName="Rule violated: From now, all types added should be 100% covered by tests">
           <Val CellStyle="svH" SortId="16">High</Val>
           <Val CellStyle="m1" SortId="16">10min</Val>
           <Val CellStyle="aiJ" SortId="16">1h  0min</Val>
         </Row>
-        <Row Name="High issue on: {C:QuanTAlib .BiInputIndicatorBase}§:BiInputIndicatorBase.cs.html#L35" FullName="Rule violated: From now, all types added should be 100% covered by tests">
+        <Row Name="High issue on: {C:QuanTAlib.Frama}§:Frama.cs.html#L19" FullName="Rule violated: From now, all types added should be 100% covered by tests">
           <Val CellStyle="svH" SortId="17">High</Val>
           <Val CellStyle="m1" SortId="17">10min</Val>
           <Val CellStyle="aiJ" SortId="17">1h  0min</Val>
         </Row>
-        <Row Name="High issue on: {C:QuanTAlib.RingBuffer}§:RingBuffer.cs.html#L22" FullName="Rule violated: From now, all types added should be 100% covered by tests">
+        <Row Name="High issue on: {C:QuanTAlib.Hema}§:Hema.cs.html#L24" FullName="Rule violated: From now, all types added should be 100% covered by tests">
           <Val CellStyle="svH" SortId="18">High</Val>
           <Val CellStyle="m1" SortId="18">10min</Val>
           <Val CellStyle="aiJ" SortId="18">1h  0min</Val>
         </Row>
-        <Row Name="High issue on: {S:QuanTAlib .RingBuffer+Enumerator}§:RingBuffer.cs.html#L525" FullName="Rule violated: From now, all types added should be 100% covered by tests">
+        <Row Name="High issue on: {C:QuanTAlib.Mma}§:Mma.cs.html#L16" FullName="Rule violated: From now, all types added should be 100% covered by tests">
           <Val CellStyle="svH" SortId="01">High</Val>
           <Val CellStyle="m1" SortId="01">10min</Val>
           <Val CellStyle="aiJ" SortId="01">1h  0min</Val>
         </Row>
-        <Row Name="High issue on: {C:QuanTAlib.ErrorHelpers}§:ErrorHelpers.cs.html#L14" FullName="Rule violated: From now, all types added should be 100% covered by tests">
+        <Row Name="High issue on: {C:QuanTAlib.Zlema}§:Zlema.cs.html#L17" FullName="Rule violated: From now, all types added should be 100% covered by tests">
           <Val CellStyle="svH" SortId="00">High</Val>
           <Val CellStyle="m1" SortId="10">10min</Val>
           <Val CellStyle="aiJ" SortId="00">1h  0min</Val>
         </Row>
       </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="Critical Rules Violated" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Critical Rules Violated" QueryId="Query3682185683" NbNodeMatched="2" NbNodeTested="215" KindOfNode=" rules" Value="2 rules" Trend="UpKO" BaselineValue="0 rules" BaselineStatus="QualityGatePass">
+    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="Critical Rules Violated" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Critical Rules Violated" QueryId="Query3682185683" NbNodeMatched="2" NbNodeTested="228" KindOfNode=" rules" Value="2 rules" Trend="UpKO" BaselineValue="0 rules" BaselineStatus="QualityGatePass">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="4">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 The concept of critical rule is useful to pinpoint certain rules that should not be violated.&lt;/br&gt;&lt;/br&gt;
 A rule can be made critical just by checking the &lt;i&gt;Critical button&lt;/i&gt; in the rule edition control and then saving the rule.&lt;/br&gt;&lt;/br&gt;
@@ -196,7 +196,7 @@ When no baseline is available, rules that rely on diff are not counted. If you o
         </Row>
       </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Treat Compiler Warnings as Error" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Treat Compiler Warnings as Error" QueryId="Query1685600883" NbNodeMatched="0" NbNodeTested="0" KindOfNode=" issue" Value="0 issues" Trend="NoChange" BaselineValue="0 issues" BaselineStatus="QualityGatePass">
+    <Query ProjectNameAndDate="unused" Status="QualityGateWarn" Name="Treat Compiler Warnings as Error" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Treat Compiler Warnings as Error" QueryId="Query1685600883" NbNodeMatched="1" NbNodeTested="2906" KindOfNode=" issue" Value="1 issues" Trend="UpKO" BaselineValue="0 issues" BaselineStatus="QualityGatePass">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="6">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 Many compiler warnings, if ignored, could lead to runtime errors, unpredictable behavior, or security vulnerabilities. Addressing these warnings early can prevent such issues from becoming real problems in production.&lt;/br&gt;&lt;/br&gt;
 Also, this approach encourages developers to follow best coding practices and to use language features correctly. It helps in maintaining a high standard of coding within a team, especially in projects with multiple contributors.&lt;/br&gt;&lt;/br&gt;
@@ -204,8 +204,17 @@ This Quality Gate requires Roslyn or R# Analyzers issues to be imported: &lt;a t
 C# and VB.NET compiler warnings are Roslyn Analyzers issues whose rule id starts with &amp;quot;CS&amp;quot; or &amp;quot;VB&amp;quot;.&lt;/br&gt;&lt;/br&gt;
 This Quality Gate warns if there are any such warning. It fails if there are 10 or more such warnings.&lt;/br&gt;&lt;/br&gt;
 See list of C# compiler warnings here: &lt;a target="_blank" href="https://learn.microsoft.com/en-us/dotnet/csharp/misc/cs0183"&gt;https://learn.microsoft.com/en-us/dotnet/csharp/misc/cs0183&lt;/a&gt;</QueryHtml>
+      <Columns>
+        <Column>1 issue</Column>
+        <Column>Explanation</Column>
+      </Columns>
+      <Rows>
+        <Row Name="{CS:Mama.cs L283}§:Mama.cs.html#L283" FullName="Rule violated: Possible null reference assignment.">
+          <Val SortId="0">Possible null reference assignment</Val>
+        </Row>
+      </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Percentage Debt" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Debt" QueryId="Query767637297" NbNodeMatched="0" NbNodeTested="0" KindOfNode="" Value="4.87 %" Trend="DownOK" BaselineValue="9.45 %" BaselineStatus="QualityGatePass">
+    <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Percentage Debt" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Percentage Debt" QueryId="Query767637297" NbNodeMatched="0" NbNodeTested="0" KindOfNode="" Value="4.95 %" Trend="DownOK" BaselineValue="9.45 %" BaselineStatus="QualityGatePass">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="6">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 % Debt total is defined as a percentage on:&lt;/br&gt;&lt;/br&gt;
 • the estimated total effort to develop the code base&lt;/br&gt;&lt;/br&gt;
@@ -217,10 +226,10 @@ This quality gates fails if the estimated debt is more than 30% of the estimated
         <Column>result</Column>
       </Columns>
       <Rows>
-        <Row Name="4.87 %" FullName="None" />
+        <Row Name="4.95 %" FullName="None" />
       </Rows>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="New Debt since Baseline" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ New Debt since Baseline" QueryId="Query464415041" NbNodeMatched="0" NbNodeTested="0" KindOfNode="" Value="32.3 man-days" Trend="NoTrend">
+    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="New Debt since Baseline" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ New Debt since Baseline" QueryId="Query464415041" NbNodeMatched="0" NbNodeTested="0" KindOfNode="" Value="38.21 man-days" Trend="NoTrend">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="3">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 This Quality Gate fails if the estimated effort to fix new or worsened issues (what is called the &lt;i&gt;New Debt since Baseline&lt;/i&gt;) is higher than 2 man-days.&lt;/br&gt;&lt;/br&gt;
 This Quality Gate warns if this estimated effort is positive.&lt;/br&gt;&lt;/br&gt;
@@ -229,7 +238,7 @@ Debt documentation: &lt;a target="_blank" href="https://www.ndepend.com/docs/tec
         <Column>result</Column>
       </Columns>
       <Rows>
-        <Row Name="32.3 man-days" FullName="None" />
+        <Row Name="38.21 man-days" FullName="None" />
       </Rows>
     </Query>
     <Query ProjectNameAndDate="unused" Status="QualityGatePass" Name="Debt Rating per Namespace" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ Debt Rating per Namespace" QueryId="Query4076068835" NbNodeMatched="0" NbNodeTested="0" KindOfNode=" namespace" Value="0 namespaces" Trend="NoChange" BaselineValue="0 namespaces" BaselineStatus="QualityGatePass">
@@ -241,7 +250,7 @@ The &lt;b&gt;estimated effort to develop the code element&lt;/b&gt; is inferred 
 The &lt;b&gt;logical lines of code&lt;/b&gt; corresponds to the number of debug breakpoints in a method and doesn't depend on code formatting nor comments.&lt;/br&gt;&lt;/br&gt;
 The Quality Gate can be modified to match assemblies, types or methods with a poor Debt Rating, instead of matching namespaces.</QueryHtml>
     </Query>
-    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="New Annual Interest since Baseline" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ New Annual Interest since Baseline" QueryId="Query1062425292" NbNodeMatched="0" NbNodeTested="0" KindOfNode="" Value="45.51 man-days" Trend="NoTrend">
+    <Query ProjectNameAndDate="unused" Status="QualityGateFail" Name="New Annual Interest since Baseline" RuleId="" RuleIdC="" RuleKind="CodeQueryRule" ContentTruncatedThreshold="20" FullName="Project Rules \ Quality Gates \ New Annual Interest since Baseline" QueryId="Query1062425292" NbNodeMatched="0" NbNodeTested="0" KindOfNode="" Value="51.3 man-days" Trend="NoTrend">
       <QueryHtml caption="View Quality Gate Description" textKind="desc" nbLines="4">&lt;i&gt; • Quality Gate Description: &lt;/i&gt;&lt;/br&gt;&lt;/br&gt;
 This Quality Gate fails if the estimated annual cost to leave all issues unfixed, increased from more than 2 man-days since the baseline.&lt;/br&gt;&lt;/br&gt;
 This Quality Gate warns if this estimated annual cost is positive.&lt;/br&gt;&lt;/br&gt;
@@ -251,7 +260,7 @@ Each rule can either provide a formula to compute the Annual-Interest per issue,
         <Column>result</Column>
       </Columns>
       <Rows>
-        <Row Name="45.51 man-days" FullName="None" />
+        <Row Name="51.3 man-days" FullName="None" />
       </Rows>
     </Query>
   </Group>
@@ -275,6 +284,6 @@ Each rule can either provide a formula to compute the Annual-Interest per issue,
   <Group Name="Trend Metrics" FullName="Trend Metrics" GroupId="GQG1484902036_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" HasChildren="True" />
   <Group Name="Code Diff Summary" FullName="Code Diff Summary" GroupId="GQG1752346574_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" />
   <Group Name="Roslyn Analyzers" FullName="Roslyn Analyzers" GroupId="GQG1999992614_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" />
-  <Group Name="R# Code Inspections" FullName="R# Code Inspections" GroupId="GQG704575377_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" />
+  <Group Name="R# Code Inspections" FullName="R# Code Inspections" GroupId="GQG704575377_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" HasChildren="True" />
   <Group Name="Rules extracted from Source Code" FullName="Rules extracted from Source Code" GroupId="GQG1206142379_NoDirectChildQuery" NbQualityGates="0" NbQualityGatesWarn="0" NbQualityGatesFail="0" />
 </QualityGateResult>

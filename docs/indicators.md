@@ -55,11 +55,14 @@ The categories help you understand what analytical problem each indicator solves
 * [**JMA**](../lib/trends_IIR/jma/Jma.md) - Jurik MA
 * [**KAMA**](../lib/trends_IIR/kama/Kama.md) - Kaufman Adaptive MA
 * [**MAMA**](../lib/trends_IIR/mama/Mama.md) - MESA Adaptive MA
+* [**MMA**](../lib/trends_IIR/mma/Mma.md) - Modified MA
 * [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) - McGinley Dynamic
+* [**QEMA**](../lib/trends_IIR/qema/Qema.md) - Quadruple Exponential MA
 * [**RMA**](../lib/trends_IIR/rma/Rma.md) - wildeR MA
 * [**T3**](../lib/trends_IIR/t3/T3.md) - Tillson T3 MA
 * [**TEMA**](../lib/trends_IIR/tema/Tema.md) - Triple Exponential MA
 * [**VIDYA**](../lib/trends_IIR/vidya/Vidya.md) - Variable Index Dynamic Average
+* [**ZLEMA**](../lib/trends_IIR/zlema/Zlema.md) - Zero-Lag Exponential MA
 
 ### Filters
 

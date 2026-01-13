@@ -4,7 +4,6 @@
 indicator("Modified Moving Average (MMA)", "MMA", overlay=true)
 
 //@function Calculates MMA using combined simple and weighted moving average components
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/mma.md
 //@param source Series to calculate MMA from
 //@param period Lookback period - must be at least 2
 //@returns MMA value, combines SMA with weighted component for balanced smoothing

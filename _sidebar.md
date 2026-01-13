@@ -32,11 +32,14 @@
   * [JMA - Jurik MA](lib/trends_IIR/jma/Jma.md)
   * [KAMA - Kaufman Adaptive MA](lib/trends_IIR/kama/Kama.md)
   * [MAMA - MESA Adaptive MA](lib/trends_IIR/mama/Mama.md)
+  * [MMA - Modified MA](lib/trends_IIR/mma/Mma.md)
   * [MGDI - McGinley Dynamic](lib/trends_IIR/mgdi/Mgdi.md)
+  * [QEMA - Quadruple Exponential MA](lib/trends_IIR/qema/Qema.md)
   * [RMA - Rolling MA](lib/trends_IIR/rma/Rma.md)
   * [T3 - Tillson T3 MA](lib/trends_IIR/t3/T3.md)
   * [TEMA - Triple Exponential MA](lib/trends_IIR/tema/Tema.md)
   * [VIDYA - Variable Index Dynamic Average](lib/trends_IIR/vidya/Vidya.md)
+  * [ZLEMA - Zero-Lag Exponential MA](lib/trends_IIR/zlema/Zlema.md)
 
 * **Filters**
   * [Overview](lib/filters/_index.md)

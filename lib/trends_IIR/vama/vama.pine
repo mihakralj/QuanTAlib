@@ -4,7 +4,6 @@
 indicator("Volatility Adjusted Moving Average (VAMA)", "VAMA", overlay=true)
 
 //@function Calculates VAMA by adjusting MA length based on volatility ratio using ATR
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/vama.md
 //@param source Series to calculate VAMA from
 //@param base_length Base lookback period for the moving average
 //@param short_atr_period Short-term ATR period for current volatility measurement
