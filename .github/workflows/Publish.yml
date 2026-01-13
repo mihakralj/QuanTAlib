@@ -189,6 +189,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ env.CHECKOUT_REF }}
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          cache: pip
+
       - name: Prepare SARIF directory
         run: mkdir -p .sarif
 
@@ -323,7 +329,8 @@ jobs:
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.sarifReportPaths="${SONAR_SARIF_PATHS}" \
-            /d:sonar.cs.opencover.reportsPaths="coverage-merged/OpenCover.xml" \
+            /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" \
+            /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx" \
             /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
             /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
@@ -354,15 +361,10 @@ jobs:
           reportgenerator \
             "-reports:TestResults/**/coverage.opencover.xml;TestResults/**/coverage.cobertura.xml;TestResults/**/coverage.info" \
             "-targetdir:coverage-merged" \
-            "-reporttypes:OpenCover;Cobertura;lcov"
+            "-reporttypes:Cobertura;lcov"
 
           echo "Merged coverage outputs:"
           ls -la coverage-merged || true
-
-          if [ ! -f "coverage-merged/OpenCover.xml" ]; then
-            echo "ERROR: OpenCover.xml not generated (Sonar coverage will be missing)"
-            exit 1
-          fi
 
           if [ ! -f "coverage-merged/Cobertura.xml" ]; then
             echo "ERROR: Cobertura.xml not generated (Codacy coverage will be missing)"
