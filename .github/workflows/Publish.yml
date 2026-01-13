@@ -369,18 +369,14 @@ jobs:
           echo "Exporting SonarCloud findings to SARIF format..."
           mkdir -p .sarif
           
-          # Export findings from SonarCloud to SARIF
-          # -u: SonarCloud URL
-          # -t: Token
-          # -o: Organization
-          # --format sarif: Output format
-          # -k: Project key
+          export SONAR_HOST_URL="https://sonarcloud.io"
+          export SONAR_TOKEN="$SONAR_TOKEN"
+          
           sonar-findings-export \
-            -u "https://sonarcloud.io" \
-            -t "$SONAR_TOKEN" \
             -o "mihakralj-quantalib" \
             -k "mihakralj_QuanTAlib" \
             --format sarif \
+            --sarifNoCustomProperties \
             -f ".sarif/sonarcloud.sarif" \
             || echo "Warning: SonarCloud SARIF export failed (findings may not be available yet)"
           
