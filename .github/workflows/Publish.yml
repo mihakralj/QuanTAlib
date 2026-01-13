@@ -444,6 +444,8 @@ jobs:
 
       - name: Install Codacy CLI v2
         if: steps.check_token.outputs.skip != 'true'
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           set -euo pipefail
 
