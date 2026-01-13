@@ -437,6 +437,11 @@ jobs:
         if: steps.check_token.outputs.skip != 'true'
         run: |
           set -euo pipefail
+
+          if [[ -z "${CODACY_PROJECT_TOKEN:-}" ]]; then
+            echo "::error::CODACY_PROJECT_TOKEN is empty or unset!"
+            exit 1
+          fi
           
           # Install Codacy CLI using official bootstrap script
           echo "Installing Codacy CLI v2..."
