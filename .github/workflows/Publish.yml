@@ -232,6 +232,7 @@ jobs:
   # 4) Build, Test, Coverage, SonarCloud & Roslyn SARIF
   # ==============================================================================
   Sonar_Analysis:
+    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -290,7 +291,7 @@ jobs:
             /o:mihakralj-quantalib \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.sarifReportPaths=".sarif/roslyn.sarif" \
+            /d:sonar.sarifReportPaths=".sarif/roslyn.sarif,.sarif/resharper.sarif,.sarif/snyk.sarif,.sarif/semgrep.sarif" \
             /d:sonar.cs.opencover.reportsPaths="coverage-merged/OpenCover.xml" \
             /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
             /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
@@ -299,6 +300,13 @@ jobs:
 
       - name: Prepare SARIF directory
         run: mkdir -p .sarif
+
+      - name: Download External SARIFs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sarif-*
+          path: .sarif
+          merge-multiple: true
 
       - name: Build Solution with Roslyn SARIF
         run: |
