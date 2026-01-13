@@ -291,6 +291,27 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Prepare SARIF directory
+        run: mkdir -p .sarif
+
+      - name: Download External SARIFs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sarif-*
+          path: .sarif
+          merge-multiple: true
+
+      - name: Build SARIF list for SonarCloud
+        run: |
+          shopt -s nullglob
+          files=(.sarif/*.sarif)
+
+          # Ensure Roslyn SARIF is included even if generated later.
+          files+=(".sarif/roslyn.sarif")
+
+          IFS=,
+          echo "SONAR_SARIF_PATHS=${files[*]}" >> "$GITHUB_ENV"
+
       - name: Begin SonarCloud Analysis
         if: steps.check_sonar.outputs.skip != 'true'
         env:
@@ -301,22 +322,12 @@ jobs:
             /o:mihakralj-quantalib \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.sarifReportPaths=".sarif/roslyn.sarif,.sarif/resharper.sarif,.sarif/snyk.sarif,.sarif/semgrep.sarif" \
+            /d:sonar.sarifReportPaths="${SONAR_SARIF_PATHS}" \
             /d:sonar.cs.opencover.reportsPaths="coverage-merged/OpenCover.xml" \
             /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
             /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
             /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
             /d:sonar.scanner.scanAll="false"
-
-      - name: Prepare SARIF directory
-        run: mkdir -p .sarif
-
-      - name: Download External SARIFs
-        uses: actions/download-artifact@v4
-        with:
-          pattern: sarif-*
-          path: .sarif
-          merge-multiple: true
 
       - name: Build Solution with Roslyn SARIF
         run: |
@@ -349,7 +360,13 @@ jobs:
           ls -la coverage-merged || true
 
           if [ ! -f "coverage-merged/OpenCover.xml" ]; then
-            echo "WARNING: OpenCover.xml not generated (Sonar coverage may be missing)"
+            echo "ERROR: OpenCover.xml not generated (Sonar coverage will be missing)"
+            exit 1
+          fi
+
+          if [ ! -f "coverage-merged/Cobertura.xml" ]; then
+            echo "ERROR: Cobertura.xml not generated (Codacy coverage will be missing)"
+            exit 1
           fi
 
       - name: End SonarCloud Analysis
@@ -410,6 +427,14 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+      - name: Upload SARIF Bundle Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-all
+          path: .sarif/
+          retention-days: 7
+
   # ==============================================================================
   # 5) Codacy SARIF Upload (Codacy ingests; Codacy does NOT run tools)
   # ==============================================================================
@@ -438,9 +463,8 @@ jobs:
         if: steps.check_token.outputs.skip != 'true'
         uses: actions/download-artifact@v4
         with:
-          pattern: sarif-*
+          name: sarif-all
           path: sarif
-          merge-multiple: true
 
       - name: List SARIF files
         if: steps.check_token.outputs.skip != 'true'
