@@ -5,13 +5,13 @@ using TradingPlatform.BusinessLayer;
 namespace QuanTAlib;
 
 [SkipLocalsInit]
-public class JmaIndicator : Indicator, IWatchlistIndicator
+public class DsmaIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Period", sortIndex: 1, 1, 1000, 1, 0)]
-    public int Period { get; set; } = 10;
+    [InputParameter("Period", sortIndex: 1, 2, 1000, 1, 0)]
+    public int Period { get; set; } = 20;
 
-    [InputParameter("Phase", sortIndex: 2, -100, 100, 1, 0)]
-    public int Phase { get; set; }
+    [InputParameter("Scale Factor", sortIndex: 2, 0.01, 0.9, 0.01, 2)]
+    public double ScaleFactor { get; set; } = 0.5;
 
     [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;
@@ -25,7 +25,7 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Width", sortIndex: 23)]
     public int LineWidth { get; set; } = 2;
 
-    private Jma? ma;
+    private Dsma? ma;
     protected LineSeries? Series;
     protected string? SourceName;
     private Func<IHistoryItem, double>? _priceSelector;
@@ -33,23 +33,23 @@ public class JmaIndicator : Indicator, IWatchlistIndicator
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
 
-    public override string ShortName => $"JMA {Period}:{Phase}:{SourceName}";
-    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends/jma/Jma.Quantower.cs";
+    public override string ShortName => $"DSMA {Period}:{ScaleFactor:F2}:{SourceName}";
+    public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/trends_IIR/dsma/Dsma.Quantower.cs";
 
-    public JmaIndicator()
+    public DsmaIndicator()
     {
         OnBackGround = true;
         SeparateWindow = false;
         SourceName = Source.ToString();
-        Name = "JMA - Jurik Moving Average";
-        Description = "Jurik Moving Average";
-        Series = new LineSeries(name: $"JMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
+        Name = "DSMA - Deviation-Scaled Moving Average";
+        Description = "Deviation-Scaled Moving Average with Super Smoother filter";
+        Series = new LineSeries(name: $"DSMA {Period}", color: IndicatorExtensions.Averages, width: 2, style: LineStyle.Solid);
         AddLineSeries(Series);
     }
 
     protected override void OnInit()
     {
-        ma = new Jma(Period, Phase);
+        ma = new Dsma(Period, ScaleFactor);
         SourceName = Source.ToString();
         _priceSelector = Source.GetPriceSelector();
         Series!.Color = LineColor;

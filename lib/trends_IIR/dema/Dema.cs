@@ -110,7 +110,7 @@ public sealed class Dema : AbstractBase
         // EMA2 (input is e1, which is always valid)
         double e2 = Compute(e1, _alpha, _decay, ref _state2);
 
-        double result = 2 * e1 - e2;
+        double result = Math.FusedMultiplyAdd(2.0, e1, -e2);
         Last = new TValue(input.Time, result);
         PubEvent(Last, isNew);
         return Last;
@@ -161,7 +161,7 @@ public sealed class Dema : AbstractBase
             double e1 = Compute(val, alpha, decay, ref s1);
             double e2 = Compute(e1, alpha, decay, ref s2);
 
-            vSpan[i] = 2 * e1 - e2;
+            vSpan[i] = Math.FusedMultiplyAdd(2.0, e1, -e2);
         }
 
         // Update instance state with post-batch values
@@ -186,10 +186,10 @@ public sealed class Dema : AbstractBase
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double Compute(double input, double alpha, double decay, ref EmaState state)
     {
-        state.Ema += alpha * (input - state.Ema);
+        state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input);
 
         double result;
         if (!state.IsCompensated)
@@ -275,7 +275,7 @@ public sealed class Dema : AbstractBase
             }
 
             // Update EMA1
-            ema1_val += alpha * (val - ema1_val);
+            ema1_val = Math.FusedMultiplyAdd(ema1_val, decay, alpha * val);
             double e1;
             if (!ema1_isCompensated)
             {
@@ -296,7 +296,7 @@ public sealed class Dema : AbstractBase
             }
 
             // Update EMA2 (input is e1)
-            ema2_val += alpha * (e1 - ema2_val);
+            ema2_val = Math.FusedMultiplyAdd(ema2_val, decay, alpha * e1);
             double e2;
             if (!ema2_isCompensated)
             {
@@ -317,7 +317,7 @@ public sealed class Dema : AbstractBase
             }
 
             // DEMA = 2 * EMA1 - EMA2
-            output[i] = 2 * e1 - e2;
+            output[i] = Math.FusedMultiplyAdd(2.0, e1, -e2);
         }
     }
 

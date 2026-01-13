@@ -47,6 +47,7 @@ The categories help you understand what analytical problem each indicator solves
 ### Trends (IIR)
 
 * [**DEMA**](../lib/trends_IIR/dema/Dema.md) - Double Exponential MA
+* [**DSMA**](../lib/trends_IIR/dsma/Dsma.md) - Deviation-Scaled MA
 * [**EMA**](../lib/trends_IIR/ema/Ema.md) - Exponential MA
 * [**HTIT**](../lib/trends_IIR/htit/Htit.md) - Hilbert Transform Instantaneous Trend
 * [**JMA**](../lib/trends_IIR/jma/Jma.md) - Jurik MA

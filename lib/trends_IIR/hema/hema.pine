@@ -1,65 +1,85 @@
-// The MIT License (MIT)
-// © mihakralj
 //@version=6
-indicator("Hull Exponential Moving Average (HEMA)", "HEMA", overlay=true)
+indicator("HEMA (Exponential Hull Analog)", "HEMAx", overlay=true)
 
-//@function Calculates HEMA (Hull Exponential Moving Average) combining multiple EMA calculations
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/hema.md
-//@param source Series to calculate HEMA from
-//@param period Lookback period for calculation
-//@returns HEMA value that combines fast and slow EMAs with logarithmic weighting
-//@optimized Uses three-stage exponential warmup compensators for O(1) complexity
+// Half-life -> alpha (exponential definition)
+alphaFromHalfLife(float hl) =>
+    hl := math.max(1.0, hl)
+    1.0 - math.exp(-math.log(2.0) / hl)
+
+// Exponential Hull Analog (EMA-domain HMA)
 hema(series float src, simple int N) =>
-    float alphaSlow = 3.0 / (2.0 * N - 1.0)
-    float lambdaSlow = -math.log(1.0 - alphaSlow)
-    float ratio = math.log(2.0) / (1.0 + math.log(2.0))
-    float alphaFast = 1.0 - math.exp(-lambdaSlow / ratio)
-    float alphaSmooth = 2.0 / (math.sqrt(N) / 2.0 + 1.0)
-    float betaSlow = 1.0 - alphaSlow
-    float betaFast = 1.0 - alphaFast
-    float betaSmooth = 1.0 - alphaSmooth
-    float chkSlow = nz(alphaSlow, 1.0)
-    float chkFast = nz(alphaFast, 1.0)
-    float chkSmth = nz(alphaSmooth, 1.0)
-    float alphaMin = math.min(chkSlow, chkFast, chkSmth, 0.000001)
-    var bool warmup = true
-    var float decaySlow = 1.0
-    var float decayFast = 1.0
-    var float decaySmooth = 1.0
-    var float emaSlowRaw = 0.0
-    var float emaFastRaw = 0.0
-    var float emaSmoothRaw = 0.0
-    float emaSlow = na
-    float emaFast = na
-    float hemaVal = na
-    emaSlowRaw := alphaSlow * (src - emaSlowRaw) + emaSlowRaw
-    emaFastRaw := alphaFast * (src - emaFastRaw) + emaFastRaw
-    if warmup
-        decaySlow *= betaSlow
-        decayFast *= betaFast
-        decaySmooth *= betaSmooth
-        emaSlow := (1.0 / (1.0 - decaySlow)) * emaSlowRaw
-        emaFast := (1.0 / (1.0 - decayFast)) * emaFastRaw
-        float deLag = emaFast / (1.0 - ratio) - ratio * emaSlow / (1.0 - ratio)
-        emaSmoothRaw := alphaSmooth * (deLag - emaSmoothRaw) + emaSmoothRaw
-        hemaVal := (1.0 / (1.0 - decaySmooth)) * emaSmoothRaw
-        warmup := decaySlow > 1e-10
-    else
-        emaSlow := emaSlowRaw
-        emaFast := emaFastRaw
-        float deLag = emaFast / (1.0 - ratio) - ratio * emaSlow / (1.0 - ratio)
-        emaSmoothRaw := alphaSmooth * (deLag - emaSmoothRaw) + emaSmoothRaw
-        hemaVal := emaSmoothRaw
-    hemaVal
+    // --- guardrails ---
+    float n = math.max(float(N), 2.0)  // HMA-like structure needs N>=2 to avoid fast==slow weirdness
 
-// ---------- Main loop ----------
+    // --- "exponential lengths" as half-lives ---
+    float hlSlow   = n
+    float hlFast   = math.max(1.0, n * 0.5)
+    float hlSmooth = math.max(1.0, math.sqrt(n))
+
+    // --- alphas ---
+    float aS = alphaFromHalfLife(hlSlow)
+    float aF = alphaFromHalfLife(hlFast)
+    float aM = alphaFromHalfLife(hlSmooth)
+
+    float bS = 1.0 - aS
+    float bF = 1.0 - aF
+    float bM = 1.0 - aM
+
+    // --- lag-derived ratio for the de-lag combiner ---
+    float lagS = bS / aS
+    float lagF = bF / aF
+    float r = lagF / lagS
+    r := math.min(math.max(r, 0.0), 0.999999)  // keep denom sane
+
+    // --- state (unbiased EMA warmup) ---
+    var bool warmup = true
+    var float dS = 1.0
+    var float dF = 1.0
+    var float dM = 1.0
+    var float eSraw = 0.0
+    var float eFraw = 0.0
+    var float eMraw = 0.0
+
+    float eS = na
+    float eF = na
+    float out = na
+
+    // raw EMAs
+    eSraw := aS * (src - eSraw) + eSraw
+    eFraw := aF * (src - eFraw) + eFraw
+
+    if warmup
+        // update decays for unbiased correction
+        dS *= bS
+        dF *= bF
+        dM *= bM
+
+        float invS = 1.0 / math.max(1.0 - dS, 1e-12)
+        float invF = 1.0 / math.max(1.0 - dF, 1e-12)
+        float invM = 1.0 / math.max(1.0 - dM, 1e-12)
+
+        eS := eSraw * invS
+        eF := eFraw * invF
+
+        float deLag = (eF - r * eS) / (1.0 - r)
+
+        eMraw := aM * (deLag - eMraw) + eMraw
+        out := eMraw * invM
+
+        // end warmup only when ALL stages are effectively unbiased
+        warmup := math.max(dS, math.max(dF, dM)) > 1e-10
+    else
+        eS := eSraw
+        eF := eFraw
+        float deLag = (eF - r * eS) / (1.0 - r)
+        eMraw := aM * (deLag - eMraw) + eMraw
+        out := eMraw
+
+    out
 
 // Inputs
-i_period = input.int(10, "Period", minval=1)
+i_period = input.int(10, "Period (half-life bars)", minval=1)
 i_source = input.source(close, "Source")
 
-// Calculation
 hema_value = hema(i_source, i_period)
-
-// Plot
-plot(hema_value, "HEMA", color=color.yellow, linewidth=2)
+plot(hema_value, "HEMAx", color=color.yellow, linewidth=2)

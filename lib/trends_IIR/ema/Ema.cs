@@ -191,7 +191,7 @@ public sealed class Ema : AbstractBase
     private const double COVERAGE_THRESHOLD = 0.05;
     private const double COMPENSATOR_THRESHOLD = 1e-10;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
@@ -212,6 +212,7 @@ public sealed class Ema : AbstractBase
         return Last;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return [];
