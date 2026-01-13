@@ -1,19 +1,19 @@
 name: Analysis Workflow
 
 on:
-  #push:
-  #  paths-ignore:
-  #    - "**.md"
-  #    - "**.pine"
-  #    - "docs/**"
-  #    - ".gitignore"
-  #    - "LICENSE"
-  #pull_request:
-  #  paths-ignore:
-  #    - "**.md"
-  #    - "**.pine"
-  #    - ".gitignore"
-  #    - "LICENSE"
+  push:
+    paths-ignore:
+      - "**.md"
+      - "**.pine"
+      - "docs/**"
+      - ".gitignore"
+      - "LICENSE"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "**.pine"
+      - ".gitignore"
+      - "LICENSE"
   workflow_dispatch:
 
 concurrency:
@@ -447,9 +447,6 @@ jobs:
 
           # Initialize/Download the actual binary
           codacy-cli download
-          
-          echo "Codacy CLI version:"
-          echo "Token: $CODACY_PROJECT_TOKEN"
           codacy-cli version
           codacy-cli init --api-token "$CODACY_PROJECT_TOKEN" --provider gh --Organization mihakralj --repository QuanTAlib
 
