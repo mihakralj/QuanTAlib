@@ -3,15 +3,16 @@ name: Analysis Workflow
 on:
   push:
     paths-ignore:
-      - "**.md"
-      - "**.pine"
+      - "**/*.md"
+      - "**/*.pine"
       - "docs/**"
       - ".gitignore"
       - "LICENSE"
   pull_request:
     paths-ignore:
-      - "**.md"
-      - "**.pine"
+      - "**/*.md"
+      - "**/*.pine"
+      - "docs/**"
       - ".gitignore"
       - "LICENSE"
   workflow_dispatch:
@@ -45,6 +46,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      actions: write
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -104,6 +107,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      actions: write
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -175,6 +180,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      actions: write
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -237,6 +244,9 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+      actions: write
+      pull-requests: read
+      checks: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
