@@ -353,13 +353,13 @@ jobs:
           fi
 
       - name: End SonarCloud Analysis
-        if: env.SKIP_SONAR != 'true'
+        if: steps.check_sonar.outputs.skip != 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
       - name: Export SonarCloud findings to SARIF
-        if: env.SKIP_SONAR != 'true'
+        if: steps.check_sonar.outputs.skip != 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
