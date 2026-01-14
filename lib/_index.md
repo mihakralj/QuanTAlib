@@ -307,7 +307,7 @@
 | [WMA](lib/trends_FIR/wma/Wma.md) | Weighted MA | Trends (FIR) |
 | [WMAPE](lib/errors/wmape/Wmape.md) | Weighted Mean Absolute Percentage Error | Errors |
 | YZV | Yang-Zhang Volatility | Volatility |
-| YZVAMA | Yang-Zhang Volatility Adjusted MA | Trends (IIR) |
+| [YZVAMA](lib/trends_IIR/yzvama/Yzvama.md) | Yang-Zhang Volatility Adjusted MA | Trends (IIR) |
 | ZLDEMA | Zero-Lag Double Exponential MA | Trends (IIR) |
 | ZLEMA | Zero-Lag Exponential MA | Trends (IIR) |
 | ZLTEMA | Zero-Lag Triple Exponential MA | Trends (IIR) |

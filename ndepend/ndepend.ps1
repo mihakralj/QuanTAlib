@@ -17,7 +17,8 @@ if ($IsWindows -or $env:OS -like "Windows*") {
 } else {
     $NdependDll = Join-Path $HOME "NDepend/net10.0/NDepend.Console.MultiOS.dll"
 }
-$ScriptDir = $PSScriptRoot
+# Ensure ScriptDir is set correctly even if $PSScriptRoot is empty (e.g., dot-sourced)
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $ProjectRoot = Split-Path -Parent $ScriptDir
 $CoverageDir = Join-Path $ScriptDir "coverage"
 $SarifDir = Join-Path $ProjectRoot ".sarif"
@@ -166,10 +167,16 @@ try {
     # Generate badges from NDepend trend data
     Write-Section "Generating quality badges"
     $NDBadgePath = Join-Path $ScriptDir "NDBadge.exe"
-    $TrendXml = Join-Path $ScriptDir "NDependOut\TrendMetrics\NDependTrendData2026.xml"
+    # Find the most recent trend data file
+    $TrendMetricsDir = Join-Path $ScriptDir "NDependOut\TrendMetrics"
+    $TrendXml = if (Test-Path $TrendMetricsDir) {
+        Get-ChildItem -Path $TrendMetricsDir -Filter "NDependTrendData*.xml" -File |
+            Sort-Object Name -Descending |
+            Select-Object -First 1 -ExpandProperty FullName
+    } else { $null }
     $BadgeDir = Join-Path $ScriptDir "badges"
 
-    if ((Test-Path $NDBadgePath) -and (Test-Path $TrendXml)) {
+    if ((Test-Path $NDBadgePath) -and $TrendXml -and (Test-Path $TrendXml)) {
         if (-not (Test-Path $BadgeDir)) {
             New-Item -ItemType Directory -Path $BadgeDir -Force | Out-Null
         }

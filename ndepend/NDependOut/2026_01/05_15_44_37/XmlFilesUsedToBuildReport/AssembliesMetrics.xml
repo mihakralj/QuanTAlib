@@ -1,4 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<AssembliesMetrics>
-  <Assembly Assembly="QuanTAlib v0.8.0.0" NTypes="174" NAbstractTypes="4" NILInstructionInAsm="91880" NbLinesOfCodeInAsm="13202" NbLinesOfCommentInAsm="9748" PercentageCommentInAsm="42.47" PercentageCoverageInAsm="87.18" AfferentCoupling="0" EfferentCoupling="105" RelationalCohesion="3.95" Instability="1" Abstractness="0.02" DistFrMainSeq="0.02" NormDistFrMainSeq="0.02" />
-</AssembliesMetrics>

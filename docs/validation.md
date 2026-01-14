@@ -267,7 +267,7 @@
 | **Williams Fractal** | Fractals | - | - | Fractal | ❔ |
 | **Woodie's Pivot Points** | Pivotwood | - | - | - | ❔ |
 | **Yang-Zhang Volatility** | Yzv | - | - | - | - |
-| **Yang-Zhang Volatility Adjusted MA** | Yzvama | - | - | - | - |
+| **Yang-Zhang Volatility Adjusted MA** | [Yzvama](../lib/trends_IIR/yzvama/Yzvama.md) | - | - | - | - |
 | **Zero-Lag Double Exponential MA** | Zldema | - | - | - | - |
 | **Zero-Lag Exponential Moving Average** | [Zlema](../lib/trends_IIR/zlema/Zlema.md) | - | zlema | - | ❔ |
 | **Zero-Lag Triple Exponential MA** | Zltema | - | - | - | ❔ |
