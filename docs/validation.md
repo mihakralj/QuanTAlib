@@ -185,7 +185,7 @@
 | **Price Volume Rank** | Pvr | - | - | - | ❔ |
 | **Price Volume Trend** | Pvt | - | - | - | ❔ |
 | **Qstick Indicator** | Qstick | - | - | - | ❔ |
-| **Quadruple Exponential MA** | [Qema](../lib/trends_IIR/qema/Qema.md) | - | - | - | ❔ |
+| **Quad Exponential MA** | [Qema](../lib/trends_IIR/qema/Qema.md) | - | - | - | - |
 | **Quantile** | Quantile | - | - | - | - |
 | **Rate of acceleration; 3rd derivative** | Jolt | - | - | - | - |
 | **Rate of Change** | Roc | ROC | roc | Roc | ❔ |

@@ -1,165 +1,139 @@
 // The MIT License (MIT)
-// c mihakralj
+// © mihakralj
 //@version=6
-indicator("QEMA (4-stage unequal alpha, solved combiner)", "QEMA-4a", overlay=true)
+indicator("QEMA (OptA, progressive α, period-only)", "QEMA OptA", overlay=true)
 
-// --- small utility: clamp alpha away from 0/1
-clamp_alpha(float a) =>
-    math.max(1e-6, math.min(0.999999, a))
+// ---------- Inputs ----------
+i_period = input.int(15, "Period", minval=1)
+i_source = input.source(close, "Source")
 
-// --- solve 4x4 linear system via Gaussian elimination (augmented 4x5)
-solve4(float m00, float m01, float m02, float m03, float b0,
-       float m10, float m11, float m12, float m13, float b1,
-       float m20, float m21, float m22, float m23, float b2,
-       float m30, float m31, float m32, float m33, float b3) =>
-    // store augmented matrix in 20 scalars (row-major, 5 cols)
-    var float a00 = 0.0, a01 = 0.0, a02 = 0.0, a03 = 0.0, a04 = 0.0
-    var float a10 = 0.0, a11 = 0.0, a12 = 0.0, a13 = 0.0, a14 = 0.0
-    var float a20 = 0.0, a21 = 0.0, a22 = 0.0, a23 = 0.0, a24 = 0.0
-    var float a30 = 0.0, a31 = 0.0, a32 = 0.0, a33 = 0.0, a34 = 0.0
+// ---------- Helpers ----------
+clamp01(x) =>
+    math.min(1.0, math.max(x, 1e-12))
 
-    a00 := m00, a01 := m01, a02 := m02, a03 := m03, a04 := b0
-    a10 := m10, a11 := m11, a12 := m12, a13 := m13, a14 := b1
-    a20 := m20, a21 := m21, a22 := m22, a23 := m23, a24 := b2
-    a30 := m30, a31 := m31, a32 := m32, a33 := m33, a34 := b3
+lag(alpha) =>
+    (1.0 - alpha) / alpha
 
-
-    // partial pivot col0 with inline swaps
-    float p0 = math.abs(a00)
-    float t0 = 0.0, t1 = 0.0, t2 = 0.0, t3 = 0.0, t4 = 0.0
-    if math.abs(a10) > p0
-        p0 := math.abs(a10)
-        t0:=a00, t1:=a01, t2:=a02, t3:=a03, t4:=a04
-        a00:=a10, a01:=a11, a02:=a12, a03:=a13, a04:=a14
-        a10:=t0,  a11:=t1,  a12:=t2,  a13:=t3,  a14:=t4
-    if math.abs(a20) > p0
-        p0 := math.abs(a20)
-        t0:=a00, t1:=a01, t2:=a02, t3:=a03, t4:=a04
-        a00:=a20, a01:=a21, a02:=a22, a03:=a23, a04:=a24
-        a20:=t0,  a21:=t1,  a22:=t2,  a23:=t3,  a24:=t4
-    if math.abs(a30) > p0
-        t0:=a00, t1:=a01, t2:=a02, t3:=a03, t4:=a04
-        a00:=a30, a01:=a31, a02:=a32, a03:=a33, a04:=a34
-        a30:=t0,  a31:=t1,  a32:=t2,  a33:=t3,  a34:=t4
-
-    // eliminate below row0
-    float inv00 = 1.0 / a00
-    float f10 = a10 * inv00
-    float f20 = a20 * inv00
-    float f30 = a30 * inv00
-
-    a10 -= f10*a00, a11 -= f10*a01, a12 -= f10*a02, a13 -= f10*a03, a14 -= f10*a04
-    a20 -= f20*a00, a21 -= f20*a01, a22 -= f20*a02, a23 -= f20*a03, a24 -= f20*a04
-    a30 -= f30*a00, a31 -= f30*a01, a32 -= f30*a02, a33 -= f30*a03, a34 -= f30*a04
-
-    // pivot col1 with inline swaps
-    float p1 = math.abs(a11)
-    if math.abs(a21) > p1
-        p1 := math.abs(a21)
-        t0:=a10, t1:=a11, t2:=a12, t3:=a13, t4:=a14
-        a10:=a20, a11:=a21, a12:=a22, a13:=a23, a14:=a24
-        a20:=t0,  a21:=t1,  a22:=t2,  a23:=t3,  a24:=t4
-    if math.abs(a31) > p1
-        t0:=a10, t1:=a11, t2:=a12, t3:=a13, t4:=a14
-        a10:=a30, a11:=a31, a12:=a32, a13:=a33, a14:=a34
-        a30:=t0,  a31:=t1,  a32:=t2,  a33:=t3,  a34:=t4
-
-    float inv11 = 1.0 / a11
-    float f21 = a21 * inv11
-    float f31 = a31 * inv11
-    a21 -= f21*a11, a22 -= f21*a12, a23 -= f21*a13, a24 -= f21*a14
-    a31 -= f31*a11, a32 -= f31*a12, a33 -= f31*a13, a34 -= f31*a14
-
-    // pivot col2 with inline swap
-    if math.abs(a32) > math.abs(a22)
-        t0:=a20, t1:=a21, t2:=a22, t3:=a23, t4:=a24
-        a20:=a30, a21:=a31, a22:=a32, a23:=a33, a24:=a34
-        a30:=t0,  a31:=t1,  a32:=t2,  a33:=t3,  a34:=t4
-    float inv22 = 1.0 / a22
-    float f32 = a32 * inv22
-    a32 -= f32*a22, a33 -= f32*a23, a34 -= f32*a24
-
-    // back-substitute
-    float x3 = a34 / a33
-    float x2 = (a24 - a23*x3) / a22
-    float x1 = (a14 - a12*x2 - a13*x3) / a11
-    float x0 = (a04 - a01*x1 - a02*x2 - a03*x3) / a00
-    [x0, x1, x2, x3]
-
-// --- QEMA with unequal alphas and computed combiner
-qema_4alpha(series float src, simple int period=0, simple float alpha=na) =>
-    if (na(alpha) or alpha <= 0) and period <= 0
-        runtime.error("Alpha or period must be provided")
-
-    float a1 = (not na(alpha) and alpha > 0) ? alpha : (2.0 / (period + 1.0))
-    a1 := clamp_alpha(a1)
-
-    // Progressive speedup: each stage is faster (larger alpha) than previous
-    // This creates lag reduction similar to DEMA/TEMA approach
-    float a2 = clamp_alpha(a1 * 2.0)
-    float a3 = clamp_alpha(a1 * 3.0)
-    float a4 = clamp_alpha(a1 * 4.0)
-
-    // taus
-    float t1 = (1.0 - a1) / a1
-    float t2 = (1.0 - a2) / a2
-    float t3 = (1.0 - a3) / a3
-    float t4 = (1.0 - a4) / a4
-
-    // build (A1,A2,A3) for cascades k=1..4 using recursion
-    float A1_1 = t1
-    float A2_1 = t1*t1
-    float A3_1 = t1*t1*t1
-
-    float A1_2 = A1_1 + t2
-    float A2_2 = A2_1 + A1_1*t2 + t2*t2
-    float A3_2 = A3_1 + A2_1*t2 + A1_1*t2*t2 + t2*t2*t2
-
-    float A1_3 = A1_2 + t3
-    float A2_3 = A2_2 + A1_2*t3 + t3*t3
-    float A3_3 = A3_2 + A2_2*t3 + A1_2*t3*t3 + t3*t3*t3
-
-    float A1_4 = A1_3 + t4
-    float A2_4 = A2_3 + A1_3*t4 + t4*t4
-    float A3_4 = A3_3 + A2_3*t4 + A1_3*t4*t4 + t4*t4*t4
-
-    // solve weights once per parameter set
-    var float c1 = 0.0, c2 = 0.0, c3 = 0.0, c4 = 0.0
-    var float last_a1 = 0.0, last_a2 = 0.0, last_a3 = 0.0, last_a4 = 0.0
-
-    bool need_recalc = (c1 == 0.0 and last_a1 == 0.0) or a1!=last_a1 or a2!=last_a2 or a3!=last_a3 or a4!=last_a4
-    if need_recalc
-        [_c1, _c2, _c3, _c4] = solve4(
-            1, 1, 1, 1, 1,                  // sum c = 1
-            A1_1, A1_2, A1_3, A1_4, 0,       // sum c*A1 = 0
-            A2_1, A2_2, A2_3, A2_4, 0,       // sum c*A2 = 0
-            A3_1, A3_2, A3_3, A3_4, 0        // sum c*A3 = 0
-        )
-        c1 := _c1, c2 := _c2, c3 := _c3, c4 := _c4
-        last_a1 := a1, last_a2 := a2, last_a3 := a3, last_a4 := a4
-
-    // 4 EMA stages with their own alphas (cascade)
-    var float e1 = 0.0, e2 = 0.0, e3 = 0.0, e4 = 0.0
-    var bool initialized = false
-    if not initialized
-        e1 := src
-        e2 := src
-        e3 := src
-        e4 := src
-        initialized := true
+// ---------- QEMA: progressive alphas + Option A weights ----------
+qema_optA(series float srcIn, int period) =>
+    // --- dirty-data guard (NA only; Pine doesn't expose isfinite/isinf) ---
+    var float lastFinite = na
+    float src = srcIn
+    if na(src)
+        src := nz(lastFinite, src)
     else
-        e1 := e1 + a1 * (src - e1)
-        e2 := e2 + a2 * (e1  - e2)
-        e3 := e3 + a3 * (e2  - e3)
-        e4 := e4 + a4 * (e3  - e4)
+        lastFinite := src
 
-    // generalized "QEMA" output for unequal alpha
-    c1*e1 + c2*e2 + c3*e3 + c4*e4
+    // --- base alpha from period ---
+    float a1 = clamp01(2.0 / (period + 1.0))
+
+    // --- progressive alpha ramp (your design) ---
+    // r = (1/a1)^(1/4) -> a2=a1^(3/4), a3=a1^(1/2), a4=a1^(1/4)
+    float r  = math.pow(1.0 / a1, 0.25)
+    float a2 = clamp01(a1 * r)
+    float a3 = clamp01(a2 * r)
+    float a4 = clamp01(a3 * r)
+
+    float d1 = 1.0 - a1
+    float d2 = 1.0 - a2
+    float d3 = 1.0 - a3
+    float d4 = 1.0 - a4
+
+    // --- unbiased warmup (startup bias compensation) ---
+    var float e1 = 1.0
+    var float e2 = 1.0
+    var float e3 = 1.0
+    var float e4 = 1.0
+    var bool warmup = true
+
+    // --- EMA accumulators ---
+    var float rema1 = 0.0
+    var float rema2 = 0.0
+    var float rema3 = 0.0
+    var float rema4 = 0.0
+
+    float ema1 = na
+    float ema2 = na
+    float ema3 = na
+    float ema4 = na
+
+    // Stage 1
+    rema1 := rema1 + a1 * (src - rema1)
+
+    if warmup
+        e1 *= d1
+        e2 *= d2
+        e3 *= d3
+        e4 *= d4
+
+        float c1 = 1.0 / (1.0 - e1)
+        float c2 = 1.0 / (1.0 - e2)
+        float c3 = 1.0 / (1.0 - e3)
+        float c4 = 1.0 / (1.0 - e4)
+
+        ema1 := rema1 * c1
+
+        rema2 := rema2 + a2 * (ema1 - rema2)
+        ema2  := rema2 * c2
+
+        rema3 := rema3 + a3 * (ema2 - rema3)
+        ema3  := rema3 * c3
+
+        rema4 := rema4 + a4 * (ema3 - rema4)
+        ema4  := rema4 * c4
+
+        // stage 1 is slowest => if it's unbiased, others are too
+        warmup := e1 > 1e-10
+    else
+        ema1 := rema1
+        rema2 := rema2 + a2 * (ema1 - rema2)
+        ema2 := rema2
+        rema3 := rema3 + a3 * (ema2 - rema3)
+        ema3 := rema3
+        rema4 := rema4 + a4 * (ema3 - rema4)
+        ema4 := rema4
+
+    // --- cumulative lags (mean-lag proxy) ---
+    float t1 = lag(a1)
+    float t2 = lag(a2)
+    float t3 = lag(a3)
+    float t4 = lag(a4)
+
+    float L1 = t1
+    float L2 = t1 + t2
+    float L3 = L2 + t3
+    float L4 = L3 + t4
+
+    // --- Option A weights: min-energy with constraints ---
+    // Σw = 1
+    // Σw*L = δ, with δ=0 here (zero DC lag)
+    float delta = 0.0
+
+    float B = L1 + L2 + L3 + L4
+    float C = L1*L1 + L2*L2 + L3*L3 + L4*L4
+    float D = 4.0*C - B*B
+
+    float w1 = na
+    float w2 = na
+    float w3 = na
+    float w4 = na
+
+    if math.abs(D) < 1e-12
+        // degenerate (e.g. a1==1 -> all L=0): safest output is ema1==src
+        w1 := 1.0
+        w2 := 0.0
+        w3 := 0.0
+        w4 := 0.0
+    else
+        float lambda = (C - B*delta) / D
+        float mu     = (-B + 4.0*delta) / D
+        w1 := lambda + mu*L1
+        w2 := lambda + mu*L2
+        w3 := lambda + mu*L3
+        w4 := lambda + mu*L4
+
+    w1*ema1 + w2*ema2 + w3*ema3 + w4*ema4
 
 // ---------- Main ----------
-i_period = input.int(20, "Period", minval=1)
-i_source = input.source(close, "Source")
-i_alpha  = input.float(0.0, "Alpha (optional override, 0=use period)", step=0.0001, minval=0.0, maxval=0.999999)
-
-q = qema_4alpha(i_source, i_period, i_alpha)
-plot(q, "QEMA-4a", color=color.yellow, linewidth=2)
+float q = qema_optA(i_source, i_period)
+plot(q, "QEMA OptA", color.new(color.yellow, 0), 2)

@@ -57,7 +57,7 @@ The categories help you understand what analytical problem each indicator solves
 * [**MAMA**](../lib/trends_IIR/mama/Mama.md) - MESA Adaptive MA
 * [**MMA**](../lib/trends_IIR/mma/Mma.md) - Modified MA
 * [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) - McGinley Dynamic
-* [**QEMA**](../lib/trends_IIR/qema/Qema.md) - Quadruple Exponential MA
+* [**QEMA**](../lib/trends_IIR/qema/Qema.md) - Quad Exponential MA
 * [**RMA**](../lib/trends_IIR/rma/Rma.md) - wildeR MA
 * [**T3**](../lib/trends_IIR/t3/T3.md) - Tillson T3 MA
 * [**TEMA**](../lib/trends_IIR/tema/Tema.md) - Triple Exponential MA

@@ -15,7 +15,7 @@ Trend indicators based on Infinite Impulse Response (IIR) filters.
 | [MAMA](mama/Mama.md) | MESA Adaptive MA | Applies Hilbert Transform for phase-based adaptation, using a dual-line system (MAMA/FAMA) for cycle-sensitive smoothing. |
 | [MGDI](mgdi/Mgdi.md) | McGinley Dynamic Indicator | Adjusts speed based on market volatility using a dynamic factor, aiming to hug prices closely. |
 | [MMA](mma/Mma.md) | Modified MA | Combines simple and weighted components, emphasizing central values for balanced smoothing. |
-| QEMA | Quadruple Exponential MA | Four-stage cascade architecture for superior lag reduction and noise suppression through progressive smoothing optimization. |
+| [QEMA](qema/Qema.md) | Quad Exponential MA | Zero-lag filter with four cascaded EMAs using geometrically ramped alphas and minimum-energy weights for DC lag elimination. |
 | REMA | Regularized Exponential MA | Applies regularization to EMA using a lambda parameter, balancing smoothing and momentum-based prediction. |
 | RGMA | Recursive Gaussian MA | Approximates Gaussian smoothing by recursively applying EMA filters multiple times (passes), controlled by an adjusted period. |
 | [RMA](rma/Rma.md) | wildeR MA (SMMA, MMA)| Wilder's smoothing average using a specific alpha (1/period), designed for indicators like RSI and ATR. |
