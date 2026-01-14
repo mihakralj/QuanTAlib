@@ -16,10 +16,10 @@ public class BlmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Blma? _ma;
-    protected LineSeries? _series;
-    protected string? SourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Blma _ma = null!;
+    protected LineSeries _series;
+    protected string SourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -51,8 +51,8 @@ public class BlmaIndicator : Indicator, IWatchlistIndicator
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
 
-        TValue result = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
+        TValue result = _ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew: args.IsNewBar());
 
-        _series!.SetValue(result.Value, _ma.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _ma.IsHot, ShowColdValues);
     }
 }

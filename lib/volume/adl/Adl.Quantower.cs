@@ -10,8 +10,8 @@ public sealed class AdlIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Adl? _adl;
-    private readonly LineSeries? _series;
+    private Adl _adl = null!;
+    private readonly LineSeries _series;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -41,8 +41,8 @@ public sealed class AdlIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         TBar bar = this.GetInputBar(args);
-        TValue result = _adl!.Update(bar, args.IsNewBar());
+        TValue result = _adl.Update(bar, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _adl.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _adl.IsHot, ShowColdValues);
     }
 }

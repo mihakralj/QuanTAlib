@@ -15,5 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- S3604: Suppress "Remove member initializer" - null! is intentional for nullable reference types -->
+    <NoWarn>$(NoWarn);S3604</NoWarn>
   </PropertyGroup>
 </Project>

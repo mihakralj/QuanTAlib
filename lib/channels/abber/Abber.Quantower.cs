@@ -37,9 +37,9 @@ public sealed class AbberIndicator : Indicator, IWatchlistIndicator
 
     private Abber? _abber;
     private Func<IHistoryItem, double>? _selector;
-    private readonly LineSeries? _middleSeries;
-    private readonly LineSeries? _upperSeries;
-    private readonly LineSeries? _lowerSeries;
+    private readonly LineSeries _middleSeries;
+    private readonly LineSeries _upperSeries;
+    private readonly LineSeries _lowerSeries;
 
     public int MinHistoryDepths => Period;
 
@@ -73,16 +73,16 @@ public sealed class AbberIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (HistoricalData.Count == 0 || _selector == null) return;
+        if (HistoricalData.Count == 0 || _abber is null || _selector is null) return;
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);
         TValue input = new(item.TimeLeft, value);
 
-        _abber!.Update(input, args.IsNewBar());
+        _abber.Update(input, args.IsNewBar());
 
-        _middleSeries!.SetValue(_abber.Last.Value, _abber.IsHot, ShowColdValues);
-        _upperSeries!.SetValue(_abber.Upper.Value, _abber.IsHot, ShowColdValues);
-        _lowerSeries!.SetValue(_abber.Lower.Value, _abber.IsHot, ShowColdValues);
+        _middleSeries.SetValue(_abber.Last.Value, _abber.IsHot, ShowColdValues);
+        _upperSeries.SetValue(_abber.Upper.Value, _abber.IsHot, ShowColdValues);
+        _lowerSeries.SetValue(_abber.Lower.Value, _abber.IsHot, ShowColdValues);
     }
 }

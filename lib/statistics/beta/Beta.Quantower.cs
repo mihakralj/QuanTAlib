@@ -19,10 +19,10 @@ public sealed class BetaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Beta? _beta;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _assetSelector;
-    private Func<IHistoryItem, double>? _marketSelector;
+    private Beta _beta = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _assetSelector = null!;
+    private Func<IHistoryItem, double> _marketSelector = null!;
 
     public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -54,15 +54,15 @@ public sealed class BetaIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double assetVal = _assetSelector!(item);
-        double marketVal = _marketSelector!(item);
+        double assetVal = _assetSelector(item);
+        double marketVal = _marketSelector(item);
         var time = this.HistoricalData.Time();
 
         var assetInput = new TValue(time, assetVal);
         var marketInput = new TValue(time, marketVal);
 
-        TValue result = _beta!.Update(assetInput, marketInput, args.IsNewBar());
+        TValue result = _beta.Update(assetInput, marketInput, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _beta.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _beta.IsHot, ShowColdValues);
     }
 }

@@ -19,10 +19,10 @@ public sealed class MgdiIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Mgdi? _mgdi;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Mgdi _mgdi = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -53,7 +53,7 @@ public sealed class MgdiIndicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _mgdi!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
-        _series!.SetValue(value, _mgdi.IsHot, ShowColdValues);
+        double value = _mgdi.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew).Value;
+        _series.SetValue(value, _mgdi.IsHot, ShowColdValues);
     }
 }

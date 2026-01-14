@@ -16,8 +16,8 @@ public sealed class ApoIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Apo? _apo;
-    private readonly LineSeries? _series;
+    private Apo _apo = null!;
+    private readonly LineSeries _series;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -46,8 +46,8 @@ public sealed class ApoIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _apo!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _apo.Update(this.GetInputBar(args), args.IsNewBar());
 
-        _series!.SetValue(result.Value, _apo.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _apo.IsHot, ShowColdValues);
     }
 }

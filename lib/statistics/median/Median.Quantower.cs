@@ -16,9 +16,9 @@ public sealed class MedianIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Median? _median;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Median _median = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -49,12 +49,12 @@ public sealed class MedianIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        TValue result = _median!.Update(input, args.IsNewBar());
+        TValue result = _median.Update(input, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _median.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _median.IsHot, ShowColdValues);
     }
 }

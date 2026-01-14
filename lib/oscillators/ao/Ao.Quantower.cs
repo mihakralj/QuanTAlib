@@ -16,9 +16,9 @@ public sealed class AoIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Ao? _ao;
-    private readonly LineSeries? _upSeries;
-    private readonly LineSeries? _downSeries;
+    private Ao _ao = null!;
+    private readonly LineSeries _upSeries;
+    private readonly LineSeries _downSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -50,7 +50,7 @@ public sealed class AoIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _ao!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _ao.Update(this.GetInputBar(args), args.IsNewBar());
 
         if (!_ao.IsHot && !ShowColdValues)
             return;
@@ -58,22 +58,22 @@ public sealed class AoIndicator : Indicator, IWatchlistIndicator
         double prevAo = double.NaN;
         if (Count > 1)
         {
-            prevAo = _upSeries!.GetValue(1);
+            prevAo = _upSeries.GetValue(1);
             if (double.IsNaN(prevAo))
             {
-                prevAo = _downSeries!.GetValue(1);
+                prevAo = _downSeries.GetValue(1);
             }
         }
 
         if (double.IsNaN(prevAo) || result.Value > prevAo)
         {
-            _upSeries!.SetValue(result.Value);
-            _downSeries!.SetValue(double.NaN);
+            _upSeries.SetValue(result.Value);
+            _downSeries.SetValue(double.NaN);
         }
         else
         {
-            _upSeries!.SetValue(double.NaN);
-            _downSeries!.SetValue(result.Value);
+            _upSeries.SetValue(double.NaN);
+            _downSeries.SetValue(result.Value);
         }
     }
 }

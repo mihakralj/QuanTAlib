@@ -13,8 +13,8 @@ public class FramaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Frama? ma;
-    protected LineSeries? Series;
+    private Frama ma = null!;
+    protected LineSeries Series;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -49,8 +49,8 @@ public class FramaIndicator : Indicator, IWatchlistIndicator
             item[PriceType.Low],
             item[PriceType.Close],
             item[PriceType.Volume]);
-        TValue result = ma!.Update(bar, isNew: args.IsNewBar());
+        TValue result = ma.Update(bar, isNew: args.IsNewBar());
 
-        Series!.SetValue(result.Value, ma.IsHot, ShowColdValues);
+        Series.SetValue(result.Value, ma.IsHot, ShowColdValues);
     }
 }

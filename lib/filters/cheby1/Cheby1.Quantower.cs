@@ -19,10 +19,10 @@ public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Cheby1? _ma;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Cheby1 _ma = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 5;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -53,7 +53,7 @@ public sealed class Cheby1Indicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
-        _series!.SetValue(value, _ma.IsHot, ShowColdValues);
+        double value = _ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew).Value;
+        _series.SetValue(value, _ma.IsHot, ShowColdValues);
     }
 }

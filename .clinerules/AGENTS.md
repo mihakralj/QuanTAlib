@@ -16,6 +16,14 @@ QUICKSTART: DO:{Create Indicator}#p1; DO:{Create Adapters for Quantower + other 
 
 CRIT_PATTERNS:
 - State: use `private record struct State`
+- Stack-only: prefer `readonly ref struct` when something should absolutely never leave the stack
+- Imports: prefer `using static` for math-heavy/pure helper classes to reduce ceremony and keep expressions readable
+- Types: prefer nullable annotations for optional refs; prefer `record`/`record struct` for value-like models/state
+- Code clarity: prioritize self-documenting names/structure; use comments for “why”, not “what”
+- Encapsulation: prefer `file` types for internal-only helpers
+- Closures: prefer `static` local functions to avoid accidental captures
+- Discards: use explicit discard (`_ = expr;`) when intentionally ignoring a return value
+- Lifetimes: use `scoped ref` parameters for internal APIs to constrain lifetimes
 - Events: `source.Pub += Handle;`
 - Args: `ArgumentException` + `nameof(param)`
 - FMA: `Math.FusedMultiplyAdd(a, b, c)` for `a*b+c`

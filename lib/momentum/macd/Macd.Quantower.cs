@@ -22,12 +22,12 @@ public sealed class MacdIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Macd? _macd;
-    private readonly LineSeries? _macdSeries;
-    private readonly LineSeries? _signalSeries;
-    private readonly LineSeries? _histSeries;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Macd _macd = null!;
+    private readonly LineSeries _macdSeries;
+    private readonly LineSeries _signalSeries;
+    private readonly LineSeries _histSeries;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -64,10 +64,10 @@ public sealed class MacdIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _macd!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
+        TValue result = _macd.Update(new TValue(this.GetInputBar(args).Time, _priceSelector(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-        _macdSeries!.SetValue(result.Value, _macd.IsHot, ShowColdValues);
-        _signalSeries!.SetValue(_macd.Signal.Value, _macd.IsHot, ShowColdValues);
-        _histSeries!.SetValue(_macd.Histogram.Value, _macd.IsHot, ShowColdValues);
+        _macdSeries.SetValue(result.Value, _macd.IsHot, ShowColdValues);
+        _signalSeries.SetValue(_macd.Signal.Value, _macd.IsHot, ShowColdValues);
+        _histSeries.SetValue(_macd.Histogram.Value, _macd.IsHot, ShowColdValues);
     }
 }

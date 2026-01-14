@@ -16,10 +16,10 @@ public class BesselIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Bessel? _filter;
-    protected LineSeries? Series;
-    protected string? SourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Bessel _filter = null!;
+    protected LineSeries Series;
+    protected string SourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -50,8 +50,8 @@ public class BesselIndicator : Indicator, IWatchlistIndicator
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
 
-        TValue result = _filter!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
+        TValue result = _filter.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew: args.IsNewBar());
 
-        Series!.SetValue(result.Value, _filter.IsHot, ShowColdValues);
+        Series.SetValue(result.Value, _filter.IsHot, ShowColdValues);
     }
 }

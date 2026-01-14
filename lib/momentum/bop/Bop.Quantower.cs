@@ -7,8 +7,8 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class BopIndicator : Indicator, IWatchlistIndicator
 {
-    private Bop? _bop;
-    private readonly LineSeries? _bopSeries;
+    private Bop _bop = null!;
+    private readonly LineSeries _bopSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -37,8 +37,8 @@ public sealed class BopIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _bop!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _bop.Update(this.GetInputBar(args), args.IsNewBar());
 
-        _bopSeries!.SetValue(result.Value);
+        _bopSeries.SetValue(result.Value);
     }
 }

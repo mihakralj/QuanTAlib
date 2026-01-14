@@ -21,7 +21,7 @@ Trend indicators based on Infinite Impulse Response (IIR) filters.
 | [RMA](rma/Rma.md) | wildeR MA (SMMA, MMA)| Wilder's smoothing average using a specific alpha (1/period), designed for indicators like RSI and ATR. |
 | [T3](t3/T3.md) | Tillson T3 MA | Six-stage EMA cascade with optimized coefficients based on a volume factor for reduced lag and superior noise reduction. |
 | [TEMA](tema/Tema.md) | Triple Exponential MA | Triple-cascade EMA architecture with optimized coefficients (3, -3, 1) for further lag reduction compared to DEMA. |
-| VAMA | Volatility Adjusted MA | Dynamically adjusts moving average length based on ATR volatility ratio, shortening during high volatility and lengthening during low volatility. |
+| [VAMA](vama/Vama.md) | Volatility Adjusted MA | Dynamically adjusts moving average length based on ATR volatility ratio, shortening during high volatility and lengthening during low volatility. |
 | [VIDYA](vidya/Vidya.md) | Variable Index Dynamic Average | Adjusts smoothing factor based on market volatility using a Volatility Index (ratio of short-term to long-term standard deviation). |
 | YZVAMA | Yang-Zhang Volatility Adjusted MA | Adjusts MA length based on percentile rank of short-term YZV, providing context-aware volatility adaptation for gap-prone markets. |
 | [ZLEMA](zlema/Zlema.md) | Zero-Lag Exponential MA | Reduces lag by estimating future price based on current momentum, using a dynamically calculated lag period. |

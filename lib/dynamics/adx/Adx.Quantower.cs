@@ -13,10 +13,10 @@ public sealed class AdxIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Adx? _adx;
-    private readonly LineSeries? _adxSeries;
-    private readonly LineSeries? _diPlusSeries;
-    private readonly LineSeries? _diMinusSeries;
+    private Adx _adx = null!;
+    private readonly LineSeries _adxSeries;
+    private readonly LineSeries _diPlusSeries;
+    private readonly LineSeries _diMinusSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -50,10 +50,10 @@ public sealed class AdxIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _adx!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _adx.Update(this.GetInputBar(args), args.IsNewBar());
 
-        _adxSeries!.SetValue(result.Value, _adx.IsHot, ShowColdValues);
-        _diPlusSeries!.SetValue(_adx.DiPlus.Value, _adx.IsHot, ShowColdValues);
-        _diMinusSeries!.SetValue(_adx.DiMinus.Value, _adx.IsHot, ShowColdValues);
+        _adxSeries.SetValue(result.Value, _adx.IsHot, ShowColdValues);
+        _diPlusSeries.SetValue(_adx.DiPlus.Value, _adx.IsHot, ShowColdValues);
+        _diMinusSeries.SetValue(_adx.DiMinus.Value, _adx.IsHot, ShowColdValues);
     }
 }

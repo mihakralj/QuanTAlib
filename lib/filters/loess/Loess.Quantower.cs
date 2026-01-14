@@ -16,10 +16,10 @@ public sealed class LoessIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Loess? _ma;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Loess _ma = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public int MinHistoryDepths => Period;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -49,7 +49,7 @@ public sealed class LoessIndicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
-        _series!.SetValue(value, _ma.IsHot, ShowColdValues);
+        double value = _ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew).Value;
+        _series.SetValue(value, _ma.IsHot, ShowColdValues);
     }
 }

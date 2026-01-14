@@ -246,7 +246,7 @@
 | **Ultimate Oscillator** | [Ultosc](../lib/momentum/ultosc/Ultosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | vidya | - | ❔ |
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
-| **Volatility Adjusted Moving Average** | Vama | - | - | - | ❔ |
+| **Volatility Adjusted Moving Average** | [Vama](../lib/trends_IIR/vama/Vama.md) | - | - | - | ❔ |
 | **Volatility of Volatility** | Vov | - | - | - | - |
 | **Volatility Ratio** | Vr | - | - | - | ❔ |
 | **Volume Accumulation** | Va | - | - | - | ❔ |

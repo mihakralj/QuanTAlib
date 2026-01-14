@@ -13,8 +13,8 @@ public sealed class AdxrIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Adxr? _adxr;
-    private readonly LineSeries? _adxrSeries;
+    private Adxr _adxr = null!;
+    private readonly LineSeries _adxrSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -43,8 +43,8 @@ public sealed class AdxrIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _adxr!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _adxr.Update(this.GetInputBar(args), args.IsNewBar());
 
-        _adxrSeries!.SetValue(result.Value, _adxr.IsHot, ShowColdValues);
+        _adxrSeries.SetValue(result.Value, _adxr.IsHot, ShowColdValues);
     }
 }

@@ -19,9 +19,9 @@ public sealed class WienerIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Wiener? _wiener;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Wiener _wiener = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 2;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -51,7 +51,7 @@ public sealed class WienerIndicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _wiener!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
-        _series!.SetValue(value, _wiener.IsHot, ShowColdValues);
+        double value = _wiener.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew).Value;
+        _series.SetValue(value, _wiener.IsHot, ShowColdValues);
     }
 }

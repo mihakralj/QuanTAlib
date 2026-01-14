@@ -22,10 +22,10 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Bilateral? _bilateral;
-    protected LineSeries? Series;
-    protected string? SourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Bilateral _bilateral = null!;
+    protected LineSeries Series;
+    protected string SourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -57,8 +57,8 @@ public class BilateralIndicator : Indicator, IWatchlistIndicator
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
 
-        TValue result = _bilateral!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
+        TValue result = _bilateral.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew: args.IsNewBar());
 
-        Series!.SetValue(result.Value, _bilateral.IsHot, ShowColdValues);
+        Series.SetValue(result.Value, _bilateral.IsHot, ShowColdValues);
     }
 }

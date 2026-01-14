@@ -13,10 +13,10 @@ public sealed class AroonIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Aroon? _aroon;
-    private readonly LineSeries? _upSeries;
-    private readonly LineSeries? _downSeries;
-    private readonly LineSeries? _oscSeries;
+    private Aroon _aroon = null!;
+    private readonly LineSeries _upSeries;
+    private readonly LineSeries _downSeries;
+    private readonly LineSeries _oscSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -50,10 +50,10 @@ public sealed class AroonIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _aroon!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _aroon.Update(this.GetInputBar(args), args.IsNewBar());
 
-        _upSeries!.SetValue(_aroon.Up.Value, _aroon.IsHot, ShowColdValues);
-        _downSeries!.SetValue(_aroon.Down.Value, _aroon.IsHot, ShowColdValues);
-        _oscSeries!.SetValue(result.Value, _aroon.IsHot, ShowColdValues);
+        _upSeries.SetValue(_aroon.Up.Value, _aroon.IsHot, ShowColdValues);
+        _downSeries.SetValue(_aroon.Down.Value, _aroon.IsHot, ShowColdValues);
+        _oscSeries.SetValue(result.Value, _aroon.IsHot, ShowColdValues);
     }
 }

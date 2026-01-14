@@ -16,10 +16,10 @@ public class HpIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Hp? _hp;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Hp _hp = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -49,7 +49,7 @@ public class HpIndicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _hp!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
-        _series!.SetValue(value, _hp.IsHot, ShowColdValues);
+        double value = _hp.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew).Value;
+        _series.SetValue(value, _hp.IsHot, ShowColdValues);
     }
 }

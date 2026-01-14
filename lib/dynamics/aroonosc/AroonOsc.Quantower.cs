@@ -13,8 +13,8 @@ public sealed class AroonOscIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private AroonOsc? _aroonOsc;
-    private readonly LineSeries? _oscSeries;
+    private AroonOsc _aroonOsc = null!;
+    private readonly LineSeries _oscSeries;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -44,8 +44,8 @@ public sealed class AroonOscIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _aroonOsc!.Update(this.GetInputBar(args), args.IsNewBar());
+        TValue result = _aroonOsc.Update(this.GetInputBar(args), args.IsNewBar());
 
-        _oscSeries!.SetValue(result.Value, _aroonOsc.IsHot, ShowColdValues);
+        _oscSeries.SetValue(result.Value, _aroonOsc.IsHot, ShowColdValues);
     }
 }

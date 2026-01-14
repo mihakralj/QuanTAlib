@@ -13,8 +13,8 @@ public sealed class AtrIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Atr? _atr;
-    private readonly LineSeries? _series;
+    private Atr _atr = null!;
+    private readonly LineSeries _series;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -44,8 +44,8 @@ public sealed class AtrIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         TBar bar = this.GetInputBar(args);
-        TValue result = _atr!.Update(bar, args.IsNewBar());
+        TValue result = _atr.Update(bar, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _atr.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _atr.IsHot, ShowColdValues);
     }
 }

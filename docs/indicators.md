@@ -61,6 +61,7 @@ The categories help you understand what analytical problem each indicator solves
 * [**RMA**](../lib/trends_IIR/rma/Rma.md) - wildeR MA
 * [**T3**](../lib/trends_IIR/t3/T3.md) - Tillson T3 MA
 * [**TEMA**](../lib/trends_IIR/tema/Tema.md) - Triple Exponential MA
+* [**VAMA**](../lib/trends_IIR/vama/Vama.md) - Volatility Adjusted MA
 * [**VIDYA**](../lib/trends_IIR/vidya/Vidya.md) - Variable Index Dynamic Average
 * [**ZLEMA**](../lib/trends_IIR/zlema/Zlema.md) - Zero-Lag Exponential MA
 

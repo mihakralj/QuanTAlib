@@ -19,9 +19,9 @@ public sealed class VarianceIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Variance? _variance;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Variance _variance = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -55,12 +55,12 @@ public sealed class VarianceIndicator : Indicator, IWatchlistIndicator
             return;
 
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        TValue result = _variance!.Update(input, args.IsNewBar());
+        TValue result = _variance.Update(input, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _variance.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _variance.IsHot, ShowColdValues);
     }
 }

@@ -19,9 +19,9 @@ public sealed class StdDevIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private StdDev? _stdDev;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private StdDev _stdDev = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -52,12 +52,12 @@ public sealed class StdDevIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        TValue result = _stdDev!.Update(input, args.IsNewBar());
+        TValue result = _stdDev.Update(input, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _stdDev.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _stdDev.IsHot, ShowColdValues);
     }
 }

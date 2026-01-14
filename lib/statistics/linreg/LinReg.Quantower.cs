@@ -19,9 +19,9 @@ public sealed class LinRegIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private LinReg? _linreg;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private LinReg _linreg = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -52,13 +52,13 @@ public sealed class LinRegIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        TValue result = _linreg!.Update(input, args.IsNewBar());
+        TValue result = _linreg.Update(input, args.IsNewBar());
 
-        _series!.SetValue(result.Value, _linreg.IsHot, ShowColdValues);
+        _series.SetValue(result.Value, _linreg.IsHot, ShowColdValues);
     }
 }
 
@@ -74,9 +74,9 @@ public sealed class LinRegSlopeIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private LinReg? _linreg;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private LinReg _linreg = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -107,13 +107,13 @@ public sealed class LinRegSlopeIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        _linreg!.Update(input, args.IsNewBar());
+        _linreg.Update(input, args.IsNewBar());
 
-        _series!.SetValue(_linreg.Slope, _linreg.IsHot, ShowColdValues);
+        _series.SetValue(_linreg.Slope, _linreg.IsHot, ShowColdValues);
     }
 }
 
@@ -129,9 +129,9 @@ public sealed class LinRegInterceptIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private LinReg? _linreg;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private LinReg _linreg = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -162,13 +162,13 @@ public sealed class LinRegInterceptIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        _linreg!.Update(input, args.IsNewBar());
+        _linreg.Update(input, args.IsNewBar());
 
-        _series!.SetValue(_linreg.Intercept, _linreg.IsHot, ShowColdValues);
+        _series.SetValue(_linreg.Intercept, _linreg.IsHot, ShowColdValues);
     }
 }
 
@@ -184,9 +184,9 @@ public sealed class LinRegRSquaredIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private LinReg? _linreg;
-    private readonly LineSeries? _series;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private LinReg _linreg = null!;
+    private readonly LineSeries _series;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -217,12 +217,12 @@ public sealed class LinRegRSquaredIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var item = this.HistoricalData[this.Count - 1, SeekOriginHistory.Begin];
-        double value = _priceSelector!(item);
+        double value = _priceSelector(item);
         var time = this.HistoricalData.Time();
 
         var input = new TValue(time, value);
-        _linreg!.Update(input, args.IsNewBar());
+        _linreg.Update(input, args.IsNewBar());
 
-        _series!.SetValue(_linreg.RSquared, _linreg.IsHot, ShowColdValues);
+        _series.SetValue(_linreg.RSquared, _linreg.IsHot, ShowColdValues);
     }
 }

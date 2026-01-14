@@ -30,10 +30,10 @@ public sealed class StcIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Stc? _stc;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Stc _stc = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -63,7 +63,7 @@ public sealed class StcIndicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        double value = _stc!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew).Value;
-        _series!.SetValue(value, _stc.IsHot, ShowColdValues);
+        double value = _stc.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew).Value;
+        _series.SetValue(value, _stc.IsHot, ShowColdValues);
     }
 }

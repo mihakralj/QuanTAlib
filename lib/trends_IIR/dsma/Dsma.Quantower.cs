@@ -25,10 +25,10 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Width", sortIndex: 23)]
     public int LineWidth { get; set; } = 2;
 
-    private Dsma? ma;
-    protected LineSeries? Series;
-    protected string? SourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Dsma ma = null!;
+    protected LineSeries Series;
+    protected string SourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -52,8 +52,8 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
         ma = new Dsma(Period, ScaleFactor);
         SourceName = Source.ToString();
         _priceSelector = Source.GetPriceSelector();
-        Series!.Color = LineColor;
-        Series!.Width = LineWidth;
+        Series.Color = LineColor;
+        Series.Width = LineWidth;
         base.OnInit();
     }
 
@@ -62,8 +62,8 @@ public class DsmaIndicator : Indicator, IWatchlistIndicator
     {
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
 
-        TValue result = ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), isNew: args.IsNewBar());
+        TValue result = ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), isNew: args.IsNewBar());
 
-        Series!.SetValue(result.Value, ma.IsHot, ShowColdValues);
+        Series.SetValue(result.Value, ma.IsHot, ShowColdValues);
     }
 }

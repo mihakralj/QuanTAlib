@@ -16,10 +16,10 @@ public sealed class SuperIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Super? _super;
-    private readonly LineSeries? _series;
-    private readonly LineSeries? _upperBand;
-    private readonly LineSeries? _lowerBand;
+    private Super _super = null!;
+    private readonly LineSeries _series;
+    private readonly LineSeries _upperBand;
+    private readonly LineSeries _lowerBand;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -52,16 +52,16 @@ public sealed class SuperIndicator : Indicator, IWatchlistIndicator
     {
         bool isNew = args.IsNewBar();
         var bar = this.GetInputBar(args);
-        double value = _super!.Update(bar, isNew).Value;
+        double value = _super.Update(bar, isNew).Value;
 
-        _series!.SetValue(value, _super.IsHot, ShowColdValues);
-        _upperBand!.SetValue(_super.UpperBand.Value, _super.IsHot, ShowColdValues);
-        _lowerBand!.SetValue(_super.LowerBand.Value, _super.IsHot, ShowColdValues);
+        _series.SetValue(value, _super.IsHot, ShowColdValues);
+        _upperBand.SetValue(_super.UpperBand.Value, _super.IsHot, ShowColdValues);
+        _lowerBand.SetValue(_super.LowerBand.Value, _super.IsHot, ShowColdValues);
 
         // Color logic
         if (_super.IsHot)
         {
-            _series!.SetMarker(0, _super.IsBullish ? Color.Green : Color.Red);
+            _series.SetMarker(0, _super.IsBullish ? Color.Green : Color.Red);
         }
     }
 }

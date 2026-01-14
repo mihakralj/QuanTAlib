@@ -16,10 +16,10 @@ public sealed class TrimaIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Trima? _ma;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Trima _ma = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -54,9 +54,9 @@ public sealed class TrimaIndicator : Indicator, IWatchlistIndicator
             return;
 
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        TValue result = _ma!.Update(new TValue(item.TimeLeft.Ticks, _priceSelector!(item)), args.IsNewBar());
+        TValue result = _ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), args.IsNewBar());
 
-        _series!.SetValue(result.Value, _ma.IsHot, ShowColdValues);
-        _series!.SetMarker(0, Color.Transparent);
+        _series.SetValue(result.Value, _ma.IsHot, ShowColdValues);
+        _series.SetMarker(0, Color.Transparent);
     }
 }

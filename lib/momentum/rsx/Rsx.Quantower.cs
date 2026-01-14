@@ -16,10 +16,10 @@ public sealed class RsxIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show cold values", sortIndex: 21)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Rsx? _rsx;
-    private readonly LineSeries? _series;
-    private string? _sourceName;
-    private Func<IHistoryItem, double>? _priceSelector;
+    private Rsx _rsx = null!;
+    private readonly LineSeries _series;
+    private string _sourceName = null!;
+    private Func<IHistoryItem, double> _priceSelector = null!;
 
     public static int MinHistoryDepths => 0;
     int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
@@ -50,9 +50,9 @@ public sealed class RsxIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        TValue result = _rsx!.Update(new TValue(this.GetInputBar(args).Time, _priceSelector!(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
+        TValue result = _rsx.Update(new TValue(this.GetInputBar(args).Time, _priceSelector(HistoricalData[Count - 1, SeekOriginHistory.Begin])), args.IsNewBar());
 
-        _series!.SetValue(result.Value, _rsx.IsHot, ShowColdValues);
-        _series!.SetMarker(0, Color.Transparent);
+        _series.SetValue(result.Value, _rsx.IsHot, ShowColdValues);
+        _series.SetMarker(0, Color.Transparent);
     }
 }

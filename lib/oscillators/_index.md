@@ -8,6 +8,7 @@ Oscillators are technical analysis indicators that fluctuate above and below a c
 | :--- | :--- | :--- |
 | **AC** | Acceleration Oscillator | Measures acceleration/deceleration of the current market driving force (Awesome Oscillator). |
 | **[AO](ao/ao.md)** | Awesome Oscillator | A momentum indicator used to measure market momentum and affirm trends or anticipate possible reversals. |
+| **[APO](apo/Apo.md)** | Absolute Price Oscillator | Measures the raw currency difference between fast and slow EMAs for absolute trend momentum. |
 | **BBB** | Bollinger %B | Normalized position within Bollinger Bands; (Price - Lower BB) / (Upper BB - Lower BB). |
 | **BBS** | Bollinger Band Squeeze | Identifies low volatility periods when Bollinger Bands contract inside Keltner Channels. |
 | **CFO** | Chande Forecast Oscillator | Measures the percentage difference between the closing price and its N-period linear regression forecast. |
