@@ -52,3 +52,7 @@ temp/
 *.tmp
 *.temp
 .sarif/
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md

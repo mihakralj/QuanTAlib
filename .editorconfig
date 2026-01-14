@@ -10,66 +10,41 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.cs]
-# Suppress SonarQube S3776 - Cognitive Complexity
-# High-performance SIMD code intentionally has complex control flow
-dotnet_diagnostic.S3776.severity = none
 
-# Suppress SonarQube S1244 - Floating point equality
-# Intentional for exact struct comparison and zero checks in high-performance code
-dotnet_diagnostic.S1244.severity = none
-
-# Suppress ReSharper CheckNamespace - Namespace does not correspond to file location
-# QuanTAlib uses flat namespace structure (QuanTAlib) regardless of folder hierarchy
 resharper_check_namespace_highlighting = none
-
-# Suppress ReSharper RedundantArgumentDefaultValue - Redundant argument with default value
-# Explicit default values improve code readability for indicator parameters
 resharper_redundant_argument_default_value_highlighting = none
-
-# Suppress ReSharper InvalidXmlDocComment - Invalid XML documentation comment
-# Documentation uses simplified format without full XML compliance
 resharper_invalid_xml_doc_comment_highlighting = none
+resharper_inconsistent_naming_highlighting = none
+resharper_redundant_using_directive_highlighting = none
+resharper_for_can_be_converted_to_foreach_highlighting = none
+resharper_unused_parameter_local_highlighting = none
+resharper_conditional_access_qualifier_is_non_nullable_according_to_api_contract_highlighting = none
+resharper_redundant_lambda_parameter_type_highlighting = none
 
-# Suppress IDE0028 - Collection initialization can be simplified
-# False positives with custom collection types (RingBuffer, TSeries, TBarSeries)
-# These types implement collection interfaces but cannot use collection expressions
+resharper_redundant_cast_highlighting = hint
+resharper_redundant_assignment_highlighting = hint
+resharper_not_accessed_field_local_highlighting = hint
+resharper_unused_auto_property_accessor_global_highlighting = hint
+resharper_condition_is_always_true_or_false_highlighting = hint
+resharper_access_to_modified_closure_highlighting = hint
+resharper_generic_enumerator_not_disposed_highlighting = hint
+
+dotnet_diagnostic.S3776.severity = none
+dotnet_diagnostic.S1244.severity = none
 dotnet_diagnostic.IDE0028.severity = none
-
-# Suppress CA1416 - Platform compatibility
-# Quantower is a Windows-only trading platform using GDI+ (System.Drawing)
-# Already suppressed via #pragma in quantower/IndicatorExtensions.cs
 dotnet_diagnostic.CA1416.severity = none
-
-# Suppress S3236 - Caller information arguments should not be provided explicitly  
-# Already suppressed via #pragma in specific locations where parameter names are intentionally cleaner
 dotnet_diagnostic.S3236.severity = none
-
-# Suppress MA0046 - Use EventArgs.Empty
-# Already suppressed via #pragma for custom event handlers (TValuePublishedHandler, TBarPublishedHandler)
-# These use custom delegates that don't inherit from EventArgs
 dotnet_diagnostic.MA0046.severity = none
-
-# Suppress MA0003 - Add parameter name to argument
-# While named arguments can improve readability, this is a style preference
-# 96 violations across test files - would be tedious to fix manually
-# Tests are already clear with good variable names
 dotnet_diagnostic.MA0003.severity = suggestion
 
-#### C# Coding Conventions ####
-
-# "var" preferences
-# Prefer explicit types for built-in types (e.g. int, double, string) - reduces noise in math-heavy code
 csharp_style_var_for_built_in_types = false:silent
-# Prefer var when the type is already mentioned on the right side (e.g. new List<int>())
 csharp_style_var_when_type_is_apparent = true:suggestion
-# Prefer explicit types in other cases to improve readability of math formulas
 csharp_style_var_elsewhere = false:silent
-# Exclude ndepend directory from all analyzers
+
 [ndepend/**]
 dotnet_analyzer_diagnostic.severity = none
 generated_code = true
 
-# Shell scripts
 [*.sh]
 end_of_line = lf
 indent_style = space

@@ -65,6 +65,9 @@ jobs:
             **/*.csproj
             **/*.sln
 
+      - name: Restore dependencies
+        run: dotnet restore
+
       - name: Prepare SARIF directory
         run: mkdir -p .sarif
 
@@ -308,32 +311,41 @@ jobs:
 
       - name: Build SARIF list for SonarCloud
         run: |
-          shopt -s nullglob
-          files=(.sarif/*.sarif)
-
-          # Ensure Roslyn SARIF is included even if generated later.
-          files+=(".sarif/roslyn.sarif")
+          # Keep SonarCloud focused on its native analyzers + security tools.
+          # Importing compiler/analyzer SARIF (Roslyn/JetBrains) tends to explode "External issues".
+          paths=()
+          for f in .sarif/snyk.sarif .sarif/semgrep.sarif; do
+            if [ -f "$f" ]; then
+              paths+=("$f")
+            fi
+          done
 
           IFS=,
-          echo "SONAR_SARIF_PATHS=${files[*]}" >> "$GITHUB_ENV"
+          echo "SONAR_SARIF_PATHS=${paths[*]}" >> "$GITHUB_ENV"
 
       - name: Begin SonarCloud Analysis
         if: steps.check_sonar.outputs.skip != 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet sonarscanner begin \
-            /k:mihakralj_QuanTAlib \
-            /o:mihakralj-quantalib \
-            /d:sonar.token="$SONAR_TOKEN" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.sarifReportPaths="${SONAR_SARIF_PATHS}" \
-            /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" \
-            /d:sonar.cs.vstest.reportsPaths="TestResults/**/*.trx" \
-            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" \
-            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" \
-            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" \
-            /d:sonar.scanner.scanAll="false"
+          args=(
+            "/k:mihakralj_QuanTAlib"
+            "/o:mihakralj-quantalib"
+            "/d:sonar.token=$SONAR_TOKEN"
+            "/d:sonar.host.url=https://sonarcloud.io"
+            "/d:sonar.cs.opencover.reportsPaths=TestResults/**/coverage.opencover.xml"
+            "/d:sonar.cs.vstest.reportsPaths=TestResults/**/*.trx"
+            "/d:sonar.coverage.exclusions=**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*"
+            "/d:sonar.exclusions=**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*"
+            "/d:sonar.test.exclusions=**Tests.cs,**/obj/**/*,**/bin/**/*"
+            "/d:sonar.scanner.scanAll=false"
+          )
+
+          if [ -n "${SONAR_SARIF_PATHS:-}" ]; then
+            args+=("/d:sonar.sarifReportPaths=$SONAR_SARIF_PATHS")
+          fi
+
+          dotnet sonarscanner begin "${args[@]}"
 
       - name: Build Solution with Roslyn SARIF
         run: |
@@ -341,6 +353,7 @@ jobs:
             --no-restore \
             --configuration Debug \
             --nologo \
+            -m:1 \
             -p:TreatWarningsAsErrors=false \
             -p:ErrorLog="$(pwd)/.sarif/roslyn.sarif;version=2.1"
 
@@ -391,14 +404,6 @@ jobs:
           path: .sarif/roslyn.sarif
           retention-days: 7
           if-no-files-found: warn
-
-      - name: Upload SARIF Bundle Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: sarif-all
-          path: .sarif/
-          retention-days: 7
 
   # ==============================================================================
   # 5) Codacy Upload (SARIF + Coverage)
