@@ -194,9 +194,9 @@
 | **Rate of Change Ratio** | Rocr | ROCR | rocr | - | - |
 | **Realized Volatility** | Rv | - | - | - | - |
 | **Rectified Linear Unit** | Relu | - | - | - | - |
-| **Recursive Gaussian MA** | Rgma | - | - | - | - |
+| **Recursive Gaussian MA** | [Rgma](../lib/trends_IIR/rgma/Rgma.md) | - | - | - | - |
 | **Regression Channels** | Regchannel | - | - | - | - |
-| **Regularized Exponential MA** | Rema | - | - | - | ❔ |
+| **Regularized Exponential MA** | [Rema](../lib/trends_IIR/rema/Rema.md) | - | - | - | ❔ |
 | **Relative Absolute Error** | Rae | - | - | - | - |
 | **Relative Squared Error** | Rse | - | - | - | - |
 | **Relative Strength Index** | [Rsi](../lib/momentum/rsi/Rsi.md) | ✔️ | ✔️ | ✔️ | ✔️ |

@@ -224,8 +224,8 @@
 | [RAE](lib/errors/rae/Rae.md) | Relative Absolute Error | Errors |
 | REGCHANNEL | Regression Channels | Channels |
 | RELU | Rectified Linear Unit | Numerics |
-| REMA | Regularized Exponential MA | Trends (IIR) |
-| RGMA | Recursive Gaussian MA | Trends (IIR) |
+| [REMA](lib/trends_IIR/rema/Rema.md) | Regularized Exponential MA | Trends (IIR) |
+| [RGMA](lib/trends_IIR/rgma/Rgma.md) | Recursive Gaussian MA | Trends (IIR) |
 | [RMA](lib/trends_IIR/rma/Rma.md) | wildeR MA (SMMA, MMA) | Trends (IIR) |
 | [RMSE](lib/errors/rmse/Rmse.md) | Root Mean Squared Error | Errors |
 | [RMSLE](lib/errors/rmsle/Rmsle.md) | Root Mean Squared Logarithmic Error | Errors |

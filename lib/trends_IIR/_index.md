@@ -16,8 +16,8 @@ Trend indicators based on Infinite Impulse Response (IIR) filters.
 | [MGDI](mgdi/Mgdi.md) | McGinley Dynamic Indicator | Adjusts speed based on market volatility using a dynamic factor, aiming to hug prices closely. |
 | [MMA](mma/Mma.md) | Modified MA | Combines simple and weighted components, emphasizing central values for balanced smoothing. |
 | [QEMA](qema/Qema.md) | Quad Exponential MA | Zero-lag filter with four cascaded EMAs using geometrically ramped alphas and minimum-energy weights for DC lag elimination. |
-| REMA | Regularized Exponential MA | Applies regularization to EMA using a lambda parameter, balancing smoothing and momentum-based prediction. |
-| RGMA | Recursive Gaussian MA | Approximates Gaussian smoothing by recursively applying EMA filters multiple times (passes), controlled by an adjusted period. |
+| [REMA](rema/Rema.md) | Regularized Exponential MA | Applies regularization to EMA using a lambda parameter, balancing smoothing and momentum-based prediction. |
+| [RGMA](rgma/Rgma.md) | Recursive Gaussian MA | Approximates Gaussian smoothing by recursively applying EMA filters multiple times (passes), controlled by an adjusted period. |
 | [RMA](rma/Rma.md) | wildeR MA (SMMA, MMA)| Wilder's smoothing average using a specific alpha (1/period), designed for indicators like RSI and ATR. |
 | [T3](t3/T3.md) | Tillson T3 MA | Six-stage EMA cascade with optimized coefficients based on a volume factor for reduced lag and superior noise reduction. |
 | [TEMA](tema/Tema.md) | Triple Exponential MA | Triple-cascade EMA architecture with optimized coefficients (3, -3, 1) for further lag reduction compared to DEMA. |

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Channels</AssemblyName>
+    <AlgoType>Indicator</AlgoType>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsPackable>false</IsPackable>
+    <SonarQubeExclude>true</SonarQubeExclude>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="IndicatorExtensions.cs" />
+    <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
+    <Compile Include="..\lib\trends_FIR\**\*.cs" Exclude="..\lib\trends_FIR\**\*.Tests.cs;..\lib\trends_FIR\**\obj\**;..\lib\trends_FIR\**\bin\**" />
+    <Compile Include="..\lib\trends_IIR\**\*.cs" Exclude="..\lib\trends_IIR\**\*.Tests.cs;..\lib\trends_IIR\**\obj\**;..\lib\trends_IIR\**\bin\**" />
+    <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
+    <Compile Include="..\lib\channels\**\*.cs" Exclude="..\lib\channels\**\*.Tests.cs;..\lib\channels\**\obj\**;..\lib\channels\**\bin\**" />
+    <Reference Include="TradingPlatform.BusinessLayer">
+      <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
+    </Reference>
+    <None Include="..\.github\TradingPlatform.BusinessLayer.xml">
+      <Link>TradingPlatform.BusinessLayer.xml</Link>
+    </None>
+  </ItemGroup>
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
+    <Copy SourceFiles="$(OutputPath)\Channels.dll" DestinationFolder="$(QuantowerRoot)\Settings\Scripts\Indicators\QuanTAlib\Channels" />
+  </Target>
+
+</Project>

@@ -58,11 +58,14 @@ The categories help you understand what analytical problem each indicator solves
 * [**MMA**](../lib/trends_IIR/mma/Mma.md) - Modified MA
 * [**MGDI**](../lib/trends_IIR/mgdi/Mgdi.md) - McGinley Dynamic
 * [**QEMA**](../lib/trends_IIR/qema/Qema.md) - Quad Exponential MA
+* [**RGMA**](../lib/trends_IIR/rgma/Rgma.md) - Recursive Gaussian MA
+* [**REMA**](../lib/trends_IIR/rema/Rema.md) - Regularized Exponential MA
 * [**RMA**](../lib/trends_IIR/rma/Rma.md) - wildeR MA
 * [**T3**](../lib/trends_IIR/t3/T3.md) - Tillson T3 MA
 * [**TEMA**](../lib/trends_IIR/tema/Tema.md) - Triple Exponential MA
 * [**VAMA**](../lib/trends_IIR/vama/Vama.md) - Volatility Adjusted MA
 * [**VIDYA**](../lib/trends_IIR/vidya/Vidya.md) - Variable Index Dynamic Average
+* [**YZVAMA**](../lib/trends_IIR/yzvama/Yzvama.md) - Yang-Zhang Volatility Adjusted MA
 * [**ZLEMA**](../lib/trends_IIR/zlema/Zlema.md) - Zero-Lag Exponential MA
 
 ### Filters
