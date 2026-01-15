@@ -4,7 +4,6 @@
 indicator("Hamming Moving Average (HAMMA)", "HAMMA", overlay=true)
 
 //@function Calculates HAMMA using Hamming window weighting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/hamma.md
 //@param source Series to calculate HAMMA from
 //@param period Lookback period - FIR window size
 //@returns HAMMA value, calculates from first bar using available data

@@ -4,7 +4,6 @@
 indicator("Blackman Moving Average (BLMA)", "BLMA", overlay=true)
 
 //@function Calculates BLMA using Blackman window weighting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/blma.md
 //@param source Series to calculate BLMA from
 //@param period Lookback period - FIR window size
 //@returns BLMA value, calculates from first bar using available data

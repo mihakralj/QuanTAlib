@@ -150,7 +150,7 @@ public class DwmaTests
         double[] output = new double[5];
         double[] wrongSizeOutput = new double[3];
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => Dwma.Calculate(source.AsSpan(), output.AsSpan(), 0));
+        Assert.Throws<ArgumentException>(() => Dwma.Calculate(source.AsSpan(), output.AsSpan(), 0));
         Assert.Throws<ArgumentException>(() => Dwma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3));
     }
 
@@ -209,5 +209,37 @@ public class DwmaTests
         Assert.Equal(expected, spanResult, precision: 9);
         Assert.Equal(expected, streamingResult, precision: 9);
         Assert.Equal(expected, eventingResult, precision: 9);
+    }
+
+    [Fact]
+    public void WarmupPeriod_AndIsHot_Agree()
+    {
+        int period = 3;
+        var dwma = new Dwma(period);
+        Assert.Equal(5, dwma.WarmupPeriod);
+
+        for (int i = 0; i < dwma.WarmupPeriod - 1; i++)
+        {
+            dwma.Update(new TValue(DateTime.UtcNow, 100 + i));
+            Assert.False(dwma.IsHot);
+        }
+
+        dwma.Update(new TValue(DateTime.UtcNow, 200));
+        Assert.True(dwma.IsHot);
+    }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromSource()
+    {
+        var source = new TSeries();
+        var dwma = new Dwma(source, 3);
+
+        source.Add(new TValue(DateTime.UtcNow, 100));
+        double lastBeforeDispose = dwma.Last.Value;
+
+        dwma.Dispose();
+
+        source.Add(new TValue(DateTime.UtcNow, 200));
+        Assert.Equal(lastBeforeDispose, dwma.Last.Value);
     }
 }

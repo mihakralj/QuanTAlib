@@ -4,7 +4,6 @@
 indicator("Variable Index Dynamic Average (VIDYA)", "VIDYA", overlay=true)
 
 //@function Calculates VIDYA using adaptive smoothing based on market volatility
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/vidya.md
 //@param source Series to calculate VIDYA from
 //@param period Length of the smoothing period
 //@param std_period Length of the standard deviation period, defaults to same as period

@@ -4,7 +4,6 @@
 indicator("Hanning Moving Average (HANMA)", "HANMA", overlay=true)
 
 //@function Calculates HANMA using Hanning window weighting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/hanma.md
 //@param source Series to calculate HANMA from
 //@param period Lookback period - FIR window size
 //@returns HANMA value, calculates from first bar using available data

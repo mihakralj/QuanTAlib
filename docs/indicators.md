@@ -35,11 +35,17 @@ The categories help you understand what analytical problem each indicator solves
 
 * [**ALMA**](../lib/trends_FIR/alma/Alma.md) - Arnaud Legoux MA
 * [**BLMA**](../lib/trends_FIR/blma/Blma.md) - Blackman Window MA
+* [**BWMA**](../lib/trends_FIR/bwma/Bwma.md) - Bessel-Weighted MA
 * [**CONV**](../lib/trends_FIR/conv/Conv.md) - Convolution MA
 * [**DWMA**](../lib/trends_FIR/dwma/Dwma.md) - Double Weighted MA
+* [**GWMA**](../lib/trends_FIR/gwma/Gwma.md) - Gaussian Weighted MA
+* [**HAMMA**](../lib/trends_FIR/hamma/Hamma.md) - Hamming Weighted MA
+* [**HANMA**](../lib/trends_FIR/hanma/Hanma.md) - Hanning Weighted MA
 * [**HMA**](../lib/trends_FIR/hma/Hma.md) - Hull MA
+* [**HWMA**](../lib/trends_FIR/hwma/Hwma.md) - Holt-Winters MA
 * [**LSMA**](../lib/trends_FIR/lsma/Lsma.md) - Least Squares MA
 * [**PWMA**](../lib/trends_FIR/pwma/Pwma.md) - Pascal Weighted MA
+* [**SGMA**](../lib/trends_FIR/sgma/Sgma.md) - Savitzky-Golay MA
 * [**SMA**](../lib/trends_FIR/sma/Sma.md) - Simple MA
 * [**TRIMA**](../lib/trends_FIR/trima/Trima.md) - Triangular MA
 * [**WMA**](../lib/trends_FIR/wma/Wma.md) - Weighted MA

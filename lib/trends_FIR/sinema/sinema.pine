@@ -4,7 +4,6 @@
 indicator("Sine-weighted Moving Average (SINEMA)", "SINEMA", overlay=true)
 
 //@function Calculates SINEMA using sine-wave weighted smoothing with compensator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/sinema.md
 //@param source Series to calculate SINEMA from
 //@param period Lookback period - FIR window size
 //@returns SINEMA value, calculates from first bar using available data

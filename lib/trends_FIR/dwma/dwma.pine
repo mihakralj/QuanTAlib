@@ -4,7 +4,6 @@
 indicator("Double Weighted Moving Average (DWMA)", "DWMA", overlay=true)
 
 //@function Calculates DWMA using double weighted smoothing with inline O(1) WMA
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/dwma.md
 //@param source Series to calculate DWMA from
 //@param period Lookback period for both smoothing passes
 //@returns DWMA value, calculates from first bar using available data

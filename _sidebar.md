@@ -16,7 +16,6 @@
   * [BWMA - Blackman-Harris MA](lib/trends_FIR/bwma/Bwma.md)
   * [CONV - Convolution](lib/trends_FIR/conv/Conv.md)
   * [DWMA - Double Weighted MA](lib/trends_FIR/dwma/Dwma.md)
-  * [EPMA - Endpoint MA](lib/trends_FIR/epma/Epma.md)
   * [GWMA - Gaussian Weighted MA](lib/trends_FIR/gwma/Gwma.md)
   * [HAMMA - Hamming MA](lib/trends_FIR/hamma/Hamma.md)
   * [HANMA - Hanning MA](lib/trends_FIR/hanma/Hanma.md)

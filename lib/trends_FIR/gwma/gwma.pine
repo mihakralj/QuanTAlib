@@ -4,7 +4,6 @@
 indicator("Gaussian-Weighted Moving Average (GWMA)", "GWMA", overlay=true)
 
 //@function Calculates GWMA using Gaussian window weighting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/gwma.md
 //@param source Series to calculate GWMA from
 //@param period Lookback period - FIR window size
 //@param sigma Controls the width of the Gaussian bell curve (default: 0.4)

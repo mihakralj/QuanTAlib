@@ -241,7 +241,7 @@
 | RVI | Relative Volatility Index | Volatility |
 | SDCHANNEL | Standard Deviation Channel | Channels |
 | SGF | Savitzky-Golay Filter | Filters |
-| SGMA | Savitzky-Golay MA | Trends (FIR) |
+| [SGMA](lib/trends_FIR/sgma/Sgma.md) | Savitzky-Golay MA | Trends (FIR) |
 | SIGMOID | Logistic Function | Numerics |
 | SINE | Ehlers Sine Wave | Cycles |
 | SINEMA | Sine-weighted MA | Trends (FIR) |

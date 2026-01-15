@@ -4,7 +4,6 @@
 indicator("Arnaud Legoux Moving Average (ALMA)", "ALMA", overlay=true)
 
 //@function Calculates ALMA using Gaussian distribution weights
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/alma.md
 //@param source Series to calculate ALMA from
 //@param period Lookback period - window size
 //@param offset Controls the Gaussian peak location (0 to 1)

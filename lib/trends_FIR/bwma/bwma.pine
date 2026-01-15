@@ -4,7 +4,6 @@
 indicator("Bessel-Weighted Moving Average (BWMA)", "BWMA", overlay=true)
 
 //@function Calculates BWMA using Bessel window weighting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/bwma.md
 //@param source Series to calculate BWMA from
 //@param period Lookback period - FIR window size
 //@param order Bessel function order (default: 0)

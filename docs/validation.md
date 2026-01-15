@@ -26,7 +26,7 @@
 | **Awesome Oscillator** | [Ao](../lib/momentum/ao/ao.md) | - | ✔️ | ✔️ | ✔️ |
 | **Balance of Power** | [Bop](../lib/momentum/bop/Bop.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
-| **Bessel-Weighted MA** | Bwma | - | - | - | - |
+| **Bessel-Weighted MA** | [Bwma](../lib/trends_FIR/bwma/Bwma.md) | - | - | - | - |
 | **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | BETA | - | ✔️ | - |
 | **Bias** | Bias | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/trends/bilateral/Bilateral.md) | - | - | - | - |
@@ -208,7 +208,7 @@
 | **Root Mean Squared Logarithmic Error** | Rmsle | - | - | - | - |
 | **R-Squared** | [RSquared](../lib/statistics/linreg/LinReg.md) | - | - | RSquared | ❔ |
 | **Savitzky-Golay Filter** | [Sgf](../lib/filters/sgf/Sgf.md) | - | - | - | - |
-| **Savitzky-Golay MA** | Sgma | - | - | - | - |
+| **Savitzky-Golay MA** | [Sgma](../lib/trends_FIR/sgma/Sgma.md) | - | - | - | - |
 | **Schaff Trend Cycle** | [Stc](../lib/cycles/stc/Stc.md) | - | - | ✔️ | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends/sma/sma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sine-weighted MA** | Sinema | - | - | - | ❔ |

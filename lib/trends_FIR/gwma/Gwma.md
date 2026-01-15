@@ -1,0 +1,153 @@
+# GWMA: Gaussian-Weighted Moving Average
+
+> "The Gaussian distribution shows up everywhere from thermal noise to the central limit theorem. Using it to weight price data isn't magic; it's just applied statistics with a trading account."
+
+GWMA is a Finite Impulse Response (FIR) filter that applies a centered Gaussian window to price data. Unlike ALMA (which allows shifting the Gaussian peak via an offset parameter), GWMA centers the bell curve at the middle of the lookback window. The sigma parameter controls the width of the Gaussian, determining how sharply the weights decay from the center.
+
+## Historical Context
+
+The Gaussian (normal) distribution has been the workhorse of signal processing since Gauss himself used it for astronomical observations in the early 1800s. In the context of moving averages, Gaussian weighting provides a mathematically optimal way to smooth noise while preserving the underlying signal structure.
+
+The key insight is that a Gaussian filter minimizes the product of bandwidth in both time and frequency domains (the Heisenberg-Gabor limit). This makes it theoretically optimal for balancing noise reduction against signal preservation. GWMA applies this principle to financial time series, centering the Gaussian at the window's midpoint.
+
+## Architecture & Physics
+
+GWMA is a weighted moving average where weights follow a normal distribution centered at the middle of the lookback window.
+
+The physics of GWMA differ from ALMA in one critical aspect: **the center of gravity is always at the window midpoint**. This makes GWMA a symmetric filter, which has specific implications:
+
+* **Zero phase distortion** in the frequency domain (no group delay asymmetry)
+* **Equal sensitivity** to past and future data around the center point
+* **Inherent smoothness** from the Gaussian's infinite differentiability
+
+The sigma parameter ($\sigma$) controls the bell curve width:
+* **Small sigma** (e.g., 0.1): Narrow peak, weights concentrated near center, behaves like sampling a single point
+* **Large sigma** (e.g., 0.9): Wide bell, weights spread across window, approaches Simple Moving Average behavior
+* **Default sigma** (0.4): Balanced curve providing good noise reduction without excessive lag
+
+### The Compute Challenge
+
+Like ALMA, naive implementations recalculate Gaussian weights on every tick. QuanTAlib precomputes the weight vector $\mathbf{W}$ upon initialization. Runtime becomes a dot product of the price buffer and weight vector.
+
+$$ \text{Runtime Cost} = O(N) \text{ multiplications} $$
+
+The memory locality of arrays enables SIMD vectorization, making the O(N) cost negligible for typical window sizes.
+
+## Mathematical Foundation
+
+The weight calculation relies on two inputs:
+
+1. **Window ($L$)**: The lookback period.
+2. **Sigma ($\sigma$)**: The width of the bell curve (0 < $\sigma$ ≤ 1). Default is 0.4.
+
+### 1. Center and Width Calculation
+
+QuanTAlib defines the peak index (center) and the spread:
+
+$$ \text{center} = \frac{L - 1}{2} $$
+
+$$ \text{invSigmaP} = \frac{1}{\sigma \cdot L} $$
+
+### 2. Weight Generation
+
+For each index $i$ from $0$ to $L-1$, the unnormalized weight is calculated:
+
+$$ w_i = \exp \left( -\frac{1}{2} \cdot \left( (i - \text{center}) \cdot \text{invSigmaP} \right)^2 \right) $$
+
+This is equivalent to:
+
+$$ w_i = \exp \left( -\frac{(i - \text{center})^2}{2 \cdot (\sigma \cdot L)^2} \right) $$
+
+### 3. Normalization
+
+The final GWMA value is the weighted sum divided by the total sum of weights $W_{sum}$:
+
+$$ \text{GWMA}_t = \frac{\sum_{i=0}^{L-1} P_{t-L+1+i} \cdot w_i}{W_{sum}} $$
+
+### Example Calculation
+
+For period=5, sigma=0.4:
+- center = 2
+- invSigmaP = 1/(0.4 × 5) = 0.5
+
+| Index | (i - center) × invSigmaP | Weight |
+|-------|--------------------------|--------|
+| 0 | -1.0 | exp(-0.5) ≈ 0.6065 |
+| 1 | -0.5 | exp(-0.125) ≈ 0.8825 |
+| 2 | 0.0 | exp(0) = 1.0 |
+| 3 | 0.5 | exp(-0.125) ≈ 0.8825 |
+| 4 | 1.0 | exp(-0.5) ≈ 0.6065 |
+
+Note the symmetry around the center (index 2).
+
+## Performance Profile
+
+GWMA trades CPU cycles for theoretically optimal smoothing characteristics.
+
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | 35ns/bar | Similar to ALMA; linear with window size. |
+| **Allocations** | 0 | Weights precomputed. Buffer is circular. |
+| **Complexity** | $O(N)$ | Linear with window size. SIMD-vectorizable. |
+| **Accuracy** | 10/10 | Matches Gaussian definition to `double` precision. |
+| **Timeliness** | 7/10 | Centered filter has inherent lag of (period-1)/2 bars. |
+| **Overshoot** | 10/10 | Symmetric Gaussian prevents overshoot entirely. |
+| **Smoothness** | 9/10 | Gaussian provides optimal smoothing characteristics. |
+
+### Implementation Details
+
+```csharp
+// Precomputation (Constructor)
+double center = (period - 1) / 2.0;
+double invSigmaP = 1.0 / (sigma * period);
+double wSum = 0;
+
+for (int i = 0; i < period; i++) {
+    double x = (i - center) * invSigmaP;
+    double weight = Math.Exp(-0.5 * x * x);
+    _weights[i] = weight;
+    wSum += weight;
+}
+_invWeightSum = 1.0 / wSum;
+
+// Runtime (Update)
+double sum = _buffer.DotProduct(_weights);
+return sum * _invWeightSum;
+```
+
+## Comparison: GWMA vs ALMA
+
+| Aspect | GWMA | ALMA |
+| :--- | :--- | :--- |
+| **Center** | Fixed at (period-1)/2 | Configurable via offset (0-1) |
+| **Symmetry** | Always symmetric | Asymmetric when offset ≠ 0.5 |
+| **Lag** | Fixed at (period-1)/2 | Reduced when offset > 0.5 |
+| **Overshoot** | None | Minimal (depends on offset) |
+| **Use Case** | Smoothing, noise reduction | Trend following, responsiveness |
+
+Choose GWMA when you need maximum smoothing and don't mind the inherent lag. Choose ALMA when you need to trade off some smoothing for faster response to price changes.
+
+## Validation
+
+QuanTAlib validates GWMA against its mathematical definition and internal consistency checks.
+
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **QuanTAlib** | ✅ | Validated against math definition. |
+| **PineScript** | ✅ | Reference implementation matches. |
+| **TA-Lib** | ❌ | Not included in standard C distribution. |
+| **Skender** | ❌ | Not included. |
+| **Tulip** | ❌ | Not included. |
+| **Ooples** | ❌ | Not included. |
+
+## Common Pitfalls
+
+1. **Sigma Extremes**:
+   * $\sigma = 0.1$: The curve is a narrow spike. You're essentially sampling one bar near the center.
+   * $\sigma = 0.9$: The curve is nearly flat. You've approximated a Simple Moving Average (with more computation).
+
+2. **Lag Acceptance**: GWMA has inherent lag of approximately $(L-1)/2$ bars. This is the price of symmetric smoothing. If you need faster response, use ALMA with offset > 0.5.
+
+3. **Cold Start**: GWMA requires a full window ($L$) to be mathematically valid. First $L-1$ bars are convergence noise.
+
+4. **Centered vs Offset**: Don't confuse GWMA with ALMA. GWMA always centers the Gaussian; ALMA lets you shift it. If you find yourself wanting offset control, use ALMA instead.

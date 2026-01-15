@@ -4,7 +4,6 @@
 indicator("Holt-Winters Moving Average (HWMA)", "HWMA", overlay=true)
 
 //@function Calculates HWMA using triple exponential smoothing with level, velocity, and acceleration components
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/hwma.md
 //@param source Series to calculate HWMA from
 //@param alpha Level smoothing factor
 //@param beta Velocity smoothing factor

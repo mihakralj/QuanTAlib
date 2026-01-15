@@ -4,7 +4,6 @@
 indicator("Savitzky-Golay Moving Average (SGMA)", "SGMA", overlay=true)
 
 //@function Calculates SGMA using Savitzky-Golay filter with polynomial fitting
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/sgma.md
 //@param source Series to calculate SGMA from
 //@param period Lookback period - FIR window size (must be odd)
 //@param deg Polynomial degree (default: 2)

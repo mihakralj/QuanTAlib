@@ -4,7 +4,6 @@
 indicator("Convolution Moving Average (CONV)", "CONV", overlay=true)
 
 //@function Calculates a convolution MA using any custom kernel
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/conv.md
 //@param source Series to calculate CONV from
 //@param kernel Array of weights to use as convolution kernel
 //@returns CONV value, calculates from first bar using available data

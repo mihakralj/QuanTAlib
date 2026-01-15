@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -19,9 +20,11 @@ public sealed class Dwma : AbstractBase
     private readonly int _period;
     private readonly Wma _wma1;
     private readonly Wma _wma2;
-    private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _source;
+    private readonly TValuePublishedHandler? _handler;
+    private int _sampleCount;
 
-    public override bool IsHot => _wma1.IsHot && _wma2.IsHot;
+    public override bool IsHot => _sampleCount >= WarmupPeriod;
 
     /// <summary>
     /// Creates DWMA with specified period.
@@ -35,19 +38,31 @@ public sealed class Dwma : AbstractBase
         _period = period;
         _wma1 = new Wma(period);
         _wma2 = new Wma(period);
-        _handler = Handle;
         Name = $"Dwma({period})";
-        WarmupPeriod = period * 2;
+        WarmupPeriod = (period * 2) - 1;
     }
 
     public Dwma(ITValuePublisher source, int period) : this(period)
     {
+        _source = source;
+        _handler = Handle;
         source.Pub += _handler;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _source != null && _handler != null)
+        {
+            _source.Pub -= _handler;
+        }
+        base.Dispose(disposing);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        if (isNew) _sampleCount++;
+
         TValue wma1Result = _wma1.Update(input, isNew);
         Last = _wma2.Update(wma1Result, isNew);
         PubEvent(Last, isNew);
@@ -70,22 +85,18 @@ public sealed class Dwma : AbstractBase
         source.Times.CopyTo(tSpan);
         Calculate(source.Values, vSpan, _period);
 
-        // Restore state
-        // We need to replay the last part to restore the internal WMAs state
-        // Since DWMA is WMA(WMA), the effective lookback is roughly 2*Period
-        // But to be safe and simple, we can just reset and replay the last 2*Period bars.
+        Reset();
 
-        _wma1.Reset();
-        _wma2.Reset();
-
-        int warmup = _period * 2; // Approximate warmup needed
-        int startIndex = Math.Max(0, len - warmup);
+        int lookback = WarmupPeriod + 10;
+        int startIndex = Math.Max(0, len - lookback);
 
         for (int i = startIndex; i < len; i++)
         {
             Update(new TValue(source.Times[i], source.Values[i]));
         }
 
+        _sampleCount = len;
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
     }
 
@@ -113,24 +124,26 @@ public sealed class Dwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
-            throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than zero");
-
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length", nameof(output));
 
-        // We need a temporary buffer for the first WMA pass
-        // Use stackalloc for small sizes, heap for large
-        if (source.Length <= 1024)
+        int len = source.Length;
+        if (len == 0) return;
+
+        double[]? tempArray = len > 1024 ? ArrayPool<double>.Shared.Rent(len) : null;
+        Span<double> temp = len <= 1024
+            ? stackalloc double[len]
+            : tempArray!.AsSpan(0, len);
+
+        try
         {
-            Span<double> temp = stackalloc double[source.Length];
             Wma.Batch(source, temp, period);
             Wma.Batch(temp, output, period);
         }
-        else
+        finally
         {
-            double[] temp = new double[source.Length];
-            Wma.Batch(source, temp, period);
-            Wma.Batch(temp, output, period);
+            if (tempArray != null) ArrayPool<double>.Shared.Return(tempArray);
         }
     }
 
@@ -138,6 +151,7 @@ public sealed class Dwma : AbstractBase
     {
         _wma1.Reset();
         _wma2.Reset();
+        _sampleCount = 0;
         Last = default;
     }
 }

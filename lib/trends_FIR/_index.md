@@ -6,18 +6,17 @@ Trend indicators based on Finite Impulse Response (FIR) filters.
 | :--- | :--- | :--- |
 | [ALMA](alma/Alma.md) | Arnaud Legoux Moving Average | Smoothness and responsiveness using Gaussian window. |
 | [BLMA](blma/Blma.md) | Blackman Moving Average | MA using Blackman window. |
-| BWMA | Blackman-Harris Moving Average | MA using Blackman-Harris window. |
+| [BWMA](bwma/Bwma.md) | Bessel-Weighted Moving Average | MA using Bessel window function. |
 | [Conv](conv/Conv.md) | Convolution Moving Average | MA based on signal convolution. |
 | [DWMA](dwma/Dwma.md) | Double Weighted Moving Average | Recursive WMA application. |
-| EPMA | Endpoint Moving Average | MA minimizing endpoint latency. |
-| GWMA | Gaussian Weighted Moving Average | MA using Gaussian weighting. |
-| Hamma | Hamming Moving Average | MA using Hamming window. |
-| Hanma | Hanning Moving Average | MA using Hanning window. |
+| [GWMA](gwma/Gwma.md) | Gaussian Weighted Moving Average | MA using centered Gaussian bell curve weighting. |
+| [HAMMA](hamma/Hamma.md) | Hamming Moving Average | MA using Hamming window with -43dB side lobe suppression. |
+| [HANMA](hanma/Hanma.md) | Hanning Moving Average | MA using Hanning window with zero-edge weights. |
 | [HMA](hma/Hma.md) | Hull Moving Average | Reduced lag MA using weighted averages. |
-| HWMA | Henderson Weighted Moving Average | Henderson filter for trend extraction. |
+| [HWMA](hwma/Hwma.md) | Holt-Winters Moving Average | Triple exponential smoothing with level, velocity, and acceleration. |
 | [LSMA](lsma/Lsma.md) | Least Squares Moving Average | MA based on linear regression. |
 | [PWMA](pwma/Pwma.md) | Pascal Weighted Moving Average | MA using Pascal's triangle coefficients. |
-| SGMA | Savitzky-Golay Moving Average | MA using polynomial smoothing. |
+| [SGMA](sgma/Sgma.md) | Savitzky-Golay Moving Average | MA using polynomial fitting for shape-preserving smoothing. |
 | Sinema | Sine Weighted Moving Average | MA using Sine weighting. |
 | [SMA](sma/Sma.md) | Simple Moving Average | The unweighted mean of the previous m data points. |
 | [TRIMA](trima/Trima.md) | Triangular Moving Average | Weighted average emphasizing the middle of the window. |
