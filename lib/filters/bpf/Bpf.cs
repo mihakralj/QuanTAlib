@@ -20,8 +20,8 @@ public sealed class Bpf : AbstractBase
 {
     private readonly double _hpC1, _hpC2, _hpC3;
     private readonly double _lpC1, _lpC2, _lpC3;
-    private readonly ITValuePublisher? _publisher;
-    private readonly TValuePublishedHandler? _handler;
+    private ITValuePublisher? _publisher;
+    private TValuePublishedHandler? _handler;
     private bool _isNew;
 
     // State buffer: [src1, src2, hp1, hp2, bp1, bp2]
@@ -255,6 +255,8 @@ public sealed class Bpf : AbstractBase
         if (disposing && _publisher != null && _handler != null)
         {
             _publisher.Pub -= _handler;
+            _publisher = null;
+            _handler = null;
         }
         base.Dispose(disposing);
     }

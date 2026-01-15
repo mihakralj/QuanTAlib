@@ -21,7 +21,7 @@
 | **Average Directional Index** | [Adx](../lib/momentum/adx/adx.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Average Directional Movement Rating** | [Adxr](../lib/momentum/adxr/Adxr.md) | ✔️ | ✔️ | - | - |
 | **Average True Range** | [Atr](../lib/volatility/atr/atr.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Average True Range Normalized [0,1]** | Atrn | - | - | - | - |
+| **Average True Range Normalized [0,1]** | [Atrn](../lib/volatility/atrn/Atrn.md) | - | - | - | - |
 | **Average True Range Percent** | Atrp | - | - | - | - |
 | **Awesome Oscillator** | [Ao](../lib/momentum/ao/ao.md) | - | ✔️ | ✔️ | ✔️ |
 | **Balance of Power** | [Bop](../lib/momentum/bop/Bop.md) | ✔️ | ✔️ | ✔️ | ✔️ |

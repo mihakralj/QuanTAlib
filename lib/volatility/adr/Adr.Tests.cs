@@ -177,14 +177,17 @@ public class AdrTests
     {
         var adr = new Adr(14);
 
+        // Bar1: H-L = 105-95 = 10
         var bar1 = new TBar(DateTime.UtcNow, 100, 105, 95, 102, 1000);
         adr.Update(bar1, isNew: true);
         double value1 = adr.Last.Value;
 
-        var bar2 = new TBar(DateTime.UtcNow.AddMinutes(1), 102, 110, 100, 108, 1000);
+        // Bar2: H-L = 120-100 = 20 (different range from bar1)
+        var bar2 = new TBar(DateTime.UtcNow.AddMinutes(1), 102, 120, 100, 108, 1000);
         adr.Update(bar2, isNew: true);
         double value2 = adr.Last.Value;
 
+        // With different ranges, the SMA should change
         Assert.NotEqual(value1, value2);
     }
 

@@ -33,7 +33,7 @@ public readonly record struct TValue(long Time, double Value)
             double.PositiveInfinity => ((char)0x221E).ToString(),
             double.NegativeInfinity => "-" + (char)0x221E,
             _ when double.IsNaN(Value) => "NaN",
-            _ => Value.ToString("F2"),
+            _ => Value.ToString("F2")
         };
         return $"[{AsDateTime:yyyy-MM-dd HH:mm:ss}, {valueStr}]";
     }

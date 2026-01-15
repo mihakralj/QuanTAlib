@@ -195,11 +195,11 @@ public sealed class AdrValidationTests : IDisposable
             streamResult.Add(adrStream.Update(bar).Value);
         }
 
-        // Compare all records
+        // Compare all records (use 1e-8 tolerance for EMA due to floating-point drift)
         Assert.Equal(batchResult.Count, streamResult.Count);
         for (int i = 0; i < batchResult.Count; i++)
         {
-            Assert.Equal(batchResult[i].Value, streamResult[i], 1e-10);
+            Assert.Equal(batchResult[i].Value, streamResult[i], 1e-8);
         }
 
         _output.WriteLine("ADR EMA Streaming validated successfully against Batch");

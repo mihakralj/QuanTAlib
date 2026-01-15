@@ -22,8 +22,6 @@ namespace QuanTAlib;
 public sealed class Adr : AbstractBase
 {
     private readonly AbstractBase _ma;
-    private readonly AdrMethod _method;
-    private readonly int _period;
 
     /// <summary>
     /// Creates ADR with specified period and smoothing method.
@@ -35,8 +33,6 @@ public sealed class Adr : AbstractBase
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
-        _period = period;
-        _method = method;
         _ma = method switch
         {
             AdrMethod.Sma => new Sma(period),
