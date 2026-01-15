@@ -4,7 +4,6 @@
 indicator("Mass Index (MASSI)", "MASSI", overlay=false)
 
 //@function Calculates the Mass Index indicator
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/massi.md
 //@param ema_length Period for EMA smoothing of high-low range
 //@param sum_length Period for summing the EMA ratio
 //@returns float Mass Index value

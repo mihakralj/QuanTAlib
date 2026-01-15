@@ -8,17 +8,10 @@ namespace QuanTAlib.Tests;
 /// Abber (Aberration Bands) implementation for cross-validation. These tests validate
 /// against manual calculations and internal consistency across all API modes.
 /// </summary>
-public sealed class AbberValidationTests : IDisposable
+public sealed class AbberValidationTests(ITestOutputHelper output) : IDisposable
 {
-    private readonly ValidationTestData _testData;
-    private readonly ITestOutputHelper _output;
+    private readonly ValidationTestData _testData = new();
     private bool _disposed;
-
-    public AbberValidationTests(ITestOutputHelper output)
-    {
-        _output = output;
-        _testData = new ValidationTestData();
-    }
 
     public void Dispose()
     {
@@ -68,7 +61,7 @@ public sealed class AbberValidationTests : IDisposable
         Assert.Equal(110.0 + expectedBandWidth, upper.Last.Value, 1e-10);
         Assert.Equal(110.0 - expectedBandWidth, lower.Last.Value, 1e-10);
 
-        _output.WriteLine("Abber manual calculation (period 3) validated successfully");
+        output.WriteLine("Abber manual calculation (period 3) validated successfully");
     }
 
     [Fact]
@@ -91,7 +84,7 @@ public sealed class AbberValidationTests : IDisposable
         // SMA(5) = (100 + 110 + 120 + 130 + 140) / 5 = 120
         Assert.Equal(120.0, middle.Last.Value, 1e-10);
 
-        _output.WriteLine("Abber manual calculation (period 5) validated successfully");
+        output.WriteLine("Abber manual calculation (period 5) validated successfully");
     }
 
     [Fact]
@@ -124,7 +117,7 @@ public sealed class AbberValidationTests : IDisposable
         Assert.Equal(bw1 * 2.0, bw2, 1e-10);
         Assert.Equal(bw1 * 3.0, bw3, 1e-10);
 
-        _output.WriteLine("Abber multiplier effect validated successfully");
+        output.WriteLine("Abber multiplier effect validated successfully");
     }
 
     [Fact]
@@ -146,7 +139,7 @@ public sealed class AbberValidationTests : IDisposable
             ValidationHelper.VerifySeriesEqual(qUpper, sUpper);
             ValidationHelper.VerifySeriesEqual(qLower, sLower);
         }
-        _output.WriteLine("Abber Batch modes consistency validated successfully");
+        output.WriteLine("Abber Batch modes consistency validated successfully");
     }
 
     [Fact]
@@ -177,7 +170,7 @@ public sealed class AbberValidationTests : IDisposable
             ValidationHelper.VerifySeriesEqual(batchUpper, streamUpper);
             ValidationHelper.VerifySeriesEqual(batchLower, streamLower);
         }
-        _output.WriteLine("Abber Streaming mode consistency validated successfully");
+        output.WriteLine("Abber Streaming mode consistency validated successfully");
     }
 
     [Fact]
@@ -209,7 +202,7 @@ public sealed class AbberValidationTests : IDisposable
                 Assert.Equal(batchLower[i].Value, spanLower[i], 9);
             }
         }
-        _output.WriteLine("Abber Span mode consistency validated successfully");
+        output.WriteLine("Abber Span mode consistency validated successfully");
     }
 
     [Fact]
@@ -242,7 +235,7 @@ public sealed class AbberValidationTests : IDisposable
             ValidationHelper.VerifySeriesEqual(batchUpper, eventUpper);
             ValidationHelper.VerifySeriesEqual(batchLower, eventLower);
         }
-        _output.WriteLine("Abber Eventing mode consistency validated successfully");
+        output.WriteLine("Abber Eventing mode consistency validated successfully");
     }
 
     [Fact]
@@ -271,7 +264,7 @@ public sealed class AbberValidationTests : IDisposable
             indicator.Update(nextValue);
             Assert.True(indicator.IsHot);
         }
-        _output.WriteLine("Abber Calculate method validated successfully");
+        output.WriteLine("Abber Calculate method validated successfully");
     }
 
     [Fact]
@@ -294,7 +287,7 @@ public sealed class AbberValidationTests : IDisposable
                 $"Middle ({middle[i].Value}) should be >= Lower ({lower[i].Value}) at index {i}");
         }
 
-        _output.WriteLine("Abber large dataset (5000 bars) validated successfully");
+        output.WriteLine("Abber large dataset (5000 bars) validated successfully");
     }
 
     [Fact]
@@ -314,7 +307,7 @@ public sealed class AbberValidationTests : IDisposable
             Assert.Equal(upperDiff, lowerDiff, 1e-9);
         }
 
-        _output.WriteLine("Abber band width symmetry validated successfully");
+        output.WriteLine("Abber band width symmetry validated successfully");
     }
 
     [Fact]
@@ -346,7 +339,7 @@ public sealed class AbberValidationTests : IDisposable
         Assert.Equal(batchUpper.Last.Value, primedIndicator.Upper.Value, 1e-9);
         Assert.Equal(batchLower.Last.Value, primedIndicator.Lower.Value, 1e-9);
 
-        _output.WriteLine("Abber Prime method validated successfully");
+        output.WriteLine("Abber Prime method validated successfully");
     }
 
     [Fact]
@@ -367,7 +360,7 @@ public sealed class AbberValidationTests : IDisposable
             Assert.Equal(smaResults[i].Value, abberResults.Middle[i].Value, 1e-10);
         }
 
-        _output.WriteLine("Abber middle band matches SMA validated successfully");
+        output.WriteLine("Abber middle band matches SMA validated successfully");
     }
 
     [Fact]
@@ -397,7 +390,7 @@ public sealed class AbberValidationTests : IDisposable
         Assert.True(bandWidth >= 0, "Band width should be non-negative");
         Assert.True(double.IsFinite(bandWidth), "Band width should be finite");
 
-        _output.WriteLine("Abber deviation calculation validated successfully");
+        output.WriteLine("Abber deviation calculation validated successfully");
     }
 
     [Fact]
@@ -426,6 +419,6 @@ public sealed class AbberValidationTests : IDisposable
             }
         }
 
-        _output.WriteLine($"Abber consistency across {periods.Length} periods validated successfully");
+        output.WriteLine($"Abber consistency across {periods.Length} periods validated successfully");
     }
 }

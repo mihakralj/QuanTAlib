@@ -172,9 +172,31 @@ Constructor defaults; MinHistoryDepths; Initialize creates internal indicator; P
 - At least one full validation suite (Skender batch/stream/span) + Quantower minimal set.
 
 6) QUANTOWER ADAPTER
-- Implement wrapper in `[Name].Quantower.cs` adapting QuanTAlib indicator to Quantower.
-- Tests in `[Name].Quantower.Tests.cs` using mocks as needed.
-- Include in proper projects (eg `quantower/Statistics.csproj`, tests in `quantower/Quantower.Tests.csproj`).
+6.1 File locations
+- **Preferred:** Place `[Name].Quantower.cs` + `[Name].Quantower.Tests.cs` in `lib/[category]/[name]/` alongside the indicator.
+- **Alternative:** Place in `quantower/[Category]/` subdirectory (legacy pattern).
+- Both locations are auto-included in `quantower/Quantower.Tests.csproj`.
+
+6.2 Test project inclusion (automatic)
+The `quantower/Quantower.Tests.csproj` includes:
+- `<Compile Include="..\lib\**\*.Quantower.cs" />` - all adapters from lib
+- `<Compile Include="..\lib\**\*.Quantower.Tests.cs" />` - all adapter tests from lib
+- `<Compile Include="[Category]\*.cs" />` - adapters from quantower folder per category
+- `<Compile Include="**\*.Tests.cs" />` - all tests from quantower folder
+
+6.3 Implementation requirements
+- Inherit from Quantower's `Indicator` base class.
+- Use `IndicatorExtensions` helpers for OHLC source mapping.
+- Implement `MinHistoryDepths` for warmup period.
+- Handle both historical and streaming updates in `ProcessUpdate`.
+- Use mocks from `quantower/Mocks/` for unit tests.
+
+6.4 Adding new adapter checklist
+1. Create `[Name].Quantower.cs` (in lib or quantower folder)
+2. Create `[Name].Quantower.Tests.cs` (same folder as adapter)
+3. Verify tests compile: `dotnet build quantower/Quantower.Tests.csproj`
+4. Run tests: `dotnet test quantower/Quantower.Tests.csproj --filter "[Name]"`
+5. Add to category-specific csproj if adapter in quantower folder (eg `quantower/Trends.csproj`)
 
 7) WORKFLOW & TOOLS
 Tools:

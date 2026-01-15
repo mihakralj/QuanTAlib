@@ -4,7 +4,6 @@
 indicator("Bollinger Band Width Normalized (BBWN)", "BBWN", overlay=false)
 
 //@function Calculates Bollinger Band Width Normalized to [0,1] range
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/bbwn.md
 //@param source Series to calculate Bollinger Bands from
 //@param period Lookback period for BB calculations
 //@param multiplier Standard deviation multiplier for band width

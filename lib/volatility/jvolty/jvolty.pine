@@ -4,7 +4,6 @@
 indicator("Jurik Volatility (JVOLTY)", "JVOLTY", overlay=false)
 
 //@function Calculates JVOLTY using adaptive techniques to adjust to market volatility
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/jvolty.md
 //@param source Series to calculate Jvolty from
 //@param period Number of bars used in the calculation
 //@returns JVOLTY volatility

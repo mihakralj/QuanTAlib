@@ -4,7 +4,6 @@
 indicator("Average Daily Range (ADR)", "ADR", overlay=false)
 
 //@function Calculates Average Daily Range with choice of smoothing method
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/adr.md
 //@param length Period for smoothing calculations
 //@param method Smoothing method (1=SMA, 2=EMA, 3=WMA)
 //@returns float ADR value

@@ -4,7 +4,6 @@
 indicator("Yang-Zhang Volatility (YZV)", shorttitle="YZV", overlay=false)
 
 //@function Calculates Yang-Zhang Volatility (YZV).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/yzv.md
 // YZV is a historical volatility measure that incorporates open, high, low, and close prices,
 // as well as overnight gaps. It uses a bias-corrected RMA for smoothing.
 // @param length The lookback period for smoothing the daily variance estimates. Must be > 0.

@@ -4,7 +4,6 @@
 indicator("Parkinson Volatility (PV)", "PV", overlay=false)
 
 //@function Calculates Parkinson Volatility.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/pv.md
 //@param length The lookback period for the RMA smoothing of squared log returns (High/Low). Default is 20.
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
 //@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.

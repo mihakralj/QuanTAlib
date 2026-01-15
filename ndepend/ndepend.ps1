@@ -115,6 +115,23 @@ try {
         }
     }
 
+    # Run JetBrains InspectCode
+    Write-Section "Running JetBrains InspectCode"
+    $InspectCodeOutput = Join-Path $SarifDir "resharper.sarif.json"
+    $jbPath = Get-Command "jb" -ErrorAction SilentlyContinue
+    if ($jbPath) {
+        Write-Host "Running InspectCode analysis..." -ForegroundColor Gray
+        jb inspectcode $SolutionFile --output=$InspectCodeOutput --format=Sarif --no-build
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "InspectCode completed with exit code $LASTEXITCODE"
+        } else {
+            Write-Host "InspectCode SARIF saved to: $InspectCodeOutput" -ForegroundColor Green
+        }
+    } else {
+        Write-Warning "JetBrains CLI (jb) not found. Skipping InspectCode analysis."
+        Write-Host "  Install with: dotnet tool install -g JetBrains.ReSharper.GlobalTools" -ForegroundColor Gray
+    }
+
     # List SARIF files
     Write-Section "SARIF files generated"
     $SarifFiles = Get-ChildItem -Path $SarifDir -Filter "*.json" -ErrorAction SilentlyContinue

@@ -4,7 +4,6 @@
 indicator("Average True Range (ATR)", "ATR", overlay=false)
 
 //@function Calculates the Average True Range (ATR)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/atr.md
 //@param length The period length for the ATR calculation.
 //@returns The ATR value.
 //@optimized Beta precomputation for RMA warmup compensation

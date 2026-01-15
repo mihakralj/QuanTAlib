@@ -4,7 +4,6 @@
 indicator("Average True Range Normalized (ATRN)", "ATRN", overlay=false, format=format.percent, precision=2)
 
 //@function Calculates the Average True Range Normalized (ATRN) relative to its maximum value over a longer period.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/atrn.md
 //@param length The period length for the ATR calculation. The highest uses a length of 10 * length.
 //@returns The ATRN value, normalized relative to its maximum over the longer period.
 //@optimized Beta precomputation for RMA warmup compensation

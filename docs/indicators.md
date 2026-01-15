@@ -113,6 +113,7 @@ The categories help you understand what analytical problem each indicator solves
 
 ### Volatility
 
+* [**ADR**](../lib/volatility/adr/Adr.md) - Average Daily Range
 * [**ATR**](../lib/volatility/atr/Atr.md) - Average True Range
 
 ### Volume

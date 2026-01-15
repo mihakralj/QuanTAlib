@@ -4,7 +4,6 @@
 indicator("Close-to-Close Volatility (CCV)", "CCV", overlay=false)
 
 //@function Calculates Close-to-Close Volatility using closing price returns
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/ccv.md
 //@param length Period for volatility calculations
 //@param method Smoothing method (1=SMA, 2=EMA, 3=WMA)
 //@returns float Volatility value

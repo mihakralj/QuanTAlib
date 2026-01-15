@@ -30,7 +30,7 @@
 | ACCEL | Momentum change; 2nd derivative | Numerics |
 | [ADL](lib/volume/adl/Adl.md) | Accumulation/Distribution Line | Volume |
 | [ADOSC](lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | Volume |
-| ADR | Average Daily Range | Volatility |
+| [ADR](lib/volatility/adr/Adr.md) | Average Daily Range | Volatility |
 | [ADX](lib/dynamics/adx/Adx.md) | Average Directional Index | Dynamics |
 | [ADXR](lib/dynamics/adxr/Adxr.md) | Average Directional Movement Rating | Dynamics |
 | [AFIRMA](lib/forecasts/afirma/Afirma.md) | Adaptive FIR Moving Average | Forecasts |

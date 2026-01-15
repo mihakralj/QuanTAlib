@@ -4,7 +4,6 @@
 indicator("Ulcer Index (UI)", shorttitle="UI", format=format.price, precision=2, overlay=false)
 
 //@function Calculates the Ulcer Index (UI).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/ui.md
 //@param src The source series. Default is `close`.
 //@param period The lookback period. Default is 14.
 //@returns float The Ulcer Index value.

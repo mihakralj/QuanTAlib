@@ -4,7 +4,6 @@
 indicator("Normalized Average True Range", "NATR", overlay=false, format=format.percent, precision=2)
 
 //@function Calculates the Normalized Average True Range (NATR)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/natr.md
 //@param length The period length for the ATR calculation.
 //@returns The NATR value as a percentage of close price.
 //@optimized Beta precomputation for RMA warmup compensation

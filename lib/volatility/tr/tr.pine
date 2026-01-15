@@ -4,7 +4,6 @@
 indicator("True Range", "TR", overlay=false)
 
 //@function Calculates the True Range
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/tr.md
 //@returns The True Range value for the current bar.
 tr() =>
     float prevClose = nz(close[1], close)

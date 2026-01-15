@@ -1,3 +1,5 @@
+// AtrBands.Quantower.cs - Quantower adapter for ATR Bands
+
 using System.Drawing;
 using TradingPlatform.BusinessLayer;
 using static QuanTAlib.IndicatorExtensions;
@@ -5,13 +7,14 @@ using static QuanTAlib.IndicatorExtensions;
 namespace QuanTAlib;
 
 /// <summary>
-/// APZ (Adaptive Price Zone) Quantower indicator.
-/// Creates volatility-based adaptive bands around price using double-smoothed EMAs.
+/// AtrBands: ATR Bands - Quantower Indicator Adapter
+/// Uses Average True Range (ATR) to create adaptive bands around a simple
+/// moving average of the source price.
 /// </summary>
-public class ApzIndicator : Indicator, IWatchlistIndicator
+public sealed class AtrBandsIndicator : Indicator, IWatchlistIndicator
 {
     [InputParameter("Period", sortIndex: 10, minimum: 1, maximum: 500, increment: 1, decimalPlaces: 0)]
-    public int Period { get; set; } = 20;
+    public int Period { get; set; } = 14;
 
     [InputParameter("Multiplier", sortIndex: 11, minimum: 0.1, maximum: 10.0, increment: 0.1, decimalPlaces: 2)]
     public double Multiplier { get; set; } = 2.0;
@@ -19,24 +22,24 @@ public class ApzIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Show Cold Values", sortIndex: 100)]
     public bool ShowColdValues { get; set; } = true;
 
-    private Apz? _apz;
+    private AtrBands? _atrBands;
 
     public int MinHistoryDepths => Period;
-    public override string ShortName => $"APZ({Period},{Multiplier:F1})";
+    public override string ShortName => $"AtrBands({Period},{Multiplier:F2})";
 
-    public ApzIndicator()
+    public AtrBandsIndicator()
     {
-        Name = "APZ - Adaptive Price Zone";
-        Description = "Volatility-based adaptive price channel using double-smoothed EMAs";
+        Name = "AtrBands - ATR Bands";
+        Description = "ATR-based adaptive price channel using SMA middle line and RMA-smoothed True Range for band width";
         SeparateWindow = false;
         OnBackGround = true;
     }
 
     protected override void OnInit()
     {
-        _apz = new Apz(Period, Multiplier);
+        _atrBands = new AtrBands(Period, Multiplier);
 
-        // Middle line (double-smoothed EMA of price)
+        // Middle line (SMA of close)
         AddLineSeries(new LineSeries("Middle", Volatility, 2, LineStyle.Solid));
 
         // Upper band
@@ -48,7 +51,7 @@ public class ApzIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_apz == null) return;
+        if (_atrBands == null) return;
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         bool isNew = args.IsNewBar();
@@ -62,17 +65,17 @@ public class ApzIndicator : Indicator, IWatchlistIndicator
             volume: item[PriceType.Volume]
         );
 
-        _apz.Update(input, isNew);
+        _atrBands.Update(input, isNew);
 
-        bool isHot = _apz.IsHot;
+        bool isHot = _atrBands.IsHot;
 
         // Middle line
-        LinesSeries[0].SetValue(_apz.Last.Value, isHot, ShowColdValues);
+        LinesSeries[0].SetValue(_atrBands.Last.Value, isHot, ShowColdValues);
 
         // Upper band
-        LinesSeries[1].SetValue(_apz.Upper.Value, isHot, ShowColdValues);
+        LinesSeries[1].SetValue(_atrBands.Upper.Value, isHot, ShowColdValues);
 
         // Lower band
-        LinesSeries[2].SetValue(_apz.Lower.Value, isHot, ShowColdValues);
+        LinesSeries[2].SetValue(_atrBands.Lower.Value, isHot, ShowColdValues);
     }
 }

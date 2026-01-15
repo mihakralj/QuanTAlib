@@ -4,7 +4,6 @@
 indicator("Realized Volatility (RV)", "RV", overlay=false)
 
 //@function Calculates Realized Volatility using intraday data.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/rv.md
 //@param length The lookback period for smoothing the period volatilities (e.g., daily RVs). Default is 20.
 //@param intradayTimeframe The lower timeframe string (e.g., "1", "5", "60") to sample for returns. Must be a lower timeframe than the chart. Default is "5".
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.

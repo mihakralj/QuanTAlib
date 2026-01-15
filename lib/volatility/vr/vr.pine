@@ -4,7 +4,6 @@
 indicator("Volatility Ratio (VR)", shorttitle="VR", format=format.price, precision=2, overlay=false)
 
 //@function Calculates the Volatility Ratio (VR).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/vr.md
 // All logic for True Range and ATR calculation is encapsulated within this function.
 // ATR uses Wilder's RMA with bias correction for initialization.
 //@param atrPeriod The lookback period for ATR. Must be > 0.

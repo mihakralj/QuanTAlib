@@ -4,7 +4,6 @@
 indicator("Historical Volatility (HV)", "HV", overlay=false)
 
 //@function Calculates Historical Volatility (Close-to-Close).
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/hv.md
 //@param src_price The source series to calculate returns from. Default is close.
 //@param length_hv The period length for calculating the standard deviation of returns.
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.

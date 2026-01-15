@@ -4,7 +4,6 @@
 indicator("Rogers-Satchell Volatility (RSV)", "RSV", overlay=false)
 
 //@function Calculates Rogers-Satchell Volatility.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/rsv.md
 //@param length The lookback period for the SMA smoothing of the Rogers-Satchell variance. Default is 20.
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
 //@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.

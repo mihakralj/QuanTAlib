@@ -4,7 +4,6 @@
 indicator("Garman-Klass Volatility (GKV)", "GKV", overlay=false)
 
 //@function Calculates Garman-Klass Volatility.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/gkv.md
 //@param length The period length for smoothing the Garman-Klass estimator.
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
 //@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.

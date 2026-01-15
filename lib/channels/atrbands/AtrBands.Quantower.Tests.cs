@@ -3,17 +3,17 @@ using Xunit;
 
 namespace QuanTAlib.Tests;
 
-public class ApzIndicatorTests
+public class AtrBandsIndicatorTests
 {
     [Fact]
     public void Constructor_SetsDefaults()
     {
-        var indicator = new ApzIndicator();
+        var indicator = new AtrBandsIndicator();
 
-        Assert.Equal(20, indicator.Period);
+        Assert.Equal(14, indicator.Period);
         Assert.Equal(2.0, indicator.Multiplier);
         Assert.True(indicator.ShowColdValues);
-        Assert.Equal("APZ - Adaptive Price Zone", indicator.Name);
+        Assert.Equal("AtrBands - ATR Bands", indicator.Name);
         Assert.False(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
     }
@@ -21,22 +21,22 @@ public class ApzIndicatorTests
     [Fact]
     public void MinHistoryDepths_IsCorrect()
     {
-        var indicator = new ApzIndicator { Period = 25 };
+        var indicator = new AtrBandsIndicator { Period = 25 };
         Assert.Equal(25, indicator.MinHistoryDepths);
     }
 
     [Fact]
     public void ShortName_IncludesParameters()
     {
-        var indicator = new ApzIndicator { Period = 15, Multiplier = 1.5 };
+        var indicator = new AtrBandsIndicator { Period = 15, Multiplier = 1.5 };
         Assert.Contains("15", indicator.ShortName, StringComparison.Ordinal);
-        Assert.Contains("1.5", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("1.50", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
     public void Initialize_CreatesThreeLineSeries()
     {
-        var indicator = new ApzIndicator { Period = 14 };
+        var indicator = new AtrBandsIndicator { Period = 14 };
         indicator.Initialize();
 
         Assert.Equal(3, indicator.LinesSeries.Count);
@@ -48,7 +48,7 @@ public class ApzIndicatorTests
     [Fact]
     public void ProcessUpdate_HistoricalBar_ComputesValue()
     {
-        var indicator = new ApzIndicator { Period = 3 };
+        var indicator = new AtrBandsIndicator { Period = 3 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -66,7 +66,7 @@ public class ApzIndicatorTests
     [Fact]
     public void ProcessUpdate_NewBar_ComputesValue()
     {
-        var indicator = new ApzIndicator { Period = 3 };
+        var indicator = new AtrBandsIndicator { Period = 3 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -82,7 +82,7 @@ public class ApzIndicatorTests
     [Fact]
     public void ProcessUpdate_NewTick_ProcessesWithoutError()
     {
-        var indicator = new ApzIndicator { Period = 5 };
+        var indicator = new AtrBandsIndicator { Period = 5 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -97,7 +97,7 @@ public class ApzIndicatorTests
     [Fact]
     public void MultipleUpdates_ProducesCorrectSequence()
     {
-        var indicator = new ApzIndicator { Period = 5 };
+        var indicator = new AtrBandsIndicator { Period = 5 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -123,7 +123,7 @@ public class ApzIndicatorTests
     [Fact]
     public void BandRelationship_UpperAboveLowerBelowMiddle()
     {
-        var indicator = new ApzIndicator { Period = 5, Multiplier = 2.0 };
+        var indicator = new AtrBandsIndicator { Period = 5, Multiplier = 2.0 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -148,11 +148,11 @@ public class ApzIndicatorTests
         var now = DateTime.UtcNow;
 
         // Narrow bands with multiplier 1.0
-        var narrowIndicator = new ApzIndicator { Period = 5, Multiplier = 1.0 };
+        var narrowIndicator = new AtrBandsIndicator { Period = 5, Multiplier = 1.0 };
         narrowIndicator.Initialize();
 
         // Wide bands with multiplier 3.0
-        var wideIndicator = new ApzIndicator { Period = 5, Multiplier = 3.0 };
+        var wideIndicator = new AtrBandsIndicator { Period = 5, Multiplier = 3.0 };
         wideIndicator.Initialize();
 
         for (int i = 0; i < 10; i++)
@@ -173,7 +173,7 @@ public class ApzIndicatorTests
     [Fact]
     public void Period_CanBeChanged()
     {
-        var indicator = new ApzIndicator { Period = 10 };
+        var indicator = new AtrBandsIndicator { Period = 10 };
         Assert.Equal(10, indicator.Period);
 
         indicator.Period = 30;
@@ -183,7 +183,7 @@ public class ApzIndicatorTests
     [Fact]
     public void Multiplier_CanBeChanged()
     {
-        var indicator = new ApzIndicator { Multiplier = 2.0 };
+        var indicator = new AtrBandsIndicator { Multiplier = 2.0 };
         Assert.Equal(2.0, indicator.Multiplier);
 
         indicator.Multiplier = 3.5;

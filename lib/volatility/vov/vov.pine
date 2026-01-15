@@ -4,7 +4,6 @@
 indicator("Volatility of Volatility (VOV)", shorttitle="VOV", format=format.price, precision=4, overlay=false)
 
 //@function Calculates the Volatility of Volatility (VOV) with embedded rolling standard deviation algorithms.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/vov.md
 //@param src The source series. Default is `close`.
 //@param volatilityPeriod The lookback period for the initial volatility calculation. Default is 20.
 //@param vovPeriod The lookback period for calculating the standard deviation of the volatility series. Default is 10.

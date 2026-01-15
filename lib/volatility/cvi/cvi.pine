@@ -4,7 +4,6 @@
 indicator("Chaikin's Volatility (CVI)", "CVI", overlay=false)
 
 //@function Calculates Chaikin's Volatility using high-low range and ROC of EMA
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/cvi.md
 //@param roc_length Period for Rate of Change calculation
 //@param smooth_length Period for EMA smoothing
 //@returns float Volatility value measuring change in trading ranges

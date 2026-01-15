@@ -4,7 +4,6 @@
 indicator("Exponential Weighted MA Volatility", "EWMA Volty", overlay=false)
 
 //@function Calculates Exponential Weighted Moving Average (EWMA) Volatility.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/ewma.md
 //@param src The source series for price data. Default is close.
 //@param length The period length for the EWMA calculation.
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.

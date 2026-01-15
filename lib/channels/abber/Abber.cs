@@ -450,16 +450,10 @@ public sealed class Abber : ITValuePublisher
     /// Working buffers for batch calculation.
     /// </summary>
     [StructLayout(LayoutKind.Auto)]
-    private ref struct WorkBuffers
+    private readonly ref struct WorkBuffers(Span<double> source, Span<double> deviation)
     {
-        public Span<double> Source;
-        public Span<double> Deviation;
-
-        public WorkBuffers(Span<double> source, Span<double> deviation)
-        {
-            Source = source;
-            Deviation = deviation;
-        }
+        public readonly Span<double> Source = source;
+        public readonly Span<double> Deviation = deviation;
     }
 
     /// <summary>

@@ -4,7 +4,6 @@
 indicator("High-Low Volatility (HLV)", "HLV", overlay=false)
 
 //@function Calculates High-Low Volatility based on the Parkinson number.
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/hlv.md
 //@param length The period length for smoothing the Parkinson estimator.
 //@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
 //@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.

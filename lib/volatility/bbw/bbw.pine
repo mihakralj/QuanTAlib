@@ -4,7 +4,6 @@
 indicator("Bollinger Band Width (BBW)", "BBW", overlay=false)
 
 //@function Calculates Bollinger Band Width as the difference between upper and lower bands
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/bbw.md
 //@param source Series to calculate Bollinger Bands from
 //@param period Lookback period for calculations
 //@param multiplier Standard deviation multiplier for band width

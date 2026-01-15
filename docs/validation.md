@@ -17,7 +17,7 @@
 | **Aroon Oscillator** | [AroonOsc](../lib/momentum/aroonosc/AroonOsc.md) | ✔️ | ✔️ | ✔️ | - |
 | **ATR Bands** | Atrbands | - | - | - | ❔ |
 | **Adaptive FIR Moving Average** | [Afirma](../lib/forecasts/afirma/Afirma.md) | - | - | - | - |
-| **Average Daily Range** | Adr | - | - | - | - |
+| **Average Daily Range** | [Adr](../lib/volatility/adr/Adr.md) | - | - | - | - |
 | **Average Directional Index** | [Adx](../lib/momentum/adx/adx.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Average Directional Movement Rating** | [Adxr](../lib/momentum/adxr/Adxr.md) | ✔️ | ✔️ | - | - |
 | **Average True Range** | [Atr](../lib/volatility/atr/atr.md) | ✔️ | ✔️ | ✔️ | ✔️ |

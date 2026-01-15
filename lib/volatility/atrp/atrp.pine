@@ -4,7 +4,6 @@
 indicator("Average True Range Percent (ATRP)", "ATRP", overlay=false, format=format.percent, precision=2)
 
 //@function Calculates the Average True Range Percent (ATRP)
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volatility/atrp.md
 //@param length The period length for the ATR calculation.
 //@returns The ATRP value.
 //@optimized Beta precomputation for RMA warmup compensation
