@@ -17,4 +17,4 @@
 | PHASOR | Ehlers Phasor Analysis | |
 | SINE | Ehlers Sine Wave | |
 | SOLAR | Solar Activity Cycle | |
-| [STC](stc/Stc.md) | Schaff Trend Cycle | Oscillator based on MACD and Stochastic |
+| [STC](lib/cycles/stc/Stc.md) | Schaff Trend Cycle | Oscillator based on MACD and Stochastic |

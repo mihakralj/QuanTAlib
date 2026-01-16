@@ -46,6 +46,7 @@ The categories help you understand what analytical problem each indicator solves
 * [**LSMA**](../lib/trends_FIR/lsma/Lsma.md) - Least Squares MA
 * [**PWMA**](../lib/trends_FIR/pwma/Pwma.md) - Pascal Weighted MA
 * [**SGMA**](../lib/trends_FIR/sgma/Sgma.md) - Savitzky-Golay MA
+* [**SINEMA**](../lib/trends_FIR/sinema/Sinema.md) - Sine-Weighted MA
 * [**SMA**](../lib/trends_FIR/sma/Sma.md) - Simple MA
 * [**TRIMA**](../lib/trends_FIR/trima/Trima.md) - Triangular MA
 * [**WMA**](../lib/trends_FIR/wma/Wma.md) - Weighted MA
@@ -115,6 +116,7 @@ The categories help you understand what analytical problem each indicator solves
 
 * [**ADR**](../lib/volatility/adr/Adr.md) - Average Daily Range
 * [**ATR**](../lib/volatility/atr/Atr.md) - Average True Range
+* [**ATRP**](../lib/volatility/atrp/Atrp.md) - Average True Range Percent
 
 ### Volume
 

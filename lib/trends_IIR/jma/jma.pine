@@ -1,71 +1,168 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("Jurik Moving Average (JMA)", "JMA", overlay=true)
+indicator("Jurik Moving Average", "JMA", overlay=true)
 
-//@function Calculates JMA using adaptive techniques to adjust to market volatility
-//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/jma.md
-//@param source Series to calculate JMA from
-//@param period Number of bars used in the calculation
-//@param phase Phase shift (-100 to 100). Negative values reduce lag but may cause overshoot
-//@param power Smoothing factor (0.1-1.0). Lower values create smoother curves
-//@returns JMA value with adaptive smoothing and reduced lag
-//@optimized Uses adaptive volatility adjustment and phase control for O(1) complexity per bar
-jma(series float source, simple int period, simple int phase=0, simple float power=0.45) =>
-    simple float PHASE_VALUE = math.min(math.max((phase * 0.01) + 1.5, 0.5), 2.5)
-    simple float BETA = power * (period - 1) / ((power * (period - 1)) + 2)
-    simple float LEN1 = math.max((math.log(math.sqrt(0.5 * (period - 1))) / math.log(2.0)) + 2.0, 0)
-    simple float POW1 = math.max(LEN1 - 2.0, 0.5)
-    simple float LEN2 = math.sqrt(0.5 * (period - 1)) * LEN1
-    simple float POW1_RECIPROCAL = 1.0 / POW1
-    simple float AVG_VOLTY_ALPHA = 2.0 / (math.max(4.0 * period, 65) + 1.0)
-    simple float DIV = 1.0 / (10.0 + 10.0 * (math.min(math.max(period - 10, 0), 100)) / 100.0)
-    var float upperBand_state = na
-    var float lowerBand_state = na
-    var float ma1_state = na
-    var float jma_state = na
-    var float vSum_state = 0.0
-    var float det0_state = 0.0
-    var float det1_state = 0.0
-    var float avgVolty_state = na
-    var array<float> volty_array_state = array.new_float(11, 0.0)
+//@function Spectrally correct JMA (decompiled-style, Kositsin/AmiBroker port)
+//@doc     Follows 10-bar local deviation + 128-sample volatility distribution
+//@param   source Series to calculate JMA from
+//@param   period Number of bars used in the calculation (>= 1)
+//@param   phase  Phase shift (-100 to 100). Negative = smoother, positive = more leading
+//@returns JMA value with Jurik-style spectral volatility adaptation
+jma(series float source, simple int period, simple int phase = 0) =>
+    // ---- Precomputed length/phase parameters (constant per series) ----
+    simple float _PHASE      = phase < -100 ? 0.5 : phase > 100 ? 2.5 : (phase * 0.01) + 1.5
+    simple float _LEN0       = period < 1.0000000002 ? 1e-10 : (period - 1.0) / 2.0
+    simple float _LOG_PARAM  = math.max(math.log(math.sqrt(_LEN0)) / math.log(2.0) + 2.0, 0.0)
+    simple float _SQRT_PARAM = math.sqrt(_LEN0) * _LOG_PARAM
+    simple float _LEN_ADJ    = _LEN0 * 0.9
+    simple float _LEN_DIV    = _LEN_ADJ / (_LEN_ADJ + 2.0)
+    simple float _SQRT_DIV   = _SQRT_PARAM / (_SQRT_PARAM + 1.0)
+    simple float _P_EXP      = math.max(_LOG_PARAM - 2.0, 0.5)
+
+    // ---- Internal state (persists across bars) ----
+    var float  paramA      = na
+    var float  paramB      = na
+    var float  lastC0      = na
+    var float  lastC8      = na
+    var float  lastA8      = na
+    var float  lastJma     = na
+    var int    bars        = 0
+
+    // 10-bar local deviation window
+    var float  cycleDelta  = 0.0
+    var int    volIndex    = 0
+    var int    volCount    = 0
+    var array<float> volWindow  = array.new_float(10, 0.0)
+
+    // 128-bar volatility distribution
+    var int    distIndex   = 0
+    var int    distCount   = 0
+    var array<float> distWindow = array.new_float(128, 0.0)
+    var array<float> sorted     = array.new_float(0)
+
     float current_jma = na
+
     if not na(source)
-        float del1 = source - nz(upperBand_state, source)
-        float del2 = source - nz(lowerBand_state, source)
-        float volty = math.abs(del1) == math.abs(del2) ? 0.0 : math.max(math.abs(del1), math.abs(del2))
-        array.unshift(volty_array_state, nz(volty, 0.0))
-        array.pop(volty_array_state)
-        if not na(volty)
-            vSum_state := vSum_state + (volty - array.get(volty_array_state, 10)) * DIV
-            avgVolty_state := nz(avgVolty_state, vSum_state) + AVG_VOLTY_ALPHA * (vSum_state - nz(avgVolty_state, vSum_state))
-        float rvolty = math.min(math.max(nz(avgVolty_state, 0) > 0 ? nz(volty, 0.0) / nz(avgVolty_state, 1.0) : 1.0, 1.0), math.pow(LEN1, POW1_RECIPROCAL))
-        float pow2 = math.pow(rvolty, POW1)
-        float Kv = math.pow(LEN2 / (LEN2 + 1), math.sqrt(pow2))
-        upperBand_state := del1 > 0 ? source : source - Kv * del1
-        lowerBand_state := del2 < 0 ? source : source - Kv * del2
-        float alpha = math.pow(BETA, pow2)
-        float alphaSquared = alpha * alpha
-        float oneMinusAlpha = 1.0 - alpha
-        float oneMinusAlphaSquared = oneMinusAlpha * oneMinusAlpha
-        ma1_state := source + (alpha * (nz(ma1_state, source) - source))
-        det0_state := (source - ma1_state) * (1 - BETA) + BETA * nz(det0_state, 0)
-        float ma2 = ma1_state + (PHASE_VALUE * det0_state)
-        det1_state := ((ma2 - nz(jma_state, source)) * oneMinusAlphaSquared) + (alphaSquared * nz(det1_state, 0))
-        jma_state := nz(jma_state, source) + det1_state
-        current_jma := jma_state
+        bars += 1
+
+        // ---- First bar: initialize anchors and filter state ----
+        if bars == 1
+            paramA  := source
+            paramB  := source
+            lastC0  := source
+            lastC8  := 0.0
+            lastA8  := 0.0
+            lastJma := source
+            current_jma := source
+        else
+            // 1) Local deviation vs. ParamA / ParamB
+            float diffA    = source - paramA
+            float diffB    = source - paramB
+            float absA     = math.abs(diffA)
+            float absB     = math.abs(diffB)
+            float absValue = absA > absB ? absA : absB
+            float dLocal   = absValue + 1e-10
+
+            // 2) 10-bar SMA of local deviation -> highD
+            float oldVol = array.get(volWindow, volIndex)
+            cycleDelta  += dLocal - oldVol
+            array.set(volWindow, volIndex, dLocal)
+            volIndex += 1
+            if volIndex >= 10
+                volIndex := 0
+            if volCount < 10
+                volCount += 1
+            float highD = volCount > 0 ? cycleDelta / (volCount < 10 ? volCount : 10) : dLocal
+
+            // 3) 128-bar volatility distribution + trimmed mean
+            array.set(distWindow, distIndex, highD)
+            distIndex += 1
+            if distIndex >= 128
+                distIndex := 0
+            if distCount < 128
+                distCount += 1
+
+            float dRef = highD
+            if distCount >= 16
+                int count = distCount
+                array.clear(sorted)
+                for i = 0 to count - 1
+                    int idx = distIndex - 1 - i
+                    if idx < 0
+                        idx += 128
+                    array.push(sorted, array.get(distWindow, idx))
+                array.sort(sorted)
+
+                int idxLo = 0
+                int idxHi = 0
+                if count >= 128
+                    idxLo := 32
+                    idxHi := 96
+                else
+                    int slice = int(math.max(5.0, math.round(count * 0.5)))
+                    int drop  = (count - slice) / 2
+                    idxLo := drop
+                    idxHi := drop + slice - 1
+
+                if idxLo < 0
+                    idxLo := 0
+                if idxHi >= count
+                    idxHi := count - 1
+
+                float sum = 0.0
+                for i = idxLo to idxHi
+                    sum += array.get(sorted, i)
+                dRef := sum / float(idxHi - idxLo + 1)
+
+            if dRef <= 0.0
+                dRef := dLocal
+
+            // 4) Jurik dynamic exponent
+            float ratio = absValue / dRef
+            if ratio < 0.0
+                ratio := 0.0
+            float d = math.pow(ratio, _P_EXP)
+            d := math.min(math.max(d, 1.0), _LOG_PARAM)
+
+            // 5) Update ParamA / ParamB via sqrtDivider ^ sqrt(d)
+            float adapt = math.pow(_SQRT_DIV, math.sqrt(d))
+            if source > paramA
+                paramA := source
+            else
+                paramA := source - (source - paramA) * adapt
+            if source < paramB
+                paramB := source
+            else
+                paramB := source - (source - paramB) * adapt
+
+            // 6) 2-pole IIR core (C0/C8/A8) with Jurik alpha
+            float prevJma = na(lastJma) ? source : lastJma
+            float alpha  = math.pow(_LEN_DIV, d)
+            float alpha2 = alpha * alpha
+            float c0 = (1.0 - alpha) * source + alpha * lastC0
+            float c8 = (source - c0) * (1.0 - _LEN_DIV) + _LEN_DIV * lastC8
+            float a8 = (_PHASE * c8 + c0 - prevJma) * (alpha * -2.0 + alpha2 + 1.0) + alpha2 * lastA8
+            float jmaVal = prevJma + a8
+
+            lastC0  := c0
+            lastC8  := c8
+            lastA8  := a8
+            lastJma := jmaVal
+            current_jma := jmaVal
+
     current_jma
+
 
 // ---------- Main loop ----------
 
 // Inputs
 i_period = input.int(10, "Period", minval=1, tooltip="Number of bars used in the calculation")
 i_phase = input.int(0, "Phase", tooltip="Phase shift (-100 to 100). Negative values reduce lag but may cause overshoot", minval=-100, maxval=100, step=10)
-i_power = input.float(0.45, "Power", tooltip="Smoothing factor (0.1-1.0). Lower values create smoother curves", minval=0.1, maxval=1.0, step=0.01)
 i_source = input.source(close, "Source")
 
 // Calculation
-jma_value = jma(i_source, i_period, i_phase, i_power)
+jma_value = jma(i_source, i_period, i_phase)
 
 // Plot
-plot(jma_value, "JMA", color=color.yellow, linewidth=2)
+plot(jma_value, "JMA-T", color=color.yellow, linewidth=2)

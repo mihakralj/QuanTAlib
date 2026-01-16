@@ -11,9 +11,9 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | APO | Absolute Price Oscillator | Measures the absolute difference between two moving averages (Fast EMA - Slow EMA). |
 | AROON | Aroon | Gauges trend freshness by measuring the time elapsed since the last high and low. |
 | AROONOSC | Aroon Oscillator | Measures the difference between Aroon Up and Aroon Down to gauge trend strength and direction. |
-| [BOP](bop/Bop.md) | Balance of Power | Measures the strength of buyers vs sellers by comparing the close price to the open price. |
+| [BOP](lib/momentum/bop/Bop.md) | Balance of Power | Measures the strength of buyers vs sellers by comparing the close price to the open price. |
 | CCI | Commodity Channel Index | Measures price deviation from its statistical mean, identifies cyclical turns |
-| [CFB](cfb/Cfb.md) | Jurik Composite Fractal Behavior | Measures trend duration and quality by analyzing fractal efficiency across multiple time scales. |
+| [CFB](lib/momentum/cfb/Cfb.md) | Jurik Composite Fractal Behavior | Measures trend duration and quality by analyzing fractal efficiency across multiple time scales. |
 | CHOP | Choppiness Index | |
 | CMO | Chande Momentum Oscillator | Measures momentum using both up and down price changes, similar to RSI but unbounded |
 | DMX | Jurik Directional Movement Index | A low-lag, bipolar replacement for DMI/ADX that combines trend direction and strength. |
@@ -23,7 +23,7 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | IMI | Intraday Momentum Index | |
 | INERTIA | Inertia | |
 | KDJ | KDJ Indicator | |
-| [MACD](macd/Macd.md) | Moving Average Convergence Divergence | Shows relationship between two EMAs, identifies momentum and trend direction |
+| [MACD](lib/momentum/macd/Macd.md) | Moving Average Convergence Divergence | Shows relationship between two EMAs, identifies momentum and trend direction |
 | MOM | Momentum | Measures the rate of price change over a specified period |
 | PGO | Pretty Good Oscillator | |
 | PMO | Price Momentum Oscillator | Double-smoothed Rate of Change (ROC) oscillator |
@@ -33,8 +33,8 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | ROC | Rate of Change | Measures the absolute change in price between the current price and the price N periods ago |
 | ROCP | Rate of Change Percentage | Measures the percentage change in price between the current price and the price N periods ago |
 | ROCR | Rate of Change Ratio | Measures the ratio of the current price to the price N periods ago |
-| [RSI](rsi/Rsi.md) | Relative Strength Index | Measures speed and change of price movements, identifies overbought/oversold conditions |
-| [RSX](rsx/Rsx.md) | Jurik Relative Strength X | A "noise-free" version of RSI that eliminates jaggedness without adding lag. |
+| [RSI](lib/momentum/rsi/Rsi.md) | Relative Strength Index | Measures speed and change of price movements, identifies overbought/oversold conditions |
+| [RSX](lib/momentum/rsx/Rsx.md) | Jurik Relative Strength X | A "noise-free" version of RSI that eliminates jaggedness without adding lag. |
 | SMI | Stochastic Momentum Index | |
 | STOCH | Stochastic Oscillator | |
 | STOCHF | Stochastic Fast | |
@@ -42,6 +42,6 @@ Momentum indicators measure the speed or strength of price movements. This inclu
 | TRIX | Triple Exponential Average | |
 | TSI | True Strength Index | Double-smoothed momentum oscillator based on price changes |
 | ULTOSC | Ultimate Oscillator | Combines three time frames with weighted averages to reduce volatility and false signals. |
-| [VEL](vel/Vel.md) | Jurik Velocity | Measures market "acceleration" by comparing parabolic vs. linear weighting schemes. |
+| [VEL](lib/momentum/vel/Vel.md) | Jurik Velocity | Measures market "acceleration" by comparing parabolic vs. linear weighting schemes. |
 | VORTEX | Vortex Indicator | |
 | WILLR | Williams %R | |

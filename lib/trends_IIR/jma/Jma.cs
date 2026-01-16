@@ -9,6 +9,7 @@ namespace QuanTAlib;
 /// - 128-sample volatility distribution
 /// - middle-65 trimmed mean as volatility reference
 /// - Jurik dynamic exponent and 2-pole IIR core
+/// - power parameter kept for API compatibility; ignored (matches Pine reference)
 /// </summary>
 [SkipLocalsInit]
 public sealed class Jma : AbstractBase
@@ -22,7 +23,7 @@ public sealed class Jma : AbstractBase
     private readonly double _lengthDivider;  // L'/(L'+2), L' = 0.9*L
     private readonly double _logSqrtDivider; // Precomputed log(_sqrtDivider) for Exp optimization
     private readonly double _logLengthDivider; // Precomputed log(_lengthDivider) for Exp optimization
-    private readonly double _power;          // Jurik power parameter
+    private readonly double _pExponent;      // max(logParam - 2, 0.5)
 
     // Constants for trimmed mean
     private const int JurikTrimCount = 65; // canonical JMA: middle 65 of 128 samples
@@ -62,8 +63,8 @@ public sealed class Jma : AbstractBase
     {
         if (period < 1)
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
-        if (!double.IsFinite(power) || power <= 0.0)
-            throw new ArgumentException("Power must be finite and > 0.", nameof(power));
+        if (!double.IsFinite(power))
+            throw new ArgumentException("Power must be finite.", nameof(power));
 
         // --- Phase parameter: maps -100..100 -> 0.5..2.5 (Jurik convention) ---
         if (phase < -100)
@@ -72,8 +73,6 @@ public sealed class Jma : AbstractBase
             _phaseParam = 2.5;
         else
             _phaseParam = (phase * 0.01) + 1.5;
-
-        _power = power;
 
         // --- Length / log / divider parameters (from decompiled JMA) ---
         // L_raw ~ (period - 1)/2, with a tiny lower bound to avoid log(0)
@@ -84,6 +83,7 @@ public sealed class Jma : AbstractBase
         double logParam = Math.Log(Math.Sqrt(lengthParam)) / Math.Log(2.0);
         logParam = (logParam + 2.0) < 0.0 ? 0.0 : (logParam + 2.0);
         _logParam = logParam;
+        _pExponent = Math.Max(_logParam - 2.0, 0.5);
 
         double sqrtParam = Math.Sqrt(lengthParam) * _logParam;
         lengthParam *= 0.9;
@@ -99,7 +99,7 @@ public sealed class Jma : AbstractBase
         WarmupPeriod = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(period, 0.36));
 
         _handler = Handle;
-        Name = $"Jma({period},{phase},{power})"; // power kept for signature compatibility
+        Name = $"Jma({period},{phase},{power})"; // power kept for signature compatibility (ignored in calculation)
 
         _devBuffer = new RingBuffer(DevWindowSize);
         _volBuffer = new RingBuffer(VolWindowSize);
@@ -212,7 +212,7 @@ public sealed class Jma : AbstractBase
     private double CalculateJurikExponent(double absValue, double refVolatility)
     {
         double ratio = Math.Max(absValue / refVolatility, 0.0);
-        double d = Math.Pow(ratio, _power);
+        double d = Math.Pow(ratio, _pExponent);
         if (d > _logParam) d = _logParam;
         if (d < 1.0) d = 1.0;
         return d;
@@ -233,7 +233,7 @@ public sealed class Jma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateIIRFilter(double value, double d)
     {
-        double prevJma = (double.IsNaN(_state.LastJma) || _state.Bars == 2) ? value : _state.LastJma;
+        double prevJma = double.IsNaN(_state.LastJma) ? value : _state.LastJma;
 
         double alpha = Math.Exp(_logLengthDivider * d);
         double decay = 1.0 - alpha;

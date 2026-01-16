@@ -47,8 +47,8 @@
 | ATAN2 | Two-Argument Arctangent | Numerics |
 | [ATR](lib/volatility/atr/Atr.md) | Average True Range | Volatility |
 | ATRBANDS | ATR Bands | Channels |
-| ATRN | Average True Range Normalized [0,1] | Volatility |
-| ATRP | Average True Range Percent | Volatility |
+| [ATRN](lib/volatility/atrn/Atrn.md) | Average True Range Normalized [0,1] | Volatility |
+| [ATRP](lib/volatility/atrp/Atrp.md) | Average True Range Percent | Volatility |
 | BBANDS | Bollinger Bands | Channels |
 | BBB | Bollinger %B | Momentum |
 | BBS | Bollinger Band Squeeze | Momentum |

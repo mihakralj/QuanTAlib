@@ -14,7 +14,6 @@ Static code analysis provided by [ndepend](https://www.ndepend.com/):
 [![LoC](ndepend/badges/loc.svg)](ndepend/ndependout/ndependreport.html)  
 [![Public API](ndepend/badges/public-api.svg)](ndepend/ndependout/ndependreport.html)
 [![Comments](ndepend/badges/comments.svg)](ndepend/ndependout/ndependreport.html)
-[![Complexity](ndepend/badges/complexity.svg)](ndepend/ndependout/ndependreport.html)
 
 # QuanTAlib - Quantitative Technical Indicators Without Compromises
 

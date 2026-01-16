@@ -8,8 +8,8 @@ In a world of algorithmic trading and dark pools, volume analysis is the only wa
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [ADL](adl/Adl.md) | Accumulation/Distribution Line | The grandfather of volume flow. Correlates price location with volume to spot smart money. |
-| [ADOSC](adosc/Adosc.md) | Chaikin A/D Oscillator | A momentum indicator for the AD Line. Predicts reversals by measuring the acceleration of money flow. |
+| [ADL](lib/volume/adl/Adl.md) | Accumulation/Distribution Line | The grandfather of volume flow. Correlates price location with volume to spot smart money. |
+| [ADOSC](lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | A momentum indicator for the AD Line. Predicts reversals by measuring the acceleration of money flow. |
 | AOBV | Archer On-Balance Volume | Modified OBV incorporating intra-period price movement |
 | CMF | Chaikin Money Flow | Measures money flow volume over a set period, typically 20 or 21 days |
 | EFI | Elder's Force Index | Combines price movement, direction, and volume to measure buying/selling power |

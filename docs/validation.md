@@ -22,7 +22,7 @@
 | **Average Directional Movement Rating** | [Adxr](../lib/momentum/adxr/Adxr.md) | ✔️ | ✔️ | - | - |
 | **Average True Range** | [Atr](../lib/volatility/atr/atr.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Average True Range Normalized [0,1]** | [Atrn](../lib/volatility/atrn/Atrn.md) | - | - | - | - |
-| **Average True Range Percent** | Atrp | - | - | - | - |
+| **Average True Range Percent** | [Atrp](../lib/volatility/atrp/Atrp.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Awesome Oscillator** | [Ao](../lib/momentum/ao/ao.md) | - | ✔️ | ✔️ | ✔️ |
 | **Balance of Power** | [Bop](../lib/momentum/bop/Bop.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
@@ -211,7 +211,7 @@
 | **Savitzky-Golay MA** | [Sgma](../lib/trends_FIR/sgma/Sgma.md) | - | - | - | - |
 | **Schaff Trend Cycle** | [Stc](../lib/cycles/stc/Stc.md) | - | - | ✔️ | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends/sma/sma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Sine-weighted MA** | Sinema | - | - | - | ❔ |
+| **Sine-weighted MA** | [Sinema](../lib/trends_FIR/sinema/Sinema.md) | - | - | - | - |
 | **Smoothed Moving Average** | [Rma](../lib/trends/rma/rma.md) | - | wilders | ✔️ | ✔️ |
 | **Solar Activity Cycle** | Solar | - | - | - | - |
 | **Spearman Rank Correlation** | Spearman | - | - | - | ❔ |

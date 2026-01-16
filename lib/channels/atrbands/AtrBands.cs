@@ -369,7 +369,31 @@ public sealed class AtrBands : ITValuePublisher
     /// <summary>
     /// Calculates AtrBands in-place using spans for maximum performance.
     /// </summary>
-#pragma warning disable S107
+    /// <param name="input">Input spans containing High, Low, Close prices.</param>
+    /// <param name="output">Output spans for Middle, Upper, Lower bands.</param>
+    /// <param name="period">Lookback period for SMA and ATR calculations.</param>
+    /// <param name="multiplier">Multiplier for band width (default: 2.0).</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Batch(AtrBandsInput input, AtrBandsOutput output, int period, double multiplier = 2.0)
+    {
+        int len = input.Close.Length;
+        if (input.High.Length != len || input.Low.Length != len)
+            throw new ArgumentException("High, Low, and Close must have the same length", nameof(input));
+        if (output.Middle.Length < len || output.Upper.Length < len || output.Lower.Length < len)
+            throw new ArgumentException("Output buffers must be at least as long as input", nameof(output));
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (multiplier <= 0)
+            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+
+        if (len == 0) return;
+
+        CalculateScalarCore(input.High, input.Low, input.Close, output.Middle, output.Upper, output.Lower, period, multiplier);
+    }
+
+    /// <summary>
+    /// Calculates AtrBands in-place using spans for maximum performance.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(
         ReadOnlySpan<double> high,
@@ -380,21 +404,52 @@ public sealed class AtrBands : ITValuePublisher
         Span<double> lower,
         int period,
         double multiplier = 2.0)
-#pragma warning restore S107
     {
-        int len = close.Length;
-        if (high.Length != len || low.Length != len)
-            throw new ArgumentException("High, Low, and Close must have the same length", nameof(high));
-        if (middle.Length < len || upper.Length < len || lower.Length < len)
-            throw new ArgumentException("Output buffers must be at least as long as input", nameof(middle));
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (multiplier <= 0)
-            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        Batch(new AtrBandsInput(high, low, close), new AtrBandsOutput(middle, upper, lower), period, multiplier);
+    }
 
-        if (len == 0) return;
+    /// <summary>
+    /// Input spans for ATR Bands calculation (High, Low, Close prices).
+    /// </summary>
+    [StructLayout(LayoutKind.Auto)]
+    public readonly ref struct AtrBandsInput
+    {
+        /// <summary>High prices.</summary>
+        public readonly ReadOnlySpan<double> High;
+        /// <summary>Low prices.</summary>
+        public readonly ReadOnlySpan<double> Low;
+        /// <summary>Close prices.</summary>
+        public readonly ReadOnlySpan<double> Close;
 
-        CalculateScalarCore(high, low, close, middle, upper, lower, period, multiplier);
+        /// <summary>Creates input from OHLC spans.</summary>
+        public AtrBandsInput(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close)
+        {
+            High = high;
+            Low = low;
+            Close = close;
+        }
+    }
+
+    /// <summary>
+    /// Output spans for ATR Bands calculation (Middle, Upper, Lower bands).
+    /// </summary>
+    [StructLayout(LayoutKind.Auto)]
+    public readonly ref struct AtrBandsOutput
+    {
+        /// <summary>Middle band (SMA of source).</summary>
+        public readonly Span<double> Middle;
+        /// <summary>Upper band.</summary>
+        public readonly Span<double> Upper;
+        /// <summary>Lower band.</summary>
+        public readonly Span<double> Lower;
+
+        /// <summary>Creates output from band spans.</summary>
+        public AtrBandsOutput(Span<double> middle, Span<double> upper, Span<double> lower)
+        {
+            Middle = middle;
+            Upper = upper;
+            Lower = lower;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

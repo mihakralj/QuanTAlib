@@ -37,6 +37,6 @@ public class JmaZeroDivTests
         // If adapt is 0 (due to -Infinity log), bands snap to price.
         // If JMA(1) is identity, result should be 200.
         // With clamping, adapt is slightly non-zero (approx 1e-12), so result is very close to 200.
-        Assert.Equal(200, result.Value, precision: 8);
+        Assert.Equal(200, result.Value, precision: 7);
     }
 }

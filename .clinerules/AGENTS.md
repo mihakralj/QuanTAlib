@@ -135,18 +135,188 @@ Mission: persuade skeptical architects via correctness + architecture evidence +
 Audience: practitioners who value implementation + trade-offs.
 Voice: GRINGE blend (Bryson warmth; Roach curiosity; Sedaris self-own; O'Rourke cynicism).
 Argumentation: steel-man opponents, rebut w/ data; Evidence chain: Why→How→Proof→So what; Feel-Felt-Found ok.
-Language: direct cadence; precise nums; avoid “we”; deliberate sentence-length variation; “code as evidence”.
+Language: direct cadence; precise nums; avoid "we"; deliberate sentence-length variation; "code as evidence".
 Humor: allowed for complexity/context; NOT in perf/security/math correctness claims.
 Anti-slop:
 - Forbidden words SET{Delve|leverage|pivotal|tapestry|landscape|furthermore|\"is all about\"|\"unlock the power\"|transformative|foster|seamless|ecosystem}
 - Avoid em-dashes; avoid formulaic perfectly balanced pro/con tropes.
 Markdown: strict CommonMark + markdownlint; watch MD022/MD031, MD030, MD032; include perf env specs (AVX2, Turbo status, sample sizes).
-DOC_TMPL (required sections):
-`## [Indicator Name]: [Full Name]` + quote
-Intro; Historical context; Architecture & Physics (+ challenge); Math foundation (LaTeX steps); Perf profile table (Throughput ns/bar, Allocations=0, Complexity, Accuracy/Timeliness/Overshoot/Smoothness 1-10); Validation table vs TA-Lib/Skender/Tulip/Ooples; Common pitfalls.
 
-Doc linking reqs when adding indicator:
-Update `lib/[category]/_index.md`, `lib/_index.md`, `docs/_sidebar.md`, `docs/integration.md`, `docs/indicators.md`, `docs/validation.md`.
+4.1 DOC_TMPL (required sections)
+Reference: `lib/trends_IIR/jma/Jma.md` as canonical exemplar.
+
+```markdown
+# [ABBREV]: [Full Name]
+
+> "[Memorable quote that captures the indicator's essence or challenges common assumptions]"
+
+[Opening paragraph: What it is + key differentiator. State what makes THIS implementation unique vs common approximations. Include measurable claims (e.g., "within floating-point tolerance", "3-4% divergence during 3-sigma events").]
+
+## Historical Context
+
+[Origin story: Who created it, when, why. Address the knowledge gap: what was publicly known vs actual implementation details. Acknowledge prior approximations and explain how/why this implementation differs. 2-4 paragraphs.]
+
+## Architecture & Physics
+
+[System overview: Describe the indicator as interconnected components. Use numbered subsections for each major component.]
+
+### 1. [Component Name]
+
+[Describe component purpose + behavior. Include conditional logic with mathematical notation:]
+
+$$
+X_t = \begin{cases}
+P_t & \text{if condition A} \\
+f(X_{t-1}, P_t) & \text{otherwise}
+\end{cases}
+$$
+
+[Explain WHY this design choice matters. Note alternative naming conventions if applicable.]
+
+### 2. [Component Name]
+
+[Continue pattern for each component. Include epsilon guards, buffer sizes, smoothing mechanisms.]
+
+### N. [Final Component / Core Filter]
+
+[For IIR/FIR filters, include transfer function in z-domain if applicable:]
+
+$$
+H(z) = \frac{...}{...}
+$$
+
+[Explain state-space form and coupled recursions.]
+
+## Mathematical Foundation
+
+[Detailed derivations for each calculation step. Use subsections for logical groupings.]
+
+### [Calculation Name] (e.g., Dynamic Exponent Calculation)
+
+$$
+r_t = \frac{|\Delta_t|}{\hat{V}_t}
+$$
+
+$$
+d_t = \text{clamp}(r_t^{P_{exp}}, 1, \text{logParam})
+$$
+
+where:
+- $P_{exp} = ...$
+- $\text{logParam} = ...$
+
+[Continue for each derived quantity: coefficients, decay rates, recursions.]
+
+### [Recursion Name] (e.g., IIR Recursion)
+
+[State equations in sequence:]
+
+$$
+C_{0,t} = (1 - \alpha_t) \cdot P_t + \alpha_t \cdot C_{0,t-1}
+$$
+
+[Include parameter mappings (e.g., phase [-100,100] → [0.5,2.5]).]
+
+## Performance Profile
+
+### Operation Count (Streaming Mode, Scalar)
+
+[Itemize computational cost per bar:]
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | N | 1 | N |
+| MUL | N | 3 | 3N |
+| DIV | N | 15 | 15N |
+| CMP/ABS | N | 1 | N |
+| SQRT | N | 15 | 15N |
+| EXP/POW | N | 50-80 | ... |
+| SORT (if applicable) | 1 | ~O(n log n) | ... |
+| **Total** | **sum** | — | **~X cycles** |
+
+[Identify dominant cost contributor with percentage.]
+
+### Batch Mode (512 values, SIMD/FMA)
+
+[Explain SIMD applicability. For recursive indicators, acknowledge limitations:]
+
+| Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
+| :--- | :---: | :---: | :---: |
+| [Vectorizable op] | N | N/8 | 8× |
+| FMA operations | N | N/3 | 3× |
+
+**Per-bar savings with SIMD/FMA:**
+
+| Optimization | Cycles Saved | New Total |
+| :--- | :---: | :---: |
+| [Optimization 1] | ~X | Y |
+| **Total SIMD/FMA savings** | **~X cycles** | **~Y cycles** |
+
+**Batch efficiency (512 bars):**
+
+| Mode | Cycles/bar | Total (512 bars) | Overhead |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | X | 512X | — |
+| SIMD/FMA streaming | Y | 512Y | — |
+| **Improvement** | **Z%** | **N saved** | — |
+
+[Explain why improvement is modest/significant based on algorithm characteristics.]
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | N/10 | [Brief justification] |
+| **Timeliness** | N/10 | [Brief justification] |
+| **Overshoot** | N/10 | [Brief justification] |
+| **Smoothness** | N/10 | [Brief justification] |
+| **[Custom metric if applicable]** | N/10 | [Brief justification] |
+
+## Validation
+
+[State validation context: proprietary, open-source availability, reference sources.]
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | ✅/N/A | [Implementation status or match notes] |
+| **Skender** | ✅/N/A | [Implementation status or match notes] |
+| **Tulip** | ✅/N/A | [Implementation status or match notes] |
+| **Ooples** | ✅/N/A | [Implementation status or match notes] |
+| **[Other reference]** | ✅ | [Match notes] |
+
+## Common Pitfalls
+
+1. **[Pitfall Category]**: [Specific issue + quantified impact. Include formulas for warmup periods, memory footprints, etc.]
+
+2. **[Pitfall Category]**: [Parameter confusion, default behaviors, migration gotchas.]
+
+3. **[Pitfall Category]**: [Computational cost awareness with concrete numbers.]
+
+4. **[Pitfall Category]**: [Memory footprint with per-instance and scaled estimates.]
+
+5. **[Pitfall Category]**: [Edge case limitations.]
+
+6. **[Pitfall Category]**: [API usage (isNew, Reset, etc.).]
+
+## References
+
+- [Author]. ([Year]). "[Title]." *[Source]*.
+- [Author]. ([Year]). "[Title]." *[Source]*.
+```
+
+4.2 Section requirements checklist
+- [ ] Title: `# ABBREV: Full Name` + memorable quote
+- [ ] Intro: 1 paragraph, key differentiator, measurable claims
+- [ ] Historical Context: origin, knowledge gap, prior art, this impl's difference
+- [ ] Architecture & Physics: numbered subsections per component, conditional math, z-domain transfer functions
+- [ ] Mathematical Foundation: all derivations with LaTeX, parameter mappings
+- [ ] Performance Profile: operation count table, SIMD analysis, quality metrics (1-10 scale)
+- [ ] Validation: library comparison table with status + notes
+- [ ] Common Pitfalls: 5-7 numbered items with quantified impacts
+- [ ] References: academic/forum sources
+
+4.3 Doc linking reqs when adding indicator
+Update: `lib/[category]/_index.md`, `lib/_index.md`, `docs/_sidebar.md`, `docs/integration.md`, `docs/indicators.md`, `docs/validation.md`.
 
 5) TESTING PROTOCOL
 REQ test files: `[Name].Tests.cs`, `[Name].Validation.Tests.cs`, `[Name].Quantower.Tests.cs`.

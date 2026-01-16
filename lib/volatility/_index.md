@@ -8,10 +8,10 @@ These indicators don't tell you where the price is going. They tell you how scar
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [ADR](adr/Adr.md) | Average Daily Range | Measures the average daily price movement range over a specified period. |
-| [ATR](atr/Atr.md) | Average True Range | The standard for measuring market "heat." Decomposes range to account for gaps. |
-| [ATRN](atrn/Atrn.md) | Average True Range Normalized [0,1] | ATR normalized to a 0-1 scale for comparative analysis. |
-| ATRP | Average True Range Percent | ATR expressed as a percentage of the closing price. |
+| [ADR](lib/volatility/adr/Adr.md) | Average Daily Range | Measures the average daily price movement range over a specified period. |
+| [ATR](lib/volatility/atr/Atr.md) | Average True Range | The standard for measuring market "heat." Decomposes range to account for gaps. |
+| [ATRN](lib/volatility/atrn/Atrn.md) | Average True Range Normalized [0,1] | ATR normalized to a 0-1 scale for comparative analysis. |
+| [ATRP](lib/volatility/atrp/Atrp.md) | Average True Range Percent | ATR expressed as a percentage of the closing price. |
 | BBW | Bollinger Band Width | Measures the difference between the upper and lower Bollinger Bands. |
 | BBWN | Bollinger Band Width Normalized | Measures the current Bollinger Band Width relative to its historical range in [0.0,1.0] normalized space. |
 | BBWP | Bollinger Band Width Percentile | Measures the current Bollinger Band Width relative to its historical range. |
