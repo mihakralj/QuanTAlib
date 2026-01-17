@@ -165,7 +165,7 @@ public class NormalizeTests
     public void Normalize_OutputAlwaysInRange()
     {
         var norm = new Normalize(20);
-        var series = _gbm.Generate(500);
+        var series = _gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in series)
         {
@@ -195,7 +195,7 @@ public class NormalizeTests
     [Fact]
     public void Normalize_StaticCalculate_TSeries_MatchesStreaming()
     {
-        var series = _gbm.Generate(100);
+        var series = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var tseries = new TSeries();
         foreach (var bar in series)
             tseries.Add(new TValue(bar.Time, bar.Close), true);
@@ -219,7 +219,7 @@ public class NormalizeTests
     [Fact]
     public void Normalize_StaticCalculate_Span_MatchesStreaming()
     {
-        var series = _gbm.Generate(100);
+        var series = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         double[] values = series.Select(b => b.Close).ToArray();
         double[] output = new double[values.Length];
 

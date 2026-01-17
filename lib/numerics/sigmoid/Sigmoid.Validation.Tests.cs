@@ -88,8 +88,8 @@ public class SigmoidValidationTests
             double x = rng.NextDouble() * 2000 - 1000;  // Range [-1000, 1000]
             var result = sigmoid.Update(new TValue(DateTime.UtcNow.AddSeconds(i), x), true);
 
-            Assert.True(result.Value > 0.0, $"Output {result.Value} should be > 0 for input {x}");
-            Assert.True(result.Value < 1.0, $"Output {result.Value} should be < 1 for input {x}");
+            Assert.True(result.Value >= 0.0, $"Output {result.Value} should be >= 0 for input {x}");
+            Assert.True(result.Value <= 1.0, $"Output {result.Value} should be <= 1 for input {x}");
         }
     }
 

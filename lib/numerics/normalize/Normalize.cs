@@ -24,6 +24,7 @@ public sealed class Normalize : AbstractBase
     private readonly int _period;
     private readonly RingBuffer _buffer;
 
+    [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValidNorm, double Min, double Max);
     private State _state, _p_state;
 
@@ -171,7 +172,6 @@ public sealed class Normalize : AbstractBase
 
             // Determine window bounds
             int start = Math.Max(0, i - period + 1);
-            int windowLength = i - start + 1;
 
             // Find min/max in window
             double min = source[start];

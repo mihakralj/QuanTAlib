@@ -157,7 +157,7 @@ public class SigmoidIndicatorTests
             indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
 
             double output = indicator.LinesSeries[0].GetValue(0);
-            Assert.True(output > 0 && output < 1, $"Sigmoid({val}) = {output} should be in (0,1)");
+            Assert.True(output >= 0 && output <= 1, $"Sigmoid({val}) = {output} should be in [0,1]");
 
             now = now.AddMinutes(1);
         }

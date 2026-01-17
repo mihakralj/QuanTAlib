@@ -20,7 +20,7 @@ public class NormalizeValidationTests
         foreach (var period in periods)
         {
             var norm = new Normalize(period);
-            var series = _gbm.Generate(500);
+            var series = _gbm.Fetch(500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
             foreach (var bar in series)
             {
@@ -184,7 +184,7 @@ public class NormalizeValidationTests
     [Fact]
     public void Normalize_StreamingVsBatch_Match()
     {
-        var series = _gbm.Generate(200);
+        var series = _gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         double[] values = series.Select(b => b.Close).ToArray();
 
         // Streaming
@@ -209,7 +209,7 @@ public class NormalizeValidationTests
     [Fact]
     public void Normalize_AllModes_Consistent()
     {
-        var series = _gbm.Generate(100);
+        var series = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         int period = 14;
 
         // Mode 1: Streaming via Update(TValue)
@@ -236,6 +236,7 @@ public class NormalizeValidationTests
         var norm4 = new Normalize(source, period);
         foreach (var bar in series)
             source.Add(new TValue(bar.Time, bar.Close), true);
+        var results4 = norm4.Last.Value;
 
         // Compare all modes (use last 50 values for stability)
         for (int i = 50; i < 100; i++)
@@ -243,6 +244,8 @@ public class NormalizeValidationTests
             Assert.Equal(results1[i], results2[i].Value, 1e-10);
             Assert.Equal(results1[i], results3[i], 1e-10);
         }
+        // Verify Mode 4 matches last value from other modes
+        Assert.Equal(results1[^1], results4, 1e-10);
     }
 
     [Fact]
@@ -286,7 +289,7 @@ public class NormalizeValidationTests
     public void Normalize_VeryLargePeriod_StillWorks()
     {
         var norm = new Normalize(1000);
-        var series = _gbm.Generate(1500);
+        var series = _gbm.Fetch(1500, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         foreach (var bar in series)
         {

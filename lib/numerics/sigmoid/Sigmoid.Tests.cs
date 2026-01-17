@@ -4,7 +4,7 @@ namespace QuanTAlib.Tests;
 
 public class SigmoidTests
 {
-    private readonly GBM _gbm = new(1000, 0.05, 0.2, 100);
+    private readonly GBM _gbm = new(1000, 0.05, 0.2, seed: 100);
     private const double Epsilon = 1e-10;
 
     // ═══════════════════════════════════════════════════════════════════════════════
@@ -246,17 +246,17 @@ public class SigmoidTests
     [Fact]
     public void Calculate_Span_EmptySource_ThrowsArgumentException()
     {
-        Span<double> output = stackalloc double[10];
-        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(ReadOnlySpan<double>.Empty, output));
+        double[] output = new double[10];
+        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(ReadOnlySpan<double>.Empty, output.AsSpan()));
     }
 
     [Fact]
     public void Calculate_Span_OutputTooSmall_ThrowsArgumentException()
     {
         double[] source = [1, 2, 3, 4, 5];
-        Span<double> output = stackalloc double[3];
+        double[] output = new double[3];
 
-        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(source.AsSpan(), output));
+        Assert.Throws<ArgumentException>(() => Sigmoid.Calculate(source.AsSpan(), output.AsSpan()));
     }
 
     [Fact]
@@ -312,7 +312,7 @@ public class SigmoidTests
         var sigmoid = new Sigmoid(source);
         int eventCount = 0;
 
-        sigmoid.Pub += (_, _) => eventCount++;
+        sigmoid.Pub += (_, in _) => eventCount++;
 
         for (int i = 0; i < 10; i++)
             source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), i), isNew: true);

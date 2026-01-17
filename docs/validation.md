@@ -243,7 +243,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Smoothed Moving Average** | [Rma](../lib/trends/rma/rma.md) | - | ✔️ | ✔️ | ✔️ |
 | **Solar Activity Cycle** | Solar | - | - | - | - |
 | **Spearman Rank Correlation** | Spearman | - | - | - | ❔ |
-| **Square Root Transformation** | Sqrt | - | - | - | - |
+| **Square Root Transformation** | [Sqrt](../lib/numerics/sqrt/Sqrt.md) | - | - | - | - |
 | **Standard Deviation Channel** | Sdchannel | - | - | - | ❔ |
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |

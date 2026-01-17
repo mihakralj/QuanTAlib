@@ -22,9 +22,8 @@ Basic mathematical transforms and utility functions for time series. These build
 | [SIGMOID](sigmoid/Sigmoid.md) | Logistic Function | ✓ | 1/(1+e^-x); bounded [0,1] transform. |
 | [SLOPE](slope/Slope.md) | Rate of Change | ✓ | First derivative; velocity of price movement. |
 | SMOOTHNESS | Smoothness Score | ≡ | Curvature continuity via second derivative analysis; 0-1 normalized. |
-| SQRT | Square Root Transform | ≡ | Variance-stabilizing transformation. |
+| [SQRT](sqrt/Sqrt.md) | Square Root Transform | ✓ | Variance-stabilizing transformation. |
 | STANDARDIZE | Z-Score | ≡ | (x - μ) / σ; standard deviation units. |
-| TANH | Hyperbolic Tangent | ≡ | Bounded [-1,1] transform; smoother than sigmoid. |
 
 ## Selection Guide
 
@@ -34,7 +33,7 @@ Basic mathematical transforms and utility functions for time series. These build
 
 **For range finding:** HIGHEST/LOWEST find extremes. MIDPOINT averages extremes. NORMALIZE scales between detected bounds.
 
-**For neural network inputs:** SIGMOID, TANH, RELU provide bounded activation functions. STANDARDIZE centers data with unit variance.
+**For neural network inputs:** SIGMOID, RELU provide bounded activation functions. STANDARDIZE centers data with unit variance.
 
 **For log-space analysis:** LOG converts multiplicative relationships to additive. EXP reverses log transformation. SQRT stabilizes variance.
 

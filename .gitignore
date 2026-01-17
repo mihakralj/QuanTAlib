@@ -13,6 +13,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+!lib/numerics/log/
 
 # Visual Studio cache/options
 .vs/
@@ -57,4 +58,3 @@ docfx/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
-

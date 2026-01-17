@@ -205,3 +205,4 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | [**RELU**](../lib/numerics/relu/Relu.md) | Rectified Linear Unit | max(0, x); activation function |
 | [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x); bounded [0,1] transform |
 | [**SLOPE**](../lib/numerics/slope/Slope.md) | Slope (1st Derivative) | Rate of change; velocity |
+| [**SQRT**](../lib/numerics/sqrt/Sqrt.md) | Square Root Transform | √x; variance to standard deviation conversion |
