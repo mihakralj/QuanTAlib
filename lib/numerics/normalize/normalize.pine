@@ -1,0 +1,38 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Min-Max Normalization (NORMALIZE)", "NORMALIZE", overlay=false, precision=6)
+
+//@function Normalizes a source series to the fixed range [0, 1] using Min-Max scaling over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/normalize.md
+//@param src The source series to normalize.
+//@param len The lookback period to determine min and max values. Must be >= 1.
+//@returns The normalized series (scaled to [0, 1]).
+normalize(series float src, simple int len) =>
+    float min_val_in_period = src
+    float max_val_in_period = src
+    for i = 1 to len - 1 
+        current_val = src[i]
+        if na(current_val)
+            continue
+        if current_val < min_val_in_period
+            min_val_in_period := current_val
+        if current_val > max_val_in_period
+            max_val_in_period := current_val
+    range_val = max_val_in_period - min_val_in_period
+    normalized_value = 0.0 
+    if range_val != 0.0 and not na(range_val) 
+        normalized_value := (src - min_val_in_period) / range_val
+    normalized_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(200, "Lookback Length", minval=1, tooltip="Lookback period for finding min/max. Must be >= 1.")
+
+// Calculation
+normalizedValue = normalize(i_source, i_length)
+
+// Plot
+plot(normalizedValue, "Normalized Value [0,1]", color=color.yellow, linewidth=2)

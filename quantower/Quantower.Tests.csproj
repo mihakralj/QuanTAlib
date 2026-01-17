@@ -58,6 +58,8 @@
     <Compile Include="..\lib\oscillators\**\*.cs" Exclude="..\lib\oscillators\**\*.Tests.cs;..\lib\oscillators\**\*.Validation.Tests.cs;..\lib\oscillators\**\*.Quantower.cs;..\lib\oscillators\**\obj\**;..\lib\oscillators\**\bin\**" />
     <!-- Include cycles implementations (excluding Quantower adapters - handled separately) -->
     <Compile Include="..\lib\cycles\**\*.cs" Exclude="..\lib\cycles\**\*.Tests.cs;..\lib\cycles\**\*.Validation.Tests.cs;..\lib\cycles\**\*.Quantower.cs;..\lib\cycles\**\obj\**;..\lib\cycles\**\bin\**" />
+    <!-- Include numerics implementations (excluding Quantower adapters - handled separately) -->
+    <Compile Include="..\lib\numerics\**\*.cs" Exclude="..\lib\numerics\**\*.Tests.cs;..\lib\numerics\**\*.Validation.Tests.cs;..\lib\numerics\**\*.Quantower.cs;..\lib\numerics\**\obj\**;..\lib\numerics\**\bin\**" />
     <!-- Include IndicatorExtensions -->
     <Compile Include="IndicatorExtensions.cs" />
     <!-- Include Quantower adapter implementations from quantower folder -->

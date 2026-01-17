@@ -17,7 +17,7 @@ QuanTAlib provides technical indicators organized into mathematical families. Un
 | [**Channels**](../lib/channels/_index.md) | Price boundaries and range definitions | Donchian, Keltner, Bollinger | Breakout strategies and range-bound trading. Defining "normal" so abnormal becomes visible. |
 | [**Statistics**](../lib/statistics/_index.md) | Mathematical relationships between price series | Correlation, Covariance, Beta, Z-Score | Portfolio analysis, pairs trading, statistical arbitrage. Quantitative analysis beyond single instruments. |
 | [**Numerics**](../lib/numerics/_index.md) | Mathematical transformations and signal processing | Convolution, Integration, Differentiation | Custom indicator development and advanced signal processing. Building blocks for novel indicators. |
-| [**Errors**](../lib/errors/_index.md) | Measurement accuracy and model fit quality | MAE, RMSE, Residuals, R² | Model validation and forecast assessment. Quantifying wrongness before production quantifies losses. |
+| [**Errors**](../lib/errors/_index.md) | Measurement accuracy and model fit quality | MAE, RMSE, Residuals, RÂ² | Model validation and forecast assessment. Quantifying wrongness before production quantifies losses. |
 | [**Forecasts**](../lib/forecasts/_index.md) | Future price prediction and projection | Linear regression extrapolation, adaptive prediction | Projecting price based on historical patterns. Predictions that invite humility. |
 | [**Cycles**](../lib/cycles/_index.md) | Periodic patterns and dominant frequencies | Hilbert Transform, Dominant Cycle | Identifying cyclical market behavior. Markets exhibit cycles; detecting them reliably remains hard. |
 
@@ -131,6 +131,7 @@ Rate of change and velocity measurements. First derivatives of price.
 | :-------- | :-------- | :---- |
 | [**BOP**](../lib/momentum/bop/Bop.md) | Balance of Power | Close position in range |
 | [**CFB**](../lib/momentum/cfb/Cfb.md) | Composite Fractal Behavior | Jurik fractal momentum |
+| [**ROC**](../lib/momentum/roc/Roc.md) | Rate of Change | Absolute price change over N periods |
 | [**RSX**](../lib/momentum/rsx/Rsx.md) | Jurik RSX | Smoothed RSI variant |
 | [**VEL**](../lib/momentum/vel/Vel.md) | Jurik Velocity | Adaptive velocity |
 
@@ -184,3 +185,23 @@ Predictive indicators and extrapolation methods.
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
 | [**AFIRMA**](../lib/forecasts/afirma/Afirma.md) | Adaptive FIR MA | Predictive FIR filter |
+
+### Numerics
+
+Mathematical transformations and derivative indicators. Building blocks for analysis.
+
+| Indicator | Full Name | Notes |
+| :-------- | :-------- | :---- |
+| [**ACCEL**](../lib/numerics/accel/Accel.md) | Acceleration (2nd Derivative) | Change in slope; momentum |
+| [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement (current - past) / past |
+| [**EXP**](../lib/numerics/exp/Exp.md) | Exponential Transform | e^x transform for log-space reversal |
+| [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) amortized via monotonic deque |
+| [**JERK**](../lib/numerics/jerk/Jerk.md) | Jerk (3rd Derivative) | Change in acceleration |
+| [**LINEAR**](../lib/numerics/linear/Linear.md) | Linear Transform | y = ax + b scaling transformation |
+| [**LOG**](../lib/numerics/log/Log.md) | Logarithmic Transform | Natural log for percentage analysis |
+| [**LOWEST**](../lib/numerics/lowest/Lowest.md) | Rolling Minimum | O(1) amortized via monotonic deque |
+| [**MIDPOINT**](../lib/numerics/midpoint/Midpoint.md) | Rolling Midpoint | (Highest + Lowest) / 2 |
+| [**NORMALIZE**](../lib/numerics/normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] via rolling min/max |
+| [**RELU**](../lib/numerics/relu/Relu.md) | Rectified Linear Unit | max(0, x); activation function |
+| [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x); bounded [0,1] transform |
+| [**SLOPE**](../lib/numerics/slope/Slope.md) | Slope (1st Derivative) | Rate of change; velocity |

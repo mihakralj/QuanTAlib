@@ -1,0 +1,25 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Exponential Transformation (EXP)", "EXP", overlay=false)
+
+//@function Applies an exponential transformation (y = e^x) to the input series.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/exp.md
+//@param source series float The input series to transform.
+//@returns series float The exponentially transformed series.
+//@optimized for performance and dirty data
+expT(series float source) =>
+    if na(source)
+        runtime.error("Parameter 'source' cannot be na.")
+    math.exp(source)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input(close, "Source")
+
+// Calculation
+transformedSource = expT(i_source)
+
+// Plot
+plot(transformedSource, "Exponential Transformation", color=color.yellow, linewidth=2)

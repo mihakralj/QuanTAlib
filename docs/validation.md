@@ -126,7 +126,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Hanning Window MA** | Hanma | - | - | - | ❔ |
 | **Harmonic Mean** | Harmean | - | - | - | - |
 | **High-Low Volatility** | Hlv | - | - | - | - |
-| **Highest value** | Highest | - | - | - | - |
+| **Highest value** | [Highest](../lib/numerics/highest/Highest.md) | ✔️ | ✔️ | - | - |
 | **Hilbert Transform Dominant Cycle Period** | Ht_dcperiod | ✔️ | - | - | - |
 | **Hilbert Transform Dominant Cycle Phase** | Ht_dcphase | ✔️ | - | - | - |
 | **Hilbert Transform Instantaneous Trend** | [Htit](../lib/trends/htit/htit.md) | ✔️ | - | ✔️ | ✔️ |
@@ -164,8 +164,10 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Linear Trend MA** | Ltma | - | - | - | - |
 | **LOESS/LOWESS Smoothing** | [Loess](../lib/filters/loess/Loess.md) | - | - | - | - |
 | **Logarithmic Transformation** | Log | - | - | - | - |
-| **Logistic Function** | Sigmoid | - | - | - | - |
-| **Lowest value** | Lowest | - | - | - | - |
+| **Logistic Function** | [Sigmoid](../lib/numerics/sigmoid/Sigmoid.md) | - | - | - | - |
+| **Lowest value** | [Lowest](../lib/numerics/lowest/Lowest.md) | ✔️ | ✔️ | - | - |
+| **Lunar Phase** | Lunar | - | - | - | - |
+| **Lowest value** | [Lowest](../lib/numerics/lowest/Lowest.md) | ✔️ | ✔️ | - | - |
 | **Lunar Phase** | Lunar | - | - | - | - |
 | **Mass Index** | Mass | - | ✔️ | - | ❔ |
 | **McGinley Dynamic** | [Mgdi](../lib/trends/mgdi/mgdi.md) | - | - | ✔️ | ✔️ |
@@ -178,8 +180,9 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Mean Squared Error** | Mse | - | - | - | - |
 | **Mean Squared Logarithmic Error** | Msle | - | - | - | - |
 | **MESA Adaptive Moving Average** | [Mama](../lib/trends/mama/mama.md) | ✔️ | - | ✔️ | ✔️ |
+| **Midpoint** | [Midpoint](../lib/numerics/midpoint/Midpoint.md) | ✔️ | - | - | - |
 | **Min-Max Channel** | Mmchannel | - | - | - | - |
-| **Min-Max Scaling (Normalization)** | Normalize | - | - | - | - |
+| **Min-Max Scaling (Normalization)** | [Normalize](../lib/numerics/normalize/Normalize.md) | - | - | - | - |
 | **Mode (Most Frequent)** | Mode | - | - | - | - |
 | **Modified MA** | [Mma](../lib/trends_IIR/mma/Mma.md) | - | - | - | - |
 | **Momentum** | Mom | ✔️ | ✔️ | - | ❔ |
@@ -196,7 +199,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Parabolic SAR** | Psar | ✔️ | ✔️ | ✔️ | ❔ |
 | **Parkinson Volatility** | Pv | - | - | - | - |
 | **Pascal Weighted Moving Average** | [Pwma](../lib/trends/pwma/pwma.md) | - | - | - | - |
-| **Percentage Change** | Change | - | - | - | - |
+| **Percentage Change** | [Change](../lib/numerics/change/Change.md) | ✔️ | - | - | - |
 | **Percentage Price Oscillator** | Ppo | ✔️ | ✔️ | - | ❔ |
 | **Percentage Volume Oscillator** | Pvo | - | - | ✔️ | ❔ |
 | **Percentile** | Percentile | - | - | - | - |
@@ -212,13 +215,13 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Qstick Indicator** | Qstick | - | - | - | ❔ |
 | **Quad Exponential MA** | [Qema](../lib/trends_IIR/qema/Qema.md) | - | - | - | - |
 | **Quantile** | Quantile | - | - | - | - |
-| **Rate of acceleration; 3rd derivative** | Jolt | - | - | - | - |
-| **Rate of Change** | Roc | ✔️ | ✔️ | ✔️ | ❔ |
+| **Rate of acceleration; 3rd derivative** | [Jerk](../lib/numerics/jerk/Jerk.md) | - | - | - | - |
+| **Rate of Change** | [Roc](../lib/momentum/roc/Roc.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Rate of change; 1st derivative** | [Slope](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Rate of Change Percentage** | Rocp | ✔️ | - | - | - |
 | **Rate of Change Ratio** | Rocr | ✔️ | ✔️ | - | - |
 | **Realized Volatility** | Rv | - | - | - | - |
-| **Rectified Linear Unit** | Relu | - | - | - | - |
+| **Rectified Linear Unit** | [Relu](../lib/numerics/relu/Relu.md) | - | - | - | - |
 | **Recursive Gaussian MA** | [Rgma](../lib/trends_IIR/rgma/Rgma.md) | - | - | - | - |
 | **Regression Channels** | Regchannel | - | - | - | - |
 | **Regularized Exponential MA** | [Rema](../lib/trends_IIR/rema/Rema.md) | - | - | - | ❔ |

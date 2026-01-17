@@ -1,0 +1,31 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Percentage Change (CHANGE)", "CHANGE", overlay=false, format=format.percent)
+
+//@function Calculates the percentage change of a source series over a specified length using the history referencing operator for efficiency.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/change.md
+//@param source The source series (e.g. close price).
+//@param length The lookback period (number of bars). Must be > 0.
+//@returns float The percentage change over the specified length. Returns `na` if the historical value is `na` or zero.
+//@optimized Uses direct history access `source[length]` instead of array manipulation.
+change(float source, int length) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    float oldValue = source[length]
+    if na(oldValue) or oldValue == 0
+        na
+    else
+        (source / oldValue - 1) // Already a percentage, Pine handles plotting format
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(1, "Length", minval = 1)
+
+// Calculation
+result = change(i_source, i_length)
+
+// Plot
+plot(result, "Change %", color.blue, color=color.yellow, linewidth=2)

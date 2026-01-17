@@ -143,7 +143,7 @@
 | JB | Jarque-Bera Test | Statistics |
 | JBANDS | Jurik Volatility Bands | Channels |
 | [JMA](lib/trends_IIR/jma/Jma.md) | Jurik MA | Trends (IIR) |
-| JOLT | Rate of acceleration; 3rd derivative | Numerics |
+| JERK | Rate of acceleration; 3rd derivative | Numerics |
 | JVOLTY | Jurik Volatility | Volatility |
 | JVOLTYN | Jurik Volatility Normalized [0,1] | Volatility |
 | [KAMA](lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Trends (IIR) |
@@ -229,7 +229,7 @@
 | [RMA](lib/trends_IIR/rma/Rma.md) | wildeR MA (SMMA, MMA) | Trends (IIR) |
 | [RMSE](lib/errors/rmse/Rmse.md) | Root Mean Squared Error | Errors |
 | [RMSLE](lib/errors/rmsle/Rmsle.md) | Root Mean Squared Logarithmic Error | Errors |
-| ROC | Rate of Change | Momentum |
+| [ROC](lib/momentum/roc/Roc.md) | Rate of Change | Momentum |
 | ROCP | Rate of Change Percentage | Momentum |
 | ROCR | Rate of Change Ratio | Momentum |
 | [RSE](lib/errors/rse/Rse.md) | Relative Squared Error | Errors |

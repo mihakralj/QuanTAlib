@@ -15,49 +15,49 @@ Core momentum concepts:
 
 | Indicator | Full Name | Status | Description |
 | :--- | :--- | :---: | :--- |
-| ADX | Average Directional Index | =Ë | Quantifies trend intensity by smoothing the expansion of daily ranges, independent of direction |
-| ADXR | ADX Rating | =Ë | Averages current and historical ADX to measure momentum change |
-| AMAT | Archer Moving Averages Trends | =Ë | Identifies trend direction and strength using dual EMAs with slope confirmation |
-| AO | Awesome Oscillator | =Ë | Measures immediate velocity vs broader trend using fast/slow median-price SMAs |
-| APO | Absolute Price Oscillator | =Ë | Absolute difference between two EMAs |
-| AROON | Aroon | =Ë | Gauges trend freshness by measuring time elapsed since last high and low |
-| AROONOSC | Aroon Oscillator | =Ë | Difference between Aroon Up and Aroon Down |
+| ADX | Average Directional Index | =Ã‹ | Quantifies trend intensity by smoothing the expansion of daily ranges, independent of direction |
+| ADXR | ADX Rating | =Ã‹ | Averages current and historical ADX to measure momentum change |
+| AMAT | Archer Moving Averages Trends | =Ã‹ | Identifies trend direction and strength using dual EMAs with slope confirmation |
+| AO | Awesome Oscillator | =Ã‹ | Measures immediate velocity vs broader trend using fast/slow median-price SMAs |
+| APO | Absolute Price Oscillator | =Ã‹ | Absolute difference between two EMAs |
+| AROON | Aroon | =Ã‹ | Gauges trend freshness by measuring time elapsed since last high and low |
+| AROONOSC | Aroon Oscillator | =Ã‹ | Difference between Aroon Up and Aroon Down |
 | [BOP](bop/Bop.md) | Balance of Power |  | Measures buyer/seller strength by comparing close to open relative to range |
-| CCI | Commodity Channel Index | =Ë | Measures price deviation from statistical mean, identifies cyclical turns |
+| CCI | Commodity Channel Index | =Ã‹ | Measures price deviation from statistical mean, identifies cyclical turns |
 | [CFB](cfb/Cfb.md) | Composite Fractal Behavior |  | Measures trend duration and quality via fractal efficiency across 96 time scales |
-| CHOP | Choppiness Index | =Ë | Quantifies market choppiness vs trending behavior |
-| CMO | Chande Momentum Oscillator | =Ë | Momentum using both up and down changes, bounded but not clamped like RSI |
-| DMX | Directional Movement Index | =Ë | Low-lag, bipolar replacement for DMI/ADX combining direction and strength |
-| DPO | Detrended Price Oscillator | =Ë | Removes trend to isolate cycles |
-| DX | Directional Index | =Ë | Base component for ADX calculation |
-| FISHER | Fisher Transform | =Ë | Gaussian normalization for clearer turning points |
-| IMI | Intraday Momentum Index | =Ë | Candlestick-based momentum for intraday analysis |
-| INERTIA | Inertia | =Ë | Measures resistance to price change |
-| KDJ | KDJ Indicator | =Ë | Extended stochastic with J line for divergence |
+| CHOP | Choppiness Index | =Ã‹ | Quantifies market choppiness vs trending behavior |
+| CMO | Chande Momentum Oscillator | =Ã‹ | Momentum using both up and down changes, bounded but not clamped like RSI |
+| DMX | Directional Movement Index | =Ã‹ | Low-lag, bipolar replacement for DMI/ADX combining direction and strength |
+| DPO | Detrended Price Oscillator | =Ã‹ | Removes trend to isolate cycles |
+| DX | Directional Index | =Ã‹ | Base component for ADX calculation |
+| FISHER | Fisher Transform | =Ã‹ | Gaussian normalization for clearer turning points |
+| IMI | Intraday Momentum Index | =Ã‹ | Candlestick-based momentum for intraday analysis |
+| INERTIA | Inertia | =Ã‹ | Measures resistance to price change |
+| KDJ | KDJ Indicator | =Ã‹ | Extended stochastic with J line for divergence |
 | [MACD](macd/Macd.md) | Moving Average Convergence Divergence |  | Relationship between two EMAs, identifies momentum and trend direction |
-| MOM | Momentum | =Ë | Raw price change over specified period |
-| PGO | Pretty Good Oscillator | =Ë | Normalized momentum relative to ATR |
-| PMO | Price Momentum Oscillator | =Ë | Double-smoothed ROC oscillator |
-| PPO | Percentage Price Oscillator | =Ë | MACD expressed as percentage for cross-instrument comparison |
-| PRS | Price Relative Strength | =Ë | Performance ratio between two assets |
-| QSTICK | Qstick | =Ë | Quantifies candlestick patterns |
-| ROC | Rate of Change | =Ë | Absolute price change over N periods |
-| ROCP | Rate of Change Percentage | =Ë | Percentage price change over N periods |
-| ROCR | Rate of Change Ratio | =Ë | Price ratio over N periods |
+| MOM | Momentum | =Ã‹ | Raw price change over specified period |
+| PGO | Pretty Good Oscillator | =Ã‹ | Normalized momentum relative to ATR |
+| PMO | Price Momentum Oscillator | =Ã‹ | Double-smoothed ROC oscillator |
+| PPO | Percentage Price Oscillator | =Ã‹ | MACD expressed as percentage for cross-instrument comparison |
+| PRS | Price Relative Strength | =Ã‹ | Performance ratio between two assets |
+| QSTICK | Qstick | =Ã‹ | Quantifies candlestick patterns |
+| [ROC](roc/Roc.md) | Rate of Change |  | Absolute price change over N periods |
+| ROCP | Rate of Change Percentage | =Ã‹ | Percentage price change over N periods |
+| ROCR | Rate of Change Ratio | =Ã‹ | Price ratio over N periods |
 | [RSI](rsi/Rsi.md) | Relative Strength Index |  | Speed and change of price movements, bounded 0-100 |
 | [RSX](rsx/Rsx.md) | Relative Strength Quality Index |  | Noise-free RSI using cascaded IIR filters, zero lag at turning points |
-| SMI | Stochastic Momentum Index | =Ë | Stochastic variant measuring distance from midpoint of range |
-| STOCH | Stochastic Oscillator | =Ë | Position within recent range, classic overbought/oversold indicator |
-| STOCHF | Stochastic Fast | =Ë | Unsmoothed stochastic for faster signals |
-| STOCHRSI | Stochastic RSI | =Ë | Stochastic applied to RSI for faster extremes |
-| TRIX | Triple Exponential Average | =Ë | Triple-smoothed rate of change |
-| TSI | True Strength Index | =Ë | Double-smoothed momentum oscillator |
-| ULTOSC | Ultimate Oscillator | =Ë | Combines three timeframes with weighted averages |
+| SMI | Stochastic Momentum Index | =Ã‹ | Stochastic variant measuring distance from midpoint of range |
+| STOCH | Stochastic Oscillator | =Ã‹ | Position within recent range, classic overbought/oversold indicator |
+| STOCHF | Stochastic Fast | =Ã‹ | Unsmoothed stochastic for faster signals |
+| STOCHRSI | Stochastic RSI | =Ã‹ | Stochastic applied to RSI for faster extremes |
+| TRIX | Triple Exponential Average | =Ã‹ | Triple-smoothed rate of change |
+| TSI | True Strength Index | =Ã‹ | Double-smoothed momentum oscillator |
+| ULTOSC | Ultimate Oscillator | =Ã‹ | Combines three timeframes with weighted averages |
 | [VEL](vel/Vel.md) | Jurik Velocity |  | Market acceleration via PWMA vs WMA differential |
-| VORTEX | Vortex Indicator | =Ë | Trend direction and strength from true range |
-| WILLR | Williams %R | =Ë | Inverse stochastic, measures overbought/oversold |
+| VORTEX | Vortex Indicator | =Ã‹ | Trend direction and strength from true range |
+| WILLR | Williams %R | =Ã‹ | Inverse stochastic, measures overbought/oversold |
 
-**Legend**:  Implemented | =Ë Planned
+**Legend**:  Implemented | =Ã‹ Planned
 
 ## Indicator Selection Guide
 

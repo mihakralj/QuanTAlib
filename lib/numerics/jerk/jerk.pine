@@ -1,0 +1,113 @@
+
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Acceleration, Slope of Slope (JERK)", "JERK", overlay=false, precision=8)
+
+//@function Calculates jerk (slope of slope of slope)
+//@param src Source series to calculate slope from
+//@param len Lookback period for calculation
+//@returns jerk
+jerk(series float src, simple int len1) =>
+    if len1 <= 1
+        runtime.error("Length 1 for first slope calculation must be greater than 1")
+    var float sumX1 = 0.0, var float sumY1 = 0.0, var float sumXY1 = 0.0, var float sumX21 = 0.0
+    var int   validCount1 = 0
+    var array<float> x_values1 = array.new_float(len1)
+    var array<float> y_values1 = array.new_float(len1)
+    var int   head1 = 0
+    var int internal_time_counter1 = 0
+    if internal_time_counter1 >= len1
+        float oldX1 = array.get(x_values1, head1)
+        float oldY1 = array.get(y_values1, head1)
+        if not na(oldY1)
+            sumX1 := sumX1 - oldX1, sumY1 := sumY1 - oldY1
+            sumXY1 := sumXY1 - oldX1 * oldY1, sumX21 := sumX21 - oldX1 * oldX1
+            validCount1 := validCount1 - 1
+    float currentX1 = internal_time_counter1
+    float currentY1 = src
+    array.set(x_values1, head1, currentX1)
+    array.set(y_values1, head1, currentY1)
+    if not na(currentY1)
+        sumX1 := sumX1 + currentX1, sumY1 := sumY1 + currentY1
+        sumXY1 := sumXY1 + currentX1 * currentY1, sumX21 := sumX21 + currentX1 * currentX1
+        validCount1 := validCount1 + 1
+    head1 := (head1 + 1) % len1
+    internal_time_counter1 := internal_time_counter1 + 1
+    float current_slope1 = na
+    if validCount1 >= 2
+        float n1 = validCount1
+        float divisor1 = n1 * sumX21 - sumX1 * sumX1
+        if divisor1 != 0.0
+            current_slope1 := (n1 * sumXY1 - sumX1 * sumY1) / divisor1
+    var float sumX2 = 0.0, var float sumY2 = 0.0, var float sumXY2 = 0.0, var float sumX22 = 0.0
+    var int   validCount2 = 0
+    var array<float> x_values2 = array.new_float(len1)
+    var array<float> y_values2 = array.new_float(len1)
+    var int   head2 = 0
+    var int internal_time_counter2 = 0
+    if internal_time_counter2 >= len1
+        float oldX2 = array.get(x_values2, head2)
+        float oldY2 = array.get(y_values2, head2)
+        if not na(oldY2)
+            sumX2 := sumX2 - oldX2, sumY2 := sumY2 - oldY2
+            sumXY2 := sumXY2 - oldX2 * oldY2, sumX22 := sumX22 - oldX2 * oldX2
+            validCount2 := validCount2 - 1
+    float currentX2 = internal_time_counter2
+    float currentY2 = current_slope1
+    array.set(x_values2, head2, currentX2)
+    array.set(y_values2, head2, currentY2)
+    if not na(currentY2)
+        sumX2 := sumX2 + currentX2, sumY2 := sumY2 + currentY2
+        sumXY2 := sumXY2 + currentX2 * currentY2, sumX22 := sumX22 + currentX2 * currentX2
+        validCount2 := validCount2 + 1
+    head2 := (head2 + 1) % len1
+    internal_time_counter2 := internal_time_counter2 + 1
+    float current_accel = na
+    if validCount2 >= 2
+        float n2 = validCount2
+        float divisor2 = n2 * sumX22 - sumX2 * sumX2
+        if divisor2 != 0.0
+            current_accel := (n2 * sumXY2 - sumX2 * sumY2) / divisor2
+    var float sumX3 = 0.0, var float sumY3 = 0.0, var float sumXY3 = 0.0, var float sumX23 = 0.0
+    var int   validCount3 = 0
+    var array<float> x_values3 = array.new_float(len1)
+    var array<float> y_values3 = array.new_float(len1)
+    var int   head3 = 0
+    var int internal_time_counter3 = 0
+    if internal_time_counter3 >= len1
+        float oldX3 = array.get(x_values3, head3)
+        float oldY3 = array.get(y_values3, head3)
+        if not na(oldY3)
+            sumX3 := sumX3 - oldX3, sumY3 := sumY3 - oldY3
+            sumXY3 := sumXY3 - oldX3 * oldY3, sumX23 := sumX23 - oldX3 * oldX3
+            validCount3 := validCount3 - 1
+    float currentX3 = internal_time_counter3
+    float currentY3 = current_accel
+    array.set(x_values3, head3, currentX3)
+    array.set(y_values3, head3, currentY3)
+    if not na(currentY3)
+        sumX3 := sumX3 + currentX3, sumY3 := sumY3 + currentY3
+        sumXY3 := sumXY3 + currentX3 * currentY3, sumX23 := sumX23 + currentX3 * currentX3
+        validCount3 := validCount3 + 1
+    head3 := (head3 + 1) % len1
+    internal_time_counter3 := internal_time_counter3 + 1
+    float calculatedjerk = na
+    if validCount3 >= 2
+        float n3 = validCount3
+        float divisor3 = n3 * sumX23 - sumX3 * sumX3
+        if divisor3 != 0.0
+            calculatedjerk := (n3 * sumXY3 - sumX3 * sumY3) / divisor3
+    calculatedjerk
+
+    // ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+a = jerk(i_source, i_period)
+
+// Plot
+plot(a, "jerk", color=color.yellow, linewidth=2)
