@@ -141,6 +141,56 @@ VWAPBANDS provides multiple layers of market analysis:
 * Apply weekly VWAP for longer-term institutional benchmarking
 * Implement monthly VWAP for portfolio rebalancing levels
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+VWAP Bands uses cumulative sums for volume-weighted statistics:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 8 | 1 | 8 |
+| MUL | 6 | 3 | 18 |
+| DIV | 3 | 15 | 45 |
+| SQRT | 1 | 15 | 15 |
+| **Total** | **18** | — | **~86 cycles** |
+
+**Breakdown:**
+- Cumulative sum updates (pv, vol, pv²): 3 ADD + 3 MUL = 12 cycles
+- VWAP calculation: 1 DIV = 15 cycles
+- Variance (E[X²] - E[X]²): 1 DIV + 1 MUL + 1 SUB = 19 cycles
+- Std dev + bands: 1 SQRT + 1 MUL + 4 ADD = 22 cycles
+
+**Session reset:** Adds 1 CMP per bar for reset detection (~1 cycle).
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Cumulative sums with session reset |
+| Batch | O(n) | Linear scan |
+
+**Memory**: ~48 bytes (cumulative sums for pv, vol, pv², session state)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Cumulative sums vectorizable within session |
+| FMA | ✅ | `price * volume` pattern |
+| Batch parallelism | ❌ | Cumulative sums create dependencies |
+
+**Note:** Session resets create sequential boundaries that limit SIMD optimization across sessions.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Volume-weighted mean is statistically optimal |
+| **Timeliness** | 7/10 | Cumulative nature creates lag late in session |
+| **Overshoot** | 8/10 | Volume weighting stabilizes extremes |
+| **Smoothness** | 7/10 | Can be choppy early in session |
+
 ## Limitations and Considerations
 
 * **Session dependency:** Reset timing significantly affects indicator behavior and relevance

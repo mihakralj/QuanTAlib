@@ -65,6 +65,61 @@ Acceleration Bands provide several analytical perspectives:
 * **Complementary tool:** Works best when combined with other technical indicators for confirmation
 * **Timeframe dependence:** Optimal parameters vary across different timeframes
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 8 | 1 | 8 |
+| MUL | 2 | 3 | 6 |
+| DIV | 3 | 15 | 45 |
+| **Total** | **13** | — | **~59 cycles** |
+
+**Breakdown:**
+- SMA(High): 2 ADD + 1 DIV = 17 cycles (running sum)
+- SMA(Low): 2 ADD + 1 DIV = 17 cycles (running sum)
+- SMA(Close): 2 ADD + 1 DIV = 17 cycles (running sum)
+- Band width: 1 SUB = 1 cycle
+- Upper band: 1 MUL + 1 ADD = 4 cycles
+- Lower band: 1 MUL + 1 SUB = 4 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Three running sums with circular buffers |
+| Batch | O(n) | Linear scan, n = series length |
+
+**Memory**: ~192 bytes (three circular buffers for high, low, close SMAs).
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Band calc vectorizable; SMA recursion blocks full SIMD |
+| FMA | ✅ | `SMA(High) ± Factor × (SMA(High) - SMA(Low))` |
+| Batch parallelism | Partial | Three independent SMAs can be computed in parallel |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact computation |
+| **Timeliness** | 5/10 | SMA lag (period/2 bars typical) |
+| **Overshoot** | 4/10 | Adapts to high-low spread, not pure volatility |
+| **Smoothness** | 7/10 | SMA-based, inherently smooth |
+
+## Validation
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | ✅ | Validated against Skender.Stock.Indicators |
+| **Tulip** | N/A | Not implemented |
+| **Ooples** | N/A | Not implemented |
+| **Internal** | ✅ | Mode consistency verified |
+
 ## References
 
 * Headley, P. (2002). Big Trends in Trading: Strategies for Maximum Market Returns. John Wiley & Sons.

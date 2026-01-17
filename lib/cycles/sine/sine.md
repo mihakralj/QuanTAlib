@@ -64,6 +64,16 @@ Ehlers emphasizes that while market cycles can be ephemeral, their phase is a me
 * **Market Conditions:** Most effective in markets that exhibit relatively regular cyclical behavior. In strongly trending or very choppy markets, its utility diminishes.
 * **Subjectivity:** Choosing the correct `Dominant Cycle Period` is subjective and requires careful observation or other analytical methods.
 
+## C# Implementation Considerations
+
+The QuanTAlib implementation of SINE uses an efficient circular buffer approach with the following optimizations:
+
+* **Circular Buffer:** Uses `CircularBuffer` to maintain the phase history with O(1) operations for adding new values and accessing historical data.
+* **Incremental Phase Calculation:** The phase is calculated incrementally by adding a fixed phase increment per bar, avoiding recalculation of the entire history.
+* **Modulo Wrapping:** Phase values are wrapped using modulo 360 to ensure they stay within the 0-360 degree range.
+* **Warmup Handling:** The indicator properly handles the warmup period, requiring at least one data point before producing valid output.
+* **Memory Efficiency:** Only stores the minimum required historical data (period + 1 values) rather than the entire price history.
+
 ## References
 
 * Ehlers, J. F. (2001). *Rocket Science for Traders: Digital Signal Processing Applications*. John Wiley & Sons.

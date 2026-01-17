@@ -4,7 +4,7 @@
 >
 > "All error metrics are flawed, but some are less misleading." — Every quantitative analyst at 3 AM
 
-Error metrics quantify the gap between prediction and reality. Sounds simple. Is not. The choice of error metric shapes what your model optimizes, what failures it hides, and what surprises await you in production. QuanTAlib provides over 20 error metrics, each with distinct mathematical properties, failure modes, and use cases.
+Error metrics quantify the gap between prediction and reality. Sounds simple. Is not. The choice of error metric shapes what a model optimizes, what failures it hides, and what surprises await in production. QuanTAlib provides over 20 error metrics, each with distinct mathematical properties, failure modes, and use cases.
 
 ## The Physics of Error Measurement
 
@@ -16,23 +16,25 @@ Different metrics compress differently:
 - **Relative metrics** (MAPE, SMAPE) normalize by scale
 - **Robust metrics** (Huber, MdAE) resist outlier corruption
 - **Comparative metrics** (MASE, R²) benchmark against naive alternatives
+- **Bias metrics** (ME, MPE) reveal systematic over/underprediction
+- **Weighted metrics** (WMAPE, Quantile) handle asymmetric costs
 
 No metric dominates. Each illuminates one facet of model failure while obscuring others.
 
 ## Architectural Foundation
 
-QuanTAlib implements error metrics with streaming efficiency. Most achieve O(1) updates via running sums and ring buffers. Two median-based metrics (MdAE, MdAPE) require O(n log n) sorting per update because median computation has no incremental shortcut.
+QuanTAlib implements error metrics with streaming efficiency. Most achieve O(1) updates via running sums and ring buffers. Two median-based metrics (MdAE, MdAPE) require O(n log n) sorting per update because median computation has no incremental shortcut. Mathematics sometimes refuses to cooperate.
 
 ### Performance Characteristics
 
 | Complexity | Metrics | Notes |
-| :--- | :--- | :--- |
+| :--------- | :------ | :---- |
 | **O(1) streaming** | 23 metrics | Running sum with periodic resync |
 | **O(n log n) streaming** | MdAE, MdAPE | Sorting required for median |
 | **SIMD batch** | 15 metrics | AVX2 via ErrorHelpers |
 | **Zero allocation** | All | stackalloc for buffers ≤256 |
 
-The O(1) indicators maintain running sums with periodic recalculation (every 1000 ticks) to prevent floating-point drift accumulation.
+The O(1) indicators maintain running sums with periodic recalculation (every 1000 ticks) to prevent floating-point drift accumulation. Trust but verify, even with arithmetic.
 
 ## Metric Categories
 
@@ -58,7 +60,7 @@ Quadratic penalty amplifies large errors. Standard in optimization because squar
 
 **When to use**: When large errors are disproportionately costly.
 
-**Weakness**: Single outlier can dominate. RMSE of 100 might mean "consistently off by 100" or "perfect except one error of 1000."
+**Weakness**: Single outlier can dominate. RMSE of 100 might mean "consistently off by 100" or "perfect except one error of 1000." The metric does not distinguish these scenarios; sleep-deprived analysts must.
 
 #### MSE (Mean Squared Error)
 
@@ -70,7 +72,7 @@ RMSE squared. Units are squared, making interpretation awkward, but mathematical
 
 $$\text{MdAE} = \text{median}(|y_i - \hat{y}_i|)$$
 
-The median ignores up to 50% outliers. 50% breakdown point.
+The median ignores up to 50% outliers. Maximum breakdown point achievable.
 
 **When to use**: Contaminated data where outliers are measurement errors, not signal.
 
@@ -78,7 +80,7 @@ The median ignores up to 50% outliers. 50% breakdown point.
 
 ### 2. Percentage Error Metrics
 
-Normalize by actual values for scale-independence. Percentage interpretation aids communication with non-technical stakeholders.
+Normalize by actual values for scale-independence. Percentage interpretation aids communication with stakeholders who fled mathematics long ago.
 
 #### MAPE (Mean Absolute Percentage Error)
 
@@ -88,7 +90,7 @@ The classic percentage error. "Model is off by X% on average."
 
 **When to use**: Comparing accuracy across series with different scales.
 
-**Fatal flaw**: Undefined when $y_i = 0$. Asymmetric: underestimation bounded at 100%, overestimation unbounded. A prediction of 200 for actual 100 gives 100% error. A prediction of 0 for actual 100 also gives 100% error. A prediction of 100 for actual 200 gives 50% error. This asymmetry biases models toward underprediction.
+**Fatal flaw**: Undefined when $y_i = 0$. Asymmetric in ways that surprise: underestimation bounded at 100%, overestimation unbounded. A prediction of 200 for actual 100 gives 100% error. A prediction of 0 for actual 100 also gives 100% error. A prediction of 100 for actual 200 gives 50% error. This asymmetry biases models toward underprediction without telling anyone.
 
 #### SMAPE (Symmetric Mean Absolute Percentage Error)
 
@@ -98,7 +100,7 @@ Bounded 0-200%. Symmetric treatment of over/underprediction.
 
 **When to use**: When MAPE's asymmetry is problematic.
 
-**Weakness**: Still sensitive to near-zero actuals. The "symmetric" claim is debated in literature.
+**Weakness**: Still sensitive to near-zero actuals. The "symmetric" claim is debated in literature with more vigor than most academic disputes.
 
 #### MAPD (Mean Absolute Percentage Deviation)
 
@@ -132,7 +134,7 @@ Positive ME: model underpredicts. Negative ME: model overpredicts.
 
 **When to use**: Detecting systematic bias.
 
-**Weakness**: Errors can cancel. ME near zero does not imply accuracy.
+**Weakness**: Errors can cancel. ME near zero does not imply accuracy, just balanced wrongness.
 
 #### MPE (Mean Percentage Error)
 
@@ -152,7 +154,7 @@ Scales by naive forecast error (random walk). MASE < 1 beats naive.
 
 **When to use**: Scale-free comparison. The recommended metric for M-competitions.
 
-**Key insight**: Denominator is the MAE of predicting "tomorrow equals today." If your model cannot beat this, reconsider your approach.
+**Key insight**: Denominator is the MAE of predicting "tomorrow equals today." If the model cannot beat this, reconsider the approach. Seriously.
 
 #### RAE (Relative Absolute Error)
 
@@ -170,7 +172,7 @@ Squared variant of RAE. Related to R² by: $R^2 = 1 - \text{RSE}$.
 
 $$R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}$$
 
-Proportion of variance explained. R² = 1 is perfect. R² = 0 equals mean predictor. R² < 0 is worse than predicting the mean.
+Proportion of variance explained. R² = 1 is perfect. R² = 0 equals mean predictor. R² < 0 is worse than predicting the mean (a humbling outcome).
 
 **When to use**: Model quality assessment. Widely understood.
 
@@ -248,7 +250,7 @@ Approximately quadratic for small a, approximately linear for large a. Smooth ev
 
 $$L_\tau(a) = \begin{cases} \tau \cdot a & \text{if } a \ge 0 \\ (\tau - 1) \cdot a & \text{otherwise} \end{cases}$$
 
-Asymmetric loss for quantile regression. τ = 0.5 gives MAE. τ = 0.9 penalizes underprediction 9x more than overprediction.
+Asymmetric loss for quantile regression. τ = 0.5 gives MAE. τ = 0.9 penalizes underprediction 9× more than overprediction.
 
 **When to use**: When cost of over/underprediction differs.
 
@@ -265,7 +267,7 @@ Weights errors by actual values. High-value items contribute more.
 ## Comparison Matrix
 
 | Metric | Scale | Outlier Robust | Bias Detect | Near-Zero Safe | Complexity |
-| :--- | :--- | :--- | :--- | :--- | :--- |
+| :----- | :---- | :------------- | :---------- | :------------- | :--------- |
 | MAE | Original | ✓ | ✗ | ✓ | O(1) |
 | RMSE | Original | ✗ | ✗ | ✓ | O(1) |
 | MSE | Squared | ✗ | ✗ | ✓ | O(1) |
@@ -287,9 +289,9 @@ Legend: ✓ Yes, ✗ No, ○ Partial, ✓✓ Very
 
 ## Selection Guidelines
 
-### Start Here
+### Decision Tree
 
-``` decision-tree
+```text
 Is interpretability critical?
 ├─ Yes → MAE (everyone understands "off by X units")
 └─ No → Continue
@@ -318,14 +320,14 @@ Different cost for over/under?
 
 ### By Domain
 
-| Domain | Primary | Secondary | Avoid |
-| :--- | :--- | :--- | :--- |
-| Financial trading | MAE, RMSE | Pseudo-Huber, Huber | MAPE (prices cross zero) |
-| Demand forecasting | WMAPE, MASE | SMAPE | Plain MAPE |
-| Model comparison | MASE, R² | RAE | Scale-dependent metrics |
-| Academic papers | RMSE, R² | MAE | Depends on field |
-| Production monitoring | MAE, ME | MAPE | Complex losses |
-| ML model training | Pseudo-Huber, Log-Cosh | Huber | MSE (outlier sensitive) |
+| Domain | Primary | Secondary | Notes |
+| :----- | :------ | :-------- | :---- |
+| Financial trading | MAE, RMSE | Pseudo-Huber, Huber | Prices cross zero; avoid MAPE |
+| Demand forecasting | WMAPE, MASE | SMAPE | Total volume matters |
+| Model comparison | MASE, R² | RAE | Scale-free required |
+| Academic papers | RMSE, R² | MAE | Field conventions vary |
+| Production monitoring | MAE, ME | MAPE | Simplicity wins at 3 AM |
+| ML model training | Pseudo-Huber, Log-Cosh | Huber | Outlier resistance + smooth gradients |
 
 ## Implementation Details
 
@@ -401,24 +403,36 @@ mae.Update(101.0, 97.0);      // Normal, updates last valid
 // R² < 0 is possible (worse than mean prediction)
 ```
 
+### Metric Selection Regret
+
+Choosing MAPE for a dataset that occasionally touches zero. Choosing RMSE for data with known outliers. Choosing R² and celebrating 0.99 without checking for overfitting. These mistakes compound in production. Selection happens once; consequences repeat daily.
+
 ## Performance Benchmarks
 
-Measured on 10,000-element series, period = 20, Intel i9-13900K:
+Measured on 10,000-element series, period = 20:
 
-| Metric | Streaming (ns/update) | Batch (ns/element) |
-| :--- | :--- | :--- |
-| MAE | 12 | 3.2 |
-| RMSE | 14 | 3.8 |
-| MAPE | 15 | 4.1 |
-| Huber | 18 | 5.2 |
-| R² | 45 | 12 |
-| MdAE | 850 | 420 |
-| MASE | 28 | 8.5 |
+| Test Environment | Specification |
+| :--------------- | :------------ |
+| CPU | Intel i9-13900K |
+| Series Length | 10,000 elements |
+| Period | 20 |
+| Framework | .NET 8.0 |
 
-Batch mode achieves 3-4x throughput via SIMD (AVX2) for applicable metrics.
+| Metric | Streaming (ns/update) | Batch (ns/element) | Speedup |
+| :----- | --------------------: | -----------------: | ------: |
+| MAE | 12 | 3.2 | 3.75× |
+| RMSE | 14 | 3.8 | 3.68× |
+| MAPE | 15 | 4.1 | 3.66× |
+| Huber | 18 | 5.2 | 3.46× |
+| R² | 45 | 12 | 3.75× |
+| MASE | 28 | 8.5 | 3.29× |
+| MdAE | 850 | 420 | 2.02× |
+
+Batch mode achieves 3-4× throughput via SIMD (AVX2) for applicable metrics. MdAE's modest 2× improvement reflects sorting overhead that vectorization cannot eliminate.
 
 ## References
 
 1. Hyndman, R.J., & Koehler, A.B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting*, 22(4), 679-688.
 2. Makridakis, S. (1993). Accuracy measures: theoretical and practical concerns. *International Journal of Forecasting*, 9(4), 527-529.
 3. Armstrong, J.S., & Collopy, F. (1992). Error measures for generalizing about forecasting methods: Empirical comparisons. *International Journal of Forecasting*, 8(1), 69-80.
+4. Chai, T., & Draxler, R.R. (2014). Root mean square error (RMSE) or mean absolute error (MAE)? *Geoscientific Model Development*, 7(3), 1247-1250.

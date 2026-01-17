@@ -109,6 +109,62 @@ HT_PHASOR provides direct access to cycle components for advanced analysis:
   * Frequency: Rate of change of phase angle
   * Power: `I² + Q²` for energy without sqrt overhead
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 28 | 1 | 28 |
+| MUL | 32 | 3 | 96 |
+| DIV | 2 | 15 | 30 |
+| **Total** | **62** | — | **~154 cycles** |
+
+**Breakdown:**
+
+- **Price smoothing** (WMA-4): 4 MUL + 3 ADD + 1 DIV = ~20 cycles
+- **Hilbert FIR (Detrender)**: 4 MUL + 4 ADD = ~16 cycles
+- **Bandwidth adaptation**: 2 MUL + 1 ADD = ~7 cycles
+- **Hilbert FIR (Q1)**: 4 MUL + 4 ADD = ~16 cycles
+- **Hilbert FIR (jI)**: 4 MUL + 4 ADD = ~16 cycles
+- **Hilbert FIR (jQ)**: 4 MUL + 4 ADD = ~16 cycles
+- **I2/Q2 computation**: 2 ADD/SUB = ~2 cycles
+- **EMA smoothing (×2)**: 4 MUL + 4 ADD = ~16 cycles
+- **Period calculation** (internal): ~45 cycles (includes atan)
+
+Note: Unlike HT_DCPHASE, HT_PHASOR outputs raw I/Q components without final atan2, saving ~80 cycles. Period calculation is internal for bandwidth adaptation.
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Fixed Hilbert FIR taps, EMA smoothing |
+| Batch | O(n) | Linear scan over price bars |
+
+**Memory**: ~120 bytes (state variables for 4 Hilbert FIRs, smoothed I2/Q2, period tracking)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | Recursive IIR (EMA) dependencies |
+| FMA | ✅ | EMA smoothing: `prev * 0.8 + curr * 0.2` |
+| Batch parallelism | ❌ | State-dependent recursion |
+
+**FMA opportunities:**
+
+- EMA smoothing uses `a*b + c` pattern
+- Hilbert FIR coefficients are fixed, enabling compile-time optimization
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | High-quality phasor extraction via Hilbert Transform |
+| **Timeliness** | 6/10 | ~3-bar inherent delay from FIR smoothing |
+| **Flexibility** | 9/10 | Raw I/Q enables custom amplitude/phase derivation |
+| **Smoothness** | 7/10 | EMA smoothing reduces noise; some jitter in transitions |
+
 ## Limitations and Considerations
 
 * **Raw Components:** Less intuitive than derived metrics (phase, amplitude); requires understanding of complex analysis

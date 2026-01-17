@@ -43,3 +43,56 @@ The implementation includes:
 * Proper handling of NA values
 * Input validation
 * Percentage-based band width calculation
+
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | EMA Type | SMA Type | WMA Type | Cost |
+| :--- | :---: | :---: | :---: | :---: |
+| ADD/SUB | 2 | 2 | 1 | 1 cycle |
+| MUL | 4 | 2 | 2 | 3 cycles |
+| DIV | 0 | 1 | 1 | 15 cycles |
+
+**Per-bar totals:**
+- **EMA type**: 2×1 + 4×3 = ~14 cycles
+- **SMA type**: 2×1 + 2×3 + 1×15 = ~23 cycles (running sum)
+- **WMA type**: 1×1 + 2×3 + 1×15 = ~22 cycles (running sums)
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming (EMA) | O(1) | IIR recursion, constant time |
+| Streaming (SMA) | O(1) | Running sum with circular buffer |
+| Streaming (WMA) | O(1) | Incremental weight adjustment |
+| Batch | O(n) | Linear scan, n = series length |
+
+**Memory**: Fixed ~64 bytes state regardless of period.
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | EMA/SMA recursion prevents parallelization |
+| FMA | ✅ | Band calculation: `Middle ± Middle × factor` |
+| Batch parallelism | Partial | Band calc vectorizable after MA computed |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact computation |
+| **Timeliness** | 5/10 | MA lag inherited (period/2 for SMA) |
+| **Overshoot** | 2/10 | Fixed percentage, no volatility adaptation |
+| **Smoothness** | 7/10 | Follows MA smoothness |
+
+## Validation
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | N/A | Not implemented |
+| **Tulip** | N/A | Not implemented |
+| **Ooples** | N/A | Not implemented |
+| **Internal** | ✅ | Mode consistency verified |

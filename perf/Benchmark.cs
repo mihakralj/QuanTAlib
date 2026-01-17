@@ -3,7 +3,6 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using QuanTAlib;
 using QuanTAlib.Benchmarks;
 using Skender.Stock.Indicators;
@@ -19,10 +18,9 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        // Run: dotnet run -c Release -- --filter *Sma* *Ema* *Wma*
         var config = ManualConfig.Create(DefaultConfig.Instance)
-            .AddJob(Job.ShortRun
-                .WithToolchain(InProcessNoEmitToolchain.Instance)
-                .WithId(".NET 10.0"))
+            .AddJob(Job.ShortRun.WithId("NET10-JIT"))
             .AddColumn(StatisticColumn.Mean)
             .AddColumn(StatisticColumn.StdDev)
             .HideColumns(Column.Job, Column.Error, Column.RatioSD);

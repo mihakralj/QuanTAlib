@@ -93,6 +93,49 @@ DSP provides cycle-focused market analysis through the isolated cyclical compone
 * **Requires Cycle Knowledge:** Best results when dominant cycle period is known (use HT_DCPERIOD for adaptive approach)
 * **Not Predictive Alone:** Shows current cycle state; combine with other tools for timing and confirmation
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 3 | 1 | 3 |
+| MUL | 4 | 3 | 12 |
+| **Total** | **7** | — | **~15 cycles** |
+
+**Breakdown:**
+- Fast EMA (quarter-cycle): 2 MUL + 1 ADD = 7 cycles
+- Slow EMA (half-cycle): 2 MUL + 1 ADD = 7 cycles
+- DSP difference: 1 SUB = 1 cycle
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Two IIR filters, constant time |
+| Batch | O(n) | Linear scan, no lookback iteration |
+
+**Memory**: ~24 bytes (2 EMA states × 8 bytes + output)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | IIR recursion prevents cross-bar parallelism |
+| FMA | ✅ | EMA: `α × price + (1-α) × prev` |
+| Batch parallelism | ❌ | Sequential dependency on previous EMA state |
+
+**FMA Optimization:** Each EMA can use single FMA instruction: `fma(α, price, (1-α) × prev)`, reducing 2 MUL + 1 ADD to 1 FMA + 1 MUL (~11 cycles total).
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Band-pass effect isolates dominant cycle |
+| **Timeliness** | 8/10 | Dual EMA minimizes lag vs single MA |
+| **Overshoot** | 7/10 | EMA smoothing reduces overshoot |
+| **Smoothness** | 8/10 | Clean oscillations when cycle present |
+
 ## References
 
 * Ehlers, J. F. (2013). *Cycle Analytics for Traders: Advanced Technical Trading Concepts*. Wiley Trading.

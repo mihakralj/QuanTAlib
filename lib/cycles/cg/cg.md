@@ -84,6 +84,54 @@ The Center of Gravity indicator provides several analytical perspectives:
 
 The Center of Gravity works best when combined with other cycle analysis tools and should be part of a broader trading system that includes trend and momentum confirmation.
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | n+1 | 1 | n+1 |
+| MUL | n | 3 | 3n |
+| DIV | 1 | 15 | 15 |
+| **Total** | **2n+2** | — | **~4n+16 cycles** |
+
+*Where n = Length (default 10)*
+
+**Default (n=10):** ~56 cycles per bar
+
+**Breakdown:**
+- Weighted sum Σ(i × price): n MUL + (n-1) ADD = 40 cycles
+- Price sum Σ(price): (n-1) ADD = 9 cycles
+- Division + centering: 1 DIV + 1 SUB = 16 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(n) | Full window iteration required (position weights) |
+| Batch | O(n×m) | n = length, m = bars |
+
+**Memory**: ~n×8 bytes (price buffer for lookback)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ✅ | Weighted sum is dot product with constant weights |
+| FMA | ✅ | `i × price + running_sum` pattern |
+| Batch parallelism | ✅ | FIR structure allows full vectorization |
+
+**SIMD Speedup (AVX2):** For n=10, weighted sum reduces from 10 MUL to ~2 vector ops (~5× speedup on dot product). Pre-computed weight vector [1,2,3,...,n] enables efficient `vfmadd` chains.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact weighted centroid calculation |
+| **Timeliness** | 7/10 | FIR introduces group delay ≈ n/2 |
+| **Overshoot** | 6/10 | Linear weights can amplify recent volatility |
+| **Smoothness** | 7/10 | Moderate smoothing from averaging |
+
 ## References
 
 * Ehlers, J. F. (2002). *Rocket Science for Traders: Digital Signal Processing Applications*. John Wiley & Sons.

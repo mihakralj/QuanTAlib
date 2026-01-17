@@ -1,37 +1,75 @@
-# Volatility
+# Volatility Indicators
 
-> "The market is a pendulum that swings between unsustainable optimism and unjustified pessimism." — Benjamin Graham
+> "Volatility is the price of admission. The question is whether the ride is worth it."
 
-Volatility is the pulse of the market. It measures the rate and magnitude of price changes, regardless of direction. In low volatility, markets consolidate and coil; in high volatility, they explode and trend.
+Volatility measures the magnitude of price changes, independent of direction. Low volatility indicates consolidation and coiling energy; high volatility indicates explosive movement and trend development. These indicators answer "how much?" and "how fast?", not "which way?".
 
-These indicators don't tell you where the price is going. They tell you how scared or greedy the participants are while it gets there.
+Core volatility concepts:
 
-| Indicator | Full Name | Description |
+- **Range-Based**: High minus Low, with or without gap adjustment (TR, ATR)
+- **Return-Based**: Standard deviation of log returns (HV, EWMA)
+- **Estimator-Based**: Statistical models using OHLC combinations (Garman-Klass, Yang-Zhang)
+- **Normalized**: Percentage or [0,1] scaled for cross-asset comparison (ATRP, ATRN)
+
+## Implementation Status
+
+| Indicator | Full Name | Status | Description |
+| :--- | :--- | :---: | :--- |
+| [ADR](adr/Adr.md) | Average Daily Range | ✅ | Simple High-Low range without gap adjustment |
+| [ATR](atr/Atr.md) | Average True Range | ✅ | Standard volatility measure accounting for gaps via True Range |
+| [ATRN](atrn/Atrn.md) | ATR Normalized | ✅ | ATR normalized to [0,1] based on historical min/max |
+| [ATRP](atrp/Atrp.md) | ATR Percent | ✅ | ATR as percentage of close price |
+| BBW | Bollinger Band Width | 📋 | Distance between upper and lower Bollinger Bands |
+| BBWN | BB Width Normalized | 📋 | BBW normalized to [0,1] range |
+| BBWP | BB Width Percentile | 📋 | BBW percentile rank over lookback |
+| CCV | Close-to-Close Volatility | 📋 | Annualized volatility from log returns |
+| CV | Conditional Volatility | 📋 | GARCH(1,1) model for time-varying volatility |
+| CVI | Chaikin Volatility | 📋 | Rate of change in smoothed High-Low range |
+| EWMA | EWMA Volatility | 📋 | Exponentially weighted squared returns |
+| GKV | Garman-Klass Volatility | 📋 | Efficient OHLC-based estimator |
+| HLV | High-Low Volatility | 📋 | Range-based volatility without close |
+| HV | Historical Volatility | 📋 | Standard deviation of returns |
+| JVOLTY | Jurik Volatility | 📋 | Low-lag, smooth Jurik volatility |
+| JVOLTYN | Jurik Volatility Normalized | 📋 | JVOLTY normalized to [0,1] |
+| MASSI | Mass Index | 📋 | Range expansion/contraction for reversal detection |
+| NATR | Normalized ATR | 📋 | ATR as percentage (equivalent to ATRP) |
+| PV | Parkinson Volatility | 📋 | High-Low estimator assuming no drift |
+| RSV | Rogers-Satchell Volatility | 📋 | OHLC estimator with drift adjustment |
+| RV | Realized Volatility | 📋 | High-frequency intraday volatility |
+| RVI | Relative Volatility Index | 📋 | Directional volatility measure |
+| TR | True Range | 📋 | Single-bar volatility with gap capture |
+| UI | Ulcer Index | 📋 | Downside risk and drawdown depth/duration |
+| VOV | Volatility of Volatility | 📋 | Second derivative: how fast volatility changes |
+| VR | Volatility Ratio | 📋 | Current TR relative to average TR |
+| YZV | Yang-Zhang Volatility | 📋 | OHLC plus overnight gap estimator |
+
+**Legend**: ✅ Implemented | 📋 Planned
+
+## Indicator Selection Guide
+
+| Use Case | Recommended | Rationale |
 | :--- | :--- | :--- |
-| [ADR](lib/volatility/adr/Adr.md) | Average Daily Range | Measures the average daily price movement range over a specified period. |
-| [ATR](lib/volatility/atr/Atr.md) | Average True Range | The standard for measuring market "heat." Decomposes range to account for gaps. |
-| [ATRN](lib/volatility/atrn/Atrn.md) | Average True Range Normalized [0,1] | ATR normalized to a 0-1 scale for comparative analysis. |
-| [ATRP](lib/volatility/atrp/Atrp.md) | Average True Range Percent | ATR expressed as a percentage of the closing price. |
-| BBW | Bollinger Band Width | Measures the difference between the upper and lower Bollinger Bands. |
-| BBWN | Bollinger Band Width Normalized | Measures the current Bollinger Band Width relative to its historical range in [0.0,1.0] normalized space. |
-| BBWP | Bollinger Band Width Percentile | Measures the current Bollinger Band Width relative to its historical range. |
-| CCV | Close-to-Close Volatility | Measures annualized volatility using log returns of closing prices. |
-| CV | Conditional Volatility | Implements GARCH(1,1) model to capture time-varying volatility. |
-| CVI | Chaikin's Volatility | Measures volatility as the rate of change in smoothed high-low range using EMA and ROC. |
-| EWMA | Exponential Weighted MA Volatility | Volatility calculated using an exponentially weighted moving average of squared returns. |
-| GKV | Garman-Klass Volatility | Volatility estimator using high, low, open, and close prices for improved efficiency. |
-| HLV | High-Low Volatility | Volatility measure based solely on the range between high and low prices. |
-| HV | Historical Volatility | Standard deviation of price returns over a historical period. |
-| JVOLTY | Jurik Volatility | Low-lag, smooth volatility measure developed by Mark Jurik. |
-| JVOLTYN | Jurik Volatility Normalized [0,1] | Jurik Volatility normalized to a 0-1 scale. |
-| MASSI | Mass Index | Predicts trend reversals by analyzing the narrowing and widening of price ranges. |
-| NATR | Normalized Average True Range | ATR expressed as a percentage of close price for cross-market comparison. |
-| PV | Parkinson Volatility | Volatility estimator using high and low prices, assuming no drift. |
-| RSV | Rogers-Satchell Volatility | Volatility estimator incorporating high, low, open, and close prices. |
-| RV | Realized Volatility | Volatility calculated from high-frequency intra-day data. |
-| RVI | Relative Volatility Index | Measures the direction of volatility based on standard deviations of price changes. |
-| TR | True Range | Single-bar volatility measurement capturing gaps between sessions. |
-| UI | Ulcer Index | Measures downside risk and depth/duration of price drawdowns. |
-| VOV | Volatility of Volatility | Measures the rate of change in volatility itself. |
-| VR | Volatility Ratio | Compares the current true range to the average true range over a longer period. |
-| YZV | Yang-Zhang Volatility | Volatility estimator combining open, high, low, close, and overnight gaps. |
+| Position Sizing | ATR, ATRP | Standard for risk-based sizing |
+| Stop Loss Distance | ATR | Absolute measure in price units |
+| Cross-Asset Comparison | ATRP, ATRN | Normalized for different price scales |
+| Regime Detection | ATRN | [0,1] scale with clear thresholds |
+| Intraday Analysis | ADR | Gaps irrelevant for same-session |
+| Gap-Sensitive Analysis | ATR | True Range captures overnight gaps |
+
+## Volatility Regime Interpretation
+
+| ATRN Range | ATRP Typical | Regime | Implications |
+| :---: | :---: | :--- | :--- |
+| 0.8 - 1.0 | > 5% | Crisis/Extreme | Widen stops, reduce size, expect whipsaws |
+| 0.5 - 0.8 | 2-5% | Elevated | Trending conditions, standard trend-following |
+| 0.2 - 0.5 | 1-2% | Normal | Balanced conditions, mixed strategies |
+| 0.0 - 0.2 | < 1% | Compressed | Consolidation, mean-reversion, breakout setups |
+
+## ATR Family Comparison
+
+| Indicator | Output | Use Case |
+| :--- | :--- | :--- |
+| ATR | Absolute price units | Stop distance, position sizing in same asset |
+| ATRP | Percentage (0-100%) | Cross-asset comparison, percentage-based sizing |
+| ATRN | Normalized [0,1] | Regime detection, volatility ranking |
+| ADR | Absolute price units | Intraday analysis, gap-insensitive |

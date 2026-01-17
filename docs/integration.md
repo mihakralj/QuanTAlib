@@ -1,21 +1,18 @@
 # Integration Guides
 
-QuanTAlib is designed to be platform-agnostic. It can be integrated into any .NET environment.
+QuanTAlib is platform-agnostic. Any .NET environment that can reference a DLL can use it. The complexity lies not in the library but in understanding each platform's quirks.
 
 ## Quantower
 
-Quantower allows custom indicators via C#.
+Quantower accepts custom indicators written in C#. Integration follows a wrapper pattern.
 
-1. **Reference the DLL**:
-    * Build QuanTAlib or download the NuGet package.
-    * In your Quantower indicator project, add a reference to `QuanTAlib.dll`.
+### Setup
 
-2. **Wrapper Class**:
-    * Create a class that inherits from `Indicator`.
-    * Instantiate the QuanTAlib indicator in `OnInit`.
-    * Call `Update` in `OnUpdate`.
+1. Build QuanTAlib or grab the NuGet package
+2. Add reference to `QuanTAlib.dll` in the Quantower indicator project
+3. Create wrapper class inheriting from `Indicator`
 
-HEMA and ZLEMA are available in the Trends (IIR) bundle as `HemaIndicator` and `ZlemaIndicator`.
+### Example: SMA Indicator
 
 ```csharp
 using Quantower.API.Indicators;
@@ -36,34 +33,58 @@ public class MySmaIndicator : Indicator
 
     public override void OnUpdate(UpdateArgs args)
     {
-        // Get price from Quantower
         double price = ClosePrice;
 
-        // Update QuanTAlib
-        // Note: Quantower handles bar updates, so a check is performed to determine whether this is a new bar or an update
+        // Quantower handles bar lifecycle; check UpdateReason
         bool isNew = args.Reason == UpdateReason.NewBar;
         var result = _sma.Update(new TValue(DateTime.UtcNow, price), isNew);
 
-        // Set value to Quantower series
         SetValue(result.Value);
     }
 }
 ```
 
+### Available Quantower Bundles
+
+Pre-built adapters exist for common indicators:
+
+| Bundle | Indicators | Notes |
+| :----- | :--------- | :---- |
+| Trends (IIR) | HemaIndicator, ZlemaIndicator, EmaIndicator, etc. | Exponential family |
+| Trends (FIR) | SmaIndicator, WmaIndicator, HmaIndicator, etc. | Finite response family |
+| Volatility | AtrIndicator, AdrIndicator | Range-based volatility |
+| Dynamics | AdxIndicator, SuperTrendIndicator | Trend strength |
+
+### Quantower Gotchas
+
+**UpdateReason matters.** Quantower calls `OnUpdate` for both new bars and intra-bar ticks. The `args.Reason` check determines `isNew` flag behavior. Getting this wrong causes state corruption that manifests as mysteriously wrong indicator values.
+
+**Historical data loads first.** Quantower calls `OnUpdate` repeatedly during historical load before live data arrives. The indicator warms up during this phase.
+
 ## NinjaTrader 8
 
-NinjaTrader 8 uses .NET Framework 4.8, but can interop with .NET Standard libraries.
+NinjaTrader 8 runs on .NET Framework 4.8. QuanTAlib targets .NET Standard, enabling interop.
 
-1. **Copy DLL**: Place `QuanTAlib.dll` in `Documents\NinjaTrader 8\bin\Custom`.
-2. **Add Reference**: In NinjaScript Editor, right-click > References > Add `QuanTAlib.dll`.
+### Setup
+
+1. Copy `QuanTAlib.dll` to `Documents\NinjaTrader 8\bin\Custom`
+2. In NinjaScript Editor: right-click ’ References ’ Add `QuanTAlib.dll`
+
+### Example: SMA Indicator
 
 ```csharp
+private QuanTAlib.Sma _sma;
+
+[Range(1, int.MaxValue)]
+[NinjaScriptProperty]
+public int Period { get; set; } = 14;
+
 protected override void OnStateChange()
 {
     if (State == State.SetDefaults)
     {
         Name = "QuanTAlib SMA";
-        // ...
+        Calculate = Calculate.OnBarClose;
     }
     else if (State == State.DataLoaded)
     {
@@ -73,56 +94,134 @@ protected override void OnStateChange()
 
 protected override void OnBarUpdate()
 {
-    // NinjaTrader calls OnBarUpdate for every tick (if Calculate = OnEachTick)
-    // or once per bar (if Calculate = OnBarClose)
+    // isNew depends on Calculate mode
+    // OnBarClose: every call is a new bar
+    // OnEachTick: use IsFirstTickOfBar
+    bool isNew = Calculate == Calculate.OnBarClose || IsFirstTickOfBar;
 
-    bool isNew = IsFirstTickOfBar; // Logic depends on Calculate mode
     var result = _sma.Update(new TValue(Time[0], Close[0]), isNew);
-
     Value[0] = result.Value;
 }
 ```
 
+### NinjaTrader Gotchas
+
+**Calculate mode affects isNew logic.** With `Calculate.OnBarClose`, every `OnBarUpdate` call represents a completed bar. With `Calculate.OnEachTick`, only the first tick of each bar should use `isNew = true`. Mixing these concepts produces indicators that work in backtest but fail live.
+
+**Historical vs real-time.** NinjaTrader processes historical bars differently from real-time bars. The `State` property indicates the current phase. Indicator warmup should complete during historical processing.
+
 ## QuantConnect (LEAN)
 
-LEAN supports custom libraries.
+LEAN supports custom libraries through NuGet integration.
 
-1. **NuGet**: Add `QuanTAlib` to your `config.json` or project file.
-2. **Usage**: Use inside `OnData`.
+### Setup
+
+1. Add `QuanTAlib` to project dependencies
+2. Instantiate indicators in `Initialize()`
+3. Update in `OnData()`
+
+### Example: Algorithm with SMA
 
 ```csharp
 public class MyAlgorithm : QCAlgorithm
 {
     private Sma _mySma;
+    private Symbol _symbol;
 
     public override void Initialize()
     {
+        SetStartDate(2020, 1, 1);
+        SetEndDate(2023, 12, 31);
+        SetCash(100000);
+
+        _symbol = AddEquity("SPY", Resolution.Daily).Symbol;
         _mySma = new Sma(14);
     }
 
     public override void OnData(Slice data)
     {
-        if (data.Bars.ContainsKey("SPY"))
-        {
-            var bar = data.Bars["SPY"];
-            var result = _mySma.Update(new TValue(bar.EndTime, (double)bar.Close));
+        if (!data.Bars.ContainsKey(_symbol))
+            return;
 
-            if (_mySma.IsHot)
+        var bar = data.Bars[_symbol];
+        var result = _mySma.Update(new TValue(bar.EndTime, (double)bar.Close));
+
+        if (_mySma.IsHot)
+        {
+            Plot("Indicators", "SMA", result.Value);
+
+            // Trading logic here
+            if (!Portfolio[_symbol].Invested && result.Value < (double)bar.Close)
             {
-                Plot("Indicators", "SMA", result.Value);
+                SetHoldings(_symbol, 0.5);
             }
         }
     }
 }
 ```
 
+### LEAN Gotchas
+
+**Decimal to double conversion.** LEAN uses `decimal` for prices; QuanTAlib uses `double`. Cast on input, cast back on output if needed. The precision difference rarely matters for indicator calculations.
+
+**Resolution affects bar timing.** Daily bars have different `EndTime` semantics than minute bars. UTC timestamps prevent timezone confusion.
+
 ## Custom Platform Integration
 
-For proprietary trading engines, the **Streaming Mode** is usually the best fit.
+For proprietary trading engines, Streaming Mode fits most use cases.
 
-### Key Considerations
+### Integration Checklist
 
-1. **Time Handling**: QuanTAlib uses `DateTime.UtcNow`. Ensure your platform provides UTC timestamps or convert them.
-2. **Double Precision**: All calculations use `double`. If your platform uses `decimal`, cast to `double` for input and back to `decimal` for output.
-3. **State Management**: Persist the indicator instance for the lifetime of the symbol/strategy. Do not recreate the indicator on every tick.
-4. **Concurrency**: `Update` is not thread-safe for the same instance. If processing multiple symbols in parallel, use separate indicator instances for each symbol.
+| Consideration | Requirement | Consequence of Ignoring |
+| :------------ | :---------- | :---------------------- |
+| **Time handling** | UTC timestamps | Timezone bugs in historical analysis |
+| **Numeric precision** | `double` input/output | Cast from/to `decimal` if platform uses it |
+| **State persistence** | One instance per symbol | Recreating indicators loses warmup state |
+| **Thread safety** | Separate instances per thread | Concurrent access corrupts internal state |
+| **Bar correction** | Proper `isNew` flag usage | State accumulation errors |
+
+### Minimal Integration Pattern
+
+```csharp
+public class MyTradingEngine
+{
+    // One indicator instance per symbol, persisted for session lifetime
+    private readonly Dictionary<string, Sma> _indicators = new();
+
+    public void OnSymbolAdded(string symbol, int smaPeriod)
+    {
+        _indicators[symbol] = new Sma(smaPeriod);
+    }
+
+    public void OnTick(string symbol, DateTime time, double price, bool isNewBar)
+    {
+        if (!_indicators.TryGetValue(symbol, out var sma))
+            return;
+
+        var result = sma.Update(new TValue(time, price), isNewBar);
+
+        if (sma.IsHot)
+        {
+            // Use result.Value for trading logic
+            ProcessSignal(symbol, result.Value, price);
+        }
+    }
+
+    public void OnSymbolRemoved(string symbol)
+    {
+        _indicators.Remove(symbol);
+    }
+}
+```
+
+### The isNew Flag: Getting It Right
+
+The `isNew` flag determines whether `Update()` advances to the next bar or corrects the current one. Correct implementation depends on data source semantics:
+
+| Data Source Type | isNew = true When | isNew = false When |
+| :--------------- | :---------------- | :----------------- |
+| Bar-based feed | New bar arrives | Never (each bar final) |
+| Tick-based, bar aggregation | First tick after bar close | Subsequent ticks within bar |
+| Streaming with corrections | Timestamp advances | Same timestamp, updated price |
+
+**Testing approach:** Feed identical data through the indicator in streaming mode (tick by tick with correct `isNew` flags) and batch mode (complete series at once). Compare final values. Mismatch indicates `isNew` flag logic error.

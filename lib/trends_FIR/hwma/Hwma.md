@@ -83,17 +83,40 @@ Given $F_{t-1}=100$, $V_{t-1}=2$, $A_{t-1}=0.5$, and new price $P_t=105$:
 
 ## Performance Profile
 
-HWMA excels in efficiency with its O(1) update cost.
+### Operation Count (Streaming Mode, Scalar)
+
+HWMA is extremely lightweight—O(1) with minimal operations:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA | 3 | 4 | 12 |
+| MUL | 3 | 3 | 9 |
+| ADD/SUB | 4 | 1 | 4 |
+| **Total** | **10** | — | **~25 cycles** |
+
+**Hot path breakdown:**
+- Level update: `FMA(prevF + prevV + 0.5×prevA, decayAlpha, alpha×val)` → 1 FMA + 2 MUL + 2 ADD
+- Velocity update: `FMA(prevV + prevA, decayBeta, beta×(newF - prevF))` → 1 FMA + 1 MUL + 1 SUB
+- Acceleration update: `FMA(prevA, decayGamma, gamma×(newV - prevV))` → 1 FMA + 1 MUL + 1 SUB
+- Output: `newF + newV + 0.5×newA` → 2 ADD + 1 MUL
+
+### Batch Mode (SIMD)
+
+HWMA is recursive (IIR)—SIMD parallelization across bars is not possible. Each output depends on the previous state.
+
+| Mode | Cycles/bar | Notes |
+| :--- | :---: | :--- |
+| Streaming (scalar) | ~25 | FMA-optimized |
+| Batch (scalar) | ~25 | No SIMD benefit for IIR |
+
+### Quality Metrics
 
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 8ns/bar | Constant time. FMA-optimized core. |
-| **Allocations** | 0 | Three scalar state variables only. |
-| **Complexity** | $O(1)$ | No buffer, no iteration. |
-| **Accuracy** | 10/10 | Matches definition to `double` precision. |
-| **Timeliness** | 9/10 | Acceleration tracking reduces effective lag. |
-| **Overshoot** | 6/10 | May overshoot during trend reversals. |
-| **Smoothness** | 7/10 | Good for trends; noisier during consolidation. |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Matches definition to `double` precision |
+| **Timeliness** | 9/10 | Acceleration tracking reduces effective lag |
+| **Overshoot** | 6/10 | May overshoot during trend reversals |
+| **Smoothness** | 7/10 | Good for trends; noisier during consolidation |
 
 ### Implementation Details
 
@@ -136,6 +159,70 @@ QuanTAlib validates HWMA against its PineScript reference implementation.
 | **Skender** | ❌ | Not included. |
 | **Tulip** | ❌ | Not included. |
 | **Ooples** | ❌ | Not included. |
+
+### C# Implementation Considerations
+
+The QuanTAlib HWMA implementation optimizes triple exponential smoothing through FMA operations and precomputed decay constants:
+
+**Precomputed Decay Constants**
+```csharp
+_alpha = 2.0 / (period + 1.0);
+_beta = 1.0 / period;
+_gamma = 1.0 / period;
+_decayAlpha = 1.0 - _alpha;
+_decayBeta = 1.0 - _beta;
+_decayGamma = 1.0 - _gamma;
+```
+All six constants computed once at construction. The decay values (1-α, 1-β, 1-γ) avoid repeated subtraction per tick.
+
+**State Record Struct with Auto Layout**
+```csharp
+[StructLayout(LayoutKind.Auto)]
+private record struct State(
+    double F, double V, double A,
+    double LastValidValue,
+    bool IsInitialized
+);
+private State _state;
+private State _p_state;
+```
+Compiler optimizes field ordering. Three smoothing components plus validation tracking fit in ~41 bytes.
+
+**FusedMultiplyAdd Throughout**
+```csharp
+double forecast = prevF + prevV + 0.5 * prevA;
+double newF = Math.FusedMultiplyAdd(forecast, _decayAlpha, _alpha * val);
+double newV = Math.FusedMultiplyAdd(prevV + prevA, _decayBeta, _beta * (newF - prevF));
+double newA = Math.FusedMultiplyAdd(prevA, _decayGamma, _gamma * (newV - prevV));
+```
+All three component updates use FMA for `a*b+c` patterns, reducing rounding error and leveraging hardware acceleration.
+
+**O(1) Memory Footprint**
+Unlike FIR filters, HWMA requires no buffer—only state variables. No `ArrayPool`, no `stackalloc`, no circular buffer management.
+
+**Dual Constructor API**
+```csharp
+public Hwma(int period = 10)  // Derives α, β, γ from period
+public Hwma(double alpha, double beta, double gamma)  // Explicit smoothing factors
+```
+Period-based constructor for common use; explicit factors for fine-tuned control with validation.
+
+**Memory Layout**
+
+| Field | Type | Size | Notes |
+|:------|:-----|-----:|:------|
+| `_period` | int | 4B | Conceptual period (display) |
+| `_alpha` | double | 8B | Level smoothing |
+| `_beta` | double | 8B | Velocity smoothing |
+| `_gamma` | double | 8B | Acceleration smoothing |
+| `_decayAlpha` | double | 8B | 1 - α |
+| `_decayBeta` | double | 8B | 1 - β |
+| `_decayGamma` | double | 8B | 1 - γ |
+| `_state` | State | ~41B | F, V, A, lastValid, init flag |
+| `_p_state` | State | ~41B | Previous state for rollback |
+| **Total** | | ~142B | Fixed size, no period scaling |
+
+HWMA has constant memory regardless of period—approximately **142 bytes** per instance.
 
 ## Common Pitfalls
 

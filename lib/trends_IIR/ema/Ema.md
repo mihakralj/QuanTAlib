@@ -1,86 +1,197 @@
 # EMA: Exponential Moving Average
 
-> "The EMA exists because traders in the 1960s were tired of their SMA jumping like a caffeinated squirrel every time a price from 20 days ago dropped out of the window. So they invented a filter that remembers everything but cares about nothing old. Brilliant."
+> "The SMA drops an old price, the average jumps, the signal fires, the market does something unhelpful. The EMA exists because someone finally asked: what if old data just... mattered less?"
 
-EMA (Exponential Moving Average) is the standard by which all other averages are judged. Unlike the SMA, which treats data from 10 days ago with the same reverence as data from 10 seconds ago, the EMA understands that in markets, recency is relevance. It applies an exponentially decaying weight to older prices, reacting faster to new information while never completely forgetting the past. The AK-47 of technical indicators: been around forever, everyone uses it, not fancy, but it works.
+The Exponential Moving Average is the reference standard for trend-following indicators. Unlike the SMA, which treats data from 10 days ago with the same reverence as data from 10 seconds ago (a touching but mathematically questionable form of loyalty), the EMA applies exponentially decaying weights to older prices. The result: faster reaction to new information without the "drop-off effect" that makes SMA users twitch nervously around window boundaries. Simple, well-understood, computationally cheap. The indicator equivalent of a reliable sedan: not glamorous, but it starts every morning.
 
 ## Historical Context
 
-The EMA was brought to the financial world to solve the "drop-off effect" of the SMA. Picture this: your 20-day SMA is cruising along, and suddenly an outlier price from exactly 20 days ago drops out of the window. Your average jumps. Your signal fires. Your algorithm buys. The market laughs. By using a recursive formula, the EMA includes *all* past data in its calculation, with weights diminishing exponentially toward zero. No drop-off, no surprises, no caffeinated squirrel behavior. It is the infinite impulse response (IIR) filter of the trading world.
+The EMA entered financial analysis to solve a specific problem with the SMA: window discontinuity. Picture a 20-day SMA cruising along smoothly. Then an outlier price from exactly 20 days ago drops out of the window. The average jumps. The signal fires. The position opens. The market, with characteristic indifference, moves the other way.
+
+This "drop-off effect" made the SMA behave like a meticulously organized filing cabinet that occasionally explodes. By using a recursive formula, the EMA includes *all* past data in its calculation, with weights diminishing exponentially toward zero. No drop-off, no discontinuity. This makes it an Infinite Impulse Response (IIR) filter in signal processing terminology: the impulse response never fully reaches zero, but it gets small enough that even the most pedantic quant can be persuaded to ignore it.
 
 ## Architecture & Physics
 
-The EMA is defined by its smoothing factor, $\alpha$:
+The EMA is controlled by a single parameter: the smoothing factor $\alpha$.
 
-* **High $\alpha$ (close to 1)**: Fast decay, responsive, noisy. Every tick matters. Your signal will fire at shadows.
-* **Low $\alpha$ (close to 0)**: Slow decay, smooth, laggy. You'll catch the trend, but you'll also be late to every party.
+$$
+\alpha = \frac{2}{N + 1}
+$$
 
-The relationship between period $N$ and $\alpha$ is: $\alpha = \frac{2}{N + 1}$. A 10-period EMA has $\alpha \approx 0.18$. A 100-period EMA has $\alpha \approx 0.02$. The period is just a human-friendly way to express exponential decay.
+where $N$ is the "period" (a human-friendly proxy for decay rate).
 
-### The Compensator (Warmup Correction)
+| Period | Alpha | Half-life (bars) | Behavior |
+| -----: | ----: | ---------------: | :------- |
+| 5 | 0.333 | ~2.4 | Very responsive, noisy |
+| 10 | 0.182 | ~4.4 | Fast, some noise |
+| 20 | 0.095 | ~8.7 | Balanced |
+| 50 | 0.039 | ~21.8 | Smooth, significant lag |
+| 100 | 0.020 | ~43.7 | Very smooth, very laggy |
 
-Here's where QuanTAlib diverges from the crowd. A standard EMA starts at zero (or seeds with the first price) and takes $3N$ bars to converge within 5% of its true value. During warmup, you're trading on lies.
+The half-life formula: $t_{1/2} = \frac{\ln(2)}{\ln(1/(1-\alpha))} \approx \frac{N-1}{2}$
 
-QuanTAlib implements a **mathematical compensator** that corrects for initialization bias. The EMA is statistically valid from bar one. Not approximately valid. Actually valid. This means the first 14 bars of a 10-period EMA will differ from TA-Lib. TA-Lib is wrong. QuanTAlib is correct. File your complaints with the laws of mathematics.
+### Warmup Compensation
+
+Standard EMA implementations start at zero (or seed with the first price) and take approximately $3N$ bars to converge within 5% of the true value. During warmup, the output is biased.
+
+QuanTAlib implements a mathematical compensator that corrects for initialization bias:
+
+$$
+E_t = (1 - \alpha)^t
+$$
+
+$$
+\text{Corrected}_t = \frac{\text{Raw}_t}{1 - E_t}
+$$
+
+This produces statistically valid output from bar one. The first 14 bars of a 10-period EMA will differ from TA-Lib. TA-Lib uses an approximation (the technical term is "good enough for most purposes, which is precisely the problem"). QuanTAlib uses the mathematically correct value.
 
 ## Mathematical Foundation
 
-The standard recursive formula:
+### Recursive Formula
 
-$$ \alpha = \frac{2}{N + 1} $$
+$$
+\text{EMA}_t = \alpha \cdot P_t + (1 - \alpha) \cdot \text{EMA}_{t-1}
+$$
 
-$$ \text{EMA}_t = \alpha \cdot P_t + (1 - \alpha) \cdot \text{EMA}_{t-1} $$
+Rewritten for fused multiply-add optimization:
 
-This can be rewritten using fused multiply-add for precision:
+$$
+\text{EMA}_t = \text{FMA}(\text{EMA}_{t-1}, \text{decay}, \alpha \cdot P_t)
+$$
 
-$$ \text{EMA}_t = \text{FMA}(\text{EMA}_{t-1}, (1 - \alpha), \alpha \cdot P_t) $$
+where $\text{decay} = 1 - \alpha$.
 
-### Bias Compensation
+### Transfer Function
 
-To handle the initialization bias (where $\text{EMA}_0$ is unknown), the sum of weights is tracked:
+In z-domain:
 
-$$ E_t = (1 - \alpha)^t $$
+$$
+H(z) = \frac{\alpha}{1 - (1-\alpha) z^{-1}}
+$$
 
-$$ \text{Corrected EMA}_t = \frac{\text{Uncorrected EMA}_t}{1 - E_t} $$
+This is a first-order IIR low-pass filter with cutoff frequency determined by $\alpha$.
 
-This ensures the EMA doesn't lie to you for the first $N$ bars like every other library.
+### Frequency Response
+
+The -3dB cutoff frequency:
+
+$$
+f_c = \frac{\alpha}{2\pi} \cdot f_s
+$$
+
+For a 20-period EMA on daily data: $f_c \approx 0.015$ cycles/day, or roughly a 67-day period.
 
 ## Performance Profile
 
-Benchmarked on Apple M4, .NET 10.0, AdvSIMD, 500,000 bars:
+### Operation Count (Streaming Mode)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :-------- | ----: | ------------: | -------: |
+| FMA | 1 | 4 | 4 |
+| MUL | 1 | 3 | 3 |
+| **Total (post-warmup)** | **2** | — | **~7 cycles** |
+
+During warmup (first ~3N bars), additional operations for bias compensation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :-------- | ----: | ------------: | -------: |
+| MUL | 1 | 3 | 3 |
+| SUB | 1 | 1 | 1 |
+| DIV | 1 | 15 | 15 |
+| CMP | 2 | 1 | 2 |
+| **Warmup overhead** | **5** | — | **~21 cycles** |
+
+**Total during warmup:** ~28 cycles/bar. **Post-warmup:** ~7 cycles/bar.
+
+### SIMD Analysis
+
+EMA is inherently recursive: each value depends on the previous. SIMD parallelization across bars is not possible. The recursive dependency chain cannot be vectorized.
+
+Available optimizations:
+
+| Technique | Benefit |
+| :-------- | :------ |
+| FMA instruction | ~2 cycles saved vs MUL+ADD |
+| Loop unrolling (4×) | Reduced branch overhead |
+| Unsafe memory access | Eliminated bounds checking |
+
+### Benchmark Results
+
+Test environment: Apple M4, .NET 10.0, AdvSIMD, 500,000 bars.
 
 | Metric | Value | Notes |
-| :--- | :--- | :--- |
-| **Throughput (Span)** | 381 μs / 500K bars | 0.76 ns/bar, ~1.3B bars/sec |
-| **Throughput (Streaming)** | ~2 ns/bar | Single Update() call |
-| **Allocations (Hot Path)** | 0 bytes | Verified via BenchmarkDotNet |
-| **Complexity** | O(1) | Single FMA operation |
-| **State Size** | 32 bytes | Two doubles (EMA, compensator) |
+| :----- | ----: | :---- |
+| **Span throughput** | 381 μs / 500K bars | 0.76 ns/bar |
+| **Streaming throughput** | ~2 ns/bar | Single `Update()` call |
+| **Allocations (hot path)** | 0 bytes | Verified via BenchmarkDotNet |
+| **Complexity** | O(1) | Per-bar |
+| **State size** | 32 bytes | Two doubles + flags |
 
 ### Comparative Performance
 
-| Library | Time (500K bars) | Allocated | Relative Speed |
-| :--- | ---: | ---: | :--- |
-| **QuanTAlib (Span)** | 381 μs | 0 B | 1.0× (baseline) |
-| **Tulip** | 353 μs | 0 B | 0.93× |
-| **TA-Lib** | 357 μs | 34 B | 0.94× |
-| **Skender** | 10,635 μs | 23.6 MB | 27.9× slower |
+| Library | Time (500K bars) | Allocated | Relative |
+| :------ | ---------------: | --------: | :------- |
+| **QuanTAlib (Span)** | 381 μs | 0 B | baseline |
+| Tulip | 353 μs | 0 B | 0.93× |
+| TA-Lib | 357 μs | 34 B | 0.94× |
+| Skender | 10,635 μs | 23.6 MB | 27.9× slower |
 
-QuanTAlib is competitive with C-based libraries (Tulip, TA-Lib) while providing bias-corrected results and zero allocations.
+QuanTAlib matches C-based libraries (Tulip, TA-Lib) in throughput while providing bias-corrected results and zero allocations.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :----- | ----: | :---- |
+| **Accuracy** | 8/10 | Reliable trend tracking |
+| **Timeliness** | 7/10 | Lag of ~N/2 bars |
+| **Overshoot** | 8/10 | Minimal on reversals |
+| **Smoothness** | 7/10 | Good noise rejection |
+
+## Validation
+
+Validated against external libraries in `Ema.Validation.Tests.cs`. Tests run against 5,000 bars with tolerance of 1e-9.
+
+| Library | Batch | Streaming | Span | Notes |
+| :------ | :---: | :-------: | :--: | :---- |
+| **TA-Lib** | ✅ | ✅ | ✅ | Matches after warmup (TA-Lib lacks compensator) |
+| **Skender** | ✅ | ✅ | ✅ | Matches `GetEma()` |
+| **Tulip** | ✅ | ✅ | ✅ | Matches `ema` indicator |
+| **Ooples** | ✅ | — | — | Matches `CalculateExponentialMovingAverage()` |
+
+Run validation:
+
+```bash
+dotnet test --filter "FullyQualifiedName~EmaValidation"
+```
+
+## Common Pitfalls
+
+1. **Warmup Divergence**: QuanTAlib uses bias compensation. Other libraries approximate. The first $N$ bars will differ. After ~3N bars, all libraries converge. Skip the first 3N bars when comparing cross-library results.
+
+2. **Alpha vs. Period Confusion**: `Ema(10)` uses $\alpha = 0.182$. `Ema(0.1)` uses $\alpha = 0.1$, equivalent to period ~19. The constructors accept both formats. They are not equivalent.
+
+3. **Lag Expectations**: A 20-period EMA lags approximately 10 bars behind price. The EMA reduces lag versus SMA but does not eliminate it. Zero-lag filters exist (JMA, Ehlers) but introduce their own complications. There is no free lunch, only differently priced lunches.
+
+4. **Period-Timeframe Mismatch**: An EMA(5) on hourly bars has a half-life of ~2.5 hours. Minor fluctuations become signals. The trading system interprets every coffee break as a trend reversal. Match period length to timeframe and expected signal duration.
+
+5. **Bar Correction Handling**: When processing live ticks within the same bar, use `Update(value, isNew: false)`. Use `isNew: true` (default) only when a new bar opens. Incorrect usage causes the EMA to advance N times faster than intended.
+
+6. **Cross-Library Comparison Window**: When validating against TA-Lib or Tulip, compare only bars after index 3N. Earlier bars will differ due to warmup handling differences.
 
 ## Usage Examples
 
 ```csharp
-// Streaming: Process one bar at a time
-var ema = new Ema(20);  // 20-period EMA
+// Streaming: one bar at a time
+var ema = new Ema(20);
 foreach (var bar in liveStream)
 {
     var result = ema.Update(new TValue(bar.Time, bar.Close));
     Console.WriteLine($"EMA: {result.Value:F2}");
 }
 
-// Using alpha directly (signal processing style)
-var fastEma = new Ema(0.2);  // α=0.2, roughly equivalent to period 9
+// Alpha-based construction (signal processing convention)
+var fastEma = new Ema(0.2);  // α=0.2, roughly period 9
 
 // Batch processing with Span (zero allocation)
 double[] prices = LoadHistoricalData();
@@ -94,38 +205,85 @@ var results = Ema.Batch(series, period: 20);
 
 // Event-driven chaining
 var source = new TSeries();
-var ema20 = new Ema(source, 20);  // Auto-updates when source changes
-var ema50 = new Ema(source, 50);  // Multiple indicators on same source
+var ema20 = new Ema(source, 20);
+var ema50 = new Ema(source, 50);
 source.Add(new TValue(DateTime.UtcNow, 100.0));  // Both EMAs update
 
 // Pre-load with historical data
 var ema = new Ema(20);
-ema.Prime(historicalPrices);  // Ready to process live data immediately
+ema.Prime(historicalPrices);  // Ready for live data
 ```
 
-## Validation
+## Implementation Notes
 
-Validated against external libraries in `Ema.Validation.Tests.cs`. Tests run against 5,000 bars with tolerance of 1e-9:
+### State Structure
 
-| Library | Batch | Streaming | Span | Notes |
-| :--- | :---: | :---: | :---: | :--- |
-| **TA-Lib** | ✅ | ✅ | ✅ | Matches after warmup period (TA-Lib lacks compensator) |
-| **Skender** | ✅ | ✅ | ✅ | Matches `GetEma()` |
-| **Tulip** | ✅ | ✅ | ✅ | Matches `ema` indicator |
-| **Ooples** | ✅ | — | — | Matches `CalculateExponentialMovingAverage()` |
+```csharp
+private record struct State(double Ema, double E, bool IsHot, bool IsCompensated, int TickCount);
+```
 
-Run validation: `dotnet test --filter "FullyQualifiedName~EmaValidation"`
+| Field | Size | Purpose |
+| :---- | ---: | :------ |
+| `Ema` | 8 bytes | Running exponential average |
+| `E` | 8 bytes | Compensator factor $(1-\alpha)^n$ |
+| `IsHot` | 1 byte | Warmup complete flag |
+| `IsCompensated` | 1 byte | True when E < 1e-10 |
+| `TickCount` | 4 bytes | Bars processed |
 
-## Common Pitfalls
+**Total state:** ~32 bytes per instance. No buffers required regardless of period.
 
-1. **The "First Value" Problem**: Most libraries seed the EMA with the first price or an SMA of the first $N$ prices. Results during warmup are approximations. QuanTAlib uses a mathematical compensator, so early values will differ from TA-Lib. This is not a bug. QuanTAlib is correct; TA-Lib is approximating.
+### FMA Optimization
 
-2. **Alpha vs. Period Confusion**: $N=10$ gives $\alpha \approx 0.18$. But $\alpha=0.1$ gives $N \approx 19$. Don't confuse "EMA(10)" (fast, period-based) with "EMA(0.1)" (slow, alpha-based). The constructors accept both, and they are *not* equivalent.
+The core update uses `Math.FusedMultiplyAdd` for single-instruction precision:
 
-3. **EMA Still Lags**: The EMA is faster than SMA, but it's not magic. It still lags. A 20-period EMA lags roughly 10 bars behind price. If you want zero lag, you want a Jurik Moving Average (JMA) or Ehlers filters. But those have their own problems.
+```csharp
+state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input);
+```
 
-4. **Using EMA(5) on Hourly Data**: An EMA(5) on hourly bars has a half-life of about 2.5 hours. Every minor wiggle becomes a signal. Your trading bot will panic-trade its way to bankruptcy. Use longer periods on longer timeframes.
+This computes `Ema * decay + alpha * input` with a single rounding operation instead of two.
 
-5. **Expecting Identical Results Across Libraries**: During the first $N$ bars, QuanTAlib will differ from TA-Lib, Tulip, and Skender due to bias compensation. After warmup, all libraries converge. If you're comparing results, skip the first $3N$ bars.
+### Loop Unrolling
 
-6. **Forgetting `isNew` for Live Data**: When processing live ticks within the same bar, use `Update(value, isNew: false)` to update without advancing state. Use `isNew: true` (default) only when a new bar opens. Getting this wrong causes your EMA to run $N$ times faster than intended.
+Batch processing unrolls by 4 to reduce branch overhead:
+
+```csharp
+for (; i < unrollEnd; i += 4)
+{
+    state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * Unsafe.Add(ref srcRef, i));
+    state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * Unsafe.Add(ref srcRef, i + 1));
+    state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * Unsafe.Add(ref srcRef, i + 2));
+    state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * Unsafe.Add(ref srcRef, i + 3));
+}
+```
+
+### Bar Correction
+
+The `_state` / `_p_state` pattern enables correction of the current bar:
+
+```csharp
+if (isNew)
+{
+    _p_state = _state;
+    _p_lastValidValue = _lastValidValue;
+}
+else
+{
+    _state = _p_state;
+    _lastValidValue = _p_lastValidValue;
+}
+```
+
+### Memory Summary
+
+| Component | Size |
+| :-------- | ---: |
+| State struct | ~32 bytes |
+| Instance fields | ~48 bytes |
+| **Total per instance** | **~80 bytes** |
+| **Additional buffers** | **0 bytes** |
+
+## References
+
+- Hunter, J. S. (1986). "The Exponentially Weighted Moving Average." *Journal of Quality Technology*, 18(4), 203-210.
+- Roberts, S. W. (1959). "Control Chart Tests Based on Geometric Moving Averages." *Technometrics*, 1(3), 239-250.
+- Ehlers, J. F. (2001). *Rocket Science for Traders*. John Wiley & Sons. Chapter 3: Smoothing. (The title oversells it slightly, but the content is solid.)

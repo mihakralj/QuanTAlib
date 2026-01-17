@@ -96,6 +96,115 @@ Validation tests verify:
 - Output bounded by input range
 - Warmup weight adaptation
 
+## C# Implementation Considerations
+
+QuanTAlib's SINEMA uses precomputed sine weights with O(N) convolution. The implementation demonstrates several high-performance patterns:
+
+### State Management
+
+```csharp
+[StructLayout(LayoutKind.Auto)]
+private record struct State(double LastValidValue);
+private State _state;
+private State _p_state;
+```
+
+Minimal state—only the last valid value needs tracking since weights are precomputed and buffer handles windowing.
+
+### Key Optimizations
+
+| Technique | Implementation | Benefit |
+| :--- | :--- | :--- |
+| **Precomputed weights** | `_weights[]` array at construction | Eliminates `sin()` calls in hot path |
+| **Cached weight sum** | `_weightSum` stored at construction | Division uses constant denominator |
+| **ArrayPool hybrid** | stackalloc ≤256, ArrayPool >256 | Zero allocation for typical periods |
+| **RingBuffer** | `UpdateNewest` for bar correction | O(1) correction without buffer copy |
+| **Adaptive warmup** | Recalculates weights for partial buffer | Valid output from first bar |
+
+### Constructor Weight Precomputation
+
+```csharp
+public Sinema(int period)
+{
+    _weights = new double[period];
+    double sum = 0;
+    for (int i = 0; i < period; i++)
+    {
+        _weights[i] = Math.Sin(Math.PI * (i + 1) / period);
+        sum += _weights[i];
+    }
+    _weightSum = sum;
+}
+```
+
+All `sin()` calls happen once at construction, not per-update.
+
+### Memory Layout
+
+| Field | Type | Size | Purpose |
+| :--- | :--- | :---: | :--- |
+| `_period` | int | 4 bytes | Window size |
+| `_weights` | double[] | 8N bytes | Precomputed sine weights |
+| `_weightSum` | double | 8 bytes | Cached Σw for normalization |
+| `_buffer` | RingBuffer | 24 + 8N | Sliding window |
+| `_state.LastValidValue` | double | 8 bytes | NaN substitution |
+| `_p_state.LastValidValue` | double | 8 bytes | Bar correction backup |
+| **Instance total** | | **~52 + 16N bytes** | N = period |
+
+### Bar Correction Pattern
+
+```csharp
+if (isNew)
+{
+    _p_state = _state;
+    _buffer.Add(val);
+}
+else
+{
+    _state = _p_state;
+    _buffer.UpdateNewest(val);
+}
+```
+
+Simple state backup; RingBuffer's `UpdateNewest` handles in-place modification.
+
+### Batch Processing Memory Strategy
+
+```csharp
+const int StackAllocThreshold = 256;
+double[]? rentedBuffer = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period) : null;
+double[]? rentedWeights = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period) : null;
+
+Span<double> buffer = rentedBuffer != null
+    ? rentedBuffer.AsSpan(0, period)
+    : stackalloc double[period];
+
+try { /* process */ }
+finally
+{
+    if (rentedBuffer != null) ArrayPool<double>.Shared.Return(rentedBuffer);
+    if (rentedWeights != null) ArrayPool<double>.Shared.Return(rentedWeights);
+}
+```
+
+### Warmup Weight Adaptation
+
+During warmup, weights are dynamically recalculated for the partial buffer:
+
+```csharp
+if (count < _period)
+{
+    for (int j = 0; j < count; j++)
+    {
+        double w = Math.Sin(Math.PI * (j + 1) / count);
+        sum += buffer[j] * w;
+        weightSum += w;
+    }
+}
+```
+
+This produces valid, smooth output from bar 1 without waiting for a full window.
+
 ## Common Pitfalls
 
 1. **O(N) Complexity**: Unlike SMA's O(1) running sum, SINEMA requires O(N) operations per bar. For very long periods (>500), consider whether the smoothness benefits justify the cost.

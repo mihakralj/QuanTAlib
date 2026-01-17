@@ -1,22 +1,62 @@
 # Dynamics
 
-Dynamics indicators measure the strength, speed, and direction of price movement. These tools help identify whether a market is trending or ranging.
+> "The trend is your friend, but only if you know its strength."  Unknown
 
-| Indicator | Full Name | Description |
+Dynamics indicators measure trend strength, speed, and direction. Unlike momentum indicators that measure rate of change, dynamics indicators answer: "Is there a trend, and how strong is it?" Critical for filtering signals and avoiding whipsaws in ranging markets.
+
+## Indicator Status
+
+| Indicator | Full Name | Status | Description |
+| :--- | :--- | :---: | :--- |
+| [ADX](lib/dynamics/adx/Adx.md) | Average Directional Index |  | Trend strength 0-100. Direction-agnostic. <20 weak, >40 strong. |
+| [ADXR](lib/dynamics/adxr/Adxr.md) | Average Directional Movement Rating |  | Smoothed ADX. Average of current and N-period ago ADX. |
+| ALLIGATOR | Williams Alligator | =Ë | Three SMAs (Jaw, Teeth, Lips). Spread indicates trend strength. |
+| [AMAT](lib/dynamics/amat/Amat.md) | Archer Moving Averages Trends |  | Multiple EMA alignment. Requires fast/slow EMA plus directional confirmation. |
+| [AROON](lib/dynamics/aroon/Aroon.md) | Aroon |  | Time since high/low. Aroon Up/Down measure recency of extremes. |
+| [AROONOSC](lib/dynamics/aroonosc/AroonOsc.md) | Aroon Oscillator |  | Aroon Up minus Aroon Down. Single line: +100 to -100. |
+| CHOP | Choppiness Index | =Ë | Trendiness measure. High values = choppy. Low = trending. |
+| [DMX](lib/dynamics/dmx/Dmx.md) | Jurik DMX |  | Smoothed bipolar DMI using Jurik smoothing. Low noise. |
+| DX | Directional Movement Index | =Ë | Raw directional strength. Unsmoothed ADX component. |
+| HT_TRENDMODE | HT Trend vs Cycle | =Ë | Ehlers Hilbert Transform. Binary trend/cycle mode detection. |
+| ICHIMOKU | Ichimoku Cloud | =Ë | Five-line system. Cloud defines support/resistance zones. |
+| IMI | Intraday Momentum Index | =Ë | RSI variant using open-close range. Intraday overbought/oversold. |
+| QSTICK | Qstick | =Ë | MA of (Close - Open). Positive = buying pressure. |
+| [SUPER](lib/dynamics/super/Super.md) | SuperTrend |  | ATR-based trailing stop. Flips on breakout. Color-coded direction. |
+| TTM | TTM Trend | =Ë | Fast 6-period EMA. Color-coded trend from John Carter. |
+| VORTEX | Vortex Indicator | =Ë | VI+ and VI- measure positive/negative trend movement. |
+
+**Status Key:**  Implemented | =Ë Planned
+
+## Selection Guide
+
+| Use Case | Recommended | Why |
 | :--- | :--- | :--- |
-| [ADX](lib/dynamics/adx/Adx.md) | Average Directional Index | Measures trend strength, regardless of direction (uses +DI and -DI). |
-| [ADXR](lib/dynamics/adxr/Adxr.md) | Average Directional Movement Rating | Smoothed version of ADX, often used in conjunction with ADX for signals. |
-| ALLIGATOR | Williams Alligator | Uses three smoothed moving averages (Jaw, Teeth, Lips) to identify trends and trading ranges. |
-| [AMAT](lib/dynamics/amat/Amat.md) | Archer Moving Averages Trends | Trend identification using multiple EMAs; requires alignment of fast/slow EMAs and directional movement. |
-| [AROON](lib/dynamics/aroon/Aroon.md) | Aroon | Identifies trend direction and strength by measuring time since price recorded new highs/lows. |
-| [AROONOSC](lib/dynamics/aroonosc/AroonOsc.md) | Aroon Oscillator | Single-line oscillator (Aroon Up - Aroon Down); positive = bullish, negative = bearish. |
-| CHOP | Choppiness Index | Non-directional indicator measuring market trendiness; higher values indicate choppy sideways markets. |
-| [DMX](lib/dynamics/dmx/Dmx.md) | Jurik Directional Movement Index | Smoothed Bipolar Directional Movement Index (DMI). |
-| DX | Directional Movement Index | Measures directional strength; unsmoothed component of ADX. |
-| HT_TRENDMODE | Hilbert Transform - Trend vs Cycle Mode | Uses Hilbert Transform to determine if the market is in a trending or cycling phase. |
-| ICHIMOKU | Ichimoku Cloud | Comprehensive system with 5 components (Tenkan, Kijun, Senkou A/B, Chikou); cloud shows support/resistance zones. |
-| IMI | Intraday Momentum Index | RSI-like indicator using intraday ranges (open vs close); identifies overbought/oversold conditions. |
-| QSTICK | Qstick Indicator | Measures buying/selling pressure through moving average of close-open differences; positive = bullish, negative = bearish. |
-| [SUPER](lib/dynamics/super/Super.md) | SuperTrend | ATR-based trend following with dynamic support/resistance; green line below price = bullish, red above = bearish. |
-| TTM | TTM Trend | Fast 6-period EMA with color-coded trend; green = bullish, red = bearish; part of John Carter's TTM system. |
-| VORTEX | Vortex Indicator | Uses VI+ and VI- to identify trend direction and strength based on vortex price movement. |
+| Trend strength filter | ADX | Industry standard. <20 avoid trend trades; >40 strong trend. |
+| Trend direction + strength | AROON, AROONOSC | Measures how recently price made new highs vs lows. |
+| Trend following stops | SUPER | ATR-based dynamic support/resistance. Clear entry/exit. |
+| Low-noise direction | DMX | Jurik smoothing reduces whipsaws vs standard DMI. |
+| Trend confirmation | AMAT | Multiple timeframe EMA alignment required for signal. |
+| Choppy market detection | CHOP, ADX | CHOP high or ADX low means avoid trend strategies. |
+
+## ADX Interpretation
+
+| ADX Value | Trend Strength | Recommended Action |
+| :---: | :--- | :--- |
+| 0-20 | Absent or weak | Avoid trend-following. Use mean reversion. |
+| 20-25 | Emerging | Early trend possible. Confirm with direction. |
+| 25-40 | Strong | Trend-following strategies work well. |
+| 40-50 | Very strong | Trend mature. Watch for exhaustion. |
+| 50+ | Extreme | Unsustainable. Reversal risk increases. |
+
+ADX tells strength, not direction. Use +DI/-DI or other direction indicators alongside.
+
+## Dynamics vs Momentum
+
+| Aspect | Dynamics | Momentum |
+| :--- | :--- | :--- |
+| Measures | Trend existence/strength | Rate of price change |
+| Direction | Often direction-agnostic | Usually directional |
+| Best for | Filtering | Timing |
+| Examples | ADX, CHOP, AROON | RSI, MACD, ROC |
+
+Use dynamics to filter when to trade. Use momentum to time entries/exits.

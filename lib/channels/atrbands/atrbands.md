@@ -63,6 +63,51 @@ smoothing method for ATR, ensuring O(1) computational complexity regardless of t
 initialization handling for early bars, with bias correction that prevents the common "warm-up effect" seen in many ATR
 implementations.
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, Scalar)
+
+Per-bar cost for SMA + ATR computation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 6 | 1 | 6 |
+| MUL | 4 | 3 | 12 |
+| DIV | 1 | 15 | 15 |
+| CMP/MAX | 2 | 1 | 2 |
+| FMA | 1 | 4 | 4 |
+| **Total** | **14** | — | **~39 cycles** |
+
+**Complexity**: O(1) per bar — SMA uses running sum, ATR uses Wilder's IIR smoothing.
+
+### Batch Mode (SIMD/FMA Analysis)
+
+ATR has IIR dependency; SMA running sum also has sequential dependency:
+
+| Operation | Scalar Ops | SIMD Benefit | Notes |
+| :--- | :---: | :---: | :--- |
+| SMA update | 3 | 1× | Running sum dependency |
+| ATR update | 5 | 1× | Wilder smoothing (IIR) |
+| Band computation | 4 | 2× | Upper/lower parallel |
+
+**Batch efficiency (512 bars):**
+
+| Mode | Cycles/bar | Total (512 bars) | Improvement |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 39 | 19,968 | — |
+| Partial SIMD | ~35 | ~17,920 | **~10%** |
+
+SIMD benefit is limited due to IIR dependencies in both components.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact SMA and ATR calculation |
+| **Timeliness** | 7/10 | SMA introduces (period-1)/2 lag |
+| **Overshoot** | 8/10 | ATR adapts smoothly to volatility changes |
+| **Smoothness** | 8/10 | Wilder smoothing provides stable envelope |
+
 ## Interpretation Details
 
 ATR Bands provide several analytical frameworks for trading decisions:

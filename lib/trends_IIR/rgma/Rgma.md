@@ -64,7 +64,41 @@ $$ f_i[t] = \text{FMA}(\alpha, f_{i-1}[t] - f_i[t-1], f_i[t-1]) $$
 
 ## Performance Profile
 
-Benchmarked on Apple M4, .NET 10.0, AdvSIMD, 500,000 bars:
+### Operation Count (Streaming Mode)
+
+RGMA cascades P identical EMA stages. Each stage requires one FMA operation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (input - prev_stage) per stage | P | 1 | P |
+| FMA (α × diff + prev) per stage | P | 4 | 4P |
+| **Total (hot)** | **2P** | — | **~5P cycles** |
+
+For typical passes values:
+
+| Passes | Operations | Total Cycles |
+| :---: | :---: | :---: |
+| 1 | 2 | ~5 cycles |
+| 2 | 4 | ~10 cycles |
+| 3 (default) | 6 | ~15 cycles |
+| 4 | 8 | ~20 cycles |
+| 5 | 10 | ~25 cycles |
+
+During warmup, each EMA stage has additional compensator overhead (~20 cycles × P).
+
+**Total during warmup:** ~25P cycles/bar; **Post-warmup:** ~5P cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+RGMA is inherently recursive—each stage depends on its previous output, and each bar depends on the previous bar. SIMD parallelization across bars is not possible:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | One FMA per stage already optimal |
+| Loop unrolling | Compiler can unroll small pass counts |
+| Cache locality | Filter array fits in L1 cache |
+
+### Benchmark Results
 
 | Metric | Value | Notes |
 | :--- | :--- | :--- |
@@ -74,7 +108,7 @@ Benchmarked on Apple M4, .NET 10.0, AdvSIMD, 500,000 bars:
 | **Complexity** | O(passes) | One FMA per pass per bar |
 | **State Size** | 24 + 8×passes bytes | State struct + filter array |
 
-### Qualitative Profile
+### Quality Metrics
 
 | Quality | Score (1-10) | Notes |
 | :--- | :---: | :--- |

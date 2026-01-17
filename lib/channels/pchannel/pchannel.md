@@ -37,6 +37,46 @@ A middle line, typically the average of the upper and lower channel lines, can a
 3. **Middle Channel (optional):**
     `MiddleChannel = (UpperChannel + LowerChannel) / 2`
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, Scalar)
+
+Per-bar cost using monotonic deque optimization:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| CMP | 4 | 1 | 4 |
+| ADD | 1 | 1 | 1 |
+| MUL | 1 | 3 | 3 |
+| **Total** | **6** |  | **~8 cycles** |
+
+**Complexity**: O(1) amortized per bar  monotonic deque maintains max/min efficiently.
+
+### Batch Mode (SIMD/FMA Analysis)
+
+Finding max/min over sliding windows has limited SIMD benefit:
+
+| Operation | Scalar Ops | SIMD Benefit | Notes |
+| :--- | :---: | :---: | :--- |
+| Max/Min update | 4 | 1× | Deque-based, sequential |
+| Middle band | 2 | 2× | ADD + MUL parallelizable |
+
+**Batch efficiency (512 bars):**
+
+| Mode | Cycles/bar | Total (512 bars) | Improvement |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 8 | 4,096 |  |
+| Partial SIMD | ~7 | ~3,584 | **~12%** |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact max/min calculation |
+| **Timeliness** | 6/10 | Tracks past extremes, inherently lagging |
+| **Overshoot** | 10/10 | No overshootbands are actual price levels |
+| **Smoothness** | 5/10 | Bands move in discrete steps |
+
 ## Interpretation Details
 
 * **Support and Resistance:** The upper band can act as resistance, and the lower band as support.

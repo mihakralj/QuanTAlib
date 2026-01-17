@@ -113,6 +113,80 @@ $$S_{trend} = \begin{cases}
     * Implement different risk parameters for trending vs. cycling regimes
     * Use phase velocity for stop-loss placement timing
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+For default period $n = 28$:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 6n + 15 ≈ 183 | 1 | 183 |
+| MUL | 4n + 8 ≈ 120 | 3 | 360 |
+| DIV | 3 | 15 | 45 |
+| SQRT | 2 | 15 | 30 |
+| SIN | n = 28 | 40 | 1,120 |
+| COS | n = 28 | 40 | 1,120 |
+| ATAN | 1 | 80 | 80 |
+| CMP | 8 | 1 | 8 |
+| **Total** | **~390** | — | **~2,946 cycles** |
+
+**Breakdown:**
+
+- **Correlation sums** (over n bars): O(n) operations
+  - sin/cos reference wave generation: n SIN + n COS = ~2,240 cycles
+  - Σ(x·cos), Σ(x·sin), Σx, Σcos, Σsin: 4n MUL + 5n ADD = ~364 cycles
+- **Correlation coefficients** (R, I):
+  - Numerators: 4 MUL + 4 ADD/SUB = ~16 cycles
+  - Denominators (D_cos, D_sin): 6 MUL + 4 SUB + 2 SQRT = ~68 cycles
+  - Final division: 2 DIV = ~30 cycles
+- **Phase angle conversion**: 1 DIV + 1 ATAN + quadrant logic = ~98 cycles
+- **Phase unwrapping**: 4 ADD/SUB + comparisons = ~10 cycles
+- **Anti-regression check**: comparisons + conditional = ~5 cycles
+- **Derived outputs** (optional):
+  - Derived period: 1 DIV + clamp = ~20 cycles
+  - Trend state: comparisons = ~5 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(n) | Correlation requires full period window scan |
+| Batch | O(m·n) | m bars × n period = quadratic in total work |
+
+**Memory**: ~(8n + 80) bytes ≈ 304 bytes for n=28 (correlation buffers + phase state)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Correlation sums vectorizable; phase logic scalar |
+| FMA | ✅ | Correlation products: `x[i] * cos[i] + sum` |
+| SVML trig | ✅ | Precompute sin/cos tables for fixed period |
+| Batch parallelism | ❌ | Phase unwrapping requires sequential processing |
+
+**Optimization strategies:**
+
+1. **Precompute trig tables**: For fixed period, sin/cos values are constant
+   - Reduces 2,240 cycles to ~56 cycles (table lookup)
+   - **Optimized total**: ~762 cycles (3.9× speedup)
+
+2. **Running sums**: Maintain Σx, Σ(x·cos), Σ(x·sin) incrementally
+   - Update: add new term, subtract oldest = O(1) per bar
+   - **Streaming optimized**: ~200 cycles with precomputed trig + running sums
+
+3. **SIMD correlation**: AVX2 can process 4 doubles simultaneously
+   - Correlation sums: ~90 cycles (vs 364 scalar)
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | Robust correlation-based phase estimation |
+| **Timeliness** | 6/10 | Inherent lag from period-length lookback |
+| **Noise Immunity** | 8/10 | Correlation averaging filters noise well |
+| **Adaptability** | 5/10 | Fixed period assumption limits adaptation |
+
 ## Limitations and Considerations
 
 * **Parameter Sensitivity:**

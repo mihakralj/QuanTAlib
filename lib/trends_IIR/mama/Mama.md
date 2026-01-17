@@ -214,15 +214,64 @@ This reduces early-period error by ~90% compared to zero-initialization while ma
 
 MAMA is computationally intensive. Each bar requires four Hilbert Transform passes, two exponential smoothings, three arctangent calculations, and careful state management. The payoff is cycle-adaptive behavior that no simple moving average can match.
 
-| Metric          | Score       | Notes                                                |
-| :-------------  | :---------- | :--------------------------------------------------- |
-| **Throughput**  | ~180 ns/bar | Four Hilbert passes + three atan2 calls              |
-| **Allocations** | 0           | Stack-based circular buffers                         |
-| **Complexity**  | O(1)        | Constant time update                                 |
-| **Accuracy**    | 9/10        | Mathematically superior to all other implementations |
-| **Timeliness**  | 9/10        | Extremely fast response to phase shifts              |
-| **Overshoot**   | 6/10        | Can overshoot on sudden cycle changes                |
-| **Smoothness**  | 6/10        | Can be stepped/jagged in transitions                 |
+### Operation Count (Streaming Mode, Scalar)
+
+**Hot path (after warmup, bars > 6):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 28 | 1 | 28 |
+| MUL | 24 | 3 | 72 |
+| FMA | 8 | 4 | 32 |
+| DIV | 1 | 15 | 15 |
+| ATAN2 | 3 | 50 | 150 |
+| CMP/CLAMP | 8 | 1 | 8 |
+| **Total** | **72** | — | **~305 cycles** |
+
+The hot path consists of:
+1. Pre-smoothing (4-tap FIR): 4 MUL + 3 ADD — 15 cycles
+2. Detrender Hilbert: 4 MUL + 3 ADD/SUB — 15 cycles
+3. Q1 Hilbert: 4 MUL + 3 ADD/SUB — 15 cycles
+4. jI/jQ Hilbert: 8 MUL + 6 ADD/SUB — 30 cycles
+5. Phasor addition: 2 ADD/SUB — 2 cycles
+6. I2/Q2 smoothing: 2 FMA — 8 cycles
+7. Homodyne discriminator (Re/Im): 2 FMA + 2 MUL + 2 ADD/SUB — 22 cycles
+8. Re/Im smoothing: 2 FMA — 8 cycles
+9. Period calculation: 1 ATAN2 + 1 DIV + 4 CMP — 69 cycles
+10. Period smoothing: 1 FMA — 4 cycles
+11. Phase calculation: 1 ATAN2 — 50 cycles
+12. Alpha calculation: 1 ATAN2 + 3 CMP + 1 DIV — 66 cycles
+13. MAMA/FAMA update: 2 MUL + 2 ADD/SUB — 8 cycles
+
+**Warmup path (bars ≤ 6):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD | 1 | 1 | 1 |
+| DIV | 1 | 15 | 15 |
+| **Total** | **2** | — | **~16 cycles** |
+
+### Batch Mode (SIMD Analysis)
+
+MAMA is an IIR filter with complex phase state — **not vectorizable** across bars due to:
+1. Recursive smoothing dependencies (I2, Q2, Re, Im, Period)
+2. ATAN2 calls with data-dependent branching
+3. Phase delta calculation requiring previous state
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | ~16 cycles saved (8 FMA vs 16 MUL+ADD) |
+| Bitwise AND masking | ~2x faster than modulo for buffer indexing |
+| stackalloc buffers | Zero heap allocation |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Mathematically superior to all other implementations |
+| **Timeliness** | 9/10 | Extremely fast response to phase shifts |
+| **Overshoot** | 6/10 | Can overshoot on sudden cycle changes |
+| **Smoothness** | 6/10 | Can be stepped/jagged in transitions |
 
 Buffer indexing uses bitwise AND masking (`(idx - n) & 7`) instead of modulo for ~2x speed. All state variables (I2, Q2, Re, Im, period, phase) are scalars on the stack. No heap allocations. No GC pressure.
 
@@ -244,10 +293,52 @@ The divergence is not a bug. TA-Lib uses `a = 0.0962` instead of `5.0/52.0 = 0.0
 
 If you need bit-for-bit compatibility with TA-Lib for legacy backtests, use TA-Lib. If you want the mathematically correct MAMA that Ehlers intended, use QuanTAlib.
 
+## Usage Guidelines
+
+### When to Use
+
+MAMA excels in specific market conditions where its cycle-adaptive nature provides an edge:
+
+- **Trending markets with regular cycles**: Equities, forex pairs, and futures that exhibit measurable cyclical behavior (10-40 bar dominant cycles)
+- **Swing trading timeframes**: Daily, 4-hour, and hourly charts where cycle periods have time to develop. Intraday scalping on 1-minute charts rarely has clean cycles for MAMA to lock onto.
+- **Mean-reversion strategies**: The MAMA/FAMA crossover signals work well for identifying cycle turning points
+- **Adaptive position sizing**: Use the alpha value directly as a confidence metric—high alpha means uncertainty, reduce position size
+- **Trend confirmation**: MAMA below FAMA confirms bearish bias; MAMA above FAMA confirms bullish bias
+
+### Limitations
+
+MAMA has specific weaknesses that practitioners must understand:
+
+- **White noise markets**: When no dominant cycle exists, MAMA's phase calculations become erratic. This happens in low-volume periods, news-driven spikes, and highly efficient markets.
+- **Very short timeframes**: Sub-minute charts rarely have the 10-40 bar cycles MAMA expects. The Hilbert Transform needs at least 6-7 bars of clean data to produce meaningful phase estimates.
+- **Sudden regime changes**: Flash crashes, gap openings, and news events bypass MAMA's cycle model entirely. The indicator will catch up, but with lag.
+- **Cryptocurrency markets**: 24/7 trading with no session structure often lacks the cyclical patterns MAMA was designed to exploit.
+- **Illiquid instruments**: Low-volume stocks and exotic derivatives produce noisy price data that corrupts the Hilbert Transform.
+
+### Recommended Complements
+
+MAMA works best when combined with indicators that cover its blind spots:
+
+| Complement | Purpose | Why It Helps |
+| :--- | :--- | :--- |
+| **ADX/DMI** | Trend strength | Filters out ranging markets where MAMA whipsaws |
+| **ATR** | Volatility context | Position sizing and stop placement during high-alpha periods |
+| **Dominant Cycle Period** | Cycle existence | Ehlers' DCE or similar confirms a cycle exists before trusting MAMA |
+| **Volume Profile** | Market structure | Identifies support/resistance that may interrupt cycles |
+| **RSI/Stochastic** | Overbought/oversold | Confirms cycle turning points at MAMA/FAMA crossovers |
+
+**Recommended setup**: Use ADX > 20 as a trend filter. Only take MAMA/FAMA crossovers when a dominant cycle is present (DCE confidence > 0.5). Scale position size inversely with MAMA's alpha.
+
 ### Common Pitfalls
 
-1. **Crossover Signals**: The MAMA/FAMA crossover is the primary signal. MAMA crossing above FAMA is bullish. Crossing below is bearish. This is more reliable than a single MA because FAMA acts as confirmation.
-2. **Parameter Tuning**: `FastLimit` (default 0.5) controls maximum responsiveness. Higher = faster but choppier. `SlowLimit` (default 0.05) sets minimum smoothing. Lower = smoother but laggier. The 10:1 ratio is Ehlers' recommendation. Don't mess with it unless you understand phase rate of change dynamics.
+1. **Crossover Signal Misuse**: The MAMA/FAMA crossover is the primary signal. MAMA crossing above FAMA is bullish. Crossing below is bearish. This is more reliable than a single MA because FAMA acts as confirmation. However, don't trade every crossover—filter with trend strength indicators.
+
+2. **Parameter Tuning Mistakes**: `FastLimit` (default 0.5) controls maximum responsiveness. Higher = faster but choppier. `SlowLimit` (default 0.05) sets minimum smoothing. Lower = smoother but laggier. The 10:1 ratio is Ehlers' recommendation. Don't mess with it unless you understand phase rate of change dynamics.
+
 3. **Whipsaws in Ranging Markets**: MAMA adapts to cycle period, not cycle *existence*. In white noise (no dominant cycle), phase measurements become erratic. MAMA will chop between fast and slow, generating false signals. Use a cycle strength indicator (like Ehlers' Hilbert Transform Dominant Cycle Period SNR) to filter.
+
 4. **Initialization Bias**: The first 50-100 bars are unreliable. MAMA needs time for the Hilbert Transform to stabilize and for period estimates to converge. Always discard or ignore the first `WarmupPeriod` (set to 50 for safety).
+
 5. **Precision Expectations**: Don't expect your MAMA to match TradingView or TA-Lib to the sixth decimal. It won't. Those implementations have accumulated rounding errors from 20 years of cargo-cult porting. Your values will be more accurate but numerically different. If this breaks your backtests, the backtests were fragile.
+
+6. **Ignoring the Alpha Output**: Many traders only look at MAMA and FAMA values. The adaptive alpha itself is valuable information—it tells you how confident MAMA is in its cycle estimate. High alpha (near FastLimit) means rapid phase change and uncertainty. Low alpha (near SlowLimit) means stable, established trend.

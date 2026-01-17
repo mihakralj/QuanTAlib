@@ -80,15 +80,48 @@ Note the symmetry around the center (index 2) with characteristic edge weights o
 
 HAMMA trades CPU cycles for excellent side lobe suppression.
 
+### Operation Count (Streaming Mode, Scalar)
+
+Per-bar cost for period $L$ (weights precomputed at construction):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL | L | 3 | 3L |
+| ADD | L | 1 | L |
+| MUL (normalize) | 1 | 3 | 3 |
+| **Total** | **2L+1** | — | **~4L+3 cycles** |
+
+For a typical period of 14:
+- **Total**: ~59 cycles per bar
+
+**Constructor cost** (one-time): ~80L cycles (L cosines at ~80 cycles each + L additions)
+
+**Complexity**: O(L) per bar — linear with period. Weights precomputed, runtime is pure dot product.
+
+### Batch Mode (SIMD/FMA Analysis)
+
+HAMMA's dot product structure enables efficient SIMD vectorization:
+
+| Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
+| :--- | :---: | :---: | :---: |
+| MUL+ADD (FMA) | 2L | L/4 (FMA256) | 8× |
+| Final normalize | 1 | 1 | 1× |
+
+**Batch efficiency (512 bars, L=14):**
+
+| Mode | Cycles/bar | Total (512 bars) | Improvement |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 59 | 30,208 | — |
+| SIMD batch (FMA) | ~10 | ~5,120 | **~83%** |
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 35ns/bar | Similar to other FIR filters; linear with window size. |
-| **Allocations** | 0 | Weights precomputed. Buffer is circular. |
-| **Complexity** | $O(N)$ | Linear with window size. SIMD-vectorizable. |
-| **Accuracy** | 10/10 | Matches Hamming definition to `double` precision. |
-| **Timeliness** | 7/10 | Centered filter has inherent lag of (period-1)/2 bars. |
-| **Overshoot** | 10/10 | Symmetric window prevents overshoot entirely. |
-| **Smoothness** | 9/10 | Excellent noise suppression from side lobe characteristics. |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Matches Hamming definition to double precision |
+| **Timeliness** | 7/10 | Centered filter has inherent lag of (L-1)/2 bars |
+| **Overshoot** | 10/10 | Symmetric window prevents overshoot entirely |
+| **Smoothness** | 9/10 | Excellent noise suppression from -43 dB side lobes |
 
 ### Implementation Details
 
@@ -133,6 +166,76 @@ QuanTAlib validates HAMMA against its mathematical definition and internal consi
 | **Skender** | ❌ | Not included. |
 | **Tulip** | ❌ | Not included. |
 | **Ooples** | ❌ | Not included. |
+
+### C# Implementation Considerations
+
+The QuanTAlib HAMMA implementation optimizes Hamming window convolution through precomputation and SIMD-accelerated dot products:
+
+**Precomputed Weights with Inverse Sum**
+```csharp
+ComputeWeights(_weights, period, out _invWeightSum);
+// ...
+double twoPiOverPm1 = 2.0 * Math.PI / (period - 1);
+for (int i = 0; i < period; i++)
+{
+    double w = 0.54 - 0.46 * Math.Cos(twoPiOverPm1 * i);
+    weights[i] = w;
+    sum += w;
+}
+invWeightSum = 1.0 / sum;
+```
+Trigonometric operations computed once at construction. Normalization uses multiplication by precomputed inverse rather than division per tick.
+
+**State Record Struct**
+```csharp
+[StructLayout(LayoutKind.Auto)]
+private record struct State(double LastValidValue, bool IsInitialized);
+private State _state;
+private State _p_state;
+```
+Compiler optimizes field layout. The `IsInitialized` flag tracks whether valid data has been seen for proper NaN handling.
+
+**SIMD-Accelerated Circular Buffer Dot Product**
+```csharp
+int part1Len = _period - head;
+double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
+double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
+return (sum1 + sum2) * _invWeightSum;
+```
+Full buffer splits into two `DotProduct` calls to handle circular wrap. The extension leverages AVX2/FMA intrinsics when available.
+
+**Dual Allocation Strategy for Batch**
+```csharp
+double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+Span<double> weights = period <= 256
+    ? stackalloc double[period]
+    : weightsArray!.AsSpan(0, period);
+```
+Small periods use stack allocation; large periods use `ArrayPool` to avoid heap pressure while respecting stack limits.
+
+**Incremental Weight Sum During Warmup**
+```csharp
+if (count < period)
+{
+    count++;
+    currentWeightSum += weights[period - count];
+}
+```
+Partial buffer normalization accumulates weight sum incrementally rather than recalculating each tick.
+
+**Memory Layout**
+
+| Field | Type | Size | Notes |
+|:------|:-----|-----:|:------|
+| `_period` | int | 4B | Window length |
+| `_weights` | double[] | 8B + L×8B | Hamming coefficients |
+| `_invWeightSum` | double | 8B | Precomputed 1/Σw |
+| `_buffer` | RingBuffer | ~40B + L×8B | Circular data buffer |
+| `_state` | State | 16B | Last valid + initialized flag |
+| `_p_state` | State | 16B | Previous state for rollback |
+| **Total** | | ~92B + 2L×8B | Plus object overhead |
+
+For a typical 14-period: ~92 + 224 ≈ **316 bytes** per instance.
 
 ## Common Pitfalls
 

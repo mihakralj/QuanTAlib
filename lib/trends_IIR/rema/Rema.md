@@ -63,7 +63,42 @@ $$ \text{Corrected REMA}_t = \frac{\text{Uncorrected REMA}_t}{1 - E_t} $$
 
 ## Performance Profile
 
-Benchmarked on Apple M4, .NET 10.0, AdvSIMD, 500,000 bars:
+### Operation Count (Streaming Mode)
+
+REMA combines EMA with a regularization term that extrapolates trend:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (Pt - REMAt-1) | 1 | 1 | 1 |
+| FMA (EMA update) | 1 | 4 | 4 |
+| SUB (momentum: REMAt-1 - REMAt-2) | 1 | 1 | 1 |
+| ADD (REG: prev + momentum) | 1 | 1 | 1 |
+| SUB (EMA - REG) | 1 | 1 | 1 |
+| FMA (λ × diff + REG) | 1 | 4 | 4 |
+| **Total (hot)** | **6** | — | **~12 cycles** |
+
+During warmup (bias compensation active):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (E × decay) | 1 | 3 | 3 |
+| SUB (1 - E) | 1 | 1 | 1 |
+| DIV (correction) | 1 | 15 | 15 |
+| CMP (warmup check) | 1 | 1 | 1 |
+| **Warmup overhead** | **4** | — | **~20 cycles** |
+
+**Total during warmup:** ~32 cycles/bar; **Post-warmup:** ~12 cycles/bar.
+
+### Batch Mode (SIMD Analysis)
+
+REMA is inherently recursive due to state dependency on previous two values. SIMD parallelization across bars is not possible:
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | Already using 2 FMAs per bar |
+| State locality | REMA + PrevRema fit in registers |
+
+### Benchmark Results
 
 | Metric | Value | Notes |
 | :--- | :--- | :--- |
@@ -73,7 +108,7 @@ Benchmarked on Apple M4, .NET 10.0, AdvSIMD, 500,000 bars:
 | **Complexity** | O(1) | Two FMA operations per bar |
 | **State Size** | 48 bytes | REMA, PrevRema, E, flags, counter |
 
-### Qualitative Profile
+### Quality Metrics
 
 | Quality | Score (1-10) | Notes |
 | :--- | :---: | :--- |

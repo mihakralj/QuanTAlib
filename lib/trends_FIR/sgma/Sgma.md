@@ -81,15 +81,46 @@ $$\text{SGMA}_t = \sum_{i=0}^{L-1} P_{t-L+1+i} \cdot \hat{w}_i$$
 
 SGMA trades a small amount of CPU cycles for superior shape preservation.
 
+### Operation Count (Streaming Mode, Scalar)
+
+Per-bar cost for period $L$ (weights precomputed at construction):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL | L | 3 | 3L |
+| ADD | L | 1 | L |
+| **Total** | **2L** | — | **~4L cycles** |
+
+For a typical period of 14:
+- **Total**: ~56 cycles per bar
+
+**Constructor cost** (one-time): ~80L cycles (L power operations at ~80 cycles each + L additions + normalization)
+
+**Complexity**: O(L) per bar — linear with period. Weights precomputed, runtime is pure dot product.
+
+### Batch Mode (SIMD/FMA Analysis)
+
+SGMA's dot product structure enables efficient SIMD vectorization:
+
+| Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
+| :--- | :---: | :---: | :---: |
+| MUL+ADD (FMA) | 2L | L/4 (FMA256) | 8× |
+
+**Batch efficiency (512 bars, L=14):**
+
+| Mode | Cycles/bar | Total (512 bars) | Improvement |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 56 | 28,672 | — |
+| SIMD batch (FMA) | ~10 | ~5,120 | **~82%** |
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | ~30ns/bar | Linear with window size. Vectorizable. |
-| **Allocations** | 0 | Weights precomputed. Buffer is circular. |
-| **Complexity** | $O(N)$ | Linear with period. |
-| **Accuracy** | 10/10 | Exact polynomial weight calculation. |
-| **Timeliness** | 8/10 | Center-weighted, so inherent lag = half period. |
-| **Overshoot** | 9/10 | Polynomial decay prevents ringing artifacts. |
-| **Smoothness** | 9/10 | Adjustable via degree parameter. |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact polynomial weight calculation |
+| **Timeliness** | 8/10 | Center-weighted, inherent lag = half period |
+| **Overshoot** | 9/10 | Polynomial decay prevents ringing artifacts |
+| **Smoothness** | 9/10 | Adjustable via degree parameter |
 
 ### Implementation Details
 
@@ -134,6 +165,115 @@ QuanTAlib validates SGMA against mathematical properties rather than external li
 | **TA-Lib** | ❌ | Not included. |
 | **Tulip** | ❌ | Not included. |
 | **Ooples** | ❌ | Not included. |
+
+## C# Implementation Considerations
+
+QuanTAlib's SGMA uses precomputed weights with SIMD-accelerated dot products for efficient O(N) convolution. The implementation demonstrates several high-performance patterns:
+
+### Weight Precomputation
+
+```csharp
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+private static void ComputeWeights(Span<double> weights, int period, int degree, out double invWeightSum)
+{
+    // Hardcoded weights for common periods (degree 2)
+    if (degree == 2 && period == 9)
+    {
+        weights[0] = -0.0281; weights[1] = 0.0337; // ... etc
+        invWeightSum = 1.0 / sum;
+        return;
+    }
+    // General computation for other cases
+}
+```
+
+Weights are computed once at construction. The inverse weight sum (`invWeightSum`) replaces division with multiplication in the hot path.
+
+### Key Optimizations
+
+| Technique | Implementation | Benefit |
+| :--- | :--- | :--- |
+| **Precomputed weights** | `_weights[]` array + `_invWeightSum` | One-time cost at construction |
+| **Hardcoded common cases** | Periods 5, 7, 9 with degree 2 | Bypasses general weight loop |
+| **SIMD dot product** | `span.DotProduct(weights)` extension | AVX2-accelerated convolution |
+| **Inverse multiplication** | `sum * invWeightSum` vs `sum / weightSum` | 15→3 cycles per division |
+| **ArrayPool hybrid** | stackalloc ≤256, ArrayPool >256 | Zero allocation for typical periods |
+| **FMA chains** | Warmup uses nested `FusedMultiplyAdd` | Hardware-accelerated accumulation |
+
+### SIMD Convolution
+
+The hot path uses split dot products to handle ring buffer wraparound:
+
+```csharp
+int part1Len = period - head;
+double sum = internalBuf.Slice(head, part1Len).DotProduct(weights.AsSpan(0, part1Len))
+           + internalBuf[..head].DotProduct(weights.AsSpan(part1Len));
+
+return sum * invWeightSum;
+```
+
+The `DotProduct` extension method uses AVX2/AVX-512 intrinsics when available.
+
+### FMA Chains in Warmup
+
+For warmup periods with known sizes, nested FMA reduces instruction count:
+
+```csharp
+// Period 5, degree 2 warmup
+double sum = Math.FusedMultiplyAdd(window[0], w0,
+    Math.FusedMultiplyAdd(window[1], w1,
+    Math.FusedMultiplyAdd(window[2], w2,
+    Math.FusedMultiplyAdd(window[3], w3, window[4] * w4))));
+```
+
+### Memory Layout
+
+| Field | Type | Size | Purpose |
+| :--- | :--- | :---: | :--- |
+| `_period` | int | 4 bytes | Adjusted to odd |
+| `_degree` | int | 4 bytes | Polynomial degree (0-4) |
+| `_weights` | double[] | 8N bytes | Precomputed weight vector |
+| `_invWeightSum` | double | 8 bytes | Cached 1/Σw |
+| `_buffer` | RingBuffer | 24 + 8N | Sliding window |
+| `_lastValidValue` | double | 8 bytes | NaN substitution |
+| `_p_lastValidValue` | double | 8 bytes | Bar correction backup |
+| **Instance total** | | **~56 + 16N bytes** | N = period |
+
+### Batch Processing Memory Strategy
+
+```csharp
+// Threshold: stackalloc for small, ArrayPool for large
+double[]? weightsArray = usePeriod > 256 ? ArrayPool<double>.Shared.Rent(usePeriod) : null;
+Span<double> weights = usePeriod <= 256
+    ? stackalloc double[usePeriod]
+    : weightsArray!.AsSpan(0, usePeriod);
+
+try
+{
+    // Process all bars
+}
+finally
+{
+    if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
+}
+```
+
+### Bar Correction Pattern
+
+SGMA uses simple scalar state backup (no buffer duplication needed since RingBuffer handles `UpdateNewest`):
+
+```csharp
+if (isNew)
+{
+    _p_lastValidValue = _lastValidValue;
+    _buffer.Add(val);
+}
+else
+{
+    _lastValidValue = _p_lastValidValue;
+    _buffer.UpdateNewest(val);
+}
+```
 
 ## Common Pitfalls
 

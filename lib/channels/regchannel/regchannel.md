@@ -69,6 +69,55 @@ Regression Channels provide sophisticated trend and mean reversion analysis:
 * **Exit signals:** Channel breaks in the opposite direction of the main trend may signal trend exhaustion
 * **Volatility measurement:** Channel width provides insight into current market volatility relative to the trend
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+Linear regression with standard deviation bands requires maintaining running sums for least-squares calculation:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 8 | 1 | 8 |
+| MUL | 6 | 3 | 18 |
+| DIV | 4 | 15 | 60 |
+| SQRT | 1 | 15 | 15 |
+| **Total** | **19** | — | **~101 cycles** |
+
+**Breakdown:**
+- Running sum updates (Σxy, Σx, Σy, Σx²): 4 ADD + 2 MUL = 10 cycles
+- Slope calculation: 2 MUL + 2 SUB + 1 DIV = 23 cycles
+- Intercept calculation: 1 MUL + 1 SUB + 1 DIV = 19 cycles
+- Residual and variance: 1 SUB + 1 MUL + 1 DIV = 19 cycles
+- Std dev + bands: 1 SQRT + 1 MUL + 2 ADD = 21 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Running sums with sliding window updates |
+| Batch | O(n) | Linear scan, optimized with running sums |
+
+**Memory**: ~80 bytes (running sums for x, y, xy, x², residual sum)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Batch residual calculation vectorizable |
+| FMA | ✅ | `slope * x + intercept` pattern |
+| Batch parallelism | Partial | Running sums limit parallelization |
+
+**Note:** Linear regression is inherently sequential due to running sum dependencies, but residual calculations and band plotting can leverage SIMD in batch mode.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Statistically optimal least-squares fit |
+| **Timeliness** | 6/10 | Lag proportional to period length |
+| **Overshoot** | 8/10 | Linear assumption limits overshoot |
+| **Smoothness** | 8/10 | Regression line inherently smooth |
+
 ## Limitations and Considerations
 
 * **Lagging indicator:** Based on historical data, the regression line and bands will lag significant trend changes

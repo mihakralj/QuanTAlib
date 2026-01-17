@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    
+    <!-- NativeAOT is NOT compatible with BenchmarkDotNet (uses reflection/Assembly.Location) -->
+    <!-- BenchmarkDotNet creates optimized JIT processes for benchmarking -->
   </PropertyGroup>
 
   <ItemGroup>

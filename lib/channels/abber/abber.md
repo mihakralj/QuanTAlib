@@ -66,15 +66,47 @@ Abber.Batch(source.AsSpan(), middleOut.AsSpan(), upperOut.AsSpan(), lowerOut.AsS
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 6 | 1 | 6 |
+| MUL | 2 | 3 | 6 |
+| DIV | 2 | 15 | 30 |
+| ABS | 1 | 1 | 1 |
+| **Total** | **11** | — | **~43 cycles** |
+
+**Breakdown:**
+- SMA (Middle): 2 ADD + 1 DIV = 17 cycles (running sum)
+- Absolute deviation: 1 SUB + 1 ABS = 2 cycles
+- Average deviation: 2 ADD + 1 DIV = 17 cycles (running sum)
+- Band calculation: 2 MUL + 2 ADD = 8 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Running sums with circular buffers |
+| Batch | O(n) | Linear scan, n = series length |
+
+**Memory**: ~128 bytes (two circular buffers for price and deviation).
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Band calc vectorizable; SMA recursion blocks full SIMD |
+| FMA | ✅ | `Middle ± (Multiplier × AvgDev)` |
+| Batch parallelism | Partial | Deviation calculation vectorizable |
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | ~15 ns/bar | Running sums avoid recomputation |
-| **Allocations** | 0 | Zero heap allocations in streaming mode |
-| **Complexity** | O(1) streaming, O(n) batch | Constant time per bar via circular buffers |
-| **Accuracy** | 10 | Exact computation, no approximations |
-| **Timeliness** | 6 | Inherits SMA lag (period/2 bars typical) |
-| **Overshoot** | 3 | Resistant to outlier-induced band explosions |
-| **Smoothness** | 7 | Smoother than standard deviation under shock |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact computation, no approximations |
+| **Timeliness** | 6/10 | Inherits SMA lag (period/2 bars typical) |
+| **Overshoot** | 3/10 | Resistant to outlier-induced band explosions |
+| **Smoothness** | 7/10 | Smoother than standard deviation under shock |
 
 ## Validation
 

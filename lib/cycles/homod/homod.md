@@ -105,6 +105,57 @@ HOMOD smooths price, applies a Hilbert Transform to obtain in-phase (I) and quad
 * **Clamp Bias:** Hard limits prevent detection of cycles outside bounds; adjust for instruments with known longer rhythms
 * **Computational Intensity:** Multiple FIR taps and state variables raise per-bar workload versus simpler averages
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | ~25 | 1 | 25 |
+| MUL | ~30 | 3 | 90 |
+| DIV | 2 | 15 | 30 |
+| ATAN2 | 1 | 80 | 80 |
+| **Total** | **~58** | — | **~225 cycles** |
+
+**Breakdown:**
+- Weighted smooth (4-point): 3 MUL + 3 ADD + 1 DIV = 17 cycles
+- Detrender FIR (4 taps): 5 MUL + 3 ADD = 18 cycles
+- Q1 FIR (4 taps): 5 MUL + 3 ADD = 18 cycles
+- jI/jQ FIRs (8 taps total): 10 MUL + 6 ADD = 36 cycles
+- I2/Q2 IIR phasor smoothing: 4 MUL + 4 ADD = 16 cycles
+- Homodyne Re/Im: 6 MUL + 4 ADD = 22 cycles
+- Period extraction (atan2 + div): 1 ATAN2 + 1 DIV = 95 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Fixed FIR taps (6-deep) + IIR states |
+| Batch | O(n) | Linear scan, constant work per bar |
+
+**Memory**: ~128 bytes (6-bar FIR history × 4 series + IIR states)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Limited | FIR taps vectorizable, IIRs sequential |
+| FMA | ✅ | Hilbert kernel: `0.0962×x + 0.5769×x[2] - ...` |
+| Batch parallelism | ❌ | IIR feedback prevents cross-bar parallelism |
+
+**Optimization Notes:** The atan2 call dominates (~35% of cost). Consider:
+- Fast atan2 approximation if <1° accuracy acceptable
+- Precompute 2π constant, use reciprocal for division
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Hilbert Transform is mathematically rigorous |
+| **Timeliness** | 7/10 | FIR kernel introduces ~3 bar delay |
+| **Overshoot** | 8/10 | Smoothed period output is stable |
+| **Smoothness** | 8/10 | IIR smoothing reduces jitter |
+
 ## References
 
 * Ehlers, J. F. (2001). *Rocket Science for Traders: Digital Signal Processing Applications*. Wiley.

@@ -110,6 +110,61 @@ Step 5: D = Σ_{p∈Ω} p · ĤP_p / Σ_{p∈Ω} ĤP_p with warmup compensation
 * **Latency in Noise:** Even with roofing, extremely noisy assets may require higher `avgLength`.
 * **Downtrend Bias:** Negative trends may clip high-pass output; ensure preprocessing retains signal.
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | ~N² | 1 | ~N² |
+| MUL | ~N² | 3 | ~3N² |
+| DIV | ~N | 15 | ~15N |
+| SQRT | ~N | 15 | ~15N |
+| COS | N² | 40 | 40N² |
+| SIN | N² | 40 | 40N² |
+| **Total** | **~4N²** | — | **~84N² cycles** |
+
+*Where N = maxPeriod - minPeriod (default 40)*
+
+**Default (N=40):** ~134,400 cycles per bar (dominated by trig functions)
+
+**Breakdown:**
+- Roofing filter (HP + SSF): ~20 cycles
+- Autocorrelation (N lags): ~4N² for Pearson calculations
+- Fourier projection (N² iterations): 80N² cycles (COS + SIN)
+- Power + normalization: ~30N cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(N²) | Nested loops over lags × periods |
+| Batch | O(m×N²) | m = bars, N = period range |
+
+**Memory**: ~3N×8 bytes (autocorrelation + power arrays)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Fourier sums vectorizable across lags |
+| FMA | ✅ | Accumulation: `r × cos + sum` pattern |
+| Batch parallelism | Limited | Each bar depends on filtered history |
+
+**Optimization Notes:** Trig functions dominate cost. Consider:
+- Precomputed trig tables for fixed period range
+- SVML vectorized sin/cos for ~4× speedup
+- Reduce N by narrowing period search range
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Wiener-Khinchin theorem mathematically sound |
+| **Timeliness** | 6/10 | Spectral analysis inherently lagging |
+| **Overshoot** | 8/10 | COG averaging smooths cycle estimates |
+| **Smoothness** | 7/10 | Enhanced resolution can create jumps |
+
 ## References
 
 * Ehlers, J. F. (2016). “Past Market Cycles.” *Technical Analysis of Stocks & Commodities*, 34(9), 52-55.

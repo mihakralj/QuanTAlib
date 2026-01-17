@@ -122,6 +122,69 @@ HT_SINE provides cycle visualization and timing signals through multiple perspec
   * Waves synchronizing: Transitioning to trend mode
   * Lead reversing direction first: Early warning signal
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 30 | 1 | 30 |
+| MUL | 34 | 3 | 102 |
+| DIV | 3 | 15 | 45 |
+| ATAN | 1 | 80 | 80 |
+| SIN | 2 | 40 | 80 |
+| CMP/MAX | 2 | 1 | 2 |
+| **Total** | **72** | — | **~339 cycles** |
+
+**Breakdown:**
+
+- **Hilbert Transform pipeline**: ~154 cycles (same as HT_PHASOR)
+  - Price smoothing (WMA-4): ~20 cycles
+  - 4× Hilbert FIR applications: ~64 cycles
+  - Bandwidth adaptation + I2/Q2: ~25 cycles
+  - EMA smoothing (×2): ~16 cycles
+  - Period calculation: ~29 cycles
+- **Phase calculation** (atan with quadrant logic): ~85 cycles
+  - Division (Q2/I2): 15 cycles
+  - ATAN: 80 cycles (includes quadrant handling)
+- **DeltaPhase + Alpha**: 3 MUL + 2 ADD + 1 DIV + 1 MAX = ~25 cycles
+- **Sine wave generation**: 2 SIN = ~80 cycles
+  - sin(Phase): 40 cycles
+  - sin(Phase + Alpha): 40 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Fixed operations per bar |
+| Batch | O(n) | Linear scan over price bars |
+
+**Memory**: ~136 bytes (HT state + phase tracking + previous sine values)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | Recursive IIR dependencies throughout |
+| FMA | ✅ | EMA smoothing patterns |
+| Batch parallelism | ❌ | State-dependent recursion |
+| SVML sin | ✅ | Batch sin() calls can use SVML intrinsics |
+
+**Optimization notes:**
+
+- Sin calculations dominate output stage; SVML can accelerate batch processing
+- Phase unwrapping requires sequential processing
+- FMA applicable to EMA smoothing stages
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | Precise cycle representation via HT |
+| **Timeliness** | 7/10 | LeadSine provides early warning signals |
+| **Smoothness** | 9/10 | Sine waves naturally smooth; bounded [-1, +1] |
+| **Signal Clarity** | 7/10 | Clear crossover signals; can whipsaw in trends |
+
 ## Limitations and Considerations
 
 * **Cycle Assumption:** Assumes market is in cyclical mode; less reliable during strong trends

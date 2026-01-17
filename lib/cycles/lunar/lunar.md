@@ -90,6 +90,68 @@ The combination of continuous phase value and discrete phase detection allows fo
 * Analyzing market behavior around precise lunar events
 * Developing trading strategies based on lunar cycles
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 45 | 1 | 45 |
+| MUL | 38 | 3 | 114 |
+| DIV | 4 | 15 | 60 |
+| MOD | 6 | 15 | 90 |
+| SIN | 7 | 40 | 280 |
+| COS | 2 | 40 | 80 |
+| **Total** | **102** | — | **~669 cycles** |
+
+**Breakdown:**
+
+- **Julian Date conversion**: 1 DIV + 1 ADD = ~16 cycles
+- **Time T calculation**: 1 DIV + 1 SUB = ~16 cycles
+- **Mean longitude calculations** (Lp, D, M, Mp, F):
+  - 5 polynomials: ~25 MUL + 20 ADD = ~95 cycles
+  - 5 MOD operations: ~75 cycles
+- **Longitude correction (dL)**: 6 SIN + 12 MUL + 5 ADD = ~281 cycles
+  - sin(Mp), sin(2D-Mp), sin(2D), sin(2Mp), sin(M), sin(2F)
+- **True longitude calculations**: 4 MUL + 3 ADD + 1 MOD = ~28 cycles
+- **Phase angle calculation**: 1 MOD + 1 COS = ~55 cycles
+- **Phase normalization**: 2 MUL + 2 ADD + 1 DIV = ~23 cycles
+- **Moon phase detection** (bar period analysis): 1 SIN + 1 COS + comparisons = ~85 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Fixed astronomical calculations per bar |
+| Batch | O(n) | Linear scan; no inter-bar dependencies |
+
+**Memory**: ~48 bytes (Julian date, phase angle, previous phase for crossing detection)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ✅ | Batch phase calculation is embarrassingly parallel |
+| FMA | ✅ | Polynomial evaluations benefit from FMA |
+| SVML trig | ✅ | sin/cos calls dominate; SVML provides 4-8× speedup |
+| Batch parallelism | ✅ | No inter-bar state dependencies |
+
+**Optimization opportunities:**
+
+- Polynomial terms (T², T³, T⁴) can use Horner's method with FMA
+- Batch sin/cos calls vectorize well with Intel SVML
+- Phase calculations across bars are fully independent
+- **Potential batch speedup**: ~4-6× with AVX2 + SVML
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | High-precision astronomical formulas with perturbation terms |
+| **Timeliness** | 10/10 | Zero lag; purely time-based calculation |
+| **Determinism** | 10/10 | Same timestamp always yields identical result |
+| **Utility** | 5/10 | Correlation with markets is statistically weak |
+
 ## Limitations and Considerations
 
 * **Correlation vs. causation:** While some studies suggest lunar correlations with market behavior, they don't imply direct causation

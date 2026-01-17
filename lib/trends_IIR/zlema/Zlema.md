@@ -50,14 +50,51 @@ $$\alpha = \frac{2}{N + 1}$$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode, Scalar)
+
+**Hot path (after warmup, compensation complete):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA | 2 | 4 | 8 |
+| MUL | 1 | 3 | 3 |
+| **Total** | **3** |  | **~11 cycles** |
+
+The hot path consists of:
+1. Zero-lag signal: `FMA(2.0, val, -lagged)`  1 FMA
+2. EMA core: `FMA(zlemaRaw, beta, alpha * signal)`  1 FMA + 1 MUL
+
+**Warmup path (with bias compensation):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA | 2 | 4 | 8 |
+| MUL | 2 | 3 | 6 |
+| DIV | 1 | 15 | 15 |
+| CMP | 2 | 1 | 2 |
+| **Total** | **7** |  | **~31 cycles** |
+
+Additional warmup operations:
+- Decay tracking: `e *= beta`  1 MUL
+- Bias compensation: `zlemaRaw / (1 - e)`  1 DIV
+- Hot/compensated checks  2 CMP
+
+### Batch Mode (SIMD Analysis)
+
+ZLEMA is an IIR filter with lag buffer dependency  not directly vectorizable across bars. However, within-bar operations use FMA intrinsics.
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | ~11 cycles vs ~14 scalar |
+| stackalloc buffer | Zero heap allocation for lag d256 |
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-|:---|:---|:---|
-| **Throughput** | TBD | Benchmark not captured yet |
-| **Allocations** | 0 | Streaming update is allocation-free |
-| **Complexity** | O(1) | Constant work per update |
+| :--- | :---: | :--- |
 | **Accuracy** | 8/10 | Matches PineScript reference |
 | **Timeliness** | 8/10 | Faster response than EMA |
-| **Overshoot** | 6/10 | More reactive, less stable |
+| **Overshoot** | 6/10 | Predictive signal causes overshoot on reversals |
 | **Smoothness** | 7/10 | Between EMA and raw price |
 
 ## Validation

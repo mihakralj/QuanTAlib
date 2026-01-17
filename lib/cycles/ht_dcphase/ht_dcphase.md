@@ -116,6 +116,54 @@ HT_DCPHASE provides cycle phase analysis through several interpretive lenses:
 * **Cycle Assumption:** Assumes presence of dominant cycle; may give spurious signals in random walk conditions
 * **Parameter Adaptation:** Uses previous period for bandwidth calculation; may lag during rapid cycle changes
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | ~24 | 1 | 24 |
+| MUL | ~28 | 3 | 84 |
+| DIV | 1 | 15 | 15 |
+| ATAN | 1 | 80 | 80 |
+| **Total** | **~54** | — | **~203 cycles** |
+
+**Breakdown:**
+- Weighted smooth (4-point): 3 MUL + 3 ADD = 12 cycles
+- Detrender FIR (4 taps × bandwidth): 5 MUL + 3 ADD = 18 cycles
+- Q1 FIR: 5 MUL + 3 ADD = 18 cycles
+- jI/jQ phase advance FIRs: 10 MUL + 6 ADD = 36 cycles
+- I2/Q2 phasor smoothing: 4 MUL + 4 ADD = 16 cycles
+- Phase = atan(Q2/I2): 1 DIV + 1 ATAN = 95 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Fixed 6-bar FIR history + IIR states |
+| Batch | O(n) | Linear scan, constant work per bar |
+
+**Memory**: ~120 bytes (6-bar history buffers + IIR states)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Limited | FIR taps vectorizable, IIRs sequential |
+| FMA | ✅ | Hilbert FIR: `0.0962×x + 0.5769×x[2] - ...` |
+| Batch parallelism | ❌ | IIR feedback prevents cross-bar parallelism |
+
+**Optimization Notes:** Nearly identical to HT_DCPERIOD. Atan dominates cost (~39%). Phase output is simpler than period conversion.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Phase derived from mathematically exact HT |
+| **Timeliness** | 7/10 | ~3 bar delay from FIR kernel |
+| **Overshoot** | 7/10 | Phase wrapping at ±π can cause jumps |
+| **Smoothness** | 7/10 | IIR smoothing helps, but wrapping remains |
+
 ## References
 
 * Ehlers, J. F. (2004). "Cybernetic Analysis for Stocks and Futures." John Wiley & Sons.

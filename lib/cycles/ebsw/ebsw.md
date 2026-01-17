@@ -70,6 +70,53 @@ The Ehlers Even Better Sinewave (EBSW) indicator, developed by John Ehlers, is a
 * **Whipsaws:** Rapid oscillations around the zero line can occur in volatile or directionless markets.
 * **Requires Confirmation:** Signals from EBSW are often best confirmed with other forms of technical analysis (e.g., price action, volume, other non-correlated indicators).
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 9 | 1 | 9 |
+| MUL | 11 | 3 | 33 |
+| DIV | 1 | 15 | 15 |
+| SQRT | 1 | 15 | 15 |
+| **Total** | **22** | — | **~72 cycles** |
+
+**Breakdown:**
+- High-Pass Filter (1-pole): 2 MUL + 2 ADD = 8 cycles
+- Super Smoother Filter: 4 MUL + 3 ADD = 15 cycles
+- Wave averaging (3 bars): 2 ADD + 1 DIV = 4 cycles
+- Power calculation: 3 MUL + 2 ADD = 11 cycles
+- AGC normalization: 1 SQRT + 1 DIV = 30 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | IIR filters + fixed 3-bar window |
+| Batch | O(n) | Linear scan, no lookback iteration |
+
+**Memory**: ~48 bytes (filter states + 3-bar history for power)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | IIR recursion prevents cross-bar parallelism |
+| FMA | ✅ | HPF: `α × (src - src[1]) + α × prev` |
+| Batch parallelism | ❌ | Sequential dependency on filter states |
+
+**FMA Optimization:** Both HPF and SSF recursions benefit from FMA. SSF inner loop: `c1×avg + c2×prev1 + c3×prev2` reduces to 2 FMA + 1 MUL.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | Band-pass isolates dominant cycle |
+| **Timeliness** | 8/10 | Super Smoother minimizes lag |
+| **Overshoot** | 7/10 | AGC can amplify noise at low power |
+| **Smoothness** | 8/10 | Normalized output is well-bounded |
+
 ## References
 
 * Ehlers, J. F. (2002). *Rocket Science for Traders: Digital Signal Processing Applications*. John Wiley & Sons.

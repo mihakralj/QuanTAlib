@@ -130,13 +130,53 @@ $$\text{HEMA}_t = \text{EMA}_{\text{smooth}}(d_t)$$
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode, Scalar)
+
+**Hot Path (Post-Warmup):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| **Stage 1: EMA Slow** | | | |
+| FMA (emaSlowRaw × betaSlow + alphaSlow × input) | 1 | 4 | 4 |
+| MUL (alphaSlow × input) | 1 | 3 | 3 |
+| **Stage 2: EMA Fast** | | | |
+| FMA (emaFastRaw × betaFast + alphaFast × input) | 1 | 4 | 4 |
+| MUL (alphaFast × input) | 1 | 3 | 3 |
+| **Stage 3: De-Lag Combiner** | | | |
+| FMA (-ratio × emaSlow + emaFast) | 1 | 4 | 4 |
+| MUL (× invOneMinusRatio) | 1 | 3 | 3 |
+| **Stage 4: Final EMA Smooth** | | | |
+| FMA (emaSmoothRaw × betaSmooth + alphaSmooth × deLag) | 1 | 4 | 4 |
+| MUL (alphaSmooth × deLag) | 1 | 3 | 3 |
+| **Total (Hot Path)** | | | **~28 cycles** |
+
+**Warmup Path (Additional Operations):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL (decay × beta) | 3 | 3 | 9 |
+| DIV (1 / (1 - decay)) | 3 | 15 | 45 |
+| MUL (raw × invDecay) | 3 | 3 | 9 |
+| CMP/MAX (decay comparisons) | 3 | 1 | 3 |
+| **Total (Warmup)** | | | **~66 cycles** |
+
+**Warmup total:** ~94 cycles | **Hot path total:** ~28 cycles
+
+### Batch Mode (SIMD Analysis)
+
+HEMA is **not SIMD-parallelizable** across bars due to:
+1. All three EMA stages are recursive IIR filters (output[t] depends on output[t-1])
+2. De-lag combiner depends on current slow/fast EMA values
+3. Final smoother depends on de-lagged series
+
+**FMA optimization (already applied):** All EMA updates use `Math.FusedMultiplyAdd` for single-rounding precision.
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-|:---|:---|:---|
-| **Throughput** | ~15 ns/bar | Intel i7-9700K @3.6GHz, AVX2 disabled (scalar only) |
-| **Allocations** | 0 | Streaming update is allocation-free |
-| **Complexity** | O(1) | Constant work per update |
+| :--- | :---: | :--- |
 | **Accuracy** | 8/10 | Matches PineScript reference implementation |
-| **Timeliness** | 8/10 | Faster response than plain EMA, smoother than raw price |
+| **Timeliness** | 8/10 | Faster response than plain EMA via de-lag combiner |
 | **Overshoot** | 6/10 | De-lag combiner can overshoot during sharp reversals |
 | **Smoothness** | 7/10 | Smoother than DEMA, less smooth than T3 |
 
@@ -159,6 +199,92 @@ HEMA is not commonly available in mainstream TA libraries. Validation uses a **r
 - PineScript reference is authoritative (included in repo).
 - Cross-check via invariant tests: DC gain, step response monotonicity, no NaN propagation after first finite sample.
 - Streaming vs batch vs span consistency verified in unit tests.
+
+## C# Implementation Considerations
+
+### State Management
+
+HEMA uses a comprehensive State struct tracking three EMA stages and warmup:
+
+```csharp
+[StructLayout(LayoutKind.Sequential)]
+private struct State
+{
+    public double EmaSlowRaw;
+    public double EmaFastRaw;
+    public double EmaSmoothRaw;
+    public double DecaySlow;
+    public double DecayFast;
+    public double DecaySmooth;
+    public bool IsHot;
+    public bool Warmup;
+}
+```
+
+Bar correction uses full state copy plus last-valid tracking:
+
+```csharp
+if (isNew) { _p_state = _state; _p_lastValidValue = _lastValidValue; }
+else { _state = _p_state; _lastValidValue = _p_lastValidValue; }
+```
+
+### Precomputed Constants
+
+Constructor calculates all alpha/beta pairs and the lag ratio once:
+
+```csharp
+_alphaSlow = AlphaFromHalfLife(n);
+_alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
+_alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));
+_betaSlow = 1.0 - _alphaSlow;
+_ratio = Math.Clamp(lagFast / lagSlow, 0.0, MaxRatio);
+_invOneMinusRatio = 1.0 / Math.Max(1.0 - _ratio, MinDenominator);
+```
+
+### FMA Usage
+
+All EMA updates use FusedMultiplyAdd for precision and performance:
+
+```csharp
+state.EmaSlowRaw = Math.FusedMultiplyAdd(state.EmaSlowRaw, _betaSlow, _alphaSlow * input);
+state.EmaFastRaw = Math.FusedMultiplyAdd(state.EmaFastRaw, _betaFast, _alphaFast * input);
+double deLag = Math.FusedMultiplyAdd(-_ratio, emaSlow, emaFast) * _invOneMinusRatio;
+```
+
+### Numerically Stable Alpha Calculation
+
+Uses Taylor-expanded `expm1` for small arguments to avoid catastrophic cancellation:
+
+```csharp
+private static double Expm1(double x)
+{
+    double ax = Math.Abs(x);
+    if (ax < 1e-5)
+    {
+        double x2 = x * x;
+        return x + (x2 * 0.5) + (x2 * x * (1.0 / 6.0));
+    }
+    return Math.Exp(x) - 1.0;
+}
+```
+
+### Memory Layout
+
+| Field | Type | Size | Purpose |
+| :--- | :--- | :---: | :--- |
+| `_alphaSlow` | double | 8B | Slow EMA alpha |
+| `_alphaFast` | double | 8B | Fast EMA alpha |
+| `_alphaSmooth` | double | 8B | Smooth stage alpha |
+| `_betaSlow` | double | 8B | 1 - alphaSlow |
+| `_betaFast` | double | 8B | 1 - alphaFast |
+| `_betaSmooth` | double | 8B | 1 - alphaSmooth |
+| `_ratio` | double | 8B | Lag ratio for de-lag |
+| `_invOneMinusRatio` | double | 8B | Precomputed divisor |
+| `_state` | State | ~56B | Current calculation state |
+| `_p_state` | State | ~56B | Previous state for rollback |
+| `_lastValidValue` | double | 8B | NaN substitution |
+| `_p_lastValidValue` | double | 8B | Previous valid value |
+| **Total** | | **~192B** | Per indicator instance |
 
 ## Common Pitfalls
 

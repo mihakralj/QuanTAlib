@@ -68,19 +68,51 @@ Where $N$ = equivalent period for 2/(N+1) weighting scheme.
 
 ## Performance Profile
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 8 ns/bar | FMA optimization, zero allocation |
-| **Allocations** | 0 | Streaming mode heap-free |
-| **Complexity** | O(1) | Constant time per update |
-| **Accuracy** | 10 | Mathematically exact EMA |
-| **Timeliness** | 8 | Alpha-dependent, no lookahead |
-| **Overshoot** | 3 | High alpha can whipsaw |
-| **Smoothness** | 7 | Exponential weighting reduces noise |
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 3 | 1 | 3 |
+| MUL | 4 | 3 | 12 |
+| FMA | 2 | 4 | 8 |
+| DIV | 1 | 15 | 15 |
+| **Total** | **10** | — | **~38 cycles** |
+
+**Breakdown:**
+- EMA(High): 1 FMA = 4 cycles (α × High + (1-α) × prev)
+- EMA(Low): 1 FMA = 4 cycles (α × Low + (1-α) × prev)
+- Midpoint: 1 ADD + 1 DIV = 16 cycles ((Upper + Lower) / 2)
+- Decay precomputation: 2 MUL (amortized across bars)
+
+*Note: Using FMA instead of separate MUL+ADD reduces cycles from ~46 to ~38.*
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Two EMA recursions, constant time |
+| Batch | O(n) | Linear scan, n = series length |
+
+**Memory**: ~48 bytes (two EMA states + alpha/decay constants).
 
 **Warmup Period**: $\lceil 3/\alpha \rceil$ bars for ~95% convergence.
 
-**SIMD Support**: Partial. Recursive EMA dependency prevents full vectorization, but high/low processing can be parallelized.
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | EMA recursion prevents cross-bar parallelization |
+| FMA | ✅ | `Math.FusedMultiplyAdd(decay, prevEMA, alpha × newValue)` |
+| Batch parallelism | Partial | High/low EMAs independent, can run in parallel |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Mathematically exact EMA |
+| **Timeliness** | 8/10 | Alpha-dependent, no lookahead |
+| **Overshoot** | 3/10 | High alpha can whipsaw |
+| **Smoothness** | 7/10 | Exponential weighting reduces noise |
 
 ## Validation
 

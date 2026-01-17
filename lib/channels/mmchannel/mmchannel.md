@@ -64,6 +64,60 @@ MMCHANNEL provides clear, actionable trading signals:
 * **Period selection critical:** Too short periods generate noise; too long periods may miss important intermediate levels
 * **No adaptive mechanism:** Does not automatically adjust to changing market volatility or conditions
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 1 | 1 | 1 |
+| CMP | 4 | 1 | 4 |
+| DIV | 1 | 15 | 15 |
+| **Total** | **6** | — | **~20 cycles** |
+
+**Breakdown:**
+- Deque push/pop: 2 CMP (amortized O(1))
+- Max/min update: 2 CMP = 2 cycles
+- Midpoint: 1 ADD + 1 DIV = 16 cycles
+
+*Note: Monotonic deque provides O(1) amortized max/min without scanning.*
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) amortized | Monotonic deques for max/min |
+| Batch | O(n) | Linear scan, n = series length |
+
+**Memory**: ~64 bytes + deque storage (proportional to period variance).
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | ❌ | Deque operations are inherently sequential |
+| FMA | ❌ | No multiply-add patterns |
+| Batch parallelism | Partial | Initial max/min scan vectorizable |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Exact max/min computation |
+| **Timeliness** | 9/10 | Immediate response to new extremes |
+| **Overshoot** | 1/10 | No smoothing, tracks exact extremes |
+| **Smoothness** | 2/10 | Step changes when extremes roll off |
+
+## Validation
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | ✅ | Matches TA_MAX/TA_MIN functions |
+| **Skender** | ✅ | Validated against Skender.Stock.Indicators |
+| **Tulip** | ✅ | Matches Tulip max/min |
+| **Ooples** | N/A | Not implemented |
+| **Internal** | ✅ | Mode consistency verified |
+
 ## References
 
 * Murphy, J. J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.

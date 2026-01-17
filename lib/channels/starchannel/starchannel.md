@@ -57,6 +57,52 @@ STARCHANNEL provides several analytical frameworks for trading decisions:
 * **Timeframe alignment:** Comparing STARCHANNEL across multiple timeframes can identify high-probability setups where support/resistance aligns
 * **Channel position analysis:** Price position within the channel (upper third, middle third, lower third) can indicate potential reversal zones
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+STARCHANNEL combines SMA (centerline) with ATR (band width):
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 6 | 1 | 6 |
+| MUL | 3 | 3 | 9 |
+| DIV | 2 | 15 | 30 |
+| CMP/ABS/MAX | 3 | 1 | 3 |
+| **Total** | **14** | — | **~48 cycles** |
+
+**Breakdown:**
+- SMA update (running sum): 2 ADD + 1 DIV = 17 cycles
+- True Range (3-way max): 2 SUB + 3 CMP = 5 cycles
+- ATR (Wilder smoothing): 1 ADD + 1 MUL + 1 DIV = 19 cycles
+- Band calculation: 1 ADD + 1 SUB + 2 MUL = 8 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Running sums for SMA, EMA for ATR |
+| Batch | O(n) | Linear scan |
+
+**Memory**: ~32 bytes (SMA sum, ATR state, previous close)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | True Range calculation vectorizable |
+| FMA | ✅ | Wilder smoothing: `prev + alpha * (tr - prev)` |
+| Batch parallelism | ❌ | ATR recursive dependency |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | ATR provides accurate volatility measure |
+| **Timeliness** | 6/10 | SMA lag + ATR smoothing delay |
+| **Overshoot** | 7/10 | Bands lag during volatility spikes |
+| **Smoothness** | 8/10 | SMA centerline provides smooth reference |
+
 ## Limitations and Considerations
 
 * **Lagging nature:** As a moving average-based indicator incorporating ATR, the channel reacts to volatility changes with some delay

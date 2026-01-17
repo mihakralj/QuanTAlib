@@ -143,6 +143,56 @@ STBANDS provides multiple layers of market analysis:
 * Use band breaks confirmed by momentum indicators
 * Validate signals with volume analysis
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+Super Trend Bands uses ATR calculation plus trend persistence logic:
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 8 | 1 | 8 |
+| MUL | 4 | 3 | 12 |
+| DIV | 2 | 15 | 30 |
+| CMP/ABS/MAX | 6 | 1 | 6 |
+| **Total** | **20** | — | **~56 cycles** |
+
+**Breakdown:**
+- True Range (3-way max): 2 SUB + 3 CMP = 5 cycles
+- ATR (SMA or Wilder): 2 ADD + 1 DIV = 17 cycles
+- Basic bands (HL2 ± ATR×mult): 2 ADD + 2 MUL + 1 DIV = 23 cycles
+- Trend persistence (min/max comparisons): 2 CMP = 2 cycles
+- Trend direction check: 1 CMP = 1 cycle
+- SuperTrend selection: 1 CMP = 1 cycle
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Running ATR with trend state |
+| Batch | O(n) | Linear scan |
+
+**Memory**: ~48 bytes (ATR state, previous bands, trend direction, previous close)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | True Range vectorizable |
+| FMA | ✅ | `hl2 + multiplier * atr` pattern |
+| Batch parallelism | ❌ | Trend persistence creates dependencies |
+
+**Note:** Trend persistence logic (comparing current vs previous bands based on close) creates sequential dependencies that prevent full SIMD parallelization.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | ATR-based adaptive width |
+| **Timeliness** | 7/10 | Trend persistence reduces whipsaws |
+| **Overshoot** | 6/10 | Bands may lag during rapid volatility changes |
+| **Smoothness** | 8/10 | Persistence logic smooths band transitions |
+
 ## Limitations and Considerations
 
 * **Lag component:** Band adjustments occur after price movements, creating some delay in signal generation

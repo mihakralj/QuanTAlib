@@ -118,6 +118,55 @@ HT_DCPERIOD provides real-time cycle analysis with multiple applications:
 * **Complementary Use**: Best used in conjunction with trend-following indicators (like HT_TRENDMODE) to determine when cycle analysis is appropriate vs when trend analysis is more suitable
 * **Parameter Sensitivity**: The Ehlers algorithm uses specific mathematical constants that work well for most markets but may not be optimal for all instruments or timeframes
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | ~25 | 1 | 25 |
+| MUL | ~30 | 3 | 90 |
+| DIV | 1 | 15 | 15 |
+| ATAN2 | 1 | 80 | 80 |
+| **Total** | **~57** | — | **~210 cycles** |
+
+**Breakdown:**
+- Weighted smooth (4-point): 3 MUL + 3 ADD = 12 cycles
+- Detrender FIR (4 taps × coefficient): 5 MUL + 3 ADD = 18 cycles
+- Q1/I1 FIR: 5 MUL + 3 ADD = 18 cycles
+- jI/jQ phase advance FIRs: 10 MUL + 6 ADD = 36 cycles
+- I2/Q2 phasor smoothing: 4 MUL + 4 ADD = 16 cycles
+- Re/Im computation: 6 MUL + 4 ADD = 22 cycles
+- Period = 2π/atan2(Im,Re): 1 ATAN2 + 1 DIV = 95 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Fixed 6-bar FIR history + IIR states |
+| Batch | O(n) | Linear scan, constant work per bar |
+
+**Memory**: ~128 bytes (6-bar history buffers + IIR states)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Limited | FIR taps vectorizable, IIRs sequential |
+| FMA | ✅ | Hilbert FIR: `0.0962×x + 0.5769×x[2] + ...` |
+| Batch parallelism | ❌ | IIR feedback prevents cross-bar parallelism |
+
+**Optimization Notes:** Same structure as HOMOD. Atan2 dominates cost (~38%). Fast atan2 approximations can reduce total to ~150 cycles.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 9/10 | Hilbert Transform is mathematically exact |
+| **Timeliness** | 7/10 | ~3 bar delay from FIR kernel |
+| **Overshoot** | 8/10 | Period clamping prevents extremes |
+| **Smoothness** | 8/10 | Multiple IIR stages smooth output |
+
 ## References
 
 * Ehlers, J. F. (2013). *Cycle Analytics for Traders: Advanced Technical Trading Concepts*. Wiley Trading.

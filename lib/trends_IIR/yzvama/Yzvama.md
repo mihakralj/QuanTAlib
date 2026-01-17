@@ -194,15 +194,97 @@ Result: YZV = 0 for all bars, percentile undefined, and adjusted length defaults
 
 ## Performance Profile
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Throughput | ~2M bars/sec | TBar input, includes sort overhead |
-| Allocations | 0 | Hot path allocation-free (reuses work array) |
-| Complexity | O(n log n + L) | n = percentileLookback, L = adjustedLength |
-| Warmup | max(yzvLongPeriod, maxLength, percentileLookback) | All components must fill |
+### Operation Count (Streaming Mode)
 
-| Quality Metric | Score | Notes |
-|:---|:---|:---|
+YZVAMA has four computational phases: YZ variance, RMA smoothing, percentile ranking, and dynamic SMA.
+
+**Phase 1: Yang-Zhang Variance (per bar)**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| LOG (4 log returns) | 4 | 40 | 160 |
+| MUL (squares, products) | 6 | 3 | 18 |
+| SUB (differences) | 4 | 1 | 4 |
+| ADD (combination) | 3 | 1 | 3 |
+| **Phase 1 subtotal** | **17** | — | **~185 cycles** |
+
+**Phase 2: Dual RMA Smoothing**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA (short RMA) | 1 | 4 | 4 |
+| FMA (long RMA) | 1 | 4 | 4 |
+| MUL (compensator ×2) | 2 | 3 | 6 |
+| DIV (bias correction ×2) | 2 | 15 | 30 |
+| SQRT (YZV from variance) | 1 | 15 | 15 |
+| **Phase 2 subtotal** | **7** | — | **~59 cycles** |
+
+**Phase 3: Percentile Ranking (O(n log n) where n = percentileLookback)**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Array copy | n | 1 | n |
+| SORT (comparison-based) | n log n | ~1 | n log n |
+| Binary search | log n | ~3 | 3 log n |
+| DIV (rank / count) | 1 | 15 | 15 |
+| **Phase 3 subtotal** | — | — | **~n log n + n + 15** |
+
+For n = 100: ~100 × 6.6 + 100 + 15 ≈ **~775 cycles**.
+
+**Phase 4: Dynamic SMA (O(L) where L = adjustedLength)**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL/SUB (percentile → length) | 3 | 3 | 9 |
+| ADD (sum L values) | L | 1 | L |
+| DIV (sum / L) | 1 | 15 | 15 |
+| **Phase 4 subtotal** | **4 + L** | — | **~24 + L cycles** |
+
+**Total per bar:** ~185 + 59 + 775 + 24 + L ≈ **~1043 + L cycles** (n=100, typical L=20).
+
+| Component | Cycles | % of Total |
+| :--- | :---: | :---: |
+| YZ variance (4 LOGs) | ~185 | 17% |
+| RMA + SQRT | ~59 | 6% |
+| Percentile sort (n=100) | ~775 | 73% |
+| Dynamic SMA (L=20) | ~44 | 4% |
+| **Total** | **~1063** | 100% |
+
+**Dominant cost:** Percentile sort at O(n log n) accounts for ~73% of computation.
+
+Post-warmup (no bias correction): subtract ~30 cycles → **~1033 cycles/bar**.
+
+### Batch Mode (SIMD Analysis)
+
+YZVAMA has limited SIMD potential due to recursive components and sort:
+
+| Component | SIMD Potential | Notes |
+| :--- | :--- | :--- |
+| YZ variance | Partial | 4 LOGs could use SVML |
+| RMA smoothing | None | Recursive IIR filter |
+| Percentile sort | None | Comparison-based, not vectorizable |
+| SMA summation | **Yes** | Horizontal sum of buffer |
+
+| Optimization | Cycles Saved |
+| :--- | :---: |
+| SIMD LOG (4 values) | ~120 cycles (160 → 40) |
+| SIMD SMA sum (L=32) | ~24 cycles |
+| **Total potential** | ~144 cycles (~14% improvement) |
+
+### Benchmark Results
+
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | ~2M bars/sec | TBar input, includes sort overhead |
+| **Allocations** | 0 bytes | Hot path allocation-free (reuses work array) |
+| **Complexity** | O(n log n + L) | n = percentileLookback, L = adjustedLength |
+| **Warmup** | max(yzvLongPeriod, maxLength, percentileLookback) | All components must fill |
+| **State Size** | ~5 KB | Buffers + work array at default params |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
 | **Accuracy** | 8/10 | Faithful to price within adaptive window |
 | **Timeliness** | 9/10 | Accelerates dramatically during volatility spikes |
 | **Overshoot** | 7/10 | SMA-based, no overshoot by construction |

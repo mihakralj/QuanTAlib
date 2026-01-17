@@ -120,12 +120,87 @@ VAMA supports bar correction by maintaining previous state (`_p_state`, `_p_buff
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode)
+
+VAMA has three computational phases: True Range, dual ATR updates, and dynamic SMA:
+
+**Phase 1: True Range Calculation**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB (H - L) | 1 | 1 | 1 |
+| SUB (H - Cprev) | 1 | 1 | 1 |
+| SUB (L - Cprev) | 1 | 1 | 1 |
+| ABS (×2) | 2 | 1 | 2 |
+| CMP (max of 3) | 2 | 1 | 2 |
+| **Phase 1 subtotal** | **7** | — | **~7 cycles** |
+
+**Phase 2: Dual ATR (RMA) Updates**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA (short ATR) | 1 | 4 | 4 |
+| FMA (long ATR) | 1 | 4 | 4 |
+| MUL (compensator ×2) | 2 | 3 | 6 |
+| DIV (bias correction ×2) | 2 | 15 | 30 |
+| **Phase 2 subtotal** | **6** | — | **~44 cycles** |
+
+**Phase 3: Dynamic SMA (O(L) where L = adjusted_length)**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| DIV (ratio: long/short) | 1 | 15 | 15 |
+| MUL (base × ratio) | 1 | 3 | 3 |
+| CLAMP (2 CMP) | 2 | 1 | 2 |
+| ADD (sum L values) | L | 1 | L |
+| DIV (sum / L) | 1 | 15 | 15 |
+| **Phase 3 subtotal** | **5 + L** | — | **~35 + L cycles** |
+
+**Total per bar:** ~86 + L cycles where L = adjusted_length (typically 15-30).
+
+| Typical Scenario | Adjusted Length | Total Cycles |
+| :--- | :---: | :---: |
+| High volatility | 10 | ~96 cycles |
+| Normal | 20 | ~106 cycles |
+| Low volatility | 40 | ~126 cycles |
+
+Post-warmup (no bias correction): subtract ~30 cycles → **~56 + L cycles/bar**.
+
+### Batch Mode (SIMD Analysis)
+
+VAMA is partially vectorizable:
+
+| Component | SIMD Potential | Notes |
+| :--- | :--- | :--- |
+| True Range | Limited | Min/max chains not ideal for SIMD |
+| ATR (RMA) | None | Recursive IIR filter |
+| SMA summation | **Yes** | Horizontal sum of buffer segment |
+
+For SMA with L ≥ 8, AVX2 can reduce ADD operations by ~4×:
+
+| Optimization | Operations | Cycles Saved |
+| :--- | :---: | :---: |
+| SIMD sum (L=32) | 32 → 8 ops | ~24 cycles |
+| FMA for ATR | Already optimal | — |
+
+### Benchmark Results
+
 | Metric | Value | Notes |
-|--------|-------|-------|
-| Throughput | ~15M bars/sec | TBar input, single-threaded |
-| Allocations | 0 | Hot path allocation-free |
-| Complexity | O(adjusted_length) | Per-bar, varies with volatility |
-| Warmup | max(longAtrPeriod, maxLength) | Both ATRs and buffer must fill |
+| :--- | :--- | :--- |
+| **Throughput** | ~15M bars/sec | TBar input, single-threaded |
+| **Allocations** | 0 bytes | Hot path allocation-free |
+| **Complexity** | O(adjusted_length) | Per-bar, varies with volatility |
+| **Warmup** | max(longAtrPeriod, maxLength) | Both ATRs and buffer must fill |
+| **State Size** | ~900 bytes | Two RMA states + circular buffer |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 8/10 | Tracks price within adaptive window |
+| **Timeliness** | 8/10 | Shortens period during volatility spikes |
+| **Overshoot** | 8/10 | SMA-based, minimal overshoot |
+| **Smoothness** | 7/10 | Smooth in low-vol, responsive in high-vol |
 
 ## Usage Patterns
 

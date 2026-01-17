@@ -73,6 +73,64 @@ DECAYCHANNEL provides sophisticated market insights through its adaptive behavio
 * **Market condition adaptation:** May generate different signal frequency in trending versus ranging markets
 * **Confirmation requirement:** Most effective when combined with volume, momentum, or other technical confirmation
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 6 | 1 | 6 |
+| MUL | 4 | 3 | 12 |
+| DIV | 2 | 15 | 30 |
+| EXP | 2 | 50 | 100 |
+| CMP/MAX/MIN | 4 | 1 | 4 |
+| **Total** | **18** | — | **~152 cycles** |
+
+**Breakdown:**
+- Decay lambda: 1 DIV (precomputed at construction)
+- Midpoint: 1 ADD + 1 DIV = 16 cycles
+- Decay rates (×2): 2 MUL + 2 EXP + 2 SUB = 106 cycles
+- Channel update: 2 MUL + 2 SUB = 8 cycles
+- Max/min tracking: 4 CMP = 4 cycles
+
+*Note: EXP operations dominate cost; precomputing decay table possible for further optimization.*
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Constant time per bar with tracked extremes |
+| Batch | O(n) | Linear scan, n = series length |
+
+**Memory**: ~96 bytes (extremes, decay timers, lambda constant, circular buffer).
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | Decay calc vectorizable; max/min tracking sequential |
+| FMA | ✅ | `max - decayRate × (max - midpoint)` |
+| Batch parallelism | ❌ | Decay timing creates bar-to-bar dependency |
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Mathematically exact exponential decay |
+| **Timeliness** | 7/10 | Tracks extremes immediately, decay is gradual |
+| **Overshoot** | 5/10 | Fresh extremes reset decay, can spike bands |
+| **Smoothness** | 6/10 | Exponential decay provides smooth convergence |
+
+## Validation
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | N/A | Not implemented |
+| **Tulip** | N/A | Not implemented |
+| **Ooples** | N/A | Not implemented |
+| **Internal** | ✅ | Mode consistency verified |
+
 ## References
 
 * Murphy, J. J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.

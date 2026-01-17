@@ -106,3 +106,85 @@ double value = stc.Last.Value;
 // 4. Chain from another indicator
 var macd = new Macd(26, 50, 9);
 var stcFromMacd = new Stc(source: macd, kPeriod: 10, dPeriod: 3);
+```
+
+## C# Implementation Considerations
+
+### Dual RingBuffer Architecture
+
+The implementation uses two `RingBuffer` instances to track rolling windows of MACD values and first-stage Stochastic values. This enables O(1) min/max updates in most cases, avoiding full window scans on every bar.
+
+```csharp
+private readonly RingBuffer _macdBuf;
+private readonly RingBuffer _stoch1Buf;
+```
+
+### Incremental Min/Max Updates
+
+The `UpdateMinMax` method implements an optimized algorithm that:
+- **Expands** min/max immediately when a new value exceeds boundaries
+- **Contracts** lazily only when the removed value was the extremum
+- Falls back to a full scan only when necessary (removed value matched min or max)
+
+This approach reduces O(n) scans to O(1) for expanding markets and typical mid-range removals.
+
+### State Struct with Sequential Layout
+
+All scalar state is packed into a `[StructLayout(LayoutKind.Sequential)]` struct for cache-friendly access:
+
+```csharp
+private struct State
+{
+    public double FastEma;
+    public double SlowEma;
+    public double Stoch1Ema;
+    public double Stoch2Ema;
+    public double PrevStc;
+    public double LastFiniteInput;
+    public bool HasFiniteInput;
+    public double MacdMin;
+    public double MacdMax;
+    public double Stoch1Min;
+    public double Stoch1Max;
+}
+```
+
+### FusedMultiplyAdd for EMA Smoothing
+
+All EMA calculations use `Math.FusedMultiplyAdd` for hardware-optimized precision:
+
+```csharp
+fastEma = Math.FusedMultiplyAdd(_fastAlpha, x - fastEma, fastEma);
+slowEma = Math.FusedMultiplyAdd(_slowAlpha, x - slowEma, slowEma);
+```
+
+This pattern `FMA(alpha, x - ema, ema)` computes `ema + alpha * (x - ema)` in a single fused operation.
+
+### Bar Correction via State Snapshot
+
+The `_s` / `_ps` pattern enables bar correction when `isNew=false`:
+
+```csharp
+if (isNew) _ps = _s;   // snapshot before mutation
+else _s = _ps;          // rollback to previous state
+```
+
+RingBuffer contents are also corrected via `UpdateNewest()` rather than `Add()`.
+
+### Multiple Smoothing Modes
+
+The final output stage supports four smoothing algorithms via the `StcSmoothing` enum:
+- **EMA**: Standard exponential smoothing
+- **Sigmoid**: Logistic transform `100 / (1 + exp(-0.1 * (x - 50)))`
+- **Digital**: Trinary output (0/100/hold) with hysteresis zones at 25/75
+- **None**: Raw second-stage Stochastic value
+
+### Static Calculate for Batch Processing
+
+The `Calculate(ReadOnlySpan<double>, Span<double>, ...)` method provides allocation-free batch computation using local array buffers instead of RingBuffers, suitable for backtesting scenarios.
+
+### Memory Efficiency
+
+- **Two RingBuffers**: `2 × kPeriod × 8` bytes (~160 bytes for default k=10)
+- **State struct**: ~88 bytes of scalar values
+- **Total per instance**: ~250 bytes typical

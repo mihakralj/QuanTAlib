@@ -113,6 +113,52 @@ When reset_condition = true:
 
 * **Volume Quality:** VWAP effectiveness depends on volume data quality. In thinly traded securities or markets with unreliable volume data, VWAP may not provide reliable signals.
 
+## Performance Profile
+
+### Operation Count (Streaming Mode, per Bar)
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| ADD/SUB | 7 | 1 | 7 |
+| MUL | 4 | 3 | 12 |
+| DIV | 3 | 15 | 45 |
+| SQRT | 1 | 15 | 15 |
+| **Total** | **15** | — | **~79 cycles** |
+
+**Breakdown:**
+- Typical price (HLC3): 2 ADD + 1 DIV = 17 cycles
+- Running sums (pv, vol, pv²): 3 ADD + 3 MUL = 12 cycles
+- VWAP + variance: 2 DIV + 1 MUL + 1 SUB = 35 cycles
+- StdDev + bands: 1 SQRT + 2 ADD = 17 cycles
+
+### Complexity Analysis
+
+| Mode | Complexity | Notes |
+| :--- | :---: | :--- |
+| Streaming | O(1) | Running sums, no buffer iteration |
+| Batch | O(n) | Linear scan per session |
+
+**Memory**: ~48 bytes (3 running sums × 8 bytes + session state)
+
+### SIMD Analysis
+
+| Optimization | Applicable | Notes |
+| :--- | :---: | :--- |
+| AVX2 vectorization | Partial | HLC3 and band calculations vectorizable |
+| FMA | ✅ | Band offset: `VWAP + num_devs × StdDev` |
+| Batch parallelism | Limited | Session resets create boundaries |
+
+**Note:** VWAPSD uses simple accumulation, making it amenable to partial SIMD. However, session reset boundaries (Pattern §20) prevent full vectorization across the entire series. Intra-session batch processing can achieve ~4× speedup on the typical price and band calculations, with the running sum portion remaining sequential.
+
+### Quality Metrics
+
+| Metric | Score | Notes |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Volume-weighted mean is mathematically exact |
+| **Timeliness** | 7/10 | Incorporates all data since session start |
+| **Overshoot** | 9/10 | Bands based on actual volatility |
+| **Smoothness** | 9/10 | Running average smooths noise progressively |
+
 ## References
 
 * Berkowitz, S. A., Logue, D. E., & Noser, E. A. (1988). The Total Cost of Transactions on the NYSE. The Journal of Finance, 43(1), 97-112.

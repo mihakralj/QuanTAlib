@@ -52,6 +52,8 @@ temp/
 *.tmp
 *.temp
 .sarif/
+_site/
+docfx/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md

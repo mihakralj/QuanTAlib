@@ -82,17 +82,59 @@ Note the symmetry around the center (index 2).
 
 ## Performance Profile
 
-GWMA trades CPU cycles for theoretically optimal smoothing characteristics.
+### Operation Count (Streaming Mode, Scalar)
+
+**Constructor (one-time weight precomputation):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL | 2L | 3 | 6L |
+| ADD/SUB | L | 1 | L |
+| EXP | L | 50 | 50L |
+| DIV | 1 | 15 | 15 |
+| **Total (init)** | — | — | **~57L + 15 cycles** |
+
+For period=20: ~1,155 cycles (one-time).
+
+**Hot path (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL | L + 1 | 3 | 3L + 3 |
+| ADD | L | 1 | L |
+| **Total** | **2L + 1** | — | **~4L + 3 cycles** |
+
+For period=20: ~83 cycles per bar.
+
+**Hot path breakdown:**
+- Dot product: `buffer.DotProduct(weights)` → L MUL + L ADD
+- Normalization: `sum × invWeightSum` → 1 MUL (precomputed inverse avoids DIV)
+
+### Batch Mode (SIMD)
+
+The dot product is highly vectorizable:
+
+| Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
+| :--- | :---: | :---: | :---: |
+| Weighted products | L | L/8 | 8× |
+| Horizontal sum | L | log₂(8) | ~L/3× |
+
+**Batch efficiency (512 bars, period=20):**
+
+| Mode | Cycles/bar | Total | Notes |
+| :--- | :---: | :---: | :--- |
+| Scalar streaming | ~83 | ~42,496 | O(L) per bar |
+| SIMD batch | ~22 | ~11,264 | Vectorized dot product |
+| **Improvement** | **~4×** | **~31K saved** | — |
+
+### Quality Metrics
 
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 35ns/bar | Similar to ALMA; linear with window size. |
-| **Allocations** | 0 | Weights precomputed. Buffer is circular. |
-| **Complexity** | $O(N)$ | Linear with window size. SIMD-vectorizable. |
-| **Accuracy** | 10/10 | Matches Gaussian definition to `double` precision. |
-| **Timeliness** | 7/10 | Centered filter has inherent lag of (period-1)/2 bars. |
-| **Overshoot** | 10/10 | Symmetric Gaussian prevents overshoot entirely. |
-| **Smoothness** | 9/10 | Gaussian provides optimal smoothing characteristics. |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Matches Gaussian definition to `double` precision |
+| **Timeliness** | 7/10 | Centered filter has inherent lag of (period-1)/2 bars |
+| **Overshoot** | 10/10 | Symmetric Gaussian prevents overshoot entirely |
+| **Smoothness** | 9/10 | Gaussian provides optimal smoothing characteristics |
 
 ### Implementation Details
 
@@ -139,6 +181,171 @@ QuanTAlib validates GWMA against its mathematical definition and internal consis
 | **Skender** | ❌ | Not included. |
 | **Tulip** | ❌ | Not included. |
 | **Ooples** | ❌ | Not included. |
+
+### C# Implementation Considerations
+
+The QuanTAlib GWMA implementation optimizes for streaming throughput with precomputed weights and careful state management:
+
+#### Precomputed Weights with Inverse Sum
+
+Gaussian weights and the inverse of their sum are calculated once in the constructor:
+
+```csharp
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+private static void ComputeWeights(Span<double> weights, int period, double sigma, out double invWeightSum)
+{
+    double center = (period - 1) / 2.0;
+    double invSigmaP = 1.0 / (sigma * period);
+    double sum = 0;
+
+    for (int i = 0; i < period; i++)
+    {
+        double x = (i - center) * invSigmaP;
+        double w = Math.Exp(-0.5 * x * x);
+        weights[i] = w;
+        sum += w;
+    }
+    invWeightSum = 1.0 / sum;  // Precompute inverse for multiplication
+}
+```
+
+#### State Record Struct with Auto Layout
+
+State uses `LayoutKind.Auto` for compiler-optimized field arrangement:
+
+```csharp
+[StructLayout(LayoutKind.Auto)]
+private record struct State
+{
+    public double LastValidValue;
+    public bool IsInitialized;
+}
+private State _state;
+private State _p_state;  // Previous state for bar correction
+```
+
+#### FusedMultiplyAdd in Warmup Path
+
+The warmup calculation uses FMA for efficient weighted sum accumulation:
+
+```csharp
+private static double CalculateWeightedSumWarmup(ReadOnlySpan<double> window, int p, double sigma, double fallbackValue)
+{
+    double center = (p - 1) * 0.5;
+    double invSigmaP = 1.0 / (sigma * p);
+    double sum = 0.0;
+    double wSum = 0.0;
+
+    for (int i = 0; i < p; i++)
+    {
+        double x = (i - center) * invSigmaP;
+        double w = Math.Exp(-0.5 * x * x);
+        sum = Math.FusedMultiplyAdd(window[i], w, sum);  // sum += window[i] * w
+        wSum += w;
+    }
+    return wSum > 0.0 ? sum / wSum : fallbackValue;
+}
+```
+
+#### Optimized Circular Buffer DotProduct
+
+The hot path handles ring buffer wraparound with two slice dot products:
+
+```csharp
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+private double CalculateWeightedSum(double fallbackValue)
+{
+    if (_invWeightSum == 0.0) return fallbackValue;
+
+    ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
+    int head = _buffer.StartIndex;
+
+    int part1Len = _period - head;
+    double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
+    double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
+
+    return (sum1 + sum2) * _invWeightSum;
+}
+```
+
+#### ArrayPool for Large Periods in Batch Mode
+
+The static `Calculate` method uses ArrayPool for periods >256:
+
+```csharp
+double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+Span<double> weights = period <= 256
+    ? stackalloc double[period]
+    : weightsArray!.AsSpan(0, period);
+
+double[]? ringArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+Span<double> ring = period <= 256
+    ? stackalloc double[period]
+    : ringArray!.AsSpan(0, period);
+
+try
+{
+    // Processing loop...
+}
+finally
+{
+    if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
+    if (ringArray != null) ArrayPool<double>.Shared.Return(ringArray);
+}
+```
+
+#### State Restoration After Batch
+
+Batch processing restores streaming state by seeding last valid value and replaying:
+
+```csharp
+public override TSeries Update(TSeries source)
+{
+    Calculate(source.Values, vSpan, _period, _sigma);
+
+    // Restore internal state
+    _buffer.Clear();
+    int windowSize = Math.Min(len, _period);
+    int startIndex = len - windowSize;
+
+    // Seed last valid value from history before replay window
+    _state = default;
+    if (startIndex > 0)
+    {
+        for (int i = startIndex - 1; i >= 0; i--)
+        {
+            if (double.IsFinite(source.Values[i]))
+            {
+                _state.LastValidValue = source.Values[i];
+                _state.IsInitialized = true;
+                break;
+            }
+        }
+    }
+
+    // Replay to rebuild buffer state
+    for (int i = startIndex; i < len; i++)
+    {
+        Update(source[i], isNew: true, publish: false);
+    }
+    return new TSeries(t, v);
+}
+```
+
+#### Memory Layout
+
+| Field | Type | Size | Purpose |
+| :--- | :--- | :---: | :--- |
+| `_period` | `int` | 4 | Window length |
+| `_sigma` | `double` | 8 | Gaussian width parameter |
+| `_weights` | `double[]` | 8 (ref) | Precomputed Gaussian weights |
+| `_invWeightSum` | `double` | 8 | Inverse of weight sum |
+| `_buffer` | `RingBuffer` | 8 (ref) | Circular price storage |
+| `_state` | `State` | 16 | Current state (LastValidValue, IsInitialized) |
+| `_p_state` | `State` | 16 | Previous state for rollback |
+| **Total** | | **~68 bytes** | Per instance (excluding buffer/array internals) |
+
+**Weight array storage:** `period × 8` bytes (e.g., 160 bytes for period=20)
 
 ## Common Pitfalls
 

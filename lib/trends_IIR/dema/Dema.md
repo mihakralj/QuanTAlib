@@ -119,6 +119,106 @@ Due to the recursive nature of EMA, SIMD vectorization is limited. However, FMA 
 | **Tulip** | ✅ | Matches `dema` (tolerance: 1e-9) |
 | **Ooples** | ✅ | Matches `2*EMA - EMA(EMA)` formula |
 
+## C# Implementation Considerations
+
+QuanTAlib's DEMA uses cascaded EMA instances with bias compensation and extensive FMA optimization. The implementation demonstrates several high-performance patterns:
+
+### State Management
+
+```csharp
+[StructLayout(LayoutKind.Auto)]
+private record struct EmaState(double Ema, double E, bool IsHot, bool IsCompensated)
+{
+    public static EmaState New() => new() { Ema = 0, E = 1.0, IsHot = false, IsCompensated = false };
+}
+
+private EmaState _state1 = EmaState.New();
+private EmaState _state2 = EmaState.New();
+private EmaState _p_state1 = EmaState.New();  // Bar correction backup
+private EmaState _p_state2 = EmaState.New();  // Bar correction backup
+```
+
+Each EMA stage has its own state with bias compensation tracking. Four state copies enable bar correction across both stages.
+
+### Key Optimizations
+
+| Technique | Implementation | Benefit |
+| :--- | :--- | :--- |
+| **Precomputed constants** | `_alpha = 2.0/(period+1)`, `_decay = 1-_alpha` | Eliminates division in hot path |
+| **FMA in EMA update** | `FusedMultiplyAdd(ema, decay, alpha * input)` | Hardware-accelerated smoothing |
+| **FMA in combiner** | `FusedMultiplyAdd(2.0, e1, -e2)` | Single instruction for DEMA formula |
+| **Bias compensation** | Tracks convergence factor `E` | Accurate warmup values |
+| **Auto-transition** | `IsCompensated` flag skips division | Steady-state optimization |
+
+### FMA Usage
+
+```csharp
+// EMA smoothing step (IIR pattern)
+state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input);
+
+// Final DEMA combiner: 2*e1 - e2 → FMA(2.0, e1, -e2)
+double result = Math.FusedMultiplyAdd(2.0, e1, -e2);
+```
+
+### Bias Compensation Logic
+
+```csharp
+[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+private static double Compute(double input, double alpha, double decay, ref EmaState state)
+{
+    state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * input);
+
+    if (!state.IsCompensated)
+    {
+        state.E *= decay;  // Bias factor decays each tick
+
+        if (!state.IsHot && state.E <= 0.05)  // 95% coverage
+            state.IsHot = true;
+
+        if (state.E <= 1e-10)  // Full convergence
+        {
+            state.IsCompensated = true;
+            return state.Ema;
+        }
+        return state.Ema / (1.0 - state.E);  // Bias-corrected
+    }
+    return state.Ema;  // No compensation needed
+}
+```
+
+### Memory Layout
+
+| Field | Type | Size | Purpose |
+| :--- | :--- | :---: | :--- |
+| `_alpha` | double | 8 bytes | EMA smoothing factor |
+| `_decay` | double | 8 bytes | 1 - alpha (precomputed) |
+| `_state1` | EmaState | 20 bytes | First EMA stage state |
+| `_state2` | EmaState | 20 bytes | Second EMA stage state |
+| `_p_state1` | EmaState | 20 bytes | Bar correction backup |
+| `_p_state2` | EmaState | 20 bytes | Bar correction backup |
+| `_lastValidValue` | double | 8 bytes | NaN substitution |
+| `_p_lastValidValue` | double | 8 bytes | Bar correction backup |
+| **Instance total** | | **~112 bytes** | No period-dependent allocations |
+
+### Bar Correction Pattern
+
+```csharp
+if (isNew)
+{
+    _p_state1 = _state1;
+    _p_state2 = _state2;
+    _p_lastValidValue = _lastValidValue;
+}
+else
+{
+    _state1 = _p_state1;
+    _state2 = _p_state2;
+    _lastValidValue = _p_lastValidValue;
+}
+```
+
+Both EMA states are rolled back atomically for consistent correction.
+
 ## Common Pitfalls
 
 1. **Overshoot on Reversals**: Because DEMA extrapolates using the EMA "velocity," it overshoots when price reverses direction. This is the fundamental tradeoff for reduced lag—the filter commits to trends and resists reversals.

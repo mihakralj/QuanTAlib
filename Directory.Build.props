@@ -18,8 +18,11 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
+    
+    <!-- AOT and Trim compatibility analyzers (build-time validation) -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -39,25 +42,21 @@
   </Target>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
-    <PublishAot>true</PublishAot>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <TieredCompilation>true</TieredCompilation>
-    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <PublishSingleFile>true</PublishSingleFile>
+    <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Deterministic>true</Deterministic>
+    
+    <!-- Trim mode for library compatibility validation -->
+    <TrimMode>link</TrimMode>
+    
+    <!-- Runtime feature switches (reduce size when library is trimmed by consumer) -->
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
-    <EventSourceSupport>false</EventSourceSupport>
-    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
-    <UseSystemResourceKeys>true</UseSystemResourceKeys>
-
+    
+    <!-- Suppress reflection-based serialization (faster startup, smaller footprint) -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
   <PropertyGroup>

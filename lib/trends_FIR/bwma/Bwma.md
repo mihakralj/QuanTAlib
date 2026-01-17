@@ -82,11 +82,54 @@ Where $W_{\text{sum}} = \sum w_i$.
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode, Scalar)
+
+**Constructor (one-time weight precomputation):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL | 2L | 3 | 6L |
+| ADD/SUB | 2L | 1 | 2L |
+| POW | L | 80 | 80L |
+| **Total (init)** | — | — | **~88L cycles** |
+
+For period=20: ~1,760 cycles (one-time).
+
+**Hot path (per bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| MUL | L + 1 | 3 | 3L + 3 |
+| ADD | L | 1 | L |
+| **Total** | **2L + 1** | — | **~4L + 3 cycles** |
+
+For period=20: ~83 cycles per bar.
+
+**Hot path breakdown:**
+- Dot product: `buffer.DotProduct(weights)` → L MUL + L ADD
+- Normalization: `result × invWeightSum` → 1 MUL (precomputed inverse avoids DIV)
+
+### Batch Mode (SIMD)
+
+The dot product is highly vectorizable:
+
+| Operation | Scalar Ops | SIMD Ops (AVX2) | Speedup |
+| :--- | :---: | :---: | :---: |
+| Weighted products | L | L/8 | 8× |
+| Horizontal sum | L | log₂(8) | ~L/3× |
+
+**Batch efficiency (512 bars, period=20):**
+
+| Mode | Cycles/bar | Total | Notes |
+| :--- | :---: | :---: | :--- |
+| Scalar streaming | ~83 | ~42,496 | O(L) per bar |
+| SIMD batch | ~22 | ~11,264 | Vectorized dot product |
+| **Improvement** | **~4×** | **~31K saved** | — |
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | ~30ns/bar | FIR dot product, vectorizable |
-| **Allocations** | 0 | Weights precomputed; circular buffer reused |
-| **Complexity** | $O(L)$ | Linear with window size |
+| :--- | :---: | :--- |
 | **Accuracy** | 10/10 | Matches mathematical definition |
 | **Timeliness** | 7/10 | Symmetric window introduces inherent lag |
 | **Overshoot** | 9/10 | Smooth window prevents ringing |
@@ -130,6 +173,151 @@ Self-consistency validation ensures:
 * Bar correction (isNew=false) restores previous state correctly
 * NaN handling substitutes last valid value
 * Reset produces identical results on replay
+
+### C# Implementation Considerations
+
+The QuanTAlib BWMA implementation optimizes for streaming throughput with precomputed weights and zero-allocation hot paths:
+
+#### Precomputed Weights with Inverse Sum
+
+Weights and the inverse of their sum are calculated once in the constructor, replacing division with multiplication:
+
+```csharp
+public Bwma(int period, int order = 0)
+{
+    _weights = new double[period];
+    ComputeWeights(_weights, period, order, out _invWeightSum);
+}
+
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+private static void ComputeWeights(Span<double> weights, int period, int order, out double invWeightSum)
+{
+    double sum = 0;
+    double scale = period > 1 ? 2.0 / (period - 1) : 0.0;
+    double power = order * 0.5 + 0.5;
+
+    for (int i = 0; i < period; i++)
+    {
+        double x = period > 1 ? i * scale - 1.0 : 0.0;
+        double arg = 1.0 - x * x;
+        double w = arg > 0.0 ? Math.Pow(arg, power) : 0.0;
+        weights[i] = w;
+        sum += w;
+    }
+    invWeightSum = sum > 0 ? 1.0 / sum : 0.0;  // Precompute inverse
+}
+```
+
+#### State Record Struct with Auto Layout
+
+State uses `LayoutKind.Auto` for compiler-optimized field arrangement:
+
+```csharp
+[StructLayout(LayoutKind.Auto)]
+private record struct State
+{
+    public double LastValidValue;
+    public bool IsInitialized;
+}
+private State _state;
+private State _p_state;  // Previous state for bar correction
+```
+
+#### FusedMultiplyAdd in Warmup Path
+
+The warmup calculation uses FMA for coordinate mapping and argument computation:
+
+```csharp
+for (int i = 0; i < p; i++)
+{
+    double x = Math.FusedMultiplyAdd(i, scale, -1.0);      // x = i * scale - 1.0
+    double arg = Math.FusedMultiplyAdd(-x, x, 1.0);        // arg = 1.0 - x * x
+    // ...
+    sum = Math.FusedMultiplyAdd(window[i], w, sum);        // sum += window[i] * w
+}
+```
+
+#### Optimized Circular Buffer DotProduct
+
+The hot path handles ring buffer wraparound with two slice dot products:
+
+```csharp
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+private double CalculateWeightedSum(double fallbackValue)
+{
+    if (_invWeightSum == 0.0) return fallbackValue;
+
+    ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
+    int head = _buffer.StartIndex;
+
+    int part1Len = _period - head;
+    double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
+    double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
+
+    return (sum1 + sum2) * _invWeightSum;  // Multiply by precomputed inverse
+}
+```
+
+#### ArrayPool for Large Periods in Batch Mode
+
+The static `Calculate` method uses ArrayPool for periods >256 to avoid large stack allocations:
+
+```csharp
+double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+Span<double> weights = period <= 256
+    ? stackalloc double[period]
+    : weightsArray!.AsSpan(0, period);
+
+double[]? ringArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+Span<double> ring = period <= 256
+    ? stackalloc double[period]
+    : ringArray!.AsSpan(0, period);
+
+try
+{
+    // Processing loop...
+}
+finally
+{
+    if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
+    if (ringArray != null) ArrayPool<double>.Shared.Return(ringArray);
+}
+```
+
+#### PineScript-Exact Order Handling
+
+The implementation matches PineScript behavior with special cases for orders 0 and 1:
+
+```csharp
+if (order == 0)
+{
+    w = arg;                    // (1 - x²)^1.0 - parabolic
+}
+else if (order == 1)
+{
+    w = arg * Math.Sqrt(arg);   // (1 - x²)^1.5 - avoids Math.Pow overhead
+}
+else
+{
+    w = Math.Pow(arg, power);   // (1 - x²)^power
+}
+```
+
+#### Memory Layout
+
+| Field | Type | Size | Purpose |
+| :--- | :--- | :---: | :--- |
+| `_period` | `int` | 4 | Window length |
+| `_order` | `int` | 4 | Bessel order parameter |
+| `_power` | `double` | 8 | Precomputed exponent |
+| `_weights` | `double[]` | 8 (ref) | Precomputed weights |
+| `_invWeightSum` | `double` | 8 | Inverse of weight sum |
+| `_buffer` | `RingBuffer` | 8 (ref) | Circular price storage |
+| `_state` | `State` | 16 | Current state (LastValidValue, IsInitialized) |
+| `_p_state` | `State` | 16 | Previous state for rollback |
+| **Total** | | **~72 bytes** | Per instance (excluding buffer/array internals) |
+
+**Weight array storage:** `period × 8` bytes (e.g., 160 bytes for period=20)
 
 ## Common Pitfalls
 

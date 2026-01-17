@@ -35,15 +35,56 @@ $$ VIDYA_t = (\alpha_{dynamic} \times Price_t) + ((1 - \alpha_{dynamic}) \times 
 
 ## Performance Profile
 
+### Operation Count (Streaming Mode, Scalar)
+
+**Hot path (buffer full):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| SUB | 2 | 1 | 2 |
+| CMP | 2 | 1 | 2 |
+| ADD | 2 | 1 | 2 |
+| ABS | 1 | 1 | 1 |
+| DIV | 1 | 15 | 15 |
+| MUL | 2 | 3 | 6 |
+| FMA | 1 | 4 | 4 |
+| **Total** | **11** | — | **~32 cycles** |
+
+The hot path consists of:
+1. Change calculation: `price - prevClose` — 1 SUB
+2. Up/Down split: `change > 0 ? change : 0` — 2 CMP (conditional moves)
+3. Buffer sum update: incremental via RingBuffer.Sum — 2 ADD (amortized O(1))
+4. CMO calculation: `|sumUp - sumDown| / (sumUp + sumDown)` — 1 ABS + 1 SUB + 1 ADD + 1 DIV
+5. Dynamic alpha: `alpha * vi` — 1 MUL
+6. VIDYA update: `FMA(lastVidya, 1-dynamicAlpha, dynamicAlpha * price)` — 1 FMA + 1 MUL
+
+**Warmup path (first bar):**
+
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| Assignment | 4 | 1 | 4 |
+| **Total** | **4** | — | **~4 cycles** |
+
+First bar initializes state with price value only.
+
+### Batch Mode (SIMD Analysis)
+
+VIDYA is an IIR filter with CMO-driven adaptive alpha — not vectorizable across bars due to recursive state dependency. The CMO calculation uses O(1) incremental ring buffer sums.
+
+| Optimization | Benefit |
+| :--- | :--- |
+| FMA instructions | Saves ~2 cycles per bar |
+| Incremental CMO sums | O(1) vs O(period) per bar |
+| ArrayPool buffers | Minimizes heap allocation in batch mode |
+
+### Quality Metrics
+
 | Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | 9 | High; O(1) calculation with CMO volatility index. |
-| **Allocations** | 0 | Zero-allocation in hot paths. |
-| **Complexity** | O(1) | Constant time regardless of period. |
-| **Accuracy** | 10 | Matches reference implementation exactly. |
-| **Timeliness** | 8 | Adaptive; speeds up in trends, slows in ranges. |
-| **Overshoot** | 2 | Minimal overshoot; constrained by dynamic alpha. |
-| **Smoothness** | 7 | Variable; smooth in ranges, responsive in trends. |
+| :--- | :---: | :--- |
+| **Accuracy** | 10/10 | Matches reference implementation exactly |
+| **Timeliness** | 8/10 | Adaptive; speeds up in trends, slows in ranges |
+| **Overshoot** | 9/10 | Minimal overshoot; constrained by dynamic alpha |
+| **Smoothness** | 7/10 | Variable; smooth in ranges, responsive in trends |
 
 ## Validation
 

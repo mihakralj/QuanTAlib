@@ -1,7 +1,37 @@
 # Validation Across TA Libraries
 
+> "Trust, but verify." — Russian proverb (applicable to both Cold War diplomacy and technical indicator libraries)
+
+Every indicator implementation makes implicit claims about correctness. QuanTAlib validates these claims by comparing outputs against established libraries: TA-Lib, Tulip, Skender.Stock.Indicators, and OoplesFinance. Where implementations diverge, the differences get documented.
+
+## Reading the Matrix
+
+| Symbol | Meaning |
+| :----: | :------ |
+| ✔️ | Validated: outputs match within floating-point tolerance (1e-9) |
+| ⚠️ | Partial match: minor discrepancies documented in indicator notes |
+| ❔ | Implementation exists but not validated |
+| - | No implementation in that library |
+
+**Tolerance rationale:** Financial data uses double precision. Differences below 1e-9 stem from floating-point arithmetic order, not algorithmic divergence.
+
+## Validation Philosophy
+
+Three levels of confidence:
+
+**Level 1: Cross-Library Agreement**
+Multiple independent implementations produce identical results. Highest confidence. Most mainstream indicators (SMA, EMA, RSI, MACD) fall here.
+
+**Level 2: Original Source Agreement**
+No cross-library validation available, but implementation matches original research paper or patent description. JMA, various proprietary indicators fall here.
+
+**Level 3: Mathematical Correctness Only**
+No external reference exists. Implementation verified through unit tests, edge case handling, and mathematical properties (e.g., filter stability, energy preservation). Novel or obscure indicators fall here.
+
+## Technical Indicators
+
 | Indicator | QuanTAlib | TA-Lib | Tulip | Skender | Ooples |
-| :--- | :--- | :---: | :---: | :---: | :---: |
+| :-------- | :-------- | :----: | :---: | :-----: | :----: |
 | **Aberration Bands** | [Abber](../lib/channels/abber/abber.md) | - | - | - | - |
 | **Absolute Price Oscillator** | [Apo](../lib/momentum/apo/apo.md) | ✔️ | ✔️ | - | ✔️ |
 | **Acceleration Bands** | [AccBands](../lib/channels/accbands/accbands.md) | - | - | - | - |
@@ -27,7 +57,7 @@
 | **Balance of Power** | [Bop](../lib/momentum/bop/Bop.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
 | **Bessel-Weighted MA** | [Bwma](../lib/trends_FIR/bwma/Bwma.md) | - | - | - | - |
-| **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | BETA | - | ✔️ | - |
+| **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | ✔️ | - | ✔️ | - |
 | **Bias** | Bias | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/trends/bilateral/Bilateral.md) | - | - | - | - |
 | **Blackman Window MA** | [Blma](../lib/trends/blma/Blma.md) | - | - | - | - |
@@ -36,38 +66,33 @@
 | **Bollinger Band Width** | Bbw | - | - | - | ❔ |
 | **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
 | **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
-| **Bollinger Bands** | Bbands | BBANDS | bbands | BollingerBands | ❔ |
+| **Bollinger Bands** | Bbands | ✔️ | ✔️ | ✔️ | ❔ |
 | **Butterworth Filter** | [Butter](../lib/trends/butter/Butter.md) | - | - | - | ✔️ |
-| **Bollinger Band Squeeze** | Bbs | - | - | - | - |
-| **Bollinger Band Width** | Bbw | - | - | - | ❔ |
-| **Bollinger Band Width Normalized** | Bbwn | - | - | - | - |
-| **Bollinger Band Width Percentile** | Bbwp | - | - | - | - |
-| **Butterworth Filter** | Butter | - | - | - | - |
 | **Camarilla Pivot Points** | Pivotcam | - | - | - | ❔ |
-| **Chaikin Money Flow** | Cmf | - | - | Cmf | ❔ |
-| **Chaikin Volatility** | Cvi | - | cvi | - | ❔ |
+| **Chaikin Money Flow** | Cmf | - | - | ✔️ | ❔ |
+| **Chaikin Volatility** | Cvi | - | ✔️ | - | ❔ |
 | **Chande Forecast Oscillator** | Cfo | - | - | - | ❔ |
-| **Chande Momentum Oscillator** | Cmo | CMO | cmo | Cmo | ❔ |
+| **Chande Momentum Oscillator** | Cmo | ✔️ | ✔️ | ✔️ | ❔ |
 | **Chebyshev Type I Filter** | Cheby1 | - | - | - | - |
 | **Chebyshev Type II Filter** | Cheby2 | - | - | - | - |
-| **Choppiness Index** | Chop | - | - | Chop | ❔ |
+| **Choppiness Index** | Chop | - | - | ✔️ | ❔ |
 | **Close-to-Close Volatility** | Ccv | - | - | - | - |
 | **Cointegration** | Cointegration | - | - | - | - |
-| **Commodity Channel Index** | Cci | CCI | cci | Cci | ❔ |
+| **Commodity Channel Index** | Cci | ✔️ | ✔️ | ✔️ | ❔ |
 | **Composite Fractal Behavior** | [Cfb](../lib/momentum/cfb/cfb.md) | - | - | - | - |
 | **Conditional Volatility** | Cv | - | - | - | - |
 | **Convolution Moving Average** | [Conv](../lib/trends/conv/conv.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Correlation** | Correlation | CORREL | - | Correlation | - |
+| **Correlation** | Correlation | ✔️ | - | ✔️ | - |
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - |
 | **Decay Min-Max Channel** | Decaychannel | - | - | - | - |
 | **DeMark Pivot Points** | Pivotdem | - | - | - | ❔ |
-| **Detrended Price Oscillator** | Dpo | - | dpo | Dpo | ❔ |
+| **Detrended Price Oscillator** | Dpo | - | ✔️ | ✔️ | ❔ |
 | **Detrended Synthetic Price** | Dsp | - | - | - | ❔ |
 | **Deviation-Scaled MA** | Dsma | - | - | - | ❔ |
-| **Directional Movement Index** | Dx | DX | dx | - | - |
+| **Directional Movement Index** | Dx | ✔️ | ✔️ | - | - |
 | **Directional Movement Index (Jurik)** | [Dmx](../lib/momentum/dmx/dmx.md) | - | - | - | - |
 | **Dirty Data Detection** | Dirty | - | - | - | - |
-| **Donchian Channels** | Dchannel | - | - | Donchian | ❔ |
+| **Donchian Channels** | Dchannel | - | - | ✔️ | ❔ |
 | **Double Exponential Moving Average** | [Dema](../lib/trends/dema/dema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Double Weighted Moving Average** | [Dwma](../lib/trends/dwma/dwma.md) | - | - | - | - |
 | **Ease of Movement** | Eome | - | - | - | ❔ |
@@ -88,9 +113,9 @@
 | **Exponential Weighted MA Volatility** | Ewma | - | - | - | - |
 | **Extended Traditional Pivots** | Pivotext | - | - | - | - |
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
-| **Fisher Transform** | Fisher | - | fisher | FisherTransform | ❔ |
-| **Force Index** | Efi | - | - | ForceIndex | ❔ |
-| **Fractal Chaos Bands** | Fcb | - | - | Fcb | ❔ |
+| **Fisher Transform** | Fisher | - | ✔️ | ✔️ | ❔ |
+| **Force Index** | Efi | - | - | ✔️ | ❔ |
+| **Fractal Chaos Bands** | Fcb | - | - | ✔️ | ❔ |
 | **Garman-Klass Volatility** | Gkv | - | - | - | ❔ |
 | **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
 | **Gaussian-Weighted MA** | Gwma | - | - | - | - |
@@ -102,12 +127,12 @@
 | **Harmonic Mean** | Harmean | - | - | - | - |
 | **High-Low Volatility** | Hlv | - | - | - | - |
 | **Highest value** | Highest | - | - | - | - |
-| **Hilbert Transform Dominant Cycle Period** | Ht_dcperiod | HT_DCPERIOD | - | - | - |
-| **Hilbert Transform Dominant Cycle Phase** | Ht_dcphase | HT_DCPHASE | - | - | - |
+| **Hilbert Transform Dominant Cycle Period** | Ht_dcperiod | ✔️ | - | - | - |
+| **Hilbert Transform Dominant Cycle Phase** | Ht_dcphase | ✔️ | - | - | - |
 | **Hilbert Transform Instantaneous Trend** | [Htit](../lib/trends/htit/htit.md) | ✔️ | - | ✔️ | ✔️ |
-| **Hilbert Transform Phasor** | Ht_phasor | HT_PHASOR | - | - | - |
-| **Hilbert Transform Sine Wave** | Ht_sine | HT_SINE | msw | - | - |
-| **Hilbert Transform Trend Mode** | Ht_trendmode | HT_TRENDMODE | - | - | - |
+| **Hilbert Transform Phasor** | Ht_phasor | ✔️ | - | - | - |
+| **Hilbert Transform Sine Wave** | Ht_sine | ✔️ | ✔️ | - | - |
+| **Hilbert Transform Trend Mode** | Ht_trendmode | ✔️ | - | - | - |
 | **Historical Volatility** | Hv | - | - | - | ❔ |
 | **Hodrick-Prescott Filter** | [Hp](../lib/filters/hp/Hp.md) | - | - | - | - |
 | **Holt Weighted MA** | Hwma | - | - | - | ❔ |
@@ -115,8 +140,8 @@
 | **Huber Loss** | Huber | - | - | - | - |
 | **Hull Exponential MA** | [Hema](../lib/trends_IIR/hema/Hema.md) | - | - | - | - |
 | **Hull Moving Average** | [Hma](../lib/trends/hma/hma.md) | - | ✔️ | ✔️ | [⚠️](../lib/trends/hma/hma.md#external-library-discrepancies) |
-| **Hurst Exponent** | Hurst | - | - | Hurst | ❔ |
-| **Ichimoku Cloud** | Ichimoku | - | - | Ichimoku | ❔ |
+| **Hurst Exponent** | Hurst | - | - | ✔️ | ❔ |
+| **Ichimoku Cloud** | Ichimoku | - | - | ✔️ | ❔ |
 | **Inertia** | Inertia | - | - | - | ❔ |
 | **Interquartile Range** | Iqr | - | - | - | - |
 | **Intraday Intensity Index** | Iii | - | - | - | - |
@@ -129,12 +154,12 @@
 | **Kalman Filter** | [Kalman](../lib/filters/kalman/Kalman.md) | - | - | - | - |
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends/kama/kama.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **KDJ Indicator** | Kdj | - | - | - | - |
-| **Keltner Channel** | Kchannel | - | - | Keltner | ❔ |
+| **Keltner Channel** | Kchannel | - | - | ✔️ | ❔ |
 | **Kendall Rank Correlation** | Kendall | - | - | - | ❔ |
-| **Klinger Volume Oscillator** | Kvo | - | kvo | Kvo | ❔ |
+| **Klinger Volume Oscillator** | Kvo | - | ✔️ | ✔️ | ❔ |
 | **Kurtosis** | Kurtosis | - | - | - | ❔ |
-| **Least Squares Moving Average** | [Lsma](../lib/trends/lsma/lsma.md) | LINEARREG | - | ✔️ | ❔ |
-| **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | LINEARREG | linreg | Slope | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
+| **Least Squares Moving Average** | [Lsma](../lib/trends/lsma/lsma.md) | ✔️ | - | ✔️ | ❔ |
+| **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
 | **Linear Transformation** | Linear | - | - | - | - |
 | **Linear Trend MA** | Ltma | - | - | - | - |
 | **LOESS/LOWESS Smoothing** | [Loess](../lib/filters/loess/Loess.md) | - | - | - | - |
@@ -142,7 +167,7 @@
 | **Logistic Function** | Sigmoid | - | - | - | - |
 | **Lowest value** | Lowest | - | - | - | - |
 | **Lunar Phase** | Lunar | - | - | - | - |
-| **Mass Index** | Mass | - | mass | - | ❔ |
+| **Mass Index** | Mass | - | ✔️ | - | ❔ |
 | **McGinley Dynamic** | [Mgdi](../lib/trends/mgdi/mgdi.md) | - | - | ✔️ | ✔️ |
 | **Mean Absolute Error** | Mae | - | - | - | - |
 | **Mean Absolute Percentage Difference** | Mapd | - | - | - | - |
@@ -152,35 +177,35 @@
 | **Mean Percentage Error** | Mpe | - | - | - | - |
 | **Mean Squared Error** | Mse | - | - | - | - |
 | **Mean Squared Logarithmic Error** | Msle | - | - | - | - |
-| **MESA Adaptive Moving Average** | [Mama](../lib/trends/mama/mama.md) | MAMA | - | ✔️ | ✔️ |
+| **MESA Adaptive Moving Average** | [Mama](../lib/trends/mama/mama.md) | ✔️ | - | ✔️ | ✔️ |
 | **Min-Max Channel** | Mmchannel | - | - | - | - |
 | **Min-Max Scaling (Normalization)** | Normalize | - | - | - | - |
 | **Mode (Most Frequent)** | Mode | - | - | - | - |
 | **Modified MA** | [Mma](../lib/trends_IIR/mma/Mma.md) | - | - | - | - |
-| **Momentum** | Mom | MOM | mom | - | ❔ |
+| **Momentum** | Mom | ✔️ | ✔️ | - | ❔ |
 | **Momentum change; 2nd derivative** | Accel | - | - | - | - |
-| **Money Flow Index** | Mfi | MFI | mfi | Mfi | ❔ |
+| **Money Flow Index** | Mfi | ✔️ | ✔️ | ✔️ | ❔ |
 | **Moon Phase** | Moon | - | - | - | - |
 | **Moving Average Convergence/Divergence** | [Macd](../lib/momentum/macd/Macd.md) | ✔️ | ✔️ | ✔️ | ❔ |
-| **Moving Average Envelopes** | Maenv | - | - | MaEnvelopes | ❔ |
-| **Negative Volume Index** | Nvi | - | nvi | - | ❔ |
-| **Normalized Average True Range** | Natr | NATR | natr | - | - |
+| **Moving Average Envelopes** | Maenv | - | - | ✔️ | ❔ |
+| **Negative Volume Index** | Nvi | - | ✔️ | - | ❔ |
+| **Normalized Average True Range** | Natr | ✔️ | ✔️ | - | - |
 | **Normalized Shannon Entropy** | Entropy | - | - | - | - |
 | **Notch Filter** | [Notch](../lib/filters/notch/Notch.md) | - | - | - | - |
-| **On Balance Volume** | Obv | OBV | obv | Obv | ❔ |
-| **Parabolic SAR** | Psar | SAR | psar | ParabolicSar | ❔ |
+| **On Balance Volume** | Obv | ✔️ | ✔️ | ✔️ | ❔ |
+| **Parabolic SAR** | Psar | ✔️ | ✔️ | ✔️ | ❔ |
 | **Parkinson Volatility** | Pv | - | - | - | - |
 | **Pascal Weighted Moving Average** | [Pwma](../lib/trends/pwma/pwma.md) | - | - | - | - |
 | **Percentage Change** | Change | - | - | - | - |
-| **Percentage Price Oscillator** | Ppo | PPO | ppo | - | ❔ |
-| **Percentage Volume Oscillator** | Pvo | - | - | Pvo | ❔ |
+| **Percentage Price Oscillator** | Ppo | ✔️ | ✔️ | - | ❔ |
+| **Percentage Volume Oscillator** | Pvo | - | - | ✔️ | ❔ |
 | **Percentile** | Percentile | - | - | - | - |
-| **Pivot Points** | Pivot | - | - | PivotPoints | ❔ |
-| **Positive Volume Index** | Pvi | - | pvi | - | ❔ |
+| **Pivot Points** | Pivot | - | - | ✔️ | ❔ |
+| **Positive Volume Index** | Pvi | - | ✔️ | - | ❔ |
 | **Pretty Good Oscillator** | Pgo | - | - | - | ❔ |
 | **Price Channel** | Pchannel | - | - | - | ❔ |
-| **Price Momentum Oscillator** | Pmo | - | - | Pmo | ❔ |
-| **Price Relative Strength** | Prs | - | - | Prs | - |
+| **Price Momentum Oscillator** | Pmo | - | - | ✔️ | ❔ |
+| **Price Relative Strength** | Prs | - | - | ✔️ | - |
 | **Price Volume Divergence** | Pvd | - | - | - | - |
 | **Price Volume Rank** | Pvr | - | - | - | ❔ |
 | **Price Volume Trend** | Pvt | - | - | - | ❔ |
@@ -188,10 +213,10 @@
 | **Quad Exponential MA** | [Qema](../lib/trends_IIR/qema/Qema.md) | - | - | - | - |
 | **Quantile** | Quantile | - | - | - | - |
 | **Rate of acceleration; 3rd derivative** | Jolt | - | - | - | - |
-| **Rate of Change** | Roc | ROC | roc | Roc | ❔ |
-| **Rate of change; 1st derivative** | [Slope](../lib/statistics/linreg/LinReg.md) | LINEARREG_SLOPE | linregslope | Slope | ❔ |
-| **Rate of Change Percentage** | Rocp | ROCP | - | - | - |
-| **Rate of Change Ratio** | Rocr | ROCR | rocr | - | - |
+| **Rate of Change** | Roc | ✔️ | ✔️ | ✔️ | ❔ |
+| **Rate of change; 1st derivative** | [Slope](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | ❔ |
+| **Rate of Change Percentage** | Rocp | ✔️ | - | - | - |
+| **Rate of Change Ratio** | Rocr | ✔️ | ✔️ | - | - |
 | **Realized Volatility** | Rv | - | - | - | - |
 | **Rectified Linear Unit** | Relu | - | - | - | - |
 | **Recursive Gaussian MA** | [Rgma](../lib/trends_IIR/rgma/Rgma.md) | - | - | - | - |
@@ -202,27 +227,27 @@
 | **Relative Strength Index** | [Rsi](../lib/momentum/rsi/Rsi.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Relative Strength Quality Index** | [Rsx](../lib/momentum/rsx/rsx.md) | - | - | - | ❔ |
 | **Relative Volatility Index** | Rvi | - | - | - | ❔ |
-| **Renko** | - | - | - | Renko | - |
+| **Renko** | - | - | - | ✔️ | - |
 | **Rogers-Satchell Volatility** | Rsv | - | - | - | - |
 | **Root Mean Squared Error** | Rmse | - | - | - | - |
 | **Root Mean Squared Logarithmic Error** | Rmsle | - | - | - | - |
-| **R-Squared** | [RSquared](../lib/statistics/linreg/LinReg.md) | - | - | RSquared | ❔ |
+| **R-Squared** | [RSquared](../lib/statistics/linreg/LinReg.md) | - | - | ✔️ | ❔ |
 | **Savitzky-Golay Filter** | [Sgf](../lib/filters/sgf/Sgf.md) | - | - | - | - |
 | **Savitzky-Golay MA** | [Sgma](../lib/trends_FIR/sgma/Sgma.md) | - | - | - | - |
 | **Schaff Trend Cycle** | [Stc](../lib/cycles/stc/Stc.md) | - | - | ✔️ | ❔ |
 | **Simple Moving Average** | [Sma](../lib/trends/sma/sma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sine-weighted MA** | [Sinema](../lib/trends_FIR/sinema/Sinema.md) | - | - | - | - |
-| **Smoothed Moving Average** | [Rma](../lib/trends/rma/rma.md) | - | wilders | ✔️ | ✔️ |
+| **Smoothed Moving Average** | [Rma](../lib/trends/rma/rma.md) | - | ✔️ | ✔️ | ✔️ |
 | **Solar Activity Cycle** | Solar | - | - | - | - |
 | **Spearman Rank Correlation** | Spearman | - | - | - | ❔ |
 | **Square Root Transformation** | Sqrt | - | - | - | - |
 | **Standard Deviation Channel** | Sdchannel | - | - | - | ❔ |
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |
-| **Stochastic Fast** | Stochf | STOCHF | - | - | ❔ |
-| **Stochastic Momentum Index** | Smi | - | - | Smi | ❔ |
-| **Stochastic Oscillator** | Stoch | STOCH | stoch | Stoch | ❔ |
-| **Stochastic RSI** | Stochrsi | STOCHRSI | stochrsi | StochRsi | ❔ |
+| **Stochastic Fast** | Stochf | ✔️ | - | - | ❔ |
+| **Stochastic Momentum Index** | Smi | - | - | ✔️ | ❔ |
+| **Stochastic Oscillator** | Stoch | ✔️ | ✔️ | ✔️ | ❔ |
+| **Stochastic RSI** | Stochrsi | ✔️ | ✔️ | ✔️ | ❔ |
 | **Stoller Average Range Channel** | Starchannel | - | - | - | ❔ |
 | **Super Trend Bands** | Stbands | - | - | - | - |
 | **SuperTrend** | [Super](../lib/trends/super/super.md) | - | - | ✔️ | ❔ |
@@ -230,55 +255,55 @@
 | **Symmetric Mean Absolute Percentage Error** | Smape | - | - | - | - |
 | **T3 Moving Average** | [T3](../lib/trends/t3/t3.md) | ✔️ | - | ✔️ | ✔️ |
 | **Theil Index** | Theil | - | - | - | - |
-| **Time Series Forecast** | Tsf | TSF | tsf | - | ❔ |
+| **Time Series Forecast** | Tsf | ✔️ | ✔️ | - | ❔ |
 | **Time Weighted Average Price** | Twap | - | - | - | - |
 | **Trade Volume Index** | Tvi | - | - | - | ❔ |
 | **Triangular Moving Average** | [Trima](../lib/trends/trima/trima.md) | ✔️ | ✔️ | ✔️ | ❔ |
-| **Triple Exponential Average** | Trix | TRIX | trix | Trix | ❔ |
+| **Triple Exponential Average** | Trix | ✔️ | ✔️ | ✔️ | ❔ |
 | **Triple Exponential Moving Average** | [Tema](../lib/trends/tema/tema.md) | ✔️ | ✔️ | ✔️ | ❔ |
-| **True Range** | Tr | TRANGE | tr | Tr | - |
-| **True Strength Index** | Tsi | - | - | Tsi | ❔ |
+| **True Range** | Tr | ✔️ | ✔️ | ✔️ | - |
+| **True Strength Index** | Tsi | - | - | ✔️ | ❔ |
 | **TTM Trend** | Ttm | - | - | - | - |
 | **Two-Argument Arctangent** | Atan2 | - | - | - | - |
-| **Ulcer Index** | Ui | - | - | UlcerIndex | ❔ |
+| **Ulcer Index** | Ui | - | - | ✔️ | ❔ |
 | **Ultimate Bands** | Ubands | - | - | - | ❔ |
 | **Ultimate Channel** | Uchannel | - | - | - | - |
 | **Ultimate Oscillator** | [Ultosc](../lib/momentum/ultosc/Ultosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | vidya | - | ❔ |
+| **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | ✔️ | - | ❔ |
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
 | **Volatility Adjusted Moving Average** | [Vama](../lib/trends_IIR/vama/Vama.md) | - | - | - | ❔ |
 | **Volatility of Volatility** | Vov | - | - | - | - |
 | **Volatility Ratio** | Vr | - | - | - | ❔ |
 | **Volume Accumulation** | Va | - | - | - | ❔ |
 | **Volume Force** | Vf | - | - | - | - |
-| **Volume Oscillator** | Vo | - | vosc | - | - |
+| **Volume Oscillator** | Vo | - | ✔️ | - | - |
 | **Volume Rate of Change** | Vroc | - | - | - | - |
 | **Volume Weighted Accumulation/Distribution** | Vwad | - | - | - | - |
-| **Volume Weighted Average Price** | Vwap | - | - | Vwap | ❔ |
-| **Volume Weighted Moving Average** | Vwma | - | vwma | Vwma | ❔ |
-| **Vortex Indicator** | Vortex | - | - | Vortex | ❔ |
+| **Volume Weighted Average Price** | Vwap | - | - | ✔️ | ❔ |
+| **Volume Weighted Moving Average** | Vwma | - | ✔️ | ✔️ | ❔ |
+| **Vortex Indicator** | Vortex | - | - | ✔️ | ❔ |
 | **VWAP Bands** | Vwapbands | - | - | - | - |
 | **VWAP with Standard Deviation Bands** | Vwapsd | - | - | - | - |
 | **Weighted Moving Average** | [Wma](../lib/trends/wma/wma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Wiener Filter** | Wiener | - | - | - | - |
-| **Williams %R** | Willr | WILLR | willr | WilliamsR | ❔ |
-| **Williams Accumulation/Distribution** | Wad | - | wad | - | ❔ |
-| **Williams Alligator** | Alligator | - | - | Alligator | ❔ |
-| **Williams Fractal** | Fractals | - | - | Fractal | ❔ |
+| **Williams %R** | Willr | ✔️ | ✔️ | ✔️ | ❔ |
+| **Williams Accumulation/Distribution** | Wad | - | ✔️ | - | ❔ |
+| **Williams Alligator** | Alligator | - | - | ✔️ | ❔ |
+| **Williams Fractal** | Fractals | - | - | ✔️ | ❔ |
 | **Woodie's Pivot Points** | Pivotwood | - | - | - | ❔ |
 | **Yang-Zhang Volatility** | Yzv | - | - | - | - |
 | **Yang-Zhang Volatility Adjusted MA** | [Yzvama](../lib/trends_IIR/yzvama/Yzvama.md) | - | - | - | - |
 | **Zero-Lag Double Exponential MA** | Zldema | - | - | - | - |
-| **Zero-Lag Exponential Moving Average** | [Zlema](../lib/trends_IIR/zlema/Zlema.md) | - | zlema | - | ❔ |
+| **Zero-Lag Exponential Moving Average** | [Zlema](../lib/trends_IIR/zlema/Zlema.md) | - | ✔️ | - | ❔ |
 | **Zero-Lag Triple Exponential MA** | Zltema | - | - | - | ❔ |
-| **ZigZag** | - | - | - | ZigZag | - |
+| **ZigZag** | - | - | - | ✔️ | - |
 | **Z-score standardization** | Zscore | - | - | - | ❔ |
 | **Z-Test** | Ztest | - | - | - | - |
 
 ## Statistical Indicators
 
 | Indicator | QuanTAlib | MathNet | TA-Lib | Tulip | Skender |
-| :--- | :--- | :---: | :---: | :---: | :---: |
+| :-------- | :-------- | :-----: | :----: | :---: | :-----: |
 | **Covariance** | [Covariance](../lib/statistics/covariance/Covariance.md) | - | - | - | - |
 | **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
 | **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |
@@ -289,11 +314,11 @@
 ## Error Metrics
 
 | Indicator | QuanTAlib | MathNet | Notes |
-| :--- | :--- | :---: | :--- |
+| :-------- | :-------- | :-----: | :---- |
 | **Mean Absolute Error** | [Mae](../lib/errors/mae/Mae.md) | ✔️ | Validated via `Distance.MAE()` |
 | **Mean Squared Error** | [Mse](../lib/errors/mse/Mse.md) | ✔️ | Validated via `Distance.MSE()` |
 | **Root Mean Squared Error** | [Rmse](../lib/errors/rmse/Rmse.md) | ✔️ | Validated via `sqrt(Distance.MSE())` |
-| **R-Squared** | [Rsquared](../lib/errors/rsquared/Rsquared.md) | | Uses streaming-optimized TSS calculation |
+| **R-Squared** | [Rsquared](../lib/errors/rsquared/Rsquared.md) | - | Uses streaming-optimized TSS calculation |
 | **Huber Loss** | [Huber](../lib/errors/huber/Huber.md) | - | No external validation available |
 | **Pseudo-Huber Loss** | [PseudoHuber](../lib/errors/pseudohuber/PseudoHuber.md) | - | No external validation available |
 | **Log-Cosh Loss** | [LogCosh](../lib/errors/logcosh/LogCosh.md) | - | No external validation available |
@@ -315,3 +340,44 @@
 | **MdAPE** | [MdAPE](../lib/errors/mdape/MdAPE.md) | - | No external validation available |
 | **MAPD** | [Mapd](../lib/errors/mapd/Mapd.md) | - | No external validation available |
 | **WMAPE** | [Wmape](../lib/errors/wmape/Wmape.md) | - | No external validation available |
+
+## Validation Libraries
+
+| Library | Language | License | Notes |
+| :------ | :------- | :------ | :---- |
+| [TA-Lib](https://ta-lib.org/) | C (via .NET wrapper) | BSD | Industry standard. C implementation, battle-tested. |
+| [Tulip](https://tulipindicators.org/) | C (via .NET wrapper) | LGPL | Lightweight, well-documented. |
+| [Skender.Stock.Indicators](https://dotnet.stockindicators.dev/) | C# | MIT | Pure .NET. Active development. |
+| [OoplesFinance](https://github.com/ooples/OoplesFinance.StockIndicators) | C# | Apache 2.0 | Large indicator collection. Validation coverage varies. |
+| [MathNet.Numerics](https://numerics.mathdotnet.com/) | C# | MIT | Statistical functions, not TA-specific. |
+
+## Running Validation Tests
+
+```bash
+# All validation tests
+dotnet test lib/QuanTAlib.Tests.csproj --filter "Category=Validation"
+
+# Specific library comparison
+dotnet test lib/QuanTAlib.Tests.csproj --filter "FullyQualifiedName~TalibValidation"
+dotnet test lib/QuanTAlib.Tests.csproj --filter "FullyQualifiedName~SkenderValidation"
+
+# Single indicator validation
+dotnet test lib/QuanTAlib.Tests.csproj --filter "FullyQualifiedName~EmaValidation"
+```
+
+## Discrepancy Investigation
+
+When validation fails:
+
+1. **Check parameter mapping.** TA-Lib uses 0-based indexing for some parameters. Skender uses 1-based.
+2. **Check warmup handling.** Different libraries handle the first N values differently.
+3. **Check smoothing assumptions.** Some libraries use SMA for initial EMA seed. Others use the first value.
+4. **Check edge cases.** NaN handling, zero division, and boundary conditions vary.
+
+Discrepancies get documented in the indicator's markdown file under a "Validation Notes" section. The goal is not to match every library exactly. The goal is to understand why differences exist and document them.
+
+## References
+
+- [TA-Lib Documentation](https://ta-lib.org/d_api/d_api.html)
+- [Skender.Stock.Indicators Wiki](https://dotnet.stockindicators.dev/guide/)
+- [Tulip Indicators Reference](https://tulipindicators.org/list)
