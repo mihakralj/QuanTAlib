@@ -10,11 +10,11 @@ Basic mathematical transforms and utility functions for time series. These build
 | :--- | :--- | :---: | :--- |
 | [ACCEL](accel/Accel.md) | Acceleration | ✓ | Momentum change; second derivative of price. |
 | [CHANGE](change/Change.md) | Percentage Change | ✓ | Relative price movement over lookback period. |
-| [EXP](exp/Exp.md) | Exponential Transform | ✓ | e^x transform for log-space conversion reversal. |
+| [EXPTRANS](exptrans/Exptrans.md) | Exponential Transform | ✓ | e^x transform for log-space conversion reversal. |
 | [HIGHEST](highest/Highest.md) | Rolling Maximum | ✓ | Maximum value over lookback window. |
 | [JERK](jerk/Jerk.md) | Jerk | ✓ | Rate of acceleration; third derivative of price. |
-| [LINEAR](linear/Linear.md) | Linear Transform | ✓ | y = ax + b scaling transformation. |
-| [LOG](log/Log.md) | Logarithmic Transform | ✓ | Natural log for percentage-based analysis. |
+| [LINEARTRANS](lineartrans/Lineartrans.md) | Linear Transform | ✓ | y = ax + b scaling transformation. |
+| [LOGTRANS](logtrans/Logtrans.md) | Logarithmic Transform | ✓ | Natural log for percentage-based analysis. |
 | [LOWEST](lowest/Lowest.md) | Rolling Minimum | ✓ | Minimum value over lookback window. |
 | [MIDPOINT](midpoint/Midpoint.md) | Midrange | ✓ | (Highest + Lowest) / 2 over lookback window. |
 | [NORMALIZE](normalize/Normalize.md) | Min-Max Normalization | ✓ | Scale to [0,1] range using rolling min/max. |
@@ -22,7 +22,7 @@ Basic mathematical transforms and utility functions for time series. These build
 | [SIGMOID](sigmoid/Sigmoid.md) | Logistic Function | ✓ | 1/(1+e^-x); bounded [0,1] transform. |
 | [SLOPE](slope/Slope.md) | Rate of Change | ✓ | First derivative; velocity of price movement. |
 | SMOOTHNESS | Smoothness Score | ≡ | Curvature continuity via second derivative analysis; 0-1 normalized. |
-| [SQRT](sqrt/Sqrt.md) | Square Root Transform | ✓ | Variance-stabilizing transformation. |
+| [SQRTTRANS](sqrttrans/Sqrttrans.md) | Square Root Transform | ✓ | Variance-stabilizing transformation. |
 | STANDARDIZE | Z-Score | ≡ | (x - μ) / σ; standard deviation units. |
 
 ## Selection Guide
@@ -35,7 +35,7 @@ Basic mathematical transforms and utility functions for time series. These build
 
 **For neural network inputs:** SIGMOID, RELU provide bounded activation functions. STANDARDIZE centers data with unit variance.
 
-**For log-space analysis:** LOG converts multiplicative relationships to additive. EXP reverses log transformation. SQRT stabilizes variance.
+**For log-space analysis:** LOGTRANS converts multiplicative relationships to additive. EXPTRANS reverses log transformation. SQRTTRANS stabilizes variance.
 
 ## Normalization Methods
 
@@ -51,8 +51,8 @@ Basic mathematical transforms and utility functions for time series. These build
 
 | Transform | Input Domain | Output Range | Primary Use |
 | :--- | :--- | :--- | :--- |
-| LOG | x > 0 | (-∞, ∞) | Percentage analysis, volatility |
-| EXP | (-∞, ∞) | (0, ∞) | Reverse log transform |
-| SQRT | x ≥ 0 | [0, ∞) | Variance stabilization |
-| LINEAR | (-∞, ∞) | (-∞, ∞) | Scaling, offset adjustment |
+| LOGTRANS | x > 0 | (-∞, ∞) | Percentage analysis, volatility |
+| EXPTRANS | (-∞, ∞) | (0, ∞) | Reverse log transform |
+| SQRTTRANS | x ≥ 0 | [0, ∞) | Variance stabilization |
+| LINEARTRANS | (-∞, ∞) | (-∞, ∞) | Scaling, offset adjustment |
 | ATAN2 | (y, x) | (-π, π] | Angle with quadrant |

@@ -109,7 +109,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Ehlers Ultrasmooth Filter** | Usf | - | - | - | - |
 | **Elliptic (Cauer) Filter** | [Elliptic](../lib/filters/elliptic/Elliptic.md) | - | - | - | ❔ |
 | **Exponential Moving Average** | [Ema](../lib/trends/ema/ema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Exponential Transformation** | Exp | - | - | - | - |
+| **Exponential Transformation** | Exptrans | - | - | - | - |
 | **Exponential Weighted MA Volatility** | Ewma | - | - | - | - |
 | **Extended Traditional Pivots** | Pivotext | - | - | - | - |
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
@@ -160,10 +160,10 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Kurtosis** | Kurtosis | - | - | - | ❔ |
 | **Least Squares Moving Average** | [Lsma](../lib/trends/lsma/lsma.md) | ✔️ | - | ✔️ | ❔ |
 | **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
-| **Linear Transformation** | Linear | - | - | - | - |
+| **Linear Transformation** | Lineartrans | - | - | - | - |
 | **Linear Trend MA** | Ltma | - | - | - | - |
 | **LOESS/LOWESS Smoothing** | [Loess](../lib/filters/loess/Loess.md) | - | - | - | - |
-| **Logarithmic Transformation** | Log | - | - | - | - |
+| **Logarithmic Transformation** | Logtrans | - | - | - | - |
 | **Logistic Function** | [Sigmoid](../lib/numerics/sigmoid/Sigmoid.md) | - | - | - | - |
 | **Lowest value** | [Lowest](../lib/numerics/lowest/Lowest.md) | ✔️ | ✔️ | - | - |
 | **Lunar Phase** | Lunar | - | - | - | - |
@@ -243,7 +243,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Smoothed Moving Average** | [Rma](../lib/trends/rma/rma.md) | - | ✔️ | ✔️ | ✔️ |
 | **Solar Activity Cycle** | Solar | - | - | - | - |
 | **Spearman Rank Correlation** | Spearman | - | - | - | ❔ |
-| **Square Root Transformation** | [Sqrt](../lib/numerics/sqrt/Sqrt.md) | - | - | - | - |
+| **Square Root Transformation** | [Sqrttrans](../lib/numerics/sqrttrans/Sqrttrans.md) | - | - | - | - |
 | **Standard Deviation Channel** | Sdchannel | - | - | - | ❔ |
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |

@@ -194,15 +194,15 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | :-------- | :-------- | :---- |
 | [**ACCEL**](../lib/numerics/accel/Accel.md) | Acceleration (2nd Derivative) | Change in slope; momentum |
 | [**CHANGE**](../lib/numerics/change/Change.md) | Percentage Change | Relative price movement (current - past) / past |
-| [**EXP**](../lib/numerics/exp/Exp.md) | Exponential Transform | e^x transform for log-space reversal |
+| [**EXPTRANS**](../lib/numerics/exptrans/Exptrans.md) | Exponential Transform | e^x transform for log-space reversal |
 | [**HIGHEST**](../lib/numerics/highest/Highest.md) | Rolling Maximum | O(1) amortized via monotonic deque |
 | [**JERK**](../lib/numerics/jerk/Jerk.md) | Jerk (3rd Derivative) | Change in acceleration |
-| [**LINEAR**](../lib/numerics/linear/Linear.md) | Linear Transform | y = ax + b scaling transformation |
-| [**LOG**](../lib/numerics/log/Log.md) | Logarithmic Transform | Natural log for percentage analysis |
+| [**LINEARTRANS**](../lib/numerics/lineartrans/Lineartrans.md) | Linear Transform | y = ax + b scaling transformation |
+| [**LOGTRANS**](../lib/numerics/logtrans/Logtrans.md) | Logarithmic Transform | Natural log for percentage analysis |
 | [**LOWEST**](../lib/numerics/lowest/Lowest.md) | Rolling Minimum | O(1) amortized via monotonic deque |
 | [**MIDPOINT**](../lib/numerics/midpoint/Midpoint.md) | Rolling Midpoint | (Highest + Lowest) / 2 |
 | [**NORMALIZE**](../lib/numerics/normalize/Normalize.md) | Min-Max Normalization | Scale to [0,1] via rolling min/max |
 | [**RELU**](../lib/numerics/relu/Relu.md) | Rectified Linear Unit | max(0, x); activation function |
 | [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x); bounded [0,1] transform |
 | [**SLOPE**](../lib/numerics/slope/Slope.md) | Slope (1st Derivative) | Rate of change; velocity |
-| [**SQRT**](../lib/numerics/sqrt/Sqrt.md) | Square Root Transform | √x; variance to standard deviation conversion |
+| [**SQRTTRANS**](../lib/numerics/sqrttrans/Sqrttrans.md) | Square Root Transform | √x; variance to standard deviation conversion |
