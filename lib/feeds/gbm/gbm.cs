@@ -196,7 +196,7 @@ public sealed class GBM : IFeed
             long currentTime = _lastTime + _defaultTimeStep;
 
             double z = NextNormal();
-            double price = _lastPrice * Math.Exp(_drift + _vol * z);
+            double price = _lastPrice * Math.Exp(Math.FusedMultiplyAdd(_vol, z, _drift));
 
             // Ensure price stays positive and finite
             if (!double.IsFinite(price) || price <= 0)
@@ -228,7 +228,7 @@ public sealed class GBM : IFeed
         {
             // Update current bar (intra-bar tick)
             double z = NextNormal();
-            double price = _lastPrice * Math.Exp(_drift + _vol * z);
+            double price = _lastPrice * Math.Exp(Math.FusedMultiplyAdd(_vol, z, _drift));
 
             // Ensure price stays positive and finite
             if (!double.IsFinite(price) || price <= 0)
@@ -299,7 +299,7 @@ public sealed class GBM : IFeed
         for (int i = 0; i < count; i++)
         {
             double z = NextNormal();
-            double price = currentPrice * Math.Exp(drift + vol * z);
+            double price = currentPrice * Math.Exp(Math.FusedMultiplyAdd(vol, z, drift));
 
             // Ensure price stays positive and finite
             if (!double.IsFinite(price) || price <= 0)

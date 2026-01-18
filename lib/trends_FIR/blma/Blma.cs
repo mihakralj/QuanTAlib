@@ -88,6 +88,7 @@ public sealed class Blma : AbstractBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
         // Handle NaN/Infinity - return last result without changing state
@@ -136,19 +137,34 @@ public sealed class Blma : AbstractBase
     public override TSeries Update(TSeries source)
     {
         var result = new TSeries();
-        Span<double> output = new double[source.Count];
-        Calculate(source.Values, output, _period);
+        int len = source.Count;
 
-        for (int i = 0; i < source.Count; i++)
+        // Use ArrayPool for large allocations
+        double[]? rented = len > 256 ? System.Buffers.ArrayPool<double>.Shared.Rent(len) : null;
+        scoped Span<double> output = rented != null ? rented.AsSpan(0, len) : stackalloc double[len];
+
+        try
         {
-            result.Add(new TValue(source[i].Time, output[i]));
+            Calculate(source.Values, output, _period);
+
+            for (int i = 0; i < len; i++)
+            {
+                result.Add(new TValue(source[i].Time, output[i]));
+            }
+        }
+        finally
+        {
+            if (rented != null)
+            {
+                System.Buffers.ArrayPool<double>.Shared.Return(rented);
+            }
         }
 
         // Restore state by replaying last Period bars
         // This ensures the indicator is ready for subsequent streaming updates
         Reset();
-        int start = Math.Max(0, source.Count - _period);
-        for (int i = start; i < source.Count; i++)
+        int start = Math.Max(0, len - _period);
+        for (int i = start; i < len; i++)
         {
             Update(source[i]);
         }
@@ -186,7 +202,10 @@ public sealed class Blma : AbstractBase
         for (int i = 0; i < n; i++)
         {
             double ratio = i * invNMinus1;
-            double w = a0 - (a1 * Math.Cos(pi2 * ratio)) + (a2 * Math.Cos(pi4 * ratio));
+            // Use FMA: a0 - a1*cos1 + a2*cos2 = a0 + FMA(-a1, cos1, a2*cos2)
+            double cos1 = Math.Cos(pi2 * ratio);
+            double cos2 = Math.Cos(pi4 * ratio);
+            double w = a0 + Math.FusedMultiplyAdd(-a1, cos1, a2 * cos2);
             weights[i] = w;
             totalWeight += w;
         }

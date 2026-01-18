@@ -20,12 +20,15 @@ public readonly struct TValueEventArgs : IEquatable<TValueEventArgs>
     public override bool Equals(object? obj) =>
         obj is TValueEventArgs other && Equals(other);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() =>
         HashCode.Combine(Value, IsNew);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(TValueEventArgs left, TValueEventArgs right) =>
         left.Equals(right);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(TValueEventArgs left, TValueEventArgs right) =>
         !left.Equals(right);
 }

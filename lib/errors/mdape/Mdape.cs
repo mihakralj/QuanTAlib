@@ -46,9 +46,32 @@ public sealed class Mdape : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue actual, TValue predicted, bool isNew = true)
     {
-        double actualVal = actual.Value;
-        double predictedVal = predicted.Value;
+        return UpdateCore(actual.AsDateTime, actual.Value, predicted.Value, isNew);
+    }
 
+    /// <summary>
+    /// Non-allocating Update overload that accepts primitive values.
+    /// Avoids TValue allocation in hot path.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(double actual, double predicted, bool isNew = true)
+    {
+        return UpdateCore(DateTime.UtcNow, actual, predicted, isNew);
+    }
+
+    public override TValue Update(TValue input, bool isNew = true)
+    {
+        throw new NotSupportedException("MdAPE requires two inputs. Use Update(actual, predicted).");
+    }
+
+    public override TSeries Update(TSeries source)
+    {
+        throw new NotSupportedException("MdAPE requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TValue UpdateCore(DateTime time, double actualVal, double predictedVal, bool isNew)
+    {
         if (!double.IsFinite(actualVal))
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 1.0;
         else
@@ -79,25 +102,9 @@ public sealed class Mdape : AbstractBase
         // Calculate median
         double result = CalculateMedian();
 
-        Last = new TValue(actual.Time, result);
+        Last = new TValue(time, result);
         PubEvent(Last, isNew);
         return Last;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(double actual, double predicted, bool isNew = true)
-    {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
-    }
-
-    public override TValue Update(TValue input, bool isNew = true)
-    {
-        throw new NotSupportedException("MdAPE requires two inputs. Use Update(actual, predicted).");
-    }
-
-    public override TSeries Update(TSeries source)
-    {
-        throw new NotSupportedException("MdAPE requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -119,21 +126,26 @@ public sealed class Mdape : AbstractBase
         int count = _buffer.Count;
         if (count == 0) return 0.0;
 
-        // Copy to sort buffer
-        for (int i = 0; i < count; i++)
+        // Copy buffer contents to sort buffer using GetSequencedSpans to handle wraparound
+        _buffer.GetSequencedSpans(out var first, out var second);
+        first.CopyTo(_sortBuffer.AsSpan(0, first.Length));
+        if (second.Length > 0)
         {
-            _sortBuffer[i] = _buffer[i];
+            second.CopyTo(_sortBuffer.AsSpan(first.Length, second.Length));
         }
 
-        // Sort the portion we're using
+        // Sort the portion we copied
         Array.Sort(_sortBuffer, 0, count);
 
-        // Return median
+        // Calculate median
         if ((count & 1) != 0)
         {
             return _sortBuffer[count / 2];
         }
-        return (_sortBuffer[count / 2 - 1] + _sortBuffer[count / 2]) * 0.5;
+
+        // For even count, average the two middle elements
+        int mid = count / 2;
+        return (_sortBuffer[mid - 1] + _sortBuffer[mid]) * 0.5;
     }
 
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
@@ -167,8 +179,8 @@ public sealed class Mdape : AbstractBase
         int len = actual.Length;
         if (len == 0) return;
 
-        double[] buffer = new double[period];
-        double[] sortBuffer = new double[period];
+        // Use dual-heap sliding median for O(log n) updates instead of O(n log n) sort per element
+        var slidingMedian = new SlidingMedianHeap(period);
 
         double lastValidActual = 1.0;
         double lastValidPredicted = 0;
@@ -182,9 +194,6 @@ public sealed class Mdape : AbstractBase
             if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
         }
 
-        int bufferIndex = 0;
-        int bufferCount = 0;
-
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
@@ -197,27 +206,150 @@ public sealed class Mdape : AbstractBase
             double absError = Math.Abs(act - pred);
             double percentageError = absActual > 1e-10 ? (absError / absActual) * 100.0 : 0.0;
 
-            // Add to circular buffer
-            buffer[bufferIndex] = percentageError;
-            bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
-            if (bufferCount < period) bufferCount++;
+            // Add to sliding median (handles removal of old values automatically)
+            slidingMedian.Add(percentageError);
 
-            // Copy and sort for median
-            for (int j = 0; j < bufferCount; j++)
+            // Get median in O(1)
+            output[i] = slidingMedian.GetMedian();
+        }
+    }
+
+    /// <summary>
+    /// Dual-heap based sliding window median calculator.
+    /// Maintains O(log n) insert/remove and O(1) median query.
+    /// </summary>
+    private sealed class SlidingMedianHeap
+    {
+        private readonly int _windowSize;
+        private readonly Queue<double> _window;
+        private readonly SortedList<double, int> _lower; // max-heap simulation (stores smaller half)
+        private readonly SortedList<double, int> _upper; // min-heap simulation (stores larger half)
+        private int _lowerCount;
+        private int _upperCount;
+
+        public SlidingMedianHeap(int windowSize)
+        {
+            _windowSize = windowSize;
+            _window = new Queue<double>(windowSize + 1);
+            _lower = new SortedList<double, int>();
+            _upper = new SortedList<double, int>();
+            _lowerCount = 0;
+            _upperCount = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(double value)
+        {
+            // If window is full, remove oldest element
+            if (_window.Count >= _windowSize)
             {
-                sortBuffer[j] = buffer[j];
+                double oldest = _window.Dequeue();
+                Remove(oldest);
             }
-            Array.Sort(sortBuffer, 0, bufferCount);
 
-            // Calculate median
-            if ((bufferCount & 1) != 0)
+            _window.Enqueue(value);
+            Insert(value);
+            Rebalance();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double GetMedian()
+        {
+            if (_lowerCount == 0 && _upperCount == 0) return 0.0;
+
+            if (_lowerCount > _upperCount)
             {
-                output[i] = sortBuffer[bufferCount / 2];
+                return _lower.Keys[_lower.Count - 1]; // max of lower
+            }
+            else if (_upperCount > _lowerCount)
+            {
+                return _upper.Keys[0]; // min of upper
             }
             else
             {
-                output[i] = (sortBuffer[bufferCount / 2 - 1] + sortBuffer[bufferCount / 2]) * 0.5;
+                return (_lower.Keys[_lower.Count - 1] + _upper.Keys[0]) * 0.5;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Insert(double value)
+        {
+            if (_lowerCount == 0 || value <= _lower.Keys[_lower.Count - 1])
+            {
+                AddToList(_lower, value);
+                _lowerCount++;
+            }
+            else
+            {
+                AddToList(_upper, value);
+                _upperCount++;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Remove(double value)
+        {
+            if (_lowerCount > 0 && value <= _lower.Keys[_lower.Count - 1])
+            {
+                RemoveFromList(_lower, value);
+                _lowerCount--;
+            }
+            else
+            {
+                RemoveFromList(_upper, value);
+                _upperCount--;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Rebalance()
+        {
+            // Ensure lower has at most 1 more element than upper
+            while (_lowerCount > _upperCount + 1)
+            {
+                double val = _lower.Keys[_lower.Count - 1];
+                RemoveFromList(_lower, val);
+                _lowerCount--;
+                AddToList(_upper, val);
+                _upperCount++;
+            }
+
+            while (_upperCount > _lowerCount)
+            {
+                double val = _upper.Keys[0];
+                RemoveFromList(_upper, val);
+                _upperCount--;
+                AddToList(_lower, val);
+                _lowerCount++;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AddToList(SortedList<double, int> list, double value)
+        {
+            if (list.TryGetValue(value, out int count))
+            {
+                list[value] = count + 1;
+            }
+            else
+            {
+                list[value] = 1;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void RemoveFromList(SortedList<double, int> list, double value)
+        {
+            if (list.TryGetValue(value, out int count))
+            {
+                if (count == 1)
+                {
+                    list.Remove(value);
+                }
+                else
+                {
+                    list[value] = count - 1;
+                }
             }
         }
     }

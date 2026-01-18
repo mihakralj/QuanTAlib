@@ -66,6 +66,8 @@ public sealed class Covariance : AbstractBase
     {
         if (isNew)
         {
+            // Save state for potential rollback AFTER modifications
+            // This captures state that can be restored by replacing newest value
             if (_bufferX.IsFull)
             {
                 double oldX = _bufferX.Oldest;
@@ -94,6 +96,8 @@ public sealed class Covariance : AbstractBase
         }
         else
         {
+            // For bar correction: replace the newest value
+            // We need to adjust sums by removing the old newest and adding the new value
             double oldX = _bufferX.Newest;
             double oldY = _bufferY.Newest;
 
@@ -112,13 +116,14 @@ public sealed class Covariance : AbstractBase
         int n = _bufferX.Count;
         if (n >= 2)
         {
+            // Standard covariance formula: (sumXY - sumX*sumY/n) / denom
             double numerator = _sumXY - (_sumX * _sumY) / n;
             double denominator = _isPopulation ? n : (n - 1);
             cov = numerator / denominator;
         }
 
         Last = new TValue(x.Time, cov);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 

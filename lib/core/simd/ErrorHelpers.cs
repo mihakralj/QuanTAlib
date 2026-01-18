@@ -53,7 +53,7 @@ public static class ErrorHelpers
 
     /// <summary>
     /// Computes absolute errors: |actual - predicted|
-    /// Uses AVX2 SIMD when available for clean data, with scalar fallback for NaN handling.
+    /// Uses AVX2 SIMD when available with integrated NaN detection, with scalar fallback for NaN handling.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ComputeAbsoluteErrors(
@@ -71,10 +71,14 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
-        // Try SIMD path for clean data (no NaN/Inf)
-        if (Avx2.IsSupported && len >= Vector256<double>.Count && IsDataClean(actual, predicted))
+        // Try SIMD path - NaN detection is integrated into the SIMD loop (avoids double-pass)
+        if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
-            ComputeAbsoluteErrorsSimd(actual, predicted, output);
+            int processedCount = ComputeAbsoluteErrorsSimdWithNaNDetection(actual, predicted, output, lastValidActual, lastValidPredicted);
+            if (processedCount == len)
+                return; // All processed via SIMD
+            // Continue with scalar for remaining elements (NaN was detected)
+            ComputeAbsoluteErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
         }
 
@@ -836,6 +840,67 @@ public static class ErrorHelpers
 
             output[i] = act - pred;
         }
+    }
+
+    /// <summary>
+    /// SIMD path with integrated NaN detection for absolute errors. Returns the number of elements processed.
+    /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int ComputeAbsoluteErrorsSimdWithNaNDetection(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        int len = actual.Length;
+        int vectorSize = Vector256<double>.Count;
+        int vectorEnd = len - (len % vectorSize);
+
+        // Mask for absolute value (clear sign bit)
+        Vector256<double> absMask = Vector256.Create(~(1L << 63)).AsDouble();
+
+        int i = 0;
+        for (; i < vectorEnd; i += vectorSize)
+        {
+            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
+            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
+
+            // Check for NaN/Inf: x == x is false for NaN
+            Vector256<double> actCmp = Avx.Compare(actVec, actVec, FloatComparisonMode.OrderedNonSignaling);
+            Vector256<double> predCmp = Avx.Compare(predVec, predVec, FloatComparisonMode.OrderedNonSignaling);
+            Vector256<double> combined = Avx.And(actCmp, predCmp);
+
+            int mask = Avx.MoveMask(combined);
+            if (mask != 0b1111)
+            {
+                // NaN detected - return current position for scalar fallback
+                return i;
+            }
+
+            // No NaN - compute absolute error: |actual - predicted|
+            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
+            Vector256<double> absErrorVec = Avx.And(errorVec, absMask);
+            absErrorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
+        }
+
+        // Handle scalar remainder
+        for (; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (!double.IsFinite(act) || !double.IsFinite(pred))
+            {
+                // Return current position - caller will handle with scalar fallback
+                return i;
+            }
+
+            output[i] = Math.Abs(act - pred);
+        }
+
+        return len;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

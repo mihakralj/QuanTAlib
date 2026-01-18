@@ -320,12 +320,19 @@ public sealed class Amat : ITValuePublisher, IDisposable
         var t = new List<long>(len);
         var v = new List<double>(len);
 
+        // Pre-size lists to avoid reallocations
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+
         Reset();
         for (int i = 0; i < len; i++)
         {
             Update(source[i], isNew: true);
-            t.Add(source[i].Time);
-            v.Add(Last.Value);
+            tSpan[i] = source[i].Time;
+            vSpan[i] = Last.Value;
         }
 
         return new TSeries(t, v);
@@ -477,17 +484,67 @@ public sealed class Amat : ITValuePublisher, IDisposable
     {
         if (source.Length != trend.Length)
             throw new ArgumentException("Source and trend must have the same length", nameof(trend));
+        if (fastPeriod <= 0)
+            throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        if (slowPeriod <= 0)
+            throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        if (fastPeriod >= slowPeriod)
+            throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
 
         int len = source.Length;
-        double[] strengthBuffer = ArrayPool<double>.Shared.Rent(len);
+        if (len == 0) return;
+
+        double fastAlpha = 2.0 / (fastPeriod + 1);
+        double slowAlpha = 2.0 / (slowPeriod + 1);
+
+        // Use single ArrayPool rent with slicing for both EMA buffers
+        double[]? rented = ArrayPool<double>.Shared.Rent(len * 2);
         try
         {
-            Span<double> strengthSpan = strengthBuffer.AsSpan(0, len);
-            Calculate(source, trend, strengthSpan, fastPeriod, slowPeriod);
+            Span<double> buffer = rented.AsSpan(0, len * 2);
+            Span<double> fastSpan = buffer.Slice(0, len);
+            Span<double> slowSpan = buffer.Slice(len, len);
+
+            // Calculate Fast and Slow EMAs
+            Ema.Batch(source, fastSpan, fastAlpha);
+            Ema.Batch(source, slowSpan, slowAlpha);
+
+            // Calculate trend only (no strength computation needed)
+            trend[0] = 0;
+
+            for (int i = 1; i < len; i++)
+            {
+                double fastEma = fastSpan[i];
+                double slowEma = slowSpan[i];
+                double prevFastEma = fastSpan[i - 1];
+                double prevSlowEma = slowSpan[i - 1];
+
+                bool fastAboveSlow = fastEma > slowEma;
+                bool fastRising = fastEma > prevFastEma;
+                bool slowRising = slowEma > prevSlowEma;
+                bool fastFalling = fastEma < prevFastEma;
+                bool slowFalling = slowEma < prevSlowEma;
+
+                // Bullish: Fast > Slow AND both rising
+                if (fastAboveSlow && fastRising && slowRising)
+                {
+                    trend[i] = 1.0;
+                }
+                // Bearish: Fast < Slow AND both falling
+                else if (!fastAboveSlow && fastFalling && slowFalling)
+                {
+                    trend[i] = -1.0;
+                }
+                // Neutral
+                else
+                {
+                    trend[i] = 0;
+                }
+            }
         }
         finally
         {
-            ArrayPool<double>.Shared.Return(strengthBuffer);
+            ArrayPool<double>.Shared.Return(rented);
         }
     }
 

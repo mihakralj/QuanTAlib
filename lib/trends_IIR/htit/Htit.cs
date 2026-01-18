@@ -133,9 +133,11 @@ public sealed class Htit : AbstractBase
             return price; // May be NaN if no valid input yet
         }
 
-        // 1. Smooth Price
+        // 1. Smooth Price using FMA for precision
         // smooth = (4*Price + 3*Price[1] + 2*Price[2] + Price[3]) / 10
-        double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;
+        double smooth = Math.FusedMultiplyAdd(4.0, _priceBuffer[^1],
+            Math.FusedMultiplyAdd(3.0, _priceBuffer[^2],
+                Math.FusedMultiplyAdd(2.0, _priceBuffer[^3], _priceBuffer[^4]))) * 0.1;
         _smoothBuffer.Add(smooth, isNew);
 
         // 2. Detrender
@@ -143,19 +145,28 @@ public sealed class Htit : AbstractBase
         double prevPeriod = _p_state.Period;
         double adj = (adjSlope * prevPeriod) + adjIntercept;
 
-        double detrender = (c1 * _smoothBuffer[^1] + c2 * _smoothBuffer[^3] - c2 * _smoothBuffer[^5] - c1 * _smoothBuffer[^7]) * adj;
+        // Use FMA for detrender calculation
+        double detrender = Math.FusedMultiplyAdd(c1, _smoothBuffer[^1],
+            Math.FusedMultiplyAdd(c2, _smoothBuffer[^3],
+                Math.FusedMultiplyAdd(-c2, _smoothBuffer[^5], -c1 * _smoothBuffer[^7]))) * adj;
         _detrenderBuffer.Add(detrender, isNew);
 
-        // 3. In-Phase and Quadrature
-        double q1 = (c1 * _detrenderBuffer[^1] + c2 * _detrenderBuffer[^3] - c2 * _detrenderBuffer[^5] - c1 * _detrenderBuffer[^7]) * adj;
+        // 3. In-Phase and Quadrature using FMA
+        double q1 = Math.FusedMultiplyAdd(c1, _detrenderBuffer[^1],
+            Math.FusedMultiplyAdd(c2, _detrenderBuffer[^3],
+                Math.FusedMultiplyAdd(-c2, _detrenderBuffer[^5], -c1 * _detrenderBuffer[^7]))) * adj;
         double i1 = _detrenderBuffer[^4];
 
         _q1Buffer.Add(q1, isNew);
         _i1Buffer.Add(i1, isNew);
 
-        // 4. Advance phases by 90 degrees
-        double jI = (c1 * _i1Buffer[^1] + c2 * _i1Buffer[^3] - c2 * _i1Buffer[^5] - c1 * _i1Buffer[^7]) * adj;
-        double jQ = (c1 * _q1Buffer[^1] + c2 * _q1Buffer[^3] - c2 * _q1Buffer[^5] - c1 * _q1Buffer[^7]) * adj;
+        // 4. Advance phases by 90 degrees using FMA
+        double jI = Math.FusedMultiplyAdd(c1, _i1Buffer[^1],
+            Math.FusedMultiplyAdd(c2, _i1Buffer[^3],
+                Math.FusedMultiplyAdd(-c2, _i1Buffer[^5], -c1 * _i1Buffer[^7]))) * adj;
+        double jQ = Math.FusedMultiplyAdd(c1, _q1Buffer[^1],
+            Math.FusedMultiplyAdd(c2, _q1Buffer[^3],
+                Math.FusedMultiplyAdd(-c2, _q1Buffer[^5], -c1 * _q1Buffer[^7]))) * adj;
 
         // 5. Phasor addition
         double i2_val = i1 - jQ;
@@ -233,6 +244,14 @@ public sealed class Htit : AbstractBase
         return Last;
     }
 
+    /// <summary>
+    /// Updates the indicator with a TSeries (batch mode).
+    /// This method processes each value through the streaming Update method,
+    /// maintaining full state for subsequent streaming updates.
+    /// For high-performance batch-only processing, use the static Calculate method instead.
+    /// </summary>
+    /// <param name="source">Input time series</param>
+    /// <returns>Output time series with HTIT values</returns>
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0) return new TSeries([], []);
@@ -335,42 +354,43 @@ public sealed class Htit : AbstractBase
 
             if (count > 6)
             {
-                // 1. Smooth Price
-                double smooth = (4.0 * priceBuffer[pIdx] +
-                                 3.0 * priceBuffer[(pIdx - 1) & Mask63] +
-                                 2.0 * priceBuffer[(pIdx - 2) & Mask63] +
-                                 priceBuffer[(pIdx - 3) & Mask63]) * 0.1;
+                // 1. Smooth Price using FMA
+                double smooth = Math.FusedMultiplyAdd(4.0, priceBuffer[pIdx],
+                    Math.FusedMultiplyAdd(3.0, priceBuffer[(pIdx - 1) & Mask63],
+                        Math.FusedMultiplyAdd(2.0, priceBuffer[(pIdx - 2) & Mask63],
+                            priceBuffer[(pIdx - 3) & Mask63]))) * 0.1;
                 smoothBuffer[sIdx] = smooth;
 
                 // 2. Detrender
                 double adj = (adjSlope * p_period) + adjIntercept;
 
-                double detrender = (c1 * smoothBuffer[sIdx] +
-                                    c2 * smoothBuffer[(sIdx - 2) & Mask7] -
-                                    c2 * smoothBuffer[(sIdx - 4) & Mask7] -
-                                    c1 * smoothBuffer[(sIdx - 6) & Mask7]) * adj;
+                // Use FMA for detrender
+                double detrender = Math.FusedMultiplyAdd(c1, smoothBuffer[sIdx],
+                    Math.FusedMultiplyAdd(c2, smoothBuffer[(sIdx - 2) & Mask7],
+                        Math.FusedMultiplyAdd(-c2, smoothBuffer[(sIdx - 4) & Mask7],
+                            -c1 * smoothBuffer[(sIdx - 6) & Mask7]))) * adj;
                 detrenderBuffer[sIdx] = detrender;
 
-                // 3. In-Phase and Quadrature
-                double q1 = (c1 * detrender +
-                             c2 * detrenderBuffer[(sIdx - 2) & Mask7] -
-                             c2 * detrenderBuffer[(sIdx - 4) & Mask7] -
-                             c1 * detrenderBuffer[(sIdx - 6) & Mask7]) * adj;
+                // 3. In-Phase and Quadrature using FMA
+                double q1 = Math.FusedMultiplyAdd(c1, detrender,
+                    Math.FusedMultiplyAdd(c2, detrenderBuffer[(sIdx - 2) & Mask7],
+                        Math.FusedMultiplyAdd(-c2, detrenderBuffer[(sIdx - 4) & Mask7],
+                            -c1 * detrenderBuffer[(sIdx - 6) & Mask7]))) * adj;
                 q1Buffer[sIdx] = q1;
 
                 double i1 = detrenderBuffer[(sIdx - 3) & Mask7];
                 i1Buffer[sIdx] = i1;
 
-                // 4. Advance phases
-                double jI = (c1 * i1 +
-                             c2 * i1Buffer[(sIdx - 2) & Mask7] -
-                             c2 * i1Buffer[(sIdx - 4) & Mask7] -
-                             c1 * i1Buffer[(sIdx - 6) & Mask7]) * adj;
+                // 4. Advance phases using FMA
+                double jI = Math.FusedMultiplyAdd(c1, i1,
+                    Math.FusedMultiplyAdd(c2, i1Buffer[(sIdx - 2) & Mask7],
+                        Math.FusedMultiplyAdd(-c2, i1Buffer[(sIdx - 4) & Mask7],
+                            -c1 * i1Buffer[(sIdx - 6) & Mask7]))) * adj;
 
-                double jQ = (c1 * q1 +
-                             c2 * q1Buffer[(sIdx - 2) & Mask7] -
-                             c2 * q1Buffer[(sIdx - 4) & Mask7] -
-                             c1 * q1Buffer[(sIdx - 6) & Mask7]) * adj;
+                double jQ = Math.FusedMultiplyAdd(c1, q1,
+                    Math.FusedMultiplyAdd(c2, q1Buffer[(sIdx - 2) & Mask7],
+                        Math.FusedMultiplyAdd(-c2, q1Buffer[(sIdx - 4) & Mask7],
+                            -c1 * q1Buffer[(sIdx - 6) & Mask7]))) * adj;
 
                 // 5. Phasor addition
                 double i2_val = i1 - jQ;
@@ -423,12 +443,12 @@ public sealed class Htit : AbstractBase
                 double it = prCount > 0 ? sumPr / prCount : price;
                 itBuffer[sIdx] = it;
 
-                // 9. Final Trendline
+                // 9. Final Trendline using FMA
                 output[i] = count >= 12
-                    ? (4.0 * itBuffer[sIdx] +
-                       3.0 * itBuffer[(sIdx - 1) & Mask7] +
-                       2.0 * itBuffer[(sIdx - 2) & Mask7] +
-                       itBuffer[(sIdx - 3) & Mask7]) * 0.1
+                    ? Math.FusedMultiplyAdd(4.0, itBuffer[sIdx],
+                        Math.FusedMultiplyAdd(3.0, itBuffer[(sIdx - 1) & Mask7],
+                            Math.FusedMultiplyAdd(2.0, itBuffer[(sIdx - 2) & Mask7],
+                                itBuffer[(sIdx - 3) & Mask7]))) * 0.1
                     : price;
 
                 // Update previous state

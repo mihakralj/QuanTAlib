@@ -172,55 +172,18 @@ public sealed class AroonOsc : ITValuePublisher
         return new TSeries(tList, vList);
     }
 
+    /// <summary>
+    /// Calculates Aroon oscillator values using the shared O(n) algorithm from Aroon.
+    /// </summary>
+    /// <param name="high">High prices</param>
+    /// <param name="low">Low prices</param>
+    /// <param name="period">Lookback period</param>
+    /// <param name="destination">Output oscillator values (Up - Down)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
     {
-        int len = high.Length;
-        if (len == 0 || len != low.Length || len != destination.Length || period <= 0)
-        {
-            if (destination.Length > 0)
-            {
-                destination.Clear();
-            }
-
-            return;
-        }
-
-        for (int i = 0; i < len; i++)
-        {
-            // Window includes up to 'period + 1' bars ending at index i
-            // This matches the streaming version which uses RingBuffer(period + 1)
-            int windowStart = i - Math.Min(i, period);
-
-            double maxVal = double.MinValue;
-            int maxIdx = windowStart;
-            double minVal = double.MaxValue;
-            int minIdx = windowStart;
-
-            for (int j = windowStart; j <= i; j++)
-            {
-                double h = high[j];
-                if (h >= maxVal)
-                {
-                    maxVal = h;
-                    maxIdx = j;
-                }
-
-                double l = low[j];
-                if (l <= minVal)
-                {
-                    minVal = l;
-                    minIdx = j;
-                }
-            }
-
-            int daysSinceHigh = i - maxIdx;
-            int daysSinceLow = i - minIdx;
-
-            double up = ((double)(period - daysSinceHigh) / period) * 100.0;
-            double down = ((double)(period - daysSinceLow) / period) * 100.0;
-            destination[i] = up - down;
-        }
+        // Delegate to Aroon's O(n) monotonic deque implementation
+        Aroon.Calculate(high, low, period, destination);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

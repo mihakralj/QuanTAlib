@@ -72,7 +72,6 @@ public sealed class Mrae : BiInputIndicatorBase
     /// <summary>
     /// Batch computation using shared error helpers.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
@@ -98,7 +97,6 @@ public sealed class Mrae : BiInputIndicatorBase
     /// <summary>
     /// Computes relative errors (0-1 scale, not percentage).
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeRelativeErrors(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,

@@ -130,6 +130,11 @@ public sealed class Jerk : AbstractBase
         if (source.Count == 0) return [];
 
         int len = source.Count;
+
+        // Cache source spans ONCE before any operations to avoid repeated property access
+        ReadOnlySpan<double> sourceValues = source.Values;
+        ReadOnlySpan<long> sourceTimes = source.Times;
+
         var t = new List<long>(len);
         var v = new List<double>(len);
         CollectionsMarshal.SetCount(t, len);
@@ -138,15 +143,15 @@ public sealed class Jerk : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan);
-        source.Times.CopyTo(tSpan);
+        Calculate(sourceValues, vSpan);
+        sourceTimes.CopyTo(tSpan);
 
-        // Prime state with last three values
+        // Prime state with last three values using cached span
         if (len >= 3)
         {
-            double v1 = double.IsFinite(source.Values[len - 1]) ? source.Values[len - 1] : _state.LastValidValue;
-            double v2 = double.IsFinite(source.Values[len - 2]) ? source.Values[len - 2] : v1;
-            double v3 = double.IsFinite(source.Values[len - 3]) ? source.Values[len - 3] : v2;
+            double v1 = double.IsFinite(sourceValues[len - 1]) ? sourceValues[len - 1] : _state.LastValidValue;
+            double v2 = double.IsFinite(sourceValues[len - 2]) ? sourceValues[len - 2] : v1;
+            double v3 = double.IsFinite(sourceValues[len - 3]) ? sourceValues[len - 3] : v2;
             _state.Prev1 = v1;
             _state.Prev2 = v2;
             _state.Prev3 = v3;
@@ -156,8 +161,8 @@ public sealed class Jerk : AbstractBase
         }
         else if (len == 2)
         {
-            double v1 = double.IsFinite(source.Values[1]) ? source.Values[1] : _state.LastValidValue;
-            double v2 = double.IsFinite(source.Values[0]) ? source.Values[0] : v1;
+            double v1 = double.IsFinite(sourceValues[1]) ? sourceValues[1] : _state.LastValidValue;
+            double v2 = double.IsFinite(sourceValues[0]) ? sourceValues[0] : v1;
             _state.Prev1 = v1;
             _state.Prev2 = v2;
             _state.LastValidValue = v1;
@@ -166,7 +171,7 @@ public sealed class Jerk : AbstractBase
         }
         else if (len == 1)
         {
-            double v1 = double.IsFinite(source.Values[0]) ? source.Values[0] : _state.LastValidValue;
+            double v1 = double.IsFinite(sourceValues[0]) ? sourceValues[0] : _state.LastValidValue;
             _state.Prev1 = v1;
             _state.LastValidValue = v1;
             _state.Count = 1;
@@ -221,10 +226,14 @@ public sealed class Jerk : AbstractBase
 
         int i = 3;
 
-        // AVX512: 8 doubles at once
-        if (Avx512F.IsSupported && len >= 11)
+        // Check for non-finite values before using SIMD (SIMD doesn't handle NaN properly)
+        bool allFinite = !source.ContainsNonFinite();
+
+        // AVX512: 8 doubles at once (only if all values are finite)
+        if (allFinite && Avx512F.IsSupported && len >= 11)
         {
             var three = Vector512.Create(3.0);
+            var negThree = Vector512.Create(-3.0);
             const int VectorWidth = 8;
             int simdEnd = len - ((len - 3) % VectorWidth);
             ref double srcRef = ref MemoryMarshal.GetReference(source);
@@ -237,16 +246,41 @@ public sealed class Jerk : AbstractBase
                 var prev2 = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 2));
                 var prev3 = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 3));
                 // jerk = current - 3*prev1 + 3*prev2 - prev3
-                var threeTimesP1 = Avx512F.Multiply(three, prev1);
-                var threeTimesP2 = Avx512F.Multiply(three, prev2);
-                var result = Avx512F.Subtract(current, threeTimesP1);
-                result = Avx512F.Add(result, threeTimesP2);
-                result = Avx512F.Subtract(result, prev3);
+                // Using FMA: FMA(-3, prev1, current) + FMA(3, prev2, -prev3)
+                var term1 = Avx512F.FusedMultiplyAdd(negThree, prev1, current);
+                var negPrev3 = Avx512F.Subtract(Vector512<double>.Zero, prev3);
+                var term2 = Avx512F.FusedMultiplyAdd(three, prev2, negPrev3);
+                var result = Avx512F.Add(term1, term2);
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
-        // AVX: 4 doubles at once
-        else if (Avx.IsSupported && len >= 7)
+        // AVX2 with FMA: 4 doubles at once (only if all values are finite)
+        else if (allFinite && Fma.IsSupported && len >= 7)
+        {
+            var three = Vector256.Create(3.0);
+            var negThree = Vector256.Create(-3.0);
+            const int VectorWidth = 4;
+            int simdEnd = len - ((len - 3) % VectorWidth);
+            ref double srcRef = ref MemoryMarshal.GetReference(source);
+            ref double outRef = ref MemoryMarshal.GetReference(output);
+
+            for (; i < simdEnd; i += VectorWidth)
+            {
+                var current = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
+                var prev1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
+                var prev2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 2));
+                var prev3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 3));
+                // jerk = current - 3*prev1 + 3*prev2 - prev3
+                // Using FMA: FMA(-3, prev1, current) + FMA(3, prev2, -prev3)
+                var term1 = Fma.MultiplyAdd(negThree, prev1, current);
+                var negPrev3 = Avx.Subtract(Vector256<double>.Zero, prev3);
+                var term2 = Fma.MultiplyAdd(three, prev2, negPrev3);
+                var result = Avx.Add(term1, term2);
+                result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+            }
+        }
+        // AVX fallback (no FMA): 4 doubles at once (only if all values are finite)
+        else if (allFinite && Avx.IsSupported && len >= 7)
         {
             var three = Vector256.Create(3.0);
             const int VectorWidth = 4;
@@ -268,10 +302,11 @@ public sealed class Jerk : AbstractBase
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
-        // ARM64 Neon: 2 doubles at once
-        else if (AdvSimd.Arm64.IsSupported && len >= 5)
+        // ARM64 Neon with FMA: 2 doubles at once (only if all values are finite)
+        else if (allFinite && AdvSimd.Arm64.IsSupported && len >= 5)
         {
             var three = Vector128.Create(3.0);
+            var negThree = Vector128.Create(-3.0);
             const int VectorWidth = 2;
             int simdEnd = len - ((len - 3) % VectorWidth);
             ref double srcRef = ref MemoryMarshal.GetReference(source);
@@ -283,11 +318,12 @@ public sealed class Jerk : AbstractBase
                 var prev1 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
                 var prev2 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 2));
                 var prev3 = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 3));
-                var threeTimesP1 = AdvSimd.Arm64.Multiply(three, prev1);
-                var threeTimesP2 = AdvSimd.Arm64.Multiply(three, prev2);
-                var result = AdvSimd.Arm64.Subtract(current, threeTimesP1);
-                result = AdvSimd.Arm64.Add(result, threeTimesP2);
-                result = AdvSimd.Arm64.Subtract(result, prev3);
+                // jerk = current - 3*prev1 + 3*prev2 - prev3
+                // Using FMA: FMA(-3, prev1, current) + FMA(3, prev2, -prev3)
+                var term1 = AdvSimd.Arm64.FusedMultiplyAdd(current, negThree, prev1);
+                var negPrev3 = AdvSimd.Arm64.Subtract(Vector128<double>.Zero, prev3);
+                var term2 = AdvSimd.Arm64.FusedMultiplyAdd(negPrev3, three, prev2);
+                var result = AdvSimd.Arm64.Add(term1, term2);
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }

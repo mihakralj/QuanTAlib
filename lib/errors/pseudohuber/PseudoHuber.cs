@@ -55,7 +55,8 @@ public sealed class PseudoHuber : BiInputIndicatorBase
     {
         double diff = actual - predicted;
         double ratio = diff / Delta;
-        return _deltaSquared * (Math.Sqrt(1.0 + ratio * ratio) - 1.0);
+        double sqrtTerm = Math.Sqrt(1.0 + ratio * ratio);
+        return Math.FusedMultiplyAdd(_deltaSquared, sqrtTerm, -_deltaSquared);
     }
 
     /// <summary>

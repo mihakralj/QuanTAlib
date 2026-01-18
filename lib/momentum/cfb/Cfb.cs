@@ -4,6 +4,24 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
+/// Cached default lengths array (2, 4, 6, ..., 192) for zero-allocation reuse.
+/// </summary>
+file static class CfbDefaults
+{
+    public static readonly int[] DefaultLengths = CreateDefaultLengths();
+
+    private static int[] CreateDefaultLengths()
+    {
+        var lengths = new int[96];
+        for (int i = 0; i < 96; i++)
+        {
+            lengths[i] = (i + 1) * 2;
+        }
+        return lengths;
+    }
+}
+
+/// <summary>
 /// CFB: Jurik Composite Fractal Behavior (Trend Duration Index)
 /// </summary>
 /// <remarks>
@@ -57,15 +75,12 @@ public sealed class Cfb : ITValuePublisher, IDisposable
     {
         if (lengths == null || lengths.Length == 0)
         {
-            // Default dense array: 2, 4, 6, ..., 192
-            _lengths = new int[96];
-            for (int i = 0; i < 96; i++)
-            {
-                _lengths[i] = (i + 1) * 2;
-            }
+            // Use cached default array (already sorted)
+            _lengths = CfbDefaults.DefaultLengths;
         }
         else
         {
+            // Clone and sort user-provided lengths
             _lengths = (int[])lengths.Clone();
             Array.Sort(_lengths);
         }
@@ -209,7 +224,7 @@ public sealed class Cfb : ITValuePublisher, IDisposable
 
             if (ratio >= 0.25)
             {
-                sumWeightedLen += L * ratio;
+                sumWeightedLen = Math.FusedMultiplyAdd(L, ratio, sumWeightedLen);
                 sumWeights += ratio;
             }
         }
@@ -285,7 +300,6 @@ public sealed class Cfb : ITValuePublisher, IDisposable
         return cfb.Update(source);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int[]? lengths = null)
     {
         int len = source.Length;
@@ -295,20 +309,18 @@ public sealed class Cfb : ITValuePublisher, IDisposable
         if (output.Length != len)
             throw new ArgumentException("Source and output must have the same length", nameof(output));
 
-        // Setup lengths
+        // Setup lengths - use cached default or sort a copy of user-provided
         int[] lens;
         if (lengths == null || lengths.Length == 0)
         {
-            lens = new int[96];
-            for (int i = 0; i < 96; i++)
-            {
-                lens[i] = (i + 1) * 2;
-            }
+            // Use cached default array (already sorted)
+            lens = CfbDefaults.DefaultLengths;
         }
         else
         {
-            // We do not mutate lens, so cloning is unnecessary.
-            lens = lengths;
+            // Clone and sort user-provided lengths to ensure ascending order
+            lens = (int[])lengths.Clone();
+            Array.Sort(lens);
         }
 
         const int StackallocThreshold = 256;
@@ -376,7 +388,7 @@ public sealed class Cfb : ITValuePublisher, IDisposable
 
                 if (ratio >= 0.25)
                 {
-                    sumWeightedLen += L * ratio;
+                    sumWeightedLen = Math.FusedMultiplyAdd(L, ratio, sumWeightedLen);
                     sumWeights += ratio;
                 }
             }

@@ -1,4 +1,6 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
@@ -25,6 +27,8 @@ public sealed class Ao : ITValuePublisher
     private readonly int _slowPeriod;
     private readonly Sma _smaFast;
     private readonly Sma _smaSlow;
+
+    private TValue _p_Last;
 
     /// <summary>
     /// Display name for the indicator.
@@ -80,6 +84,7 @@ public sealed class Ao : ITValuePublisher
         _smaFast.Reset();
         _smaSlow.Reset();
         Last = default;
+        _p_Last = default;
     }
 
     /// <summary>
@@ -93,6 +98,17 @@ public sealed class Ao : ITValuePublisher
     {
         double medianPrice = (input.High + input.Low) * 0.5;
         var val = new TValue(input.Time, medianPrice);
+
+        // Save state for potential rollback
+        if (isNew)
+        {
+            _p_Last = Last;
+        }
+        else
+        {
+            // Rollback to previous state - SMAs handle their own rollback
+            Last = _p_Last;
+        }
 
         var sFast = _smaFast.Update(val, isNew);
         var sSlow = _smaSlow.Update(val, isNew);
@@ -112,6 +128,25 @@ public sealed class Ao : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue input, bool isNew = true)
     {
+        // Guard against non-finite input
+        if (!double.IsFinite(input.Value))
+        {
+            // Keep Last unchanged, publish with IsNew=false to indicate no state change
+            Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = false });
+            return Last;
+        }
+
+        // Save state for potential rollback
+        if (isNew)
+        {
+            _p_Last = Last;
+        }
+        else
+        {
+            // Rollback to previous state - SMAs handle their own rollback
+            Last = _p_Last;
+        }
+
         var sFast = _smaFast.Update(input, isNew);
         var sSlow = _smaSlow.Update(input, isNew);
 
@@ -135,14 +170,16 @@ public sealed class Ao : ITValuePublisher
 
         Calculate(source.High.Values, source.Low.Values, v, _fastPeriod, _slowPeriod);
 
+        // Bulk copy timestamps using CollectionsMarshal
         var tList = new List<long>(len);
-        var vList = new List<double>(v);
+        CollectionsMarshal.SetCount(tList, len);
+        var tSpan = CollectionsMarshal.AsSpan(tList);
+        source.Open.Times.CopyTo(tSpan);
 
-        var times = source.Open.Times;
-        for (int i = 0; i < len; i++)
-        {
-            tList.Add(times[i]);
-        }
+        var vList = new List<double>(len);
+        CollectionsMarshal.SetCount(vList, len);
+        var vSpan = CollectionsMarshal.AsSpan(vList);
+        v.AsSpan().CopyTo(vSpan);
 
         // Restore streaming state so the instance is hot after batch update
         Reset();
@@ -172,29 +209,29 @@ public sealed class Ao : ITValuePublisher
         int len = high.Length;
         if (len == 0) return;
 
-        const int StackallocThreshold = 256;
-
-        Span<double> median = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        for (int i = 0; i < len; i++)
+        // Always use pooled buffer to avoid CS8353 stackalloc escape issues
+        // For small sizes, ArrayPool overhead is minimal
+        double[] rentedBuffer = ArrayPool<double>.Shared.Rent(len * 3);
+        try
         {
-            median[i] = (high[i] + low[i]) * 0.5;
+            Span<double> median = rentedBuffer.AsSpan(0, len);
+            Span<double> fast = rentedBuffer.AsSpan(len, len);
+            Span<double> slow = rentedBuffer.AsSpan(len * 2, len);
+
+            for (int i = 0; i < len; i++)
+            {
+                median[i] = (high[i] + low[i]) * 0.5;
+            }
+
+            Sma.Batch(median, fast, fastPeriod);
+            Sma.Batch(median, slow, slowPeriod);
+
+            SimdExtensions.Subtract(fast, slow, destination);
         }
-
-        Span<double> fast = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        Span<double> slow = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        Sma.Batch(median, fast, fastPeriod);
-        Sma.Batch(median, slow, slowPeriod);
-
-        SimdExtensions.Subtract(fast, slow, destination);
+        finally
+        {
+            ArrayPool<double>.Shared.Return(rentedBuffer);
+        }
     }
 
     /// <summary>
@@ -204,7 +241,6 @@ public sealed class Ao : ITValuePublisher
     /// <param name="fastPeriod">Fast SMA period (default 5)</param>
     /// <param name="slowPeriod">Slow SMA period (default 34)</param>
     /// <returns>AO series</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
     {
         if (source.Count == 0) return new TSeries([], []);
@@ -214,13 +250,18 @@ public sealed class Ao : ITValuePublisher
 
         Calculate(source.High.Values, source.Low.Values, v, fastPeriod, slowPeriod);
 
+        // Bulk copy timestamps using CollectionsMarshal
         var tList = new List<long>(len);
-        var times = source.Open.Times;
-        for (int i = 0; i < len; i++)
-        {
-            tList.Add(times[i]);
-        }
+        CollectionsMarshal.SetCount(tList, len);
+        var tSpan = CollectionsMarshal.AsSpan(tList);
+        source.Open.Times.CopyTo(tSpan);
 
-        return new TSeries(tList, [.. v]);
+        // Pass values list directly, avoiding spread operator allocation
+        var vList = new List<double>(len);
+        CollectionsMarshal.SetCount(vList, len);
+        var vSpan = CollectionsMarshal.AsSpan(vList);
+        v.AsSpan().CopyTo(vSpan);
+
+        return new TSeries(tList, vList);
     }
 }

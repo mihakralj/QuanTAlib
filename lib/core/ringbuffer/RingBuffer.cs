@@ -271,6 +271,12 @@ public sealed class RingBuffer : IEnumerable<double>
     /// If buffer is contiguous, returns direct span (SIMD-friendly).
     /// If wrapped, returns span over a copy.
     /// </summary>
+    /// <remarks>
+    /// <para><b>  Allocation Warning:</b> When the buffer wraps around (i.e., when data spans
+    /// from the end of the internal array back to the beginning), this method allocates a new
+    /// array via <see cref="ToArray"/> to return contiguous data. For allocation-free iteration
+    /// over wrapped buffers, use <see cref="GetSequencedSpans"/> instead.</para>
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<double> GetSpan()
     {

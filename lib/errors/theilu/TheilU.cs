@@ -53,9 +53,32 @@ public sealed class TheilU : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue actual, TValue predicted, bool isNew = true)
     {
-        double actualVal = actual.Value;
-        double predictedVal = predicted.Value;
+        return UpdateCore(actual.AsDateTime, actual.Value, predicted.Value, isNew);
+    }
 
+    /// <summary>
+    /// Non-allocating Update overload that accepts primitive values.
+    /// Avoids TValue allocation in hot path.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TValue Update(double actual, double predicted, bool isNew = true)
+    {
+        return UpdateCore(DateTime.UtcNow, actual, predicted, isNew);
+    }
+
+    public override TValue Update(TValue input, bool isNew = true)
+    {
+        throw new NotSupportedException("TheilU requires two inputs. Use Update(actual, predicted).");
+    }
+
+    public override TSeries Update(TSeries source)
+    {
+        throw new NotSupportedException("TheilU requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TValue UpdateCore(DateTime time, double actualVal, double predictedVal, bool isNew)
+    {
         if (!double.IsFinite(actualVal))
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
         else
@@ -76,15 +99,16 @@ public sealed class TheilU : AbstractBase
             _p_state = _state;
 
             double removedSqError = _sqErrorBuffer.Count == _sqErrorBuffer.Capacity ? _sqErrorBuffer.Oldest : 0.0;
-            _state.SqErrorSum = _state.SqErrorSum - removedSqError + sqError;
+            // Use FMA: sum = sum - removed + new = FMA(1.0, new, FMA(-1.0, removed, sum))
+            _state.SqErrorSum = Math.FusedMultiplyAdd(1.0, sqError, Math.FusedMultiplyAdd(-1.0, removedSqError, _state.SqErrorSum));
             _sqErrorBuffer.Add(sqError);
 
             double removedSqActual = _sqActualBuffer.Count == _sqActualBuffer.Capacity ? _sqActualBuffer.Oldest : 0.0;
-            _state.SqActualSum = _state.SqActualSum - removedSqActual + sqActual;
+            _state.SqActualSum = Math.FusedMultiplyAdd(1.0, sqActual, Math.FusedMultiplyAdd(-1.0, removedSqActual, _state.SqActualSum));
             _sqActualBuffer.Add(sqActual);
 
             double removedSqPred = _sqPredBuffer.Count == _sqPredBuffer.Capacity ? _sqPredBuffer.Oldest : 0.0;
-            _state.SqPredSum = _state.SqPredSum - removedSqPred + sqPred;
+            _state.SqPredSum = Math.FusedMultiplyAdd(1.0, sqPred, Math.FusedMultiplyAdd(-1.0, removedSqPred, _state.SqPredSum));
             _sqPredBuffer.Add(sqPred);
 
             _state.TickCount++;
@@ -100,18 +124,13 @@ public sealed class TheilU : AbstractBase
         {
             _state = _p_state;
 
-            double removedSqError = _sqErrorBuffer.Count == _sqErrorBuffer.Capacity ? _sqErrorBuffer.Oldest : 0.0;
-            _state.SqErrorSum = _state.SqErrorSum - removedSqError + sqError;
+            // Simplified: just update buffers and recalculate sums (no redundant arithmetic)
             _sqErrorBuffer.UpdateNewest(sqError);
             _state.SqErrorSum = _sqErrorBuffer.RecalculateSum();
 
-            double removedSqActual = _sqActualBuffer.Count == _sqActualBuffer.Capacity ? _sqActualBuffer.Oldest : 0.0;
-            _state.SqActualSum = _state.SqActualSum - removedSqActual + sqActual;
             _sqActualBuffer.UpdateNewest(sqActual);
             _state.SqActualSum = _sqActualBuffer.RecalculateSum();
 
-            double removedSqPred = _sqPredBuffer.Count == _sqPredBuffer.Capacity ? _sqPredBuffer.Oldest : 0.0;
-            _state.SqPredSum = _state.SqPredSum - removedSqPred + sqPred;
             _sqPredBuffer.UpdateNewest(sqPred);
             _state.SqPredSum = _sqPredBuffer.RecalculateSum();
         }
@@ -120,25 +139,9 @@ public sealed class TheilU : AbstractBase
         double denominator = Math.Sqrt(_state.SqActualSum + _state.SqPredSum);
         double result = denominator > 1e-10 ? Math.Sqrt(_state.SqErrorSum) / denominator : 0.0;
 
-        Last = new TValue(actual.Time, result);
+        Last = new TValue(time, result);
         PubEvent(Last, isNew);
         return Last;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(double actual, double predicted, bool isNew = true)
-    {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
-    }
-
-    public override TValue Update(TValue input, bool isNew = true)
-    {
-        throw new NotSupportedException("TheilU requires two inputs. Use Update(actual, predicted).");
-    }
-
-    public override TSeries Update(TSeries source)
-    {
-        throw new NotSupportedException("TheilU requires two inputs. Use Calculate(actualSeries, predictedSeries, period).");
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
@@ -255,9 +258,11 @@ public sealed class TheilU : AbstractBase
             double sqActual = act * act;
             double sqPred = pred * pred;
 
-            sqErrorSum = sqErrorSum - sqErrorBuffer[bufferIndex] + sqError;
-            sqActualSum = sqActualSum - sqActualBuffer[bufferIndex] + sqActual;
-            sqPredSum = sqPredSum - sqPredBuffer[bufferIndex] + sqPred;
+            // Use FMA for sliding-window updates
+            sqErrorSum = Math.FusedMultiplyAdd(1.0, sqError, Math.FusedMultiplyAdd(-1.0, sqErrorBuffer[bufferIndex], sqErrorSum));
+            sqActualSum = Math.FusedMultiplyAdd(1.0, sqActual, Math.FusedMultiplyAdd(-1.0, sqActualBuffer[bufferIndex], sqActualSum));
+            sqPredSum = Math.FusedMultiplyAdd(1.0, sqPred, Math.FusedMultiplyAdd(-1.0, sqPredBuffer[bufferIndex], sqPredSum));
+
             sqErrorBuffer[bufferIndex] = sqError;
             sqActualBuffer[bufferIndex] = sqActual;
             sqPredBuffer[bufferIndex] = sqPred;

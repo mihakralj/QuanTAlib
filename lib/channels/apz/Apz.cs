@@ -277,15 +277,36 @@ public sealed class Apz : ITValuePublisher
         var vUpperSpan = CollectionsMarshal.AsSpan(vUpper);
         var vLowerSpan = CollectionsMarshal.AsSpan(vLower);
 
-        // Use batch calculation
-        Batch(source.High.Values, source.Low.Values, source.Close.Values, new BatchOutputs(vMiddleSpan, vUpperSpan, vLowerSpan), _period, _multiplier);
+        // Use batch calculation and capture final state for continued streaming
+        var finalState = BatchWithState(source.High.Values, source.Low.Values, source.Close.Values,
+            new BatchOutputs(vMiddleSpan, vUpperSpan, vLowerSpan), _period, _multiplier);
 
         source.Times.CopyTo(tSpan);
         tSpan.CopyTo(CollectionsMarshal.AsSpan(tUpper));
         tSpan.CopyTo(CollectionsMarshal.AsSpan(tLower));
 
-        // Prime the state for continued streaming
-        Prime(source);
+        // Restore state from batch calculation (no re-processing)
+        _state = new State(
+            Ema1Price: finalState.Ema1Price,
+            Ema2Price: finalState.Ema2Price,
+            Ema1Range: finalState.Ema1Range,
+            Ema2Range: finalState.Ema2Range,
+            E: finalState.E,
+            LastValidPrice: finalState.LastValidPrice,
+            LastValidHigh: finalState.LastValidHigh,
+            LastValidLow: finalState.LastValidLow,
+            IsHot: finalState.IsHot
+        );
+        _p_state = _state;
+
+        // Update Last/Upper/Lower from final computed values
+        if (len > 0)
+        {
+            var lastTime = source.Times[len - 1];
+            Last = new TValue(new DateTime(lastTime, DateTimeKind.Utc), vMiddleSpan[len - 1]);
+            Upper = new TValue(new DateTime(lastTime, DateTimeKind.Utc), vUpperSpan[len - 1]);
+            Lower = new TValue(new DateTime(lastTime, DateTimeKind.Utc), vLowerSpan[len - 1]);
+        }
 
         return (new TSeries(tMiddle, vMiddle), new TSeries(tUpper, vUpper), new TSeries(tLower, vLower));
     }
@@ -435,8 +456,48 @@ public sealed class Apz : ITValuePublisher
         CalculateScalarCore(high, low, close, outputs, period, multiplier);
     }
 
+    /// <summary>
+    /// Batch calculation that returns final state for continued streaming.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ScalarState BatchWithState(
+        ReadOnlySpan<double> high,
+        ReadOnlySpan<double> low,
+        ReadOnlySpan<double> close,
+        BatchOutputs outputs,
+        int period,
+        double multiplier)
+    {
+        int len = close.Length;
+        if (high.Length != len || low.Length != len)
+            throw new ArgumentException("Input spans must have the same length", nameof(high));
+        if (outputs.Middle.Length < len || outputs.Upper.Length < len || outputs.Lower.Length < len)
+            throw new ArgumentException("Output buffers must be at least as long as input", nameof(outputs));
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (multiplier <= 0)
+            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+
+        if (len == 0)
+            return new ScalarState();
+
+        return CalculateScalarCoreWithState(high, low, close, outputs, period, multiplier);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CalculateScalarCore(
+        ReadOnlySpan<double> high,
+        ReadOnlySpan<double> low,
+        ReadOnlySpan<double> close,
+        BatchOutputs outputs,
+        int period,
+        double multiplier)
+    {
+        _ = CalculateScalarCoreWithState(high, low, close, outputs, period, multiplier);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ScalarState CalculateScalarCoreWithState(
         ReadOnlySpan<double> high,
         ReadOnlySpan<double> low,
         ReadOnlySpan<double> close,
@@ -532,6 +593,8 @@ public sealed class Apz : ITValuePublisher
             upper[i] = mid + bandWidth;
             lower[i] = mid - bandWidth;
         }
+
+        return state;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -115,6 +115,8 @@ public sealed class Slope : AbstractBase
         if (source.Count == 0) return [];
 
         int len = source.Count;
+        ReadOnlySpan<double> sourceValues = source.Values;
+        ReadOnlySpan<long> sourceTimes = source.Times;
         var t = new List<long>(len);
         var v = new List<double>(len);
         CollectionsMarshal.SetCount(t, len);
@@ -123,13 +125,13 @@ public sealed class Slope : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan);
-        source.Times.CopyTo(tSpan);
+        Calculate(sourceValues, vSpan);
+        sourceTimes.CopyTo(tSpan);
 
         // Prime state with last value
         if (len >= 1)
         {
-            _state.PrevValue = double.IsFinite(source.Values[len - 1]) ? source.Values[len - 1] : _state.LastValidValue;
+            _state.PrevValue = double.IsFinite(sourceValues[len - 1]) ? sourceValues[len - 1] : _state.LastValidValue;
             _state.Count = Math.Min(len, 2);
             _state.LastValidValue = _state.PrevValue;
             _p_state = _state;
@@ -180,11 +182,7 @@ public sealed class Slope : AbstractBase
 
         // Check if all values are finite before using SIMD
         // SIMD paths don't handle NaN/Infinity properly
-        bool allFinite = true;
-        for (int k = 0; k < len && allFinite; k++)
-        {
-            allFinite = double.IsFinite(source[k]);
-        }
+        bool allFinite = !source.ContainsNonFinite();
 
         // Only use SIMD if all values are finite
         if (allFinite)
@@ -193,7 +191,7 @@ public sealed class Slope : AbstractBase
             if (Avx512F.IsSupported && len >= 9)
             {
                 const int VectorWidth = 8;
-                int simdEnd = len - (len % VectorWidth);
+                int simdEnd = len - VectorWidth + 1;
                 ref double srcRef = ref MemoryMarshal.GetReference(source);
                 ref double outRef = ref MemoryMarshal.GetReference(output);
 
@@ -209,7 +207,7 @@ public sealed class Slope : AbstractBase
             else if (Avx.IsSupported && len >= 5)
             {
                 const int VectorWidth = 4;
-                int simdEnd = len - ((len - 1) % VectorWidth);
+                int simdEnd = len - VectorWidth + 1;
                 ref double srcRef = ref MemoryMarshal.GetReference(source);
                 ref double outRef = ref MemoryMarshal.GetReference(output);
 
@@ -225,7 +223,7 @@ public sealed class Slope : AbstractBase
             else if (AdvSimd.Arm64.IsSupported && len >= 3)
             {
                 const int VectorWidth = 2;
-                int simdEnd = len - ((len - 1) % VectorWidth);
+                int simdEnd = len - VectorWidth + 1;
                 ref double srcRef = ref MemoryMarshal.GetReference(source);
                 ref double outRef = ref MemoryMarshal.GetReference(output);
 
@@ -240,34 +238,56 @@ public sealed class Slope : AbstractBase
         }
 
         // Scalar fallback for remaining elements
+        // Track last valid value forward to avoid O(n²) backward scanning
+        double lastValid = 0.0;
+        // Find first valid value if we're starting from the beginning
+        if (i == 1)
+        {
+            for (int k = 0; k < len; k++)
+            {
+                if (double.IsFinite(source[k]))
+                {
+                    lastValid = source[k];
+                    break;
+                }
+            }
+        }
+        else if (i > 1)
+        {
+            // We already processed some elements via SIMD, find last valid from processed
+            for (int k = i - 1; k >= 0; k--)
+            {
+                if (double.IsFinite(source[k]))
+                {
+                    lastValid = source[k];
+                    break;
+                }
+            }
+        }
+
+        double prevValid = lastValid;
         for (; i < len; i++)
         {
             double curr = source[i];
             double prev = source[i - 1];
 
-            // Handle NaN/Infinity by looking back for last finite value
-            if (!double.IsFinite(curr))
+            // Handle NaN/Infinity using tracked last valid values
+            if (double.IsFinite(curr))
             {
-                for (int j = i - 1; j >= 0; j--)
-                {
-                    if (double.IsFinite(source[j]))
-                    {
-                        curr = source[j];
-                        break;
-                    }
-                }
+                lastValid = curr;
             }
-            if (!double.IsFinite(prev))
+            else
             {
-                for (int j = i - 2; j >= 0; j--)
-                {
-                    if (double.IsFinite(source[j]))
-                    {
-                        prev = source[j];
-                        break;
-                    }
-                }
-                if (!double.IsFinite(prev)) prev = curr;
+                curr = lastValid;
+            }
+
+            if (double.IsFinite(prev))
+            {
+                prevValid = prev;
+            }
+            else
+            {
+                prev = prevValid;
             }
 
             output[i] = curr - prev;

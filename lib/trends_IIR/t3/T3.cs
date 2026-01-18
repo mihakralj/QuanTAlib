@@ -42,7 +42,7 @@ public sealed class T3 : AbstractBase
     }
 
     [StructLayout(LayoutKind.Auto)]
-    private readonly record struct Parameters(double Alpha, double C1, double C2, double C3, double C4);
+    private readonly record struct Parameters(double Alpha, double Decay, double C1, double C2, double C3, double C4);
 
     private readonly Parameters _params;
     private State _state = State.New();
@@ -68,6 +68,7 @@ public sealed class T3 : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be greater than 0 and typically <= 1");
 
         double alpha = 2.0 / (period + 1);
+        double decay = 1.0 - alpha;
 
         // Precompute coefficients
         double v = vfactor;
@@ -79,7 +80,7 @@ public sealed class T3 : AbstractBase
         double c3 = -3.0 * (2.0 * v2 + v + v3);
         double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
 
-        _params = new Parameters(alpha, c1, c2, c3, c4);
+        _params = new Parameters(alpha, decay, c1, c2, c3, c4);
 
         Name = $"T3({period}, {vfactor:F2})";
         WarmupPeriod = period * 6; // T3 has 6 cascaded EMAs, so warmup is longer
@@ -187,9 +188,11 @@ public sealed class T3 : AbstractBase
             // So the state corresponds to "after processing source".
             // To get the output value corresponding to the last input, we can calculate it from the state.
             // But T3 formula uses the *updated* EMAs.
-            // T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
+        // T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
             // The state has the updated EMAs.
-            double result = _params.C1 * _state.E6 + _params.C2 * _state.E5 + _params.C3 * _state.E4 + _params.C4 * _state.E3;
+            double result = Math.FusedMultiplyAdd(_params.C4, _state.E3,
+                Math.FusedMultiplyAdd(_params.C3, _state.E4,
+                    Math.FusedMultiplyAdd(_params.C2, _state.E5, _params.C1 * _state.E6)));
             Last = new TValue(DateTime.MinValue, result);
         }
 
@@ -272,15 +275,19 @@ public sealed class T3 : AbstractBase
         }
         else
         {
-            state.E1 += p.Alpha * (input - state.E1);
-            state.E2 += p.Alpha * (state.E1 - state.E2);
-            state.E3 += p.Alpha * (state.E2 - state.E3);
-            state.E4 += p.Alpha * (state.E3 - state.E4);
-            state.E5 += p.Alpha * (state.E4 - state.E5);
-            state.E6 += p.Alpha * (state.E5 - state.E6);
+            // EMA update: ema = decay * ema + alpha * input = FMA(decay, ema, alpha * input)
+            state.E1 = Math.FusedMultiplyAdd(p.Decay, state.E1, p.Alpha * input);
+            state.E2 = Math.FusedMultiplyAdd(p.Decay, state.E2, p.Alpha * state.E1);
+            state.E3 = Math.FusedMultiplyAdd(p.Decay, state.E3, p.Alpha * state.E2);
+            state.E4 = Math.FusedMultiplyAdd(p.Decay, state.E4, p.Alpha * state.E3);
+            state.E5 = Math.FusedMultiplyAdd(p.Decay, state.E5, p.Alpha * state.E4);
+            state.E6 = Math.FusedMultiplyAdd(p.Decay, state.E6, p.Alpha * state.E5);
         }
 
-        return p.C1 * state.E6 + p.C2 * state.E5 + p.C3 * state.E4 + p.C4 * state.E3;
+        // T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
+        return Math.FusedMultiplyAdd(p.C4, state.E3,
+            Math.FusedMultiplyAdd(p.C3, state.E4,
+                Math.FusedMultiplyAdd(p.C2, state.E5, p.C1 * state.E6)));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -324,6 +331,7 @@ public sealed class T3 : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be greater than 0 and typically <= 1");
 
         double alpha = 2.0 / (period + 1);
+        double decay = 1.0 - alpha;
         double v = vfactor;
         double v2 = v * v;
         double v3 = v2 * v;
@@ -333,9 +341,9 @@ public sealed class T3 : AbstractBase
         double c3 = -3.0 * (2.0 * v2 + v + v3);
         double c4 = 1.0 + 3.0 * v + 3.0 * v2 + v3;
 
-        var p = new Parameters(alpha, c1, c2, c3, c4);
+        var p = new Parameters(alpha, decay, c1, c2, c3, c4);
         var state = State.New();
-        double lastValidValue = 0;
+        double lastValidValue = double.NaN;
 
         CalculateCore(source, output, p, ref state, ref lastValidValue);
     }

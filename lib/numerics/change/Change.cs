@@ -122,35 +122,63 @@ public sealed class Change : AbstractBase
         if (period < 1)
             throw new ArgumentException("Period must be >= 1", nameof(period));
 
-        double lastValid = 0.0;
+        // Use ArrayPool for large periods to track past valid values
+        const int StackAllocThreshold = 256;
+        double[]? pastValidRented = null;
 
-        for (int i = 0; i < source.Length; i++)
+#pragma warning disable S1121
+        Span<double> pastValidBuffer = period <= StackAllocThreshold
+            ? stackalloc double[period]
+            : (pastValidRented = System.Buffers.ArrayPool<double>.Shared.Rent(period)).AsSpan(0, period);
+#pragma warning restore S1121
+
+        try
         {
-            // Handle non-finite values by substitution
-            double current = source[i];
-            if (!double.IsFinite(current))
-            {
-                current = lastValid;
-            }
-            else
-            {
-                lastValid = current;
-            }
+            double lastValidCurrent = 0.0;
+            int bufferIdx = 0;
+            pastValidBuffer.Fill(0.0);
 
-            if (i < period)
+            for (int i = 0; i < source.Length; i++)
             {
-                output[i] = 0.0;
-            }
-            else
-            {
-                double past = source[i - period];
-                if (!double.IsFinite(past))
+                // Handle non-finite values by substitution for current
+                double current = source[i];
+                if (!double.IsFinite(current))
                 {
-                    // Look backward for a valid past value
-                    past = lastValid;
+                    current = lastValidCurrent;
                 }
-                output[i] = past != 0.0 ? (current - past) / past : 0.0;
+                else
+                {
+                    lastValidCurrent = current;
+                }
+
+                if (i < period)
+                {
+                    output[i] = 0.0;
+                    // Store valid values for later past lookups
+                    pastValidBuffer[i] = current;
+                }
+                else
+                {
+                    // Get past value with proper tracking
+                    double past = source[i - period];
+                    if (!double.IsFinite(past))
+                    {
+                        // Use the tracked valid value from period bars ago
+                        past = pastValidBuffer[bufferIdx];
+                    }
+
+                    output[i] = past != 0.0 ? (current - past) / past : 0.0;
+
+                    // Update circular buffer with current valid value for future past lookups
+                    pastValidBuffer[bufferIdx] = current;
+                    bufferIdx = (bufferIdx + 1) % period;
+                }
             }
+        }
+        finally
+        {
+            if (pastValidRented != null)
+                System.Buffers.ArrayPool<double>.Shared.Return(pastValidRented);
         }
     }
 

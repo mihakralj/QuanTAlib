@@ -136,8 +136,11 @@ public sealed class Stc : AbstractBase
             return;
         }
 
-        bool removedMin = Math.Abs(removed - min) <= 1e-9;
-        bool removedMax = Math.Abs(removed - max) <= 1e-9;
+        // Use relative tolerance for floating-point comparison
+        double tolerance = Math.Max(Math.Abs(min), Math.Abs(max)) * 1e-12;
+        if (tolerance < 1e-15) tolerance = 1e-15; // minimum absolute tolerance
+        bool removedMin = Math.Abs(removed - min) <= tolerance;
+        bool removedMax = Math.Abs(removed - max) <= tolerance;
 
         if (expandMin) min = added;
         if (expandMax) max = added;
@@ -172,8 +175,11 @@ public sealed class Stc : AbstractBase
             return;
         }
 
-        bool removedMin = Math.Abs(removed - min) <= 1e-9;
-        bool removedMax = Math.Abs(removed - max) <= 1e-9;
+        // Use relative tolerance for floating-point comparison
+        double tolerance = Math.Max(Math.Abs(min), Math.Abs(max)) * 1e-12;
+        if (tolerance < 1e-15) tolerance = 1e-15; // minimum absolute tolerance
+        bool removedMin = Math.Abs(removed - min) <= tolerance;
+        bool removedMax = Math.Abs(removed - max) <= tolerance;
 
         if (expandMin) min = added;
         if (expandMax) max = added;
@@ -184,6 +190,7 @@ public sealed class Stc : AbstractBase
             max = double.NegativeInfinity;
             foreach (double v in buf)
             {
+                if (double.IsNaN(v)) continue;
                 if (v < min) min = v;
                 if (v > max) max = v;
             }
@@ -410,139 +417,139 @@ public sealed class Stc : AbstractBase
 
         try
         {
-        int macdIdx = 0;
-        int stoch1Idx = 0;
-        int macdCount = 0;
-        int stoch1Count = 0;
+            int macdIdx = 0;
+            int stoch1Idx = 0;
+            int macdCount = 0;
+            int stoch1Count = 0;
 
-        double macdMin = double.PositiveInfinity;
-        double macdMax = double.NegativeInfinity;
-        double stoch1Min = double.PositiveInfinity;
-        double stoch1Max = double.NegativeInfinity;
+            double macdMin = double.PositiveInfinity;
+            double macdMax = double.NegativeInfinity;
+            double stoch1Min = double.PositiveInfinity;
+            double stoch1Max = double.NegativeInfinity;
 
-        for (int i = 0; i < source.Length; i++)
-        {
-            double x = source[i];
-
-            if (!double.IsFinite(x))
+            for (int i = 0; i < source.Length; i++)
             {
-                if (!hasFiniteInput)
+                double x = source[i];
+
+                if (!double.IsFinite(x))
                 {
-                    output[i] = double.NaN;
-                    continue;
-                }
-                x = lastFiniteInput;
-            }
-            else
-            {
-                lastFiniteInput = x;
-                hasFiniteInput = true;
-            }
-
-            // 1) MACD
-            fastEma = double.IsNaN(fastEma) ? x : Math.FusedMultiplyAdd(fastAlpha, x - fastEma, fastEma);
-            slowEma = double.IsNaN(slowEma) ? x : Math.FusedMultiplyAdd(slowAlpha, x - slowEma, slowEma);
-
-            double macd = fastEma - slowEma;
-
-            // Buffer MACD
-            bool macdHasRemoved = macdCount == kPeriod;
-            double macdRemoved = macdBuf[macdIdx];
-            macdBuf[macdIdx] = macd;
-            macdIdx = (macdIdx + 1) % kPeriod;
-            if (!macdHasRemoved) macdCount++;
-
-            ReadOnlySpan<double> macdValidSpan = macdBuf.Slice(0, macdCount);
-            UpdateMinMax(macd, macdRemoved, macdHasRemoved, macdValidSpan, ref macdMin, ref macdMax);
-
-            // 2) Stoch1
-            double stoch1Raw;
-            if (macdCount == kPeriod)
-            {
-                double span = macdMax - macdMin;
-                if (span > double.Epsilon)
-                    stoch1Raw = 100.0 * (macd - macdMin) / span;
-                else
-                    stoch1Raw = double.IsNaN(stoch1Ema) ? 50.0 : stoch1Ema;
-
-                stoch1Raw = Clamp100(stoch1Raw);
-            }
-            else
-            {
-                stoch1Raw = 50.0;
-            }
-
-            // Smooth Stoch1
-            if (!double.IsNaN(stoch1Raw))
-            {
-                stoch1Ema = double.IsNaN(stoch1Ema)
-                    ? stoch1Raw
-                    : Math.FusedMultiplyAdd(dAlpha, stoch1Raw - stoch1Ema, stoch1Ema);
-            }
-
-            double stoch1 = double.NaN;
-            if (!double.IsNaN(stoch1Ema))
-            {
-                stoch1 = Clamp100(stoch1Ema);
-
-                // Buffer Stoch1
-                bool stochHasRemoved = stoch1Count == kPeriod;
-                double stochRemoved = stoch1Buf[stoch1Idx];
-                stoch1Buf[stoch1Idx] = stoch1;
-                stoch1Idx = (stoch1Idx + 1) % kPeriod;
-                if (!stochHasRemoved) stoch1Count++;
-
-                ReadOnlySpan<double> stochValidSpan = stoch1Buf.Slice(0, stoch1Count);
-                UpdateMinMax(stoch1, stochRemoved, stochHasRemoved, stochValidSpan, ref stoch1Min, ref stoch1Max);
-            }
-
-            // 3) Stoch2
-            double stoch2Raw;
-            if (stoch1Count == kPeriod)
-            {
-                double span = stoch1Max - stoch1Min;
-                if (span > double.Epsilon)
-                    stoch2Raw = 100.0 * (stoch1 - stoch1Min) / span;
-                else
-                    stoch2Raw = double.IsNaN(stoch2Ema) ? stoch1 : stoch2Ema;
-
-                stoch2Raw = Clamp100(stoch2Raw);
-            }
-            else
-            {
-                stoch2Raw = stoch1;
-            }
-
-            // 4) Final Smooth
-            double stc = double.NaN;
-            if (!double.IsNaN(stoch2Raw))
-            {
-                if (smoothing == StcSmoothing.Ema)
-                {
-                    stoch2Ema = double.IsNaN(stoch2Ema)
-                        ? stoch2Raw
-                        : Math.FusedMultiplyAdd(dAlpha, stoch2Raw - stoch2Ema, stoch2Ema);
-                    stc = Clamp100(stoch2Ema);
-                }
-                else if (smoothing == StcSmoothing.Sigmoid)
-                {
-                    stc = 100.0 / (1.0 + Math.Exp(-0.1 * (stoch2Raw - 50.0)));
-                }
-                else if (smoothing == StcSmoothing.Digital)
-                {
-                    if (stoch2Raw > 75) stc = 100;
-                    else if (stoch2Raw < 25) stc = 0;
-                    else stc = double.IsNaN(prevStc) ? stoch2Raw : prevStc;
+                    if (!hasFiniteInput)
+                    {
+                        output[i] = double.NaN;
+                        continue;
+                    }
+                    x = lastFiniteInput;
                 }
                 else
                 {
-                    stc = stoch2Raw;
+                    lastFiniteInput = x;
+                    hasFiniteInput = true;
                 }
-                prevStc = stc;
-            }
 
-            output[i] = stc;
-        }
+                // 1) MACD
+                fastEma = double.IsNaN(fastEma) ? x : Math.FusedMultiplyAdd(fastAlpha, x - fastEma, fastEma);
+                slowEma = double.IsNaN(slowEma) ? x : Math.FusedMultiplyAdd(slowAlpha, x - slowEma, slowEma);
+
+                double macd = fastEma - slowEma;
+
+                // Buffer MACD
+                bool macdHasRemoved = macdCount == kPeriod;
+                double macdRemoved = macdBuf[macdIdx];
+                macdBuf[macdIdx] = macd;
+                macdIdx = (macdIdx + 1) % kPeriod;
+                if (!macdHasRemoved) macdCount++;
+
+                ReadOnlySpan<double> macdValidSpan = macdBuf.Slice(0, macdCount);
+                UpdateMinMax(macd, macdRemoved, macdHasRemoved, macdValidSpan, ref macdMin, ref macdMax);
+
+                // 2) Stoch1
+                double stoch1Raw;
+                if (macdCount == kPeriod)
+                {
+                    double span = macdMax - macdMin;
+                    if (span > double.Epsilon)
+                        stoch1Raw = 100.0 * (macd - macdMin) / span;
+                    else
+                        stoch1Raw = double.IsNaN(stoch1Ema) ? 50.0 : stoch1Ema;
+
+                    stoch1Raw = Clamp100(stoch1Raw);
+                }
+                else
+                {
+                    stoch1Raw = 50.0;
+                }
+
+                // Smooth Stoch1
+                if (!double.IsNaN(stoch1Raw))
+                {
+                    stoch1Ema = double.IsNaN(stoch1Ema)
+                        ? stoch1Raw
+                        : Math.FusedMultiplyAdd(dAlpha, stoch1Raw - stoch1Ema, stoch1Ema);
+                }
+
+                double stoch1 = double.NaN;
+                if (!double.IsNaN(stoch1Ema))
+                {
+                    stoch1 = Clamp100(stoch1Ema);
+
+                    // Buffer Stoch1
+                    bool stochHasRemoved = stoch1Count == kPeriod;
+                    double stochRemoved = stoch1Buf[stoch1Idx];
+                    stoch1Buf[stoch1Idx] = stoch1;
+                    stoch1Idx = (stoch1Idx + 1) % kPeriod;
+                    if (!stochHasRemoved) stoch1Count++;
+
+                    ReadOnlySpan<double> stochValidSpan = stoch1Buf.Slice(0, stoch1Count);
+                    UpdateMinMax(stoch1, stochRemoved, stochHasRemoved, stochValidSpan, ref stoch1Min, ref stoch1Max);
+                }
+
+                // 3) Stoch2
+                double stoch2Raw;
+                if (stoch1Count == kPeriod)
+                {
+                    double span = stoch1Max - stoch1Min;
+                    if (span > double.Epsilon)
+                        stoch2Raw = 100.0 * (stoch1 - stoch1Min) / span;
+                    else
+                        stoch2Raw = double.IsNaN(stoch2Ema) ? stoch1 : stoch2Ema;
+
+                    stoch2Raw = Clamp100(stoch2Raw);
+                }
+                else
+                {
+                    stoch2Raw = stoch1;
+                }
+
+                // 4) Final Smooth
+                double stc = double.NaN;
+                if (!double.IsNaN(stoch2Raw))
+                {
+                    if (smoothing == StcSmoothing.Ema)
+                    {
+                        stoch2Ema = double.IsNaN(stoch2Ema)
+                            ? stoch2Raw
+                            : Math.FusedMultiplyAdd(dAlpha, stoch2Raw - stoch2Ema, stoch2Ema);
+                        stc = Clamp100(stoch2Ema);
+                    }
+                    else if (smoothing == StcSmoothing.Sigmoid)
+                    {
+                        stc = 100.0 / (1.0 + Math.Exp(-0.1 * (stoch2Raw - 50.0)));
+                    }
+                    else if (smoothing == StcSmoothing.Digital)
+                    {
+                        if (stoch2Raw > 75) stc = 100;
+                        else if (stoch2Raw < 25) stc = 0;
+                        else stc = double.IsNaN(prevStc) ? stoch2Raw : prevStc;
+                    }
+                    else
+                    {
+                        stc = stoch2Raw;
+                    }
+                    prevStc = stc;
+                }
+
+                output[i] = stc;
+            }
         }
         finally
         {

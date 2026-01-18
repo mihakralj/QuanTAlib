@@ -23,8 +23,8 @@ public readonly record struct TBar(long Time, double Open, double High, double L
     // Computed properties (calculated on demand, no storage overhead)
     public double HL2 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low) * 0.5; }
     public double OC2 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + Close) * 0.5; }
-    public double OHL3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low) * 0.333333333333333333; }
-    public double HLC3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close) * 0.333333333333333333; }
+    public double OHL3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low) / 3.0; }
+    public double HLC3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close) / 3.0; }
     public double OHLC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low + Close) * 0.25; }
     public double HLCC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close + Close) * 0.25; }
 

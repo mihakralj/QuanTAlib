@@ -145,14 +145,13 @@ public static class SimdExtensions
     /// Calculates sum using SIMD vectorization when available.
     /// 4-8x faster than scalar loop on AVX2/AVX-512 hardware.
     /// Returns NaN if any input value is non-finite.
+    /// Uses lazy non-finite check: computes sum first, then validates result.
+    /// If result is non-finite, falls back to explicit check.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double SumSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty) return 0.0;
-
-        // Guard against non-finite inputs
-        if (span.ContainsNonFinite()) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -173,10 +172,18 @@ public static class SimdExtensions
             for (; i < span.Length; i++)
                 result += span[i];
 
+            // Lazy check: if result is non-finite AND input contained non-finite values, return NaN
+            // NaN + anything = NaN, Inf + anything finite = Inf
+            // If result is infinite from overflow (no input NaN/Inf), return as-is
+            if (!double.IsFinite(result) && span.ContainsNonFinite())
+                return double.NaN;
+
             return result;
         }
 
-        return SumScalar(span);
+        // Scalar path with lazy check
+        double scalarSum = SumScalar(span);
+        return !double.IsFinite(scalarSum) && span.ContainsNonFinite() ? double.NaN : scalarSum;
     }
 
     /// <summary>
@@ -286,6 +293,8 @@ public static class SimdExtensions
     /// Calculates variance using a two-pass SIMD variant that computes the mean first (via AverageSIMD) and then sums squared differences to produce variance.
     /// Note that this is not the single-pass Welford algorithm.
     /// Returns NaN if any input value is non-finite or if mean is non-finite.
+    /// Caches non-finite check result: when mean is not provided, AverageSIMD -> SumSIMD already validates;
+    /// when mean IS provided, we need explicit check only once.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double VarianceSIMD(this ReadOnlySpan<double> span, double? mean = null)
@@ -295,14 +304,18 @@ public static class SimdExtensions
         double m;
         if (mean.HasValue)
         {
+            // Mean provided externally - need explicit non-finite check
             if (span.ContainsNonFinite()) return double.NaN;
             m = mean.Value;
         }
         else
         {
+            // AverageSIMD -> SumSIMD already performs lazy non-finite check
+            // If input has NaN, SumSIMD returns NaN, which propagates here
             m = span.AverageSIMD();
         }
 
+        // If mean is NaN (from input NaN or explicit NaN mean), return NaN
         if (!double.IsFinite(m)) return double.NaN;
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
@@ -419,6 +432,34 @@ public static class SimdExtensions
         for (; i < left.Length; i++)
         {
             result[i] = left[i] + right[i];
+        }
+    }
+
+    /// <summary>
+    /// Scales all elements in a span by a scalar value using SIMD.
+    /// result[i] = source[i] * scalar
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Scale(ReadOnlySpan<double> source, double scalar, Span<double> result)
+    {
+        if (source.Length != result.Length)
+            throw new ArgumentException("Source and result spans must have the same length", nameof(result));
+
+        int i = 0;
+        if (Vector.IsHardwareAccelerated && source.Length >= Vector<double>.Count)
+        {
+            int vectorSize = Vector<double>.Count;
+            var scalarVec = new Vector<double>(scalar);
+            for (; i <= source.Length - vectorSize; i += vectorSize)
+            {
+                var vSource = new Vector<double>(source.Slice(i, vectorSize));
+                (vSource * scalarVec).CopyTo(result.Slice(i, vectorSize));
+            }
+        }
+
+        for (; i < source.Length; i++)
+        {
+            result[i] = source[i] * scalar;
         }
     }
 

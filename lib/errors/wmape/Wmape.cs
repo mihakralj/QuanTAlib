@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -32,6 +33,7 @@ public sealed class Wmape : AbstractBase
     private State _p_state;
 
     private const int ResyncInterval = 1000;
+    private const int StackAllocThreshold = 256;
 
     public Wmape(int period)
     {
@@ -52,6 +54,16 @@ public sealed class Wmape : AbstractBase
         double actualVal = actual.Value;
         double predictedVal = predicted.Value;
 
+        // Snapshot BEFORE any mutations for correct rollback
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
         if (!double.IsFinite(actualVal))
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
         else
@@ -67,8 +79,6 @@ public sealed class Wmape : AbstractBase
 
         if (isNew)
         {
-            _p_state = _state;
-
             double removedError = _absErrorBuffer.Count == _absErrorBuffer.Capacity ? _absErrorBuffer.Oldest : 0.0;
             _state.AbsErrorSum = _state.AbsErrorSum - removedError + absError;
             _absErrorBuffer.Add(absError);
@@ -87,15 +97,10 @@ public sealed class Wmape : AbstractBase
         }
         else
         {
-            _state = _p_state;
-
-            double removedError = _absErrorBuffer.Count == _absErrorBuffer.Capacity ? _absErrorBuffer.Oldest : 0.0;
-            _state.AbsErrorSum = _state.AbsErrorSum - removedError + absError;
+            // Simplified: just update buffers and recalculate sums (no redundant arithmetic)
             _absErrorBuffer.UpdateNewest(absError);
             _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
 
-            double removedActual = _absActualBuffer.Count == _absActualBuffer.Capacity ? _absActualBuffer.Oldest : 0.0;
-            _state.AbsActualSum = _state.AbsActualSum - removedActual + absActual;
             _absActualBuffer.UpdateNewest(absActual);
             _state.AbsActualSum = _absActualBuffer.RecalculateSum();
         }
@@ -169,86 +174,107 @@ public sealed class Wmape : AbstractBase
         int len = actual.Length;
         if (len == 0) return;
 
-        const int StackAllocThreshold = 256;
-        Span<double> absErrorBuffer = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
-        Span<double> absActualBuffer = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
+        // Use stackalloc for small periods, ArrayPool for larger
+        scoped Span<double> absErrorBuffer;
+        scoped Span<double> absActualBuffer;
+        double[]? rentedError = null;
+        double[]? rentedActual = null;
 
-        double absErrorSum = 0;
-        double absActualSum = 0;
-        double lastValidActual = 0;
-        double lastValidPredicted = 0;
-
-        for (int k = 0; k < len; k++)
+        if (period <= StackAllocThreshold)
         {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+            absErrorBuffer = stackalloc double[period];
+            absActualBuffer = stackalloc double[period];
         }
-        for (int k = 0; k < len; k++)
+        else
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            rentedError = ArrayPool<double>.Shared.Rent(period);
+            rentedActual = ArrayPool<double>.Shared.Rent(period);
+            absErrorBuffer = rentedError.AsSpan(0, period);
+            absActualBuffer = rentedActual.AsSpan(0, period);
         }
 
-        int bufferIndex = 0;
-        int i = 0;
-
-        int warmupEnd = Math.Min(period, len);
-        for (; i < warmupEnd; i++)
+        try
         {
-            double act = actual[i];
-            double pred = predicted[i];
+            double absErrorSum = 0;
+            double absActualSum = 0;
+            double lastValidActual = 0;
+            double lastValidPredicted = 0;
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double absError = Math.Abs(act - pred);
-            double absActual = Math.Abs(act);
-
-            absErrorSum += absError;
-            absActualSum += absActual;
-            absErrorBuffer[i] = absError;
-            absActualBuffer[i] = absActual;
-
-            output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
-        }
-
-        int tickCount = 0;
-        for (; i < len; i++)
-        {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double absError = Math.Abs(act - pred);
-            double absActual = Math.Abs(act);
-
-            absErrorSum = absErrorSum - absErrorBuffer[bufferIndex] + absError;
-            absActualSum = absActualSum - absActualBuffer[bufferIndex] + absActual;
-            absErrorBuffer[bufferIndex] = absError;
-            absActualBuffer[bufferIndex] = absActual;
-
-            bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
-
-            output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
+            for (int k = 0; k < len; k++)
             {
-                tickCount = 0;
-                double recalcError = 0, recalcActual = 0;
-                for (int k = 0; k < period; k++)
-                {
-                    recalcError += absErrorBuffer[k];
-                    recalcActual += absActualBuffer[k];
-                }
-                absErrorSum = recalcError;
-                absActualSum = recalcActual;
+                if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
             }
+            for (int k = 0; k < len; k++)
+            {
+                if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            }
+
+            int bufferIndex = 0;
+            int i = 0;
+
+            int warmupEnd = Math.Min(period, len);
+            for (; i < warmupEnd; i++)
+            {
+                double act = actual[i];
+                double pred = predicted[i];
+
+                if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
+                if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+
+                double absError = Math.Abs(act - pred);
+                double absActual = Math.Abs(act);
+
+                absErrorSum += absError;
+                absActualSum += absActual;
+                absErrorBuffer[i] = absError;
+                absActualBuffer[i] = absActual;
+
+                output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
+            }
+
+            int tickCount = 0;
+            for (; i < len; i++)
+            {
+                double act = actual[i];
+                double pred = predicted[i];
+
+                if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
+                if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+
+                double absError = Math.Abs(act - pred);
+                double absActual = Math.Abs(act);
+
+                absErrorSum = absErrorSum - absErrorBuffer[bufferIndex] + absError;
+                absActualSum = absActualSum - absActualBuffer[bufferIndex] + absActual;
+                absErrorBuffer[bufferIndex] = absError;
+                absActualBuffer[bufferIndex] = absActual;
+
+                bufferIndex++;
+                if (bufferIndex >= period) bufferIndex = 0;
+
+                output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
+
+                tickCount++;
+                if (tickCount >= ResyncInterval)
+                {
+                    tickCount = 0;
+                    double recalcError = 0, recalcActual = 0;
+                    for (int k = 0; k < period; k++)
+                    {
+                        recalcError += absErrorBuffer[k];
+                        recalcActual += absActualBuffer[k];
+                    }
+                    absErrorSum = recalcError;
+                    absActualSum = recalcActual;
+                }
+            }
+        }
+        finally
+        {
+            if (rentedError != null)
+                ArrayPool<double>.Shared.Return(rentedError);
+            if (rentedActual != null)
+                ArrayPool<double>.Shared.Return(rentedActual);
         }
     }
 }

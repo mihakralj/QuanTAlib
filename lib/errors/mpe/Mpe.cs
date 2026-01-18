@@ -35,7 +35,17 @@ public sealed class Mpe : BiInputIndicatorBase
     protected override double ComputeError(double actual, double predicted)
     {
         // MPE: 100 * (actual - predicted) / actual (preserves sign)
-        double divisor = Math.Abs(actual) < Epsilon ? Epsilon : actual;
+        // When actual is near zero, use signed epsilon to preserve the original sign
+        double divisor;
+        if (Math.Abs(actual) < Epsilon)
+        {
+            int sign = Math.Sign(actual);
+            divisor = sign != 0 ? sign * Epsilon : Epsilon;
+        }
+        else
+        {
+            divisor = actual;
+        }
         return 100.0 * (actual - predicted) / divisor;
     }
 
@@ -84,7 +94,17 @@ public sealed class Mpe : BiInputIndicatorBase
             if (double.IsFinite(act) && Math.Abs(act) >= Epsilon) lastValidActual = act; else act = lastValidActual;
             if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
 
-            double divisor = Math.Abs(act) < Epsilon ? Epsilon : act;
+            // Use signed epsilon to preserve the original sign when actual is near zero
+            double divisor;
+            if (Math.Abs(act) < Epsilon)
+            {
+                int sign = Math.Sign(act);
+                divisor = sign != 0 ? sign * Epsilon : Epsilon;
+            }
+            else
+            {
+                divisor = act;
+            }
             output[i] = 100.0 * (act - pred) / divisor;
         }
     }

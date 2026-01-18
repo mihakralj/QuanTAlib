@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -420,11 +421,20 @@ public sealed class Afirma : AbstractBase
 
         const int StackAllocThreshold = 256;
 
-        // Allocate weights with stackalloc to avoid heap allocation
-        Span<double> weights = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
+        // Allocate weights - use ArrayPool for large buffers to avoid heap allocation
+        double[]? rentedWeights = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> weights = rentedWeights != null
+            ? rentedWeights.AsSpan(0, period)
+            : stackalloc double[period];
 
+        // Allocate circular buffer - use ArrayPool for large buffers
+        double[]? rentedBuffer = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> buffer = rentedBuffer != null
+            ? rentedBuffer.AsSpan(0, period)
+            : stackalloc double[period];
+
+        try
+        {
         // Pre-calculate weights (Static version of CalculateWeights)
         // ... (Copy of weights calc logic)
         double a0 = 0.35875, a1 = -0.48829, a2 = 0.14128, a3 = -0.01168;
@@ -442,11 +452,6 @@ public sealed class Afirma : AbstractBase
             if (Math.Abs(a3) > 1e-9) coef += a3 * Math.Cos(3.0 * kTwoPiDivP);
             weights[k] = coef;
         }
-
-        // Circular buffer
-        Span<double> buffer = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
 
         double lastValid = double.NaN;
         for (int k = 0; k < len; k++)
@@ -530,6 +535,15 @@ public sealed class Afirma : AbstractBase
                     }
                 }
             }
+        }
+        }
+        finally
+        {
+            // Return rented arrays to the pool
+            if (rentedWeights != null)
+                ArrayPool<double>.Shared.Return(rentedWeights);
+            if (rentedBuffer != null)
+                ArrayPool<double>.Shared.Return(rentedBuffer);
         }
     }
 

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -266,11 +267,8 @@ public sealed class LinReg : AbstractBase
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
-        for (int i = 0; i < len; i++)
-        {
-            t.Add(0);
-            v.Add(0);
-        }
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
 
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
@@ -342,11 +340,18 @@ public sealed class LinReg : AbstractBase
         if (len == 0) return;
 
         // Stack allocate for typical periods (most < 100)
-        // Heap allocate for large periods to avoid stack overflow
+        // ArrayPool for large periods to avoid stack overflow
         const int StackAllocThreshold = 256;
+        double[]? rentedBuffer = null;
+
+#pragma warning disable S1121
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
-            : new double[period];
+            : (rentedBuffer = ArrayPool<double>.Shared.Rent(period)).AsSpan(0, period);
+#pragma warning restore S1121
+
+        try
+        {
 
         double sum_y = 0;
         double sum_xy = 0;
@@ -401,28 +406,34 @@ public sealed class LinReg : AbstractBase
                     }
                 }
 
-                if (count == period)
-                {
-                    bufferIndex = 0;
-                }
-            }
-            else
+            if (count == period)
             {
-                double oldest = buffer[bufferIndex];
-                double prev_sum_y = sum_y;
-
-                sum_xy = sum_xy + prev_sum_y - period * oldest;
-                sum_y = sum_y - oldest + val;
-                buffer[bufferIndex] = val;
-
-                bufferIndex++;
-                if (bufferIndex >= period)
-                    bufferIndex = 0;
-
-                double m = Math.FusedMultiplyAdd(period, sum_xy, -full_sum_x * sum_y) / full_denom;
-                double b = Math.FusedMultiplyAdd(-m, full_sum_x, sum_y) / period;
-                output[i] = Math.FusedMultiplyAdd(-m, offset, b);
+                bufferIndex = 0;
             }
+        }
+        else
+        {
+            double oldest = buffer[bufferIndex];
+            double prev_sum_y = sum_y;
+
+            sum_xy = sum_xy + prev_sum_y - period * oldest;
+            sum_y = sum_y - oldest + val;
+            buffer[bufferIndex] = val;
+
+            bufferIndex++;
+            if (bufferIndex >= period)
+                bufferIndex = 0;
+
+            double m = Math.FusedMultiplyAdd(period, sum_xy, -full_sum_x * sum_y) / full_denom;
+            double b = Math.FusedMultiplyAdd(-m, full_sum_x, sum_y) / period;
+            output[i] = Math.FusedMultiplyAdd(-m, offset, b);
+        }
+    }
+        }
+        finally
+        {
+            if (rentedBuffer != null)
+                ArrayPool<double>.Shared.Return(rentedBuffer);
         }
     }
 

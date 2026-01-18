@@ -36,6 +36,7 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     private readonly RingBuffer _sourceBuffer;
     private readonly TBarPublishedHandler _barHandler;
     private TBarSeries? _source;
+    private bool _disposed;
 
     private const double ConvergenceThreshold = 1e-10;
     private const int ResyncInterval = 1000;
@@ -144,6 +145,9 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     /// </summary>
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+
         if (_source is not null)
         {
             _source.Pub -= _barHandler;

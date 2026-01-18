@@ -171,17 +171,30 @@ public sealed class Adx : ITValuePublisher
             return new TValue(input.Time, 0);
         }
 
-        // Calculate TR
-        double hl = input.High - input.Low;
-        double hpc = Math.Abs(input.High - _prevBar.Close);
-        double lpc = Math.Abs(input.Low - _prevBar.Close);
+        // Calculate TR with NaN/Infinity guards
+        double high = double.IsFinite(input.High) ? input.High : _prevBar.High;
+        double low = double.IsFinite(input.Low) ? input.Low : _prevBar.Low;
+        double prevClose = double.IsFinite(_prevBar.Close) ? _prevBar.Close : high;
+        double prevHigh = double.IsFinite(_prevBar.High) ? _prevBar.High : high;
+        double prevLow = double.IsFinite(_prevBar.Low) ? _prevBar.Low : low;
+        
+        double hl = high - low;
+        double hpc = Math.Abs(high - prevClose);
+        double lpc = Math.Abs(low - prevClose);
         double tr = Math.Max(hl, Math.Max(hpc, lpc));
 
-        // Calculate DM
+        // Guard TR against non-finite values
+        if (!double.IsFinite(tr)) tr = 0;
+
+        // Calculate DM using guarded values
         double dmPlus = 0;
         double dmMinus = 0;
-        double upMove = input.High - _prevBar.High;
-        double downMove = _prevBar.Low - input.Low;
+        double upMove = high - prevHigh;
+        double downMove = prevLow - low;
+
+        // Guard moves against non-finite values
+        if (!double.IsFinite(upMove)) upMove = 0;
+        if (!double.IsFinite(downMove)) downMove = 0;
 
         if (upMove > downMove && upMove > 0)
             dmPlus = upMove;
@@ -191,7 +204,9 @@ public sealed class Adx : ITValuePublisher
 
         if (isNew)
         {
-            _prevBar = input;
+            // Store sanitized values to prevent NaN/Infinity propagation to next bar
+            double close = double.IsFinite(input.Close) ? input.Close : prevClose;
+            _prevBar = new TBar(input.Time, high, high, low, close, input.Volume);
         }
 
         // Smooth TR, +DM, -DM
@@ -235,11 +250,18 @@ public sealed class Adx : ITValuePublisher
                 diMinus = (_dmMinusSmooth / _trSmooth) * 100.0;
             }
 
+            // Guard against NaN/Infinity in DI calculations
+            if (!double.IsFinite(diPlus)) diPlus = 0;
+            if (!double.IsFinite(diMinus)) diMinus = 0;
+
             double diSum = diPlus + diMinus;
             if (diSum > 1e-10)
             {
                 dx = (Math.Abs(diPlus - diMinus) / diSum) * 100.0;
             }
+
+            // Guard against NaN/Infinity in DX calculation
+            if (!double.IsFinite(dx)) dx = 0;
 
             // Smooth DX to get ADX
             if (_dxSamples < _period)
@@ -257,11 +279,23 @@ public sealed class Adx : ITValuePublisher
                 // ADX = Prior ADX * decay + DX * invPeriod (RMA smoothing)
                 _adx = Math.FusedMultiplyAdd(_adx, _decay, dx * _invPeriod);
             }
+
+            // Final guard on ADX
+            if (!double.IsFinite(_adx)) _adx = _p_adx;
         }
+
+        // Ensure all outputs are finite; if not, use previous values or 0
+        if (!double.IsFinite(diPlus)) diPlus = double.IsFinite(DiPlus.Value) ? DiPlus.Value : 0;
+        if (!double.IsFinite(diMinus)) diMinus = double.IsFinite(DiMinus.Value) ? DiMinus.Value : 0;
+        
+        // Final guard on ADX output - ensure we always return a finite value
+        double finalAdx = _adx;
+        if (!double.IsFinite(finalAdx)) finalAdx = _p_adx;
+        if (!double.IsFinite(finalAdx)) finalAdx = 0;
 
         DiPlus = new TValue(input.Time, diPlus);
         DiMinus = new TValue(input.Time, diMinus);
-        Last = new TValue(input.Time, _adx);
+        Last = new TValue(input.Time, finalAdx);
 
         Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
@@ -283,14 +317,13 @@ public sealed class Adx : ITValuePublisher
         // Use the static Calculate method for performance
         Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, v);
 
-        // Create lists for TSeries
+        // Create lists for TSeries - use collection expression directly
         var tList = new List<long>(len);
         var times = source.Open.Times;
         for (int i = 0; i < len; i++)
         {
             tList.Add(times[i]);
         }
-        var vList = new List<double>(v);
 
         // Restore state by replaying the whole series
         Reset();
@@ -299,7 +332,7 @@ public sealed class Adx : ITValuePublisher
             Update(source[i], isNew: true);
         }
 
-        return new TSeries(tList, vList);
+        return new TSeries(tList, [.. v]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

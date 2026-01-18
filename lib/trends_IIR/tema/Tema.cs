@@ -164,7 +164,8 @@ public sealed class Tema : AbstractBase
         double e1_final = GetCompensated(_state1);
         double e2_final = GetCompensated(_state2);
         double e3_final = GetCompensated(_state3);
-        double result = 3 * e1_final - 3 * e2_final + e3_final;
+        // TEMA = 3 * e1 - 3 * e2 + e3 = FMA(3, e1, FMA(-3, e2, e3))
+        double result = Math.FusedMultiplyAdd(3.0, e1_final, Math.FusedMultiplyAdd(-3.0, e2_final, e3_final));
 
         Last = new TValue(DateTime.MinValue, result);
 
@@ -207,7 +208,8 @@ public sealed class Tema : AbstractBase
         // EMA3 (input is e2)
         double e3 = Compute(e2, _alpha, _decay, ref _state3);
 
-        double result = 3 * e1 - 3 * e2 + e3;
+        // TEMA = 3 * e1 - 3 * e2 + e3 = FMA(3, e1, FMA(-3, e2, e3))
+        double result = Math.FusedMultiplyAdd(3.0, e1, Math.FusedMultiplyAdd(-3.0, e2, e3));
         Last = new TValue(input.Time, result);
         PubEvent(Last, isNew);
         return Last;
@@ -249,7 +251,8 @@ public sealed class Tema : AbstractBase
             double e2 = Compute(e1, alpha, decay, ref s2);
             double e3 = Compute(e2, alpha, decay, ref s3);
 
-            vSpan[i] = 3 * e1 - 3 * e2 + e3;
+            // TEMA = 3 * e1 - 3 * e2 + e3 = FMA(3, e1, FMA(-3, e2, e3))
+            vSpan[i] = Math.FusedMultiplyAdd(3.0, e1, Math.FusedMultiplyAdd(-3.0, e2, e3));
         }
 
         // Update instance state
@@ -269,7 +272,8 @@ public sealed class Tema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Compute(double input, double alpha, double decay, ref EmaState state)
     {
-        state.Ema += alpha * (input - state.Ema);
+        // EMA update: ema = decay * ema + alpha * input = FMA(decay, ema, alpha * input)
+        state.Ema = Math.FusedMultiplyAdd(decay, state.Ema, alpha * input);
 
         double result;
         if (!state.IsCompensated)
@@ -363,8 +367,8 @@ public sealed class Tema : AbstractBase
             else
                 val = lastValid;
 
-            // Update EMA1
-            ema1_val += alpha * (val - ema1_val);
+            // Update EMA1: ema = decay * ema + alpha * input = FMA(decay, ema, alpha * input)
+            ema1_val = Math.FusedMultiplyAdd(decay, ema1_val, alpha * val);
             double e1;
             if (!ema1_isCompensated)
             {
@@ -384,8 +388,8 @@ public sealed class Tema : AbstractBase
                 e1 = ema1_val;
             }
 
-            // Update EMA2 (input is e1)
-            ema2_val += alpha * (e1 - ema2_val);
+            // Update EMA2 (input is e1): ema = decay * ema + alpha * input
+            ema2_val = Math.FusedMultiplyAdd(decay, ema2_val, alpha * e1);
             double e2;
             if (!ema2_isCompensated)
             {
@@ -405,8 +409,8 @@ public sealed class Tema : AbstractBase
                 e2 = ema2_val;
             }
 
-            // Update EMA3 (input is e2)
-            ema3_val += alpha * (e2 - ema3_val);
+            // Update EMA3 (input is e2): ema = decay * ema + alpha * input
+            ema3_val = Math.FusedMultiplyAdd(decay, ema3_val, alpha * e2);
             double e3;
             if (!ema3_isCompensated)
             {
@@ -426,8 +430,8 @@ public sealed class Tema : AbstractBase
                 e3 = ema3_val;
             }
 
-            // TEMA = 3 * EMA1 - 3 * EMA2 + EMA3
-            output[i] = 3 * e1 - 3 * e2 + e3;
+            // TEMA = 3 * EMA1 - 3 * EMA2 + EMA3 = FMA(3, e1, FMA(-3, e2, e3))
+            output[i] = Math.FusedMultiplyAdd(3.0, e1, Math.FusedMultiplyAdd(-3.0, e2, e3));
         }
     }
 

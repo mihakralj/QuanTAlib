@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
@@ -63,14 +64,26 @@ public sealed class Mae : BiInputIndicatorBase
 
         // Allocate temporary buffer for absolute errors
         const int StackAllocThreshold = 256;
-        Span<double> absErrors = actual.Length <= StackAllocThreshold
-            ? stackalloc double[actual.Length]
-            : new double[actual.Length];
-
-        // Compute absolute errors using shared SIMD helper
-        ErrorHelpers.ComputeAbsoluteErrors(actual, predicted, absErrors);
-
-        // Apply rolling mean using shared helper
-        ErrorHelpers.ApplyRollingMean(absErrors, output, period);
+        int len = actual.Length;
+        if (len <= StackAllocThreshold)
+        {
+            Span<double> absErrors = stackalloc double[len];
+            ErrorHelpers.ComputeAbsoluteErrors(actual, predicted, absErrors);
+            ErrorHelpers.ApplyRollingMean(absErrors, output, period);
+        }
+        else
+        {
+            double[] rented = ArrayPool<double>.Shared.Rent(len);
+            try
+            {
+                Span<double> absErrors = rented.AsSpan(0, len);
+                ErrorHelpers.ComputeAbsoluteErrors(actual, predicted, absErrors);
+                ErrorHelpers.ApplyRollingMean(absErrors, output, period);
+            }
+            finally
+            {
+                ArrayPool<double>.Shared.Return(rented);
+            }
+        }
     }
 }

@@ -60,6 +60,12 @@ public sealed class Rse : AbstractBase
         double actualVal = actual.Value;
         double predictedVal = predicted.Value;
 
+        // Restore state FIRST when isNew=false (before any state mutations)
+        if (!isNew)
+        {
+            _state = _p_state;
+        }
+
         if (!double.IsFinite(actualVal))
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
         else
@@ -107,13 +113,10 @@ public sealed class Rse : AbstractBase
         }
         else
         {
-            _state = _p_state;
-
-            // Update actual buffer
+            // Update actual buffer - incremental update is sufficient
             double removedActual = _actualBuffer.Count == _actualBuffer.Capacity ? _actualBuffer.Oldest : 0.0;
             _state.ActualSum = _state.ActualSum - removedActual + actualVal;
             _actualBuffer.UpdateNewest(actualVal);
-            _state.ActualSum = _actualBuffer.RecalculateSum();
 
             // Calculate mean and errors
             double mean = _state.ActualSum / _actualBuffer.Count;
@@ -122,13 +125,15 @@ public sealed class Rse : AbstractBase
             double sqError = error * error;
             double sqBaseline = baselineError * baselineError;
 
-            // Update squared error buffer
+            // Update squared error buffer - incremental update
+            double removedError = _sqErrorBuffer.Count == _sqErrorBuffer.Capacity ? _sqErrorBuffer.Oldest : 0.0;
+            _state.SqErrorSum = _state.SqErrorSum - removedError + sqError;
             _sqErrorBuffer.UpdateNewest(sqError);
-            _state.SqErrorSum = _sqErrorBuffer.RecalculateSum();
 
-            // Update squared baseline buffer
+            // Update squared baseline buffer - incremental update
+            double removedBaseline = _sqBaselineBuffer.Count == _sqBaselineBuffer.Capacity ? _sqBaselineBuffer.Oldest : 0.0;
+            _state.SqBaselineSum = _state.SqBaselineSum - removedBaseline + sqBaseline;
             _sqBaselineBuffer.UpdateNewest(sqBaseline);
-            _state.SqBaselineSum = _sqBaselineBuffer.RecalculateSum();
         }
 
         double result = _state.SqBaselineSum > 1e-10 ? _state.SqErrorSum / _state.SqBaselineSum : 1.0;

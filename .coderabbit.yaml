@@ -30,14 +30,14 @@ reviews:
     - "lib/**/*.cs"
 
     # Exclude test files
-    - "!**/*.Tests.cs"
-    - "!**/*Tests.cs"
-    - "!**/*.Validation.Tests.cs"
+    #- "!**/*.Tests.cs"
+    #- "!**/*Tests.cs"
+    #- "!**/*.Validation.Tests.cs"
 
     # Exclude Quantower adapters (platform-specific wrappers)
-    - "!**/*.Quantower.Tests.cs"
-    - "!**/*.Quantower.cs"
-    - "!**/quantower/**"
+    #- "!**/*.Quantower.Tests.cs"
+    #- "!**/*.Quantower.cs"
+    #- "!**/quantower/**"
 
     # Exclude build/IDE artifacts
     - "!**/bin/**"
@@ -49,17 +49,12 @@ reviews:
     - "!**/Mocks/**"
 
   path_instructions:
-    - path: "lib/core/**"
-      instructions: "Core infrastructure - ensure thread safety, zero allocations, and proper Span<T>/Memory<T> usage."
-    - path: "lib/trends_IIR/**"
-      instructions: "IIR filters - verify numerical stability, check for FMA opportunities, validate state rollback for isNew=false."
-    - path: "lib/trends_FIR/**"
-      instructions: "FIR filters - check SIMD vectorization opportunities, verify RingBuffer usage, ensure O(1) updates."
-    - path: "lib/filters/**"
-      instructions: "Signal processing filters - verify frequency response, check for numerical stability at edge cases."
-    - path: "**/*.cs"
+    - path: "**/**"
       instructions: |
-        QuanTAlib coding standards:
+        - ensure thread safety, zero allocations, and proper Span<T>/Memory<T> usage."
+        - verify numerical stability, check for SIMD and FMA opportunities
+        - verify RingBuffer usage, ensure O(1) updates validate state rollback for isNew=false.
+        - check for numerical stability at edge cases, verify NaN/Infinity handling
         - No heap allocations in Update() methods
         - Use Math.FusedMultiplyAdd for a*b+c patterns
         - Support isNew=false for bar correction (state rollback)
@@ -75,8 +70,7 @@ reviews:
       - "draft"
     drafts: false
     base_branches:
-      - main
-      - master
+      - simd-dev
 
   finishing_touches:
     docstrings:

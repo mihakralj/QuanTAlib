@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -26,112 +27,35 @@ namespace QuanTAlib;
 /// - Used for prediction intervals (e.g., q=0.1 and q=0.9 for 80% interval)
 /// </remarks>
 [SkipLocalsInit]
-public sealed class QuantileLoss : AbstractBase
+public sealed class QuantileLoss : BiInputIndicatorBase
 {
-    private readonly RingBuffer _lossBuffer;
-
-    [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LossSum, double LastValidActual, double LastValidPredicted, int TickCount);
-    private State _state;
-    private State _p_state;
-
-    private const int ResyncInterval = 1000;
-
+    /// <summary>
+    /// Creates QuantileLoss with specified period and quantile.
+    /// </summary>
+    /// <param name="period">Number of values to average (must be > 0)</param>
+    /// <param name="quantile">Quantile value between 0 and 1 exclusive (default 0.5)</param>
     public QuantileLoss(int period, double quantile = 0.5)
+        : base(period, $"QuantileLoss({period},{quantile:F2})")
     {
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (quantile <= 0.0 || quantile >= 1.0)
             throw new ArgumentException("Quantile must be between 0 and 1 (exclusive)", nameof(quantile));
 
-        _lossBuffer = new RingBuffer(period);
         Quantile = quantile;
-        Name = $"QuantileLoss({period},{quantile:F2})";
-        WarmupPeriod = period;
     }
 
+    /// <summary>
+    /// The quantile parameter (0 &lt; q &lt; 1).
+    /// </summary>
     public double Quantile { get; }
-    public override bool IsHot => _lossBuffer.IsFull;
 
+    /// <summary>
+    /// Computes quantile loss for a single error.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue actual, TValue predicted, bool isNew = true)
+    protected override double ComputeError(double actual, double predicted)
     {
-        double actualVal = actual.Value;
-        double predictedVal = predicted.Value;
-
-        if (!double.IsFinite(actualVal))
-            actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
-        else
-            _state.LastValidActual = actualVal;
-
-        if (!double.IsFinite(predictedVal))
-            predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
-        else
-            _state.LastValidPredicted = predictedVal;
-
-        double diff = actualVal - predictedVal;
-        double loss = diff >= 0 ? Quantile * diff : (Quantile - 1.0) * diff;
-
-        if (isNew)
-        {
-            _p_state = _state;
-
-            double removedLoss = _lossBuffer.Count == _lossBuffer.Capacity ? _lossBuffer.Oldest : 0.0;
-            _state.LossSum = _state.LossSum - removedLoss + loss;
-            _lossBuffer.Add(loss);
-
-            _state.TickCount++;
-            if (_lossBuffer.IsFull && _state.TickCount >= ResyncInterval)
-            {
-                _state.TickCount = 0;
-                _state.LossSum = _lossBuffer.RecalculateSum();
-            }
-        }
-        else
-        {
-            _state = _p_state;
-
-            double removedLoss = _lossBuffer.Count == _lossBuffer.Capacity ? _lossBuffer.Oldest : 0.0;
-            _state.LossSum = _state.LossSum - removedLoss + loss;
-            _lossBuffer.UpdateNewest(loss);
-            _state.LossSum = _lossBuffer.RecalculateSum();
-        }
-
-        // QuantileLoss = (1/n) * Σ loss
-        double result = _lossBuffer.Count > 0 ? _state.LossSum / _lossBuffer.Count : 0.0;
-
-        Last = new TValue(actual.Time, result);
-        PubEvent(Last, isNew);
-        return Last;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(double actual, double predicted, bool isNew = true)
-    {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
-    }
-
-    public override TValue Update(TValue input, bool isNew = true)
-    {
-        throw new NotSupportedException("QuantileLoss requires two inputs. Use Update(actual, predicted).");
-    }
-
-    public override TSeries Update(TSeries source)
-    {
-        throw new NotSupportedException("QuantileLoss requires two inputs. Use Calculate(actualSeries, predictedSeries, period, quantile).");
-    }
-
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
-    {
-        throw new NotSupportedException("QuantileLoss requires two inputs.");
-    }
-
-    public override void Reset()
-    {
-        _lossBuffer.Clear();
-        _state = default;
-        _p_state = default;
-        Last = default;
+        double diff = actual - predicted;
+        return diff >= 0 ? Quantile * diff : (Quantile - 1.0) * diff;
     }
 
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double quantile = 0.5)

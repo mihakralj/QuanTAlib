@@ -8,26 +8,28 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 
 | Indicator | Full Name | Status | Description |
 | :--- | :--- | :---: | :--- |
-| AC | Acceleration Oscillator | =Ë | Second derivative of AO. Measures acceleration of market driving force. |
+| AC | Acceleration Oscillator | =ï¿½ | Second derivative of AO. Measures acceleration of market driving force. |
 | [AO](lib/oscillators/ao/ao.md) | Awesome Oscillator |  | 5-period SMA minus 34-period SMA of bar midpoint. Bill Williams creation. |
 | [APO](lib/oscillators/apo/Apo.md) | Absolute Price Oscillator |  | Raw currency difference between fast and slow EMAs. Unbounded. |
-| BBB | Bollinger %B | =Ë | Position within Bollinger Bands. 0=lower band, 1=upper band. |
-| BBS | Bollinger Band Squeeze | =Ë | BB width < KC width indicates consolidation. Breakout imminent. |
-| CFO | Chande Forecast Oscillator | =Ë | Percentage difference between price and linear regression forecast. |
-| DPO | Detrended Price Oscillator | =Ë | Removes trend via displaced SMA. Reveals cycles. |
-| FISHER | Fisher Transform | =Ë | Converts prices to Gaussian distribution. Sharp reversals. |
-| INERTIA | Inertia | =Ë | Trend strength from distance to linear regression line. |
-| KDJ | KDJ Indicator | =Ë | Enhanced Stochastic. J = 3K - 2D provides leading signal. |
-| PGO | Pretty Good Oscillator | =Ë | Distance from SMA normalized by ATR. Units: ATR multiples. |
-| SMI | Stochastic Momentum Index | =Ë | Distance from range midpoint. More sensitive than classic Stochastic. |
-| STOCH | Stochastic Oscillator | =Ë | Close position within N-period high-low range. Classic overbought/oversold. |
-| STOCHF | Stochastic Fast | =Ë | Unsmoothed Stochastic. Faster but noisier. |
-| STOCHRSI | Stochastic RSI | =Ë | Stochastic applied to RSI. More sensitive than either alone. |
-| TRIX | Triple Exponential Average | =Ë | ROC of triple EMA. Filters noise through three smoothings. |
+| BBB | Bollinger %B | =ï¿½ | Position within Bollinger Bands. 0=lower band, 1=upper band. || BBI | Bulls Bears Index | â‰¡ | Measures the relative strength of bulls and bears based on price action. || BBS | Bollinger Band Squeeze | =ï¿½ | BB width < KC width indicates consolidation. Breakout imminent. || BOP | Balance of Power | â‰¡ | Measures the strength of buyers vs. sellers by relating price change to the trading range. |
+| BRAR | BRAR | â‰¡ | Combines AR (sentiment) and BR (momentum) indicators to gauge market mood. |
+| CCI | Commodity Channel Index | â‰¡ | Measures price deviation from its statistical mean, identifies cyclical turns. |
+| COPPOCK | Coppock Curve | â‰¡ | Long-term momentum oscillator used primarily for identifying major market bottoms. |
+| CRSI | Connors RSI | â‰¡ | Composite indicator combining RSI, Up/Down Streak Length, and Rate-of-Change. |
+| CTI | Correlation Trend Indicator | â‰¡ | Measures the correlation between price and time to determine trend strength. |
+| DOSC | Derivative Oscillator | â‰¡ | Measures the difference between a double-smoothed RSI and its signal line. || CFO | Chande Forecast Oscillator | =ï¿½ | Percentage difference between price and linear regression forecast. |
+| DPO | Detrended Price Oscillator | =ï¿½ | Removes trend via displaced SMA. Reveals cycles. || ER | Efficiency Ratio | â‰¡ | Measures price efficiency by comparing net price movement to total price movement (KAMA component). |
+| ERI | Elder Ray Index | â‰¡ | Measures buying (Bull Power) and selling (Bear Power) pressure relative to an EMA. || FISHER | Fisher Transform | =ï¿½ | Converts prices to Gaussian distribution. Sharp reversals. || FOSC | Forecast Oscillator | â‰¡ | Plots the percentage difference between a forecast price (e.g., linear regression) and the actual price. || INERTIA | Inertia | =ï¿½ | Trend strength from distance to linear regression line. |
+| KDJ | KDJ Indicator | =ï¿½ | Enhanced Stochastic. J = 3K - 2D provides leading signal. || KRI | Kairi Relative Index | â‰¡ | Measures the deviation of the current price from its simple moving average. |
+| KST | KST Oscillator | â‰¡ | Smoothed, weighted Rate-of-Change oscillator combining multiple timeframes. || PGO | Pretty Good Oscillator | =ï¿½ | Distance from SMA normalized by ATR. Units: ATR multiples. || PSL | Psychological Line | â‰¡ | Measures percentage of days closing up over a specified period, gauges sentiment. |
+| QQE | Quantitative Qualitative Estimation | â‰¡ | Smoothing technique applied to RSI, providing trade signals via signal line crossovers. |
+| RVGI | Relative Vigor Index | â‰¡ | Compares closing price to trading range. || SMI | Stochastic Momentum Index | =ï¿½ | Distance from range midpoint. More sensitive than classic Stochastic. || SQUEEZE | Squeeze | â‰¡ | Identifies periods of low volatility (Bollinger Bands inside Keltner Channels) for potential breakouts. || STOCH | Stochastic Oscillator | =ï¿½ | Close position within N-period high-low range. Classic overbought/oversold. |
+| STOCHF | Stochastic Fast | =ï¿½ | Unsmoothed Stochastic. Faster but noisier. |
+| STOCHRSI | Stochastic RSI | =ï¿½ | Stochastic applied to RSI. More sensitive than either alone. || TD_SEQ | TD Sequential | â‰¡ | Identifies potential price exhaustion points and reversals based on price bar counting. || TRIX | Triple Exponential Average | =ï¿½ | ROC of triple EMA. Filters noise through three smoothings. |
 | [ULTOSC](lib/oscillators/ultosc/ultosc.md) | Ultimate Oscillator |  | Multi-timeframe oscillator. Combines 7, 14, 28 period buying pressure. |
-| WILLR | Williams %R | =Ë | Inverse Stochastic. -100 to 0 range. Overbought/oversold. |
+| WILLR | Williams %R | =ï¿½ | Inverse Stochastic. -100 to 0 range. Overbought/oversold. |
 
-**Status Key:**  Implemented | =Ë Planned
+**Status Key:**  Implemented | =ï¿½ Planned
 
 ## Selection Guide
 
@@ -47,7 +49,7 @@ Oscillators fluctuate above and below a centerline or within bounded ranges. Use
 | :--- | :--- | :--- | :--- |
 | Bounded (0-100) | STOCH, STOCHRSI | 0 to 100 | Overbought/oversold zones |
 | Bounded (-100 to 0) | WILLR | -100 to 0 | Mean reversion |
-| Bounded (-1 to +1) | FISHER | - to + (practical: ±3) | Sharp reversal signals |
+| Bounded (-1 to +1) | FISHER | - to + (practical: ï¿½3) | Sharp reversal signals |
 | Unbounded | AO, APO, DPO | - to + | Trend momentum |
 | Normalized | PGO, CFO | ATR or % units | Cross-market comparison |
 

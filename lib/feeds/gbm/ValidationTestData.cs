@@ -169,10 +169,12 @@ public sealed class ValidationTestData : IDisposable
     }
 
     /// <summary>
-    /// Creates a subset of the data for smaller tests.
+    /// Creates a new ValidationTestData instance with the specified bar count.
+    /// Note: This regenerates data using the same seed rather than slicing existing data,
+    /// ensuring deterministic results but not reusing the parent's generated bars.
     /// </summary>
-    /// <param name="count">Number of bars to include</param>
-    /// <returns>A new ValidationTestData instance with the subset</returns>
+    /// <param name="count">Number of bars to generate (must be between 1 and current Count)</param>
+    /// <returns>A new ValidationTestData instance with freshly generated data</returns>
     public ValidationTestData CreateSubset(int count)
     {
         if (count <= 0 || count > Count)

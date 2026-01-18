@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
@@ -187,7 +188,14 @@ public sealed class Aroon : ITValuePublisher
         return new TSeries(tList, vList);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <summary>
+    /// Calculates Aroon oscillator values using O(n) monotonic deque algorithm.
+    /// </summary>
+    /// <param name="high">High prices</param>
+    /// <param name="low">Low prices</param>
+    /// <param name="period">Lookback period</param>
+    /// <param name="destination">Output oscillator values (Up - Down)</param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> destination)
     {
         int len = high.Length;
@@ -200,40 +208,80 @@ public sealed class Aroon : ITValuePublisher
             return;
         }
 
-        for (int i = 0; i < len; i++)
+        // Use monotonic deques for O(n) complexity
+        // Deque stores indices; front has the max/min index within the window
+        // Max deque size is bounded by window size (period + 1), but we use circular indexing
+        int windowSize = period + 1;
+        int[]? rented = ArrayPool<int>.Shared.Rent(windowSize * 2);
+        try
         {
-            // Window includes up to 'period + 1' bars ending at index i
-            // This matches the streaming version which uses RingBuffer(period + 1)
-            int windowStart = i - Math.Min(i, period);
+            Span<int> buffer = rented.AsSpan(0, windowSize * 2);
+            Span<int> maxDeque = buffer.Slice(0, windowSize);  // circular buffer for max indices
+            Span<int> minDeque = buffer.Slice(windowSize, windowSize);  // circular buffer for min indices
 
-            double maxVal = double.MinValue;
-            int maxIdx = windowStart;
-            double minVal = double.MaxValue;
-            int minIdx = windowStart;
+            int maxHead = 0, maxTail = 0, maxCount = 0;  // circular deque for highs
+            int minHead = 0, minTail = 0, minCount = 0;  // circular deque for lows
 
-            for (int j = windowStart; j <= i; j++)
+            double invPeriod = 100.0 / period;
+
+            for (int i = 0; i < len; i++)
             {
-                double h = high[j];
-                if (h >= maxVal)
+                // Remove elements outside the window [i - period, i]
+                int windowStart = i - period;
+
+                // Remove old indices from front of max deque
+                while (maxCount > 0 && maxDeque[maxHead] < windowStart)
                 {
-                    maxVal = h;
-                    maxIdx = j;
+                    maxHead = (maxHead + 1) % windowSize;
+                    maxCount--;
                 }
 
-                double l = low[j];
-                if (l <= minVal)
+                // Remove old indices from front of min deque
+                while (minCount > 0 && minDeque[minHead] < windowStart)
                 {
-                    minVal = l;
-                    minIdx = j;
+                    minHead = (minHead + 1) % windowSize;
+                    minCount--;
                 }
+
+                // Add current index to max deque (maintain decreasing order)
+                // Use <= to keep most recent max when values equal
+                double h = high[i];
+                while (maxCount > 0 && high[maxDeque[(maxTail - 1 + windowSize) % windowSize]] <= h)
+                {
+                    maxTail = (maxTail - 1 + windowSize) % windowSize;
+                    maxCount--;
+                }
+                maxDeque[maxTail] = i;
+                maxTail = (maxTail + 1) % windowSize;
+                maxCount++;
+
+                // Add current index to min deque (maintain increasing order)
+                // Use >= to keep most recent min when values equal
+                double l = low[i];
+                while (minCount > 0 && low[minDeque[(minTail - 1 + windowSize) % windowSize]] >= l)
+                {
+                    minTail = (minTail - 1 + windowSize) % windowSize;
+                    minCount--;
+                }
+                minDeque[minTail] = i;
+                minTail = (minTail + 1) % windowSize;
+                minCount++;
+
+                // Calculate Aroon values
+                int maxIdx = maxDeque[maxHead];
+                int minIdx = minDeque[minHead];
+
+                int daysSinceHigh = i - maxIdx;
+                int daysSinceLow = i - minIdx;
+
+                double up = (period - daysSinceHigh) * invPeriod;
+                double down = (period - daysSinceLow) * invPeriod;
+                destination[i] = up - down;
             }
-
-            int daysSinceHigh = i - maxIdx;
-            int daysSinceLow = i - minIdx;
-
-            double up = ((double)(period - daysSinceHigh) / period) * 100.0;
-            double down = ((double)(period - daysSinceLow) / period) * 100.0;
-            destination[i] = up - down;
+        }
+        finally
+        {
+            ArrayPool<int>.Shared.Return(rented);
         }
     }
 

@@ -145,11 +145,11 @@ public class TBarSeries : IReadOnlyList<TBar>
         _c = new List<double>(capacity);
         _v = new List<double>(capacity);
 
-        Open = new TSeries(_t, _o, shareStorage: true) { Name = "Open" };
-        High = new TSeries(_t, _h, shareStorage: true) { Name = "High" };
-        Low = new TSeries(_t, _l, shareStorage: true) { Name = "Low" };
-        Close = new TSeries(_t, _c, shareStorage: true) { Name = "Close" };
-        Volume = new TSeries(_t, _v, shareStorage: true) { Name = "Volume" };
+        Open = new TSeries(_t, _o, ShareStorageTag.Instance) { Name = "Open" };
+        High = new TSeries(_t, _h, ShareStorageTag.Instance) { Name = "High" };
+        Low = new TSeries(_t, _l, ShareStorageTag.Instance) { Name = "Low" };
+        Close = new TSeries(_t, _c, ShareStorageTag.Instance) { Name = "Close" };
+        Volume = new TSeries(_t, _v, ShareStorageTag.Instance) { Name = "Volume" };
     }
 
     public int Count
@@ -168,6 +168,22 @@ public class TBarSeries : IReadOnlyList<TBar>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _c.Count > 0 ? new(_t[^1], _o[^1], _h[^1], _l[^1], _c[^1], _v[^1]) : default;
+    }
+
+    /// <summary>
+    /// Tries to get the last bar without allocating a new TBar on failure.
+    /// Returns true if successful; false if the series is empty.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetLast(out TBar bar)
+    {
+        if (_c.Count > 0)
+        {
+            bar = new TBar(_t[^1], _o[^1], _h[^1], _l[^1], _c[^1], _v[^1]);
+            return true;
+        }
+        bar = default;
+        return false;
     }
 
     public long LastTime { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _t.Count > 0 ? _t[^1] : 0; }
@@ -284,6 +300,82 @@ public class TBarSeries : IReadOnlyList<TBar>
         for (int i = 0; i < tArr.Length; i++)
         {
             Add(tArr[i], oArr[i], hArr[i], lArr[i], cArr[i], vArr[i]);
+        }
+    }
+
+    /// <summary>
+    /// Zero-allocation bulk add using ReadOnlySpan parameters.
+    /// Does not fire Pub events for each bar (use for initial data loading).
+    /// </summary>
+    /// <param name="t">Timestamps as ticks</param>
+    /// <param name="o">Open prices</param>
+    /// <param name="h">High prices</param>
+    /// <param name="l">Low prices</param>
+    /// <param name="c">Close prices</param>
+    /// <param name="v">Volume values</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddRange(ReadOnlySpan<long> t, ReadOnlySpan<double> o, ReadOnlySpan<double> h, ReadOnlySpan<double> l, ReadOnlySpan<double> c, ReadOnlySpan<double> v)
+    {
+        int len = t.Length;
+        if (o.Length != len || h.Length != len || l.Length != len || c.Length != len || v.Length != len)
+            throw new ArgumentException("All spans must have the same length", nameof(t));
+
+        // Pre-allocate capacity to avoid repeated resizing
+        int newCapacity = _c.Count + len;
+        if (_t.Capacity < newCapacity)
+        {
+            _t.Capacity = newCapacity;
+            _o.Capacity = newCapacity;
+            _h.Capacity = newCapacity;
+            _l.Capacity = newCapacity;
+            _c.Capacity = newCapacity;
+            _v.Capacity = newCapacity;
+        }
+
+        // Bulk add without event firing (for initial data loading)
+        for (int i = 0; i < len; i++)
+        {
+            _t.Add(t[i]);
+            _o.Add(o[i]);
+            _h.Add(h[i]);
+            _l.Add(l[i]);
+            _c.Add(c[i]);
+            _v.Add(v[i]);
+        }
+    }
+
+    /// <summary>
+    /// Zero-allocation bulk add using ReadOnlySpan of TBar structs.
+    /// Does not fire Pub events for each bar (use for initial data loading).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddRange(ReadOnlySpan<TBar> bars)
+    {
+        int len = bars.Length;
+        if (len == 0) return;
+
+        // Pre-allocate capacity to avoid repeated resizing
+        int newCapacity = _c.Count + len;
+        if (_t.Capacity < newCapacity)
+        {
+            _t.Capacity = newCapacity;
+            _o.Capacity = newCapacity;
+            _h.Capacity = newCapacity;
+            _l.Capacity = newCapacity;
+            _c.Capacity = newCapacity;
+            _v.Capacity = newCapacity;
+        }
+
+        // Bulk add without event firing (for initial data loading)
+        for (int i = 0; i < len; i++)
+        {
+            ref readonly TBar bar = ref bars[i];
+            _t.Add(bar.Time);
+            _o.Add(bar.Open);
+            _h.Add(bar.High);
+            _l.Add(bar.Low);
+            _c.Add(bar.Close);
+            _v.Add(bar.Volume);
         }
     }
 

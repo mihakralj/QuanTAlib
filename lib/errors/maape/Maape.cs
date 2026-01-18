@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -84,14 +85,23 @@ public sealed class Maape : BiInputIndicatorBase
 
         // Pre-compute arctangent errors
         const int StackAllocThreshold = 256;
-        Span<double> errors = len <= StackAllocThreshold
-            ? stackalloc double[len]
-            : new double[len];
+        double[]? rented = len > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(len) : null;
+        Span<double> errors = rented != null
+            ? rented.AsSpan(0, len)
+            : stackalloc double[len];
 
-        ComputeAtanErrors(actual, predicted, errors);
+        try
+        {
+            ComputeAtanErrors(actual, predicted, errors);
 
-        // Apply rolling mean
-        ErrorHelpers.ApplyRollingMean(errors, output, period);
+            // Apply rolling mean
+            ErrorHelpers.ApplyRollingMean(errors, output, period);
+        }
+        finally
+        {
+            if (rented != null)
+                ArrayPool<double>.Shared.Return(rented);
+        }
     }
 
     /// <summary>
@@ -106,23 +116,24 @@ public sealed class Maape : BiInputIndicatorBase
         int len = actual.Length;
         double lastValidActual = 0.0;
         double lastValidPredicted = 0.0;
+        bool foundActual = false;
+        bool foundPredicted = false;
 
-        // Find first valid values
+        // Find first valid values in a single pass
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(actual[k]))
+            if (!foundActual && double.IsFinite(actual[k]))
             {
                 lastValidActual = actual[k];
-                break;
+                foundActual = true;
             }
-        }
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(predicted[k]))
+            if (!foundPredicted && double.IsFinite(predicted[k]))
             {
                 lastValidPredicted = predicted[k];
-                break;
+                foundPredicted = true;
             }
+            if (foundActual && foundPredicted)
+                break;
         }
 
         for (int i = 0; i < len; i++)

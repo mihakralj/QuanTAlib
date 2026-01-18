@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -44,14 +45,15 @@ public sealed class Sum : AbstractBase
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(
-        double Sum,           // Accumulated sum
-        double C,             // First-order compensation
-        double Cc,            // Second-order compensation
-        double LastInput,
-        double LastValidValue,
-        int TickCount
-    );
+    private struct State
+    {
+        public double Sum;           // Accumulated sum
+        public double C;             // First-order compensation
+        public double Cc;            // Second-order compensation
+        public double LastInput;
+        public double LastValidValue;
+        public int TickCount;
+    }
 
     private State _state;
     private State _p_state;
@@ -349,9 +351,10 @@ public sealed class Sum : AbstractBase
         int len = source.Length;
 
         const int StackAllocThreshold = 256;
+        double[]? bufferArray = period > StackAllocThreshold ? ArrayPool<double>.Shared.Rent(period) : null;
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
-            : new double[period];
+            : bufferArray!.AsSpan(0, period);
 
         // Kahan-Babuška state
         double sum = 0;
@@ -369,10 +372,12 @@ public sealed class Sum : AbstractBase
             }
         }
 
-        int bufferIndex = 0;
-        int tickCount = 0;
+        try
+        {
+            int bufferIndex = 0;
+            int tickCount = 0;
 
-        // Warmup phase
+            // Warmup phase
         int warmupEnd = Math.Min(period, len);
         for (int i = 0; i < warmupEnd; i++)
         {
@@ -439,26 +444,31 @@ public sealed class Sum : AbstractBase
 
             // Periodic resync for long sequences
             tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                sum = 0;
-                c = 0;
-                cc = 0;
-                for (int k = 0; k < period; k++)
+                if (tickCount >= ResyncInterval)
                 {
-                    double bVal = buffer[k];
-                    double yR = bVal - c;
-                    double tR = sum + yR;
-                    c = tR - sum - yR;
-                    sum = tR;
+                    tickCount = 0;
+                    sum = 0;
+                    c = 0;
+                    cc = 0;
+                    for (int k = 0; k < period; k++)
+                    {
+                        double bVal = buffer[k];
+                        double yR = bVal - c;
+                        double tR = sum + yR;
+                        c = tR - sum - yR;
+                        sum = tR;
 
-                    double zR = c - cc;
-                    double ttR = sum + zR;
-                    cc = ttR - sum - zR;
-                    sum = ttR;
+                        double zR = c - cc;
+                        double ttR = sum + zR;
+                        cc = ttR - sum - zR;
+                        sum = ttR;
+                    }
                 }
             }
+        }
+        finally
+        {
+            if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
         }
     }
 

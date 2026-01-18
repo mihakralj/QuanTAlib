@@ -5,6 +5,18 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
+/// Tag type indicating that a TSeries constructor should share storage with the provided lists
+/// rather than making defensive copies. Used internally for synchronized sub-series.
+/// </summary>
+public readonly struct ShareStorageTag
+{
+    /// <summary>
+    /// Singleton instance for the share storage tag.
+    /// </summary>
+    public static readonly ShareStorageTag Instance = default;
+}
+
+/// <summary>
 /// High-performance enumerator for TSeries.
 /// </summary>
 public struct TSeriesEnumerator : IEnumerator<TValue>, IEquatable<TSeriesEnumerator>
@@ -101,7 +113,10 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
     /// Internal constructor for creating views that share underlying storage.
     /// Used by TBarSeries to create synchronized OHLCV sub-series.
     /// </summary>
-    internal TSeries(List<long> time, List<double> values, bool shareStorage)
+    /// <param name="time">The time list to share (not copied).</param>
+    /// <param name="values">The values list to share (not copied).</param>
+    /// <param name="_">Tag type indicating intentional storage sharing.</param>
+    internal TSeries(List<long> time, List<double> values, ShareStorageTag _)
     {
         // Direct assignment for intentional storage sharing (internal use only)
         _t = time;
@@ -141,6 +156,12 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
     /// <summary>
     /// Direct access to the underlying Value array as a Span for SIMD operations.
     /// </summary>
+    /// <remarks>
+    /// <para><b>Lifetime:</b> The returned span is only valid while no structural mutations
+    /// (Add, Clear, etc.) occur on this TSeries. Structural changes invalidate the span.</para>
+    /// <para><b>Mutation:</b> The span reflects the internal List storage; modifications
+    /// to the series after obtaining the span may cause undefined behavior if the span is still in use.</para>
+    /// </remarks>
     public ReadOnlySpan<double> Values
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -150,6 +171,12 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
     /// <summary>
     /// Direct access to the underlying Time array as a Span.
     /// </summary>
+    /// <remarks>
+    /// <para><b>Lifetime:</b> The returned span is only valid while no structural mutations
+    /// (Add, Clear, etc.) occur on this TSeries. Structural changes invalidate the span.</para>
+    /// <para><b>Mutation:</b> The span reflects the internal List storage; modifications
+    /// to the series after obtaining the span may cause undefined behavior if the span is still in use.</para>
+    /// </remarks>
     public ReadOnlySpan<long> Times
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -96,9 +96,10 @@ public sealed class Dmx : ITValuePublisher
 
         double dmPlusRaw = 0;
         double dmMinusRaw = 0;
-        double trRaw = 0;
+        double trRaw;
 
-        if (!_isInitialized || _prevBar.Time == 0) // First bar or uninitialized
+        // First bar check: _prevBar.Time == 0 implies uninitialized previous bar
+        if (_prevBar.Time == 0)
         {
             trRaw = input.High - input.Low;
         }
@@ -160,9 +161,10 @@ public sealed class Dmx : ITValuePublisher
         Calculate(source.High.Values, source.Low.Values, source.Close.Values, _period, vSpan);
         source.Close.Times.CopyTo(tSpan);
 
-        // Restore streaming state by replaying the series
+        // Restore streaming state by replaying only tail bars (JMA needs ~2*period for full warmup)
         Reset();
-        for (int i = 0; i < count; i++)
+        int replayStart = Math.Max(0, count - (2 * _period));
+        for (int i = replayStart; i < count; i++)
         {
             Update(source[i], isNew: true);
         }
@@ -188,92 +190,69 @@ public sealed class Dmx : ITValuePublisher
         if (period <= 0)
             throw new ArgumentException("Period must be greater than zero.", nameof(period));
 
-        const int StackallocThreshold = 256;
+        // Use single ArrayPool rent with slicing for better cache locality and fewer allocations
+        // Need 6 buffers of len each: dmPlus, dmMinus, tr, dmPlusSmooth, dmMinusSmooth, trSmooth
+        const int BufferCount = 6;
+        const int StackallocThreshold = 42; // 42 * 6 = 252, fits in stack
 
-        double[]? rentedDmPlus = null;
-        double[]? rentedDmMinus = null;
-        double[]? rentedTr = null;
-        double[]? rentedDmPlusSmooth = null;
-        double[]? rentedDmMinusSmooth = null;
-        double[]? rentedTrSmooth = null;
-
-        scoped Span<double> dmPlus;
-        scoped Span<double> dmMinus;
-        scoped Span<double> tr;
+        double[]? rented = null;
+        scoped Span<double> buffer;
 
         if (len <= StackallocThreshold)
         {
-            dmPlus = stackalloc double[len];
-            dmMinus = stackalloc double[len];
-            tr = stackalloc double[len];
+            buffer = stackalloc double[len * BufferCount];
         }
         else
         {
-            rentedDmPlus = ArrayPool<double>.Shared.Rent(len);
-            dmPlus = rentedDmPlus.AsSpan(0, len);
-            rentedDmMinus = ArrayPool<double>.Shared.Rent(len);
-            dmMinus = rentedDmMinus.AsSpan(0, len);
-            rentedTr = ArrayPool<double>.Shared.Rent(len);
-            tr = rentedTr.AsSpan(0, len);
-        }
-
-        // First bar: only true range from high-low, no directional movement
-        tr[0] = high[0] - low[0];
-        dmPlus[0] = 0.0;
-        dmMinus[0] = 0.0;
-
-        for (int i = 1; i < len; i++)
-        {
-            double h = high[i];
-            double l = low[i];
-            double ph = high[i - 1];
-            double pl = low[i - 1];
-            double pc = close[i - 1];
-
-            double upMove = h - ph;
-            double downMove = pl - l;
-
-            double dmPlusRaw = 0.0;
-            double dmMinusRaw = 0.0;
-
-            if (upMove > downMove && upMove > 0.0)
-                dmPlusRaw = upMove;
-
-            if (downMove > upMove && downMove > 0.0)
-                dmMinusRaw = downMove;
-
-            double tr1 = h - l;
-            double tr2 = Math.Abs(h - pc);
-            double tr3 = Math.Abs(l - pc);
-            double trRaw = Math.Max(tr1, Math.Max(tr2, tr3));
-
-            dmPlus[i] = dmPlusRaw;
-            dmMinus[i] = dmMinusRaw;
-            tr[i] = trRaw;
-        }
-
-        scoped Span<double> dmPlusSmooth;
-        scoped Span<double> dmMinusSmooth;
-        scoped Span<double> trSmooth;
-
-        if (len <= StackallocThreshold)
-        {
-            dmPlusSmooth = stackalloc double[len];
-            dmMinusSmooth = stackalloc double[len];
-            trSmooth = stackalloc double[len];
-        }
-        else
-        {
-            rentedDmPlusSmooth = ArrayPool<double>.Shared.Rent(len);
-            dmPlusSmooth = rentedDmPlusSmooth.AsSpan(0, len);
-            rentedDmMinusSmooth = ArrayPool<double>.Shared.Rent(len);
-            dmMinusSmooth = rentedDmMinusSmooth.AsSpan(0, len);
-            rentedTrSmooth = ArrayPool<double>.Shared.Rent(len);
-            trSmooth = rentedTrSmooth.AsSpan(0, len);
+            rented = ArrayPool<double>.Shared.Rent(len * BufferCount);
+            buffer = rented.AsSpan(0, len * BufferCount);
         }
 
         try
         {
+            // Slice the single buffer into 6 spans
+            Span<double> dmPlus = buffer.Slice(0, len);
+            Span<double> dmMinus = buffer.Slice(len, len);
+            Span<double> tr = buffer.Slice(len * 2, len);
+            Span<double> dmPlusSmooth = buffer.Slice(len * 3, len);
+            Span<double> dmMinusSmooth = buffer.Slice(len * 4, len);
+            Span<double> trSmooth = buffer.Slice(len * 5, len);
+
+            // First bar: only true range from high-low, no directional movement
+            tr[0] = high[0] - low[0];
+            dmPlus[0] = 0.0;
+            dmMinus[0] = 0.0;
+
+            for (int i = 1; i < len; i++)
+            {
+                double h = high[i];
+                double l = low[i];
+                double ph = high[i - 1];
+                double pl = low[i - 1];
+                double pc = close[i - 1];
+
+                double upMove = h - ph;
+                double downMove = pl - l;
+
+                double dmPlusRaw = 0.0;
+                double dmMinusRaw = 0.0;
+
+                if (upMove > downMove && upMove > 0.0)
+                    dmPlusRaw = upMove;
+
+                if (downMove > upMove && downMove > 0.0)
+                    dmMinusRaw = downMove;
+
+                double tr1 = h - l;
+                double tr2 = Math.Abs(h - pc);
+                double tr3 = Math.Abs(l - pc);
+                double trRaw = Math.Max(tr1, Math.Max(tr2, tr3));
+
+                dmPlus[i] = dmPlusRaw;
+                dmMinus[i] = dmMinusRaw;
+                tr[i] = trRaw;
+            }
+
             Jma.Calculate(dmPlus, dmPlusSmooth, period);
             Jma.Calculate(dmMinus, dmMinusSmooth, period);
             Jma.Calculate(tr, trSmooth, period);
@@ -295,18 +274,8 @@ public sealed class Dmx : ITValuePublisher
         }
         finally
         {
-            if (rentedDmPlus != null)
-                ArrayPool<double>.Shared.Return(rentedDmPlus);
-            if (rentedDmMinus != null)
-                ArrayPool<double>.Shared.Return(rentedDmMinus);
-            if (rentedTr != null)
-                ArrayPool<double>.Shared.Return(rentedTr);
-            if (rentedDmPlusSmooth != null)
-                ArrayPool<double>.Shared.Return(rentedDmPlusSmooth);
-            if (rentedDmMinusSmooth != null)
-                ArrayPool<double>.Shared.Return(rentedDmMinusSmooth);
-            if (rentedTrSmooth != null)
-                ArrayPool<double>.Shared.Return(rentedTrSmooth);
+            if (rented != null)
+                ArrayPool<double>.Shared.Return(rented);
         }
     }
 

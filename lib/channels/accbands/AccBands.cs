@@ -133,8 +133,6 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             _source.Pub -= _barHandler;
             _source = null;
         }
-
-        GC.SuppressFinalize(this);
     }
 
     private void HandleBar(object? sender, in TBarEventArgs e) => Update(e.Value, e.IsNew);

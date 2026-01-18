@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
@@ -69,11 +70,25 @@ public sealed class LogCosh : BiInputIndicatorBase
         if (len == 0) return;
 
         const int StackAllocThreshold = 256;
-        Span<double> errors = len <= StackAllocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        ErrorHelpers.ComputeLogCoshErrors(actual, predicted, errors);
-        ErrorHelpers.ApplyRollingMean(errors, output, period);
+        if (len <= StackAllocThreshold)
+        {
+            Span<double> errors = stackalloc double[len];
+            ErrorHelpers.ComputeLogCoshErrors(actual, predicted, errors);
+            ErrorHelpers.ApplyRollingMean(errors, output, period);
+        }
+        else
+        {
+            double[] rented = ArrayPool<double>.Shared.Rent(len);
+            try
+            {
+                Span<double> errors = rented.AsSpan(0, len);
+                ErrorHelpers.ComputeLogCoshErrors(actual, predicted, errors);
+                ErrorHelpers.ApplyRollingMean(errors, output, period);
+            }
+            finally
+            {
+                ArrayPool<double>.Shared.Return(rented);
+            }
+        }
     }
 }

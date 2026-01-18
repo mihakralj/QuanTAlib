@@ -22,6 +22,8 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Mdae : AbstractBase
 {
+    private const int StackAllocThreshold = 256;
+
     private readonly RingBuffer _buffer;
     private readonly double[] _sortBuffer;
 
@@ -49,6 +51,16 @@ public sealed class Mdae : AbstractBase
         double actualVal = actual.Value;
         double predictedVal = predicted.Value;
 
+        // Snapshot BEFORE any mutations for correct rollback
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
         if (!double.IsFinite(actualVal))
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
         else
@@ -63,13 +75,11 @@ public sealed class Mdae : AbstractBase
 
         if (isNew)
         {
-            _p_state = _state;
             _buffer.Add(absError);
             _state.TickCount++;
         }
         else
         {
-            _state = _p_state;
             _buffer.UpdateNewest(absError);
         }
 
@@ -116,21 +126,26 @@ public sealed class Mdae : AbstractBase
         int count = _buffer.Count;
         if (count == 0) return 0.0;
 
-        // Copy to sort buffer
-        for (int i = 0; i < count; i++)
+        // Copy buffer contents to sort buffer using GetSequencedSpans to handle wraparound
+        _buffer.GetSequencedSpans(out var first, out var second);
+        first.CopyTo(_sortBuffer.AsSpan(0, first.Length));
+        if (second.Length > 0)
         {
-            _sortBuffer[i] = _buffer[i];
+            second.CopyTo(_sortBuffer.AsSpan(first.Length, second.Length));
         }
 
-        // Sort the portion we're using
+        // Sort the portion we copied
         Array.Sort(_sortBuffer, 0, count);
 
-        // Return median
+        // Calculate median
         if ((count & 1) != 0)
         {
             return _sortBuffer[count / 2];
         }
-        return (_sortBuffer[count / 2 - 1] + _sortBuffer[count / 2]) * 0.5;
+
+        // For even count, average the two middle elements
+        int mid = count / 2;
+        return (_sortBuffer[mid - 1] + _sortBuffer[mid]) * 0.5;
     }
 
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
@@ -164,9 +179,20 @@ public sealed class Mdae : AbstractBase
         int len = actual.Length;
         if (len == 0) return;
 
-        // Use heap allocation for batch - we need sorting per element
-        double[] buffer = new double[period];
-        double[] sortBuffer = new double[period];
+        // Use stackalloc for small periods, heap for larger
+        scoped Span<double> buffer;
+        scoped Span<double> sortBuffer;
+
+        if (period <= StackAllocThreshold)
+        {
+            buffer = stackalloc double[period];
+            sortBuffer = stackalloc double[period];
+        }
+        else
+        {
+            buffer = new double[period];
+            sortBuffer = new double[period];
+        }
 
         double lastValidActual = 0;
         double lastValidPredicted = 0;
@@ -199,20 +225,83 @@ public sealed class Mdae : AbstractBase
             if (bufferIndex >= period) bufferIndex = 0;
             if (bufferCount < period) bufferCount++;
 
-            // Copy and sort for median
-            for (int j = 0; j < bufferCount; j++)
-            {
-                sortBuffer[j] = buffer[j];
-            }
-            Array.Sort(sortBuffer, 0, bufferCount);
+            // Copy and use QuickSelect for median
+            buffer.Slice(0, bufferCount).CopyTo(sortBuffer);
 
-            // Calculate median
+            // Calculate median using QuickSelect
             if ((bufferCount & 1) != 0)
             {
-                output[i] = sortBuffer[bufferCount / 2];
+                output[i] = QuickSelectSpan(sortBuffer.Slice(0, bufferCount), bufferCount / 2);
                 continue;
             }
-            output[i] = (sortBuffer[bufferCount / 2 - 1] + sortBuffer[bufferCount / 2]) * 0.5;
+
+            int mid = bufferCount / 2;
+            double upper = QuickSelectSpan(sortBuffer.Slice(0, bufferCount), mid);
+
+            // Copy again for second selection
+            buffer.Slice(0, bufferCount).CopyTo(sortBuffer);
+            double lower = QuickSelectSpan(sortBuffer.Slice(0, bufferCount), mid - 1);
+
+            output[i] = (lower + upper) * 0.5;
         }
+    }
+
+    /// <summary>
+    /// QuickSelect for Span - finds the k-th smallest element in O(n) average time.
+    /// Uses insertion sort for small arrays and Lomuto partition for larger arrays.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double QuickSelectSpan(Span<double> span, int k)
+    {
+        int left = 0;
+        int right = span.Length - 1;
+
+        while (left < right)
+        {
+            // For small subarrays (<=16 elements), use insertion sort - simple and cache-friendly
+            if (right - left < 16)
+            {
+                for (int i = left + 1; i <= right; i++)
+                {
+                    double key = span[i];
+                    int j = i - 1;
+                    while (j >= left && span[j] > key)
+                    {
+                        span[j + 1] = span[j];
+                        j--;
+                    }
+                    span[j + 1] = key;
+                }
+                return span[k];
+            }
+
+            // Median-of-three pivot selection for better pivot choice
+            int mid = left + (right - left) / 2;
+            if (span[mid] < span[left]) (span[left], span[mid]) = (span[mid], span[left]);
+            if (span[right] < span[left]) (span[left], span[right]) = (span[right], span[left]);
+            if (span[right] < span[mid]) (span[mid], span[right]) = (span[right], span[mid]);
+
+            // Use median as pivot, move to right-1 position
+            double pivot = span[mid];
+            (span[mid], span[right - 1]) = (span[right - 1], span[mid]);
+
+            // Lomuto partition scheme (safer, no overflow risk)
+            int storeIndex = left;
+            for (int i = left; i < right - 1; i++)
+            {
+                if (span[i] < pivot)
+                {
+                    (span[storeIndex], span[i]) = (span[i], span[storeIndex]);
+                    storeIndex++;
+                }
+            }
+            (span[storeIndex], span[right - 1]) = (span[right - 1], span[storeIndex]);
+
+            if (k == storeIndex) return span[storeIndex];
+            if (k < storeIndex) right = storeIndex - 1;
+            else left = storeIndex + 1;
+        }
+
+        return span[left];
     }
 }

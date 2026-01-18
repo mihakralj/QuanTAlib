@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
@@ -45,7 +46,6 @@ public sealed class Me : BiInputIndicatorBase
     /// <summary>
     /// Batch calculation using signed error computation with rolling mean.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         ValidateBatchInputs(actual, predicted, output, period);
@@ -54,11 +54,25 @@ public sealed class Me : BiInputIndicatorBase
         if (len == 0) return;
 
         const int StackAllocThreshold = 256;
-        Span<double> errors = len <= StackAllocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        ErrorHelpers.ComputeSignedErrors(actual, predicted, errors);
-        ErrorHelpers.ApplyRollingMean(errors, output, period);
+        if (len <= StackAllocThreshold)
+        {
+            Span<double> errors = stackalloc double[len];
+            ErrorHelpers.ComputeSignedErrors(actual, predicted, errors);
+            ErrorHelpers.ApplyRollingMean(errors, output, period);
+        }
+        else
+        {
+            double[] rented = ArrayPool<double>.Shared.Rent(len);
+            try
+            {
+                Span<double> errors = rented.AsSpan(0, len);
+                ErrorHelpers.ComputeSignedErrors(actual, predicted, errors);
+                ErrorHelpers.ApplyRollingMean(errors, output, period);
+            }
+            finally
+            {
+                ArrayPool<double>.Shared.Return(rented);
+            }
+        }
     }
 }

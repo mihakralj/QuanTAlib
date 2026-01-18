@@ -25,132 +25,40 @@ namespace QuanTAlib;
 /// - Smooth and differentiable everywhere
 /// </remarks>
 [SkipLocalsInit]
-public sealed class TukeyBiweight : AbstractBase
+public sealed class TukeyBiweight : BiInputIndicatorBase
 {
-    private readonly RingBuffer _lossBuffer;
     private readonly double _cSquaredOver6;
-
-    [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LossSum, double LastValidActual, double LastValidPredicted, int TickCount);
-    private State _state;
-    private State _p_state;
-
-    private const int ResyncInterval = 1000;
     private const double DefaultC = 4.685; // 95% efficiency for normal distribution
 
     public TukeyBiweight(int period, double c = DefaultC)
+        : base(period, $"TukeyBiweight({period},{c:F3})")
     {
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
         if (c <= 0)
             throw new ArgumentException("Threshold c must be positive", nameof(c));
 
-        _lossBuffer = new RingBuffer(period);
         C = c;
         _cSquaredOver6 = (c * c) / 6.0;
-        Name = $"TukeyBiweight({period},{c:F3})";
-        WarmupPeriod = period;
     }
 
     public double C { get; }
-    public override bool IsHot => _lossBuffer.IsFull;
 
     /// <summary>
-    /// Computes Tukey's biweight loss function.
+    /// Computes Tukey's biweight loss for the error between actual and predicted values.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private double BiweightLoss(double x)
+    protected override double ComputeError(double actual, double predicted)
     {
-        double absX = Math.Abs(x);
-        if (absX > C)
+        double error = actual - predicted;
+        double absError = Math.Abs(error);
+
+        if (absError > C)
             return _cSquaredOver6;
 
-        double ratio = x / C;
+        double ratio = error / C;
         double ratioSq = ratio * ratio;
         double oneMinusRatioSq = 1.0 - ratioSq;
         double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
         return _cSquaredOver6 * (1.0 - cubed);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(TValue actual, TValue predicted, bool isNew = true)
-    {
-        double actualVal = actual.Value;
-        double predictedVal = predicted.Value;
-
-        if (!double.IsFinite(actualVal))
-            actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
-        else
-            _state.LastValidActual = actualVal;
-
-        if (!double.IsFinite(predictedVal))
-            predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
-        else
-            _state.LastValidPredicted = predictedVal;
-
-        double error = actualVal - predictedVal;
-        double loss = BiweightLoss(error);
-
-        if (isNew)
-        {
-            _p_state = _state;
-
-            double removedLoss = _lossBuffer.Count == _lossBuffer.Capacity ? _lossBuffer.Oldest : 0.0;
-            _state.LossSum = _state.LossSum - removedLoss + loss;
-            _lossBuffer.Add(loss);
-
-            _state.TickCount++;
-            if (_lossBuffer.IsFull && _state.TickCount >= ResyncInterval)
-            {
-                _state.TickCount = 0;
-                _state.LossSum = _lossBuffer.RecalculateSum();
-            }
-        }
-        else
-        {
-            _state = _p_state;
-
-            double removedLoss = _lossBuffer.Count == _lossBuffer.Capacity ? _lossBuffer.Oldest : 0.0;
-            _state.LossSum = _state.LossSum - removedLoss + loss;
-            _lossBuffer.UpdateNewest(loss);
-            _state.LossSum = _lossBuffer.RecalculateSum();
-        }
-
-        // Mean Tukey Biweight Loss
-        double result = _lossBuffer.Count > 0 ? _state.LossSum / _lossBuffer.Count : 0.0;
-
-        Last = new TValue(actual.Time, result);
-        PubEvent(Last, isNew);
-        return Last;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TValue Update(double actual, double predicted, bool isNew = true)
-    {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
-    }
-
-    public override TValue Update(TValue input, bool isNew = true)
-    {
-        throw new NotSupportedException("TukeyBiweight requires two inputs. Use Update(actual, predicted).");
-    }
-
-    public override TSeries Update(TSeries source)
-    {
-        throw new NotSupportedException("TukeyBiweight requires two inputs. Use Calculate(actualSeries, predictedSeries, period, c).");
-    }
-
-    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
-    {
-        throw new NotSupportedException("TukeyBiweight requires two inputs.");
-    }
-
-    public override void Reset()
-    {
-        _lossBuffer.Clear();
-        _state = default;
-        _p_state = default;
-        Last = default;
     }
 
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double c = DefaultC)

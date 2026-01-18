@@ -131,6 +131,8 @@ public abstract class BiInputIndicatorBase : AbstractBase
     private void ProcessNewBar(double error)
     {
         _p_state = _state;
+        // Snapshot buffer state BEFORE Add so Restore can undo it
+        _buffer.Snapshot();
         _state.Sum = _state.Sum - GetRemovedValue() + error;
         _buffer.Add(error);
         _state.TickCount++;
@@ -144,16 +146,18 @@ public abstract class BiInputIndicatorBase : AbstractBase
 
     /// <summary>
     /// Processes a bar correction (same bar update).
-    /// Uses O(1) differential update: restores previous state, then applies the new error.
+    /// Uses O(1) differential update: restores buffer and scalar state, then applies the new error.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBarCorrection(double error)
     {
-        // Restore previous state first
+        // Restore scalar state
         _state = _p_state;
-        // Update buffer with new error value (replaces the newest)
-        _buffer.UpdateNewest(error);
-        // Sum is already updated by UpdateNewest via FMA differential update
+        // Restore buffer to state before last Add (undoes the Add completely)
+        _buffer.Restore();
+        // Now add the new correction value (this overwrites the same slot)
+        _buffer.Add(error);
+        // Update sum from buffer (Add already updated it correctly)
         _state.Sum = _buffer.Sum;
     }
 

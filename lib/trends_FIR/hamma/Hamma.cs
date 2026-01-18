@@ -43,7 +43,11 @@ public sealed class Hamma : AbstractBase
     private bool _isNew = true;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LastValidValue, bool IsInitialized);
+    private struct State
+    {
+        public double LastValidValue;
+        public bool IsInitialized;
+    }
     private State _state;
     private State _p_state;
 
@@ -67,7 +71,8 @@ public sealed class Hamma : AbstractBase
         WarmupPeriod = period;
 
         ComputeWeights(_weights, period, out _invWeightSum);
-        _state = new State(double.NaN, IsInitialized: false);
+        _state = default;
+        _state.LastValidValue = double.NaN;
     }
 
     /// <param name="source">Data source for event-based updates</param>
@@ -151,7 +156,8 @@ public sealed class Hamma : AbstractBase
 
         if (double.IsFinite(input.Value))
         {
-            _state = _state with { LastValidValue = input.Value, IsInitialized = true };
+            _state.LastValidValue = input.Value;
+            _state.IsInitialized = true;
         }
 
         // Retrieve valid value (handles NaN propagation prevention)
@@ -168,7 +174,7 @@ public sealed class Hamma : AbstractBase
         Last = new TValue(input.Time, result);
         if (publish)
         {
-            PubEvent(Last);
+            PubEvent(Last, isNew);
         }
         return Last;
     }
@@ -380,7 +386,8 @@ public sealed class Hamma : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
-        _state = new State(double.NaN, IsInitialized: false);
+        _state = default;
+        _state.LastValidValue = double.NaN;
         _p_state = _state;
         Last = default;
     }

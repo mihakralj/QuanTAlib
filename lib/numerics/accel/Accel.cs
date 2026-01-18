@@ -122,6 +122,11 @@ public sealed class Accel : AbstractBase
         if (source.Count == 0) return [];
 
         int len = source.Count;
+
+        // Cache source spans ONCE before any operations to avoid repeated property access
+        ReadOnlySpan<double> sourceValues = source.Values;
+        ReadOnlySpan<long> sourceTimes = source.Times;
+
         var t = new List<long>(len);
         var v = new List<double>(len);
         CollectionsMarshal.SetCount(t, len);
@@ -130,14 +135,14 @@ public sealed class Accel : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan);
-        source.Times.CopyTo(tSpan);
+        Calculate(sourceValues, vSpan);
+        sourceTimes.CopyTo(tSpan);
 
-        // Prime state with last two values
+        // Prime state with last two values using cached span
         if (len >= 2)
         {
-            double v1 = double.IsFinite(source.Values[len - 1]) ? source.Values[len - 1] : _state.LastValidValue;
-            double v2 = double.IsFinite(source.Values[len - 2]) ? source.Values[len - 2] : v1;
+            double v1 = double.IsFinite(sourceValues[len - 1]) ? sourceValues[len - 1] : _state.LastValidValue;
+            double v2 = double.IsFinite(sourceValues[len - 2]) ? sourceValues[len - 2] : v1;
             _state.Prev1 = v1;
             _state.Prev2 = v2;
             _state.LastValidValue = v1;
@@ -146,7 +151,7 @@ public sealed class Accel : AbstractBase
         }
         else if (len == 1)
         {
-            double v1 = double.IsFinite(source.Values[0]) ? source.Values[0] : _state.LastValidValue;
+            double v1 = double.IsFinite(sourceValues[0]) ? sourceValues[0] : _state.LastValidValue;
             _state.Prev1 = v1;
             _state.LastValidValue = v1;
             _state.Count = 1;

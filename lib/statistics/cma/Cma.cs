@@ -11,7 +11,7 @@ namespace QuanTAlib;
 /// Uses Welford's algorithm with FMA (Fused Multiply-Add) for maximum numerical precision.
 ///
 /// Calculation:
-/// M_n = M_(n-1) + ± * (x_n - M_(n-1))  where ± = 1/n
+/// M_n = M_(n-1) + α * (x_n - M_(n-1))  where α = 1/n
 ///
 /// Implemented using FMA for single-rounding precision:
 /// mean = FusedMultiplyAdd(alpha, delta, mean)
@@ -143,21 +143,17 @@ public sealed class Cma : AbstractBase
         if (isNew)
         {
             _p_state = _state;
-            double val = GetValidValue(input.Value);
-            _state.Count++;
-            double alpha = 1.0 / _state.Count;
-            double delta = val - _state.Mean;
-            _state.Mean = Math.FusedMultiplyAdd(alpha, delta, _state.Mean);
         }
         else
         {
             _state = _p_state;
-            double val = GetValidValue(input.Value);
-            _state.Count++;
-            double alpha = 1.0 / _state.Count;
-            double delta = val - _state.Mean;
-            _state.Mean = Math.FusedMultiplyAdd(alpha, delta, _state.Mean);
         }
+
+        double val = GetValidValue(input.Value);
+        _state.Count++;
+        double alpha = 1.0 / _state.Count;
+        double delta = val - _state.Mean;
+        _state.Mean = Math.FusedMultiplyAdd(alpha, delta, _state.Mean);
 
         Last = new TValue(input.Time, _state.Mean);
         PubEvent(Last, isNew);
@@ -208,7 +204,6 @@ public sealed class Cma : AbstractBase
     /// </summary>
     /// <param name="source">Input values</param>
     /// <param name="output">Output span (must be same length as source)</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)

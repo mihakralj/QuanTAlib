@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Buffers;
 
 namespace QuanTAlib;
@@ -18,12 +19,14 @@ namespace QuanTAlib;
 /// Standard parameters: 12, 26, 9
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Macd : ITValuePublisher
+public sealed class Macd : ITValuePublisher, IDisposable
 {
     private readonly Ema _fastEma;
     private readonly Ema _slowEma;
     private readonly Ema _signalEma;
+    private readonly ITValuePublisher? _source;
     private readonly TValuePublishedHandler _handler;
+    private bool _disposed;
 
     public string Name { get; }
     public bool IsHot => _fastEma.IsHot && _slowEma.IsHot && _signalEma.IsHot;
@@ -49,7 +52,26 @@ public sealed class Macd : ITValuePublisher
     public Macd(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
         : this(fastPeriod, slowPeriod, signalPeriod)
     {
-        source.Pub += _handler;
+        _source = source;
+        _source.Pub += _handler;
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,13 +113,18 @@ public sealed class Macd : ITValuePublisher
         var len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
 
         Reset();
         for (int i = 0; i < len; i++)
         {
             Update(source[i], isNew: true);
-            t.Add(source[i].Time);
-            v.Add(Last.Value);
+            tSpan[i] = source[i].Time;
+            vSpan[i] = Last.Value;
         }
 
         return new TSeries(t, v);

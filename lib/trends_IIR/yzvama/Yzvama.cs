@@ -32,6 +32,7 @@ public sealed class Yzvama : AbstractBase
         double SourceSum,
         int SourceValidCount,
         int YzvHead,
+        int YzvCount,
         bool IsInitialized)
     {
         public static YzvamaState New() => new()
@@ -43,6 +44,7 @@ public sealed class Yzvama : AbstractBase
             SourceSum = 0,
             SourceValidCount = 0,
             YzvHead = 0,
+            YzvCount = 0,
             IsInitialized = false
         };
     }
@@ -61,11 +63,15 @@ public sealed class Yzvama : AbstractBase
     private YzvamaState _state;
     private YzvamaState _p_state;
 
-    private readonly double[] _sourceBuffer;
-    private readonly double[] _p_sourceBuffer;
-    private readonly double[] _yzvBuffer;
-    private readonly double[] _p_yzvBuffer;
-    private readonly double[] _yzvWork;
+    // Dual-buffer approach for O(1) state transitions instead of O(n) Array.Copy
+    private double[] _activeSourceBuffer;
+    private double[] _backupSourceBuffer;
+    private double[] _activeYzvBuffer;
+    private double[] _backupYzvBuffer;
+
+    // Sorted YZV buffer for O(n) insert/remove instead of O(n log n) sort
+    private double[] _activeSortedYzv;
+    private double[] _backupSortedYzv;
 
     private double _lastValidSource;
     private double _p_lastValidSource;
@@ -107,19 +113,29 @@ public sealed class Yzvama : AbstractBase
         _kShort = ComputeYangZhangK(yzvShortPeriod);
         _kLong = ComputeYangZhangK(yzvLongPeriod);
 
-        _sourceBuffer = new double[maxLength];
-        _p_sourceBuffer = new double[maxLength];
-        Array.Fill(_sourceBuffer, double.NaN);
-        Array.Fill(_p_sourceBuffer, double.NaN);
+        // Dual buffers for pointer-swap on state transitions
+        _activeSourceBuffer = new double[maxLength];
+        _backupSourceBuffer = new double[maxLength];
+        Array.Fill(_activeSourceBuffer, double.NaN);
+        Array.Fill(_backupSourceBuffer, double.NaN);
 
-        _yzvBuffer = new double[percentileLookback];
-        _p_yzvBuffer = new double[percentileLookback];
-        _yzvWork = new double[percentileLookback];
-        Array.Fill(_yzvBuffer, double.NaN);
-        Array.Fill(_p_yzvBuffer, double.NaN);
+        _activeYzvBuffer = new double[percentileLookback];
+        _backupYzvBuffer = new double[percentileLookback];
+        Array.Fill(_activeYzvBuffer, double.NaN);
+        Array.Fill(_backupYzvBuffer, double.NaN);
+
+        // Sorted buffer maintained incrementally
+        _activeSortedYzv = new double[percentileLookback];
+        _backupSortedYzv = new double[percentileLookback];
+        Array.Fill(_activeSortedYzv, double.NaN);
+        Array.Fill(_backupSortedYzv, double.NaN);
 
         _state = YzvamaState.New();
         _p_state = _state;
+
+        // Initialize last valid source to NaN to preserve invalid state until a valid input arrives
+        _lastValidSource = double.NaN;
+        _p_lastValidSource = double.NaN;
 
         Name = $"Yzvama({yzvShortPeriod},{yzvLongPeriod},{percentileLookback},{minLength},{maxLength})";
         WarmupPeriod = Math.Max(Math.Max(yzvLongPeriod, maxLength), percentileLookback);
@@ -170,6 +186,33 @@ public sealed class Yzvama : AbstractBase
     }
 
     /// <summary>
+    /// Inserts a value into the sorted buffer at the correct position.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InsertSorted(double value, int currentCount)
+    {
+        int insertPos = LowerBound(_activeSortedYzv, currentCount, value);
+        if (insertPos < currentCount)
+        {
+            Array.Copy(_activeSortedYzv, insertPos, _activeSortedYzv, insertPos + 1, currentCount - insertPos);
+        }
+        _activeSortedYzv[insertPos] = value;
+    }
+
+    /// <summary>
+    /// Removes a value from the sorted buffer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void RemoveSorted(double value, int currentCount)
+    {
+        int removePos = LowerBound(_activeSortedYzv, currentCount, value);
+        if (removePos < currentCount && _activeSortedYzv[removePos] == value && removePos < currentCount - 1)
+        {
+            Array.Copy(_activeSortedYzv, removePos + 1, _activeSortedYzv, removePos, currentCount - 1 - removePos);
+        }
+    }
+
+    /// <summary>
     /// Updates YZVAMA with a TBar input (uses OHLC for YZV, Close as source).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -183,22 +226,35 @@ public sealed class Yzvama : AbstractBase
     {
         if (isNew)
         {
+            // Save state - pointer swap instead of O(n) Array.Copy
             _p_state = _state;
-            Array.Copy(_sourceBuffer, _p_sourceBuffer, _maxLength);
-            Array.Copy(_yzvBuffer, _p_yzvBuffer, _percentileLookback);
             _p_lastValidSource = _lastValidSource;
+
+            // Swap buffer references for backup
+            (_activeSourceBuffer, _backupSourceBuffer) = (_backupSourceBuffer, _activeSourceBuffer);
+            (_activeYzvBuffer, _backupYzvBuffer) = (_backupYzvBuffer, _activeYzvBuffer);
+            (_activeSortedYzv, _backupSortedYzv) = (_backupSortedYzv, _activeSortedYzv);
+
+            // Copy current state to active buffer (only needed for first update after swap)
+            Array.Copy(_backupSourceBuffer, _activeSourceBuffer, _maxLength);
+            Array.Copy(_backupYzvBuffer, _activeYzvBuffer, _percentileLookback);
+            Array.Copy(_backupSortedYzv, _activeSortedYzv, _percentileLookback);
         }
         else
         {
+            // Restore state - pointer swap back
             _state = _p_state;
-            Array.Copy(_p_sourceBuffer, _sourceBuffer, _maxLength);
-            Array.Copy(_p_yzvBuffer, _yzvBuffer, _percentileLookback);
             _lastValidSource = _p_lastValidSource;
+
+            // Swap back to restore backup as active
+            (_activeSourceBuffer, _backupSourceBuffer) = (_backupSourceBuffer, _activeSourceBuffer);
+            (_activeYzvBuffer, _backupYzvBuffer) = (_backupYzvBuffer, _activeYzvBuffer);
+            (_activeSortedYzv, _backupSortedYzv) = (_backupSortedYzv, _activeSortedYzv);
         }
 
         // Sanitize source
         if (!double.IsFinite(sourceValue))
-            sourceValue = _lastValidSource;
+            sourceValue = double.IsFinite(_lastValidSource) ? _lastValidSource : 0.0;
         else
             _lastValidSource = sourceValue;
 
@@ -226,8 +282,10 @@ public sealed class Yzvama : AbstractBase
                 double sCSq = rc * rc;
                 double sRsSq = rh * (rh - rc) + rl * (rl - rc);
 
-                double sSqDailyShort = sOSq + _kShort * sCSq + (1.0 - _kShort) * sRsSq;
-                double sSqDailyLong = sOSq + _kLong * sCSq + (1.0 - _kLong) * sRsSq;
+                // Use FMA for sSqDailyShort and sSqDailyLong computations
+                // Original: sOSq + _kShort * sCSq + (1.0 - _kShort) * sRsSq
+                double sSqDailyShort = Math.FusedMultiplyAdd(_kShort, sCSq, Math.FusedMultiplyAdd(1.0 - _kShort, sRsSq, sOSq));
+                double sSqDailyLong = Math.FusedMultiplyAdd(_kLong, sCSq, Math.FusedMultiplyAdd(1.0 - _kLong, sRsSq, sOSq));
 
                 // Update short RMA variance
                 shortVar.Ema = Math.FusedMultiplyAdd(shortVar.Ema, _shortDecay, _shortAlpha * sSqDailyShort);
@@ -244,37 +302,42 @@ public sealed class Yzvama : AbstractBase
             }
         }
 
-        // Update YZV percentile buffer
+        // Update YZV percentile buffer with incremental sorted maintenance
         int yzvHead = _state.YzvHead;
+        int yzvCount = _state.YzvCount;
+
         if (double.IsFinite(yzvShort))
         {
-            _yzvBuffer[yzvHead] = yzvShort;
+            // If buffer is full, remove the oldest value from sorted
+            if (yzvCount == _percentileLookback && double.IsFinite(_activeYzvBuffer[yzvHead]))
+            {
+                RemoveSorted(_activeYzvBuffer[yzvHead], yzvCount);
+                yzvCount--;
+            }
+
+            // Insert new value into sorted buffer
+            InsertSorted(yzvShort, yzvCount);
+            yzvCount++;
+
+            _activeYzvBuffer[yzvHead] = yzvShort;
             yzvHead = (yzvHead + 1) % _percentileLookback;
         }
 
-        // Percentile rank of current yzvShort within lookback window
+        // Percentile rank of current yzvShort within lookback window using sorted buffer
         double percentileValue = 50.0;
-        int nValid = 0;
-        for (int i = 0; i < _percentileLookback; i++)
+        if (yzvCount > 1 && double.IsFinite(yzvShort))
         {
-            double val = _yzvBuffer[i];
-            if (double.IsFinite(val))
-                _yzvWork[nValid++] = val;
-        }
-
-        if (nValid > 1 && double.IsFinite(yzvShort))
-        {
-            Array.Sort(_yzvWork, 0, nValid);
-            int rankPos = LowerBound(_yzvWork, nValid, yzvShort);
-            percentileValue = (rankPos / (double)(nValid - 1)) * 100.0;
+            int rankPos = LowerBound(_activeSortedYzv, yzvCount, yzvShort);
+            percentileValue = (rankPos / (double)(yzvCount - 1)) * 100.0;
         }
 
         double lengthRange = _maxLength - _minLength;
-        double adjustedLengthF = _maxLength - (percentileValue / 100.0) * lengthRange;
+        // Use FMA for adjustedLengthF: _maxLength - (percentileValue/100.0)*lengthRange
+        double adjustedLengthF = Math.FusedMultiplyAdd(percentileValue / 100.0, -lengthRange, _maxLength);
         int adjustedLength = (int)Math.Max(_minLength, Math.Min(_maxLength, adjustedLengthF));
 
         // Update source circular buffer and rolling sum
-        double oldest = _sourceBuffer[_state.SourceHead];
+        double oldest = _activeSourceBuffer[_state.SourceHead];
         int validCount = _state.SourceValidCount;
         double sourceSum = _state.SourceSum;
 
@@ -290,7 +353,7 @@ public sealed class Yzvama : AbstractBase
             validCount++;
         }
 
-        _sourceBuffer[_state.SourceHead] = sourceValue;
+        _activeSourceBuffer[_state.SourceHead] = sourceValue;
         int newHead = (_state.SourceHead + 1) % _maxLength;
 
         // Calculate SMA over adjustedLength most recent values
@@ -303,7 +366,7 @@ public sealed class Yzvama : AbstractBase
             for (int i = 0; i < actualCount; i++)
             {
                 int idx = (newHead - 1 - i + _maxLength) % _maxLength;
-                double val = _sourceBuffer[idx];
+                double val = _activeSourceBuffer[idx];
                 if (double.IsFinite(val))
                 {
                     partialSum += val;
@@ -326,6 +389,7 @@ public sealed class Yzvama : AbstractBase
             sourceSum,
             validCount,
             yzvHead,
+            yzvCount,
             true);
 
         Last = new TValue(input.Time, result);
@@ -402,13 +466,25 @@ public sealed class Yzvama : AbstractBase
     }
 
     /// <summary>
-    /// Initializes the indicator state using the provided history.
+    /// Initializes the indicator state using the provided history (lossy - timestamps discarded).
+    /// For timestamp-preserving priming, use Prime(ReadOnlySpan&lt;TValue&gt;) overload.
     /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         Reset();
         foreach (double val in source)
             Update(new TValue(DateTime.MinValue, val), true);
+    }
+
+    /// <summary>
+    /// Initializes the indicator state using the provided timestamped history.
+    /// Preserves original timestamps.
+    /// </summary>
+    public void Prime(ReadOnlySpan<TValue> source)
+    {
+        Reset();
+        foreach (TValue tv in source)
+            Update(tv, true);
     }
 
     /// <summary>
@@ -436,12 +512,15 @@ public sealed class Yzvama : AbstractBase
     {
         _state = YzvamaState.New();
         _p_state = _state;
-        Array.Fill(_sourceBuffer, double.NaN);
-        Array.Fill(_p_sourceBuffer, double.NaN);
-        Array.Fill(_yzvBuffer, double.NaN);
-        Array.Fill(_p_yzvBuffer, double.NaN);
-        _lastValidSource = 0;
-        _p_lastValidSource = 0;
+        Array.Fill(_activeSourceBuffer, double.NaN);
+        Array.Fill(_backupSourceBuffer, double.NaN);
+        Array.Fill(_activeYzvBuffer, double.NaN);
+        Array.Fill(_backupYzvBuffer, double.NaN);
+        Array.Fill(_activeSortedYzv, double.NaN);
+        Array.Fill(_backupSortedYzv, double.NaN);
+        // Initialize to NaN to preserve invalid state until valid input arrives
+        _lastValidSource = double.NaN;
+        _p_lastValidSource = double.NaN;
         Last = default;
     }
 }

@@ -47,7 +47,6 @@ public sealed class Mape : BiInputIndicatorBase
     /// <summary>
     /// Batch calculation using percentage error computation with rolling mean.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         ValidateBatchInputs(actual, predicted, output, period);

@@ -107,27 +107,11 @@ public sealed class Adxr : ITValuePublisher
 
         _adxHistory.Add(currentAdx);
 
-        double adxr;
-        // We calculate ADXR even if not fully hot, as long as we have history
-        if (!double.IsNaN(prevAdx))
-        {
-            adxr = (currentAdx + prevAdx) / 2.0;
-        }
-        else
-        {
-            // Fallback if we don't have enough history yet?
-            // Usually ADXR is just ADX or 0 until we have history.
-            // TA-Lib returns 0 until valid.
-            adxr = (currentAdx + (double.IsNaN(prevAdx) ? currentAdx : prevAdx)) / 2.0;
-            // Actually if prevAdx is NaN, we can't really calculate ADXR properly.
-            // But to avoid returning 0 when ADX is valid but history isn't full (which is rare given ADX warmup is longer),
-            // we might just return 0 or currentAdx.
-            // Given ADX warmup is 2*Period, and buffer fills in Period,
-            // _adxHistory will be full long before ADX is valid.
-            // So prevAdx will be 0 (from cold ADX) rather than NaN, once we pass Period bars.
-            // So this branch is only for the very first 'Period' bars.
-            // In that case ADX is 0, so ADXR is 0.
-        }
+        // Calculate ADXR: average of current ADX and ADX from 'period' bars ago
+        // When prevAdx is NaN (insufficient history), use currentAdx as fallback
+        double adxr = double.IsNaN(prevAdx)
+            ? currentAdx
+            : (currentAdx + prevAdx) * 0.5;
 
         Last = new TValue(input.Time, adxr);
         Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
@@ -216,11 +200,7 @@ public sealed class Adxr : ITValuePublisher
             Span<double> destTail = destination[lag..];
 
             SimdExtensions.Add(current, previous, destTail);
-
-            for (int i = 0; i < destTail.Length; i++)
-            {
-                destTail[i] *= 0.5;
-            }
+            SimdExtensions.Scale(destTail, 0.5, destTail);
         }
         finally
         {

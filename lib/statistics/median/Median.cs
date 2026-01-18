@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -20,12 +21,15 @@ namespace QuanTAlib;
 /// This is significantly faster than O(N log N) full sort for each update.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Median : AbstractBase
+public sealed class Median : AbstractBase, IDisposable
 {
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly double[] _sortedBuffer;
+    private readonly double[] _p_sortedBuffer;
     private readonly TValuePublishedHandler _handler;
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     /// <summary>
     /// Creates a Median indicator with the specified period.
@@ -39,6 +43,7 @@ public sealed class Median : AbstractBase
         _period = period;
         _buffer = new RingBuffer(period);
         _sortedBuffer = new double[period];
+        _p_sortedBuffer = new double[period];
         Name = $"Median({period})";
         WarmupPeriod = period;
         _handler = Handle;
@@ -46,6 +51,7 @@ public sealed class Median : AbstractBase
 
     public Median(ITValuePublisher source, int period) : this(period)
     {
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -56,6 +62,7 @@ public sealed class Median : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -89,6 +96,9 @@ public sealed class Median : AbstractBase
     {
         if (isNew)
         {
+            // Save sorted buffer state for potential rollback
+            Array.Copy(_sortedBuffer, _p_sortedBuffer, _buffer.Count);
+
             if (_buffer.IsFull)
             {
                 double old = _buffer.Oldest;
@@ -99,6 +109,13 @@ public sealed class Median : AbstractBase
         }
         else
         {
+            // Restore sorted buffer from backup before mutation
+            int prevCount = _buffer.Count;
+            if (prevCount > 0)
+            {
+                Array.Copy(_p_sortedBuffer, _sortedBuffer, prevCount);
+            }
+
             if (_buffer.Count > 0)
             {
                 double current = _buffer.Newest;
@@ -214,51 +231,82 @@ public sealed class Median : AbstractBase
         int len = source.Length;
         if (len == 0) return;
 
-        double[] sortedBuffer = new double[period];
-        double[] window = new double[period];
-        int windowIdx = 0;
-        int count = 0;
-
-        for (int i = 0; i < len; i++)
+        // Always use ArrayPool to avoid CS8353 stackalloc escape issues
+        double[] rentedSorted = ArrayPool<double>.Shared.Rent(period);
+        double[] rentedWindow = ArrayPool<double>.Shared.Rent(period);
+        try
         {
-            double val = source[i];
+            Span<double> sortedBuffer = rentedSorted.AsSpan(0, period);
+            Span<double> window = rentedWindow.AsSpan(0, period);
 
-            if (count == period)
+            int windowIdx = 0;
+            int count = 0;
+
+            for (int i = 0; i < len; i++)
             {
-                double old = window[windowIdx];
-                int oldIndex = Array.BinarySearch(sortedBuffer, 0, count, old);
+                double val = source[i];
 
-                // Only remove if value was found (should always be true in correct operation)
-                if (oldIndex >= 0)
+                if (count == period)
                 {
-                    if (oldIndex < count - 1)
+                    double old = window[windowIdx];
+                    int oldIndex = BinarySearchSpan(sortedBuffer, count, old);
+
+                    // Only remove if value was found (should always be true in correct operation)
+                    if (oldIndex >= 0)
                     {
-                        Array.Copy(sortedBuffer, oldIndex + 1, sortedBuffer, oldIndex, count - 1 - oldIndex);
+                        if (oldIndex < count - 1)
+                        {
+                            sortedBuffer.Slice(oldIndex + 1, count - 1 - oldIndex).CopyTo(sortedBuffer.Slice(oldIndex));
+                        }
+                        count--;
                     }
-                    count--;
                 }
+
+                window[windowIdx] = val;
+                windowIdx = (windowIdx + 1) % period;
+
+                int newIndex = BinarySearchSpan(sortedBuffer, count, val);
+                if (newIndex < 0) newIndex = ~newIndex;
+
+                if (newIndex < count)
+                {
+                    sortedBuffer.Slice(newIndex, count - newIndex).CopyTo(sortedBuffer.Slice(newIndex + 1));
+                }
+                sortedBuffer[newIndex] = val;
+                count++;
+
+                int mid = count / 2;
+                double median = (count % 2 != 0)
+                    ? sortedBuffer[mid]
+                    : (sortedBuffer[mid - 1] + sortedBuffer[mid]) * 0.5;
+
+                output[i] = median;
             }
-
-            window[windowIdx] = val;
-            windowIdx = (windowIdx + 1) % period;
-
-            int newIndex = Array.BinarySearch(sortedBuffer, 0, count, val);
-            if (newIndex < 0) newIndex = ~newIndex;
-
-            if (newIndex < count)
-            {
-                Array.Copy(sortedBuffer, newIndex, sortedBuffer, newIndex + 1, count - newIndex);
-            }
-            sortedBuffer[newIndex] = val;
-            count++;
-
-            int mid = count / 2;
-            double median = (count % 2 != 0)
-                ? sortedBuffer[mid]
-                : (sortedBuffer[mid - 1] + sortedBuffer[mid]) * 0.5;
-
-            output[i] = median;
         }
+        finally
+        {
+            ArrayPool<double>.Shared.Return(rentedSorted);
+            ArrayPool<double>.Shared.Return(rentedWindow);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int BinarySearchSpan(Span<double> span, int length, double value)
+    {
+        int lo = 0;
+        int hi = length - 1;
+        while (lo <= hi)
+        {
+            int mid = lo + ((hi - lo) >> 1);
+            int cmp = span[mid].CompareTo(value);
+            if (cmp == 0)
+                return mid;
+            if (cmp < 0)
+                lo = mid + 1;
+            else
+                hi = mid - 1;
+        }
+        return ~lo;
     }
 
     /// <summary>
@@ -267,6 +315,24 @@ public sealed class Median : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
+        Array.Clear(_sortedBuffer);
+        Array.Clear(_p_sortedBuffer);
         Last = default;
+    }
+
+    /// <summary>
+    /// Disposes the indicator and unsubscribes from the source.
+    /// </summary>
+    public new void Dispose()
+    {
+        if (_disposed) return;
+
+        if (_source != null)
+        {
+            _source.Pub -= _handler;
+            _source = null;
+        }
+
+        _disposed = true;
     }
 }

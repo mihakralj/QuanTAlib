@@ -23,6 +23,8 @@ public sealed class Relu : AbstractBase
 {
     private record struct State(double LastValid);
     private State _state, _p_state;
+    private readonly ITValuePublisher? _source;
+    private readonly TValuePublishedHandler? _handler;
 
     public override bool IsHot => true;  // No warmup needed
 
@@ -35,7 +37,18 @@ public sealed class Relu : AbstractBase
     /// <param name="source">Source indicator for chaining</param>
     public Relu(ITValuePublisher source) : this()
     {
-        source.Pub += HandleUpdate;
+        _source = source;
+        _handler = HandleUpdate;
+        _source.Pub += _handler;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _source != null && _handler != null)
+        {
+            _source.Pub -= _handler;
+        }
+        base.Dispose(disposing);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -69,16 +82,30 @@ public sealed class Relu : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        var result = new TSeries(source.Count);
-        ReadOnlySpan<double> values = source.Values;
-        ReadOnlySpan<long> times = source.Times;
+        if (source.Count == 0) return new TSeries([], []);
 
-        for (int i = 0; i < source.Count; i++)
+        int len = source.Count;
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        System.Runtime.InteropServices.CollectionsMarshal.SetCount(t, len);
+        System.Runtime.InteropServices.CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(t);
+        var vSpan = System.Runtime.InteropServices.CollectionsMarshal.AsSpan(v);
+
+        // Use vectorized Calculate for batch processing
+        Calculate(source.Values, vSpan);
+        source.Times.CopyTo(tSpan);
+
+        // Restore state from last value
+        if (len > 0 && double.IsFinite(vSpan[len - 1]))
         {
-            var tv = Update(new TValue(new DateTime(times[i], DateTimeKind.Utc), values[i]), true);
-            result.Add(tv, true);
+            _state = new State(vSpan[len - 1]);
+            _p_state = _state;
         }
-        return result;
+
+        Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        return new TSeries(t, v);
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)

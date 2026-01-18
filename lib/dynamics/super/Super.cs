@@ -127,23 +127,26 @@ public sealed class Super : ITValuePublisher
         }
         _lastInput = input;
 
-        // Calculate True Range
+        // Calculate True Range with NaN/Infinity guards
+        double safeHigh = double.IsFinite(input.High) ? input.High : _prevBar.High;
+        double safeLow = double.IsFinite(input.Low) ? input.Low : _prevBar.Low;
+        double safePrevClose = double.IsFinite(_prevBar.Close) ? _prevBar.Close : safeHigh;
+
         double tr;
         if (_sampleCount <= 1)
         {
-            tr = input.High - input.Low;
+            tr = safeHigh - safeLow;
         }
         else
         {
-            double h_l = input.High - input.Low;
-            double h_pc = Math.Abs(input.High - _prevBar.Close);
-            double l_pc = Math.Abs(input.Low - _prevBar.Close);
+            double h_l = safeHigh - safeLow;
+            double h_pc = Math.Abs(safeHigh - safePrevClose);
+            double l_pc = Math.Abs(safeLow - safePrevClose);
             tr = Math.Max(h_l, Math.Max(h_pc, l_pc));
         }
 
-        // Update ATR
+        // Update ATR using RMA (Wilder's smoothing)
         // Note: Skender's implementation skips the first bar's TR for the initial SMA calculation.
-        // We replicate this to match values.
         double atr;
         if (_sampleCount == 1)
         {
@@ -160,7 +163,10 @@ public sealed class Super : ITValuePublisher
         }
         else
         {
-            _state.Atr = (_state.Atr * (_period - 1) + tr) / _period;
+            // RMA: (prevAtr * (period - 1) + tr) / period
+            // Rewritten as FMA: prevAtr * decay + tr * alpha where decay = (period-1)/period, alpha = 1/period
+            double invPeriod = 1.0 / _period;
+            _state.Atr = Math.FusedMultiplyAdd(_state.Atr, 1.0 - invPeriod, tr * invPeriod);
             atr = _state.Atr;
         }
 
@@ -171,8 +177,9 @@ public sealed class Super : ITValuePublisher
         if (_sampleCount > _period)
         {
             double mid = (input.High + input.Low) * 0.5;
-            double upperEval = mid + (_multiplier * atr);
-            double lowerEval = mid - (_multiplier * atr);
+            // Use FMA for band calculations: mid + multiplier * atr
+            double upperEval = Math.FusedMultiplyAdd(_multiplier, atr, mid);
+            double lowerEval = Math.FusedMultiplyAdd(-_multiplier, atr, mid);
 
             if (!_state.IsInitialized)
             {

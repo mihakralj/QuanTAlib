@@ -25,6 +25,8 @@ public sealed class Apchannel : AbstractBase
 {
     private readonly double _alpha;
     private readonly double _decay;
+    private TBarSeries? _source;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -72,7 +74,25 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Apchannel(TBarSeries source, double alpha = 0.2) : this(alpha)
     {
+        _source = source;
         source.Pub += Handle;
+    }
+
+    /// <summary>
+    /// Releases resources and unsubscribes from the source event.
+    /// </summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        _disposed = true;
+
+        if (disposing && _source != null)
+        {
+            _source.Pub -= Handle;
+            _source = null;
+        }
+
+        base.Dispose(disposing);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using static System.Math;
 
 namespace QuanTAlib;
 
@@ -78,9 +79,33 @@ public sealed class Beta : AbstractBase
             _p_prevAsset = _prevAsset;
             _p_prevMarket = _prevMarket;
 
-            // Calculate returns
-            double ra = (asset.Value - _prevAsset) / _prevAsset;
-            double rm = (market.Value - _prevMarket) / _prevMarket;
+            // Calculate returns with division-by-zero and NaN/Infinity guards
+            double ra, rm;
+            if (Abs(_prevAsset) < Epsilon)
+            {
+                ra = 0;
+            }
+            else
+            {
+                ra = (asset.Value - _prevAsset) / _prevAsset;
+                if (!double.IsFinite(ra))
+                {
+                    ra = 0;
+                }
+            }
+
+            if (Abs(_prevMarket) < Epsilon)
+            {
+                rm = 0;
+            }
+            else
+            {
+                rm = (market.Value - _prevMarket) / _prevMarket;
+                if (!double.IsFinite(rm))
+                {
+                    rm = 0;
+                }
+            }
 
             _prevAsset = asset.Value;
             _prevMarket = market.Value;
@@ -93,8 +118,8 @@ public sealed class Beta : AbstractBase
 
                 _sumRa -= oldRa;
                 _sumRm -= oldRm;
-                _sumRaRm -= oldRa * oldRm;
-                _sumRm2 -= oldRm * oldRm;
+                _sumRaRm = FusedMultiplyAdd(-oldRa, oldRm, _sumRaRm);
+                _sumRm2 = FusedMultiplyAdd(-oldRm, oldRm, _sumRm2);
             }
 
             _returnsAsset.Add(ra);
@@ -102,8 +127,8 @@ public sealed class Beta : AbstractBase
 
             _sumRa += ra;
             _sumRm += rm;
-            _sumRaRm += ra * rm;
-            _sumRm2 += rm * rm;
+            _sumRaRm = FusedMultiplyAdd(ra, rm, _sumRaRm);
+            _sumRm2 = FusedMultiplyAdd(rm, rm, _sumRm2);
 
             _updateCount++;
             if (_updateCount % ResyncInterval == 0)
@@ -131,8 +156,33 @@ public sealed class Beta : AbstractBase
             double oldRa = _returnsAsset.Newest;
             double oldRm = _returnsMarket.Newest;
 
-            double newRa = (asset.Value - _p_prevAsset) / _p_prevAsset;
-            double newRm = (market.Value - _p_prevMarket) / _p_prevMarket;
+            // Calculate new returns with zero-guard for division
+            double newRa, newRm;
+            if (Abs(_p_prevAsset) < Epsilon)
+            {
+                newRa = 0;
+            }
+            else
+            {
+                newRa = (asset.Value - _p_prevAsset) / _p_prevAsset;
+                if (!double.IsFinite(newRa))
+                {
+                    newRa = 0;
+                }
+            }
+
+            if (Abs(_p_prevMarket) < Epsilon)
+            {
+                newRm = 0;
+            }
+            else
+            {
+                newRm = (market.Value - _p_prevMarket) / _p_prevMarket;
+                if (!double.IsFinite(newRm))
+                {
+                    newRm = 0;
+                }
+            }
 
             _prevAsset = asset.Value;
             _prevMarket = market.Value;
@@ -140,20 +190,23 @@ public sealed class Beta : AbstractBase
             _returnsAsset.UpdateNewest(newRa);
             _returnsMarket.UpdateNewest(newRm);
 
-            _sumRa = _sumRa - oldRa + newRa;
-            _sumRm = _sumRm - oldRm + newRm;
-            _sumRaRm = _sumRaRm - (oldRa * oldRm) + (newRa * newRm);
-            _sumRm2 = _sumRm2 - (oldRm * oldRm) + (newRm * newRm);
+            // Use FMA for better precision: _sumRa = _sumRa - oldRa + newRa
+            _sumRa = FusedMultiplyAdd(1.0, newRa, FusedMultiplyAdd(-1.0, oldRa, _sumRa));
+            _sumRm = FusedMultiplyAdd(1.0, newRm, FusedMultiplyAdd(-1.0, oldRm, _sumRm));
+            _sumRaRm = FusedMultiplyAdd(newRa, newRm, FusedMultiplyAdd(-oldRa, oldRm, _sumRaRm));
+            _sumRm2 = FusedMultiplyAdd(newRm, newRm, FusedMultiplyAdd(-oldRm, oldRm, _sumRm2));
         }
 
         double beta = 0;
         int n = _returnsAsset.Count;
         if (n > 0)
         {
-            double denominator = n * _sumRm2 - _sumRm * _sumRm;
-            if (Math.Abs(denominator) > Epsilon)
+            // Use FMA for better numerical stability
+            double denominator = FusedMultiplyAdd(n, _sumRm2, -_sumRm * _sumRm);
+            if (Abs(denominator) > Epsilon)
             {
-                beta = (n * _sumRaRm - _sumRa * _sumRm) / denominator;
+                double numerator = FusedMultiplyAdd(n, _sumRaRm, -_sumRa * _sumRm);
+                beta = numerator / denominator;
             }
         }
 
@@ -162,9 +215,11 @@ public sealed class Beta : AbstractBase
         return Last;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double asset, double market, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, asset), new TValue(DateTime.UtcNow, market), isNew);
+        var now = DateTime.UtcNow;
+        return Update(new TValue(now, asset), new TValue(now, market), isNew);
     }
 
     public override TValue Update(TValue input, bool isNew = true)
@@ -212,8 +267,9 @@ public sealed class Beta : AbstractBase
 
             _sumRa += ra;
             _sumRm += rm;
-            _sumRaRm += ra * rm;
-            _sumRm2 += rm * rm;
+            // Use FMA for better precision in cross-term and squared-term
+            _sumRaRm = FusedMultiplyAdd(ra, rm, _sumRaRm);
+            _sumRm2 = FusedMultiplyAdd(rm, rm, _sumRm2);
         }
     }
 }

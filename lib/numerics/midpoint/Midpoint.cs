@@ -21,6 +21,8 @@ public sealed class Midpoint : AbstractBase
 {
     private readonly Highest _highest;
     private readonly Lowest _lowest;
+    private readonly ITValuePublisher? _source;
+    private readonly TValuePublishedHandler? _handler;
 
     public override bool IsHot => _highest.IsHot && _lowest.IsHot;
 
@@ -40,7 +42,18 @@ public sealed class Midpoint : AbstractBase
     /// <param name="period">Lookback window size</param>
     public Midpoint(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += HandleUpdate;
+        _source = source;
+        _handler = HandleUpdate;
+        _source.Pub += _handler;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _source != null && _handler != null)
+        {
+            _source.Pub -= _handler;
+        }
+        base.Dispose(disposing);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
