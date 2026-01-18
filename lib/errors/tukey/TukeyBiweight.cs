@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -185,102 +186,21 @@ public sealed class TukeyBiweight : AbstractBase
         int len = actual.Length;
         if (len == 0) return;
 
-        double cSquaredOver6 = (c * c) / 6.0;
-
-        const int StackAllocThreshold = 256;
-        Span<double> lossBuffer = period <= StackAllocThreshold
-            ? stackalloc double[period]
-            : new double[period];
-
-        double lossSum = 0;
-        double lastValidActual = 0;
-        double lastValidPredicted = 0;
-
-        for (int k = 0; k < len; k++)
+        // Rent buffer for intermediate Tukey biweight errors
+        double[] rented = ArrayPool<double>.Shared.Rent(len);
+        try
         {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+            Span<double> errors = rented.AsSpan(0, len);
+
+            // Step 1: Compute Tukey biweight errors using ErrorHelpers
+            ErrorHelpers.ComputeTukeyBiweightErrors(actual, predicted, errors, c);
+
+            // Step 2: Apply rolling mean
+            ErrorHelpers.ApplyRollingMean(errors, output, period, ResyncInterval);
         }
-        for (int k = 0; k < len; k++)
+        finally
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
-        }
-
-        int bufferIndex = 0;
-        int i = 0;
-
-        int warmupEnd = Math.Min(period, len);
-        for (; i < warmupEnd; i++)
-        {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = act - pred;
-            double loss;
-            double absError = Math.Abs(error);
-            if (absError > c)
-            {
-                loss = cSquaredOver6;
-            }
-            else
-            {
-                double ratio = error / c;
-                double ratioSq = ratio * ratio;
-                double oneMinusRatioSq = 1.0 - ratioSq;
-                double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
-                loss = cSquaredOver6 * (1.0 - cubed);
-            }
-
-            lossSum += loss;
-            lossBuffer[i] = loss;
-
-            output[i] = lossSum / (i + 1);
-        }
-
-        int tickCount = 0;
-        for (; i < len; i++)
-        {
-            double act = actual[i];
-            double pred = predicted[i];
-
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
-
-            double error = act - pred;
-            double loss;
-            double absError = Math.Abs(error);
-            if (absError > c)
-            {
-                loss = cSquaredOver6;
-            }
-            else
-            {
-                double ratio = error / c;
-                double ratioSq = ratio * ratio;
-                double oneMinusRatioSq = 1.0 - ratioSq;
-                double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
-                loss = cSquaredOver6 * (1.0 - cubed);
-            }
-
-            lossSum = lossSum - lossBuffer[bufferIndex] + loss;
-            lossBuffer[bufferIndex] = loss;
-
-            bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
-
-            output[i] = lossSum / period;
-
-            tickCount++;
-            if (tickCount >= ResyncInterval)
-            {
-                tickCount = 0;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++)
-                    recalcSum += lossBuffer[k];
-                lossSum = recalcSum;
-            }
+            ArrayPool<double>.Shared.Return(rented, clearArray: false);
         }
     }
 }

@@ -1,10 +1,26 @@
 # Git Line Ending Configuration for QuanTAlib
 
 # Default behavior: let Git normalize line endings to LF on checkin
-* text=auto
+* text=auto eol=lf
+
+# Config files must always use LF (cross-platform compatibility)
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.editorconfig text eol=lf
 
 # Shell scripts must always use LF
 *.sh text eol=lf
+
+# C# source files use LF
+*.cs text eol=lf
+*.csproj text eol=lf
+*.props text eol=lf
+*.targets text eol=lf
+*.sln text eol=lf
 
 # Windows-specific files use CRLF
 *.bat text eol=crlf

@@ -62,11 +62,15 @@ public sealed class Mgdi : AbstractBase
         if (isNew)
         {
             _p_state = _state;
-            _state.Count++;
         }
         else
         {
             _state = _p_state;
+        }
+
+        if (isNew)
+        {
+            _state.Count++;
         }
 
         double price = input.Value;

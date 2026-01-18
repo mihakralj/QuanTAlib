@@ -279,8 +279,10 @@ public sealed class Abber : ITValuePublisher
 
         if (Vector.IsHardwareAccelerated && period >= Vector<double>.Count)
         {
-            state.SumSource = SumSimd(buffers.Source);
-            state.SumDeviation = SumSimd(buffers.Deviation);
+            ReadOnlySpan<double> sourceSpan = buffers.Source;
+            ReadOnlySpan<double> deviationSpan = buffers.Deviation;
+            state.SumSource = sourceSpan.SumSIMD();
+            state.SumDeviation = deviationSpan.SumSIMD();
         }
         else
         {
@@ -293,28 +295,6 @@ public sealed class Abber : ITValuePublisher
             state.SumSource = recalcSumSource;
             state.SumDeviation = recalcSumDeviation;
         }
-    }
-
-    private static double SumSimd(ReadOnlySpan<double> source)
-    {
-        var sumVector = Vector<double>.Zero;
-        int i = 0;
-        int size = Vector<double>.Count;
-        int len = source.Length;
-
-        for (; i <= len - size; i += size)
-        {
-            sumVector += new Vector<double>(source.Slice(i, size));
-        }
-
-        double sum = Vector.Sum(sumVector);
-
-        for (; i < len; i++)
-        {
-            sum += source[i];
-        }
-
-        return sum;
     }
 
     /// <summary>
@@ -441,8 +421,7 @@ public sealed class Abber : ITValuePublisher
         public double SumSource;
         public double SumDeviation;
         public double LastValidValue;
-        public int SourceBufferIndex;
-        public int DeviationBufferIndex;
+        public int BufferIndex;
         public int TickCount;
     }
 
@@ -639,18 +618,15 @@ public sealed class Abber : ITValuePublisher
             double sma = state.SumSource / period;
             double deviation = Math.Abs(v - sma);
 
-            // Update source running sum
-            state.SumSource = state.SumSource - buffers.Source[state.SourceBufferIndex] + v;
-            buffers.Source[state.SourceBufferIndex] = v;
+            // Update running sums using single buffer index
+            state.SumSource = state.SumSource - buffers.Source[state.BufferIndex] + v;
+            buffers.Source[state.BufferIndex] = v;
 
-            // Update deviation running sum
-            state.SumDeviation = state.SumDeviation - buffers.Deviation[state.DeviationBufferIndex] + deviation;
-            buffers.Deviation[state.DeviationBufferIndex] = deviation;
+            state.SumDeviation = state.SumDeviation - buffers.Deviation[state.BufferIndex] + deviation;
+            buffers.Deviation[state.BufferIndex] = deviation;
 
-            state.SourceBufferIndex++;
-            if (state.SourceBufferIndex >= period) state.SourceBufferIndex = 0;
-            state.DeviationBufferIndex++;
-            if (state.DeviationBufferIndex >= period) state.DeviationBufferIndex = 0;
+            state.BufferIndex++;
+            if (state.BufferIndex >= period) state.BufferIndex = 0;
 
             double middle = state.SumSource / period;
             double avgDeviation = state.SumDeviation / period;

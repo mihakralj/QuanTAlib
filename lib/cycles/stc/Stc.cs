@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -387,8 +388,28 @@ public sealed class Stc : AbstractBase
         double lastFiniteInput = double.NaN;
         bool hasFiniteInput = false;
 
-        double[] macdBuf = new double[kPeriod];
-        double[] stoch1Buf = new double[kPeriod];
+        const int StackallocThreshold = 256;
+        double[]? rentedMacd = null;
+        double[]? rentedStoch1 = null;
+
+        scoped Span<double> macdBuf;
+        scoped Span<double> stoch1Buf;
+
+        if (kPeriod <= StackallocThreshold)
+        {
+            macdBuf = stackalloc double[kPeriod];
+            stoch1Buf = stackalloc double[kPeriod];
+        }
+        else
+        {
+            rentedMacd = ArrayPool<double>.Shared.Rent(kPeriod);
+            macdBuf = rentedMacd.AsSpan(0, kPeriod);
+            rentedStoch1 = ArrayPool<double>.Shared.Rent(kPeriod);
+            stoch1Buf = rentedStoch1.AsSpan(0, kPeriod);
+        }
+
+        try
+        {
         int macdIdx = 0;
         int stoch1Idx = 0;
         int macdCount = 0;
@@ -431,7 +452,7 @@ public sealed class Stc : AbstractBase
             macdIdx = (macdIdx + 1) % kPeriod;
             if (!macdHasRemoved) macdCount++;
 
-            var macdValidSpan = new ReadOnlySpan<double>(macdBuf, 0, macdCount);
+            ReadOnlySpan<double> macdValidSpan = macdBuf.Slice(0, macdCount);
             UpdateMinMax(macd, macdRemoved, macdHasRemoved, macdValidSpan, ref macdMin, ref macdMax);
 
             // 2) Stoch1
@@ -471,7 +492,7 @@ public sealed class Stc : AbstractBase
                 stoch1Idx = (stoch1Idx + 1) % kPeriod;
                 if (!stochHasRemoved) stoch1Count++;
 
-                var stochValidSpan = new ReadOnlySpan<double>(stoch1Buf, 0, stoch1Count);
+                ReadOnlySpan<double> stochValidSpan = stoch1Buf.Slice(0, stoch1Count);
                 UpdateMinMax(stoch1, stochRemoved, stochHasRemoved, stochValidSpan, ref stoch1Min, ref stoch1Max);
             }
 
@@ -521,6 +542,14 @@ public sealed class Stc : AbstractBase
             }
 
             output[i] = stc;
+        }
+        }
+        finally
+        {
+            if (rentedMacd != null)
+                ArrayPool<double>.Shared.Return(rentedMacd);
+            if (rentedStoch1 != null)
+                ArrayPool<double>.Shared.Return(rentedStoch1);
         }
     }
 }

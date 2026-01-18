@@ -39,9 +39,6 @@ reviews:
     - "!**/*.Quantower.cs"
     - "!**/quantower/**"
 
-    # Exclude stable categories to stay under 300 file Pro limit
-    - "!lib/errors/**"
-
     # Exclude build/IDE artifacts
     - "!**/bin/**"
     - "!**/obj/**"

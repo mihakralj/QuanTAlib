@@ -206,3 +206,11 @@ Mathematical transformations and derivative indicators. Building blocks for anal
 | [**SIGMOID**](../lib/numerics/sigmoid/Sigmoid.md) | Logistic Function | 1/(1+e^-x); bounded [0,1] transform |
 | [**SLOPE**](../lib/numerics/slope/Slope.md) | Slope (1st Derivative) | Rate of change; velocity |
 | [**SQRTTRANS**](../lib/numerics/sqrttrans/Sqrttrans.md) | Square Root Transform | √x; variance to standard deviation conversion |
+
+### Errors
+
+Error metrics and loss functions for model evaluation, forecast assessment, and strategy validation. Quantifying wrongness before production quantifies losses.
+
+| Indicator | Full Name | Notes |
+| :-------- | :-------- | :---- |
+| [**WRMSE**](../lib/errors/wrmse/Wrmse.md) | Weighted Root Mean Squared Error | Custom observation weighting for error emphasis |

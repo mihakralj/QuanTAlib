@@ -131,12 +131,12 @@ public sealed class Adl : ITValuePublisher
     {
         if (source.Count == 0) return [];
 
-        var t = source.Open.Times; // Times are same for all series
+        var t = source.Open.Times.ToArray(); // Times are same for all series
         var v = new double[source.Count];
 
         Calculate(source.High.Values, source.Low.Values, source.Close.Values, source.Volume.Values, v);
 
-        return new TSeries([.. t], [.. v]);
+        return new TSeries(t, v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

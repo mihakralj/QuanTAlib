@@ -84,15 +84,22 @@ public sealed class RingBuffer : IEnumerable<double>
     /// <summary>
     /// Recalculates the sum by iterating over all elements.
     /// Useful for correcting floating-point drift after many updates.
+    /// Uses GetSequencedSpans to avoid allocation when buffer wraps.
     /// </summary>
     public double RecalculateSum()
     {
         double sum = 0;
-        var span = GetSpan();
-        for (int i = 0; i < span.Length; i++)
+        GetSequencedSpans(out var first, out var second);
+
+        for (int i = 0; i < first.Length; i++)
         {
-            sum += span[i];
+            sum += first[i];
         }
+        for (int i = 0; i < second.Length; i++)
+        {
+            sum += second[i];
+        }
+
         _sum = sum;
         return sum;
     }
@@ -333,27 +340,47 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private double MaxSimd()
     {
-        var span = GetSpan();
+        GetSequencedSpans(out var first, out var second);
         var vectorSize = Vector<double>.Count;
         var maxVector = new Vector<double>(double.MinValue);
+        double max = double.MinValue;
 
+        // Process first span with SIMD
         int i = 0;
-        ref double spanRef = ref MemoryMarshal.GetReference(span);
-
-        for (; i <= span.Length - vectorSize; i += vectorSize)
+        if (first.Length >= vectorSize)
         {
-            maxVector = Vector.Max(maxVector, Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref spanRef, i)));
+            ref double firstRef = ref MemoryMarshal.GetReference(first);
+            for (; i <= first.Length - vectorSize; i += vectorSize)
+            {
+                maxVector = Vector.Max(maxVector, Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref firstRef, i)));
+            }
+        }
+        // Scalar remainder of first span
+        for (; i < first.Length; i++)
+        {
+            max = Math.Max(max, first[i]);
         }
 
-        double max = double.MinValue;
+        // Process second span with SIMD (if wrapped)
+        i = 0;
+        if (second.Length >= vectorSize)
+        {
+            ref double secondRef = ref MemoryMarshal.GetReference(second);
+            for (; i <= second.Length - vectorSize; i += vectorSize)
+            {
+                maxVector = Vector.Max(maxVector, Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref secondRef, i)));
+            }
+        }
+        // Scalar remainder of second span
+        for (; i < second.Length; i++)
+        {
+            max = Math.Max(max, second[i]);
+        }
+
+        // Reduce vector to scalar
         for (int j = 0; j < vectorSize; j++)
         {
             max = Math.Max(max, maxVector[j]);
-        }
-
-        for (; i < span.Length; i++)
-        {
-            max = Math.Max(max, span[i]);
         }
 
         return max;
@@ -362,27 +389,47 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private double MinSimd()
     {
-        var span = GetSpan();
+        GetSequencedSpans(out var first, out var second);
         var vectorSize = Vector<double>.Count;
         var minVector = new Vector<double>(double.MaxValue);
+        double min = double.MaxValue;
 
+        // Process first span with SIMD
         int i = 0;
-        ref double spanRef = ref MemoryMarshal.GetReference(span);
-
-        for (; i <= span.Length - vectorSize; i += vectorSize)
+        if (first.Length >= vectorSize)
         {
-            minVector = Vector.Min(minVector, Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref spanRef, i)));
+            ref double firstRef = ref MemoryMarshal.GetReference(first);
+            for (; i <= first.Length - vectorSize; i += vectorSize)
+            {
+                minVector = Vector.Min(minVector, Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref firstRef, i)));
+            }
+        }
+        // Scalar remainder of first span
+        for (; i < first.Length; i++)
+        {
+            min = Math.Min(min, first[i]);
         }
 
-        double min = double.MaxValue;
+        // Process second span with SIMD (if wrapped)
+        i = 0;
+        if (second.Length >= vectorSize)
+        {
+            ref double secondRef = ref MemoryMarshal.GetReference(second);
+            for (; i <= second.Length - vectorSize; i += vectorSize)
+            {
+                minVector = Vector.Min(minVector, Unsafe.As<double, Vector<double>>(ref Unsafe.Add(ref secondRef, i)));
+            }
+        }
+        // Scalar remainder of second span
+        for (; i < second.Length; i++)
+        {
+            min = Math.Min(min, second[i]);
+        }
+
+        // Reduce vector to scalar
         for (int j = 0; j < vectorSize; j++)
         {
             min = Math.Min(min, minVector[j]);
-        }
-
-        for (; i < span.Length; i++)
-        {
-            min = Math.Min(min, span[i]);
         }
 
         return min;
@@ -488,6 +535,7 @@ public sealed class RingBuffer : IEnumerable<double>
     /// <summary>
     /// Captures the current state of the buffer.
     /// Must be called BEFORE adding a new value if you intend to Restore later.
+    /// Saves the value at _head position (which will be overwritten by the next Add).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Snapshot()
@@ -495,11 +543,15 @@ public sealed class RingBuffer : IEnumerable<double>
         _savedHead = _head;
         _savedCount = _count;
         _savedSum = _sum;
+        // Save the value that will be overwritten by the next Add()
+        // When buffer is full, Add() will overwrite _buffer[_head] (the oldest value)
+        // When buffer is not full, _buffer[_head] is undefined but we save it anyway
         _savedValue = _buffer[_head];
     }
 
     /// <summary>
     /// Restores the buffer to the state captured by Snapshot.
+    /// This restores the buffer to its state before the last Add() operation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Restore()
@@ -507,6 +559,7 @@ public sealed class RingBuffer : IEnumerable<double>
         _head = _savedHead;
         _count = _savedCount;
         _sum = _savedSum;
+        // Restore the value at _head position that was saved before the Add()
         _buffer[_head] = _savedValue;
     }
 

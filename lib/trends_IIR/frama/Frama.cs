@@ -221,7 +221,6 @@ public sealed class Frama : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != output.Length)

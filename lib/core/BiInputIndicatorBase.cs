@@ -144,14 +144,17 @@ public abstract class BiInputIndicatorBase : AbstractBase
 
     /// <summary>
     /// Processes a bar correction (same bar update).
+    /// Uses O(1) differential update: restores previous state, then applies the new error.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBarCorrection(double error)
     {
+        // Restore previous state first
         _state = _p_state;
-        _state.Sum = _state.Sum - GetRemovedValue() + error;
+        // Update buffer with new error value (replaces the newest)
         _buffer.UpdateNewest(error);
-        _state.Sum = _buffer.RecalculateSum();
+        // Sum is already updated by UpdateNewest via FMA differential update
+        _state.Sum = _buffer.Sum;
     }
 
     /// <summary>
@@ -183,11 +186,17 @@ public abstract class BiInputIndicatorBase : AbstractBase
 
     /// <summary>
     /// Updates the indicator with raw double values.
+    /// Uses DateTime.MinValue as a sentinel timestamp for performance in high-frequency scenarios.
+    /// For time-sensitive applications, use Update(TValue, TValue, bool) with explicit timestamps.
     /// </summary>
+    /// <param name="actual">Actual value</param>
+    /// <param name="predicted">Predicted value</param>
+    /// <param name="isNew">Whether this is a new bar</param>
+    /// <returns>The calculated indicator value (with DateTime.MinValue as timestamp)</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(double actual, double predicted, bool isNew = true)
     {
-        return Update(new TValue(DateTime.UtcNow, actual), new TValue(DateTime.UtcNow, predicted), isNew);
+        return Update(new TValue(DateTime.MinValue, actual), new TValue(DateTime.MinValue, predicted), isNew);
     }
 
     /// <summary>

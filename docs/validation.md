@@ -343,6 +343,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **MdAPE** | [MdAPE](../lib/errors/mdape/MdAPE.md) | - | No external validation available |
 | **MAPD** | [Mapd](../lib/errors/mapd/Mapd.md) | - | No external validation available |
 | **WMAPE** | [Wmape](../lib/errors/wmape/Wmape.md) | - | No external validation available |
+| **WRMSE** | [Wrmse](../lib/errors/wrmse/Wrmse.md) | - | Validated via internal RMSE equivalence (uniform weights) |
 
 ## Validation Libraries
 

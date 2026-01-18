@@ -186,13 +186,29 @@ public sealed class Rgma : AbstractBase
         {
             _p_state = _state;
             _p_lastValidValue = _lastValidValue;
-            Array.Copy(_filters, _p_filters, _passes);
+            if (_passes <= 8)
+            {
+                for (int i = 0; i < _passes; i++)
+                    _p_filters[i] = _filters[i];
+            }
+            else
+            {
+                Array.Copy(_filters, _p_filters, _passes);
+            }
         }
         else
         {
             _state = _p_state;
             _lastValidValue = _p_lastValidValue;
-            Array.Copy(_p_filters, _filters, _passes);
+            if (_passes <= 8)
+            {
+                for (int i = 0; i < _passes; i++)
+                    _filters[i] = _p_filters[i];
+            }
+            else
+            {
+                Array.Copy(_p_filters, _filters, _passes);
+            }
         }
 
         double x = GetValidValue(input.Value);

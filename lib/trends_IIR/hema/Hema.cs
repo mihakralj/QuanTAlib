@@ -405,7 +405,7 @@ public sealed class Hema : AbstractBase
         if (ax < 1e-5)
         {
             double x2 = x * x;
-            return x + (x2 * 0.5) + (x2 * x * (1.0 / 6.0));
+            return Math.FusedMultiplyAdd(x2 * x, 1.0 / 6.0, x + (x2 * 0.5));
         }
 
         return Math.Exp(x) - 1.0;

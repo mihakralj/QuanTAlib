@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -35,10 +36,14 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
-        // Try SIMD path for clean data (no NaN/Inf)
-        if (Avx2.IsSupported && len >= Vector256<double>.Count && IsDataClean(actual, predicted))
+        // Try SIMD path - NaN detection is integrated into the SIMD loop
+        if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
-            ComputeSignedErrorsSimd(actual, predicted, output);
+            int processedCount = ComputeSignedErrorsSimdWithNaNDetection(actual, predicted, output, lastValidActual, lastValidPredicted);
+            if (processedCount == len)
+                return; // All processed via SIMD
+            // Continue with scalar for remaining elements (NaN was detected)
+            ComputeSignedErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
         }
 
@@ -106,6 +111,47 @@ public static class ErrorHelpers
 
         // Scalar fallback with NaN handling
         ComputeSquaredErrorsScalar(actual, predicted, output, lastValidActual, lastValidPredicted);
+    }
+
+    /// <summary>
+    /// Computes weighted errors: weight * |actual - predicted|
+    /// Used by WRMSE and other weighted error indicators.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ComputeWeightedErrors(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        ReadOnlySpan<double> weights,
+        Span<double> output)
+    {
+        if (actual.Length != predicted.Length || actual.Length != weights.Length || actual.Length != output.Length)
+            throw new ArgumentException("All spans must have the same length", nameof(output));
+
+        int len = actual.Length;
+        if (len == 0)
+            return;
+
+        double lastValidActual = FindFirstValidValue(actual);
+        double lastValidPredicted = FindFirstValidValue(predicted);
+        double lastValidWeight = FindFirstValidValue(weights);
+
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+        double currentValidWeight = lastValidWeight;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+            double wgt = weights[i];
+
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(wgt)) currentValidWeight = wgt; else wgt = currentValidWeight;
+
+            double diff = act - pred;
+            output[i] = wgt * diff * diff;
+        }
     }
 
     /// <summary>
@@ -275,6 +321,59 @@ public static class ErrorHelpers
     }
 
     /// <summary>
+    /// Computes Tukey's Biweight (Bisquare) errors:
+    /// ρ(x) = (c²/6) * (1 - (1 - (x/c)²)³)  for |x| ≤ c
+    /// ρ(x) = c²/6                           for |x| > c
+    /// Redescending M-estimator that completely rejects outliers.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ComputeTukeyBiweightErrors(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double c = 4.685)
+    {
+        if (actual.Length != predicted.Length || actual.Length != output.Length)
+            throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+
+        int len = actual.Length;
+        if (len == 0)
+            return;
+
+        double lastValidActual = FindFirstValidValue(actual);
+        double lastValidPredicted = FindFirstValidValue(predicted);
+        double cSquaredOver6 = (c * c) / 6.0;
+
+        double currentValidActual = lastValidActual;
+        double currentValidPredicted = lastValidPredicted;
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
+            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+
+            double diff = act - pred;
+            double absDiff = Math.Abs(diff);
+
+            if (absDiff > c)
+            {
+                output[i] = cSquaredOver6;
+            }
+            else
+            {
+                double ratio = diff / c;
+                double ratioSq = ratio * ratio;
+                double oneMinusRatioSq = 1.0 - ratioSq;
+                double cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq;
+                output[i] = cSquaredOver6 * (1.0 - cubed);
+            }
+        }
+    }
+
+    /// <summary>
     /// Computes Huber errors: 0.5*x² for |x| ≤ δ, δ*(|x| - 0.5*δ) otherwise
     /// Robust to outliers.
     /// </summary>
@@ -342,42 +441,56 @@ public static class ErrorHelpers
             return;
 
         const int StackAllocThreshold = 256;
+        double[]? rented = null;
+
+#pragma warning disable S1121 // Assignments should not be made from within sub-expressions
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
-            : new double[period];
+            : (rented = ArrayPool<double>.Shared.Rent(period)).AsSpan(0, period);
+#pragma warning restore S1121
 
-        double sum = 0;
-        int bufferIndex = 0;
-
-        // Warmup phase
-        int warmupEnd = Math.Min(period, len);
-        for (int i = 0; i < warmupEnd; i++)
+        try
         {
-            sum += errors[i];
-            buffer[i] = errors[i];
-            output[i] = sum / (i + 1);
-        }
+            double sum = 0;
+            int bufferIndex = 0;
 
-        // Main loop with O(1) update
-        int tickCount = 0;
-        for (int i = warmupEnd; i < len; i++)
-        {
-            double error = errors[i];
-            sum = sum - buffer[bufferIndex] + error;
-            buffer[bufferIndex] = error;
-
-            bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
-
-            output[i] = sum / period;
-
-            tickCount++;
-            if (tickCount >= resyncInterval)
+            // Warmup phase
+            int warmupEnd = Math.Min(period, len);
+            for (int i = 0; i < warmupEnd; i++)
             {
-                tickCount = 0;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++) recalcSum += buffer[k];
-                sum = recalcSum;
+                sum += errors[i];
+                buffer[i] = errors[i];
+                output[i] = sum / (i + 1);
+            }
+
+            // Main loop with O(1) update
+            int tickCount = 0;
+            for (int i = warmupEnd; i < len; i++)
+            {
+                double error = errors[i];
+                sum = sum - buffer[bufferIndex] + error;
+                buffer[bufferIndex] = error;
+
+                bufferIndex++;
+                if (bufferIndex >= period) bufferIndex = 0;
+
+                output[i] = sum / period;
+
+                tickCount++;
+                if (tickCount >= resyncInterval)
+                {
+                    tickCount = 0;
+                    double recalcSum = 0;
+                    for (int k = 0; k < period; k++) recalcSum += buffer[k];
+                    sum = recalcSum;
+                }
+            }
+        }
+        finally
+        {
+            if (rented is not null)
+            {
+                ArrayPool<double>.Shared.Return(rented, clearArray: false);
             }
         }
     }
@@ -402,42 +515,154 @@ public static class ErrorHelpers
             return;
 
         const int StackAllocThreshold = 256;
+        double[]? rented = null;
+
+#pragma warning disable S1121 // Assignments should not be made from within sub-expressions
         Span<double> buffer = period <= StackAllocThreshold
             ? stackalloc double[period]
-            : new double[period];
+            : (rented = ArrayPool<double>.Shared.Rent(period)).AsSpan(0, period);
+#pragma warning restore S1121
 
-        double sum = 0;
-        int bufferIndex = 0;
-
-        // Warmup phase
-        int warmupEnd = Math.Min(period, len);
-        for (int i = 0; i < warmupEnd; i++)
+        try
         {
-            sum += squaredErrors[i];
-            buffer[i] = squaredErrors[i];
-            output[i] = Math.Sqrt(sum / (i + 1));
-        }
+            double sum = 0;
+            int bufferIndex = 0;
 
-        // Main loop with O(1) update
-        int tickCount = 0;
-        for (int i = warmupEnd; i < len; i++)
-        {
-            double sqError = squaredErrors[i];
-            sum = sum - buffer[bufferIndex] + sqError;
-            buffer[bufferIndex] = sqError;
-
-            bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
-
-            output[i] = Math.Sqrt(sum / period);
-
-            tickCount++;
-            if (tickCount >= resyncInterval)
+            // Warmup phase
+            int warmupEnd = Math.Min(period, len);
+            for (int i = 0; i < warmupEnd; i++)
             {
-                tickCount = 0;
-                double recalcSum = 0;
-                for (int k = 0; k < period; k++) recalcSum += buffer[k];
-                sum = recalcSum;
+                sum += squaredErrors[i];
+                buffer[i] = squaredErrors[i];
+                output[i] = Math.Sqrt(sum / (i + 1));
+            }
+
+            // Main loop with O(1) update
+            int tickCount = 0;
+            for (int i = warmupEnd; i < len; i++)
+            {
+                double sqError = squaredErrors[i];
+                sum = sum - buffer[bufferIndex] + sqError;
+                buffer[bufferIndex] = sqError;
+
+                bufferIndex++;
+                if (bufferIndex >= period) bufferIndex = 0;
+
+                output[i] = Math.Sqrt(sum / period);
+
+                tickCount++;
+                if (tickCount >= resyncInterval)
+                {
+                    tickCount = 0;
+                    double recalcSum = 0;
+                    for (int k = 0; k < period; k++) recalcSum += buffer[k];
+                    sum = recalcSum;
+                }
+            }
+        }
+        finally
+        {
+            if (rented is not null)
+            {
+                ArrayPool<double>.Shared.Return(rented, clearArray: false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies rolling window weighted mean with square root of result (for WRMSE-style indicators).
+    /// Computes sqrt(sum(weighted_errors) / sum(weights)) over a rolling window.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ApplyRollingWeightedMeanSqrt(
+        ReadOnlySpan<double> weightedSquaredErrors,
+        ReadOnlySpan<double> weights,
+        Span<double> output,
+        int period,
+        int resyncInterval = 1000)
+    {
+        if (weightedSquaredErrors.Length != output.Length || weightedSquaredErrors.Length != weights.Length)
+            throw new ArgumentException("Spans must have the same length", nameof(output));
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+
+        int len = weightedSquaredErrors.Length;
+        if (len == 0)
+            return;
+
+        const int StackAllocThreshold = 256;
+        double[]? rentedErrors = null;
+        double[]? rentedWeights = null;
+
+#pragma warning disable S1121 // Assignments should not be made from within sub-expressions
+        Span<double> errorBuffer = period <= StackAllocThreshold
+            ? stackalloc double[period]
+            : (rentedErrors = ArrayPool<double>.Shared.Rent(period)).AsSpan(0, period);
+
+        Span<double> weightBuffer = period <= StackAllocThreshold
+            ? stackalloc double[period]
+            : (rentedWeights = ArrayPool<double>.Shared.Rent(period)).AsSpan(0, period);
+#pragma warning restore S1121
+
+        try
+        {
+            double sumErrors = 0;
+            double sumWeights = 0;
+            int bufferIndex = 0;
+
+            // Warmup phase
+            int warmupEnd = Math.Min(period, len);
+            for (int i = 0; i < warmupEnd; i++)
+            {
+                sumErrors += weightedSquaredErrors[i];
+                sumWeights += weights[i];
+                errorBuffer[i] = weightedSquaredErrors[i];
+                weightBuffer[i] = weights[i];
+                output[i] = sumWeights > 1e-10 ? Math.Sqrt(sumErrors / sumWeights) : 0.0;
+            }
+
+            // Main loop with O(1) update
+            int tickCount = 0;
+            for (int i = warmupEnd; i < len; i++)
+            {
+                double wse = weightedSquaredErrors[i];
+                double wgt = weights[i];
+
+                sumErrors = sumErrors - errorBuffer[bufferIndex] + wse;
+                sumWeights = sumWeights - weightBuffer[bufferIndex] + wgt;
+                errorBuffer[bufferIndex] = wse;
+                weightBuffer[bufferIndex] = wgt;
+
+                bufferIndex++;
+                if (bufferIndex >= period) bufferIndex = 0;
+
+                output[i] = sumWeights > 1e-10 ? Math.Sqrt(sumErrors / sumWeights) : 0.0;
+
+                tickCount++;
+                if (tickCount >= resyncInterval)
+                {
+                    tickCount = 0;
+                    double recalcSumErrors = 0;
+                    double recalcSumWeights = 0;
+                    for (int k = 0; k < period; k++)
+                    {
+                        recalcSumErrors += errorBuffer[k];
+                        recalcSumWeights += weightBuffer[k];
+                    }
+                    sumErrors = recalcSumErrors;
+                    sumWeights = recalcSumWeights;
+                }
+            }
+        }
+        finally
+        {
+            if (rentedErrors is not null)
+            {
+                ArrayPool<double>.Shared.Return(rentedErrors, clearArray: false);
+            }
+            if (rentedWeights is not null)
+            {
+                ArrayPool<double>.Shared.Return(rentedWeights, clearArray: false);
             }
         }
     }
@@ -458,15 +683,106 @@ public static class ErrorHelpers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsDataClean(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted)
     {
-        // Full validation: check every element to ensure no NaN/Inf slips through to SIMD path
         int len = actual.Length;
 
+        // SIMD path for AVX-supported systems
+        if (Avx.IsSupported && len >= Vector256<double>.Count)
+        {
+            int vectorSize = Vector256<double>.Count;
+            int vectorEnd = len - (len % vectorSize);
+
+            for (int i = 0; i < vectorEnd; i += vectorSize)
+            {
+                Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
+                Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
+
+                // NaN check: x == x is false for NaN
+                // Compare each vector with itself - OrderedQ returns all-ones for finite, zero for NaN
+                Vector256<double> actCmp = Avx.Compare(actVec, actVec, FloatComparisonMode.OrderedNonSignaling);
+                Vector256<double> predCmp = Avx.Compare(predVec, predVec, FloatComparisonMode.OrderedNonSignaling);
+
+                // Combine: both must be all-ones (finite)
+                Vector256<double> combined = Avx.And(actCmp, predCmp);
+
+                // MoveMask returns a bitmask; all-ones means all finite (mask == 0b1111 for 4 doubles)
+                int mask = Avx.MoveMask(combined);
+                if (mask != 0b1111)
+                    return false;
+            }
+
+            // Scalar tail
+            for (int i = vectorEnd; i < len; i++)
+            {
+                if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        // Scalar fallback
         for (int i = 0; i < len; i++)
         {
             if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
                 return false;
         }
         return true;
+    }
+
+    /// <summary>
+    /// SIMD path with integrated NaN detection. Returns the number of elements processed.
+    /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int ComputeSignedErrorsSimdWithNaNDetection(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        double lastValidActual,
+        double lastValidPredicted)
+    {
+        int len = actual.Length;
+        int vectorSize = Vector256<double>.Count;
+        int vectorEnd = len - (len % vectorSize);
+
+        int i = 0;
+        for (; i < vectorEnd; i += vectorSize)
+        {
+            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
+            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
+
+            // Check for NaN/Inf: x == x is false for NaN
+            Vector256<double> actCmp = Avx.Compare(actVec, actVec, FloatComparisonMode.OrderedNonSignaling);
+            Vector256<double> predCmp = Avx.Compare(predVec, predVec, FloatComparisonMode.OrderedNonSignaling);
+            Vector256<double> combined = Avx.And(actCmp, predCmp);
+
+            int mask = Avx.MoveMask(combined);
+            if (mask != 0b1111)
+            {
+                // NaN detected - return current position for scalar fallback
+                return i;
+            }
+
+            // No NaN - compute error
+            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
+            errorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
+        }
+
+        // Handle scalar remainder
+        for (; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (!double.IsFinite(act) || !double.IsFinite(pred))
+            {
+                // Return current position - caller will handle with scalar fallback
+                return i;
+            }
+
+            output[i] = act - pred;
+        }
+
+        return len;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

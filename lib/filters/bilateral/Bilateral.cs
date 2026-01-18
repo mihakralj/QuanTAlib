@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -318,6 +319,8 @@ public sealed class Bilateral : AbstractBase
         Last = default;
     }
 
+    private const int StackallocThreshold = 256;
+
     /// <summary>
     /// Calculates bilateral filter values for a TSeries and returns both results and a primed indicator.
     /// </summary>
@@ -339,107 +342,113 @@ public sealed class Bilateral : AbstractBase
         if (destination.Length < source.Length)
             throw new ArgumentException("Destination must have length >= source length", nameof(destination));
 
-        // Precalculate spatial weights
-        double sigmaS = Math.Max(period * sigmaSRatio, 1e-10);
-        double twoSigmaSSq = 2.0 * sigmaS * sigmaS;
-        Span<double> spatialWeights = period <= 256 ? stackalloc double[period] : new double[period];
-        for (int i = 0; i < period; i++)
+        // Rent arrays for large periods to avoid heap allocations
+        double[]? rentedSpatialWeights = null;
+        double[]? rentedWindow = null;
+
+        scoped Span<double> spatialWeights;
+        scoped Span<double> window;
+
+        if (period <= StackallocThreshold)
         {
-            double diffSpatial = i;
-            spatialWeights[i] = Math.Exp(-(diffSpatial * diffSpatial) / twoSigmaSSq);
+            spatialWeights = stackalloc double[period];
+            window = stackalloc double[period];
+        }
+        else
+        {
+            rentedSpatialWeights = ArrayPool<double>.Shared.Rent(period);
+            spatialWeights = rentedSpatialWeights.AsSpan(0, period);
+            rentedWindow = ArrayPool<double>.Shared.Rent(period);
+            window = rentedWindow.AsSpan(0, period);
         }
 
-        // Handle NaNs by tracking last valid value
-        double lastValid = double.NaN;
-        // Find initial valid value
-        for (int i = 0; i < source.Length; i++)
+        try
         {
-            if (double.IsFinite(source[i]))
+            // Precalculate spatial weights
+            double sigmaS = Math.Max(period * sigmaSRatio, 1e-10);
+            double twoSigmaSSq = 2.0 * sigmaS * sigmaS;
+            for (int i = 0; i < period; i++)
             {
-                lastValid = source[i];
-                break;
-            }
-        }
-
-        // If all NaNs, fill with NaN
-        if (double.IsNaN(lastValid))
-        {
-            destination.Fill(double.NaN);
-            return;
-        }
-
-        Span<double> window = period <= 256 ? stackalloc double[period] : new double[period];
-        int windowIdx = 0;
-        int count = 0;
-        double sum = 0;
-        double sumSq = 0;
-
-        for (int i = 0; i < source.Length; i++)
-        {
-            double val = source[i];
-            if (!double.IsFinite(val))
-            {
-                val = lastValid;
-            }
-            else
-            {
-                lastValid = val;
+                double diffSpatial = i;
+                spatialWeights[i] = Math.Exp(-(diffSpatial * diffSpatial) / twoSigmaSSq);
             }
 
-            // Add to window
-            double removed = 0;
-            if (count >= period)
+            // Handle NaNs by tracking last valid value
+            double lastValid = double.NaN;
+            // Find initial valid value
+            for (int i = 0; i < source.Length; i++)
             {
-                removed = window[windowIdx];
-                sum -= removed;
-                sumSq -= removed * removed;
+                if (double.IsFinite(source[i]))
+                {
+                    lastValid = source[i];
+                    break;
+                }
             }
 
-            window[windowIdx] = val;
-            sum += val;
-            sumSq += val * val;
-
-            int currentNewestIdx = windowIdx;
-            windowIdx = (windowIdx + 1) % period;
-            if (count < period) count++;
-
-            // Calculate StDev
-            double invCount = 1.0 / count;
-            double variance = Math.Max(0, (sumSq - sum * sum * invCount) * invCount);
-            double stdev = Math.Sqrt(variance);
-
-            double sigmaR = Math.Max(stdev * sigmaRMult, 1e-10);
-            double twoSigmaRSq = 2.0 * sigmaR * sigmaR;
-            double negInvTwoSigmaRSq = -1.0 / twoSigmaRSq;
-
-            double sumWeights = 0.0;
-            double sumWeightedSrc = 0.0;
-            double centerVal = val; // Newest value
-
-            // Split loop to avoid modulo
-            // window is length 'period'.
-            // currentNewestIdx is the index of the newest element.
-            // We iterate k from 0 to count-1.
-            // idx goes from currentNewestIdx down.
-
-            int k = 0;
-
-            // Loop 1: From currentNewestIdx down to 0
-            for (int idx = currentNewestIdx; idx >= 0 && k < count; idx--, k++)
+            // If all NaNs, fill with NaN
+            if (double.IsNaN(lastValid))
             {
-                double wVal = window[idx];
-                double diffRange = centerVal - wVal;
-                double weightRange = Math.Exp(diffRange * diffRange * negInvTwoSigmaRSq);
-                double weight = spatialWeights[k] * weightRange;
-
-                sumWeights += weight;
-                sumWeightedSrc = Math.FusedMultiplyAdd(weight, wVal, sumWeightedSrc);
+                destination.Fill(double.NaN);
+                return;
             }
 
-            // Loop 2: Wrap around
-            if (k < count)
+            int windowIdx = 0;
+            int count = 0;
+            double sum = 0;
+            double sumSq = 0;
+
+            for (int i = 0; i < source.Length; i++)
             {
-                for (int idx = period - 1; k < count; idx--, k++)
+                double val = source[i];
+                if (!double.IsFinite(val))
+                {
+                    val = lastValid;
+                }
+                else
+                {
+                    lastValid = val;
+                }
+
+                // Add to window
+                double removed = 0;
+                if (count >= period)
+                {
+                    removed = window[windowIdx];
+                    sum -= removed;
+                    sumSq -= removed * removed;
+                }
+
+                window[windowIdx] = val;
+                sum += val;
+                sumSq += val * val;
+
+                int currentNewestIdx = windowIdx;
+                windowIdx = (windowIdx + 1) % period;
+                if (count < period) count++;
+
+                // Calculate StDev
+                double invCount = 1.0 / count;
+                double variance = Math.Max(0, (sumSq - sum * sum * invCount) * invCount);
+                double stdev = Math.Sqrt(variance);
+
+                double sigmaR = Math.Max(stdev * sigmaRMult, 1e-10);
+                double twoSigmaRSq = 2.0 * sigmaR * sigmaR;
+                double negInvTwoSigmaRSq = -1.0 / twoSigmaRSq;
+
+                double sumWeights = 0.0;
+                double sumWeightedSrc = 0.0;
+                double centerVal = val; // Newest value
+
+                // Split loop to avoid modulo
+                // window is length 'period'.
+                // currentNewestIdx is the index of the newest element.
+                // We iterate k from 0 to count-1.
+                // idx goes from currentNewestIdx down.
+
+                int k = 0;
+
+                // Loop 1: From currentNewestIdx down to 0
+                for (int idx = currentNewestIdx; idx >= 0 && k < count; idx--, k++)
                 {
                     double wVal = window[idx];
                     double diffRange = centerVal - wVal;
@@ -449,9 +458,31 @@ public sealed class Bilateral : AbstractBase
                     sumWeights += weight;
                     sumWeightedSrc = Math.FusedMultiplyAdd(weight, wVal, sumWeightedSrc);
                 }
-            }
 
-            destination[i] = sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
+                // Loop 2: Wrap around
+                if (k < count)
+                {
+                    for (int idx = period - 1; k < count; idx--, k++)
+                    {
+                        double wVal = window[idx];
+                        double diffRange = centerVal - wVal;
+                        double weightRange = Math.Exp(diffRange * diffRange * negInvTwoSigmaRSq);
+                        double weight = spatialWeights[k] * weightRange;
+
+                        sumWeights += weight;
+                        sumWeightedSrc = Math.FusedMultiplyAdd(weight, wVal, sumWeightedSrc);
+                    }
+                }
+
+                destination[i] = sumWeights < 1e-10 ? centerVal : sumWeightedSrc / sumWeights;
+            }
+        }
+        finally
+        {
+            if (rentedSpatialWeights != null)
+                ArrayPool<double>.Shared.Return(rentedSpatialWeights);
+            if (rentedWindow != null)
+                ArrayPool<double>.Shared.Return(rentedWindow);
         }
     }
 

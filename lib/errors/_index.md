@@ -49,6 +49,7 @@ Mae.Batch(actualSpan, predictedSpan, outputSpan, period: 14);
 | [THEILU](lib/errors/theilu/TheilU.md) | Theil's U Statistic | ✅ | Forecast vs naive. <1 beats naive. >1 worse than naive. |
 | [TUKEY](lib/errors/tukey/TukeyBiweight.md) | Tukey Biweight Loss | ✅ | Hard-rejects outliers beyond threshold. Redescending. |
 | [WMAPE](lib/errors/wmape/Wmape.md) | Weighted MAPE | ✅ | Volume-weighted percentage error. For heterogeneous data. |
+| [WRMSE](lib/errors/wrmse/Wrmse.md) | Weighted RMSE | ✅ | Weighted root mean squared error. Custom observation weighting. |
 
 **Status Key:** ✅ Implemented | 📋 Planned
 

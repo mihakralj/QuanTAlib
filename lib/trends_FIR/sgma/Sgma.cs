@@ -217,25 +217,49 @@ public sealed class Sgma : AbstractBase
         {
             _lastValidValue = val;
             _buffer.Add(val);
+
+            int count = _buffer.Count;
+
+            double result = count < _period
+                ? CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _degree, fallbackValue: val)
+                : CalculateWeightedSumFull(_buffer, _weights, _invWeightSum, fallbackValue: val);
+
+            Last = new TValue(input.Time, result);
+            if (publish)
+            {
+                PubEvent(Last, isNew);
+            }
+            return Last;
         }
         else
         {
+            // For isNew==false: snapshot buffer, compute, restore
+            _buffer.Snapshot();
+            double prevLast = _lastValidValue;
+            double prevPLast = _p_lastValidValue;
+
             _lastValidValue = val;
             _buffer.UpdateNewest(val);
+
+            int count = _buffer.Count;
+
+            double result = count < _period
+                ? CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _degree, fallbackValue: val)
+                : CalculateWeightedSumFull(_buffer, _weights, _invWeightSum, fallbackValue: val);
+
+            Last = new TValue(input.Time, result);
+
+            // Restore buffer and state for non-new updates
+            _buffer.Restore();
+            _lastValidValue = prevLast;
+            _p_lastValidValue = prevPLast;
+
+            if (publish)
+            {
+                PubEvent(Last, isNew);
+            }
+            return Last;
         }
-
-        int count = _buffer.Count;
-
-        double result = count < _period
-            ? CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _degree, fallbackValue: val)
-            : CalculateWeightedSumFull(_buffer, _weights, _invWeightSum, fallbackValue: val);
-
-        Last = new TValue(input.Time, result);
-        if (publish)
-        {
-            PubEvent(Last, isNew);
-        }
-        return Last;
     }
 
     public override TSeries Update(TSeries source)

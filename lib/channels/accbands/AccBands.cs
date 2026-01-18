@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -745,47 +744,12 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     private static void ResyncSums(int period, ref WorkBuffers buffers, ref ScalarState state)
     {
         state.TickCount = 0;
-        if (Vector.IsHardwareAccelerated && period >= Vector<double>.Count)
-        {
-            state.SumHigh = SumSimd(buffers.High);
-            state.SumLow = SumSimd(buffers.Low);
-            state.SumClose = SumSimd(buffers.Close);
-        }
-        else
-        {
-            double recalcSumHigh = 0, recalcSumLow = 0, recalcSumClose = 0;
-            for (int k = 0; k < period; k++)
-            {
-                recalcSumHigh += buffers.High[k];
-                recalcSumLow += buffers.Low[k];
-                recalcSumClose += buffers.Close[k];
-            }
-            state.SumHigh = recalcSumHigh;
-            state.SumLow = recalcSumLow;
-            state.SumClose = recalcSumClose;
-        }
-    }
-
-    private static double SumSimd(ReadOnlySpan<double> source)
-    {
-        var sumVector = Vector<double>.Zero;
-        int i = 0;
-        int size = Vector<double>.Count;
-        int len = source.Length;
-
-        for (; i <= len - size; i += size)
-        {
-            sumVector += new Vector<double>(source.Slice(i, size));
-        }
-
-        double sum = Vector.Sum(sumVector);
-
-        for (; i < len; i++)
-        {
-            sum += source[i];
-        }
-
-        return sum;
+        ReadOnlySpan<double> highSpan = buffers.High[..period];
+        ReadOnlySpan<double> lowSpan = buffers.Low[..period];
+        ReadOnlySpan<double> closeSpan = buffers.Close[..period];
+        state.SumHigh = highSpan.SumSIMD();
+        state.SumLow = lowSpan.SumSIMD();
+        state.SumClose = closeSpan.SumSIMD();
     }
 
     /// <summary>

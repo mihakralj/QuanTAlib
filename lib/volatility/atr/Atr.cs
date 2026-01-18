@@ -23,7 +23,9 @@ public sealed class Atr : AbstractBase
     private readonly Rma _rma;
     private readonly TValuePublishedHandler _handler;
     private TBar _prevBar;
+    private TBar _p_prevBar;
     private bool _isInitialized;
+    private bool _p_isInitialized;
 
     /// <summary>
     /// Creates ATR with specified period.
@@ -98,13 +100,27 @@ public sealed class Atr : AbstractBase
     {
         _rma.Reset();
         _prevBar = default;
+        _p_prevBar = default;
         _isInitialized = false;
+        _p_isInitialized = false;
         Last = default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar input, bool isNew = true)
     {
+        // Snapshot/restore for bar correction
+        if (isNew)
+        {
+            _p_prevBar = _prevBar;
+            _p_isInitialized = _isInitialized;
+        }
+        else
+        {
+            _prevBar = _p_prevBar;
+            _isInitialized = _p_isInitialized;
+        }
+
         double tr;
         if (!_isInitialized)
         {

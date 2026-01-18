@@ -32,6 +32,7 @@ public sealed class Jma : AbstractBase
     private readonly RingBuffer _devBuffer;
     private readonly RingBuffer _volBuffer;
     private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _source;
 
     // Streaming state (current + previous snapshot for isNew=false)
     private State _state;
@@ -110,6 +111,7 @@ public sealed class Jma : AbstractBase
     public Jma(ITValuePublisher source, int period, int phase = 0, double power = 0.45)
         : this(period, phase, power)
     {
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -303,6 +305,15 @@ public sealed class Jma : AbstractBase
     }
 
     private void Handle(object? sender, in TValueEventArgs args) => Update(args.Value, args.IsNew);
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _source != null)
+        {
+            _source.Pub -= _handler;
+        }
+        base.Dispose(disposing);
+    }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {

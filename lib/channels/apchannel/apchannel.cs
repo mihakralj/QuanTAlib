@@ -159,14 +159,19 @@ public sealed class Apchannel : AbstractBase
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
 
         Reset();
 
         for (int i = 0; i < len; i++)
         {
             var val = Update(source[i], isNew: true);
-            t.Add(val.Time);
-            v.Add(val.Value);
+            tSpan[i] = val.Time;
+            vSpan[i] = val.Value;
         }
 
         return new TSeries(t, v);
@@ -187,14 +192,19 @@ public sealed class Apchannel : AbstractBase
         int len = source.Count;
         var t = new List<long>(len);
         var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
 
         Reset();
 
         for (int i = 0; i < len; i++)
         {
             var val = Update(source[i], isNew: true);
-            t.Add(val.Time);
-            v.Add(val.Value);
+            tSpan[i] = val.Time;
+            vSpan[i] = val.Value;
         }
 
         return new TSeries(t, v);
@@ -283,19 +293,18 @@ public sealed class Apchannel : AbstractBase
     {
         int length = sourceHigh.Length;
 
-        // Handle NaN tracking
-        double lastValidHigh = sourceHigh[0];
-        double lastValidLow = sourceLow[0];
-
-        // Initialize first values
+        // Initialize first values with NaN handling
         double highEma = double.IsFinite(sourceHigh[0]) ? sourceHigh[0] : 0;
         double lowEma = double.IsFinite(sourceLow[0]) ? sourceLow[0] : 0;
+        double lastValidHigh = highEma;
+        double lastValidLow = lowEma;
 
         upperBand[0] = highEma;
         lowerBand[0] = lowEma;
 
-        if (double.IsFinite(sourceHigh[0])) lastValidHigh = sourceHigh[0];
-        if (double.IsFinite(sourceLow[0])) lastValidLow = sourceLow[0];
+        // Early return for single-element arrays
+        if (length == 1)
+            return;
 
         for (int i = 1; i < length; i++)
         {

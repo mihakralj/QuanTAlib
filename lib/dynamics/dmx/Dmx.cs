@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -19,6 +20,11 @@ public sealed class Dmx : ITValuePublisher
     private TBar _prevBar;
     private TBar _lastInput;
     private bool _isInitialized;
+
+    // Snapshot state for bar correction
+    private TBar _p_prevBar;
+    private TBar _p_lastInput;
+    private bool _p_isInitialized;
 
     public string Name { get; }
     public event TValuePublishedHandler? Pub;
@@ -53,6 +59,11 @@ public sealed class Dmx : ITValuePublisher
     {
         if (isNew)
         {
+            // Snapshot state BEFORE mutations
+            _p_prevBar = _prevBar;
+            _p_lastInput = _lastInput;
+            _p_isInitialized = _isInitialized;
+
             if (_isInitialized)
             {
                 _prevBar = _lastInput;
@@ -61,11 +72,26 @@ public sealed class Dmx : ITValuePublisher
             {
                 _isInitialized = true;
                 // For the very first bar, _prevBar remains default (all zeros)
-                // But we want to handle the first bar logic specifically
+            }
+        }
+        else
+        {
+            // Restore state from snapshot
+            _prevBar = _p_prevBar;
+            _lastInput = _p_lastInput;
+            _isInitialized = _p_isInitialized;
+
+            if (_isInitialized)
+            {
+                _prevBar = _lastInput;
+            }
+            else
+            {
+                _isInitialized = true;
             }
         }
 
-        // We always update _lastInput to the current input
+        // Update _lastInput to the current input
         _lastInput = input;
 
         double dmPlusRaw = 0;
@@ -164,17 +190,32 @@ public sealed class Dmx : ITValuePublisher
 
         const int StackallocThreshold = 256;
 
-        Span<double> dmPlus = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
+        double[]? rentedDmPlus = null;
+        double[]? rentedDmMinus = null;
+        double[]? rentedTr = null;
+        double[]? rentedDmPlusSmooth = null;
+        double[]? rentedDmMinusSmooth = null;
+        double[]? rentedTrSmooth = null;
 
-        Span<double> dmMinus = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
+        scoped Span<double> dmPlus;
+        scoped Span<double> dmMinus;
+        scoped Span<double> tr;
 
-        Span<double> tr = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
+        if (len <= StackallocThreshold)
+        {
+            dmPlus = stackalloc double[len];
+            dmMinus = stackalloc double[len];
+            tr = stackalloc double[len];
+        }
+        else
+        {
+            rentedDmPlus = ArrayPool<double>.Shared.Rent(len);
+            dmPlus = rentedDmPlus.AsSpan(0, len);
+            rentedDmMinus = ArrayPool<double>.Shared.Rent(len);
+            dmMinus = rentedDmMinus.AsSpan(0, len);
+            rentedTr = ArrayPool<double>.Shared.Rent(len);
+            tr = rentedTr.AsSpan(0, len);
+        }
 
         // First bar: only true range from high-low, no directional movement
         tr[0] = high[0] - low[0];
@@ -211,35 +252,61 @@ public sealed class Dmx : ITValuePublisher
             tr[i] = trRaw;
         }
 
-        Span<double> dmPlusSmooth = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
+        scoped Span<double> dmPlusSmooth;
+        scoped Span<double> dmMinusSmooth;
+        scoped Span<double> trSmooth;
 
-        Span<double> dmMinusSmooth = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        Span<double> trSmooth = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        Jma.Calculate(dmPlus, dmPlusSmooth, period);
-        Jma.Calculate(dmMinus, dmMinusSmooth, period);
-        Jma.Calculate(tr, trSmooth, period);
-
-        for (int i = 0; i < len; i++)
+        if (len <= StackallocThreshold)
         {
-            double atr = trSmooth[i];
-            double diPlus = 0.0;
-            double diMinus = 0.0;
+            dmPlusSmooth = stackalloc double[len];
+            dmMinusSmooth = stackalloc double[len];
+            trSmooth = stackalloc double[len];
+        }
+        else
+        {
+            rentedDmPlusSmooth = ArrayPool<double>.Shared.Rent(len);
+            dmPlusSmooth = rentedDmPlusSmooth.AsSpan(0, len);
+            rentedDmMinusSmooth = ArrayPool<double>.Shared.Rent(len);
+            dmMinusSmooth = rentedDmMinusSmooth.AsSpan(0, len);
+            rentedTrSmooth = ArrayPool<double>.Shared.Rent(len);
+            trSmooth = rentedTrSmooth.AsSpan(0, len);
+        }
 
-            if (atr > 1e-12)
+        try
+        {
+            Jma.Calculate(dmPlus, dmPlusSmooth, period);
+            Jma.Calculate(dmMinus, dmMinusSmooth, period);
+            Jma.Calculate(tr, trSmooth, period);
+
+            for (int i = 0; i < len; i++)
             {
-                diPlus = (dmPlusSmooth[i] / atr) * 100.0;
-                diMinus = (dmMinusSmooth[i] / atr) * 100.0;
-            }
+                double atr = trSmooth[i];
+                double diPlus = 0.0;
+                double diMinus = 0.0;
 
-            destination[i] = diPlus - diMinus;
+                if (atr > 1e-12)
+                {
+                    diPlus = (dmPlusSmooth[i] / atr) * 100.0;
+                    diMinus = (dmMinusSmooth[i] / atr) * 100.0;
+                }
+
+                destination[i] = diPlus - diMinus;
+            }
+        }
+        finally
+        {
+            if (rentedDmPlus != null)
+                ArrayPool<double>.Shared.Return(rentedDmPlus);
+            if (rentedDmMinus != null)
+                ArrayPool<double>.Shared.Return(rentedDmMinus);
+            if (rentedTr != null)
+                ArrayPool<double>.Shared.Return(rentedTr);
+            if (rentedDmPlusSmooth != null)
+                ArrayPool<double>.Shared.Return(rentedDmPlusSmooth);
+            if (rentedDmMinusSmooth != null)
+                ArrayPool<double>.Shared.Return(rentedDmMinusSmooth);
+            if (rentedTrSmooth != null)
+                ArrayPool<double>.Shared.Return(rentedTrSmooth);
         }
     }
 

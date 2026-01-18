@@ -299,15 +299,21 @@ public sealed class Kama : AbstractBase
             {
                 // Calculate ER
                 // Change = abs(current - oldest)
-                // current = val
-                // oldest:
-                // if full, oldest is at bufferIdx (which is the next write pos, so it holds the oldest)
-                // Wait, bufferIdx points to where we WILL write next.
-                // So buffer[bufferIdx] is the oldest value (the one that will be overwritten next).
-                // So Change = abs(val - buffer[bufferIdx])
+                // current = val (just written to buffer at index (bufferIdx - 1 + bufSize) % bufSize)
+                // oldest: when full, oldest is at bufferIdx (the next write position)
+                // Note: bufferIdx has already been advanced, so current value is at (bufferIdx - 1 + bufSize) % bufSize
 
-                double change = 0;
-                change = (count == bufSize) ? Math.Abs(val - buffer[bufferIdx]) : Math.Abs(val - buffer[0]);
+                double change;
+                if (count == bufSize)
+                {
+                    // When full, oldest is at bufferIdx (next write position)
+                    change = Math.Abs(val - buffer[bufferIdx]);
+                }
+                else
+                {
+                    // When not full, oldest is at index 0
+                    change = Math.Abs(val - buffer[0]);
+                }
 
                 double er = (volatilitySum > 1e-10) ? change / volatilitySum : 0.0;
                 if (er > 1.0) er = 1.0;

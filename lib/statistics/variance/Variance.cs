@@ -58,37 +58,31 @@ public sealed class Variance : AbstractBase
             // Snapshot state BEFORE mutations
             _p_sumSq = _sumSq;
             _buffer.Snapshot();
-
-            if (_buffer.IsFull)
-            {
-                double oldVal = _buffer.Oldest;
-                _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
-            }
-
-            _buffer.Add(input.Value);
-            _sumSq = Math.FusedMultiplyAdd(input.Value, input.Value, _sumSq);
-
-            _updateCount++;
-            if (_updateCount % ResyncInterval == 0)
-            {
-                Resync();
-            }
         }
         else
         {
             // Restore state from snapshot
             _sumSq = _p_sumSq;
             _buffer.Restore();
+        }
 
-            // Now apply the correction value
-            if (_buffer.IsFull)
+        // Apply the value (same logic for both new and correction)
+        if (_buffer.IsFull)
+        {
+            double oldVal = _buffer.Oldest;
+            _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+        }
+
+        _buffer.Add(input.Value);
+        _sumSq = Math.FusedMultiplyAdd(input.Value, input.Value, _sumSq);
+
+        if (isNew)
+        {
+            _updateCount++;
+            if (_updateCount % ResyncInterval == 0)
             {
-                double oldVal = _buffer.Oldest;
-                _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+                Resync();
             }
-
-            _buffer.Add(input.Value);
-            _sumSq = Math.FusedMultiplyAdd(input.Value, input.Value, _sumSq);
         }
 
         double variance = 0;

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
@@ -180,35 +181,51 @@ public sealed class Adxr : ITValuePublisher
         }
 
         const int StackallocThreshold = 256;
-        Span<double> adxSpan = len <= StackallocThreshold
-            ? stackalloc double[len]
-            : new double[len];
-
-        Adx.Calculate(high, low, close, period, adxSpan);
-
-        destination.Clear();
-
-        int lag = period - 1;
-        if (lag <= 0)
+        double[]? rentedAdx = null;
+        scoped Span<double> adxSpan;
+        if (len <= StackallocThreshold)
         {
-            adxSpan.CopyTo(destination);
-            return;
+            adxSpan = stackalloc double[len];
+        }
+        else
+        {
+            rentedAdx = ArrayPool<double>.Shared.Rent(len);
+            adxSpan = rentedAdx.AsSpan(0, len);
         }
 
-        if (lag >= len)
+        try
         {
-            return;
+            Adx.Calculate(high, low, close, period, adxSpan);
+
+            destination.Clear();
+
+            int lag = period - 1;
+            if (lag <= 0)
+            {
+                adxSpan.CopyTo(destination);
+                return;
+            }
+
+            if (lag >= len)
+            {
+                return;
+            }
+
+            ReadOnlySpan<double> current = adxSpan[lag..];
+            ReadOnlySpan<double> previous = adxSpan[..(len - lag)];
+            Span<double> destTail = destination[lag..];
+
+            SimdExtensions.Add(current, previous, destTail);
+
+            for (int i = 0; i < destTail.Length; i++)
+            {
+                destTail[i] *= 0.5;
+            }
         }
-
-        ReadOnlySpan<double> current = adxSpan[lag..];
-        ReadOnlySpan<double> previous = adxSpan[..(len - lag)];
-        Span<double> destTail = destination[lag..];
-
-        SimdExtensions.Add(current, previous, destTail);
-
-        for (int i = 0; i < destTail.Length; i++)
+        finally
         {
-            destTail[i] *= 0.5;
+            if (rentedAdx != null)
+                ArrayPool<double>.Shared.Return(rentedAdx);
         }
     }
 
