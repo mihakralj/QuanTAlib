@@ -237,7 +237,6 @@ public sealed class Rgma : AbstractBase
         return new TSeries(t, v);
     }
 
-    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double Compute(double input, double alpha, double decay, Span<double> filters, ref State state)
     {
@@ -268,7 +267,6 @@ public sealed class Rgma : AbstractBase
         return filters[^1];
     }
 
-    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static void CalculateCore(
         ReadOnlySpan<double> source,

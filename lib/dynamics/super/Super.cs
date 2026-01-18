@@ -14,7 +14,10 @@ public sealed class Super : ITValuePublisher
     private readonly int _period;
     private TBar _prevBar;
     private TBar _lastInput;
+    private TBar _p_prevBar;
+    private TBar _p_lastInput;
     private int _sampleCount;
+    private int _p_sampleCount;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State
@@ -86,7 +89,10 @@ public sealed class Super : ITValuePublisher
         _p_state = default;
         _prevBar = default;
         _lastInput = default;
+        _p_prevBar = default;
+        _p_lastInput = default;
         _sampleCount = 0;
+        _p_sampleCount = 0;
         Last = default;
         UpperBand = default;
         LowerBand = default;
@@ -98,6 +104,9 @@ public sealed class Super : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
+            _p_prevBar = _prevBar;
+            _p_lastInput = _lastInput;
+            _p_sampleCount = _sampleCount;
             if (_sampleCount > 0)
             {
                 _prevBar = _lastInput;
@@ -107,6 +116,14 @@ public sealed class Super : ITValuePublisher
         else
         {
             _state = _p_state;
+            _prevBar = _p_prevBar;
+            _lastInput = _p_lastInput;
+            _sampleCount = _p_sampleCount;
+            if (_sampleCount > 0)
+            {
+                _prevBar = _lastInput;
+            }
+            _sampleCount++;
         }
         _lastInput = input;
 

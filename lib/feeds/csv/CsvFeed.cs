@@ -126,7 +126,9 @@ public sealed class CsvFeed : IFeed
         for (int i = 0; i < dataLines.Count; i++)
         {
             var line = dataLines[i];
-            int originalLineNumber = dataLines.Count - i + 1;
+            // After Reverse(), index i corresponds to original index (dataLines.Count - 1 - i)
+            int originalIndex = dataLines.Count - 1 - i;
+            int originalLineNumber = originalIndex + 2; // +2 for header and 1-based line numbers
 
             var parsed = ParseCsvLine(line, originalLineNumber);
             t[i] = parsed.Time;

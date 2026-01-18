@@ -142,7 +142,7 @@ public sealed class Mama : AbstractBase
 
         if (_state.Index > 6)
         {
-            double adj = (AdjSlope * _state.Period) + AdjIntercept;
+            double adj = (AdjSlope * _p_state.Period) + AdjIntercept;
 
             // Smooth
             double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;
@@ -221,6 +221,7 @@ public sealed class Mama : AbstractBase
             double avg = _state.Index > 0 ? _state.SumPr / _state.Index : price;
             _state.Mama = avg;
             _state.Fama = avg;
+            _state.Period = MinPeriod;
 
             // Initialize buffers with 0
             _smoothBuffer.Add(0, isNew);
@@ -325,9 +326,9 @@ public sealed class Mama : AbstractBase
         int count = 0;
 
         // State variables (initialized: used before assignment; uninitialized: always assigned before read)
-        double period = 0, sumPr = 0, lastValidPrice = 0;
+        double period = MinPeriod, sumPr = 0, lastValidPrice = 0;
         double mama, fama, i2, q2, re, im;
-        double p_period = 0, p_phase = 0, p_mama = 0, p_fama = 0;
+        double p_period = MinPeriod, p_phase = 0, p_mama = 0, p_fama = 0;
         double p_i2 = 0, p_q2 = 0, p_re = 0, p_im = 0;
 
         // Constants
@@ -472,7 +473,7 @@ public sealed class Mama : AbstractBase
                 // Set initial p_state
                 p_mama = avg;
                 p_fama = avg;
-                p_period = 0;
+                p_period = MinPeriod;
                 p_phase = 0;
             }
 

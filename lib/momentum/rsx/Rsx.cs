@@ -204,9 +204,9 @@ public sealed class Rsx : ITValuePublisher
         Batch(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
-        // Restore state by replaying the last few bars
+        // Restore state by replaying the last few bars (use WarmupPeriod instead of hardcoded 200)
         Reset();
-        int warmup = Math.Max(0, len - 200);
+        int warmup = Math.Max(0, len - WarmupPeriod);
         for (int i = warmup; i < len; i++)
         {
             Update(new TValue(source.Times[i], source.Values[i]), isNew: true);

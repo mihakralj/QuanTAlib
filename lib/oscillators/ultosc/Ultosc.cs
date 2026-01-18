@@ -44,6 +44,8 @@ public sealed class Ultosc : AbstractBase
     private double _p_prevClose;
     private int _index;
     private int _p_index;
+    private readonly TBarSeries? _source;
+    private readonly TBarPublishedHandler? _handler;
 
     // Weights: 4:2:1
     private const double Weight1 = 4.0;
@@ -95,7 +97,18 @@ public sealed class Ultosc : AbstractBase
     /// </summary>
     public Ultosc(TBarSeries source, int period1 = 7, int period2 = 14, int period3 = 28) : this(period1, period2, period3)
     {
-        source.Pub += Handle;
+        _source = source;
+        _handler = Handle;
+        source.Pub += _handler;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _source != null && _handler != null)
+        {
+            _source.Pub -= _handler;
+        }
+        base.Dispose(disposing);
     }
 
     private void Handle(object? sender, in TBarEventArgs args)

@@ -135,7 +135,7 @@ public sealed class Bpf : AbstractBase
         double val = input.Value;
         if (!double.IsFinite(val))
         {
-            val = _state.LastValid;
+            val = double.IsFinite(_state.LastValid) ? _state.LastValid : 0.0;
         }
         else
         {

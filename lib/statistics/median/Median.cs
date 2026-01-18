@@ -229,11 +229,14 @@ public sealed class Median : AbstractBase
                 int oldIndex = Array.BinarySearch(sortedBuffer, 0, count, old);
 
                 // Only remove if value was found (should always be true in correct operation)
-                if (oldIndex >= 0 && oldIndex < count - 1)
+                if (oldIndex >= 0)
                 {
-                    Array.Copy(sortedBuffer, oldIndex + 1, sortedBuffer, oldIndex, count - 1 - oldIndex);
+                    if (oldIndex < count - 1)
+                    {
+                        Array.Copy(sortedBuffer, oldIndex + 1, sortedBuffer, oldIndex, count - 1 - oldIndex);
+                    }
+                    count--;
                 }
-                count--;
             }
 
             window[windowIdx] = val;

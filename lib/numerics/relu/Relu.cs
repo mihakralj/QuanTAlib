@@ -121,13 +121,36 @@ public sealed class Relu : AbstractBase
             for (; i < simdLength; i += Vector256<double>.Count)
             {
                 Vector256<double> vec = Vector256.LoadUnsafe(ref System.Runtime.InteropServices.MemoryMarshal.GetReference(source.Slice(i)));
-                Vector256<double> result = Avx.Max(zero, vec);
+
+                // Create mask for finite values (NaN and Infinity comparisons return false)
+                // A value is finite if it equals itself AND is not +/- infinity
+                Vector256<double> isFiniteMask = Avx.And(
+                    Avx.Compare(vec, vec, FloatComparisonMode.OrderedEqualNonSignaling),
+                    Avx.And(
+                        Avx.Compare(vec, Vector256.Create(double.PositiveInfinity), FloatComparisonMode.OrderedNotEqualNonSignaling),
+                        Avx.Compare(vec, Vector256.Create(double.NegativeInfinity), FloatComparisonMode.OrderedNotEqualNonSignaling)
+                    )
+                );
+
+                // ReLU: max(0, x) for finite values
+                Vector256<double> relu = Avx.Max(zero, vec);
+
+                // Blend: finite lanes get relu result, non-finite lanes get lastValid
+                Vector256<double> lastValidVec = Vector256.Create(lastValid);
+                Vector256<double> result = Avx.BlendVariable(lastValidVec, relu, isFiniteMask);
+
                 result.StoreUnsafe(ref System.Runtime.InteropServices.MemoryMarshal.GetReference(output.Slice(i)));
-            }
-            // Track lastValid from SIMD output
-            if (simdLength > 0)
-            {
-                lastValid = output[simdLength - 1];
+
+                // Update lastValid from the last finite element in this vector
+                for (int j = Vector256<double>.Count - 1; j >= 0; j--)
+                {
+                    double elem = vec.GetElement(j);
+                    if (double.IsFinite(elem))
+                    {
+                        lastValid = result.GetElement(j);
+                        break;
+                    }
+                }
             }
         }
 

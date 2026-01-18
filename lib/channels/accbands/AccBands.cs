@@ -28,7 +28,7 @@ namespace QuanTAlib;
 /// Headley, P. (2002). Big Trends in Trading. John Wiley & Sons.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class AccBands : ITValuePublisher
+public sealed class AccBands : ITValuePublisher, IDisposable
 {
     private readonly int _period;
     private readonly double _factor;
@@ -36,6 +36,8 @@ public sealed class AccBands : ITValuePublisher
     private readonly RingBuffer _lowBuffer;
     private readonly RingBuffer _closeBuffer;
     private readonly TBarPublishedHandler _barHandler;
+    private TBarSeries? _source;
+    private bool _disposed;
 
     private const int ResyncInterval = 1000;
 
@@ -114,8 +116,26 @@ public sealed class AccBands : ITValuePublisher
     /// </summary>
     public AccBands(TBarSeries source, int period, double factor = 2.0) : this(period, factor)
     {
+        _source = source;
         Prime(source);
         source.Pub += _barHandler;
+    }
+
+    /// <summary>
+    /// Releases resources and unsubscribes from the source event.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+
+        if (_source != null)
+        {
+            _source.Pub -= _barHandler;
+            _source = null;
+        }
+
+        GC.SuppressFinalize(this);
     }
 
     private void HandleBar(object? sender, in TBarEventArgs e) => Update(e.Value, e.IsNew);
@@ -381,8 +401,16 @@ public sealed class AccBands : ITValuePublisher
         _highBuffer.Clear();
         _lowBuffer.Clear();
         _closeBuffer.Clear();
-        _state = default;
-        _p_state = default;
+        _state = new State(
+            SumHigh: 0,
+            SumLow: 0,
+            SumClose: 0,
+            LastValidHigh: double.NaN,
+            LastValidLow: double.NaN,
+            LastValidClose: double.NaN,
+            TickCount: 0
+        );
+        _p_state = _state;
         Last = default;
         Upper = default;
         Lower = default;

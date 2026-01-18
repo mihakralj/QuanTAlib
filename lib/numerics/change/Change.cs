@@ -122,16 +122,33 @@ public sealed class Change : AbstractBase
         if (period < 1)
             throw new ArgumentException("Period must be >= 1", nameof(period));
 
+        double lastValid = 0.0;
+
         for (int i = 0; i < source.Length; i++)
         {
+            // Handle non-finite values by substitution
+            double current = source[i];
+            if (!double.IsFinite(current))
+            {
+                current = lastValid;
+            }
+            else
+            {
+                lastValid = current;
+            }
+
             if (i < period)
             {
                 output[i] = 0.0;
             }
             else
             {
-                double current = source[i];
                 double past = source[i - period];
+                if (!double.IsFinite(past))
+                {
+                    // Look backward for a valid past value
+                    past = lastValid;
+                }
                 output[i] = past != 0.0 ? (current - past) / past : 0.0;
             }
         }

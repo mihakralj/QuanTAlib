@@ -112,37 +112,76 @@ public sealed class Lowest : AbstractBase
         if (period < 1)
             throw new ArgumentException("Period must be >= 1", nameof(period));
 
-        // Use monotonic deque algorithm
-        Span<int> deque = stackalloc int[Math.Min(period, 256)];
-        int dequeStart = 0;
-        int dequeEnd = 0;
+        int len = source.Length;
 
-        for (int i = 0; i < source.Length; i++)
+        // Use monotonic deque algorithm - allocate on heap for large periods to avoid stack overflow
+        int[]? rentedDeque = null;
+        double[]? rentedValues = null;
+
+#pragma warning disable S1121 // Assignments should not be made from within sub-expressions
+        Span<int> deque = period <= 256
+            ? stackalloc int[period]
+            : (rentedDeque = System.Buffers.ArrayPool<int>.Shared.Rent(period)).AsSpan(0, period);
+
+        // Separate buffer for corrected values (handles NaN/Infinity)
+        Span<double> values = len <= 256
+            ? stackalloc double[len]
+            : (rentedValues = System.Buffers.ArrayPool<double>.Shared.Rent(len)).AsSpan(0, len);
+#pragma warning restore S1121
+
+        try
         {
-            double fallback = i > 0 ? output[i - 1] : 0.0;
-            double value = double.IsFinite(source[i]) ? source[i] : fallback;
-
-            // Remove indices outside window
-            while (dequeEnd > dequeStart && deque[dequeStart] <= i - period)
-                dequeStart++;
-
-            // Remove larger values from back (monotonic increasing for min)
-            while (dequeEnd > dequeStart && source[deque[dequeEnd - 1]] >= value)
-                dequeEnd--;
-
-            // Wrap around if needed for large periods
-            if (dequeEnd >= deque.Length)
+            // First pass: store corrected values in separate buffer to handle non-finite inputs
+            double lastValid = 0.0;
+            for (int i = 0; i < len; i++)
             {
-                // Compact deque
-                int count = dequeEnd - dequeStart;
-                for (int j = 0; j < count; j++)
-                    deque[j] = deque[dequeStart + j];
-                dequeStart = 0;
-                dequeEnd = count;
+                double val = source[i];
+                if (double.IsFinite(val))
+                {
+                    lastValid = val;
+                    values[i] = val;
+                }
+                else
+                {
+                    values[i] = lastValid;
+                }
             }
 
-            deque[dequeEnd++] = i;
-            output[i] = source[deque[dequeStart]];
+            // Second pass: compute rolling min using corrected values
+            int dequeStart = 0;
+            int dequeEnd = 0;
+            for (int i = 0; i < len; i++)
+            {
+                double value = values[i];
+
+                // Remove indices outside window
+                while (dequeEnd > dequeStart && deque[dequeStart] <= i - period)
+                    dequeStart++;
+
+                // Remove larger values from back (use values[] for corrected values)
+                while (dequeEnd > dequeStart && values[deque[dequeEnd - 1]] >= value)
+                    dequeEnd--;
+
+                // Compact deque if needed
+                if (dequeEnd >= deque.Length)
+                {
+                    int count = dequeEnd - dequeStart;
+                    for (int j = 0; j < count; j++)
+                        deque[j] = deque[dequeStart + j];
+                    dequeStart = 0;
+                    dequeEnd = count;
+                }
+
+                deque[dequeEnd++] = i;
+                output[i] = values[deque[dequeStart]];
+            }
+        }
+        finally
+        {
+            if (rentedDeque != null)
+                System.Buffers.ArrayPool<int>.Shared.Return(rentedDeque);
+            if (rentedValues != null)
+                System.Buffers.ArrayPool<double>.Shared.Return(rentedValues);
         }
     }
 

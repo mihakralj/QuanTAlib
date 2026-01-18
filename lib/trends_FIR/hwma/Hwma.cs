@@ -36,7 +36,6 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Hwma : AbstractBase
 {
-    private readonly int _period;
     private readonly double _alpha;
     private readonly double _beta;
     private readonly double _gamma;
@@ -69,7 +68,6 @@ public sealed class Hwma : AbstractBase
         if (period <= 0)
             throw new ArgumentException("Period must be greater than 0", nameof(period));
 
-        _period = period;
         _alpha = 2.0 / (period + 1.0);
         _beta = 1.0 / period;
         _gamma = 1.0 / period;
@@ -98,7 +96,7 @@ public sealed class Hwma : AbstractBase
         if (gamma < 0 || gamma > 1)
             throw new ArgumentException("Gamma must be between 0 and 1", nameof(gamma));
 
-        _period = (int)(2.0 / alpha - 1.0); // Reverse calculate for display
+        int effectivePeriod = (int)(2.0 / alpha - 1.0); // Reverse calculate for display
         _alpha = alpha;
         _beta = beta;
         _gamma = gamma;
@@ -106,7 +104,7 @@ public sealed class Hwma : AbstractBase
         _decayBeta = 1.0 - beta;
         _decayGamma = 1.0 - gamma;
         Name = $"Hwma({alpha:F3},{beta:F3},{gamma:F3})";
-        WarmupPeriod = _period > 0 ? _period : 10;
+        WarmupPeriod = effectivePeriod > 0 ? effectivePeriod : 10;
 
         _state = new State(double.NaN, 0, 0, double.NaN, IsInitialized: false);
     }
@@ -225,15 +223,15 @@ public sealed class Hwma : AbstractBase
         var tSpan = CollectionsMarshal.AsSpan(t);
         var vSpan = CollectionsMarshal.AsSpan(v);
 
-        Calculate(source.Values, vSpan, _period);
         source.Times.CopyTo(tSpan);
 
-        // Restore state by replaying last few bars
+        // HWMA has IIR filter state (F, V, A) that accumulates from the beginning.
+        // Must process entire series through streaming to maintain correct state.
         Reset();
-        int startIndex = Math.Max(0, len - _period);
-        for (int i = startIndex; i < len; i++)
+        for (int i = 0; i < len; i++)
         {
-            Update(source[i], isNew: true, publish: false);
+            var result = Update(source[i], isNew: true, publish: false);
+            vSpan[i] = result.Value;
         }
 
         return new TSeries(t, v);
@@ -299,7 +297,7 @@ public sealed class Hwma : AbstractBase
                 }
                 else
                 {
-                    output[i] = 0.0; // No valid value yet
+                    output[i] = double.NaN; // No valid value yet
                     continue;
                 }
             }

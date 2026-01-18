@@ -26,6 +26,7 @@ public sealed class Variance : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly bool _isPopulation;
     private double _sumSq;
+    private double _p_sumSq;
     private int _updateCount;
     private const int ResyncInterval = 1000;
 
@@ -54,6 +55,10 @@ public sealed class Variance : AbstractBase
     {
         if (isNew)
         {
+            // Snapshot state BEFORE mutations
+            _p_sumSq = _sumSq;
+            _buffer.Snapshot();
+
             if (_buffer.IsFull)
             {
                 double oldVal = _buffer.Oldest;
@@ -71,15 +76,18 @@ public sealed class Variance : AbstractBase
         }
         else
         {
-            // Differential update
-            double oldNewest = _buffer.Newest;
-            _buffer.UpdateNewest(input.Value);
+            // Restore state from snapshot
+            _sumSq = _p_sumSq;
+            _buffer.Restore();
 
-            // Reconstruct SumSq from previous state is safer/cleaner than differential on current
-            // But we updated buffer already.
-            // _sumSq currently includes oldNewest^2.
-            // We want to remove oldNewest^2 and add input^2.
-            _sumSq = Math.FusedMultiplyAdd(-oldNewest, oldNewest, _sumSq);
+            // Now apply the correction value
+            if (_buffer.IsFull)
+            {
+                double oldVal = _buffer.Oldest;
+                _sumSq = Math.FusedMultiplyAdd(-oldVal, oldVal, _sumSq);
+            }
+
+            _buffer.Add(input.Value);
             _sumSq = Math.FusedMultiplyAdd(input.Value, input.Value, _sumSq);
         }
 

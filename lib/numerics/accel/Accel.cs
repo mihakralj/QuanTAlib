@@ -199,8 +199,15 @@ public sealed class Accel : AbstractBase
 
         int i = 2;
 
-        // AVX512: 8 doubles at once
-        if (Avx512F.IsSupported && len >= 10)
+        // Check for non-finite values - if any exist, use scalar path only
+        bool hasNonFinite = false;
+        for (int k = 0; k < len && !hasNonFinite; k++)
+        {
+            hasNonFinite = !double.IsFinite(source[k]);
+        }
+
+        // AVX512: 8 doubles at once (only if all values are finite)
+        if (!hasNonFinite && Avx512F.IsSupported && len >= 10)
         {
             var two = Vector512.Create(2.0);
             const int VectorWidth = 8;
@@ -220,8 +227,8 @@ public sealed class Accel : AbstractBase
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
-        // AVX: 4 doubles at once
-        else if (Avx.IsSupported && len >= 6)
+        // AVX: 4 doubles at once (only if all values are finite)
+        else if (!hasNonFinite && Avx.IsSupported && len >= 6)
         {
             var two = Vector256.Create(2.0);
             const int VectorWidth = 4;
@@ -240,8 +247,8 @@ public sealed class Accel : AbstractBase
                 result.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
             }
         }
-        // ARM64 Neon: 2 doubles at once
-        else if (AdvSimd.Arm64.IsSupported && len >= 4)
+        // ARM64 Neon: 2 doubles at once (only if all values are finite)
+        else if (!hasNonFinite && AdvSimd.Arm64.IsSupported && len >= 4)
         {
             var two = Vector128.Create(2.0);
             const int VectorWidth = 2;

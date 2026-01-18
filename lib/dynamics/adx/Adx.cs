@@ -285,18 +285,12 @@ public sealed class Adx : ITValuePublisher
 
         // Create lists for TSeries
         var tList = new List<long>(len);
-        for (int i = 0; i < len; i++)
-        {
-            tList.Add(source.Open.Times[i]);
-        }
-        var vList = new List<double>(v);
-
-        // Copy timestamps
         var times = source.Open.Times;
         for (int i = 0; i < len; i++)
         {
             tList.Add(times[i]);
         }
+        var vList = new List<double>(v);
 
         // Restore state by replaying the whole series
         Reset();

@@ -308,12 +308,13 @@ public sealed class Covariance : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static (double sumX, double sumY, double sumXY) WarmupCovariance(int period, bool isPopulation, ref double srcXRef, ref double srcYRef, ref double outRef)
+    private static (double sumX, double sumY, double sumXY) WarmupCovariance(int period, int availableLen, bool isPopulation, ref double srcXRef, ref double srcYRef, ref double outRef)
     {
         double sumX = 0;
         double sumY = 0;
         double sumXY = 0;
-        for (int i = 0; i < period; i++)
+        int warmupEnd = Math.Min(period, availableLen);
+        for (int i = 0; i < warmupEnd; i++)
         {
             double x = Unsafe.Add(ref srcXRef, i);
             double y = Unsafe.Add(ref srcYRef, i);
@@ -349,7 +350,7 @@ public sealed class Covariance : AbstractBase
         double invN = 1.0 / period;
         double invDenom = 1.0 / (isPopulation ? period : (period - 1));
 
-        (double sumX, double sumY, double sumXY) = WarmupCovariance(period, isPopulation, ref srcXRef, ref srcYRef, ref outRef);
+        (double sumX, double sumY, double sumXY) = WarmupCovariance(period, len, isPopulation, ref srcXRef, ref srcYRef, ref outRef);
 
         if (len <= period) return;
 

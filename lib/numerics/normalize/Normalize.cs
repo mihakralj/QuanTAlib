@@ -173,11 +173,11 @@ public sealed class Normalize : AbstractBase
             // Determine window bounds
             int start = Math.Max(0, i - period + 1);
 
-            // Find min/max in window
-            double min = source[start];
-            double max = source[start];
+            // Find min/max in window - initialize to infinity to handle non-finite starting values
+            double min = double.PositiveInfinity;
+            double max = double.NegativeInfinity;
 
-            for (int j = start + 1; j <= i; j++)
+            for (int j = start; j <= i; j++)
             {
                 double v = source[j];
                 if (double.IsFinite(v))
@@ -185,6 +185,13 @@ public sealed class Normalize : AbstractBase
                     if (v < min) min = v;
                     if (v > max) max = v;
                 }
+            }
+
+            // If no finite values found in window, use neutral output
+            if (!double.IsFinite(min) || !double.IsFinite(max))
+            {
+                output[i] = lastValid;
+                continue;
             }
 
             double range = max - min;

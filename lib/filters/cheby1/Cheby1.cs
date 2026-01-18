@@ -41,7 +41,7 @@ public sealed class Cheby1 : AbstractBase
     /// </summary>
     public double Ripple { get; }
 
-    public override bool IsHot => Math.Abs(_state.Filt2) > double.Epsilon; // Sufficiently warm when we have history
+    public override bool IsHot => _state.Count >= 2;
 
     public Cheby1(int period, double ripple = 1.0)
     {

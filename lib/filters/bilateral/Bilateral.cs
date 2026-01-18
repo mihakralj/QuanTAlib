@@ -313,6 +313,7 @@ public sealed class Bilateral : AbstractBase
     {
         _buffer.Clear();
         _state = default;
+        _state = _state with { LastValidValue = double.NaN };
         _p_state = default;
         Last = default;
     }

@@ -13,6 +13,9 @@ public sealed class Blma : AbstractBase
     private readonly RingBuffer _buffer;
     private readonly double[] _weights;
     private readonly double _weightSum;
+    private readonly TValuePublishedHandler _handler;
+    private ITValuePublisher? _source;
+    private int _disposed;
 
     public override bool IsHot => _buffer.Count >= _period;
 
@@ -28,6 +31,7 @@ public sealed class Blma : AbstractBase
         WarmupPeriod = period;
         _buffer = new RingBuffer(period);
         _weights = new double[period];
+        _handler = Handle;
 
         // Pre-calculate weights for the full period
         _weightSum = CalculateWeights(period, _weights);
@@ -35,13 +39,28 @@ public sealed class Blma : AbstractBase
 
     public Blma(ITValuePublisher source, int period) : this(period)
     {
-        source.Pub += Handle;
+        _source = source ?? throw new ArgumentNullException(nameof(source));
+        _source.Pub += _handler;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Handle(object? sender, in TValueEventArgs args)
     {
         Update(args.Value, args.IsNew);
+    }
+
+    /// <summary>
+    /// Disposes the Blma instance, unsubscribing from the source publisher if subscribed.
+    /// This method is idempotent and thread-safe.
+    /// </summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0 && _source != null)
+        {
+            _source.Pub -= _handler;
+            _source = null;
+        }
+        base.Dispose(disposing);
     }
 
     public override void Reset()

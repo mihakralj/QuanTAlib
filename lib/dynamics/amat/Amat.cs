@@ -28,7 +28,7 @@ namespace QuanTAlib;
 /// Tom Joseph (2009), based on Mark Whistler (Archer) concepts
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Amat : ITValuePublisher
+public sealed class Amat : ITValuePublisher, IDisposable
 {
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
@@ -69,6 +69,8 @@ public sealed class Amat : ITValuePublisher
     private State _p_state = State.New();
     private double _lastValidValue;
     private double _p_lastValidValue;
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     private const double COVERAGE_THRESHOLD = 0.05;
     private const double COMPENSATOR_THRESHOLD = 1e-10;
@@ -146,7 +148,24 @@ public sealed class Amat : ITValuePublisher
     public Amat(ITValuePublisher source, int fastPeriod = 10, int slowPeriod = 50)
         : this(fastPeriod, slowPeriod)
     {
+        _source = source;
         source.Pub += Handle;
+    }
+
+    /// <summary>
+    /// Releases resources and unsubscribes from the source publisher.
+    /// </summary>
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            if (_source != null)
+            {
+                _source.Pub -= Handle;
+                _source = null;
+            }
+            _disposed = true;
+        }
     }
 
     /// <summary>

@@ -458,10 +458,10 @@ public static class ErrorHelpers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsDataClean(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted)
     {
+        // Full validation: check every element to ensure no NaN/Inf slips through to SIMD path
         int len = actual.Length;
-        int checkStep = Math.Max(1, len / 32);
 
-        for (int i = 0; i < len; i += checkStep)
+        for (int i = 0; i < len; i++)
         {
             if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
                 return false;

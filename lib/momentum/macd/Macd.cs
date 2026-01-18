@@ -43,7 +43,7 @@ public sealed class Macd : ITValuePublisher
         _handler = Handle;
 
         Name = $"Macd({fastPeriod},{slowPeriod},{signalPeriod})";
-        WarmupPeriod = Math.Max(fastPeriod, slowPeriod) + signalPeriod;
+        WarmupPeriod = Math.Max(fastPeriod, slowPeriod) + signalPeriod - 2;
     }
 
     public Macd(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)

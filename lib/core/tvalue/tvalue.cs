@@ -20,7 +20,7 @@ public readonly record struct TValue(long Time, double Value)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator double(TValue tv) => tv.Value;
+    public static explicit operator double(TValue tv) => tv.Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator DateTime(TValue tv) => new(tv.Time, DateTimeKind.Utc);

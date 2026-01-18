@@ -77,17 +77,14 @@ public class AdlTests
     }
 
     [Fact]
-    public void Adl_TValueUpdate_DoesNotChangeValue()
+    public void Adl_TValueUpdate_ThrowsNotSupportedException()
     {
         var adl = new Adl();
         var bar = new TBar(DateTime.UtcNow, 10, 12, 8, 12, 100);
         adl.Update(bar); // ADL = 100
 
-        // Update with TValue (no volume info)
-        adl.Update(new TValue(DateTime.UtcNow, 15));
-
-        // Should remain 100
-        Assert.Equal(100, adl.Last.Value);
+        // Update with TValue should throw since ADL requires OHLCV bar data
+        Assert.Throws<NotSupportedException>(() => adl.Update(new TValue(DateTime.UtcNow, 15)));
     }
 
     [Fact]

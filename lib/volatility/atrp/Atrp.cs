@@ -195,35 +195,16 @@ public sealed class Atrp : AbstractBase
 
     /// <summary>
     /// Updates ATRP with a TValue input.
-    /// This treats the input value as the TR itself (ATRP cannot be calculated without close).
-    /// Returns ATR value only (not ATRP percentage).
     /// </summary>
+    /// <exception cref="NotSupportedException">
+    /// ATRP requires OHLC bar data to calculate the percentage (ATR/Close * 100).
+    /// Use Update(TBar) instead.
+    /// </exception>
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (isNew)
-            _p_state = _state;
-        else
-            _state = _p_state;
-
-        double tr = input.Value;
-        if (!double.IsFinite(tr))
-        {
-            Last = new TValue(input.Time, double.NaN);
-            PubEvent(Last, isNew);
-            return Last;
-        }
-
-        // Calculate ATR using RMA with warmup compensation
-        _state.RawRma = Math.FusedMultiplyAdd(_state.RawRma, _decay, _alpha * tr);
-        _state.E *= _decay;
-
-        double atr = _state.E > ConvergenceThreshold ? _state.RawRma / (1.0 - _state.E) : _state.RawRma;
-
-        // Without close price, return ATR value (not percentage)
-        TValue result = new(input.Time, atr);
-        Last = result;
-        PubEvent(Last, isNew);
-        return result;
+        throw new NotSupportedException(
+            "ATRP requires OHLC bar data to calculate the percentage (ATR/Close * 100). " +
+            "Use Update(TBar) instead.");
     }
 
     /// <summary>
@@ -247,24 +228,17 @@ public sealed class Atrp : AbstractBase
     }
 
     /// <summary>
-    /// Updates ATRP from a TSeries (assumes values are already TR).
-    /// Returns ATR values (not ATRP percentages since close is not available).
+    /// Updates ATRP from a TSeries.
     /// </summary>
+    /// <exception cref="NotSupportedException">
+    /// ATRP requires OHLC bar data to calculate the percentage (ATR/Close * 100).
+    /// Use Update(TBarSeries) instead.
+    /// </exception>
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
-
-        var t = new List<long>(source.Count);
-        var v = new List<double>(source.Count);
-
-        for (int i = 0; i < source.Count; i++)
-        {
-            TValue result = Update(source[i], true);
-            t.Add(source[i].Time);
-            v.Add(result.Value);
-        }
-
-        return new TSeries(t, v);
+        throw new NotSupportedException(
+            "ATRP requires OHLC bar data to calculate the percentage (ATR/Close * 100). " +
+            "Use Update(TBarSeries) instead.");
     }
 
     /// <summary>

@@ -22,6 +22,8 @@ namespace QuanTAlib;
 public sealed class Adr : AbstractBase
 {
     private readonly AbstractBase _ma;
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     /// <summary>
     /// Creates ADR with specified period and smoothing method.
@@ -53,6 +55,7 @@ public sealed class Adr : AbstractBase
     /// <param name="method">Smoothing method (default: SMA)</param>
     public Adr(ITValuePublisher source, int period, AdrMethod method = AdrMethod.Sma) : this(period, method)
     {
+        _source = source;
         source.Pub += Handle;
     }
 
@@ -151,7 +154,26 @@ public sealed class Adr : AbstractBase
     /// </summary>
     public override TSeries Update(TSeries source)
     {
-        return _ma.Update(source);
+        var result = _ma.Update(source);
+        Last = _ma.Last;
+        return result;
+    }
+
+    /// <summary>
+    /// Disposes the ADR and unsubscribes from the source.
+    /// </summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _source != null)
+            {
+                _source.Pub -= Handle;
+                _source = null;
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 
     /// <summary>

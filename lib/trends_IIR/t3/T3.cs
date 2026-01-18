@@ -146,16 +146,25 @@ public sealed class T3 : AbstractBase
         // Run the calculation on the history to update state
         // We don't need the output, just the final state
         int len = source.Length;
-        double lastValidValue = 0;
+        double lastValidValue = double.NaN;
         State state = _state;
 
         for (int i = 0; i < len; i++)
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValidValue = val;
-            else
+            }
+            else if (double.IsFinite(lastValidValue))
+            {
                 val = lastValidValue;
+            }
+            else
+            {
+                // Skip until we have a valid value
+                continue;
+            }
 
             Compute(val, _params, ref state);
         }

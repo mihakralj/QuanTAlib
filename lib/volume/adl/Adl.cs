@@ -94,20 +94,20 @@ public sealed class Adl : ITValuePublisher
         return Last;
     }
 
+    /// <summary>
+    /// Updates ADL with a TValue input.
+    /// </summary>
+    /// <exception cref="NotSupportedException">
+    /// ADL requires OHLCV bar data to calculate the Money Flow Multiplier and Volume.
+    /// Use Update(TBar) instead.
+    /// </exception>
+#pragma warning disable S2325 // Method signature must match ITValuePublisher contract
     public TValue Update(TValue input, bool isNew = true)
+#pragma warning restore S2325
     {
-        if (isNew)
-        {
-            _p_adl = _adl;
-        }
-        else
-        {
-            _adl = _p_adl;
-        }
-
-        Last = new TValue(input.Time, _adl);
-        Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
-        return Last;
+        throw new NotSupportedException(
+            "ADL requires OHLCV bar data to calculate the Money Flow Multiplier and Volume. " +
+            "Use Update(TBar) instead.");
     }
 
     public TSeries Update(TBarSeries source)

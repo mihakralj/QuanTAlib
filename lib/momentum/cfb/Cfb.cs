@@ -26,7 +26,7 @@ namespace QuanTAlib;
 /// 4. Decay: If no trend found, decay the previous CFB value.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Cfb : ITValuePublisher
+public sealed class Cfb : ITValuePublisher, IDisposable
 {
     private readonly int[] _lengths;
     private readonly int _maxLen;
@@ -40,6 +40,8 @@ public sealed class Cfb : ITValuePublisher
     private State _state;
     private State _p_state;
     private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _publisher;
+    private bool _disposed;
 
     public string Name { get; }
     public event TValuePublishedHandler? Pub;
@@ -87,7 +89,26 @@ public sealed class Cfb : ITValuePublisher
 
     public Cfb(ITValuePublisher source, int[]? lengths = null) : this(lengths)
     {
+        _publisher = source;
         source.Pub += _handler;
+    }
+
+    /// <summary>
+    /// Unsubscribes from the source publisher and releases resources.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        if (_publisher != null)
+        {
+            _publisher.Pub -= _handler;
+        }
+
+        GC.SuppressFinalize(this);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

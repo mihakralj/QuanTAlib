@@ -16,12 +16,14 @@ namespace QuanTAlib;
 /// This indicator measures the rate of change of the price, smoothed by the difference in weighting schemes.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Vel : ITValuePublisher
+public sealed class Vel : ITValuePublisher, IDisposable
 {
     private readonly Pwma _pwma;
     private readonly Wma _wma;
     private readonly int _period;
     private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _publisher;
+    private bool _disposed;
 
     public string Name { get; }
     public TValue Last { get; private set; }
@@ -43,7 +45,26 @@ public sealed class Vel : ITValuePublisher
 
     public Vel(ITValuePublisher source, int period) : this(period)
     {
+        _publisher = source;
         source.Pub += _handler;
+    }
+
+    /// <summary>
+    /// Unsubscribes from the source publisher and releases resources.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        if (_publisher != null)
+        {
+            _publisher.Pub -= _handler;
+        }
+
+        GC.SuppressFinalize(this);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

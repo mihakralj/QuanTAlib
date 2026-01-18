@@ -189,6 +189,9 @@ public sealed class Hp : AbstractBase
             _state.IsInitialized = true;
         }
 
+        // Synchronize _p_state with _state so subsequent isNew=false calls don't rollback to stale values
+        _p_state = _state;
+
         return result;
     }
 

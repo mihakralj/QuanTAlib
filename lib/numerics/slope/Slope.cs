@@ -178,52 +178,64 @@ public sealed class Slope : AbstractBase
 
         int i = 1;
 
-        // AVX512: 8 doubles at once
-        if (Avx512F.IsSupported && len >= 9)
+        // Check if all values are finite before using SIMD
+        // SIMD paths don't handle NaN/Infinity properly
+        bool allFinite = true;
+        for (int k = 0; k < len && allFinite; k++)
         {
-            const int VectorWidth = 8;
-            int simdEnd = len - (len % VectorWidth);
-            ref double srcRef = ref MemoryMarshal.GetReference(source);
-            ref double outRef = ref MemoryMarshal.GetReference(output);
-
-            for (; i < simdEnd; i += VectorWidth)
-            {
-                var current = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
-                var prev = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
-                var diff = Avx512F.Subtract(current, prev);
-                diff.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
-            }
+            allFinite = double.IsFinite(source[k]);
         }
-        // AVX: 4 doubles at once
-        else if (Avx.IsSupported && len >= 5)
-        {
-            const int VectorWidth = 4;
-            int simdEnd = len - ((len - 1) % VectorWidth);
-            ref double srcRef = ref MemoryMarshal.GetReference(source);
-            ref double outRef = ref MemoryMarshal.GetReference(output);
 
-            for (; i < simdEnd; i += VectorWidth)
+        // Only use SIMD if all values are finite
+        if (allFinite)
+        {
+            // AVX512: 8 doubles at once
+            if (Avx512F.IsSupported && len >= 9)
             {
-                var current = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
-                var prev = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
-                var diff = Avx.Subtract(current, prev);
-                diff.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+                const int VectorWidth = 8;
+                int simdEnd = len - (len % VectorWidth);
+                ref double srcRef = ref MemoryMarshal.GetReference(source);
+                ref double outRef = ref MemoryMarshal.GetReference(output);
+
+                for (; i < simdEnd; i += VectorWidth)
+                {
+                    var current = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
+                    var prev = Vector512.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
+                    var diff = Avx512F.Subtract(current, prev);
+                    diff.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+                }
             }
-        }
-        // ARM64 Neon: 2 doubles at once
-        else if (AdvSimd.Arm64.IsSupported && len >= 3)
-        {
-            const int VectorWidth = 2;
-            int simdEnd = len - ((len - 1) % VectorWidth);
-            ref double srcRef = ref MemoryMarshal.GetReference(source);
-            ref double outRef = ref MemoryMarshal.GetReference(output);
-
-            for (; i < simdEnd; i += VectorWidth)
+            // AVX: 4 doubles at once
+            else if (Avx.IsSupported && len >= 5)
             {
-                var current = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
-                var prev = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
-                var diff = AdvSimd.Arm64.Subtract(current, prev);
-                diff.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+                const int VectorWidth = 4;
+                int simdEnd = len - ((len - 1) % VectorWidth);
+                ref double srcRef = ref MemoryMarshal.GetReference(source);
+                ref double outRef = ref MemoryMarshal.GetReference(output);
+
+                for (; i < simdEnd; i += VectorWidth)
+                {
+                    var current = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
+                    var prev = Vector256.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
+                    var diff = Avx.Subtract(current, prev);
+                    diff.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+                }
+            }
+            // ARM64 Neon: 2 doubles at once
+            else if (AdvSimd.Arm64.IsSupported && len >= 3)
+            {
+                const int VectorWidth = 2;
+                int simdEnd = len - ((len - 1) % VectorWidth);
+                ref double srcRef = ref MemoryMarshal.GetReference(source);
+                ref double outRef = ref MemoryMarshal.GetReference(output);
+
+                for (; i < simdEnd; i += VectorWidth)
+                {
+                    var current = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i));
+                    var prev = Vector128.LoadUnsafe(ref Unsafe.Add(ref srcRef, i - 1));
+                    var diff = AdvSimd.Arm64.Subtract(current, prev);
+                    diff.StoreUnsafe(ref Unsafe.Add(ref outRef, i));
+                }
             }
         }
 

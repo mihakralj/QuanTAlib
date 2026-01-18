@@ -292,7 +292,7 @@ public sealed class Lsma : AbstractBase
     /// Zero-allocation method for maximum performance.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = double.NaN)
     {
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output must have the same length", nameof(output));

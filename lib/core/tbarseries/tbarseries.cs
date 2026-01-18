@@ -145,11 +145,11 @@ public class TBarSeries : IReadOnlyList<TBar>
         _c = new List<double>(capacity);
         _v = new List<double>(capacity);
 
-        Open = new TSeries(_t, _o) { Name = "Open" };
-        High = new TSeries(_t, _h) { Name = "High" };
-        Low = new TSeries(_t, _l) { Name = "Low" };
-        Close = new TSeries(_t, _c) { Name = "Close" };
-        Volume = new TSeries(_t, _v) { Name = "Volume" };
+        Open = new TSeries(_t, _o, shareStorage: true) { Name = "Open" };
+        High = new TSeries(_t, _h, shareStorage: true) { Name = "High" };
+        Low = new TSeries(_t, _l, shareStorage: true) { Name = "Low" };
+        Close = new TSeries(_t, _c, shareStorage: true) { Name = "Close" };
+        Volume = new TSeries(_t, _v, shareStorage: true) { Name = "Volume" };
     }
 
     public int Count

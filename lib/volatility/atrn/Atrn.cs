@@ -137,10 +137,9 @@ public sealed class Atrn : AbstractBase
         {
             _state = _p_state;
             _atrBuffer.Restore();
-            _rma.Update(new TValue(input.Time, _state.LastValidTr), false);
         }
 
-        // Calculate True Range
+        // Calculate True Range FIRST (before RMA update for bar correction)
         double tr;
         if (!_state.IsInitialized)
         {
@@ -161,7 +160,7 @@ public sealed class Atrn : AbstractBase
             tr = _state.LastValidTr;
         }
 
-        // Calculate ATR using RMA
+        // Calculate ATR using RMA (now uses freshly computed TR for both new and correction paths)
         TValue atrResult = _rma.Update(new TValue(input.Time, tr), isNew);
         double currentAtr = atrResult.Value;
 

@@ -59,6 +59,13 @@ public sealed class Atr : AbstractBase
         var tr = CalculateTrueRange(source);
         _rma.Prime(tr.Values);
         Last = _rma.Last;
+
+        // Set internal state for subsequent Update(TBar) calls
+        if (source.Count > 0)
+        {
+            _prevBar = source.Last;
+            _isInitialized = true;
+        }
         // We can't automatically subscribe to TBarSeries updates via this constructor
         // because AbstractBase doesn't enforce TBarSeries subscription structure,
         // but we can rely on manual updates or the user subscribing.

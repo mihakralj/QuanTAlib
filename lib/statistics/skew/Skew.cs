@@ -52,6 +52,11 @@ public sealed class Skew : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
+        // Snapshot current state for rollback
+        double p_sum = _sum;
+        double p_sumSq = _sumSq;
+        double p_sumCu = _sumCu;
+
         if (isNew)
         {
             if (_buffer.IsFull)
@@ -76,6 +81,11 @@ public sealed class Skew : AbstractBase
         }
         else
         {
+            // Restore previous state before applying correction
+            _sum = p_sum;
+            _sumSq = p_sumSq;
+            _sumCu = p_sumCu;
+
             double oldNewest = _buffer.Newest;
             _buffer.UpdateNewest(input.Value);
 
@@ -147,6 +157,13 @@ public sealed class Skew : AbstractBase
         Batch(source.Values, vSpan, _period, _isPopulation);
         source.Times.CopyTo(tSpan);
 
+        // Reset running state before priming
+        _buffer.Clear();
+        _sum = 0;
+        _sumSq = 0;
+        _sumCu = 0;
+        _updateCount = 0;
+
         // Prime the state
         int primeStart = Math.Max(0, len - _period);
         for (int i = primeStart; i < len; i++)
@@ -187,9 +204,14 @@ public sealed class Skew : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
+        DateTime ts = DateTime.MinValue;
         foreach (double value in source)
         {
-            Update(new TValue(DateTime.UtcNow, value));
+            Update(new TValue(ts, value));
+            if (step.HasValue)
+            {
+                ts = ts.Add(step.Value);
+            }
         }
     }
 

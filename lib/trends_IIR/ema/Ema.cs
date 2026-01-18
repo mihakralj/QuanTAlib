@@ -247,9 +247,8 @@ public sealed class Ema : AbstractBase
 
     /// <summary>
     /// Core EMA computation with bias compensation.
-    /// Pure function that computes the next EMA value given current state.
+    /// Computes the next EMA value and updates state in place.
     /// </summary>
-    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static double Compute(double input, double alpha, double decay, ref State state)
     {

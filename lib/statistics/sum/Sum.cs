@@ -81,12 +81,13 @@ public sealed class Sum : AbstractBase
 
     public Sum(TSeries source, int period) : this(period)
     {
+        source.Pub += _handler;
         Prime(source.Values);
         if (source.Count > 0)
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        source.Pub += _handler;
+        _p_state = _state;
     }
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);

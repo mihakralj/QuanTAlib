@@ -50,11 +50,11 @@ public class TValueTests
     }
 
     [Fact]
-    public void ImplicitConversion_ToDouble_ReturnsValue()
+    public void ExplicitConversion_ToDouble_ReturnsValue()
     {
         var tValue = new TValue(DateTime.UtcNow.Ticks, 42.0);
 
-        double val = tValue;
+        double val = (double)tValue;
 
         Assert.Equal(42.0, val);
     }
@@ -273,11 +273,11 @@ public class TValueTests
     }
 
     [Fact]
-    public void ImplicitConversion_ToDouble_WithNaN_ReturnsNaN()
+    public void ExplicitConversion_ToDouble_WithNaN_ReturnsNaN()
     {
         var tValue = new TValue(DateTime.UtcNow.Ticks, double.NaN);
 
-        double val = tValue;
+        double val = (double)tValue;
 
         Assert.True(double.IsNaN(val));
     }

@@ -18,7 +18,7 @@ public class MacdTests
         var macd = new Macd(12, 26, 9);
         Assert.NotNull(macd);
         Assert.Equal("Macd(12,26,9)", macd.Name);
-        Assert.Equal(35, macd.WarmupPeriod); // max(12,26) + 9 = 35
+        Assert.Equal(33, macd.WarmupPeriod); // max(12,26) + 9 - 2 = 33
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class MacdTests
         var macd = new Macd(5, 10, 3);
         Assert.NotNull(macd);
         Assert.Equal("Macd(5,10,3)", macd.Name);
-        Assert.Equal(13, macd.WarmupPeriod); // max(5,10) + 3 = 13
+        Assert.Equal(11, macd.WarmupPeriod); // max(5,10) + 3 - 2 = 11
     }
 
     [Fact]

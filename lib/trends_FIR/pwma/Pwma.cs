@@ -31,7 +31,6 @@ public sealed class Pwma : AbstractBase
     private readonly int _period;
     private readonly double _divisor;
     private readonly RingBuffer _buffer;
-    private readonly RingBuffer _p_buffer;
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Auto)]
@@ -50,7 +49,6 @@ public sealed class Pwma : AbstractBase
         _period = period;
         _divisor = (double)period * ((double)period + 1.0) * (2.0 * (double)period + 1.0) / 6.0;
         _buffer = new RingBuffer(period);
-        _p_buffer = new RingBuffer(period);
         Name = $"Pwma({period})";
         WarmupPeriod = period;
         _handler = Handle;
@@ -133,23 +131,26 @@ public sealed class Pwma : AbstractBase
             UpdateLastValidValue(val);
             UpdateState(val);
             _state.LastInput = val;
+
+            // Save state AFTER the update for rollback support
             _p_state = _state;
-            _p_buffer.CopyFrom(_buffer);
         }
         else
         {
+            // Defensive check: isNew must be true for the first update
+            if (_buffer.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Cannot call Update with isNew=false when buffer is empty. " +
+                    "The first update must have isNew=true to initialize state.");
+            }
+
+            // Restore state (not buffer - we just adjust sums mathematically)
             _state = _p_state;
-            _buffer.CopyFrom(_p_buffer);
             double val = GetValidValue(input.Value, _state.LastValidValue);
 
-            // Recalculate for the updated last value
-            // We can't easily use the O(1) update formula here because we are replacing the newest value,
-            // not shifting the window.
-            // But we can adjust the sums directly.
-            // S1' = S1 - last + new
-            // S2' = S2 - n*last + n*new
-            // S3' = S3 - n^2*last + n^2*new
-
+            // Adjust sums: replace LastInput with new value
+            // The weight n is the count at the newest position (period if full, else current count)
             int n = _buffer.IsFull ? _period : _buffer.Count;
             double diff = val - _state.LastInput;
 
@@ -220,7 +221,6 @@ public sealed class Pwma : AbstractBase
         }
 
         _p_state = _state;
-        _p_buffer.CopyFrom(_buffer);
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);
@@ -338,7 +338,6 @@ public sealed class Pwma : AbstractBase
     public override void Reset()
     {
         _buffer.Clear();
-        _p_buffer.Clear();
         _state = default;
         _p_state = default;
         Last = default;

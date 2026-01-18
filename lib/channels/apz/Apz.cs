@@ -336,10 +336,6 @@ public sealed class Apz : ITValuePublisher
             }
         }
 
-        // Force IsHot if we've processed enough data
-        if (source.Count >= WarmupPeriod)
-            _state.IsHot = true;
-
         _p_state = _state;
     }
 

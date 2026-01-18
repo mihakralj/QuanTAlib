@@ -314,7 +314,7 @@ public sealed class Hamma : AbstractBase
                 }
                 else
                 {
-                    val = 0.0; // Fallback if series starts with NaN
+                    val = double.NaN; // Preserve NaN until first valid value seen
                 }
 
                 // Add to circular buffer

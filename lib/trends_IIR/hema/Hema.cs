@@ -359,6 +359,7 @@ public sealed class Hema : AbstractBase
                     decaySlow = 1.0;
                     decayFast = 1.0;
                     decaySmooth = 1.0;
+                    warmup = true;
                     output[i] = val;
                     continue;
                 }

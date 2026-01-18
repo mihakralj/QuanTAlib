@@ -67,6 +67,10 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static double VarianceScalar(ReadOnlySpan<double> span, double mean)
     {
+        // Match VarianceSIMD behavior: return 0.0 for length <= 1 to avoid divide-by-zero
+        if (span.Length <= 1)
+            return 0.0;
+
         double sumSquares = 0.0;
         for (int i = 0; i < span.Length; i++)
         {
@@ -79,6 +83,9 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static (double Min, double Max) MinMaxScalar(ReadOnlySpan<double> span)
     {
+        if (span.Length == 0)
+            throw new ArgumentException("Span must not be empty", nameof(span));
+
         double scalarMin = span[0];
         double scalarMax = span[0];
         for (int i = 1; i < span.Length; i++)

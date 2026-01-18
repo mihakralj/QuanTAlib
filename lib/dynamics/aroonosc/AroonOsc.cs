@@ -188,6 +188,8 @@ public sealed class AroonOsc : ITValuePublisher
 
         for (int i = 0; i < len; i++)
         {
+            // Window includes up to 'period + 1' bars ending at index i
+            // This matches the streaming version which uses RingBuffer(period + 1)
             int windowStart = i - Math.Min(i, period);
 
             double maxVal = double.MinValue;

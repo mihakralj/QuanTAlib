@@ -116,7 +116,8 @@ public sealed class Elliptic : AbstractBase
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
 
-        Calculate(values, results, Period);
+        // Calculate and capture ending state
+        CalculateWithState(values, results, Period, out var endState);
 
         TSeries output = [];
         for (int i = 0; i < values.Length; i++)
@@ -124,12 +125,10 @@ public sealed class Elliptic : AbstractBase
             output.Add(source[i].Time, results[i]);
         }
 
-        // Update internal state to match the end of the batch
-        Reset();
-        for (int i = 0; i < source.Count; i++)
-        {
-            Update(source[i]);
-        }
+        // Set internal state from calculated end state (no double-processing)
+        _state = endState;
+        _p_state = endState;
+        Last = new TValue(source[source.Count - 1].Time, results[results.Length - 1]);
 
         return output;
     }
@@ -198,6 +197,14 @@ public sealed class Elliptic : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
+        CalculateWithState(source, output, period, out _);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void CalculateWithState(ReadOnlySpan<double> source, Span<double> output, int period, out State endState)
+    {
+        endState = default;
+
         if (source.Length != output.Length)
             throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
 
@@ -278,6 +285,17 @@ public sealed class Elliptic : AbstractBase
             filt2 = filt1;
             filt1 = filt;
         }
+
+        // Capture ending state
+        endState = new State
+        {
+            Src1 = src1,
+            Src2 = src2,
+            Filt1 = filt1,
+            Filt2 = filt2,
+            LastValid = lastValid,
+            IsInitialized = initialized
+        };
     }
 
     /// <summary>

@@ -22,8 +22,8 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Exp : AbstractBase
 {
-    private record struct State(double LastValid);
-    private State _state, _p_state;
+    private record struct State(double LastValid = 1.0);  // exp(0) = 1
+    private State _state = new(1.0), _p_state = new(1.0);
 
     public override bool IsHot => true;  // No warmup needed
 
@@ -145,8 +145,8 @@ public sealed class Exp : AbstractBase
 
     public override void Reset()
     {
-        _state = default;
-        _p_state = default;
+        _state = new(1.0);
+        _p_state = new(1.0);
         Last = default;
     }
 }

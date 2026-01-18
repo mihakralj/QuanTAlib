@@ -27,7 +27,7 @@ namespace QuanTAlib;
 /// Based on concepts from J. Welles Wilder's ATR
 /// </remarks>
 [SkipLocalsInit]
-public sealed class AtrBands : ITValuePublisher
+public sealed class AtrBands : ITValuePublisher, IDisposable
 {
     private readonly int _period;
     private readonly double _multiplier;
@@ -35,6 +35,7 @@ public sealed class AtrBands : ITValuePublisher
     private readonly double _decay;
     private readonly RingBuffer _sourceBuffer;
     private readonly TBarPublishedHandler _barHandler;
+    private TBarSeries? _source;
 
     private const double ConvergenceThreshold = 1e-10;
     private const int ResyncInterval = 1000;
@@ -133,8 +134,21 @@ public sealed class AtrBands : ITValuePublisher
     /// </summary>
     public AtrBands(TBarSeries source, int period, double multiplier = 2.0) : this(period, multiplier)
     {
+        _source = source;
         Prime(source);
         source.Pub += _barHandler;
+    }
+
+    /// <summary>
+    /// Releases managed resources (unsubscribes from source event).
+    /// </summary>
+    public void Dispose()
+    {
+        if (_source is not null)
+        {
+            _source.Pub -= _barHandler;
+            _source = null;
+        }
     }
 
     private void HandleBar(object? sender, in TBarEventArgs e) => Update(e.Value, e.IsNew);

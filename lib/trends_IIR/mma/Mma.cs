@@ -109,38 +109,50 @@ public sealed class Mma : AbstractBase
         var vSpan = CollectionsMarshal.AsSpan(v);
         source.Times.CopyTo(tSpan);
 
+        // Snapshot buffer state before batch processing
+        _buffer.Snapshot();
+
+        State preBatchState = _state;
+        double preBatchLastValid = _lastValidValue;
         State state = _state;
         double lastValid = _lastValidValue;
 
-        for (int i = 0; i < len; i++)
+        try
         {
-            if (i == len - 1)
+            for (int i = 0; i < len; i++)
             {
-                _p_state = state;
-                _p_lastValidValue = lastValid;
-                _buffer.Snapshot();
+                double val = source.Values[i];
+                if (double.IsFinite(val))
+                    lastValid = val;
+                else
+                    val = lastValid;
+
+                if (double.IsNaN(val))
+                {
+                    vSpan[i] = double.NaN;
+                    continue;
+                }
+
+                state.Bars++;
+                _buffer.Add(val);
+
+                vSpan[i] = Compute(ref state);
             }
 
-            double val = source.Values[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
+            // Only update state after successful completion
+            _state = state;
+            _lastValidValue = lastValid;
 
-            if (double.IsNaN(val))
-            {
-                vSpan[i] = double.NaN;
-                continue;
-            }
-
-            state.Bars++;
-            _buffer.Add(val);
-
-            vSpan[i] = Compute(ref state);
+            // Set previous state to pre-batch for bar correction support
+            _p_state = preBatchState;
+            _p_lastValidValue = preBatchLastValid;
         }
-
-        _state = state;
-        _lastValidValue = lastValid;
+        catch
+        {
+            // Restore buffer to pre-batch state on any exception
+            _buffer.Restore();
+            throw;
+        }
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
         return new TSeries(t, v);

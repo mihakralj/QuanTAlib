@@ -275,6 +275,9 @@ public sealed class Frama : ITValuePublisher
     private static double GetMax(RingBuffer buffer, int length, int startOffset = -1)
     {
         int count = buffer.Count;
+        if (count == 0 || length <= 0)
+            return double.NaN;
+
         int capacity = buffer.Capacity;
         int start = buffer.StartIndex;
         ReadOnlySpan<double> data = buffer.InternalBuffer;
@@ -299,6 +302,9 @@ public sealed class Frama : ITValuePublisher
     private static double GetMin(RingBuffer buffer, int length, int startOffset = -1)
     {
         int count = buffer.Count;
+        if (count == 0 || length <= 0)
+            return double.NaN;
+
         int capacity = buffer.Capacity;
         int start = buffer.StartIndex;
         ReadOnlySpan<double> data = buffer.InternalBuffer;

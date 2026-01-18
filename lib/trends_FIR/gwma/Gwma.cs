@@ -152,7 +152,7 @@ public sealed class Gwma : AbstractBase
         Last = new TValue(input.Time, result);
         if (publish)
         {
-            PubEvent(Last);
+            PubEvent(Last, isNew);
         }
         return Last;
     }

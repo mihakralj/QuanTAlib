@@ -98,6 +98,7 @@ public sealed class Trima : AbstractBase
         Prime(source.Values);
 
         Last = new TValue(tSpan[len - 1], vSpan[len - 1]);
+        _isNew = true; // Ensure _isNew is consistent after batch update
         return new TSeries(t, v);
     }
 

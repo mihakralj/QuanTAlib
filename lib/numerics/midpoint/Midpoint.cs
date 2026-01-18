@@ -103,16 +103,38 @@ public sealed class Midpoint : AbstractBase
         if (period < 1)
             throw new ArgumentException("Period must be >= 1", nameof(period));
 
-        // Calculate highest and lowest, then combine
-        Span<double> highBuffer = stackalloc double[source.Length];
-        Span<double> lowBuffer = stackalloc double[source.Length];
+        int len = source.Length;
 
-        Highest.Calculate(source, highBuffer, period);
-        Lowest.Calculate(source, lowBuffer, period);
+        // Use ArrayPool for large arrays to avoid stack overflow
+        double[]? rentedHigh = null;
+        double[]? rentedLow = null;
 
-        for (int i = 0; i < source.Length; i++)
+#pragma warning disable S1121 // Assignments should not be made from within sub-expressions
+        Span<double> highBuffer = len <= 256
+            ? stackalloc double[len]
+            : (rentedHigh = System.Buffers.ArrayPool<double>.Shared.Rent(len)).AsSpan(0, len);
+
+        Span<double> lowBuffer = len <= 256
+            ? stackalloc double[len]
+            : (rentedLow = System.Buffers.ArrayPool<double>.Shared.Rent(len)).AsSpan(0, len);
+#pragma warning restore S1121
+
+        try
         {
-            output[i] = (highBuffer[i] + lowBuffer[i]) * 0.5;
+            Highest.Calculate(source, highBuffer, period);
+            Lowest.Calculate(source, lowBuffer, period);
+
+            for (int i = 0; i < len; i++)
+            {
+                output[i] = (highBuffer[i] + lowBuffer[i]) * 0.5;
+            }
+        }
+        finally
+        {
+            if (rentedHigh != null)
+                System.Buffers.ArrayPool<double>.Shared.Return(rentedHigh);
+            if (rentedLow != null)
+                System.Buffers.ArrayPool<double>.Shared.Return(rentedLow);
         }
     }
 

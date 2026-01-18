@@ -51,7 +51,7 @@ public sealed class StdDev : AbstractBase
         double stdDev = (val > 0) ? Math.Sqrt(val) : 0.0;
 
         Last = new TValue(input.Time, stdDev);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 
@@ -136,11 +136,14 @@ public sealed class StdDev : AbstractBase
             const int VectorWidth = 8;
             int simdEnd = len - (len % VectorWidth);
             ref double dataRef = ref MemoryMarshal.GetReference(data);
+            var vZero = Vector512<double>.Zero;
 
             for (; i < simdEnd; i += VectorWidth)
             {
                 var v = Vector512.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
-                var vSqrt = Avx512F.Sqrt(v);
+                // Clamp negative values to zero before sqrt to avoid NaN
+                var vClamped = Vector512.Max(v, vZero);
+                var vSqrt = Avx512F.Sqrt(vClamped);
                 vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }
@@ -150,11 +153,14 @@ public sealed class StdDev : AbstractBase
             const int VectorWidth = 4;
             int simdEnd = len - (len % VectorWidth);
             ref double dataRef = ref MemoryMarshal.GetReference(data);
+            var vZero = Vector256<double>.Zero;
 
             for (; i < simdEnd; i += VectorWidth)
             {
                 var v = Vector256.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
-                var vSqrt = Avx.Sqrt(v);
+                // Clamp negative values to zero before sqrt to avoid NaN
+                var vClamped = Avx.Max(v, vZero);
+                var vSqrt = Avx.Sqrt(vClamped);
                 vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }
@@ -164,11 +170,14 @@ public sealed class StdDev : AbstractBase
             const int VectorWidth = 2;
             int simdEnd = len - (len % VectorWidth);
             ref double dataRef = ref MemoryMarshal.GetReference(data);
+            var vZero = Vector128<double>.Zero;
 
             for (; i < simdEnd; i += VectorWidth)
             {
                 var v = Vector128.LoadUnsafe(ref Unsafe.Add(ref dataRef, i));
-                var vSqrt = AdvSimd.Arm64.Sqrt(v);
+                // Clamp negative values to zero before sqrt to avoid NaN
+                var vClamped = AdvSimd.Arm64.Max(v, vZero);
+                var vSqrt = AdvSimd.Arm64.Sqrt(vClamped);
                 vSqrt.StoreUnsafe(ref Unsafe.Add(ref dataRef, i));
             }
         }

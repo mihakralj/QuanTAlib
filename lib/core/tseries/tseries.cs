@@ -92,16 +92,20 @@ public class TSeries : IReadOnlyList<TValue>, ITValuePublisher
 
     public TSeries(IReadOnlyList<long> time, IReadOnlyList<double> values)
     {
-        if (time is List<long> timeList && values is List<double> valueList)
-        {
-            _t = timeList;
-            _v = valueList;
-        }
-        else
-        {
-            _t = [.. time];
-            _v = [.. values];
-        }
+        // Always make defensive copies to prevent external mutation of internal state
+        _t = [.. time];
+        _v = [.. values];
+    }
+
+    /// <summary>
+    /// Internal constructor for creating views that share underlying storage.
+    /// Used by TBarSeries to create synchronized OHLCV sub-series.
+    /// </summary>
+    internal TSeries(List<long> time, List<double> values, bool shareStorage)
+    {
+        // Direct assignment for intentional storage sharing (internal use only)
+        _t = time;
+        _v = values;
     }
 
     public int Count
