@@ -1,0 +1,50 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Hann FIR Filter (HANN)", "HANN", overlay=true)
+
+//@function Calculates a Finite Impulse Response (FIR) filter using Hann window coefficients
+//@param src Series to calculate the Hann FIR filter from
+//@param len The lookback period (length) of the Hann window
+//@returns Hann FIR filter value
+//@optimized Uses FIR convolution with Hann window, O(n) complexity per bar
+hann(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    var float[] w = array.new_float(0)
+    var float coefSum = 0.0
+    var int lastLen = 0
+    if len != lastLen or array.size(w) == 0
+        if len > 0
+            w := array.new_float(len)
+            coefSum := 0.0
+            for i = 0 to len - 1
+                float c = 0.5 * (1.0 - math.cos(2.0 * math.pi * i / (len - 1)))
+                array.set(w, i, c)
+                coefSum += c
+            if coefSum == 0.0
+                coefSum := 1.0
+        lastLen := len
+    int p = math.min(bar_index + 1, len)
+    float acc = 0.0
+    float currentWeightSum = 0.0
+    if array.size(w) > 0 and p > 0
+        for i = 0 to p - 1
+            float price = src[p - 1 - i]
+            if not na(price)
+                float weight = array.get(w, i)
+                acc += price * weight
+                currentWeightSum += weight
+    nz(currentWeightSum == 0.0 ? src : acc / currentWeightSum, src)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_len = input.int(10, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+hann_val = hann(i_source, i_len)
+
+// Plot
+plot(hann_val, "HANN", color=color.yellow, linewidth=2)

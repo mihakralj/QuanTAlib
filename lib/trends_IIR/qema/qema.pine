@@ -1,0 +1,139 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("QEMA (OptA, progressive α, period-only)", "QEMA OptA", overlay=true)
+
+// ---------- Inputs ----------
+i_period = input.int(15, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// ---------- Helpers ----------
+clamp01(x) =>
+    math.min(1.0, math.max(x, 1e-12))
+
+lag(alpha) =>
+    (1.0 - alpha) / alpha
+
+// ---------- QEMA: progressive alphas + Option A weights ----------
+qema_optA(series float srcIn, int period) =>
+    // --- dirty-data guard (NA only; Pine doesn't expose isfinite/isinf) ---
+    var float lastFinite = na
+    float src = srcIn
+    if na(src)
+        src := nz(lastFinite, src)
+    else
+        lastFinite := src
+
+    // --- base alpha from period ---
+    float a1 = clamp01(2.0 / (period + 1.0))
+
+    // --- progressive alpha ramp (your design) ---
+    // r = (1/a1)^(1/4) -> a2=a1^(3/4), a3=a1^(1/2), a4=a1^(1/4)
+    float r  = math.pow(1.0 / a1, 0.25)
+    float a2 = clamp01(a1 * r)
+    float a3 = clamp01(a2 * r)
+    float a4 = clamp01(a3 * r)
+
+    float d1 = 1.0 - a1
+    float d2 = 1.0 - a2
+    float d3 = 1.0 - a3
+    float d4 = 1.0 - a4
+
+    // --- unbiased warmup (startup bias compensation) ---
+    var float e1 = 1.0
+    var float e2 = 1.0
+    var float e3 = 1.0
+    var float e4 = 1.0
+    var bool warmup = true
+
+    // --- EMA accumulators ---
+    var float rema1 = 0.0
+    var float rema2 = 0.0
+    var float rema3 = 0.0
+    var float rema4 = 0.0
+
+    float ema1 = na
+    float ema2 = na
+    float ema3 = na
+    float ema4 = na
+
+    // Stage 1
+    rema1 := rema1 + a1 * (src - rema1)
+
+    if warmup
+        e1 *= d1
+        e2 *= d2
+        e3 *= d3
+        e4 *= d4
+
+        float c1 = 1.0 / (1.0 - e1)
+        float c2 = 1.0 / (1.0 - e2)
+        float c3 = 1.0 / (1.0 - e3)
+        float c4 = 1.0 / (1.0 - e4)
+
+        ema1 := rema1 * c1
+
+        rema2 := rema2 + a2 * (ema1 - rema2)
+        ema2  := rema2 * c2
+
+        rema3 := rema3 + a3 * (ema2 - rema3)
+        ema3  := rema3 * c3
+
+        rema4 := rema4 + a4 * (ema3 - rema4)
+        ema4  := rema4 * c4
+
+        // stage 1 is slowest => if it's unbiased, others are too
+        warmup := e1 > 1e-10
+    else
+        ema1 := rema1
+        rema2 := rema2 + a2 * (ema1 - rema2)
+        ema2 := rema2
+        rema3 := rema3 + a3 * (ema2 - rema3)
+        ema3 := rema3
+        rema4 := rema4 + a4 * (ema3 - rema4)
+        ema4 := rema4
+
+    // --- cumulative lags (mean-lag proxy) ---
+    float t1 = lag(a1)
+    float t2 = lag(a2)
+    float t3 = lag(a3)
+    float t4 = lag(a4)
+
+    float L1 = t1
+    float L2 = t1 + t2
+    float L3 = L2 + t3
+    float L4 = L3 + t4
+
+    // --- Option A weights: min-energy with constraints ---
+    // Σw = 1
+    // Σw*L = δ, with δ=0 here (zero DC lag)
+    float delta = 0.0
+
+    float B = L1 + L2 + L3 + L4
+    float C = L1*L1 + L2*L2 + L3*L3 + L4*L4
+    float D = 4.0*C - B*B
+
+    float w1 = na
+    float w2 = na
+    float w3 = na
+    float w4 = na
+
+    if math.abs(D) < 1e-12
+        // degenerate (e.g. a1==1 -> all L=0): safest output is ema1==src
+        w1 := 1.0
+        w2 := 0.0
+        w3 := 0.0
+        w4 := 0.0
+    else
+        float lambda = (C - B*delta) / D
+        float mu     = (-B + 4.0*delta) / D
+        w1 := lambda + mu*L1
+        w2 := lambda + mu*L2
+        w3 := lambda + mu*L3
+        w4 := lambda + mu*L4
+
+    w1*ema1 + w2*ema2 + w3*ema3 + w4*ema4
+
+// ---------- Main ----------
+float q = qema_optA(i_source, i_period)
+plot(q, "QEMA OptA", color.new(color.yellow, 0), 2)

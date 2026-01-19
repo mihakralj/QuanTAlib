@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chebyshev Type I Filter (CHEBY1)", "CHEBY1", overlay=true)
+
+//@function Calculates 2nd Order Chebyshev Type I Lowpass Filter
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/cheby1.md
+//@param src Series to calculate Chebyshev filter from
+//@param length Cutoff period (related to cutoff frequency)
+//@param ripple Passband ripple in decibels (dB) > 0
+//@returns Chebyshev Type I filter value
+//@optimized Uses IIR 2nd order Chebyshev Type I filter with O(1) complexity per bar
+cheby1(series float src, simple int length, simple float ripple) =>
+    float pi = math.pi
+    int safe_length = math.max(length, 2)
+    float safe_ripple = math.max(ripple, 0.01)
+    float wc = 2.0 * pi / safe_length
+    float Wc = math.tan(wc / 2.0)
+    float epsilon = math.sqrt(math.pow(10.0, safe_ripple / 10.0) - 1.0)
+    float asinh_inv_eps = math.log(1.0 / epsilon + math.sqrt(1.0 / (epsilon * epsilon) + 1.0))
+    float mu = asinh_inv_eps / 2.0
+    float sinh_mu = (math.exp(mu) - math.exp(-mu)) / 2.0
+    float cosh_mu = (math.exp(mu) + math.exp(-mu)) / 2.0
+    float sigma = -sinh_mu * Wc
+    float omega_d = cosh_mu * Wc
+    float K = sigma * sigma + omega_d * omega_d
+    float a0_z = 1.0 - 2.0 * sigma + K
+    float a1_z = 2.0 * K - 2.0
+    float a2_z = 1.0 + 2.0 * sigma + K
+    float b0_z = K
+    float b1_z = 2.0 * K
+    float b2_z = K
+    float B0 = b0_z / a0_z
+    float B1 = b1_z / a0_z
+    float B2 = b2_z / a0_z
+    float A1 = a1_z / a0_z
+    float A2 = a2_z / a0_z
+    var float filt = na
+    if bar_index < 2
+        filt := nz(src, 0.0)
+    else
+        float ssrc = nz(src, src[1])
+        float src1 = nz(src[1], ssrc)
+        float src2 = nz(src[2], src1)
+        float filt1 = nz(filt[1], ssrc)
+        float filt2 = nz(filt[2], filt1)
+        filt := B0 * ssrc + B1 * src1 + B2 * src2 - A1 * filt1 - A2 * filt2
+    filt
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=2)
+i_ripple = input.float(1.0, "Passband Ripple (dB)", minval=0.01, step=0.1)
+i_source = input.source(close, "Source")
+
+// Calculation
+cheby1_val = cheby1(i_source, i_length, i_ripple)
+
+// Plot
+plot(cheby1_val, "Cheby1", color=color.yellow, linewidth=2)

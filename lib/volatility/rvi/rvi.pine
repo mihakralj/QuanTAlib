@@ -1,0 +1,76 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Relative Volatility Index (RVI)", shorttitle="RVI", overlay=false)
+
+//@function Calculates the Relative Volatility Index (RVI).
+//@doc The logic of custom stddev and rma is now inlined within this function.
+//@param src The source series to calculate RVI from. Default is `close`.
+//@param stdevLength The lookback period for calculating the standard deviation of source prices. Default is 10.
+//@param rmaLength The lookback period for Wilder's smoothing (RMA) of the upward and downward standard deviations. Default is 14.
+//@returns float The Relative Volatility Index value.
+rvi(series float src = close, simple int stdevLength = 10, simple int rmaLength = 14) =>
+    if stdevLength <= 1 
+        runtime.error("Standard Deviation Length must be greater than 1")
+    if rmaLength <= 0
+        runtime.error("RMA Length must be greater than 0")
+    float currentStdDev = 0.0
+    var array<float> buffer_stddev = array.new_float(stdevLength, na) // p_stddev simplified
+    var int head_stddev = 0, var int count_stddev = 0
+    var float sum_stddev = 0.0, var float sumSq_stddev = 0.0
+    float oldest_stddev = array.get(buffer_stddev, head_stddev)
+    if not na(oldest_stddev)
+        sum_stddev -= oldest_stddev
+        sumSq_stddev -= oldest_stddev * oldest_stddev
+        count_stddev -= 1
+    float val_stddev = nz(src) 
+    sum_stddev += val_stddev
+    sumSq_stddev += val_stddev * val_stddev
+    count_stddev += 1
+    array.set(buffer_stddev, head_stddev, val_stddev)
+    head_stddev := (head_stddev + 1) % stdevLength // p_stddev simplified
+    if count_stddev > 1
+        currentStdDev := math.sqrt(math.max(0.0, (sumSq_stddev / count_stddev) - math.pow(sum_stddev / count_stddev, 2)))
+    else
+        currentStdDev := 0.0 
+    float priceChange = src - src[1]
+    float upStd_val = 0.0, float downStd_val = 0.0
+    if priceChange > 0
+        upStd_val := currentStdDev
+    else if priceChange < 0
+        downStd_val := currentStdDev
+    var float raw_rma_up = 0.0, var float e_up = 1.0
+    var float avgUpStd = 0.0 , var float EPSILON_rma = 1e-10 
+    if not na(upStd_val) 
+        float alpha_up = 1.0 / float(rmaLength)
+        raw_rma_up := (raw_rma_up * (rmaLength - 1) + upStd_val) / rmaLength
+        e_up := (1 - alpha_up) * e_up
+    avgUpStd := e_up > EPSILON_rma ? raw_rma_up / (1.0 - e_up) : raw_rma_up
+    if rmaLength == 0 
+        avgUpStd := upStd_val
+    var float raw_rma_down = 0.0, var float e_down = 1.0
+    var float avgDownStd = 0.0
+    if not na(downStd_val) 
+        float alpha_down = 1.0 / float(rmaLength)
+        raw_rma_down := (raw_rma_down * (rmaLength - 1) + downStd_val) / rmaLength
+        e_down := (1 - alpha_down) * e_down
+    avgDownStd := e_down > EPSILON_rma ? raw_rma_down / (1.0 - e_down) : raw_rma_down
+    if rmaLength == 0
+        avgDownStd := downStd_val
+    float rviValue = 50.0 
+    float sumAvgStd = nz(avgUpStd) + nz(avgDownStd) 
+    if sumAvgStd != 0
+        rviValue := 100 * nz(avgUpStd) / sumAvgStd 
+    rviValue
+
+// ---------- Main loop ----------
+// Inputs
+i_src_rvi = input.source(close, "Source")
+i_stdevLength_rvi = input.int(10, "StdDev Length", minval=2, tooltip="Lookback period for calculating the Standard Deviation of source prices.")
+i_rmaLength_rvi = input.int(14, "RMA Length (Wilder's Smoothing)", minval=1, tooltip="Lookback period for smoothing Upward and Downward Standard Deviations.")
+
+// Calculation
+rviValue = rvi(i_src_rvi, i_stdevLength_rvi, i_rmaLength_rvi)
+
+// Plot
+plot(rviValue, "RVI", color=color.yellow, linewidth=2)

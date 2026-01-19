@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chande Momentum Oscillator (CMO)", "CMO", overlay=false)
+
+//@function Calculates Chande Momentum Oscillator using circular buffer for efficiency
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/cmo.md
+//@param src Source series to calculate CMO for
+//@param len Lookback period for calculations
+//@returns CMO value measuring momentum strength and direction
+cmo(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    var float sum_up = 0.0, var float sum_down = 0.0
+    var array<float> up_buffer = array.new_float(len, na)
+    var array<float> down_buffer = array.new_float(len, na)
+    var int head = 0
+    float diff = src - src[1]
+    float up = diff > 0 ? diff : 0.0
+    float down = diff < 0 ? -diff : 0.0
+    float old_up = array.get(up_buffer, head)
+    float old_down = array.get(down_buffer, head)
+    if not na(old_up)
+        sum_up -= old_up
+        sum_down -= old_down
+    array.set(up_buffer, head, up)
+    array.set(down_buffer, head, down)
+    sum_up += up
+    sum_down += down
+    head := (head + 1) % len
+    float denom = sum_up + sum_down
+    denom != 0.0 ? 100 * (sum_up - sum_down) / denom : 0.0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+cmo_value = cmo(i_source, i_length)
+
+// Plot
+plot(cmo_value, "CMO", color=color.yellow, linewidth=2)

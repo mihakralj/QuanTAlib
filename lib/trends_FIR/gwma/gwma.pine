@@ -1,0 +1,55 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Gaussian-Weighted Moving Average (GWMA)", "GWMA", overlay=true)
+
+//@function Calculates GWMA using Gaussian window weighting
+//@param source Series to calculate GWMA from
+//@param period Lookback period - FIR window size
+//@param sigma Controls the width of the Gaussian bell curve (default: 0.4)
+//@returns GWMA value, calculates from first bar using available data
+//@optimized Uses Gaussian window coefficients with O(n) complexity per bar due to lookback loop
+gwma(series float source, simple int period, simple float sigma=0.4) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = math.min(bar_index + 1, period)
+    var array<float> weights = array.new_float(1, 1.0)
+    var int last_p = 1
+    var float last_sigma = sigma
+    if last_p != p or last_sigma != sigma
+        weights := array.new_float(p, 0.0)
+        float center = (p - 1) / 2.0
+        float inv_sigmap = 1.0 / (sigma * p)
+        float total = 0.0
+        for i = 0 to p - 1
+            float x = (i - center) * inv_sigmap
+            float w = math.exp(-0.5 * x * x)
+            array.set(weights, i, w)
+            total += w
+        float inv_total = 1.0 / total
+        for i = 0 to p - 1
+            array.set(weights, i, array.get(weights, i) * inv_total)
+        last_p := p
+        last_sigma := sigma
+    float sum = 0.0
+    float weight_sum = 0.0
+    for i = 0 to p - 1
+        float price = source[i]
+        if not na(price)
+            float w = array.get(weights, i)
+            sum += price * w
+            weight_sum += w
+    nz(sum / weight_sum, source)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_sigma = input.float(0.4, "Sigma", minval=0.1, maxval=1.0, step=0.1, tooltip="Controls the width of the Gaussian bell curve. Lower values make the curve narrower.")
+i_source = input.source(close, "Source")
+
+// Calculation
+gwma_value = gwma(i_source, i_period, i_sigma)
+
+// Plot
+plot(gwma_value, "GWMA", color=color.yellow, linewidth=2)

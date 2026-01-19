@@ -1,0 +1,43 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Recursive Gaussian Moving Average (RGMA)", "RGMA", overlay=true)
+
+//@function Calculates RGMA using cascaded recursive filters to approximate Gaussian smoothing
+//@param source Series to calculate RGMA from
+//@param period Effective smoothing period
+//@param passes Number of recursive passes (higher = more Gaussian-like)
+//@returns RGMA value with gaussian-like smoothing properties using recursive calculation
+//@optimized Uses cascaded exponential filters for O(1) complexity per bar
+rgma(series float source, simple int period, simple int passes=3) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if passes <= 0
+        runtime.error("Passes must be greater than 0")
+    simple float alpha = 2.0 / (period / math.sqrt(passes) + 1.0)
+    var array<float> filters = array.new_float(passes, na)
+    float result = na
+    if not na(source)
+        if na(array.get(filters, 0))
+            array.fill(filters, source)
+            result := source
+        else
+            array.set(filters, 0, alpha * (source - array.get(filters, 0)) + array.get(filters, 0))
+            if passes > 1
+                for i = 1 to passes - 1
+                    array.set(filters, i, alpha * (array.get(filters, i - 1) - array.get(filters, i)) + array.get(filters, i))
+            result := array.get(filters, passes - 1)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_passes = input.int(3, "Passes", minval=1, maxval=10, tooltip="More passes create more Gaussian-like smoothing")
+i_source = input.source(close, "Source")
+
+// Calculation
+rgma_value = rgma(i_source, i_period, i_passes)
+
+// Plot
+plot(rgma_value, "RGMA", color=color.yellow, linewidth=2)

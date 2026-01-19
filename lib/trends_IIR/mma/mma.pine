@@ -1,0 +1,46 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Modified Moving Average (MMA)", "MMA", overlay=true)
+
+//@function Calculates MMA using combined simple and weighted moving average components
+//@param source Series to calculate MMA from
+//@param period Lookback period - must be at least 2
+//@returns MMA value, combines SMA with weighted component for balanced smoothing
+//@optimized Uses circular buffer for O(1) sum updates, O(n) for weighted component
+mma(series float source, simple int period) =>
+    if period < 2
+        runtime.error("Period must be at least 2")
+    var array<float> buffer = array.new_float(math.min(math.max(2, period), 4000), na)
+    var int head = 0
+    var float sum = 0.0
+    var int valid_count = 0
+    float oldest = array.get(buffer, head)
+    sum := sum + (not na(source) ? source : 0) - (not na(oldest) ? oldest : 0)
+    valid_count := valid_count + (not na(source) ? 1 : 0) - (not na(oldest) ? 1 : 0)
+    array.set(buffer, head, source)
+    head := (head + 1) % array.size(buffer)
+    if valid_count <= 0
+        source
+    else
+        float sma = sum / valid_count
+        float weighted_sum = 0.0
+        int count = 0
+        for i = 0 to array.size(buffer) - 1
+            float val = array.get(buffer, (head - 1 - i + array.size(buffer)) % array.size(buffer))
+            if not na(val)
+                weighted_sum += ((valid_count - ((2 * count) + 1)) * 0.5) * val
+                count += 1
+        sma + (weighted_sum * 6.0) / ((valid_count + 1) * valid_count)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+mma_value = mma(i_source, i_period)
+
+// Plot
+plot(mma_value, "MMA", color=color.yellow, linewidth=2)

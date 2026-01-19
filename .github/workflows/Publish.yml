@@ -1,342 +1,512 @@
-name: Publish Workflow
+name: Analysis Workflow
 
 on:
   push:
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
+      - "**/*.md"
+      - "**/*.pine"
+      - "docs/**"
+      - ".gitignore"
+      - "LICENSE"
   pull_request:
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
+      - "**/*.md"
+      - "**/*.pine"
+      - "docs/**"
+      - ".gitignore"
+      - "LICENSE"
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  pull-requests: read     # Allows SonarCloud to decorate PRs with analysis results
-  security-events: write  # Required for CodeQL analysis and uploading SARIF results
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
 
 env:
-  DOTNET_VERSION: '8.x'
+  DOTNET_VERSION: "10.x"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+
+  # IMPORTANT: analyze the same commit we report to Codacy
+  CHECKOUT_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+  COMMIT_UUID:  ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
 jobs:
-  Code_Coverage:
-    timeout-minutes: 30
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Cache dotnet tools
-        uses: actions/cache@v4
-        with:
-          path: ~/.dotnet/tools
-          key: ${{ runner.os }}-dotnet-tools-${{ hashFiles('**/*.csproj') }}
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu'
-
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
-      - name: Install dotnet tools
-        run: |
-          dotnet tool install JetBrains.dotCover.GlobalTool --global
-          dotnet tool install dotnet-sonarscanner --global
-          dotnet tool install dotnet-coverage --global
-          dotnet tool install --global coverlet.console
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          dotnet restore
-
-      - name: Begin SonarCloud Analysis
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: |
-          dotnet sonarscanner begin /k:"mihakralj_QuanTAlib" /o:"mihakralj-quantalib" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.solution.file="QuanTAlib.sln" `
-            /d:sonar.cs.opencover.reportsPaths="**/*cover*.xml" `
-            /d:sonar.cs.dotcover.reportsPaths="**/dotcover.xml" `
-            /d:sonar.coverage.exclusions="**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*" `
-            /d:sonar.exclusions="**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*" `
-            /d:sonar.test.exclusions="**Tests.cs,**/obj/**/*,**/bin/**/*" `
-            /d:sonar.cpd.exclusions="**Tests.cs" `
-            /d:sonar.scanner.scanAll="false" `
-            /d:sonar.cs.roslyn.ignoreIssues="false" `
-            /d:sonar.issue.ignore.multicriteria="e1" `
-            /d:sonar.issue.ignore.multicriteria.e1.ruleKey="csharpsquid:S1944,csharpsquid:S2053,csharpsquid:S2222,csharpsquid:S2259,csharpsquid:S2583,csharpsquid:S2589,csharpsquid:S3329,csharpsquid:S3655,csharpsquid:S3900,csharpsquid:S3949,csharpsquid:S3966,csharpsquid:S4158,csharpsquid:S4347,csharpsquid:S5773,csharpsquid:S6781" `
-            /d:sonar.issue.ignore.multicriteria.e1.resourceKey="**/*.cs" `
-            /d:sonar.verbose="true"
-
-      - name: Build Projects
-        id: build
-        continue-on-error: true
-        run: |
-          dotnet build --no-restore --configuration Debug
-          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
-          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
-          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
-          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
-          if ($LASTEXITCODE -ne 0) { Write-Error "Build failed" }
-
-      - name: Check Build Status
-        if: steps.build.outcome == 'failure'
-        run: exit 1
-
-      - name: Run Tests with Coverage
-        id: tests
-        continue-on-error: true
-        run: |
-          dotnet test --no-build --configuration Debug /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-          dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
-          dotnet dotcover test Tests/Tests.csproj --dcReportType=HTML --dcoutput=./dotcover.html
-          dotnet dotcover test Tests/Tests.csproj --dcReportType=DetailedXML --dcoutput=./dotcover.xml --verbosity=Detailed
-          dotnet test -p:CollectCoverage=true --collect:"XPlat Code Coverage" --results-directory "./"
-
-      - name: Generate Coverage Report
-        run: |
-          reportgenerator -reports:*cover*.xml -targetdir:./coverage-report
-
-      - name: Upload Coverage Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-reports
-          path: |
-            **/TestResults
-            **/coverage-report
-            **/*cover*.xml
-            **/dotcover.*
-
-      - name: End SonarCloud Analysis
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
-      - name: Upload Coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: '*cover*.xml'
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: 'cover*'
-          verbose: true
-
-  CodeQL:
-    timeout-minutes: 30
+  # ==============================================================================
+  # 1) ReSharper InspectCode -> SARIF artifact
+  # ==============================================================================
+  ReSharper_Analysis:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      security-events: write
-      actions: read
       contents: read
-
+      actions: write
+      security-events: write
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ env.CHECKOUT_REF }}
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'csharp'
-          queries: security-and-quality
-          config-file: ./.github/codeql/codeql-config.yml
-          tools: linked
+          cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            **/*.csproj
+            **/*.sln
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --no-restore --configuration Debug
+      - name: Prepare SARIF directory
+        run: mkdir -p .sarif
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      - name: Install JetBrains ReSharper GlobalTools
+        run: |
+          dotnet tool update --global JetBrains.ReSharper.GlobalTools || \
+          dotnet tool install --global JetBrains.ReSharper.GlobalTools
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Run ReSharper InspectCode (SARIF)
+        run: |
+          set +e
+          jb inspectcode QuanTAlib.sln \
+            --format=sarif \
+            --output=.sarif/resharper.sarif
+          rc=$?
+          set -e
+
+          # jb may return non-zero for findings/config; missing SARIF is the real failure signal
+          if [ ! -f ".sarif/resharper.sarif" ]; then
+            echo "ERROR: ReSharper SARIF not generated (exit code: $rc)"
+            exit 1
+          fi
+
+          echo "ReSharper SARIF generated (exit code: $rc)"
+          ls -lh .sarif/resharper.sarif
+
+      - name: Upload SARIF artifact
+        uses: actions/upload-artifact@v4
         with:
-          output: results
-          upload: true
+          name: sarif-resharper
+          path: .sarif/resharper.sarif
+          retention-days: 7
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/dotnet@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          LD_PRELOAD: '' # Clear the LD_PRELOAD to avoid CodeQL conflicts
-        with:
-          args: |
-            --file=./lib/quantalib.csproj
-            --severity-threshold=low
-            --detection-depth=4
-            --package-manager=nuget
-
-      - name: Run Snyk on Solution
-        uses: snyk/actions/dotnet@master
-        if: always()
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          LD_PRELOAD: ''
-        with:
-          args: |
-            --file=QuanTAlib.sln
-            --all-projects
-            --detection-depth=4
-
-      - name: Run Snyk IaC
-        uses: snyk/actions/iac@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          LD_PRELOAD: ''
-        with:
-          args: |
-            --severity-threshold=low
-
-  build_publish:
-    timeout-minutes: 20
-    needs: [Code_Coverage, CodeQL]
-    if: |
-      success() &&
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) ||
-      github.event_name == 'workflow_dispatch'
+  # ==============================================================================
+  # 2) Snyk Security Scan -> SARIF artifact
+  # ==============================================================================
+  Snyk_Scan:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: write
+      security-events: write
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ env.CHECKOUT_REF }}
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            **/*.csproj
+            **/*.sln
 
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0
-        with:
-          versionSpec: '6.x'
-          includePrerelease: true
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
 
-      - name: Determine Version
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v0
-        with:
-          useConfigFile: true
-          updateAssemblyInfo: false
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: ${{ runner.os }}-nuget-
+      - name: Prepare SARIF directory
+        run: mkdir -p .sarif
 
-      - name: Build projects
-        run: |
-          dotnet restore
-          dotnet build ./lib/quantalib.csproj --configuration Release --nologo
-          dotnet build ./quantower/Averages/_Averages.csproj --configuration Release --nologo
-          dotnet build ./quantower/Statistics/_Statistics.csproj --configuration Release --nologo
-          dotnet build ./quantower/Volatility/_Volatility.csproj --configuration Release --nologo
-          dotnet build ./SyntheticVendor/SyntheticVendor.csproj --configuration Release --nologo
-
-      - name: Create or Update Development Release
-        if: github.ref == 'refs/heads/dev'
+      - name: Run Snyk Security Scan (SARIF)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          gh release delete development --yes || true
-          gh release create development \
-            --title "Development Build" \
-            --notes "Latest development build from commit ${{ github.sha }}" \
-            --prerelease \
-            --target ${{ github.sha }} \
-            lib/bin/Release/QuanTAlib.dll \
-            quantower/Averages/bin/Release/Averages.dll \
-            quantower/Statistics/bin/Release/Statistics.dll \
-            quantower/Volatility/bin/Release/Volatility.dll \
-            SyntheticVendor/bin/Release/SyntheticVendor.dll
+          if [ -z "${SNYK_TOKEN:-}" ]; then
+            echo "SNYK_TOKEN not set. Skipping Snyk scan."
+            exit 0
+          fi
 
-      - name: Push prerelease package to myget.org
-        if: github.ref == 'refs/heads/dev'
-        continue-on-error: true
-        id: myget-push
-        run: |
-          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
-            --source https://www.myget.org/F/quantalib/api/v3/index.json \
-            --force-english-output \
-            --api-key ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
+          set +e
+          snyk test --all-projects --sarif-file-output=.sarif/snyk.sarif
+          rc=$?
+          set -e
 
-      - name: Create GitHub Release
-        if: github.ref == 'refs/heads/main'
+          # Snyk exit codes: 0 = no issues, 1 = issues found, >1 = error
+          if [ $rc -gt 1 ]; then
+            echo "ERROR: Snyk scan failed (exit code: $rc)"
+            exit $rc
+          fi
+
+          if [ ! -f ".sarif/snyk.sarif" ]; then
+            echo "ERROR: Snyk SARIF not generated"
+            exit 1
+          fi
+
+          echo "Snyk SARIF generated (exit code: $rc)"
+          ls -lh .sarif/snyk.sarif
+
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-snyk
+          path: .sarif/snyk.sarif
+          retention-days: 7
+          if-no-files-found: warn
+
+  # ==============================================================================
+  # 3) Semgrep Security Scan -> SARIF artifact
+  # ==============================================================================
+  Semgrep_Scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: write
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Prepare SARIF directory
+        run: mkdir -p .sarif
+
+      - name: Run Semgrep (SARIF)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         run: |
-          gh release create v${{ steps.gitversion.outputs.MajorMinorPatch }} \
-            --title "Release from commit ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
-            --notes "Release notes for this version." \
-            quantower/Averages/bin/Release/Averages.dll \
-            quantower/Statistics/bin/Release/Statistics.dll \
-            quantower/Volatility/bin/Release/Volatility.dll \
-            SyntheticVendor/bin/Release/SyntheticVendor.dll
+          pip install --quiet semgrep
 
-      - name: Push release package to nuget.org
-        if: ${{ github.ref == 'refs/heads/main' }}
+          set +e
+          if [ -n "${SEMGREP_APP_TOKEN:-}" ]; then
+            echo "Running Semgrep with managed policies..."
+            semgrep ci --sarif --output=.sarif/semgrep.sarif
+          else
+            echo "Running Semgrep with OSS rules..."
+            semgrep scan \
+              --config=auto \
+              --sarif \
+              --output=.sarif/semgrep.sarif \
+              --exclude='**/bin/**' \
+              --exclude='**/obj/**' \
+              --exclude='**/*.Tests.cs' \
+              --exclude='**/Mocks/**' \
+              --exclude='**/perf/**' \
+              --exclude='**/quantower/**' \
+              .
+          fi
+          rc=$?
+          set -e
+
+          if [ -f ".sarif/semgrep.sarif" ]; then
+            echo "Semgrep SARIF generated (exit code: $rc):"
+            ls -lh .sarif/semgrep.sarif
+          else
+            echo "WARNING: Semgrep SARIF not generated"
+          fi
+
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-semgrep
+          path: .sarif/semgrep.sarif
+          retention-days: 7
+          if-no-files-found: warn
+
+  # ==============================================================================
+  # 4) Build, Test, Coverage, SonarCloud & Roslyn SARIF
+  # ==============================================================================
+  Sonar_Analysis:
+    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: read
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+          cache-dependency-path: |
+            **/packages.lock.json
+            **/*.csproj
+            **/*.sln
+
+      - name: Set up JDK 17 (for SonarCloud)
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: zulu
+
+      - name: Install Tools
         run: |
-          dotnet nuget push 'lib/bin/Release/QuanTAlib.*.nupkg' \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate \
-            --api-key ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Check for SonarCloud token
+        id: check_sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "${SONAR_TOKEN:-}" ]; then
+            echo "SONAR_TOKEN not set. Skipping SonarCloud."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare SARIF directory
+        run: mkdir -p .sarif
+
+      - name: Download External SARIFs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sarif-*
+          path: .sarif
+          merge-multiple: true
+
+      - name: Build SARIF list for SonarCloud
+        run: |
+          # Keep SonarCloud focused on its native analyzers + security tools.
+          # Importing compiler/analyzer SARIF (Roslyn/JetBrains) tends to explode "External issues".
+          paths=()
+          for f in .sarif/snyk.sarif .sarif/semgrep.sarif; do
+            if [ -f "$f" ]; then
+              paths+=("$f")
+            fi
+          done
+
+          IFS=,
+          echo "SONAR_SARIF_PATHS=${paths[*]}" >> "$GITHUB_ENV"
+
+      - name: Begin SonarCloud Analysis
+        if: steps.check_sonar.outputs.skip != 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          args=(
+            "/k:mihakralj_QuanTAlib"
+            "/o:mihakralj-quantalib"
+            "/d:sonar.token=$SONAR_TOKEN"
+            "/d:sonar.host.url=https://sonarcloud.io"
+            "/d:sonar.cs.opencover.reportsPaths=TestResults/**/coverage.opencover.xml"
+            "/d:sonar.cs.vstest.reportsPaths=TestResults/**/*.trx"
+            "/d:sonar.coverage.exclusions=**Tests.cs,**/*.md,**/*.html,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*,**/obj/**/*,**/bin/**/*"
+            "/d:sonar.exclusions=**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*"
+            "/d:sonar.test.exclusions=**Tests.cs,**/obj/**/*,**/bin/**/*"
+            "/d:sonar.scanner.scanAll=false"
+          )
+
+          if [ -n "${SONAR_SARIF_PATHS:-}" ]; then
+            args+=("/d:sonar.sarifReportPaths=$SONAR_SARIF_PATHS")
+          fi
+
+          dotnet sonarscanner begin "${args[@]}"
+
+      - name: Build Solution with Roslyn SARIF
+        run: |
+          dotnet build QuanTAlib.sln \
+            --no-restore \
+            --configuration Debug \
+            --nologo \
+            -m:1 \
+            -p:TreatWarningsAsErrors=false \
+            -p:ErrorLog="$(pwd)/.sarif/roslyn.sarif;version=2.1"
+
+      - name: Run Tests with Coverage
+        run: |
+          dotnet test QuanTAlib.sln \
+            --no-build \
+            --configuration Debug \
+            --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
+            --results-directory ./TestResults \
+            --logger "trx;LogFileName=test_results.trx"
+
+      - name: Merge Coverage Reports
+        run: |
+          mkdir -p coverage-merged
+
+          reportgenerator \
+            "-reports:TestResults/**/coverage.opencover.xml;TestResults/**/coverage.cobertura.xml;TestResults/**/coverage.info" \
+            "-targetdir:coverage-merged" \
+            "-reporttypes:Cobertura;lcov"
+
+          echo "Merged coverage outputs:"
+          ls -la coverage-merged || true
+
+          if [ ! -f "coverage-merged/Cobertura.xml" ]; then
+            echo "ERROR: Cobertura.xml not generated (Codacy coverage will be missing)"
+            exit 1
+          fi
+
+      - name: End SonarCloud Analysis
+        if: steps.check_sonar.outputs.skip != 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage-merged/
+          retention-days: 7
+
+      - name: Upload Roslyn SARIF Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-roslyn
+          path: .sarif/roslyn.sarif
+          retention-days: 7
+          if-no-files-found: warn
+
+  # ==============================================================================
+  # 5) Codacy Upload (SARIF + Coverage)
+  # ==============================================================================
+  Codacy_Upload:
+    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    if: always()
+    steps:
+      - name: Check for Codacy token
+        id: check_token
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "${CODACY_PROJECT_TOKEN:-}" ]; then
+            echo "CODACY_PROJECT_TOKEN not set. Skipping Codacy uploads."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download SARIF artifacts
+        if: steps.check_token.outputs.skip != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sarif-*
+          path: sarif
+
+      - name: Download Coverage Reports
+        if: steps.check_token.outputs.skip != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage-merged
+
+      - name: List artifacts
+        if: steps.check_token.outputs.skip != 'true'
+        run: |
+          echo "SARIF files:"
+          find sarif -name "*.sarif" -type f -maxdepth 4 -print -exec ls -lh {} \; || true
+          echo ""
+          echo "Coverage files:"
+          ls -la coverage-merged || true
+
+      - name: Install Codacy CLI v2
+        if: steps.check_token.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          
+          # Install Codacy CLI using official bootstrap script
+          echo "Installing Codacy CLI v2..."
+
+          sudo curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o /usr/local/bin/codacy-cli
+          sudo chmod +x /usr/local/bin/codacy-cli
+          
+          # Script will fetch binary if needed
+          codacy-cli version
+
+      - name: Upload SARIF files to Codacy
+        if: steps.check_token.outputs.skip != 'true'
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob globstar
+          files=(sarif/**/*.sarif)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No SARIF files found. Nothing to upload."
+            exit 0
+          fi
+
+          echo "Uploading ${#files[@]} SARIF file(s) to Codacy with commit: ${COMMIT_UUID}"
+          for sarif_file in "${files[@]}"; do
+            echo "--- Uploading: $sarif_file ---"
+            # Using short flags per codacy-cli-v2 docs:
+            # -s: SARIF file path
+            # -c: commit UUID
+            # -t: project token
+            codacy-cli upload \
+              -s "$sarif_file" \
+              -c "$COMMIT_UUID" \
+              -t "$CODACY_PROJECT_TOKEN" \
+              || echo "WARNING: failed to upload $sarif_file"
+          done
+
+      - name: Upload Coverage to Codacy
+        if: steps.check_token.outputs.skip != 'true'
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          curl -Ls https://coverage.codacy.com/get.sh -o codacy-coverage.sh
+          chmod +x codacy-coverage.sh
+
+          if [ -f "coverage-merged/Cobertura.xml" ]; then
+            ./codacy-coverage.sh report -r "coverage-merged/Cobertura.xml"
+          else
+            echo "Cobertura.xml not found. Skipping coverage upload."
+          fi

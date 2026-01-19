@@ -1,0 +1,29 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Midpoint (MIDPOINT)", "MIDPOINT", overlay=true)
+
+//@function Calculates the midpoint of the highest high and lowest low over a specified period
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/midpoint.md
+//@param src Source series to calculate midpoint for
+//@param len Lookback period for finding highest and lowest values
+//@returns float The midpoint value (highest + lowest) * 0.5 over the period
+//@optimized Uses multiplication instead of division for performance
+midpoint(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    float highest_val = ta.highest(src, len)
+    float lowest_val = ta.lowest(src, len)
+    (highest_val + lowest_val) * 0.5
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(14, "Length", minval=1)
+
+// Calculation
+result = midpoint(i_source, i_length)
+
+// Plot
+plot(result, "Midpoint", color=color.yellow, linewidth=2)

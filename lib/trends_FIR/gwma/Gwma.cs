@@ -1,0 +1,398 @@
+using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace QuanTAlib;
+
+/// <summary>
+/// GWMA: Gaussian-Weighted Moving Average
+/// </summary>
+/// <remarks>
+/// GWMA uses a centered Gaussian window to weight price data.
+/// Definition:
+/// center = (period - 1) / 2
+/// W_i = exp(-0.5 * ((i - center) / (sigma * period))^2)
+///
+/// The final GWMA is the weighted sum of the price window divided by the sum of weights.
+/// Unlike ALMA (which has an offset parameter), GWMA centers the Gaussian peak at the
+/// middle of the window and uses sigma to control the bell curve width.
+/// </remarks>
+[SkipLocalsInit]
+public sealed class Gwma : AbstractBase
+{
+    private readonly int _period;
+    private readonly double _sigma;
+    private readonly double[] _weights;
+    private readonly double _invWeightSum;
+    private readonly RingBuffer _buffer;
+    private readonly ITValuePublisher? _source;
+    private readonly TValuePublishedHandler? _pubHandler;
+    private bool _isNew = true;
+
+    [StructLayout(LayoutKind.Auto)]
+    private record struct State
+    {
+        public double LastValidValue;
+        public bool IsInitialized;
+    }
+    private State _state;
+    private State _p_state;
+
+    public bool IsNew => _isNew;
+    public override bool IsHot => _buffer.IsFull;
+
+    /// <summary>
+    /// Creates GWMA with specified parameters.
+    /// </summary>
+    /// <param name="period">Window size (must be > 0)</param>
+    /// <param name="sigma">Controls the width of the Gaussian bell curve (default 0.4). Lower values make the curve narrower.</param>
+    public Gwma(int period, double sigma = 0.4)
+    {
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (sigma <= 0)
+            throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        if (sigma > 1)
+            throw new ArgumentOutOfRangeException(nameof(sigma), "Sigma must be between 0 and 1");
+
+        _period = period;
+        _sigma = sigma;
+        _buffer = new RingBuffer(period);
+        _weights = new double[period];
+        Name = $"Gwma({period}, {sigma:F2})";
+        WarmupPeriod = period;
+
+        ComputeWeights(_weights, period, sigma, out _invWeightSum);
+        _state = new State { LastValidValue = double.NaN, IsInitialized = false };
+    }
+
+    public Gwma(ITValuePublisher source, int period, double sigma = 0.4)
+        : this(period, sigma)
+    {
+        _source = source;
+        _pubHandler = Handle;
+        _source.Pub += _pubHandler;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && _source != null && _pubHandler != null)
+        {
+            _source.Pub -= _pubHandler;
+        }
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Computes Gaussian weights for GWMA.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeWeights(Span<double> weights, int period, double sigma, out double invWeightSum)
+    {
+        double center = (period - 1) / 2.0;
+        double invSigmaP = 1.0 / (sigma * period);
+        double sum = 0;
+
+        for (int i = 0; i < period; i++)
+        {
+            double x = (i - center) * invSigmaP;
+            double w = Math.Exp(-0.5 * x * x);
+            weights[i] = w;
+            sum += w;
+        }
+
+        invWeightSum = 1.0 / sum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double GetValidValue(double input)
+    {
+        if (double.IsFinite(input))
+        {
+            return input;
+        }
+        return _state.IsInitialized ? _state.LastValidValue : double.NaN;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override TValue Update(TValue input, bool isNew = true)
+    {
+        _isNew = isNew;
+        return Update(input, isNew, publish: true);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TValue Update(TValue input, bool isNew, bool publish)
+    {
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
+        if (double.IsFinite(input.Value))
+        {
+            _state.LastValidValue = input.Value;
+            _state.IsInitialized = true;
+        }
+
+        // Retrieve valid value (handles NaN propagation prevention)
+        double val = GetValidValue(input.Value);
+
+        _buffer.Add(val, isNew);
+
+        double result = _buffer.Count > 0 ? CalculateWeightedSum(fallbackValue: val) : 0.0;
+
+        Last = new TValue(input.Time, result);
+        if (publish)
+        {
+            PubEvent(Last, isNew);
+        }
+        return Last;
+    }
+
+    public override TSeries Update(TSeries source)
+    {
+        if (source.Count == 0) return new TSeries([], []);
+
+        int len = source.Count;
+        var t = new List<long>(len);
+        var v = new List<double>(len);
+        CollectionsMarshal.SetCount(t, len);
+        CollectionsMarshal.SetCount(v, len);
+
+        var tSpan = CollectionsMarshal.AsSpan(t);
+        var vSpan = CollectionsMarshal.AsSpan(v);
+
+        Calculate(source.Values, vSpan, _period, _sigma);
+        source.Times.CopyTo(tSpan);
+
+        // Restore internal state to match the streaming path:
+        // - seed the last valid value from the history before the replay window (critical for NaN handling)
+        // - replay the last window to rebuild buffer + correction state
+        _buffer.Clear();
+
+        int windowSize = Math.Min(len, _period);
+        int startIndex = len - windowSize;
+
+        _state = default;
+        _state.LastValidValue = double.NaN;
+        _state.IsInitialized = false;
+        if (startIndex > 0)
+        {
+            for (int i = startIndex - 1; i >= 0; i--)
+            {
+                double v0 = source.Values[i];
+                if (double.IsFinite(v0))
+                {
+                    _state.LastValidValue = v0;
+                    _state.IsInitialized = true;
+                    break;
+                }
+            }
+        }
+
+        for (int i = startIndex; i < len; i++)
+        {
+            Update(source[i], isNew: true, publish: false);
+        }
+
+        return new TSeries(t, v);
+    }
+
+    public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
+    {
+        foreach (var value in source)
+        {
+            Update(new TValue(DateTime.MinValue, value));
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double CalculateWeightedSum(double fallbackValue)
+    {
+        int count = _buffer.Count;
+        if (count == 0) return 0;
+
+        if (count < _period)
+        {
+            return CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _sigma, fallbackValue);
+        }
+
+        if (_invWeightSum == 0.0)
+            return fallbackValue;
+
+        ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
+        int head = _buffer.StartIndex;
+
+        int part1Len = _period - head;
+        double sum1 = internalBuf.Slice(head, part1Len).DotProduct(_weights.AsSpan(0, part1Len));
+
+        double sum2 = internalBuf[..head].DotProduct(_weights.AsSpan(part1Len));
+
+        return (sum1 + sum2) * _invWeightSum;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CalculateWeightedSumWarmup(ReadOnlySpan<double> window, int p, double sigma, double fallbackValue)
+    {
+        if (p <= 0) return 0.0;
+        if (p == 1) return fallbackValue;
+
+        double center = (p - 1) * 0.5;
+        double invSigmaP = 1.0 / (sigma * p);
+        double sum = 0.0;
+        double wSum = 0.0;
+
+        for (int i = 0; i < p; i++)
+        {
+            double x = (i - center) * invSigmaP;
+            double w = Math.Exp(-0.5 * x * x);
+            sum = Math.FusedMultiplyAdd(window[i], w, sum);
+            wSum += w;
+        }
+
+        return wSum > 0.0 ? sum / wSum : fallbackValue;
+    }
+
+    public static TSeries Batch(TSeries source, int period, double sigma = 0.4)
+    {
+        var gwma = new Gwma(period, sigma);
+        return gwma.Update(source);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double sigma = 0.4)
+    {
+        if (period <= 0)
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (sigma <= 0)
+            throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        if (sigma > 1)
+            throw new ArgumentOutOfRangeException(nameof(sigma), "Sigma must be between 0 and 1");
+        if (source.Length != output.Length)
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+
+        int len = source.Length;
+        if (len == 0) return;
+
+        if (period > len)
+        {
+            double[]? bufferArray = len > 256 ? ArrayPool<double>.Shared.Rent(len) : null;
+            Span<double> buffer = len <= 256
+                ? stackalloc double[len]
+                : bufferArray!.AsSpan(0, len);
+
+            double lastValid = double.NaN;
+
+            try
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    double val = source[i];
+                    if (double.IsFinite(val))
+                    {
+                        lastValid = val;
+                    }
+                    else if (double.IsFinite(lastValid))
+                    {
+                        val = lastValid;
+                    }
+                    else
+                    {
+                        val = 0.0;
+                    }
+
+                    buffer[i] = val;
+                    int p = i + 1;
+                    output[i] = CalculateWeightedSumWarmup(buffer, p, sigma, fallbackValue: val);
+                }
+            }
+            finally
+            {
+                if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
+            }
+
+            return;
+        }
+
+        double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> weights = period <= 256
+            ? stackalloc double[period]
+            : weightsArray!.AsSpan(0, period);
+
+        double[]? ringArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
+        Span<double> ring = period <= 256
+            ? stackalloc double[period]
+            : ringArray!.AsSpan(0, period);
+
+        ComputeWeights(weights, period, sigma, out double invWeightSum);
+
+        int ringIdx = 0;
+        int count = 0;
+        double lastValid2 = double.NaN;
+
+        try
+        {
+            for (int i = 0; i < len; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                {
+                    lastValid2 = val;
+                }
+                else if (double.IsFinite(lastValid2))
+                {
+                    val = lastValid2;
+                }
+                else
+                {
+                    val = 0.0;
+                }
+
+                ring[ringIdx] = val;
+                ringIdx++;
+                if (ringIdx >= period) ringIdx = 0;
+
+                if (count < period) count++;
+
+                if (count < period)
+                {
+                    output[i] = CalculateWeightedSumWarmup(ring, count, sigma, fallbackValue: val);
+                    continue;
+                }
+
+                if (invWeightSum == 0.0)
+                {
+                    output[i] = val;
+                    continue;
+                }
+
+                int part1Len = period - ringIdx;
+                double sum = ring.Slice(ringIdx, part1Len).DotProduct(weights.Slice(0, part1Len))
+                           + ring.Slice(0, ringIdx).DotProduct(weights.Slice(part1Len));
+
+                output[i] = sum * invWeightSum;
+            }
+        }
+        finally
+        {
+            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
+            if (ringArray != null) ArrayPool<double>.Shared.Return(ringArray);
+        }
+    }
+
+    public override void Reset()
+    {
+        _buffer.Clear();
+        _state = new State { LastValidValue = double.NaN, IsInitialized = false };
+        _p_state = _state;
+        Last = default;
+    }
+}

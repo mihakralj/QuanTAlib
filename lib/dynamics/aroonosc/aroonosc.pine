@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Aroon Oscillator", "AROONOSC", overlay=false)
+
+//@function Calculates Aroon Oscillator (Aroon Up - Aroon Down)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/aroonosc.md
+//@param period Number of bars used in the calculation
+//@returns Aroon Oscillator value ranging from -100 to +100
+aroonosc(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    
+    float highest_pos = ta.highestbars(high, period)
+    float lowest_pos = ta.lowestbars(low, period)
+    
+    float aroon_up = 100 * (period + highest_pos) / period
+    float aroon_down = 100 * (period + lowest_pos) / period
+    
+    float oscillator = aroon_up - aroon_down
+    oscillator
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(25, "Period", minval=1, tooltip="Number of bars used in the calculation")
+
+// Calculation
+oscillator = aroonosc(i_period)
+
+// Plot
+plot(oscillator, "Aroon Oscillator", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_solid)
+hline(50, "Upper Level", color=color.gray, linestyle=hline.style_dashed)
+hline(-50, "Lower Level", color=color.gray, linestyle=hline.style_dashed)
+
+// Color fill for positive/negative regions
+bgcolor(oscillator > 0 ? color.new(color.green, 90) : color.new(color.red, 90), title="Background")
+
+// Alert conditions
+alertcondition(ta.crossover(oscillator, 0), "Bullish Crossover", "Aroon Oscillator crossed above zero on {{ticker}}")
+alertcondition(ta.crossunder(oscillator, 0), "Bearish Crossover", "Aroon Oscillator crossed below zero on {{ticker}}")
+alertcondition(oscillator > 70, "Strong Uptrend", "Strong uptrend detected on {{ticker}} (Oscillator > 70)")
+alertcondition(oscillator < -70, "Strong Downtrend", "Strong downtrend detected on {{ticker}} (Oscillator < -70)")

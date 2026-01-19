@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Volume Oscillator (VO)", "VO", overlay=false)
+
+//@function Calculates Volume Oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vo.md
+//@param short_period Period for short-term volume moving average
+//@param long_period Period for long-term volume moving average
+//@param signal_period Period for signal line moving average
+//@param vol Volume series
+//@returns Volume Oscillator value
+//@optimized for performance and dirty data
+vo(simple int short_period, simple int long_period, simple int signal_period, series float vol=volume) =>
+    if short_period >= long_period
+        runtime.error("Short period must be less than long period")
+    volume_val = math.max(nz(vol, 0.0), 1.0)
+    var p_short = short_period
+    var buffer_short = array.new_float(p_short, na)
+    var head_short = 0, var sum_short = 0.0, var valid_count_short = 0
+    oldest_short = array.get(buffer_short, head_short)
+    sum_short := not na(oldest_short) ? sum_short - oldest_short : sum_short
+    valid_count_short := not na(oldest_short) ? valid_count_short - 1 : valid_count_short
+    sum_short := not na(volume_val) ? sum_short + volume_val : sum_short
+    valid_count_short := not na(volume_val) ? valid_count_short + 1 : valid_count_short
+    array.set(buffer_short, head_short, volume_val)
+    head_short := (head_short + 1) % p_short
+    short_ma = valid_count_short > 0 ? sum_short / valid_count_short : volume_val
+    var p_long = long_period
+    var buffer_long = array.new_float(p_long, na)
+    var head_long = 0, var sum_long = 0.0, var valid_count_long = 0
+    oldest_long = array.get(buffer_long, head_long)
+    sum_long := not na(oldest_long) ? sum_long - oldest_long : sum_long
+    valid_count_long := not na(oldest_long) ? valid_count_long - 1 : valid_count_long
+    sum_long := not na(volume_val) ? sum_long + volume_val : sum_long
+    valid_count_long := not na(volume_val) ? valid_count_long + 1 : valid_count_long
+    array.set(buffer_long, head_long, volume_val)
+    head_long := (head_long + 1) % p_long
+    long_ma = valid_count_long > 0 ? sum_long / valid_count_long : volume_val
+    vo_value = long_ma > 0 ? ((short_ma - long_ma) / long_ma) * 100 : 0.0
+    var p_signal = signal_period
+    var buffer_signal = array.new_float(p_signal, na)
+    var head_signal = 0, var sum_signal = 0.0, var valid_count_signal = 0
+    oldest_signal = array.get(buffer_signal, head_signal)
+    sum_signal := not na(oldest_signal) ? sum_signal - oldest_signal : sum_signal
+    valid_count_signal := not na(oldest_signal) ? valid_count_signal - 1 : valid_count_signal
+    sum_signal := not na(vo_value) ? sum_signal + vo_value : sum_signal
+    valid_count_signal := not na(vo_value) ? valid_count_signal + 1 : valid_count_signal
+    array.set(buffer_signal, head_signal, vo_value)
+    head_signal := (head_signal + 1) % p_signal
+    signal_line = valid_count_signal > 0 ? sum_signal / valid_count_signal : vo_value
+    [vo_value, signal_line]
+
+short_period = input.int(5, "Short Period", minval=1, maxval=50, tooltip="Period for short-term volume moving average")
+long_period = input.int(10, "Long Period", minval=2, maxval=100, tooltip="Period for long-term volume moving average")
+signal_period = input.int(10, "Signal Period", minval=1, maxval=50, tooltip="Period for signal line moving average")
+
+[vo_value, signal_line] = vo(short_period, long_period, signal_period)
+
+plot(vo_value, "Volume Oscillator", color=color.yellow, linewidth=2)
+plot(signal_line, "Signal Line", color=color.blue, linewidth=2)

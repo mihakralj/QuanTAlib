@@ -1,0 +1,38 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Price Volume Trend (PVT)", "PVT", overlay=false)
+
+//@function Calculates Price Volume Trend, cumulative volume adjusted by relative price changes
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvt.md
+//@param src Source price for calculation (typically close)
+//@param src_vol Volume data
+//@returns float The cumulative PVT value
+pvt(series float src, series float src_vol) =>
+    float price_change = src - nz(src[1], src)
+    float price_prev = nz(src[1], src)
+    float price_change_ratio = price_prev != 0 ? price_change / price_prev : 0.0
+    float volume_adjustment = nz(src_vol, 0.0) * price_change_ratio
+    var float cumulative_pvt = 0.0
+    cumulative_pvt += volume_adjustment
+    cumulative_pvt
+
+// ---------- Main Calculation ----------
+
+// Parameters - PVT typically doesn't need input parameters as it's cumulative
+
+// Calculation
+pvt_line = pvt(close, volume)
+
+// ---------- Plots ----------
+
+plot(pvt_line, "PVT", color.yellow, 2)
+hline(0, "Zero Line", color.gray, linestyle=hline.style_dashed)
+
+// Signal line (optional smoothed version)
+signal_length = input.int(14, "Signal Line Period", minval=1)
+pvt_signal = ta.sma(pvt_line, signal_length)
+plot(pvt_signal, "PVT Signal", color.red, 1)
+
+// Background coloring for trend indication
+bgcolor(pvt_line > pvt_signal ? color.green : color.red)

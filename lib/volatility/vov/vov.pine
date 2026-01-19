@@ -1,0 +1,65 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=5
+indicator("Volatility of Volatility (VOV)", shorttitle="VOV", format=format.price, precision=4, overlay=false)
+
+//@function Calculates the Volatility of Volatility (VOV) with embedded rolling standard deviation algorithms.
+//@param src The source series. Default is `close`.
+//@param volatilityPeriod The lookback period for the initial volatility calculation. Default is 20.
+//@param vovPeriod The lookback period for calculating the standard deviation of the volatility series. Default is 10.
+//@returns float The VOV value.
+vov(series float src, int volatilityPeriod, int vovPeriod) =>
+    if volatilityPeriod <= 0 or vovPeriod <= 0
+        runtime.error("Periods must be greater than 0")
+    var int p1 = 0
+    var array<float> buffer1 = array.new_float(0)
+    var int head1 = 0, var int count1 = 0
+    var float sum1 = 0.0, var float sumSq1 = 0.0
+    if p1 != volatilityPeriod 
+        p1 := math.max(1, volatilityPeriod)
+        buffer1 := array.new_float(p1, na)
+        head1 := 0, count1 := 0, sum1 := 0.0, sumSq1 := 0.0
+    float oldest1 = array.get(buffer1, head1)
+    if not na(oldest1)
+        sum1 -= oldest1
+        sumSq1 -= oldest1 * oldest1
+        count1 := count1 == p1 ? count1 - 1 : count1
+    float val1 = nz(src)
+    sum1 += val1
+    sumSq1 += val1 * val1
+    count1 := count1 < p1 ? count1 + 1 : count1
+    array.set(buffer1, head1, val1)
+    head1 := (head1 + 1) % p1
+    float initialVolatility = count1 > 1 ? math.sqrt(math.max(0.0, (sumSq1 / count1) - math.pow(sum1 / count1, 2))) : 0.0
+    var int p2 = 0
+    var array<float> buffer2 = array.new_float(0)
+    var int head2 = 0, var int count2 = 0
+    var float sum2 = 0.0, var float sumSq2 = 0.0
+    if p2 != vovPeriod 
+        p2 := math.max(1, vovPeriod)
+        buffer2 := array.new_float(p2, na)
+        head2 := 0, count2 := 0, sum2 := 0.0, sumSq2 := 0.0
+    float oldest2 = array.get(buffer2, head2)
+    if not na(oldest2)
+        sum2 -= oldest2
+        sumSq2 -= oldest2 * oldest2
+        count2 := count2 == p2 ? count2 - 1 : count2
+    float val2 = nz(initialVolatility)
+    sum2 += val2
+    sumSq2 += val2 * val2
+    count2 := count2 < p2 ? count2 + 1 : count2
+    array.set(buffer2, head2, val2)
+    head2 := (head2 + 1) % p2
+    float vovValue = count2 > 1 ? math.sqrt(math.max(0.0, (sumSq2 / count2) - math.pow(sum2 / count2, 2))) : 0.0
+    vovValue
+
+// Inputs
+i_src = input.source(close, "Source")
+i_volatilityPeriod = input.int(20, "Volatility Period", minval=1, tooltip="Period for initial volatility calculation.")
+i_vovPeriod = input.int(10, "VOV Period", minval=1, tooltip="Period for StDev of the volatility series.")
+
+// Calculation
+vovValue = vov(i_src, i_volatilityPeriod, i_vovPeriod)
+
+// Plot
+plot(vovValue, "VOV", color=color.yellow, linewidth=2)

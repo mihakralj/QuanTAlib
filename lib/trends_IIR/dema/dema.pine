@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Double Exponential Moving Average (DEMA)", "DEMA", overlay=true)
+
+//@function Calculates DEMA using double exponential smoothing with compensator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/dema.md
+//@param source Series to calculate DEMA from
+//@param period Lookback period for DEMA calculation
+//@param alpha Optional smoothing factor (overrides period if provided)
+//@returns DEMA value from first bar with proper compensation
+//@optimized Uses exponential warmup compensator on both EMA stages for O(1) complexity
+dema(series float source, simple int period=0, simple float alpha=0) =>
+    if alpha <= 0 and period <= 0
+        runtime.error("Alpha or period must be provided")
+    float a = alpha > 0 ? alpha : 2.0 / (period + 1)
+    float beta = 1.0 - a
+    var bool warmup = true
+    var float e = 1.0
+    var float ema1_raw = 0.0
+    var float ema2_raw = 0.0
+    var float ema1 = source
+    var float ema2 = source
+    ema1_raw := a * (source - ema1_raw) + ema1_raw
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        ema1 := c * ema1_raw
+        ema2_raw := a * (ema1 - ema2_raw) + ema2_raw
+        ema2 := c * ema2_raw
+        warmup := e > 1e-10
+    else
+        ema1 := ema1_raw
+        ema2_raw := a * (ema1 - ema2_raw) + ema2_raw
+        ema2 := ema2_raw
+    2 * ema1 - ema2
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+dema_value = dema(i_source, period=i_period)
+
+// Plot
+plot(dema_value, "DEMA", color=color.yellow, linewidth=2)

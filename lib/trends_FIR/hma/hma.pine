@@ -1,0 +1,67 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Hull Moving Average (HMA)", "HMA", overlay=true)
+
+//@function Calculates WMA using circular buffer with O(1) complexity
+//@param source Series to calculate WMA from
+//@param period Lookback period
+//@returns WMA value
+wma_helper(series float source, simple int period) =>
+    var array<float> buffer = array.new_float(period, na)
+    var int head = 0
+    var float sum = 0.0
+    var float weighted_sum = 0.0
+    var int count = 0
+    var float norm = 0.0
+    
+    float oldest = array.get(buffer, head)
+    float current = nz(source)
+    
+    if not na(oldest)
+        float old_sum = sum
+        sum -= oldest
+        sum += current
+        weighted_sum := weighted_sum - old_sum + (period * current)
+    else
+        count += 1
+        sum += current
+        weighted_sum := weighted_sum + (count * current)
+        norm := count * (count + 1) * 0.5
+    
+    array.set(buffer, head, current)
+    head := (head + 1) % period
+    
+    weighted_sum / norm
+
+//@function Calculates HMA using optimized WMA helper function
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/hma.md
+//@param source Series to calculate HMA from
+//@param period Lookback period - FIR window size
+//@returns HMA value, calculates from first bar using available data
+//@optimized Uses three O(1) WMA calculations for combined O(1) complexity per bar
+hma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    
+    int half_period = math.max(1, math.round(period / 2.0))
+    int sqrt_period = math.max(1, math.round(math.sqrt(period)))
+    
+    float wma_half = wma_helper(source, half_period)
+    float wma_full = wma_helper(source, period)
+    float diff = 2.0 * wma_half - wma_full
+    float hma_value = wma_helper(diff, sqrt_period)
+    
+    hma_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+hma_value = hma(i_source, i_period)
+
+// Plot
+plot(hma_value, "HMA", color=color.yellow, linewidth=2)

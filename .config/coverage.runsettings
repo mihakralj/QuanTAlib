@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>json,cobertura,lcov,opencover</Format>
+          <Exclude>
+            <ModulePath>.*OoplesFinance.*</ModulePath>
+            <ModulePath>.*Skender.*</ModulePath>
+            <ModulePath>.*TALib.*</ModulePath>
+            <ModulePath>.*Tulip.*</ModulePath>
+            <ModulePath>.*xunit.*</ModulePath>
+            <ModulePath>.*Microsoft.*</ModulePath>
+          </Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

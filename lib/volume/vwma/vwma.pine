@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Volume Weighted Moving Average (VWMA)", "VWMA", overlay=true)
+
+//@function Calculates VWMA using circular buffer for efficient computation
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vwma.md
+//@param src Source price series
+//@param vol Volume series
+//@param period Lookback period for VWMA calculation
+//@returns VWMA value representing volume-weighted moving average
+//@optimized for performance and dirty data
+vwma(series float src, series float vol, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, period), var int head = 0, var int count = 0
+    var array<float> price_buffer = array.new_float(p, na)
+    var array<float> vol_buffer = array.new_float(p, na)
+    var float sum_pv = 0.0, var float sum_vol = 0.0
+    float old_price = array.get(price_buffer, head), float old_vol = array.get(vol_buffer, head)
+    if not na(old_price) and not na(old_vol)
+        sum_pv -= old_price * old_vol
+        sum_vol -= old_vol
+        count -= 1
+    float current_price = nz(src), float current_vol = nz(vol, 0.0)
+    if current_vol > 0.0
+        sum_pv += current_price * current_vol
+        sum_vol += current_vol
+        count += 1
+    array.set(price_buffer, head, current_price)
+    array.set(vol_buffer, head, current_vol)
+    head := (head + 1) % p
+    sum_vol > 0.0 ? sum_pv / sum_vol : src
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+vwma_value = vwma(i_source, volume, i_period)
+
+// Plot
+plot(vwma_value, "VWMA", color=color.yellow, linewidth=2)

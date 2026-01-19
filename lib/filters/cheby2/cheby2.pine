@@ -1,0 +1,71 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chebyshev Type II Filter (CHEBY2)", "CHEBY2", overlay=true)
+
+//@function Calculates 2nd Order Chebyshev Type II Lowpass Filter
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/cheby2.md
+//@param src Series to calculate Chebyshev filter from
+//@param length Cutoff period (related to cutoff frequency)
+//@param attenuation Stopband attenuation in decibels (dB) > 0
+//@returns Chebyshev Type II filter value
+//@optimized Uses IIR 2nd order Chebyshev Type II filter with O(1) complexity per bar
+cheby2(series float src, simple int length, simple float attenuation) =>
+    float pi = math.pi
+    int safe_length = math.max(length, 2)
+    float safe_atten = math.max(attenuation, 0.1)
+    float wc = 2.0 * pi / safe_length
+    float Wc = 2.0 * math.tan(wc / 2.0)
+    float epsilon = 1.0 / math.sqrt(math.pow(10.0, safe_atten / 10.0) - 1.0)
+    float asinh_inv_eps = math.log(1.0 / epsilon + math.sqrt(1.0 / (epsilon * epsilon) + 1.0))
+    float mu = asinh_inv_eps / 2.0
+    float sinh_mu = (math.exp(mu) - math.exp(-mu)) / 2.0
+    float cosh_mu = (math.exp(mu) + math.exp(-mu)) / 2.0
+    float sqrt2 = math.sqrt(2.0)
+    float sigma_p = -Wc * sinh_mu / sqrt2
+    float omega_p = Wc * cosh_mu / sqrt2
+    float omega_z = Wc / math.cos(pi / 4.0)
+    float Kp = sigma_p * sigma_p + omega_p * omega_p
+    float Kz = omega_z * omega_z
+    float DC_gain = Kz / Kp
+    float a0_z = 1.0 - 2.0 * sigma_p + Kp
+    float a1_z = 2.0 * Kp - 2.0
+    float a2_z = 1.0 + 2.0 * sigma_p + Kp
+    float b0_z = DC_gain * (1.0 + Kz)
+    float b1_z = DC_gain * (2.0 * Kz - 2.0)
+    float b2_z = DC_gain * (1.0 + Kz)
+    float B0 = b0_z / a0_z
+    float B1 = b1_z / a0_z
+    float B2 = b2_z / a0_z
+    float A1 = a1_z / a0_z
+    float A2 = a2_z / a0_z
+    float sumB = B0 + B1 + B2
+    float sumA = 1.0 + A1 + A2
+    float norm = sumA / sumB
+    B0 *= norm
+    B1 *= norm
+    B2 *= norm
+    var float filt = na
+    if bar_index < 2
+        filt := nz(src, 0.0)
+    else
+        float s0 = nz(src, 0.0)
+        float s1 = nz(src[1], s0)
+        float s2 = nz(src[2], s1)
+        float f1 = nz(filt[1], s0)
+        float f2 = nz(filt[2], f1)
+        filt := B0 * s0 + B1 * s1 + B2 * s2 - A1 * f1 - A2 * f2
+    filt
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(10, "Length", minval=2)
+i_attenuation = input.float(5.0, "Stopband Attenuation (dB)", minval=0.1, step=1.0)
+i_source = input.source(close, "Source")
+
+// Calculation
+cheby2_val = cheby2(i_source, i_length, i_attenuation)
+
+// Plot
+plot(cheby2_val, "Cheby2", color=color.yellow, linewidth=2)

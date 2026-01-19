@@ -1,0 +1,62 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Average Daily Range (ADR)", "ADR", overlay=false)
+
+//@function Calculates Average Daily Range with choice of smoothing method
+//@param length Period for smoothing calculations
+//@param method Smoothing method (1=SMA, 2=EMA, 3=WMA)
+//@returns float ADR value
+//@optimized for performance and dirty data
+adr(simple int length, simple int method = 1) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    if method < 1 or method > 3
+        runtime.error("Method must be 1 (SMA), 2 (EMA), or 3 (WMA)")
+    var int p = math.max(1, length)
+    var int head = 0
+    var int count = 0
+    var array<float> buffer = array.new_float(p, na)
+    var float sum = 0.0
+    var float wsum = 0.0
+    float dayRange = high - low
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        count -= 1
+    sum += dayRange
+    count += 1
+    array.set(buffer, head, dayRange)
+    head := (head + 1) % p
+    var float EPSILON = 1e-10
+    var float raw_ema = 0.0
+    var float e = 1.0
+    float result = na
+    if method == 1  // SMA
+        result := nz(sum / count, dayRange)
+    else if method == 2  // EMA
+        float alpha = 1.0/float(length)
+        raw_ema := (raw_ema * (length - 1) + dayRange) / length
+        e := (1 - alpha) * e
+        result := e > EPSILON ? raw_ema / (1.0 - e) : raw_ema
+    else  // WMA
+        wsum := 0.0
+        float weight = length
+        for i = 0 to length - 1
+            wsum += nz(array.get(buffer, (head - i - 1 + p) % p)) * weight
+            weight -= 1.0
+        float divisor = length * (length + 1) / 2
+        result := wsum / divisor
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1, maxval=500, tooltip="Number of bars to average the daily range over")
+i_method = input.int(1, "Method", minval=1, maxval=3, tooltip="1=SMA, 2=EMA, 3=WMA")
+
+// Calculation
+adrValue = adr(i_length, i_method)
+
+// Plot
+plot(adrValue, "ADR", color=color.yellow, linewidth=2)

@@ -1,0 +1,65 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Choppiness Index", "CHOP", overlay=false)
+
+//@function Calculates Choppiness Index to measure market trendiness
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/chop.md
+//@param length Lookback period for calculation
+//@returns CHOP value between 0 and 100 (lower=trending, higher=choppy)
+//@references E.W. Dreiss, Australian commodity trader
+//@optimized O(n) with circular buffers for TR sum and high/low tracking
+chop(simple int length) =>
+    if length <= 1
+        runtime.error("Length must be > 1")
+    var float sum_tr = 0.0
+    var int head = 0
+    var int filled = 0
+    var array<float> atr_buf = array.new_float(length, na)
+    var array<float> high_buf = array.new_float(length, na)
+    var array<float> low_buf = array.new_float(length, na)
+    float prevClose = nz(close[1], close)
+    float tr = math.max(high - low, math.max(math.abs(high - prevClose), math.abs(low - prevClose)))
+    float out = array.get(atr_buf, head)
+    if not na(out)
+        sum_tr -= out
+    else
+        filled += 1
+    array.set(atr_buf, head, tr)
+    array.set(high_buf, head, high)
+    array.set(low_buf, head, low)
+    sum_tr += tr
+    int win = math.min(filled, length)
+    float hhv = -1e100
+    float llv = 1e100
+    for k = 0 to win - 1
+        int idx = (head - k + length) % length
+        float h = array.get(high_buf, idx)
+        float l = array.get(low_buf, idx)
+        if not na(h)
+            hhv := math.max(hhv, h)
+        if not na(l)
+            llv := math.min(llv, l)
+    head := (head + 1) % length
+    float price_range = hhv - llv
+    float chop_value = na
+    if win >= 2 and price_range > 0
+        float log_ratio = math.log10(sum_tr / price_range)
+        float log_len = math.log10(win)
+        chop_value := 100.0 * log_ratio / log_len
+        chop_value := math.max(0.0, math.min(100.0, chop_value))
+    chop_value
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=2)
+
+// Calculation
+chop_value = chop(i_length)
+
+// Plot
+plot(chop_value, "CHOP", color=color.yellow, linewidth=2)
+hline(61.8, "High Threshold", color=color.new(color.red, 50), linestyle=hline.style_dashed)
+hline(38.2, "Low Threshold", color=color.new(color.green, 50), linestyle=hline.style_dashed)
+hline(50, "Midline", color=color.new(color.gray, 70), linestyle=hline.style_dotted)

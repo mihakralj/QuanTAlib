@@ -1,0 +1,126 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Cointegration (COINTEGRATION)", "COINTEGRATION", overlay=false)
+
+sma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = period
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0
+    var float sum = 0.0
+    var int valid_count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        valid_count -= 1
+    if not na(source)
+        sum += source
+        valid_count += 1
+    array.set(buffer, head, source)
+    head := (head + 1) % p
+    nz(sum / valid_count, source)
+
+stddev(series float src, int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, len)
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0,  var int count = 0
+    var float sum = 0.0, var float sumSq = 0.0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        sumSq -= oldest * oldest
+        count -= 1
+    float val = nz(src)
+    sum += val
+    sumSq += val * val
+    count += 1
+    array.set(buffer, head, val)
+    head := (head + 1) % p
+    count > 1 ? math.sqrt(math.max(0.0, (sumSq / count) - math.pow(sum / count, 2))) : 0.0
+
+correlation(series float src1, series float src2, simple int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, len)
+    var array<float> buffer1 = array.new_float(p, na)
+    var array<float> buffer2 = array.new_float(p, na)
+    var int head = 0, var int count = 0
+    var float sum1 = 0.0, var float sum2 = 0.0
+    var float sumSq1 = 0.0, var float sumSq2 = 0.0
+    var float sumProd = 0.0
+    float oldest1 = array.get(buffer1, head)
+    float oldest2 = array.get(buffer2, head)
+    if not na(oldest1) and not na(oldest2)
+        sum1 -= oldest1, sum2 -= oldest2
+        sumSq1 -= oldest1 * oldest1, sumSq2 -= oldest2 * oldest2
+        sumProd -= oldest1 * oldest2
+        count -= 1
+    if not na(src1) and not na(src2)
+        sum1 += src1, sum2 += src2
+        sumSq1 += src1 * src1, sumSq2 += src2 * src2
+        sumProd += src1 * src2
+        count += 1
+        array.set(buffer1, head, src1)
+        array.set(buffer2, head, src2)
+    else
+        array.set(buffer1, head, na)
+        array.set(buffer2, head, na)
+    head := (head + 1) % p
+    if count > 1
+        mean1 = sum1 / count, mean2 = sum2 / count
+        cov = (sumProd / count) - mean1 * mean2
+        var1 = (sumSq1 / count) - mean1 * mean1
+        var2 = (sumSq2 / count) - mean2 * mean2
+        stddev1 = math.sqrt(math.max(0.0, var1))
+        stddev2 = math.sqrt(math.max(0.0, var2))
+        denominator = stddev1 * stddev2
+        if denominator != 0
+            cov / denominator
+        else
+            na
+    else
+        na
+
+//@function Calculates the cointegration of two series using the Engle-Granger method.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/cointegration.md
+//@param series_a series float The first series.
+//@param series_b series float The second series.
+//@param period int The lookback period for the regression and ADF test.
+//@returns float The Augmented Dickey-Fuller test statistic for the residuals. A more negative value suggests stronger evidence of cointegration.
+//@optimized for performance and dirty data
+cointegration(series_a, series_b, period) =>
+    // Validate parameters
+    if period <= 1
+        runtime.error("Period must be greater than 1")
+    beta = correlation(series_a, series_b, period) * (stddev(series_a, period) / stddev(series_b, period))
+    alpha = sma(series_a, period) - beta * sma(series_b, period)
+    residuals = series_a - (alpha + beta * series_b)
+    delta_residuals = residuals - nz(residuals[1])
+    lagged_residuals = nz(residuals[1])
+    gamma_numerator = sma(delta_residuals * lagged_residuals, period - 1) - sma(delta_residuals, period - 1) * sma(lagged_residuals, period - 1)
+    gamma_denominator = sma(lagged_residuals * lagged_residuals, period - 1) - math.pow(sma(lagged_residuals, period - 1), 2)
+    gamma = gamma_denominator == 0 ? na : gamma_numerator / gamma_denominator
+    regression_error = delta_residuals - gamma * lagged_residuals
+    se_gamma_sq = sma(regression_error * regression_error, period - 1) / gamma_denominator
+    se_gamma = se_gamma_sq <= 0 or na(se_gamma_sq) ? na : math.sqrt(se_gamma_sq)
+    adf_statistic = se_gamma == 0 or na(se_gamma) ? na : gamma / se_gamma
+    adf_statistic
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source 1")
+i_source2_ticker = input.symbol("SPY", "Source 2 Ticker (e.g., SPY, AAPL)")
+i_period = input.int(20, "Period", minval=2)
+
+i_source2 = request.security(i_source2_ticker, timeframe.period, close, lookahead=barmerge.lookahead_off)
+
+// Calculation
+coint_stat = cointegration(i_source1, i_source2, i_period)
+
+// Plot
+plot(coint_stat, "Cointegration ADF Stat", color.yellow, color=color.yellow, linewidth=2)

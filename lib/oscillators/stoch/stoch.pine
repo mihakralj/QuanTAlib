@@ -1,0 +1,74 @@
+//@version=6
+indicator("Stochastic Oscillator (STOCH)", "Stoch", overlay=false)
+
+//@function Calculates the Stochastic Oscillator (%K and %D). %K = 100 * (close - lowest_low(kLength)) / (highest_high(kLength) - lowest_low(kLength)). %D = SMA(%K, dPeriod). Uses efficient deque implementation for min/max and buffer-based SMA.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/stoch.md
+//@param kLength `simple int` The lookback period for calculating highest high and lowest low.
+//@param dPeriod `simple int` The smoothing period for the %D line (SMA of %K).
+//@returns `[float, float]` A tuple containing the %K value and the %D value.
+stoch(simple int kLength,simple int dPeriod)=>
+    if kLength<=0 or dPeriod<=0
+        runtime.error("Both periods must be positive")
+    var float kVal=0.0, var float dVal=0.0
+    var int dHead=0, var float dSum=0.0
+    var array<int>lowestDeque=array.new_int(0)
+    var array<float>lowestBuffer=array.new_float(kLength,na)
+    var array<int>highestDeque=array.new_int(0)
+    var array<float>highestBuffer=array.new_float(kLength,na)
+    var array<float>dBuffer=array.new_float(dPeriod,0.0)
+    int idx=bar_index%kLength
+    float lv=nz(low), float hv=nz(high)
+    array.set(lowestBuffer,idx,lv)
+    array.set(highestBuffer,idx,hv)
+    while array.size(lowestDeque)>0
+        if array.get(lowestDeque,0)<=bar_index-kLength
+            array.shift(lowestDeque)
+        else
+            break
+    while array.size(lowestDeque)>0
+        if array.get(lowestBuffer,array.get(lowestDeque,array.size(lowestDeque)-1)%kLength)>=lv
+            array.pop(lowestDeque)
+        else
+            break
+    array.push(lowestDeque,bar_index)
+    while array.size(highestDeque)>0
+        if array.get(highestDeque,0)<=bar_index-kLength
+            array.shift(highestDeque)
+        else
+            break
+    while array.size(highestDeque)>0
+        if array.get(highestBuffer,array.get(highestDeque,array.size(highestDeque)-1)%kLength)<=hv
+            array.pop(highestDeque)
+        else
+            break
+    array.push(highestDeque,bar_index)
+    int li=array.get(lowestDeque,0)
+    int hi=array.get(highestDeque,0)
+    float lowestLow=array.get(lowestBuffer,li%kLength)
+    float highestHigh=array.get(highestBuffer,hi%kLength)
+    float rnge=highestHigh-lowestLow
+    kVal:=rnge>0?100*(close-lowestLow)/rnge:0.0
+    if bar_index==0
+        dSum:=kVal*dPeriod
+        array.fill(dBuffer,kVal)
+    else
+        float oldVal=array.get(dBuffer,dHead)
+        dSum:=dSum-oldVal+kVal
+        array.set(dBuffer,dHead,kVal)
+        dHead:=(dHead+1)%dPeriod
+    dVal:=dSum/dPeriod
+    [kVal,dVal]
+
+
+// ---------- Main loop ----------
+
+// Inputs
+kPeriod = input.int(14, "K Length", minval=1)
+dPeriod = input.int(3, "D Smooth", minval=1)
+
+// Calculation
+[kValue, dValue] = stoch(kPeriod, dPeriod)
+
+// Plot
+plot(kValue, "Stochastic %K", color=color.green, linewidth=2)
+plot(dValue, "Stochastic %D", color=color.red, linewidth=2)

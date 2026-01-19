@@ -1,0 +1,31 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Rate of Change Ratio (ROCR)", "ROCR", overlay=false)
+
+//@function Calculates ratio between current price and N periods ago
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/rocr.md
+//@param source Source price series
+//@param length Lookback period
+//@returns Price ratio value
+rocr(series float source, simple int length)=>
+    if length<=0
+        runtime.error("Length must be greater than 0")
+    var int count = 0
+    float ratio = na
+    if not na(source[count]) and source[count] != 0
+        ratio := source / source[count]
+        count := math.min(count + 1, length)
+    ratio
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(9, "Length", minval=1)
+
+// Calculate ROCR
+float rocr_val = rocr(i_source, i_length)
+
+// Plot
+plot(rocr_val, "ROCR", color=color.yellow, linewidth=2)

@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=5
+indicator("Yang-Zhang Volatility (YZV)", shorttitle="YZV", overlay=false)
+
+//@function Calculates Yang-Zhang Volatility (YZV).
+// YZV is a historical volatility measure that incorporates open, high, low, and close prices,
+// as well as overnight gaps. It uses a bias-corrected RMA for smoothing.
+// @param length The lookback period for smoothing the daily variance estimates. Must be > 0.
+// @returns float The Yang-Zhang Volatility value for the current bar.
+yzv(int length) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0 for YZV calculation.")
+        float(na)
+    o=open,h=high,l=low,c=close,pc=na(close[1])?open:close[1]
+    ro=math.log(o/pc),rc=math.log(c/o),rh=math.log(h/o),rl=math.log(l/o)
+    s_o_sq=ro*ro,s_c_sq=rc*rc
+    s_rs_sq=rh*(rh-rc)+rl*(rl-rc)
+    ratio_N=length<=1?1.0:(float(length)+1.0)/(float(length)-1.0)
+    k_yz=0.34/(1.34+ratio_N)
+    s_sq_daily=s_o_sq+k_yz*s_c_sq+(1.0-k_yz)*s_rs_sq
+    var float EPSILON_YZV = 1e-10 // Consistent with VR's EPSILON_ATR
+    var float raw_rma_val = 0.0
+    var float e_comp_val = 1.0
+    float smoothed_s_sq = na
+    if not na(s_sq_daily)
+        rma_alpha = 1.0 / float(length)
+        if na(raw_rma_val[1]) and e_comp_val == 1.0 // First valid calculation for RMA
+            raw_rma_val := s_sq_daily
+        else
+            raw_rma_val := (nz(raw_rma_val[1]) * (length - 1) + s_sq_daily) / length
+        e_comp_val := (1.0 - rma_alpha) * e_comp_val
+        smoothed_s_sq := e_comp_val > EPSILON_YZV ? raw_rma_val / (1.0 - e_comp_val) : raw_rma_val
+    result = math.sqrt(smoothed_s_sq)
+    result
+
+// Inputs
+i_length = input.int(20, title="Length", minval=1, tooltip="The lookback period for smoothing Yang-Zhang daily variance estimates.")
+
+// Calculation
+yzvValue = yzv(i_length)
+
+// Plot
+plot(yzvValue, title="YZV", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)

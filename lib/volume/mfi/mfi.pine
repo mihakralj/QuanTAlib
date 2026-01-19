@@ -1,0 +1,57 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Money Flow Index (MFI)", "MFI", overlay=false)
+
+//@function Calculates Money Flow Index, a volume-weighted RSI that measures buying/selling pressure
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/mfi.md
+//@param len Period for MFI calculation
+//@param src_high High price series
+//@param src_low Low price series
+//@param src_close Close price series
+//@param src_vol Volume series
+//@returns float The MFI value (0-100)
+//@optimized Uses circular buffers for O(1) performance with proper NA handling
+mfi(simple int len, series float src_high=high, series float src_low=low, series float src_close=close, series float src_vol=volume) =>
+    if len < 1
+        runtime.error("Invalid parameter: len must be >= 1")
+    float typical_price = (src_high + src_low + src_close) / 3.0
+    float raw_money_flow = typical_price * nz(src_vol, 0.0)
+    float prev_typical_price = nz(typical_price[1], typical_price)
+    bool is_positive = typical_price > prev_typical_price
+    bool is_negative = typical_price < prev_typical_price
+    float positive_money_flow = is_positive ? raw_money_flow : 0.0
+    float negative_money_flow = is_negative ? raw_money_flow : 0.0
+    var array<float> pos_buffer = array.new_float(len, na)
+    var array<float> neg_buffer = array.new_float(len, na)
+    var int head = 0
+    var float sum_positive_mf = 0.0
+    var float sum_negative_mf = 0.0
+    var int count = 0
+    float pos_oldest = array.get(pos_buffer, head)
+    float neg_oldest = array.get(neg_buffer, head)
+    if not na(pos_oldest)
+        sum_positive_mf -= pos_oldest
+        sum_negative_mf -= neg_oldest
+    else
+        count += 1
+    sum_positive_mf += positive_money_flow
+    sum_negative_mf += negative_money_flow
+    array.set(pos_buffer, head, positive_money_flow)
+    array.set(neg_buffer, head, negative_money_flow)
+    head := (head + 1) % len
+    float money_flow_ratio = sum_negative_mf != 0 ? sum_positive_mf / sum_negative_mf : 0.0
+    float mfi_value = 100.0 - (100.0 / (1.0 + money_flow_ratio))
+    mfi_value
+
+// ---------- Main Calculation ----------
+
+// Parameters
+len = input.int(14, "MFI Period", minval=1, maxval=100)
+
+// Calculation
+mfi_line = mfi(len)
+
+// ---------- Plots ----------
+
+plot(mfi_line, "MFI", color=color.yellow, linewidth=2)

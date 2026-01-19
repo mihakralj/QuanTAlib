@@ -1,0 +1,52 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Gaussian Filter (GAUSS)", "GAUSS", overlay=true)
+
+//@function Calculates Gaussian Filter using true convolution
+//@param src Series to calculate Gaussian filter from
+//@param sigma Standard deviation of the Gaussian kernel
+//@returns Gaussian filter value
+//@optimized Uses Gaussian kernel convolution with O(n) complexity per bar
+gauss(series float src, simple float sigma) =>
+    int kernel_size = 2 * math.ceil(3.0 * sigma) + 1
+    var array<float> kernel = array.new_float(0)
+    var array<float> norm_kernel = array.new_float(1, 1.0)
+    var int last_kernel_size = 1
+    if last_kernel_size != kernel_size
+        float center = math.floor(kernel_size / 2.0)
+        array.clear(kernel)
+        float kernel_sum = 0.0
+        for i = 0 to kernel_size - 1
+            float x = i - center
+            float weight = math.exp(-(x * x) / (2.0 * sigma * sigma))
+            array.push(kernel, weight)
+            kernel_sum += weight
+        norm_kernel := array.copy(kernel)
+        if kernel_sum != 0.0
+            float inv_sum = 1.0 / kernel_sum
+            for i = 0 to kernel_size - 1
+                array.set(norm_kernel, i, array.get(kernel, i) * inv_sum)
+        last_kernel_size := kernel_size
+    int p = math.min(bar_index + 1, kernel_size)
+    float sum = 0.0
+    float weight_sum = 0.0
+    for i = 0 to p - 1
+        float price = src[i]
+        if not na(price)
+            float w = array.get(norm_kernel, i)
+            sum += price * w
+            weight_sum += w
+    nz(sum / weight_sum, src)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_sigma = input.float(1.0, "Sigma", minval=0.1, maxval=10.0, step=0.1)
+i_source = input.source(close, "Source")
+
+// Calculation
+gauss_val = gauss(i_source, i_sigma)
+
+// Plot
+plot(gauss_val, "Gaussian", color=color.yellow, linewidth=2)

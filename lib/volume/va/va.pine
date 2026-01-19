@@ -1,0 +1,31 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Volume Accumulation (VA)", "VA", overlay=false)
+
+//@function Calculates Volume Accumulation
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/va.md
+//@param h High price series
+//@param l Low price series
+//@param c Close price series
+//@param vol Volume series
+//@returns Cumulative Volume Accumulation value
+//@optimized for performance and dirty data
+va(series float h=high, series float l=low, series float c=close, series float vol=volume) =>
+    float high_price = nz(h, close), float low_price = nz(l, close)
+    float close_price = nz(c, close), float volume_val = nz(vol, 0.0)
+    float midpoint = (high_price + low_price) / 2.0
+    float va_period = volume_val * (close_price - midpoint)
+    var float va_cumulative = 0.0
+    va_cumulative += va_period
+    va_cumulative
+
+// ---------- Main loop ----------
+
+// No inputs required - uses standard OHLC and volume data
+
+// Calculation
+va_value = va()
+
+// Plot
+plot(va_value, "VA", color=color.yellow, linewidth=2)

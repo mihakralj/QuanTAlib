@@ -1,0 +1,114 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("True Strength Index (TSI)", "TSI", overlay=false)
+
+//@function Calculates the True Strength Index and its signal line.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/tsi.md
+//@param src series float The source series.
+//@param longLen simple int The lookback period for the first EMA smoothing (typically 25).
+//@param shortLen simple int The lookback period for the second EMA smoothing (typically 13).
+//@param signalLen simple int The lookback period for the signal line EMA (typically 13).
+//@returns tuple [float, float] A tuple containing the TSI value and its signal line.
+//@optimized for performance and dirty data
+tsi(series float src, simple int longLen, simple int shortLen, simple int signalLen) =>
+    if longLen <= 0 or shortLen <= 0 or signalLen <= 0
+        runtime.error("Lengths must be greater than 0")
+    float mom = src - nz(src[1])
+    float absMom = math.abs(mom)
+    var float emaMomLong = na, var float emaMomLong_e = 1.0, var bool emaMomLong_warmup = true
+    var float emaMomShort = na, var float emaMomShort_e = 1.0, var bool emaMomShort_warmup = true
+    var float emaAbsMomLong = na, var float emaAbsMomLong_e = 1.0, var bool emaAbsMomLong_warmup = true
+    var float emaAbsMomShort = na, var float emaAbsMomShort_e = 1.0, var bool emaAbsMomShort_warmup = true
+    var float emaSignal = na, var float emaSignal_e = 1.0, var bool emaSignal_warmup = true
+    float alphaLong = 2.0 / math.max(longLen, 1)
+    float alphaShort = 2.0 / math.max(shortLen, 1)
+    float alphaSignal = 2.0 / math.max(signalLen, 1)
+    float smoothedMomLong = 0.0
+    float smoothedAbsMomLong = 0.0
+    float doubleSmoothedMom = 0.0
+    float doubleSmoothedAbsMom = 0.0
+    float tsiValue = 0.0
+    float signalLineValue = 0.0
+    if not na(mom)
+        if na(emaMomLong)
+            emaMomLong := 0.0
+            smoothedMomLong := mom
+        else
+            emaMomLong := alphaLong * (mom - emaMomLong) + emaMomLong
+            if emaMomLong_warmup
+                emaMomLong_e *= (1 - alphaLong)
+                smoothedMomLong := (1.0 / (1.0 - emaMomLong_e)) * emaMomLong
+                if emaMomLong_e <= 1e-10
+                    emaMomLong_warmup := false
+            else
+                smoothedMomLong := emaMomLong
+        if na(emaMomShort)
+            emaMomShort := 0.0
+            doubleSmoothedMom := smoothedMomLong
+        else
+            emaMomShort := alphaShort * (smoothedMomLong - emaMomShort) + emaMomShort
+            if emaMomShort_warmup
+                emaMomShort_e *= (1 - alphaShort)
+                doubleSmoothedMom := (1.0 / (1.0 - emaMomShort_e)) * emaMomShort
+                if emaMomShort_e <= 1e-10
+                    emaMomShort_warmup := false
+            else
+                doubleSmoothedMom := emaMomShort
+        if na(emaAbsMomLong)
+            emaAbsMomLong := 0.0
+            smoothedAbsMomLong := absMom
+        else
+            emaAbsMomLong := alphaLong * (absMom - emaAbsMomLong) + emaAbsMomLong
+            if emaAbsMomLong_warmup
+                emaAbsMomLong_e *= (1 - alphaLong)
+                smoothedAbsMomLong := (1.0 / (1.0 - emaAbsMomLong_e)) * emaAbsMomLong
+                if emaAbsMomLong_e <= 1e-10
+                    emaAbsMomLong_warmup := false
+            else
+                smoothedAbsMomLong := emaAbsMomLong
+        if na(emaAbsMomShort)
+            emaAbsMomShort := 0.0
+            doubleSmoothedAbsMom := smoothedAbsMomLong
+        else
+            emaAbsMomShort := alphaShort * (smoothedAbsMomLong - emaAbsMomShort) + emaAbsMomShort
+            if emaAbsMomShort_warmup
+                emaAbsMomShort_e *= (1 - alphaShort)
+                doubleSmoothedAbsMom := (1.0 / (1.0 - emaAbsMomShort_e)) * emaAbsMomShort
+                if emaAbsMomShort_e <= 1e-10
+                    emaAbsMomShort_warmup := false
+            else
+                doubleSmoothedAbsMom := emaAbsMomShort
+        if doubleSmoothedAbsMom != 0
+            tsiValue := 100 * (doubleSmoothedMom / doubleSmoothedAbsMom)
+        else
+            tsiValue := 0
+        if na(emaSignal)
+            emaSignal := 0.0
+            signalLineValue := tsiValue
+        else
+            emaSignal := alphaSignal * (tsiValue - emaSignal) + emaSignal
+            if emaSignal_warmup
+                emaSignal_e *= (1 - alphaSignal)
+                signalLineValue := (1.0 / (1.0 - emaSignal_e)) * emaSignal
+                if emaSignal_e <= 1e-10
+                    emaSignal_warmup := false
+            else
+                signalLineValue := emaSignal
+    else
+        tsiValue := nz(tsiValue[1], 50.0)
+        signalLineValue := nz(signalLineValue[1], 50.0)
+    [tsiValue, signalLineValue]
+// ---------- Main loop ----------
+// Inputs
+i_source = input.source(close, "Source")
+i_longLen = input.int(25, "Long Length", minval=1)
+i_shortLen = input.int(13, "Short Length", minval=1)
+i_signalLen = input.int(13, "Signal Length", minval=1)
+
+// Calculation
+[tsi_value, signal_line] = tsi(i_source, i_longLen, i_shortLen, i_signalLen)
+
+// Plot
+plot(tsi_value, "TSI", color=color.blue, linewidth=2)
+plot(signal_line, "Signal Line", color=color.red, linewidth=2)

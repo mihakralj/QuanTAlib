@@ -1,0 +1,61 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Least Squares Moving Average (LSMA)", "LSMA", overlay=true)
+
+//@function Calculates LSMA by fitting a linear regression line to price data
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_FIR/lsma.md
+//@param source Series to calculate LSMA from
+//@param period Lookback period for the linear regression
+//@returns LSMA value, calculates from first bar using available data
+//@optimized Uses circular buffer with linear regression for O(n) complexity per bar
+lsma(series float source, simple int period) =>
+    if period <= 1
+        runtime.error("Period must be greater than 1")
+        source
+    else
+        int p = math.min(bar_index + 1, period)
+        if p <= 1
+            source
+        else
+            var array<float> buffer = array.new_float(period, na)
+            var int head = 0
+            array.set(buffer, head, source)
+            head := (head + 1) % period
+            float sum_y = 0.0
+            float sum_xy = 0.0
+            float sum_x = 0.0
+            float sum_x2 = 0.0
+            float count = 0.0
+            int idx = (head - 1 + period) % period
+            for i = 0 to p - 1
+                float val = array.get(buffer, idx)
+                if not na(val)
+                    sum_x += i
+                    sum_y += val
+                    sum_xy += i * val
+                    sum_x2 += i * i
+                    count += 1.0
+                idx := (idx - 1 + period) % period
+            if count <= 1.0
+                source
+            else
+                float denom = count * sum_x2 - sum_x * sum_x
+                if denom == 0.0
+                    source
+                else
+                    float slope = (count * sum_xy - sum_x * sum_y) / denom
+                    float intercept = (sum_y - slope * sum_x) / count
+                    intercept
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+lsma_value = lsma(i_source, i_period)
+
+// Plot
+plot(lsma_value, "LSMA", color=color.yellow, linewidth=2)

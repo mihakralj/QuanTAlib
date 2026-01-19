@@ -1,0 +1,48 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Convolution Moving Average (CONV)", "CONV", overlay=true)
+
+//@function Calculates a convolution MA using any custom kernel
+//@param source Series to calculate CONV from
+//@param kernel Array of weights to use as convolution kernel
+//@returns CONV value, calculates from first bar using available data
+//@optimized Uses custom kernel convolution with O(n) complexity per bar due to lookback loop
+conv(series float source, simple array<float> kernel) =>
+    int kernel_size = array.size(kernel)
+    if kernel_size <= 0
+        runtime.error("Kernel must not be empty")
+    var array<float> norm_kernel = array.new_float(1, 1.0)
+    var int last_kernel_size = 1
+    if last_kernel_size != kernel_size
+        norm_kernel := array.copy(kernel)
+        float kernel_sum = 0.0
+        for i = 0 to kernel_size - 1
+            kernel_sum += array.get(kernel, i)
+        if kernel_sum != 0.0
+            float inv_sum = 1.0 / kernel_sum
+            for i = 0 to kernel_size - 1
+                array.set(norm_kernel, i, array.get(kernel, i) * inv_sum)
+        last_kernel_size := kernel_size
+    int p = math.min(bar_index + 1, kernel_size)
+    float sum = 0.0
+    float weight_sum = 0.0
+    for i = 0 to p - 1
+        float price = source[i]
+        if not na(price)
+            float w = array.get(norm_kernel, i)
+            sum += price * w
+            weight_sum += w
+    nz(sum / weight_sum, source)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_kernel = array.from(1.0, 2.5, -3.14, 0.0, 1.0)
+
+// Calculation
+conv_value = conv(i_source, i_kernel)
+
+// Plot
+plot(conv_value, "CONV", color=color.yellow, linewidth=2)

@@ -1,0 +1,68 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Entropy (ENTROPY)", "ENTROPY", overlay=false)
+
+ //@function Calculate normalized Shannon entropy of a series over a lookback period.
+ //@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/entropy.md
+ //@param source series<float> Input data series. NA values are ignored.
+ //@param length int Lookback period (>= 1).
+ //@returns series<float> Normalized entropy value [0, 1], or na if insufficient data.
+ //@optimized for performance and dirty data
+entropy(source, length) =>
+    if length < 1
+        runtime.error("Length must be >= 1")
+    var float validMin = na
+    var float validMax = na
+    var int validCount = 0
+    for i = 0 to length - 1
+        val = source[i]
+        if not na(val)
+            if na(validMin)
+                validMin := val
+                validMax := val
+            else
+                validMin := math.min(validMin, val)
+                validMax := math.max(validMax, val)
+            validCount += 1
+    var float normalizedEntropy = na
+    if validCount < 2
+        normalizedEntropy := na
+    else
+        valueRange = validMax - validMin
+        if valueRange <= 1e-10
+            normalizedEntropy := 0.0
+        else
+            bins = math.min(math.max(validCount, 2), 100)
+            int[] freq = array.new_int(bins, 0)
+            float sumOfValidPoints = 0.0
+            for i = 0 to length - 1
+                val = source[i]
+                if not na(val)
+                    normVal = (val - validMin) / valueRange
+                    bucket = math.floor(math.min(math.max(normVal, 0.0), 1.0 - 1e-10) * bins)
+                    safeBucket = math.max(0, math.min(bucket, bins - 1))
+                    array.set(freq, safeBucket, array.get(freq, safeBucket) + 1)
+                    sumOfValidPoints += 1
+            float entropySumComponent = 0.0
+            if sumOfValidPoints > 0
+                for i = 0 to bins - 1
+                    count = array.get(freq, i)
+                    if count > 0
+                        p = count / sumOfValidPoints
+                        entropySumComponent += -p * math.log(p)
+                maxEntropy = math.log(bins)
+                normalizedEntropy := maxEntropy > 1e-10 ? entropySumComponent / maxEntropy : 0.0
+    normalizedEntropy
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(14, "Length", minval=1)
+
+// Calculation
+entropyValue = entropy(i_source, i_length)
+
+// Plot
+plot(entropyValue, "Entropy", color=color.blue, color=color.yellow, linewidth=2)

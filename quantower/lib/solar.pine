@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Solar Cycle (SOLAR)", "SOLAR", overlay=false)
+
+//@function Calculates precise solar cycle value using Sun's ecliptic longitude.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/cycles/solar.md
+//@param barTime int The timestamp of the bar (open time) in milliseconds.
+//@returns float Solar cycle value from -1.0 (winter solstice) through 0.0 (equinoxes) to +1.0 (summer solstice).
+//@optimized for performance and dirty data
+solar(int barTime) =>
+    float jd = (barTime / 86400000.0) + 2440587.5
+    float T = (jd - 2451545.0) / 36525.0
+    float l0DegRaw = 280.46646 + 36000.76983 * T + 0.0003032 * T * T
+    float l0Deg = (l0DegRaw % 360.0 + 360.0) % 360.0
+    float mDegRaw = 357.52911 + 35999.05029 * T - 0.0001537 * T * T - 0.00000025 * T * T * T
+    float mDeg = (mDegRaw % 360.0 + 360.0) % 360.0
+    float mRad = mDeg * math.pi / 180.0
+    float cDeg = (1.914602 - 0.004817 * T - 0.000014 * T * T) * math.sin(mRad) + 
+                 (0.019993 - 0.000101 * T) * math.sin(2.0 * mRad) + 
+                 0.000289 * math.sin(3.0 * mRad)
+    float lambdaSunDegRaw = l0Deg + cDeg
+    float lambdaSunDeg = (lambdaSunDegRaw % 360.0 + 360.0) % 360.0
+    float lambdaSunRad = lambdaSunDeg * math.pi / 180.0
+    float valueRaw = math.sin(lambdaSunRad)
+    valueRaw
+
+// ---------- Main loop ----------
+// Calculation
+float solarCycleValue = solar(time)
+float delta1 = solarCycleValue - solarCycleValue[1]
+
+bool summerSolsticeCondition = solarCycleValue > 0.985 and solarCycleValue[1] > 0.985 and delta1 < 0 and delta1[1] > 0
+bool vernalEquinoxCondition = solarCycleValue[1] < 0.0 and solarCycleValue >= 0.0 and delta1 > 0
+bool winterSolsticeCondition = solarCycleValue < -0.985 and solarCycleValue[1] < -0.985 and delta1 > 0 and delta1[1] < 0
+bool autumnalEquinoxCondition = solarCycleValue[1] > 0.0 and solarCycleValue <= 0.0 and delta1 < 0
+
+// Plot
+plot(solarCycleValue, "Solar Cycle", color=color.yellow, linewidth=2)
+
+// Plotchars
+plotchar(summerSolsticeCondition ? solarCycleValue : na, "Peak Summer", "•", location.absolute, color.new(color.red,0), size = size.small)
+plotchar(vernalEquinoxCondition ? 0.0 : na, "Spring Rise", "•", location.absolute, color.new(color.yellow,0), size = size.small)
+plotchar(winterSolsticeCondition ? solarCycleValue : na, "Peak Winter", "•", location.absolute, color.new(color.blue,0), size = size.small)
+plotchar(autumnalEquinoxCondition ? 0.0 : na, "Autumn Fall", "•", location.absolute, color.new(color.yellow,0), size = size.small)

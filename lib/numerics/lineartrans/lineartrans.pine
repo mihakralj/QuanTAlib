@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Linear Transformation (LINEAR)", "Lineartrans", overlay=false)
+
+//@function Applies a linear transformation (y = a*(x - sma) + sma + b) relative to the source's SMA, calculated internally.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/linear.md
+//@param source series float The input series to transform.
+//@param period simple int The lookback period for the internal SMA calculation.
+//@param a float The scaling factor (slope).
+//@param b float The offset (intercept).
+//@returns series float The linearly transformed series relative to its internally calculated SMA.
+//@optimized for performance and dirty data
+linear(series float source, float a, float b) =>
+    if na(source) or na(a) or na(b)
+        runtime.error("Parameters 'source', 'a', 'b' cannot be na and 'period' must be > 0.")
+    var int p = 200
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0
+    var float sum = 0.0
+    var int valid_count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        valid_count -= 1
+    if not na(source)
+        sum += source
+        valid_count += 1
+    array.set(buffer, head, source)
+    head := (head + 1) % p
+    smaValue = nz(sum / valid_count, source)
+    a * (source - smaValue) + smaValue + b
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input(close, "Source")
+i_smaPeriod = input.int(200, "SMA Period", minval=1)
+i_a = input.float(2.0, "Scale (a)")
+i_b = input.float(20.0, "Offset (b)")
+
+// Calculation
+transformedSource = linear(i_source, i_a, i_b)
+
+// Plot
+plot(transformedSource, "Linear Transformation", color=color.yellow, linewidth=2)

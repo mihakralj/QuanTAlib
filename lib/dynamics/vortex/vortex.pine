@@ -1,0 +1,59 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Vortex Indicator", "VORTEX", overlay=false)
+
+//@function Calculates Vortex Indicator (VI+ and VI-)
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/vortex.md
+//@param period Lookback period for summing vortex movements and true range
+//@returns Tuple [vi_plus, vi_minus] normalized vortex indicator values
+//@optimized Uses running sums for O(1) complexity with circular buffer
+vortex(simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var int head = 0
+    var array<float> vmPlusBuffer = array.new_float(period, na)
+    var array<float> vmMinusBuffer = array.new_float(period, na)
+    var array<float> trBuffer = array.new_float(period, na)
+    var float sumVMPlus = 0.0
+    var float sumVMMinus = 0.0
+    var float sumTR = 0.0
+    var int count = 0
+    float tr1 = high - low
+    float tr2 = na(close[1]) ? 0 : math.abs(high - close[1])
+    float tr3 = na(close[1]) ? 0 : math.abs(low - close[1])
+    float tr = math.max(tr1, math.max(tr2, tr3))
+    float vmPlus = na(low[1]) ? tr : math.abs(high - low[1])
+    float vmMinus = na(high[1]) ? tr : math.abs(low - high[1])
+    float oldVMPlus = array.get(vmPlusBuffer, head)
+    float oldVMMinus = array.get(vmMinusBuffer, head)
+    float oldTR = array.get(trBuffer, head)
+    if not na(oldVMPlus)
+        sumVMPlus -= oldVMPlus
+        sumVMMinus -= oldVMMinus
+        sumTR -= oldTR
+    else
+        count += 1
+    sumVMPlus += vmPlus
+    sumVMMinus += vmMinus
+    sumTR += tr
+    array.set(vmPlusBuffer, head, vmPlus)
+    array.set(vmMinusBuffer, head, vmMinus)
+    array.set(trBuffer, head, tr)
+    head := (head + 1) % period
+    float viPlus = sumTR > 0 ? sumVMPlus / sumTR : 0
+    float viMinus = sumTR > 0 ? sumVMMinus / sumTR : 0
+    [viPlus, viMinus]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1)
+
+// Calculation
+[vi_plus, vi_minus] = vortex(i_period)
+
+// Plot
+plot(vi_plus, "VI+", color=color.green, linewidth=2)
+plot(vi_minus, "VI-", color=color.red, linewidth=2)
+hline(1.0, "Reference", color=color.gray, linestyle=hline.style_dotted)

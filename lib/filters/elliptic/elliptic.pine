@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Elliptic 2nd Order Filter (ELLIPTIC)", "ELLIPTIC", overlay=true)
+
+//@function Calculates 2nd Order Elliptic Lowpass Filter (Rp=1dB, Rs=40dB)
+//@param src Series to calculate Elliptic filter from
+//@param length Cutoff period (related to cutoff frequency)
+//@returns Elliptic filter value
+//@optimized Uses IIR 2nd order Elliptic filter with O(1) complexity per bar
+elliptic(series float src, simple int length) =>
+    var float C_wz = 2.15499
+    var float C_sigma = -0.31323
+    var float C_omega_d = 0.90436
+    var float C_Kp_norm = 0.91598
+    var float C_k = 0.14735
+    float pi = math.pi
+    int safe_length = math.max(length, 2)
+    float Wc = math.tan(pi / safe_length)
+    if Wc < 1e-9
+        Wc := 1e-9
+    float omega_z_scaled = C_wz * Wc
+    float sigma_scaled = C_sigma * Wc
+    float Kp_scaled = C_Kp_norm * Wc * Wc
+    float a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled
+    if math.abs(a0_denom) < 1e-9
+        a0_denom := 1e-9
+    float norm_factor = C_Kp_norm / (C_k * C_wz * C_wz)
+    float b0 = norm_factor * C_k * (1.0 + omega_z_scaled * omega_z_scaled) / a0_denom
+    float b1 = norm_factor * C_k * (2.0 * omega_z_scaled * omega_z_scaled - 2.0) / a0_denom
+    float b2 = b0
+    float a1 = (2.0 * Kp_scaled - 2.0) / a0_denom
+    float a2 = (1.0 + 2.0 * sigma_scaled + Kp_scaled) / a0_denom
+    var float filt = na
+    if bar_index < 2
+        filt := nz(src, 0.0)
+    else
+        float s0 = nz(src, 0.0)
+        float s1 = nz(src[1], s0)
+        float s2 = nz(src[2], s1)
+        float f1 = nz(filt[1], s0)
+        float f2 = nz(filt[2], f1)
+        filt := b0 * s0 + b1 * s1 + b2 * s2 - a1 * f1 - a2 * f2
+    filt
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=2)
+i_source = input.source(close, "Source")
+
+// Calculation
+elliptic_val = elliptic(i_source, i_length)
+
+// Plot
+plot(elliptic_val, "Elliptic (Rp=1, Rs=40)", color=color.yellow, linewidth=2)

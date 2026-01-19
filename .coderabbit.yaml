@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+# CodeRabbit Configuration for QuanTAlib - High-Performance C# Trading Library
+# Documentation: https://docs.coderabbit.ai/reference/configuration
+
+language: en-US
+tone_instructions: "Focus on performance, memory allocation, SIMD optimization, and numerical accuracy. Flag any heap allocations in hot paths."
+early_access: true
+enable_free_tier: true
+
+reviews:
+  profile: assertive  # More thorough for a performance-critical library
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  review_status: true
+  commit_status: true
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: false  # Not useful for indicator calculations
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  suggested_reviewers: true
+  poem: false  # Keep it professional
+
+  path_filters:
+    # Include all source files
+    - "**/*.cs"
+    - "**/*.md"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.csproj"
+    - "**/*.props"
+
+    # Exclude build/IDE artifacts
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/.vs/**"
+    - "!**/.git/**"
+    - "!**/BenchmarkDotNet.Artifacts/**"
+    - "!**/TestResults/**"
+    - "!**/TestResultsCoverage/**"
+    - "!**/_site/**"
+    - "!**/ndepend/NDependOut/**"
+    - "!**/perf/publish/**"
+
+  path_instructions:
+    - path: "**/**"
+      instructions: |
+        - ensure thread safety, zero allocations, and proper Span<T>/Memory<T> usage."
+        - verify numerical stability, check for SIMD and FMA opportunities
+        - verify RingBuffer usage, ensure O(1) updates validate state rollback for isNew=false.
+        - check for numerical stability at edge cases, verify NaN/Infinity handling
+        - No heap allocations in Update() methods
+        - Use Math.FusedMultiplyAdd for a*b+c patterns
+        - Support isNew=false for bar correction (state rollback)
+        - Handle NaN/Infinity with last-valid-value substitution
+        - Use [MethodImpl(AggressiveInlining)] for hot paths
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "draft"
+    drafts: false
+    base_branches:
+      - dev
+
+  finishing_touches:
+    docstrings:
+      enabled: false  # XML docs handled separately
+    unit_tests:
+      enabled: false  # Tests excluded from review
+
+  tools:
+    # Disable tools not relevant to C#
+    shellcheck:
+      enabled: false
+    ruff:
+      enabled: false
+    eslint:
+      enabled: false
+    flake8:
+      enabled: false
+    pylint:
+      enabled: false
+    rubocop:
+      enabled: false
+    phpstan:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    swiftlint:
+      enabled: false
+    detekt:
+      enabled: false
+
+    # Keep enabled for config files
+    yamllint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    gitleaks:
+      enabled: true  # Security - detect secrets
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - ".clinerules/**"
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto

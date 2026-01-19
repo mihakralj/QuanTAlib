@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Lowest Value (LOWEST)", "LOWEST", overlay=true)
+
+//@function Lowest value over a specified period using a monotonic deque.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/lowest.md
+//@param src {series float} Source series.
+//@param len {int} Lookback length. `len` > 0.
+//@returns {series float} Lowest value of `src` for `len` bars back. Returns the lowest value seen so far during initial bars.
+lowest(series float src, int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    var deque = array.new_int(0)
+    var src_buffer = array.new_float(len, na)
+    var int current_index = 0
+    float current_val = nz(src)
+    array.set(src_buffer, current_index, current_val)
+    while array.size(deque) > 0 and array.get(deque, 0) <= bar_index - len
+        array.shift(deque)
+    while array.size(deque) > 0
+        int last_index_in_deque = array.get(deque, array.size(deque) - 1)
+        int buffer_lookup_index = last_index_in_deque % len
+        if array.get(src_buffer, buffer_lookup_index) >= current_val
+            array.pop(deque)
+        else
+            break
+    array.push(deque, bar_index)
+    int lowest_index = array.get(deque, 0)
+    int lowest_buffer_index = lowest_index % len
+    float result = array.get(src_buffer, lowest_buffer_index)
+    current_index := (current_index + 1) % len
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1) // Default period 14
+i_source = input.source(close, "Source")
+
+// Calculation
+lowest_value = lowest(i_source, i_period)
+
+// Plot
+plot(lowest_value, "Lowest", color=color.yellow, linewidth=2)

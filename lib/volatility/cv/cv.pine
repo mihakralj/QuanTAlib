@@ -1,0 +1,58 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Conditional Volatility (CV)", "CV", overlay=false)
+
+//@function Calculates GARCH(1,1) conditional volatility
+//@param length Initial period for parameter estimation
+//@param alpha Weight on previous squared return
+//@param beta Weight on previous variance
+//@returns float Conditional volatility value
+//@optimized for performance and efficient variance updating
+cv(simple int length, simple float alpha, simple float beta) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    if alpha <= 0.0 or alpha >= 1.0
+        runtime.error("Alpha must be between 0 and 1")
+    if beta <= 0.0 or beta >= 1.0
+        runtime.error("Beta must be between 0 and 1")
+    if alpha + beta >= 1.0
+        runtime.error("Alpha + Beta must be less than 1 for stationarity")
+    var float omega = 0.0
+    var float longRunVar = 0.0
+    var float prevVariance = 0.0
+    float DAYS_IN_YEAR = 252.0
+    float MIN_PRICE = 1e-10
+    float DEFAULT_VARIANCE = 0.0001
+    float safeClose = nz(close, close[1])
+    safeClose := math.max(safeClose, MIN_PRICE)
+    float safePrevClose = nz(close[1], close[2] != 0.0 ? close[2] : safeClose)
+    safePrevClose := math.max(safePrevClose, MIN_PRICE)
+    float logReturn = 0.0
+    if safeClose > 0.0 and safePrevClose > 0.0
+        logReturn := math.log(safeClose / safePrevClose)
+    logReturn := math.abs(logReturn) > 0.2 ? math.sign(logReturn) * 0.2 : logReturn
+    float squaredReturn = logReturn * logReturn
+    if bar_index < length
+        longRunVar := (bar_index * longRunVar + squaredReturn) / (bar_index + 1)
+        prevVariance := longRunVar
+    else if bar_index == length
+        omega := (1.0 - alpha - beta) * longRunVar
+        prevVariance := longRunVar
+    float variance = nz(prevVariance, DEFAULT_VARIANCE)
+    variance := omega + alpha * squaredReturn + beta * variance
+    variance := math.max(variance, 0.0000001)
+    prevVariance := variance
+    math.sqrt(DAYS_IN_YEAR * variance) * 100
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=10, maxval=500, tooltip="Initial period for estimation")
+i_alpha = input.float(0.2, "Alpha", minval=0.01, maxval=0.99, step=0.01, tooltip="Weight on previous squared return")
+i_beta = input.float(0.7, "Beta", minval=0.01, maxval=0.99, step=0.01, tooltip="Weight on previous variance")
+
+// Calculation
+cvValue = cv(i_length, i_alpha, i_beta)
+
+// Plot
+plot(cvValue, "CV", color=color.yellow, linewidth=2)

@@ -1,0 +1,316 @@
+
+namespace QuanTAlib.Tests;
+
+public class T3Tests
+{
+    [Fact]
+    public void BasicCalculation_DoesNotCrash()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        Assert.True(double.IsFinite(t3.Last.Value));
+    }
+
+    [Fact]
+    public void IsNew_Consistency()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Feed first 99
+        for (int i = 0; i < 99; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        // Update with 100th point (isNew=true)
+        t3.Update(new TValue(bars[99].Time, bars[99].Close), true);
+
+        // Update with modified 100th point (isNew=false)
+        var val2 = t3.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), false);
+
+        // Create new instance and feed up to modified
+        var t3_2 = new T3(5, 0.7);
+        for (int i = 0; i < 99; i++)
+        {
+            t3_2.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+        var val3 = t3_2.Update(new TValue(bars[99].Time, bars[99].Close + 1.0), true);
+
+        Assert.Equal(val3.Value, val2.Value, 1e-9);
+    }
+
+    [Fact]
+    public void Reset_Works()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        t3.Reset();
+        Assert.Equal(0, t3.Last.Value);
+        Assert.False(t3.IsHot);
+
+        // Feed again
+        for (int i = 0; i < bars.Count; i++)
+        {
+            t3.Update(new TValue(bars[i].Time, bars[i].Close));
+        }
+
+        Assert.True(double.IsFinite(t3.Last.Value));
+    }
+
+    [Fact]
+    public void TSeries_Update_Matches_Streaming()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(t3.Update(series[i]).Value);
+        }
+
+        var t3_2 = new T3(5, 0.7);
+        var seriesResults = t3_2.Update(series);
+
+        Assert.Equal(streamingResults.Count, seriesResults.Count);
+        for (int i = 0; i < seriesResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], seriesResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void BatchCalculate_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        var t3 = new T3(5, 0.7);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(t3.Update(series[i]).Value);
+        }
+
+        var batchResults = T3.Batch(series, 5, 0.7);
+
+        Assert.Equal(streamingResults.Count, batchResults.Count);
+        for (int i = 0; i < batchResults.Count; i++)
+        {
+            Assert.Equal(streamingResults[i], batchResults.Values[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void BatchCalculateSpan_Matches_Streaming()
+    {
+        var gbm = new GBM();
+        var bars = gbm.Fetch(200, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        var t3 = new T3(5, 0.7);
+        var streamingResults = new List<double>();
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingResults.Add(t3.Update(series[i]).Value);
+        }
+
+        var spanResults = new double[series.Count];
+        T3.Batch(series.Values, spanResults, 5, 0.7);
+
+        for (int i = 0; i < spanResults.Length; i++)
+        {
+            Assert.Equal(streamingResults[i], spanResults[i], 1e-9);
+        }
+    }
+
+    [Fact]
+    public void Chainability_Works()
+    {
+        var t3 = new T3(5, 0.7);
+        var gbm = new GBM();
+        var bars = gbm.Fetch(10, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        // Test TSeries chain
+        var result = t3.Update(series);
+        Assert.NotNull(result);
+        Assert.IsType<TSeries>(result);
+
+        // Test TValue chain
+        var result2 = t3.Update(series[0]);
+        Assert.IsType<TValue>(result2);
+    }
+
+    [Fact]
+    public void Constructor_InvalidParameters_ThrowsArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => new T3(0));
+        Assert.Throws<ArgumentException>(() => new T3(-1));
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_NaN_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, double.NaN));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_PositiveInfinity_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, double.PositiveInfinity));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_NegativeInfinity_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, double.NegativeInfinity));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_Zero_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, 0.0));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_Negative_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, -0.5));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_InvalidVFactor_GreaterThanOne_ThrowsArgumentOutOfRangeException()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new T3(5, 1.5));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_ValidVFactor_EdgeCases_DoesNotThrow()
+    {
+        // Smallest valid value just above 0
+        var t3_1 = new T3(5, 0.001);
+        Assert.NotNull(t3_1);
+
+        // Valid value of 1.0 (edge case)
+        var t3_2 = new T3(5, 1.0);
+        Assert.NotNull(t3_2);
+
+        // Typical valid values
+        var t3_3 = new T3(5, 0.5);
+        Assert.NotNull(t3_3);
+
+        var t3_4 = new T3(5, 0.7);
+        Assert.NotNull(t3_4);
+    }
+
+    [Fact]
+    public void BatchSpan_InvalidVFactor_NaN_ThrowsArgumentOutOfRangeException()
+    {
+        var input = new double[10];
+        var output = new double[10];
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, double.NaN));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void BatchSpan_InvalidVFactor_Infinity_ThrowsArgumentOutOfRangeException()
+    {
+        var input = new double[10];
+        var output = new double[10];
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, double.PositiveInfinity));
+        Assert.Equal("vfactor", ex.ParamName);
+    }
+
+    [Fact]
+    public void BatchSpan_InvalidVFactor_OutOfRange_ThrowsArgumentOutOfRangeException()
+    {
+        var input = new double[10];
+        var output = new double[10];
+
+        var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, 0.0));
+        Assert.Equal("vfactor", ex1.ParamName);
+
+        var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, -0.5));
+        Assert.Equal("vfactor", ex2.ParamName);
+
+        var ex3 = Assert.Throws<ArgumentOutOfRangeException>(() => T3.Batch(input, output, 5, 1.5));
+        Assert.Equal("vfactor", ex3.ParamName);
+    }
+
+    private class TestPublisher : ITValuePublisher
+    {
+        public event TValuePublishedHandler? Pub;
+        public int SubscriberCount => Pub?.GetInvocationList().Length ?? 0;
+    }
+
+    [Fact]
+    public void Constructor_SubscribesToSource()
+    {
+        var source = new TestPublisher();
+        _ = new T3(source, 5);
+
+        Assert.Equal(1, source.SubscriberCount);
+    }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromSource()
+    {
+        var source = new TestPublisher();
+        var t3 = new T3(source, 5);
+
+        Assert.Equal(1, source.SubscriberCount);
+
+        t3.Dispose();
+
+        Assert.Equal(0, source.SubscriberCount);
+    }
+
+    [Fact]
+    public void Dispose_CanBeCalledMultipleTimes()
+    {
+        var source = new TestPublisher();
+        var t3 = new T3(source, 5);
+
+        t3.Dispose();
+#pragma warning disable S3966 // Objects should not be disposed more than once
+        t3.Dispose();
+#pragma warning restore S3966 // Objects should not be disposed more than once
+
+        Assert.Equal(0, source.SubscriberCount);
+    }
+
+    [Fact]
+    public void Dispose_DoesNothing_WhenNoSource()
+    {
+        var t3 = new T3(5);
+
+        var exception = Record.Exception(() => t3.Dispose());
+        Assert.Null(exception);
+    }
+}

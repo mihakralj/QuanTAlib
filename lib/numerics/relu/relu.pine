@@ -1,0 +1,25 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Rectified Linear Unit (ReLU)", "ReLU", overlay=false, precision=6)
+
+//@function Applies the Rectified Linear Unit (ReLU) activation function to a series.
+// ReLU returns the input directly if it is positive, otherwise, it returns zero.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/relu.md
+//@param src The source series.
+//@returns The ReLU transformed series.
+relu(series float src) =>
+    math.max(0, src)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+
+// Calculation of relu on SMA(source)-source
+reluDn = -relu(ta.sma(i_source,20)-i_source)
+reluUp = relu(i_source-ta.sma(i_source,20))
+
+// Plot
+plot(reluUp, "ReLU", color=color.green, linewidth=2)
+plot(reluDn, "ReLU", color=color.red, linewidth=2)

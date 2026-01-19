@@ -1,0 +1,35 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Parkinson Volatility (PV)", "PV", overlay=false)
+
+//@function Calculates Parkinson Volatility.
+//@param length The lookback period for the RMA smoothing of squared log returns (High/Low). Default is 20.
+//@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
+//@param annualPeriods Number of periods in a year for annualization. Default is 252 for daily data.
+//@returns float The Parkinson Volatility value.
+pv(simple int length, simple bool annualize = true, simple int annualPeriods = 252) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    if annualize and annualPeriods <= 0
+        runtime.error("Annual periods must be greater than 0 if annualizing")
+    float parkinson_hl_term = high == low ? 0.0 : math.log(high / low)
+    float parkinson_hl_sq = parkinson_hl_term * parkinson_hl_term
+    float smoothed_parkinson_hl_sq = ta.rma(parkinson_hl_sq, length)
+    float volatility_period = math.sqrt(smoothed_parkinson_hl_sq / (4 * math.log(2)))
+    float final_volatility = volatility_period
+    if annualize and not na(final_volatility)
+        final_volatility := final_volatility * math.sqrt(float(annualPeriods))
+    final_volatility
+
+// ---------- Main loop ----------
+// Inputs
+i_length_pv = input.int(20, "Length", minval=1, tooltip="Lookback period for RMA smoothing of High/Low squared log returns.")
+i_annualize_pv = input.bool(true, "Annualize Volatility", tooltip="Annualize the Parkinson Volatility output.")
+i_annualPeriods_pv = input.int(252, "Annual Periods", minval=1, tooltip="Number of periods in a year for annualization (e.g., 252 for daily, 52 for weekly).")
+
+// Calculation
+pvValue = pv(i_length_pv, i_annualize_pv, i_annualPeriods_pv)
+
+// Plot
+plot(pvValue, "PV", color=color.yellow, linewidth=2)

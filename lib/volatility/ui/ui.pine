@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ulcer Index (UI)", shorttitle="UI", format=format.price, precision=2, overlay=false)
+
+//@function Calculates the Ulcer Index (UI).
+//@param src The source series. Default is `close`.
+//@param period The lookback period. Default is 14.
+//@returns float The Ulcer Index value.
+ui(series float src, int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var deque = array.new_int(0)
+    var src_buffer = array.new_float(period, na)
+    var int current_index = 0
+    float current_val = nz(src)
+    array.set(src_buffer, current_index, current_val)
+    while array.size(deque) > 0 and array.get(deque, 0) <= bar_index - period
+        array.shift(deque)
+    while array.size(deque) > 0
+        int last_index_in_deque = array.get(deque, array.size(deque) - 1)
+        int buffer_lookup_index = last_index_in_deque % period
+        if array.get(src_buffer, buffer_lookup_index) <= current_val
+            array.pop(deque)
+        else
+            break
+    array.push(deque, bar_index)
+    int highest_index = array.get(deque, 0)
+    int highest_buffer_index = highest_index % period
+    highestClose = array.get(src_buffer, highest_buffer_index)
+    current_index := (current_index + 1) % period
+    percentDrawdown = ((src - highestClose) / highestClose) * 100.0
+    squaredDrawdown = math.pow(percentDrawdown, 2)
+    sumSquaredDrawdown = math.sum(squaredDrawdown, period)
+    averageSquaredDrawdown = sumSquaredDrawdown / period
+    ui = math.sqrt(averageSquaredDrawdown)
+    ui
+
+// Inputs
+i_src_ui = input.source(close, "Source")
+i_period_ui = input.int(14, "Period", minval=1, tooltip="Lookback period for calculating the Ulcer Index.")
+
+// Calculation
+uiValue = ui(i_src_ui, i_period_ui)
+
+// Plot
+plot(uiValue, "UI", color=color.yellow, linewidth=2)

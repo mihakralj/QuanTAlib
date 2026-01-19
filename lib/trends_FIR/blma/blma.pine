@@ -1,0 +1,57 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Blackman Moving Average (BLMA)", "BLMA", overlay=true)
+
+//@function Calculates BLMA using Blackman window weighting
+//@param source Series to calculate BLMA from
+//@param period Lookback period - FIR window size
+//@returns BLMA value, calculates from first bar using available data
+//@optimized Uses Blackman window coefficients with O(n) complexity per bar due to lookback loop
+blma(series float source, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = math.min(bar_index + 1, period)
+    var array<float> weights = array.new_float(1, 1.0)
+    var int last_p = 1
+    if last_p != p
+        weights := array.new_float(p, 0.0)
+        float total_weight = 0.0
+        float a0 = 0.42
+        float a1 = 0.5
+        float a2 = 0.08
+        float inv_p_minus_1 = 1.0 / (p - 1)
+        float pi2 = 2.0 * math.pi
+        float pi4 = 4.0 * math.pi
+        for i = 0 to p - 1
+            float ratio = i * inv_p_minus_1
+            float term1 = a1 * math.cos(pi2 * ratio)
+            float term2 = a2 * math.cos(pi4 * ratio)
+            float w = a0 - term1 + term2
+            array.set(weights, i, w)
+            total_weight += w
+        float inv_total = 1.0 / total_weight
+        for i = 0 to p - 1
+            array.set(weights, i, array.get(weights, i) * inv_total)
+        last_p := p
+    float sum = 0.0
+    float weight_sum = 0.0
+    for i = 0 to p - 1
+        float price = source[i]
+        if not na(price)
+            float w = array.get(weights, i)
+            sum += price * w
+            weight_sum += w
+    nz(sum / weight_sum, source)
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+blma_value = blma(i_source, i_period)
+
+// Plot
+plot(blma_value, "BLMA", color=color.yellow, linewidth=2)

@@ -1,0 +1,85 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Bollinger %B", "BBB", overlay=false)
+
+//@function Calculates Bollinger Bands components for %B calculation
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/bbb.md
+//@param source Series to calculate from
+//@param period Lookback period for SMA and standard deviation
+//@param multiplier Standard deviation multiplier for band width
+//@returns Bollinger %B value (typically 0-1 range; can overshoot)
+//@optimized Uses circular buffer with running sums, O(1) complexity per bar
+bbb(series float source, simple int period, simple float multiplier) =>
+    if period <= 0 or multiplier <= 0.0
+        runtime.error("Period and multiplier must be greater than 0")
+
+    var int p = 0
+    var int head = 0
+    var int count = 0
+    var array<float> buffer = array.new_float(0)
+    var float sum = 0.0
+    var float sumSq = 0.0
+    var string lastSymbol = ""
+    var string lastTimeframe = ""
+
+    string currentSymbol = syminfo.tickerid
+    string currentTimeframe = timeframe.period
+    bool needsReset = (p != period) or (currentSymbol != lastSymbol) or (currentTimeframe != lastTimeframe)
+
+    if needsReset
+        p := period
+        head := 0
+        count := 0
+        buffer := array.new_float(p, na)
+        sum := 0.0
+        sumSq := 0.0
+        lastSymbol := currentSymbol
+        lastTimeframe := currentTimeframe
+
+    float result = na
+
+    if not na(source)
+        float oldest = array.get(buffer, head)
+        if not na(oldest)
+            sum -= oldest
+            sumSq -= oldest * oldest
+        else
+            count += 1
+
+        sum += source
+        sumSq += source * source
+        array.set(buffer, head, source)
+        head := (head + 1) % p
+
+        int n = math.max(1, count)
+        float basis = sum / n
+        float variance = math.max(0.0, sumSq / n - basis * basis)
+        float stddev = math.sqrt(variance)
+        float dev = multiplier * stddev
+
+        float upper = basis + dev
+        float lower = basis - dev
+        float bandWidth = upper - lower
+
+        result := bandWidth > 0 ? (source - lower) / bandWidth : 0.5
+
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(20, "Period", minval=1)
+i_source = input.source(close, "Source")
+i_multiplier = input.float(2.0, "StdDev Multiplier", minval=0.001, step=0.1)
+
+// Calculation
+result = bbb(i_source, i_period, i_multiplier)
+
+// Plot
+plot(result, "Bollinger %B", color=color.yellow, linewidth=2)
+hline(1.0, "Upper Band Level", color=color.gray, linestyle=hline.style_dashed)
+hline(0.8, "Overbought", color=color.red, linestyle=hline.style_dotted)
+hline(0.5, "Midline", color=color.gray, linestyle=hline.style_solid)
+hline(0.2, "Oversold", color=color.green, linestyle=hline.style_dotted)
+hline(0.0, "Lower Band Level", color=color.gray, linestyle=hline.style_dashed)

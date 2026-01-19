@@ -1,0 +1,67 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("SuperTrend", "SUPER", overlay=true)
+
+//@function Calculates SuperTrend using ATR-based dynamic support/resistance
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/super.md
+//@param source Price series for calculation (typically hlc3 or close)
+//@param atr_period Lookback period for ATR calculation
+//@param multiplier Multiplier applied to ATR for band calculation
+//@returns Tuple [supertrend, direction] where direction is 1 (bullish) or -1 (bearish)
+//@optimized O(1) with proper warmup handling
+super(series float source, simple int atr_period, simple float multiplier) =>
+    if atr_period <= 0
+        runtime.error("ATR period must be greater than 0")
+    if multiplier <= 0.0
+        runtime.error("Multiplier must be greater than 0")
+    float hl2_value = (high + low) / 2.0
+    float tr = math.max(high - low, math.max(math.abs(high - nz(close[1])), math.abs(low - nz(close[1]))))
+    float alpha = 1.0 / atr_period
+    float beta = 1.0 - alpha
+    var bool warmup = true
+    var float e = 1.0
+    var float atr = 0.0
+    var float compensated_atr = tr
+    atr := alpha * (tr - atr) + atr
+    if warmup
+        e *= beta
+        float c = 1.0 / (1.0 - e)
+        compensated_atr := c * atr
+        warmup := e > 1e-10
+    else
+        compensated_atr := atr
+    float basic_ub = hl2_value + (multiplier * compensated_atr)
+    float basic_lb = hl2_value - (multiplier * compensated_atr)
+    var float final_ub = basic_ub
+    var float final_lb = basic_lb
+    var int trend = 1
+    final_ub := basic_ub < final_ub or nz(close[1]) > final_ub ? basic_ub : final_ub
+    final_lb := basic_lb > final_lb or nz(close[1]) < final_lb ? basic_lb : final_lb
+    int prev_trend = nz(trend[1], 1)
+    trend := close > final_ub ? 1 : close < final_lb ? -1 : prev_trend
+    float supertrend = trend == 1 ? final_lb : final_ub
+    [supertrend, trend]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_atr_period = input.int(10, "ATR Period", minval=1, maxval=100)
+i_multiplier = input.float(3.0, "Multiplier", minval=0.1, step=0.1)
+i_source = input.source(close, "Source")
+
+// Calculation
+[st_line, st_direction] = super(i_source, i_atr_period, i_multiplier)
+
+// Colors
+color bullish_color = color.new(color.green, 0)
+color bearish_color = color.new(color.red, 0)
+color line_color = st_direction == 1 ? bullish_color : bearish_color
+
+// Plot
+plot(st_line, "SuperTrend", color=line_color, linewidth=2, style=plot.style_line)
+
+// Optional: Plot buy/sell signals when direction changes
+bool direction_changed = st_direction != nz(st_direction[1])
+plotshape(direction_changed and st_direction == 1, "Buy Signal", shape.labelup, location.belowbar, color=bullish_color, text="BUY", textcolor=color.white, size=size.small)
+plotshape(direction_changed and st_direction == -1, "Sell Signal", shape.labeldown, location.abovebar, color=bearish_color, text="SELL", textcolor=color.white, size=size.small)

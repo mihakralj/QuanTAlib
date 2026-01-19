@@ -1,0 +1,87 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Hurst Exponent (HURST)", "HURST", overlay=false, precision=4)
+
+//@function Calculates the Hurst Exponent for a given series and lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/hurst.md
+//@param source series float The input series.
+//@param length int The lookback period for Hurst Exponent calculation.
+//@returns series float The Hurst Exponent value.
+hurst(series float source, simple int length) =>
+    if length <= 10 
+        runtime.error("Length must be greater than 10 for Hurst Exponent.")
+        na
+    log_returns = math.log(source / source[1])
+    min_n = 10
+    max_n = length / 2
+    if max_n < min_n
+        runtime.error("Length too short for sub-period division.")
+        na
+    array<float> log_n_values = array.new_float(0)
+    array<float> log_rs_values = array.new_float(0)
+    for n = min_n to max_n
+        if n == 0
+            continue
+        num_sub_periods = math.floor(length / n)
+        if num_sub_periods == 0
+            continue
+        rs_sum = 0.0
+        for i = 0 to num_sub_periods - 1
+            start_index = i * n
+            float[] sub_period_returns = array.new_float(n)
+            for j = 0 to n - 1
+                array.set(sub_period_returns, j, log_returns[start_index + j])
+            sub_period_sum = 0.0
+            for k_val = 0 to n - 1
+                sub_period_sum += array.get(sub_period_returns, k_val)
+            sub_mean = sub_period_sum / n
+            float[] cum_dev = array.new_float(n)
+            current_sum = 0.0
+            for j = 0 to n - 1
+                current_sum += (array.get(sub_period_returns, j) - sub_mean)
+                array.set(cum_dev, j, current_sum)
+            range_val = array.max(cum_dev) - array.min(cum_dev)
+            variance_sum = 0.0
+            for j = 0 to n - 1
+                variance_sum += math.pow(array.get(sub_period_returns, j) - sub_mean, 2)
+            std_dev_val_corrected = math.sqrt(variance_sum / n)
+            if std_dev_val_corrected > 0
+                rs_sum += range_val / std_dev_val_corrected
+        if num_sub_periods > 0
+            avg_rs = rs_sum / num_sub_periods
+            if avg_rs > 0 
+                array.push(log_n_values, math.log(n))
+                array.push(log_rs_values, math.log(avg_rs))
+    if array.size(log_n_values) < 2 
+        na
+    else
+        m = array.size(log_n_values)
+        sum_x = 0.0
+        sum_y = 0.0
+        sum_xy = 0.0
+        sum_x_sq = 0.0
+        for i = 0 to m - 1
+            xi = array.get(log_n_values, i)
+            yi = array.get(log_rs_values, i)
+            sum_x += xi
+            sum_y += yi
+            sum_xy += xi * yi
+            sum_x_sq += xi * xi
+        denominator = m * sum_x_sq - math.pow(sum_x, 2)
+        if denominator == 0
+            na 
+        else
+            (m * sum_xy - sum_x * sum_y) / denominator
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(100, "Length", minval=20, tooltip="Lookback period for Hurst Exponent calculation. Min 20.")
+
+// Calculation
+hurstValue = hurst(i_source, i_length)
+
+// Plot
+plot(hurstValue, "Hurst Exponent", color=color.yellow, linewidth=2)

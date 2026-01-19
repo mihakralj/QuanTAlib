@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chaikin's Volatility (CVI)", "CVI", overlay=false)
+
+//@function Calculates Chaikin's Volatility using high-low range and ROC of EMA
+//@param roc_length Period for Rate of Change calculation
+//@param smooth_length Period for EMA smoothing
+//@returns float Volatility value measuring change in trading ranges
+//@optimized for performance using efficient range ROC calculation
+cvi(simple int roc_length, simple int smooth_length) =>
+    if roc_length <= 0 or smooth_length <= 0
+        runtime.error("Lengths must be greater than 0")
+    var float prevEma = 0.0
+    hlRange = high - low
+    alpha = 2.0 / (smooth_length + 1)
+    if bar_index == 0
+        float sum = 0.0
+        for i = 0 to smooth_length-1
+            sum += nz(hlRange[i])
+        prevEma := sum/smooth_length
+    ema = nz(prevEma)
+    ema := (hlRange - ema) * alpha + ema
+    prevEma := ema
+    float roc = na
+    if bar_index >= roc_length
+        roc := ((ema - ema[roc_length])/ema[roc_length]) * 100
+    roc
+
+// ---------- Main loop ----------
+
+// Inputs
+i_roc = input.int(10, "ROC Length", minval=1, maxval=500, tooltip="Period for Rate of Change calculation")
+i_smooth = input.int(10, "Smoothing Length", minval=1, maxval=500, tooltip="Period for EMA smoothing of high-low range")
+
+// Calculation
+cviValue = cvi(i_roc, i_smooth)
+
+// Plot
+plot(cviValue, "CVI", color=color.yellow, linewidth=2)
+plot(0, "Zero", color.gray, 1, plot.style_circles)

@@ -1,0 +1,42 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Price Momentum Oscillator (PMO)", "PMO", overlay=false)
+
+//@function Calculates Price Momentum Oscillator using double-smoothed ROC
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/pmo.md
+//@param src Source series to calculate PMO for
+//@param roc_len Lookback period for ROC calculation
+//@param smooth1_len First smoothing period
+//@param smooth2_len Second smoothing period
+//@returns PMO value measuring smoothed momentum
+pmo(series float src, simple int roc_len, simple int smooth1_len=20, simple int smooth2_len=10)=>
+    if roc_len<=0 or smooth1_len<=0 or smooth2_len<=0
+        runtime.error("Lengths must be greater than 0")
+    float roc=100*(src-src[math.min(roc_len, bar_index)])/src[math.min(roc_len,bar_index)]
+    float alpha1=2/(smooth1_len+1)
+    var float smooth1=na
+    smooth1:=na(smooth1)?roc:smooth1*(1-alpha1)+roc*alpha1
+    float alpha2=2/(smooth2_len+1)
+    var float smooth2=na
+    smooth2:=na(smooth2)?smooth1:smooth2*(1-alpha2)+smooth1*alpha2
+    smooth2
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_roc_len = input.int(35, "ROC Length", minval=1)
+i_smooth1_len = input.int(20, "First Smoothing Length", minval=1)
+i_smooth2_len = input.int(10, "Second Smoothing Length", minval=1)
+i_signal_len = input.int(10, "Signal Line Length", minval=1)
+
+// Calculation
+pmo_value = pmo(i_source, i_roc_len, i_smooth1_len, i_smooth2_len)
+float alpha_signal = 2.0 / (i_signal_len + 1)
+var float signal_line = na
+signal_line := na(signal_line) ? pmo_value : signal_line * (1.0 - alpha_signal) + pmo_value * alpha_signal
+
+// Plot
+plot(pmo_value, "PMO", color=color.blue, linewidth=2)
+plot(signal_line, "Signal", color=color.red, linewidth=2)

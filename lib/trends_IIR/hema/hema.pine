@@ -1,0 +1,80 @@
+//@version=6
+indicator("HEMA (Exponential Hull Analog)", "HEMAx", overlay=true)
+
+// Half-life -> alpha (exponential definition)
+alphaFromHalfLife(float hl) =>
+    hl := math.max(1.0, hl)
+    -math.expm1(-math.log(2.0) / hl)
+
+// Exponential Hull Analog (EMA-domain HMA)
+hema(series float src, simple int N) =>
+    // --- guardrails ---
+    float n = math.max(float(N), 2.0)  // HMA-like structure needs N>=2 to avoid fast==slow weirdness
+
+    // --- alphas (period converted immediately to half-life alpha) ---
+    float aS = alphaFromHalfLife(n)
+    float aF = alphaFromHalfLife(math.max(1.0, n * 0.5))
+    float aM = alphaFromHalfLife(math.max(1.0, math.sqrt(n)))
+
+    float bS = 1.0 - aS
+    float bF = 1.0 - aF
+    float bM = 1.0 - aM
+
+    // --- lag-derived ratio for the de-lag combiner ---
+    float lagS = bS / aS
+    float lagF = bF / aF
+    float r = lagF / lagS
+    r := math.min(math.max(r, 0.0), 0.999999)  // keep denom sane
+
+    // --- state (unbiased EMA warmup) ---
+    var bool warmup = true
+    var float dS = 1.0
+    var float dF = 1.0
+    var float dM = 1.0
+    var float eSraw = 0.0
+    var float eFraw = 0.0
+    var float eMraw = 0.0
+
+    float eS = na
+    float eF = na
+    float out = na
+
+    // raw EMAs
+    eSraw := aS * (src - eSraw) + eSraw
+    eFraw := aF * (src - eFraw) + eFraw
+
+    if warmup
+        // update decays for unbiased correction
+        dS *= bS
+        dF *= bF
+        dM *= bM
+
+        float invS = 1.0 / math.max(1.0 - dS, 1e-12)
+        float invF = 1.0 / math.max(1.0 - dF, 1e-12)
+        float invM = 1.0 / math.max(1.0 - dM, 1e-12)
+
+        eS := eSraw * invS
+        eF := eFraw * invF
+
+        float deLag = (eF - r * eS) / (1.0 - r)
+
+        eMraw := aM * (deLag - eMraw) + eMraw
+        out := eMraw * invM
+
+        // end warmup only when ALL stages are effectively unbiased
+        warmup := math.max(dS, math.max(dF, dM)) > 1e-10
+    else
+        eS := eSraw
+        eF := eFraw
+        float deLag = (eF - r * eS) / (1.0 - r)
+        eMraw := aM * (deLag - eMraw) + eMraw
+        out := eMraw
+
+    out
+
+// Inputs
+i_period = input.int(10, "Period (half-life bars)", minval=1)
+i_source = input.source(close, "Source")
+
+hema_value = hema(i_source, i_period)
+plot(hema_value, "HEMAx", color=color.yellow, linewidth=2)

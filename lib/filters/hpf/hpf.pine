@@ -1,0 +1,37 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Highpass Filter (2-Pole) (HPF)", "HPF", overlay=true)
+
+//@function Calculates 2-Pole Highpass Filter
+//@param src Series to calculate HPF from
+//@param length Cutoff period (determines alpha)
+//@returns HPF value
+//@optimized Uses 2-pole IIR highpass filter with O(1) complexity per bar
+hpf(series float src, simple int length) =>
+    int safe_length = math.max(length, 1)
+    float pi = math.pi
+    float omega = 2.0 * pi / safe_length
+    float alpha = (math.cos(omega) + math.sin(omega) - 1.0) / math.cos(omega)
+    var float hp_val_internal = 0.0
+    float hp1 = nz(hp_val_internal[1], 0.0)
+    float hp2 = nz(hp_val_internal[2], 0.0)
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    float alpha_div_2 = alpha / 2.0
+    float one_minus_alpha = 1.0 - alpha
+    hp_val_internal := (1.0 - alpha_div_2) * (1.0 - alpha_div_2) * (ssrc - 2.0 * src1 + src2) + 2.0 * one_minus_alpha * hp1 - one_minus_alpha * one_minus_alpha * hp2
+    hp_val_internal
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(40, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+hp_component = hpf(i_source, i_length)
+
+// Plot
+plot(i_source - hp_component, "Trend Component", color=color.yellow, linewidth=2)

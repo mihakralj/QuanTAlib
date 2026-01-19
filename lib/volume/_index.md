@@ -1,0 +1,60 @@
+# Volume
+
+> "It takes volume to make prices move." — Charles Dow
+
+Volume is market fuel. Price tells what happened; volume tells how hard the market worked to make it happen.
+
+In a world of algorithmic trading and dark pools, volume analysis reveals where money actually flows. These indicators track conviction, not just shares traded.
+
+## Indicator Status
+
+| Indicator | Full Name | Status | Description |
+| :--- | :--- | :---: | :--- |
+| [ADL](lib/volume/adl/Adl.md) | Accumulation/Distribution Line | ✅ | Correlates price location within range to volume. Grandfather of volume flow analysis. |
+| [ADOSC](lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | ✅ | Momentum indicator for AD Line. Predicts reversals by measuring acceleration of money flow. |
+| AOBV | Archer On-Balance Volume | 📋 | Modified OBV incorporating intra-period price movement. |
+| CMF | Chaikin Money Flow | 📋 | Measures money flow volume over set period (typically 20-21 days). |
+| EFI | Elder's Force Index | 📋 | Combines price movement, direction, volume to measure buying/selling power. |
+| EOME | Ease of Movement | 📋 | Relates price change to volume. Highlights periods of effortless price movement. |
+| III | Intraday Intensity Index | 📋 | Measures buying/selling pressure within day's range using close position. |
+| KVO | Klinger Volume Oscillator | 📋 | Compares short-term and long-term volume trends to identify potential reversals. |
+| MFI | Money Flow Index | 📋 | Volume-weighted RSI. Measures buying/selling pressure using price and volume. |
+| NVI | Negative Volume Index | 📋 | Tracks price changes on lower volume days. Assumes smart money acts on quiet days. |
+| OBV | On Balance Volume | 📋 | Fundamental volume indicator. Cumulative volume based on price direction. |
+| PVD | Price Volume Divergence | 📋 | Systematic divergence detection between price and volume movements. |
+| PVI | Positive Volume Index | 📋 | Tracks price changes on higher volume days. Assumes crowd behavior. |
+| PVO | Percentage Volume Oscillator | 📋 | Compares short-term and long-term volume moving averages as percentages. |
+| PVR | Price Volume Rank | 📋 | Ranks price performance relative to volume activity. |
+| PVT | Price Volume Trend | 📋 | Cumulative volume adjusted by relative price changes. Similar to OBV. |
+| TVI | Trade Volume Index | 📋 | Measures intra-day buying/selling pressure based on tick data. |
+| TWAP | Time Weighted Average Price | 📋 | Average price weighted equally by time. Used as execution benchmark. |
+| VA | Volume Accumulation | 📋 | Cumulative volume adjusted by close position relative to range midpoint. |
+| VF | Volume Force | 📋 | Measures force of volume behind price movements. |
+| VO | Volume Oscillator | 📋 | Difference between short and long volume moving averages. Shows volume momentum. |
+| VROC | Volume Rate of Change | 📋 | Measures speed at which volume is changing over time. |
+| VWAD | Volume Weighted A/D | 📋 | Similar to ADL but weights accumulation/distribution by volume. |
+| VWAP | Volume Weighted Average Price | 📋 | Average price weighted by volume. Common execution benchmark. |
+| VWMA | Volume Weighted MA | 📋 | Moving average where each price point is weighted by its volume. |
+| WAD | Williams A/D | 📋 | Measures cumulative buying/selling pressure by comparing closes to opens/highs/lows. |
+
+**Status Key:** ✅ Implemented | 📋 Planned
+
+## Selection Guide
+
+| Use Case | Recommended | Why |
+| :--- | :--- | :--- |
+| Smart money detection | ADL | Tracks close position within range. Reveals accumulation vs distribution. |
+| Trend confirmation | ADL, ADOSC | Volume should confirm price moves. Divergences warn of weakness. |
+| Momentum of money flow | ADOSC | EMA difference on ADL shows acceleration of buying/selling pressure. |
+| Reversal anticipation | ADOSC | Fast/slow EMA crossovers on volume flow precede price reversals. |
+
+## Volume Analysis Principles
+
+Volume reveals conviction. Four key patterns:
+
+1. **Rising price + rising volume**: Strong trend. Smart money participating.
+2. **Rising price + falling volume**: Weakening trend. Distribution possible.
+3. **Falling price + rising volume**: Strong selling. Capitulation or accumulation.
+4. **Falling price + falling volume**: Weak selling. May find support.
+
+The ADL family quantifies these relationships through close position within range, normalized by volume.

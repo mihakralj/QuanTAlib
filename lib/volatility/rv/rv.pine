@@ -1,0 +1,53 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Realized Volatility (RV)", "RV", overlay=false)
+
+//@function Calculates Realized Volatility using intraday data.
+//@param length The lookback period for smoothing the period volatilities (e.g., daily RVs). Default is 20.
+//@param intradayTimeframe The lower timeframe string (e.g., "1", "5", "60") to sample for returns. Must be a lower timeframe than the chart. Default is "5".
+//@param annualize Boolean to indicate if the volatility should be annualized. Default is true.
+//@param annualPeriods Number of periods (of the main chart's timeframe) in a year for annualization. Default is 252 (assuming daily chart).
+//@returns float The Realized Volatility value.
+rv(simple int length = 20, simple string intradayTimeframe = "5", simple bool annualize = true, simple int annualPeriods = 252) =>
+    if length <= 0
+        runtime.error("Length must be greater than 0")
+    if annualize and annualPeriods <= 0
+        runtime.error("Annual periods must be greater than 0 if annualizing")
+    intraday_closes_arr = request.security_lower_tf(syminfo.tickerid, intradayTimeframe, close)
+    float sum_sq_log_returns = 0.0
+    if array.size(intraday_closes_arr) > 1
+        for i = 1 to array.size(intraday_closes_arr) - 1
+            float prev_close = array.get(intraday_closes_arr, i - 1)
+            float curr_close = array.get(intraday_closes_arr, i)
+            if not na(prev_close) and not na(curr_close) and prev_close > 0 and curr_close > 0
+                float log_return = math.log(curr_close / prev_close)
+                sum_sq_log_returns += log_return * log_return
+            else
+                sum_sq_log_returns := na
+                break 
+    else 
+        sum_sq_log_returns := 0.0
+    float realized_variance_this_period = sum_sq_log_returns
+    float volatility_this_period = na 
+    if not na(realized_variance_this_period)
+        if realized_variance_this_period >= 0
+            volatility_this_period := math.sqrt(realized_variance_this_period)
+    float smoothed_volatility = ta.sma(volatility_this_period, length)
+    float final_volatility = smoothed_volatility
+    if annualize and not na(final_volatility)
+        final_volatility := final_volatility * math.sqrt(float(annualPeriods))
+    final_volatility
+
+// ---------- Main loop ----------
+// Inputs
+i_length_rv = input.int(20, "Smoothing Length", minval=1, tooltip="Lookback period for smoothing the period realized volatilities (e.g., daily RVs).")
+i_intraday_tf_rv = input.timeframe("5", "Intraday Timeframe", tooltip="Lower timeframe for calculating intraday returns (e.g., \"1\", \"5\", \"60\"). Must be a lower timeframe than the chart.")
+i_annualize_rv = input.bool(true, "Annualize Volatility", tooltip="Annualize the Realized Volatility output.")
+i_annualPeriods_rv = input.int(252, "Annual Periods", minval=1, tooltip="Number of main chart periods in a year for annualization (e.g., 252 for Daily chart, 52 for Weekly).")
+
+// Calculation
+rvValue = rv(i_length_rv, i_intraday_tf_rv, i_annualize_rv, i_annualPeriods_rv)
+
+// Plot
+plot(rvValue, "RV", color=color.yellow, linewidth=2)

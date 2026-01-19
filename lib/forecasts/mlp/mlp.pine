@@ -1,0 +1,461 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Multilayer Perceptron Predictor", "MLP", overlay=true)
+
+var int offset = 5
+var int numInputs = 6
+var array<int> nodesPerLayer = array.from(8, 4, 1)
+var float learning_rate = 0.0025
+var float learning_rate_decay = 0.000015
+var float max_gradient = 5.0
+var float error_k = 0.7
+var int algoType = 4
+var bool tanh = true
+
+type matrices
+    matrix<float> l0 = na
+    matrix<float> l1 = na
+    matrix<float> l2 = na
+    matrix<float> l3 = na
+    matrix<float> l4 = na
+    matrix<float> l5 = na
+    matrix<float> l6 = na
+    matrix<float> l7 = na
+    matrix<float> l8 = na
+    matrix<float> l9 = na
+var matrices w = na
+var matrices b = na
+
+// ---------- Main loop ----------
+
+//@function Compresses an unbounded value to the range [-1, 1] using tanh or scaled sigmoid
+//@param x The input value (can be any real number)
+//@param useTanh Whether to use tanh (true) or scaled sigmoid (false)
+//@returns A compressed value in range [-1, 1]
+compressToRange(float x, bool useTanh = true) =>
+    if x >= 20.0
+        1.0
+    else if x <= -20.0
+        -1.0
+    else
+        if useTanh
+            ex = math.exp(x)
+            emx = math.exp(-x)
+            (ex - emx) / (ex + emx)
+        else
+            sigmoid = 1.0 / (1.0 + math.exp(-x))
+            2.0 * sigmoid - 1.0
+
+//@function Calculates and normalizes input features in one step
+//@param off Offset value
+//@returns Array of normalized feature values
+calculateInputs(int off) =>
+    norm_arr = array.new_float(0)
+    float f0 = ta.hma(close[off],20) / ta.sma(ta.hma(close[off],20), 100) - 1
+    array.push(norm_arr, compressToRange(f0, tanh))
+
+    if numInputs > 1
+        float f1 = ta.rsi(close[off], 14) / 100
+        array.push(norm_arr, compressToRange(f1, tanh))
+
+    if numInputs > 2
+        float f2 = ta.atr(14)[off] / ta.sma(ta.atr(14), 14)[off]
+        array.push(norm_arr, compressToRange(f2, tanh))
+
+    if numInputs > 3
+        float f3 = close[off] / ta.sma(close, 20)[off]
+        array.push(norm_arr, compressToRange(f3, tanh))
+
+    if numInputs > 4
+        float f4 = ta.mom(close[off], 10) / close[off]
+        array.push(norm_arr, compressToRange(f4, tanh))
+
+    if numInputs > 5
+        float f5 = ta.ema(close[off], 5) / ta.ema(close[off], 20) - 1
+        array.push(norm_arr, compressToRange(f5, tanh))
+
+    if numInputs > 6
+        float f6 = ta.bbw(close[off], 20, 2) / 2
+        array.push(norm_arr, compressToRange(f6, tanh))
+    norm_arr
+
+//@function Converts price format to return format
+//@param reference_price The reference price to compare against
+//@param new_price The current price value
+//@param algo_type Algorithm type: 1=absolute change, 2=return ratio, 3=percentage change, 4=log return
+//@returns The price return format
+transform(float reference_price, float new_price, int algo_type) =>
+    if na(new_price) or na(reference_price) or na(algo_type)
+        na
+    else if reference_price <= 0 and (algo_type > 1)
+        na
+    else if algo_type == 1
+        new_price - reference_price
+    else if algo_type == 2
+        new_price / reference_price
+    else if algo_type == 3
+        (new_price - reference_price) / reference_price
+    else if algo_type == 4
+        ratio = new_price / reference_price
+        ratio <= 0 ? na : math.log(ratio)
+    else
+        na
+
+//@function Converts return format back to price format
+//@param reference_price The reference price value
+//@param price_return The return value
+//@param algo_type Algorithm type: 1=absolute change, 2=return ratio, 3=percentage change, 4=log return
+//@returns The absolute price format
+detransform(float reference_price, float price_return, int algo_type) =>
+    if na(reference_price) or na(price_return) or na(algo_type)
+        na
+    else if reference_price <= 0 and (algo_type > 1)
+        na
+    else if algo_type == 1
+        reference_price + price_return
+    else if algo_type == 2
+        limited_return = math.max(0.01, math.min(10.0, price_return))
+        reference_price * limited_return
+    else if algo_type == 3
+        reference_price * (1 + price_return)
+    else if algo_type == 4
+        limited_return = math.max(-5.0, math.min(5.0, price_return))
+        reference_price * math.exp(limited_return)
+    else
+        na
+
+//@function Expands a value from the range [-1, 1] back to its original unbounded range
+//@param y The compressed value in range [-1, 1]
+//@param useTanh Whether y was produced by tanh (true) or scaled sigmoid (false)
+//@returns The original unbounded value
+expandFromRange(float y, bool useTanh = true) =>
+    y_safe = math.max(-0.9999, math.min(0.9999, y))
+
+    if useTanh
+        0.5 * math.log((1.0 + y_safe) / (1.0 - y_safe))
+    else
+        sigmoid_y = (y_safe + 1.0) / 2.0
+        math.log(sigmoid_y / (1.0 - sigmoid_y))
+
+//@function Calculates Huber loss value that is less sensitive to outliers than MSE squared error
+//@param predicted The model's predicted value
+//@param actual The true target value
+//@param delta The threshold where loss function changes from quadratic to linear (default: 0.7)
+//@returns Loss value combining benefits of MSE and MAE
+huberLoss(float predicted, float actual, float delta = 0.7) =>
+    float error = math.abs(predicted - actual)
+    if error <= delta
+        0.5 * error * error
+    else
+        delta * (error - 0.5 * delta)
+
+//@function Calculates gradient of Huber loss for backpropagation
+//@param predicted The model's predicted value
+//@param actual The true target value
+//@param delta The threshold where gradient changes from linear to constant (default: 0.7)
+//@returns Gradient value for updating weights, clipped for stability
+huberLossGradient(float predicted, float actual, float delta = 0.7) =>
+    float error = predicted - actual
+    float absError = math.abs(error)
+    if absError <= delta
+        error
+    else
+        delta * math.sign(error)
+
+//@function Initializes neural network layer weights using Xavier/Glorot initialization
+//@param inputSize Number of neurons in the input layer
+//@param outputSize Number of neurons in the output layer
+//@param seed Random seed
+//@returns Array containing [weight_matrix, bias_matrix] with weights scaled to maintain variance
+xavierInitLayer(int inputSize, int outputSize, int seed) =>
+    w_matrix = matrix.new<float>(inputSize, outputSize)
+    b_matrix = matrix.new<float>(1, outputSize)
+    limit = math.sqrt(1.0 / (inputSize + outputSize))
+    for idx = 0 to (inputSize * outputSize) - 1
+        r = int(idx / outputSize)
+        c = idx % outputSize
+        scale = c == outputSize - 1 ? 0.1 : 1.0
+        value = scale * limit * math.sin((r + 1) * 13.37 + (c + 1) * 42.42 + seed)
+        matrix.set(w_matrix, r, c, value)
+    for c = 0 to outputSize - 1
+        bias_value = c == outputSize - 1 ? 0.01 : (limit * math.sin((c + 1) * 42.42 + seed))
+        matrix.set(b_matrix, 0, c, bias_value)
+    [w_matrix, b_matrix]
+
+//@function Initializes neural network weights and biases using Xavier initialization
+//@param nodeLayerArray Array containing the number of nodes in each layer
+//@param numInputsInt Number of input features
+//@param seed Random seed
+//@returns A matrices object containing all network weights and biases
+initializeNetwork(array<int> nodeLayerArray, int numInputsInt, seed) =>
+    new_w = matrices.new()
+    new_b = matrices.new()
+    numLayers = array.size(nodeLayerArray)
+    for i = 0 to numLayers - 1
+        inputSize = i == 0 ? numInputsInt : array.get(nodeLayerArray, i - 1)
+        outputSize = array.get(nodeLayerArray, i)
+        [ww, bb] = xavierInitLayer(inputSize, outputSize, seed)
+        if i == 0
+            new_w.l0 := ww
+            new_b.l0 := bb
+        else if i == 1
+            new_w.l1 := ww
+            new_b.l1 := bb
+        else if i == 2
+            new_w.l2 := ww
+            new_b.l2 := bb
+        else if i == 3
+            new_w.l3 := ww
+            new_b.l3 := bb
+        else if i == 4
+            new_w.l4 := ww
+            new_b.l4 := bb
+        else if i == 5
+            new_w.l5 := ww
+            new_b.l5 := bb
+        else if i == 6
+            new_w.l6 := ww
+            new_b.l6 := bb
+        else if i == 7
+            new_w.l7 := ww
+            new_b.l7 := bb
+        else if i == 8
+            new_w.l8 := ww
+            new_b.l8 := bb
+    [new_w, new_b]
+
+//@function Creates a new matrix with activation applied to all elements
+//@param this The input matrix with raw values
+//@param useTanh Whether to use tanh activation
+//@returns A new matrix with activated values
+method activate(matrix<float> this, bool useTanh = false) =>
+    result = matrix.new<float>(matrix.rows(this), matrix.columns(this))
+    for q = 0 to matrix.rows(this) - 1
+        for r = 0 to matrix.columns(this) - 1
+            x = matrix.get(this, q, r)
+            tanh_val = compressToRange(x, useTanh)
+            matrix.set(result, q, r, tanh_val)
+    result
+
+getLayerMatrix(matrices matrices_obj, int layer) =>
+    if layer == 0
+        matrices_obj.l0
+    else if layer == 1
+        matrices_obj.l1
+    else if layer == 2
+        matrices_obj.l2
+    else if layer == 3
+        matrices_obj.l3
+    else if layer == 4
+        matrices_obj.l4
+    else if layer == 5
+        matrices_obj.l5
+    else if layer == 6
+        matrices_obj.l6
+    else if layer == 7
+        matrices_obj.l7
+    else if layer == 8
+        matrices_obj.l8
+    else
+        matrices_obj.l9
+
+setLayerMatrix(matrices matrices_obj, int layer, matrix<float> mat) =>
+    if layer == 0
+        matrices_obj.l0 := mat
+    else if layer == 1
+        matrices_obj.l1 := mat
+    else if layer == 2
+        matrices_obj.l2 := mat
+    else if layer == 3
+        matrices_obj.l3 := mat
+    else if layer == 4
+        matrices_obj.l4 := mat
+    else if layer == 5
+        matrices_obj.l5 := mat
+    else if layer == 6
+        matrices_obj.l6 := mat
+    else if layer == 7
+        matrices_obj.l7 := mat
+    else if layer == 8
+        matrices_obj.l8 := mat
+    matrices_obj
+
+calculateDeltas(matrix<float> weights, matrix<float> activations, matrix<float> next_layer_deltas) =>
+    rows = matrix.rows(weights)
+    cols = matrix.columns(weights)
+    deltas = matrix.new<float>(1, rows, 0.0)
+    for i = 0 to rows - 1
+        error_sum = 0.0
+        for j = 0 to matrix.rows(next_layer_deltas) - 1
+            for k = 0 to matrix.columns(next_layer_deltas) - 1
+                error_sum := error_sum + matrix.get(weights, i, j) * matrix.get(next_layer_deltas, j, k)
+        a_val = matrix.get(activations, 0, i)
+        delta_val = error_sum * (1.0 - a_val * a_val)
+        matrix.set(deltas, 0, i, delta_val)
+    deltas
+
+updateLayerWeights(matrix<float> weights, matrix<float> activations, matrix<float> deltas, float learning_rate, float max_gradient) =>
+    new_weights = matrix.copy(weights)
+    rows = matrix.rows(weights)
+    cols = matrix.columns(weights)
+    delta_cols = matrix.columns(deltas)
+
+    for i = 0 to rows - 1
+        for j = 0 to cols - 1
+            a_val = matrix.get(activations, 0, i)
+            d_val = j < delta_cols ? matrix.get(deltas, 0, j) : 0.0
+            grad = a_val * d_val
+            grad := math.max(-max_gradient, math.min(grad, max_gradient))
+            old_w = matrix.get(weights, i, j)
+            matrix.set(new_weights, i, j, old_w - learning_rate * grad)
+    new_weights
+
+updateLayerBiases(matrix<float> biases, matrix<float> deltas, float learning_rate, float max_gradient) =>
+    new_biases = matrix.copy(biases)
+    cols = matrix.columns(biases)
+    delta_cols = matrix.columns(deltas)
+
+    for j = 0 to cols - 1
+        d_val = j < delta_cols ? matrix.get(deltas, 0, j) : 0.0
+        grad = d_val
+        grad := math.max(-max_gradient, math.min(grad, max_gradient))
+        old_b = matrix.get(biases, 0, j)
+        matrix.set(new_biases, 0, j, old_b - learning_rate * grad)
+    new_biases
+
+//@function Performs forward pass through the neural network
+//@param input_arr Array of input features
+//@returns Array containing [prediction, z_values, a_values]
+forwardPass(array<float> input_arr) =>
+    z_values = matrices.new()
+    a_values = matrices.new()
+    input_matrix = matrix.new<float>(1, numInputs)
+
+    for i = 0 to numInputs - 1
+        feature_value = array.get(input_arr, i)
+        if not na(feature_value)
+            matrix.set(input_matrix, 0, i, feature_value)
+
+    setLayerMatrix(a_values, 0, input_matrix)
+    current_a = input_matrix
+    numLayers = array.size(nodesPerLayer)
+    for i = 0 to numLayers - 1
+        current_w = getLayerMatrix(w, i)
+        current_b = getLayerMatrix(b, i)
+        z = matrix.mult(current_a, current_w)
+        for c = 0 to matrix.columns(z) - 1
+            matrix.set(z, 0, c, matrix.get(z, 0, c) + matrix.get(current_b, 0, c))
+        setLayerMatrix(z_values, i, z)
+        current_a := activate(z)
+        setLayerMatrix(a_values, i + 1, current_a)
+    output_value = matrix.columns(current_a) > 0 ? matrix.get(current_a, 0, 0) : 0.0
+
+    [output_value, z_values, a_values]
+
+//@function Performs backpropagation to update network weights and biases
+//@param prediction The predicted output value from forward pass
+//@param target The target value for training
+//@param z_values Matrices object containing pre-activation values
+//@param a_values Matrices object containing activation values
+//@returns Array of updated weight and bias matrices
+backpropagate(float prediction, float target, matrices z_values, matrices a_values) =>
+    if na(w) or na(b)
+        [w, b]
+    else
+        new_w = matrices.new()
+        new_b = matrices.new()
+
+        numLayers = array.size(nodesPerLayer)
+        for i = 0 to numLayers - 1
+            curr_w = getLayerMatrix(w, i)
+            curr_b = getLayerMatrix(b, i)
+
+            if not na(curr_w) and not na(curr_b)
+                setLayerMatrix(new_w, i, matrix.copy(curr_w))
+                setLayerMatrix(new_b, i, matrix.copy(curr_b))
+
+        var float smooth_error_deriv = 0.0
+        current_learning_rate = learning_rate / (1.0 + learning_rate_decay * bar_index)
+
+        error_derivative = huberLossGradient(prediction, target, 0.7)
+        smooth_error_deriv := error_k * error_derivative + (1.0 - error_k) * smooth_error_deriv
+
+        delta_values = matrices.new()
+
+        output_delta = matrix.new<float>(1, 1, smooth_error_deriv)
+        setLayerMatrix(delta_values, numLayers - 1, output_delta)
+
+        if numLayers > 1
+            for i = numLayers - 2 to 0
+                curr_w = getLayerMatrix(w, i + 1)
+                curr_a = getLayerMatrix(a_values, i + 1)
+                next_delta = getLayerMatrix(delta_values, i + 1)
+
+                curr_delta = calculateDeltas(curr_w, curr_a, next_delta)
+                setLayerMatrix(delta_values, i, curr_delta)
+
+        if numLayers == 1
+            input_delta = matrix.new<float>(1, numInputs, 0.0)
+            setLayerMatrix(delta_values, 0, input_delta)
+
+        for i = 0 to numLayers - 1
+            curr_w = getLayerMatrix(w, i)
+            curr_b = getLayerMatrix(b, i)
+            curr_delta = getLayerMatrix(delta_values, i)
+            curr_a = getLayerMatrix(a_values, i)
+
+            new_curr_w = updateLayerWeights(curr_w, curr_a, curr_delta, current_learning_rate, max_gradient)
+            new_curr_b = updateLayerBiases(curr_b, curr_delta, current_learning_rate, max_gradient)
+
+            setLayerMatrix(new_w, i, new_curr_w)
+            setLayerMatrix(new_b, i, new_curr_b)
+        [new_w, new_b]
+
+var matrices z_matrices = na
+var matrices a_matrices = na
+var float normalized_actual_return = na
+var float normalized_predicted_return = na
+var float predicted_price = na
+var float future_price = na
+
+if bar_index > offset
+    normalized_inputs = calculateInputs(offset)
+
+    if barstate.isfirst or (bar_index == offset + 1)
+        [new_w, new_b] = initializeNetwork(nodesPerLayer, numInputs, 42)
+        w := new_w
+        b := new_b
+        [temp_pred, temp_z, temp_a] = forwardPass(normalized_inputs)
+        normalized_predicted_return := temp_pred
+        z_matrices := temp_z
+        a_matrices := temp_a
+
+        actual_return = transform(close[offset], close, algoType)
+        normalized_actual_return := compressToRange(actual_return)
+
+    if not barstate.isrealtime
+        if not na(normalized_predicted_return) and not na(normalized_actual_return)
+            [new_ww, new_bb] = backpropagate(normalized_predicted_return, normalized_actual_return, z_matrices, a_matrices)
+            w := new_ww
+            b := new_bb
+
+    [temp_pred, temp_z, temp_a] = forwardPass(normalized_inputs)
+    normalized_predicted_return := temp_pred
+    z_matrices := temp_z
+    a_matrices := temp_a
+
+    normalized_predicted_price = expandFromRange(normalized_predicted_return)
+    predicted_price := detransform(close[offset], normalized_predicted_price, algoType)
+
+    if barstate.isrealtime
+        future_inputs = calculateInputs(0)
+        [future_pred, _, _] = forwardPass(future_inputs)
+        future_denorm = expandFromRange(future_pred)
+        future_price := detransform(close, future_denorm, algoType)
+        if not na(future_price)
+            label.new(bar_index, high,
+                      "Predicted in " + str.tostring(offset) + " bars: " + str.tostring(future_price, "#.##"),
+                      color=color.green, style=label.style_label_down)
+
+plot(predicted_price, "Historical Prediction", color=color.yellow, linewidth=2, offset = -offset)

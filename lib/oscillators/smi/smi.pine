@@ -1,0 +1,90 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Stochastic Momentum Index (SMI)", "SMI", overlay=false)
+
+//@function Calculates Stochastic Momentum Index oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/smi.md
+//@param source Source series to calculate SMI for
+//@param k_period Lookback period for high/low range calculation
+//@param k_smooth First smoothing period for raw SMI values
+//@param d_smooth Second smoothing period for signal line
+//@param blau Use Blau method (true) or Chande/Kroll method (false)
+//@returns [%K, %D] values of Stochastic Momentum Index
+smi(series float source, simple int k_period, simple int k_smooth, simple int d_smooth, simple bool blau) =>
+    if k_period <= 0 or k_smooth <= 0 or d_smooth <= 0
+        runtime.error("All periods must be positive")
+    float src_clean = na(source) ? 0 : source
+    if na(source)
+        [na, na]
+    else
+        var array<float> high_buffer = array.new_float(0), var array<float> low_buffer = array.new_float(0)
+        array.push(high_buffer, nz(high)), array.push(low_buffer, nz(low))
+        if array.size(high_buffer) > k_period
+            array.shift(high_buffer)
+        if array.size(low_buffer) > k_period
+            array.shift(low_buffer)
+        highest_high = array.max(high_buffer), lowest_low = array.min(low_buffer)
+        midpoint = (highest_high + lowest_low) / 2, range_half = (highest_high - lowest_low) / 2
+        float a1 = 2.0 / (k_smooth + 1), float a2 = 2.0 / (k_smooth + 1), float a3 = 2.0 / (d_smooth + 1)
+        var float e1 = 1.0, var float e2 = 1.0, var float e3 = 1.0, var bool warmup = true
+        var float ema1_raw = 0.0, var float ema2_raw = 0.0, var float ema3_raw = 0.0
+        var float first_ema = 0.0, var float k_value = 0.0, var float d_value = 0.0
+        if blau
+            raw_smi = range_half > 0 ? 100 * (src_clean - midpoint) / range_half : 0
+            ema1_raw := a1 * (raw_smi - ema1_raw) + ema1_raw
+            if warmup
+                e1 *= (1 - a1), e2 *= (1 - a2), e3 *= (1 - a3)
+                float c1 = 1.0 / (1.0 - e1), float c2 = 1.0 / (1.0 - e2), float c3 = 1.0 / (1.0 - e3)
+                first_ema := ema1_raw * c1
+                ema2_raw := a2 * (first_ema - ema2_raw) + ema2_raw
+                k_value := ema2_raw * c2
+                ema3_raw := a3 * (k_value - ema3_raw) + ema3_raw
+                d_value := ema3_raw * c3
+                warmup := math.max(math.max(e1, e2), e3) > 1e-10
+            else
+                first_ema := ema1_raw
+                ema2_raw := a2 * (first_ema - ema2_raw) + ema2_raw
+                k_value := ema2_raw
+                ema3_raw := a3 * (k_value - ema3_raw) + ema3_raw
+                d_value := ema3_raw
+        else
+            var float num_ema1 = 0.0, var float num_ema2 = 0.0, var float den_ema1 = 0.0, var float den_ema2 = 0.0
+            var float num_first = 0.0, var float den_first = 0.0
+            numerator = src_clean - midpoint, denominator = range_half
+            ema1_raw := a1 * (numerator - ema1_raw) + ema1_raw
+            num_ema1 := a1 * (denominator - num_ema1) + num_ema1
+            if warmup
+                e1 *= (1 - a1), e2 *= (1 - a2), e3 *= (1 - a3)
+                float c1 = 1.0 / (1.0 - e1), float c2 = 1.0 / (1.0 - e2), float c3 = 1.0 / (1.0 - e3)
+                num_first := ema1_raw * c1, den_first := num_ema1 * c1
+                num_ema2 := a2 * (num_first - num_ema2) + num_ema2
+                den_ema2 := a2 * (den_first - den_ema2) + den_ema2
+                k_value := den_ema2 > 0 ? 100 * (num_ema2 * c2) / (den_ema2 * c2) : 0
+                ema3_raw := a3 * (k_value - ema3_raw) + ema3_raw
+                d_value := ema3_raw * c3
+                warmup := math.max(math.max(e1, e2), e3) > 1e-10
+            else
+                num_first := ema1_raw, den_first := num_ema1
+                num_ema2 := a2 * (num_first - num_ema2) + num_ema2
+                den_ema2 := a2 * (den_first - den_ema2) + den_ema2
+                k_value := den_ema2 > 0 ? 100 * num_ema2 / den_ema2 : 0
+                ema3_raw := a3 * (k_value - ema3_raw) + ema3_raw
+                d_value := ema3_raw
+        [k_value, d_value]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_k_period = input.int(10, "%K Period", minval=1, maxval=100, tooltip="Lookback period for high/low range calculation")
+i_k_smooth = input.int(3, "%K Smooth", minval=1, maxval=20, tooltip="First smoothing period for raw SMI values")
+i_d_smooth = input.int(3, "%D Smooth", minval=1, maxval=20, tooltip="Second smoothing period for signal line")
+i_source = input.source(close, "Source", tooltip="Price series to analyze")
+i_blau = input.bool(true, "Blau Method", tooltip="True: Blau (smooth raw SMI ratio), False: Chande/Kroll (smooth numerator & denominator first)")
+
+// Calculation
+[k_value, d_value] = smi(i_source, i_k_period, i_k_smooth, i_d_smooth, i_blau)
+
+// Plots
+plot(k_value, "SMI %K", color=color.yellow, linewidth=2)
+plot(d_value, "SMI %D", color=color.blue, linewidth=2)

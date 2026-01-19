@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Highest Value (HIGHEST)", "HIGHEST", overlay=true)
+
+//@function Highest value over a specified period using a monotonic deque.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/numerics/highest.md
+//@param src {series float} Source series.
+//@param len {int} Lookback length. `len` > 0.
+//@returns {series float} Highest value of `src` for `len` bars back. Returns the highest value seen so far during initial bars.
+highest(series float src, int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    var deque = array.new_int(0)
+    var src_buffer = array.new_float(len, na)
+    var int current_index = 0
+    float current_val = nz(src)
+    array.set(src_buffer, current_index, current_val)
+    while array.size(deque) > 0 and array.get(deque, 0) <= bar_index - len
+        array.shift(deque)
+    while array.size(deque) > 0
+        int last_index_in_deque = array.get(deque, array.size(deque) - 1)
+        int buffer_lookup_index = last_index_in_deque % len
+        if array.get(src_buffer, buffer_lookup_index) <= current_val
+            array.pop(deque)
+        else
+            break
+    array.push(deque, bar_index)
+    int highest_index = array.get(deque, 0)
+    int highest_buffer_index = highest_index % len
+    float result = array.get(src_buffer, highest_buffer_index)
+    current_index := (current_index + 1) % len
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1) // Default period 14
+i_source = input.source(close, "Source")
+
+// Calculation
+highest_value = highest(i_source, i_period)
+
+// Plot
+plot(highest_value, "Highest", color=color.yellow, linewidth=2) // Changed color

@@ -1,0 +1,49 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("McGinley Dynamic Indicator (MGDI)", "MGDI", overlay=true)
+
+//@function Calculates MGDI using dynamic factor based on price movement
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/mgdi.md
+//@param source Series to calculate MGDI from
+//@param period Lookback period for initial SMA value
+//@param factor McGinley factor (default 0.6)
+//@returns MGDI value that tracks price movements more closely than EMAs
+//@optimized Uses adaptive smoothing with O(1) complexity after initialization
+mgdi(series float source, simple int period, simple float factor=0.6) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    if factor <= 0
+        runtime.error("Factor must be greater than 0")
+    var float mgdi_val = na
+    if not na(source)
+        if na(mgdi_val)
+            float sum = 0.0
+            int count = 0
+            for i = 0 to period - 1
+                if not na(source[i])
+                    sum += source[i]
+                    count += 1
+            mgdi_val := count > 0 ? sum / count : source
+        else
+            if math.abs(mgdi_val) < 1e-10
+                mgdi_val := source
+            else
+                float ratio = source / mgdi_val
+                float denom = factor * period * math.pow(ratio, 4)
+                denom := math.sign(denom) * math.max(0.001, math.abs(denom))
+                mgdi_val := mgdi_val + (source - mgdi_val) / denom
+    mgdi_val
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1)
+i_factor = input.float(0.6, "Factor", minval=0.01, maxval=5.0, step=0.01)
+i_source = input.source(close, "Source")
+
+// Calculation
+mgdi_value = mgdi(i_source, i_period, i_factor)
+
+// Plot
+plot(mgdi_value, "MGDI", color=color.yellow, linewidth=2)

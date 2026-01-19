@@ -1,0 +1,67 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Stochastic RSI (STOCHRSI)", "StochRSI", overlay=false)
+
+//@function Calculates Stochastic RSI oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/stochrsi.md
+//@param source Source series to calculate STOCHRSI for
+//@param rsi_length Period for RSI calculation
+//@param stoch_length Lookback period for Stochastic calculation on RSI
+//@param k_smooth Smoothing period for %K line
+//@param d_smooth Smoothing period for %D line
+//@returns [%K, %D] values of Stochastic RSI
+stochrsi(series float source, simple int rsi_length, simple int stoch_length, simple int k_smooth, simple int d_smooth) =>
+    if rsi_length <= 0 or stoch_length <= 0 or k_smooth <= 0 or d_smooth <= 0
+        runtime.error("All periods must be positive")
+    float src_clean = na(source) ? 0 : source
+    float u = math.max(src_clean - nz(src_clean[1]), 0)
+    float d = math.max(nz(src_clean[1]) - src_clean, 0)
+    float alpha = 1/rsi_length
+    var float smoothUp = 0.0, var float smoothDown = 0.0
+    if bar_index < rsi_length
+        smoothUp := u
+        smoothDown := d
+    else
+        smoothUp := nz(smoothUp[1]) * (1 - alpha) + u * alpha
+        smoothDown := nz(smoothDown[1]) * (1 - alpha) + d * alpha
+    float rs = smoothDown == 0 ? 0 : smoothUp/smoothDown
+    float rsi_val = smoothDown == 0 ? 100 : 100 - (100 / (1 + rs))
+    if na(source)
+        [na, na]
+    else
+        var array<float> rsi_buffer = array.new_float(0)
+        array.push(rsi_buffer, rsi_val)
+        if array.size(rsi_buffer) > stoch_length
+            array.shift(rsi_buffer)
+        highest_rsi = array.max(rsi_buffer)
+        lowest_rsi = array.min(rsi_buffer)
+        rsi_range = highest_rsi - lowest_rsi
+        k_raw = rsi_range > 0 ? 100 * (rsi_val - lowest_rsi) / rsi_range : 50
+        var array<float> k_buffer = array.new_float(0)
+        array.push(k_buffer, k_raw)
+        if array.size(k_buffer) > k_smooth
+            array.shift(k_buffer)
+        k_smoothed = array.sum(k_buffer) / array.size(k_buffer)
+        var array<float> d_buffer = array.new_float(0)
+        array.push(d_buffer, k_smoothed)
+        if array.size(d_buffer) > d_smooth
+            array.shift(d_buffer)
+        d_smoothed = array.sum(d_buffer) / array.size(d_buffer)
+        [k_smoothed, d_smoothed]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_rsi_length = input.int(14, "RSI Length", minval=1, maxval=100, tooltip="Period for RSI calculation")
+i_stoch_length = input.int(14, "Stochastic Length", minval=1, maxval=100, tooltip="Lookback period for Stochastic calculation on RSI")
+i_k_smooth = input.int(3, "%K Smooth", minval=1, maxval=20, tooltip="Smoothing period for %K line")
+i_d_smooth = input.int(3, "%D Smooth", minval=1, maxval=20, tooltip="Smoothing period for %D line")
+i_source = input.source(close, "Source", tooltip="Price series to analyze")
+
+// Calculation
+[k_value, d_value] = stochrsi(i_source, i_rsi_length, i_stoch_length, i_k_smooth, i_d_smooth)
+
+// Plots
+plot(k_value, "StochRSI %K", color=color.yellow, linewidth=2)
+plot(d_value, "StochRSI %D", color=color.blue, linewidth=2)

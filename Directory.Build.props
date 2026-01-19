@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <NoWarn>$(NoWarn);NU1903;NU5104;NETSDK1057</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,50 +11,92 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <BaseIntermediateOutputPath>obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <DebugType>full</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
-    <PublishAot>true</PublishAot>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <TieredCompilation>true</TieredCompilation>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <PublishSingleFile>true</PublishSingleFile>
-    <DebugSymbols>true</DebugSymbols>
-    <Deterministic>true</Deterministic>
-    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
-    <EventSourceSupport>false</EventSourceSupport>
-    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
-    <UseSystemResourceKeys>true</UseSystemResourceKeys>
-
+    
+    <!-- AOT and Trim compatibility analyzers (build-time validation) -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>S1944,S2053,S2222,S2259,S2583,S2589,S3329,S3655,S3900,S3949,S3966,S4158,S4347,S5773,S6781</NoWarn>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- SARIF 2.1 output for Roslyn analyzers - all projects -->
+  <PropertyGroup>
+    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.sln'))\.sarif</SarifOutputDir>
+    <ErrorLog>$(SarifOutputDir)\$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+  </PropertyGroup>
+
+  <Target Name="CreateSarifDir" BeforeTargets="CoreCompile">
+    <MakeDir Directories="$(SarifOutputDir)" Condition="!Exists('$(SarifOutputDir)')" />
+  </Target>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Deterministic>true</Deterministic>
+    
+    <!-- Trim mode for library compatibility validation -->
+    <TrimMode>link</TrimMode>
+    
+    <!-- Runtime feature switches (reduce size when library is trimmed by consumer) -->
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    
+    <!-- Suppress reflection-based serialization (faster startup, smaller footprint) -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- S3604: "Remove member initializer" - null! is intentional for nullable reference types in Quantower adapters -->
+    <NoWarn>$(NoWarn);S1144;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3604;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0048;MA0051;MA0076;RCS1123;RCS1159;IDE0007</NoWarn>
+  </PropertyGroup>
+
+  <!-- Code Coverage Configuration (for NDepend integration) -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>opencover</CoverletOutputFormat>
+    <CoverletOutput>$(MSBuildProjectDirectory)/TestResults/</CoverletOutput>
+    <ExcludeByFile>**/*.Designer.cs,**/*.g.cs,**/*.g.i.cs</ExcludeByFile>
+    <Exclude>[xunit.*]*,[*.Tests]*</Exclude>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.DotNet.Interactive.Formatting" Version="1.0.0-beta.21459.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="GitVersion.MsBuild" Version="6.5.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.267">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsLocalBuild)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">
-    <QuantowerRoot>D:\Quantower</QuantowerRoot>
-    <QuantowerPath>$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
+    <QuantowerRoot Condition="'$(QuantowerRoot)' == ''">Z:\Quantower</QuantowerRoot>
+    <QuantowerPath Condition="Exists('$(QuantowerRoot)\TradingPlatform')">$([System.IO.Directory]::GetDirectories("$(QuantowerRoot)\TradingPlatform", "v1*")[0])</QuantowerPath>
   </PropertyGroup>
 
 </Project>

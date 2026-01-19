@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=5
+indicator("Volatility Ratio (VR)", shorttitle="VR", format=format.price, precision=2, overlay=false)
+
+//@function Calculates the Volatility Ratio (VR).
+// All logic for True Range and ATR calculation is encapsulated within this function.
+// ATR uses Wilder's RMA with bias correction for initialization.
+//@param atrPeriod The lookback period for ATR. Must be > 0.
+//@returns float The Volatility Ratio value for the current bar.
+vr(int atrPeriod) =>
+    if atrPeriod <= 0
+        runtime.error("ATR Period must be greater than 0")
+    var float EPSILON_ATR = 1e-10
+    var float raw_atr = 0.0
+    var float e_compensator = 1.0
+    float tr = na
+    float h_l = high - low
+    if not na(close[1])
+        float h_pc = math.abs(high - close[1])
+        float l_pc = math.abs(low - close[1])
+        tr := math.max(h_l, h_pc, l_pc)
+    else
+        tr := h_l
+    float trForAtr = nz(tr)
+    float atrCurrent = na
+    if not na(trForAtr)
+        float alpha = 1.0 / float(atrPeriod)
+        if na(raw_atr[1]) and e_compensator == 1.0
+            raw_atr := trForAtr
+        else
+            raw_atr := (nz(raw_atr[1]) * (atrPeriod - 1) + trForAtr) / atrPeriod
+        e_compensator := (1.0 - alpha) * e_compensator
+        atrCurrent := e_compensator > EPSILON_ATR ? raw_atr / (1.0 - e_compensator) : raw_atr
+    float volatilityRatio = na
+    if not na(atrCurrent) and atrCurrent != 0
+        volatilityRatio := tr / atrCurrent
+    volatilityRatio
+
+// Inputs
+i_atrPeriod = input.int(14, title="ATR Period", minval=1, tooltip="The lookbook period for calculating the Average True Range (ATR).")
+
+// Calculation
+vrValue = vr(i_atrPeriod)
+
+// Plot
+plot(vrValue, title="VR", color=color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)

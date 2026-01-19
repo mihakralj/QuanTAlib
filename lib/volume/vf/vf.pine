@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Volume Force (VF)", "VF", overlay=false)
+
+//@function Calculates Volume Force, measuring the force of volume behind price movements
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/vf.md
+//@param len Smoothing period (default: 14)
+//@param src Source price for calculation (default: close)
+//@param src_vol Volume data (default: volume)
+//@returns float The Volume Force value
+vf(simple int len, series float src = close, series float src_vol = volume) =>
+    float price_change = src - nz(src[1], src)
+    float raw_vf = price_change * nz(src_vol, 0.0)
+    float alpha = 2.0 / (len + 1)
+    var bool warmup = true
+    var float e = 1.0
+    var float ema_val = 0.0
+    var float vf_result = raw_vf
+    ema_val := alpha * (raw_vf - ema_val) + ema_val
+    if warmup
+        e *= (1.0 - alpha)
+        float compensator = 1.0 / (1.0 - e)
+        vf_result := compensator * ema_val
+        warmup := e > 1e-10
+    else
+        vf_result := ema_val
+    vf_result
+
+// ---------- Main Calculation ----------
+
+// Parameters
+length = input.int(14, "Smoothing Period", minval=1)
+
+// Calculation
+vf_line = vf(length, close, volume)
+
+// ---------- Plots ----------
+
+plot(vf_line, "Volume Force", color=color.yellow, linewidth=2)
+hline(0, "Zero Line", color.gray, linestyle=hline.style_dashed)
+
+// Color zones for visual clarity
+bgcolor(vf_line > 0 ? color.green : color.red)

@@ -1,0 +1,57 @@
+# Covariance: Covariance
+
+> "Correlation is just covariance normalized by standard deviation. But sometimes you want the raw, unadulterated relationship."
+
+Covariance measures the joint variability of two random variables. It indicates the direction of the linear relationship between variables.
+
+## Architecture & Physics
+
+Covariance is calculated using a sliding window approach. It maintains running sums of $x$, $y$, and $xy$ to allow for $O(1)$ updates.
+
+* **Positive Covariance**: Indicates that the two variables tend to move in the same direction.
+* **Negative Covariance**: Indicates that the two variables tend to move in opposite directions.
+* **Zero Covariance**: Indicates that the two variables are uncorrelated.
+
+## Mathematical Foundation
+
+### 1. Population Covariance
+
+$$ Cov(X, Y) = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{n} $$
+
+### 2. Sample Covariance
+
+$$ Cov(X, Y) = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{n - 1} $$
+
+### 3. Computational Formula (Running Sums)
+
+$$ Cov(X, Y) = \frac{\sum xy - \frac{(\sum x)(\sum y)}{n}}{n} \quad \text{(or } n-1 \text{)} $$
+
+## Performance Profile
+
+| Metric | Score | Notes |
+| :--- | :--- | :--- |
+| **Throughput** | High | $O(1)$ updates using running sums. |
+| **Allocations** | 0 | No heap allocations in hot path. |
+| **Complexity** | $O(1)$ | Constant time update regardless of period. |
+| **Accuracy** | High | Uses `double` precision; periodic resync prevents drift. |
+
+## Validation
+
+| Library | Status | Notes |
+| :--- | :--- | :--- |
+| **Manual** | ✅ | Verified against manual calculation. |
+| **Excel** | ✅ | Matches `COVARIANCE.P` and `COVARIANCE.S`. |
+
+## Usage
+
+```csharp
+using QuanTAlib;
+
+// Create a Covariance indicator with period 20 (Sample Covariance by default)
+var cov = new Covariance(20);
+
+// Update with new values
+cov.Update(price1, price2);
+
+// Access the result
+double result = cov.Last.Value;

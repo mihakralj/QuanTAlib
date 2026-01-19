@@ -1,0 +1,68 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Percentage Volume Oscillator (PVO)", "PVO", overlay=false)
+
+//@function Calculates Percentage Volume Oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvo.md
+//@param vol Volume series
+//@param fast_period Fast period for volume MA
+//@param slow_period Slow period for volume MA
+//@param signal_period Signal line smoothing period
+//@returns tuple with [pvo, signal, histogram] values
+//@optimized Beta precomputation for EMA warmup compensation
+pvo(series float vol, simple int fast_period, simple int slow_period, simple int signal_period) =>
+    if fast_period <= 0 or slow_period <= 0 or signal_period <= 0
+        runtime.error("All periods must be greater than 0")
+    if fast_period >= slow_period
+        runtime.error("Fast period must be less than slow period")
+    float vol_val = nz(vol, 0.0)
+    float fast_alpha = 2.0 / (fast_period + 1)
+    float slow_alpha = 2.0 / (slow_period + 1)
+    float signal_alpha = 2.0 / (signal_period + 1)
+    float fast_beta = 1.0 - fast_alpha
+    float slow_beta = 1.0 - slow_alpha
+    float signal_beta = 1.0 - signal_alpha
+    float slowest_beta = math.max(fast_beta, slow_beta, signal_beta)
+    var bool warmup = true
+    var float e_fast = 1.0
+    var float e_slow = 1.0
+    var float e_signal = 1.0
+    var float e_slowest = 1.0
+    var float fast_ema = 0.0
+    var float slow_ema = 0.0
+    var float signal_ema = 0.0
+    fast_ema := fast_alpha * (vol_val - fast_ema) + fast_ema
+    slow_ema := slow_alpha * (vol_val - slow_ema) + slow_ema
+    if warmup
+        e_fast *= fast_beta
+        e_slow *= slow_beta
+        e_signal *= signal_beta
+        e_slowest *= slowest_beta
+        warmup := e_slowest > 1e-10
+    float c_fast = warmup ? 1.0 / (1.0 - e_fast) : 1.0
+    float c_slow = warmup ? 1.0 / (1.0 - e_slow) : 1.0
+    float c_signal = warmup ? 1.0 / (1.0 - e_signal) : 1.0
+    float fast_comp = c_fast * fast_ema
+    float slow_comp = c_slow * slow_ema
+    float pvo_val = slow_comp != 0.0 ? ((fast_comp - slow_comp) / slow_comp) * 100.0 : 0.0
+    signal_ema := signal_alpha * (pvo_val - signal_ema) + signal_ema
+    float signal_val = c_signal * signal_ema
+    float histogram_val = pvo_val - signal_val
+    [pvo_val, signal_val, histogram_val]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_fast_period = input.int(12, "Fast Period", minval=1)
+i_slow_period = input.int(26, "Slow Period", minval=1)
+i_signal_period = input.int(9, "Signal Period", minval=1)
+
+// Calculation
+[pvo_value, signal_value, histogram_value] = pvo(volume, i_fast_period, i_slow_period, i_signal_period)
+
+// Plot
+plot(pvo_value, "PVO", color=color.yellow, linewidth=2)
+plot(signal_value, "Signal", color=color.red, linewidth=2)
+plot(histogram_value, "Histogram", color=color.blue, linewidth=2, style=plot.style_histogram)
+hline(0, "Zero Line", color.gray)

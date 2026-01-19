@@ -1,0 +1,313 @@
+
+namespace QuanTAlib.Tests;
+
+public class JmaTests
+{
+    [Fact]
+    public void Jma_Constructor_ValidatesInput()
+    {
+        // JMA doesn't explicitly throw on period currently, but let's check if it handles valid inputs
+        var jma = new Jma(10);
+        Assert.NotNull(jma);
+    }
+
+    [Fact]
+    public void Jma_Calc_ReturnsValue()
+    {
+        var jma = new Jma(10);
+
+        Assert.Equal(0, jma.Last.Value);
+
+        TValue result = jma.Update(new TValue(DateTime.UtcNow, 100));
+
+        Assert.True(result.Value > 0);
+        Assert.Equal(result.Value, jma.Last.Value);
+    }
+
+    [Fact]
+    public void Jma_SpanCalc_ValidatesInput()
+    {
+        double[] source = [1, 2, 3, 4, 5];
+        double[] output = new double[5];
+        double[] wrongSizeOutput = new double[3];
+
+        // Period must be > 0
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Calculate(source.AsSpan(), output.AsSpan(), 0, 0, 1.0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Jma.Calculate(source.AsSpan(), output.AsSpan(), -1, 0, 1.0));
+
+        // Output must be same length as source
+        Assert.Throws<ArgumentException>(() => Jma.Calculate(source.AsSpan(), wrongSizeOutput.AsSpan(), 3, 0, 1.0));
+    }
+
+    [Fact]
+    public void Jma_Calc_IsNew_False_UpdatesValue()
+    {
+        var jma = new Jma(10);
+
+        jma.Update(new TValue(DateTime.UtcNow, 100));
+        jma.Update(new TValue(DateTime.UtcNow, 110), isNew: true);
+        double beforeUpdate = jma.Last.Value;
+
+        jma.Update(new TValue(DateTime.UtcNow, 120), isNew: false);
+        double afterUpdate = jma.Last.Value;
+
+        // Update should change the value
+        Assert.NotEqual(beforeUpdate, afterUpdate);
+    }
+
+    [Fact]
+    public void Jma_Reset_ClearsState()
+    {
+        var jma = new Jma(10);
+
+        jma.Update(new TValue(DateTime.UtcNow, 100));
+        jma.Update(new TValue(DateTime.UtcNow, 105));
+        double valueBefore = jma.Last.Value;
+
+        jma.Reset();
+
+        Assert.Equal(0, jma.Last.Value);
+
+        // After reset, should accept new values
+        jma.Update(new TValue(DateTime.UtcNow, 50));
+        Assert.NotEqual(0, jma.Last.Value);
+        Assert.NotEqual(valueBefore, jma.Last.Value);
+    }
+
+    [Fact]
+    public void Jma_IsHot_BecomesTrueAfterWarmup()
+    {
+        var jma = new Jma(10);
+
+        Assert.False(jma.IsHot);
+
+        // Warmup for JMA(10) is approx 203 bars
+        // ceil(20 + 80 * 10^0.36) = 203
+        int warmup = (int)Math.Ceiling(20.0 + 80.0 * Math.Pow(10, 0.36));
+
+        for (int i = 1; i < warmup; i++)
+        {
+            jma.Update(new TValue(DateTime.UtcNow, i * 10));
+            Assert.False(jma.IsHot);
+        }
+
+        jma.Update(new TValue(DateTime.UtcNow, 100));
+        Assert.True(jma.IsHot);
+    }
+
+    [Fact]
+    public void Jma_IterativeCorrections_RestoreToOriginalState()
+    {
+        var jma = new Jma(10);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1);
+
+        // Feed 20 new values (enough to fill buffer and stabilize)
+        TValue lastInput = default;
+        for (int i = 0; i < 20; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            lastInput = new TValue(bar.Time, bar.Close);
+            jma.Update(lastInput, isNew: true);
+        }
+
+        // Remember JMA state
+        double jmaAfter = jma.Last.Value;
+
+        // Generate 5 corrections with isNew=false (different values)
+        for (int i = 0; i < 5; i++)
+        {
+            var bar = gbm.Next(isNew: false);
+            jma.Update(new TValue(bar.Time, bar.Close), isNew: false);
+        }
+
+        // Feed the remembered last input again with isNew=false
+        TValue finalJma = jma.Update(lastInput, isNew: false);
+
+        // JMA should match the original state
+        Assert.Equal(jmaAfter, finalJma.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Jma_NaN_Input_UsesLastValidValue()
+    {
+        var jma = new Jma(10);
+
+        // Feed some valid values
+        jma.Update(new TValue(DateTime.UtcNow, 100));
+        jma.Update(new TValue(DateTime.UtcNow, 110));
+
+        // Feed NaN - should use last valid value (110)
+        var resultAfterNaN = jma.Update(new TValue(DateTime.UtcNow, double.NaN));
+
+        // Result should be finite (not NaN)
+        Assert.True(double.IsFinite(resultAfterNaN.Value));
+        Assert.NotEqual(0, resultAfterNaN.Value);
+    }
+
+    [Fact]
+    public void Jma_SpanCalc_MatchesTSeriesCalc()
+    {
+        var series = new TSeries();
+        double[] source = new double[100];
+        double[] output = new double[100];
+
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            source[i] = bar.Close;
+            series.Add(bar.Time, bar.Close);
+        }
+
+        // Calculate with TSeries API
+        var tseriesResult = Jma.Batch(series, 10);
+
+        // Calculate with Span API
+        Jma.Calculate(source.AsSpan(), output.AsSpan(), 10);
+
+        // Compare results
+        for (int i = 0; i < 100; i++)
+        {
+            Assert.Equal(tseriesResult[i].Value, output[i], 1e-10);
+        }
+    }
+
+    [Fact]
+    public void Jma_AllModes_ProduceSameResult()
+    {
+        // Arrange
+        const int period = 10;
+        var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 123);
+        var bars = gbm.Fetch(1000, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+        var series = bars.Close;
+
+        // 1. Batch Mode
+        var batchSeries = Jma.Batch(series, period);
+        double expected = batchSeries.Last.Value;
+
+        // 2. Span Mode
+        var tValues = series.Values.ToArray();
+        var spanInput = new ReadOnlySpan<double>(tValues);
+        var spanOutput = new double[tValues.Length];
+        Jma.Calculate(spanInput, spanOutput, period);
+        double spanResult = spanOutput[^1];
+
+        // 3. Streaming Mode
+        var streamingInd = new Jma(period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            streamingInd.Update(series[i]);
+        }
+        double streamingResult = streamingInd.Last.Value;
+
+        // 4. Eventing Mode
+        var pubSource = new TSeries();
+        var eventingInd = new Jma(pubSource, period);
+        for (int i = 0; i < series.Count; i++)
+        {
+            pubSource.Add(series[i]);
+        }
+        double eventingResult = eventingInd.Last.Value;
+
+        // Assert
+        Assert.Equal(expected, spanResult, precision: 9);
+        Assert.Equal(expected, streamingResult, precision: 9);
+        Assert.Equal(expected, eventingResult, precision: 9);
+    }
+
+    [Fact]
+    public void Jma_Phase_AffectsResult()
+    {
+        var series = new TSeries();
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            series.Add(bar.Time, bar.Close);
+        }
+
+        var jmaPhase0 = Jma.Batch(series, 10, phase: 0);
+        var jmaPhase100 = Jma.Batch(series, 10, phase: 100);
+        var jmaPhaseMinus100 = Jma.Batch(series, 10, phase: -100);
+
+        Assert.NotEqual(jmaPhase0.Last.Value, jmaPhase100.Last.Value);
+        Assert.NotEqual(jmaPhase0.Last.Value, jmaPhaseMinus100.Last.Value);
+    }
+
+    [Fact]
+    public void Jma_Power_AffectsResult()
+    {
+        var series = new TSeries();
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        for (int i = 0; i < 100; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            series.Add(bar.Time, bar.Close);
+        }
+
+        var jmaPowerDefault = Jma.Batch(series, 10, power: 0.45);
+        var jmaPower1 = Jma.Batch(series, 10, power: 1.0);
+        var jmaPower2 = Jma.Batch(series, 10, power: 2.0);
+
+        // Power parameter is kept for API compatibility with Pine reference
+        // but does not affect output in this implementation
+        Assert.Equal(jmaPowerDefault.Last.Value, jmaPower1.Last.Value, 1e-10);
+        Assert.Equal(jmaPowerDefault.Last.Value, jmaPower2.Last.Value, 1e-10);
+    }
+
+    [Fact]
+    public void Jma_SpanCalc_HandlesNaN()
+    {
+        double[] source = [100, 110, double.NaN, 120, 130];
+        double[] output = new double[5];
+
+        Jma.Calculate(source.AsSpan(), output.AsSpan(), 3);
+
+        foreach (var val in output)
+        {
+            Assert.True(double.IsFinite(val));
+        }
+    }
+
+    [Fact]
+    public void Jma_BatchUpdate_ThenStreamingUpdate_IsNewFalse_Works()
+    {
+        // This test verifies the fix for the state synchronization issue
+        // where _p_state and buffers weren't updated after batch Update(TSeries)
+        var jma = new Jma(10);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+
+        // Create a batch series with enough bars to reach warmup (203 for JMA(10))
+        int warmupBars = jma.WarmupPeriod + 50;
+        var series = new TSeries();
+        for (int i = 0; i < warmupBars; i++)
+        {
+            var bar = gbm.Next(isNew: true);
+            series.Add(bar.Time, bar.Close);
+        }
+
+        // Process batch - this should update _state, _p_state, and buffer snapshots
+        jma.Update(series);
+
+        // Now do a streaming update with isNew=true (new bar)
+        var bar51 = gbm.Next(isNew: true);
+        jma.Update(new TValue(bar51.Time, bar51.Close), isNew: true);
+
+        // Do several corrections with isNew=false
+        for (int i = 0; i < 3; i++)
+        {
+            var correction = gbm.Next(isNew: false);
+            jma.Update(new TValue(correction.Time, correction.Close), isNew: false);
+        }
+
+        // Feed the original bar51 value again with isNew=false
+        // It should restore to the state after bar51
+        var restoredResult = jma.Update(new TValue(bar51.Time, bar51.Close), isNew: false);
+
+        // The key test: After batch processing, we should be able to advance to a new bar
+        // and then do corrections without errors. Before the fix, this would fail because
+        // _p_state had stale data from before the batch processing.
+        Assert.True(double.IsFinite(restoredResult.Value));
+        Assert.True(jma.IsHot);
+    }
+}

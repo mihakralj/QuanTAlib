@@ -1,0 +1,68 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Klinger Volume Oscillator (KVO)", "KVO", overlay=false)
+
+//@function Calculates Klinger Volume Oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/kvo.md
+//@param fast_len Fast EMA period
+//@param slow_len Slow EMA period
+//@param signal_len Signal line period
+//@param src_open Open price series
+//@param src_high High price series
+//@param src_low Low price series
+//@param src_close Close price series
+//@param src_vol Volume series
+//@returns [KVO line, Signal line]
+//@optimized for performance and dirty data
+kvo(int fast_len = 34, int slow_len = 55, int signal_len = 13, series float src_open = open, series float src_high = high, series float src_low = low, series float src_close = close, series float src_vol = volume) =>
+    float hlc3 = (src_high + src_low + src_close) / 3.0
+    float hlc3_prev = nz(hlc3[1], hlc3)
+    var float trend = 1.0
+    trend := hlc3 > hlc3_prev ? 1.0 : hlc3 < hlc3_prev ? -1.0 : trend
+    float high_low_range = src_high - src_low
+    float cm = high_low_range > 0 ? math.abs(2 * ((high_low_range - (src_close - src_low)) / high_low_range) - 1) : 0.0
+    float dm = trend * nz(src_vol, 0.0) * cm
+    float alpha_f = 2.0 / (fast_len + 1), float alpha_s = 2.0 / (slow_len + 1), float alpha_sig = 2.0 / (signal_len + 1)
+    var bool warmup = true, var float e_f = 1.0, var float e_s = 1.0, var float e_sig = 1.0
+    var float ema_val_f = 0.0, var float ema_val_s = 0.0, var float ema_val_sig = 0.0
+    var float fast_ema = dm, var float slow_ema = dm
+    ema_val_f := alpha_f * (dm - ema_val_f) + ema_val_f
+    ema_val_s := alpha_s * (dm - ema_val_s) + ema_val_s
+    if warmup
+        e_f *= (1.0 - alpha_f), e_s *= (1.0 - alpha_s)
+        float c_f = 1.0 / (1.0 - e_f), float c_s = 1.0 / (1.0 - e_s)
+        fast_ema := c_f * ema_val_f, slow_ema := c_s * ema_val_s
+        warmup := e_sig > 1e-10
+    else
+        fast_ema := ema_val_f, slow_ema := ema_val_s
+    float kvo_line = fast_ema - slow_ema
+    var float signal_line = kvo_line
+    ema_val_sig := alpha_sig * (kvo_line - ema_val_sig) + ema_val_sig
+    if warmup
+        e_sig *= (1.0 - alpha_sig)
+        float c_sig = 1.0 / (1.0 - e_sig)
+        signal_line := c_sig * ema_val_sig
+    else
+        signal_line := ema_val_sig
+    [kvo_line, signal_line]
+
+// ---------- Main Calculation ----------
+
+// Parameters
+fast_period = input.int(34, "Fast EMA Period", minval=1)
+slow_period = input.int(55, "Slow EMA Period", minval=1)
+signal_period = input.int(13, "Signal Line Period", minval=1)
+
+// Calculation
+[kvo_line, signal_line] = kvo(fast_period, slow_period, signal_period)
+
+// ---------- Plots ----------
+
+plot(kvo_line, "KVO", color.yellow, 2)
+plot(signal_line, "Signal", color.blue, 1)
+hline(0, "Zero Line", color.gray, linestyle=hline.style_dashed)
+
+histogram = kvo_line - signal_line
+plot(histogram, "Histogram", style=plot.style_histogram, 
+     color=histogram >= 0 ? color.green : color.red)

@@ -1,0 +1,60 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ehlers Fractal Adaptive Moving Average (FRAMA)", "FRAMA", overlay=true)
+
+// Ehlers FRAMA:
+// - N1/N2/N3 computed from High/Low ranges (NOT from src).
+// - Price being smoothed is HL2 ( (H+L)/2 ).
+// - alpha = exp(-4.6*(D-1)), clamped to [0.01, 1].
+// - Period forced to even, >= 2.
+// References match the classic Traders' Tips FRAMA definition.
+
+frama_strict(simple int period) =>
+    int p  = math.max(2, period)
+    int pe = (p % 2 == 0) ? p : (p + 1)
+    int h  = int(pe / 2)
+
+    // Price series per Ehlers FRAMA (commonly HL2)
+    float price = hl2
+
+    // Require enough history and non-NA ranges over the needed windows
+    bool ready =
+         bar_index >= pe - 1 and
+         not na(price) and
+         not na(ta.highest(high, pe)) and not na(ta.lowest(low, pe)) and
+         not na(ta.highest(high, h))  and not na(ta.lowest(low, h))  and
+         not na(ta.highest(high[h], h)) and not na(ta.lowest(low[h], h))
+
+    var float fr = na
+
+    if ready
+        // Ranges per Ehlers:
+        // N1: first half range / half
+        // N2: second half range / half (shifted by half)
+        // N3: full range / full
+        float n1 = (ta.highest(high, h) - ta.lowest(low, h)) / h
+        float n2 = (ta.highest(high[h], h) - ta.lowest(low[h], h)) / h
+        float n3 = (ta.highest(high, pe) - ta.lowest(low, pe)) / pe
+
+        float alpha = 1.0
+        if n1 > 0 and n2 > 0 and n3 > 0
+            float dimen = (math.log(n1 + n2) - math.log(n3)) / math.log(2.0)
+            alpha := math.exp(-4.6 * (dimen - 1.0))
+            alpha := math.max(0.01, math.min(1.0, alpha))
+
+        // Warm-start: first computed value seeds to price
+        float prev = nz(fr[1], price)
+        fr := alpha * price + (1.0 - alpha) * prev
+    else
+        fr := na
+
+    fr
+
+// -------- Main --------
+
+i_period = input.int(16, "Period (even enforced)", minval=2)
+
+frama_value = frama_strict(i_period)
+
+plot(frama_value, "FRAMA (strict)", color=color.yellow, linewidth=2)
