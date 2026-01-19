@@ -26,6 +26,7 @@ public sealed class CsvFeedTests : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        GC.SuppressFinalize(this);
 
         foreach (var file in _tempFiles)
         {

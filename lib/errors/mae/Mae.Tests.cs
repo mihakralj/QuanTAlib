@@ -22,7 +22,7 @@ public class MaeTests
         Assert.Contains("Mae", mae.Name, StringComparison.Ordinal);
 
         mae.Update(100, 105);
-        Assert.NotEqual(0, mae.Last.Time);
+        Assert.NotEqual(0, mae.Last.Value);
     }
 
     [Fact]

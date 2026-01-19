@@ -87,27 +87,37 @@ public class LogtransValidationTests
     }
 
     [Fact]
-    public void Logtrans_ProductRule()
+    public void Logtrans_ZeroInput_UsesLastValid()
     {
-        // ln(a*b) = ln(a) + ln(b)
-        double a = 2.5;
-        double b = 3.7;
-
+        // Zero input uses last valid value (robustness pattern)
         var indicator = new Logtrans();
         var time = DateTime.UtcNow;
 
-        indicator.Update(new TValue(time, a));
-        double lnA = indicator.Last.Value;
+        // First update with valid value
+        indicator.Update(new TValue(time, Math.E));
+        double lastValid = indicator.Last.Value;  // ln(e) = 1.0
 
-        indicator.Reset();
-        indicator.Update(new TValue(time, b));
-        double lnB = indicator.Last.Value;
+        // Zero input - should use last valid
+        indicator.Update(new TValue(time.AddMinutes(1), 0.0));
 
-        indicator.Reset();
-        indicator.Update(new TValue(time, a * b));
-        double lnAB = indicator.Last.Value;
+        Assert.Equal(lastValid, indicator.Last.Value, Tolerance);
+    }
 
-        Assert.Equal(lnA + lnB, lnAB, Tolerance);
+    [Fact]
+    public void Logtrans_NegativeInput_UsesLastValid()
+    {
+        // Negative input uses last valid value (robustness pattern)
+        var indicator = new Logtrans();
+        var time = DateTime.UtcNow;
+
+        // First update with valid value
+        indicator.Update(new TValue(time, 2.0));
+        double lastValid = indicator.Last.Value;  // ln(2)
+
+        // Negative input - should use last valid
+        indicator.Update(new TValue(time.AddMinutes(1), -1.0));
+
+        Assert.Equal(lastValid, indicator.Last.Value, Tolerance);
     }
 
     [Fact]
@@ -152,5 +162,112 @@ public class LogtransValidationTests
         double lnAPowN = indicator.Last.Value;
 
         Assert.Equal(n * lnA, lnAPowN, Tolerance);
+    }
+
+    [Fact]
+    public void Logtrans_VerySmallPositive_ApproachesNegativeInfinity()
+    {
+        // ln(ε) → -∞ as ε → 0+
+        var indicator = new Logtrans();
+        var time = DateTime.UtcNow;
+
+        indicator.Update(new TValue(time, double.Epsilon));
+        double result = indicator.Last.Value;
+
+        Assert.True(double.IsFinite(result));
+        Assert.True(result < -700); // ln(double.Epsilon) ≈ -744
+    }
+
+    [Fact]
+    public void Logtrans_VeryLargeValue_Handles()
+    {
+        // ln(large) should be finite
+        var indicator = new Logtrans();
+        var time = DateTime.UtcNow;
+
+        indicator.Update(new TValue(time, 1e300));
+        double result = indicator.Last.Value;
+
+        Assert.True(double.IsFinite(result));
+        Assert.Equal(Math.Log(1e300), result, Tolerance);
+    }
+
+    [Fact]
+    public void Logtrans_Span_ZeroInput_UsesLastValid()
+    {
+        // Span API: zero input uses last valid value (robustness pattern)
+        var values = new double[] { 2.0, 0.0, 3.0 };
+        var output = new double[3];
+
+        Logtrans.Calculate(values, output);
+
+        Assert.Equal(Math.Log(2.0), output[0], Tolerance);  // ln(2)
+        Assert.Equal(Math.Log(2.0), output[1], Tolerance);  // zero -> uses last valid (ln(2))
+        Assert.Equal(Math.Log(3.0), output[2], Tolerance);  // ln(3)
+    }
+
+    [Fact]
+    public void Logtrans_Span_NegativeInput_UsesLastValid()
+    {
+        // Span API: negative input uses last valid value (robustness pattern)
+        var values = new double[] { 2.0, -5.0, 3.0 };
+        var output = new double[3];
+
+        Logtrans.Calculate(values, output);
+
+        Assert.Equal(Math.Log(2.0), output[0], Tolerance);  // ln(2)
+        Assert.Equal(Math.Log(2.0), output[1], Tolerance);  // negative -> uses last valid (ln(2))
+        Assert.Equal(Math.Log(3.0), output[2], Tolerance);  // ln(3)
+    }
+
+    [Fact]
+    public void Logtrans_NaNInput_UsesLastValid()
+    {
+        // NaN input uses last valid value (robustness pattern)
+        var indicator = new Logtrans();
+        var time = DateTime.UtcNow;
+
+        // First update with valid value
+        indicator.Update(new TValue(time, Math.E));
+        double lastValid = indicator.Last.Value;  // ln(e) = 1.0
+
+        // NaN input - should use last valid
+        indicator.Update(new TValue(time.AddMinutes(1), double.NaN));
+
+        Assert.Equal(lastValid, indicator.Last.Value, Tolerance);
+    }
+
+    [Fact]
+    public void Logtrans_PositiveInfinityInput_UsesLastValid()
+    {
+        // Positive infinity input uses last valid value (robustness pattern)
+        var indicator = new Logtrans();
+        var time = DateTime.UtcNow;
+
+        // First update with valid value
+        indicator.Update(new TValue(time, 10.0));
+        double lastValid = indicator.Last.Value;  // ln(10)
+
+        // Positive infinity input - should use last valid
+        indicator.Update(new TValue(time.AddMinutes(1), double.PositiveInfinity));
+
+        Assert.Equal(lastValid, indicator.Last.Value, Tolerance);
+    }
+
+    [Fact]
+    public void Logtrans_NegativeInfinityInput_UsesLastValid()
+    {
+        // Negative infinity input uses last valid value (robustness pattern)
+        var indicator = new Logtrans();
+        var time = DateTime.UtcNow;
+
+        // First update with valid value
+        indicator.Update(new TValue(time, 5.0));
+        double lastValid = indicator.Last.Value;  // ln(5)
+
+        // Negative infinity input - should use last valid
+        indicator.Update(new TValue(time.AddMinutes(1), double.NegativeInfinity));
+
+        Assert.Equal(lastValid, indicator.Last.Value, Tolerance);
     }
 }

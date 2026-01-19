@@ -281,6 +281,11 @@ public class TBarSeries : IReadOnlyList<TBar>
     public void Add(DateTime time, double open, double high, double low, double close, double volume, bool isNew = true) =>
         Add(new TBar(time.Ticks, open, high, low, close, volume), isNew);
 
+    /// <summary>
+    /// Bulk add from IEnumerable sources. Fires Pub event for each bar.
+    /// WARNING: This method may allocate if inputs are not already arrays.
+    /// For zero-allocation bulk loading, prefer AddRange with ReadOnlySpan parameters.
+    /// </summary>
     public void Add(IEnumerable<long> t, IEnumerable<double> o, IEnumerable<double> h, IEnumerable<double> l, IEnumerable<double> c, IEnumerable<double> v)
     {
         var tArr = t as long[] ?? t.ToArray();
@@ -320,28 +325,37 @@ public class TBarSeries : IReadOnlyList<TBar>
         if (o.Length != len || h.Length != len || l.Length != len || c.Length != len || v.Length != len)
             throw new ArgumentException("All spans must have the same length", nameof(t));
 
+        if (len == 0) return;
+
+        int oldCount = _c.Count;
+        int newCount = oldCount + len;
+
         // Pre-allocate capacity to avoid repeated resizing
-        int newCapacity = _c.Count + len;
-        if (_t.Capacity < newCapacity)
+        if (_t.Capacity < newCount)
         {
-            _t.Capacity = newCapacity;
-            _o.Capacity = newCapacity;
-            _h.Capacity = newCapacity;
-            _l.Capacity = newCapacity;
-            _c.Capacity = newCapacity;
-            _v.Capacity = newCapacity;
+            _t.Capacity = newCount;
+            _o.Capacity = newCount;
+            _h.Capacity = newCount;
+            _l.Capacity = newCount;
+            _c.Capacity = newCount;
+            _v.Capacity = newCount;
         }
 
-        // Bulk add without event firing (for initial data loading)
-        for (int i = 0; i < len; i++)
-        {
-            _t.Add(t[i]);
-            _o.Add(o[i]);
-            _h.Add(h[i]);
-            _l.Add(l[i]);
-            _c.Add(c[i]);
-            _v.Add(v[i]);
-        }
+        // Use SetCount to resize lists without zeroing, then copy via span
+        CollectionsMarshal.SetCount(_t, newCount);
+        CollectionsMarshal.SetCount(_o, newCount);
+        CollectionsMarshal.SetCount(_h, newCount);
+        CollectionsMarshal.SetCount(_l, newCount);
+        CollectionsMarshal.SetCount(_c, newCount);
+        CollectionsMarshal.SetCount(_v, newCount);
+
+        // Direct span copy - zero allocation bulk add
+        t.CopyTo(CollectionsMarshal.AsSpan(_t).Slice(oldCount));
+        o.CopyTo(CollectionsMarshal.AsSpan(_o).Slice(oldCount));
+        h.CopyTo(CollectionsMarshal.AsSpan(_h).Slice(oldCount));
+        l.CopyTo(CollectionsMarshal.AsSpan(_l).Slice(oldCount));
+        c.CopyTo(CollectionsMarshal.AsSpan(_c).Slice(oldCount));
+        v.CopyTo(CollectionsMarshal.AsSpan(_v).Slice(oldCount));
     }
 
     /// <summary>
@@ -354,28 +368,46 @@ public class TBarSeries : IReadOnlyList<TBar>
         int len = bars.Length;
         if (len == 0) return;
 
+        int oldCount = _c.Count;
+        int newCount = oldCount + len;
+
         // Pre-allocate capacity to avoid repeated resizing
-        int newCapacity = _c.Count + len;
-        if (_t.Capacity < newCapacity)
+        if (_t.Capacity < newCount)
         {
-            _t.Capacity = newCapacity;
-            _o.Capacity = newCapacity;
-            _h.Capacity = newCapacity;
-            _l.Capacity = newCapacity;
-            _c.Capacity = newCapacity;
-            _v.Capacity = newCapacity;
+            _t.Capacity = newCount;
+            _o.Capacity = newCount;
+            _h.Capacity = newCount;
+            _l.Capacity = newCount;
+            _c.Capacity = newCount;
+            _v.Capacity = newCount;
         }
 
-        // Bulk add without event firing (for initial data loading)
+        // Use SetCount to resize lists without zeroing
+        CollectionsMarshal.SetCount(_t, newCount);
+        CollectionsMarshal.SetCount(_o, newCount);
+        CollectionsMarshal.SetCount(_h, newCount);
+        CollectionsMarshal.SetCount(_l, newCount);
+        CollectionsMarshal.SetCount(_c, newCount);
+        CollectionsMarshal.SetCount(_v, newCount);
+
+        // Get mutable spans for direct write
+        Span<long> tSpan = CollectionsMarshal.AsSpan(_t).Slice(oldCount);
+        Span<double> oSpan = CollectionsMarshal.AsSpan(_o).Slice(oldCount);
+        Span<double> hSpan = CollectionsMarshal.AsSpan(_h).Slice(oldCount);
+        Span<double> lSpan = CollectionsMarshal.AsSpan(_l).Slice(oldCount);
+        Span<double> cSpan = CollectionsMarshal.AsSpan(_c).Slice(oldCount);
+        Span<double> vSpan = CollectionsMarshal.AsSpan(_v).Slice(oldCount);
+
+        // Copy from TBar structs to SoA layout
         for (int i = 0; i < len; i++)
         {
             ref readonly TBar bar = ref bars[i];
-            _t.Add(bar.Time);
-            _o.Add(bar.Open);
-            _h.Add(bar.High);
-            _l.Add(bar.Low);
-            _c.Add(bar.Close);
-            _v.Add(bar.Volume);
+            tSpan[i] = bar.Time;
+            oSpan[i] = bar.Open;
+            hSpan[i] = bar.High;
+            lSpan[i] = bar.Low;
+            cSpan[i] = bar.Close;
+            vSpan[i] = bar.Volume;
         }
     }
 

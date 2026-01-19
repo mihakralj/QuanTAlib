@@ -666,14 +666,33 @@ public class GBMTests
     [Fact]
     public void ImplementsIFeed()
     {
-        GBM feed = new GBM(startPrice: 100.0, seed: 42);
+        // Verify GBM implements IFeed interface
+        Assert.True(typeof(IFeed).IsAssignableFrom(typeof(GBM)));
 
+        // Use IFeed reference to verify interface contract
+        IFeed feed = new GBM(startPrice: 100.0, seed: 42);
+
+        // Test Next(bool) overload via interface
         var bar1 = feed.Next(isNew: true);
         Assert.True(bar1.Time > 0);
 
         var bar2 = feed.Next(isNew: true);
         Assert.True(bar2.Time > bar1.Time);
 
+        // Test Next(ref bool) overload via interface - verify ref parameter behavior
+        bool isNew = true;
+        var bar3 = feed.Next(ref isNew);
+        Assert.True(bar3.Time > bar2.Time);
+        Assert.True(isNew, "GBM should honor isNew=true request and keep it true");
+
+        // Test with isNew=false via interface
+        bool isNewFalse = false;
+        long bar3Time = bar3.Time;
+        var bar3Updated = feed.Next(ref isNewFalse);
+        Assert.Equal(bar3Time, bar3Updated.Time); // Same bar when isNew=false
+        Assert.False(isNewFalse, "GBM should honor isNew=false request and keep it false");
+
+        // Test Fetch via interface
         long startTime = DateTime.UtcNow.Ticks;
         var series = feed.Fetch(5, startTime, TimeSpan.FromMinutes(1));
         Assert.Equal(5, series.Count);

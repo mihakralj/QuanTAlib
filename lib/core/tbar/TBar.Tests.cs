@@ -395,13 +395,24 @@ public class TBarTests
     }
 
     [Fact]
-    public void TBar_WithInfinity_HandlesGracefully()
+    public void TBar_WithPositiveInfinity_HandlesGracefully()
     {
         var bar = new TBar(12345, 100, double.PositiveInfinity, 90, 105, 1000);
 
         Assert.True(double.IsPositiveInfinity(bar.High));
         Assert.True(double.IsPositiveInfinity(bar.H.Value));
         Assert.True(double.IsPositiveInfinity(bar.HL2)); // Uses High
+    }
+
+    [Fact]
+    public void TBar_WithNegativeInfinity_HandlesGracefully()
+    {
+        var bar = new TBar(12345, 100, 110, double.NegativeInfinity, 105, 1000);
+
+        Assert.True(double.IsNegativeInfinity(bar.Low));
+        Assert.True(double.IsNegativeInfinity(bar.L.Value));
+        Assert.True(double.IsNegativeInfinity(bar.HL2)); // Uses Low
+        Assert.True(double.IsNegativeInfinity(bar.HLC3)); // Uses Low
     }
 
     [Fact]
@@ -412,8 +423,8 @@ public class TBarTests
         Assert.Equal(double.MaxValue, bar.Open);
         Assert.Equal(double.MaxValue, bar.High);
         Assert.Equal(double.MinValue, bar.Low);
-        // HL2 calculation with extreme values
-        Assert.True(double.IsFinite(bar.HL2) || double.IsInfinity(bar.HL2));
+        // HL2 = (MaxValue + MinValue) * 0.5 = 0 (symmetric around zero)
+        Assert.Equal(0.0, bar.HL2);
     }
 
     [Fact]

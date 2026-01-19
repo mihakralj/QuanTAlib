@@ -4,6 +4,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+using System.Runtime.Intrinsics.Arm;
 
 namespace QuanTAlib;
 
@@ -119,6 +120,7 @@ public sealed class Lineartrans : AbstractBase
 
     /// <summary>
     /// Calculates linear transformation over a span of values using SIMD when available.
+    /// Uses FMA intrinsics for y = slope * x + intercept.
     /// </summary>
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
                                   double slope = 1.0, double intercept = 0.0)
@@ -132,34 +134,84 @@ public sealed class Lineartrans : AbstractBase
         if (!double.IsFinite(intercept))
             throw new ArgumentException("Intercept must be a finite number", nameof(intercept));
 
+        // Check for non-finite values - if any exist, use scalar path only
+        // Note: For very large arrays, SIMD-based NaN detection could be faster,
+        // but for typical use cases the scalar pre-scan is sufficient
+        bool hasNonFinite = false;
+        for (int k = 0; k < source.Length && !hasNonFinite; k++)
+        {
+            hasNonFinite = !double.IsFinite(source[k]);
+        }
+
         double lastValid = 0.0;
         int i = 0;
 
-        // SIMD path for AVX2 (process 4 doubles at a time)
-        if (Avx2.IsSupported && source.Length >= Vector256<double>.Count)
+        // AVX512 FMA path (8 doubles at once)
+        // Avx512F.FusedMultiplyAdd is independent of Fma.IsSupported
+        if (!hasNonFinite && Avx512F.IsSupported && source.Length >= 8)
         {
-            int vectorLength = source.Length - (source.Length % Vector256<double>.Count);
+            var slopeVec = Vector512.Create(slope);
+            var interceptVec = Vector512.Create(intercept);
+            int simdEnd = source.Length - (source.Length % 8);
 
-            for (; i < vectorLength; i += Vector256<double>.Count)
+            for (; i < simdEnd; i += 8)
             {
-                // Check for finite values and handle last-valid
-                for (int j = 0; j < Vector256<double>.Count; j++)
-                {
-                    double val = source[i + j];
-                    if (double.IsFinite(val))
-                    {
-                        lastValid = Math.FusedMultiplyAdd(slope, val, intercept);
-                        output[i + j] = lastValid;
-                    }
-                    else
-                    {
-                        output[i + j] = lastValid;
-                    }
-                }
+                var vals = Vector512.Create(source.Slice(i, 8));
+                var result = Avx512F.FusedMultiplyAdd(slopeVec, vals, interceptVec);
+                result.CopyTo(output.Slice(i, 8));
             }
+            lastValid = output[simdEnd - 1];
+        }
+        // AVX2 FMA path (4 doubles at once)
+        else if (!hasNonFinite && Fma.IsSupported && source.Length >= 4)
+        {
+            var slopeVec = Vector256.Create(slope);
+            var interceptVec = Vector256.Create(intercept);
+            int simdEnd = source.Length - (source.Length % 4);
+
+            for (; i < simdEnd; i += 4)
+            {
+                var vals = Vector256.Create(source.Slice(i, 4));
+                var result = Fma.MultiplyAdd(slopeVec, vals, interceptVec);
+                result.CopyTo(output.Slice(i, 4));
+            }
+            lastValid = output[simdEnd - 1];
+        }
+        // SSE2 path (2 doubles at once) - fallback for x86/x64 without FMA
+        // Note: This path uses Sse2.Multiply followed by Sse2.Add, which incurs two rounding
+        // steps unlike the FMA paths above. Results may differ by ~1 ULP compared to FMA
+        // on SSE2-only hardware (e.g., older x86/x64 CPUs without AVX2/FMA support).
+        else if (!hasNonFinite && Sse2.IsSupported && source.Length >= 2)
+        {
+            var slopeVec = Vector128.Create(slope);
+            var interceptVec = Vector128.Create(intercept);
+            int simdEnd = source.Length - (source.Length % 2);
+
+            for (; i < simdEnd; i += 2)
+            {
+                var vals = Vector128.Create(source.Slice(i, 2));
+                var result = Sse2.Add(Sse2.Multiply(slopeVec, vals), interceptVec);
+                result.CopyTo(output.Slice(i, 2));
+            }
+            lastValid = output[simdEnd - 1];
+        }
+        // ARM64 NEON FMA path (2 doubles at once)
+        else if (!hasNonFinite && AdvSimd.Arm64.IsSupported && source.Length >= 2)
+        {
+            var slopeVec = Vector128.Create(slope);
+            var interceptVec = Vector128.Create(intercept);
+            int simdEnd = source.Length - (source.Length % 2);
+
+            for (; i < simdEnd; i += 2)
+            {
+                var vals = Vector128.Create(source.Slice(i, 2));
+                var result = AdvSimd.Arm64.FusedMultiplyAdd(interceptVec, vals, slopeVec);
+                result.CopyTo(output.Slice(i, 2));
+            }
+            lastValid = output[simdEnd - 1];
         }
 
-        // Scalar fallback for remaining elements
+        // Scalar fallback for remaining elements or when non-finite values exist
         for (; i < source.Length; i++)
         {
             double val = source[i];

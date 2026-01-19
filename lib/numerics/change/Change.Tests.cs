@@ -162,10 +162,16 @@ public class ChangeTests
             indicator.Update(_source[i]);
         }
 
-        // Compare last 10 values
+        // Compare last 10 values between batch and streaming
+        var streamResult = new TSeries();
+        for (int j = 0; j < _source.Count; j++)
+        {
+            streamResult.Add(indicator.Update(_source[j]), true);
+        }
+
         for (int i = Math.Max(0, _source.Count - 10); i < _source.Count; i++)
         {
-            Assert.Equal(batchResult[i].Value, batchResult[i].Value, 1e-10);
+            Assert.Equal(batchResult[i].Value, streamResult[i].Value, 1e-10);
         }
 
         // Ensure final values match

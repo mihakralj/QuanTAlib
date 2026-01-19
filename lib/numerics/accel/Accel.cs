@@ -171,9 +171,14 @@ public sealed class Accel : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        foreach (double val in source)
+        // TValue is a readonly record struct - no heap allocation occurs
+        TimeSpan interval = step ?? TimeSpan.FromSeconds(1);
+        DateTime time = DateTime.UtcNow - (interval * source.Length);
+
+        for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(DateTime.MinValue, val));
+            Update(new TValue(time, source[i]), true);
+            time += interval;
         }
     }
 

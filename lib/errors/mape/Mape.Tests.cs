@@ -22,7 +22,7 @@ public class MapeTests
         Assert.Contains("Mape", mape.Name, StringComparison.Ordinal);
 
         mape.Update(100, 105);
-        Assert.NotEqual(0, mape.Last.Time);
+        Assert.NotEqual(0, mape.Last.Value);
     }
 
     [Fact]

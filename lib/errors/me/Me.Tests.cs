@@ -22,7 +22,7 @@ public class MeTests
         Assert.Contains("Me", me.Name, StringComparison.Ordinal);
 
         me.Update(100, 105);
-        Assert.NotEqual(0, me.Last.Time);
+        Assert.NotEqual(0, me.Last.Value);
     }
 
     [Fact]

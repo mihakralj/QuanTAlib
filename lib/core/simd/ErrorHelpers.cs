@@ -39,7 +39,7 @@ public static class ErrorHelpers
         // Try SIMD path - NaN detection is integrated into the SIMD loop
         if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
-            int processedCount = ComputeSignedErrorsSimdWithNaNDetection(actual, predicted, output, lastValidActual, lastValidPredicted);
+            int processedCount = ComputeSignedErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
             if (processedCount == len)
                 return; // All processed via SIMD
             // Continue with scalar for remaining elements (NaN was detected)
@@ -74,7 +74,7 @@ public static class ErrorHelpers
         // Try SIMD path - NaN detection is integrated into the SIMD loop (avoids double-pass)
         if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
-            int processedCount = ComputeAbsoluteErrorsSimdWithNaNDetection(actual, predicted, output, lastValidActual, lastValidPredicted);
+            int processedCount = ComputeAbsoluteErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
             if (processedCount == len)
                 return; // All processed via SIMD
             // Continue with scalar for remaining elements (NaN was detected)
@@ -88,7 +88,7 @@ public static class ErrorHelpers
 
     /// <summary>
     /// Computes squared errors: (actual - predicted)²
-    /// Uses AVX2 SIMD when available for clean data, with scalar fallback for NaN handling.
+    /// Uses AVX2 SIMD when available with integrated NaN detection, with scalar fallback for NaN handling.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ComputeSquaredErrors(
@@ -106,10 +106,14 @@ public static class ErrorHelpers
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
 
-        // Try SIMD path for clean data (no NaN/Inf)
-        if (Avx2.IsSupported && len >= Vector256<double>.Count && IsDataClean(actual, predicted))
+        // Try SIMD path - NaN detection is integrated into the SIMD loop (avoids double-pass)
+        if (Avx2.IsSupported && len >= Vector256<double>.Count)
         {
-            ComputeSquaredErrorsSimd(actual, predicted, output);
+            int processedCount = ComputeSquaredErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
+            if (processedCount == len)
+                return; // All processed via SIMD
+            // Continue with scalar for remaining elements (NaN was detected)
+            ComputeSquaredErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
         }
 
@@ -187,19 +191,15 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+#pragma warning disable S1121 // Assignments should not be made from within sub-expressions
+            act = double.IsFinite(act) ? (currentValidActual = act) : currentValidActual;
+            pred = double.IsFinite(pred) ? (currentValidPredicted = pred) : currentValidPredicted;
+#pragma warning restore S1121
 
             double absActual = Math.Abs(act);
-            if (absActual < epsilon)
-            {
-                // Avoid division by zero - use absolute error as fallback
-                output[i] = Math.Abs(act - pred);
-            }
-            else
-            {
-                output[i] = Math.Abs(act - pred) / absActual * 100.0;
-            }
+            output[i] = absActual < epsilon
+                ? Math.Abs(act - pred)
+                : Math.Abs(act - pred) / absActual * 100.0;
         }
     }
 
@@ -236,14 +236,9 @@ public static class ErrorHelpers
             if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
 
             double denominator = (Math.Abs(act) + Math.Abs(pred)) / 2.0;
-            if (denominator < epsilon)
-            {
-                output[i] = 0.0; // Both values near zero
-            }
-            else
-            {
-                output[i] = Math.Abs(act - pred) / denominator * 100.0;
-            }
+            output[i] = denominator < epsilon
+                ? 0.0  // Both values near zero
+                : Math.Abs(act - pred) / denominator * 100.0;
         }
     }
 
@@ -413,14 +408,9 @@ public static class ErrorHelpers
             double diff = act - pred;
             double absDiff = Math.Abs(diff);
 
-            if (absDiff <= delta)
-            {
-                output[i] = 0.5 * diff * diff;
-            }
-            else
-            {
-                output[i] = delta * (absDiff - halfDelta);
-            }
+            output[i] = absDiff <= delta
+                ? 0.5 * diff * diff
+                : delta * (absDiff - halfDelta);
         }
     }
 
@@ -735,14 +725,15 @@ public static class ErrorHelpers
     /// <summary>
     /// SIMD path with integrated NaN detection. Returns the number of elements processed.
     /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
+    /// Updates lastValidActual/lastValidPredicted to track last seen finite values for scalar continuation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int ComputeSignedErrorsSimdWithNaNDetection(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,
         Span<double> output,
-        double lastValidActual,
-        double lastValidPredicted)
+        ref double lastValidActual,
+        ref double lastValidPredicted)
     {
         int len = actual.Length;
         int vectorSize = Vector256<double>.Count;
@@ -762,13 +753,25 @@ public static class ErrorHelpers
             int mask = Avx.MoveMask(combined);
             if (mask != 0b1111)
             {
-                // NaN detected - return current position for scalar fallback
+                // NaN detected - update lastValid from previously processed elements before returning
+                if (i > 0)
+                {
+                    lastValidActual = actual[i - 1];
+                    lastValidPredicted = predicted[i - 1];
+                }
                 return i;
             }
 
             // No NaN - compute error
             Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
             errorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
+        }
+
+        // Update lastValid from end of SIMD-processed section
+        if (i > 0)
+        {
+            lastValidActual = actual[i - 1];
+            lastValidPredicted = predicted[i - 1];
         }
 
         // Handle scalar remainder
@@ -783,6 +786,8 @@ public static class ErrorHelpers
                 return i;
             }
 
+            lastValidActual = act;
+            lastValidPredicted = pred;
             output[i] = act - pred;
         }
 
@@ -845,14 +850,15 @@ public static class ErrorHelpers
     /// <summary>
     /// SIMD path with integrated NaN detection for absolute errors. Returns the number of elements processed.
     /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
+    /// Updates lastValidActual/lastValidPredicted to track last seen finite values for scalar continuation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int ComputeAbsoluteErrorsSimdWithNaNDetection(
         ReadOnlySpan<double> actual,
         ReadOnlySpan<double> predicted,
         Span<double> output,
-        double lastValidActual,
-        double lastValidPredicted)
+        ref double lastValidActual,
+        ref double lastValidPredicted)
     {
         int len = actual.Length;
         int vectorSize = Vector256<double>.Count;
@@ -875,7 +881,12 @@ public static class ErrorHelpers
             int mask = Avx.MoveMask(combined);
             if (mask != 0b1111)
             {
-                // NaN detected - return current position for scalar fallback
+                // NaN detected - update lastValid from previously processed elements before returning
+                if (i > 0)
+                {
+                    lastValidActual = actual[i - 1];
+                    lastValidPredicted = predicted[i - 1];
+                }
                 return i;
             }
 
@@ -883,6 +894,13 @@ public static class ErrorHelpers
             Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
             Vector256<double> absErrorVec = Avx.And(errorVec, absMask);
             absErrorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
+        }
+
+        // Update lastValid from end of SIMD-processed section
+        if (i > 0)
+        {
+            lastValidActual = actual[i - 1];
+            lastValidPredicted = predicted[i - 1];
         }
 
         // Handle scalar remainder
@@ -897,7 +915,83 @@ public static class ErrorHelpers
                 return i;
             }
 
+            lastValidActual = act;
+            lastValidPredicted = pred;
             output[i] = Math.Abs(act - pred);
+        }
+
+        return len;
+    }
+
+    /// <summary>
+    /// SIMD path with integrated NaN detection for squared errors. Returns the number of elements processed.
+    /// If NaN is detected, returns the index where NaN was found so caller can continue with scalar.
+    /// Updates lastValidActual/lastValidPredicted to track last seen finite values for scalar continuation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int ComputeSquaredErrorsSimdWithNaNDetection(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> output,
+        ref double lastValidActual,
+        ref double lastValidPredicted)
+    {
+        int len = actual.Length;
+        int vectorSize = Vector256<double>.Count;
+        int vectorEnd = len - (len % vectorSize);
+
+        int i = 0;
+        for (; i < vectorEnd; i += vectorSize)
+        {
+            Vector256<double> actVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(actual.Slice(i)));
+            Vector256<double> predVec = Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(predicted.Slice(i)));
+
+            // Check for NaN/Inf: x == x is false for NaN
+            Vector256<double> actCmp = Avx.Compare(actVec, actVec, FloatComparisonMode.OrderedNonSignaling);
+            Vector256<double> predCmp = Avx.Compare(predVec, predVec, FloatComparisonMode.OrderedNonSignaling);
+            Vector256<double> combined = Avx.And(actCmp, predCmp);
+
+            int mask = Avx.MoveMask(combined);
+            if (mask != 0b1111)
+            {
+                // NaN detected - update lastValid from previously processed elements before returning
+                if (i > 0)
+                {
+                    lastValidActual = actual[i - 1];
+                    lastValidPredicted = predicted[i - 1];
+                }
+                return i;
+            }
+
+            // No NaN - compute squared error: (actual - predicted)²
+            Vector256<double> errorVec = Avx.Subtract(actVec, predVec);
+            Vector256<double> sqErrorVec = Avx.Multiply(errorVec, errorVec);
+            sqErrorVec.StoreUnsafe(ref MemoryMarshal.GetReference(output.Slice(i)));
+        }
+
+        // Update lastValid from end of SIMD-processed section
+        if (i > 0)
+        {
+            lastValidActual = actual[i - 1];
+            lastValidPredicted = predicted[i - 1];
+        }
+
+        // Handle scalar remainder
+        for (; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (!double.IsFinite(act) || !double.IsFinite(pred))
+            {
+                // Return current position - caller will handle with scalar fallback
+                return i;
+            }
+
+            lastValidActual = act;
+            lastValidPredicted = pred;
+            double diff = act - pred;
+            output[i] = diff * diff;
         }
 
         return len;

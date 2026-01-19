@@ -129,7 +129,8 @@ public class HighestTests
 
         indicator.Update(new TValue(time, 15.0));
         indicator.Update(new TValue(time.AddMinutes(1), double.PositiveInfinity));
-        Assert.True(double.IsFinite(indicator.Last.Value));
+        // Should use last valid value (15.0) instead of infinity
+        Assert.Equal(15.0, indicator.Last.Value, Tolerance);
     }
 
     [Fact]

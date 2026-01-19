@@ -22,7 +22,7 @@ public class MseTests
         Assert.Contains("Mse", mse.Name, StringComparison.Ordinal);
 
         mse.Update(100, 105);
-        Assert.NotEqual(0, mse.Last.Time);
+        Assert.NotEqual(0, mse.Last.Value);
     }
 
     [Fact]

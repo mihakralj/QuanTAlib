@@ -22,7 +22,7 @@ public class MapdTests
         Assert.Contains("Mapd", mapd.Name, StringComparison.Ordinal);
 
         mapd.Update(100, 105);
-        Assert.NotEqual(0, mapd.Last.Time);
+        Assert.NotEqual(0, mapd.Last.Value);
     }
 
     [Fact]

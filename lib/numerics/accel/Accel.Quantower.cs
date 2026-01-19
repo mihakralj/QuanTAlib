@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using TradingPlatform.BusinessLayer;
 using static QuanTAlib.IndicatorExtensions;
 
@@ -18,6 +19,11 @@ public class AccelIndicator : Indicator, IWatchlistIndicator
 
     private Accel? _accel;
     private Func<IHistoryItem, double>? _selector;
+
+    // Cached markers to avoid per-update allocations
+    private static readonly IndicatorLineMarker GreenMarker = new(Color.Green);
+    private static readonly IndicatorLineMarker RedMarker = new(Color.Red);
+    private static readonly IndicatorLineMarker GrayMarker = new(Color.Gray);
 
     public int MinHistoryDepths => 3;
     public override string ShortName => "ACCEL";
@@ -47,25 +53,42 @@ public class AccelIndicator : Indicator, IWatchlistIndicator
         double value = _selector(item);
         bool isNew = args.IsNewBar();
 
-        TValue input = new(item.TimeLeft, value);
-        _accel.Update(input, isNew);
+        ProcessUpdateCore(item.TimeLeft, value, isNew);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessUpdateCore(DateTime time, double value, bool isNew)
+    {
+        // Validate non-finite inputs - use last valid if not finite
+        if (!double.IsFinite(value))
+        {
+            value = _accel!.Last.Value;
+            if (!double.IsFinite(value))
+                value = 0.0;
+        }
+
+        TValue input = new(time, value);
+        _accel!.Update(input, isNew);
 
         bool isHot = _accel.IsHot;
+        double accelValue = _accel.Last.Value;  // Cache to avoid repeated property access
 
-        LinesSeries[0].SetValue(_accel.Last.Value, isHot, ShowColdValues);
+        LinesSeries[0].SetValue(accelValue, isHot, ShowColdValues);
         LinesSeries[1].SetValue(0);
 
         if (isHot || ShowColdValues)
         {
-            double accel = _accel.Last.Value;
-            Color color;
-            if (accel > 0)
-                color = Color.Green;
-            else if (accel < 0)
-                color = Color.Red;
-            else
-                color = Color.Gray;
-            LinesSeries[0].SetMarker(0, new IndicatorLineMarker(color));
+            // Use cached markers to avoid per-update allocations
+            IndicatorLineMarker marker = GetMarker(accelValue);
+            LinesSeries[0].SetMarker(0, marker);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static IndicatorLineMarker GetMarker(double value)
+    {
+        if (value > 0) return GreenMarker;
+        if (value < 0) return RedMarker;
+        return GrayMarker;
     }
 }

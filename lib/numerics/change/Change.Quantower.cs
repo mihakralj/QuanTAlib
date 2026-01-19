@@ -23,6 +23,11 @@ public class ChangeIndicator : Indicator, IWatchlistIndicator
     private Change? _change;
     private Func<IHistoryItem, double>? _selector;
 
+    // Cached markers to avoid per-update allocations
+    private static readonly IndicatorLineMarker GreenMarker = new(Color.Green);
+    private static readonly IndicatorLineMarker RedMarker = new(Color.Red);
+    private static readonly IndicatorLineMarker GrayMarker = new(Color.Gray);
+
     public int MinHistoryDepths => Period + 1;
     public override string ShortName => $"CHANGE({Period})";
 
@@ -55,21 +60,25 @@ public class ChangeIndicator : Indicator, IWatchlistIndicator
         _change.Update(input, isNew);
 
         bool isHot = _change.IsHot;
+        double changeValue = _change.Last.Value;  // Cache to avoid repeated property access
 
-        LinesSeries[0].SetValue(_change.Last.Value, isHot, ShowColdValues);
+        LinesSeries[0].SetValue(changeValue, isHot, ShowColdValues);
         LinesSeries[1].SetValue(0);
 
         if (isHot || ShowColdValues)
         {
-            double change = _change.Last.Value;
-            Color color;
-            if (change > 0)
-                color = Color.Green;
-            else if (change < 0)
-                color = Color.Red;
-            else
-                color = Color.Gray;
-            LinesSeries[0].SetMarker(0, new IndicatorLineMarker(color));
+            // Use cached markers to avoid per-update allocations
+            IndicatorLineMarker marker = GetMarker(changeValue);
+            LinesSeries[0].SetMarker(0, marker);
         }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private static IndicatorLineMarker GetMarker(double value)
+    {
+        if (!double.IsFinite(value)) return GrayMarker;
+        if (value > 0) return GreenMarker;
+        if (value < 0) return RedMarker;
+        return GrayMarker;
     }
 }

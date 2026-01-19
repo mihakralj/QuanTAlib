@@ -1,0 +1,11 @@
+# QuanTAlib: Enforce DateTime.UtcNow over DateTime.Now
+# DCT rule: always use DateTime.UtcNow (never DateTime.Now)
+
+id: no-datetime-now
+language: csharp
+severity: error
+message: "Use DateTime.UtcNow instead of DateTime.Now - QuanTAlib requires UTC timestamps for consistency"
+note: "DateTime.Now includes local timezone which causes issues in distributed trading systems"
+rule:
+  pattern: DateTime.Now
+fix: DateTime.UtcNow

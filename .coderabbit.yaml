@@ -3,38 +3,164 @@
 # Documentation: https://docs.coderabbit.ai/reference/configuration
 
 language: en-US
-tone_instructions: "Focus on performance, memory allocation, SIMD optimization, and numerical accuracy. Flag any heap allocations in hot paths."
 early_access: true
 enable_free_tier: true
 
+tone_instructions: |
+  Voice: Direct, technically precise, skeptical-architect perspective. Persuade through evidence and measurable claims, not marketing speak.
+
+  DO:
+  - Be ruthless with math/correctness, kind to humans
+  - Use precise numbers and quantified impacts (e.g., "3-4% divergence", "~15 cycles per op")
+  - Steel-man alternatives before rebutting with data
+  - Follow evidence chain: Why → How → Proof → So what
+  - Vary sentence length deliberately; use direct cadence
+  - Treat code as primary evidence
+  - Include concrete performance implications (cycles, allocations, memory footprint)
+
+  DON'T:
+  - Use forbidden words: delve, leverage, pivotal, tapestry, landscape, furthermore, "is all about", "unlock the power", transformative, foster, seamless, ecosystem
+  - Use em-dashes or formulaic balanced pro/con structures
+  - Say "we" - be direct
+  - Make humor in performance, security, or math correctness claims
+  - Be vague - quantify everything possible
+
+  PRIORITIES (this library):
+  - Zero heap allocations in hot paths (GC pressure is the enemy)
+  - SIMD/FMA optimization opportunities
+  - O(1) streaming updates
+  - NaN/Infinity robustness
+  - State rollback correctness (isNew=false)
+  - Numerical stability at edge cases
+
 reviews:
-  profile: assertive  # More thorough for a performance-critical library
+  profile: assertive
   request_changes_workflow: false
   high_level_summary: true
   high_level_summary_placeholder: "@coderabbitai summary"
+  high_level_summary_instructions: |
+    Generate a concise technical summary optimized for a high-performance C# trading library.
+
+    FORMAT:
+    ## Summary
+    [1-2 sentence TL;DR: what changed and why it matters for performance/correctness]
+
+    ## Changes by Category
+
+    ### 🚀 Performance
+    - [SIMD/FMA optimizations, allocation reductions, O(1) improvements]
+
+    ### 🔧 Indicators
+    - [New/modified indicators with parameter signatures]
+
+    ### 🛡️ Robustness
+    - [NaN/Infinity handling, state rollback fixes, edge cases]
+
+    ### 🧪 Testing
+    - [Validation coverage, new test categories]
+
+    ### 📚 Documentation
+    - [Doc updates, validation matrix changes]
+
+    ### 🔌 Quantower
+    - [Adapter additions/changes]
+
+    (Omit empty categories)
+
+    ## Impact Assessment
+    | Metric | Before | After | Delta |
+    |--------|--------|-------|-------|
+    | Allocations in hot path | ? | ? | ? |
+    | SIMD coverage | ? | ? | ? |
+    | Test coverage | ? | ? | ? |
+
+    (Include table only when quantifiable changes exist)
+
+    ## Breaking Changes
+    - [List any API breaks with migration path, or "None"]
+
+  auto_title_instructions: |
+    Generate PR title following conventional commit format: <type>: <imperative verb> <what> [scope]
+
+    TYPES (required prefix):
+    - feat: New indicator, API addition, capability
+    - perf: SIMD optimization, allocation reduction, O(1) improvement
+    - fix: Bug fix, numerical stability, edge case handling
+    - refactor: Code restructure without behavior change
+    - test: Test additions, validation coverage
+    - docs: Documentation, markdown updates
+
+    RULES:
+    - Subject line ≤50 characters
+    - Use imperative mood ("add", "fix", "optimize" not "added", "fixes", "optimizes")
+    - Include [scope] when change is localized (e.g., [Ema], [RingBuffer], [Quantower])
+    - For performance changes, append brief metric hint if space allows
+
+    EXAMPLES:
+    - feat: add Jma indicator with adaptive smoothing [trends_IIR]
+    - perf: eliminate allocations in Sma.Update hot path
+    - fix: handle NaN in Rsi state rollback [isNew=false]
+    - refactor: extract SIMD helpers to core/simd
+    - test: add validation tests for Ema vs TA-Lib
+    - docs: update validation matrix for momentum indicators
+
+    AVOID:
+    - Vague titles ("update code", "fix bug", "improvements")
+    - Past tense ("added", "fixed")
+    - Articles ("add the", "fix a")
+    - Exceeding 50 chars (truncate scope if needed)
+
   review_status: true
   commit_status: true
   collapse_walkthrough: false
   changed_files_summary: true
-  sequence_diagrams: false  # Not useful for indicator calculations
+  sequence_diagrams: false
   estimate_code_review_effort: true
   assess_linked_issues: true
   related_issues: true
   related_prs: true
   suggested_labels: true
   suggested_reviewers: true
-  poem: false  # Keep it professional
+  poem: false
 
   path_filters:
-    # Include all source files
-    - "**/*.cs"
-    - "**/*.md"
-    - "**/*.yaml"
-    - "**/*.yml"
-    - "**/*.csproj"
-    - "**/*.props"
+    # --- Core Infrastructure ---
+    - "lib/core/**/*.cs"
+    - "lib/feeds/**/*.cs"
+    - "lib/numerics/**/*.cs"
 
-    # Exclude build/IDE artifacts
+    # --- Trend Indicators ---
+    - "lib/trends_FIR/**/*.cs"
+    - "lib/trends_IIR/**/*.cs"
+
+    # --- Oscillators & Momentum ---
+    - "lib/oscillators/**/*.cs"
+    - "lib/momentum/**/*.cs"
+
+    # --- Channels & Volatility ---
+    - "lib/channels/**/*.cs"
+    - "lib/volatility/**/*.cs"
+
+    # --- Dynamics & Reversals ---
+    - "lib/dynamics/**/*.cs"
+    - "lib/reversals/**/*.cs"
+
+    # --- Statistics & Errors ---
+    - "lib/statistics/**/*.cs"
+    - "lib/errors/**/*.cs"
+
+    # --- Cycles, Filters, Forecasts ---
+    - "lib/cycles/**/*.cs"
+    - "lib/filters/**/*.cs"
+    - "lib/forecasts/**/*.cs"
+
+    # --- Volume ---
+    - "lib/volume/**/*.cs"
+
+    # --- Quantower Adapters ---
+    - "quantower/**/*.cs"
+
+    # --- Always Excluded ---
     - "!**/bin/**"
     - "!**/obj/**"
     - "!**/.vs/**"
@@ -45,19 +171,38 @@ reviews:
     - "!**/_site/**"
     - "!**/ndepend/NDependOut/**"
     - "!**/perf/publish/**"
+    - "!**/temp/**"
+    - "!**/*.sarif"
+    - "!**/*.snupkg"
+    - "!**/*.nupkg"
 
   path_instructions:
     - path: "**/**"
       instructions: |
-        - ensure thread safety, zero allocations, and proper Span<T>/Memory<T> usage."
-        - verify numerical stability, check for SIMD and FMA opportunities
-        - verify RingBuffer usage, ensure O(1) updates validate state rollback for isNew=false.
-        - check for numerical stability at edge cases, verify NaN/Infinity handling
+        QuanTAlib code review checklist:
+
+        MEMORY & PERFORMANCE:
         - No heap allocations in Update() methods
         - Use Math.FusedMultiplyAdd for a*b+c patterns
-        - Support isNew=false for bar correction (state rollback)
+        - [MethodImpl(AggressiveInlining)] for hot paths
+        - SIMD opportunities in Calculate(Span) methods
+        - Verify O(1) streaming updates where math allows
+
+        STATE & CORRECTNESS:
+        - Support isNew=false for bar correction (state rollback via _p_state)
         - Handle NaN/Infinity with last-valid-value substitution
-        - Use [MethodImpl(AggressiveInlining)] for hot paths
+        - Verify RingBuffer usage for sliding windows
+        - Check numerical stability at edge cases (overflow, underflow, div/0)
+
+        API CONSISTENCY:
+        - Dual API: stateful Update + stateless static Calculate
+        - ArgumentException with nameof(param) for validation
+        - ITValuePublisher implementation for reactive chaining
+
+        PATTERNS:
+        - State as private record struct
+        - List<T> for SoA storage (suppress MA0016 locally)
+        - DateTime.UtcNow (never DateTime.Now)
 
   auto_review:
     enabled: true
@@ -72,12 +217,19 @@ reviews:
 
   finishing_touches:
     docstrings:
-      enabled: false  # XML docs handled separately
+      enabled: false
     unit_tests:
-      enabled: false  # Tests excluded from review
+      enabled: false
 
   tools:
-    # Disable tools not relevant to C#
+    ast-grep:
+      rule_dirs:
+        - ".coderabbit/ast-grep-rules"
+      util_dirs: []
+      essential_rules: true
+      packages:
+        - "ast-grep-essentials"
+
     shellcheck:
       enabled: false
     ruff:
@@ -99,13 +251,12 @@ reviews:
     detekt:
       enabled: false
 
-    # Keep enabled for config files
     yamllint:
       enabled: true
     markdownlint:
       enabled: true
     gitleaks:
-      enabled: true  # Security - detect secrets
+      enabled: true
     github-checks:
       enabled: true
       timeout_ms: 90000

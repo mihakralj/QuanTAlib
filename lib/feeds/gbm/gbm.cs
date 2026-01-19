@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
@@ -262,6 +263,7 @@ public sealed class GBM : IFeed
 
     /// <summary>
     /// Generates a batch of bars using optimized batch processing with explicit time parameters.
+    /// Uses stackalloc for small batches to avoid heap allocations.
     /// </summary>
     /// <param name="count">Number of bars to generate (must be positive)</param>
     /// <param name="startTime">Starting timestamp in ticks</param>
@@ -279,14 +281,81 @@ public sealed class GBM : IFeed
 
         var series = new TBarSeries(count);
 
-        // Pre-allocate arrays for SoA layout
-        long[] t = new long[count];
-        double[] o = new double[count];
-        double[] h = new double[count];
-        double[] l = new double[count];
-        double[] c = new double[count];
-        double[] v = new double[count];
+        // Threshold for stackalloc: 64 bars * (8 bytes for long + 5*8 bytes for doubles) = 64 * 48 = 3KB
+        // Stay well under typical stack limit; use 64 as safe threshold
+        const int StackAllocThreshold = 64;
 
+        // Use stackalloc for small batches to avoid heap allocations
+        if (count <= StackAllocThreshold)
+        {
+            Span<long> t = stackalloc long[count];
+            Span<double> o = stackalloc double[count];
+            Span<double> h = stackalloc double[count];
+            Span<double> l = stackalloc double[count];
+            Span<double> c = stackalloc double[count];
+            Span<double> v = stackalloc double[count];
+
+            FetchCore(count, startTime, interval, t, o, h, l, c, v);
+
+            // Bulk add to series using ReadOnlySpan overload
+            series.AddRange(t, o, h, l, c, v);
+        }
+        else
+        {
+            // Use ArrayPool for larger batches to avoid heap allocations
+            long[]? rentedT = null;
+            double[]? rentedO = null;
+            double[]? rentedH = null;
+            double[]? rentedL = null;
+            double[]? rentedC = null;
+            double[]? rentedV = null;
+
+            try
+            {
+                rentedT = ArrayPool<long>.Shared.Rent(count);
+                rentedO = ArrayPool<double>.Shared.Rent(count);
+                rentedH = ArrayPool<double>.Shared.Rent(count);
+                rentedL = ArrayPool<double>.Shared.Rent(count);
+                rentedC = ArrayPool<double>.Shared.Rent(count);
+                rentedV = ArrayPool<double>.Shared.Rent(count);
+
+                // Use only the first 'count' elements (rented arrays may be larger)
+                var t = rentedT.AsSpan(0, count);
+                var o = rentedO.AsSpan(0, count);
+                var h = rentedH.AsSpan(0, count);
+                var l = rentedL.AsSpan(0, count);
+                var c = rentedC.AsSpan(0, count);
+                var v = rentedV.AsSpan(0, count);
+
+                FetchCore(count, startTime, interval, t, o, h, l, c, v);
+
+                // Bulk add to series using ReadOnlySpan overload
+                series.AddRange(t, o, h, l, c, v);
+            }
+            finally
+            {
+                if (rentedT != null) ArrayPool<long>.Shared.Return(rentedT);
+                if (rentedO != null) ArrayPool<double>.Shared.Return(rentedO);
+                if (rentedH != null) ArrayPool<double>.Shared.Return(rentedH);
+                if (rentedL != null) ArrayPool<double>.Shared.Return(rentedL);
+                if (rentedC != null) ArrayPool<double>.Shared.Return(rentedC);
+                if (rentedV != null) ArrayPool<double>.Shared.Return(rentedV);
+            }
+        }
+
+        // Reset streaming state after batch
+        _hasCurrentBar = false;
+
+        return series;
+    }
+
+    /// <summary>
+    /// Core generation logic shared between stackalloc and heap-allocated paths.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void FetchCore(int count, long startTime, TimeSpan interval,
+        Span<long> t, Span<double> o, Span<double> h, Span<double> l, Span<double> c, Span<double> v)
+    {
         const double minutesPerYear = 252.0 * 6.5 * 60.0;
         double dt = interval.TotalMinutes / minutesPerYear;
         double drift = (Mu - 0.5 * Sigma * Sigma) * dt;
@@ -335,14 +404,6 @@ public sealed class GBM : IFeed
         // Update internal state to continue from end of batch
         _lastPrice = currentPrice;
         _lastTime = currentTime - timeStep; // Last bar time, not next bar time
-
-        // Bulk add to series
-        series.Add(t, o, h, l, c, v);
-
-        // Reset streaming state after batch
-        _hasCurrentBar = false;
-
-        return series;
     }
 }
 #pragma warning restore S2245

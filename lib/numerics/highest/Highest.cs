@@ -148,33 +148,48 @@ public sealed class Highest : AbstractBase
             }
 
             // Second pass: compute rolling max using corrected values
-            int dequeStart = 0;
-            int dequeEnd = 0;
+            // Use circular buffer indexing to avoid compaction overhead
+            // Branch-based wrapping is faster than modulo in hot paths
+            int head = 0;  // front of deque (oldest/max)
+            int tail = 0;  // back of deque (newest)
+            int count = 0; // number of elements in deque
+            int capacity = deque.Length;
 
             for (int i = 0; i < len; i++)
             {
                 double value = values[i];
 
-                // Remove indices outside window
-                while (dequeEnd > dequeStart && deque[dequeStart] <= i - period)
-                    dequeStart++;
-
-                // Remove smaller values from back
-                while (dequeEnd > dequeStart && values[deque[dequeEnd - 1]] <= value)
-                    dequeEnd--;
-
-                // Compact deque if needed
-                if (dequeEnd >= deque.Length)
+                // Remove indices outside window from front
+                while (count > 0 && deque[head] <= i - period)
                 {
-                    int count = dequeEnd - dequeStart;
-                    for (int j = 0; j < count; j++)
-                        deque[j] = deque[dequeStart + j];
-                    dequeStart = 0;
-                    dequeEnd = count;
+                    head++;
+                    if (head >= capacity) head -= capacity;
+                    count--;
                 }
 
-                deque[dequeEnd++] = i;
-                output[i] = values[deque[dequeStart]];
+                // Remove smaller values from back
+                while (count > 0)
+                {
+                    int backIdx = tail - 1;
+                    if (backIdx < 0) backIdx += capacity;
+                    if (values[deque[backIdx]] <= value)
+                    {
+                        tail = backIdx;
+                        count--;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // Add current index at tail
+                deque[tail] = i;
+                tail++;
+                if (tail >= capacity) tail -= capacity;
+                count++;
+
+                output[i] = values[deque[head]];
             }
         }
         finally

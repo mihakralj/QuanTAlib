@@ -1,0 +1,13 @@
+# QuanTAlib: Require nameof() in ArgumentException
+# DCT rule: ArgumentException + nameof(param) for proper analyzer support
+
+id: require-nameof-in-exceptions
+language: csharp
+severity: warning
+message: "Use nameof(parameter) instead of string literal in ArgumentException for refactoring safety"
+note: "MA0015-friendly: nameof() ensures parameter name stays in sync during refactoring"
+rule:
+  any:
+    - pattern: throw new ArgumentException($MSG, "$PARAM")
+    - pattern: throw new ArgumentNullException("$PARAM")
+    - pattern: throw new ArgumentOutOfRangeException("$PARAM")

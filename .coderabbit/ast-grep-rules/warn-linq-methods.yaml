@@ -1,0 +1,37 @@
+# QuanTAlib: Warn about LINQ in potential hot paths
+# DCT rule 1: Hot paths allocation-free (no heap alloc); GC pressure enemy
+
+id: warn-linq-methods
+language: csharp
+severity: warning
+message: "LINQ method detected - verify this is not in a hot path (Update/Calculate). LINQ allocates and causes GC pressure."
+note: "DCT rule 1: Hot paths must be allocation-free. Replace LINQ with for loops or Span operations in performance-critical code."
+rule:
+  any:
+    - pattern: $EXPR.Where($$$)
+    - pattern: $EXPR.Select($$$)
+    - pattern: $EXPR.OrderBy($$$)
+    - pattern: $EXPR.OrderByDescending($$$)
+    - pattern: $EXPR.GroupBy($$$)
+    - pattern: $EXPR.ToList()
+    - pattern: $EXPR.ToArray()
+    - pattern: $EXPR.ToDictionary($$$)
+    - pattern: $EXPR.First($$$)
+    - pattern: $EXPR.FirstOrDefault($$$)
+    - pattern: $EXPR.Last($$$)
+    - pattern: $EXPR.LastOrDefault($$$)
+    - pattern: $EXPR.Single($$$)
+    - pattern: $EXPR.SingleOrDefault($$$)
+    - pattern: $EXPR.Any($$$)
+    - pattern: $EXPR.All($$$)
+    - pattern: $EXPR.Count($$$)
+    - pattern: $EXPR.Sum($$$)
+    - pattern: $EXPR.Average($$$)
+    - pattern: $EXPR.Min($$$)
+    - pattern: $EXPR.Max($$$)
+    - pattern: $EXPR.Aggregate($$$)
+    - pattern: $EXPR.Distinct($$$)
+    - pattern: $EXPR.Skip($$$)
+    - pattern: $EXPR.Take($$$)
+    - pattern: $EXPR.Zip($$$)
+    - pattern: $EXPR.Concat($$$)

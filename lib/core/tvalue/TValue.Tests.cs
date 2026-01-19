@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace QuanTAlib.Tests;
 
 public class TValueTests
@@ -42,7 +44,7 @@ public class TValueTests
         var dt = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         var tValue = new TValue(dt.Ticks, 123.456);
 
-        string result = tValue.ToString();
+        string result = tValue.ToString(null, CultureInfo.InvariantCulture);
 
         Assert.Contains("2023-01-01", result, StringComparison.Ordinal);
         Assert.Contains("12:00:00", result, StringComparison.Ordinal);
@@ -288,7 +290,7 @@ public class TValueTests
         var dt = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         var tValue = new TValue(dt.Ticks, double.NaN);
 
-        string result = tValue.ToString();
+        string result = tValue.ToString(null, CultureInfo.InvariantCulture);
 
         Assert.Contains("NaN", result, StringComparison.Ordinal);
     }
@@ -299,7 +301,7 @@ public class TValueTests
         var dt = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         var tValue = new TValue(dt.Ticks, double.PositiveInfinity);
 
-        string result = tValue.ToString();
+        string result = tValue.ToString(null, CultureInfo.InvariantCulture);
 
         Assert.Contains("∞", result, StringComparison.Ordinal);
     }
@@ -310,7 +312,7 @@ public class TValueTests
         var dt = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         var tValue = new TValue(dt.Ticks, -123.456);
 
-        string result = tValue.ToString();
+        string result = tValue.ToString(null, CultureInfo.InvariantCulture);
 
         Assert.Contains("-123.46", result, StringComparison.Ordinal);
     }
@@ -340,9 +342,11 @@ public class TValueTests
     {
         var tv = new TValue(12345, double.NaN);
 
-        var hash = tv.GetHashCode();
+        // Should not throw - the record struct implementation handles NaN correctly
+        int hash = tv.GetHashCode();
 
-        Assert.True(hash != 0 || hash == 0); // Just verify it doesn't throw
+        // Hash should be consistent for same NaN value
+        Assert.Equal(hash, tv.GetHashCode());
     }
 
     [Fact]

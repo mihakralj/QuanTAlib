@@ -299,7 +299,8 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double VarianceSIMD(this ReadOnlySpan<double> span, double? mean = null)
     {
-        if (span.Length < 2) return double.NaN;
+        // Match VarianceScalar behavior: return 0.0 for length <= 1 to avoid inconsistency
+        if (span.Length <= 1) return 0.0;
 
         double m;
         if (mean.HasValue)
@@ -627,32 +628,44 @@ public static class SimdExtensions
         ref double aRef = ref MemoryMarshal.GetReference(a);
         ref double bRef = ref MemoryMarshal.GetReference(b);
 
+        // Hoist FMA check outside loop for branch prediction optimization
+        bool useFma = Fma.IsSupported;
+
         // Unroll loop: Process 16 doubles (4 vectors) at a time
         if (len >= 16)
         {
-            for (; i <= len - 16; i += 16)
+            if (useFma)
             {
-                var va1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
-                var vb1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
-
-                var va2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 4));
-                var vb2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 4));
-
-                var va3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 8));
-                var vb3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 8));
-
-                var va4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 12));
-                var vb4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 12));
-
-                if (Fma.IsSupported)
+                for (; i <= len - 16; i += 16)
                 {
+                    var va1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                    var vb1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+                    var va2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 4));
+                    var vb2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 4));
+                    var va3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 8));
+                    var vb3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 8));
+                    var va4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 12));
+                    var vb4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 12));
+
                     vSum = Fma.MultiplyAdd(va1, vb1, vSum);
                     vSum2 = Fma.MultiplyAdd(va2, vb2, vSum2);
                     vSum3 = Fma.MultiplyAdd(va3, vb3, vSum3);
                     vSum4 = Fma.MultiplyAdd(va4, vb4, vSum4);
                 }
-                else
+            }
+            else
+            {
+                for (; i <= len - 16; i += 16)
                 {
+                    var va1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                    var vb1 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+                    var va2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 4));
+                    var vb2 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 4));
+                    var va3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 8));
+                    var vb3 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 8));
+                    var va4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i + 12));
+                    var vb4 = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i + 12));
+
                     vSum = Avx.Add(vSum, Avx.Multiply(va1, vb1));
                     vSum2 = Avx.Add(vSum2, Avx.Multiply(va2, vb2));
                     vSum3 = Avx.Add(vSum3, Avx.Multiply(va3, vb3));
@@ -661,15 +674,24 @@ public static class SimdExtensions
             }
         }
 
-        // Process remaining vectors (4 doubles at a time)
-        for (; i <= len - 4; i += 4)
+        // Process remaining vectors (4 doubles at a time) with hoisted branch
+        if (useFma)
         {
-            var va = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
-            var vb = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
-
-            vSum = Fma.IsSupported
-                ? Fma.MultiplyAdd(va, vb, vSum)
-                : Avx.Add(vSum, Avx.Multiply(va, vb));
+            for (; i <= len - 4; i += 4)
+            {
+                var va = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                var vb = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+                vSum = Fma.MultiplyAdd(va, vb, vSum);
+            }
+        }
+        else
+        {
+            for (; i <= len - 4; i += 4)
+            {
+                var va = Vector256.LoadUnsafe(ref Unsafe.Add(ref aRef, i));
+                var vb = Vector256.LoadUnsafe(ref Unsafe.Add(ref bRef, i));
+                vSum = Avx.Add(vSum, Avx.Multiply(va, vb));
+            }
         }
 
         // Combine accumulators

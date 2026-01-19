@@ -22,7 +22,7 @@ public class RmseTests
         Assert.Contains("Rmse", rmse.Name, StringComparison.Ordinal);
 
         rmse.Update(100, 105);
-        Assert.NotEqual(0, rmse.Last.Time);
+        Assert.NotEqual(0, rmse.Last.Value);
     }
 
     [Fact]

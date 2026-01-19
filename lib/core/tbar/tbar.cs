@@ -23,11 +23,19 @@ public readonly record struct TBar(long Time, double Open, double High, double L
     // Computed properties (calculated on demand, no storage overhead)
     public double HL2 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low) * 0.5; }
     public double OC2 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + Close) * 0.5; }
-    public double OHL3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low) / 3.0; }
-    public double HLC3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close) / 3.0; }
+    public double OHL3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low) * (1.0 / 3.0); }
+    public double HLC3 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close) * (1.0 / 3.0); }
     public double OHLC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (Open + High + Low + Close) * 0.25; }
     public double HLCC4 { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => (High + Low + Close + Close) * 0.25; }
 
+    /// <summary>
+    /// Creates a TBar from DateTime and OHLCV values.
+    /// </summary>
+    /// <remarks>
+    /// <b>Performance warning:</b> If <paramref name="time"/>.Kind is not <see cref="DateTimeKind.Utc"/>,
+    /// <see cref="DateTime.ToUniversalTime"/> is called, which allocates. For hot paths, prefer the
+    /// primary constructor with pre-computed UTC ticks.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBar(DateTime time, double open, double high, double low, double close, double volume)
         : this(time.Kind == DateTimeKind.Utc ? time.Ticks : time.ToUniversalTime().Ticks, open, high, low, close, volume)

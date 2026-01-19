@@ -2,9 +2,6 @@
 // Transforms values using natural logarithm (base e)
 
 using System.Runtime.CompilerServices;
-using System.Numerics;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 
 namespace QuanTAlib;
 
@@ -102,7 +99,8 @@ public sealed class Logtrans : AbstractBase
     }
 
     /// <summary>
-    /// Calculates natural logarithm over a span of values using SIMD when available.
+    /// Calculates natural logarithm over a span of values.
+    /// Note: Math.Log has no SIMD intrinsic; uses scalar path with last-valid substitution.
     /// </summary>
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
@@ -112,34 +110,8 @@ public sealed class Logtrans : AbstractBase
             throw new ArgumentException("Output length must be >= source length", nameof(output));
 
         double lastValid = 0.0;
-        int i = 0;
 
-        // SIMD path for AVX2 (process 4 doubles at a time)
-        if (Avx2.IsSupported && source.Length >= Vector256<double>.Count)
-        {
-            int vectorLength = source.Length - (source.Length % Vector256<double>.Count);
-
-            for (; i < vectorLength; i += Vector256<double>.Count)
-            {
-                // Process scalar for proper last-valid handling (Logtrans has no SIMD intrinsic)
-                for (int j = 0; j < Vector256<double>.Count; j++)
-                {
-                    double val = source[i + j];
-                    if (double.IsFinite(val) && val > 0)
-                    {
-                        lastValid = Math.Log(val);
-                        output[i + j] = lastValid;
-                    }
-                    else
-                    {
-                        output[i + j] = lastValid;
-                    }
-                }
-            }
-        }
-
-        // Scalar fallback for remaining elements
-        for (; i < source.Length; i++)
+        for (int i = 0; i < source.Length; i++)
         {
             double val = source[i];
             if (double.IsFinite(val) && val > 0)

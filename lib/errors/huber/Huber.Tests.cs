@@ -27,7 +27,7 @@ public class HuberTests
         Assert.Contains("Huber", huber.Name, StringComparison.Ordinal);
 
         huber.Update(100, 105);
-        Assert.NotEqual(0, huber.Last.Time);
+        Assert.NotEqual(0, huber.Last.Value);
     }
 
     [Fact]

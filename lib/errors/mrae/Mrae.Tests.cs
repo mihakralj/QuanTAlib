@@ -22,7 +22,7 @@ public class MraeTests
         Assert.Contains("Mrae", mrae.Name, StringComparison.Ordinal);
 
         mrae.Update(100, 105);
-        Assert.NotEqual(0, mrae.Last.Time);
+        Assert.NotEqual(0, mrae.Last.Value);
     }
 
     [Fact]

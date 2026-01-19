@@ -1,0 +1,10 @@
+# QuanTAlib: Forbid System.Random in tests - use GBM helper instead
+# DCT rule: Tests MUST use GBM helper, never System.Random
+
+id: no-random-in-tests
+language: csharp
+severity: error
+message: "Use GBM helper instead of System.Random in tests - ensures reproducible test data"
+note: "GBM (Geometric Brownian Motion) provides consistent, realistic price data for indicator testing"
+rule:
+  pattern: new Random($$$)

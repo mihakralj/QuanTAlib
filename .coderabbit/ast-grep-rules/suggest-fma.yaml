@@ -1,0 +1,12 @@
+# QuanTAlib: Suggest FMA for multiply-add patterns
+# DCT rule: Math.FusedMultiplyAdd(a, b, c) for a*b+c patterns in hot paths
+
+id: suggest-fma-multiply-add
+language: csharp
+severity: hint
+message: "Consider Math.FusedMultiplyAdd(a, b, c) for better precision and performance in hot paths"
+note: "FMA provides single-rounding semantics and can be faster on modern CPUs. Use for EMA smoothing, IIR filters, weighted sums."
+rule:
+  any:
+    - pattern: $A * $B + $C
+    - pattern: $A + $B * $C

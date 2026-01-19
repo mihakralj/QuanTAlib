@@ -116,4 +116,76 @@ public class ExptransIndicatorTests
             Assert.True(double.IsFinite(indicator.LinesSeries[0].GetValue(0)));
         }
     }
+
+    [Fact]
+    public void ExptransIndicator_NaNInput_ProducesFiniteOutput()
+    {
+        var indicator = new ExptransIndicator();
+        indicator.Initialize();
+
+        var now = DateTime.UtcNow;
+        // First add a valid bar to establish last valid value
+        indicator.HistoricalData.AddBar(now, 1, 2, 0, 1);
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+
+        // Add bar with NaN close - should use last valid value (1), so exp(1) = e
+        indicator.HistoricalData.AddBar(now.AddMinutes(1), double.NaN, double.NaN, double.NaN, double.NaN);
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
+
+        Assert.Equal(2, indicator.LinesSeries[0].Count);
+        Assert.Equal(Math.E, indicator.LinesSeries[0].GetValue(0), 1e-10);
+    }
+
+    [Fact]
+    public void ExptransIndicator_InfinityInput_ProducesFiniteOutput()
+    {
+        var indicator = new ExptransIndicator();
+        indicator.Initialize();
+
+        var now = DateTime.UtcNow;
+        // First add a valid bar to establish last valid value
+        indicator.HistoricalData.AddBar(now, 1, 2, 0, 1);
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+
+        // Add bar with Infinity close - should use last valid value (1), so exp(1) = e
+        indicator.HistoricalData.AddBar(now.AddMinutes(1), double.PositiveInfinity, double.PositiveInfinity, double.NegativeInfinity, double.PositiveInfinity);
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
+
+        Assert.Equal(2, indicator.LinesSeries[0].Count);
+        Assert.Equal(Math.E, indicator.LinesSeries[0].GetValue(0), 1e-10);
+    }
+
+    [Fact]
+    public void ExptransIndicator_NewTick_UpdatesSameBar()
+    {
+        var indicator = new ExptransIndicator();
+        indicator.Initialize();
+
+        var now = DateTime.UtcNow;
+        indicator.HistoricalData.AddBar(now, 0, 1, -1, 0);
+
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+        double firstValue = indicator.LinesSeries[0].GetValue(0);
+
+        // NewTick should recalculate the same bar
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewTick));
+
+        // Value should remain consistent (exp(0) = 1)
+        Assert.Equal(1.0, indicator.LinesSeries[0].GetValue(0), 1e-10);
+        Assert.Equal(firstValue, indicator.LinesSeries[0].GetValue(0), 1e-10);
+    }
+
+    [Fact]
+    public void ExptransIndicator_KnownValues_ComputesCorrectly()
+    {
+        var indicator = new ExptransIndicator();
+        indicator.Initialize();
+
+        var now = DateTime.UtcNow;
+        // exp(2) ≈ 7.389
+        indicator.HistoricalData.AddBar(now, 2, 3, 1, 2);
+        indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
+
+        Assert.Equal(Math.Exp(2), indicator.LinesSeries[0].GetValue(0), 1e-10);
+    }
 }

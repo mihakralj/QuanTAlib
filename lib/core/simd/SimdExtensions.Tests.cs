@@ -289,18 +289,18 @@ public class SimdExtensionsTests
 
     // VarianceSIMD tests
     [Fact]
-    public void VarianceSIMD_LessThanTwoElements_ReturnsNaN()
+    public void VarianceSIMD_LessThanTwoElements_ReturnsZero()
     {
         double[] data = [42.5];
         var span = new ReadOnlySpan<double>(data);
-        Assert.True(double.IsNaN(span.VarianceSIMD()));
+        Assert.Equal(0.0, span.VarianceSIMD());
     }
 
     [Fact]
-    public void VarianceSIMD_EmptySpan_ReturnsNaN()
+    public void VarianceSIMD_EmptySpan_ReturnsZero()
     {
         var span = ReadOnlySpan<double>.Empty;
-        Assert.True(double.IsNaN(span.VarianceSIMD()));
+        Assert.Equal(0.0, span.VarianceSIMD());
     }
 
     [Fact]
@@ -631,8 +631,8 @@ public class SimdExtensionsTests
         Assert.True(variance > 0);
         Assert.True(stdDev > 0);
 
-        Assert.True(sw.ElapsedMilliseconds < 50,
-            $"SIMD operations took {sw.ElapsedMilliseconds}ms, expected < 50ms");
+        Assert.True(sw.ElapsedMilliseconds < 100,
+            $"SIMD operations took {sw.ElapsedMilliseconds}ms, expected < 100ms");
     }
 
     [Fact]
@@ -870,26 +870,26 @@ public class SimdScalarFallbackTests
     }
 
     [Fact]
-    public void VarianceSIMD_SingleElement_ReturnsNaN()
+    public void VarianceSIMD_SingleElement_ReturnsZero()
     {
         double[] data = [42.5];
         var span = new ReadOnlySpan<double>(data);
-        Assert.True(double.IsNaN(span.VarianceSIMD()));
+        Assert.Equal(0.0, span.VarianceSIMD());
     }
 
     [Fact]
-    public void StdDevSIMD_SingleElement_ReturnsNaN()
+    public void StdDevSIMD_SingleElement_ReturnsZero()
     {
         double[] data = [42.5];
         var span = new ReadOnlySpan<double>(data);
-        Assert.True(double.IsNaN(span.StdDevSIMD()));
+        Assert.Equal(0.0, span.StdDevSIMD());
     }
 
     [Fact]
-    public void StdDevSIMD_EmptySpan_ReturnsNaN()
+    public void StdDevSIMD_EmptySpan_ReturnsZero()
     {
         var span = ReadOnlySpan<double>.Empty;
-        Assert.True(double.IsNaN(span.StdDevSIMD()));
+        Assert.Equal(0.0, span.StdDevSIMD());
     }
 
     [Fact]

@@ -80,7 +80,7 @@ public class LineartransIndicatorTests
     [Fact]
     public void LineartransIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
     {
-        var indicator = new LineartransIndicator();
+        var indicator = new LineartransIndicator { Slope = 2.0, Intercept = 5.0 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -90,6 +90,8 @@ public class LineartransIndicatorTests
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewTick));
 
         Assert.Equal(2, indicator.LinesSeries[0].Count);
+        // NewTick recalculates same bar: 2 * 100 + 5 = 205
+        Assert.Equal(205.0, indicator.LinesSeries[0].GetValue(0), 1e-10);
     }
 
     [Fact]
