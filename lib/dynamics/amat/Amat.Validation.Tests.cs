@@ -377,7 +377,7 @@ public sealed class AmatValidationTests : IDisposable
         Assert.True(trendMatchRate > 0.95, $"Expected >95% trend match rate after warmup, got {trendMatchRate:P2}");
         Assert.True(strengthMatchRate > 0.95, $"Expected >95% strength match rate after warmup, got {strengthMatchRate:P2}");
 
-        _output.WriteLine($"Streaming vs Span validation:");
+        _output.WriteLine("Streaming vs Span validation:");
         _output.WriteLine($"  Trend: {trendMatchRate:P2} match rate ({trendMatchCount}/{totalCount})");
         _output.WriteLine($"  Strength: {strengthMatchRate:P2} match rate ({strengthMatchCount}/{totalCount})");
     }
