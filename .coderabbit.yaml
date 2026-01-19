@@ -70,7 +70,7 @@ reviews:
       - "draft"
     drafts: false
     base_branches:
-      - simd-dev
+      - dev
 
   finishing_touches:
     docstrings:
