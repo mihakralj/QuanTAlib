@@ -327,7 +327,7 @@ public sealed class Mama : AbstractBase
 
         // State variables (initialized: used before assignment; uninitialized: always assigned before read)
         double period = MinPeriod, sumPr = 0, lastValidPrice = 0;
-        double mama, fama, i2, q2, re, im;
+        double mama = 0, fama = 0, i2 = 0, q2 = 0, re = 0, im = 0;
         double p_period = MinPeriod, p_phase = 0, p_mama = 0, p_fama = 0;
         double p_i2 = 0, p_q2 = 0, p_re = 0, p_im = 0;
 

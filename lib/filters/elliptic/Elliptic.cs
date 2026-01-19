@@ -128,7 +128,7 @@ public sealed class Elliptic : AbstractBase
         // Set internal state from calculated end state (no double-processing)
         _state = endState;
         _p_state = endState;
-        Last = new TValue(source[source.Count - 1].Time, results[results.Length - 1]);
+        Last = new TValue(source[^1].Time, results[^1]);
 
         return output;
     }

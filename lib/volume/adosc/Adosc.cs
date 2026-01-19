@@ -227,7 +227,7 @@ public sealed class Adosc : ITValuePublisher
 
             // 5. Compute compensated EMA values (same logic as Ema.cs Compute method)
             // Compensator decays: e *= decay, then result = ema / (1 - e) until e <= threshold
-            double fastValue, slowValue;
+            double fastValue = 0, slowValue = 0;
 
             if (!fastCompensated)
             {

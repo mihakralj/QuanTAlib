@@ -357,7 +357,7 @@ public sealed class Yzvama : AbstractBase
         int newHead = (_state.SourceHead + 1) % _maxLength;
 
         // Calculate SMA over adjustedLength most recent values
-        double result;
+        double result = 0;
         int actualCount = Math.Min(validCount, adjustedLength);
         if (actualCount > 0)
         {

@@ -152,15 +152,15 @@ public sealed class Notch : AbstractBase
             _index += srcSpan.Length;
             // Best effort state restoration from the end of the block
             // We assume the strict history for X is valid.
-            double lastVal = srcSpan[srcSpan.Length - 1];
+            double lastVal = srcSpan[^1];
             _state.LastValue = lastVal;
 
             if (srcSpan.Length >= 2)
             {
-                _state.X1 = srcSpan[srcSpan.Length - 1];
-                _state.X2 = srcSpan[srcSpan.Length - 2];
-                _state.Y1 = outArray[outArray.Length - 1];
-                _state.Y2 = outArray[outArray.Length - 2];
+                _state.X1 = srcSpan[^1];
+                _state.X2 = srcSpan[^2];
+                _state.Y1 = outArray[^1];
+                _state.Y2 = outArray[^2];
             }
             else
             {

@@ -76,15 +76,10 @@ public sealed class Accel : AbstractBase
             _p_state = _state;
             double val = GetValidValue(input.Value);
 
-            if (_state.Count >= 2)
-            {
-                // accel = val - 2*prev1 + prev2
-                result = Math.FusedMultiplyAdd(-2.0, _state.Prev1, val + _state.Prev2);
-            }
-            else
-            {
-                result = 0.0;
-            }
+            // accel = val - 2*prev1 + prev2
+            result = _state.Count >= 2
+                ? Math.FusedMultiplyAdd(-2.0, _state.Prev1, val + _state.Prev2)
+                : 0.0;
 
             // Shift history
             _state.Prev2 = _state.Prev1;
@@ -97,14 +92,10 @@ public sealed class Accel : AbstractBase
             _state.LastValidValue = _p_state.LastValidValue;
             double val = GetValidValue(input.Value);
 
-            if (_p_state.Count >= 2)
-            {
-                result = Math.FusedMultiplyAdd(-2.0, _p_state.Prev1, val + _p_state.Prev2);
-            }
-            else
-            {
-                result = 0.0;
-            }
+            // accel = val - 2*prev1 + prev2
+            result = _p_state.Count >= 2
+                ? Math.FusedMultiplyAdd(-2.0, _p_state.Prev1, val + _p_state.Prev2)
+                : 0.0;
 
             // Update current state from previous (don't shift)
             _state.Prev2 = _p_state.Prev2;

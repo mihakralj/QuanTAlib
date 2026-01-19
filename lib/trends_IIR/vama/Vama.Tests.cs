@@ -399,7 +399,7 @@ public class VamaTests
 
         Assert.True(double.IsFinite(vama.Last.Value));
         // IsHot requires ValidCount >= minLength (5) and IsInitialized
-        Assert.True(vama.IsHot, $"Expected IsHot=true after 100 bars");
+        Assert.True(vama.IsHot, "Expected IsHot=true after 100 bars");
     }
 
     [Fact]

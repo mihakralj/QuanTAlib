@@ -315,11 +315,12 @@ public sealed class StdDevValidationTests : IDisposable
                     streamingResults.Add(streamingStdDev.Update(item).Value);
                 }
 
-                // Compare all modes (allow 1e-8 tolerance for accumulated floating-point errors)
+                // Compare all modes (allow 1e-7 tolerance for accumulated floating-point errors
+                // between SIMD batch paths and scalar streaming paths with different FMA/sum ordering)
                 for (int i = 0; i < _testData.Data.Count; i++)
                 {
-                    Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-8);
-                    Assert.Equal(batchResult[i].Value, streamingResults[i], 1e-8);
+                    Assert.Equal(batchResult[i].Value, spanOutput[i], 1e-7);
+                    Assert.Equal(batchResult[i].Value, streamingResults[i], 1e-7);
                 }
             }
         }

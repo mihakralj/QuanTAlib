@@ -213,7 +213,7 @@ public sealed class Vama : AbstractBase
         int newHead = (_state.BufferHead + 1) % _maxLength;
 
         // Calculate SMA over adjusted_length most recent values
-        double result;
+        double result = 0;
         int actualCount = Math.Min(validCount, adjustedLength);
         if (actualCount > 0)
         {
