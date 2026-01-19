@@ -26,18 +26,13 @@ reviews:
   poem: false  # Keep it professional
 
   path_filters:
-    # Include all C# source files in lib
-    - "lib/**/*.cs"
-
-    # Exclude test files
-    #- "!**/*.Tests.cs"
-    #- "!**/*Tests.cs"
-    #- "!**/*.Validation.Tests.cs"
-
-    # Exclude Quantower adapters (platform-specific wrappers)
-    #- "!**/*.Quantower.Tests.cs"
-    #- "!**/*.Quantower.cs"
-    #- "!**/quantower/**"
+    # Include all source files
+    - "**/*.cs"
+    - "**/*.md"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.csproj"
+    - "**/*.props"
 
     # Exclude build/IDE artifacts
     - "!**/bin/**"
@@ -45,8 +40,11 @@ reviews:
     - "!**/.vs/**"
     - "!**/.git/**"
     - "!**/BenchmarkDotNet.Artifacts/**"
-    - "!**/perf/**"
-    - "!**/Mocks/**"
+    - "!**/TestResults/**"
+    - "!**/TestResultsCoverage/**"
+    - "!**/_site/**"
+    - "!**/ndepend/NDependOut/**"
+    - "!**/perf/publish/**"
 
   path_instructions:
     - path: "**/**"
