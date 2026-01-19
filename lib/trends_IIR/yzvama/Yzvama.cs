@@ -206,7 +206,7 @@ public sealed class Yzvama : AbstractBase
     private void RemoveSorted(double value, int currentCount)
     {
         int removePos = LowerBound(_activeSortedYzv, currentCount, value);
-        if (removePos < currentCount && _activeSortedYzv[removePos] == value && removePos < currentCount - 1)
+        if (removePos < currentCount && Math.Abs(_activeSortedYzv[removePos] - value) < EPSILON && removePos < currentCount - 1)
         {
             Array.Copy(_activeSortedYzv, removePos + 1, _activeSortedYzv, removePos, currentCount - 1 - removePos);
         }

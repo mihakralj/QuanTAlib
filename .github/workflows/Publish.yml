@@ -339,6 +339,9 @@ jobs:
             "/d:sonar.exclusions=**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*"
             "/d:sonar.test.exclusions=**Tests.cs,**/obj/**/*,**/bin/**/*"
             "/d:sonar.scanner.scanAll=false"
+            "/d:sonar.issue.ignore.multicriteria=e1"
+            "/d:sonar.issue.ignore.multicriteria.e1.ruleKey=csharpsquid:S107"
+            "/d:sonar.issue.ignore.multicriteria.e1.resourceKey=**/*"
           )
 
           if [ -n "${SONAR_SARIF_PATHS:-}" ]; then

@@ -128,7 +128,7 @@ public sealed class Notch : AbstractBase
             _state.LastValue = val;
         }
 
-        TValue result = new TValue(input.Time, y);
+        TValue result = new(input.Time, y);
         Last = result;
         PubEvent(result, isNew);
         return result;

@@ -3,7 +3,7 @@ version = 1
 [[analyzers]]
 name = "csharp"
 enabled = true
-exclude = ["CS-R1131"]
+exclude = ["CS-R1131", "CS-R1140"]
 
 [[analyzers]]
 name = "test-coverage"
