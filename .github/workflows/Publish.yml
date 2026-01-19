@@ -409,7 +409,47 @@ jobs:
           if-no-files-found: warn
 
   # ==============================================================================
-  # 5) Codacy Upload (SARIF + Coverage)
+  # 5) DeepSource Coverage Upload
+  # ==============================================================================
+  DeepSource_Upload:
+    needs: [Sonar_Analysis]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage-merged
+
+      - name: Upload Coverage to DeepSource
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+        run: |
+          if [ -z "${DEEPSOURCE_DSN:-}" ]; then
+            echo "DEEPSOURCE_DSN not set. Skipping DeepSource upload."
+            exit 0
+          fi
+
+          curl https://deepsource.io/cli | sh
+          
+          if [ -f "coverage-merged/Cobertura.xml" ]; then
+            ./bin/deepsource report --analyzer test-coverage --key csharp --value-file coverage-merged/Cobertura.xml
+          else
+            echo "Cobertura.xml not found. Skipping coverage upload."
+          fi
+
+  # ==============================================================================
+  # 6) Codacy Upload (SARIF + Coverage)
   # ==============================================================================
   Codacy_Upload:
     needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
