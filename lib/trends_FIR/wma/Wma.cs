@@ -637,15 +637,9 @@ public sealed class Wma : AbstractBase
 
                 var vWsums = Avx.Add(vWsumState, vPw2);
 
-                Vector256<double> vResult;
-                if (Fma.IsSupported)
-                {
-                    vResult = Fma.MultiplyAdd(vWsums, vInvDivisor, vZero);
-                }
-                else
-                {
-                    vResult = Avx.Multiply(vWsums, vInvDivisor);
-                }
+                Vector256<double> vResult = Fma.IsSupported
+                    ? Fma.MultiplyAdd(vWsums, vInvDivisor, vZero)
+                    : Avx.Multiply(vWsums, vInvDivisor);
                 vResult.StoreUnsafe(ref Unsafe.Add(ref outRef, idx));
 
                 vSumState = Avx2.Permute4x64(vSums.AsUInt64(), 0b_11_11_11_11).AsDouble(); // skipcq: CS-R1131

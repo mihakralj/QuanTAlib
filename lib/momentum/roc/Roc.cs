@@ -124,14 +124,7 @@ public sealed class Roc : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            if (i < period)
-            {
-                output[i] = 0.0;
-            }
-            else
-            {
-                output[i] = source[i] - source[i - period];
-            }
+            output[i] = i < period ? 0.0 : source[i] - source[i - period];
         }
     }
 

@@ -74,14 +74,7 @@ public sealed class Slope : AbstractBase
             _p_state = _state;
             double val = GetValidValue(input.Value);
 
-            if (_state.Count >= 1)
-            {
-                result = val - _state.PrevValue;
-            }
-            else
-            {
-                result = 0.0;
-            }
+            result = _state.Count >= 1 ? val - _state.PrevValue : 0.0;
 
             _state.PrevValue = val;
             _state.Count = Math.Min(_state.Count + 1, 2);
@@ -92,14 +85,7 @@ public sealed class Slope : AbstractBase
             _state.LastValidValue = _p_state.LastValidValue;
             double val = GetValidValue(input.Value);
 
-            if (_p_state.Count >= 1)
-            {
-                result = val - _p_state.PrevValue;
-            }
-            else
-            {
-                result = 0.0;
-            }
+            result = _p_state.Count >= 1 ? val - _p_state.PrevValue : 0.0;
 
             _state.PrevValue = val;
             _state.Count = Math.Max(_p_state.Count, 1);
@@ -238,7 +224,7 @@ public sealed class Slope : AbstractBase
         }
 
         // Scalar fallback for remaining elements
-        // Track last valid value forward to avoid O(n²) backward scanning
+        // Track last valid value forward to avoid O(nÂ²) backward scanning
         double lastValid = 0.0;
         // Find first valid value if we're starting from the beginning
         if (i == 1)

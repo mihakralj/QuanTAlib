@@ -92,15 +92,8 @@ public sealed class Normalize : AbstractBase
             var (min, max) = FindMinMax(_buffer.GetSpan());
             double range = max - min;
 
-            if (range > 0)
-            {
-                result = (value - min) / range;
-            }
-            else
-            {
-                // Flat range: return 0.5 as neutral
-                result = 0.5;
-            }
+            // Flat range: return 0.5 as neutral
+            result = range > 0 ? (value - min) / range : 0.5;
 
             _state = new State(result, min, max);
         }

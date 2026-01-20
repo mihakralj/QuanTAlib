@@ -113,10 +113,7 @@ public class SgfValidationTests : IDisposable
             if (wSum <= double.Epsilon)
             {
                 int availablePoints = Math.Min(i + 1, adjPeriod);
-                if (availablePoints < adjPeriod)
-                    result[i] = source[i];
-                else
-                    result[i] = double.NaN;
+                result[i] = availablePoints < adjPeriod ? source[i] : double.NaN;
             }
         }
 
