@@ -179,14 +179,9 @@ public sealed class Atrn : AbstractBase
         double normalized = minAtr < maxAtr ? (currentAtr - minAtr) / (maxAtr - minAtr) : 0.5;
 
         // Update state
-        if (isNew)
-        {
-            _state = new State(input, true, tr, currentAtr);
-        }
-        else
-        {
-            _state = _state with { LastValidTr = tr, LastValidAtr = currentAtr };
-        }
+        _state = isNew
+            ? new State(input, true, tr, currentAtr)
+            : _state with { LastValidTr = tr, LastValidAtr = currentAtr };
 
         TValue result = new(input.Time, normalized);
         Last = result;

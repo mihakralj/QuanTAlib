@@ -248,11 +248,8 @@ public sealed class Sgf : AbstractBase
             }
             else
             {
-                // If wSum is zero/negative/small
-                if (count < adjPeriod)
-                    output[i] = source[i]; // Pass through for partial window
-                else
-                    output[i] = double.NaN;
+                // If wSum is zero/negative/small - pass through for partial window, else NaN
+                output[i] = count < adjPeriod ? source[i] : double.NaN;
             }
         }
     }

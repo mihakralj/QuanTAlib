@@ -319,18 +319,8 @@ public sealed class Afirma : AbstractBase
 
                     for (int i = 0; i < count; i++)
                     {
-                        double val;
-                        if (i < n)
-                        {
-                            // Use fitted value: intercept + slope * i
-                            val = intercept + slope * i;
-                        }
-                        else
-                        {
-                            // Use original value from buffer
-                            // At lag i
-                            val = _buffer[count - 1 - i];
-                        }
+                        // Use fitted value (intercept + slope * i) for i < n, otherwise use original from buffer
+                        double val = i < n ? intercept + slope * i : _buffer[count - 1 - i];
                         lsSum += val;
                         lsCount++;
                     }

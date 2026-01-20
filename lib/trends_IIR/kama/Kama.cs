@@ -303,17 +303,8 @@ public sealed class Kama : AbstractBase
                 // oldest: when full, oldest is at bufferIdx (the next write position)
                 // Note: bufferIdx has already been advanced, so current value is at (bufferIdx - 1 + bufSize) % bufSize
 
-                double change;
-                if (count == bufSize)
-                {
-                    // When full, oldest is at bufferIdx (next write position)
-                    change = Math.Abs(val - buffer[bufferIdx]);
-                }
-                else
-                {
-                    // When not full, oldest is at index 0
-                    change = Math.Abs(val - buffer[0]);
-                }
+                // When full, oldest is at bufferIdx (next write position); when not full, oldest is at index 0
+                double change = Math.Abs(val - buffer[count == bufSize ? bufferIdx : 0]);
 
                 double er = (volatilitySum > 1e-10) ? change / volatilitySum : 0.0;
                 if (er > 1.0) er = 1.0;
