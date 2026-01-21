@@ -66,8 +66,18 @@ jobs:
       - name: Build
         run: |
           dotnet build ./lib/quantalib.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Channels.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Cycles.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Dynamics.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Filters.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Forecasts.csproj --configuration Release --no-restore --nologo
           dotnet build ./quantower/Momentum.csproj --configuration Release --no-restore --nologo
-          dotnet build ./quantower/Trends.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Oscillators.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Reversals.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Statistics.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Trends_FIR.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Trends_IIR.csproj --configuration Release --no-restore --nologo
+          dotnet build ./quantower/Volatility.csproj --configuration Release --no-restore --nologo
           dotnet build ./quantower/Volume.csproj --configuration Release --no-restore --nologo
 
       - name: Pack NuGet
@@ -113,7 +123,7 @@ jobs:
             --skip-duplicate \
             --api-key "$MYGET_API_KEY"
 
-      - name: Create GitHub Release
+      - name: Create Production Release
         if: inputs.release_type == 'production'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
