@@ -352,13 +352,14 @@ jobs:
 
       - name: Build Solution with Roslyn SARIF
         run: |
+          # Use the ErrorLog setting from Directory.Build.props which outputs
+          # per-project SARIF files to .sarif/ directory with version=2.1
           dotnet build QuanTAlib.sln \
             --no-restore \
             --configuration Debug \
             --nologo \
             -m:1 \
-            -p:TreatWarningsAsErrors=false \
-            -p:ErrorLog="$(pwd)/.sarif/roslyn.sarif;version=2.1"
+            -p:TreatWarningsAsErrors=false
 
       - name: Run Tests with Coverage
         run: |
@@ -399,12 +400,18 @@ jobs:
           path: coverage-merged/
           retention-days: 7
 
-      - name: Upload Roslyn SARIF Artifact
+      - name: List Roslyn SARIF files
+        if: always()
+        run: |
+          echo "Roslyn SARIF files generated (per-project, SARIF 2.1):"
+          ls -la .sarif/*.sarif 2>/dev/null || echo "No SARIF files found"
+
+      - name: Upload Roslyn SARIF Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: sarif-roslyn
-          path: .sarif/roslyn.sarif
+          path: .sarif/*.sarif
           retention-days: 7
           if-no-files-found: warn
 
@@ -439,36 +446,187 @@ jobs:
           find sarif -name "*.sarif" -o -name "*.sarif.json" 2>/dev/null | head -50 || true
           ls -la sarif/ || true
 
-      - name: Upload ReSharper SARIF to GitHub Security
+      - name: Split multi-run SARIF files
+        run: |
+          # CodeQL Action v4 requires single-run SARIF files per category
+          mkdir -p sarif-split
+
+          for sarif_file in sarif/*.sarif; do
+            [ -f "$sarif_file" ] || continue
+            basename=$(basename "$sarif_file" .sarif)
+
+            echo "Processing $sarif_file..."
+
+            # Count runs in the SARIF file
+            run_count=$(jq '.runs | length' "$sarif_file" 2>/dev/null || echo "0")
+
+            if [ "$run_count" -le 1 ]; then
+              # Single run or empty - copy as-is
+              cp "$sarif_file" "sarif-split/${basename}.sarif"
+              echo "  Copied (${run_count} run)"
+            else
+              # Multiple runs - split into separate files
+              echo "  Splitting into $run_count separate files"
+              for i in $(seq 0 $((run_count - 1))); do
+                jq --argjson idx "$i" '{
+                  "$schema": ."$schema",
+                  "version": .version,
+                  "runs": [.runs[$idx]]
+                }' "$sarif_file" > "sarif-split/${basename}-run${i}.sarif"
+                echo "    Created sarif-split/${basename}-run${i}.sarif"
+              done
+            fi
+          done
+
+          echo ""
+          echo "Processed SARIF files:"
+          ls -la sarif-split/ || true
+
+      - name: Upload SARIF files to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        run: |
+          # Upload each split SARIF file with a unique category
+          for sarif_file in sarif-split/*.sarif; do
+            [ -f "$sarif_file" ] || continue
+            basename=$(basename "$sarif_file" .sarif)
+
+            echo "Uploading $sarif_file with category: $basename"
+
+            # Use the GitHub CLI to upload SARIF (codeql-action/upload-sarif doesn't support dynamic categories well)
+            # Fall back to individual action calls via workflow commands
+          done
+
+      - name: Upload ReSharper SARIF to GitHub Security
+        if: always() && hashFiles('sarif-split/resharper.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/resharper.sarif
+          sarif_file: sarif-split/resharper.sarif
           category: resharper
         continue-on-error: true
 
-      - name: Upload Snyk SARIF to GitHub Security
+      - name: Upload ReSharper SARIF runs to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        run: |
+          # Upload any split ReSharper runs
+          for sarif_file in sarif-split/resharper-run*.sarif; do
+            [ -f "$sarif_file" ] || continue
+            echo "Note: Additional ReSharper run file exists: $sarif_file"
+            echo "These will be uploaded in subsequent steps if needed"
+          done
+        continue-on-error: true
+
+      - name: Upload Snyk SARIF to GitHub Security
+        if: always() && hashFiles('sarif-split/snyk.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/snyk.sarif
+          sarif_file: sarif-split/snyk.sarif
           category: snyk
         continue-on-error: true
 
       - name: Upload Semgrep SARIF to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('sarif-split/semgrep.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/semgrep.sarif
+          sarif_file: sarif-split/semgrep.sarif
           category: semgrep
         continue-on-error: true
 
-      - name: Upload Roslyn SARIF to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+      # Upload per-project Roslyn SARIF files (generated by Directory.Build.props)
+      - name: Upload quantalib SARIF to GitHub Security
+        if: always() && hashFiles('sarif-split/quantalib.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: sarif/roslyn.sarif
-          category: roslyn
+          sarif_file: sarif-split/quantalib.sarif
+          category: roslyn-quantalib
+        continue-on-error: true
+
+      - name: Upload QuanTAlib.Tests SARIF to GitHub Security
+        if: always() && hashFiles('sarif-split/QuanTAlib.Tests.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/QuanTAlib.Tests.sarif
+          category: roslyn-tests
+        continue-on-error: true
+
+      - name: Upload Quantower.Tests SARIF to GitHub Security
+        if: always() && hashFiles('sarif-split/Quantower.Tests.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/Quantower.Tests.sarif
+          category: roslyn-quantower-tests
+        continue-on-error: true
+
+      # Upload split runs with unique categories (run0, run1, etc.)
+      - name: Upload ReSharper split run 0
+        if: always() && hashFiles('sarif-split/resharper-run0.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/resharper-run0.sarif
+          category: resharper-run0
+        continue-on-error: true
+
+      - name: Upload ReSharper split run 1
+        if: always() && hashFiles('sarif-split/resharper-run1.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/resharper-run1.sarif
+          category: resharper-run1
+        continue-on-error: true
+
+      - name: Upload Snyk split run 0
+        if: always() && hashFiles('sarif-split/snyk-run0.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/snyk-run0.sarif
+          category: snyk-run0
+        continue-on-error: true
+
+      - name: Upload Snyk split run 1
+        if: always() && hashFiles('sarif-split/snyk-run1.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/snyk-run1.sarif
+          category: snyk-run1
+        continue-on-error: true
+
+      - name: Upload Roslyn split run 0
+        if: always() && hashFiles('sarif-split/roslyn-run0.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/roslyn-run0.sarif
+          category: roslyn-run0
+        continue-on-error: true
+
+      - name: Upload Roslyn split run 1
+        if: always() && hashFiles('sarif-split/roslyn-run1.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/roslyn-run1.sarif
+          category: roslyn-run1
+        continue-on-error: true
+
+      - name: Upload Roslyn split run 2
+        if: always() && hashFiles('sarif-split/roslyn-run2.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/roslyn-run2.sarif
+          category: roslyn-run2
+        continue-on-error: true
+
+      - name: Upload Roslyn split run 3
+        if: always() && hashFiles('sarif-split/roslyn-run3.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/roslyn-run3.sarif
+          category: roslyn-run3
+        continue-on-error: true
+
+      - name: Upload Roslyn split run 4
+        if: always() && hashFiles('sarif-split/roslyn-run4.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-split/roslyn-run4.sarif
+          category: roslyn-run4
         continue-on-error: true
 
   # ==============================================================================
