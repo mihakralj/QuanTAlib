@@ -155,9 +155,9 @@
   "dotnet.server.useOmnisharp": false,
 
   "sonarlint.connectedMode.project": {
-    "connectionId": "mihakralj-quantalib",
+    "connectionId": "QuanTAlib",
     "projectKey": "mihakralj_QuanTAlib"
-  },
+},
   "coderabbit.agentType": "Cline",
   "qodana.pathPrefix": "",
   "qodana.args": ["--config", ".qodana/qodana.yaml"],

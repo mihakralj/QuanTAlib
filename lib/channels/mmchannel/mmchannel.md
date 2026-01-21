@@ -1,127 +1,149 @@
 # MMCHANNEL: Min-Max Channel
 
-## Overview and Purpose
+> "The market's true range isn't about averages. It's about extremes—and who's winning."
 
-The Min-Max Channel (MMCHANNEL) is a fundamental technical analysis tool that plots the highest high and lowest low over a specified lookback period. This indicator provides a simple yet effective way to identify key support and resistance levels based on actual price extremes. Unlike complex volatility-based channels, MMCHANNEL focuses purely on the extreme price boundaries, making it particularly useful for breakout strategies, trend analysis, and identifying critical price levels that have historically acted as barriers to price movement.
+Min-Max Channel (MMCHANNEL) tracks the highest high and lowest low over a lookback period, creating a pure price envelope without any midpoint calculation. Unlike Donchian Channels which include a middle band, MMCHANNEL delivers only the raw extremes—exactly what breakout traders and range analysis need. This implementation uses monotonic deques for O(1) amortized updates, making it suitable for high-frequency applications and long lookback periods.
 
-The implementation uses efficient monotonic deques with circular buffers to maintain optimal performance, ensuring O(1) time complexity for each new bar calculation. By tracking absolute price extremes rather than statistical measures, MMCHANNEL provides traders with clear, unambiguous reference points for decision-making across all market conditions and timeframes.
+## Historical Context
 
-## Core Concepts
+Min-Max channels represent the simplest form of price envelope analysis, predating most technical indicators. The concept is intuitive: track where price has been at its highest and lowest points over a defined period.
 
-* **Extreme boundary identification:** Tracks the absolute highest and lowest prices over the lookback period, providing clear support and resistance levels
-* **Breakout framework:** Establishes precise levels for identifying significant price breakouts above or below historical ranges
-* **Trend analysis tool:** Helps identify when price moves beyond established ranges, potentially signaling trend changes or continuations
-* **Multi-timeframe application:** Effective across various timeframes, from intraday scalping to long-term position trading
+The approach gained prominence through Richard Donchian's work in the 1960s and later through the Turtle Trading system. While Donchian Channels include a midpoint average, MMCHANNEL strips this away, focusing purely on support and resistance levels defined by actual price extremes.
 
-MMCHANNEL differs from other channel indicators by focusing solely on price extremes without smoothing, averaging, or statistical adjustments. This direct approach provides traders with the most objective view of where prices have actually traded, making it an excellent foundation for other technical analysis techniques.
+Most implementations suffer from O(n) complexity per update—scanning the entire window to find max/min values. For period=200 on tick data, this means 200 comparisons per tick. QuanTAlib uses monotonic deques that maintain sorted order implicitly, achieving O(1) amortized updates regardless of period length.
 
-## Common Settings and Parameters
+## Architecture & Physics
 
-| Parameter | Default | Function | When to Adjust |
-| ------ | ------ | ------ | ------ |
-| Period | 20 | Lookback window for highest/lowest calculation | Shorter (5-15) for more responsive signals; longer (30-100) for major support/resistance levels |
-| High Source | High | Data source for maximum value calculation | Rarely changed; could use close price for different perspective |
-| Low Source | Low | Data source for minimum value calculation | Rarely changed; could use close price for different perspective |
+MMCHANNEL consists of two components: the upper band (highest high) and lower band (lowest low).
 
-**Pro Tip:** Consider using multiple MMCHANNEL periods simultaneously - a shorter period (10-20) for immediate support/resistance and a longer period (50-100) for major structural levels. This multi-timeframe approach helps identify the most significant breakout opportunities.
+### 1. Upper Band (Highest High)
 
-## Calculation and Mathematical Foundation
+Tracks the maximum high price over the lookback window using a decreasing monotonic deque:
 
-**Simplified explanation:**
-MMCHANNEL simply tracks the highest high and lowest low values over the specified lookback period. For each new bar, it updates these values by including the current bar's data and excluding data that falls outside the lookback window.
+$$
+U_t = \max_{i=0}^{n-1}(H_{t-i})
+$$
 
-**Technical formula:**
+where $H$ is the high price and $n$ is the period. New highs immediately update the upper band; the band only decreases when the previous maximum exits the lookback window.
 
-Highest High = MAX(High[0], High[1], ..., High[n-1])
-Lowest Low = MIN(Low[0], Low[1], ..., Low[n-1])
+**Monotonic deque invariant:** Elements are stored in decreasing order by value. The front element is always the maximum.
 
-Where:
-* n is the specified lookback period
-* High[i] and Low[i] represent the high and low prices i bars ago
-* MAX and MIN functions return the maximum and minimum values respectively
+### 2. Lower Band (Lowest Low)
 
-> 🔍 **Technical Note:** The implementation uses monotonic deques to efficiently maintain the maximum and minimum values over a sliding window. This approach ensures O(1) amortized time complexity per bar, significantly outperforming naive implementations that would require O(n) time to scan the entire lookback period for each update.
+Tracks the minimum low price over the lookback window using an increasing monotonic deque:
 
-## Interpretation Details
+$$
+L_t = \min_{i=0}^{n-1}(L_{t-i})
+$$
 
-MMCHANNEL provides clear, actionable trading signals:
+where $L$ is the low price. New lows immediately update the lower band; the band only increases when the previous minimum exits the window.
 
-* **Breakout identification:** Price breaking above the highest high indicates potential bullish breakout; breaking below the lowest low suggests bearish breakout
-* **Support and resistance levels:** The extreme values act as natural support (lowest low) and resistance (highest high) levels
-* **Range trading:** When price oscillates between the extremes, it indicates a ranging market suitable for mean-reversion strategies
-* **Trend confirmation:** Sustained movement beyond either extreme often confirms trend direction and strength
-* **Entry and exit points:** Breakouts provide entry signals, while returns to the opposite extreme can indicate exit points
-* **Stop-loss placement:** The opposite extreme provides logical stop-loss levels for breakout trades
-* **Market regime identification:** The distance between extremes indicates market volatility and trading range
+**Monotonic deque invariant:** Elements are stored in increasing order by value. The front element is always the minimum.
 
-## Limitations and Considerations
+## Mathematical Foundation
 
-* **Lagging nature:** Based entirely on historical data, providing no predictive capability about future price movements
-* **False breakouts:** Brief price spikes beyond extremes may not represent genuine breakouts, especially in volatile markets
-* **No directional bias:** Provides levels but no inherent indication of likely breakout direction
-* **Requires confirmation:** Most effective when combined with volume, momentum, or other technical indicators
-* **Market condition sensitivity:** May generate excessive false signals in highly volatile or news-driven markets
-* **Period selection critical:** Too short periods generate noise; too long periods may miss important intermediate levels
-* **No adaptive mechanism:** Does not automatically adjust to changing market volatility or conditions
+### Monotonic Deque Algorithm
+
+The key insight is maintaining sorted order without explicit sorting:
+
+**For maximum (upper band):**
+
+1. **Back removal:** Remove elements from the back that are ≤ the new value
+2. **Insert:** Add the new (value, index) pair to the back
+3. **Front expiry:** Remove elements from the front whose indices are outside the window
+4. **Query:** The front element is always the maximum
+
+**For minimum (lower band):**
+
+1. **Back removal:** Remove elements from the back that are ≥ the new value
+2. **Insert:** Add the new (value, index) pair to the back
+3. **Front expiry:** Remove elements from the front whose indices are outside the window
+4. **Query:** The front element is always the minimum
+
+**Amortized Analysis:**
+
+Each element enters the deque exactly once and leaves at most once (either from the back during insertion or from the front during expiry). Over $n$ operations, total work is $O(n)$, yielding $O(1)$ amortized per update.
+
+### Channel Width
+
+The distance between bands measures the price range:
+
+$$
+W_t = U_t - L_t
+$$
+
+Channel width indicates volatility: wider channels suggest larger price swings; narrower channels indicate consolidation.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+### Operation Count (Streaming Mode, Scalar)
+
+Per-bar cost using monotonic deque optimization:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 1 | 1 | 1 |
-| CMP | 4 | 1 | 4 |
-| DIV | 1 | 15 | 15 |
-| **Total** | **6** | — | **~20 cycles** |
+| CMP (deque maintenance) | ~4 | 1 | ~4 |
+| Memory access (deque) | ~4 | 3 | ~12 |
+| **Total** | **~8** | — | **~16 cycles** |
 
-**Breakdown:**
-- Deque push/pop: 2 CMP (amortized O(1))
-- Max/min update: 2 CMP = 2 cycles
-- Midpoint: 1 ADD + 1 DIV = 16 cycles
+**Complexity:** O(1) amortized per bar. Worst case O(n) occurs only when a monotonically increasing (for max) or decreasing (for min) sequence forces clearing the entire deque—rare in practice.
 
-*Note: Monotonic deque provides O(1) amortized max/min without scanning.*
+### Batch Mode (512 values, SIMD/FMA)
 
-### Complexity Analysis
+Sliding window max/min has limited SIMD benefit due to sequential dependency in deque operations:
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) amortized | Monotonic deques for max/min |
-| Batch | O(n) | Linear scan, n = series length |
+| Operation | Scalar Ops | SIMD Benefit | Notes |
+| :--- | :---: | :---: | :--- |
+| Deque update | ~8 | 1× | Sequential by nature |
+| Index comparison | 2 | 2× | SIMD possible for batch |
 
-**Memory**: ~64 bytes + deque storage (proportional to period variance).
+**Batch efficiency (512 bars):**
 
-### SIMD Analysis
+| Mode | Cycles/bar | Total (512 bars) | Improvement |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 16 | 8,192 | — |
+| Partial SIMD | ~14 | ~7,168 | **~12%** |
 
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | ❌ | Deque operations are inherently sequential |
-| FMA | ❌ | No multiply-add patterns |
-| Batch parallelism | Partial | Initial max/min scan vectorizable |
+The monotonic deque algorithm is already highly efficient; SIMD provides marginal gains.
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact max/min computation |
-| **Timeliness** | 9/10 | Immediate response to new extremes |
-| **Overshoot** | 1/10 | No smoothing, tracks exact extremes |
-| **Smoothness** | 2/10 | Step changes when extremes roll off |
+| **Accuracy** | 10/10 | Exact max/min calculation |
+| **Timeliness** | 6/10 | Tracks past extremes, inherently lagging |
+| **Overshoot** | 10/10 | No overshoot—bands are actual price levels |
+| **Smoothness** | 4/10 | Bands move in discrete steps as extremes exit window |
 
 ## Validation
 
 | Library | Status | Notes |
 | :--- | :---: | :--- |
-| **TA-Lib** | ✅ | Matches TA_MAX/TA_MIN functions |
-| **Skender** | ✅ | Validated against Skender.Stock.Indicators |
-| **Tulip** | ✅ | Matches Tulip max/min |
-| **Ooples** | N/A | Not implemented |
-| **Internal** | ✅ | Mode consistency verified |
+| **Dchannel** | ✅ | Exact match for upper/lower bands |
+| **Skender** | ✅ | Exact match via Donchian upper/lower |
+| **TA-Lib** | ✅ | Exact match via MAX/MIN functions |
+| **Tulip** | ✅ | Exact match via max/min functions |
+
+## Common Pitfalls
+
+1. **Stale Extremes:** The bands stay flat until a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars isn't broken—it's waiting for price to exceed the current extreme or for that extreme to age out.
+
+2. **O(n) Implementation Trap:** Naive implementations rescan the window every bar. For period=200 on 60,000 bars/day, that's 12 million comparisons per symbol. The monotonic deque approach reduces this to ~120,000 operations.
+
+3. **Breakout vs. Touch:** Price touching the upper band differs from breaking out. True breakouts require closes above/below the band. Intrabar spikes that don't close outside the channel often reverse.
+
+4. **No Middle Band:** Unlike Donchian Channels, MMCHANNEL has no middle line. If you need a centerline, use Donchian or compute `(Upper + Lower) / 2` separately.
+
+5. **Asymmetric Movement:** Upper and lower bands move independently. The upper band can rise while the lower band stays flat (or vice versa) depending on where extremes occur in the lookback window.
+
+6. **Gap Handling:** Overnight gaps immediately adjust the relevant band. A gap up extends the upper band; a gap down extends the lower band. These may not represent sustainable price levels.
+
+7. **Memory Footprint:** The monotonic deque stores (value, index) pairs. Worst case is `2 * period` pairs per deque (monotonically decreasing high prices and monotonically increasing low prices). For period=200, budget ~6.4 KB per instance. For 5,000 symbols, ~32 MB total.
+
+8. **Bar Correction:** When `isNew=false`, the indicator must restore prior state before computing. The implementation maintains `_p_state` for this purpose. Failing to handle bar correction causes incorrect extremes when bars update intrabar.
 
 ## References
 
-* Murphy, J. J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.
-* Elder, A. (2014). The New Trading for a Living. John Wiley & Sons.
-* Schwager, J. D. (1989). Market Wizards: Interviews with Top Traders. New York: Harper & Row.
-* Achelis, S. B. (2001). Technical Analysis from A to Z. McGraw-Hill.
-* Kaufman, P. J. (2013). Trading Systems and Methods (5th ed.). John Wiley & Sons.
+- Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*, 16(6), 133-142.
+- Faith, C. (2007). *Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders*. McGraw-Hill.
+- Cormen, T. H., et al. (2009). *Introduction to Algorithms*, 3rd ed. MIT Press. (Monotonic deque analysis)

@@ -56,6 +56,34 @@
       "problemMatcher": "$msCompile",
       "group": { "kind": "test", "isDefault": true },
       "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "build-lib-net10-debug",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/lib/quantalib.csproj",
+        "--configuration",
+        "Debug",
+        "--framework",
+        "net10.0"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": false }
+    },
+    {
+      "label": "build-sln-debug",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/QuanTAlib.sln",
+        "--configuration",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": false }
     }
   ]
 }

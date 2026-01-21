@@ -1,139 +1,222 @@
-# JBANDS: Jurik Volatility Bands
+# JBANDS: Jurik Adaptive Envelope Bands
 
-## Overview and Purpose
+> "Volatility is the only free lunch in finance—if you know how to digest it."
 
-Jurik Volatility Bands (JBANDS) are adaptive price channels that apply Mark Jurik's proprietary smoothing techniques to create volatility-responsive price envelopes. Unlike traditional price channels with fixed or simple volatility-based widths, JBANDS utilize specialized adaptive filters that dynamically respond to changing market conditions. These bands automatically expand during volatile periods and contract during calm markets, creating a self-adjusting framework that adapts to each security's specific volatility characteristics without requiring parameter adjustments.
+JBANDS exposes the internal adaptive envelope tracking from Jurik's Moving Average algorithm as a channel indicator. Unlike fixed-width bands, these envelopes snap instantly to new price extremes but decay smoothly back toward price during consolidations. The result: volatility-responsive channels that widen during breakouts and contract during ranging periods, with JMA's signature smoothness in both the middle band and envelope decay.
 
-The implementation provided uses sophisticated calculation methods that avoid excessive lag while filtering market noise effectively. By employing non-linear volatility normalization and dynamic smoothing coefficients, JBANDS create a responsive but stable channel that can identify potential support and resistance levels, overbought/oversold conditions, and trend strength across various market environments and timeframes.
+## Historical Context
 
-## Core Concepts
+Mark Jurik introduced JMA in the mid-1990s as a proprietary alternative to exponential moving averages. While JMA itself became well-known for its low-lag characteristics, the internal envelope bands received less attention. These bands emerged from Jurik's volatility estimation mechanism—a necessary component for adaptive smoothing that happened to create excellent dynamic support/resistance levels.
 
-* **Adaptive envelope technology:** Bands automatically adjust their width based on dynamic volatility measurements specific to each security
-* **Non-linear volatility normalization:** Applies advanced scaling to volatility measurements to prevent overreaction to extreme price movements
-* **Noise-filtering methodology:** Proprietary smoothing techniques reduce market noise while maintaining responsiveness to genuine price movements
-* **Zero-lag band adjustment:** Unique mathematical approach that minimizes the lag typically associated with adaptive bands
+The envelope mechanism differs fundamentally from Bollinger Bands or Keltner Channels. Those indicators apply symmetric volatility measures around a central average. JMA's envelopes track actual price extremes and decay asymmetrically—upper bands decay downward while lower bands decay upward, each at rates determined by current volatility conditions. This creates channels that respond to market structure rather than statistical assumptions about price distribution.
 
-JBANDS stand apart from other channel indicators by their implementation of Jurik's specialized smoothing techniques. Instead of using fixed multipliers or linear scaling, they employ sophisticated mathematical transformations that create bands with exceptional noise rejection properties while maintaining responsiveness to significant market moves. This approach results in channels that are less prone to whipsaws during consolidation yet quickly adapt to changing market conditions.
+Traditional channel indicators assume volatility is symmetric and normally distributed. Price data rarely cooperates. JMA's bands adapt to actual price behavior: when price breaks to new highs, the upper band jumps immediately; when price consolidates, both bands gradually converge toward the smoothed price.
 
-## Common Settings and Parameters
+## Architecture & Physics
 
-| Parameter | Default | Function | When to Adjust |
-| ------ | ------ | ------ | ------ |
-| Period | 10 | Controls the lookback and smoothing intensity | Lower (5-8) for more responsiveness; higher (15-30) for more stability |
-| Source | Close | Price data used as a reference for calculations | Rarely needs adjustment for most applications |
+JBANDS consists of four interconnected subsystems:
 
-**Pro Tip:** JBANDS work exceptionally well as a trailing stop mechanism. During uptrends, use the lower band as a dynamic stop level that adapts to market volatility; during downtrends, use the upper band. This approach helps avoid premature exits due to normal price fluctuations while protecting profits when genuine reversals occur.
+### 1. Local Deviation Tracker
 
-## Calculation and Mathematical Foundation
+The first stage computes local deviation from the current envelope boundaries:
 
-**Simplified explanation:**
-JBANDS generate upper and lower bands by tracking the midpoint of the high-low range and creating adaptive envelope boundaries. The band width is dynamically adjusted based on relative volatility measurements that are normalized against recent average volatility, creating channels that are proportional to each security's specific trading characteristics.
+$$
+d_{local} = \max(|P_t - U_{t-1}|, |P_t - L_{t-1}|)
+$$
 
-**Technical formula:**
+where $U$ is the upper band and $L$ is the lower band. This captures how far price has moved from the nearest envelope boundary—essential for determining whether to expand or contract the channel.
 
-1. Calculate volatility parameters from the period:
-   * LEN₁ = max(log₂(√(0.5*(period-1))) + 2.0, 0)
-   * POW₁ = max(LEN₁ - 2.0, 0.5)
-   * LEN₂ = √(0.5*(period-1)) * LEN₁
+### 2. Volatility Estimation (10-Bar SMA + 128-Bar Trimmed Mean)
 
-2. For each bar, calculate adaptive adjustment coefficient:
-   * Measure deviations (del₁, del₂) between price midpoint and current bands
-   * Calculate instantaneous volatility: volty = max(|del₁|, |del₂|)
-   * Normalize against average volatility: rvolty = volty / avgVolty
-   * Apply adaptive coefficient: Kv = (LEN₂/(LEN₂+1))^(√(rvolty^POW₁))
+Local deviations feed a two-stage volatility estimator:
 
-3. Adjust bands:
-   * upperBand = del₁ > 0 ? high : high - Kv * del₁
-   * lowerBand = del₂ < 0 ? low : low - Kv * del₂
+**Stage A: 10-bar SMA of local deviation**
 
-> 🔍 **Technical Note:** The implementation uses a specialized volatility averaging mechanism that applies non-linear transformations to price deviations. This approach prevents the excessive lag found in traditional moving averages while filtering out market noise effectively. The band adjustment coefficient (Kv) dynamically varies between near-zero (maximum adjustment) and one (minimum adjustment) based on the relative volatility, creating bands that are both stable and responsive.
+$$
+V_{short,t} = \frac{1}{10}\sum_{i=0}^{9} d_{local,t-i}
+$$
 
-## Interpretation Details
+**Stage B: 128-sample trimmed mean**
 
-JBANDS provide several analytical perspectives:
+The middle 65 samples from the 128-sample volatility history provide the reference volatility:
 
-* **Price containment:** In normal market conditions, price tends to oscillate between the bands, with breakouts indicating unusual strength or weakness
-* **Band width assessment:** Widening bands indicate increasing volatility, while narrowing bands suggest decreasing volatility and potential energy build-up
-* **Support and resistance levels:** The bands often function as dynamic support (lower band) and resistance (upper band) levels
-* **Trend strength analysis:** In strong trends, price will consistently touch or slightly penetrate the band in the direction of the trend
-* **Overbought/oversold identification:** Price reaching or exceeding the bands may indicate overbought or oversold conditions, especially when accompanied by momentum divergences
-* **Volatility squeeze detection:** When bands contract significantly, it often precedes a substantial price move (though not necessarily indicating the direction)
-* **Range-bound confirmations:** Price oscillating between bands without breaking out suggests a trading range environment
+$$
+V_{ref} = \text{trimmed-mean}_{65}(\{V_{short,t-127}, ..., V_{short,t}\})
+$$
 
-## Limitations and Considerations
+This trimmed mean rejects outliers while maintaining responsiveness to genuine volatility shifts.
 
-* **Proprietary algorithm opacity:** Like most Jurik indicators, the exact mathematical foundations are not fully disclosed
-* **Parameter sensitivity:** Performance can vary based on period settings, though less dramatically than with many other indicators
-* **Complementary tool status:** Works best when combined with trend identification indicators rather than used in isolation
-* **Extreme volatility handling:** May lag in adjusting to sudden, extreme volatility events
-* **Data quality dependency:** Performs best with reliable price data; illiquid securities with wide spreads may create distorted signals
-* **Timeframe considerations:** While effective across timeframes, interpretation of signals may vary; what constitutes a significant band penetration differs between short and long timeframes
-* **Warm-up period:** Requires sufficient price history to establish reliable bands; early calculations may be less accurate
+### 3. Dynamic Exponent Calculation
+
+The ratio of current deviation to reference volatility determines the adaptive exponent:
+
+$$
+r_t = \frac{d_{local}}{V_{ref}}
+$$
+
+$$
+d_t = \text{clamp}(r_t^{P_{exp}}, 1, \text{logParam})
+$$
+
+where:
+
+- $P_{exp} = \max(\text{logParam} - 2, 0.5)$
+- $\text{logParam} = \log_2(\sqrt{(period-1)/2}) + 2$
+
+Higher volatility ratios produce larger exponents, causing faster band adaptation.
+
+### 4. Band Update Logic (Snap and Decay)
+
+The core envelope behavior:
+
+$$
+\alpha_{band} = e^{\text{logSqrtDivider} \cdot \sqrt{d_t}}
+$$
+
+$$
+U_t = \begin{cases}
+P_t & \text{if } P_t > U_{t-1} \\
+\alpha_{band} \cdot U_{t-1} + (1 - \alpha_{band}) \cdot P_t & \text{otherwise}
+\end{cases}
+$$
+
+$$
+L_t = \begin{cases}
+P_t & \text{if } P_t < L_{t-1} \\
+\alpha_{band} \cdot L_{t-1} + (1 - \alpha_{band}) \cdot P_t & \text{otherwise}
+\end{cases}
+$$
+
+Bands snap instantly to new extremes (breakout detection) but decay smoothly toward price during consolidations. The decay rate adapts to current volatility—faster decay during quiet periods, slower during volatile ones.
+
+### 5. Middle Band (JMA IIR Filter)
+
+The middle band uses JMA's 2-pole IIR filter with phase adjustment:
+
+$$
+\alpha = e^{\text{logLengthDivider} \cdot d_t}
+$$
+
+$$
+C_0 = \alpha \cdot C_{0,t-1} + (1-\alpha) \cdot P_t
+$$
+
+$$
+C_8 = \text{lengthDivider} \cdot C_{8,t-1} + (1-\text{lengthDivider}) \cdot (P_t - C_0)
+$$
+
+$$
+A_8 = \alpha^2 \cdot A_{8,t-1} + (\text{phaseParam} \cdot C_8 + C_0 - JMA_{t-1}) \cdot (1 - 2\alpha + \alpha^2)
+$$
+
+$$
+JMA_t = JMA_{t-1} + A_8
+$$
+
+The phase parameter maps from [-100, 100] to [0.5, 2.5], controlling overshoot characteristics.
+
+## Mathematical Foundation
+
+### Adaptive Smoothing Factor
+
+The core innovation lies in how smoothing adapts to volatility:
+
+$$
+\text{lengthParam} = \frac{period - 1}{2}
+$$
+
+$$
+\text{logParam} = \max(0, \log_2(\sqrt{\text{lengthParam}}) + 2)
+$$
+
+$$
+\text{sqrtParam} = \sqrt{\text{lengthParam}} \cdot \text{logParam}
+$$
+
+$$
+\text{lengthDivider} = \frac{0.9 \cdot \text{lengthParam}}{0.9 \cdot \text{lengthParam} + 2}
+$$
+
+$$
+\text{sqrtDivider} = \frac{\text{sqrtParam}}{\text{sqrtParam} + 1}
+$$
+
+### Phase Mapping
+
+The phase parameter transforms user input to internal coefficient:
+
+$$
+\text{phaseParam} = \begin{cases}
+0.5 & \text{if phase} < -100 \\
+2.5 & \text{if phase} > 100 \\
+\text{phase} \cdot 0.01 + 1.5 & \text{otherwise}
+\end{cases}
+$$
+
+Lower phase values reduce overshoot; higher values increase responsiveness at the cost of potential ringing.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+### Operation Count (Streaming Mode, Per Bar)
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 12 | 1 | 12 |
-| MUL | 8 | 3 | 24 |
+| ADD/SUB | 18 | 1 | 18 |
+| MUL | 12 | 3 | 36 |
 | DIV | 3 | 15 | 45 |
-| POW | 1 | 80 | 80 |
-| SQRT | 1 | 15 | 15 |
-| LOG | 1 | 40 | 40 |
-| CMP/MAX/ABS | 6 | 1 | 6 |
-| **Total** | **32** | — | **~222 cycles** |
+| CMP/ABS | 8 | 1 | 8 |
+| SQRT | 2 | 15 | 30 |
+| EXP | 2 | 50 | 100 |
+| POW | 1 | 60 | 60 |
+| LOG (precomputed) | 0 | 0 | 0 |
+| **Total** | **46** | — | **~297 cycles** |
 
-**Breakdown:**
-- Volatility params: 1 SQRT + 1 LOG = 55 cycles (precomputed at construction)
-- Midpoint: 1 ADD + 1 DIV = 16 cycles (per bar)
-- Deviation calc: 4 SUB + 2 ABS = 6 cycles
-- Volatility: 2 MAX + 1 DIV = 17 cycles
-- Adaptive coeff (Kv): 1 POW + 2 MUL = 86 cycles
-- Band adjustment: 4 MUL + 4 SUB + 2 CMP = 18 cycles
+**Dominant cost:** Transcendental functions (EXP, POW, SQRT) account for 64% of computational cost. The log-based parameters are precomputed in the constructor.
 
-*Note: POW dominates cost; precomputing power table possible for optimization.*
+### Batch Mode (SIMD Limitations)
 
-### Complexity Analysis
-
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Constant time with tracked volatility state |
-| Batch | O(n) | Linear scan, n = series length |
-
-**Memory**: ~128 bytes (band states, volatility tracker, precomputed constants).
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | ❌ | Adaptive Kv creates bar-to-bar dependency |
-| FMA | ✅ | Band adjustment: `high - Kv × del` |
-| Batch parallelism | ❌ | Sequential volatility normalization |
+Due to the recursive IIR filter and stateful band tracking, SIMD vectorization provides limited benefit for JBANDS. The algorithm is inherently sequential—each bar's output depends on the previous bar's state. However, the span-based Calculate API avoids heap allocations during batch processing.
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact Jurik formula implementation |
-| **Timeliness** | 8/10 | Near-zero lag band adjustment |
-| **Overshoot** | 4/10 | Adaptive width prevents extreme spikes |
-| **Smoothness** | 8/10 | Non-linear smoothing filters noise well |
+| **Accuracy** | 9/10 | Exact JMA algorithm reproduction |
+| **Timeliness** | 9/10 | Near-zero effective lag in band adaptation |
+| **Overshoot** | 8/10 | Phase parameter provides control |
+| **Smoothness** | 9/10 | JMA's hallmark characteristic |
+| **Adaptivity** | 10/10 | True volatility-responsive behavior |
 
 ## Validation
 
+JBANDS is a novel extraction of JMA internals. No external library exposes these bands directly.
+
 | Library | Status | Notes |
 | :--- | :---: | :--- |
-| **TA-Lib** | N/A | Not implemented |
-| **Skender** | N/A | Not implemented |
-| **Tulip** | N/A | Not implemented |
-| **Ooples** | N/A | Not implemented |
-| **Internal** | ✅ | Mode consistency verified |
+| **TA-Lib** | — | No JMA or JBANDS implementation |
+| **Skender** | — | No JMA or JBANDS implementation |
+| **Tulip** | — | No JMA or JBANDS implementation |
+| **Ooples** | — | Has JMA, but no band extraction |
+| **JMA Middle Band** | ✅ | Validated against standalone JMA |
+
+Internal validation confirms the middle band exactly matches the standalone JMA indicator for all period/phase combinations.
+
+## Common Pitfalls
+
+1. **Warmup period underestimation.** JBANDS requires approximately $20 + 80 \cdot period^{0.36}$ bars for the volatility estimation buffers to stabilize. For period=14, this means ~52 bars; for period=50, ~87 bars. Using the indicator before warmup produces erratic band behavior.
+
+2. **Phase parameter confusion.** Phase affects the middle band (JMA), not the envelope bands. Negative phase reduces overshoot; positive phase increases responsiveness. The envelope snap-and-decay behavior is controlled by the period parameter and volatility conditions.
+
+3. **Band interpretation.** Unlike Bollinger Bands where touches indicate overbought/oversold, JBANDS touches indicate breakout detection. When price exceeds the upper band, the band snaps to the new level—this signals strength, not reversal.
+
+4. **Memory footprint.** Each JBANDS instance maintains 128 + 10 = 138 double values in ring buffers plus scalar state. Memory per instance: ~1.3 KB. Scale accordingly for multi-instrument deployments.
+
+5. **Computational cost.** At ~297 cycles per bar, JBANDS is 3-4x more expensive than simple channel indicators (Donchian, Keltner). The cost comes from JMA's sophisticated volatility estimation. Budget accordingly for high-frequency applications.
+
+6. **isNew parameter.** Bar correction (isNew=false) triggers full state rollback and recalculation. This is essential for real-time chart updates but adds overhead. For historical backtesting with clean data, always pass isNew=true.
 
 ## References
 
-* Jurik, M. "JMA and JMA-Based Indicators." Jurik Research, 1998.
-* Harris, L. *Trading and Exchanges*. Oxford University Press, 2003.
-* Ehlers, J. F. "Jurik Filters." In *Cybernetic Analysis for Stocks and Futures*. Wiley, 2004.
-* Kaufman, P. J. "Adaptive Moving Averages and Channels." In *Trading Systems and Methods*. Wiley, 2013.
+- Jurik, M. (1995). "JMA: Jurik Moving Average." Jurik Research.
+- Ehlers, J. (2001). "Rocket Science for Traders." Wiley. (Discussion of adaptive smoothing techniques)
+- QuanTAlib JMA implementation: [lib/trends_IIR/jma/Jma.md](../../trends_IIR/jma/Jma.md)

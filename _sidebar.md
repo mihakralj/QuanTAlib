@@ -202,7 +202,7 @@
   * [ATRBANDS - ATR Bands](lib/channels/atrbands/Atrbands.md)
   * [BBANDS - Bollinger Bands](lib/channels/bbands/Bbands.md)
   * [DCHANNEL - Donchian Channels](lib/channels/dchannel/Dchannel.md)
-  * [DECAYCHANNEL - Decay Min-Max Channel](lib/channels/decaychannel/Decaychannel.md)
+  * [DECAYCHANNEL - Decay Min-Max Channel](lib/channels/decaychannel/decaychannel.md)
   * [FCB - Fractal Chaos Bands](lib/channels/fcb/Fcb.md)
   * [JBANDS - Jurik Volatility Bands](lib/channels/jbands/Jbands.md)
   * [KCHANNEL - Keltner Channel](lib/channels/kchannel/Kchannel.md)

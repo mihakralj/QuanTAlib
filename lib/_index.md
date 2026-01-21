@@ -93,8 +93,8 @@
 | CV | Conditional Volatility | Volatility |
 | CVI | Chaikin Volatility | Volatility |
 | CWT | Continuous Wavelet Transform | Numerics |
-| DCHANNEL | Donchian Channels | Channels |
-| DECAYCHANNEL | Decay Min-Max Channel | Channels |
+| [DCHANNEL](lib/channels/dchannel/Dchannel.md) | Donchian Channels | Channels |
+| [DECAYCHANNEL](lib/channels/decaychannel/decaychannel.md) | Decay Min-Max Channel | Channels |
 | [DEMA](lib/trends_IIR/dema/Dema.md) | Double Exponential MA | Trends (IIR) |
 | [DMX](lib/dynamics/dmx/Dmx.md) | Jurik Directional Movement Index | Dynamics |
 | DOSC | Derivative Oscillator | Oscillators |
@@ -116,12 +116,12 @@
 | EWMA | EWMA Volatility | Volatility |
 | EXPDIST | Exponential Distribution | Numerics |
 | [EXPTRANS](lib/numerics/exptrans/Exptrans.md) | Exponential Transform | Numerics |
-| FCB | Fractal Chaos Bands | Channels |
 | FDIST | F-Distribution | Numerics |
 | FFT | Fast Fourier Transform | Numerics |
 | FISHER | Fisher Transform | Oscillators |
 | FOSC | Forecast Oscillator | Oscillators |
 | FRACTALS | Williams Fractals | Reversals |
+| [FCB](lib/channels/fcb/fcb.md) | Fractal Chaos Bands | Channels |
 | [FRAMA](lib/trends_IIR/frama/Frama.md) | Fractal Adaptive MA | Trends (IIR) |
 | GAMMADIST | Gamma Distribution | Numerics |
 | [GAUSS](lib/filters/gauss/Gauss.md) | Gaussian Filter | Filters |
@@ -158,14 +158,14 @@
 | INERTIA | Inertia | Oscillators |
 | IQR | Interquartile Range | Statistics |
 | JB | Jarque-Bera Test | Statistics |
-| JBANDS | Jurik Volatility Bands | Channels |
+| [JBANDS](lib/channels/jbands/Jbands.md) | Jurik Adaptive Envelope Bands | Channels |
 | [JERK](lib/numerics/jerk/Jerk.md) | Jerk | Numerics |
 | [JMA](lib/trends_IIR/jma/Jma.md) | Jurik MA | Trends (IIR) |
 | JVOLTY | Jurik Volatility | Volatility |
 | JVOLTYN | Jurik Volatility Normalized | Volatility |
 | [KALMAN](lib/filters/kalman/Kalman.md) | Kalman Filter | Filters |
 | [KAMA](lib/trends_IIR/kama/Kama.md) | Kaufman Adaptive MA | Trends (IIR) |
-| KCHANNEL | Keltner Channel | Channels |
+| [KCHANNEL](lib/channels/kchannel/kchannel.md) | Keltner Channel | Channels |
 | KDJ | KDJ Indicator | Oscillators |
 | KENDALL | Kendall Rank Correlation | Statistics |
 | KRI | Kairi Relative Index | Oscillators |
@@ -185,7 +185,7 @@
 | [MAAPE](lib/errors/maape/Maape.md) | Mean Arctangent APE | Errors |
 | [MACD](lib/momentum/macd/Macd.md) | Moving Average Convergence Divergence | Momentum |
 | [MAE](lib/errors/mae/Mae.md) | Mean Absolute Error | Errors |
-| MAENV | Moving Average Envelope | Channels |
+| [MAENV](lib/channels/maenv/maenv.md) | Moving Average Envelope | Channels |
 | [MAMA](lib/trends_IIR/mama/Mama.md) | MESA Adaptive MA | Trends (IIR) |
 | [MAPD](lib/errors/mapd/Mapd.md) | Mean Absolute % Deviation | Errors |
 | [MAPE](lib/errors/mape/Mape.md) | Mean Absolute % Error | Errors |

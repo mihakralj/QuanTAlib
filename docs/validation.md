@@ -84,7 +84,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Convolution Moving Average** | [Conv](../lib/trends/conv/conv.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Correlation** | Correlation | ✔️ | - | ✔️ | - |
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - |
-| **Decay Min-Max Channel** | Decaychannel | - | - | - | - |
+| **Decay Min-Max Channel** | [Decaychannel](../lib/channels/decaychannel/decaychannel.md) | - | - | - | - |
 | **DeMark Pivot Points** | Pivotdem | - | - | - | ❔ |
 | **Detrended Price Oscillator** | Dpo | - | ✔️ | ✔️ | ❔ |
 | **Detrended Synthetic Price** | Dsp | - | - | - | ❔ |
@@ -92,7 +92,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Directional Movement Index** | Dx | ✔️ | ✔️ | - | - |
 | **Directional Movement Index (Jurik)** | [Dmx](../lib/momentum/dmx/dmx.md) | - | - | - | - |
 | **Dirty Data Detection** | Dirty | - | - | - | - |
-| **Donchian Channels** | Dchannel | - | - | ✔️ | ❔ |
+| **Donchian Channels** | [Dchannel](../lib/channels/dchannel/Dchannel.md) | - | - | ✔️ | ❔ |
 | **Double Exponential Moving Average** | [Dema](../lib/trends/dema/dema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Double Weighted Moving Average** | [Dwma](../lib/trends/dwma/dwma.md) | - | - | - | - |
 | **Ease of Movement** | Eome | - | - | - | ❔ |
@@ -115,7 +115,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
 | **Fisher Transform** | Fisher | - | ✔️ | ✔️ | ❔ |
 | **Force Index** | Efi | - | - | ✔️ | ❔ |
-| **Fractal Chaos Bands** | Fcb | - | - | ✔️ | ❔ |
+| **Fractal Chaos Bands** | [Fcb](../lib/channels/fcb/fcb.md) | - | - | ✔️ | ❔ |
 | **Garman-Klass Volatility** | Gkv | - | - | - | ❔ |
 | **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
 | **Gaussian-Weighted MA** | Gwma | - | - | - | - |
@@ -149,12 +149,12 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Jarque-Bera Test** | Jb | - | - | - | - |
 | **Jurik Moving Average** | [Jma](../lib/trends/jma/jma.md) | - | - | - | ❔ |
 | **Jurik Volatility** | Jvolty | - | - | - | - |
-| **Jurik Volatility Bands** | Jbands | - | - | - | - |
+| **Jurik Adaptive Envelope Bands** | [Jbands](../lib/channels/jbands/Jbands.md) | - | - | - | - |
 | **Jurik Volatility Normalized [0,1]** | Jvoltyn | - | - | - | - |
 | **Kalman Filter** | [Kalman](../lib/filters/kalman/Kalman.md) | - | - | - | - |
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends/kama/kama.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **KDJ Indicator** | Kdj | - | - | - | - |
-| **Keltner Channel** | Kchannel | - | - | ✔️ | ❔ |
+| **Keltner Channel** | [Kchannel](../lib/channels/kchannel/kchannel.md) | - | - | ✔️ | ❔ |
 | **Kendall Rank Correlation** | Kendall | - | - | - | ❔ |
 | **Klinger Volume Oscillator** | Kvo | - | ✔️ | ✔️ | ❔ |
 | **Kurtosis** | Kurtosis | - | - | - | ❔ |
@@ -181,7 +181,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Mean Squared Logarithmic Error** | Msle | - | - | - | - |
 | **MESA Adaptive Moving Average** | [Mama](../lib/trends/mama/mama.md) | ✔️ | - | ✔️ | ✔️ |
 | **Midpoint** | [Midpoint](../lib/numerics/midpoint/Midpoint.md) | ✔️ | - | - | - |
-| **Min-Max Channel** | Mmchannel | - | - | - | - |
+| **Min-Max Channel** | [Mmchannel](../lib/channels/mmchannel/mmchannel.md) | ✔️ | ✔️ | ✔️ | - |
 | **Min-Max Scaling (Normalization)** | [Normalize](../lib/numerics/normalize/Normalize.md) | - | - | - | - |
 | **Mode (Most Frequent)** | Mode | - | - | - | - |
 | **Modified MA** | [Mma](../lib/trends_IIR/mma/Mma.md) | - | - | - | - |
@@ -190,7 +190,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Money Flow Index** | Mfi | ✔️ | ✔️ | ✔️ | ❔ |
 | **Moon Phase** | Moon | - | - | - | - |
 | **Moving Average Convergence/Divergence** | [Macd](../lib/momentum/macd/Macd.md) | ✔️ | ✔️ | ✔️ | ❔ |
-| **Moving Average Envelopes** | Maenv | - | - | ✔️ | ❔ |
+| **Moving Average Envelopes** | [Maenv](../lib/channels/maenv/maenv.md) | - | - | ✔️ | ❔ |
 | **Negative Volume Index** | Nvi | - | ✔️ | - | ❔ |
 | **Normalized Average True Range** | Natr | ✔️ | ✔️ | - | - |
 | **Normalized Shannon Entropy** | Entropy | - | - | - | - |
@@ -206,7 +206,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Pivot Points** | Pivot | - | - | ✔️ | ❔ |
 | **Positive Volume Index** | Pvi | - | ✔️ | - | ❔ |
 | **Pretty Good Oscillator** | Pgo | - | - | - | ❔ |
-| **Price Channel** | Pchannel | - | - | - | ❔ |
+| **Price Channel** | [Pchannel](../lib/channels/pchannel/pchannel.md) | - | - | - | ✔️ |
 | **Price Momentum Oscillator** | Pmo | - | - | ✔️ | ❔ |
 | **Price Relative Strength** | Prs | - | - | ✔️ | - |
 | **Price Volume Divergence** | Pvd | - | - | - | - |
@@ -223,7 +223,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Realized Volatility** | Rv | - | - | - | - |
 | **Rectified Linear Unit** | [Relu](../lib/numerics/relu/Relu.md) | - | - | - | - |
 | **Recursive Gaussian MA** | [Rgma](../lib/trends_IIR/rgma/Rgma.md) | - | - | - | - |
-| **Regression Channels** | Regchannel | - | - | - | - |
+| **Regression Channels** | [Regchannel](../lib/channels/regchannel/regchannel.md) | - | - | - | - |
 | **Regularized Exponential MA** | [Rema](../lib/trends_IIR/rema/Rema.md) | - | - | - | ❔ |
 | **Relative Absolute Error** | Rae | - | - | - | - |
 | **Relative Squared Error** | Rse | - | - | - | - |
@@ -244,7 +244,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Solar Activity Cycle** | Solar | - | - | - | - |
 | **Spearman Rank Correlation** | Spearman | - | - | - | ❔ |
 | **Square Root Transformation** | [Sqrttrans](../lib/numerics/sqrttrans/Sqrttrans.md) | - | - | - | - |
-| **Standard Deviation Channel** | Sdchannel | - | - | - | ❔ |
+| **Standard Deviation Channel** | [Sdchannel](../lib/channels/sdchannel/sdchannel.md) | - | - | - | ❔ |
 | **Standardization (Z-score)** | Standardize | - | - | - | ❔ |
 | **Starc Bands** | Starc | - | - | - | - |
 | **Stochastic Fast** | Stochf | ✔️ | - | - | ❔ |

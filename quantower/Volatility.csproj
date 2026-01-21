@@ -23,6 +23,8 @@
     <Compile Include="..\lib\trends_IIR\rma\*.cs" Exclude="..\lib\trends_IIR\rma\*.Tests.cs" />
     <Compile Include="..\lib\trends_FIR\sma\*.cs" Exclude="..\lib\trends_FIR\sma\*.Tests.cs" />
     <Compile Include="..\lib\trends_FIR\wma\*.cs" Exclude="..\lib\trends_FIR\wma\*.Tests.cs" />
+    <Compile Include="..\lib\numerics\highest\*.cs" Exclude="..\lib\numerics\highest\*.Tests.cs" />
+    <Compile Include="..\lib\numerics\lowest\*.cs" Exclude="..\lib\numerics\lowest\*.Tests.cs" />
     <Reference Include="TradingPlatform.BusinessLayer">
       <HintPath>..\.github\TradingPlatform.BusinessLayer.dll</HintPath>
     </Reference>

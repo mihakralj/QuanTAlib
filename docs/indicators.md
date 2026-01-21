@@ -162,6 +162,16 @@ Price envelope and boundary indicators for breakout and mean-reversion strategie
 | :-------- | :-------- | :---- |
 | [**ABBER**](../lib/channels/abber/abber.md) | Aberration Bands | Statistical deviation bands |
 | [**ACCBANDS**](../lib/channels/accbands/accbands.md) | Acceleration Bands | Volatility-adjusted envelope |
+| [**DCHANNEL**](../lib/channels/dchannel/Dchannel.md) | Donchian Channels | Highest-high / lowest-low breakout bands |
+| [**DECAYCHANNEL**](../lib/channels/decaychannel/decaychannel.md) | Decay Min-Max Channel | Exponential decay toward midpoint |
+| [**FCB**](../lib/channels/fcb/fcb.md) | Fractal Chaos Bands | Williams fractal-based support/resistance |
+| [**JBANDS**](../lib/channels/jbands/Jbands.md) | Jurik Adaptive Envelope Bands | Snap-to-extreme, decay-to-price volatility bands |
+| [**KCHANNEL**](../lib/channels/kchannel/kchannel.md) | Keltner Channel | EMA with ATR bands; smoother than Bollinger |
+| [**MAENV**](../lib/channels/maenv/maenv.md) | Moving Average Envelope | Fixed percentage bands around selectable MA type |
+| [**MMCHANNEL**](../lib/channels/mmchannel/mmchannel.md) | Min-Max Channel | Rolling highest high / lowest low; O(1) monotonic deques |
+| [**PCHANNEL**](../lib/channels/pchannel/pchannel.md) | Price Channel | Highest high / lowest low; identical to Donchian |
+| [**REGCHANNEL**](../lib/channels/regchannel/regchannel.md) | Linear Regression Channel | Linear regression line with standard deviation bands |
+| [**SDCHANNEL**](../lib/channels/sdchannel/sdchannel.md) | Standard Deviation Channel | Moving average with standard deviation bands |
 
 ### Statistics
 

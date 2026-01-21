@@ -1,125 +1,193 @@
 # DECAYCHANNEL: Decay Min-Max Channel
 
-## Overview and Purpose
+> "Yesterday's high matters less today. Tomorrow, it matters even less. Decay channels know this."
 
-The Decay Min-Max Channel (DECAYCHANNEL) is an adaptive technical analysis tool that tracks the highest high and lowest low values over a specified period while implementing exponential decay toward their midpoint. Unlike traditional static channels that maintain fixed extreme values until new extremes occur, DECAYCHANNEL gradually reduces the distance between the upper and lower bounds over time, causing them to converge toward the channel's center. This decay mechanism creates a more responsive channel that adapts to changing market conditions by automatically reducing channel width when new extremes aren't established.
+Decay Min-Max Channel (DECAYCHANNEL) tracks the highest high and lowest low like Donchian, then applies exponential decay toward the midpoint. Fresh extremes snap the bands outward; time compresses them inward. The result: channels that respect recent price action while gradually forgetting stale levels. This implementation uses true half-life mathematics—50% convergence over the period length—ensuring predictable decay behavior across all timeframes.
 
-The implementation uses efficient circular buffer management and exponential decay mathematics to ensure optimal performance while providing traders with a dynamic view of support and resistance levels that naturally adjust to market momentum. By combining the reliability of extreme value tracking with the adaptability of decay functions, DECAYCHANNEL offers a unique perspective on market structure that balances historical significance with current market relevance.
+## Historical Context
 
-## Core Concepts
+Traditional Donchian Channels treat all extremes within the lookback window equally. A high from 19 bars ago has the same influence as a high from 1 bar ago. This works for breakout detection but creates artificial support/resistance levels that persist until they mechanically exit the window.
 
-* **Adaptive extreme tracking:** Maintains highest high and lowest low while gradually reducing their influence over time through exponential decay
-* **Midpoint convergence:** Decay targets the mathematical center of the channel, creating natural compression during ranging markets
-* **Period-based decay timing:** Decay rate automatically scales with the lookback period, ensuring consistent behavior across different timeframes
-* **Dynamic support/resistance:** Provides evolving support and resistance levels that strengthen with fresh extremes and weaken over time
-* **Market regime adaptation:** Channels naturally tighten during consolidation and expand during breakout movements
+Traders noticed this rigidity. A 20-day high from exactly 20 days ago shouldn't matter as much as one from 5 days ago. Various "adaptive channel" approaches emerged in the 1990s-2000s, but most used arbitrary decay rates or complex volatility weighting.
 
-DECAYCHANNEL differs fundamentally from other channel indicators by acknowledging that historical extremes become less relevant over time. This approach creates channels that are more responsive to current market conditions while still respecting significant price levels, making it particularly effective for identifying when markets are transitioning between different phases.
+DECAYCHANNEL takes a simpler approach: pure exponential decay with mathematically defined half-life. The decay constant $\lambda = \ln(2) / \text{period}$ guarantees that bands converge 50% toward the midpoint over exactly one period. After two periods: 75%. After three: 87.5%. No tuning parameters, no volatility lookups—just consistent, predictable decay.
 
-## Common Settings and Parameters
+## Architecture & Physics
 
-| Parameter | Default | Function | When to Adjust |
-| --------- | ------- | -------- | -------------- |
-| Period | 100 | Lookback window for extreme value calculation and decay timing | Shorter (20-50) for more responsive channels; longer (200-500) for major structural levels |
-| High Source | High | Data source for maximum value tracking | Rarely changed; could use close for different perspective |
-| Low Source | Low | Data source for minimum value tracking | Rarely changed; could use close for different perspective |
+DECAYCHANNEL consists of four interconnected components that balance extreme tracking with temporal decay.
 
-**Pro Tip:** For swing trading, consider using period = 50 to capture intermediate-term extremes with moderate decay. For position trading, period = 200 provides more stable channels that reflect major market structure. The decay mechanism naturally creates tighter channels during consolidation and wider channels during trending moves, eliminating the need for manual parameter adjustments.
+### 1. Extreme Tracking (Highest/Lowest)
 
-## Calculation and Mathematical Foundation
+Internal Highest and Lowest indicators maintain the actual max/min over the period:
 
-**Simplified explanation:**
-DECAYCHANNEL tracks the highest high and lowest low over the specified period, then applies exponential decay to gradually move these values toward their midpoint. The decay rate uses true half-life mathematics, providing 50% convergence toward the center after the full period length, creating balanced channel compression that maintains visual clarity while adapting to market conditions.
+$$
+H_t^{raw} = \max_{i=0}^{n-1}(High_{t-i})
+$$
 
-**Technical formula:**
+$$
+L_t^{raw} = \min_{i=0}^{n-1}(Low_{t-i})
+$$
 
-```
-decayLambda = ln(2.0) / period
-midpoint = (currentMax + currentMin) / 2
-maxDecayRate = 1 - e^(-decayLambda × timeSinceNewMax)
-minDecayRate = 1 - e^(-decayLambda × timeSinceNewMin)
-currentMax = currentMax - maxDecayRate × (currentMax - midpoint)
-currentMin = currentMin - minDecayRate × (currentMin - midpoint)
-```
+These raw values constrain the decayed bands—the upper band can never exceed the actual highest high, and the lower band can never go below the actual lowest low.
 
-Where:
-* ln(2.0) ≈ 0.693 provides true half-life behavior with 50% convergence over the period
-* timeSinceNewMax/Min tracks bars elapsed since each extreme was established
-* Decay is applied independently to upper and lower bounds
-* Values are constrained within period's actual highest high and lowest low
+### 2. Decay Timers
 
-> 🔍 **Technical Note:** The implementation uses ln(2.0) to provide true half-life exponential decay behavior. This creates 50% convergence toward the midpoint over the period length, ensuring that channels maintain their analytical value while adapting to changing market conditions. After two periods, convergence reaches 75%, and after three periods, approximately 87.5%.
+Separate counters track how long since each band was reset by a new extreme:
 
-## Interpretation Details
+$$
+\tau_U = \text{bars since } High_t = H_t^{raw}
+$$
 
-DECAYCHANNEL provides sophisticated market insights through its adaptive behavior:
+$$
+\tau_L = \text{bars since } Low_t = L_t^{raw}
+$$
 
-* **Fresh breakouts:** When price establishes new extremes, channels immediately expand and reset decay timing, highlighting significant market moves
-* **Consolidation detection:** During ranging markets, channels gradually contract toward the midpoint, visually representing reduced volatility
-* **Support/resistance evolution:** Channel boundaries strengthen when recently tested and weaken over time if not confirmed by new price action
-* **Trend transition signals:** Channel compression often precedes significant directional moves, similar to volatility squeeze patterns
-* **Multi-timeframe consistency:** Decay timing scales automatically with period length, maintaining consistent visual behavior across timeframes
-* **Momentum indication:** Rapid channel expansion indicates strong momentum, while gradual compression suggests weakening directional bias
-* **Entry timing:** Channel touches provide potential entry points, with effectiveness indicated by how recently the boundary was established
+When price makes a new extreme, the corresponding timer resets to zero. Otherwise, it increments each bar.
 
-## Limitations and Considerations
+### 3. Exponential Decay Engine
 
-* **Decay rate consistency:** The ln(2.0) half-life parameter provides standard exponential decay behavior across all markets and timeframes
-* **Historical dependence:** Still relies on historical extremes, providing no predictive capability about future price movements
-* **Complexity trade-off:** More sophisticated than simple min-max channels, requiring understanding of decay mechanics
-* **Parameter selection:** Period length significantly affects both channel width and decay behavior
-* **No directional bias:** Provides adaptive levels but no inherent indication of likely breakout direction
-* **Initialization period:** Requires sufficient historical data to establish meaningful extreme values before decay becomes relevant
-* **Market condition adaptation:** May generate different signal frequency in trending versus ranging markets
-* **Confirmation requirement:** Most effective when combined with volume, momentum, or other technical confirmation
+The decay rate uses the half-life formula:
+
+$$
+\lambda = \frac{\ln(2)}{\text{period}}
+$$
+
+For each bar, compute the decay factor based on elapsed time:
+
+$$
+d_U = 1 - e^{-\lambda \cdot \tau_U}
+$$
+
+$$
+d_L = 1 - e^{-\lambda \cdot \tau_L}
+$$
+
+At $\tau = 0$ (new extreme), $d = 0$ (no decay). At $\tau = \text{period}$, $d = 0.5$ (half decayed).
+
+### 4. Midpoint Convergence
+
+Bands decay toward the current midpoint, not toward price:
+
+$$
+M_t = \frac{U_{t-1} + L_{t-1}}{2}
+$$
+
+$$
+U_t = U_{t-1} - d_U \cdot (U_{t-1} - M_t)
+$$
+
+$$
+L_t = L_{t-1} + d_L \cdot (M_t - L_{t-1})
+$$
+
+Finally, constrain to actual extremes:
+
+$$
+U_t = \max(U_t, H_t^{raw})
+$$
+
+$$
+L_t = \min(L_t, L_t^{raw})
+$$
+
+## Mathematical Foundation
+
+### Half-Life Derivation
+
+Exponential decay follows:
+
+$$
+V(t) = V_0 \cdot e^{-\lambda t}
+$$
+
+For half-life $t_{1/2}$ where $V(t_{1/2}) = \frac{V_0}{2}$:
+
+$$
+\frac{V_0}{2} = V_0 \cdot e^{-\lambda t_{1/2}}
+$$
+
+$$
+\lambda = \frac{\ln(2)}{t_{1/2}}
+$$
+
+Setting $t_{1/2} = \text{period}$ gives the implementation's decay constant.
+
+### Convergence Schedule
+
+| Elapsed Time | Decay Factor | Remaining Distance |
+| :--- | :---: | :---: |
+| 0 bars | 0% | 100% |
+| period/2 bars | 29.3% | 70.7% |
+| period bars | 50% | 50% |
+| 2×period bars | 75% | 25% |
+| 3×period bars | 87.5% | 12.5% |
+
+### Middle Band Calculation
+
+The output middle band is the average of the decayed upper and lower bands:
+
+$$
+Middle_t = \frac{U_t + L_t}{2}
+$$
+
+This differs from the convergence midpoint (which uses previous bar's values) to avoid feedback loops.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+### Operation Count (Streaming Mode, Scalar)
+
+Per-bar cost including internal Highest/Lowest updates:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 6 | 1 | 6 |
+| ADD/SUB | 8 | 1 | 8 |
 | MUL | 4 | 3 | 12 |
-| DIV | 2 | 15 | 30 |
+| DIV | 1 | 15 | 15 |
 | EXP | 2 | 50 | 100 |
-| CMP/MAX/MIN | 4 | 1 | 4 |
-| **Total** | **18** | — | **~152 cycles** |
+| CMP/MAX/MIN | 6 | 1 | 6 |
+| **Total** | **21** | — | **~141 cycles** |
 
 **Breakdown:**
-- Decay lambda: 1 DIV (precomputed at construction)
+
+- Lambda: precomputed at construction (0 cycles per bar)
 - Midpoint: 1 ADD + 1 DIV = 16 cycles
-- Decay rates (×2): 2 MUL + 2 EXP + 2 SUB = 106 cycles
-- Channel update: 2 MUL + 2 SUB = 8 cycles
-- Max/min tracking: 4 CMP = 4 cycles
+- Decay factors (×2): 2 MUL + 2 EXP + 2 SUB = 106 cycles
+- Band updates: 2 MUL + 2 SUB = 8 cycles
+- Constraint checks: 4 CMP = 4 cycles
+- Internal Highest/Lowest: ~8 cycles (amortized O(1))
 
-*Note: EXP operations dominate cost; precomputing decay table possible for further optimization.*
+**Dominant cost:** EXP operations at 71% of total cycles.
 
-### Complexity Analysis
+### Batch Mode (512 values, SIMD/FMA)
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Constant time per bar with tracked extremes |
-| Batch | O(n) | Linear scan, n = series length |
+| Operation | Scalar Ops | SIMD Benefit | Notes |
+| :--- | :---: | :---: | :--- |
+| Decay calculation | 2 | Limited | Sequential dependency on timers |
+| Band update | 4 | 2× via FMA | `band - decay × (band - mid)` |
+| Max/Min constraint | 4 | 1× | Comparison-based |
 
-**Memory**: ~96 bytes (extremes, decay timers, lambda constant, circular buffer).
+**Batch efficiency (512 bars):**
 
-### SIMD Analysis
+| Mode | Cycles/bar | Total (512 bars) | Improvement |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 141 | 72,192 | — |
+| FMA-optimized | ~135 | ~69,120 | **~4%** |
 
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | Decay calc vectorizable; max/min tracking sequential |
-| FMA | ✅ | `max - decayRate × (max - midpoint)` |
-| Batch parallelism | ❌ | Decay timing creates bar-to-bar dependency |
+Limited improvement due to:
+
+1. **EXP dominates**: 100 of 141 cycles are exponential operations (not SIMD-friendly in scalar mode)
+2. **Timer dependency**: Each bar's decay factor depends on its timer value
+3. **State coupling**: Upper/lower bands depend on previous bar's midpoint
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
 | **Accuracy** | 10/10 | Mathematically exact exponential decay |
-| **Timeliness** | 7/10 | Tracks extremes immediately, decay is gradual |
-| **Overshoot** | 5/10 | Fresh extremes reset decay, can spike bands |
-| **Smoothness** | 6/10 | Exponential decay provides smooth convergence |
+| **Timeliness** | 8/10 | Immediate response to new extremes |
+| **Overshoot** | 6/10 | New extremes reset decay, can spike bands |
+| **Smoothness** | 7/10 | Exponential decay provides smooth convergence between resets |
+| **Adaptivity** | 8/10 | Channels naturally tighten during consolidation |
 
 ## Validation
 
@@ -129,12 +197,28 @@ DECAYCHANNEL provides sophisticated market insights through its adaptive behavio
 | **Skender** | N/A | Not implemented |
 | **Tulip** | N/A | Not implemented |
 | **Ooples** | N/A | Not implemented |
-| **Internal** | ✅ | Mode consistency verified |
+| **Internal** | ✅ | Four-mode consistency verified (streaming, batch, span, event) |
+
+DECAYCHANNEL is a QuanTAlib-specific indicator with no external reference implementations.
+
+## Common Pitfalls
+
+1. **Decay Rate Confusion**: The period parameter controls half-life, not full decay. At period=100, bands are 50% decayed after 100 bars, not fully converged. For near-complete convergence (>95%), allow 4-5× the period.
+
+2. **Constraint Snap-Back**: When the actual highest high drops (because an old extreme exits the Highest window), the upper band can snap downward even mid-decay. This is intentional—decayed bands never exceed actual extremes.
+
+3. **Initialization Period**: DECAYCHANNEL needs `period` bars to establish meaningful extremes before decay becomes relevant. IsHot reflects this warmup requirement.
+
+4. **Timer State Management**: Using `isNew=false` for bar correction requires restoring both the band values and the decay timers. The implementation handles this via state snapshots, but improper use corrupts both.
+
+5. **Midpoint Targeting**: Bands decay toward the channel midpoint, not toward current price. In strong trends, this means the trailing band decays toward a point that may be far from price, creating asymmetric behavior.
+
+6. **Memory Overhead**: Each instance maintains two Highest/Lowest indicators plus decay state. For period=100, budget ~1.6 KB per instance for the internal monotonic deques plus ~64 bytes for state.
+
+7. **Exponential Sensitivity**: Small period values create aggressive decay. At period=10, bands are 50% converged after just 10 bars. For most applications, period≥50 provides more stable channels.
 
 ## References
 
-* Murphy, J. J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.
-* Kaufman, P. J. (2013). Trading Systems and Methods (5th ed.). John Wiley & Sons.
-* Elder, A. (2014). The New Trading for a Living. John Wiley & Sons.
-* Pardo, R. (2008). The Evaluation and Optimization of Trading Strategies. John Wiley & Sons.
-* Achelis, S. B. (2001). Technical Analysis from A to Z. McGraw-Hill.
+- Murphy, J. J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
+- Kaufman, P. J. (2013). *Trading Systems and Methods* (5th ed.). John Wiley & Sons.
+- Press, W. H., et al. (2007). *Numerical Recipes: The Art of Scientific Computing* (3rd ed.). Cambridge University Press. [Exponential decay mathematics]

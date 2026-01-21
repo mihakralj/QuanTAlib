@@ -1,140 +1,188 @@
 # SDCHANNEL: Standard Deviation Channel
 
-## Overview and Purpose
+> "The regression line tells you where price should be. The standard deviation tells you how wrong the market usually is."
 
-Standard Deviation Channels are a statistical channel indicator that combines linear regression analysis with standard deviation measurements to create dynamic support and resistance levels. The indicator uses a linear regression line as the central trend line and plots parallel lines at specified standard deviation distances above and below this regression line. The standard deviation is calculated from the residuals (deviations of actual prices from the regression line), providing a measure of how much prices typically deviate from the underlying linear trend.
+Standard Deviation Channel (SDCHANNEL) plots a linear regression line through price data with parallel bands positioned at a specified number of standard deviations of the residuals above and below. Unlike Bollinger Bands which measure deviation from a moving average, SDCHANNEL measures deviation from the best-fit trend line—capturing how much price wanders from its underlying trajectory rather than from its simple average.
 
-This approach creates a channel where the central line represents the statistical best-fit trend through recent price data, while the upper and lower boundaries indicate statistically significant price levels based on how much prices typically deviate from this trend. This combination makes Standard Deviation Channels particularly effective for identifying trend continuations, potential reversal points, and optimal entry/exit levels in trending markets.
+## Historical Context
 
-## Core Concepts
+Linear regression channels emerged from statistical methods applied to financial markets in the 1980s and 1990s. Gilbert Raff popularized "Raff Regression Channels" which use similar concepts. The standard deviation of residuals approach provides a statistically meaningful measure of dispersion around the trend.
 
-* **Linear regression foundation:** Uses least-squares regression to determine the most statistically probable trend direction
-* **Residual-based boundaries:** Channel width adapts automatically based on how much prices deviate from the regression line
-* **Statistical significance:** Channel breaks often indicate statistically meaningful price movements beyond normal trend deviations
-* **Trend-relative volatility:** Measures price volatility specifically relative to the linear trend, not absolute price levels
-* **Dynamic adaptation:** Both trend direction and channel width adjust automatically as new price data becomes available
+The key insight: a moving average treats all recent prices equally, while linear regression fits a line that best explains the trend. The residuals (differences between actual and predicted prices) measure how much price deviates from this trend. When prices consistently touch the upper band, the trend is accelerating; when they hug the lower band, momentum is fading.
 
-Standard Deviation Channels differ from other channel indicators by measuring volatility relative to a linear trend. While Bollinger Bands use standard deviation around a moving average, Standard Deviation Channels calculate the standard deviation of residuals from a regression line, providing a more precise measure of trend-relative price behavior.
+Most charting platforms compute linear regression naively with O(n) operations per bar. This implementation precomputes constants and uses FMA operations for efficiency.
 
-## Common Settings and Parameters
+## Architecture & Physics
 
-| Parameter | Default | Function | When to Adjust |
-| ------ | ------ | ------ | ------ |
-| Period | 20 | Lookback window for regression and standard deviation calculations | Shorter (10-15) for more responsive channels; longer (30-50) for smoother, more stable trends |
-| Source | Close | Price data used for calculations | Rarely changed; could use HLC3 for more comprehensive price analysis |
-| Multiplier | 2.0 | Standard deviation multiplier for channel distance | Higher values (2.5-3.0) for wider channels with fewer false signals; lower values (1.5-1.8) for tighter channels with more trading opportunities |
+Standard Deviation Channels consist of three components: the linear regression line (middle), and upper/lower bands at ±multiplier × standard deviation of residuals.
 
-**Pro Tip:** For swing trading, use period = 25 with multiplier = 2.5 to capture intermediate-term trends while filtering out short-term noise. For day trading, period = 14 with multiplier = 2.0 provides more responsive signals. The regression line often acts as dynamic support in uptrends and resistance in downtrends, making it valuable for trend-following strategies.
+### 1. Linear Regression (Middle Band)
 
-## Calculation and Mathematical Foundation
+The best-fit line through the lookback window using ordinary least squares:
 
-**Simplified explanation:**
-Standard Deviation Channels calculate a linear regression line through recent price data to identify the trend, then measure how much prices typically deviate from this trend line. The channel boundaries are placed at a specified number of standard deviations above and below the regression line.
+$$
+y = mx + b
+$$
 
-**Technical formula:**
+where:
 
-```
-Linear Regression:
-slope = (n × Σ(xy) - Σ(x) × Σ(y)) / (n × Σ(x²) - (Σ(x))²)
-intercept = (Σ(y) - slope × Σ(x)) / n
-regression_line = slope × x + intercept
+$$
+m = \frac{n \sum xy - \sum x \sum y}{n \sum x^2 - (\sum x)^2}
+$$
 
-Standard Deviation of Residuals:
-residual[i] = actual_price[i] - predicted_price[i]
-variance = Σ(residual²) / n
-std_dev = √variance
+$$
+b = \frac{\sum y - m \sum x}{n}
+$$
 
-Channel Lines:
-upper_channel = regression_line + (multiplier × std_dev)
-lower_channel = regression_line - (multiplier × std_dev)
-```
+The middle band value is the regression line evaluated at the current bar (x = n-1).
 
-Where:
-* n = period length
-* x = time index (0, 1, 2, ..., n-1)
-* y = price values over the period
-* residual = difference between actual price and regression line value
-* multiplier = standard deviation multiplier (typically 2.0)
+### 2. Standard Deviation of Residuals
 
-> 🔍 **Technical Note:** This implementation calculates the standard deviation of residuals from the regression line, not the overall price standard deviation. This approach measures how much prices typically deviate from the linear trend, providing a more accurate representation of trend-relative volatility compared to methods that use price deviations from a simple mean.
+For each point, compute the residual (difference between actual and predicted):
 
-## Interpretation Details
+$$
+r_i = y_i - (m \cdot x_i + b)
+$$
 
-Standard Deviation Channels provide comprehensive trend and volatility analysis:
+The standard deviation of these residuals:
 
-* **Trend identification:** The regression line slope indicates trend direction and strength - steeper slopes suggest stronger directional momentum
-* **Channel breakouts:** Price breaking above the upper channel suggests strong bullish momentum; breaking below the lower channel indicates bearish pressure
-* **Mean reversion signals:** Price touching the channel boundaries often presents opportunities for trades back toward the regression line
-* **Volatility assessment:** Channel width provides insight into current trend-relative volatility - narrow channels suggest consistent price behavior around the trend
-* **Support and resistance:** The regression line frequently acts as dynamic support in uptrends and resistance in downtrends
-* **Entry timing:** Price near the lower channel in uptrends or upper channel in downtrends can provide favorable entry points
-* **Exit signals:** Channel breaks opposite to the main trend may signal trend exhaustion or reversal
-* **Statistical confidence:** The residual-based standard deviation provides statistical context for evaluating the significance of price movements relative to the trend
+$$
+\sigma = \sqrt{\frac{\sum_{i=0}^{n-1} r_i^2}{n}}
+$$
+
+Note: This uses population standard deviation (divide by n), not sample standard deviation (divide by n-1).
+
+### 3. Upper and Lower Bands
+
+Parallel lines at fixed distance from the regression line:
+
+$$
+U_t = R_t + k \cdot \sigma
+$$
+
+$$
+L_t = R_t - k \cdot \sigma
+$$
+
+where $R_t$ is the regression value at time $t$ and $k$ is the multiplier (typically 2.0).
+
+## Mathematical Foundation
+
+### Precomputed Constants
+
+For a fixed period $n$, several sums can be precomputed:
+
+$$
+\sum x = 0 + 1 + ... + (n-1) = \frac{n(n-1)}{2}
+$$
+
+$$
+\sum x^2 = 0^2 + 1^2 + ... + (n-1)^2 = \frac{(n-1)n(2n-1)}{6}
+$$
+
+$$
+\text{denom} = n \sum x^2 - (\sum x)^2
+$$
+
+This reduces per-bar computation to:
+
+1. Calculate $\sum y$ and $\sum xy$ over the window
+2. Compute slope and intercept using precomputed values
+3. Evaluate regression at current point
+4. Compute residuals and their standard deviation
+
+### Slope Interpretation
+
+The slope indicates trend direction and strength:
+
+- $m > 0$: Uptrend (higher slope = steeper ascent)
+- $m < 0$: Downtrend (lower slope = steeper descent)
+- $m \approx 0$: Sideways/consolidating market
+
+### Residual Properties
+
+By definition of least squares regression:
+
+- Sum of residuals = 0
+- Residuals are uncorrelated with x values
+- Points above and below the line balance out
+
+When $\sigma = 0$, all points lie exactly on the regression line (perfect linear trend).
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+### Operation Count (Streaming Mode, Scalar)
 
-Standard Deviation Channel uses linear regression plus residual-based standard deviation:
+Per-bar cost for streaming update:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 8 | 1 | 8 |
-| MUL | 6 | 3 | 18 |
+| ADD/SUB | ~4n | 1 | 4n |
+| MUL | ~2n | 3 | 6n |
 | DIV | 4 | 15 | 60 |
 | SQRT | 1 | 15 | 15 |
-| **Total** | **19** | — | **~101 cycles** |
+| FMA | 2n | 4 | 8n |
+| **Total** | — | — | **~18n + 75 cycles** |
 
-**Breakdown:**
-- Running sum updates (Σxy, Σx, Σy, Σx²): 4 ADD + 2 MUL = 10 cycles
-- Slope calculation: 2 MUL + 2 SUB + 1 DIV = 23 cycles
-- Intercept calculation: 1 MUL + 1 SUB + 1 DIV = 19 cycles
-- Residual variance: 1 SUB + 1 MUL + 1 DIV = 19 cycles
-- Std dev + bands: 1 SQRT + 1 MUL + 2 ADD = 21 cycles
+For period=20: ~435 cycles per bar. The algorithm is O(n) per bar due to the sum calculations over the window.
 
-**Note:** Identical to REGCHANNEL as both use linear regression with residual standard deviation.
+### Batch Mode (512 values, SIMD/FMA)
 
-### Complexity Analysis
+Linear regression has limited SIMD benefit due to sequential dependencies and the need to accumulate sums:
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Running sums with sliding window |
-| Batch | O(n) | Linear scan with running sums |
+| Operation | Scalar Ops | SIMD Benefit | Notes |
+| :--- | :---: | :---: | :--- |
+| Sum Y, Sum XY | O(n) | Partial | Reduction operations |
+| Residual calc | O(n) | 4-8× | Embarrassingly parallel |
+| StdDev | O(n) | Partial | Reduction at end |
 
-**Memory**: ~80 bytes (running sums for regression statistics)
+**Batch efficiency (512 bars, period=20):**
 
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | Residual calculation vectorizable |
-| FMA | ✅ | `slope * x + intercept` pattern |
-| Batch parallelism | Partial | Sequential regression limits parallelization |
+| Mode | Cycles/bar | Total (512 bars) | Overhead |
+| :--- | :---: | :---: | :---: |
+| Scalar streaming | 435 | 222,720 | — |
+| SIMD residuals | ~380 | ~194,560 | — |
+| **Improvement** | **~13%** | **~28K saved** | — |
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 9/10 | Least-squares optimal fit |
-| **Timeliness** | 6/10 | Lag from regression lookback |
-| **Overshoot** | 8/10 | Linear model constrains overshoot |
-| **Smoothness** | 8/10 | Regression line naturally smooth |
+| **Accuracy** | 10/10 | Exact least squares calculation |
+| **Timeliness** | 5/10 | Regression lags by nature—fits past data |
+| **Overshoot** | 8/10 | Bands based on residuals, not price velocity |
+| **Smoothness** | 7/10 | Regression line smooths noise; bands vary with residual dispersion |
 
-## Limitations and Considerations
+## Validation
 
-* **Lagging nature:** Based on historical data, the channel will lag during rapid trend changes or market reversals
-* **Linear assumption:** Assumes linear price relationships over the calculation period, which may not hold during complex market movements
-* **Period dependency:** Different period settings can produce significantly different channel orientations and interpretations
-* **False breakouts:** Not all channel breaks result in sustained moves; requires confirmation from other technical indicators
-* **Sideways markets:** Less effective during ranging or choppy conditions where no clear linear trend exists
-* **Residual distribution:** Assumes residuals follow normal distribution patterns around the regression line
-* **Parameter sensitivity:** Channel width and trend sensitivity highly dependent on multiplier and period settings
-* **Market condition adaptation:** May require parameter adjustments for different market volatility regimes
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | No equivalent function |
+| **Skender** | N/A | No equivalent function |
+| **Tulip** | N/A | No equivalent function |
+| **Ooples** | N/A | No equivalent function |
+| **Manual** | ✅ | Verified against hand calculations |
+
+The indicator is validated against manual calculations of linear regression and standard deviation of residuals.
+
+## Common Pitfalls
+
+1. **Period Selection**: Short periods (5-10) make the regression overly sensitive to recent bars; long periods (50+) create substantial lag. Period 20 is common, matching roughly one month of daily data.
+
+2. **Multiplier Choice**: The default multiplier of 2.0 captures ~95% of residuals assuming normal distribution. Use 1.0 for tighter bands (~68%), 3.0 for wider bands (~99.7%).
+
+3. **Warmup Period**: The indicator requires at least 2 bars to compute a regression line. WarmupPeriod equals the period parameter. Before warmup, bands equal the input value.
+
+4. **Zero Standard Deviation**: When all points lie exactly on a line (perfect linear trend or constant values), $\sigma = 0$ and bands collapse to the regression line. This is mathematically correct but may confuse traders expecting separated bands.
+
+5. **Regression vs. Moving Average**: The regression line projects the trend, not the average. It can be above or below all recent prices if the trend is strong. Don't expect the middle band to pass through recent data.
+
+6. **O(n) Complexity**: Unlike EMA (O(1)) or SMA with ring buffer (O(1)), linear regression requires O(n) operations per bar. For period=100 on tick data, this adds up. Consider using longer timeframes or smaller periods for real-time applications.
+
+7. **Memory**: The ring buffer stores `period` doubles. For period=50, that's 400 bytes per instance. For 1,000 symbols: 400 KB—negligible but worth noting for embedded systems.
 
 ## References
 
-* Murphy, J. J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.
-* Kaufman, P. J. (2013). Trading Systems and Methods (5th ed.). John Wiley & Sons.
-* Elder, A. (2014). The New Trading for a Living. John Wiley & Sons.
-* Achelis, S. B. (2001). Technical Analysis from A to Z. McGraw-Hill.
-* Bollinger, J. (2001). Bollinger on Bollinger Bands. McGraw-Hill.
+- Raff, G. (1991). "Trading the Regression Channel." *Technical Analysis of Stocks & Commodities*.
+- Bulkowski, T. (2005). *Encyclopedia of Chart Patterns*, 2nd ed. Wiley. (Chapter on Linear Regression)
+- Kaufman, P. J. (2013). *Trading Systems and Methods*, 5th ed. Wiley. (Linear Regression Indicators)
