@@ -24,7 +24,7 @@ Channels define dynamic support and resistance. Upper band shows where price ten
 | [PCHANNEL](lib/channels/pchannel/pchannel.md) | Price Channel | Highest high and lowest low. Identical to Donchian Channels. |
 | [REGCHANNEL](lib/channels/regchannel/regchannel.md) | Linear Regression Channel | Linear regression line with standard deviation bands. |
 | [SDCHANNEL](lib/channels/sdchannel/sdchannel.md) | Standard Deviation Channel | Moving average with standard deviation bands. |
-| STARCHANNEL | Stoller Average Range Channel | ATR-based channel around moving average. Similar to Keltner. |
+| [STARCHANNEL](lib/channels/starchannel/starchannel.md) | Stoller Average Range Channel | SMA with ATR bands. Similar to Keltner but uses SMA instead of EMA. |
 | STBANDS | Super Trend Bands | ATR-based trend-following bands. Flips direction on breakout. |
 | UBANDS | Ultimate Bands | Composite volatility bands using multiple measures. |
 | UCHANNEL | Ultimate Channel | Adaptive channel using multiple volatility inputs. |

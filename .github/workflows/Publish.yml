@@ -409,7 +409,70 @@ jobs:
           if-no-files-found: warn
 
   # ==============================================================================
-  # 5) DeepSource Coverage Upload
+  # 5) GitHub Code Scanning Upload (SARIF → Security tab)
+  # ==============================================================================
+  GitHub_Security_Upload:
+    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Download all SARIF artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sarif-*
+          path: sarif
+          merge-multiple: true
+
+      - name: List SARIF files
+        run: |
+          echo "Downloaded SARIF files:"
+          find sarif -name "*.sarif" -o -name "*.sarif.json" 2>/dev/null | head -50 || true
+          ls -la sarif/ || true
+
+      - name: Upload ReSharper SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif/resharper.sarif
+          category: resharper
+        continue-on-error: true
+
+      - name: Upload Snyk SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif/snyk.sarif
+          category: snyk
+        continue-on-error: true
+
+      - name: Upload Semgrep SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif/semgrep.sarif
+          category: semgrep
+        continue-on-error: true
+
+      - name: Upload Roslyn SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif/roslyn.sarif
+          category: roslyn
+        continue-on-error: true
+
+  # ==============================================================================
+  # 6) DeepSource Coverage Upload
   # ==============================================================================
   DeepSource_Upload:
     needs: [Sonar_Analysis]
@@ -441,7 +504,7 @@ jobs:
           fi
 
           curl https://deepsource.io/cli | sh
-          
+
           if [ -f "coverage-merged/Cobertura.xml" ]; then
             ./bin/deepsource report --analyzer test-coverage --key csharp --value-file coverage-merged/Cobertura.xml
           else
@@ -449,7 +512,7 @@ jobs:
           fi
 
   # ==============================================================================
-  # 6) Codacy Upload (SARIF + Coverage)
+  # 7) Codacy Upload (SARIF + Coverage)
   # ==============================================================================
   Codacy_Upload:
     needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
@@ -499,13 +562,13 @@ jobs:
         if: steps.check_token.outputs.skip != 'true'
         run: |
           set -euo pipefail
-          
+
           # Install Codacy CLI using official bootstrap script
           echo "Installing Codacy CLI v2..."
 
           sudo curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh -o /usr/local/bin/codacy-cli
           sudo chmod +x /usr/local/bin/codacy-cli
-          
+
           # Script will fetch binary if needed
           codacy-cli version
 

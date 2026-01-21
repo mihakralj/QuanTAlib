@@ -172,6 +172,7 @@ Price envelope and boundary indicators for breakout and mean-reversion strategie
 | [**PCHANNEL**](../lib/channels/pchannel/pchannel.md) | Price Channel | Highest high / lowest low; identical to Donchian |
 | [**REGCHANNEL**](../lib/channels/regchannel/regchannel.md) | Linear Regression Channel | Linear regression line with standard deviation bands |
 | [**SDCHANNEL**](../lib/channels/sdchannel/sdchannel.md) | Standard Deviation Channel | Moving average with standard deviation bands |
+| [**STARCHANNEL**](../lib/channels/starchannel/starchannel.md) | Stoller Average Range Channel | SMA with ATR bands; similar to Keltner but uses SMA |
 
 ### Statistics
 

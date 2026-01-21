@@ -251,7 +251,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Stochastic Momentum Index** | Smi | - | - | ✔️ | ❔ |
 | **Stochastic Oscillator** | Stoch | ✔️ | ✔️ | ✔️ | ❔ |
 | **Stochastic RSI** | Stochrsi | ✔️ | ✔️ | ✔️ | ❔ |
-| **Stoller Average Range Channel** | Starchannel | - | - | - | ❔ |
+| **Stoller Average Range Channel** | [Starchannel](../lib/channels/starchannel/starchannel.md) | - | - | - | ❔ |
 | **Super Trend Bands** | Stbands | - | - | - | - |
 | **SuperTrend** | [Super](../lib/trends/super/super.md) | - | - | ✔️ | ❔ |
 | **Swing High/Low Detection** | Swings | - | - | - | - |
