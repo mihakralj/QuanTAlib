@@ -1,4 +1,5 @@
 workflow: GitHubFlow/v1
+next-version: 0.8.0
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 tag-prefix: '[vV]'
@@ -18,11 +19,11 @@ branches:
     is-main-branch: true
     pre-release-weight: 0
   develop:
-    mode: ContinuousDelivery
+    mode: ContinuousDeployment
     label: alpha
     increment: Patch
-    track-merge-target: true
-    track-merge-message: true
+    track-merge-target: false
+    track-merge-message: false
     regex: ^dev(elop)?(ment)?$|.*-dev$
     source-branches:
     - main
