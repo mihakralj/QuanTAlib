@@ -18,7 +18,7 @@ branches:
     is-main-branch: true
     pre-release-weight: 0
   develop:
-    mode: ContinuousDeployment
+    mode: ContinuousDelivery
     label: alpha
     increment: Patch
     track-merge-target: false
