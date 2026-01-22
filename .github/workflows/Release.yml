@@ -2,14 +2,6 @@ name: Release Workflow
 
 on:
   workflow_dispatch:
-  #  inputs:
-  #    release_type:
-  #      description: "Release type"
-  #      type: choice
-  #      options:
-  #        - development
-  #        - production
-  #      default: development
 
 permissions: {}
 
@@ -90,8 +82,25 @@ jobs:
 
           ls -lh lib/bin/Release/*.nupkg || true
 
+      - name: Detect release type
+        id: release_type
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          PRERELEASE_TAG="${{ steps.gitversion.outputs.PreReleaseTag }}"
+          
+          echo "Branch: $BRANCH"
+          echo "PreReleaseTag: $PRERELEASE_TAG"
+          
+          if [ "$BRANCH" = "main" ]; then
+            echo "type=production" >> $GITHUB_OUTPUT
+            echo "Detected: PRODUCTION release (main branch)"
+          else
+            echo "type=development" >> $GITHUB_OUTPUT
+            echo "Detected: DEVELOPMENT release (branch=$BRANCH)"
+          fi
+
       - name: Create Development Release
-        if: inputs.release_type == 'development'
+        if: steps.release_type.outputs.type == 'development'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -108,7 +117,7 @@ jobs:
             quantower/bin/Release/**/*.dll
 
       - name: Push to MyGet
-        if: inputs.release_type == 'development'
+        if: steps.release_type.outputs.type == 'development'
         continue-on-error: true
         env:
           MYGET_API_KEY: ${{ secrets.MYGET_DEPLOY_KEY_QUANTALIB }}
@@ -124,7 +133,7 @@ jobs:
             --api-key "$MYGET_API_KEY"
 
       - name: Create Production Release
-        if: inputs.release_type == 'production'
+        if: steps.release_type.outputs.type == 'production'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -135,7 +144,7 @@ jobs:
             quantower/bin/Release/**/*.dll
 
       - name: Push to NuGet
-        if: inputs.release_type == 'production'
+        if: steps.release_type.outputs.type == 'production'
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_DEPLOY_KEY_QUANTLIB }}
         run: |

@@ -11,7 +11,6 @@ namespace QuanTAlib;
 /// </summary>
 [SkipLocalsInit]
 #pragma warning disable S101 // Rename class 'GBM' to match pascal case naming rules
-#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
 public sealed class GBM : IFeed
 #pragma warning restore S101
 {
@@ -406,4 +405,3 @@ public sealed class GBM : IFeed
         _lastTime = currentTime - timeStep; // Last bar time, not next bar time
     }
 }
-#pragma warning restore S2245

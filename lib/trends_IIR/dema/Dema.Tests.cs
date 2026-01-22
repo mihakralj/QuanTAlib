@@ -1,7 +1,6 @@
 
 namespace QuanTAlib.Tests;
 
-#pragma warning disable S2245 // Random is acceptable for simulation/testing purposes
 public class DemaTests
 {
     [Fact]

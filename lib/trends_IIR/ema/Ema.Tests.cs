@@ -1,6 +1,5 @@
 namespace QuanTAlib.Tests;
 
-#pragma warning disable S2245 // GBM provides deterministic random walks for testing; System.Random usage is controlled
 public class EmaTests
 {
     [Fact]
