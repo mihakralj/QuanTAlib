@@ -30,6 +30,9 @@ public sealed class Sigmoid : AbstractBase
 
     public override bool IsHot => true;  // No warmup needed
 
+    /// <summary>
+    /// Initializes a new Sigmoid indicator with specified steepness and midpoint.
+    /// </summary>
     /// <param name="k">Steepness factor (default 1.0). Higher values create steeper transitions.</param>
     /// <param name="x0">Midpoint value where output equals 0.5 (default 0.0).</param>
     public Sigmoid(double k = 1.0, double x0 = 0.0)
@@ -43,6 +46,9 @@ public sealed class Sigmoid : AbstractBase
         WarmupPeriod = 0;
     }
 
+    /// <summary>
+    /// Initializes a new Sigmoid indicator with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="k">Steepness factor (default 1.0)</param>
     /// <param name="x0">Midpoint value (default 0.0)</param>

@@ -54,7 +54,7 @@ public class AtrnTests
     public void Update_ReturnsValidTValue()
     {
         var atrn = new Atrn(DefaultPeriod);
-        var result = atrn.Update(_bars[0], true);
+        var result = atrn.Update(_bars[0], isNew: true);
 
         Assert.IsType<TValue>(result);
         Assert.Equal(_bars[0].Time, result.Time);
@@ -67,7 +67,7 @@ public class AtrnTests
 
         for (int i = 0; i < _bars.Count; i++)
         {
-            var result = atrn.Update(_bars[i], true);
+            var result = atrn.Update(_bars[i], isNew: true);
             Assert.True(result.Value >= 0 && result.Value <= 1,
                 $"Value {result.Value} at index {i} is outside [0,1] range");
         }

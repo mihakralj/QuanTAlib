@@ -101,7 +101,7 @@ public sealed class Sgma : AbstractBase
                 weights[3] = 0.3429;
                 weights[4] = -0.0857;
                 double sum5 = weights[0] + weights[1] + weights[2] + weights[3] + weights[4];
-                invWeightSum = sum5 != 0.0 ? 1.0 / sum5 : 0.0;
+                invWeightSum = Math.Abs(sum5) > double.Epsilon ? 1.0 / sum5 : 0.0;
                 return;
             }
 
@@ -116,7 +116,7 @@ public sealed class Sgma : AbstractBase
                 weights[6] = -0.0476;
                 double sum7 = 0.0;
                 for (int i = 0; i < 7; i++) sum7 += weights[i];
-                invWeightSum = sum7 != 0.0 ? 1.0 / sum7 : 0.0;
+                invWeightSum = Math.Abs(sum7) > double.Epsilon ? 1.0 / sum7 : 0.0;
                 return;
             }
 
@@ -133,7 +133,7 @@ public sealed class Sgma : AbstractBase
                 weights[8] = -0.0281;
                 double sum9 = 0.0;
                 for (int i = 0; i < 9; i++) sum9 += weights[i];
-                invWeightSum = sum9 != 0.0 ? 1.0 / sum9 : 0.0;
+                invWeightSum = Math.Abs(sum9) > double.Epsilon ? 1.0 / sum9 : 0.0;
                 return;
             }
         }
@@ -376,7 +376,7 @@ public sealed class Sgma : AbstractBase
                     continue;
                 }
 
-                if (invWeightSum == 0.0)
+                if (Math.Abs(invWeightSum) < double.Epsilon)
                 {
                     output[i] = val;
                     continue;
@@ -399,7 +399,7 @@ public sealed class Sgma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateWeightedSumFull(RingBuffer buffer, double[] weights, double invWeightSum, double fallbackValue)
     {
-        if (invWeightSum == 0.0)
+        if (Math.Abs(invWeightSum) < double.Epsilon)
             return fallbackValue;
 
         ReadOnlySpan<double> internalBuf = buffer.InternalBuffer;
@@ -435,7 +435,7 @@ public sealed class Sgma : AbstractBase
                     Math.FusedMultiplyAdd(window[3], w3, window[4] * w4))));
 
                 double weightSum = w0 + w1 + w2 + w3 + w4;
-                return weightSum != 0.0 ? sum / weightSum : fallbackValue;
+                return Math.Abs(weightSum) > double.Epsilon ? sum / weightSum : fallbackValue;
             }
 
             if (p == 7)
@@ -458,7 +458,7 @@ public sealed class Sgma : AbstractBase
                 sum = Math.FusedMultiplyAdd(window[6], w6, sum);
 
                 double weightSum = w0 + w1 + w2 + w3 + w4 + w5 + w6;
-                return weightSum != 0.0 ? sum / weightSum : fallbackValue;
+                return Math.Abs(weightSum) > double.Epsilon ? sum / weightSum : fallbackValue;
             }
 
             if (p == 9)
@@ -485,7 +485,7 @@ public sealed class Sgma : AbstractBase
                 sum = Math.FusedMultiplyAdd(window[8], w8, sum);
 
                 double weightSum = w0 + w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8;
-                return weightSum != 0.0 ? sum / weightSum : fallbackValue;
+                return Math.Abs(weightSum) > double.Epsilon ? sum / weightSum : fallbackValue;
             }
         }
 

@@ -75,6 +75,9 @@ public sealed class Sdchannel : ITValuePublisher
 
     public event TValuePublishedHandler? Pub;
 
+    /// <summary>
+    /// Initializes a new Standard Deviation Channel indicator with specified period and multiplier.
+    /// </summary>
     /// <param name="period">Lookback period for regression (default 20, must be > 1)</param>
     /// <param name="multiplier">Standard deviation multiplier for bands (default 2.0, must be > 0)</param>
     public Sdchannel(int period = 20, double multiplier = 2.0)

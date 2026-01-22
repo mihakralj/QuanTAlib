@@ -70,6 +70,9 @@ public sealed class Hanma : AbstractBase
         _state = new State(double.NaN, IsInitialized: false);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="source">Data source for event-based updates</param>
     /// <param name="period">Lookback period for the Hanning window (default: 10)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

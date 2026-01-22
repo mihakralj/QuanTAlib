@@ -30,6 +30,9 @@ public sealed class Logtrans : AbstractBase
         WarmupPeriod = 0;
     }
 
+    /// <summary>
+    /// Creates Logtrans with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     public Logtrans(ITValuePublisher source) : this()
     {

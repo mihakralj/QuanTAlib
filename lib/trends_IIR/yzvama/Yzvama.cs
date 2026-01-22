@@ -37,8 +37,8 @@ public sealed class Yzvama : AbstractBase
     {
         public static YzvamaState New() => new()
         {
-            ShortVar = new RmaState(0, 1.0, false),
-            LongVar = new RmaState(0, 1.0, false),
+            ShortVar = new RmaState(Ema: 0, E: 1.0, IsCompensated: false),
+            LongVar = new RmaState(Ema: 0, E: 1.0, IsCompensated: false),
             PrevClose = double.NaN,
             SourceHead = 0,
             SourceSum = 0,
@@ -390,7 +390,7 @@ public sealed class Yzvama : AbstractBase
             validCount,
             yzvHead,
             yzvCount,
-            true);
+            IsInitialized: true);
 
         Last = new TValue(input.Time, result);
         PubEvent(Last, isNew);
@@ -428,7 +428,7 @@ public sealed class Yzvama : AbstractBase
         for (int i = 0; i < len; i++)
         {
             var bar = source[i];
-            var result = Update(bar, true);
+            var result = Update(bar, isNew: true);
             tSpan[i] = bar.Time;
             vSpan[i] = result.Value;
         }
@@ -457,7 +457,7 @@ public sealed class Yzvama : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            var result = Update(new TValue(sourceTimes[i], sourceValues[i]), true);
+            var result = Update(new TValue(sourceTimes[i], sourceValues[i]), isNew: true);
             tSpan[i] = sourceTimes[i];
             vSpan[i] = result.Value;
         }
@@ -473,7 +473,7 @@ public sealed class Yzvama : AbstractBase
     {
         Reset();
         foreach (double val in source)
-            Update(new TValue(DateTime.MinValue, val), true);
+            Update(new TValue(DateTime.MinValue, val), isNew: true);
     }
 
     /// <summary>
@@ -484,7 +484,7 @@ public sealed class Yzvama : AbstractBase
     {
         Reset();
         foreach (TValue tv in source)
-            Update(tv, true);
+            Update(tv, isNew: true);
     }
 
     /// <summary>

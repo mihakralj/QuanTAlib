@@ -30,6 +30,9 @@ public sealed class Normalize : AbstractBase
 
     public override bool IsHot => _buffer.Count >= _period;
 
+    /// <summary>
+    /// Initializes a new Normalize indicator with specified lookback period.
+    /// </summary>
     /// <param name="period">Lookback period for min/max calculation (default 14)</param>
     public Normalize(int period = 14)
     {
@@ -44,6 +47,9 @@ public sealed class Normalize : AbstractBase
         _p_state = _state;
     }
 
+    /// <summary>
+    /// Initializes a new Normalize indicator with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback period (default 14)</param>
     public Normalize(ITValuePublisher source, int period = 14) : this(period)

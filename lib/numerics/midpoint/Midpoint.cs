@@ -26,6 +26,9 @@ public sealed class Midpoint : AbstractBase
 
     public override bool IsHot => _highest.IsHot && _lowest.IsHot;
 
+    /// <summary>
+    /// Initializes a new Midpoint indicator with specified lookback period.
+    /// </summary>
     /// <param name="period">Lookback window size (must be >= 1)</param>
     public Midpoint(int period)
     {
@@ -38,6 +41,9 @@ public sealed class Midpoint : AbstractBase
         WarmupPeriod = period;
     }
 
+    /// <summary>
+    /// Initializes a new Midpoint indicator with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback window size</param>
     public Midpoint(ITValuePublisher source, int period) : this(period)

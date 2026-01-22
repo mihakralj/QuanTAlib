@@ -109,6 +109,9 @@ public sealed class Hwma : AbstractBase
         _state = new State(double.NaN, 0, 0, double.NaN, IsInitialized: false);
     }
 
+    /// <summary>
+    /// Creates HWMA with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Data source for event-based updates</param>
     /// <param name="period">Period for smoothing factor calculation (default: 10)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

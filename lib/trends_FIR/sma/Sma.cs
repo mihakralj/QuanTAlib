@@ -189,7 +189,6 @@ public sealed class Sma : AbstractBase
 
             double val = GetValidValue(input.Value);
             UpdateState(val);
-
         }
         else
         {

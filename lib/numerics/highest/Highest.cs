@@ -26,6 +26,9 @@ public sealed class Highest : AbstractBase
 
     public override bool IsHot => _buffer.Count >= _period;
 
+    /// <summary>
+    /// Initializes a new Highest indicator with specified lookback period.
+    /// </summary>
     /// <param name="period">Lookback window size (must be >= 1)</param>
     public Highest(int period)
     {
@@ -38,6 +41,9 @@ public sealed class Highest : AbstractBase
         WarmupPeriod = period;
     }
 
+    /// <summary>
+    /// Initializes a new Highest indicator with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback window size</param>
     public Highest(ITValuePublisher source, int period) : this(period)
@@ -89,7 +95,7 @@ public sealed class Highest : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(time, source[i]), true);
+            Update(input: new TValue(time, source[i]), isNew: true);
             time += interval;
         }
     }

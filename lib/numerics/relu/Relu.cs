@@ -34,6 +34,9 @@ public sealed class Relu : AbstractBase
         WarmupPeriod = 0;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     public Relu(ITValuePublisher source) : this()
     {

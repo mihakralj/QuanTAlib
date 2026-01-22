@@ -289,7 +289,7 @@ public sealed class Maenv : ITValuePublisher
     private double CalculateEMA(double value, bool isNew)
     {
         // Use EmaWeight==0 to detect first value for correct isNew=false behavior
-        if (_state.EmaWeight == 0)
+        if (Math.Abs(_state.EmaWeight) < double.Epsilon)
         {
             // First value - persist only for isNew=true
             if (isNew)

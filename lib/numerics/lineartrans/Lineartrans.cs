@@ -48,6 +48,9 @@ public sealed class Lineartrans : AbstractBase
         WarmupPeriod = 0;
     }
 
+    /// <summary>
+    /// Creates a Linear transformer with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="slope">Multiplicative factor (default: 1.0)</param>
     /// <param name="intercept">Additive constant (default: 0.0)</param>

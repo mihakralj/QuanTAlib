@@ -75,6 +75,9 @@ public sealed class Hamma : AbstractBase
         _state.LastValidValue = double.NaN;
     }
 
+    /// <summary>
+    /// Creates HAMMA with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Data source for event-based updates</param>
     /// <param name="period">Lookback period for the Hamming window (default: 10)</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -30,6 +30,9 @@ public sealed class Sqrttrans : AbstractBase
         WarmupPeriod = 0;
     }
 
+    /// <summary>
+    /// Creates a Square Root transformer with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     public Sqrttrans(ITValuePublisher source) : this()
     {

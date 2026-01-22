@@ -51,7 +51,7 @@ public sealed class Atrn : AbstractBase
 
         Name = $"Atrn({period})";
         WarmupPeriod = _rma.WarmupPeriod + _lookbackWindow;
-        _state = new State(default, false, 0.0, 0.0);
+        _state = new State(PrevBar: default, IsInitialized: false, LastValidTr: 0.0, LastValidAtr: 0.0);
         _p_state = _state;
     }
 
@@ -95,7 +95,7 @@ public sealed class Atrn : AbstractBase
         for (int i = 0; i < source.Length; i++)
         {
             double tr = source[i];
-            TValue atr = _rma.Update(new TValue(DateTime.UtcNow.AddMinutes(i), tr), true);
+            TValue atr = _rma.Update(new TValue(DateTime.UtcNow.AddMinutes(i), tr), isNew: true);
             _atrBuffer.Add(atr.Value);
         }
 
@@ -117,7 +117,7 @@ public sealed class Atrn : AbstractBase
     {
         _rma.Reset();
         _atrBuffer.Clear();
-        _state = new State(default, false, 0.0, 0.0);
+        _state = new State(PrevBar: default, IsInitialized: false, LastValidTr: 0.0, LastValidAtr: 0.0);
         _p_state = _state;
         Last = default;
     }
@@ -180,7 +180,7 @@ public sealed class Atrn : AbstractBase
 
         // Update state
         _state = isNew
-            ? new State(input, true, tr, currentAtr)
+            ? new State(PrevBar: input, IsInitialized: true, LastValidTr: tr, LastValidAtr: currentAtr)
             : _state with { LastValidTr = tr, LastValidAtr = currentAtr };
 
         TValue result = new(input.Time, normalized);
@@ -246,7 +246,7 @@ public sealed class Atrn : AbstractBase
 
         for (int i = 0; i < source.Count; i++)
         {
-            TValue result = Update(source[i], true);
+            TValue result = Update(source[i], isNew: true);
             t.Add(result.Time);
             v.Add(result.Value);
         }
@@ -266,7 +266,7 @@ public sealed class Atrn : AbstractBase
 
         for (int i = 0; i < source.Count; i++)
         {
-            TValue result = Update(source[i], true);
+            TValue result = Update(source[i], isNew: true);
             t.Add(source[i].Time);
             v.Add(result.Value);
         }

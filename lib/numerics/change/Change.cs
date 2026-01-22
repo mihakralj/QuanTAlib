@@ -27,6 +27,9 @@ public sealed class Change : AbstractBase
 
     public override bool IsHot => _buffer.Count > _period;
 
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="period">Lookback period (must be >= 1)</param>
     public Change(int period = 1)
     {
@@ -39,6 +42,9 @@ public sealed class Change : AbstractBase
         WarmupPeriod = period + 1;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback period</param>
     public Change(ITValuePublisher source, int period = 1) : this(period)
@@ -99,7 +105,7 @@ public sealed class Change : AbstractBase
 
         for (int i = 0; i < source.Length; i++)
         {
-            Update(new TValue(time, source[i]), true);
+            Update(new TValue(time, value: source[i]), isNew: true);
             time += interval;
         }
     }

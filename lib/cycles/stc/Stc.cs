@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -121,7 +120,6 @@ public sealed class Stc : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    [SuppressMessage("SonarQube", "S3776:Cognitive Complexity", Justification = "High-performance SIMD code with intentionally optimized control flow")]
     private static void UpdateMinMax(double added, double removed, bool hasRemoved, RingBuffer buf, ref double min, ref double max)
     {
         if (double.IsNaN(added)) return;

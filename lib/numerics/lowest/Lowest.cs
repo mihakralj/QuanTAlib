@@ -26,6 +26,9 @@ public sealed class Lowest : AbstractBase
 
     public override bool IsHot => _buffer.Count >= _period;
 
+    /// <summary>
+    /// Initializes a new Lowest indicator with specified lookback period.
+    /// </summary>
     /// <param name="period">Lookback window size (must be >= 1)</param>
     public Lowest(int period)
     {
@@ -38,6 +41,9 @@ public sealed class Lowest : AbstractBase
         WarmupPeriod = period;
     }
 
+    /// <summary>
+    /// Initializes a new Lowest indicator with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback window size</param>
     public Lowest(ITValuePublisher source, int period) : this(period)

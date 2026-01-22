@@ -27,6 +27,9 @@ public sealed class Roc : AbstractBase
 
     public override bool IsHot => _buffer.Count > _period;
 
+    /// <summary>
+    /// Initializes a new Rate of Change indicator with specified lookback period.
+    /// </summary>
     /// <param name="period">Lookback period (must be >= 1)</param>
     public Roc(int period = 9)
     {
@@ -39,6 +42,9 @@ public sealed class Roc : AbstractBase
         WarmupPeriod = period + 1;
     }
 
+    /// <summary>
+    /// Initializes a new Rate of Change indicator with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     /// <param name="period">Lookback period</param>
     public Roc(ITValuePublisher source, int period = 9) : this(period)

@@ -30,6 +30,9 @@ public sealed class Exptrans : AbstractBase
         WarmupPeriod = 0;
     }
 
+    /// <summary>
+    /// Creates Exptrans with source for event-based chaining.
+    /// </summary>
     /// <param name="source">Source indicator for chaining</param>
     public Exptrans(ITValuePublisher source) : this()
     {

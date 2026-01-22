@@ -39,8 +39,8 @@ public sealed class Vama : AbstractBase
     {
         public static VamaState New() => new()
         {
-            ShortAtr = new RmaState(0, 1.0, false),
-            LongAtr = new RmaState(0, 1.0, false),
+            ShortAtr = new RmaState(Ema: 0, E: 1.0, IsCompensated: false),
+            LongAtr = new RmaState(Ema: 0, E: 1.0, IsCompensated: false),
             PrevClose = double.NaN,
             BufferHead = 0,
             BufferSum = 0,
@@ -244,7 +244,7 @@ public sealed class Vama : AbstractBase
             newHead,
             bufferSum,
             validCount,
-            true);
+            IsInitialized: true);
 
         Last = new TValue(input.Time, result);
         PubEvent(Last, isNew);
@@ -285,7 +285,7 @@ public sealed class Vama : AbstractBase
         for (int i = 0; i < len; i++)
         {
             var bar = source[i];
-            var result = Update(bar, true);
+            var result = Update(bar, isNew: true);
             tSpan[i] = bar.Time;
             vSpan[i] = result.Value;
         }
@@ -314,7 +314,7 @@ public sealed class Vama : AbstractBase
 
         for (int i = 0; i < len; i++)
         {
-            var result = Update(new TValue(sourceTimes[i], sourceValues[i]), true);
+            var result = Update(new TValue(sourceTimes[i], sourceValues[i]), isNew: true);
             tSpan[i] = sourceTimes[i];
             vSpan[i] = result.Value;
         }
@@ -330,7 +330,7 @@ public sealed class Vama : AbstractBase
         Reset();
         foreach (double val in source)
         {
-            Update(new TValue(DateTime.MinValue, val), true);
+            Update(new TValue(DateTime.MinValue, val), isNew: true);
         }
     }
 

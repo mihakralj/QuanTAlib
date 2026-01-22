@@ -19,7 +19,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IsLocalBuild Condition="'$(GITHUB_ACTIONS)' == ''">true</IsLocalBuild>
-    
+
     <!-- AOT and Trim compatibility analyzers (build-time validation) -->
     <IsAotCompatible>true</IsAotCompatible>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
@@ -33,12 +33,15 @@
 
   <!-- SARIF 2.1 output for Roslyn analyzers - all projects -->
   <PropertyGroup>
-    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.sln'))\.sarif</SarifOutputDir>
-    <ErrorLog>$(SarifOutputDir)\$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+    <!-- Use forward slashes for cross-platform compatibility (works on Windows, Linux, macOS) -->
+    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.sln'))/.sarif</SarifOutputDir>
+    <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
   </PropertyGroup>
 
   <Target Name="CreateSarifDir" BeforeTargets="CoreCompile">
-    <MakeDir Directories="$(SarifOutputDir)" Condition="!Exists('$(SarifOutputDir)')" />
+    <MakeDir Directories="$(SarifOutputDir)" />
+    <Message Importance="High" Text="SARIF output directory: $(SarifOutputDir)" />
+    <Message Importance="High" Text="SARIF file: $(ErrorLog)" />
   </Target>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -46,15 +49,15 @@
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Deterministic>true</Deterministic>
-    
+
     <!-- Trim mode for library compatibility validation -->
     <TrimMode>link</TrimMode>
-    
+
     <!-- Runtime feature switches (reduce size when library is trimmed by consumer) -->
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
     <InvariantGlobalization>true</InvariantGlobalization>
-    
+
     <!-- Suppress reflection-based serialization (faster startup, smaller footprint) -->
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
@@ -62,7 +65,8 @@
   <PropertyGroup>
     <!-- S3604: "Remove member initializer" - null! is intentional for nullable reference types in Quantower adapters -->
     <!-- S107: "Methods should not have too many parameters" - high-performance SIMD methods require multiple parameters for zero-allocation patterns -->
-    <NoWarn>$(NoWarn);S107;S1144;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3604;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0048;MA0051;MA0076;RCS1123;RCS1159;IDE0007</NoWarn>
+    <!-- MA0007: "Add comma after the last value" - trailing commas not enforced in this codebase -->
+    <NoWarn>$(NoWarn);S107;S1144;S1944;S2053;S2245;S2259;S2583;S2589;S3329;S3604;S3655;S3776;S3949;S3966;S4158;S4347;S5773;S6781;MA0007;MA0048;MA0051;MA0076;RCS1123;RCS1159;IDE0007</NoWarn>
   </PropertyGroup>
 
   <!-- Code Coverage Configuration (for NDepend integration) -->
@@ -73,6 +77,16 @@
     <ExcludeByFile>**/*.Designer.cs,**/*.g.cs,**/*.g.i.cs</ExcludeByFile>
     <Exclude>[xunit.*]*,[*.Tests]*</Exclude>
   </PropertyGroup>
+
+  <!-- SonarLint local rule configuration -->
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory).sonarlint\csharp.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory).sonarlint\CSharp\SonarLint.xml">
+      <Link>Properties\SonarLint.xml</Link>
+    </AdditionalFiles>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>

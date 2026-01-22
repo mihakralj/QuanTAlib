@@ -7,7 +7,7 @@ public class ZlemaValidationTests
     [Fact]
     public void Zlema_Streaming_MatchesReference()
     {
-        int period = 20;
+        const int period = 20;
         TSeries series = BuildSeries(300, seed: 5);
         double[] reference = new double[series.Count];
 
@@ -24,7 +24,7 @@ public class ZlemaValidationTests
     [Fact]
     public void Zlema_Batch_MatchesReference()
     {
-        int period = 14;
+        const int period = 14;
         TSeries series = BuildSeries(250, seed: 9);
         double[] reference = new double[series.Count];
 
@@ -40,7 +40,7 @@ public class ZlemaValidationTests
     [Fact]
     public void Zlema_Span_MatchesReference()
     {
-        int period = 30;
+        const int period = 30;
         TSeries series = BuildSeries(200, seed: 12);
         double[] values = series.Values.ToArray();
         var output = new double[values.Length];
