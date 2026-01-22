@@ -113,8 +113,8 @@ jobs:
             --prerelease \
             --target ${{ github.sha }} \
             lib/bin/Release/*.nupkg \
-            lib/bin/Release/**/QuanTAlib.dll \
-            quantower/bin/Release/**/*.dll
+            lib/bin/Release/QuanTAlib.dll \
+            quantower/bin/Release/*.dll
 
       - name: Push to MyGet
         if: steps.release_type.outputs.type == 'development'
@@ -141,7 +141,7 @@ jobs:
             --title "Release ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
             --generate-notes \
             lib/bin/Release/*.nupkg \
-            quantower/bin/Release/**/*.dll
+            quantower/bin/Release/*.dll
 
       - name: Push to NuGet
         if: steps.release_type.outputs.type == 'production'
