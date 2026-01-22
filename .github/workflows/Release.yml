@@ -113,7 +113,6 @@ jobs:
             --prerelease \
             --target ${{ github.sha }} \
             lib/bin/Release/*.nupkg \
-            lib/bin/Release/QuanTAlib.dll \
             quantower/bin/Release/*.dll
 
       - name: Push to MyGet
@@ -137,8 +136,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ steps.gitversion.outputs.MajorMinorPatch }}" \
-            --title "Release ${{ steps.gitversion.outputs.MajorMinorPatch }}" \
+          gh release create "v${{ steps.gitversion.outputs.SemVer }}" \
+            --title "Release ${{ steps.gitversion.outputs.SemVer }}" \
             --generate-notes \
             lib/bin/Release/*.nupkg \
             quantower/bin/Release/*.dll
