@@ -68,7 +68,7 @@ NinjaTrader 8 runs on .NET Framework 4.8. QuanTAlib targets .NET Standard, enabl
 ### Setup
 
 1. Copy `QuanTAlib.dll` to `Documents\NinjaTrader 8\bin\Custom`
-2. In NinjaScript Editor: right-click ’ References ’ Add `QuanTAlib.dll`
+2. In NinjaScript Editor: right-click â€™ References â€™ Add `QuanTAlib.dll`
 
 ### Example: SMA Indicator
 

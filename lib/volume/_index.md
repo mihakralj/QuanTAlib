@@ -8,8 +8,8 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | :--- | :--- | :--- |
 | [ADL](lib/volume/adl/Adl.md) | Accumulation/Distribution Line | Correlates price location within range to volume. Grandfather of volume flow analysis. |
 | [ADOSC](lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | Momentum indicator for AD Line. Predicts reversals by measuring acceleration of money flow. |
-| AOBV](lib/volume/aobv/Aobv.md) | Archer On-Balance Volume | Modified OBV incorporating intra-period price movement. |
-| CMF | Chaikin Money Flow | Measures money flow volume over set period (typically 20-21 days). |
+| AOBV | Archer On-Balance Volume | Modified OBV incorporating intra-period price movement. |
+| [CMF](lib/volume/cmf/Cmf.md) | Chaikin Money Flow | Measures money flow volume over set period (typically 20-21 days). |
 | EFI | Elder's Force Index | Combines price movement, direction, volume to measure buying/selling power. |
 | EOM | Ease of Movement | Relates price change to volume. Highlights periods of effortless price movement. |
 | III | Intraday Intensity Index | Measures buying/selling pressure within day's range using close position. |

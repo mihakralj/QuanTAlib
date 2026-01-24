@@ -47,6 +47,7 @@
 | [AROONOSC](lib/dynamics/aroonosc/Aroonosc.md) | Aroon Oscillator | Dynamics |
 | [ATR](lib/volatility/atr/Atr.md) | Average True Range | Volatility |
 | [ATRBANDS](lib/channels/atrbands/Atrbands.md) | ATR Bands | Channels |
+| [BBANDS](lib/channels/bbands/Bbands.md) | Bollinger Bands | Channels |
 | [ATRN](lib/volatility/atrn/Atrn.md) | ATR Normalized | Volatility |
 | [ATRP](lib/volatility/atrp/Atrp.md) | ATR Percent | Volatility |
 | BBI | Bulls Bears Index | Oscillators |

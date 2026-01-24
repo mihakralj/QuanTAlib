@@ -55,6 +55,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Average True Range Percent** | [Atrp](../lib/volatility/atrp/Atrp.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Awesome Oscillator** | [Ao](../lib/momentum/ao/ao.md) | - | ✔️ | ✔️ | ✔️ |
 | **Balance of Power** | [Bop](../lib/momentum/bop/Bop.md) | ✔️ | ✔️ | ✔️ | ✔️ |
+| **Bollinger Bands** | [Bbands](../lib/channels/bbands/Bbands.md) | - | ✔️ | ✔️ | ✔️ |
 | **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
 | **Bessel-Weighted MA** | [Bwma](../lib/trends_FIR/bwma/Bwma.md) | - | - | - | - |
 | **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | ✔️ | - | ✔️ | - |

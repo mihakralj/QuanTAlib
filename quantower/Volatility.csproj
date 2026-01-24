@@ -19,6 +19,7 @@
     <Compile Include="..\lib\core\**\*.cs" Exclude="..\lib\core\**\*.Tests.cs;..\lib\core\**\obj\**;..\lib\core\**\bin\**" />
     <Compile Include="..\lib\volatility\**\*.cs" Exclude="..\lib\volatility\**\*.Tests.cs;..\lib\volatility\**\obj\**;..\lib\volatility\**\bin\**" />
     <Compile Include="..\lib\channels\**\*.cs" Exclude="..\lib\channels\**\*.Tests.cs;..\lib\channels\**\obj\**;..\lib\channels\**\bin\**" />
+    <Compile Include="..\lib\statistics\**\*.cs" Exclude="..\lib\statistics\**\*.Tests.cs;..\lib\statistics\**\obj\**;..\lib\statistics\**\bin\**" />
     <Compile Include="..\lib\trends_IIR\ema\*.cs" Exclude="..\lib\trends_IIR\ema\*.Tests.cs" />
     <Compile Include="..\lib\trends_IIR\rma\*.cs" Exclude="..\lib\trends_IIR\rma\*.Tests.cs" />
     <Compile Include="..\lib\trends_FIR\sma\*.cs" Exclude="..\lib\trends_FIR\sma\*.Tests.cs" />
