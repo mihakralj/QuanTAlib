@@ -210,9 +210,12 @@ public sealed class Mama : AbstractBase
             double alpha = _scaledFastLimit / delta;
             alpha = Math.Clamp(alpha, _slowLimit, _fastLimit);
 
-            // Final indicators
-            _state.Mama = alpha * _priceBuffer[^1] + (1.0 - alpha) * _p_state.Mama;
-            _state.Fama = FamaAlphaFactor * alpha * _state.Mama + (1.0 - FamaAlphaFactor * alpha) * _p_state.Fama;
+            // Final indicators (using FMA for precision)
+            double decay = 1.0 - alpha;
+            _state.Mama = Math.FusedMultiplyAdd(_p_state.Mama, decay, alpha * _priceBuffer[^1]);
+            double famaAlpha = FamaAlphaFactor * alpha;
+            double famaDecay = 1.0 - famaAlpha;
+            _state.Fama = Math.FusedMultiplyAdd(_p_state.Fama, famaDecay, famaAlpha * _state.Mama);
         }
         else
         {
@@ -442,9 +445,12 @@ public sealed class Mama : AbstractBase
                 double alpha = scaledFastLimit / delta;
                 alpha = Math.Clamp(alpha, slowLimit, fastLimit);
 
-                // Final indicators
-                mama = alpha * priceBuffer[bufferIdx] + (1.0 - alpha) * p_mama;
-                fama = FamaAlphaFactor * alpha * mama + (1.0 - FamaAlphaFactor * alpha) * p_fama;
+                // Final indicators (using FMA for precision)
+                double decay = 1.0 - alpha;
+                mama = Math.FusedMultiplyAdd(p_mama, decay, alpha * priceBuffer[bufferIdx]);
+                double famaAlpha = FamaAlphaFactor * alpha;
+                double famaDecay = 1.0 - famaAlpha;
+                fama = Math.FusedMultiplyAdd(p_fama, famaDecay, famaAlpha * mama);
 
                 // Update previous state
                 p_i2 = i2;

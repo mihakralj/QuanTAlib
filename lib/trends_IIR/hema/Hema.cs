@@ -30,7 +30,7 @@ public sealed class Hema : AbstractBase
     private const double Ln2 = 0.693147180559945309417232121458176568;
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct State
+    private record struct State
     {
         public double EmaSlowRaw;
         public double EmaFastRaw;

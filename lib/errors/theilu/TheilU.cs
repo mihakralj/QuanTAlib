@@ -124,14 +124,15 @@ public sealed class TheilU : AbstractBase
         {
             _state = _p_state;
 
-            // Simplified: just update buffers and recalculate sums (no redundant arithmetic)
+            // Bar correction: update buffer and recalculate sums
+            // Note: _p_state was saved BEFORE the Add, but buffer still has the added value
+            // So we update newest and recalculate to ensure consistency
             _sqErrorBuffer.UpdateNewest(sqError);
-            _state.SqErrorSum = _sqErrorBuffer.RecalculateSum();
-
             _sqActualBuffer.UpdateNewest(sqActual);
-            _state.SqActualSum = _sqActualBuffer.RecalculateSum();
-
             _sqPredBuffer.UpdateNewest(sqPred);
+
+            _state.SqErrorSum = _sqErrorBuffer.RecalculateSum();
+            _state.SqActualSum = _sqActualBuffer.RecalculateSum();
             _state.SqPredSum = _sqPredBuffer.RecalculateSum();
         }
 

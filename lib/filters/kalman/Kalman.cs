@@ -42,14 +42,12 @@ public sealed class Kalman : AbstractBase
     private State _pState;
 
     [StructLayout(LayoutKind.Sequential)]
-    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
-    private struct State
+    private record struct State
     {
         public double X;
         public double P;
         public int Samples;
     }
-    #pragma warning restore CA1066
 
     /// <summary>
     /// Process noise covariance. Defaults to 0.01.

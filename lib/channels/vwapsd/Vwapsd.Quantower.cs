@@ -52,8 +52,7 @@ public class VwapsdIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        var time = HistoricalData.Time();
+        var item = HistoricalData[0, SeekOriginHistory.End];
 
         // VWAP requires OHLCV data - using HLC3 for price
         double high = item[PriceType.High];
@@ -61,7 +60,7 @@ public class VwapsdIndicator : Indicator, IWatchlistIndicator
         double close = item[PriceType.Close];
         double volume = item[PriceType.Volume];
 
-        TBar bar = new(time, item[PriceType.Open], high, low, close, volume);
+        TBar bar = new(item.TimeLeft, item[PriceType.Open], high, low, close, volume);
         TValue result = vwapsd!.Update(bar, args.IsNewBar());
 
         VwapSeries!.SetValue(result.Value, vwapsd.IsHot, ShowColdValues);

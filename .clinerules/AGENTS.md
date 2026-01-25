@@ -65,7 +65,42 @@ CRIT_PATTERNS:
 - Hot methods: `[MethodImpl(MethodImplOptions.AggressiveInlining)]`.
 - Tight loops: `[SkipLocalsInit]`.
 
-2.5 FMA patterns (use in hot paths)
+2.5 State local copy pattern (performance + correctness)
+For Update() methods with record struct state, use local copy to enable struct promotion:
+```csharp
+public TValue Update(TValue input, bool isNew = true)
+{
+    if (isNew) _ps = _s;   // snapshot for rollback
+    else _s = _ps;         // rollback on bar correction
+
+    var s = _s;            // local copy enables JIT struct promotion
+    // ... all computations use 's' ...
+    _s = s;                // write back once at end
+    return Last;
+}
+```
+Why: JIT can promote `s` to registers when it's a local; direct field access (`_s.Field`) forces memory loads/stores per access. Measured 15-25% speedup in tight Update loops.
+
+2.6 StackallocThreshold pattern
+Use `const int StackallocThreshold = 256;` for span-based Calculate methods:
+```csharp
+const int StackallocThreshold = 256;
+double[]? rented = null;
+scoped Span<double> buffer;
+
+if (size <= StackallocThreshold)
+    buffer = stackalloc double[size];
+else
+{
+    rented = ArrayPool<double>.Shared.Rent(size);
+    buffer = rented.AsSpan(0, size);
+}
+try { /* use buffer */ }
+finally { if (rented != null) ArrayPool<double>.Shared.Return(rented); }
+```
+Why 256: Default thread stack is 1MB; 256 doubles = 2KB, safe margin for nested calls. Beyond 256, risk stack overflow in deep recursion or chained indicators. ArrayPool amortizes allocation cost for larger buffers.
+
+2.7 FMA patterns (use in hot paths)
 - EMA smoothing: `x + alpha * (y - x)` → `Math.FusedMultiplyAdd(x, decay, alpha * y)` where `decay = 1 - alpha`
 - Weighted sum: `a*w1 + b*w2` → `Math.FusedMultiplyAdd(a, w1, b * w2)`
 - Linear combo: `3.0*a - b` → `Math.FusedMultiplyAdd(3.0, a, -b)`
@@ -76,6 +111,15 @@ Avoid FMA for simple ops, when intermediate rounding required, or in SIMD paths 
 Precompute decay constants:
 `private readonly double _alpha; private readonly double _decay; // = 1 - _alpha`
 Hot path: `result = Math.FusedMultiplyAdd(prevState, _decay, _alpha * newInput);`
+
+2.8 Suppression comment pattern
+When using analyzer suppressions (skipcq, pragma), always document WHY:
+```csharp
+// skipcq: CS-R1140 - Cyclomatic complexity justified: [specific reason why
+// splitting would harm performance/correctness/readability]
+```
+Bad: `// skipcq: CS-R1140` (no explanation)
+Good: `// skipcq: CS-R1140 - Algorithm requires sequential A→B→C pipeline; splitting fragments state machine`
 
 3) IMPLEMENTATION STANDARDS (every indicator)
 3.1 File layout

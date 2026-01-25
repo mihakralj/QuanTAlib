@@ -23,8 +23,7 @@ public sealed class Stc : AbstractBase
     private bool _isNew;
 
     [StructLayout(LayoutKind.Sequential)]
-    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
-    private struct State
+    private record struct State
     {
         public double FastEma;
         public double SlowEma;
@@ -39,7 +38,6 @@ public sealed class Stc : AbstractBase
         public double Stoch1Min;
         public double Stoch1Max;
     }
-    #pragma warning restore CA1066
 
     private State _s, _ps;
     private int _samples;
@@ -119,84 +117,111 @@ public sealed class Stc : AbstractBase
         return Math.Clamp(x, 0, 100);
     }
 
+    /// <summary>
+    /// Applies final smoothing to stoch2Raw based on smoothing mode.
+    /// Shared between Update() and Calculate() to eliminate duplication.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double ApplySmoothing(double stoch2Raw, StcSmoothing smoothing, double dAlpha, ref double stoch2Ema, ref double prevStc)
+    {
+        double stc;
+        switch (smoothing)
+        {
+            case StcSmoothing.Ema:
+                stoch2Ema = double.IsNaN(stoch2Ema)
+                    ? stoch2Raw
+                    : Math.FusedMultiplyAdd(dAlpha, stoch2Raw - stoch2Ema, stoch2Ema);
+                stc = Clamp100(stoch2Ema);
+                break;
+
+            case StcSmoothing.Sigmoid:
+                stc = 100.0 / (1.0 + Math.Exp(-0.1 * (stoch2Raw - 50.0)));
+                break;
+
+            case StcSmoothing.Digital:
+                if (stoch2Raw > 75) stc = 100;
+                else if (stoch2Raw < 25) stc = 0;
+                else stc = double.IsNaN(prevStc) ? stoch2Raw : prevStc;
+                break;
+
+            default: // Includes StcSmoothing.None
+                stc = stoch2Raw;
+                break;
+        }
+        prevStc = stc;
+        return stc;
+    }
+
+    /// <summary>
+    /// Updates min/max tracking for a sliding window.
+    /// Returns true if a full rescan is needed (removed value was at boundary).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool UpdateMinMaxCore(double added, double removed, bool hasRemoved, ref double min, ref double max)
+    {
+        if (double.IsNaN(added)) return false;
+
+        bool expandMin = added < min;
+        bool expandMax = added > max;
+
+        if (!hasRemoved)
+        {
+            if (expandMin) min = added;
+            if (expandMax) max = added;
+            return false;
+        }
+
+        // Use relative tolerance for floating-point comparison
+        double tolerance = Math.Max(Math.Abs(min), Math.Abs(max)) * 1e-12;
+        if (tolerance < 1e-15) tolerance = 1e-15; // minimum absolute tolerance
+        bool removedMin = Math.Abs(removed - min) <= tolerance;
+        bool removedMax = Math.Abs(removed - max) <= tolerance;
+
+        if (expandMin) min = added;
+        if (expandMax) max = added;
+
+        return (removedMin && !expandMin) || (removedMax && !expandMax);
+    }
+
+    /// <summary>
+    /// Rescans a span to find new min/max values.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void RescanMinMax(ReadOnlySpan<double> span, ref double min, ref double max)
+    {
+        min = double.PositiveInfinity;
+        max = double.NegativeInfinity;
+        foreach (double v in span)
+        {
+            if (double.IsNaN(v)) continue;
+            if (v < min) min = v;
+            if (v > max) max = v;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void UpdateMinMax(double added, double removed, bool hasRemoved, RingBuffer buf, ref double min, ref double max)
     {
-        if (double.IsNaN(added)) return;
-
-        bool expandMin = added < min;
-        bool expandMax = added > max;
-
-        if (!hasRemoved)
-        {
-            if (expandMin) min = added;
-            if (expandMax) max = added;
-            return;
-        }
-
-        // Use relative tolerance for floating-point comparison
-        double tolerance = Math.Max(Math.Abs(min), Math.Abs(max)) * 1e-12;
-        if (tolerance < 1e-15) tolerance = 1e-15; // minimum absolute tolerance
-        bool removedMin = Math.Abs(removed - min) <= tolerance;
-        bool removedMax = Math.Abs(removed - max) <= tolerance;
-
-        if (expandMin) min = added;
-        if (expandMax) max = added;
-
-        if ((removedMin && !expandMin) || (removedMax && !expandMax))
+        if (UpdateMinMaxCore(added, removed, hasRemoved, ref min, ref max))
         {
             var span = buf.IsFull ? buf.InternalBuffer : buf.GetSpan();
-            min = double.PositiveInfinity;
-            max = double.NegativeInfinity;
-            foreach (double v in span)
-            {
-                if (double.IsNaN(v)) continue;
-                if (v < min) min = v;
-                if (v > max) max = v;
-            }
+            RescanMinMax(span, ref min, ref max);
         }
     }
 
-    // Overload for Span based buffers (Calculate)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void UpdateMinMax(double added, double removed, bool hasRemoved, ReadOnlySpan<double> buf, ref double min, ref double max)
     {
-        if (double.IsNaN(added)) return;
-
-        bool expandMin = added < min;
-        bool expandMax = added > max;
-
-        if (!hasRemoved)
+        if (UpdateMinMaxCore(added, removed, hasRemoved, ref min, ref max))
         {
-            if (expandMin) min = added;
-            if (expandMax) max = added;
-            return;
-        }
-
-        // Use relative tolerance for floating-point comparison
-        double tolerance = Math.Max(Math.Abs(min), Math.Abs(max)) * 1e-12;
-        if (tolerance < 1e-15) tolerance = 1e-15; // minimum absolute tolerance
-        bool removedMin = Math.Abs(removed - min) <= tolerance;
-        bool removedMax = Math.Abs(removed - max) <= tolerance;
-
-        if (expandMin) min = added;
-        if (expandMax) max = added;
-
-        if ((removedMin && !expandMin) || (removedMax && !expandMax))
-        {
-            min = double.PositiveInfinity;
-            max = double.NegativeInfinity;
-            foreach (double v in buf)
-            {
-                if (double.IsNaN(v)) continue;
-                if (v < min) min = v;
-                if (v > max) max = v;
-            }
+            RescanMinMax(buf, ref min, ref max);
         }
     }
 
+    // skipcq: CS-R1140 - Cyclomatic complexity justified: STC algorithm requires
+    // sequential MACD→Stoch1→Stoch2→Smoothing pipeline with min/max tracking per stage.
+    // Splitting would fragment the tightly-coupled state machine and harm readability.
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    // skipcq: CS-R1140
     public override TValue Update(TValue input, bool isNew = true)
     {
         _isNew = isNew;
@@ -312,34 +337,7 @@ public sealed class Stc : AbstractBase
         double stc = double.NaN;
         if (!double.IsNaN(stoch2Raw))
         {
-            switch (_smoothing)
-            {
-                case StcSmoothing.Ema:
-                    s.Stoch2Ema = double.IsNaN(s.Stoch2Ema)
-                        ? stoch2Raw
-                        : Math.FusedMultiplyAdd(_dAlpha, stoch2Raw - s.Stoch2Ema, s.Stoch2Ema);
-                    stc = Clamp100(s.Stoch2Ema);
-                    break;
-
-                case StcSmoothing.Sigmoid:
-                    stc = 100.0 / (1.0 + Math.Exp(-0.1 * (stoch2Raw - 50.0)));
-                    break;
-
-                case StcSmoothing.Digital:
-                    if (stoch2Raw > 75) stc = 100;
-                    else if (stoch2Raw < 25) stc = 0;
-                    else stc = double.IsNaN(s.PrevStc) ? stoch2Raw : s.PrevStc;
-                    break;
-
-                case StcSmoothing.None:
-                    stc = stoch2Raw;
-                    break;
-
-                default:
-                    stc = stoch2Raw;
-                    break;
-            }
-            s.PrevStc = stc;
+            stc = ApplySmoothing(stoch2Raw, _smoothing, _dAlpha, ref s.Stoch2Ema, ref s.PrevStc);
         }
 
         if (isNew) _samples++;
@@ -374,7 +372,19 @@ public sealed class Stc : AbstractBase
         base.Dispose(disposing);
     }
 
-    // skipcq: CS-R1140
+    /// <summary>
+    /// Static convenience method that creates a new Stc instance and processes the entire series.
+    /// </summary>
+    public static TSeries Calculate(TSeries source, int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
+    {
+        var indicator = new Stc(kPeriod, dPeriod, fastLength, slowLength, smoothing);
+        return indicator.Update(source);
+    }
+
+    // skipcq: CS-R1140 - Cyclomatic complexity justified: span-based Calculate must
+    // replicate the full STC state machine inline for zero-allocation performance.
+    // The sequential MACD→Stoch1→Stoch2→Smoothing pipeline cannot be decomposed
+    // without introducing heap allocations or sacrificing inlining opportunities.
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output,
         int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
     {
@@ -522,28 +532,7 @@ public sealed class Stc : AbstractBase
                 double stc = double.NaN;
                 if (!double.IsNaN(stoch2Raw))
                 {
-                    if (smoothing == StcSmoothing.Ema)
-                    {
-                        stoch2Ema = double.IsNaN(stoch2Ema)
-                            ? stoch2Raw
-                            : Math.FusedMultiplyAdd(dAlpha, stoch2Raw - stoch2Ema, stoch2Ema);
-                        stc = Clamp100(stoch2Ema);
-                    }
-                    else if (smoothing == StcSmoothing.Sigmoid)
-                    {
-                        stc = 100.0 / (1.0 + Math.Exp(-0.1 * (stoch2Raw - 50.0)));
-                    }
-                    else if (smoothing == StcSmoothing.Digital)
-                    {
-                        if (stoch2Raw > 75) stc = 100;
-                        else if (stoch2Raw < 25) stc = 0;
-                        else stc = double.IsNaN(prevStc) ? stoch2Raw : prevStc;
-                    }
-                    else
-                    {
-                        stc = stoch2Raw;
-                    }
-                    prevStc = stc;
+                    stc = ApplySmoothing(stoch2Raw, smoothing, dAlpha, ref stoch2Ema, ref prevStc);
                 }
 
                 output[i] = stc;

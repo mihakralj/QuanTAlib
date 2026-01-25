@@ -22,8 +22,7 @@ public sealed class Hpf : AbstractBase
     private State _pState;
 
     [StructLayout(LayoutKind.Sequential)]
-    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
-    private struct State
+    private record struct State
     {
         public double Hp1;
         public double Hp2;
@@ -32,7 +31,6 @@ public sealed class Hpf : AbstractBase
         public int Samples;
         public bool HasSrc;
     }
-    #pragma warning restore CA1066
 
     public int Length { get; }
 

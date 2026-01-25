@@ -45,7 +45,7 @@ public sealed class Sum : AbstractBase
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Auto)]
-    private struct State
+    private record struct State
     {
         public double Sum;           // Accumulated sum
         public double C;             // First-order compensation

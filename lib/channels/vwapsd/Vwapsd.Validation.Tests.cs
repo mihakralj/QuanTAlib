@@ -106,12 +106,12 @@ public sealed class VwapsdValidationTests : IDisposable
                 streamingLower.Add(streamingVwapsd.Lower.Value);
             }
 
-            // Span mode - using HLC3 for price
+            // Span mode - using bar.HLC3 for price to match streaming mode
             double[] price = new double[bars.Count];
             double[] volume = new double[bars.Count];
             for (int i = 0; i < bars.Count; i++)
             {
-                price[i] = (bars[i].High + bars[i].Low + bars[i].Close) / 3.0;
+                price[i] = bars[i].HLC3;
                 volume[i] = bars[i].Volume;
             }
 

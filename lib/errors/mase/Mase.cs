@@ -104,17 +104,14 @@ public sealed class Mase : AbstractBase
         {
             _state = _p_state;
 
-            // Incremental update for error buffer: get current newest, compute delta
-            double currentNewestError = _errorBuffer.Count > 0 ? _errorBuffer.Newest : 0.0;
-            double deltaError = absError - currentNewestError;
-            _state.ErrorSum += deltaError;
+            // Bar correction: update buffer and recalculate sums
+            // Note: _p_state was saved BEFORE the Add, but buffer still has the added value
+            // So we update newest and recalculate to ensure consistency
             _errorBuffer.UpdateNewest(absError);
-
-            // Incremental update for scale buffer: get current newest, compute delta
-            double currentNewestScale = _scaleBuffer.Count > 0 ? _scaleBuffer.Newest : 0.0;
-            double deltaScale = naiveDiff - currentNewestScale;
-            _state.ScaleSum += deltaScale;
             _scaleBuffer.UpdateNewest(naiveDiff);
+
+            _state.ErrorSum = _errorBuffer.RecalculateSum();
+            _state.ScaleSum = _scaleBuffer.RecalculateSum();
 
             _state.PrevActual = actualVal;
         }

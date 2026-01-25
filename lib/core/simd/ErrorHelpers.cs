@@ -14,6 +14,18 @@ namespace QuanTAlib;
 /// </summary>
 public static class ErrorHelpers
 {
+    /// <summary>
+    /// Default stack allocation threshold for temporary buffers.
+    /// 256 doubles = 2KB, safe margin for nested calls on 1MB thread stack.
+    /// Beyond this threshold, ArrayPool is used instead of stackalloc.
+    /// </summary>
+    public const int StackAllocThreshold = 256;
+
+    /// <summary>
+    /// Default resync interval for running sums to correct floating-point drift.
+    /// </summary>
+    public const int DefaultResyncInterval = 1000;
+
     private const string SpanLengthMismatchMessage = "All spans must have the same length";
 
     /// <summary>
@@ -434,7 +446,6 @@ public static class ErrorHelpers
         if (len == 0)
             return;
 
-        const int StackAllocThreshold = 256;
         double[]? rented = null;
 
 #pragma warning disable S1121 // Assignments should not be made from within sub-expressions
@@ -508,7 +519,6 @@ public static class ErrorHelpers
         if (len == 0)
             return;
 
-        const int StackAllocThreshold = 256;
         double[]? rented = null;
 
 #pragma warning disable S1121 // Assignments should not be made from within sub-expressions
@@ -584,7 +594,6 @@ public static class ErrorHelpers
         if (len == 0)
             return;
 
-        const int StackAllocThreshold = 256;
         double[]? rentedErrors = null;
         double[]? rentedWeights = null;
 
@@ -661,10 +670,49 @@ public static class ErrorHelpers
         }
     }
 
-    #region Private Helpers
-
+    /// <summary>
+    /// Sanitizes input spans by replacing NaN/Infinity values with the last valid value.
+    /// Writes sanitized values to output spans for use in batch calculations.
+    /// </summary>
+    /// <param name="actual">Input actual values</param>
+    /// <param name="predicted">Input predicted values</param>
+    /// <param name="actualOut">Output sanitized actual values</param>
+    /// <param name="predictedOut">Output sanitized predicted values</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double FindFirstValidValue(ReadOnlySpan<double> span)
+    public static void SanitizeInputs(
+        ReadOnlySpan<double> actual,
+        ReadOnlySpan<double> predicted,
+        Span<double> actualOut,
+        Span<double> predictedOut)
+    {
+        if (actual.Length != predicted.Length || actual.Length != actualOut.Length || actual.Length != predictedOut.Length)
+            throw new ArgumentException(SpanLengthMismatchMessage, nameof(predictedOut));
+
+        int len = actual.Length;
+        if (len == 0)
+            return;
+
+        double lastValidActual = FindFirstValidValue(actual);
+        double lastValidPredicted = FindFirstValidValue(predicted);
+
+        for (int i = 0; i < len; i++)
+        {
+            double act = actual[i];
+            double pred = predicted[i];
+
+            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
+            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+
+            actualOut[i] = act;
+            predictedOut[i] = pred;
+        }
+    }
+
+    /// <summary>
+    /// Finds the first finite value in a span, or returns 0.0 if none found.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double FindFirstValidValue(ReadOnlySpan<double> span)
     {
         for (int i = 0; i < span.Length; i++)
         {
@@ -673,6 +721,8 @@ public static class ErrorHelpers
         }
         return 0.0;
     }
+
+    #region Private Helpers
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsDataClean(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted)

@@ -135,8 +135,8 @@ public sealed class Regchannel : ITValuePublisher
     {
         if (double.IsFinite(value))
         {
-            if (isNew)
-                _state = _state with { LastValid = value };
+            // Always update LastValid on finite input (including bar corrections)
+            _state = _state with { LastValid = value };
             return value;
         }
         return double.IsFinite(_state.LastValid) ? _state.LastValid : 0.0;

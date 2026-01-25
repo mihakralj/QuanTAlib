@@ -32,6 +32,13 @@ public sealed class RingBuffer : IEnumerable<double>
     private double _savedValue;
 
     /// <summary>
+    /// Immutable snapshot token for multi-buffer scenarios.
+    /// Allows capturing and restoring buffer state without using the built-in single snapshot.
+    /// </summary>
+    [StructLayout(LayoutKind.Auto)]
+    public readonly record struct SnapshotToken(int Head, int Count, double Sum, double Value);
+
+    /// <summary>
     /// Creates a new RingBuffer with the specified capacity.
     /// Uses pinned memory for SIMD compatibility.
     /// </summary>
@@ -241,9 +248,7 @@ public sealed class RingBuffer : IEnumerable<double>
     private double GetAt(Index index)
     {
         int actualIndex = index.IsFromEnd ? _count - index.Value : index.Value;
-#pragma warning disable S3236 // Caller information arguments should not be provided explicitly - intentionally using cleaner parameter name
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count, nameof(index));
-#pragma warning restore S3236
 
         int start = _count == Capacity ? _head : 0;
         int bufferIdx = (start + actualIndex) % Capacity;
@@ -254,9 +259,7 @@ public sealed class RingBuffer : IEnumerable<double>
     private void SetAt(Index index, double value)
     {
         int actualIndex = index.IsFromEnd ? _count - index.Value : index.Value;
-#pragma warning disable S3236 // Caller information arguments should not be provided explicitly - intentionally using cleaner parameter name
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)actualIndex, (uint)_count, nameof(index));
-#pragma warning restore S3236
 
         int start = _count == Capacity ? _head : 0;
         int bufferIdx = (start + actualIndex) % Capacity;
@@ -272,7 +275,7 @@ public sealed class RingBuffer : IEnumerable<double>
     /// If wrapped, returns span over a copy.
     /// </summary>
     /// <remarks>
-    /// <para><b>� Allocation Warning:</b> When the buffer wraps around (i.e., when data spans
+    /// <para><b>Ãƒâ€šÃ‚Â  Allocation Warning:</b> When the buffer wraps around (i.e., when data spans
     /// from the end of the internal array back to the beginning), this method allocates a new
     /// array via <see cref="ToArray"/> to return contiguous data. For allocation-free iteration
     /// over wrapped buffers, use <see cref="GetSequencedSpans"/> instead.</para>
@@ -567,6 +570,32 @@ public sealed class RingBuffer : IEnumerable<double>
         _sum = _savedSum;
         // Restore the value at _head position that was saved before the Add()
         _buffer[_head] = _savedValue;
+    }
+
+    /// <summary>
+    /// Creates a snapshot token that captures the current buffer state.
+    /// Use this for multi-buffer scenarios where you need to snapshot multiple buffers atomically.
+    /// Must be called BEFORE adding a new value if you intend to restore later.
+    /// </summary>
+    /// <returns>An immutable token containing the buffer state.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public SnapshotToken GetSnapshot()
+    {
+        return new SnapshotToken(_head, _count, _sum, _buffer[_head]);
+    }
+
+    /// <summary>
+    /// Restores the buffer to the state captured in the provided snapshot token.
+    /// Use this for multi-buffer scenarios where you need to restore multiple buffers atomically.
+    /// </summary>
+    /// <param name="token">The snapshot token to restore from.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RestoreSnapshot(SnapshotToken token)
+    {
+        _head = token.Head;
+        _count = token.Count;
+        _sum = token.Sum;
+        _buffer[_head] = token.Value;
     }
 
     /// <summary>

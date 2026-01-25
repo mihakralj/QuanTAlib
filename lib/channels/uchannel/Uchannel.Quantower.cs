@@ -59,14 +59,13 @@ public class UchannelIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        var item = HistoricalData[0, SeekOriginHistory.End];
         double open = item[PriceType.Open];
         double high = item[PriceType.High];
         double low = item[PriceType.Low];
         double close = item[PriceType.Close];
-        var time = HistoricalData.Time();
 
-        TBar input = new(time, open, high, low, close, item[PriceType.Volume]);
+        TBar input = new(item.TimeLeft, open, high, low, close, item[PriceType.Volume]);
         TValue result = uchannel!.Update(input, args.IsNewBar());
 
         MiddleSeries!.SetValue(result.Value, uchannel.IsHot, ShowColdValues);

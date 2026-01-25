@@ -123,7 +123,10 @@ public sealed class Usf : AbstractBase
 
             double usf = (_state.Count < 4)
                 ? val
-                : (1.0 - _c1) * val + (2.0 * _c1 - _c2) * _state.PrevInput1 - (_c1 + _c3) * _state.PrevInput2 + _c2 * _state.Usf1 + _c3 * _state.Usf2;
+                : Math.FusedMultiplyAdd(_c3, _state.Usf2,
+                    Math.FusedMultiplyAdd(_c2, _state.Usf1,
+                        Math.FusedMultiplyAdd(_k2, _state.PrevInput2,
+                            Math.FusedMultiplyAdd(_k1, _state.PrevInput1, _k0 * val))));
 
             _state.Usf2 = _state.Usf1;
             _state.Usf1 = usf;

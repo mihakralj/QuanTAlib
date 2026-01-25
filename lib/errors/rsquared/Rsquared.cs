@@ -110,25 +110,22 @@ public sealed class Rsquared : AbstractBase
         {
             _state = _p_state;
 
-            // Update actual buffer
-            double removedActual = _actualBuffer.Count == _actualBuffer.Capacity ? _actualBuffer.Oldest : 0.0;
-            _state.ActualSum = _state.ActualSum - removedActual + actualVal;
+            // Bar correction: update buffers and recalculate sums
             _actualBuffer.UpdateNewest(actualVal);
-            _state.ActualSum = _actualBuffer.RecalculateSum();
 
             // Calculate mean and errors
-            double mean = _state.ActualSum / _actualBuffer.Count;
+            double mean = _actualBuffer.RecalculateSum() / _actualBuffer.Count;
+            _state.ActualSum = _actualBuffer.RecalculateSum();
+
             double residual = actualVal - predictedVal;
             double totalDev = actualVal - mean;
             double sqResidual = residual * residual;
             double sqTotal = totalDev * totalDev;
 
-            // Update squared residual buffer
             _sqResidualBuffer.UpdateNewest(sqResidual);
-            _state.SqResidualSum = _sqResidualBuffer.RecalculateSum();
-
-            // Update squared total buffer
             _sqTotalBuffer.UpdateNewest(sqTotal);
+
+            _state.SqResidualSum = _sqResidualBuffer.RecalculateSum();
             _state.SqTotalSum = _sqTotalBuffer.RecalculateSum();
         }
 

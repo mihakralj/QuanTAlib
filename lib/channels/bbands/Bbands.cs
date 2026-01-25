@@ -255,39 +255,63 @@ public sealed class Bbands : AbstractBase
         // Calculate SMA using static batch method
         Sma.Batch(source, middle, period);
 
-        // Calculate standard deviation and bands
-        for (int i = 0; i < len; i++)
+        // Calculate standard deviation and bands using O(n) rolling sums
+        // Instead of O(n²) nested loop, maintain running sum and sumSq
+        double rollingSum = 0.0;
+        double rollingSumSq = 0.0;
+
+        // Initialize rolling sums for first window
+        for (int i = 0; i < Math.Min(period, len); i++)
         {
+            double val = source[i];
+            if (double.IsFinite(val))
+            {
+                rollingSum += val;
+                rollingSumSq += val * val;
+            }
+
             if (i < period - 1)
             {
                 upper[i] = double.NaN;
                 lower[i] = double.NaN;
-                continue;
             }
+        }
 
-            // Calculate standard deviation for the current window
-            double sum = 0.0;
-            double sumSq = 0.0;
-            int count = 0;
+        // Process first complete window
+        if (len >= period)
+        {
+            double mean = rollingSum / period;
+            double variance = (rollingSumSq / period) - (mean * mean);
+            variance = Math.Max(0.0, variance); // Guard against negative due to floating point
+            double stdDev = Math.Sqrt(variance);
+            double offset = multiplier * stdDev;
+            upper[period - 1] = middle[period - 1] + offset;
+            lower[period - 1] = middle[period - 1] - offset;
+        }
 
-            for (int j = i - period + 1; j <= i; j++)
+        // Process remaining bars with O(1) rolling update
+        for (int i = period; i < len; i++)
+        {
+            // Remove outgoing value (leftmost of previous window)
+            double outgoing = source[i - period];
+            if (double.IsFinite(outgoing))
             {
-                double val = source[j];
-                if (double.IsFinite(val))
-                {
-                    sum += val;
-                    sumSq += val * val;
-                    count++;
-                }
+                rollingSum -= outgoing;
+                rollingSumSq -= outgoing * outgoing;
             }
 
-            double variance = 0.0;
-            if (count > 0)
+            // Add incoming value (current)
+            double incoming = source[i];
+            if (double.IsFinite(incoming))
             {
-                double mean = sum / count;
-                variance = (sumSq / count) - (mean * mean);
-                variance = Math.Max(0.0, variance); // Guard against negative due to floating point
+                rollingSum += incoming;
+                rollingSumSq += incoming * incoming;
             }
+
+            // Calculate variance from rolling sums: Var = E[X²] - E[X]²
+            double mean = rollingSum / period;
+            double variance = (rollingSumSq / period) - (mean * mean);
+            variance = Math.Max(0.0, variance); // Guard against negative due to floating point
 
             double stdDev = Math.Sqrt(variance);
             double offset = multiplier * stdDev;

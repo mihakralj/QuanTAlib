@@ -248,6 +248,44 @@ public class RegchannelTests
     }
 
     [Fact]
+    public void BarCorrection_UpdatesLastValid()
+    {
+        // Verifies that bar correction (isNew:false) with a finite value updates LastValid,
+        // so subsequent NaN/Inf inputs use the corrected value, not the pre-correction value.
+        var ind = new Regchannel(5, 2.0);
+        var now = DateTime.UtcNow;
+
+        // Feed initial values
+        ind.Update(new TValue(now, 100));
+        ind.Update(new TValue(now, 110));
+        ind.Update(new TValue(now, 120));
+
+        // Last bar: 130 (LastValid should be 130)
+        ind.Update(new TValue(now, 130));
+
+        // Correct the last bar with isNew:false to 140 (should update LastValid to 140)
+        ind.Update(new TValue(now, 140), isNew: false);
+
+        // Now send NaN - it should use LastValid=140, not the old 130
+        var resultWithNaN = ind.Update(new TValue(now, double.NaN));
+
+        // The regression should include 100, 110, 120, 140 (the corrected value)
+        // If bug existed, it would use 130 instead
+        Assert.True(double.IsFinite(resultWithNaN.Value));
+
+        // Verify by checking the buffer contains the corrected value
+        // The regression endpoint should reflect using 140 not 130
+        // For 4 values [100, 110, 120, 140]:
+        // sumX = 0+1+2+3 = 6, sumX² = 14, n=4
+        // sumY = 470, sumXY = 0*100 + 1*110 + 2*120 + 3*140 = 770
+        // denom = 4*14 - 36 = 20
+        // slope = (4*770 - 6*470) / 20 = (3080 - 2820) / 20 = 13
+        // intercept = (470 - 13*6) / 4 = (470 - 78) / 4 = 98
+        // regression at x=3: 98 + 13*3 = 137
+        Assert.Equal(137.0, resultWithNaN.Value, 1e-9);
+    }
+
+    [Fact]
     public void Reset_ClearsState()
     {
         var ind = new Regchannel(10, 2.0);

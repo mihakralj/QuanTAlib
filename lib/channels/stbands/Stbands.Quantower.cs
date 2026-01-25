@@ -53,11 +53,10 @@ public class StbandsIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
-        var time = HistoricalData.Time();
+        var item = HistoricalData[0, SeekOriginHistory.End];
 
         TBar bar = new(
-            time,
+            item.TimeLeft,
             item[PriceType.Open],
             item[PriceType.High],
             item[PriceType.Low],

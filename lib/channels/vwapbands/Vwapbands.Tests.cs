@@ -314,6 +314,37 @@ public class VwapbandsTests
     }
 
     [Fact]
+    public void Vwapbands_SessionReset_ResetsIsHotGating()
+    {
+        var vwapbands = new Vwapbands(1.0);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Process bars until IsHot is true (WarmupPeriod = 2)
+        vwapbands.Update(bars[0]);
+        Assert.False(vwapbands.IsHot);
+        vwapbands.Update(bars[1]);
+        Assert.True(vwapbands.IsHot);
+
+        // Process more bars to ensure we're well past warmup
+        for (int i = 2; i < 10; i++)
+        {
+            vwapbands.Update(bars[i]);
+        }
+        Assert.True(vwapbands.IsHot);
+
+        // Reset session - IsHot should become false
+        var resetBar1 = new TBar(DateTime.UtcNow, 200, 210, 190, 200, 1000);
+        vwapbands.Update(resetBar1, isNew: true, reset: true);
+        Assert.False(vwapbands.IsHot, "IsHot should be false after reset (1 bar accumulated)");
+
+        // Process second bar after reset - IsHot should become true
+        var resetBar2 = new TBar(DateTime.UtcNow.AddMinutes(1), 205, 215, 195, 205, 1100);
+        vwapbands.Update(resetBar2, isNew: true);
+        Assert.True(vwapbands.IsHot, "IsHot should be true after 2 bars accumulated post-reset");
+    }
+
+    [Fact]
     public void Vwapbands_VwapFormula_MatchesExpected()
     {
         var vwapbands = new Vwapbands(1.0);

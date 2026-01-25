@@ -97,11 +97,13 @@ public sealed class Wmape : AbstractBase
         }
         else
         {
-            // Simplified: just update buffers and recalculate sums (no redundant arithmetic)
+            // Bar correction: update buffer and recalculate sums
+            // Note: _p_state was saved BEFORE the Add, but buffer still has the added value
+            // So we update newest and recalculate to ensure consistency
             _absErrorBuffer.UpdateNewest(absError);
-            _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
-
             _absActualBuffer.UpdateNewest(absActual);
+
+            _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
             _state.AbsActualSum = _absActualBuffer.RecalculateSum();
         }
 

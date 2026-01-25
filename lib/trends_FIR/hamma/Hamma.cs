@@ -43,7 +43,7 @@ public sealed class Hamma : AbstractBase
     private bool _isNew = true;
 
     [StructLayout(LayoutKind.Auto)]
-    private struct State
+    private record struct State
     {
         public double LastValidValue;
         public bool IsInitialized;

@@ -15,13 +15,11 @@ public sealed class Notch : AbstractBase
     private State _p_state;
 
     [StructLayout(LayoutKind.Auto)]
-    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
-    private struct State
+    private record struct State
     {
         public double X1, X2, Y1, Y2;
         public double LastValue;
     }
-    #pragma warning restore CA1066
 
     public int NotchFreq { get; }
     public double Bandwidth { get; }

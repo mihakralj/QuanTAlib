@@ -29,7 +29,7 @@ public sealed class Frama : ITValuePublisher
     private readonly TValuePublishedHandler _handler;
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct State
+    private record struct State
     {
         public double Frama;
         public double LastHigh;

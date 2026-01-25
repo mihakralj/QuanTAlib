@@ -326,6 +326,37 @@ public class VwapsdTests
     }
 
     [Fact]
+    public void Vwapsd_SessionReset_ResetsIsHotGating()
+    {
+        var vwapsd = new Vwapsd(1.0);
+        var gbm = new GBM(startPrice: 100.0, mu: 0.02, sigma: 0.1, seed: 42);
+        var bars = gbm.Fetch(20, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
+
+        // Process bars until IsHot is true (WarmupPeriod = 2)
+        vwapsd.Update(bars[0]);
+        Assert.False(vwapsd.IsHot);
+        vwapsd.Update(bars[1]);
+        Assert.True(vwapsd.IsHot);
+
+        // Process more bars to ensure we're well past warmup
+        for (int i = 2; i < 10; i++)
+        {
+            vwapsd.Update(bars[i]);
+        }
+        Assert.True(vwapsd.IsHot);
+
+        // Reset session - IsHot should become false
+        var resetBar1 = new TBar(DateTime.UtcNow, 200, 210, 190, 200, 1000);
+        vwapsd.Update(resetBar1, isNew: true, reset: true);
+        Assert.False(vwapsd.IsHot, "IsHot should be false after reset (1 bar accumulated)");
+
+        // Process second bar after reset - IsHot should become true
+        var resetBar2 = new TBar(DateTime.UtcNow.AddMinutes(1), 205, 215, 195, 205, 1100);
+        vwapsd.Update(resetBar2, isNew: true);
+        Assert.True(vwapsd.IsHot, "IsHot should be true after 2 bars accumulated post-reset");
+    }
+
+    [Fact]
     public void Vwapsd_VwapFormula_MatchesExpected()
     {
         var vwapsd = new Vwapsd(1.0);

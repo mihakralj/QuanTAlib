@@ -16,14 +16,8 @@ public sealed class Dchannel : ITValuePublisher
     private readonly int _period;
     private readonly double[] _hBuf;
     private readonly double[] _lBuf;
-    private readonly int[] _hDeque;
-    private readonly int[] _lDeque;
-
-    // Queue state
-    private int _hHead;
-    private int _hCount;
-    private int _lHead;
-    private int _lCount;
+    private readonly MonotonicDeque _maxDeque;
+    private readonly MonotonicDeque _minDeque;
 
     // Rolling counters
     private int _count;
@@ -53,12 +47,8 @@ public sealed class Dchannel : ITValuePublisher
         _period = period;
         _hBuf = new double[_period];
         _lBuf = new double[_period];
-        _hDeque = new int[_period];
-        _lDeque = new int[_period];
-        _hHead = 0;
-        _lHead = 0;
-        _hCount = 0;
-        _lCount = 0;
+        _maxDeque = new MonotonicDeque(_period);
+        _minDeque = new MonotonicDeque(_period);
         _count = 0;
         _index = -1;
         _state = new State(double.NaN, double.NaN, false);
@@ -97,90 +87,6 @@ public sealed class Dchannel : ITValuePublisher
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void PushMax(long logicalIndex, double value)
-    {
-        // Expire old indices
-        long expire = logicalIndex - _period;
-        while (_hCount > 0 && _hDeque[_hHead] <= expire)
-        {
-            _hHead = (_hHead + 1) % _period;
-            _hCount--;
-        }
-
-        // Maintain monotonic non-increasing deque
-        int backIdx;
-        while (_hCount > 0)
-        {
-            backIdx = (_hHead + _hCount - 1) % _period;
-            int bufIdx = _hDeque[backIdx] % _period;
-            if (_hBuf[bufIdx] <= value)
-            {
-                _hCount--;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        int tail = (_hHead + _hCount) % _period;
-        _hDeque[tail] = (int)logicalIndex;
-        _hCount++;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void PushMin(long logicalIndex, double value)
-    {
-        long expire = logicalIndex - _period;
-        while (_lCount > 0 && _lDeque[_lHead] <= expire)
-        {
-            _lHead = (_lHead + 1) % _period;
-            _lCount--;
-        }
-
-        int backIdx;
-        while (_lCount > 0)
-        {
-            backIdx = (_lHead + _lCount - 1) % _period;
-            int bufIdx = _lDeque[backIdx] % _period;
-            if (_lBuf[bufIdx] >= value)
-            {
-                _lCount--;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        int tail = (_lHead + _lCount) % _period;
-        _lDeque[tail] = (int)logicalIndex;
-        _lCount++;
-    }
-
-    private void RebuildDeques()
-    {
-        _hHead = 0;
-        _lHead = 0;
-        _hCount = 0;
-        _lCount = 0;
-
-        if (_count == 0)
-            return;
-
-        long startLogical = _index - _count + 1;
-        for (int i = 0; i < _count; i++)
-        {
-            long logicalIndex = startLogical + i;
-            int bufIdx = (int)(logicalIndex % _period);
-            double h = _hBuf[bufIdx];
-            double l = _lBuf[bufIdx];
-            PushMax(logicalIndex, h);
-            PushMin(logicalIndex, l);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
@@ -213,17 +119,18 @@ public sealed class Dchannel : ITValuePublisher
 
         if (isNew)
         {
-            PushMax(_index, high);
-            PushMin(_index, low);
+            _maxDeque.PushMax(_index, high, _hBuf);
+            _minDeque.PushMin(_index, low, _lBuf);
         }
         else
         {
             // Correcting current bar: rebuild deques to maintain consistency
-            RebuildDeques();
+            _maxDeque.RebuildMax(_hBuf, _index, _count);
+            _minDeque.RebuildMin(_lBuf, _index, _count);
         }
 
-        double top = _hBuf[_hDeque[_hHead] % _period];
-        double bot = _lBuf[_lDeque[_lHead] % _period];
+        double top = _maxDeque.GetExtremum(_hBuf);
+        double bot = _minDeque.GetExtremum(_lBuf);
         double mid = (top + bot) * 0.5;
 
         if (!IsHot && _count >= _period)
@@ -296,10 +203,8 @@ public sealed class Dchannel : ITValuePublisher
     {
         Array.Clear(_hBuf);
         Array.Clear(_lBuf);
-        _hHead = 0;
-        _lHead = 0;
-        _hCount = 0;
-        _lCount = 0;
+        _maxDeque.Reset();
+        _minDeque.Reset();
         _count = 0;
         _index = -1;
         _state = new State(double.NaN, double.NaN, false);

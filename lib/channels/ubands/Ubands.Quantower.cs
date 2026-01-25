@@ -57,11 +57,10 @@ public class UbandsIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         var priceSelector = Source.GetPriceSelector();
-        var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
+        var item = HistoricalData[0, SeekOriginHistory.End];
         double price = priceSelector(item);
-        var time = HistoricalData.Time();
 
-        TValue input = new(time, price);
+        TValue input = new(item.TimeLeft, price);
         TValue result = ubands!.Update(input, args.IsNewBar());
 
         MiddleSeries!.SetValue(result.Value, ubands.IsHot, ShowColdValues);

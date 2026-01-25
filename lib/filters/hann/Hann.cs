@@ -20,13 +20,11 @@ public sealed class Hann : AbstractBase
     private State _p_state;
 
     [StructLayout(LayoutKind.Auto)]
-    #pragma warning disable CA1066 // Implement IEquatable<T> because it overrides Equals
-    private struct State
+    private record struct State
     {
         public double LastValue;
         public bool IsHot;
     }
-    #pragma warning restore CA1066
 
     /// <summary>
     /// Gets the length of the window (period).

@@ -132,8 +132,7 @@ public sealed class Vwapsd : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TBar bar, bool isNew = true, bool reset = false)
     {
-        double hlc3 = (bar.High + bar.Low + bar.Close) / 3.0;
-        return Update(new TValue(bar.Time, hlc3), bar.Volume, isNew, reset);
+        return Update(new TValue(bar.Time, bar.HLC3), bar.Volume, isNew, reset);
     }
 
     /// <summary>
@@ -168,6 +167,9 @@ public sealed class Vwapsd : AbstractBase
         // Handle reset
         if (reset || !_state.IsInitialized)
         {
+            // Reset warmup tracking for proper IsHot gating after session reset
+            _index = 1;
+
             if (vol > 0)
             {
                 _state = _state with

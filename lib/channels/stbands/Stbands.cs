@@ -33,8 +33,6 @@ public sealed class Stbands : AbstractBase
 {
     private readonly double _multiplier;
     private readonly RingBuffer _trBuffer;
-    private double _trSum;
-    private int _trCount;
     private const int DefaultPeriod = 10;
     private const double DefaultMultiplier = 3.0;
     private const double MinMultiplier = 0.001;
@@ -47,8 +45,6 @@ public sealed class Stbands : AbstractBase
         double FinalLower,
         int Trend,
         double PrevClose,
-        double TrSum,
-        int TrCount,
         bool IsInitialized);
 
     private State _state;
@@ -102,9 +98,7 @@ public sealed class Stbands : AbstractBase
     private void Init()
     {
         _index = 0;
-        _trSum = 0;
-        _trCount = 0;
-        _state = new State(0, 0, 1, 0, 0, 0, false);
+        _state = new State(0, 0, 1, 0, false);
         _p_state = _state;
         _trBuffer.Clear();
         Upper = new TValue(DateTime.UtcNow, 0);
@@ -189,7 +183,7 @@ public sealed class Stbands : AbstractBase
         }
 
         // Update state
-        _state = new State(finalUpper, finalLower, trend, close, _trSum, _trCount, true);
+        _state = new State(finalUpper, finalLower, trend, close, true);
 
         // Update output values
         Upper = new TValue(input.Time, finalUpper);

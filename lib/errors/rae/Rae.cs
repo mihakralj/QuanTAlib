@@ -107,9 +107,7 @@ public sealed class Rae : AbstractBase
         {
             _state = _p_state;
 
-            // Update actual buffer
-            double removedActual = _actualBuffer.Count == _actualBuffer.Capacity ? _actualBuffer.Oldest : 0.0;
-            _state.ActualSum = _state.ActualSum - removedActual + actualVal;
+            // Update buffers and recalculate sums (buffer state is inconsistent with _p_state)
             _actualBuffer.UpdateNewest(actualVal);
             _state.ActualSum = _actualBuffer.RecalculateSum();
 
@@ -118,12 +116,9 @@ public sealed class Rae : AbstractBase
             double absError = Math.Abs(actualVal - predictedVal);
             double absBaseline = Math.Abs(actualVal - mean);
 
-            // Update error buffer
             _absErrorBuffer.UpdateNewest(absError);
-            _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
-
-            // Update baseline buffer
             _absBaselineBuffer.UpdateNewest(absBaseline);
+            _state.AbsErrorSum = _absErrorBuffer.RecalculateSum();
             _state.AbsBaselineSum = _absBaselineBuffer.RecalculateSum();
         }
 
@@ -292,4 +287,4 @@ public sealed class Rae : AbstractBase
             }
         }
     }
-}
+}
