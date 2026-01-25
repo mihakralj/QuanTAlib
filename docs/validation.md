@@ -253,7 +253,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Stochastic Oscillator** | Stoch | ✔️ | ✔️ | ✔️ | ❔ |
 | **Stochastic RSI** | Stochrsi | ✔️ | ✔️ | ✔️ | ❔ |
 | **Stoller Average Range Channel** | [Starchannel](../lib/channels/starchannel/starchannel.md) | - | - | - | ❔ |
-| **Super Trend Bands** | Stbands | - | - | - | - |
+| **Super Trend Bands** | [Stbands](../lib/channels/stbands/Stbands.md) | - | - | - | - |
 | **SuperTrend** | [Super](../lib/trends/super/super.md) | - | - | ✔️ | ❔ |
 | **Swing High/Low Detection** | Swings | - | - | - | - |
 | **Symmetric Mean Absolute Percentage Error** | Smape | - | - | - | - |
@@ -270,8 +270,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **TTM Trend** | Ttm | - | - | - | - |
 | **Two-Argument Arctangent** | Atan2 | - | - | - | - |
 | **Ulcer Index** | Ui | - | - | ✔️ | ❔ |
-| **Ultimate Bands** | Ubands | - | - | - | ❔ |
-| **Ultimate Channel** | Uchannel | - | - | - | - |
+| **Ultimate Bands (Ehlers)** | [Ubands](../lib/channels/ubands/Ubands.md) | - | - | - | - |
+| **Ultimate Channel** | [Uchannel](../lib/channels/uchannel/Uchannel.md) | - | - | - | - |
 | **Ultimate Oscillator** | [Ultosc](../lib/momentum/ultosc/Ultosc.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | ✔️ | - | ❔ |
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
@@ -286,8 +286,8 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Volume Weighted Average Price** | Vwap | - | - | ✔️ | ❔ |
 | **Volume Weighted Moving Average** | Vwma | - | ✔️ | ✔️ | ❔ |
 | **Vortex Indicator** | Vortex | - | - | ✔️ | ❔ |
-| **VWAP Bands** | Vwapbands | - | - | - | - |
-| **VWAP with Standard Deviation Bands** | Vwapsd | - | - | - | - |
+| **VWAP Bands** | [Vwapbands](../lib/channels/vwapbands/Vwapbands.md) | - | - | - | - |
+| **VWAP with Standard Deviation Bands** | [Vwapsd](../lib/channels/vwapsd/Vwapsd.md) | - | - | - | - |
 | **Weighted Moving Average** | [Wma](../lib/trends/wma/wma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Wiener Filter** | Wiener | - | - | - | - |
 | **Williams %R** | Willr | ✔️ | ✔️ | ✔️ | ❔ |

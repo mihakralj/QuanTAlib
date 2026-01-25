@@ -25,8 +25,8 @@ Channels define dynamic support and resistance. Upper band shows where price ten
 | [REGCHANNEL](regchannel/RegChannel.md) | Linear Regression Channel | Linear regression line with standard deviation bands. |
 | [SDCHANNEL](sdchannel/SdChannel.md) | Standard Deviation Channel | Moving average with standard deviation bands. |
 | [STARCHANNEL](starchannel/StarChannel.md) | Stoller Average Range Channel | SMA with ATR bands. Similar to Keltner but uses SMA instead of EMA. |
-| STBANDS | Super Trend Bands | ATR-based trend-following bands. Flips direction on breakout. |
-| UBANDS | Universal Bands | Flexible band system supporting multiple MA types and band calculations. |
-| UCHANNEL | Universal Channel | Flexible channel implementation supporting multiple methods. |
-| VWAPBANDS | VWAP Bands | Volatility bands around VWAP. Institutional trading reference. |
-| VWAPSD | VWAP Standard Deviation Bands | Standard deviation bands around VWAP. |
+| [STBANDS](stbands/Stbands.md) | Super Trend Bands | ATR-based trend-following bands. Flips direction on breakout. |
+| [UBANDS](ubands/Ubands.md) | Ehlers Ultimate Bands | USF-based volatility channel with RMS bands. Zero-lag smoothing by Ehlers. |
+| [UCHANNEL](uchannel/Uchannel.md) | Ehlers Ultimate Channel | USF-based volatility channel with Smoothed True Range bands. Zero-lag by Ehlers. |
+| [VWAPBANDS](vwapbands/Vwapbands.md) | VWAP Bands | Volume-weighted average price with dual ±1σ and ±2σ standard deviation bands. |
+| [VWAPSD](vwapsd/Vwapsd.md) | VWAP Standard Deviation Bands | Standard deviation bands around VWAP. |

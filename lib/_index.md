@@ -325,8 +325,8 @@
 | VROC | Volume Rate of Change | Volume |
 | VWAD | Volume Weighted A/D | Volume |
 | VWAP | Volume Weighted Average Price | Volume |
-| VWAPBANDS | VWAP Bands | Channels |
-| VWAPSD | VWAP Standard Deviation Bands | Channels |
+| [VWAPBANDS](lib/channels/vwapbands/Vwapbands.md) | VWAP Bands | Channels |
+| [VWAPSD](lib/channels/vwapsd/Vwapsd.md) | VWAP Standard Deviation Bands | Channels |
 | VWMA | Volume Weighted MA | Volume |
 | WAD | Williams A/D | Volume |
 | WAVG | Weighted Average | Statistics |

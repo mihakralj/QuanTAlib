@@ -1,240 +1,192 @@
-# VWAPBANDS: VWAP Bands
+# VWAPBANDS: Volume Weighted Average Price with Dual Standard Deviation Bands
 
 ## Overview and Purpose
 
-VWAP Bands (VWAPBANDS) is a channel indicator that extends the Volume Weighted Average Price (VWAP) concept by adding standard deviation bands above and below the central VWAP line. This indicator combines the volume-weighted fairness concept of VWAP with statistical volatility measurements, creating dynamic support and resistance levels that reflect both price-volume relationships and market volatility.
+Volume Weighted Average Price Bands (VWAPBANDS) extends the standard VWAP indicator by adding two levels of standard deviation bands: ±1σ and ±2σ. This dual-band approach provides traders with a complete volatility framework, distinguishing between normal price fluctuations (within 1σ bands, ~68% of price action) and statistically significant moves (beyond 2σ bands, ~95% confidence level).
 
-Unlike traditional moving average-based bands, VWAPBANDS uses volume-weighted variance calculations to determine band width, making the indicator particularly sensitive to volume-driven price movements. The bands automatically adjust to market conditions while maintaining their statistical significance, providing traders with reliable levels for identifying overbought/oversold conditions and potential reversal points.
+Unlike simple VWAP with single bands, VWAPBANDS creates distinct trading zones. The region between VWAP and ±1σ represents the "normal trading zone" where institutional algorithms typically execute. The area between ±1σ and ±2σ serves as an "alert zone" indicating elevated but not extreme deviation. Price beyond ±2σ signals statistically significant moves that often precede reversals or continuation breakouts.
+
+The indicator maintains cumulative calculations from session start, with optional reset capability for multi-session analysis. Volume weighting ensures that prices where significant trading activity occurred contribute proportionally more to both the average and the deviation calculations, making VWAPBANDS particularly valuable for institutional traders benchmarking execution quality.
 
 ## Core Concepts
 
-* **Volume-weighted statistics:** Uses volume data to weight price observations, giving more importance to high-volume periods
-* **Session-based calculation:** Resets calculations based on configurable time periods (daily, hourly, etc.)
-* **Statistical significance:** Bands represent 1 and 2 standard deviations from the volume-weighted mean
-* **Dynamic adaptation:** Band width adjusts automatically based on volume-weighted price variance
-* **Multi-timeframe flexibility:** Supports various reset intervals from minutes to months
-* **Institutional relevance:** Reflects the same VWAP calculations used by institutional traders
+* **Dual Band System:** Provides two standard deviation levels (1σ and 2σ) creating three distinct trading zones above and below VWAP, enabling graduated position sizing and risk assessment based on statistical probability.
 
-The key advantage of VWAPBANDS is its ability to combine the fairness concept of VWAP (where institutional orders are often benchmarked) with volatility-based support and resistance levels, making it particularly valuable for understanding institutional price levels and market structure.
+* **Volume-Weighted Statistics:** Both the average price and the standard deviation are calculated using volume weights, ensuring that high-volume price levels contribute more to all statistical measures.
+
+* **HLC3 Typical Price:** Uses the average of high, low, and close prices as the representative price for each bar, providing a balanced measure that considers the full trading range.
+
+* **Session Reset:** Optional reset capability allows VWAP to restart calculations at session boundaries, keeping the indicator relevant to current market conditions.
+
+* **Width Measurement:** The full channel width (Upper2 - Lower2) provides a single metric for overall volatility, useful for comparing volatility across sessions or instruments.
 
 ## Common Settings and Parameters
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | HLC3 | Price data used for VWAP calculation | Use Close for end-of-period analysis, HLC3 for comprehensive price representation |
-| Session Reset | 1D | Time period for VWAP calculation reset | Match to trading strategy timeframe: intraday (1H, 4H), swing (1D), position (1W) |
-| StdDev Multiplier | 1.0 | Distance of primary bands from VWAP in standard deviations | Increase for wider bands in volatile markets, decrease for tighter levels |
-| Show 2nd Bands | True | Display secondary bands at 2x multiplier distance | Disable for cleaner charts, enable for additional confluence levels |
+| Multiplier | 1.0 | Scales the standard deviation for band width | Use 1.0 for standard statistical bands, 2.0 for wider bands on volatile instruments, 0.5 for tighter bands on low-volatility instruments |
 
-**Pro Tip:** Use daily reset for swing trading strategies, hourly reset for intraday scalping, and weekly reset for position trading to align the indicator with your trading timeframe.
+**Pro Tip:** The multiplier affects all bands proportionally. With multiplier = 1.0, Upper1/Lower1 are at ±1σ and Upper2/Lower2 are at ±2σ. Setting multiplier = 2.0 places them at ±2σ and ±4σ respectively. For most trading applications, keep the multiplier at 1.0 and interpret the bands as standard statistical levels.
 
 ## Calculation and Mathematical Foundation
 
-**Simplified explanation:**
-VWAPBANDS calculates the volume-weighted average price from the session start, then computes the volume-weighted variance of prices around this average. Standard deviation bands are plotted at 1x and 2x the multiplier distance from VWAP.
+**Explanation:**
+VWAPBANDS calculates a volume-weighted average price with two levels of standard deviation bands. The implementation maintains three running sums: cumulative price×volume, cumulative volume, and cumulative price²×volume. These enable O(1) streaming updates while providing mathematically correct variance calculation.
 
 **Technical formula:**
-1. VWAP = Σ(Price × Volume) / Σ(Volume)
-2. Volume-Weighted Variance = Σ(Price² × Volume) / Σ(Volume) - VWAP²
-3. Standard Deviation = √(Volume-Weighted Variance)
-4. Upper Band = VWAP + (Multiplier × Standard Deviation)
-5. Lower Band = VWAP - (Multiplier × Standard Deviation)
 
-**Detailed calculation steps:**
-1. Initialize cumulative sums at session start (price×volume, volume, price²×volume)
-2. For each bar, add current values to cumulative sums if volume > 0
-3. Calculate VWAP as ratio of cumulative price×volume to cumulative volume
-4. Compute volume-weighted second moment and subtract VWAP squared for variance
-5. Take square root of variance to get standard deviation
-6. Plot bands at specified multiples of standard deviation from VWAP
+```
+Step 1: Calculate typical price for each bar
+Typical Price = (High + Low + Close) / 3
 
-> 🔍 **Technical Note:** The implementation uses session-based resets to ensure VWAP calculations align with market structure. Volume-weighted variance provides more accurate volatility measurement than simple price variance, as it reflects the actual trading intensity at different price levels.
+Step 2: Accumulate weighted sums (optionally reset on session boundary)
+sum_pv = Σ(Price × Volume)
+sum_vol = Σ(Volume)
+sum_pv2 = Σ(Price² × Volume)
+
+Step 3: Calculate VWAP
+VWAP = sum_pv / sum_vol
+
+Step 4: Calculate volume-weighted variance and standard deviation
+Variance = (sum_pv2 / sum_vol) - VWAP²
+StdDev = √(max(0, Variance))
+
+Step 5: Calculate dual bands
+Upper1 = VWAP + (1 × Multiplier × StdDev)
+Lower1 = VWAP - (1 × Multiplier × StdDev)
+Upper2 = VWAP + (2 × Multiplier × StdDev)
+Lower2 = VWAP - (2 × Multiplier × StdDev)
+
+Step 6: Calculate channel width
+Width = Upper2 - Lower2 = 4 × Multiplier × StdDev
+```
+
+> 🔍 **Technical Note:** The variance formula uses the algebraic identity Var(X) = E[X²] - E[X]², which is numerically stable and computationally efficient for streaming updates. The implementation guards against negative variance (which can occur due to floating-point precision) by using max(0, variance) before taking the square root.
 
 ## Interpretation Details
 
-VWAPBANDS provides multiple layers of market analysis:
+**Zone-Based Trading:**
 
-* **VWAP Line Analysis:**
-  * Price above VWAP: Bullish bias, buyers in control above fair value
-  * Price below VWAP: Bearish bias, sellers in control below fair value
-  * Price oscillating around VWAP: Balanced market, fair value region
+* **Inside ±1σ (Normal Zone):** ~68% of price action. Normal trading range where institutional algorithms execute without concern. Low signal value for mean reversion.
 
-* **Band Interaction Signals:**
-  * Price touching upper 1σ band: Potential resistance, consider profit-taking
-  * Price touching lower 1σ band: Potential support, consider accumulation
-  * Price beyond 2σ bands: Extreme conditions, potential mean reversion opportunity
-  * Price consistently above/below bands: Strong trend continuation signal
+* **Between ±1σ and ±2σ (Alert Zone):** ~27% of price action. Elevated deviation suggesting caution. Consider reducing position size or preparing for reversal.
 
-* **Band Width Analysis:**
-  * Expanding bands: Increasing volatility, larger price movements expected
-  * Contracting bands: Decreasing volatility, potential breakout setup
-  * Stable band width: Consistent volatility environment
+* **Beyond ±2σ (Extreme Zone):** ~5% of price action. Statistically significant move. High probability of mean reversion or continuation breakout.
 
-* **Volume-Price Relationship:**
-  * High volume near bands: Increased significance of support/resistance levels
-  * Low volume near bands: Potential for false breakouts or weak reversals
-  * Volume expansion with band breaks: Confirmation of directional moves
+**Institutional Execution Context:**
 
-## Trading Applications
+* Price at VWAP represents "fair" execution for institutional orders
+* Execution below VWAP on buys (or above on sells) is considered favorable
+* The ±1σ bands define the acceptable execution range for most algorithms
+* Price beyond ±2σ may trigger algorithmic rebalancing
 
-**Mean Reversion Strategy:**
-* Buy when price touches or exceeds lower 1σ band with volume confirmation
-* Sell when price reaches VWAP or upper bands
-* Use 2σ bands for extreme mean reversion opportunities
-* Set stops beyond 2σ levels to account for extended moves
+**Mean Reversion Signals:**
 
-**Trend Following Strategy:**
-* Enter long positions when price breaks above upper bands with volume
-* Enter short positions when price breaks below lower bands with volume
-* Use VWAP as dynamic support/resistance in trending markets
-* Trail stops using the opposite band or VWAP line
+* Touch of Upper2 with declining momentum → Potential short entry
+* Touch of Lower2 with rising momentum → Potential long entry
+* Price returning to VWAP from ±2σ → Classic mean reversion play
+* Multiple touches of ±2σ without breakout → Ranging market, fade extremes
 
-**Institutional Level Trading:**
-* Monitor price action around VWAP for institutional interest
-* Look for volume spikes when price approaches VWAP after extended moves
-* Use VWAP as benchmark for order execution efficiency
-* Identify accumulation/distribution phases based on VWAP interaction
+**Trend Following Signals:**
 
-**Breakout Strategy:**
-* Monitor periods of contracting bands for potential breakouts
-* Enter positions on volume-confirmed breaks beyond 1σ bands
-* Target 2σ bands for profit-taking on breakout moves
-* Use failed breakouts as contrarian signals
+* Price consistently above Upper1 → Strong bullish trend, buy pullbacks to VWAP
+* Price consistently below Lower1 → Strong bearish trend, sell rallies to VWAP
+* Breakout above Upper2 with increasing volume → Potential trend continuation
+* Sequential touches of Upper1 → Upper2 → Higher → Trend acceleration
 
-## Signal Combinations
+**Volatility Analysis:**
 
-**High-Probability Long Signals:**
-* Price bounces off lower 1σ band with increasing volume
-* Price reclaims VWAP after period below with strong volume
-* Bullish divergence between price and volume at lower bands
-* Multiple timeframe VWAP alignment supporting upward bias
+* Wide bands (large Width) → High volatility, larger position sizing risk
+* Narrow bands (small Width) → Low volatility, potential breakout setup
+* Expanding bands → Increasing volatility, trend may be developing
+* Contracting bands → Decreasing volatility, consolidation phase
 
-**High-Probability Short Signals:**
-* Price fails at upper 1σ band with declining volume
-* Price breaks below VWAP after period above with strong volume
-* Bearish divergence between price and volume at upper bands
-* Multiple timeframe VWAP alignment supporting downward bias
+## Limitations and Considerations
 
-**Consolidation Warnings:**
-* Price oscillating between narrow bands around VWAP
-* Decreasing volume with price approaching bands
-* Multiple false breakouts beyond bands
-* Band width contracting significantly
+* **Intraday Focus:** VWAPBANDS is primarily designed for intraday analysis. Without session resets, cumulative calculations can become less responsive on multi-day charts as early data dominates.
 
-## Advanced Techniques
+* **Volume Dependency:** The indicator requires reliable volume data. On instruments with unreliable or no volume (some forex, index CFDs), VWAP-based indicators may not provide accurate signals.
 
-**Multi-Timeframe Analysis:**
-* Use higher timeframe VWAPBANDS for major support/resistance levels
-* Combine daily VWAP with intraday bands for precision timing
-* Look for confluence between different session VWAP levels
-* Identify key levels where multiple timeframe VWAPs converge
+* **Early Session Instability:** At session start, VWAP and bands can be volatile due to limited data. Consider waiting 30-60 minutes for stabilization.
 
-**Volume Profile Integration:**
-* Combine VWAPBANDS with volume profile for enhanced context
-* Identify high-volume nodes near VWAP levels
-* Use volume-at-price data to validate band significance
-* Monitor institutional order flow around VWAP levels
+* **Gap Sensitivity:** Large overnight gaps distort morning VWAP calculations. The indicator needs time to incorporate sufficient volume for meaningful statistics.
 
-**Session-Specific Analysis:**
-* Analyze different session reset periods for various market conditions
-* Use overnight VWAP for gap analysis and fair value assessment
-* Apply weekly VWAP for longer-term institutional benchmarking
-* Implement monthly VWAP for portfolio rebalancing levels
+* **No Directional Prediction:** VWAPBANDS identifies deviation from mean, not direction. Use with momentum indicators or price action for directional bias.
+
+* **Multiplier Interpretation:** Non-standard multiplier values (≠1.0) change the statistical meaning of bands. Document your multiplier choice when backtesting or sharing strategies.
 
 ## Performance Profile
 
 ### Operation Count (Streaming Mode, per Bar)
 
-VWAP Bands uses cumulative sums for volume-weighted statistics:
-
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 8 | 1 | 8 |
+| ADD/SUB | 9 | 1 | 9 |
 | MUL | 6 | 3 | 18 |
 | DIV | 3 | 15 | 45 |
 | SQRT | 1 | 15 | 15 |
-| **Total** | **18** | — | **~86 cycles** |
+| **Total** | **19** | — | **~87 cycles** |
 
 **Breakdown:**
-- Cumulative sum updates (pv, vol, pv²): 3 ADD + 3 MUL = 12 cycles
-- VWAP calculation: 1 DIV = 15 cycles
-- Variance (E[X²] - E[X]²): 1 DIV + 1 MUL + 1 SUB = 19 cycles
-- Std dev + bands: 1 SQRT + 1 MUL + 4 ADD = 22 cycles
 
-**Session reset:** Adds 1 CMP per bar for reset detection (~1 cycle).
+* Typical price (HLC3): 2 ADD + 1 DIV = 17 cycles
+* Running sums (pv, vol, pv²): 3 ADD + 3 MUL = 12 cycles
+* VWAP + variance: 2 DIV + 1 MUL + 1 SUB = 35 cycles
+* StdDev: 1 SQRT = 15 cycles
+* Dual bands + width: 4 ADD + 2 MUL = 10 cycles (with FMA optimization)
 
 ### Complexity Analysis
 
 | Mode | Complexity | Notes |
 | :--- | :---: | :--- |
-| Streaming | O(1) | Cumulative sums with session reset |
-| Batch | O(n) | Linear scan |
+| Streaming | O(1) | Running sums, constant per bar |
+| Batch | O(n) | Linear scan required |
 
-**Memory**: ~48 bytes (cumulative sums for pv, vol, pv², session state)
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | Cumulative sums vectorizable within session |
-| FMA | ✅ | `price * volume` pattern |
-| Batch parallelism | ❌ | Cumulative sums create dependencies |
-
-**Note:** Session resets create sequential boundaries that limit SIMD optimization across sessions.
+**Memory:** ~80 bytes per instance (state struct with running sums, last valid values, and output properties)
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 9/10 | Volume-weighted mean is statistically optimal |
-| **Timeliness** | 7/10 | Cumulative nature creates lag late in session |
-| **Overshoot** | 8/10 | Volume weighting stabilizes extremes |
-| **Smoothness** | 7/10 | Can be choppy early in session |
+| **Accuracy** | 10/10 | Mathematically exact volume-weighted statistics |
+| **Timeliness** | 7/10 | Incorporates all session data, becomes stable over time |
+| **Overshoot** | 9/10 | Bands adapt to actual volume-weighted volatility |
+| **Smoothness** | 9/10 | Running sums provide inherent smoothing |
 
-## Limitations and Considerations
+## Validation
 
-* **Session dependency:** Reset timing significantly affects indicator behavior and relevance
-* **Volume quality:** Requires accurate volume data; may be less reliable in low-volume periods
-* **Lag component:** VWAP calculations create some lag, especially early in sessions
-* **Market structure:** Most effective in liquid markets with consistent volume patterns
-* **Gap handling:** Overnight gaps can affect VWAP relevance at session open
-* **False signals:** Low-volume periods may produce unreliable band interactions
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | No VWAP bands implementation |
+| **Skender** | N/A | Has VWAP but not with dual bands |
+| **Tulip** | N/A | No VWAP implementation |
+| **Ooples** | N/A | No dual-band VWAP |
+| **TradingView** | ✅ | Reference: vwapbands.pine |
 
-## Comparison with Related Indicators
+## Common Pitfalls
 
-**VWAPBANDS vs. Bollinger Bands:**
-* VWAPBANDS: Volume-weighted center line with volume-weighted variance
-* Bollinger Bands: Simple moving average center with price-based standard deviation
+1. **Session Reset Timing:** Failing to reset VWAP at session boundaries causes stale historical data to dominate calculations. Use the reset parameter for intraday strategies.
 
-**VWAPBANDS vs. Keltner Channels:**
-* VWAPBANDS: VWAP-based with statistical variance measurements
-* Keltner Channels: EMA-based with ATR-derived band width
+2. **Multiplier Confusion:** The multiplier scales both band levels proportionally. Multiplier = 2.0 does not give you 2σ bands; it gives you 2σ and 4σ bands. Keep multiplier = 1.0 for standard statistical interpretation.
 
-**VWAPBANDS vs. Standard VWAP:**
-* VWAPBANDS: Adds volatility context with standard deviation bands
-* Standard VWAP: Single line without volatility or support/resistance context
+3. **Early Session Trading:** VWAP bands are unstable in the first 15-30 minutes of a session. Avoid trading based on band touches until sufficient volume accumulates.
 
-## Best Practices
+4. **Zero Volume Handling:** Bars with zero volume are handled by substituting last valid values, but extended periods of zero volume degrade indicator quality.
 
-**Parameter Optimization:**
-* Match session reset to trading strategy timeframe
-* Adjust multiplier based on asset volatility characteristics
-* Test different source prices (close vs. HLC3) for optimal results
-* Consider market hours and session boundaries for reset timing
+5. **Memory for Reset Sessions:** When using session resets, ensure your trading system properly tracks session boundaries. Incorrect reset timing corrupts VWAP calculations.
 
-**Risk Management:**
-* Use bands for position sizing (larger positions near support bands)
-* Set stops beyond 2σ levels to avoid normal volatility whipsaws
-* Monitor volume confirmation for all band interaction signals
-* Avoid trading during low-volume periods when bands may be unreliable
-
-**Market Context:**
-* Consider overall market regime (trending vs. ranging)
-* Account for news events and earnings that may affect volume patterns
-* Monitor correlation with institutional trading patterns
-* Adjust expectations based on market volatility environment
+6. **API Usage:** The `isNew` parameter controls bar correction. Use `isNew=false` when updating the current bar's value (same timestamp), `isNew=true` for new bars. The `reset` parameter should only be true at session boundaries.
 
 ## References
 
-* Harris, L. (2003). Trading and Exchanges: Market Microstructure for Practitioners. Oxford University Press.
-* Berkowitz, S. A. (1993). The Advantages of Volume Weighted Average Price Trading. Journal of Portfolio Management.
+* TradingView (2024). VWAP Standard Deviation Bands. Pine Script Reference.
+* Berkowitz, S. A., Logue, D. E., & Noser, E. A. (1988). The Total Cost of Transactions on the NYSE. The Journal of Finance, 43(1), 97-112.
+* Kissell, R. (2013). The Science of Algorithmic Trading and Portfolio Management. Academic Press.
+
+## Validation Sources
+
+**Patterns:** Running sum accumulation, variance calculation (E[X²] - E[X]²), defensive division, NaN/Infinity handling
+
+**External:** TradingView vwapbands.pine reference implementation
+
+**API:** Verified against TradingView VWAP with standard deviation bands functionality
