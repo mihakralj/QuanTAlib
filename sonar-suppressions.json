@@ -81,6 +81,78 @@
     {
       "id": "S6781",
       "reason": "JWT tokens should not be created using insecure secrets - not applicable to this codebase"
+    },
+    {
+      "id": "S109",
+      "reason": "Magic numbers should be replaced with named constants - numeric literals in SIMD/math algorithms are intentional and self-documenting"
+    },
+    {
+      "id": "S122",
+      "reason": "Statements should be on separate lines - compact initialization patterns improve readability in coefficient setup"
+    },
+    {
+      "id": "S134",
+      "reason": "Control flow statements should not be nested too deeply - complex algorithms require nested loops"
+    },
+    {
+      "id": "S138",
+      "reason": "Methods should not have too many lines - SIMD batch calculations are intentionally monolithic for performance"
+    },
+    {
+      "id": "S1067",
+      "reason": "Expressions should not be too complex - validation guard clauses benefit from compound conditions"
+    },
+    {
+      "id": "S1227",
+      "reason": "Break statements should not be used - early exit patterns improve performance in search loops"
+    },
+    {
+      "id": "S1309",
+      "reason": "Track uses of in-source issue suppressions - intentional suppressions are documented"
+    },
+    {
+      "id": "S1451",
+      "reason": "File headers should match a defined format - no file header requirement for this project"
+    },
+    {
+      "id": "S1541",
+      "reason": "Cyclomatic complexity should not be too high - optimized algorithms require complex control flow"
+    },
+    {
+      "id": "S1659",
+      "reason": "Multiple variables should not be declared on the same line - SIMD register declarations benefit from grouping"
+    },
+    {
+      "id": "S2360",
+      "reason": "Optional parameters should not be used - optional parameters are idiomatic for indicator constructors"
+    },
+    {
+      "id": "S3254",
+      "reason": "Default parameter values should not be passed as arguments - explicit defaults improve clarity"
+    },
+    {
+      "id": "S3264",
+      "reason": "Events should be invoked - events may be conditionally invoked or used for chaining"
+    },
+    {
+      "id": "S3904",
+      "reason": "Assemblies should have version information - version is set via Directory.Build.props"
+    },
+    {
+      "id": "S3906",
+      "reason": "Event handlers should have the correct signature - custom delegates are used for performance"
+    },
+    {
+      "id": "S3908",
+      "reason": "Generic event handlers should be used - TValuePublishedHandler is a performance-optimized custom delegate"
+    },
+    {
+      "id": "S3990",
+      "reason": "Assemblies should be marked CLSCompliant - CLS compliance not required for internal library"
+    },
+    {
+      "id": "S3992",
+      "reason": "Assemblies should have ComVisible attribute - COM interop not required"
     }
   ]
 }
