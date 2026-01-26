@@ -38,7 +38,9 @@ public sealed class QuantileLoss : BiInputIndicatorBase
         : base(period, $"QuantileLoss({period},{quantile:F2})")
     {
         if (quantile <= 0.0 || quantile >= 1.0)
+        {
             throw new ArgumentException("Quantile must be between 0 and 1 (exclusive)", nameof(quantile));
+        }
 
         Quantile = quantile;
     }
@@ -61,7 +63,9 @@ public sealed class QuantileLoss : BiInputIndicatorBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double quantile = 0.5)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -82,14 +86,25 @@ public sealed class QuantileLoss : BiInputIndicatorBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period, double quantile = 0.5)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (quantile <= 0.0 || quantile >= 1.0)
+        {
             throw new ArgumentException("Quantile must be between 0 and 1 (exclusive)", nameof(quantile));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> lossBuffer = period <= StackAllocThreshold
@@ -102,11 +117,19 @@ public sealed class QuantileLoss : BiInputIndicatorBase
 
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+            if (double.IsFinite(actual[k]))
+            {
+                lastValidActual = actual[k];
+                break;
+            }
         }
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            if (double.IsFinite(predicted[k]))
+            {
+                lastValidPredicted = predicted[k];
+                break;
+            }
         }
 
         int bufferIndex = 0;
@@ -118,8 +141,23 @@ public sealed class QuantileLoss : BiInputIndicatorBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double diff = act - pred;
             double loss = diff >= 0 ? quantile * diff : (quantile - 1.0) * diff;
@@ -136,8 +174,23 @@ public sealed class QuantileLoss : BiInputIndicatorBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double diff = act - pred;
             double loss = diff >= 0 ? quantile * diff : (quantile - 1.0) * diff;
@@ -146,7 +199,10 @@ public sealed class QuantileLoss : BiInputIndicatorBase
             lossBuffer[bufferIndex] = loss;
 
             bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
+            if (bufferIndex >= period)
+            {
+                bufferIndex = 0;
+            }
 
             output[i] = lossSum / period;
 
@@ -156,7 +212,10 @@ public sealed class QuantileLoss : BiInputIndicatorBase
                 tickCount = 0;
                 double recalcSum = 0;
                 for (int k = 0; k < period; k++)
+                {
                     recalcSum += lossBuffer[k];
+                }
+
                 lossSum = recalcSum;
             }
         }

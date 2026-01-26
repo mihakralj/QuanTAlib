@@ -38,7 +38,9 @@ public sealed class Median : AbstractBase, IDisposable
     public Median(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -76,7 +78,10 @@ public sealed class Median : AbstractBase, IDisposable
     /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         _buffer.Clear();
         int warmupLength = Math.Min(source.Length, WarmupPeriod);
@@ -151,7 +156,10 @@ public sealed class Median : AbstractBase, IDisposable
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -178,7 +186,10 @@ public sealed class Median : AbstractBase, IDisposable
         // validCount = elements in sortedBuffer BEFORE insertion
         int validCount = _buffer.Count - 1;
         int index = Array.BinarySearch(_sortedBuffer, 0, validCount, value);
-        if (index < 0) index = ~index;
+        if (index < 0)
+        {
+            index = ~index;
+        }
 
         if (index < validCount)
         {
@@ -224,12 +235,20 @@ public sealed class Median : AbstractBase, IDisposable
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Always use ArrayPool to avoid CS8353 stackalloc escape issues
         double[] rentedSorted = ArrayPool<double>.Shared.Rent(period);
@@ -266,7 +285,10 @@ public sealed class Median : AbstractBase, IDisposable
                 windowIdx = (windowIdx + 1) % period;
 
                 int newIndex = BinarySearchSpan(sortedBuffer, count, val);
-                if (newIndex < 0) newIndex = ~newIndex;
+                if (newIndex < 0)
+                {
+                    newIndex = ~newIndex;
+                }
 
                 if (newIndex < count)
                 {
@@ -300,11 +322,18 @@ public sealed class Median : AbstractBase, IDisposable
             int mid = lo + ((hi - lo) >> 1);
             int cmp = span[mid].CompareTo(value);
             if (cmp == 0)
+            {
                 return mid;
+            }
+
             if (cmp < 0)
+            {
                 lo = mid + 1;
+            }
             else
+            {
                 hi = mid - 1;
+            }
         }
         return ~lo;
     }
@@ -325,7 +354,10 @@ public sealed class Median : AbstractBase, IDisposable
     /// </summary>
     public new void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
 
         if (_source != null)
         {

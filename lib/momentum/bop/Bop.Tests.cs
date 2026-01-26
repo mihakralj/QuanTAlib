@@ -219,7 +219,10 @@ public class BopTests
         // 3. Streaming Mode
         var streamBop = new Bop();
         for (int i = 0; i < bars.Count; i++)
+        {
             streamBop.Update(bars[i]);
+        }
+
         double streamResult = streamBop.Last.Value;
 
         Assert.Equal(expected, spanResult, 9);

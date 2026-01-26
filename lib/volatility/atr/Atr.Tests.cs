@@ -179,7 +179,10 @@ public class AtrTests
         var gbm = new GBM();
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        foreach (var bar in bars) atr.Update(bar);
+        foreach (var bar in bars)
+        {
+            atr.Update(bar);
+        }
 
         double lastVal = atr.Last.Value;
         Assert.NotEqual(0, lastVal);

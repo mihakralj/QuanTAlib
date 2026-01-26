@@ -57,7 +57,10 @@ public sealed class StdDev : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);

@@ -75,22 +75,30 @@ public sealed class GBM : IFeed
     {
         // Validate startPrice
         if (startPrice <= 0 || !double.IsFinite(startPrice))
+        {
             throw new ArgumentOutOfRangeException(nameof(startPrice), startPrice, "Start price must be positive and finite");
+        }
 
         // Validate mu
         if (!double.IsFinite(mu))
+        {
             throw new ArgumentOutOfRangeException(nameof(mu), mu, "Drift (mu) must be finite");
+        }
 
         // Validate sigma
         if (sigma < 0 || !double.IsFinite(sigma))
+        {
             throw new ArgumentOutOfRangeException(nameof(sigma), sigma, "Volatility (sigma) must be non-negative and finite");
+        }
 
         // Use provided timeframe or default to 1 minute
         var timeframe = defaultTimeframe ?? TimeSpan.FromMinutes(1);
 
         // Validate timeframe
         if (timeframe <= TimeSpan.Zero)
+        {
             throw new ArgumentOutOfRangeException(nameof(defaultTimeframe), defaultTimeframe, "Timeframe must be positive");
+        }
 
         _rnd = seed.HasValue ? new Random(seed.Value) : null;
         StartPrice = startPrice;
@@ -170,7 +178,9 @@ public sealed class GBM : IFeed
 
         // Guard against log(0) which produces -Infinity
         if (u1 <= double.Epsilon)
+        {
             u1 = double.Epsilon;
+        }
 
         double mag = Math.Sqrt(-2.0 * Math.Log(u1));
         double angle = 2.0 * Math.PI * u2;
@@ -200,7 +210,9 @@ public sealed class GBM : IFeed
 
             // Ensure price stays positive and finite
             if (!double.IsFinite(price) || price <= 0)
+            {
                 price = _lastPrice;
+            }
 
             double volume = 1000 + NextDouble() * 1000;
 
@@ -232,7 +244,9 @@ public sealed class GBM : IFeed
 
             // Ensure price stays positive and finite
             if (!double.IsFinite(price) || price <= 0)
+            {
                 price = _lastPrice;
+            }
 
             double additionalVolume = 1000 + NextDouble() * 1000;
 
@@ -274,9 +288,14 @@ public sealed class GBM : IFeed
     public TBarSeries Fetch(int count, long startTime, TimeSpan interval)
     {
         if (count <= 0)
+        {
             throw new ArgumentException("Count must be positive", nameof(count));
+        }
+
         if (interval <= TimeSpan.Zero)
+        {
             throw new ArgumentOutOfRangeException(nameof(interval), interval, "Interval must be positive");
+        }
 
         var series = new TBarSeries(count);
 
@@ -333,12 +352,35 @@ public sealed class GBM : IFeed
             }
             finally
             {
-                if (rentedT != null) ArrayPool<long>.Shared.Return(rentedT);
-                if (rentedO != null) ArrayPool<double>.Shared.Return(rentedO);
-                if (rentedH != null) ArrayPool<double>.Shared.Return(rentedH);
-                if (rentedL != null) ArrayPool<double>.Shared.Return(rentedL);
-                if (rentedC != null) ArrayPool<double>.Shared.Return(rentedC);
-                if (rentedV != null) ArrayPool<double>.Shared.Return(rentedV);
+                if (rentedT != null)
+                {
+                    ArrayPool<long>.Shared.Return(rentedT);
+                }
+
+                if (rentedO != null)
+                {
+                    ArrayPool<double>.Shared.Return(rentedO);
+                }
+
+                if (rentedH != null)
+                {
+                    ArrayPool<double>.Shared.Return(rentedH);
+                }
+
+                if (rentedL != null)
+                {
+                    ArrayPool<double>.Shared.Return(rentedL);
+                }
+
+                if (rentedC != null)
+                {
+                    ArrayPool<double>.Shared.Return(rentedC);
+                }
+
+                if (rentedV != null)
+                {
+                    ArrayPool<double>.Shared.Return(rentedV);
+                }
             }
         }
 
@@ -371,7 +413,9 @@ public sealed class GBM : IFeed
 
             // Ensure price stays positive and finite
             if (!double.IsFinite(price) || price <= 0)
+            {
                 price = currentPrice;
+            }
 
             double open = currentPrice;
             double close = price;

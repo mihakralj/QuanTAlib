@@ -46,7 +46,9 @@ public sealed class Elliptic : AbstractBase
     public Elliptic(int period)
     {
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2");
+        }
 
         Period = period;
         Name = $"Elliptic({period})";
@@ -54,14 +56,20 @@ public sealed class Elliptic : AbstractBase
 
         // Precompute coefficients based on hardcoded Rp=1dB, Rs=40dB
         double Wc = Math.Tan(Math.PI / period);
-        if (Wc < 1e-9) Wc = 1e-9;
+        if (Wc < 1e-9)
+        {
+            Wc = 1e-9;
+        }
 
         double omega_z_scaled = C_wz * Wc;
         double sigma_scaled = C_sigma * Wc;
         double Kp_scaled = C_Kp_norm * Wc * Wc;
 
         double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
-        if (Math.Abs(a0_denom) < 1e-9) a0_denom = 1e-9;
+        if (Math.Abs(a0_denom) < 1e-9)
+        {
+            a0_denom = 1e-9;
+        }
 
         const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
 
@@ -111,7 +119,10 @@ public sealed class Elliptic : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
@@ -206,21 +217,31 @@ public sealed class Elliptic : AbstractBase
         endState = default;
 
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
+        }
 
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2");
+        }
 
         // Precompute coefficients based on hardcoded Rp=1dB, Rs=40dB
         double Wc = Math.Tan(Math.PI / period);
-        if (Wc < 1e-9) Wc = 1e-9;
+        if (Wc < 1e-9)
+        {
+            Wc = 1e-9;
+        }
 
         double omega_z_scaled = C_wz * Wc;
         double sigma_scaled = C_sigma * Wc;
         double Kp_scaled = C_Kp_norm * Wc * Wc;
 
         double a0_denom = 1.0 - 2.0 * sigma_scaled + Kp_scaled;
-        if (Math.Abs(a0_denom) < 1e-9) a0_denom = 1e-9;
+        if (Math.Abs(a0_denom) < 1e-9)
+        {
+            a0_denom = 1e-9;
+        }
 
         const double norm_factor = C_Kp_norm / (C_k * C_wz * C_wz);
 
@@ -249,7 +270,10 @@ public sealed class Elliptic : AbstractBase
         if (source.Length > 0)
         {
             lastValid = source[0];
-            if (!double.IsFinite(lastValid)) lastValid = 0;
+            if (!double.IsFinite(lastValid))
+            {
+                lastValid = 0;
+            }
         }
 
         for (int i = 0; i < source.Length; i++)

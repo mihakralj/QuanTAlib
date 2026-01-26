@@ -98,7 +98,10 @@ public sealed class Slope : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         ReadOnlySpan<double> sourceValues = source.Values;
@@ -155,14 +158,22 @@ public sealed class Slope : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // First element has no previous - set to 0
         output[0] = 0.0;
-        if (len == 1) return;
+        if (len == 1)
+        {
+            return;
+        }
 
         int i = 1;
 

@@ -20,7 +20,9 @@ public static class SimdExtensions
         for (int i = 0; i < span.Length; i++)
         {
             if (!double.IsFinite(span[i]))
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -30,7 +32,10 @@ public static class SimdExtensions
     {
         double scalar = 0.0;
         for (int i = 0; i < span.Length; i++)
+        {
             scalar += span[i];
+        }
+
         return scalar;
     }
 
@@ -38,13 +43,17 @@ public static class SimdExtensions
     internal static double MinScalar(ReadOnlySpan<double> span)
     {
         if (span.Length == 0)
+        {
             throw new ArgumentException("Span must not be empty", nameof(span));
+        }
 
         double min = span[0];
         for (int i = 1; i < span.Length; i++)
         {
             if (span[i] < min)
+            {
                 min = span[i];
+            }
         }
         return min;
     }
@@ -53,13 +62,17 @@ public static class SimdExtensions
     internal static double MaxScalar(ReadOnlySpan<double> span)
     {
         if (span.Length == 0)
+        {
             throw new ArgumentException("Span must not be empty", nameof(span));
+        }
 
         double max = span[0];
         for (int i = 1; i < span.Length; i++)
         {
             if (span[i] > max)
+            {
                 max = span[i];
+            }
         }
         return max;
     }
@@ -69,7 +82,9 @@ public static class SimdExtensions
     {
         // Match VarianceSIMD behavior: return 0.0 for length <= 1 to avoid divide-by-zero
         if (span.Length <= 1)
+        {
             return 0.0;
+        }
 
         double sumSquares = 0.0;
         for (int i = 0; i < span.Length; i++)
@@ -84,14 +99,23 @@ public static class SimdExtensions
     internal static (double Min, double Max) MinMaxScalar(ReadOnlySpan<double> span)
     {
         if (span.Length == 0)
+        {
             throw new ArgumentException("Span must not be empty", nameof(span));
+        }
 
         double scalarMin = span[0];
         double scalarMax = span[0];
         for (int i = 1; i < span.Length; i++)
         {
-            if (span[i] < scalarMin) scalarMin = span[i];
-            if (span[i] > scalarMax) scalarMax = span[i];
+            if (span[i] < scalarMin)
+            {
+                scalarMin = span[i];
+            }
+
+            if (span[i] > scalarMax)
+            {
+                scalarMax = span[i];
+            }
         }
         return (scalarMin, scalarMax);
     }
@@ -105,7 +129,10 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool ContainsNonFinite(this ReadOnlySpan<double> span)
     {
-        if (span.IsEmpty) return false;
+        if (span.IsEmpty)
+        {
+            return false;
+        }
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -120,19 +147,25 @@ public static class SimdExtensions
                 // NaN check: NaN != NaN, so Vector.Equals(v, v) will be false for NaN lanes
                 var nanCheck = Vector.Equals(vector, vector);
                 if (!nanCheck.Equals(Vector<long>.AllBitsSet))
+                {
                     return true;
+                }
 
                 // Infinity check: |v| > MaxValue (Infinity has magnitude > MaxValue)
                 var absVec = Vector.Abs(vector);
                 var infCheck = Vector.GreaterThan(absVec, maxValue);
                 if (!infCheck.Equals(Vector<long>.Zero))
+                {
                     return true;
+                }
             }
 
             for (; i < span.Length; i++)
             {
                 if (!double.IsFinite(span[i]))
+                {
                     return true;
+                }
             }
 
             return false;
@@ -151,7 +184,10 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double SumSIMD(this ReadOnlySpan<double> span)
     {
-        if (span.IsEmpty) return 0.0;
+        if (span.IsEmpty)
+        {
+            return 0.0;
+        }
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -167,16 +203,22 @@ public static class SimdExtensions
 
             double result = 0.0;
             for (int j = 0; j < vectorSize; j++)
+            {
                 result += sum[j];
+            }
 
             for (; i < span.Length; i++)
+            {
                 result += span[i];
+            }
 
             // Lazy check: if result is non-finite AND input contained non-finite values, return NaN
             // NaN + anything = NaN, Inf + anything finite = Inf
             // If result is infinite from overflow (no input NaN/Inf), return as-is
             if (!double.IsFinite(result) && span.ContainsNonFinite())
+            {
                 return double.NaN;
+            }
 
             return result;
         }
@@ -194,11 +236,21 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double MinSIMD(this ReadOnlySpan<double> span)
     {
-        if (span.IsEmpty) return double.NaN;
-        if (span.Length == 1) return span[0];
+        if (span.IsEmpty)
+        {
+            return double.NaN;
+        }
+
+        if (span.Length == 1)
+        {
+            return span[0];
+        }
 
         // Guard against non-finite inputs
-        if (span.ContainsNonFinite()) return double.NaN;
+        if (span.ContainsNonFinite())
+        {
+            return double.NaN;
+        }
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -216,13 +268,17 @@ public static class SimdExtensions
             for (int j = 1; j < vectorSize; j++)
             {
                 if (minVec[j] < result)
+                {
                     result = minVec[j];
+                }
             }
 
             for (; i < span.Length; i++)
             {
                 if (span[i] < result)
+                {
                     result = span[i];
+                }
             }
 
             return result;
@@ -239,11 +295,21 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double MaxSIMD(this ReadOnlySpan<double> span)
     {
-        if (span.IsEmpty) return double.NaN;
-        if (span.Length == 1) return span[0];
+        if (span.IsEmpty)
+        {
+            return double.NaN;
+        }
+
+        if (span.Length == 1)
+        {
+            return span[0];
+        }
 
         // Guard against non-finite inputs
-        if (span.ContainsNonFinite()) return double.NaN;
+        if (span.ContainsNonFinite())
+        {
+            return double.NaN;
+        }
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -261,13 +327,17 @@ public static class SimdExtensions
             for (int j = 1; j < vectorSize; j++)
             {
                 if (maxVec[j] > result)
+                {
                     result = maxVec[j];
+                }
             }
 
             for (; i < span.Length; i++)
             {
                 if (span[i] > result)
+                {
                     result = span[i];
+                }
             }
 
             return result;
@@ -284,7 +354,10 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double AverageSIMD(this ReadOnlySpan<double> span)
     {
-        if (span.IsEmpty) return double.NaN;
+        if (span.IsEmpty)
+        {
+            return double.NaN;
+        }
         // SumSIMD already guards against non-finite, which will propagate NaN
         return span.SumSIMD() / span.Length;
     }
@@ -300,13 +373,20 @@ public static class SimdExtensions
     public static double VarianceSIMD(this ReadOnlySpan<double> span, double? mean = null)
     {
         // Match VarianceScalar behavior: return 0.0 for length <= 1 to avoid inconsistency
-        if (span.Length <= 1) return 0.0;
+        if (span.Length <= 1)
+        {
+            return 0.0;
+        }
 
         double m;
         if (mean.HasValue)
         {
             // Mean provided externally - need explicit non-finite check
-            if (span.ContainsNonFinite()) return double.NaN;
+            if (span.ContainsNonFinite())
+            {
+                return double.NaN;
+            }
+
             m = mean.Value;
         }
         else
@@ -317,7 +397,10 @@ public static class SimdExtensions
         }
 
         // If mean is NaN (from input NaN or explicit NaN mean), return NaN
-        if (!double.IsFinite(m)) return double.NaN;
+        if (!double.IsFinite(m))
+        {
+            return double.NaN;
+        }
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -335,7 +418,9 @@ public static class SimdExtensions
 
             double result = 0.0;
             for (int j = 0; j < vectorSize; j++)
+            {
                 result += sumSq[j];
+            }
 
             for (; i < span.Length; i++)
             {
@@ -368,11 +453,21 @@ public static class SimdExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (double Min, double Max) MinMaxSIMD(this ReadOnlySpan<double> span)
     {
-        if (span.IsEmpty) return (double.NaN, double.NaN);
-        if (span.Length == 1) return (span[0], span[0]);
+        if (span.IsEmpty)
+        {
+            return (double.NaN, double.NaN);
+        }
+
+        if (span.Length == 1)
+        {
+            return (span[0], span[0]);
+        }
 
         // Guard against non-finite inputs
-        if (span.ContainsNonFinite()) return (double.NaN, double.NaN);
+        if (span.ContainsNonFinite())
+        {
+            return (double.NaN, double.NaN);
+        }
 
         if (Vector.IsHardwareAccelerated && span.Length >= Vector<double>.Count)
         {
@@ -392,14 +487,28 @@ public static class SimdExtensions
             double max = maxVec[0];
             for (int j = 1; j < vectorSize; j++)
             {
-                if (minVec[j] < min) min = minVec[j];
-                if (maxVec[j] > max) max = maxVec[j];
+                if (minVec[j] < min)
+                {
+                    min = minVec[j];
+                }
+
+                if (maxVec[j] > max)
+                {
+                    max = maxVec[j];
+                }
             }
 
             for (; i < span.Length; i++)
             {
-                if (span[i] < min) min = span[i];
-                if (span[i] > max) max = span[i];
+                if (span[i] < min)
+                {
+                    min = span[i];
+                }
+
+                if (span[i] > max)
+                {
+                    max = span[i];
+                }
             }
 
             return (min, max);
@@ -416,7 +525,9 @@ public static class SimdExtensions
     public static void Add(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
     {
         if (left.Length != right.Length || left.Length != result.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(result));
+        }
 
         int i = 0;
         if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
@@ -444,7 +555,9 @@ public static class SimdExtensions
     public static void Scale(ReadOnlySpan<double> source, double scalar, Span<double> result)
     {
         if (source.Length != result.Length)
+        {
             throw new ArgumentException("Source and result spans must have the same length", nameof(result));
+        }
 
         int i = 0;
         if (Vector.IsHardwareAccelerated && source.Length >= Vector<double>.Count)
@@ -472,7 +585,9 @@ public static class SimdExtensions
     public static void Subtract(ReadOnlySpan<double> left, ReadOnlySpan<double> right, Span<double> result)
     {
         if (left.Length != right.Length || left.Length != result.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(result));
+        }
 
         int i = 0;
         if (Vector.IsHardwareAccelerated && left.Length >= Vector<double>.Count)
@@ -500,9 +615,14 @@ public static class SimdExtensions
     public static double DotProduct(this ReadOnlySpan<double> a, ReadOnlySpan<double> b)
     {
         if (a.Length != b.Length)
+        {
             throw new ArgumentException("Spans must have equal length", nameof(b));
+        }
 
-        if (a.IsEmpty) return 0.0;
+        if (a.IsEmpty)
+        {
+            return 0.0;
+        }
 
         int len = a.Length;
 
@@ -513,19 +633,33 @@ public static class SimdExtensions
             ref double bRef = ref MemoryMarshal.GetReference(b);
 
             double sum = aRef * bRef;
-            if (len > 1) sum += Unsafe.Add(ref aRef, 1) * Unsafe.Add(ref bRef, 1);
-            if (len > 2) sum += Unsafe.Add(ref aRef, 2) * Unsafe.Add(ref bRef, 2);
+            if (len > 1)
+            {
+                sum += Unsafe.Add(ref aRef, 1) * Unsafe.Add(ref bRef, 1);
+            }
+
+            if (len > 2)
+            {
+                sum += Unsafe.Add(ref aRef, 2) * Unsafe.Add(ref bRef, 2);
+            }
+
             return sum;
         }
 
         if (Avx512F.IsSupported)
+        {
             return DotProductAvx512(a, b);
+        }
 
         if (Avx2.IsSupported)
+        {
             return DotProductAvx2(a, b);
+        }
 
         if (AdvSimd.Arm64.IsSupported)
+        {
             return DotProductNeon(a, b);
+        }
 
         double s1 = 0, s2 = 0, s3 = 0, s4 = 0;
         ref double ar = ref MemoryMarshal.GetReference(a);

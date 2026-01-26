@@ -50,7 +50,9 @@ public sealed class Wrmse : AbstractBase
     public Wrmse(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _weightedErrorBuffer = new RingBuffer(period);
         _weightBuffer = new RingBuffer(period);
@@ -86,19 +88,31 @@ public sealed class Wrmse : AbstractBase
 
         // Sanitize inputs
         if (!double.IsFinite(actualVal))
+        {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
+        }
         else
+        {
             _state.LastValidActual = actualVal;
+        }
 
         if (!double.IsFinite(predictedVal))
+        {
             predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
+        }
         else
+        {
             _state.LastValidPredicted = predictedVal;
+        }
 
         if (!double.IsFinite(weight) || weight < 0)
+        {
             weight = _state.LastValidWeight;
+        }
         else
+        {
             _state.LastValidWeight = weight;
+        }
 
         // Compute weighted squared error
         double diff = actualVal - predictedVal;
@@ -210,7 +224,9 @@ public sealed class Wrmse : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -233,7 +249,9 @@ public sealed class Wrmse : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, TSeries weights, int period)
     {
         if (actual.Count != predicted.Count || actual.Count != weights.Count)
+        {
             throw new ArgumentException("All series must have the same length", nameof(weights));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -258,12 +276,20 @@ public sealed class Wrmse : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // With uniform weights, WRMSE = RMSE
         const int StackAllocThreshold = 256;
@@ -283,12 +309,20 @@ public sealed class Wrmse : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, ReadOnlySpan<double> weights, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != weights.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> weightedErrors = len <= StackAllocThreshold

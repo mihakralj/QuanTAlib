@@ -180,7 +180,10 @@ public class AtrpTests
         var gbm = new GBM();
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        foreach (var bar in bars) atrp.Update(bar);
+        foreach (var bar in bars)
+        {
+            atrp.Update(bar);
+        }
 
         double lastVal = atrp.Last.Value;
         Assert.NotEqual(0, lastVal);

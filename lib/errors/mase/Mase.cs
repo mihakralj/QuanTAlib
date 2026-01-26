@@ -44,7 +44,9 @@ public sealed class Mase : AbstractBase
     public Mase(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _errorBuffer = new RingBuffer(period);
         _scaleBuffer = new RingBuffer(period);
@@ -63,14 +65,22 @@ public sealed class Mase : AbstractBase
         double predictedVal = predicted.Value;
 
         if (!double.IsFinite(actualVal))
+        {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
+        }
         else
+        {
             _state.LastValidActual = actualVal;
+        }
 
         if (!double.IsFinite(predictedVal))
+        {
             predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
+        }
         else
+        {
             _state.LastValidPredicted = predictedVal;
+        }
 
         double absError = Math.Abs(actualVal - predictedVal);
         double naiveDiff = double.IsFinite(_state.PrevActual) ? Math.Abs(actualVal - _state.PrevActual) : 0.0;
@@ -124,9 +134,14 @@ public sealed class Mase : AbstractBase
         // TickCount is 1-based (incremented after adding), so use >= period+1 for post-warmup
         double scale;
         if (_state.TickCount > period)
+        {
             scale = _state.ScaleSum / period;
+        }
         else
+        {
             scale = count > 1 ? _state.ScaleSum / (count - 1) : 1.0;
+        }
+
         double result = scale > 1e-10 ? mae / scale : mae;
 
         Last = new TValue(actual.Time, result);
@@ -167,7 +182,9 @@ public sealed class Mase : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -188,12 +205,20 @@ public sealed class Mase : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> errorBuffer = period <= StackAllocThreshold
@@ -211,11 +236,19 @@ public sealed class Mase : AbstractBase
 
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+            if (double.IsFinite(actual[k]))
+            {
+                lastValidActual = actual[k];
+                break;
+            }
         }
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            if (double.IsFinite(predicted[k]))
+            {
+                lastValidPredicted = predicted[k];
+                break;
+            }
         }
 
         int bufferIndex = 0;
@@ -227,8 +260,23 @@ public sealed class Mase : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double absError = Math.Abs(act - pred);
             double naiveDiff = double.IsFinite(prevActual) ? Math.Abs(act - prevActual) : 0.0;
@@ -251,8 +299,23 @@ public sealed class Mase : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double absError = Math.Abs(act - pred);
             double naiveDiff = Math.Abs(act - prevActual);
@@ -263,7 +326,10 @@ public sealed class Mase : AbstractBase
             scaleBuffer[bufferIndex] = naiveDiff;
 
             bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
+            if (bufferIndex >= period)
+            {
+                bufferIndex = 0;
+            }
 
             double mae = errorSum / period;
             double scale = scaleSum / period;

@@ -50,14 +50,14 @@ public sealed class StcValidationTests : IDisposable
 
         for (int i = skip; i < qResult.Count; i++)
         {
-           double sVal = sResult[i].Stc ?? double.NaN;
-           double qVal = qResult[i].Value;
+            double sVal = sResult[i].Stc ?? double.NaN;
+            double qVal = qResult[i].Value;
 
-           if (!double.IsNaN(sVal) && !double.IsNaN(qVal))
-           {
-               sumSq += (sVal - qVal) * (sVal - qVal);
-               count++;
-           }
+            if (!double.IsNaN(sVal) && !double.IsNaN(qVal))
+            {
+                sumSq += (sVal - qVal) * (sVal - qVal);
+                count++;
+            }
         }
 
         double rmse = Math.Sqrt(sumSq / count);
@@ -68,7 +68,7 @@ public sealed class StcValidationTests : IDisposable
         Assert.True(rmse > 5.0, "QuanTAlib STC matches Skender STC, which suggests regression to Single Smoothed logic.");
 
         // Assert values are valid
-        for(int i = skip; i < qResult.Count; i++)
+        for (int i = skip; i < qResult.Count; i++)
         {
             Assert.True(double.IsFinite(qResult[i].Value));
             Assert.InRange(qResult[i].Value, 0, 100);

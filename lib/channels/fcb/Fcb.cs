@@ -59,7 +59,9 @@ public sealed class Fcb : ITValuePublisher
     public Fcb(int period = 20)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
 
         _period = period;
         WarmupPeriod = period + 2; // Need 2 extra bars for fractal detection
@@ -91,14 +93,22 @@ public sealed class Fcb : ITValuePublisher
     private (double high, double low) GetValid(double high, double low)
     {
         if (double.IsFinite(high))
+        {
             _state = _state with { LastValidHigh = high };
+        }
         else
+        {
             high = _state.LastValidHigh;
+        }
 
         if (double.IsFinite(low))
+        {
             _state = _state with { LastValidLow = low };
+        }
         else
+        {
             low = _state.LastValidLow;
+        }
 
         return (high, low);
     }
@@ -120,9 +130,13 @@ public sealed class Fcb : ITValuePublisher
             int backIdx = (_hHead + _hCount - 1) % _period;
             int bufIdx = _hDeque[backIdx] % _period;
             if (_hBuf[bufIdx] <= value)
+            {
                 _hCount--;
+            }
             else
+            {
                 break;
+            }
         }
 
         int tail = (_hHead + _hCount) % _period;
@@ -145,9 +159,13 @@ public sealed class Fcb : ITValuePublisher
             int backIdx = (_lHead + _lCount - 1) % _period;
             int bufIdx = _lDeque[backIdx] % _period;
             if (_lBuf[bufIdx] >= value)
+            {
                 _lCount--;
+            }
             else
+            {
                 break;
+            }
         }
 
         int tail = (_lHead + _lCount) % _period;
@@ -163,7 +181,9 @@ public sealed class Fcb : ITValuePublisher
         _lCount = 0;
 
         if (_count == 0)
+        {
             return;
+        }
 
         long startLogical = _index - _count + 1;
         for (int i = 0; i < _count; i++)
@@ -199,15 +219,21 @@ public sealed class Fcb : ITValuePublisher
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         if (isNew)
         {
             _index++;
             if (_count < _period)
+            {
                 _count++;
+            }
         }
 
         var (high, low) = GetValid(input.High, input.Low);
@@ -272,7 +298,9 @@ public sealed class Fcb : ITValuePublisher
         double mid = (top + bot) * 0.5;
 
         if (!_state.IsHot && _index + 1 >= WarmupPeriod)
+        {
             _state = _state with { IsHot = true };
+        }
 
         Last = new TValue(input.Time, mid);
         Upper = new TValue(input.Time, top);
@@ -285,7 +313,9 @@ public sealed class Fcb : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -329,7 +359,9 @@ public sealed class Fcb : ITValuePublisher
         Reset();
 
         if (source.Count == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -349,14 +381,25 @@ public sealed class Fcb : ITValuePublisher
         int period)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (high.Length != low.Length)
+        {
             throw new ArgumentException("High and Low spans must have the same length", nameof(high));
+        }
+
         if (middle.Length < high.Length || upper.Length < high.Length || lower.Length < high.Length)
+        {
             throw new ArgumentException("Output spans must be at least as long as inputs", nameof(middle));
+        }
 
         int len = high.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Allocate buffers for fractal tracking and deques
         double[] hBuf = ArrayPool<double>.Shared.Rent(period);
@@ -389,9 +432,14 @@ public sealed class Fcb : ITValuePublisher
                 if (i >= 2)
                 {
                     if (h1 > h2 && h1 > h0)
+                    {
                         hiFractal = h1;
+                    }
+
                     if (l1 < l2 && l1 < l0)
+                    {
                         loFractal = l1;
+                    }
                 }
 
                 int bufIdx = i % period;
@@ -410,9 +458,13 @@ public sealed class Fcb : ITValuePublisher
                     int backIdx = (hHead + hCount - 1) % period;
                     int bIdx = hDeque[backIdx] % period;
                     if (hBuf[bIdx] <= hiFractal)
+                    {
                         hCount--;
+                    }
                     else
+                    {
                         break;
+                    }
                 }
                 int tail = (hHead + hCount) % period;
                 hDeque[tail] = i;
@@ -429,9 +481,13 @@ public sealed class Fcb : ITValuePublisher
                     int backIdx = (lHead + lCount - 1) % period;
                     int bIdx = lDeque[backIdx] % period;
                     if (lBuf[bIdx] >= loFractal)
+                    {
                         lCount--;
+                    }
                     else
+                    {
                         break;
+                    }
                 }
                 tail = (lHead + lCount) % period;
                 lDeque[tail] = i;

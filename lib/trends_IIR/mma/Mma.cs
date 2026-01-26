@@ -74,9 +74,13 @@ public sealed class Mma : AbstractBase
 
         double val = input.Value;
         if (double.IsFinite(val))
+        {
             _lastValidValue = val;
+        }
         else
+        {
             val = _lastValidValue;
+        }
 
         if (double.IsNaN(val))
         {
@@ -97,7 +101,10 @@ public sealed class Mma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -123,9 +130,13 @@ public sealed class Mma : AbstractBase
             {
                 double val = source.Values[i];
                 if (double.IsFinite(val))
+                {
                     lastValid = val;
+                }
                 else
+                {
                     val = lastValid;
+                }
 
                 if (double.IsNaN(val))
                 {
@@ -175,10 +186,16 @@ public sealed class Mma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length.", nameof(output));
+        }
+
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 2);
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         int window = Math.Min(Math.Max(2, period), MaxPeriod);
         double sum = 0.0;
@@ -196,9 +213,13 @@ public sealed class Mma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -207,16 +228,22 @@ public sealed class Mma : AbstractBase
             }
 
             if (count < window)
+            {
                 count++;
+            }
             else
+            {
                 sum -= buffer[head];
+            }
 
             buffer[head] = val;
             sum += val;
 
             head++;
             if (head == window)
+            {
                 head = 0;
+            }
 
             double sma = sum / count;
             double weightedSum = ComputeWeightedSum(buffer, head, count);
@@ -252,7 +279,9 @@ public sealed class Mma : AbstractBase
     {
         int count = _buffer.Count;
         if (count <= 0)
+        {
             return double.NaN;
+        }
 
         double sma = _buffer.Sum / count;
         double weightedSum = ComputeWeightedSum(_buffer, count);
@@ -260,7 +289,9 @@ public sealed class Mma : AbstractBase
         double result = Math.FusedMultiplyAdd(weightedSum, 6.0 / denom, sma);
 
         if (!state.IsHot && count >= _period)
+        {
             state.IsHot = true;
+        }
 
         return result;
     }
@@ -274,7 +305,9 @@ public sealed class Mma : AbstractBase
 
         int idx = start + count - 1;
         if (idx >= capacity)
+        {
             idx -= capacity;
+        }
 
         double weightedSum = 0.0;
         for (int i = 0; i < count; i++)
@@ -284,7 +317,9 @@ public sealed class Mma : AbstractBase
 
             idx--;
             if (idx < 0)
+            {
                 idx += capacity;
+            }
         }
 
         return weightedSum;
@@ -295,7 +330,9 @@ public sealed class Mma : AbstractBase
     {
         int idx = head - 1;
         if (idx < 0)
+        {
             idx = count - 1;
+        }
 
         double weightedSum = 0.0;
         for (int i = 0; i < count; i++)
@@ -305,7 +342,9 @@ public sealed class Mma : AbstractBase
 
             idx--;
             if (idx < 0)
+            {
                 idx = count - 1;
+            }
         }
 
         return weightedSum;

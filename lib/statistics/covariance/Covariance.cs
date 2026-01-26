@@ -182,7 +182,9 @@ public sealed class Covariance : AbstractBase
     public static TSeries Calculate(TSeries sourceX, TSeries sourceY, int period, bool isPopulation = false)
     {
         if (sourceX.Count != sourceY.Count)
+        {
             throw new ArgumentException("Source series must have the same length", nameof(sourceY));
+        }
 
         int len = sourceX.Count;
         var t = new List<long>(len);
@@ -203,12 +205,20 @@ public sealed class Covariance : AbstractBase
     public static void Batch(ReadOnlySpan<double> sourceX, ReadOnlySpan<double> sourceY, Span<double> output, int period, bool isPopulation = false)
     {
         if (sourceX.Length != sourceY.Length || sourceX.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period < 2)
+        {
             throw new ArgumentException("Period must be greater than or equal to 2", nameof(period));
+        }
 
         int len = sourceX.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // SIMD overhead amortizes well for datasets >= 256 elements
         const int SimdThreshold = 256;
@@ -242,8 +252,15 @@ public sealed class Covariance : AbstractBase
         {
             double x = sourceX[i];
             double y = sourceY[i];
-            if (!double.IsFinite(x)) x = 0;
-            if (!double.IsFinite(y)) y = 0;
+            if (!double.IsFinite(x))
+            {
+                x = 0;
+            }
+
+            if (!double.IsFinite(y))
+            {
+                y = 0;
+            }
 
             sumX += x;
             sumY += y;
@@ -270,8 +287,15 @@ public sealed class Covariance : AbstractBase
         {
             double x = sourceX[i];
             double y = sourceY[i];
-            if (!double.IsFinite(x)) x = 0;
-            if (!double.IsFinite(y)) y = 0;
+            if (!double.IsFinite(x))
+            {
+                x = 0;
+            }
+
+            if (!double.IsFinite(y))
+            {
+                y = 0;
+            }
 
             double oldX = bufferX[bufferIndex];
             double oldY = bufferY[bufferIndex];
@@ -283,7 +307,10 @@ public sealed class Covariance : AbstractBase
             bufferX[bufferIndex] = x;
             bufferY[bufferIndex] = y;
             bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
+            if (bufferIndex >= period)
+            {
+                bufferIndex = 0;
+            }
 
             double n = period;
             double numerator = sumXY - (sumX * sumY) / n;
@@ -357,7 +384,10 @@ public sealed class Covariance : AbstractBase
 
         (double sumX, double sumY, double sumXY) = WarmupCovariance(period, len, isPopulation, ref srcXRef, ref srcYRef, ref outRef);
 
-        if (len <= period) return;
+        if (len <= period)
+        {
+            return;
+        }
 
         var vInvN = Vector256.Create(invN);
         var vInvDenom = Vector256.Create(invDenom);
@@ -452,13 +482,27 @@ public sealed class Covariance : AbstractBase
         {
             double x = Unsafe.Add(ref srcXRef, i);
             double y = Unsafe.Add(ref srcYRef, i);
-            if (!double.IsFinite(x)) x = 0;
-            if (!double.IsFinite(y)) y = 0;
+            if (!double.IsFinite(x))
+            {
+                x = 0;
+            }
+
+            if (!double.IsFinite(y))
+            {
+                y = 0;
+            }
 
             double oldX = Unsafe.Add(ref srcXRef, i - period);
             double oldY = Unsafe.Add(ref srcYRef, i - period);
-            if (!double.IsFinite(oldX)) oldX = 0;
-            if (!double.IsFinite(oldY)) oldY = 0;
+            if (!double.IsFinite(oldX))
+            {
+                oldX = 0;
+            }
+
+            if (!double.IsFinite(oldY))
+            {
+                oldY = 0;
+            }
 
             sumX = sumX - oldX + x;
             sumY = sumY - oldY + y;

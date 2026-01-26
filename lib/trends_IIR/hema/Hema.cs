@@ -119,9 +119,13 @@ public sealed class Hema : AbstractBase
 
         double val = input.Value;
         if (double.IsFinite(val))
+        {
             _lastValidValue = val;
+        }
         else
+        {
             val = _lastValidValue;
+        }
 
         if (double.IsNaN(val))
         {
@@ -139,7 +143,10 @@ public sealed class Hema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -163,9 +170,13 @@ public sealed class Hema : AbstractBase
         {
             double val = sourceValues[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -214,17 +225,23 @@ public sealed class Hema : AbstractBase
             double emaFast = state.EmaFastRaw * invFast;
             double deLag = Math.FusedMultiplyAdd(-_ratio, emaSlow, emaFast) * _invOneMinusRatio;
             if (!double.IsFinite(deLag))
+            {
                 deLag = input;
+            }
 
             state.EmaSmoothRaw = Math.FusedMultiplyAdd(state.EmaSmoothRaw, _betaSmooth, _alphaSmooth * deLag);
 
             double maxDecay = Math.Max(state.DecaySlow, Math.Max(state.DecayFast, state.DecaySmooth));
             if (!state.IsHot && maxDecay <= CoverageThreshold)
+            {
                 state.IsHot = true;
+            }
 
             state.Warmup = maxDecay > CompensatorThreshold;
             if (!state.Warmup)
+            {
                 state.IsHot = true;
+            }
 
             double result = state.EmaSmoothRaw * invSmooth;
             if (!double.IsFinite(result))
@@ -238,11 +255,16 @@ public sealed class Hema : AbstractBase
 
         double deLagFast = Math.FusedMultiplyAdd(-_ratio, state.EmaSlowRaw, state.EmaFastRaw) * _invOneMinusRatio;
         if (!double.IsFinite(deLagFast))
+        {
             deLagFast = input;
+        }
+
         state.EmaSmoothRaw = Math.FusedMultiplyAdd(state.EmaSmoothRaw, _betaSmooth, _alphaSmooth * deLagFast);
 
         if (!state.IsHot)
+        {
             state.IsHot = true;
+        }
 
         double fastResult = state.EmaSmoothRaw;
         if (!double.IsFinite(fastResult))
@@ -263,10 +285,16 @@ public sealed class Hema : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(period);
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double n = Math.Max((double)period, 2.0);
         double alphaSlow = AlphaFromHalfLife(n);
@@ -296,9 +324,13 @@ public sealed class Hema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -323,7 +355,9 @@ public sealed class Hema : AbstractBase
                 double emaFast = emaFastRaw * invFast;
                 double deLag = Math.FusedMultiplyAdd(-ratio, emaSlow, emaFast) * invOneMinusRatio;
                 if (!double.IsFinite(deLag))
+                {
                     deLag = val;
+                }
 
                 emaSmoothRaw = Math.FusedMultiplyAdd(emaSmoothRaw, betaSmooth, alphaSmooth * deLag);
                 double result = emaSmoothRaw * invSmooth;
@@ -348,7 +382,10 @@ public sealed class Hema : AbstractBase
             {
                 double deLag = Math.FusedMultiplyAdd(-ratio, emaSlowRaw, emaFastRaw) * invOneMinusRatio;
                 if (!double.IsFinite(deLag))
+                {
                     deLag = val;
+                }
+
                 emaSmoothRaw = Math.FusedMultiplyAdd(emaSmoothRaw, betaSmooth, alphaSmooth * deLag);
                 double result = emaSmoothRaw;
                 if (!double.IsFinite(result))
@@ -424,11 +461,15 @@ public sealed class Hema : AbstractBase
     {
         double maxDecay = Math.Max(_betaSlow, Math.Max(_betaFast, _betaSmooth));
         if (maxDecay <= 0)
+        {
             return 1;
+        }
 
         double steps = Math.Log(CoverageThreshold) / Math.Log(maxDecay);
         if (double.IsNaN(steps) || double.IsInfinity(steps) || steps <= 0)
+        {
             return 1;
+        }
 
         return (int)Math.Ceiling(steps);
     }

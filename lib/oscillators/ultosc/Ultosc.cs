@@ -64,15 +64,29 @@ public sealed class Ultosc : AbstractBase
     public Ultosc(int period1 = 7, int period2 = 14, int period3 = 28)
     {
         if (period1 <= 0)
+        {
             throw new ArgumentException("Period1 must be greater than 0", nameof(period1));
+        }
+
         if (period2 <= 0)
+        {
             throw new ArgumentException("Period2 must be greater than 0", nameof(period2));
+        }
+
         if (period3 <= 0)
+        {
             throw new ArgumentException("Period3 must be greater than 0", nameof(period3));
+        }
+
         if (period1 >= period2)
+        {
             throw new ArgumentException("Period1 must be less than Period2", nameof(period1));
+        }
+
         if (period2 >= period3)
+        {
             throw new ArgumentException("Period2 must be less than Period3", nameof(period2));
+        }
 
         _period1 = period1;
         _period2 = period2;
@@ -212,7 +226,10 @@ public sealed class Ultosc : AbstractBase
 
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -243,7 +260,10 @@ public sealed class Ultosc : AbstractBase
     {
         // Cannot properly calculate Ultimate Oscillator from single-value series
         // Return series of neutral values
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var t = new List<long>(source.Count);
         var v = new List<double>(source.Count);
@@ -281,19 +301,39 @@ public sealed class Ultosc : AbstractBase
     {
         int len = high.Length;
         if (len != low.Length || len != close.Length || len != output.Length)
+        {
             throw new ArgumentException("All arrays must have the same length", nameof(output));
-        if (period1 <= 0)
-            throw new ArgumentException("Period1 must be greater than 0", nameof(period1));
-        if (period2 <= 0)
-            throw new ArgumentException("Period2 must be greater than 0", nameof(period2));
-        if (period3 <= 0)
-            throw new ArgumentException("Period3 must be greater than 0", nameof(period3));
-        if (period1 >= period2)
-            throw new ArgumentException("Period1 must be less than Period2", nameof(period1));
-        if (period2 >= period3)
-            throw new ArgumentException("Period2 must be less than Period3", nameof(period2));
+        }
 
-        if (len == 0) return;
+        if (period1 <= 0)
+        {
+            throw new ArgumentException("Period1 must be greater than 0", nameof(period1));
+        }
+
+        if (period2 <= 0)
+        {
+            throw new ArgumentException("Period2 must be greater than 0", nameof(period2));
+        }
+
+        if (period3 <= 0)
+        {
+            throw new ArgumentException("Period3 must be greater than 0", nameof(period3));
+        }
+
+        if (period1 >= period2)
+        {
+            throw new ArgumentException("Period1 must be less than Period2", nameof(period1));
+        }
+
+        if (period2 >= period3)
+        {
+            throw new ArgumentException("Period2 must be less than Period3", nameof(period2));
+        }
+
+        if (len == 0)
+        {
+            return;
+        }
 
         // Allocate buffers for BP and TR
         double[] bpArray = System.Buffers.ArrayPool<double>.Shared.Rent(len);

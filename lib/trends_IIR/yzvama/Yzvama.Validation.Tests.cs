@@ -35,7 +35,9 @@ public class YzvamaValidationTests
         const double constantValue = 42.5;
 
         for (int i = 0; i < 300; i++)
+        {
             yzvama.Update(new TValue(DateTime.UtcNow, constantValue), isNew: true);
+        }
 
         Assert.Equal(constantValue, yzvama.Last.Value, Tolerance);
     }

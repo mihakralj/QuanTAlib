@@ -59,17 +59,28 @@ public sealed class Jbands : ITValuePublisher
     public Jbands(int period, int phase = 0, double power = 0.45)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (!double.IsFinite(power))
+        {
             throw new ArgumentException("Power must be finite.", nameof(power));
+        }
 
         // Phase parameter: maps -100..100 -> 0.5..2.5
         if (phase < -100)
+        {
             _phaseParam = 0.5;
+        }
         else if (phase > 100)
+        {
             _phaseParam = 2.5;
+        }
         else
+        {
             _phaseParam = (phase * 0.01) + 1.5;
+        }
 
         // Length / log / divider parameters from decompiled JMA
         double lengthParam = period < 1.0000000002
@@ -129,7 +140,10 @@ public sealed class Jbands : ITValuePublisher
         if (!double.IsFinite(value))
         {
             if (_state.Bars == 0)
+            {
                 return (double.NaN, double.NaN, double.NaN);
+            }
+
             value = _state.LastPrice;
         }
         else
@@ -139,7 +153,9 @@ public sealed class Jbands : ITValuePublisher
 
         _state.Bars++;
         if (_state.Bars == 1)
+        {
             return InitializeFirstBar(value);
+        }
 
         return CalculateJbands(value);
     }
@@ -210,8 +226,16 @@ public sealed class Jbands : ITValuePublisher
     {
         double ratio = Math.Max(absValue / refVolatility, 0.0);
         double d = Math.Pow(ratio, _pExponent);
-        if (d > _logParam) d = _logParam;
-        if (d < 1.0) d = 1.0;
+        if (d > _logParam)
+        {
+            d = _logParam;
+        }
+
+        if (d < 1.0)
+        {
+            d = 1.0;
+        }
+
         return d;
     }
 
@@ -266,7 +290,9 @@ public sealed class Jbands : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -319,7 +345,10 @@ public sealed class Jbands : ITValuePublisher
     public void Prime(TSeries source)
     {
         Reset();
-        if (source.Count == 0) return;
+        if (source.Count == 0)
+        {
+            return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -343,13 +372,24 @@ public sealed class Jbands : ITValuePublisher
         double power = 0.45)
     {
         if (middle.Length != source.Length)
+        {
             throw new ArgumentException("Source and middle must have the same length.", nameof(middle));
+        }
+
         if (upper.Length != source.Length)
+        {
             throw new ArgumentException("Source and upper must have the same length.", nameof(upper));
+        }
+
         if (lower.Length != source.Length)
+        {
             throw new ArgumentException("Source and lower must have the same length.", nameof(lower));
+        }
+
         if (source.Length == 0)
+        {
             return;
+        }
 
         var jbands = new Jbands(period, phase, power);
         for (int i = 0; i < source.Length; i++)
@@ -366,7 +406,9 @@ public sealed class Jbands : ITValuePublisher
     {
         int count = _volBuffer.Count;
         if (count < 16)
+        {
             return fallback;
+        }
 
         Span<double> sorted = stackalloc double[count];
         _volBuffer.CopyTo(sorted);
@@ -387,8 +429,15 @@ public sealed class Jbands : ITValuePublisher
             end = drop + slice - 1;
         }
 
-        if (start < 0) start = 0;
-        if (end >= count) end = count - 1;
+        if (start < 0)
+        {
+            start = 0;
+        }
+
+        if (end >= count)
+        {
+            end = count - 1;
+        }
 
         int len = end - start + 1;
         return sorted.Slice(start, len).SumSIMD() / len;

@@ -97,7 +97,10 @@ public static class IndicatorExtensions
         ArgumentNullException.ThrowIfNull(indicator);
         ArgumentNullException.ThrowIfNull(converter);
         var data = indicator.HistoricalData;
-        if (data == null) return Array.Empty<Point>();
+        if (data == null)
+        {
+            return Array.Empty<Point>();
+        }
 
         var lastTime = data.Time(data.Count - 1);
         var firstTime = data.Time(0);
@@ -113,7 +116,10 @@ public static class IndicatorExtensions
         int rightIndex = (int)data.GetIndexByTime(rightTime.Ticks);
 
         int count = leftIndex - rightIndex;
-        if (count <= 0) return Array.Empty<Point>();
+        if (count <= 0)
+        {
+            return Array.Empty<Point>();
+        }
 
         var allPoints = new Point[count];
 
@@ -131,7 +137,9 @@ public static class IndicatorExtensions
     public static void PaintSmoothCurve(this Indicator indicator, PaintChartEventArgs args, LineSeries series, int warmupPeriod, bool showColdValues = true, double tension = 0.5)
     {
         if (!series.Visible || indicator.CurrentChart == null)
+        {
             return;
+        }
 
         Graphics gr = args.Graphics;
         gr.SmoothingMode = SmoothingMode.AntiAlias;
@@ -142,7 +150,10 @@ public static class IndicatorExtensions
         gr.SetClip(clientRect);
 
         var data = indicator.HistoricalData;
-        if (data == null) return;
+        if (data == null)
+        {
+            return;
+        }
 
         var lastTime = data.Time(data.Count - 1);
         var firstTime = data.Time(0);
@@ -158,7 +169,10 @@ public static class IndicatorExtensions
         int rightIndex = (int)data.GetIndexByTime(rightTime.Ticks);
 
         int count = leftIndex - rightIndex;
-        if (count <= 0) return;
+        if (count <= 0)
+        {
+            return;
+        }
 
         // Use ArrayPool to avoid allocations
         Point[] allPoints = System.Buffers.ArrayPool<Point>.Shared.Rent(count);
@@ -191,7 +205,7 @@ public static class IndicatorExtensions
                 if (showColdValues)
                 {
                     int coldStart = Math.Max(0, hotCount);
-                    int coldSegments = count -  coldStart - 1;
+                    int coldSegments = count - coldStart - 1;
 
                     if (coldSegments > 0)
                     {

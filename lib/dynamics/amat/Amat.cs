@@ -123,11 +123,19 @@ public sealed class Amat : ITValuePublisher, IDisposable
     public Amat(int fastPeriod = 10, int slowPeriod = 50)
     {
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         _fastAlpha = 2.0 / (fastPeriod + 1);
         _slowAlpha = 2.0 / (slowPeriod + 1);
@@ -314,7 +322,10 @@ public sealed class Amat : ITValuePublisher, IDisposable
     /// <returns>Series of trend values</returns>
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -342,7 +353,10 @@ public sealed class Amat : ITValuePublisher, IDisposable
     private static double GetCompensatedValue(double ema, double e, bool isCompensated)
     {
         if (isCompensated || e <= COMPENSATOR_THRESHOLD)
+        {
             return ema;
+        }
+
         return ema / (1.0 - e);
     }
 
@@ -358,7 +372,9 @@ public sealed class Amat : ITValuePublisher, IDisposable
             e *= decay;
 
             if (!isHot && e <= COVERAGE_THRESHOLD)
+            {
                 isHot = true;
+            }
 
             if (e <= COMPENSATOR_THRESHOLD)
             {
@@ -391,18 +407,35 @@ public sealed class Amat : ITValuePublisher, IDisposable
         int fastPeriod = 10, int slowPeriod = 50)
     {
         if (source.Length != trend.Length)
+        {
             throw new ArgumentException("Source and trend must have the same length", nameof(trend));
+        }
+
         if (source.Length != strength.Length)
+        {
             throw new ArgumentException("Source and strength must have the same length", nameof(strength));
+        }
+
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double fastAlpha = 2.0 / (fastPeriod + 1);
         double slowAlpha = 2.0 / (slowPeriod + 1);
@@ -483,16 +516,30 @@ public sealed class Amat : ITValuePublisher, IDisposable
         int fastPeriod = 10, int slowPeriod = 50)
     {
         if (source.Length != trend.Length)
+        {
             throw new ArgumentException("Source and trend must have the same length", nameof(trend));
+        }
+
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double fastAlpha = 2.0 / (fastPeriod + 1);
         double slowAlpha = 2.0 / (slowPeriod + 1);

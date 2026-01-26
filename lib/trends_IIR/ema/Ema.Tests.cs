@@ -444,7 +444,9 @@ public class EmaTests
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         // Warm up
         Ema.Batch(source.AsSpan(), output.AsSpan(), 100);
@@ -525,7 +527,10 @@ public class EmaTests
         // ...
         // We can verify against a fresh EMA fed with same data
         var verifyEma = new Ema(5);
-        foreach (var val in history) verifyEma.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyEma.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
         Assert.Equal(verifyEma.IsHot, ema.IsHot);
@@ -545,7 +550,10 @@ public class EmaTests
         ema.Prime(history);
 
         var verifyEma = new Ema(5);
-        foreach (var val in history) verifyEma.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyEma.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyEma.Last.Value, ema.Last.Value, 1e-10);
     }
@@ -565,7 +573,10 @@ public class EmaTests
     public void Calculate_ReturnsCorrectResultsAndHotIndicator()
     {
         var series = new TSeries();
-        for (int i = 1; i <= 20; i++) series.Add(DateTime.UtcNow, i * 10);
+        for (int i = 1; i <= 20; i++)
+        {
+            series.Add(DateTime.UtcNow, i * 10);
+        }
 
         // EMA(5)
         var (results, indicator) = Ema.Calculate(series, 5);

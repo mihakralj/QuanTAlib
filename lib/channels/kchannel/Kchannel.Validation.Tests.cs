@@ -449,7 +449,9 @@ public sealed class KchannelValidationTests : IDisposable
 
                 // After warmup, values should be within 5% (warmup methods may differ)
                 if (midPct < 0.05)
+                {
                     closeCount++;
+                }
             }
         }
 

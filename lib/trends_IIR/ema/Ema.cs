@@ -91,7 +91,9 @@ public sealed class Ema : AbstractBase
     public Ema(double alpha)
     {
         if (alpha <= 0 || alpha > 1)
+        {
             throw new ArgumentException("Alpha must be greater than 0 and at most 1", nameof(alpha));
+        }
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -118,7 +120,10 @@ public sealed class Ema : AbstractBase
     /// <param name="source">Historical data</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _state = State.New();
@@ -170,7 +175,9 @@ public sealed class Ema : AbstractBase
         finally
         {
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 
@@ -215,7 +222,10 @@ public sealed class Ema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -262,7 +272,9 @@ public sealed class Ema : AbstractBase
             state.E *= decay;
 
             if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+            {
                 state.IsHot = true;
+            }
 
             if (state.E <= COMPENSATOR_THRESHOLD)
             {
@@ -300,21 +312,29 @@ public sealed class Ema : AbstractBase
             {
                 double val = source[i];
                 if (double.IsFinite(val))
+                {
                     lastValidValue = val;
+                }
                 else
+                {
                     val = lastValidValue;
+                }
 
                 state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
                 state.E *= decay;
 
                 if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+                {
                     state.IsHot = true;
+                }
 
                 output[i] = state.Ema / (1.0 - state.E);
                 state.TickCount++;
             }
             if (state.E <= COMPENSATOR_THRESHOLD)
+            {
                 state.IsCompensated = true;
+            }
         }
 
         // Phase 2: Post-compensation (hot path) - optimized with loop unrolling
@@ -328,22 +348,54 @@ public sealed class Ema : AbstractBase
         for (; i < unrollEnd; i += 4)
         {
             double v0 = Unsafe.Add(ref srcRef, i);
-            if (!double.IsFinite(v0)) v0 = lastValidValue; else lastValidValue = v0;
+            if (!double.IsFinite(v0))
+            {
+                v0 = lastValidValue;
+            }
+            else
+            {
+                lastValidValue = v0;
+            }
+
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * v0);
             Unsafe.Add(ref outRef, i) = state.Ema;
 
             double v1 = Unsafe.Add(ref srcRef, i + 1);
-            if (!double.IsFinite(v1)) v1 = lastValidValue; else lastValidValue = v1;
+            if (!double.IsFinite(v1))
+            {
+                v1 = lastValidValue;
+            }
+            else
+            {
+                lastValidValue = v1;
+            }
+
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * v1);
             Unsafe.Add(ref outRef, i + 1) = state.Ema;
 
             double v2 = Unsafe.Add(ref srcRef, i + 2);
-            if (!double.IsFinite(v2)) v2 = lastValidValue; else lastValidValue = v2;
+            if (!double.IsFinite(v2))
+            {
+                v2 = lastValidValue;
+            }
+            else
+            {
+                lastValidValue = v2;
+            }
+
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * v2);
             Unsafe.Add(ref outRef, i + 2) = state.Ema;
 
             double v3 = Unsafe.Add(ref srcRef, i + 3);
-            if (!double.IsFinite(v3)) v3 = lastValidValue; else lastValidValue = v3;
+            if (!double.IsFinite(v3))
+            {
+                v3 = lastValidValue;
+            }
+            else
+            {
+                lastValidValue = v3;
+            }
+
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * v3);
             Unsafe.Add(ref outRef, i + 3) = state.Ema;
 
@@ -364,7 +416,14 @@ public sealed class Ema : AbstractBase
         for (; i < len; i++)
         {
             double val = Unsafe.Add(ref srcRef, i);
-            if (!double.IsFinite(val)) val = lastValidValue; else lastValidValue = val;
+            if (!double.IsFinite(val))
+            {
+                val = lastValidValue;
+            }
+            else
+            {
+                lastValidValue = val;
+            }
 
             state.Ema = Math.FusedMultiplyAdd(state.Ema, decay, alpha * val);
             Unsafe.Add(ref outRef, i) = state.Ema;
@@ -469,7 +528,9 @@ public sealed class Ema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         double alpha = 2.0 / (period + 1);
         Batch(source, output, alpha);
@@ -486,11 +547,17 @@ public sealed class Ema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(alpha, 0.0);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(alpha, 1.0);
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // For large, clean datasets, use optimized path without NaN handling
         if (source.Length >= CleanPathThreshold && !source.ContainsNonFinite())

@@ -373,7 +373,9 @@ public class RocTests
         double[] output = new double[largeSize];
 
         for (int i = 0; i < largeSize; i++)
+        {
             source[i] = 100.0 + i * 0.1;
+        }
 
         // Should not throw
         Roc.Calculate(source, output, TestPeriod);

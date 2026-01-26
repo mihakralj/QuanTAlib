@@ -46,9 +46,14 @@ public sealed class Cheby2 : AbstractBase
     public Cheby2(int period, double attenuation = 5.0)
     {
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2");
+        }
+
         if (attenuation <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(attenuation), "Attenuation must be > 0");
+        }
 
         Period = period;
         Attenuation = attenuation;
@@ -123,7 +128,10 @@ public sealed class Cheby2 : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
@@ -192,7 +200,9 @@ public sealed class Cheby2 : AbstractBase
             _state.Filt1 = filt;
 
             if (_state.Count < 2)
+            {
                 _state.Count++;
+            }
         }
 
         Last = new TValue(input.Time, filt);
@@ -211,12 +221,19 @@ public sealed class Cheby2 : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double attenuation = 5.0)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
+        }
 
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2");
+        }
+
         if (attenuation <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(attenuation), "Attenuation must be > 0");
+        }
 
         // Coefficients
         double safeAtten = Math.Max(attenuation, 0.1);
@@ -268,7 +285,10 @@ public sealed class Cheby2 : AbstractBase
         if (source.Length > 0)
         {
             lastValid = source[0];
-            if (!double.IsFinite(lastValid)) lastValid = 0;
+            if (!double.IsFinite(lastValid))
+            {
+                lastValid = 0;
+            }
         }
 
         for (int i = 0; i < source.Length; i++)

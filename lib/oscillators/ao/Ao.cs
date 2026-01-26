@@ -60,11 +60,19 @@ public sealed class Ao : ITValuePublisher
     public Ao(int fastPeriod = 5, int slowPeriod = 34)
     {
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         _fastPeriod = fastPeriod;
         _slowPeriod = slowPeriod;
@@ -163,7 +171,10 @@ public sealed class Ao : ITValuePublisher
     /// <returns>The AO series</returns>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new double[len];
@@ -204,10 +215,15 @@ public sealed class Ao : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, Span<double> destination, int fastPeriod = 5, int slowPeriod = 34)
     {
         if (high.Length != low.Length || high.Length != destination.Length)
+        {
             throw new ArgumentException("High, low, and destination spans must have the same length.", nameof(destination));
+        }
 
         int len = high.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Always use pooled buffer to avoid CS8353 stackalloc escape issues
         // For small sizes, ArrayPool overhead is minimal
@@ -243,7 +259,10 @@ public sealed class Ao : ITValuePublisher
     /// <returns>AO series</returns>
     public static TSeries Batch(TBarSeries source, int fastPeriod = 5, int slowPeriod = 34)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new double[len];

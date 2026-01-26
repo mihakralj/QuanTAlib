@@ -33,7 +33,9 @@ public sealed class Highest : AbstractBase
     public Highest(int period)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -58,9 +60,13 @@ public sealed class Highest : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = double.IsFinite(input.Value) ? input.Value : _state.LastValid;
         _state = new State(value);
@@ -112,11 +118,19 @@ public sealed class Highest : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         int len = source.Length;
 
@@ -169,7 +183,11 @@ public sealed class Highest : AbstractBase
                 while (count > 0 && deque[head] <= i - period)
                 {
                     head++;
-                    if (head >= capacity) head -= capacity;
+                    if (head >= capacity)
+                    {
+                        head -= capacity;
+                    }
+
                     count--;
                 }
 
@@ -177,7 +195,11 @@ public sealed class Highest : AbstractBase
                 while (count > 0)
                 {
                     int backIdx = tail - 1;
-                    if (backIdx < 0) backIdx += capacity;
+                    if (backIdx < 0)
+                    {
+                        backIdx += capacity;
+                    }
+
                     if (values[deque[backIdx]] <= value)
                     {
                         tail = backIdx;
@@ -192,7 +214,11 @@ public sealed class Highest : AbstractBase
                 // Add current index at tail
                 deque[tail] = i;
                 tail++;
-                if (tail >= capacity) tail -= capacity;
+                if (tail >= capacity)
+                {
+                    tail -= capacity;
+                }
+
                 count++;
 
                 output[i] = values[deque[head]];
@@ -201,9 +227,14 @@ public sealed class Highest : AbstractBase
         finally
         {
             if (rentedDeque != null)
+            {
                 System.Buffers.ArrayPool<int>.Shared.Return(rentedDeque);
+            }
+
             if (rentedValues != null)
+            {
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedValues);
+            }
         }
     }
 

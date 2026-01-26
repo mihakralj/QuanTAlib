@@ -33,7 +33,9 @@ public sealed class Dwma : AbstractBase
     public Dwma(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _wma1 = new Wma(period);
@@ -61,7 +63,10 @@ public sealed class Dwma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (isNew) _sampleCount++;
+        if (isNew)
+        {
+            _sampleCount++;
+        }
 
         TValue wma1Result = _wma1.Update(input, isNew);
         Last = _wma2.Update(wma1Result, isNew);
@@ -71,7 +76,10 @@ public sealed class Dwma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -124,12 +132,20 @@ public sealed class Dwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double[]? tempArray = len > 1024 ? ArrayPool<double>.Shared.Rent(len) : null;
         Span<double> temp = len <= 1024
@@ -143,7 +159,10 @@ public sealed class Dwma : AbstractBase
         }
         finally
         {
-            if (tempArray != null) ArrayPool<double>.Shared.Return(tempArray);
+            if (tempArray != null)
+            {
+                ArrayPool<double>.Shared.Return(tempArray);
+            }
         }
     }
 

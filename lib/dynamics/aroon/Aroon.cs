@@ -67,7 +67,9 @@ public sealed class Aroon : ITValuePublisher
     public Aroon(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         Name = $"Aroon({period})";
@@ -163,7 +165,10 @@ public sealed class Aroon : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new double[len];
@@ -288,7 +293,10 @@ public sealed class Aroon : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int period)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new double[len];

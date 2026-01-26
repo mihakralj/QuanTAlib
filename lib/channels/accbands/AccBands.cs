@@ -96,9 +96,14 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     public AccBands(int period, double factor = 2.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (factor <= 0)
+        {
             throw new ArgumentException("Factor must be greater than 0", nameof(factor));
+        }
 
         _period = period;
         _factor = factor;
@@ -125,7 +130,11 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         if (_source != null)
@@ -271,7 +280,9 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -315,7 +326,10 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     // skipcq: CS-R1140
     public void Prime(TBarSeries source)
     {
-        if (source.Count == 0) return;
+        if (source.Count == 0)
+        {
+            return;
+        }
 
         // Reset state
         _highBuffer.Clear();
@@ -336,13 +350,24 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         {
             var bar = source[i];
             if (double.IsFinite(bar.High) && double.IsNaN(_state.LastValidHigh))
+            {
                 _state.LastValidHigh = bar.High;
+            }
+
             if (double.IsFinite(bar.Low) && double.IsNaN(_state.LastValidLow))
+            {
                 _state.LastValidLow = bar.Low;
+            }
+
             if (double.IsFinite(bar.Close) && double.IsNaN(_state.LastValidClose))
+            {
                 _state.LastValidClose = bar.Close;
+            }
+
             if (!double.IsNaN(_state.LastValidHigh) && !double.IsNaN(_state.LastValidLow) && !double.IsNaN(_state.LastValidClose))
+            {
                 break;
+            }
         }
 
         // Find valid values in warmup window if not found
@@ -352,13 +377,24 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             {
                 var bar = source[i];
                 if (double.IsFinite(bar.High) && double.IsNaN(_state.LastValidHigh))
+                {
                     _state.LastValidHigh = bar.High;
+                }
+
                 if (double.IsFinite(bar.Low) && double.IsNaN(_state.LastValidLow))
+                {
                     _state.LastValidLow = bar.Low;
+                }
+
                 if (double.IsFinite(bar.Close) && double.IsNaN(_state.LastValidClose))
+                {
                     _state.LastValidClose = bar.Close;
+                }
+
                 if (!double.IsNaN(_state.LastValidHigh) && !double.IsNaN(_state.LastValidLow) && !double.IsNaN(_state.LastValidClose))
+                {
                     break;
+                }
             }
         }
 
@@ -578,15 +614,29 @@ public sealed class AccBands : ITValuePublisher, IDisposable
     {
         int len = close.Length;
         if (high.Length != len || low.Length != len)
+        {
             throw new ArgumentException("High, Low, and Close must have the same length", nameof(high));
-        if (middle.Length < len || upper.Length < len || lower.Length < len)
-            throw new ArgumentException("Output buffers must be at least as long as input", nameof(middle));
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (factor <= 0)
-            throw new ArgumentException("Factor must be greater than 0", nameof(factor));
+        }
 
-        if (len == 0) return;
+        if (middle.Length < len || upper.Length < len || lower.Length < len)
+        {
+            throw new ArgumentException("Output buffers must be at least as long as input", nameof(middle));
+        }
+
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
+        if (factor <= 0)
+        {
+            throw new ArgumentException("Factor must be greater than 0", nameof(factor));
+        }
+
+        if (len == 0)
+        {
+            return;
+        }
 
         // Scalar implementation with NaN handling
         var inputs = new BatchInputs(high, low, close);
@@ -643,13 +693,24 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         for (int k = 0; k < len; k++)
         {
             if (double.IsFinite(inputs.High[k]) && double.IsNaN(state.LastValidHigh))
+            {
                 state.LastValidHigh = inputs.High[k];
+            }
+
             if (double.IsFinite(inputs.Low[k]) && double.IsNaN(state.LastValidLow))
+            {
                 state.LastValidLow = inputs.Low[k];
+            }
+
             if (double.IsFinite(inputs.Close[k]) && double.IsNaN(state.LastValidClose))
+            {
                 state.LastValidClose = inputs.Close[k];
+            }
+
             if (!double.IsNaN(state.LastValidHigh) && !double.IsNaN(state.LastValidLow) && !double.IsNaN(state.LastValidClose))
+            {
                 break;
+            }
         }
     }
 
@@ -660,9 +721,32 @@ public sealed class AccBands : ITValuePublisher, IDisposable
         double l = inputs.Low[i];
         double c = inputs.Close[i];
 
-        if (double.IsFinite(h)) state.LastValidHigh = h; else h = state.LastValidHigh;
-        if (double.IsFinite(l)) state.LastValidLow = l; else l = state.LastValidLow;
-        if (double.IsFinite(c)) state.LastValidClose = c; else c = state.LastValidClose;
+        if (double.IsFinite(h))
+        {
+            state.LastValidHigh = h;
+        }
+        else
+        {
+            h = state.LastValidHigh;
+        }
+
+        if (double.IsFinite(l))
+        {
+            state.LastValidLow = l;
+        }
+        else
+        {
+            l = state.LastValidLow;
+        }
+
+        if (double.IsFinite(c))
+        {
+            state.LastValidClose = c;
+        }
+        else
+        {
+            c = state.LastValidClose;
+        }
 
         return (h, l, c);
     }
@@ -726,7 +810,10 @@ public sealed class AccBands : ITValuePublisher, IDisposable
             buffers.Close[state.BufferIndex] = c;
 
             state.BufferIndex++;
-            if (state.BufferIndex >= period) state.BufferIndex = 0;
+            if (state.BufferIndex >= period)
+            {
+                state.BufferIndex = 0;
+            }
 
             WriteBandOutputs(outputs, i, state.SumHigh / period, state.SumLow / period, state.SumClose / period, factor);
 

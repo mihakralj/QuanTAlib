@@ -195,11 +195,25 @@ public sealed class Htit : AbstractBase
         {
             double cap = 1.5 * prevPeriod;
             double floor = 0.67 * prevPeriod;
-            if (period > cap) period = cap;
-            if (period < floor) period = floor;
+            if (period > cap)
+            {
+                period = cap;
+            }
+
+            if (period < floor)
+            {
+                period = floor;
+            }
         }
-        if (period < 6) period = 6;
-        if (period > 50) period = 50;
+        if (period < 6)
+        {
+            period = 6;
+        }
+
+        if (period > 50)
+        {
+            period = 50;
+        }
 
         // Smooth the period (using FMA)
         _state.Period = Math.FusedMultiplyAdd(0.2, period, 0.8 * prevPeriod);
@@ -254,7 +268,10 @@ public sealed class Htit : AbstractBase
     /// <returns>Output time series with HTIT values</returns>
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new List<double>(len);
@@ -293,9 +310,14 @@ public sealed class Htit : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Stack allocate buffers
         // priceBuffer needs to be larger for IT calculation (up to 50 bars)
@@ -416,11 +438,25 @@ public sealed class Htit : AbstractBase
                 {
                     double cap = 1.5 * p_period;
                     double floor = 0.67 * p_period;
-                    if (newPeriod > cap) newPeriod = cap;
-                    if (newPeriod < floor) newPeriod = floor;
+                    if (newPeriod > cap)
+                    {
+                        newPeriod = cap;
+                    }
+
+                    if (newPeriod < floor)
+                    {
+                        newPeriod = floor;
+                    }
                 }
-                if (newPeriod < 6) newPeriod = 6;
-                if (newPeriod > 50) newPeriod = 50;
+                if (newPeriod < 6)
+                {
+                    newPeriod = 6;
+                }
+
+                if (newPeriod > 50)
+                {
+                    newPeriod = 50;
+                }
 
                 period = Math.FusedMultiplyAdd(0.2, newPeriod, 0.8 * p_period);
                 smoothPeriod = Math.FusedMultiplyAdd(0.33, period, 0.67 * p_smoothPeriod);

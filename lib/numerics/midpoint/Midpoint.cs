@@ -33,7 +33,9 @@ public sealed class Midpoint : AbstractBase
     public Midpoint(int period)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _highest = new Highest(period);
         _lowest = new Lowest(period);
@@ -116,11 +118,19 @@ public sealed class Midpoint : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         int len = source.Length;
 
@@ -151,9 +161,14 @@ public sealed class Midpoint : AbstractBase
         finally
         {
             if (rentedHigh != null)
+            {
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedHigh);
+            }
+
             if (rentedLow != null)
+            {
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedLow);
+            }
         }
     }
 

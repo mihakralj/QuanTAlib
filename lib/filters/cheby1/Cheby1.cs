@@ -46,9 +46,14 @@ public sealed class Cheby1 : AbstractBase
     public Cheby1(int period, double ripple = 1.0)
     {
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2");
+        }
+
         if (ripple <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(ripple), "Ripple must be > 0");
+        }
 
         Period = period;
         Ripple = ripple;
@@ -105,7 +110,10 @@ public sealed class Cheby1 : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
@@ -178,7 +186,9 @@ public sealed class Cheby1 : AbstractBase
             _state.Filt1 = filt;
 
             if (_state.Count < 2)
+            {
                 _state.Count++;
+            }
         }
 
         Last = new TValue(input.Time, filt);
@@ -197,12 +207,19 @@ public sealed class Cheby1 : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double ripple = 1.0)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
+        }
 
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2");
+        }
+
         if (ripple <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(ripple), "Ripple must be > 0");
+        }
 
         // Coefficients
         double safeRipple = Math.Max(ripple, 0.01);
@@ -239,7 +256,10 @@ public sealed class Cheby1 : AbstractBase
         if (source.Length > 0)
         {
             lastValid = source[0];
-            if (!double.IsFinite(lastValid)) lastValid = 0;
+            if (!double.IsFinite(lastValid))
+            {
+                lastValid = 0;
+            }
         }
 
         for (int i = 0; i < source.Length; i++)

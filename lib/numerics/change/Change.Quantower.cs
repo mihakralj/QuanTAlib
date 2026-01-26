@@ -50,7 +50,10 @@ public class ChangeIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_change == null || _selector == null) return;
+        if (_change == null || _selector == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);
@@ -76,9 +79,21 @@ public class ChangeIndicator : Indicator, IWatchlistIndicator
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private static IndicatorLineMarker GetMarker(double value)
     {
-        if (!double.IsFinite(value)) return GrayMarker;
-        if (value > 0) return GreenMarker;
-        if (value < 0) return RedMarker;
+        if (!double.IsFinite(value))
+        {
+            return GrayMarker;
+        }
+
+        if (value > 0)
+        {
+            return GreenMarker;
+        }
+
+        if (value < 0)
+        {
+            return RedMarker;
+        }
+
         return GrayMarker;
     }
 }

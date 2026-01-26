@@ -350,7 +350,9 @@ public class QemaTests
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         // Warm up
         Qema.Batch(source.AsSpan(), output.AsSpan(), 100);
@@ -412,7 +414,10 @@ public class QemaTests
 
         // Verify against a fresh QEMA fed with same data
         var verifyQema = new Qema(5);
-        foreach (var val in history) verifyQema.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyQema.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyQema.Last.Value, qema.Last.Value, 1e-10);
         Assert.Equal(verifyQema.IsHot, qema.IsHot);
@@ -432,7 +437,10 @@ public class QemaTests
         qema.Prime(history);
 
         var verifyQema = new Qema(5);
-        foreach (var val in history) verifyQema.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyQema.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyQema.Last.Value, qema.Last.Value, 1e-10);
     }

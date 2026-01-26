@@ -219,7 +219,9 @@ public class SigmoidTests
         var series = new TSeries();
 
         for (int i = 0; i < 100; i++)
+        {
             series.Add(new TValue(DateTime.UtcNow.AddSeconds(i), i - 50), isNew: true);
+        }
 
         var result = sigmoid.Update(series);
 
@@ -232,7 +234,9 @@ public class SigmoidTests
         var series = new TSeries();
 
         for (int i = 0; i < 100; i++)
+        {
             series.Add(new TValue(DateTime.UtcNow.AddSeconds(i), i - 50), isNew: true);
+        }
 
         var result = Sigmoid.Calculate(series);
 
@@ -274,7 +278,9 @@ public class SigmoidTests
         double[] source = new double[100];
         var rng = new Random(42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = rng.NextDouble() * 200 - 100;
+        }
 
         double[] spanOutput = new double[source.Length];
         Sigmoid.Calculate(source.AsSpan(), spanOutput.AsSpan());
@@ -282,10 +288,14 @@ public class SigmoidTests
         var sigmoid = new Sigmoid();
         double[] streamOutput = new double[source.Length];
         for (int i = 0; i < source.Length; i++)
+        {
             streamOutput[i] = sigmoid.Update(new TValue(DateTime.UtcNow.AddSeconds(i), source[i]), true).Value;
+        }
 
         for (int i = 0; i < source.Length; i++)
+        {
             Assert.Equal(streamOutput[i], spanOutput[i], Epsilon);
+        }
     }
 
     [Fact]
@@ -315,7 +325,9 @@ public class SigmoidTests
         sigmoid.Pub += (_, in _) => eventCount++;
 
         for (int i = 0; i < 10; i++)
+        {
             source.Add(new TValue(DateTime.UtcNow.AddSeconds(i), i), isNew: true);
+        }
 
         Assert.Equal(10, eventCount);
     }

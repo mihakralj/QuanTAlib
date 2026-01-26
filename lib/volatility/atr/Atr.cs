@@ -34,7 +34,9 @@ public sealed class Atr : AbstractBase
     public Atr(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _rma = new Rma(period);
         Name = $"Atr({period})";
@@ -165,7 +167,10 @@ public sealed class Atr : AbstractBase
 
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         // 1. Calculate TR series
         TSeries trSeries = CalculateTrueRange(source);
@@ -193,7 +198,10 @@ public sealed class Atr : AbstractBase
         var t = new List<long>(source.Count);
         var v = new List<double>(source.Count);
 
-        if (source.Count == 0) return new TSeries(t, v);
+        if (source.Count == 0)
+        {
+            return new TSeries(t, v);
+        }
 
         // First bar TR = H - L
         t.Add(source[0].Time);

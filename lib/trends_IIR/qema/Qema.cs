@@ -127,7 +127,10 @@ public sealed class Qema : AbstractBase
     /// <param name="step">Optional time step (not used)</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _state1 = EmaState.New();
@@ -163,9 +166,13 @@ public sealed class Qema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             double e1 = ComputeEma(val, _alpha1, _decay1, ref s1);
             double e2 = ComputeEma(e1, _alpha2, _decay2, ref s2);
@@ -200,7 +207,11 @@ public sealed class Qema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double GetCompensated(EmaState s)
     {
-        if (s.IsCompensated) return s.Ema;
+        if (s.IsCompensated)
+        {
+            return s.Ema;
+        }
+
         return s.Ema / (1.0 - s.E);
     }
 
@@ -226,9 +237,13 @@ public sealed class Qema : AbstractBase
 
         double val = input.Value;
         if (double.IsFinite(val))
+        {
             _lastValidValue = val;
+        }
         else
+        {
             val = _lastValidValue;
+        }
 
         // Cascaded EMAs
         double e1 = ComputeEma(val, _alpha1, _decay1, ref _state1);
@@ -247,7 +262,10 @@ public sealed class Qema : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -273,9 +291,13 @@ public sealed class Qema : AbstractBase
         {
             double val = sourceValues[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             double e1 = ComputeEma(val, _alpha1, _decay1, ref s1);
             double e2 = ComputeEma(e1, _alpha2, _decay2, ref s2);
@@ -314,7 +336,9 @@ public sealed class Qema : AbstractBase
             state.E *= decay;
 
             if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+            {
                 state.IsHot = true;
+            }
 
             if (state.E <= COMPENSATOR_THRESHOLD)
             {
@@ -402,10 +426,16 @@ public sealed class Qema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(period);
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double alpha1 = Clamp01(2.0 / (period + 1));
         double r = Math.Pow(1.0 / alpha1, 0.25);
@@ -446,9 +476,13 @@ public sealed class Qema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             // EMA1
             ema1_val = Math.FusedMultiplyAdd(ema1_val, decay1, alpha1 * val);

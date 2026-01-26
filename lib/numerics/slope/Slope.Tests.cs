@@ -241,10 +241,10 @@ public class SlopeTests
     {
         var source = new TSeries();
         var slope = new Slope(source);
-        
+
         source.Add(new TValue(DateTime.UtcNow, 10));
         source.Add(new TValue(DateTime.UtcNow, 20));
-        
+
         Assert.True(slope.IsHot);
         Assert.Equal(10, slope.Last.Value);
     }

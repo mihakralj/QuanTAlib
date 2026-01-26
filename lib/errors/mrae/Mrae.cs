@@ -52,7 +52,9 @@ public sealed class Mrae : BiInputIndicatorBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -75,12 +77,20 @@ public sealed class Mrae : BiInputIndicatorBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Pre-compute relative errors (same as percentage errors but without *100)
         const int StackAllocThreshold = 256;
@@ -130,14 +140,22 @@ public sealed class Mrae : BiInputIndicatorBase
             double pred = predicted[i];
 
             if (double.IsFinite(act) && Math.Abs(act) >= Epsilon)
+            {
                 lastValidActual = act;
+            }
             else
+            {
                 act = lastValidActual;
+            }
 
             if (double.IsFinite(pred))
+            {
                 lastValidPredicted = pred;
+            }
             else
+            {
                 pred = lastValidPredicted;
+            }
 
             double absActual = Math.Abs(act);
             output[i] = absActual > Epsilon

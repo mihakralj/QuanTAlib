@@ -52,7 +52,9 @@ public sealed class Maape : BiInputIndicatorBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -76,12 +78,20 @@ public sealed class Maape : BiInputIndicatorBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Pre-compute arctangent errors
         const int StackAllocThreshold = 256;
@@ -100,7 +110,9 @@ public sealed class Maape : BiInputIndicatorBase
         finally
         {
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 
@@ -133,7 +145,9 @@ public sealed class Maape : BiInputIndicatorBase
                 foundPredicted = true;
             }
             if (foundActual && foundPredicted)
+            {
                 break;
+            }
         }
 
         for (int i = 0; i < len; i++)
@@ -142,14 +156,22 @@ public sealed class Maape : BiInputIndicatorBase
             double pred = predicted[i];
 
             if (double.IsFinite(act))
+            {
                 lastValidActual = act;
+            }
             else
+            {
                 act = lastValidActual;
+            }
 
             if (double.IsFinite(pred))
+            {
                 lastValidPredicted = pred;
+            }
             else
+            {
                 pred = lastValidPredicted;
+            }
 
             double absActual = Math.Abs(act);
             double absError = Math.Abs(act - pred);

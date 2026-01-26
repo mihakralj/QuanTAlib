@@ -58,7 +58,9 @@ public sealed class Zlema : AbstractBase
     public Zlema(double alpha)
     {
         if (alpha <= 0.0 || alpha > 1.0 || !double.IsFinite(alpha))
+        {
             throw new ArgumentException("Alpha must be finite and in (0, 1].", nameof(alpha));
+        }
 
         _alpha = alpha;
         _beta = 1.0 - _alpha;
@@ -97,9 +99,13 @@ public sealed class Zlema : AbstractBase
 
         double val = input.Value;
         if (double.IsFinite(val))
+        {
             _lastValidValue = val;
+        }
         else
+        {
             val = _lastValidValue;
+        }
 
         if (double.IsNaN(val))
         {
@@ -123,7 +129,10 @@ public sealed class Zlema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -146,9 +155,13 @@ public sealed class Zlema : AbstractBase
         {
             double val = source.Values[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -190,10 +203,16 @@ public sealed class Zlema : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length.", nameof(output));
+        }
+
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(period);
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double alpha = 2.0 / (period + 1);
         Calculate(source, output, alpha, period);
@@ -202,11 +221,19 @@ public sealed class Zlema : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length.", nameof(output));
-        if (alpha <= 0.0 || alpha > 1.0 || !double.IsFinite(alpha))
-            throw new ArgumentException("Alpha must be finite and in (0, 1].", nameof(alpha));
+        }
 
-        if (source.Length == 0) return;
+        if (alpha <= 0.0 || alpha > 1.0 || !double.IsFinite(alpha))
+        {
+            throw new ArgumentException("Alpha must be finite and in (0, 1].", nameof(alpha));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double period = (2.0 / alpha) - 1.0;
         Calculate(source, output, alpha, period);
@@ -231,7 +258,9 @@ public sealed class Zlema : AbstractBase
             state.E *= _beta;
 
             if (!state.IsHot && state.Bars >= _lag + 1 && state.E <= CoverageThreshold)
+            {
                 state.IsHot = true;
+            }
 
             if (state.E <= CompensatorThreshold)
             {
@@ -246,7 +275,10 @@ public sealed class Zlema : AbstractBase
         else
         {
             if (!state.IsHot && state.Bars >= _lag + 1)
+            {
                 state.IsHot = true;
+            }
+
             result = state.ZlemaRaw;
         }
 
@@ -257,11 +289,15 @@ public sealed class Zlema : AbstractBase
     private static int EstimateWarmupPeriod(double beta)
     {
         if (beta <= 0.0)
+        {
             return 1;
+        }
 
         double steps = Math.Log(CoverageThreshold) / Math.Log(beta);
         if (double.IsNaN(steps) || double.IsInfinity(steps) || steps <= 0.0)
+        {
             return 1;
+        }
 
         return (int)Math.Ceiling(steps);
     }
@@ -317,9 +353,13 @@ public sealed class Zlema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -330,7 +370,9 @@ public sealed class Zlema : AbstractBase
             buffer[head] = val;
             head++;
             if (head == bufferSize)
+            {
                 head = 0;
+            }
 
             double lagged = buffer[head];
             double signal = Math.FusedMultiplyAdd(2.0, val, -lagged);

@@ -51,7 +51,10 @@ public sealed class Me : BiInputIndicatorBase
         ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         if (len <= StackAllocThreshold)

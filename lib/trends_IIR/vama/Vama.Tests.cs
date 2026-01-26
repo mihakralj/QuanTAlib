@@ -296,7 +296,10 @@ public class VamaTests
 
         // Verify against a fresh VAMA fed with same data
         var verifyVama = new Vama();
-        foreach (var val in history) verifyVama.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyVama.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyVama.Last.Value, vama.Last.Value, 1e-10);
 
@@ -315,7 +318,10 @@ public class VamaTests
         vama.Prime(history);
 
         var verifyVama = new Vama();
-        foreach (var val in history) verifyVama.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyVama.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyVama.Last.Value, vama.Last.Value, 1e-10);
     }

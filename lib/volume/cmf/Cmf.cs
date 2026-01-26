@@ -67,7 +67,9 @@ public sealed class Cmf : ITValuePublisher
     public Cmf(int period = 20)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _period = period;
         _mfvBuffer = new RingBuffer(period);
@@ -183,7 +185,10 @@ public sealed class Cmf : ITValuePublisher
 
     public static TSeries Calculate(TBarSeries source, int period = 20)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var t = source.Open.Times.ToArray();
         var v = new double[source.Count];
@@ -197,15 +202,29 @@ public sealed class Cmf : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
     {
         if (high.Length != low.Length)
+        {
             throw new ArgumentException("High and Low spans must be of the same length", nameof(low));
+        }
+
         if (high.Length != close.Length)
+        {
             throw new ArgumentException("High and Close spans must be of the same length", nameof(close));
+        }
+
         if (high.Length != volume.Length)
+        {
             throw new ArgumentException("High and Volume spans must be of the same length", nameof(volume));
+        }
+
         if (high.Length != output.Length)
+        {
             throw new ArgumentException("Output span must be of the same length as input", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         int len = high.Length;
 

@@ -109,10 +109,14 @@ public sealed class Dmx : ITValuePublisher
             double downMove = _prevBar.Low - input.Low;
 
             if (upMove > downMove && upMove > 0)
+            {
                 dmPlusRaw = upMove;
+            }
 
             if (downMove > upMove && downMove > 0)
+            {
                 dmMinusRaw = downMove;
+            }
 
             double tr1 = input.High - input.Low;
             double tr2 = Math.Abs(input.High - _prevBar.Close);
@@ -147,7 +151,9 @@ public sealed class Dmx : ITValuePublisher
     {
         int count = source.Count;
         if (count == 0)
+        {
             return [];
+        }
 
         var t = new List<long>(count);
         var v = new List<double>(count);
@@ -182,13 +188,19 @@ public sealed class Dmx : ITValuePublisher
     {
         int len = high.Length;
         if (len == 0)
+        {
             return;
+        }
 
         if (low.Length != len || close.Length != len || destination.Length != len)
+        {
             throw new ArgumentException("All input spans must have the same length", nameof(destination));
+        }
 
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than zero.", nameof(period));
+        }
 
         // Use single ArrayPool rent with slicing for better cache locality and fewer allocations
         // Need 6 buffers of len each: dmPlus, dmMinus, tr, dmPlusSmooth, dmMinusSmooth, trSmooth
@@ -238,10 +250,14 @@ public sealed class Dmx : ITValuePublisher
                 double dmMinusRaw = 0.0;
 
                 if (upMove > downMove && upMove > 0.0)
+                {
                     dmPlusRaw = upMove;
+                }
 
                 if (downMove > upMove && downMove > 0.0)
+                {
                     dmMinusRaw = downMove;
+                }
 
                 double tr1 = h - l;
                 double tr2 = Math.Abs(h - pc);
@@ -275,7 +291,9 @@ public sealed class Dmx : ITValuePublisher
         finally
         {
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 

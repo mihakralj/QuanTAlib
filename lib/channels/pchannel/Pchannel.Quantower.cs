@@ -42,7 +42,9 @@ public sealed class PchannelIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         if (_indicator is null)
+        {
             return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         bool isNew = args.IsNewBar();

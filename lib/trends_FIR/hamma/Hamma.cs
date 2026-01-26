@@ -62,7 +62,9 @@ public sealed class Hamma : AbstractBase
     public Hamma(int period = 10)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -184,7 +186,10 @@ public sealed class Hamma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -224,7 +229,10 @@ public sealed class Hamma : AbstractBase
     private double CalculateWeightedSum()
     {
         int count = _buffer.Count;
-        if (count == 0) return 0;
+        if (count == 0)
+        {
+            return 0;
+        }
 
         if (count < _period)
         {
@@ -283,9 +291,14 @@ public sealed class Hamma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 10)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         // Allocation Strategy: Stack for small periods, Pool for large
         double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
@@ -381,8 +394,15 @@ public sealed class Hamma : AbstractBase
         }
         finally
         {
-            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
-            if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
+            if (weightsArray != null)
+            {
+                ArrayPool<double>.Shared.Return(weightsArray);
+            }
+
+            if (bufferArray != null)
+            {
+                ArrayPool<double>.Shared.Return(bufferArray);
+            }
         }
     }
 

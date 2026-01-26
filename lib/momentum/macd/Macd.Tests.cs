@@ -38,7 +38,9 @@ public class MacdTests
         var series = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 49; i++)
+        {
             macd.Update(series.Close[i], isNew: true);
+        }
 
         var val1 = macd.Update(series.Close[49], isNew: true);
         var val2 = macd.Update(new TValue(DateTime.UtcNow, series.Close[49].Value + 1), isNew: true);
@@ -54,7 +56,9 @@ public class MacdTests
         var series = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 49; i++)
+        {
             macd.Update(series.Close[i]);
+        }
 
         var val1 = macd.Update(series.Close[49], isNew: true);
         var val2 = macd.Update(new TValue(series.Close[49].Time, series.Close[49].Value + 5), isNew: false);
@@ -71,7 +75,9 @@ public class MacdTests
         var series = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 50; i++)
+        {
             macd.Update(series.Close[i]);
+        }
 
         var originalValue = macd.Last;
 
@@ -93,7 +99,9 @@ public class MacdTests
         var series = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < series.Count; i++)
+        {
             macd.Update(series.Close[i]);
+        }
 
         macd.Reset();
 
@@ -113,7 +121,10 @@ public class MacdTests
         for (int i = 0; i < series.Count; i++)
         {
             macd.Update(series.Close[i]);
-            if (i >= 40) break;
+            if (i >= 40)
+            {
+                break;
+            }
         }
 
         Assert.True(macd.IsHot);
@@ -127,7 +138,9 @@ public class MacdTests
         var series = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 40; i++)
+        {
             macd.Update(series.Close[i]);
+        }
 
         var result = macd.Update(new TValue(DateTime.UtcNow, double.NaN));
         Assert.True(double.IsFinite(result.Value));
@@ -141,7 +154,9 @@ public class MacdTests
         var series = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 40; i++)
+        {
             macd.Update(series.Close[i]);
+        }
 
         var result = macd.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         Assert.True(double.IsFinite(result.Value));
@@ -213,14 +228,20 @@ public class MacdTests
         // 3. Streaming Mode
         var streamMacd = new Macd(12, 26, 9);
         for (int i = 0; i < series.Count; i++)
+        {
             streamMacd.Update(series.Close[i]);
+        }
+
         double streamResult = streamMacd.Last.Value;
 
         // 4. Eventing Mode
         var pubSource = new TSeries();
         var eventMacd = new Macd(pubSource, 12, 26, 9);
         for (int i = 0; i < series.Count; i++)
+        {
             pubSource.Add(series.Close[i]);
+        }
+
         double eventResult = eventMacd.Last.Value;
 
         Assert.Equal(expected, spanResult, 9);

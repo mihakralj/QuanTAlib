@@ -308,7 +308,11 @@ public sealed class Blma : AbstractBase
                     {
                         int srcIdx = i - count + 1 + j;
                         double srcVal = source[srcIdx];
-                        if (!double.IsFinite(srcVal)) srcVal = lastValid;
+                        if (!double.IsFinite(srcVal))
+                        {
+                            srcVal = lastValid;
+                        }
+
                         sum += srcVal * currentWeights[j];
                     }
 
@@ -317,7 +321,11 @@ public sealed class Blma : AbstractBase
                     {
                         int srcIdx = i - count + 1 + j;
                         double srcVal = source[srcIdx];
-                        if (!double.IsFinite(srcVal)) srcVal = lastValid;
+                        if (!double.IsFinite(srcVal))
+                        {
+                            srcVal = lastValid;
+                        }
+
                         avg += srcVal;
                     }
                     avg /= count;
@@ -334,7 +342,11 @@ public sealed class Blma : AbstractBase
                 {
                     int srcIdx = i - period + 1 + j;
                     double srcVal = source[srcIdx];
-                    if (!double.IsFinite(srcVal)) srcVal = lastValid;
+                    if (!double.IsFinite(srcVal))
+                    {
+                        srcVal = lastValid;
+                    }
+
                     sum += srcVal * weights[j];
                     avg += srcVal;
                 }

@@ -73,7 +73,10 @@ public sealed class AbberIndicator : Indicator, IWatchlistIndicator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (HistoricalData.Count == 0 || _abber is null || _selector is null) return;
+        if (HistoricalData.Count == 0 || _abber is null || _selector is null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);

@@ -33,7 +33,11 @@ public sealed class Mgdi : AbstractBase
     public Mgdi(int period = 14, double k = 0.6)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
-        if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
+        if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
+        }
+
         _period = period;
         _k = k;
         Name = $"Mgdi({period},{k})";
@@ -123,7 +127,10 @@ public sealed class Mgdi : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -167,12 +174,20 @@ public sealed class Mgdi : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 14, double k = 0.6)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 1);
-        if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0) throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
+        if (double.IsNaN(k) || double.IsInfinity(k) || k <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(k), "k must be a finite value greater than 0");
+        }
 
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double lastMgdi = 0;
         double lastValid = 0;

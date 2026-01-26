@@ -197,7 +197,9 @@ public class HistoricalData
         for (int i = 0; i < _items.Count; i++)
         {
             if (_items[i].TicksLeft == ticks)
+            {
                 return Count - 1 - i;
+            }
         }
         return -1;
     }
@@ -281,14 +283,18 @@ public class LineSeries(string name, Color color, int width, LineStyle style)
     public double GetValue(int offset = 0, SeekOriginHistory origin = SeekOriginHistory.End)
     {
         if (_values.Count == 0)
+        {
             return double.NaN;
+        }
 
         int index = origin == SeekOriginHistory.End
             ? _values.Count - 1 - offset
             : offset;
 
         if (index < 0 || index >= _values.Count)
+        {
             return double.NaN;
+        }
 
         return _values[index];
     }
@@ -307,7 +313,9 @@ public class LineSeries(string name, Color color, int width, LineStyle style)
         EnsureMarkerCapacity(offset + 1);
         int index = _markers.Count - 1 - offset;
         if (index >= 0 && index < _markers.Count)
+        {
             _markers[index] = color;
+        }
     }
 
     public void SetMarker(int offset, IndicatorLineMarker marker)
@@ -324,13 +332,17 @@ public class LineSeries(string name, Color color, int width, LineStyle style)
     private void EnsureCapacity(int count)
     {
         while (_values.Count < count)
+        {
             _values.Add(double.NaN);
+        }
     }
 
     private void EnsureMarkerCapacity(int count)
     {
         while (_markers.Count < count)
+        {
             _markers.Add(Color.Transparent);
+        }
     }
 
     public int Count => _values.Count;

@@ -116,9 +116,14 @@ public sealed class Apz : ITValuePublisher
     public Apz(int period, double multiplier = 2.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (multiplier <= 0)
+        {
             throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
         _period = period;
         _multiplier = multiplier;
@@ -163,19 +168,31 @@ public sealed class Apz : ITValuePublisher
     private (double price, double high, double low) GetValidValues(double price, double high, double low)
     {
         if (double.IsFinite(price))
+        {
             _state.LastValidPrice = price;
+        }
         else
+        {
             price = _state.LastValidPrice;
+        }
 
         if (double.IsFinite(high))
+        {
             _state.LastValidHigh = high;
+        }
         else
+        {
             high = _state.LastValidHigh;
+        }
 
         if (double.IsFinite(low))
+        {
             _state.LastValidLow = low;
+        }
         else
+        {
             low = _state.LastValidLow;
+        }
 
         return (price, high, low);
     }
@@ -206,7 +223,9 @@ public sealed class Apz : ITValuePublisher
             adaptiveRange *= compensator;
 
             if (_state.E <= ConvergenceThreshold)
+            {
                 _state.IsHot = true;
+            }
         }
 
         double bandWidth = _multiplier * adaptiveRange;
@@ -220,9 +239,13 @@ public sealed class Apz : ITValuePublisher
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         var (price, high, low) = GetValidValues(input.Close, input.High, input.Low);
 
@@ -237,7 +260,10 @@ public sealed class Apz : ITValuePublisher
         }
 
         double range = high - low;
-        if (range < 0) range = 0; // Safety check
+        if (range < 0)
+        {
+            range = 0; // Safety check
+        }
 
         var (middle, upper, lower) = Compute(price, range);
 
@@ -255,7 +281,9 @@ public sealed class Apz : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -316,7 +344,10 @@ public sealed class Apz : ITValuePublisher
     /// </summary>
     public void Prime(TBarSeries source)
     {
-        if (source.Count == 0) return;
+        if (source.Count == 0)
+        {
+            return;
+        }
 
         // Reset state
         _state = State.New();
@@ -443,15 +474,29 @@ public sealed class Apz : ITValuePublisher
     {
         int len = close.Length;
         if (high.Length != len || low.Length != len)
+        {
             throw new ArgumentException("Input spans must have the same length", nameof(high));
-        if (outputs.Middle.Length < len || outputs.Upper.Length < len || outputs.Lower.Length < len)
-            throw new ArgumentException("Output buffers must be at least as long as input", nameof(outputs));
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (multiplier <= 0)
-            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
-        if (len == 0) return;
+        if (outputs.Middle.Length < len || outputs.Upper.Length < len || outputs.Lower.Length < len)
+        {
+            throw new ArgumentException("Output buffers must be at least as long as input", nameof(outputs));
+        }
+
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
+        if (multiplier <= 0)
+        {
+            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
+
+        if (len == 0)
+        {
+            return;
+        }
 
         CalculateScalarCore(high, low, close, outputs, period, multiplier);
     }
@@ -470,16 +515,29 @@ public sealed class Apz : ITValuePublisher
     {
         int len = close.Length;
         if (high.Length != len || low.Length != len)
+        {
             throw new ArgumentException("Input spans must have the same length", nameof(high));
+        }
+
         if (outputs.Middle.Length < len || outputs.Upper.Length < len || outputs.Lower.Length < len)
+        {
             throw new ArgumentException("Output buffers must be at least as long as input", nameof(outputs));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (multiplier <= 0)
+        {
             throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
         if (len == 0)
+        {
             return new ScalarState();
+        }
 
         return CalculateScalarCoreWithState(high, low, close, outputs, period, multiplier);
     }
@@ -540,19 +598,31 @@ public sealed class Apz : ITValuePublisher
 
             // Get valid values
             if (double.IsFinite(price))
+            {
                 state.LastValidPrice = price;
+            }
             else
+            {
                 price = state.LastValidPrice;
+            }
 
             if (double.IsFinite(h))
+            {
                 state.LastValidHigh = h;
+            }
             else
+            {
                 h = state.LastValidHigh;
+            }
 
             if (double.IsFinite(l))
+            {
                 state.LastValidLow = l;
+            }
             else
+            {
                 l = state.LastValidLow;
+            }
 
             // Handle first valid value
             if (double.IsNaN(price))
@@ -585,7 +655,9 @@ public sealed class Apz : ITValuePublisher
                 adaptiveRange *= compensator;
 
                 if (state.E <= ConvergenceThreshold)
+                {
                     state.IsHot = true;
+                }
             }
 
             double bandWidth = multiplier * adaptiveRange;

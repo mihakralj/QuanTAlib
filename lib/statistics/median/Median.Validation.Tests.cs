@@ -86,7 +86,10 @@ public sealed class MedianValidationTests : IDisposable
     private static double CalculateMedian(List<double> sortedWindow)
     {
         int count = sortedWindow.Count;
-        if (count == 0) return 0; // Or NaN
+        if (count == 0)
+        {
+            return 0; // Or NaN
+        }
 
         int mid = count / 2;
         if (count % 2 != 0)

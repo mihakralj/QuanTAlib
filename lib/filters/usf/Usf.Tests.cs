@@ -413,7 +413,9 @@ public class UsfTests
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         // Warm up
         Usf.Calculate(source.AsSpan(), output.AsSpan(), 100);
@@ -509,7 +511,9 @@ public class UsfTests
     {
         var series = new TSeries();
         for (int i = 1; i <= 10; i++)
+        {
             series.Add(DateTime.UtcNow, i * 10);
+        }
 
         var (results, indicator) = Usf.Calculate(series, 5);
 

@@ -46,7 +46,9 @@ public sealed class Vidya : AbstractBase
     public Vidya(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _alpha = 2.0 / (period + 1);
@@ -100,7 +102,11 @@ public sealed class Vidya : AbstractBase
         double price = input.Value;
         if (!double.IsFinite(price))
         {
-            if (!_state.IsInitialized) return input;
+            if (!_state.IsInitialized)
+            {
+                return input;
+            }
+
             price = _state.CurrentClose;
         }
 
@@ -147,7 +153,10 @@ public sealed class Vidya : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -197,7 +206,10 @@ public sealed class Vidya : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         Reset();
@@ -224,7 +236,10 @@ public sealed class Vidya : AbstractBase
         for (int i = 1; i < source.Length; i++)
         {
             double price = source[i];
-            if (!double.IsFinite(price)) price = prevClose;
+            if (!double.IsFinite(price))
+            {
+                price = prevClose;
+            }
 
             double change = price - prevClose;
             double up = change > 0 ? change : 0;
@@ -295,11 +310,19 @@ public sealed class Vidya : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double alpha = 2.0 / (period + 1);
 
@@ -346,7 +369,10 @@ public sealed class Vidya : AbstractBase
                 sumDown += down;
 
                 head++;
-                if (head >= period) head = 0;
+                if (head >= period)
+                {
+                    head = 0;
+                }
 
                 double sum = sumUp + sumDown;
                 double vi = 0;

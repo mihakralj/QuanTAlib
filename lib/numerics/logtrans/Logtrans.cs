@@ -46,9 +46,13 @@ public sealed class Logtrans : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         // Handle non-positive and non-finite values
         double value = input.Value;
@@ -108,9 +112,14 @@ public sealed class Logtrans : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
 
         double lastValid = 0.0;
 

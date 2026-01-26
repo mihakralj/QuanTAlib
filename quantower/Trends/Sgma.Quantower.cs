@@ -49,7 +49,10 @@ public sealed class SgmaIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_sgma == null || _selector == null) return;
+        if (_sgma == null || _selector == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);

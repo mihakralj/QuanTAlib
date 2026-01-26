@@ -199,7 +199,7 @@ public class DsmaIndicatorTests
 
         // Process first bar
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));
-        
+
         // Process second bar as new
         indicator.ProcessUpdate(new UpdateArgs(UpdateReason.NewBar));
         double afterNewBar = indicator.LinesSeries[0].GetValue(0);

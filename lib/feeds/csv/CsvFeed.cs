@@ -74,10 +74,14 @@ public sealed class CsvFeed : IFeed
     public CsvFeed(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
+        {
             throw new ArgumentException("File path cannot be null or empty", nameof(filePath));
+        }
 
         if (!File.Exists(filePath))
+        {
             throw new FileNotFoundException($"CSV file not found: {filePath}", filePath);
+        }
 
         FilePath = filePath;
         Data = LoadFromCsv(filePath);
@@ -97,18 +101,24 @@ public sealed class CsvFeed : IFeed
         {
             var header = reader.ReadLine();
             if (header is null)
+            {
                 throw new InvalidDataException("CSV file is empty");
+            }
 
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
                 if (!string.IsNullOrWhiteSpace(line))
+                {
                     dataLines.Add(line);
+                }
             }
         }
 
         if (dataLines.Count == 0)
+        {
             throw new InvalidDataException("CSV file contains only header, no data");
+        }
 
         // Reverse in-place to chronological order (oldest first)
         dataLines.Reverse();
@@ -292,7 +302,9 @@ public sealed class CsvFeed : IFeed
     public TBarSeries Fetch(int count, long startTime, TimeSpan interval)
     {
         if (count <= 0)
+        {
             throw new ArgumentException("Count must be positive", nameof(count));
+        }
 
         var result = new TBarSeries(count);
 
@@ -300,7 +312,9 @@ public sealed class CsvFeed : IFeed
         int startIndex = FindStartIndex(startTime);
 
         if (startIndex == -1)
+        {
             return result;
+        }
 
         // Collect bars matching interval
         long expectedTime = startTime;
@@ -349,13 +363,19 @@ public sealed class CsvFeed : IFeed
     private int FindStartIndex(long startTime)
     {
         if (Count == 0)
+        {
             return -1;
+        }
 
         if (Data[0].Time >= startTime)
+        {
             return 0;
+        }
 
         if (Data[Count - 1].Time < startTime)
+        {
             return -1;
+        }
 
         int left = 0;
         int right = Count - 1;
@@ -365,9 +385,13 @@ public sealed class CsvFeed : IFeed
             int mid = left + (right - left) / 2;
 
             if (Data[mid].Time < startTime)
+            {
                 left = mid + 1;
+            }
             else
+            {
                 right = mid;
+            }
         }
 
         return left;
@@ -391,7 +415,9 @@ public sealed class CsvFeed : IFeed
     public void Reset(int index)
     {
         if (index < 0 || index > Count)
+        {
             throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {Count}");
+        }
 
         _currentIndex = index;
         _hasCurrentBar = false;
@@ -407,7 +433,9 @@ public sealed class CsvFeed : IFeed
     public TBar GetBar(int index)
     {
         if (index < 0 || index >= Count)
+        {
             throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and {Count - 1}");
+        }
 
         return Data[index];
     }

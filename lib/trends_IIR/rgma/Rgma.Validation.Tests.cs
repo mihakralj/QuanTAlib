@@ -27,12 +27,16 @@ public sealed class RgmaValidationTests : IDisposable
     private void Dispose(bool disposing)
     {
         if (_disposed)
+        {
             return;
+        }
 
         _disposed = true;
 
         if (disposing)
+        {
             _testData?.Dispose();
+        }
     }
 
     [Fact]
@@ -52,7 +56,9 @@ public sealed class RgmaValidationTests : IDisposable
             int startIdx = rgmaResult.Count - compareCount;
 
             for (int i = startIdx; i < rgmaResult.Count; i++)
+            {
                 Assert.Equal(emaResult[i].Value, rgmaResult[i].Value, 1e-10);
+            }
         }
 
         _output.WriteLine("RGMA(passes=1) Batch validated successfully against EMA");
@@ -81,7 +87,9 @@ public sealed class RgmaValidationTests : IDisposable
             int startIdx = rgmaResults.Count - compareCount;
 
             for (int i = startIdx; i < rgmaResults.Count; i++)
+            {
                 Assert.Equal(emaResults[i], rgmaResults[i], 1e-10);
+            }
         }
 
         _output.WriteLine("RGMA(passes=1) Streaming validated successfully against EMA");
@@ -105,7 +113,9 @@ public sealed class RgmaValidationTests : IDisposable
             int startIdx = sourceData.Length - compareCount;
 
             for (int i = startIdx; i < sourceData.Length; i++)
+            {
                 Assert.Equal(emaOutput[i], rgmaOutput[i], 1e-10);
+            }
         }
 
         _output.WriteLine("RGMA(passes=1) Span validated successfully against EMA");
@@ -131,7 +141,9 @@ public sealed class RgmaValidationTests : IDisposable
                 var rgmaStream = new Rgma(period, passCount);
                 var streaming = new double[_testData.Data.Count];
                 for (int i = 0; i < _testData.Data.Count; i++)
+                {
                     streaming[i] = rgmaStream.Update(_testData.Data[i]).Value;
+                }
 
                 // Span
                 var spanOutput = new double[sourceData.Length];

@@ -49,7 +49,10 @@ public sealed class Dema : AbstractBase
 
     public Dema(int period)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
@@ -66,7 +69,10 @@ public sealed class Dema : AbstractBase
 
     public Dema(double alpha)
     {
-        if (alpha <= 0 || alpha > 1) throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+        if (alpha <= 0 || alpha > 1)
+        {
+            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+        }
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -94,9 +100,13 @@ public sealed class Dema : AbstractBase
         // EMA1
         double val = input.Value;
         if (double.IsFinite(val))
+        {
             _lastValidValue = val;
+        }
         else
+        {
             val = _lastValidValue;
+        }
 
         if (double.IsNaN(val))
         {
@@ -118,7 +128,10 @@ public sealed class Dema : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -148,9 +161,13 @@ public sealed class Dema : AbstractBase
         {
             double val = sourceValues[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -197,7 +214,9 @@ public sealed class Dema : AbstractBase
             state.E *= decay;
 
             if (!state.IsHot && state.E <= 0.05) // COVERAGE_THRESHOLD
+            {
                 state.IsHot = true;
+            }
 
             if (state.E <= 1e-10) // COMPENSATOR_THRESHOLD
             {
@@ -232,7 +251,9 @@ public sealed class Dema : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         double alpha = 2.0 / (period + 1);
         Calculate(source, output, alpha);
@@ -241,11 +262,19 @@ public sealed class Dema : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
-        if (alpha <= 0 || alpha > 1)
-            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+        }
 
-        if (source.Length == 0) return;
+        if (alpha <= 0 || alpha > 1)
+        {
+            throw new ArgumentException("Alpha must be between 0 and 1", nameof(alpha));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double decay = 1.0 - alpha;
         double lastValid = double.NaN;
@@ -264,9 +293,13 @@ public sealed class Dema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {

@@ -29,7 +29,9 @@ public sealed class Rma : AbstractBase
     public Rma(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _ema = new Ema(1.0 / period);
         Name = $"Rma({period})";
@@ -118,10 +120,14 @@ public sealed class Rma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output span must be at least as long as source span", nameof(output));
+        }
 
         double alpha = 1.0 / period;
         Ema.Batch(source, output, alpha);

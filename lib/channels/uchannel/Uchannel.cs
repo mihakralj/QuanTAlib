@@ -87,6 +87,9 @@ public sealed class Uchannel : AbstractBase
     /// <summary>Gets the channel width (Upper - Lower).</summary>
     public TValue Width => new(Upper.Time, Upper.Value - Lower.Value);
 
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="strPeriod">Period for smoothing True Range. Must be >= 1.</param>
     /// <param name="centerPeriod">Period for smoothing centerline. Must be >= 1.</param>
     /// <param name="multiplier">Band multiplier for STR. Must be > 0.</param>
@@ -403,11 +406,19 @@ public sealed class Uchannel : AbstractBase
 
         int length = close.Length;
         if (high.Length != length || low.Length != length)
+        {
             throw new ArgumentException("All input arrays must have the same length", nameof(high));
-        if (upper.Length != length || middle.Length != length || lower.Length != length)
-            throw new ArgumentException("Output arrays must match input length", nameof(upper));
+        }
 
-        if (length == 0) return;
+        if (upper.Length != length || middle.Length != length || lower.Length != length)
+        {
+            throw new ArgumentException("Output arrays must match input length", nameof(upper));
+        }
+
+        if (length == 0)
+        {
+            return;
+        }
 
         // Compute USF coefficients
         double arg_str = Math.Sqrt(2) * Math.PI / strPeriod;

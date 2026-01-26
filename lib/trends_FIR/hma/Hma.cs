@@ -33,7 +33,10 @@ public sealed class Hma : AbstractBase
 
     public Hma(int period)
     {
-        if (period <= 1) throw new ArgumentException("Period must be greater than 1", nameof(period));
+        if (period <= 1)
+        {
+            throw new ArgumentException("Period must be greater than 1", nameof(period));
+        }
 
         _period = period;
         int halfPeriod = period / 2;
@@ -56,7 +59,10 @@ public sealed class Hma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (isNew) _sampleCount++;
+        if (isNew)
+        {
+            _sampleCount++;
+        }
 
         // 1. Calculate WMA(n)
         TValue full = _wmaFull.Update(input, isNew);
@@ -76,7 +82,10 @@ public sealed class Hma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -147,12 +156,20 @@ public sealed class Hma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 1)
+        {
             throw new ArgumentException("Period must be greater than 1", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         int halfPeriod = period / 2;
         int sqrtPeriod = (int)Math.Sqrt(period);

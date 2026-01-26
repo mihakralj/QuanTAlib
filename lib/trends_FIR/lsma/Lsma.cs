@@ -62,7 +62,9 @@ public sealed class Lsma : AbstractBase
     public Lsma(int period, int offset = 0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _offset = offset;
@@ -219,7 +221,10 @@ public sealed class Lsma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -295,12 +300,20 @@ public sealed class Lsma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = double.NaN)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> buffer = period <= StackAllocThreshold
@@ -322,9 +335,13 @@ public sealed class Lsma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (count < period)
             {
@@ -382,7 +399,9 @@ public sealed class Lsma : AbstractBase
 
                 bufferIndex++;
                 if (bufferIndex >= period)
+                {
                     bufferIndex = 0;
+                }
 
                 double m = Math.FusedMultiplyAdd(period, sum_xy, -full_sum_x * sum_y) / full_denom;
                 double b = Math.FusedMultiplyAdd(-m, full_sum_x, sum_y) / period;

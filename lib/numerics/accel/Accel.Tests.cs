@@ -254,11 +254,11 @@ public class AccelTests
     {
         var source = new TSeries();
         var accel = new Accel(source);
-        
+
         source.Add(new TValue(DateTime.UtcNow, 10));
         source.Add(new TValue(DateTime.UtcNow, 20));
         source.Add(new TValue(DateTime.UtcNow, 35));
-        
+
         Assert.True(accel.IsHot);
         Assert.Equal(5, accel.Last.Value); // 35 - 2*20 + 10 = 5
     }

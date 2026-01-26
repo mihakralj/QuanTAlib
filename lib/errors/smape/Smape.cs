@@ -55,7 +55,10 @@ public sealed class Smape : BiInputIndicatorBase
         ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> symErrors = len <= StackAllocThreshold
@@ -74,17 +77,45 @@ public sealed class Smape : BiInputIndicatorBase
         double lastValidActual = 0, lastValidPredicted = 0;
 
         for (int i = 0; i < len; i++)
-            if (double.IsFinite(actual[i])) { lastValidActual = actual[i]; break; }
+        {
+            if (double.IsFinite(actual[i]))
+            {
+                lastValidActual = actual[i];
+                break;
+            }
+        }
+
         for (int i = 0; i < len; i++)
-            if (double.IsFinite(predicted[i])) { lastValidPredicted = predicted[i]; break; }
+        {
+            if (double.IsFinite(predicted[i]))
+            {
+                lastValidPredicted = predicted[i];
+                break;
+            }
+        }
 
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double absDiff = Math.Abs(act - pred);
             double sumAbs = Math.Abs(act) + Math.Abs(pred);

@@ -46,7 +46,9 @@ public sealed class Bilateral : AbstractBase
     public Bilateral(int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _sigmaSRatio = sigmaSRatio;
@@ -74,7 +76,10 @@ public sealed class Bilateral : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         _buffer.Clear();
         _state = default;
@@ -128,7 +133,10 @@ public sealed class Bilateral : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new System.Collections.Generic.List<long>(len);
@@ -337,10 +345,14 @@ public sealed class Bilateral : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int period, double sigmaSRatio = 0.5, double sigmaRMult = 1.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         if (destination.Length < source.Length)
+        {
             throw new ArgumentException("Destination must have length >= source length", nameof(destination));
+        }
 
         // Rent arrays for large periods to avoid heap allocations
         double[]? rentedSpatialWeights = null;
@@ -424,7 +436,10 @@ public sealed class Bilateral : AbstractBase
 
                 int currentNewestIdx = windowIdx;
                 windowIdx = (windowIdx + 1) % period;
-                if (count < period) count++;
+                if (count < period)
+                {
+                    count++;
+                }
 
                 // Calculate StDev
                 double invCount = 1.0 / count;
@@ -480,9 +495,14 @@ public sealed class Bilateral : AbstractBase
         finally
         {
             if (rentedSpatialWeights != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedSpatialWeights);
+            }
+
             if (rentedWindow != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedWindow);
+            }
         }
     }
 

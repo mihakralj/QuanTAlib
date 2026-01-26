@@ -77,17 +77,34 @@ public sealed class Vama : AbstractBase
     public Vama(int baseLength = 20, int shortAtrPeriod = 10, int longAtrPeriod = 50, int minLength = 5, int maxLength = 100)
     {
         if (baseLength <= 0)
+        {
             throw new ArgumentException("Base length must be greater than 0", nameof(baseLength));
+        }
+
         if (shortAtrPeriod <= 0)
+        {
             throw new ArgumentException("Short ATR period must be greater than 0", nameof(shortAtrPeriod));
+        }
+
         if (longAtrPeriod <= 0)
+        {
             throw new ArgumentException("Long ATR period must be greater than 0", nameof(longAtrPeriod));
+        }
+
         if (minLength <= 0)
+        {
             throw new ArgumentException("Min length must be greater than 0", nameof(minLength));
+        }
+
         if (maxLength <= 0)
+        {
             throw new ArgumentException("Max length must be greater than 0", nameof(maxLength));
+        }
+
         if (minLength > maxLength)
+        {
             throw new ArgumentException("Min length must be less than or equal to max length", nameof(minLength));
+        }
 
         _baseLength = baseLength;
         _minLength = minLength;
@@ -167,11 +184,17 @@ public sealed class Vama : AbstractBase
 
         shortAtr.Ema = Math.FusedMultiplyAdd(shortAtr.Ema, _shortDecay, _shortAlpha * trueRange);
         shortAtr.E *= _shortDecay;
-        if (shortAtr.E <= EPSILON) shortAtr.IsCompensated = true;
+        if (shortAtr.E <= EPSILON)
+        {
+            shortAtr.IsCompensated = true;
+        }
 
         longAtr.Ema = Math.FusedMultiplyAdd(longAtr.Ema, _longDecay, _longAlpha * trueRange);
         longAtr.E *= _longDecay;
-        if (longAtr.E <= EPSILON) longAtr.IsCompensated = true;
+        if (longAtr.E <= EPSILON)
+        {
+            longAtr.IsCompensated = true;
+        }
 
         // Compensated ATR values
         double shortAtrValue = shortAtr.IsCompensated ? shortAtr.Ema : shortAtr.Ema / (1.0 - shortAtr.E);
@@ -187,9 +210,13 @@ public sealed class Vama : AbstractBase
         // Update circular buffer with source value
         double sourceValue = input.Close;
         if (!double.IsFinite(sourceValue))
+        {
             sourceValue = _lastValidValue;
+        }
         else
+        {
             _lastValidValue = sourceValue;
+        }
 
         // Remove oldest value from sum if it was valid
         double oldest = _buffer[_state.BufferHead];
@@ -271,7 +298,10 @@ public sealed class Vama : AbstractBase
     /// </summary>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -298,7 +328,10 @@ public sealed class Vama : AbstractBase
     /// </summary>
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);

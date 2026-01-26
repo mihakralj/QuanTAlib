@@ -50,7 +50,10 @@ public sealed class Tema : AbstractBase
 
     public Tema(int period)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
@@ -76,7 +79,10 @@ public sealed class Tema : AbstractBase
 
     public Tema(double alpha)
     {
-        if (alpha <= 0 || alpha >= 1) throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
+        if (alpha <= 0 || alpha >= 1)
+        {
+            throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
+        }
 
         _alpha = alpha;
         _decay = 1.0 - alpha;
@@ -93,7 +99,10 @@ public sealed class Tema : AbstractBase
     /// <param name="source">Historical data</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _state1 = EmaState.New();
@@ -131,9 +140,13 @@ public sealed class Tema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             double e1 = Compute(val, alpha, decay, ref s1);
             double e2 = Compute(e1, alpha, decay, ref s2);
@@ -157,7 +170,11 @@ public sealed class Tema : AbstractBase
 
         double GetCompensated(EmaState s)
         {
-            if (s.IsCompensated) return s.Ema;
+            if (s.IsCompensated)
+            {
+                return s.Ema;
+            }
+
             return s.Ema / (1.0 - s.E);
         }
 
@@ -196,9 +213,13 @@ public sealed class Tema : AbstractBase
         // EMA1
         double val = input.Value;
         if (double.IsFinite(val))
+        {
             _lastValidValue = val;
+        }
         else
+        {
             val = _lastValidValue;
+        }
 
         double e1 = Compute(val, _alpha, _decay, ref _state1);
 
@@ -217,7 +238,10 @@ public sealed class Tema : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -243,9 +267,13 @@ public sealed class Tema : AbstractBase
         {
             double val = sourceValues[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             double e1 = Compute(val, alpha, decay, ref s1);
             double e2 = Compute(e1, alpha, decay, ref s2);
@@ -281,7 +309,9 @@ public sealed class Tema : AbstractBase
             state.E *= decay;
 
             if (!state.IsHot && state.E <= 0.05) // COVERAGE_THRESHOLD
+            {
                 state.IsHot = true;
+            }
 
             if (state.E <= 1e-10) // COMPENSATOR_THRESHOLD
             {
@@ -316,7 +346,9 @@ public sealed class Tema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         double alpha = 2.0 / (period + 1);
         Batch(source, output, alpha);
@@ -325,11 +357,19 @@ public sealed class Tema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, double alpha)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
-        if (alpha <= 0 || alpha >= 1)
-            throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
+        }
 
-        if (source.Length == 0) return;
+        if (alpha <= 0 || alpha >= 1)
+        {
+            throw new ArgumentException("Alpha must be strictly between 0 and 1", nameof(alpha));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double decay = 1.0 - alpha;
         double lastValid = 0;
@@ -363,9 +403,13 @@ public sealed class Tema : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             // Update EMA1: ema = decay * ema + alpha * input = FMA(decay, ema, alpha * input)
             ema1_val = Math.FusedMultiplyAdd(decay, ema1_val, alpha * val);

@@ -43,7 +43,9 @@ public sealed class Atrn : AbstractBase
     public Atrn(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _lookbackWindow = 10 * period;
         _rma = new Rma(period);
@@ -239,7 +241,10 @@ public sealed class Atrn : AbstractBase
     /// </summary>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var t = new List<long>(source.Count);
         var v = new List<double>(source.Count);
@@ -259,7 +264,10 @@ public sealed class Atrn : AbstractBase
     /// </summary>
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var t = new List<long>(source.Count);
         var v = new List<double>(source.Count);
@@ -287,12 +295,18 @@ public sealed class Atrn : AbstractBase
     private double GetMax()
     {
         ReadOnlySpan<double> span = _atrBuffer.GetSpan();
-        if (span.IsEmpty) return 0;
+        if (span.IsEmpty)
+        {
+            return 0;
+        }
 
         double max = double.MinValue;
         for (int i = 0; i < span.Length; i++)
         {
-            if (span[i] > max) max = span[i];
+            if (span[i] > max)
+            {
+                max = span[i];
+            }
         }
         return max;
     }
@@ -301,12 +315,18 @@ public sealed class Atrn : AbstractBase
     private double GetMin()
     {
         ReadOnlySpan<double> span = _atrBuffer.GetSpan();
-        if (span.IsEmpty) return 0;
+        if (span.IsEmpty)
+        {
+            return 0;
+        }
 
         double min = double.MaxValue;
         for (int i = 0; i < span.Length; i++)
         {
-            if (span[i] < min) min = span[i];
+            if (span[i] < min)
+            {
+                min = span[i];
+            }
         }
         return min;
     }

@@ -24,7 +24,11 @@ public class SgfValidationTests : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
         {
             _testData?.Dispose();
@@ -104,11 +108,17 @@ public class SgfValidationTests : IDisposable
             }
 
             if (wSum > double.Epsilon)
+            {
                 result[i] = val / wSum;
+            }
             else if (wSum <= double.Epsilon && wSum > -double.Epsilon)
+            {
                 result[i] = double.NaN;
+            }
             else // Negative or small sum fallback usually just NaN or raw
+            {
                 result[i] = ((i + 1) < adjPeriod) ? source[i] : double.NaN; // Match Sgf.cs partial window fallback logic roughly
+            }
 
             if (wSum <= double.Epsilon)
             {

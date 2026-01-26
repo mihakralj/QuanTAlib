@@ -40,7 +40,7 @@ public class NotchValidationTests
 
         double[] expected = { 0.5, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-        for(int i=0; i<input.Length; i++)
+        for (int i = 0; i < input.Length; i++)
         {
             double val = notch.Update(input[i]).Value;
             Assert.Equal(expected[i], val, precision: 9);

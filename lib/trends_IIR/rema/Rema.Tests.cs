@@ -447,7 +447,9 @@ public class RemaTests
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         // Warm up
         Rema.Batch(source.AsSpan(), output.AsSpan(), 100);
@@ -491,7 +493,10 @@ public class RemaTests
 
         // Verify against a fresh REMA fed with same data
         var verifyRema = new Rema(5);
-        foreach (var val in history) verifyRema.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyRema.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyRema.Last.Value, rema.Last.Value, 1e-10);
         Assert.Equal(verifyRema.IsHot, rema.IsHot);
@@ -511,7 +516,10 @@ public class RemaTests
         rema.Prime(history);
 
         var verifyRema = new Rema(5);
-        foreach (var val in history) verifyRema.Update(new TValue(DateTime.UtcNow, val));
+        foreach (var val in history)
+        {
+            verifyRema.Update(new TValue(DateTime.UtcNow, val));
+        }
 
         Assert.Equal(verifyRema.Last.Value, rema.Last.Value, 1e-10);
     }
@@ -531,7 +539,10 @@ public class RemaTests
     public void Calculate_ReturnsCorrectResultsAndHotIndicator()
     {
         var series = new TSeries();
-        for (int i = 1; i <= 20; i++) series.Add(DateTime.UtcNow, i * 10);
+        for (int i = 1; i <= 20; i++)
+        {
+            series.Add(DateTime.UtcNow, i * 10);
+        }
 
         var (results, indicator) = Rema.Calculate(series, 5);
 
@@ -640,14 +651,20 @@ public class RemaTests
         // 3. Streaming Mode
         var streamingInd = new Rema(period, lambda);
         for (int i = 0; i < series.Count; i++)
+        {
             streamingInd.Update(series[i]);
+        }
+
         double streamingResult = streamingInd.Last.Value;
 
         // 4. Eventing Mode
         var pubSource = new TSeries();
         var eventingInd = new Rema(pubSource, period, lambda);
         for (int i = 0; i < series.Count; i++)
+        {
             pubSource.Add(series[i]);
+        }
+
         double eventingResult = eventingInd.Last.Value;
 
         Assert.Equal(expected, spanResult, precision: 9);

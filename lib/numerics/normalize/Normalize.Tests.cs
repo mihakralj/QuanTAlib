@@ -152,7 +152,9 @@ public class NormalizeTests
         var norm = new Normalize(5);
 
         for (int i = 0; i < 10; i++)
+        {
             norm.Update(new TValue(DateTime.UtcNow, i * 10));
+        }
 
         Assert.True(norm.IsHot);
 
@@ -198,7 +200,9 @@ public class NormalizeTests
         var series = _gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
         var tseries = new TSeries();
         foreach (var bar in series)
+        {
             tseries.Add(new TValue(bar.Time, bar.Close), true);
+        }
 
         // Static calculation
         var staticResult = Normalize.Calculate(tseries, 14);
@@ -207,7 +211,9 @@ public class NormalizeTests
         var streamNorm = new Normalize(14);
         var streamResult = new TSeries();
         foreach (var bar in series)
+        {
             streamResult.Add(streamNorm.Update(new TValue(bar.Time, bar.Close)), true);
+        }
 
         // Compare last 50 values
         for (int i = 50; i < 100; i++)

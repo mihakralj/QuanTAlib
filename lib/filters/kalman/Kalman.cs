@@ -71,8 +71,15 @@ public sealed class Kalman : AbstractBase
     /// <exception cref="ArgumentOutOfRangeException">Thrown when q or r are not positive.</exception>
     public Kalman(double q = 0.01, double r = 0.1)
     {
-        if (q <= 0) throw new ArgumentOutOfRangeException(nameof(q), "q must be positive.");
-        if (r <= 0) throw new ArgumentOutOfRangeException(nameof(r), "r must be positive.");
+        if (q <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(q), "q must be positive.");
+        }
+
+        if (r <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(r), "r must be positive.");
+        }
 
         ProcessNoise = q;
         MeasurementNoise = r;
@@ -112,8 +119,14 @@ public sealed class Kalman : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         // "rewind" behavior for isNew=false
-        if (isNew) _pState = _state;
-        else _state = _pState;
+        if (isNew)
+        {
+            _pState = _state;
+        }
+        else
+        {
+            _state = _pState;
+        }
 
         double z = input.Value;
 
@@ -164,7 +177,10 @@ public sealed class Kalman : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var output = new double[source.Count];
 
@@ -174,7 +190,9 @@ public sealed class Kalman : AbstractBase
         var result = new TSeries();
         var times = source.Times;
         for (int i = 0; i < source.Count; i++)
+        {
             result.Add(new TValue(times[i], output[i]));
+        }
 
         _state = new State { X = endX, P = endP, Samples = endSamples };
         _pState = _state;
@@ -186,7 +204,9 @@ public sealed class Kalman : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
+        {
             Update(new TValue(DateTime.MinValue, v), isNew: true);
+        }
     }
 
     /// <summary>
@@ -203,7 +223,9 @@ public sealed class Kalman : AbstractBase
         out int endSamples)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must be same length.", nameof(output));
+        }
 
         double x = 0.0;
         double p = 0.0;

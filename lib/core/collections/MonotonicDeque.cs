@@ -38,7 +38,9 @@ public sealed class MonotonicDeque
     public MonotonicDeque(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 0");
+        }
 
         _period = period;
         _deque = new int[period];
@@ -155,7 +157,10 @@ public sealed class MonotonicDeque
     public void RebuildMax(double[] buffer, long currentIndex, int count)
     {
         Reset();
-        if (count == 0) return;
+        if (count == 0)
+        {
+            return;
+        }
 
         long startLogical = currentIndex - count + 1;
         for (int i = 0; i < count; i++)
@@ -176,7 +181,10 @@ public sealed class MonotonicDeque
     public void RebuildMin(double[] buffer, long currentIndex, int count)
     {
         Reset();
-        if (count == 0) return;
+        if (count == 0)
+        {
+            return;
+        }
 
         long startLogical = currentIndex - count + 1;
         for (int i = 0; i < count; i++)

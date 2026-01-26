@@ -92,7 +92,9 @@ public sealed class Adx : ITValuePublisher
     public Adx(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _decay = (period - 1.0) / period;
@@ -177,14 +179,17 @@ public sealed class Adx : ITValuePublisher
         double prevClose = double.IsFinite(_prevBar.Close) ? _prevBar.Close : high;
         double prevHigh = double.IsFinite(_prevBar.High) ? _prevBar.High : high;
         double prevLow = double.IsFinite(_prevBar.Low) ? _prevBar.Low : low;
-        
+
         double hl = high - low;
         double hpc = Math.Abs(high - prevClose);
         double lpc = Math.Abs(low - prevClose);
         double tr = Math.Max(hl, Math.Max(hpc, lpc));
 
         // Guard TR against non-finite values
-        if (!double.IsFinite(tr)) tr = 0;
+        if (!double.IsFinite(tr))
+        {
+            tr = 0;
+        }
 
         // Calculate DM using guarded values
         double dmPlus = 0;
@@ -193,14 +198,25 @@ public sealed class Adx : ITValuePublisher
         double downMove = prevLow - low;
 
         // Guard moves against non-finite values
-        if (!double.IsFinite(upMove)) upMove = 0;
-        if (!double.IsFinite(downMove)) downMove = 0;
+        if (!double.IsFinite(upMove))
+        {
+            upMove = 0;
+        }
+
+        if (!double.IsFinite(downMove))
+        {
+            downMove = 0;
+        }
 
         if (upMove > downMove && upMove > 0)
+        {
             dmPlus = upMove;
+        }
 
         if (downMove > upMove && downMove > 0)
+        {
             dmMinus = downMove;
+        }
 
         if (isNew)
         {
@@ -251,8 +267,15 @@ public sealed class Adx : ITValuePublisher
             }
 
             // Guard against NaN/Infinity in DI calculations
-            if (!double.IsFinite(diPlus)) diPlus = 0;
-            if (!double.IsFinite(diMinus)) diMinus = 0;
+            if (!double.IsFinite(diPlus))
+            {
+                diPlus = 0;
+            }
+
+            if (!double.IsFinite(diMinus))
+            {
+                diMinus = 0;
+            }
 
             double diSum = diPlus + diMinus;
             if (diSum > 1e-10)
@@ -261,7 +284,10 @@ public sealed class Adx : ITValuePublisher
             }
 
             // Guard against NaN/Infinity in DX calculation
-            if (!double.IsFinite(dx)) dx = 0;
+            if (!double.IsFinite(dx))
+            {
+                dx = 0;
+            }
 
             // Smooth DX to get ADX
             if (_dxSamples < _period)
@@ -281,17 +307,34 @@ public sealed class Adx : ITValuePublisher
             }
 
             // Final guard on ADX
-            if (!double.IsFinite(_adx)) _adx = _p_adx;
+            if (!double.IsFinite(_adx))
+            {
+                _adx = _p_adx;
+            }
         }
 
         // Ensure all outputs are finite; if not, use previous values or 0
-        if (!double.IsFinite(diPlus)) diPlus = double.IsFinite(DiPlus.Value) ? DiPlus.Value : 0;
-        if (!double.IsFinite(diMinus)) diMinus = double.IsFinite(DiMinus.Value) ? DiMinus.Value : 0;
-        
+        if (!double.IsFinite(diPlus))
+        {
+            diPlus = double.IsFinite(DiPlus.Value) ? DiPlus.Value : 0;
+        }
+
+        if (!double.IsFinite(diMinus))
+        {
+            diMinus = double.IsFinite(DiMinus.Value) ? DiMinus.Value : 0;
+        }
+
         // Final guard on ADX output - ensure we always return a finite value
         double finalAdx = _adx;
-        if (!double.IsFinite(finalAdx)) finalAdx = _p_adx;
-        if (!double.IsFinite(finalAdx)) finalAdx = 0;
+        if (!double.IsFinite(finalAdx))
+        {
+            finalAdx = _p_adx;
+        }
+
+        if (!double.IsFinite(finalAdx))
+        {
+            finalAdx = 0;
+        }
 
         DiPlus = new TValue(input.Time, diPlus);
         DiMinus = new TValue(input.Time, diMinus);
@@ -309,7 +352,10 @@ public sealed class Adx : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         var len = source.Count;
         var v = new double[len];
@@ -450,7 +496,11 @@ public sealed class Adx : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source, int period)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
+
         var len = source.Count;
         var v = new double[len];
         Calculate(source.High.Values, source.Low.Values, source.Close.Values, period, v);

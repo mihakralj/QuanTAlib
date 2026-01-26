@@ -12,7 +12,10 @@ public class WmaCoverageTests
         const int period = 10;
         int len = 100; // < 256
         double[] source = new double[len];
-        for (int i = 0; i < len; i++) source[i] = i;
+        for (int i = 0; i < len; i++)
+        {
+            source[i] = i;
+        }
 
         double[] output = new double[len];
 
@@ -25,12 +28,19 @@ public class WmaCoverageTests
     [Fact]
     public void Cover_Avx2_Explicitly()
     {
-        if (!Avx2.IsSupported) return;
+        if (!Avx2.IsSupported)
+        {
+            return;
+        }
 
         int period = 10;
         int len = 1000;
         double[] source = new double[len];
-        for (int i = 0; i < len; i++) source[i] = i;
+        for (int i = 0; i < len; i++)
+        {
+            source[i] = i;
+        }
+
         double[] output = new double[len];
 
         // Use reflection to invoke private static CalculateSimdCore
@@ -78,7 +88,11 @@ public class WmaCoverageTests
         int period = 10;
         int len = 1000;
         double[] source = new double[len];
-        for (int i = 0; i < len; i++) source[i] = i;
+        for (int i = 0; i < len; i++)
+        {
+            source[i] = i;
+        }
+
         double[] output = new double[len];
 
         InvokePrivateStaticMethod_WithSpans("CalculateScalarCore", source, output, period);

@@ -34,7 +34,10 @@ public sealed class Trima : AbstractBase
 
     public Trima(int period)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         int p1 = (period + 1) / 2;
@@ -81,7 +84,10 @@ public sealed class Trima : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -143,9 +149,14 @@ public sealed class Trima : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int p1 = (period + 1) / 2;
         int p2 = period / 2 + 1;

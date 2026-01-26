@@ -215,7 +215,9 @@ public class JbandsTests
         var gbm = new GBM(startPrice: 100, mu: 0.01, sigma: 0.1, seed: 123);
         double[] source = new double[100];
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         double[] middle = new double[100];
         double[] upper = new double[100];

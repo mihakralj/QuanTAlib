@@ -204,7 +204,7 @@ public sealed class Bbands : AbstractBase
     {
         step ??= TimeSpan.FromSeconds(1);
         DateTime startTime = DateTime.UtcNow;
-        
+
         for (int i = 0; i < source.Length; i++)
         {
             Update(new TValue(startTime + i * step.Value, source[i]), isNew: true);

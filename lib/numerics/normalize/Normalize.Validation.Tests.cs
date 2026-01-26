@@ -40,7 +40,9 @@ public class NormalizeValidationTests
         double[] values = { 10, 20, 30, 40, 50 };
 
         foreach (var v in values)
+        {
             norm.Update(new TValue(DateTime.UtcNow, v));
+        }
 
         // Max value (50) should normalize to 1.0
         Assert.Equal(1.0, norm.Last.Value, 1e-10);
@@ -55,7 +57,9 @@ public class NormalizeValidationTests
         double[] values = { 50, 40, 30, 20, 10 };
 
         foreach (var v in values)
+        {
             norm.Update(new TValue(DateTime.UtcNow, v));
+        }
 
         // Min value (10) should normalize to 0.0
         Assert.Equal(0.0, norm.Last.Value, 1e-10);
@@ -98,7 +102,9 @@ public class NormalizeValidationTests
 
         // All same values
         for (int i = 0; i < 20; i++)
+        {
             norm.Update(new TValue(DateTime.UtcNow, 42.0));
+        }
 
         // Flat range: should return 0.5
         Assert.Equal(0.5, norm.Last.Value, 1e-10);
@@ -223,7 +229,10 @@ public class NormalizeValidationTests
         // Mode 2: Batch via Update(TSeries)
         var tseries = new TSeries();
         foreach (var bar in series)
+        {
             tseries.Add(new TValue(bar.Time, bar.Close), true);
+        }
+
         var results2 = Normalize.Calculate(tseries, period);
 
         // Mode 3: Static span Calculate
@@ -235,7 +244,10 @@ public class NormalizeValidationTests
         var source = new TSeries();
         var norm4 = new Normalize(source, period);
         foreach (var bar in series)
+        {
             source.Add(new TValue(bar.Time, bar.Close), true);
+        }
+
         var results4 = norm4.Last.Value;
 
         // Compare all modes (use last 50 values for stability)

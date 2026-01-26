@@ -178,7 +178,9 @@ public sealed class ValidationTestData : IDisposable
     public ValidationTestData CreateSubset(int count)
     {
         if (count <= 0 || count > Count)
+        {
             throw new ArgumentOutOfRangeException(nameof(count), count, $"Count must be between 1 and {Count}");
+        }
 
         return new ValidationTestData(count, DefaultStartPrice, DefaultMu, DefaultSigma, DefaultSeed);
     }

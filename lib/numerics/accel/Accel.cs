@@ -110,7 +110,10 @@ public sealed class Accel : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
 
@@ -187,16 +190,28 @@ public sealed class Accel : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // First two elements have insufficient history
         output[0] = 0.0;
-        if (len == 1) return;
+        if (len == 1)
+        {
+            return;
+        }
+
         output[1] = 0.0;
-        if (len == 2) return;
+        if (len == 2)
+        {
+            return;
+        }
 
         int i = 2;
 
@@ -279,9 +294,20 @@ public sealed class Accel : AbstractBase
 
             // Handle NaN/Infinity by substitution (find first finite value)
             double fallback = FindFinite(curr, p1, p2);
-            if (!double.IsFinite(curr)) curr = fallback;
-            if (!double.IsFinite(p1)) p1 = fallback;
-            if (!double.IsFinite(p2)) p2 = fallback;
+            if (!double.IsFinite(curr))
+            {
+                curr = fallback;
+            }
+
+            if (!double.IsFinite(p1))
+            {
+                p1 = fallback;
+            }
+
+            if (!double.IsFinite(p2))
+            {
+                p2 = fallback;
+            }
 
             // accel = curr - 2*prev1 + prev2
             output[i] = Math.FusedMultiplyAdd(-2.0, p1, curr + p2);
@@ -291,9 +317,21 @@ public sealed class Accel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double FindFinite(double a, double b, double c)
     {
-        if (double.IsFinite(a)) return a;
-        if (double.IsFinite(b)) return b;
-        if (double.IsFinite(c)) return c;
+        if (double.IsFinite(a))
+        {
+            return a;
+        }
+
+        if (double.IsFinite(b))
+        {
+            return b;
+        }
+
+        if (double.IsFinite(c))
+        {
+            return c;
+        }
+
         return 0.0;
     }
 }

@@ -83,9 +83,14 @@ public sealed class Regchannel : ITValuePublisher
     public Regchannel(int period = 20, double multiplier = 2.0)
     {
         if (period <= 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 1.");
+        }
+
         if (multiplier <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be greater than 0.");
+        }
 
         _period = period;
         _multiplier = multiplier;
@@ -163,13 +168,17 @@ public sealed class Regchannel : ITValuePublisher
         int head = _state.Head;
 
         if (count < _period)
+        {
             count++;
+        }
 
         _buffer[head] = value;
         int newHead = (head + 1) % _period;
 
         if (isNew)
+        {
             _state = _state with { Head = newHead, Count = count };
+        }
 
         // Calculate linear regression and std dev of residuals
         if (count <= 1)
@@ -241,7 +250,9 @@ public sealed class Regchannel : ITValuePublisher
         double band = _multiplier * stdDev;
 
         if (!_state.IsHot && count >= WarmupPeriod)
+        {
             _state = _state with { IsHot = true };
+        }
 
         _state = _state with { Slope = slope, StdDev = stdDev };
 
@@ -256,7 +267,9 @@ public sealed class Regchannel : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -300,7 +313,9 @@ public sealed class Regchannel : ITValuePublisher
         Reset();
 
         if (source.Count == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -320,14 +335,25 @@ public sealed class Regchannel : ITValuePublisher
         double multiplier = 2.0)
     {
         if (period <= 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be greater than 1.");
+        }
+
         if (multiplier <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be greater than 0.");
+        }
+
         if (middle.Length < source.Length || upper.Length < source.Length || lower.Length < source.Length)
+        {
             throw new ArgumentException("Output spans must be at least as long as input", nameof(middle));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Precompute constants for full period
         double sumXFull = 0.5 * period * (period - 1);

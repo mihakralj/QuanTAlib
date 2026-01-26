@@ -46,11 +46,19 @@ public sealed class Alma : AbstractBase
     public Alma(int period, double offset = 0.85, double sigma = 6.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (sigma <= 0)
+        {
             throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        }
+
         if (offset < 0 || offset > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(offset), "Offset must be between 0 and 1");
+        }
 
         _period = period;
         _offset = offset;
@@ -161,7 +169,10 @@ public sealed class Alma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -201,7 +212,10 @@ public sealed class Alma : AbstractBase
     private double CalculateWeightedSum()
     {
         int count = _buffer.Count;
-        if (count == 0) return 0;
+        if (count == 0)
+        {
+            return 0;
+        }
 
         if (count < _period)
         {
@@ -250,13 +264,24 @@ public sealed class Alma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double offset = 0.85, double sigma = 6.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (sigma <= 0)
+        {
             throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        }
+
         if (offset < 0 || offset > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(offset), "Offset must be between 0 and 1");
+        }
+
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         // Allocation Strategy: Stack for small periods, Pool for large
         double[]? weightsArray = period > 256 ? ArrayPool<double>.Shared.Rent(period) : null;
@@ -352,8 +377,15 @@ public sealed class Alma : AbstractBase
         }
         finally
         {
-            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
-            if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
+            if (weightsArray != null)
+            {
+                ArrayPool<double>.Shared.Return(weightsArray);
+            }
+
+            if (bufferArray != null)
+            {
+                ArrayPool<double>.Shared.Return(bufferArray);
+            }
         }
     }
 

@@ -48,7 +48,10 @@ public sealed class ApchannelIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_apchannel == null) return;
+        if (_apchannel == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         bool isNew = args.IsNewBar();

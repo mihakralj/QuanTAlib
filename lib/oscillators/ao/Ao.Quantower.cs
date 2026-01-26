@@ -53,7 +53,9 @@ public sealed class AoIndicator : Indicator, IWatchlistIndicator
         TValue result = _ao.Update(this.GetInputBar(args), args.IsNewBar());
 
         if (!_ao.IsHot && !ShowColdValues)
+        {
             return;
+        }
 
         double prevAo = double.NaN;
         if (Count > 1)

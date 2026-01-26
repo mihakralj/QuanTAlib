@@ -41,7 +41,10 @@ public class JerkIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_jerk == null || _selector == null) return;
+        if (_jerk == null || _selector == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);
@@ -60,11 +63,18 @@ public class JerkIndicator : Indicator, IWatchlistIndicator
             double jerk = _jerk.Last.Value;
             Color color;
             if (jerk > 0)
+            {
                 color = Color.Green;
+            }
             else if (jerk < 0)
+            {
                 color = Color.Red;
+            }
             else
+            {
                 color = Color.Gray;
+            }
+
             LinesSeries[0].SetMarker(0, new IndicatorLineMarker(color));
         }
     }

@@ -76,7 +76,7 @@ public class RsiTests
 
         // Get stable state
         var val1 = rsi.Update(series.Close[10], isNew: true);
-        
+
         // Advance with a significantly different value
         var nextTime = series.Close[10].Time + TimeSpan.FromMinutes(1).Ticks;
         var nextValue = series.Close[10].Value * 1.05; // 5% increase

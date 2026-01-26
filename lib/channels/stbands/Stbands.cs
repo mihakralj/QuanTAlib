@@ -175,11 +175,17 @@ public sealed class Stbands : AbstractBase
 
             // Determine trend
             if (close <= finalLower)
+            {
                 trend = 1;  // Bullish
+            }
             else if (close >= finalUpper)
+            {
                 trend = -1; // Bearish
+            }
             else
+            {
                 trend = prevTrend;
+            }
         }
 
         // Update state
@@ -374,9 +380,13 @@ public sealed class Stbands : AbstractBase
 
                 // Determine trend
                 if (c <= finalLower)
+                {
                     currentTrend = 1;
+                }
                 else if (c >= finalUpper)
+                {
                     currentTrend = -1;
+                }
             }
 
             upper[i] = finalUpper;

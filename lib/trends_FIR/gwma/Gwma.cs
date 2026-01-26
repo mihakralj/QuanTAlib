@@ -49,11 +49,19 @@ public sealed class Gwma : AbstractBase
     public Gwma(int period, double sigma = 0.4)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (sigma <= 0)
+        {
             throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        }
+
         if (sigma > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(sigma), "Sigma must be between 0 and 1");
+        }
 
         _period = period;
         _sigma = sigma;
@@ -159,7 +167,10 @@ public sealed class Gwma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -218,7 +229,10 @@ public sealed class Gwma : AbstractBase
     private double CalculateWeightedSum(double fallbackValue)
     {
         int count = _buffer.Count;
-        if (count == 0) return 0;
+        if (count == 0)
+        {
+            return 0;
+        }
 
         if (count < _period)
         {
@@ -226,7 +240,9 @@ public sealed class Gwma : AbstractBase
         }
 
         if (_invWeightSum == 0.0)
+        {
             return fallbackValue;
+        }
 
         ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
         int head = _buffer.StartIndex;
@@ -242,8 +258,15 @@ public sealed class Gwma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateWeightedSumWarmup(ReadOnlySpan<double> window, int p, double sigma, double fallbackValue)
     {
-        if (p <= 0) return 0.0;
-        if (p == 1) return fallbackValue;
+        if (p <= 0)
+        {
+            return 0.0;
+        }
+
+        if (p == 1)
+        {
+            return fallbackValue;
+        }
 
         double center = (p - 1) * 0.5;
         double invSigmaP = 1.0 / (sigma * p);
@@ -271,16 +294,30 @@ public sealed class Gwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, double sigma = 0.4)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (sigma <= 0)
+        {
             throw new ArgumentException("Sigma must be greater than 0", nameof(sigma));
+        }
+
         if (sigma > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(sigma), "Sigma must be between 0 and 1");
+        }
+
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         if (period > len)
         {
@@ -316,7 +353,10 @@ public sealed class Gwma : AbstractBase
             }
             finally
             {
-                if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
+                if (bufferArray != null)
+                {
+                    ArrayPool<double>.Shared.Return(bufferArray);
+                }
             }
 
             return;
@@ -358,9 +398,15 @@ public sealed class Gwma : AbstractBase
 
                 ring[ringIdx] = val;
                 ringIdx++;
-                if (ringIdx >= period) ringIdx = 0;
+                if (ringIdx >= period)
+                {
+                    ringIdx = 0;
+                }
 
-                if (count < period) count++;
+                if (count < period)
+                {
+                    count++;
+                }
 
                 if (count < period)
                 {
@@ -383,8 +429,15 @@ public sealed class Gwma : AbstractBase
         }
         finally
         {
-            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
-            if (ringArray != null) ArrayPool<double>.Shared.Return(ringArray);
+            if (weightsArray != null)
+            {
+                ArrayPool<double>.Shared.Return(weightsArray);
+            }
+
+            if (ringArray != null)
+            {
+                ArrayPool<double>.Shared.Return(ringArray);
+            }
         }
     }
 

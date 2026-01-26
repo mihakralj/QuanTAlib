@@ -34,7 +34,9 @@ public class Atan2ValidationTests
     private static double PineScriptAtan2(double y, double x)
     {
         if (y == 0.0 && x == 0.0)
+        {
             throw new ArgumentException("atan2: Both y and x cannot be zero", nameof(y));
+        }
 
         double ay = Math.Abs(y);
         double ax = Math.Abs(x);
@@ -50,9 +52,14 @@ public class Atan2ValidationTests
         }
 
         if (x < 0.0)
+        {
             angle = Math.PI - angle;
+        }
+
         if (y < 0.0)
+        {
             angle = -angle;
+        }
 
         return angle;
     }
@@ -303,7 +310,9 @@ public class Atan2ValidationTests
 
             // Skip origin (angle = 0 with x=1, y=0 is fine, but need to handle numerical zeros)
             if (Math.Abs(x) < 1e-15 && Math.Abs(y) < 1e-15)
+            {
                 continue;
+            }
 
             double dotNet = Math.Atan2(y, x);
             double pine = PineScriptAtan2(y, x);

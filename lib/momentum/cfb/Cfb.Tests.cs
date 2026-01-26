@@ -133,7 +133,9 @@ public class CfbTests
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 50; i++)
+        {
             cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        }
 
         var originalValue = cfb.Last;
 
@@ -155,7 +157,9 @@ public class CfbTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 30; i++)
+        {
             cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        }
 
         var result = cfb.Update(new TValue(DateTime.UtcNow, double.NaN));
         Assert.True(double.IsFinite(result.Value));
@@ -169,7 +173,9 @@ public class CfbTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 30; i++)
+        {
             cfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        }
 
         var result = cfb.Update(new TValue(DateTime.UtcNow, double.PositiveInfinity));
         Assert.True(double.IsFinite(result.Value));
@@ -193,7 +199,10 @@ public class CfbTests
         // 3. Streaming Mode
         var streamCfb = new Cfb();
         for (int i = 0; i < bars.Count; i++)
+        {
             streamCfb.Update(new TValue(bars.Close.Times[i], bars.Close.Values[i]));
+        }
+
         double streamResult = streamCfb.Last.Value;
 
         Assert.Equal(expected, spanResult, 9);

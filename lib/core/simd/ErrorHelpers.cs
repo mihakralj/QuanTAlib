@@ -39,11 +39,15 @@ public static class ErrorHelpers
         Span<double> output)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -53,7 +57,9 @@ public static class ErrorHelpers
         {
             int processedCount = ComputeSignedErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
             if (processedCount == len)
+            {
                 return; // All processed via SIMD
+            }
             // Continue with scalar for remaining elements (NaN was detected)
             ComputeSignedErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
@@ -74,11 +80,15 @@ public static class ErrorHelpers
         Span<double> output)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -88,7 +98,9 @@ public static class ErrorHelpers
         {
             int processedCount = ComputeAbsoluteErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
             if (processedCount == len)
+            {
                 return; // All processed via SIMD
+            }
             // Continue with scalar for remaining elements (NaN was detected)
             ComputeAbsoluteErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
@@ -109,11 +121,15 @@ public static class ErrorHelpers
         Span<double> output)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -123,7 +139,9 @@ public static class ErrorHelpers
         {
             int processedCount = ComputeSquaredErrorsSimdWithNaNDetection(actual, predicted, output, ref lastValidActual, ref lastValidPredicted);
             if (processedCount == len)
+            {
                 return; // All processed via SIMD
+            }
             // Continue with scalar for remaining elements (NaN was detected)
             ComputeSquaredErrorsScalar(actual.Slice(processedCount), predicted.Slice(processedCount), output.Slice(processedCount), lastValidActual, lastValidPredicted);
             return;
@@ -145,11 +163,15 @@ public static class ErrorHelpers
         Span<double> output)
     {
         if (actual.Length != predicted.Length || actual.Length != weights.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -165,9 +187,32 @@ public static class ErrorHelpers
             double pred = predicted[i];
             double wgt = weights[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
-            if (double.IsFinite(wgt)) currentValidWeight = wgt; else wgt = currentValidWeight;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
+
+            if (double.IsFinite(wgt))
+            {
+                currentValidWeight = wgt;
+            }
+            else
+            {
+                wgt = currentValidWeight;
+            }
 
             double diff = act - pred;
             output[i] = wgt * diff * diff;
@@ -186,11 +231,15 @@ public static class ErrorHelpers
         double epsilon = 1e-10)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -227,11 +276,15 @@ public static class ErrorHelpers
         double epsilon = 1e-10)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -244,8 +297,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             double denominator = (Math.Abs(act) + Math.Abs(pred)) / 2.0;
             output[i] = denominator < epsilon
@@ -265,11 +333,15 @@ public static class ErrorHelpers
         Span<double> output)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -282,8 +354,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             double diff = act - pred;
             // log(cosh(x)) ≈ |x| - log(2) for large |x|, numerically stable
@@ -303,11 +390,15 @@ public static class ErrorHelpers
         double delta = 1.0)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -321,8 +412,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             double diff = act - pred;
             double ratio = diff / delta;
@@ -345,11 +451,15 @@ public static class ErrorHelpers
         double c = 4.685)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -363,8 +473,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             double diff = act - pred;
             double absDiff = Math.Abs(diff);
@@ -396,11 +521,15 @@ public static class ErrorHelpers
         double delta = 1.0)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(output));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -414,8 +543,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             double diff = act - pred;
             double absDiff = Math.Abs(diff);
@@ -438,13 +582,20 @@ public static class ErrorHelpers
         int resyncInterval = 1000)
     {
         if (errors.Length != output.Length)
+        {
             throw new ArgumentException("Spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = errors.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double[]? rented = null;
 
@@ -477,7 +628,10 @@ public static class ErrorHelpers
                 buffer[bufferIndex] = error;
 
                 bufferIndex++;
-                if (bufferIndex >= period) bufferIndex = 0;
+                if (bufferIndex >= period)
+                {
+                    bufferIndex = 0;
+                }
 
                 output[i] = sum / period;
 
@@ -486,7 +640,11 @@ public static class ErrorHelpers
                 {
                     tickCount = 0;
                     double recalcSum = 0;
-                    for (int k = 0; k < period; k++) recalcSum += buffer[k];
+                    for (int k = 0; k < period; k++)
+                    {
+                        recalcSum += buffer[k];
+                    }
+
                     sum = recalcSum;
                 }
             }
@@ -511,13 +669,20 @@ public static class ErrorHelpers
         int resyncInterval = 1000)
     {
         if (squaredErrors.Length != output.Length)
+        {
             throw new ArgumentException("Spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = squaredErrors.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double[]? rented = null;
 
@@ -550,7 +715,10 @@ public static class ErrorHelpers
                 buffer[bufferIndex] = sqError;
 
                 bufferIndex++;
-                if (bufferIndex >= period) bufferIndex = 0;
+                if (bufferIndex >= period)
+                {
+                    bufferIndex = 0;
+                }
 
                 output[i] = Math.Sqrt(sum / period);
 
@@ -559,7 +727,11 @@ public static class ErrorHelpers
                 {
                     tickCount = 0;
                     double recalcSum = 0;
-                    for (int k = 0; k < period; k++) recalcSum += buffer[k];
+                    for (int k = 0; k < period; k++)
+                    {
+                        recalcSum += buffer[k];
+                    }
+
                     sum = recalcSum;
                 }
             }
@@ -586,13 +758,20 @@ public static class ErrorHelpers
         int resyncInterval = 1000)
     {
         if (weightedSquaredErrors.Length != output.Length || weightedSquaredErrors.Length != weights.Length)
+        {
             throw new ArgumentException("Spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = weightedSquaredErrors.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double[]? rentedErrors = null;
         double[]? rentedWeights = null;
@@ -637,7 +816,10 @@ public static class ErrorHelpers
                 weightBuffer[bufferIndex] = wgt;
 
                 bufferIndex++;
-                if (bufferIndex >= period) bufferIndex = 0;
+                if (bufferIndex >= period)
+                {
+                    bufferIndex = 0;
+                }
 
                 output[i] = sumWeights > 1e-10 ? Math.Sqrt(sumErrors / sumWeights) : 0.0;
 
@@ -686,11 +868,15 @@ public static class ErrorHelpers
         Span<double> predictedOut)
     {
         if (actual.Length != predicted.Length || actual.Length != actualOut.Length || actual.Length != predictedOut.Length)
+        {
             throw new ArgumentException(SpanLengthMismatchMessage, nameof(predictedOut));
+        }
 
         int len = actual.Length;
         if (len == 0)
+        {
             return;
+        }
 
         double lastValidActual = FindFirstValidValue(actual);
         double lastValidPredicted = FindFirstValidValue(predicted);
@@ -700,8 +886,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             actualOut[i] = act;
             predictedOut[i] = pred;
@@ -717,7 +918,9 @@ public static class ErrorHelpers
         for (int i = 0; i < span.Length; i++)
         {
             if (double.IsFinite(span[i]))
+            {
                 return span[i];
+            }
         }
         return 0.0;
     }
@@ -751,14 +954,18 @@ public static class ErrorHelpers
                 // MoveMask returns a bitmask; all-ones means all finite (mask == 0b1111 for 4 doubles)
                 int mask = Avx.MoveMask(combined);
                 if (mask != 0b1111)
+                {
                     return false;
+                }
             }
 
             // Scalar tail
             for (int i = vectorEnd; i < len; i++)
             {
                 if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
+                {
                     return false;
+                }
             }
             return true;
         }
@@ -767,7 +974,9 @@ public static class ErrorHelpers
         for (int i = 0; i < len; i++)
         {
             if (!double.IsFinite(actual[i]) || !double.IsFinite(predicted[i]))
+            {
                 return false;
+            }
         }
         return true;
     }
@@ -890,8 +1099,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             output[i] = act - pred;
         }
@@ -1099,8 +1323,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             output[i] = Math.Abs(act - pred);
         }
@@ -1156,8 +1395,23 @@ public static class ErrorHelpers
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) currentValidActual = act; else act = currentValidActual;
-            if (double.IsFinite(pred)) currentValidPredicted = pred; else pred = currentValidPredicted;
+            if (double.IsFinite(act))
+            {
+                currentValidActual = act;
+            }
+            else
+            {
+                act = currentValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                currentValidPredicted = pred;
+            }
+            else
+            {
+                pred = currentValidPredicted;
+            }
 
             double diff = act - pred;
             output[i] = diff * diff;

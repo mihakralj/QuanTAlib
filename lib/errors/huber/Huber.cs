@@ -40,7 +40,9 @@ public sealed class Huber : BiInputIndicatorBase
         : base(period, $"Huber({period},{delta:F3})")
     {
         if (delta <= 0)
+        {
             throw new ArgumentException("Delta must be greater than 0", nameof(delta));
+        }
 
         Delta = delta;
         _negHalfDeltaSquared = -0.5 * delta * delta;
@@ -68,7 +70,9 @@ public sealed class Huber : BiInputIndicatorBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double delta = 1.345)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -92,14 +96,25 @@ public sealed class Huber : BiInputIndicatorBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period, double delta = 1.345)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (delta <= 0)
+        {
             throw new ArgumentException("Delta must be greater than 0", nameof(delta));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Pre-compute Huber errors using shared helper
         const int StackAllocThreshold = 256;

@@ -52,9 +52,14 @@ public sealed class Kchannel : ITValuePublisher
     public Kchannel(int period = 20, double multiplier = 2.0)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (multiplier <= 0.0)
+        {
             throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be > 0.");
+        }
 
         _period = period;
         _multiplier = multiplier;
@@ -95,19 +100,31 @@ public sealed class Kchannel : ITValuePublisher
     private (double close, double high, double low) GetValid(double close, double high, double low)
     {
         if (double.IsFinite(close))
+        {
             _state = _state with { LastValidClose = close };
+        }
         else
+        {
             close = _state.LastValidClose;
+        }
 
         if (double.IsFinite(high))
+        {
             _state = _state with { LastValidHigh = high };
+        }
         else
+        {
             high = _state.LastValidHigh;
+        }
 
         if (double.IsFinite(low))
+        {
             _state = _state with { LastValidLow = low };
+        }
         else
+        {
             low = _state.LastValidLow;
+        }
 
         return (close, high, low);
     }
@@ -116,9 +133,13 @@ public sealed class Kchannel : ITValuePublisher
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         var (close, high, low) = GetValid(input.Close, input.High, input.Low);
 
@@ -144,7 +165,9 @@ public sealed class Kchannel : ITValuePublisher
         }
 
         if (isNew)
+        {
             _state = _state with { Bars = _state.Bars + 1 };
+        }
 
         // EMA with warmup compensation (sum/weight approach)
         double newSum = Math.FusedMultiplyAdd(_state.EmaSum, 1.0 - _emaAlpha, close * _emaAlpha);
@@ -179,7 +202,9 @@ public sealed class Kchannel : ITValuePublisher
         double lower = emaValue - width;
 
         if (!_state.IsHot && _state.Bars >= WarmupPeriod)
+        {
             _state = _state with { IsHot = true };
+        }
 
         Last = new TValue(input.Time, emaValue);
         Upper = new TValue(input.Time, upper);
@@ -192,7 +217,9 @@ public sealed class Kchannel : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -237,7 +264,9 @@ public sealed class Kchannel : ITValuePublisher
         Reset();
 
         if (source.Count == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -259,16 +288,30 @@ public sealed class Kchannel : ITValuePublisher
         double multiplier = 2.0)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (multiplier <= 0.0)
+        {
             throw new ArgumentOutOfRangeException(nameof(multiplier), "Multiplier must be > 0.");
+        }
+
         if (high.Length != low.Length || high.Length != close.Length)
+        {
             throw new ArgumentException("High, Low, and Close spans must have the same length", nameof(high));
+        }
+
         if (middle.Length < high.Length || upper.Length < high.Length || lower.Length < high.Length)
+        {
             throw new ArgumentException("Output spans must be at least as long as inputs", nameof(middle));
+        }
 
         int len = high.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double emaAlpha = 2.0 / (period + 1);
         double atrAlpha = 1.0 / period;

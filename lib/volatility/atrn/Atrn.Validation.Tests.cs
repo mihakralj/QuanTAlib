@@ -123,8 +123,15 @@ public sealed class AtrnValidationTests : IDisposable
 
                 for (int j = startIdx; j < atrValues.Count; j++)
                 {
-                    if (atrValues[j] < minAtr) minAtr = atrValues[j];
-                    if (atrValues[j] > maxAtr) maxAtr = atrValues[j];
+                    if (atrValues[j] < minAtr)
+                    {
+                        minAtr = atrValues[j];
+                    }
+
+                    if (atrValues[j] > maxAtr)
+                    {
+                        maxAtr = atrValues[j];
+                    }
                 }
 
                 double currentAtr = atrValues[^1];

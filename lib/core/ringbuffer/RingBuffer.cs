@@ -46,7 +46,9 @@ public sealed class RingBuffer : IEnumerable<double>
     public RingBuffer(int capacity)
     {
         if (capacity <= 0)
+        {
             throw new ArgumentException("Capacity must be greater than 0", nameof(capacity));
+        }
 
         Capacity = capacity;
         _buffer = GC.AllocateArray<double>(capacity, pinned: true);
@@ -130,7 +132,11 @@ public sealed class RingBuffer : IEnumerable<double>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            if (_count == 0) return double.NaN;
+            if (_count == 0)
+            {
+                return double.NaN;
+            }
+
             int idx = (_head - 1 + Capacity) % Capacity;
             return _buffer[idx];
         }
@@ -145,7 +151,11 @@ public sealed class RingBuffer : IEnumerable<double>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            if (_count == 0) return double.NaN;
+            if (_count == 0)
+            {
+                return double.NaN;
+            }
+
             int start = _count == Capacity ? _head : 0;
             return _buffer[start];
         }
@@ -224,7 +234,10 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UpdateNewest(double value)
     {
-        if (_count == 0) return;
+        if (_count == 0)
+        {
+            return;
+        }
 
         int idx = (_head - 1 + Capacity) % Capacity;
         double oldValue = _buffer[idx];
@@ -283,7 +296,10 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<double> GetSpan()
     {
-        if (_count == 0) return ReadOnlySpan<double>.Empty;
+        if (_count == 0)
+        {
+            return ReadOnlySpan<double>.Empty;
+        }
 
         int start = _count == Capacity ? _head : 0;
 
@@ -332,7 +348,11 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double Max()
     {
-        if (_count == 0) return double.NaN;
+        if (_count == 0)
+        {
+            return double.NaN;
+        }
+
         return MaxSimd();
     }
 
@@ -342,7 +362,11 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double Min()
     {
-        if (_count == 0) return double.NaN;
+        if (_count == 0)
+        {
+            return double.NaN;
+        }
+
         return MinSimd();
     }
 
@@ -461,7 +485,10 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double[] ToArray()
     {
-        if (_count == 0) return Array.Empty<double>();
+        if (_count == 0)
+        {
+            return Array.Empty<double>();
+        }
 
         double[] array = new double[_count];
         CopyTo(array, 0);
@@ -474,7 +501,10 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(double[] destination, int destinationIndex)
     {
-        if (_count == 0) return;
+        if (_count == 0)
+        {
+            return;
+        }
 
         int start = _count == Capacity ? _head : 0;
 
@@ -497,7 +527,10 @@ public sealed class RingBuffer : IEnumerable<double>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(Span<double> destination)
     {
-        if (_count == 0) return;
+        if (_count == 0)
+        {
+            return;
+        }
 
         int start = _count == Capacity ? _head : 0;
 
@@ -533,7 +566,9 @@ public sealed class RingBuffer : IEnumerable<double>
     public void CopyFrom(RingBuffer source)
     {
         if (source.Capacity != Capacity)
+        {
             throw new ArgumentException("Source buffer must have same capacity", nameof(source));
+        }
 
         Array.Copy(source._buffer, _buffer, Capacity);
         _head = source._head;
@@ -632,7 +667,9 @@ public sealed class RingBuffer : IEnumerable<double>
         public bool MoveNext()
         {
             if (_index + 1 >= _count)
+            {
                 return false;
+            }
 
             _index++;
             int bufferIdx = (_start + _index) % _buffer.Capacity;

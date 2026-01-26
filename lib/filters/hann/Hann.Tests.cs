@@ -141,7 +141,11 @@ public class HannTests
         Assert.False(hann.IsHot);
 
         // Fill it
-        for(int i=0; i<5; i++) hann.Update(new TValue(DateTime.UtcNow, 100));
+        for (int i = 0; i < 5; i++)
+        {
+            hann.Update(new TValue(DateTime.UtcNow, 100));
+        }
+
         Assert.True(hann.IsHot);
 
         hann.Reset();

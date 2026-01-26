@@ -57,11 +57,19 @@ public sealed class Adosc : ITValuePublisher
     public Adosc(int fastPeriod = 3, int slowPeriod = 10)
     {
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         _adl = new Adl();
         _emaFast = new Ema(fastPeriod);
@@ -181,7 +189,10 @@ public sealed class Adosc : ITValuePublisher
         }
 
         int len = high.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // EMA parameters (same formula as Ema.cs: alpha = 2 / (period + 1))
         double alphaFast = 2.0 / (fastPeriod + 1);

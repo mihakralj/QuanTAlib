@@ -26,9 +26,16 @@ public sealed class SumValidationTests : IDisposable
 
     private void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
-        if (disposing) _testData?.Dispose();
+        if (disposing)
+        {
+            _testData?.Dispose();
+        }
     }
 
     [Fact]

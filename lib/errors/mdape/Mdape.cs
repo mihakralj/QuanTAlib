@@ -33,7 +33,9 @@ public sealed class Mdape : AbstractBase
     public Mdape(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _buffer = new RingBuffer(period);
         _sortBuffer = new double[period];
@@ -73,14 +75,22 @@ public sealed class Mdape : AbstractBase
     private TValue UpdateCore(DateTime time, double actualVal, double predictedVal, bool isNew)
     {
         if (!double.IsFinite(actualVal))
+        {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 1.0;
+        }
         else
+        {
             _state.LastValidActual = actualVal;
+        }
 
         if (!double.IsFinite(predictedVal))
+        {
             predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
+        }
         else
+        {
             _state.LastValidPredicted = predictedVal;
+        }
 
         // Calculate absolute percentage error
         double absActual = Math.Abs(actualVal);
@@ -124,7 +134,10 @@ public sealed class Mdape : AbstractBase
     private double CalculateMedian()
     {
         int count = _buffer.Count;
-        if (count == 0) return 0.0;
+        if (count == 0)
+        {
+            return 0.0;
+        }
 
         // Copy buffer contents to sort buffer using GetSequencedSpans to handle wraparound
         _buffer.GetSequencedSpans(out var first, out var second);
@@ -151,7 +164,9 @@ public sealed class Mdape : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -172,12 +187,20 @@ public sealed class Mdape : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Use dual-heap sliding median for O(log n) updates instead of O(n log n) sort per element
         var slidingMedian = new SlidingMedianHeap(period);
@@ -187,11 +210,19 @@ public sealed class Mdape : AbstractBase
 
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(actual[k]) && Math.Abs(actual[k]) >= 1e-10) { lastValidActual = actual[k]; break; }
+            if (double.IsFinite(actual[k]) && Math.Abs(actual[k]) >= 1e-10)
+            {
+                lastValidActual = actual[k];
+                break;
+            }
         }
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            if (double.IsFinite(predicted[k]))
+            {
+                lastValidPredicted = predicted[k];
+                break;
+            }
         }
 
         for (int i = 0; i < len; i++)
@@ -199,8 +230,23 @@ public sealed class Mdape : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act) && Math.Abs(act) >= 1e-10) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act) && Math.Abs(act) >= 1e-10)
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double absActual = Math.Abs(act);
             double absError = Math.Abs(act - pred);
@@ -255,7 +301,10 @@ public sealed class Mdape : AbstractBase
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetMedian()
         {
-            if (_lowerCount == 0 && _upperCount == 0) return 0.0;
+            if (_lowerCount == 0 && _upperCount == 0)
+            {
+                return 0.0;
+            }
 
             if (_lowerCount > _upperCount)
             {

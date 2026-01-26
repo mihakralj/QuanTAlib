@@ -53,9 +53,14 @@ public sealed class Bpf : AbstractBase
     public Bpf(int lowerPeriod, int upperPeriod)
     {
         if (lowerPeriod < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(lowerPeriod), "Lower period must be >= 1");
+        }
+
         if (upperPeriod < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(upperPeriod), "Upper period must be >= 1");
+        }
 
         LowerPeriod = lowerPeriod;
         UpperPeriod = upperPeriod;
@@ -95,7 +100,10 @@ public sealed class Bpf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         double[] values = source.Values.ToArray();
         double[] results = new double[values.Length];
@@ -186,7 +194,9 @@ public sealed class Bpf : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int lowerPeriod, int upperPeriod)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
+        }
 
         // Coefficients
         double sqrt2Pi = Math.Sqrt(2.0) * Math.PI;
@@ -213,7 +223,10 @@ public sealed class Bpf : AbstractBase
         if (source.Length > 0)
         {
             lastValid = source[0];
-            if (!double.IsFinite(lastValid)) lastValid = 0;
+            if (!double.IsFinite(lastValid))
+            {
+                lastValid = 0;
+            }
         }
 
         for (int i = 0; i < source.Length; i++)

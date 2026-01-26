@@ -304,7 +304,10 @@ public sealed class RemaValidationTests : IDisposable
 
     private static double CalculateDiffVariance(double[] values, int startIdx, int count)
     {
-        if (count < 2) return 0;
+        if (count < 2)
+        {
+            return 0;
+        }
 
         // Calculate differences
         double sumDiff = 0;
@@ -319,7 +322,10 @@ public sealed class RemaValidationTests : IDisposable
             n++;
         }
 
-        if (n < 2) return 0;
+        if (n < 2)
+        {
+            return 0;
+        }
 
         double mean = sumDiff / n;
         double variance = (sumDiffSq / n) - (mean * mean);

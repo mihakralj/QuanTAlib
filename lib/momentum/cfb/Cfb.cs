@@ -114,7 +114,9 @@ public sealed class Cfb : ITValuePublisher, IDisposable
     public void Dispose()
     {
         if (_disposed)
+        {
             return;
+        }
 
         _disposed = true;
 
@@ -211,10 +213,16 @@ public sealed class Cfb : ITValuePublisher, IDisposable
 
             _runningSums[i] += vol - volToRemove;
 
-            if (count <= L) continue;
+            if (count <= L)
+            {
+                continue;
+            }
 
             // Safety check for very small volatility
-            if (_runningSums[i] < 1e-12) continue;
+            if (_runningSums[i] < 1e-12)
+            {
+                continue;
+            }
 
             // Net move over L bars
             // Price at Count-1 is current. Price at Count-1-L is L bars ago.
@@ -240,11 +248,17 @@ public sealed class Cfb : ITValuePublisher, IDisposable
             cfb = (_state.PrevCfb > 1.0) ? _state.PrevCfb * 0.5 : 1.0;
         }
 
-        if (cfb < 1.0) cfb = 1.0;
+        if (cfb < 1.0)
+        {
+            cfb = 1.0;
+        }
 
         // Round to nearest integer
         cfb = Math.Round(cfb);
-        if (cfb < 1.0) cfb = 1.0;
+        if (cfb < 1.0)
+        {
+            cfb = 1.0;
+        }
 
         _state.PrevCfb = cfb;
 
@@ -255,7 +269,10 @@ public sealed class Cfb : ITValuePublisher, IDisposable
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -304,10 +321,14 @@ public sealed class Cfb : ITValuePublisher, IDisposable
     {
         int len = source.Length;
         if (len == 0)
+        {
             return;
+        }
 
         if (output.Length != len)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         // Setup lengths - use cached default or sort a copy of user-provided
         int[] lens;
@@ -378,10 +399,16 @@ public sealed class Cfb : ITValuePublisher, IDisposable
                     runningSums[k] -= vol[i - L];
                 }
 
-                if (i < L) continue;
+                if (i < L)
+                {
+                    continue;
+                }
 
                 double totalMove = runningSums[k];
-                if (totalMove < 1e-12) continue;
+                if (totalMove < 1e-12)
+                {
+                    continue;
+                }
 
                 double netMove = Math.Abs(price - source[i - L]);
                 double ratio = netMove / totalMove;
@@ -403,9 +430,16 @@ public sealed class Cfb : ITValuePublisher, IDisposable
                 cfb = (prevCfb > 1.0) ? prevCfb * 0.5 : 1.0;
             }
 
-            if (cfb < 1.0) cfb = 1.0;
+            if (cfb < 1.0)
+            {
+                cfb = 1.0;
+            }
+
             cfb = Math.Round(cfb);
-            if (cfb < 1.0) cfb = 1.0;
+            if (cfb < 1.0)
+            {
+                cfb = 1.0;
+            }
 
             output[i] = cfb;
             prevCfb = cfb;

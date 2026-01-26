@@ -96,7 +96,10 @@ public sealed class Cma : AbstractBase
     /// <param name="step">Time interval between values (not used for CMA)</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _state = default;
@@ -162,7 +165,10 @@ public sealed class Cma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -207,10 +213,15 @@ public sealed class Cma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double mean = 0;
         double lastValid = double.NaN;
@@ -230,9 +241,13 @@ public sealed class Cma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             // M_n = M_(n-1) + alpha * delta using FMA for single-rounding precision
             double alpha = 1.0 / (i + 1);

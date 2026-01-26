@@ -111,8 +111,16 @@ public sealed class Mama : AbstractBase
             return 0.0; // Return neutral angle for invalid inputs
         }
 
-        while (angle <= -Math.PI) angle += TwoPi;
-        while (angle > Math.PI) angle -= TwoPi;
+        while (angle <= -Math.PI)
+        {
+            angle += TwoPi;
+        }
+
+        while (angle > Math.PI)
+        {
+            angle -= TwoPi;
+        }
+
         return angle;
     }
 
@@ -192,11 +200,25 @@ public sealed class Mama : AbstractBase
             double periodCap = _p_state.Period * 1.5;
             double periodFloor = _p_state.Period * 0.67;
 
-            if (period > periodCap) period = periodCap;
-            if (period < periodFloor) period = periodFloor;
+            if (period > periodCap)
+            {
+                period = periodCap;
+            }
 
-            if (period < MinPeriod) period = MinPeriod;
-            if (period > MaxPeriod) period = MaxPeriod;
+            if (period < periodFloor)
+            {
+                period = periodFloor;
+            }
+
+            if (period < MinPeriod)
+            {
+                period = MinPeriod;
+            }
+
+            if (period > MaxPeriod)
+            {
+                period = MaxPeriod;
+            }
 
             // Smooth Period (using FMA)
             _state.Period = Math.FusedMultiplyAdd(SmoothCoef, period, SmoothPrev * _p_state.Period);
@@ -248,7 +270,10 @@ public sealed class Mama : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new List<double>(len);
@@ -307,7 +332,11 @@ public sealed class Mama : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(fastLimit), "FastLimit must be > SlowLimit");
         }
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
+
         if (output.Length < source.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(output), "Output buffer must be at least as large as the input buffer.");
@@ -427,11 +456,25 @@ public sealed class Mama : AbstractBase
                 double periodCap = p_period * 1.5;
                 double periodFloor = p_period * 0.67;
 
-                if (newPeriod > periodCap) newPeriod = periodCap;
-                if (newPeriod < periodFloor) newPeriod = periodFloor;
+                if (newPeriod > periodCap)
+                {
+                    newPeriod = periodCap;
+                }
 
-                if (newPeriod < MinPeriod) newPeriod = MinPeriod;
-                if (newPeriod > MaxPeriod) newPeriod = MaxPeriod;
+                if (newPeriod < periodFloor)
+                {
+                    newPeriod = periodFloor;
+                }
+
+                if (newPeriod < MinPeriod)
+                {
+                    newPeriod = MinPeriod;
+                }
+
+                if (newPeriod > MaxPeriod)
+                {
+                    newPeriod = MaxPeriod;
+                }
 
                 // Smooth Period (using FMA)
                 period = Math.FusedMultiplyAdd(SmoothCoef, newPeriod, SmoothPrev * p_period);

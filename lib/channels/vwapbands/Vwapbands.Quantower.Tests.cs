@@ -211,7 +211,7 @@ public class VwapbandsIndicatorTests
 
         // Same prices but different volume distributions
         // Process both bars for each indicator
-        
+
         // Indicator1: high volume on low price, low volume on high price
         indicator1.HistoricalData.AddBar(now, 100, 102, 98, 100, 10000);
         indicator1.ProcessUpdate(new UpdateArgs(UpdateReason.HistoricalBar));

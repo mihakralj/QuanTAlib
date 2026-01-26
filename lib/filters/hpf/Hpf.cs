@@ -36,7 +36,10 @@ public sealed class Hpf : AbstractBase
 
     public Hpf(int length = 40)
     {
-        if (length < 2) throw new ArgumentOutOfRangeException(nameof(length), "Length must be at least 2.");
+        if (length < 2)
+        {
+            throw new ArgumentOutOfRangeException(nameof(length), "Length must be at least 2.");
+        }
 
         Length = length;
 
@@ -45,7 +48,9 @@ public sealed class Hpf : AbstractBase
         double sinW = Math.Sin(omega);
 
         if (Math.Abs(cosW) < 1e-15)
+        {
             throw new ArgumentOutOfRangeException(nameof(length), "Length produces an unstable coefficient set (cos(ω)≈0).");
+        }
 
         double a = (cosW + sinW - 1.0) / cosW;
         double oneMinusA = 1.0 - a;
@@ -86,14 +91,22 @@ public sealed class Hpf : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
+        {
             Update(new TValue(DateTime.MinValue, v), isNew: true);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TValue Update(TValue input, bool isNew = true)
     {
-        if (isNew) _pState = _state;
-        else _state = _pState;
+        if (isNew)
+        {
+            _pState = _state;
+        }
+        else
+        {
+            _state = _pState;
+        }
 
         double price = input.Value;
 
@@ -140,8 +153,8 @@ public sealed class Hpf : AbstractBase
 
         double src1 = _state.Src1;
         double src2 = _state.Src2;
-        double hp1  = _state.Hp1;
-        double hp2  = _state.Hp2;
+        double hp1 = _state.Hp1;
+        double hp2 = _state.Hp2;
 
         double d2 = Math.FusedMultiplyAdd(-2.0, src1, price + src2);
 
@@ -161,7 +174,10 @@ public sealed class Hpf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var output = new double[source.Count];
 
@@ -183,7 +199,9 @@ public sealed class Hpf : AbstractBase
         Last = new TValue(times[^1], output[^1]);
 
         for (int i = 0; i < source.Count; i++)
+        {
             result.Add(new TValue(times[i], output[i]));
+        }
 
         return result;
     }
@@ -205,7 +223,9 @@ public sealed class Hpf : AbstractBase
         out (double Hp1, double Hp2, double Src1, double Src2, int Samples, bool HasSrc) state)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
+        }
 
         if (source.Length == 0)
         {
@@ -219,7 +239,9 @@ public sealed class Hpf : AbstractBase
         double sinW = Math.Sin(omega);
 
         if (Math.Abs(cosW) < 1e-15)
+        {
             throw new ArgumentOutOfRangeException(nameof(length), "Length produces an unstable coefficient set (cos(ω)≈0).");
+        }
 
         double a = (cosW + sinW - 1.0) / cosW;
         double oneMinusA = 1.0 - a;

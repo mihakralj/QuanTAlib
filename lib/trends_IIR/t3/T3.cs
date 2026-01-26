@@ -61,11 +61,19 @@ public sealed class T3 : AbstractBase
     public T3(int period, double vfactor = 0.7)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (!double.IsFinite(vfactor))
+        {
             throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be a finite number (not NaN or Infinity)");
+        }
+
         if (vfactor <= 0 || vfactor > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be greater than 0 and typically <= 1");
+        }
 
         double alpha = 2.0 / (period + 1);
         double decay = 1.0 - alpha;
@@ -136,7 +144,10 @@ public sealed class T3 : AbstractBase
     /// <param name="source">Historical data</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _state = State.New();
@@ -188,7 +199,7 @@ public sealed class T3 : AbstractBase
             // So the state corresponds to "after processing source".
             // To get the output value corresponding to the last input, we can calculate it from the state.
             // But T3 formula uses the *updated* EMAs.
-        // T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
+            // T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
             // The state has the updated EMAs.
             double result = Math.FusedMultiplyAdd(_params.C4, _state.E3,
                 Math.FusedMultiplyAdd(_params.C3, _state.E4,
@@ -235,7 +246,10 @@ public sealed class T3 : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -298,9 +312,13 @@ public sealed class T3 : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValidValue = val;
+            }
             else
+            {
                 val = lastValidValue;
+            }
 
             output[i] = Compute(val, p, ref state);
         }
@@ -322,13 +340,24 @@ public sealed class T3 : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double vfactor = 0.7)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (!double.IsFinite(vfactor))
+        {
             throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be a finite number (not NaN or Infinity)");
+        }
+
         if (vfactor <= 0 || vfactor > 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(vfactor), "Volume factor must be greater than 0 and typically <= 1");
+        }
 
         double alpha = 2.0 / (period + 1);
         double decay = 1.0 - alpha;

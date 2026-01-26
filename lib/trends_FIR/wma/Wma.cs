@@ -53,7 +53,10 @@ public sealed class Wma : AbstractBase
 
     public Wma(int period)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _divisor = (double)period * (period + 1) * 0.5;
@@ -173,7 +176,10 @@ public sealed class Wma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -197,7 +203,10 @@ public sealed class Wma : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         int len = source.Length;
         int windowSize = Math.Min(len, _period);
@@ -258,12 +267,20 @@ public sealed class Wma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int simdThreshold = 256;
         if (Avx512F.IsSupported && len >= simdThreshold && !source.ContainsNonFinite())
@@ -305,9 +322,13 @@ public sealed class Wma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             sum += val;
             wsum = Math.FusedMultiplyAdd(i + 1, val, wsum);
@@ -322,9 +343,13 @@ public sealed class Wma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             double oldSum = sum;
             double oldest = buffer[bufferIdx];
@@ -334,7 +359,9 @@ public sealed class Wma : AbstractBase
             buffer[bufferIdx] = val;
             bufferIdx++;
             if (bufferIdx >= period)
+            {
                 bufferIdx = 0;
+            }
 
             output[i] = wsum / divisor;
 
@@ -349,7 +376,10 @@ public sealed class Wma : AbstractBase
                 for (int k = 0; k < period; k++)
                 {
                     int idx = bufferIdx + k;
-                    if (idx >= period) idx -= period;
+                    if (idx >= period)
+                    {
+                        idx -= period;
+                    }
 
                     double v = buffer[idx];
                     recalcSum += v;
@@ -386,7 +416,9 @@ public sealed class Wma : AbstractBase
         }
 
         if (len <= period)
+        {
             return;
+        }
 
         var vInvDivisor = Vector512.Create(invDivisor);
         var vPeriod = Vector512.Create((double)period);
@@ -501,7 +533,9 @@ public sealed class Wma : AbstractBase
         }
 
         if (len <= period)
+        {
             return;
+        }
 
         var vInvDivisor = Vector256.Create(invDivisor);
         var vPeriod = Vector256.Create((double)period);
@@ -704,7 +738,9 @@ public sealed class Wma : AbstractBase
         }
 
         if (len <= period)
+        {
             return;
+        }
 
         var vInvDivisor = Vector128.Create(invDivisor);
         int simdEnd = period + ((len - period) / vectorWidth) * vectorWidth;

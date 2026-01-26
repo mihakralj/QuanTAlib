@@ -20,7 +20,10 @@ public class Cheby1ValidationTests
 
         var filter = new Cheby1(20, 1.0); // Wn = 1/20
         var input = new TSeries();
-        for (int i = 0; i < 100; i++) input.Add(new TValue(DateTime.UtcNow, 100)); // Impulse/Step
+        for (int i = 0; i < 100; i++)
+        {
+            input.Add(new TValue(DateTime.UtcNow, 100)); // Impulse/Step
+        }
 
         var output = filter.Update(input);
 

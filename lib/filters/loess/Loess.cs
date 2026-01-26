@@ -156,7 +156,10 @@ public sealed class Loess : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         // Use static Calculate for performance on the whole series
         var resultValues = new double[source.Count];
@@ -175,13 +178,18 @@ public sealed class Loess : AbstractBase
         // Restore Snap history if possible
         if (startup > 0)
         {
-             double lastFinite = 0;
-             bool found = false;
-             for(int k=startup-1; k>=0; k--)
-             {
-                 if (double.IsFinite(source.Values[k])) { lastFinite = source.Values[k]; found=true; break; }
-             }
-             if(found) { _snap.LastFiniteInput = lastFinite; _snap.HasFiniteInput = true; _pSnap = _snap; }
+            double lastFinite = 0;
+            bool found = false;
+            for (int k = startup - 1; k >= 0; k--)
+            {
+                if (double.IsFinite(source.Values[k]))
+                {
+                    lastFinite = source.Values[k];
+                    found = true;
+                    break;
+                }
+            }
+            if (found) { _snap.LastFiniteInput = lastFinite; _snap.HasFiniteInput = true; _pSnap = _snap; }
         }
 
         for (int i = startup; i < source.Count; i++)
@@ -213,7 +221,10 @@ public sealed class Loess : AbstractBase
         for (int i = 0; i < period; i++)
         {
             double dist = Math.Abs(i - halfWindow) / bandwidth;
-            if (dist >= 1.0) dist = 0.9999;
+            if (dist >= 1.0)
+            {
+                dist = 0.9999;
+            }
 
             double t = 1.0 - dist * dist * dist;
             double w = t * t * t;
@@ -226,14 +237,21 @@ public sealed class Loess : AbstractBase
         }
 
         double delta = weightSum * x2Sum - xSum * xSum;
-        if (Math.Abs(delta) < double.Epsilon) delta = 1.0;
+        if (Math.Abs(delta) < double.Epsilon)
+        {
+            delta = 1.0;
+        }
 
         double targetX = -halfWindow;
 
         for (int i = 0; i < period; i++)
         {
             double dist = Math.Abs(i - halfWindow) / bandwidth;
-            if (dist >= 1.0) dist = 0.9999;
+            if (dist >= 1.0)
+            {
+                dist = 0.9999;
+            }
+
             double t = 1.0 - dist * dist * dist;
             double w = t * t * t;
             double xi = i - halfWindow;
@@ -252,7 +270,10 @@ public sealed class Loess : AbstractBase
     {
         // a and b expected to be same length (slice called in Update ensures this)
         int length = a.Length;
-        if (length == 0) return 0;
+        if (length == 0)
+        {
+            return 0;
+        }
 
         int i = 0;
         double sum = 0;
@@ -296,10 +317,14 @@ public sealed class Loess : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
+        }
 
         if (period < 3)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be at least 3.");
+        }
 
         int adjPeriod = (period & 1) == 0 ? period + 1 : period;
 

@@ -44,7 +44,9 @@ public sealed class Sinema : AbstractBase
     public Sinema(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -101,7 +103,10 @@ public sealed class Sinema : AbstractBase
     /// <param name="step">Optional time step (unused)</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _buffer.Clear();
@@ -165,7 +170,10 @@ public sealed class Sinema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateFromBuffer()
     {
-        if (_buffer.Count == 0) return double.NaN;
+        if (_buffer.Count == 0)
+        {
+            return double.NaN;
+        }
 
         int count = _buffer.Count;
         double sum = 0;
@@ -222,7 +230,10 @@ public sealed class Sinema : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -269,12 +280,20 @@ public sealed class Sinema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         CalculateScalarCore(source, output, period);
     }
@@ -318,9 +337,13 @@ public sealed class Sinema : AbstractBase
             {
                 double val = source[i];
                 if (double.IsFinite(val))
+                {
                     lastValid = val;
+                }
                 else
+                {
                     val = lastValid;
+                }
 
                 buffer[i] = val;
 
@@ -351,14 +374,20 @@ public sealed class Sinema : AbstractBase
             {
                 double val = source[i];
                 if (double.IsFinite(val))
+                {
                     lastValid = val;
+                }
                 else
+                {
                     val = lastValid;
+                }
 
                 buffer[bufferIndex] = val;
                 bufferIndex++;
                 if (bufferIndex >= period)
+                {
                     bufferIndex = 0;
+                }
 
                 // Calculate weighted sum using circular buffer
                 double sum = 0;
@@ -368,7 +397,9 @@ public sealed class Sinema : AbstractBase
                     sum += buffer[bufIdx] * weights[j];
                     bufIdx++;
                     if (bufIdx >= period)
+                    {
                         bufIdx = 0;
+                    }
                 }
 
                 output[i] = sum / fullWeightSum;
@@ -377,9 +408,14 @@ public sealed class Sinema : AbstractBase
         finally
         {
             if (rentedBuffer != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedBuffer);
+            }
+
             if (rentedWeights != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedWeights);
+            }
         }
     }
 

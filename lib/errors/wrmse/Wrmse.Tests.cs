@@ -360,7 +360,10 @@ public class WrmseTests
         for (int i = 0; i < 10; i++)
         {
             actual.Add(now.AddMinutes(i), i * 10);
-            if (i < 5) predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            if (i < 5)
+            {
+                predicted.Add(now.AddMinutes(i), i * 10 + 5);
+            }
         }
 
         Assert.Throws<ArgumentException>(() => Wrmse.Calculate(actual, predicted, 3));
@@ -378,7 +381,10 @@ public class WrmseTests
         {
             actual.Add(now.AddMinutes(i), i * 10);
             predicted.Add(now.AddMinutes(i), i * 10 + 5);
-            if (i < 5) weights.Add(now.AddMinutes(i), 1.0);
+            if (i < 5)
+            {
+                weights.Add(now.AddMinutes(i), 1.0);
+            }
         }
 
         Assert.Throws<ArgumentException>(() => Wrmse.Calculate(actual, predicted, weights, 3));

@@ -112,7 +112,9 @@ public class SimdExtensionsTests
     {
         double[] data = new double[1000];
         for (int i = 0; i < data.Length; i++)
+        {
             data[i] = i + 1.0;
+        }
 
         var span = new ReadOnlySpan<double>(data);
         const double expected = 1000.0 * 1001.0 / 2.0;

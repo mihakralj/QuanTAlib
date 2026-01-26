@@ -98,10 +98,14 @@ public class RgmaTests
 
         var streamValues = new List<double>(series.Count);
         for (int i = 0; i < series.Count; i++)
+        {
             streamValues.Add(rgma.Update(series[i]).Value);
+        }
 
         for (int i = 0; i < series.Count; i++)
+        {
             Assert.Equal(batch[i].Value, streamValues[i], precision: 10);
+        }
     }
 
     [Fact]
@@ -117,7 +121,9 @@ public class RgmaTests
         TSeries batch = Rgma.Batch(series, period, passes);
 
         for (int i = 0; i < values.Length; i++)
+        {
             Assert.Equal(batch[i].Value, output[i], precision: 10);
+        }
     }
 
     private static TSeries BuildSeries(int count, int seed)

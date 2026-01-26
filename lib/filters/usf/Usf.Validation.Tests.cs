@@ -209,7 +209,11 @@ public sealed class UsfValidationTests : IDisposable
 
     private static double CalculateVariance(List<double> values)
     {
-        if (values.Count == 0) return 0;
+        if (values.Count == 0)
+        {
+            return 0;
+        }
+
         double mean = values.Average();
         return values.Sum(v => (v - mean) * (v - mean)) / values.Count;
     }

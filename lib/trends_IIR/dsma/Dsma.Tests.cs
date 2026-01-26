@@ -232,7 +232,7 @@ public class DsmaTests
 
         // Get the last bar again after loop
         lastBar = gbm.Next(isNew: false);
-        
+
         // Inject NaN
         var nanResult = dsma.Update(new TValue(lastBar.Time, double.NaN));
 
@@ -257,7 +257,7 @@ public class DsmaTests
 
         // Get the last bar again after loop
         lastBar = gbm.Next(isNew: false);
-        
+
         // Inject Infinity
         var infResult = dsma.Update(new TValue(lastBar.Time, double.PositiveInfinity));
         var negInfResult = dsma.Update(new TValue(lastBar.Time, double.NegativeInfinity));

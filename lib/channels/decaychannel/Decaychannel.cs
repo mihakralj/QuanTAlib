@@ -58,7 +58,9 @@ public sealed class Decaychannel : ITValuePublisher
     public Decaychannel(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _decayLambda = Math.Log(2.0) / period;
@@ -98,14 +100,22 @@ public sealed class Decaychannel : ITValuePublisher
     private (double high, double low) GetValid(double high, double low)
     {
         if (double.IsFinite(high))
+        {
             _state = _state with { LastValidHigh = high };
+        }
         else
+        {
             high = _state.LastValidHigh;
+        }
 
         if (double.IsFinite(low))
+        {
             _state = _state with { LastValidLow = low };
+        }
         else
+        {
             low = _state.LastValidLow;
+        }
 
         return (high, low);
     }
@@ -151,7 +161,9 @@ public sealed class Decaychannel : ITValuePublisher
     {
         int len = Math.Min(_count, _period);
         if (len == 0)
+        {
             return (double.NaN, double.NaN);
+        }
 
         double max = double.MinValue;
         double min = double.MaxValue;
@@ -159,13 +171,23 @@ public sealed class Decaychannel : ITValuePublisher
         for (int i = 0; i < len; i++)
         {
             int idx = (int)((_index - i) % _period);
-            if (idx < 0) idx += _period;
+            if (idx < 0)
+            {
+                idx += _period;
+            }
 
             double h = _hBuf[idx];
             double l = _lBuf[idx];
 
-            if (h > max) max = h;
-            if (l < min) min = l;
+            if (h > max)
+            {
+                max = h;
+            }
+
+            if (l < min)
+            {
+                min = l;
+            }
         }
 
         return (max, min);
@@ -183,7 +205,9 @@ public sealed class Decaychannel : ITValuePublisher
             // Now advance to new bar
             _index++;
             if (_count < _period)
+            {
                 _count++;
+            }
         }
         else
         {
@@ -193,7 +217,9 @@ public sealed class Decaychannel : ITValuePublisher
             // Re-advance to current bar position (we're reprocessing current bar)
             _index++;
             if (_count < _period)
+            {
                 _count++;
+            }
         }
 
         int bufIdx = (int)(_index % _period);
@@ -286,7 +312,9 @@ public sealed class Decaychannel : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -329,7 +357,9 @@ public sealed class Decaychannel : ITValuePublisher
         Reset();
 
         if (source.Count == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -370,14 +400,25 @@ public sealed class Decaychannel : ITValuePublisher
         int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (high.Length != low.Length)
+        {
             throw new ArgumentException("High and Low spans must have the same length", nameof(high));
+        }
+
         if (middle.Length < high.Length || upper.Length < high.Length || lower.Length < high.Length)
+        {
             throw new ArgumentException("Output spans must be at least as long as inputs", nameof(middle));
+        }
 
         int len = high.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double decayLambda = Math.Log(2.0) / period;
 

@@ -77,7 +77,9 @@ public sealed class Afirma : AbstractBase
     public Afirma(int period, WindowType window = WindowType.BlackmanHarris, bool leastSquares = false)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be at least 1", nameof(period));
+        }
 
         _period = period;
         _window = window;
@@ -133,7 +135,10 @@ public sealed class Afirma : AbstractBase
     /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _buffer.Clear();
@@ -185,7 +190,10 @@ public sealed class Afirma : AbstractBase
         if (double.IsFinite(input))
         {
             if (updateState)
+            {
                 _state.LastValidValue = input;
+            }
+
             return input;
         }
         return _state.LastValidValue;
@@ -220,7 +228,10 @@ public sealed class Afirma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -244,7 +255,10 @@ public sealed class Afirma : AbstractBase
     private double CalculateAfirma()
     {
         int count = _buffer.Count;
-        if (count == 0) return double.NaN;
+        if (count == 0)
+        {
+            return double.NaN;
+        }
 
         double result;
 
@@ -367,9 +381,14 @@ public sealed class Afirma : AbstractBase
             double kTwoPiDivP = k * twoPiDivP;
             double coef = a0 + a1 * Math.Cos(kTwoPiDivP);
             if (Math.Abs(a2) > 1e-9)
+            {
                 coef += a2 * Math.Cos(2.0 * kTwoPiDivP);
+            }
+
             if (Math.Abs(a3) > 1e-9)
+            {
                 coef += a3 * Math.Cos(3.0 * kTwoPiDivP);
+            }
 
             _weights[k] = coef;
             wsum += coef;
@@ -394,12 +413,20 @@ public sealed class Afirma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, WindowType window = WindowType.BlackmanHarris, bool leastSquares = false)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be at least 1", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // If leastSquares is enabled, use standard Update loop via object or specialized loop.
         // Implementing LS efficiently in Batch/Span is complex because of regression in inner loop.
@@ -425,115 +452,144 @@ public sealed class Afirma : AbstractBase
 
         try
         {
-        // Pre-calculate weights (Static version of CalculateWeights)
-        // ... (Copy of weights calc logic)
-        double a0 = 0.35875, a1 = -0.48829, a2 = 0.14128, a3 = -0.01168;
-        if (window == WindowType.Hanning) { a0 = 0.50; a1 = -0.50; a2 = 0.0; a3 = 0.0; }
-        else if (window == WindowType.Hamming) { a0 = 0.54; a1 = -0.46; a2 = 0.0; a3 = 0.0; }
-        else if (window == WindowType.Blackman) { a0 = 0.42; a1 = -0.50; a2 = 0.08; a3 = 0.0; }
-        else if (window == WindowType.Rectangular) { a0 = 1.0; a1 = 0.0; a2 = 0.0; a3 = 0.0; }
+            // Pre-calculate weights (Static version of CalculateWeights)
+            // ... (Copy of weights calc logic)
+            double a0 = 0.35875, a1 = -0.48829, a2 = 0.14128, a3 = -0.01168;
+            if (window == WindowType.Hanning) { a0 = 0.50; a1 = -0.50; a2 = 0.0; a3 = 0.0; }
+            else if (window == WindowType.Hamming) { a0 = 0.54; a1 = -0.46; a2 = 0.0; a3 = 0.0; }
+            else if (window == WindowType.Blackman) { a0 = 0.42; a1 = -0.50; a2 = 0.08; a3 = 0.0; }
+            else if (window == WindowType.Rectangular) { a0 = 1.0; a1 = 0.0; a2 = 0.0; a3 = 0.0; }
 
-        double twoPiDivP = 2.0 * Math.PI / period;
-        for (int k = 0; k < period; k++)
-        {
-            double kTwoPiDivP = k * twoPiDivP;
-            double coef = a0 + a1 * Math.Cos(kTwoPiDivP);
-            if (Math.Abs(a2) > 1e-9) coef += a2 * Math.Cos(2.0 * kTwoPiDivP);
-            if (Math.Abs(a3) > 1e-9) coef += a3 * Math.Cos(3.0 * kTwoPiDivP);
-            weights[k] = coef;
-        }
-
-        double lastValid = double.NaN;
-        for (int k = 0; k < len; k++)
-            if (double.IsFinite(source[k])) { lastValid = source[k]; break; }
-
-        int bufferIndex = 0;
-        int bufferCount = 0;
-
-        for (int i = 0; i < len; i++)
-        {
-            double val = source[i];
-            if (double.IsFinite(val)) lastValid = val; else val = lastValid;
-
-            buffer[bufferIndex] = val;
-            bufferIndex = (bufferIndex + 1) % period;
-            if (bufferCount < period) bufferCount++;
-
-            // Base AFIRMA (WMA)
-            double result = 0.0;
-            double effectiveWeightSum = 0.0;
-            int readIndex = (bufferIndex - bufferCount + period) % period;
-
-            for (int k = 0; k < bufferCount; k++)
+            double twoPiDivP = 2.0 * Math.PI / period;
+            for (int k = 0; k < period; k++)
             {
-                // Match Streaming: weights[k] corresponds to Oldest + k
-                int idx = (readIndex + k) % period;
-                result = Math.FusedMultiplyAdd(buffer[idx], weights[k], result);
-                effectiveWeightSum += weights[k];
-            }
-            output[i] = effectiveWeightSum > 0 ? result / effectiveWeightSum : val;
-
-            // Least Squares Path
-            if (leastSquares && bufferCount > 2)
-            {
-                int n = Math.Min((bufferCount - 1) / 2, 50);
-                if (n >= 2)
+                double kTwoPiDivP = k * twoPiDivP;
+                double coef = a0 + a1 * Math.Cos(kTwoPiDivP);
+                if (Math.Abs(a2) > 1e-9)
                 {
-                    double sx = 0.0, sx2 = 0.0, sy = 0.0, sxy = 0.0;
-                    double dn = (double)n;
-                    sx = (dn - 1.0) * dn * 0.5;
-                    sx2 = (dn - 1.0) * dn * (2.0 * dn - 1.0) / 6.0;
+                    coef += a2 * Math.Cos(2.0 * kTwoPiDivP);
+                }
 
-                    for (int j = 0; j < n; j++)
+                if (Math.Abs(a3) > 1e-9)
+                {
+                    coef += a3 * Math.Cos(3.0 * kTwoPiDivP);
+                }
+
+                weights[k] = coef;
+            }
+
+            double lastValid = double.NaN;
+            for (int k = 0; k < len; k++)
+            {
+                if (double.IsFinite(source[k]))
+                {
+                    lastValid = source[k];
+                    break;
+                }
+            }
+
+            int bufferIndex = 0;
+            int bufferCount = 0;
+
+            for (int i = 0; i < len; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                {
+                    lastValid = val;
+                }
+                else
+                {
+                    val = lastValid;
+                }
+
+                buffer[bufferIndex] = val;
+                bufferIndex = (bufferIndex + 1) % period;
+                if (bufferCount < period)
+                {
+                    bufferCount++;
+                }
+
+                // Base AFIRMA (WMA)
+                double result = 0.0;
+                double effectiveWeightSum = 0.0;
+                int readIndex = (bufferIndex - bufferCount + period) % period;
+
+                for (int k = 0; k < bufferCount; k++)
+                {
+                    // Match Streaming: weights[k] corresponds to Oldest + k
+                    int idx = (readIndex + k) % period;
+                    result = Math.FusedMultiplyAdd(buffer[idx], weights[k], result);
+                    effectiveWeightSum += weights[k];
+                }
+                output[i] = effectiveWeightSum > 0 ? result / effectiveWeightSum : val;
+
+                // Least Squares Path
+                if (leastSquares && bufferCount > 2)
+                {
+                    int n = Math.Min((bufferCount - 1) / 2, 50);
+                    if (n >= 2)
                     {
-                        // lag j
-                        int idx = (readIndex + bufferCount - 1 - j + period) % period;
-                        double v = buffer[idx];
-                        sy += v;
-                        sxy += j * v;
-                    }
+                        double sx = 0.0, sx2 = 0.0, sy = 0.0, sxy = 0.0;
+                        double dn = (double)n;
+                        sx = (dn - 1.0) * dn * 0.5;
+                        sx2 = (dn - 1.0) * dn * (2.0 * dn - 1.0) / 6.0;
 
-                    double denom = dn * sx2 - sx * sx;
-                    if (Math.Abs(denom) > 1e-10)
-                    {
-                        double slope = (dn * sxy - sx * sy) / denom;
-                        double intercept = (sy - slope * sx) / dn;
-
-                        double lsSum = 0.0;
-                        double lsCount = 0.0;
-
-                        for (int j = 0; j < bufferCount; j++)
+                        for (int j = 0; j < n; j++)
                         {
-                             // lag j
-                            double v_ls;
-                            if (j < n)
-                            {
-                                v_ls = intercept + slope * j;
-                            }
-                            else
-                            {
-                                int idx = (readIndex + bufferCount - 1 - j + period) % period;
-                                v_ls = buffer[idx];
-                            }
-                            lsSum += v_ls;
-                            lsCount++;
+                            // lag j
+                            int idx = (readIndex + bufferCount - 1 - j + period) % period;
+                            double v = buffer[idx];
+                            sy += v;
+                            sxy += j * v;
                         }
-                        if (lsCount > 0)
+
+                        double denom = dn * sx2 - sx * sx;
+                        if (Math.Abs(denom) > 1e-10)
                         {
-                            output[i] = lsSum / lsCount;
+                            double slope = (dn * sxy - sx * sy) / denom;
+                            double intercept = (sy - slope * sx) / dn;
+
+                            double lsSum = 0.0;
+                            double lsCount = 0.0;
+
+                            for (int j = 0; j < bufferCount; j++)
+                            {
+                                // lag j
+                                double v_ls;
+                                if (j < n)
+                                {
+                                    v_ls = intercept + slope * j;
+                                }
+                                else
+                                {
+                                    int idx = (readIndex + bufferCount - 1 - j + period) % period;
+                                    v_ls = buffer[idx];
+                                }
+                                lsSum += v_ls;
+                                lsCount++;
+                            }
+                            if (lsCount > 0)
+                            {
+                                output[i] = lsSum / lsCount;
+                            }
                         }
                     }
                 }
             }
         }
-        }
         finally
         {
             // Return rented arrays to the pool
             if (rentedWeights != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedWeights);
+            }
+
             if (rentedBuffer != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedBuffer);
+            }
         }
     }
 

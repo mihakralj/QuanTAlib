@@ -258,12 +258,12 @@ public class JerkTests
     {
         var source = new TSeries();
         var jerk = new Jerk(source);
-        
+
         source.Add(new TValue(DateTime.UtcNow, 10));
         source.Add(new TValue(DateTime.UtcNow, 20));
         source.Add(new TValue(DateTime.UtcNow, 35));
         source.Add(new TValue(DateTime.UtcNow, 40));
-        
+
         Assert.True(jerk.IsHot);
         // jerk = 40 - 3*35 + 3*20 - 10 = 40 - 105 + 60 - 10 = -15
         Assert.Equal(-15, jerk.Last.Value);

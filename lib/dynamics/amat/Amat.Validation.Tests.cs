@@ -373,7 +373,7 @@ public sealed class AmatValidationTests : IDisposable
 
         double trendMatchRate = (double)trendMatchCount / totalCount;
         double strengthMatchRate = (double)strengthMatchCount / totalCount;
-        
+
         Assert.True(trendMatchRate > 0.95, $"Expected >95% trend match rate after warmup, got {trendMatchRate:P2}");
         Assert.True(strengthMatchRate > 0.95, $"Expected >95% strength match rate after warmup, got {strengthMatchRate:P2}");
 

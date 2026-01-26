@@ -46,20 +46,20 @@ public class VarianceTests
     {
         // Use simple known values for easier debugging
         var variance = new Variance(3);
-        
+
         // Add 3 values: 1, 2, 3
         variance.Update(new TValue(DateTime.UtcNow, 1), isNew: true);
         variance.Update(new TValue(DateTime.UtcNow, 2), isNew: true);
         var originalResult = variance.Update(new TValue(DateTime.UtcNow, 3), isNew: true);
-        
+
         double expectedVariance = originalResult.Value; // Variance of [1,2,3]
-        
+
         // Now correct the 3rd value to 10 (isNew=false)
         variance.Update(new TValue(DateTime.UtcNow, 10), isNew: false);
-        
+
         // Correct back to original value 3 (isNew=false)
         var restoredResult = variance.Update(new TValue(DateTime.UtcNow, 3), isNew: false);
-        
+
         // Should match original variance
         Assert.Equal(expectedVariance, restoredResult.Value, 1e-10);
     }
@@ -351,7 +351,10 @@ public class VarianceTests
         // Create large dataset to trigger SIMD path (>= 256)
         const int count = 1000;
         var data = new double[count];
-        for (int i = 0; i < count; i++) data[i] = (double)i;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = (double)i;
+        }
 
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
 

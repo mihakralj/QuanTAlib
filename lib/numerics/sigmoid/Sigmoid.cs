@@ -38,7 +38,9 @@ public sealed class Sigmoid : AbstractBase
     public Sigmoid(double k = 1.0, double x0 = 0.0)
     {
         if (k <= 0)
+        {
             throw new ArgumentException("Steepness (k) must be positive", nameof(k));
+        }
 
         _k = k;
         _x0 = x0;
@@ -65,8 +67,16 @@ public sealed class Sigmoid : AbstractBase
     {
         double exponent = -k * (x - x0);
         // Guard against overflow: exp(>709) overflows, exp(<-709) underflows to 0
-        if (exponent > 700) return 0.0;  // exp(-700) ≈ 0
-        if (exponent < -700) return 1.0; // 1/(1+0) = 1
+        if (exponent > 700)
+        {
+            return 0.0;  // exp(-700) ≈ 0
+        }
+
+        if (exponent < -700)
+        {
+            return 1.0; // 1/(1+0) = 1
+        }
+
         return 1.0 / (1.0 + Math.Exp(exponent));
     }
 
@@ -74,9 +84,13 @@ public sealed class Sigmoid : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = input.Value;
         double result;
@@ -134,11 +148,19 @@ public sealed class Sigmoid : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double k = 1.0, double x0 = 0.0)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (k <= 0)
+        {
             throw new ArgumentException("Steepness (k) must be positive", nameof(k));
+        }
 
         double lastValid = 0.5;  // Sigmoid(x0) = 0.5
         int i = 0;

@@ -149,7 +149,7 @@ public sealed class Hp : AbstractBase
         }
         else
         {
-             _state.Trend = currentTrend;
+            _state.Trend = currentTrend;
         }
 
         Last = new TValue(input.Time, currentTrend);
@@ -159,7 +159,10 @@ public sealed class Hp : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var resultValues = new double[source.Count];
         Calculate(source.Values, resultValues, Lambda);
@@ -203,7 +206,10 @@ public sealed class Hp : AbstractBase
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
         }
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double s = Math.Sqrt(lambda);
         double alpha = (s * 0.5 - 1.0) / (s * 0.5 + 1.0);

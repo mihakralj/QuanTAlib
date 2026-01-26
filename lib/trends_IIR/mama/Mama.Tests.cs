@@ -137,8 +137,15 @@ public class MamaTests
         // Case 2: Update in chunks
         var chunk1 = new TSeries();
         var chunk2 = new TSeries();
-        for (int i = 0; i < 25; i++) chunk1.Add(data[i]);
-        for (int i = 25; i < 50; i++) chunk2.Add(data[i]);
+        for (int i = 0; i < 25; i++)
+        {
+            chunk1.Add(data[i]);
+        }
+
+        for (int i = 25; i < 50; i++)
+        {
+            chunk2.Add(data[i]);
+        }
 
         mama2.Update(chunk1);
         var result2 = mama2.Update(chunk2);
@@ -239,7 +246,10 @@ public class MamaTests
         const int count = 100;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = gbm.Next().Close;
+        }
 
         var output = new double[count];
         Mama.Calculate(data, output);
@@ -309,7 +319,10 @@ public class MamaTests
     {
         var data = new double[60];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        for (int i = 0; i < 60; i++) data[i] = gbm.Next().Close;
+        for (int i = 0; i < 60; i++)
+        {
+            data[i] = gbm.Next().Close;
+        }
 
         // 1. Prime with all but last value
         var mamaPrimed = new Mama();
@@ -336,7 +349,10 @@ public class MamaTests
         int count = 100;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = gbm.Next().Close;
+        }
 
         var mamaOutput = new double[count];
         var famaOutput = new double[count];
@@ -357,7 +373,10 @@ public class MamaTests
         int count = 100;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = gbm.Next().Close;
+        }
 
         var output1 = new double[count];
         var output2 = new double[count];
@@ -394,7 +413,10 @@ public class MamaTests
         int count = 10;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = gbm.Next().Close;
+        }
 
         // Get values from span calculation
         var mamaOutput = new double[count];
@@ -418,7 +440,10 @@ public class MamaTests
         int count = 100;
         var data = new double[count];
         var gbm = new GBM(startPrice: 100, seed: 42);
-        for (int i = 0; i < count; i++) data[i] = gbm.Next().Close;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = gbm.Next().Close;
+        }
 
         // 1. Streaming Mode (instance method)
         var mama = new Mama();

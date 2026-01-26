@@ -34,7 +34,9 @@ public sealed class Roc : AbstractBase
     public Roc(int period = 9)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period + 1);
@@ -59,9 +61,13 @@ public sealed class Roc : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = double.IsFinite(input.Value) ? input.Value : _state.LastValid;
         _state = new State(value);
@@ -122,11 +128,19 @@ public sealed class Roc : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 9)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         for (int i = 0; i < source.Length; i++)
         {

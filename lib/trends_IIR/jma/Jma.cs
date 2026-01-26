@@ -63,17 +63,28 @@ public sealed class Jma : AbstractBase
     public Jma(int period, int phase = 0, double power = 0.45)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (!double.IsFinite(power))
+        {
             throw new ArgumentException("Power must be finite.", nameof(power));
+        }
 
         // --- Phase parameter: maps -100..100 -> 0.5..2.5 (Jurik convention) ---
         if (phase < -100)
+        {
             _phaseParam = 0.5;
+        }
         else if (phase > 100)
+        {
             _phaseParam = 2.5;
+        }
         else
+        {
             _phaseParam = (phase * 0.01) + 1.5;
+        }
 
         // --- Length / log / divider parameters (from decompiled JMA) ---
         // L_raw ~ (period - 1)/2, with a tiny lower bound to avoid log(0)
@@ -136,7 +147,10 @@ public sealed class Jma : AbstractBase
         if (!double.IsFinite(value))
         {
             if (_state.Bars == 0)
+            {
                 return double.NaN;
+            }
+
             value = _state.LastPrice;
         }
         else
@@ -146,7 +160,9 @@ public sealed class Jma : AbstractBase
 
         _state.Bars++;
         if (_state.Bars == 1)
+        {
             return InitializeFirstBar(value);
+        }
 
         return CalculateJma(value);
     }
@@ -215,8 +231,16 @@ public sealed class Jma : AbstractBase
     {
         double ratio = Math.Max(absValue / refVolatility, 0.0);
         double d = Math.Pow(ratio, _pExponent);
-        if (d > _logParam) d = _logParam;
-        if (d < 1.0) d = 1.0;
+        if (d > _logParam)
+        {
+            d = _logParam;
+        }
+
+        if (d < 1.0)
+        {
+            d = 1.0;
+        }
+
         return d;
     }
 
@@ -271,7 +295,10 @@ public sealed class Jma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -339,9 +366,14 @@ public sealed class Jma : AbstractBase
                                  double power = 0.45)
     {
         if (output.Length != source.Length)
+        {
             throw new ArgumentException("Source and output must have the same length.", nameof(output));
+        }
+
         if (source.Length == 0)
+        {
             return;
+        }
 
         var jma = new Jma(period, phase, power);
         for (int i = 0; i < source.Length; i++)
@@ -383,8 +415,15 @@ public sealed class Jma : AbstractBase
             end = drop + slice - 1;
         }
 
-        if (start < 0) start = 0;
-        if (end >= count) end = count - 1;
+        if (start < 0)
+        {
+            start = 0;
+        }
+
+        if (end >= count)
+        {
+            end = count - 1;
+        }
 
         int len = end - start + 1;
         return sorted.Slice(start, len).SumSIMD() / len;

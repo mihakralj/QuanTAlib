@@ -222,7 +222,9 @@ public class SigmoidValidationTests
         double[] source = new double[500];
         var rng = new Random(42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = rng.NextDouble() * 200 - 50;  // Range [-50, 150]
+        }
 
         // Span calculation
         double[] spanOutput = new double[source.Length];

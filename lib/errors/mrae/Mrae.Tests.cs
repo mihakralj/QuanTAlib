@@ -296,8 +296,15 @@ public class MraeTests
         var actual = new TSeries();
         var predicted = new TSeries();
 
-        for (int i = 1; i <= 10; i++) actual.Add(DateTime.UtcNow, i * 10);
-        for (int i = 1; i <= 5; i++) predicted.Add(DateTime.UtcNow, i * 10);
+        for (int i = 1; i <= 10; i++)
+        {
+            actual.Add(DateTime.UtcNow, i * 10);
+        }
+
+        for (int i = 1; i <= 5; i++)
+        {
+            predicted.Add(DateTime.UtcNow, i * 10);
+        }
 
         Assert.Throws<ArgumentException>(() => Mrae.Calculate(actual, predicted, 3));
     }

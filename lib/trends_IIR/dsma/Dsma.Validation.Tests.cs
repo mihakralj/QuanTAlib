@@ -58,7 +58,7 @@ public class DsmaValidationTests
         }
 
         // In higher volatility, absolute deviation should generally be larger
-        Assert.True(highVolDeviation > lowVolDeviation * 2, 
+        Assert.True(highVolDeviation > lowVolDeviation * 2,
             $"High volatility deviation {highVolDeviation:F2} should be significantly larger than low volatility {lowVolDeviation:F2}");
     }
 
@@ -96,7 +96,7 @@ public class DsmaValidationTests
         double avgHighLag = highScaleLag / count;
 
         // Lower scale factor should have higher average lag (smoother, less responsive)
-        Assert.True(avgLowLag > avgHighLag, 
+        Assert.True(avgLowLag > avgHighLag,
             $"Low scale lag {avgLowLag:F4} should be greater than high scale lag {avgHighLag:F4}");
     }
 
@@ -133,7 +133,7 @@ public class DsmaValidationTests
         double dsmaVariance = dsmaChanges.Average();
 
         // DSMA should have lower variance than raw price
-        Assert.True(dsmaVariance < priceVariance, 
+        Assert.True(dsmaVariance < priceVariance,
             $"DSMA variance {dsmaVariance:F4} should be less than price variance {priceVariance:F4}");
     }
 
@@ -199,7 +199,7 @@ public class DsmaValidationTests
 
         var gbm = new GBM(startPrice: 100.0, mu: 0.01, sigma: 0.2, seed: 654);
         var series = new TSeries();
-        
+
         for (int i = 0; i < 100; i++)
         {
             var bar = gbm.Next(isNew: true);
@@ -254,7 +254,7 @@ public class DsmaValidationTests
         double avgLongLag = longLag / count;
 
         // Longer period should have higher average lag (more smoothing)
-        Assert.True(avgLongLag > avgShortLag, 
+        Assert.True(avgLongLag > avgShortLag,
             $"Long period lag {avgLongLag:F4} should be greater than short period lag {avgShortLag:F4}");
     }
 
@@ -319,8 +319,15 @@ public class DsmaValidationTests
 
         for (int i = 1; i < prices.Count; i++)
         {
-            if (prices[i] > prices[i - 1]) priceUpCount++;
-            if (dsmaValues[i] > dsmaValues[i - 1]) dsmaUpCount++;
+            if (prices[i] > prices[i - 1])
+            {
+                priceUpCount++;
+            }
+
+            if (dsmaValues[i] > dsmaValues[i - 1])
+            {
+                dsmaUpCount++;
+            }
         }
 
         // DSMA should have similar directional trend but smoother

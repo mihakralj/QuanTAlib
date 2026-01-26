@@ -51,7 +51,9 @@ public sealed class TrimaIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         if (args.Reason != UpdateReason.NewBar && args.Reason != UpdateReason.HistoricalBar && args.Reason != UpdateReason.NewTick)
+        {
             return;
+        }
 
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
         TValue result = _ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), args.IsNewBar());

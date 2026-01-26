@@ -34,7 +34,9 @@ public sealed class Rsi : AbstractBase
     public Rsi(int period = 14)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _avgGain = new Rma(period);
@@ -117,7 +119,10 @@ public sealed class Rsi : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -169,12 +174,20 @@ public sealed class Rsi : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double[] gains = System.Buffers.ArrayPool<double>.Shared.Rent(len);
         double[] losses = System.Buffers.ArrayPool<double>.Shared.Rent(len);

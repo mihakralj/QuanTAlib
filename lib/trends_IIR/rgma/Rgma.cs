@@ -111,7 +111,10 @@ public sealed class Rgma : AbstractBase
     /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         _state = State.New();
         _p_state = State.New();
@@ -172,9 +175,14 @@ public sealed class Rgma : AbstractBase
         finally
         {
             if (filtersRented != null)
+            {
                 ArrayPool<double>.Shared.Return(filtersRented);
+            }
+
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 
@@ -189,7 +197,9 @@ public sealed class Rgma : AbstractBase
             if (_passes <= 8)
             {
                 for (int i = 0; i < _passes; i++)
+                {
                     _p_filters[i] = _filters[i];
+                }
             }
             else
             {
@@ -203,7 +213,9 @@ public sealed class Rgma : AbstractBase
             if (_passes <= 8)
             {
                 for (int i = 0; i < _passes; i++)
+                {
                     _filters[i] = _p_filters[i];
+                }
             }
             else
             {
@@ -222,7 +234,10 @@ public sealed class Rgma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -263,22 +278,31 @@ public sealed class Rgma : AbstractBase
             state.TickCount = 1;
             state.E *= decay;
             if (state.E <= COVERAGE_THRESHOLD)
+            {
                 state.IsHot = true;
+            }
+
             return input;
         }
 
         // Stage 0
         filters[0] = Math.FusedMultiplyAdd(alpha, input - filters[0], filters[0]);
         for (int i = 1; i < filters.Length; i++)
+        {
             filters[i] = Math.FusedMultiplyAdd(alpha, filters[i - 1] - filters[i], filters[i]);
+        }
 
         state.TickCount++;
         state.E *= decay;
         if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+        {
             state.IsHot = true;
+        }
 
         if (state.TickCount >= ResyncInterval)
+        {
             state.TickCount = 0;
+        }
 
         return filters[^1];
     }
@@ -298,9 +322,13 @@ public sealed class Rgma : AbstractBase
         {
             double x = source[i];
             if (double.IsFinite(x))
+            {
                 lastValid = x;
+            }
             else
+            {
                 x = lastValid;
+            }
 
             double y;
             if (!state.IsInitialized)
@@ -310,22 +338,31 @@ public sealed class Rgma : AbstractBase
                 state.TickCount = 1;
                 state.E *= decay;
                 if (state.E <= COVERAGE_THRESHOLD)
+                {
                     state.IsHot = true;
+                }
+
                 y = x;
             }
             else
             {
                 filters[0] = Math.FusedMultiplyAdd(alpha, x - filters[0], filters[0]);
                 for (int p = 1; p < filters.Length; p++)
+                {
                     filters[p] = Math.FusedMultiplyAdd(alpha, filters[p - 1] - filters[p], filters[p]);
+                }
 
                 state.TickCount++;
                 state.E *= decay;
                 if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+                {
                     state.IsHot = true;
+                }
 
                 if (state.TickCount >= ResyncInterval)
+                {
                     state.TickCount = 0;
+                }
 
                 y = filters[^1];
             }
@@ -361,13 +398,24 @@ public sealed class Rgma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, int passes = 3)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (passes <= 0)
-            throw new ArgumentException("Passes must be greater than 0", nameof(passes));
-        if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (passes <= 0)
+        {
+            throw new ArgumentException("Passes must be greater than 0", nameof(passes));
+        }
+
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double alpha = 2.0 / (period / Math.Sqrt(passes) + 1.0);
         double decay = 1.0 - alpha;
@@ -405,7 +453,9 @@ public sealed class Rgma : AbstractBase
         finally
         {
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 

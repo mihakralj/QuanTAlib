@@ -72,9 +72,14 @@ public sealed class Maenv : ITValuePublisher
     public Maenv(int period = 20, double percentage = 1.0, MaenvType maType = MaenvType.EMA)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (percentage <= 0.0)
+        {
             throw new ArgumentOutOfRangeException(nameof(percentage), "Percentage must be > 0.");
+        }
 
         _period = period;
         _percentage = percentage;
@@ -142,7 +147,10 @@ public sealed class Maenv : ITValuePublisher
         if (double.IsFinite(value))
         {
             if (isNew)
+            {
                 _state = _state with { LastValid = value };
+            }
+
             return value;
         }
         return _state.LastValid;
@@ -159,23 +167,35 @@ public sealed class Maenv : ITValuePublisher
         {
             _p_state = _state;
             if (_smaBuffer != null && _p_smaBuffer != null)
+            {
                 Array.Copy(_smaBuffer, _p_smaBuffer, _period);
+            }
+
             if (_wmaBuffer != null && _p_wmaBuffer != null)
+            {
                 Array.Copy(_wmaBuffer, _p_wmaBuffer, _period);
+            }
         }
         else
         {
             _state = _p_state;
             if (_smaBuffer != null && _p_smaBuffer != null)
+            {
                 Array.Copy(_p_smaBuffer, _smaBuffer, _period);
+            }
+
             if (_wmaBuffer != null && _p_wmaBuffer != null)
+            {
                 Array.Copy(_p_wmaBuffer, _wmaBuffer, _period);
+            }
         }
 
         double value = GetValid(input.Value, isNew);
 
         if (isNew)
+        {
             _state = _state with { Bars = _state.Bars + 1 };
+        }
 
         double middle = _maType switch
         {
@@ -190,7 +210,9 @@ public sealed class Maenv : ITValuePublisher
         double lower = middle - dist;
 
         if (!_state.IsHot && _state.Bars >= WarmupPeriod)
+        {
             _state = _state with { IsHot = true };
+        }
 
         Last = new TValue(input.Time, middle);
         Upper = new TValue(input.Time, upper);
@@ -203,7 +225,9 @@ public sealed class Maenv : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -249,7 +273,10 @@ public sealed class Maenv : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateSMA(double value, bool isNew)
     {
-        if (_smaBuffer == null) return value;
+        if (_smaBuffer == null)
+        {
+            return value;
+        }
 
         // Calculate new count (always increment if not full, for both isNew cases)
         int currentCount = _state.SmaCount;
@@ -323,7 +350,10 @@ public sealed class Maenv : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double CalculateWMA(double value, bool isNew)
     {
-        if (_wmaBuffer == null) return value;
+        if (_wmaBuffer == null)
+        {
+            return value;
+        }
 
         // Calculate count for this bar (always increment if not full, for both isNew cases)
         int currentCount = _state.WmaCount;
@@ -334,13 +364,17 @@ public sealed class Maenv : ITValuePublisher
         if (calcCount > 1)
         {
             for (int i = _period - 1; i > 0; i--)
+            {
                 _wmaBuffer[i] = _wmaBuffer[i - 1];
+            }
         }
         _wmaBuffer[0] = value;
 
         // Persist state only for isNew=true
         if (isNew)
+        {
             _state = _state with { WmaCount = calcCount };
+        }
 
         // Calculate WMA
         double norm = 0.0;
@@ -361,7 +395,9 @@ public sealed class Maenv : ITValuePublisher
         Reset();
 
         if (source.Count == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -386,14 +422,25 @@ public sealed class Maenv : ITValuePublisher
         MaenvType maType = MaenvType.EMA)
     {
         if (period < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 1.");
+        }
+
         if (percentage <= 0.0)
+        {
             throw new ArgumentOutOfRangeException(nameof(percentage), "Percentage must be > 0.");
+        }
+
         if (middle.Length < source.Length || upper.Length < source.Length || lower.Length < source.Length)
+        {
             throw new ArgumentException("Output spans must be at least as long as input", nameof(middle));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         switch (maType)
         {

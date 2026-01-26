@@ -78,8 +78,8 @@ public sealed class Jerk : AbstractBase
 
             if (_state.Count >= 3)
             {
-            // jerk = val - 3*prev1 + 3*prev2 - prev3
-            // Using FMA: val - 3*prev1 + 3*prev2 - prev3
+                // jerk = val - 3*prev1 + 3*prev2 - prev3
+                // Using FMA: val - 3*prev1 + 3*prev2 - prev3
                 // = FMA(-3, prev1, val) + FMA(3, prev2, -prev3)
                 double term1 = Math.FusedMultiplyAdd(-3.0, _state.Prev1, val);
                 double term2 = Math.FusedMultiplyAdd(3.0, _state.Prev2, -_state.Prev3);
@@ -127,7 +127,10 @@ public sealed class Jerk : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
 
@@ -211,18 +214,34 @@ public sealed class Jerk : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // First three elements have insufficient history
         output[0] = 0.0;
-        if (len == 1) return;
+        if (len == 1)
+        {
+            return;
+        }
+
         output[1] = 0.0;
-        if (len == 2) return;
+        if (len == 2)
+        {
+            return;
+        }
+
         output[2] = 0.0;
-        if (len == 3) return;
+        if (len == 3)
+        {
+            return;
+        }
 
         int i = 3;
 
@@ -339,10 +358,25 @@ public sealed class Jerk : AbstractBase
 
             // Handle NaN/Infinity by substitution (find first finite value)
             double fallback = FindFinite(curr, p1, p2, p3);
-            if (!double.IsFinite(curr)) curr = fallback;
-            if (!double.IsFinite(p1)) p1 = fallback;
-            if (!double.IsFinite(p2)) p2 = fallback;
-            if (!double.IsFinite(p3)) p3 = fallback;
+            if (!double.IsFinite(curr))
+            {
+                curr = fallback;
+            }
+
+            if (!double.IsFinite(p1))
+            {
+                p1 = fallback;
+            }
+
+            if (!double.IsFinite(p2))
+            {
+                p2 = fallback;
+            }
+
+            if (!double.IsFinite(p3))
+            {
+                p3 = fallback;
+            }
 
             // jerk = curr - 3*prev1 + 3*prev2 - prev3
             double term1 = Math.FusedMultiplyAdd(-3.0, p1, curr);
@@ -354,10 +388,26 @@ public sealed class Jerk : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double FindFinite(double a, double b, double c, double d)
     {
-        if (double.IsFinite(a)) return a;
-        if (double.IsFinite(b)) return b;
-        if (double.IsFinite(c)) return c;
-        if (double.IsFinite(d)) return d;
+        if (double.IsFinite(a))
+        {
+            return a;
+        }
+
+        if (double.IsFinite(b))
+        {
+            return b;
+        }
+
+        if (double.IsFinite(c))
+        {
+            return c;
+        }
+
+        if (double.IsFinite(d))
+        {
+            return d;
+        }
+
         return 0.0;
     }
 }

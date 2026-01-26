@@ -129,9 +129,13 @@ public sealed class Sgf : AbstractBase
             }
 
             if (wSum > double.Epsilon)
+            {
                 result /= wSum;
+            }
             else
+            {
                 result = input.Value;
+            }
         }
         else
         {
@@ -166,7 +170,10 @@ public sealed class Sgf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var resultValues = new double[source.Count];
         Calculate(source.Values, resultValues, _period, _polyOrder);

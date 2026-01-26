@@ -109,7 +109,10 @@ public sealed class AoValidationTests : IDisposable
         for (int i = 0; i < _data.Bars.Count; i++)
         {
             // Ooples might return 0 for warmup
-            if (i < 33) continue; // Skip warmup
+            if (i < 33)
+            {
+                continue; // Skip warmup
+            }
 
             Assert.Equal(oValues[i], results[i], ValidationHelper.OoplesTolerance);
         }

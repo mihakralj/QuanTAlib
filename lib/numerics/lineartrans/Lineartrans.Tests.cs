@@ -172,7 +172,9 @@ public class LineartransTests
         var time = DateTime.UtcNow;
 
         for (int i = 0; i < 5; i++)
+        {
             series.Add(new TValue(time.AddSeconds(i), i * 10.0), true);
+        }
 
         var result = linear.Update(series);
 
@@ -191,7 +193,9 @@ public class LineartransTests
         var time = DateTime.UtcNow;
 
         for (int i = 0; i < 3; i++)
+        {
             series.Add(new TValue(time.AddSeconds(i), 10.0 * (i + 1)), true);
+        }
 
         var result = Lineartrans.Calculate(series, slope: 0.5, intercept: 5.0);
 
@@ -257,7 +261,9 @@ public class LineartransTests
         var streamIndicator = new Lineartrans(slope, intercept);
         var streamResult = new TSeries();
         for (int i = 0; i < series.Count; i++)
+        {
             streamResult.Add(streamIndicator.Update(series[i], true), true);
+        }
 
         // Span
         var spanOutput = new double[series.Count];

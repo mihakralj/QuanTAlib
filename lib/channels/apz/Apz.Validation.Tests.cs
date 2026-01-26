@@ -378,9 +378,14 @@ public sealed class ApzValidationTests : IDisposable
             apzResults.Add(apz.Last.Value);
 
             if (emaResults.Count == 0)
+            {
                 ema = bar.Close;
+            }
             else
+            {
                 ema = alpha * bar.Close + (1 - alpha) * ema;
+            }
+
             emaResults.Add(ema);
         }
 

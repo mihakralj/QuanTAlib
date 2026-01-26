@@ -58,11 +58,19 @@ public sealed class Apo : ITValuePublisher
     public Apo(int fastPeriod = 12, int slowPeriod = 26)
     {
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         _emaFast = new Ema(fastPeriod);
         _emaSlow = new Ema(slowPeriod);
@@ -174,7 +182,9 @@ public sealed class Apo : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of the same length.", nameof(output));
+        }
 
         Span<double> fastEma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
         Span<double> slowEma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];

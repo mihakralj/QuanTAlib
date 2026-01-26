@@ -43,7 +43,10 @@ public class MidpointIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_midpoint == null || _selector == null) return;
+        if (_midpoint == null || _selector == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);

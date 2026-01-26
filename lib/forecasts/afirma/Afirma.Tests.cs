@@ -438,7 +438,9 @@ public class AfirmaTests
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         // Warm up
         Afirma.Batch(source.AsSpan(), output.AsSpan(), 10);
@@ -567,7 +569,10 @@ public class AfirmaTests
     public void Afirma_Calculate_ReturnsCorrectResultsAndHotIndicator()
     {
         var series = new TSeries();
-        for (int i = 1; i <= 10; i++) series.Add(DateTime.UtcNow, i * 10);
+        for (int i = 1; i <= 10; i++)
+        {
+            series.Add(DateTime.UtcNow, i * 10);
+        }
 
         var (results, indicator) = Afirma.Calculate(series, 5);
 

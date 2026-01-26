@@ -24,7 +24,11 @@ public class GaussValidationTests : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
         {
             _testData?.Dispose();
@@ -96,9 +100,13 @@ public class GaussValidationTests : IDisposable
             }
 
             if (wSum > 0)
+            {
                 result[i] = val / wSum;
+            }
             else
+            {
                 result[i] = source[i]; // Fallback if no weights applied (shouldn't happen with valid sigma)
+            }
         }
 
         return result;

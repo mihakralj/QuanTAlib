@@ -20,7 +20,8 @@ public class BpfValidationTests
         double[] sine15 = new double[T];  // Period 15 (Inside band, 10 < P < 40). Should pass.
         double[] sine100 = new double[T]; // Period 100 (Too slow, should be blocked by HP(40)). HP(40) passes P < 40.
 
-        for (int i = 0; i < T; i++) {
+        for (int i = 0; i < T; i++)
+        {
             sine5[i] = Math.Sin(2 * Math.PI * i / 5.0);
             sine15[i] = Math.Sin(2 * Math.PI * i / 15.0);
             sine100[i] = Math.Sin(2 * Math.PI * i / 100.0);

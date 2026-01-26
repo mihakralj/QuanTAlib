@@ -34,7 +34,9 @@ public sealed class Change : AbstractBase
     public Change(int period = 1)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period + 1);
@@ -59,9 +61,13 @@ public sealed class Change : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = double.IsFinite(input.Value) ? input.Value : _state.LastValid;
         _state = new State(value);
@@ -122,11 +128,19 @@ public sealed class Change : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 1)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         // Use ArrayPool for large periods to track past valid values
         const int StackAllocThreshold = 256;
@@ -184,7 +198,9 @@ public sealed class Change : AbstractBase
         finally
         {
             if (pastValidRented != null)
+            {
                 System.Buffers.ArrayPool<double>.Shared.Return(pastValidRented);
+            }
         }
     }
 

@@ -46,9 +46,13 @@ public sealed class Sqrttrans : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = input.Value;
         double result;
@@ -107,9 +111,14 @@ public sealed class Sqrttrans : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
 
         double lastValid = 0.0;  // sqrt(0) = 0
 

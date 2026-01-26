@@ -113,7 +113,11 @@ public sealed class Stc : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double Clamp100(double x)
     {
-        if (double.IsNaN(x)) return x;
+        if (double.IsNaN(x))
+        {
+            return x;
+        }
+
         return Math.Clamp(x, 0, 100);
     }
 
@@ -139,9 +143,19 @@ public sealed class Stc : AbstractBase
                 break;
 
             case StcSmoothing.Digital:
-                if (stoch2Raw > 75) stc = 100;
-                else if (stoch2Raw < 25) stc = 0;
-                else stc = double.IsNaN(prevStc) ? stoch2Raw : prevStc;
+                if (stoch2Raw > 75)
+                {
+                    stc = 100;
+                }
+                else if (stoch2Raw < 25)
+                {
+                    stc = 0;
+                }
+                else
+                {
+                    stc = double.IsNaN(prevStc) ? stoch2Raw : prevStc;
+                }
+
                 break;
 
             default: // Includes StcSmoothing.None
@@ -159,26 +173,48 @@ public sealed class Stc : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool UpdateMinMaxCore(double added, double removed, bool hasRemoved, ref double min, ref double max)
     {
-        if (double.IsNaN(added)) return false;
+        if (double.IsNaN(added))
+        {
+            return false;
+        }
 
         bool expandMin = added < min;
         bool expandMax = added > max;
 
         if (!hasRemoved)
         {
-            if (expandMin) min = added;
-            if (expandMax) max = added;
+            if (expandMin)
+            {
+                min = added;
+            }
+
+            if (expandMax)
+            {
+                max = added;
+            }
+
             return false;
         }
 
         // Use relative tolerance for floating-point comparison
         double tolerance = Math.Max(Math.Abs(min), Math.Abs(max)) * 1e-12;
-        if (tolerance < 1e-15) tolerance = 1e-15; // minimum absolute tolerance
+        if (tolerance < 1e-15)
+        {
+            tolerance = 1e-15; // minimum absolute tolerance
+        }
+
         bool removedMin = Math.Abs(removed - min) <= tolerance;
         bool removedMax = Math.Abs(removed - max) <= tolerance;
 
-        if (expandMin) min = added;
-        if (expandMax) max = added;
+        if (expandMin)
+        {
+            min = added;
+        }
+
+        if (expandMax)
+        {
+            max = added;
+        }
 
         return (removedMin && !expandMin) || (removedMax && !expandMax);
     }
@@ -193,9 +229,20 @@ public sealed class Stc : AbstractBase
         max = double.NegativeInfinity;
         foreach (double v in span)
         {
-            if (double.IsNaN(v)) continue;
-            if (v < min) min = v;
-            if (v > max) max = v;
+            if (double.IsNaN(v))
+            {
+                continue;
+            }
+
+            if (v < min)
+            {
+                min = v;
+            }
+
+            if (v > max)
+            {
+                max = v;
+            }
         }
     }
 
@@ -225,8 +272,14 @@ public sealed class Stc : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         _isNew = isNew;
-        if (isNew) _ps = _s;
-        else _s = _ps;
+        if (isNew)
+        {
+            _ps = _s;
+        }
+        else
+        {
+            _s = _ps;
+        }
 
         var s = _s;
 
@@ -276,9 +329,13 @@ public sealed class Stc : AbstractBase
         {
             double span = s.MacdMax - s.MacdMin;
             if (span > double.Epsilon)
+            {
                 stoch1Raw = 100.0 * (macd - s.MacdMin) / span;
+            }
             else
+            {
                 stoch1Raw = double.IsNaN(s.Stoch1Ema) ? 50.0 : s.Stoch1Ema;
+            }
 
             stoch1Raw = Clamp100(stoch1Raw);
         }
@@ -322,9 +379,13 @@ public sealed class Stc : AbstractBase
         {
             double span = s.Stoch1Max - s.Stoch1Min;
             if (span > double.Epsilon)
+            {
                 stoch2Raw = 100.0 * (stoch1 - s.Stoch1Min) / span;
+            }
             else
+            {
                 stoch2Raw = double.IsNaN(s.Stoch2Ema) ? stoch1 : s.Stoch2Ema;
+            }
 
             stoch2Raw = Clamp100(stoch2Raw);
         }
@@ -340,7 +401,10 @@ public sealed class Stc : AbstractBase
             stc = ApplySmoothing(stoch2Raw, _smoothing, _dAlpha, ref s.Stoch2Ema, ref s.PrevStc);
         }
 
-        if (isNew) _samples++;
+        if (isNew)
+        {
+            _samples++;
+        }
 
         _s = s;
         Last = new TValue(input.Time, stc);
@@ -352,14 +416,19 @@ public sealed class Stc : AbstractBase
     {
         var result = new TSeries();
         foreach (var item in source)
+        {
             result.Add(Update(item, isNew: true));
+        }
+
         return result;
     }
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         foreach (double v in source)
+        {
             Update(new TValue(DateTime.MinValue, v), isNew: true);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -389,7 +458,9 @@ public sealed class Stc : AbstractBase
         int kPeriod = 10, int dPeriod = 3, int fastLength = 23, int slowLength = 50, StcSmoothing smoothing = StcSmoothing.Ema)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
+        }
 
         double fastAlpha = 2.0 / (fastLength + 1.0);
         double slowAlpha = 2.0 / (slowLength + 1.0);
@@ -465,7 +536,10 @@ public sealed class Stc : AbstractBase
                 double macdRemoved = macdBuf[macdIdx];
                 macdBuf[macdIdx] = macd;
                 macdIdx = (macdIdx + 1) % kPeriod;
-                if (!macdHasRemoved) macdCount++;
+                if (!macdHasRemoved)
+                {
+                    macdCount++;
+                }
 
                 ReadOnlySpan<double> macdValidSpan = macdBuf.Slice(0, macdCount);
                 UpdateMinMax(macd, macdRemoved, macdHasRemoved, macdValidSpan, ref macdMin, ref macdMax);
@@ -476,9 +550,13 @@ public sealed class Stc : AbstractBase
                 {
                     double span = macdMax - macdMin;
                     if (span > double.Epsilon)
+                    {
                         stoch1Raw = 100.0 * (macd - macdMin) / span;
+                    }
                     else
+                    {
                         stoch1Raw = double.IsNaN(stoch1Ema) ? 50.0 : stoch1Ema;
+                    }
 
                     stoch1Raw = Clamp100(stoch1Raw);
                 }
@@ -505,7 +583,10 @@ public sealed class Stc : AbstractBase
                     double stochRemoved = stoch1Buf[stoch1Idx];
                     stoch1Buf[stoch1Idx] = stoch1;
                     stoch1Idx = (stoch1Idx + 1) % kPeriod;
-                    if (!stochHasRemoved) stoch1Count++;
+                    if (!stochHasRemoved)
+                    {
+                        stoch1Count++;
+                    }
 
                     ReadOnlySpan<double> stochValidSpan = stoch1Buf.Slice(0, stoch1Count);
                     UpdateMinMax(stoch1, stochRemoved, stochHasRemoved, stochValidSpan, ref stoch1Min, ref stoch1Max);
@@ -517,9 +598,13 @@ public sealed class Stc : AbstractBase
                 {
                     double span = stoch1Max - stoch1Min;
                     if (span > double.Epsilon)
+                    {
                         stoch2Raw = 100.0 * (stoch1 - stoch1Min) / span;
+                    }
                     else
+                    {
                         stoch2Raw = double.IsNaN(stoch2Ema) ? stoch1 : stoch2Ema;
+                    }
 
                     stoch2Raw = Clamp100(stoch2Raw);
                 }
@@ -541,9 +626,14 @@ public sealed class Stc : AbstractBase
         finally
         {
             if (rentedMacd != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedMacd);
+            }
+
             if (rentedStoch1 != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedStoch1);
+            }
         }
     }
 }

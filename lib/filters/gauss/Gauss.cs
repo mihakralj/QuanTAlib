@@ -148,9 +148,13 @@ public sealed class Gauss : AbstractBase
             }
 
             if (wSum > 0)
+            {
                 result /= wSum;
+            }
             else
+            {
                 result = input.Value;
+            }
         }
         else
         {
@@ -187,7 +191,10 @@ public sealed class Gauss : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         // Calculate using static method for performance
         var resultValues = new double[source.Count];
@@ -294,9 +301,13 @@ public sealed class Gauss : AbstractBase
             }
 
             if (wSum > 0)
+            {
                 output[i] = result / wSum;
+            }
             else
+            {
                 output[i] = double.NaN;
+            }
         }
     }
 

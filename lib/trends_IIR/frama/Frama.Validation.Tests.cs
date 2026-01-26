@@ -110,18 +110,39 @@ public class FramaValidationTests
                     lv = lastLow;
                 }
 
-                if (hv > maxFull) maxFull = hv;
-                if (lv < minFull) minFull = lv;
+                if (hv > maxFull)
+                {
+                    maxFull = hv;
+                }
+
+                if (lv < minFull)
+                {
+                    minFull = lv;
+                }
 
                 if (j >= startRecent)
                 {
-                    if (hv > maxRecent) maxRecent = hv;
-                    if (lv < minRecent) minRecent = lv;
+                    if (hv > maxRecent)
+                    {
+                        maxRecent = hv;
+                    }
+
+                    if (lv < minRecent)
+                    {
+                        minRecent = lv;
+                    }
                 }
                 else
                 {
-                    if (hv > maxPrev) maxPrev = hv;
-                    if (lv < minPrev) minPrev = lv;
+                    if (hv > maxPrev)
+                    {
+                        maxPrev = hv;
+                    }
+
+                    if (lv < minPrev)
+                    {
+                        minPrev = lv;
+                    }
                 }
             }
 
@@ -134,8 +155,15 @@ public class FramaValidationTests
             {
                 double dimen = (Math.Log(n1 + n2) - Math.Log(n3)) / 0.693147180559945309417232121458176568;
                 alpha = Math.Exp(-4.6 * (dimen - 1.0));
-                if (alpha < 0.01) alpha = 0.01;
-                if (alpha > 1.0) alpha = 1.0;
+                if (alpha < 0.01)
+                {
+                    alpha = 0.01;
+                }
+
+                if (alpha > 1.0)
+                {
+                    alpha = 1.0;
+                }
             }
 
             double price = (highVal + lowVal) * 0.5;

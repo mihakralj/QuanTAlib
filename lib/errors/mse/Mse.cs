@@ -61,7 +61,10 @@ public sealed class Mse : BiInputIndicatorBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         ValidateBatchInputs(actual, predicted, output, period);
-        if (actual.Length == 0) return;
+        if (actual.Length == 0)
+        {
+            return;
+        }
 
         // Allocate temporary buffer for squared errors
         const int StackAllocThreshold = 256;

@@ -33,7 +33,10 @@ public sealed class Vel : ITValuePublisher, IDisposable
 
     public Vel(int period)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _pwma = new Pwma(period);
         _wma = new Wma(period);
@@ -55,7 +58,9 @@ public sealed class Vel : ITValuePublisher, IDisposable
     public void Dispose()
     {
         if (_disposed)
+        {
             return;
+        }
 
         _disposed = true;
 
@@ -85,7 +90,9 @@ public sealed class Vel : ITValuePublisher, IDisposable
     {
         int len = source.Count;
         if (len == 0)
+        {
             return [];
+        }
 
         var t = new List<long>(len);
         var v = new List<double>(len);
@@ -115,7 +122,9 @@ public sealed class Vel : ITValuePublisher, IDisposable
     {
         int len = source.Count;
         if (len == 0)
+        {
             return [];
+        }
 
         var t = new List<long>(len);
         var v = new List<double>(len);
@@ -135,7 +144,9 @@ public sealed class Vel : ITValuePublisher, IDisposable
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         Span<double> pwma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
         Span<double> wma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];

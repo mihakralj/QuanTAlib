@@ -52,7 +52,9 @@ public abstract class BiInputIndicatorBase : AbstractBase
     protected BiInputIndicatorBase(int period, string name)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _buffer = new RingBuffer(period);
         Name = name;
@@ -176,9 +178,13 @@ public abstract class BiInputIndicatorBase : AbstractBase
         double error = ComputeError(actualVal, predictedVal);
 
         if (isNew)
+        {
             ProcessNewBar(error);
+        }
         else
+        {
             ProcessBarCorrection(error);
+        }
 
         double mean = _buffer.Count > 0 ? _state.Sum / _buffer.Count : error;
         double result = PostProcess(mean);
@@ -248,7 +254,9 @@ public abstract class BiInputIndicatorBase : AbstractBase
         BiInputBatchDelegate batchMethod)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -276,8 +284,13 @@ public abstract class BiInputIndicatorBase : AbstractBase
         int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
     }
 }

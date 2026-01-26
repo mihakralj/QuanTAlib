@@ -100,7 +100,9 @@ public sealed class Bessel : AbstractBase
     public Bessel(int length)
     {
         if (length < 2)
+        {
             throw new ArgumentException("Length must be at least 2 for 2nd-order Bessel filter", nameof(length));
+        }
 
         double a = Math.Exp(-Math.PI / length);
         double b = 2.0 * a * Math.Cos(1.738 * Math.PI / length);
@@ -171,7 +173,9 @@ public sealed class Bessel : AbstractBase
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
         if (source.Length == 0)
+        {
             return;
+        }
 
         Reset();
 
@@ -209,9 +213,13 @@ public sealed class Bessel : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 _state.LastValidValue = val;
+            }
             else
+            {
                 val = _state.LastValidValue;
+            }
 
             _state.F2 = _state.F1;
             _state.F1 = val;
@@ -223,9 +231,13 @@ public sealed class Bessel : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 _state.LastValidValue = val;
+            }
             else
+            {
                 val = _state.LastValidValue;
+            }
 
             double filt = Math.FusedMultiplyAdd(_c3, _state.F2,
                 Math.FusedMultiplyAdd(_c2, _state.F1, _c1 * val));
@@ -236,7 +248,9 @@ public sealed class Bessel : AbstractBase
         }
 
         if (_state.Count >= WarmupPeriod)
+        {
             _state.IsHot = true;
+        }
 
         Last = new TValue(DateTime.MinValue, _state.F1);
 
@@ -310,7 +324,9 @@ public sealed class Bessel : AbstractBase
         }
 
         if (!_state.IsHot && _state.Count >= WarmupPeriod)
+        {
             _state.IsHot = true;
+        }
 
         Last = new TValue(input.Time, filt);
         PubEvent(Last);
@@ -330,7 +346,9 @@ public sealed class Bessel : AbstractBase
     public override TSeries Update(TSeries source)
     {
         if (source.Count == 0)
+        {
             return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -404,9 +422,13 @@ public sealed class Bessel : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 state.LastValidValue = val;
+            }
             else
+            {
                 val = state.LastValidValue;
+            }
 
             state.F2 = state.F1;
             state.F1 = val;
@@ -419,9 +441,13 @@ public sealed class Bessel : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 state.LastValidValue = val;
+            }
             else
+            {
                 val = state.LastValidValue;
+            }
 
             double filt = Math.FusedMultiplyAdd(c3, state.F2,
                 Math.FusedMultiplyAdd(c2, state.F1, c1 * val));
@@ -433,7 +459,9 @@ public sealed class Bessel : AbstractBase
         }
 
         if (!state.IsHot && state.Count >= warmupPeriod)
+        {
             state.IsHot = true;
+        }
     }
 
     /// <summary>
@@ -479,13 +507,19 @@ public sealed class Bessel : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int length)
     {
         if (length < 2)
+        {
             throw new ArgumentException("Length must be at least 2 for 2nd-order Bessel filter", nameof(length));
+        }
 
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         if (source.Length == 0)
+        {
             return;
+        }
 
         double a = Math.Exp(-Math.PI / length);
         double b = 2.0 * a * Math.Cos(1.738 * Math.PI / length);

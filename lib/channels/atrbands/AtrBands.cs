@@ -114,9 +114,14 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     public AtrBands(int period, double multiplier = 2.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (multiplier <= 0)
+        {
             throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
         _period = period;
         _multiplier = multiplier;
@@ -145,7 +150,11 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         if (_source is not null)
@@ -173,7 +182,9 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     private double CalculateTrueRange(double high, double low, double prevClose)
     {
         if (double.IsNaN(prevClose))
+        {
             return high - low;
+        }
 
         double hl = high - low;
         double hpc = Math.Abs(high - prevClose);
@@ -188,9 +199,13 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         // Get valid values with last-value substitution
         double source = input.Close;
@@ -198,10 +213,41 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
         double low = input.Low;
         double close = input.Close;
 
-        if (double.IsFinite(source)) _state.LastValidSource = source; else source = _state.LastValidSource;
-        if (double.IsFinite(high)) _state.LastValidHigh = high; else high = _state.LastValidHigh;
-        if (double.IsFinite(low)) _state.LastValidLow = low; else low = _state.LastValidLow;
-        if (double.IsFinite(close)) _state.LastValidClose = close; else close = _state.LastValidClose;
+        if (double.IsFinite(source))
+        {
+            _state.LastValidSource = source;
+        }
+        else
+        {
+            source = _state.LastValidSource;
+        }
+
+        if (double.IsFinite(high))
+        {
+            _state.LastValidHigh = high;
+        }
+        else
+        {
+            high = _state.LastValidHigh;
+        }
+
+        if (double.IsFinite(low))
+        {
+            _state.LastValidLow = low;
+        }
+        else
+        {
+            low = _state.LastValidLow;
+        }
+
+        if (double.IsFinite(close))
+        {
+            _state.LastValidClose = close;
+        }
+        else
+        {
+            close = _state.LastValidClose;
+        }
 
         // Handle first valid value initialization
         if (double.IsNaN(source))
@@ -248,7 +294,9 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
         double width = atr * _multiplier;
 
         if (isNew)
+        {
             _state.PrevClose = close;
+        }
 
         Last = new TValue(input.Time, middle);
         Upper = new TValue(input.Time, middle + width);
@@ -264,7 +312,9 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -305,7 +355,10 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     /// </summary>
     public void Prime(TBarSeries source)
     {
-        if (source.Count == 0) return;
+        if (source.Count == 0)
+        {
+            return;
+        }
 
         // Reset state
         _sourceBuffer.Clear();
@@ -325,11 +378,19 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
                 _state.LastValidClose = bar.Close;
             }
             if (double.IsFinite(bar.High) && double.IsNaN(_state.LastValidHigh))
+            {
                 _state.LastValidHigh = bar.High;
+            }
+
             if (double.IsFinite(bar.Low) && double.IsNaN(_state.LastValidLow))
+            {
                 _state.LastValidLow = bar.Low;
+            }
+
             if (!double.IsNaN(_state.LastValidSource) && !double.IsNaN(_state.LastValidHigh) && !double.IsNaN(_state.LastValidLow))
+            {
                 break;
+            }
         }
 
         // Find valid values in warmup window if not found
@@ -396,15 +457,29 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
     {
         int len = input.Close.Length;
         if (input.High.Length != len || input.Low.Length != len)
+        {
             throw new ArgumentException("High, Low, and Close must have the same length", nameof(input));
-        if (output.Middle.Length < len || output.Upper.Length < len || output.Lower.Length < len)
-            throw new ArgumentException("Output buffers must be at least as long as input", nameof(output));
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (multiplier <= 0)
-            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
-        if (len == 0) return;
+        if (output.Middle.Length < len || output.Upper.Length < len || output.Lower.Length < len)
+        {
+            throw new ArgumentException("Output buffers must be at least as long as input", nameof(output));
+        }
+
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
+        if (multiplier <= 0)
+        {
+            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
+
+        if (len == 0)
+        {
+            return;
+        }
 
         CalculateScalarCore(input.High, input.Low, input.Close, output.Middle, output.Upper, output.Lower, period, multiplier);
     }
@@ -521,9 +596,32 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
                 double c = close[i];
 
                 // Get valid values
-                if (double.IsFinite(h)) lastValidHigh = h; else h = lastValidHigh;
-                if (double.IsFinite(l)) lastValidLow = l; else l = lastValidLow;
-                if (double.IsFinite(c)) lastValidClose = c; else c = lastValidClose;
+                if (double.IsFinite(h))
+                {
+                    lastValidHigh = h;
+                }
+                else
+                {
+                    h = lastValidHigh;
+                }
+
+                if (double.IsFinite(l))
+                {
+                    lastValidLow = l;
+                }
+                else
+                {
+                    l = lastValidLow;
+                }
+
+                if (double.IsFinite(c))
+                {
+                    lastValidClose = c;
+                }
+                else
+                {
+                    c = lastValidClose;
+                }
 
                 if (double.IsNaN(c))
                 {
@@ -536,7 +634,9 @@ public sealed class AtrBands : ITValuePublisher, IDisposable
                 // Calculate True Range
                 double tr;
                 if (double.IsNaN(prevClose))
+                {
                     tr = h - l;
+                }
                 else
                 {
                     double hl = h - l;

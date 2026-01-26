@@ -90,9 +90,13 @@ public class HemaValidationTests
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {

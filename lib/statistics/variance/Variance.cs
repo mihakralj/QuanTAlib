@@ -100,7 +100,10 @@ public sealed class Variance : AbstractBase
             double numerator = _sumSq - (_buffer.Sum * _buffer.Sum) / n;
 
             // Handle floating point noise
-            if (numerator < 0) numerator = 0;
+            if (numerator < 0)
+            {
+                numerator = 0;
+            }
 
             double denominator = _isPopulation ? n : (n - 1);
             variance = numerator / denominator;
@@ -113,7 +116,10 @@ public sealed class Variance : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -181,12 +187,20 @@ public sealed class Variance : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation = false)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period < 2)
+        {
             throw new ArgumentException("Period must be greater than or equal to 2", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Try SIMD path for large, clean datasets
         const int SimdThreshold = 256;
@@ -237,7 +251,10 @@ public sealed class Variance : AbstractBase
         for (; i < warmupEnd; i++)
         {
             double val = source[i];
-            if (!double.IsFinite(val)) val = 0; // Fallback
+            if (!double.IsFinite(val))
+            {
+                val = 0; // Fallback
+            }
 
             sum += val;
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
@@ -247,7 +264,11 @@ public sealed class Variance : AbstractBase
             if (n > 1)
             {
                 double numerator = sumSq - (sum * sum) / n;
-                if (numerator < 0) numerator = 0;
+                if (numerator < 0)
+                {
+                    numerator = 0;
+                }
+
                 double denominator = isPopulation ? n : (n - 1);
                 output[i] = numerator / denominator;
             }
@@ -262,7 +283,10 @@ public sealed class Variance : AbstractBase
         for (; i < len; i++)
         {
             double val = source[i];
-            if (!double.IsFinite(val)) val = 0; // Fallback
+            if (!double.IsFinite(val))
+            {
+                val = 0; // Fallback
+            }
 
             double oldVal = buffer[bufferIndex];
 
@@ -272,11 +296,18 @@ public sealed class Variance : AbstractBase
 
             buffer[bufferIndex] = val;
             bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
+            if (bufferIndex >= period)
+            {
+                bufferIndex = 0;
+            }
 
             double n = period;
             double numerator = sumSq - (sum * sum) / n;
-            if (numerator < 0) numerator = 0;
+            if (numerator < 0)
+            {
+                numerator = 0;
+            }
+
             double denominator = isPopulation ? n : (n - 1);
             output[i] = numerator / denominator;
 
@@ -305,7 +336,11 @@ public sealed class Variance : AbstractBase
             if (n > 1)
             {
                 double num = sumSq - (sum * sum) / n;
-                if (num < 0) num = 0;
+                if (num < 0)
+                {
+                    num = 0;
+                }
+
                 double den = isPopulation ? n : (n - 1);
                 Unsafe.Add(ref outRef, i) = num / den;
             }
@@ -330,7 +365,10 @@ public sealed class Variance : AbstractBase
 
         WarmupVariance(period, isPopulation, ref srcRef, ref outRef, out double sum, out double sumSq);
 
-        if (len <= period) return;
+        if (len <= period)
+        {
+            return;
+        }
 
         var vInvN = Vector512.Create(invN);
         var vInvDenom = Vector512.Create(invDenom);
@@ -420,7 +458,11 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
             double numerator = sumSq - sum * sum * invN;
-            if (numerator < 0) numerator = 0;
+            if (numerator < 0)
+            {
+                numerator = 0;
+            }
+
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }
@@ -439,7 +481,10 @@ public sealed class Variance : AbstractBase
 
         WarmupVariance(period, isPopulation, ref srcRef, ref outRef, out double sum, out double sumSq);
 
-        if (len <= period) return;
+        if (len <= period)
+        {
+            return;
+        }
 
         var vInvN = Vector128.Create(invN);
         var vInvDenom = Vector128.Create(invDenom);
@@ -517,7 +562,11 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
             double numerator = sumSq - sum * sum * invN;
-            if (numerator < 0) numerator = 0;
+            if (numerator < 0)
+            {
+                numerator = 0;
+            }
+
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }
@@ -536,7 +585,10 @@ public sealed class Variance : AbstractBase
 
         WarmupVariance(period, isPopulation, ref srcRef, ref outRef, out double sum, out double sumSq);
 
-        if (len <= period) return;
+        if (len <= period)
+        {
+            return;
+        }
 
         var vInvN = Vector256.Create(invN);
         var vInvDenom = Vector256.Create(invDenom);
@@ -634,7 +686,11 @@ public sealed class Variance : AbstractBase
             sumSq = Math.FusedMultiplyAdd(val, val, sumSq);
 
             double numerator = sumSq - sum * sum * invN;
-            if (numerator < 0) numerator = 0;
+            if (numerator < 0)
+            {
+                numerator = 0;
+            }
+
             Unsafe.Add(ref outRef, i) = numerator * invDenom;
         }
     }

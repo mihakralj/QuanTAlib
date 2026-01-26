@@ -64,7 +64,9 @@ public struct TBarSeriesEnumerator : IEnumerator<TBar>, IEquatable<TBarSeriesEnu
     public bool MoveNext()
     {
         if (_index + 1 >= _count)
+        {
             return false;
+        }
 
         _index++;
         _current = new TBar(_t[_index], _o[_index], _h[_index], _l[_index], _c[_index], _v[_index]);
@@ -323,9 +325,14 @@ public class TBarSeries : IReadOnlyList<TBar>
     {
         int len = t.Length;
         if (o.Length != len || h.Length != len || l.Length != len || c.Length != len || v.Length != len)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(t));
+        }
 
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         int oldCount = _c.Count;
         int newCount = oldCount + len;
@@ -366,7 +373,10 @@ public class TBarSeries : IReadOnlyList<TBar>
     public void AddRange(ReadOnlySpan<TBar> bars)
     {
         int len = bars.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         int oldCount = _c.Count;
         int newCount = oldCount + len;

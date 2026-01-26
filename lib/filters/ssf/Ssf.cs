@@ -40,7 +40,9 @@ public sealed class Ssf : AbstractBase
     public Ssf(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         // Use high precision constants
         // Note: Some implementations (like Ooples/PineScript) use 1.414 * 3.14159 which causes divergence
@@ -88,7 +90,10 @@ public sealed class Ssf : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         Reset();
 
@@ -126,9 +131,13 @@ public sealed class Ssf : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 _state.LastValidValue = val;
+            }
             else
+            {
                 val = _state.LastValidValue;
+            }
 
             double ssf = (_state.Count < 4)
                 ? val
@@ -142,7 +151,9 @@ public sealed class Ssf : AbstractBase
         }
 
         if (_state.Count >= WarmupPeriod)
+        {
             _state.IsHot = true;
+        }
 
         Last = new TValue(DateTime.MinValue, _state.Ssf1);
 
@@ -190,9 +201,15 @@ public sealed class Ssf : AbstractBase
         _state.Ssf1 = ssf;
         _state.PrevInput = val;
 
-        if (isNew) _state.Count++;
+        if (isNew)
+        {
+            _state.Count++;
+        }
+
         if (!_state.IsHot && _state.Count >= WarmupPeriod)
+        {
             _state.IsHot = true;
+        }
 
         Last = new TValue(input.Time, ssf);
         PubEvent(Last, isNew);
@@ -201,7 +218,10 @@ public sealed class Ssf : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -269,9 +289,13 @@ public sealed class Ssf : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 state.LastValidValue = val;
+            }
             else
+            {
                 val = state.LastValidValue;
+            }
 
             double ssf = (state.Count < 4)
                 ? val
@@ -286,7 +310,9 @@ public sealed class Ssf : AbstractBase
         }
 
         if (!state.IsHot && state.Count >= warmupPeriod)
+        {
             state.IsHot = true;
+        }
     }
 
     public static (TSeries Results, Ssf Indicator) Calculate(TSeries source, int period)
@@ -300,7 +326,9 @@ public sealed class Ssf : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         double sqrt2_pi = Math.Sqrt(2) * Math.PI;
         double arg = sqrt2_pi / period;
@@ -311,9 +339,14 @@ public sealed class Ssf : AbstractBase
         double c1 = 1.0 - c2 - c3;
 
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         var state = State.New();
 

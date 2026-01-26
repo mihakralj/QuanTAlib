@@ -70,7 +70,9 @@ public class YzvamaTests
         Assert.False(yzvama.IsHot);
 
         for (int i = 0; i < 5; i++)
+        {
             yzvama.Update(new TValue(DateTime.UtcNow, 100 + i), isNew: true);
+        }
 
         Assert.True(yzvama.IsHot);
     }

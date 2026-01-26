@@ -42,7 +42,9 @@ public sealed class Dchannel : ITValuePublisher
     public Dchannel(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _hBuf = new double[_period];
@@ -74,14 +76,22 @@ public sealed class Dchannel : ITValuePublisher
     private (double high, double low) GetValid(double high, double low)
     {
         if (double.IsFinite(high))
+        {
             _state = _state with { LastValidHigh = high };
+        }
         else
+        {
             high = _state.LastValidHigh;
+        }
 
         if (double.IsFinite(low))
+        {
             _state = _state with { LastValidLow = low };
+        }
         else
+        {
             low = _state.LastValidLow;
+        }
 
         return (high, low);
     }
@@ -90,15 +100,21 @@ public sealed class Dchannel : ITValuePublisher
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         if (isNew)
         {
             _index++;
             if (_count < _period)
+            {
                 _count++;
+            }
         }
 
         int bufIdx = (int)(_index % _period);
@@ -134,7 +150,9 @@ public sealed class Dchannel : ITValuePublisher
         double mid = (top + bot) * 0.5;
 
         if (!IsHot && _count >= _period)
+        {
             _state = _state with { IsHot = true };
+        }
 
         Last = new TValue(input.Time, mid);
         Upper = new TValue(input.Time, top);
@@ -147,7 +165,9 @@ public sealed class Dchannel : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TBarSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -191,7 +211,9 @@ public sealed class Dchannel : ITValuePublisher
         Reset();
 
         if (source.Count == 0)
+        {
             return;
+        }
 
         for (int i = 0; i < source.Count; i++)
         {
@@ -226,14 +248,25 @@ public sealed class Dchannel : ITValuePublisher
         int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (high.Length != low.Length)
+        {
             throw new ArgumentException("High and Low spans must have the same length", nameof(high));
+        }
+
         if (middle.Length < high.Length || upper.Length < high.Length || lower.Length < high.Length)
+        {
             throw new ArgumentException("Output spans must be at least as long as inputs", nameof(middle));
+        }
 
         int len = high.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double[] top = ArrayPool<double>.Shared.Rent(len);
         double[] bot = ArrayPool<double>.Shared.Rent(len);

@@ -129,7 +129,10 @@ public sealed class Adl : ITValuePublisher
 
     public static TSeries Calculate(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var t = source.Open.Times.ToArray(); // Times are same for all series
         var v = new double[source.Count];
@@ -143,7 +146,9 @@ public sealed class Adl : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, ReadOnlySpan<double> close, ReadOnlySpan<double> volume, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != close.Length || high.Length != volume.Length || high.Length != output.Length)
+        {
             throw new ArgumentException("All spans must be of the same length", nameof(output));
+        }
 
         int len = high.Length;
         int i = 0;

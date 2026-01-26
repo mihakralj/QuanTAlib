@@ -61,7 +61,7 @@ public class LoessValidationTests : IDisposable
         // Check after warmup
         for (int i = 10; i < 50; i++)
         {
-             Assert.Equal(expected[i], actual[i], 1e-6);
+            Assert.Equal(expected[i], actual[i], 1e-6);
         }
     }
 }

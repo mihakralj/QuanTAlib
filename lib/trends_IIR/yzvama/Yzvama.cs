@@ -89,17 +89,34 @@ public sealed class Yzvama : AbstractBase
     public Yzvama(int yzvShortPeriod = 3, int yzvLongPeriod = 50, int percentileLookback = 100, int minLength = 5, int maxLength = 100)
     {
         if (yzvShortPeriod <= 0)
+        {
             throw new ArgumentException("Short YZV period must be greater than 0", nameof(yzvShortPeriod));
+        }
+
         if (yzvLongPeriod <= 0)
+        {
             throw new ArgumentException("Long YZV period must be greater than 0", nameof(yzvLongPeriod));
+        }
+
         if (percentileLookback <= 0)
+        {
             throw new ArgumentException("Percentile lookback must be greater than 0", nameof(percentileLookback));
+        }
+
         if (minLength <= 0)
+        {
             throw new ArgumentException("Min length must be greater than 0", nameof(minLength));
+        }
+
         if (maxLength <= 0)
+        {
             throw new ArgumentException("Max length must be greater than 0", nameof(maxLength));
+        }
+
         if (minLength > maxLength)
+        {
             throw new ArgumentException("Min length must be less than or equal to max length", nameof(minLength));
+        }
 
         _percentileLookback = percentileLookback;
         _minLength = minLength;
@@ -163,7 +180,9 @@ public sealed class Yzvama : AbstractBase
     private static double ComputeYangZhangK(int period)
     {
         if (period <= 1)
+        {
             return 0.34 / (1.34 + 1.0);
+        }
 
         double ratioN = (period + 1.0) / (period - 1.0);
         return 0.34 / (1.34 + ratioN);
@@ -178,9 +197,13 @@ public sealed class Yzvama : AbstractBase
         {
             int mid = lo + ((hi - lo) >> 1);
             if (sorted[mid] < value)
+            {
                 lo = mid + 1;
+            }
             else
+            {
                 hi = mid;
+            }
         }
         return lo;
     }
@@ -254,9 +277,13 @@ public sealed class Yzvama : AbstractBase
 
         // Sanitize source
         if (!double.IsFinite(sourceValue))
+        {
             sourceValue = double.IsFinite(_lastValidSource) ? _lastValidSource : 0.0;
+        }
         else
+        {
             _lastValidSource = sourceValue;
+        }
 
         // Compute Yang-Zhang variance components (log returns)
         double yzvShort = double.NaN;
@@ -290,7 +317,10 @@ public sealed class Yzvama : AbstractBase
                 // Update short RMA variance
                 shortVar.Ema = Math.FusedMultiplyAdd(shortVar.Ema, _shortDecay, _shortAlpha * sSqDailyShort);
                 shortVar.E *= _shortDecay;
-                if (shortVar.E <= EPSILON) shortVar.IsCompensated = true;
+                if (shortVar.E <= EPSILON)
+                {
+                    shortVar.IsCompensated = true;
+                }
 
                 double shortVarValue = shortVar.IsCompensated ? shortVar.Ema : shortVar.Ema / (1.0 - shortVar.E);
                 yzvShort = shortVarValue >= 0 ? Math.Sqrt(shortVarValue) : double.NaN;
@@ -298,7 +328,10 @@ public sealed class Yzvama : AbstractBase
                 // Update long RMA variance (kept for parity with Pine implementation)
                 longVar.Ema = Math.FusedMultiplyAdd(longVar.Ema, _longDecay, _longAlpha * sSqDailyLong);
                 longVar.E *= _longDecay;
-                if (longVar.E <= EPSILON) longVar.IsCompensated = true;
+                if (longVar.E <= EPSILON)
+                {
+                    longVar.IsCompensated = true;
+                }
             }
         }
 
@@ -414,7 +447,10 @@ public sealed class Yzvama : AbstractBase
     /// </summary>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -441,7 +477,10 @@ public sealed class Yzvama : AbstractBase
     /// </summary>
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -473,7 +512,9 @@ public sealed class Yzvama : AbstractBase
     {
         Reset();
         foreach (double val in source)
+        {
             Update(new TValue(DateTime.MinValue, val), isNew: true);
+        }
     }
 
     /// <summary>
@@ -484,7 +525,9 @@ public sealed class Yzvama : AbstractBase
     {
         Reset();
         foreach (TValue tv in source)
+        {
             Update(tv, isNew: true);
+        }
     }
 
     /// <summary>

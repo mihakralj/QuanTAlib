@@ -284,7 +284,10 @@ public class SkewTests
     public void Reset_ClearsState()
     {
         var skew = new Skew(5);
-        for (int i = 0; i < 5; i++) skew.Update(new TValue(DateTime.UtcNow, i));
+        for (int i = 0; i < 5; i++)
+        {
+            skew.Update(new TValue(DateTime.UtcNow, i));
+        }
 
         skew.Reset();
         Assert.False(skew.IsHot);
@@ -380,7 +383,10 @@ public class SkewTests
         // Create large dataset to trigger SIMD path (>= 256)
         int count = 1000;
         var data = new double[count];
-        for (int i = 0; i < count; i++) data[i] = (double)i;
+        for (int i = 0; i < count; i++)
+        {
+            data[i] = (double)i;
+        }
 
         var series = new TSeries(new System.Collections.Generic.List<long>(new long[count]), new System.Collections.Generic.List<double>(data));
 

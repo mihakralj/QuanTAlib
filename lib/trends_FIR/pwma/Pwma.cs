@@ -44,7 +44,10 @@ public sealed class Pwma : AbstractBase
 
     public Pwma(int period)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _divisor = (double)period * ((double)period + 1.0) * (2.0 * (double)period + 1.0) / 6.0;
@@ -171,7 +174,10 @@ public sealed class Pwma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -244,12 +250,20 @@ public sealed class Pwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         CalculateScalarCore(source, output, period);
     }
@@ -273,9 +287,13 @@ public sealed class Pwma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             sum += val;
             wsum = Math.FusedMultiplyAdd(i + 1, val, wsum);
@@ -291,9 +309,13 @@ public sealed class Pwma : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             double oldSum = sum;
             double oldWSum = wsum;
@@ -306,7 +328,9 @@ public sealed class Pwma : AbstractBase
             buffer[bufferIdx] = val;
             bufferIdx++;
             if (bufferIdx >= period)
+            {
                 bufferIdx = 0;
+            }
 
             tickCount++;
             if (tickCount >= ResyncInterval)
@@ -319,7 +343,10 @@ public sealed class Pwma : AbstractBase
                 for (int k = 0; k < period; k++)
                 {
                     int idx = bufferIdx + k;
-                    if (idx >= period) idx -= period;
+                    if (idx >= period)
+                    {
+                        idx -= period;
+                    }
 
                     double v = buffer[idx];
                     recalcSum += v;

@@ -83,7 +83,11 @@ public sealed class Apchannel : AbstractBase
     /// </summary>
     protected override void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
 
         if (disposing && _source != null)
@@ -174,7 +178,10 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -207,7 +214,10 @@ public sealed class Apchannel : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -234,7 +244,9 @@ public sealed class Apchannel : AbstractBase
     {
         Init();
         if (source.Length == 0)
+        {
             return;
+        }
 
         long time = DateTime.UtcNow.Ticks;
         long dt = step?.Ticks ?? TimeSpan.TicksPerMinute;
@@ -281,9 +293,15 @@ public sealed class Apchannel : AbstractBase
         int length = sourceHigh.Length;
 
         if (sourceLow.Length != length)
+        {
             throw new ArgumentException("Source arrays must have the same length.", nameof(sourceLow));
+        }
+
         if (upperBand.Length != length)
+        {
             throw new ArgumentException("Upper band array must match source length.", nameof(upperBand));
+        }
+
         if (lowerBand.Length != length)
         {
             throw new ArgumentException("Lower band array must match source length.", nameof(lowerBand));
@@ -295,7 +313,9 @@ public sealed class Apchannel : AbstractBase
         }
 
         if (length == 0)
+        {
             return;
+        }
 
         double decay = 1.0 - alpha;
 
@@ -324,7 +344,9 @@ public sealed class Apchannel : AbstractBase
 
         // Early return for single-element arrays
         if (length == 1)
+        {
             return;
+        }
 
         for (int i = 1; i < length; i++)
         {
@@ -332,8 +354,15 @@ public sealed class Apchannel : AbstractBase
             double low = sourceLow[i];
 
             // Handle NaN/Infinity
-            if (!double.IsFinite(high)) high = lastValidHigh;
-            if (!double.IsFinite(low)) low = lastValidLow;
+            if (!double.IsFinite(high))
+            {
+                high = lastValidHigh;
+            }
+
+            if (!double.IsFinite(low))
+            {
+                low = lastValidLow;
+            }
 
             // Use FMA for optimal performance and precision
             highEma = Math.FusedMultiplyAdd(decay, highEma, alpha * high);

@@ -66,7 +66,9 @@ public sealed class Hwma : AbstractBase
     public Hwma(int period = 10)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _alpha = 2.0 / (period + 1.0);
         _beta = 1.0 / period;
@@ -90,11 +92,19 @@ public sealed class Hwma : AbstractBase
     public Hwma(double alpha, double beta, double gamma)
     {
         if (alpha <= 0 || alpha > 1)
+        {
             throw new ArgumentException("Alpha must be between 0 (exclusive) and 1 (inclusive)", nameof(alpha));
+        }
+
         if (beta < 0 || beta > 1)
+        {
             throw new ArgumentException("Beta must be between 0 and 1", nameof(beta));
+        }
+
         if (gamma < 0 || gamma > 1)
+        {
             throw new ArgumentException("Gamma must be between 0 and 1", nameof(gamma));
+        }
 
         int effectivePeriod = (int)(2.0 / alpha - 1.0); // Reverse calculate for display
         _alpha = alpha;
@@ -169,7 +179,11 @@ public sealed class Hwma : AbstractBase
         {
             // First value is NaN - return NaN
             Last = new TValue(input.Time, double.NaN);
-            if (publish) PubEvent(Last);
+            if (publish)
+            {
+                PubEvent(Last);
+            }
+
             return Last;
         }
 
@@ -215,7 +229,10 @@ public sealed class Hwma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -268,11 +285,19 @@ public sealed class Hwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 10)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double alpha = 2.0 / (period + 1.0);
         double beta = 1.0 / period;

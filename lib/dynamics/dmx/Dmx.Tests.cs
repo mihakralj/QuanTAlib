@@ -68,7 +68,9 @@ public class DmxTests
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 50; i++)
+        {
             dmx.Update(bars[i]);
+        }
 
         var originalValue = dmx.Last;
 
@@ -114,7 +116,9 @@ public class DmxTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 30; i++)
+        {
             dmx.Update(bars[i]);
+        }
 
         var nanBar = new TBar(DateTime.UtcNow, double.NaN, double.NaN, double.NaN, double.NaN, 100);
         var result = dmx.Update(nanBar);
@@ -130,7 +134,9 @@ public class DmxTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 30; i++)
+        {
             dmx.Update(bars[i]);
+        }
 
         var infBar = new TBar(DateTime.UtcNow, double.PositiveInfinity, double.PositiveInfinity, 0, 100, 100);
         var result = dmx.Update(infBar);
@@ -151,7 +157,10 @@ public class DmxTests
         // 2. Streaming Mode
         var streamDmx = new Dmx(14);
         for (int i = 0; i < bars.Count; i++)
+        {
             streamDmx.Update(bars[i]);
+        }
+
         double streamResult = streamDmx.Last.Value;
 
         Assert.Equal(expected, streamResult, 9);

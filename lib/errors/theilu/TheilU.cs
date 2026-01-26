@@ -39,7 +39,9 @@ public sealed class TheilU : AbstractBase
     public TheilU(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _sqErrorBuffer = new RingBuffer(period);
         _sqActualBuffer = new RingBuffer(period);
@@ -80,14 +82,22 @@ public sealed class TheilU : AbstractBase
     private TValue UpdateCore(DateTime time, double actualVal, double predictedVal, bool isNew)
     {
         if (!double.IsFinite(actualVal))
+        {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
+        }
         else
+        {
             _state.LastValidActual = actualVal;
+        }
 
         if (!double.IsFinite(predictedVal))
+        {
             predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
+        }
         else
+        {
             _state.LastValidPredicted = predictedVal;
+        }
 
         double error = predictedVal - actualVal;
         double sqError = error * error;
@@ -163,7 +173,9 @@ public sealed class TheilU : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -184,12 +196,20 @@ public sealed class TheilU : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> sqErrorBuffer = period <= StackAllocThreshold
@@ -210,11 +230,19 @@ public sealed class TheilU : AbstractBase
 
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+            if (double.IsFinite(actual[k]))
+            {
+                lastValidActual = actual[k];
+                break;
+            }
         }
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            if (double.IsFinite(predicted[k]))
+            {
+                lastValidPredicted = predicted[k];
+                break;
+            }
         }
 
         int bufferIndex = 0;
@@ -226,8 +254,23 @@ public sealed class TheilU : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double error = pred - act;
             double sqError = error * error;
@@ -251,8 +294,23 @@ public sealed class TheilU : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double error = pred - act;
             double sqError = error * error;
@@ -269,7 +327,10 @@ public sealed class TheilU : AbstractBase
             sqPredBuffer[bufferIndex] = sqPred;
 
             bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
+            if (bufferIndex >= period)
+            {
+                bufferIndex = 0;
+            }
 
             double denom = Math.Sqrt(sqActualSum + sqPredSum);
             output[i] = denom > 1e-10 ? Math.Sqrt(sqErrorSum) / denom : 0.0;

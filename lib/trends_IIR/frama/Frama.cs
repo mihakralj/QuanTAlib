@@ -147,8 +147,15 @@ public sealed class Frama : ITValuePublisher
         {
             double dimen = (Math.Log(n1 + n2) - Math.Log(n3)) / Log2;
             alpha = Math.Exp(-4.6 * (dimen - 1.0));
-            if (alpha < AlphaFloor) alpha = AlphaFloor;
-            if (alpha > AlphaCeil) alpha = AlphaCeil;
+            if (alpha < AlphaFloor)
+            {
+                alpha = AlphaFloor;
+            }
+
+            if (alpha > AlphaCeil)
+            {
+                alpha = AlphaCeil;
+            }
         }
 
         double prev = _state.HasValue && double.IsFinite(_state.Frama) ? _state.Frama : price;
@@ -170,7 +177,10 @@ public sealed class Frama : ITValuePublisher
 
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new double[len];
@@ -195,7 +205,10 @@ public sealed class Frama : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -224,7 +237,9 @@ public sealed class Frama : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> high, ReadOnlySpan<double> low, int period, Span<double> output)
     {
         if (high.Length != low.Length || high.Length != output.Length)
+        {
             throw new ArgumentException("Input spans must have the same length.", nameof(output));
+        }
 
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 2);
 
@@ -240,7 +255,9 @@ public sealed class Frama : ITValuePublisher
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length.", nameof(output));
+        }
 
         ArgumentOutOfRangeException.ThrowIfLessThan(period, 2);
 
@@ -254,7 +271,10 @@ public sealed class Frama : ITValuePublisher
 
     public static TSeries Batch(TBarSeries source, int period)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var v = new double[len];
@@ -275,7 +295,9 @@ public sealed class Frama : ITValuePublisher
     {
         int count = buffer.Count;
         if (count == 0 || length <= 0)
+        {
             return double.NaN;
+        }
 
         int capacity = buffer.Capacity;
         int start = buffer.StartIndex;
@@ -288,10 +310,15 @@ public sealed class Frama : ITValuePublisher
         {
             int idx = start + offset + i;
             if (idx >= capacity)
+            {
                 idx -= capacity;
+            }
+
             double v = data[idx];
             if (v > max)
+            {
                 max = v;
+            }
         }
 
         return max;
@@ -302,7 +329,9 @@ public sealed class Frama : ITValuePublisher
     {
         int count = buffer.Count;
         if (count == 0 || length <= 0)
+        {
             return double.NaN;
+        }
 
         int capacity = buffer.Capacity;
         int start = buffer.StartIndex;
@@ -315,10 +344,15 @@ public sealed class Frama : ITValuePublisher
         {
             int idx = start + offset + i;
             if (idx >= capacity)
+            {
                 idx -= capacity;
+            }
+
             double v = data[idx];
             if (v < min)
+            {
                 min = v;
+            }
         }
 
         return min;

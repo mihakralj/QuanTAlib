@@ -142,7 +142,10 @@ public sealed class BilateralValidationTests : IDisposable
                 _history.RemoveAt(0);
             }
 
-            if (_history.Count == 0) return double.NaN;
+            if (_history.Count == 0)
+            {
+                return double.NaN;
+            }
 
             double sigmaS = Math.Max(_length * _sigmaSRatio, 1e-10);
 
@@ -178,7 +181,10 @@ public sealed class BilateralValidationTests : IDisposable
 
         private static double CalculateStDev(List<double> values)
         {
-            if (values.Count < 2) return 0;
+            if (values.Count < 2)
+            {
+                return 0;
+            }
 
             double avg = values.Average();
             double sumSqDiff = values.Sum(d => (d - avg) * (d - avg));

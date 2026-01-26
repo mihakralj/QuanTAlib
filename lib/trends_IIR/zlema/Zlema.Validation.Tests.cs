@@ -74,9 +74,13 @@ public class ZlemaValidationTests
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -87,7 +91,9 @@ public class ZlemaValidationTests
             buffer[head] = val;
             head++;
             if (head == bufferSize)
+            {
                 head = 0;
+            }
 
             double lagged = buffer[head];
             double signal = Math.FusedMultiplyAdd(2.0, val, -lagged);

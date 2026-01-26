@@ -392,7 +392,9 @@ public class SumTests
 
         var gbm = new GBM(startPrice: 100, mu: 0.05, sigma: 0.2, seed: 42);
         for (int i = 0; i < source.Length; i++)
+        {
             source[i] = gbm.Next().Close;
+        }
 
         Sum.Batch(source.AsSpan(), output.AsSpan(), 100);
 
@@ -520,7 +522,9 @@ public class SumTests
     {
         var series = new TSeries();
         for (int i = 1; i <= 10; i++)
+        {
             series.Add(DateTime.UtcNow, i * 10);
+        }
         // 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
 
         var (results, indicator) = Sum.Calculate(series, 5);

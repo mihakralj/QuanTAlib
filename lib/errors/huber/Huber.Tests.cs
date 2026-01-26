@@ -345,8 +345,15 @@ public class HuberTests
         var actual = new TSeries();
         var predicted = new TSeries();
 
-        for (int i = 0; i < 10; i++) actual.Add(DateTime.UtcNow, i);
-        for (int i = 0; i < 5; i++) predicted.Add(DateTime.UtcNow, i);
+        for (int i = 0; i < 10; i++)
+        {
+            actual.Add(DateTime.UtcNow, i);
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            predicted.Add(DateTime.UtcNow, i);
+        }
 
         Assert.Throws<ArgumentException>(() => Huber.Calculate(actual, predicted, 3));
     }

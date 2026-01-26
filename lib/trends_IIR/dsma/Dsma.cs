@@ -89,9 +89,14 @@ public sealed class Dsma : AbstractBase
     public Dsma(int period, double scaleFactor = 0.5)
     {
         if (period < 2)
+        {
             throw new ArgumentOutOfRangeException(nameof(period), "Period must be >= 2.");
+        }
+
         if (scaleFactor < 0.01 || scaleFactor > 0.9)
+        {
             throw new ArgumentOutOfRangeException(nameof(scaleFactor), "Scale factor must be between 0.01 and 0.9.");
+        }
 
         WarmupPeriod = period;
         _periodRecip = 1.0 / period;
@@ -146,12 +151,16 @@ public sealed class Dsma : AbstractBase
         HandleStateSnapshot(isNew);
         value = HandleInvalidInput(value);
         if (double.IsNaN(value))
+        {
             return double.NaN;
+        }
 
         _state.Bars++;
 
         if (_state.Bars == 1)
+        {
             return InitializeFirstBar(value);
+        }
 
         return CalculateDsma(value);
     }
@@ -256,7 +265,10 @@ public sealed class Dsma : AbstractBase
     /// <returns>Time series containing DSMA values</returns>
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -325,7 +337,9 @@ public sealed class Dsma : AbstractBase
                                  double scaleFactor = 0.5)
     {
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output span is shorter than source span.", nameof(output));
+        }
 
         var dsma = new Dsma(period, scaleFactor);
         for (int i = 0; i < source.Length; i++)

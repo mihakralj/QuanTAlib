@@ -388,7 +388,9 @@ public class AmatTests
         for (int i = warmup; i < source.Length; i++)
         {
             if (Math.Abs(tseriesResult[i].Value - trend[i]) < 0.01)
+            {
                 matched++;
+            }
         }
         // At least 95% of values after warmup should match
         double matchRate = (double)matched / (source.Length - warmup);

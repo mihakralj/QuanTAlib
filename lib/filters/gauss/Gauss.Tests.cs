@@ -85,8 +85,10 @@ public class GaussTests
         Assert.False(double.IsNaN(result.Value));
 
         // Fill full buffer with NaNs
-        for (int i=0; i<20; i++)
+        for (int i = 0; i < 20; i++)
+        {
             gauss.Update(new TValue(DateTime.MinValue, double.NaN));
+        }
 
         // Should evaluate to NaN if all are NaN
         Assert.True(double.IsNaN(gauss.Last.Value));
@@ -100,7 +102,9 @@ public class GaussTests
         Assert.False(gauss.IsHot);
 
         for (int i = 0; i < 6; i++)
+        {
             gauss.Update(new TValue(DateTime.MinValue, i));
+        }
 
         Assert.False(gauss.IsHot);
 

@@ -51,7 +51,10 @@ public sealed class AtrBandsIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_atrBands == null) return;
+        if (_atrBands == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         bool isNew = args.IsNewBar();

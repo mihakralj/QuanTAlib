@@ -52,7 +52,9 @@ public readonly record struct TValue(long Time, double Value) : ISpanFormattable
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (!string.IsNullOrEmpty(format))
+        {
             throw new NotSupportedException($"Custom format '{format}' is not supported by TValue. Use ToString() for the default format.");
+        }
 
         return ToString();
     }
@@ -70,7 +72,9 @@ public readonly record struct TValue(long Time, double Value) : ISpanFormattable
         // This is a heuristic check; actual buffer-overflow protection is performed
         // by the explicit length checks that guard each write operation below.
         if (destination.Length < 24)
+        {
             return false;
+        }
 
         // Write opening bracket
         destination[0] = '[';
@@ -78,12 +82,18 @@ public readonly record struct TValue(long Time, double Value) : ISpanFormattable
 
         // Format datetime: yyyy-MM-dd HH:mm:ss (19 chars)
         if (!AsDateTime.TryFormat(destination.Slice(pos), out int dtChars, "yyyy-MM-dd HH:mm:ss", provider))
+        {
             return false;
+        }
+
         pos += dtChars;
 
         // Write separator
         if (pos + 2 > destination.Length)
+        {
             return false;
+        }
+
         destination[pos++] = ',';
         destination[pos++] = ' ';
 
@@ -91,20 +101,29 @@ public readonly record struct TValue(long Time, double Value) : ISpanFormattable
         if (double.IsPositiveInfinity(Value))
         {
             if (pos + 1 > destination.Length)
+            {
                 return false;
+            }
+
             destination[pos++] = (char)0x221E; // 
         }
         else if (double.IsNegativeInfinity(Value))
         {
             if (pos + 2 > destination.Length)
+            {
                 return false;
+            }
+
             destination[pos++] = '-';
             destination[pos++] = (char)0x221E; // -
         }
         else if (double.IsNaN(Value))
         {
             if (pos + 3 > destination.Length)
+            {
                 return false;
+            }
+
             destination[pos++] = 'N';
             destination[pos++] = 'a';
             destination[pos++] = 'N';
@@ -112,13 +131,19 @@ public readonly record struct TValue(long Time, double Value) : ISpanFormattable
         else
         {
             if (!Value.TryFormat(destination.Slice(pos), out int valueChars, "F2", provider))
+            {
                 return false;
+            }
+
             pos += valueChars;
         }
 
         // Write closing bracket
         if (pos + 1 > destination.Length)
+        {
             return false;
+        }
+
         destination[pos++] = ']';
 
         charsWritten = pos;

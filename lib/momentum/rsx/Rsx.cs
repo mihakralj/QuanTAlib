@@ -68,7 +68,9 @@ public sealed class Rsx : ITValuePublisher
     public Rsx(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         WarmupPeriod = period;
@@ -190,7 +192,10 @@ public sealed class Rsx : ITValuePublisher
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -226,12 +231,20 @@ public sealed class Rsx : ITValuePublisher
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double alpha = 3.0 / (period + 2.0);
         double decay = 1.0 - alpha;

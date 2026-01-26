@@ -93,9 +93,14 @@ public sealed class Abber : ITValuePublisher
     public Abber(int period, double multiplier = 2.0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (multiplier <= 0)
+        {
             throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
         _period = period;
         _multiplier = multiplier;
@@ -235,7 +240,9 @@ public sealed class Abber : ITValuePublisher
     public (TSeries Middle, TSeries Upper, TSeries Lower) Update(TSeries source)
     {
         if (source.Count == 0)
+        {
             return (new TSeries([], []), new TSeries([], []), new TSeries([], []));
+        }
 
         int len = source.Count;
         var tMiddle = new List<long>(len);
@@ -302,7 +309,10 @@ public sealed class Abber : ITValuePublisher
     /// </summary>
     public void Prime(TSeries source)
     {
-        if (source.Count == 0) return;
+        if (source.Count == 0)
+        {
+            return;
+        }
 
         // Reset state
         _sourceBuffer.Clear();
@@ -483,13 +493,24 @@ public sealed class Abber : ITValuePublisher
     {
         int len = source.Length;
         if (middle.Length < len || upper.Length < len || lower.Length < len)
+        {
             throw new ArgumentException("Output buffers must be at least as long as input", nameof(middle));
-        if (period <= 0)
-            throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (multiplier <= 0)
-            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
 
-        if (len == 0) return;
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
+        if (multiplier <= 0)
+        {
+            throw new ArgumentException("Multiplier must be greater than 0", nameof(multiplier));
+        }
+
+        if (len == 0)
+        {
+            return;
+        }
 
         // Scalar implementation with NaN handling
         var outputs = new BatchOutputs(middle, upper, lower);
@@ -626,7 +647,10 @@ public sealed class Abber : ITValuePublisher
             buffers.Deviation[state.BufferIndex] = deviation;
 
             state.BufferIndex++;
-            if (state.BufferIndex >= period) state.BufferIndex = 0;
+            if (state.BufferIndex >= period)
+            {
+                state.BufferIndex = 0;
+            }
 
             double middle = state.SumSource / period;
             double avgDeviation = state.SumDeviation / period;

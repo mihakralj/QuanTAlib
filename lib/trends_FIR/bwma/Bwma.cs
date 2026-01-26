@@ -47,9 +47,14 @@ public sealed class Bwma : AbstractBase
     public Bwma(int period, int order = 0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (order < 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(order), "Order must be non-negative");
+        }
 
         _period = period;
         _order = order;
@@ -180,7 +185,10 @@ public sealed class Bwma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -241,13 +249,20 @@ public sealed class Bwma : AbstractBase
     private double CalculateWeightedSum(double fallbackValue)
     {
         int count = _buffer.Count;
-        if (count == 0) return 0;
+        if (count == 0)
+        {
+            return 0;
+        }
 
         if (count < _period)
+        {
             return CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _order, _power, fallbackValue);
+        }
 
         if (_invWeightSum == 0.0)
+        {
             return fallbackValue;
+        }
 
         ReadOnlySpan<double> internalBuf = _buffer.InternalBuffer;
         int head = _buffer.StartIndex;
@@ -262,9 +277,20 @@ public sealed class Bwma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateWeightedSumWarmup(ReadOnlySpan<double> window, int p, int order, double power, double fallbackValue)
     {
-        if (p <= 0) return 0.0;
-        if (p == 1) return fallbackValue;
-        if (p == 2) return fallbackValue;
+        if (p <= 0)
+        {
+            return 0.0;
+        }
+
+        if (p == 1)
+        {
+            return fallbackValue;
+        }
+
+        if (p == 2)
+        {
+            return fallbackValue;
+        }
 
         double scale = 2.0 / (p - 1);
         double sum = 0.0;
@@ -275,7 +301,9 @@ public sealed class Bwma : AbstractBase
             double x = Math.FusedMultiplyAdd(i, scale, -1.0);
             double arg = Math.FusedMultiplyAdd(-x, x, 1.0);
             if (arg <= 0.0)
+            {
                 continue;
+            }
 
             double w;
             if (order == 0)
@@ -292,7 +320,9 @@ public sealed class Bwma : AbstractBase
             }
 
             if (w == 0.0)
+            {
                 continue;
+            }
 
             sum = Math.FusedMultiplyAdd(window[i], w, sum);
             wSum += w;
@@ -311,14 +341,25 @@ public sealed class Bwma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int order = 0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (order < 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(order), "Order must be non-negative");
+        }
+
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         double power = order * 0.5 + 0.5;
 
@@ -352,7 +393,10 @@ public sealed class Bwma : AbstractBase
             }
             finally
             {
-                if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
+                if (bufferArray != null)
+                {
+                    ArrayPool<double>.Shared.Return(bufferArray);
+                }
             }
 
             return;
@@ -390,9 +434,15 @@ public sealed class Bwma : AbstractBase
 
                 ring[ringIdx] = val;
                 ringIdx++;
-                if (ringIdx >= period) ringIdx = 0;
+                if (ringIdx >= period)
+                {
+                    ringIdx = 0;
+                }
 
-                if (count < period) count++;
+                if (count < period)
+                {
+                    count++;
+                }
 
                 if (count < period)
                 {
@@ -415,8 +465,15 @@ public sealed class Bwma : AbstractBase
         }
         finally
         {
-            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
-            if (ringArray != null) ArrayPool<double>.Shared.Return(ringArray);
+            if (weightsArray != null)
+            {
+                ArrayPool<double>.Shared.Return(weightsArray);
+            }
+
+            if (ringArray != null)
+            {
+                ArrayPool<double>.Shared.Return(ringArray);
+            }
         }
     }
 

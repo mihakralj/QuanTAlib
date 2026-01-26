@@ -40,7 +40,10 @@ public class LogtransIndicator : Indicator, IWatchlistIndicator
 
     protected override void OnUpdate(UpdateArgs args)
     {
-        if (_logtrans == null || _selector == null) return;
+        if (_logtrans == null || _selector == null)
+        {
+            return;
+        }
 
         var item = HistoricalData[0, SeekOriginHistory.End];
         double value = _selector(item);

@@ -38,9 +38,14 @@ public sealed class Lineartrans : AbstractBase
     public Lineartrans(double slope = 1.0, double intercept = 0.0)
     {
         if (!double.IsFinite(slope))
+        {
             throw new ArgumentException("Slope must be a finite number", nameof(slope));
+        }
+
         if (!double.IsFinite(intercept))
+        {
             throw new ArgumentException("Intercept must be a finite number", nameof(intercept));
+        }
 
         _slope = slope;
         _intercept = intercept;
@@ -67,9 +72,13 @@ public sealed class Lineartrans : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = input.Value;
         double result;
@@ -129,13 +138,24 @@ public sealed class Lineartrans : AbstractBase
                                   double slope = 1.0, double intercept = 0.0)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (!double.IsFinite(slope))
+        {
             throw new ArgumentException("Slope must be a finite number", nameof(slope));
+        }
+
         if (!double.IsFinite(intercept))
+        {
             throw new ArgumentException("Intercept must be a finite number", nameof(intercept));
+        }
 
         // Check for non-finite values - if any exist, use scalar path only
         // Note: For very large arrays, SIMD-based NaN detection could be faster,

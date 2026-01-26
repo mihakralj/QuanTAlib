@@ -77,7 +77,7 @@ public class MacdIndicatorTests
 
         // Add historical data
         var now = DateTime.UtcNow;
-        for(int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
             indicator.HistoricalData.AddBar(now.AddMinutes(i), 100, 105, 95, 100 + i);
         }
@@ -85,7 +85,7 @@ public class MacdIndicatorTests
         // Process updates
         var args = new UpdateArgs(UpdateReason.HistoricalBar);
 
-        for(int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
             indicator.ProcessUpdate(args);
         }

@@ -584,12 +584,17 @@ public class GBMTests
     {
         double mean = 0;
         for (int i = 0; i < values.Length; i++)
+        {
             mean += values[i];
+        }
+
         mean /= values.Length;
 
         double sumSquares = 0;
         for (int i = 0; i < values.Length; i++)
+        {
             sumSquares += (values[i] - mean) * (values[i] - mean);
+        }
 
         return Math.Sqrt(sumSquares / values.Length);
     }

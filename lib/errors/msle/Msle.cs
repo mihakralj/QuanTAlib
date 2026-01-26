@@ -58,7 +58,10 @@ public sealed class Msle : BiInputIndicatorBase
         ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> errors = len <= StackAllocThreshold
@@ -77,9 +80,22 @@ public sealed class Msle : BiInputIndicatorBase
 
         // Find first valid non-negative values
         for (int i = 0; i < len; i++)
-            if (double.IsFinite(actual[i]) && actual[i] >= 0) { lastValidActual = actual[i]; break; }
+        {
+            if (double.IsFinite(actual[i]) && actual[i] >= 0)
+            {
+                lastValidActual = actual[i];
+                break;
+            }
+        }
+
         for (int i = 0; i < len; i++)
-            if (double.IsFinite(predicted[i]) && predicted[i] >= 0) { lastValidPredicted = predicted[i]; break; }
+        {
+            if (double.IsFinite(predicted[i]) && predicted[i] >= 0)
+            {
+                lastValidPredicted = predicted[i];
+                break;
+            }
+        }
 
         for (int i = 0; i < len; i++)
         {
@@ -87,8 +103,23 @@ public sealed class Msle : BiInputIndicatorBase
             double pred = predicted[i];
 
             // Handle NaN/Infinity and negative values
-            if (double.IsFinite(act) && act >= 0) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred) && pred >= 0) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act) && act >= 0)
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred) && pred >= 0)
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             double logActual = Math.Log(1.0 + act);
             double logPredicted = Math.Log(1.0 + pred);

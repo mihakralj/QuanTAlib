@@ -67,7 +67,9 @@ public sealed class Sum : AbstractBase
     public Sum(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -163,7 +165,10 @@ public sealed class Sum : AbstractBase
     /// </summary>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _buffer.Clear();
@@ -284,7 +289,10 @@ public sealed class Sum : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -325,12 +333,20 @@ public sealed class Sum : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         CalculateScalarCore(source, output, period);
     }
@@ -378,72 +394,82 @@ public sealed class Sum : AbstractBase
             int tickCount = 0;
 
             // Warmup phase
-        int warmupEnd = Math.Min(period, len);
-        for (int i = 0; i < warmupEnd; i++)
-        {
-            double val = source[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
+            int warmupEnd = Math.Min(period, len);
+            for (int i = 0; i < warmupEnd; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                {
+                    lastValid = val;
+                }
+                else
+                {
+                    val = lastValid;
+                }
 
-            // Kahan-Babuška add
-            double y = val - c;
-            double t = sum + y;
-            c = t - sum - y;
-            sum = t;
+                // Kahan-Babuška add
+                double y = val - c;
+                double t = sum + y;
+                c = t - sum - y;
+                sum = t;
 
-            double z = c - cc;
-            double tt = sum + z;
-            cc = tt - sum - z;
-            sum = tt;
+                double z = c - cc;
+                double tt = sum + z;
+                cc = tt - sum - z;
+                sum = tt;
 
-            buffer[i] = val;
-            output[i] = sum;
-        }
+                buffer[i] = val;
+                output[i] = sum;
+            }
 
-        // Main phase with sliding window
-        for (int i = period; i < len; i++)
-        {
-            double val = source[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
+            // Main phase with sliding window
+            for (int i = period; i < len; i++)
+            {
+                double val = source[i];
+                if (double.IsFinite(val))
+                {
+                    lastValid = val;
+                }
+                else
+                {
+                    val = lastValid;
+                }
 
-            double oldVal = buffer[bufferIndex];
+                double oldVal = buffer[bufferIndex];
 
-            // Kahan-Babuška subtract old value
-            double yS = -oldVal - c;
-            double tS = sum + yS;
-            c = tS - sum - yS;
-            sum = tS;
+                // Kahan-Babuška subtract old value
+                double yS = -oldVal - c;
+                double tS = sum + yS;
+                c = tS - sum - yS;
+                sum = tS;
 
-            double zS = c - cc;
-            double ttS = sum + zS;
-            cc = ttS - sum - zS;
-            sum = ttS;
+                double zS = c - cc;
+                double ttS = sum + zS;
+                cc = ttS - sum - zS;
+                sum = ttS;
 
-            // Kahan-Babuška add new value
-            double yA = val - c;
-            double tA = sum + yA;
-            c = tA - sum - yA;
-            sum = tA;
+                // Kahan-Babuška add new value
+                double yA = val - c;
+                double tA = sum + yA;
+                c = tA - sum - yA;
+                sum = tA;
 
-            double zA = c - cc;
-            double ttA = sum + zA;
-            cc = ttA - sum - zA;
-            sum = ttA;
+                double zA = c - cc;
+                double ttA = sum + zA;
+                cc = ttA - sum - zA;
+                sum = ttA;
 
-            buffer[bufferIndex] = val;
-            bufferIndex++;
-            if (bufferIndex >= period)
-                bufferIndex = 0;
+                buffer[bufferIndex] = val;
+                bufferIndex++;
+                if (bufferIndex >= period)
+                {
+                    bufferIndex = 0;
+                }
 
-            output[i] = sum;
+                output[i] = sum;
 
-            // Periodic resync for long sequences
-            tickCount++;
+                // Periodic resync for long sequences
+                tickCount++;
                 if (tickCount >= ResyncInterval)
                 {
                     tickCount = 0;
@@ -468,7 +494,10 @@ public sealed class Sum : AbstractBase
         }
         finally
         {
-            if (bufferArray != null) ArrayPool<double>.Shared.Return(bufferArray);
+            if (bufferArray != null)
+            {
+                ArrayPool<double>.Shared.Return(bufferArray);
+            }
         }
     }
 

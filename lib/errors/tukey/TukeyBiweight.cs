@@ -35,7 +35,9 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
         : base(period, $"TukeyBiweight({period},{c:F3})")
     {
         if (c <= 0)
+        {
             throw new ArgumentException("Threshold c must be positive", nameof(c));
+        }
 
         C = c;
         _cSquaredOver6 = (c * c) / 6.0;
@@ -53,7 +55,9 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
         double absError = Math.Abs(error);
 
         if (absError > C)
+        {
             return _cSquaredOver6;
+        }
 
         double ratio = error / C;
         double ratioSq = ratio * ratio;
@@ -65,7 +69,9 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period, double c = DefaultC)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -86,14 +92,25 @@ public sealed class TukeyBiweight : BiInputIndicatorBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period, double c = DefaultC)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (c <= 0)
+        {
             throw new ArgumentException("Threshold c must be positive", nameof(c));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Rent buffer for intermediate Tukey biweight errors
         double[] rented = ArrayPool<double>.Shared.Rent(len);

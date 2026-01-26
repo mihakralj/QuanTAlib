@@ -76,7 +76,9 @@ public sealed class LinReg : AbstractBase
     public LinReg(int period, int offset = 0)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _offset = offset;
@@ -262,7 +264,10 @@ public sealed class LinReg : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -332,12 +337,20 @@ public sealed class LinReg : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int offset = 0, double initialLastValid = 0)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Stack allocate for typical periods (most < 100)
         // ArrayPool for large periods to avoid stack overflow
@@ -353,87 +366,95 @@ public sealed class LinReg : AbstractBase
         try
         {
 
-        double sum_y = 0;
-        double sum_xy = 0;
-        double lastValid = initialLastValid;
-        int bufferIndex = 0;
-        int count = 0;
+            double sum_y = 0;
+            double sum_xy = 0;
+            double lastValid = initialLastValid;
+            int bufferIndex = 0;
+            int count = 0;
 
-        double full_sum_x = 0.5 * period * (period - 1);
-        double full_sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
-        double full_denom = period * full_sum_x2 - full_sum_x * full_sum_x;
+            double full_sum_x = 0.5 * period * (period - 1);
+            double full_sum_x2 = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
+            double full_denom = period * full_sum_x2 - full_sum_x * full_sum_x;
 
-        for (int i = 0; i < len; i++)
-        {
-            double val = source[i];
-            if (double.IsFinite(val))
-                lastValid = val;
-            else
-                val = lastValid;
-
-            if (count < period)
+            for (int i = 0; i < len; i++)
             {
-                buffer[count] = val;
-                sum_y += val;
-                count++;
-
-                sum_xy = 0;
-                for (int j = 0; j < count; j++)
+                double val = source[i];
+                if (double.IsFinite(val))
                 {
-                    sum_xy = Math.FusedMultiplyAdd(count - 1 - j, buffer[j], sum_xy);
-                }
-
-                if (count <= 1)
-                {
-                    output[i] = val;
+                    lastValid = val;
                 }
                 else
                 {
-                    double n = count;
-                    double sx = 0.5 * n * (n - 1);
-                    double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
-                    double denom = n * sx2 - sx * sx;
+                    val = lastValid;
+                }
 
-                    if (Math.Abs(denom) < MinDenominator)
+                if (count < period)
+                {
+                    buffer[count] = val;
+                    sum_y += val;
+                    count++;
+
+                    sum_xy = 0;
+                    for (int j = 0; j < count; j++)
+                    {
+                        sum_xy = Math.FusedMultiplyAdd(count - 1 - j, buffer[j], sum_xy);
+                    }
+
+                    if (count <= 1)
                     {
                         output[i] = val;
                     }
                     else
                     {
-                        double m = Math.FusedMultiplyAdd(n, sum_xy, -sx * sum_y) / denom;
-                        double b = Math.FusedMultiplyAdd(-m, sx, sum_y) / n;
-                        output[i] = Math.FusedMultiplyAdd(-m, offset, b);
+                        double n = count;
+                        double sx = 0.5 * n * (n - 1);
+                        double sx2 = (n - 1.0) * n * (2.0 * n - 1.0) / 6.0;
+                        double denom = n * sx2 - sx * sx;
+
+                        if (Math.Abs(denom) < MinDenominator)
+                        {
+                            output[i] = val;
+                        }
+                        else
+                        {
+                            double m = Math.FusedMultiplyAdd(n, sum_xy, -sx * sum_y) / denom;
+                            double b = Math.FusedMultiplyAdd(-m, sx, sum_y) / n;
+                            output[i] = Math.FusedMultiplyAdd(-m, offset, b);
+                        }
+                    }
+
+                    if (count == period)
+                    {
+                        bufferIndex = 0;
                     }
                 }
+                else
+                {
+                    double oldest = buffer[bufferIndex];
+                    double prev_sum_y = sum_y;
 
-            if (count == period)
-            {
-                bufferIndex = 0;
+                    sum_xy = sum_xy + prev_sum_y - period * oldest;
+                    sum_y = sum_y - oldest + val;
+                    buffer[bufferIndex] = val;
+
+                    bufferIndex++;
+                    if (bufferIndex >= period)
+                    {
+                        bufferIndex = 0;
+                    }
+
+                    double m = Math.FusedMultiplyAdd(period, sum_xy, -full_sum_x * sum_y) / full_denom;
+                    double b = Math.FusedMultiplyAdd(-m, full_sum_x, sum_y) / period;
+                    output[i] = Math.FusedMultiplyAdd(-m, offset, b);
+                }
             }
-        }
-        else
-        {
-            double oldest = buffer[bufferIndex];
-            double prev_sum_y = sum_y;
-
-            sum_xy = sum_xy + prev_sum_y - period * oldest;
-            sum_y = sum_y - oldest + val;
-            buffer[bufferIndex] = val;
-
-            bufferIndex++;
-            if (bufferIndex >= period)
-                bufferIndex = 0;
-
-            double m = Math.FusedMultiplyAdd(period, sum_xy, -full_sum_x * sum_y) / full_denom;
-            double b = Math.FusedMultiplyAdd(-m, full_sum_x, sum_y) / period;
-            output[i] = Math.FusedMultiplyAdd(-m, offset, b);
-        }
-    }
         }
         finally
         {
             if (rentedBuffer != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedBuffer);
+            }
         }
     }
 

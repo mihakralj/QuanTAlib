@@ -33,7 +33,9 @@ public sealed class Lowest : AbstractBase
     public Lowest(int period)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -58,9 +60,13 @@ public sealed class Lowest : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = double.IsFinite(input.Value) ? input.Value : _state.LastValid;
         _state = new State(value);
@@ -112,11 +118,19 @@ public sealed class Lowest : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         int len = source.Length;
 
@@ -162,18 +176,25 @@ public sealed class Lowest : AbstractBase
 
                 // Remove indices outside window
                 while (dequeEnd > dequeStart && deque[dequeStart] <= i - period)
+                {
                     dequeStart++;
+                }
 
                 // Remove larger values from back (use values[] for corrected values)
                 while (dequeEnd > dequeStart && values[deque[dequeEnd - 1]] >= value)
+                {
                     dequeEnd--;
+                }
 
                 // Compact deque if needed
                 if (dequeEnd >= deque.Length)
                 {
                     int count = dequeEnd - dequeStart;
                     for (int j = 0; j < count; j++)
+                    {
                         deque[j] = deque[dequeStart + j];
+                    }
+
                     dequeStart = 0;
                     dequeEnd = count;
                 }
@@ -185,9 +206,14 @@ public sealed class Lowest : AbstractBase
         finally
         {
             if (rentedDeque != null)
+            {
                 System.Buffers.ArrayPool<int>.Shared.Return(rentedDeque);
+            }
+
             if (rentedValues != null)
+            {
                 System.Buffers.ArrayPool<double>.Shared.Return(rentedValues);
+            }
         }
     }
 

@@ -112,7 +112,9 @@ public sealed class Bop : ITValuePublisher
     {
         int len = Math.Min(open.Length, Math.Min(high.Length, Math.Min(low.Length, close.Length)));
         if (destination.Length < len)
+        {
             len = destination.Length;
+        }
 
         int i = 0;
         if (Vector.IsHardwareAccelerated && len >= Vector<double>.Count)
@@ -162,7 +164,10 @@ public sealed class Bop : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TSeries Batch(TBarSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         var len = source.Count;
 

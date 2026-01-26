@@ -108,7 +108,10 @@ public sealed class Macd : ITValuePublisher, IDisposable
 
     public TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var len = source.Count;
         var t = new List<long>(len);
@@ -142,7 +145,9 @@ public sealed class Macd : ITValuePublisher, IDisposable
     public static void Calculate(ReadOnlySpan<double> source, Span<double> destination, int fastPeriod = 12, int slowPeriod = 26)
     {
         if (source.Length != destination.Length)
+        {
             throw new ArgumentException("Source and destination must be same length", nameof(destination));
+        }
 
         int len = source.Length;
         double[] fastBuffer = ArrayPool<double>.Shared.Rent(len);

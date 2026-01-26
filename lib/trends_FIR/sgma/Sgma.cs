@@ -58,9 +58,14 @@ public sealed class Sgma : AbstractBase
     public Sgma(int period = 9, int degree = 2)
     {
         if (period < 3)
+        {
             throw new ArgumentException("Period must be at least 3", nameof(period));
+        }
+
         if (degree < 0 || degree > 4)
+        {
             throw new ArgumentException("Degree must be between 0 and 4", nameof(degree));
+        }
 
         // Ensure period is odd
         _period = period % 2 == 0 ? period + 1 : period;
@@ -115,7 +120,11 @@ public sealed class Sgma : AbstractBase
                 weights[5] = 0.0952;
                 weights[6] = -0.0476;
                 double sum7 = 0.0;
-                for (int i = 0; i < 7; i++) sum7 += weights[i];
+                for (int i = 0; i < 7; i++)
+                {
+                    sum7 += weights[i];
+                }
+
                 invWeightSum = Math.Abs(sum7) > double.Epsilon ? 1.0 / sum7 : 0.0;
                 return;
             }
@@ -132,7 +141,11 @@ public sealed class Sgma : AbstractBase
                 weights[7] = 0.0337;
                 weights[8] = -0.0281;
                 double sum9 = 0.0;
-                for (int i = 0; i < 9; i++) sum9 += weights[i];
+                for (int i = 0; i < 9; i++)
+                {
+                    sum9 += weights[i];
+                }
+
                 invWeightSum = Math.Abs(sum9) > double.Epsilon ? 1.0 / sum9 : 0.0;
                 return;
             }
@@ -209,7 +222,11 @@ public sealed class Sgma : AbstractBase
         if (!double.IsFinite(val))
         {
             Last = new TValue(input.Time, double.NaN);
-            if (publish) PubEvent(Last, isNew);
+            if (publish)
+            {
+                PubEvent(Last, isNew);
+            }
+
             return Last;
         }
 
@@ -264,7 +281,10 @@ public sealed class Sgma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -318,13 +338,24 @@ public sealed class Sgma : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 9, int degree = 2)
     {
         if (period < 3)
+        {
             throw new ArgumentException("Period must be at least 3", nameof(period));
-        if (degree < 0 || degree > 4)
-            throw new ArgumentException("Degree must be between 0 and 4", nameof(degree));
-        if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (degree < 0 || degree > 4)
+        {
+            throw new ArgumentException("Degree must be between 0 and 4", nameof(degree));
+        }
+
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         int usePeriod = period % 2 == 0 ? period + 1 : period;
         int useDegree = degree >= usePeriod ? 2 : degree;
@@ -366,9 +397,15 @@ public sealed class Sgma : AbstractBase
 
                 ring[ringIdx] = val;
                 ringIdx++;
-                if (ringIdx >= usePeriod) ringIdx = 0;
+                if (ringIdx >= usePeriod)
+                {
+                    ringIdx = 0;
+                }
 
-                if (count < usePeriod) count++;
+                if (count < usePeriod)
+                {
+                    count++;
+                }
 
                 if (count < usePeriod)
                 {
@@ -391,8 +428,15 @@ public sealed class Sgma : AbstractBase
         }
         finally
         {
-            if (weightsArray != null) ArrayPool<double>.Shared.Return(weightsArray);
-            if (ringArray != null) ArrayPool<double>.Shared.Return(ringArray);
+            if (weightsArray != null)
+            {
+                ArrayPool<double>.Shared.Return(weightsArray);
+            }
+
+            if (ringArray != null)
+            {
+                ArrayPool<double>.Shared.Return(ringArray);
+            }
         }
     }
 
@@ -400,7 +444,9 @@ public sealed class Sgma : AbstractBase
     private static double CalculateWeightedSumFull(RingBuffer buffer, double[] weights, double invWeightSum, double fallbackValue)
     {
         if (Math.Abs(invWeightSum) < double.Epsilon)
+        {
             return fallbackValue;
+        }
 
         ReadOnlySpan<double> internalBuf = buffer.InternalBuffer;
         int head = buffer.StartIndex;
@@ -416,8 +462,15 @@ public sealed class Sgma : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalculateWeightedSumWarmup(ReadOnlySpan<double> window, int p, int degree, double fallbackValue)
     {
-        if (p <= 0) return 0.0;
-        if (p == 1) return fallbackValue;
+        if (p <= 0)
+        {
+            return 0.0;
+        }
+
+        if (p == 1)
+        {
+            return fallbackValue;
+        }
 
         if (degree == 2)
         {

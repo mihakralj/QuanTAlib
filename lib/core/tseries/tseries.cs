@@ -41,7 +41,9 @@ public struct TSeriesEnumerator : IEnumerator<TValue>, IEquatable<TSeriesEnumera
     public bool MoveNext()
     {
         if (_index + 1 >= _count)
+        {
             return false;
+        }
 
         _index++;
         _current = new TValue(_t[_index], _v[_index]);

@@ -40,7 +40,9 @@ public sealed class Conv : AbstractBase
     public Conv(double[] kernel)
     {
         if (kernel == null || kernel.Length == 0)
+        {
             throw new ArgumentException("Kernel must not be empty", nameof(kernel));
+        }
 
         _period = kernel.Length;
         _kernel = new double[_period];
@@ -134,7 +136,10 @@ public sealed class Conv : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         List<long> t = new(len);
@@ -209,13 +214,21 @@ public sealed class Conv : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, double[] kernel)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (kernel == null || kernel.Length == 0)
+        {
             throw new ArgumentException("Kernel must not be empty", nameof(kernel));
+        }
 
         int len = source.Length;
         int period = kernel.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Use stackalloc for small kernels to avoid heap allocation
         Span<double> window = period <= 256 ? stackalloc double[period] : new double[period];
@@ -240,9 +253,15 @@ public sealed class Conv : AbstractBase
 
             window[windowIdx] = val;
             windowIdx = (windowIdx + 1);
-            if (windowIdx >= period) windowIdx = 0;
+            if (windowIdx >= period)
+            {
+                windowIdx = 0;
+            }
 
-            if (count < period) count++;
+            if (count < period)
+            {
+                count++;
+            }
 
             double sum = 0;
 

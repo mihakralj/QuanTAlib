@@ -153,7 +153,9 @@ public class LineartransValidationTests
         // Create shifted series
         var shifted = new TSeries();
         for (int i = 0; i < series.Count; i++)
+        {
             shifted.Add(new TValue(series[i].Time, series[i].Value + offset), true);
+        }
 
         // a * (x + offset) should equal a*x + a*offset
         var scaledSum = Lineartrans.Calculate(shifted, a, 0.0);

@@ -38,7 +38,9 @@ public sealed class Wmape : AbstractBase
     public Wmape(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _absErrorBuffer = new RingBuffer(period);
         _absActualBuffer = new RingBuffer(period);
@@ -65,14 +67,22 @@ public sealed class Wmape : AbstractBase
         }
 
         if (!double.IsFinite(actualVal))
+        {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
+        }
         else
+        {
             _state.LastValidActual = actualVal;
+        }
 
         if (!double.IsFinite(predictedVal))
+        {
             predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
+        }
         else
+        {
             _state.LastValidPredicted = predictedVal;
+        }
 
         double absError = Math.Abs(actualVal - predictedVal);
         double absActual = Math.Abs(actualVal);
@@ -148,7 +158,9 @@ public sealed class Wmape : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -169,12 +181,20 @@ public sealed class Wmape : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Use stackalloc for small periods, ArrayPool for larger
         scoped Span<double> absErrorBuffer;
@@ -202,14 +222,22 @@ public sealed class Wmape : AbstractBase
             double lastValidActual = 0;
             double lastValidPredicted = 0;
 
-            for (int k = 0; k < len; k++)
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(actual[k]))
             {
-                if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+                lastValidActual = actual[k];
+                break;
             }
-            for (int k = 0; k < len; k++)
+        }
+        for (int k = 0; k < len; k++)
+        {
+            if (double.IsFinite(predicted[k]))
             {
-                if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+                lastValidPredicted = predicted[k];
+                break;
             }
+        }
 
             int bufferIndex = 0;
             int i = 0;
@@ -220,8 +248,23 @@ public sealed class Wmape : AbstractBase
                 double act = actual[i];
                 double pred = predicted[i];
 
-                if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-                if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+                if (double.IsFinite(act))
+                {
+                    lastValidActual = act;
+                }
+                else
+                {
+                    act = lastValidActual;
+                }
+
+                if (double.IsFinite(pred))
+                {
+                    lastValidPredicted = pred;
+                }
+                else
+                {
+                    pred = lastValidPredicted;
+                }
 
                 double absError = Math.Abs(act - pred);
                 double absActual = Math.Abs(act);
@@ -240,8 +283,23 @@ public sealed class Wmape : AbstractBase
                 double act = actual[i];
                 double pred = predicted[i];
 
-                if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-                if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+                if (double.IsFinite(act))
+                {
+                    lastValidActual = act;
+                }
+                else
+                {
+                    act = lastValidActual;
+                }
+
+                if (double.IsFinite(pred))
+                {
+                    lastValidPredicted = pred;
+                }
+                else
+                {
+                    pred = lastValidPredicted;
+                }
 
                 double absError = Math.Abs(act - pred);
                 double absActual = Math.Abs(act);
@@ -252,7 +310,10 @@ public sealed class Wmape : AbstractBase
                 absActualBuffer[bufferIndex] = absActual;
 
                 bufferIndex++;
-                if (bufferIndex >= period) bufferIndex = 0;
+                if (bufferIndex >= period)
+                {
+                    bufferIndex = 0;
+                }
 
                 output[i] = absActualSum > 1e-10 ? (absErrorSum / absActualSum) * 100.0 : 0.0;
 
@@ -274,9 +335,14 @@ public sealed class Wmape : AbstractBase
         finally
         {
             if (rentedError != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedError);
+            }
+
             if (rentedActual != null)
+            {
                 ArrayPool<double>.Shared.Return(rentedActual);
+            }
         }
     }
 }

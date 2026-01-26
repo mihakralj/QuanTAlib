@@ -23,7 +23,11 @@ public class HannValidationTests : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         if (disposing)
         {
             _testData?.Dispose();
@@ -71,9 +75,13 @@ public class HannValidationTests : IDisposable
             }
 
             if (wSum > double.Epsilon)
+            {
                 result[i] = acc / wSum;
+            }
             else
+            {
                 result[i] = source[i];
+            }
         }
 
         return result;

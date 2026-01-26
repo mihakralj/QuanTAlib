@@ -59,7 +59,9 @@ public class AdxTests
         var bars = gbm.Fetch(100, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 50; i++)
+        {
             adx.Update(bars[i]);
+        }
 
         var originalValue = adx.Last;
 
@@ -110,7 +112,10 @@ public class AdxTests
         for (int i = 0; i < bars.Count; i++)
         {
             adx.Update(bars[i]);
-            if (adx.IsHot) break;
+            if (adx.IsHot)
+            {
+                break;
+            }
         }
 
         Assert.True(adx.IsHot);
@@ -124,7 +129,9 @@ public class AdxTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 40; i++)
+        {
             adx.Update(bars[i]);
+        }
 
         var nanBar = new TBar(DateTime.UtcNow, double.NaN, double.NaN, double.NaN, double.NaN, 100);
         var result = adx.Update(nanBar);
@@ -140,7 +147,9 @@ public class AdxTests
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
         for (int i = 0; i < 40; i++)
+        {
             adx.Update(bars[i]);
+        }
 
         var infBar = new TBar(DateTime.UtcNow, double.PositiveInfinity, double.PositiveInfinity, 0, 100, 100);
         var result = adx.Update(infBar);
@@ -161,7 +170,10 @@ public class AdxTests
         // 2. Streaming Mode
         var streamAdx = new Adx(14);
         for (int i = 0; i < bars.Count; i++)
+        {
             streamAdx.Update(bars[i]);
+        }
+
         double streamResult = streamAdx.Last.Value;
 
         Assert.Equal(expected, streamResult, 9);

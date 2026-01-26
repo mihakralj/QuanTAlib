@@ -49,7 +49,11 @@ public sealed class EllipticValidationTests : IDisposable
 
     private static double StdDev(List<double> values)
     {
-        if (values.Count < 2) return 0;
+        if (values.Count < 2)
+        {
+            return 0;
+        }
+
         double avg = values.Average();
         double sumSq = values.Sum(v => Math.Pow(v - avg, 2));
         return Math.Sqrt(sumSq / (values.Count - 1));

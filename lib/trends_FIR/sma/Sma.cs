@@ -45,7 +45,9 @@ public sealed class Sma : AbstractBase
     public Sma(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -92,7 +94,10 @@ public sealed class Sma : AbstractBase
     /// <param name="source">Historical data (only the last 'period' is actually needed)</param>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         // Reset state
         _buffer.Clear();
@@ -213,7 +218,10 @@ public sealed class Sma : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -262,12 +270,20 @@ public sealed class Sma : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Try SIMD path for large, clean datasets
         // Requirements: SIMD support, large enough dataset, no NaN values
@@ -345,9 +361,13 @@ public sealed class Sma : AbstractBase
             {
                 double val = source[i];
                 if (double.IsFinite(val))
+                {
                     lastValid = val;
+                }
                 else
+                {
                     val = lastValid;
+                }
 
                 sum += val;
                 buffer[i] = val;
@@ -359,16 +379,22 @@ public sealed class Sma : AbstractBase
             {
                 double val = source[i];
                 if (double.IsFinite(val))
+                {
                     lastValid = val;
+                }
                 else
+                {
                     val = lastValid;
+                }
 
                 sum = Math.FusedMultiplyAdd(-1.0, buffer[bufferIndex], sum + val);
                 buffer[bufferIndex] = val;
 
                 bufferIndex++;
                 if (bufferIndex >= period)
+                {
                     bufferIndex = 0;
+                }
 
                 output[i] = sum / period;
 
@@ -388,7 +414,9 @@ public sealed class Sma : AbstractBase
         finally
         {
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 
@@ -412,7 +440,9 @@ public sealed class Sma : AbstractBase
         }
 
         if (len <= period)
+        {
             return;
+        }
 
         var vInvPeriod = Vector512.Create(invPeriod);
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;
@@ -486,7 +516,9 @@ public sealed class Sma : AbstractBase
         }
 
         if (len <= period)
+        {
             return;
+        }
 
         var vInvPeriod = Vector256.Create(invPeriod);
         var vZero = Vector256<double>.Zero;
@@ -559,7 +591,9 @@ public sealed class Sma : AbstractBase
         }
 
         if (len <= period)
+        {
             return;
+        }
 
         var vInvPeriod = Vector128.Create(invPeriod);
         int simdEnd = period + (len - period) / VectorWidth * VectorWidth;

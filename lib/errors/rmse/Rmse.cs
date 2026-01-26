@@ -57,7 +57,10 @@ public sealed class Rmse : BiInputIndicatorBase
         ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> sqErrors = len <= StackAllocThreshold

@@ -74,7 +74,7 @@ public class NotchTests
         double output = 0;
 
         // Warmup to stabilize (IIR transient)
-        for(int i=0; i<100; i++)
+        for (int i = 0; i < 100; i++)
         {
             output = notch.Update(new TValue(DateTime.UtcNow, input)).Value;
         }
@@ -101,7 +101,7 @@ public class NotchTests
 
             if (i > 50) // ignore transient
             {
-               maxAmp = Math.Max(maxAmp, Math.Abs(outVal));
+                maxAmp = Math.Max(maxAmp, Math.Abs(outVal));
             }
         }
 

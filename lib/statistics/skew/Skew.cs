@@ -104,7 +104,11 @@ public sealed class Skew : AbstractBase
             // Calculate 2nd moment (Variance)
             // m2 = Sum((x-mean)^2) / n = (SumSq - Sum^2/n) / n
             double m2Numerator = _sumSq - (_sum * _sum) / n;
-            if (m2Numerator < Epsilon) m2Numerator = 0;
+            if (m2Numerator < Epsilon)
+            {
+                m2Numerator = 0;
+            }
+
             double m2 = m2Numerator / n;
 
             // Calculate 3rd moment
@@ -143,7 +147,10 @@ public sealed class Skew : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -225,12 +232,20 @@ public sealed class Skew : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, bool isPopulation = false)
     {
         if (source.Length != output.Length)
+        {
             throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
         if (period < 3)
+        {
             throw new ArgumentException("Period must be greater than or equal to 3", nameof(period));
+        }
 
         int len = source.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         // Try SIMD path for large, clean datasets
         // SIMD overhead amortizes well for datasets >= 256 elements
@@ -260,7 +275,10 @@ public sealed class Skew : AbstractBase
         for (; i < warmupEnd; i++)
         {
             double val = source[i];
-            if (!double.IsFinite(val)) val = 0;
+            if (!double.IsFinite(val))
+            {
+                val = 0;
+            }
 
             sum += val;
             sumSq += val * val;
@@ -275,10 +293,16 @@ public sealed class Skew : AbstractBase
         for (; i < len; i++)
         {
             double val = source[i];
-            if (!double.IsFinite(val)) val = 0;
+            if (!double.IsFinite(val))
+            {
+                val = 0;
+            }
 
             double oldVal = source[i - period];
-            if (!double.IsFinite(oldVal)) oldVal = 0;
+            if (!double.IsFinite(oldVal))
+            {
+                oldVal = 0;
+            }
 
             sum = sum - oldVal + val;
             sumSq = sumSq - (oldVal * oldVal) + (val * val);
@@ -297,7 +321,11 @@ public sealed class Skew : AbstractBase
                 for (int k = 0; k < period; k++)
                 {
                     double v = source[startIdx + k];
-                    if (!double.IsFinite(v)) v = 0;
+                    if (!double.IsFinite(v))
+                    {
+                        v = 0;
+                    }
+
                     recalcSum += v;
                     recalcSumSq += v * v;
                     recalcSumCu += v * v * v;
@@ -315,13 +343,20 @@ public sealed class Skew : AbstractBase
         double mean = sum / n;
 
         double m2Numerator = sumSq - (sum * sum) / n;
-        if (m2Numerator < Epsilon) return 0;
+        if (m2Numerator < Epsilon)
+        {
+            return 0;
+        }
+
         double m2 = m2Numerator / n;
 
         double m3Numerator = sumCu - 3 * mean * sumSq + 2 * n * mean * mean * mean;
         double m3 = m3Numerator / n;
 
-        if (m2 <= Epsilon) return 0;
+        if (m2 <= Epsilon)
+        {
+            return 0;
+        }
 
         double g1 = m3 / (m2 * Math.Sqrt(m2));
 
@@ -367,7 +402,10 @@ public sealed class Skew : AbstractBase
 
         WarmupSkew(period, isPopulation, ref srcRef, ref outRef, out double sum, out double sumSq, out double sumCu);
 
-        if (len <= period) return;
+        if (len <= period)
+        {
+            return;
+        }
 
         var vInvN = Vector256.Create(invN);
         var vN = Vector256.Create(n);

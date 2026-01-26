@@ -64,7 +64,10 @@ public sealed class Mpe : BiInputIndicatorBase
         ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> errors = len <= StackAllocThreshold
@@ -82,17 +85,45 @@ public sealed class Mpe : BiInputIndicatorBase
         double lastValidActual = 1.0, lastValidPredicted = 0;
 
         for (int i = 0; i < len; i++)
-            if (double.IsFinite(actual[i]) && Math.Abs(actual[i]) >= Epsilon) { lastValidActual = actual[i]; break; }
+        {
+            if (double.IsFinite(actual[i]) && Math.Abs(actual[i]) >= Epsilon)
+            {
+                lastValidActual = actual[i];
+                break;
+            }
+        }
+
         for (int i = 0; i < len; i++)
-            if (double.IsFinite(predicted[i])) { lastValidPredicted = predicted[i]; break; }
+        {
+            if (double.IsFinite(predicted[i]))
+            {
+                lastValidPredicted = predicted[i];
+                break;
+            }
+        }
 
         for (int i = 0; i < len; i++)
         {
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act) && Math.Abs(act) >= Epsilon) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act) && Math.Abs(act) >= Epsilon)
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             // Use signed epsilon to preserve the original sign when actual is near zero
             double divisor;

@@ -184,8 +184,8 @@ public class JerkIndicatorTests
 
         var now = DateTime.UtcNow;
 
-        // Cubic trend: f(x) = x³ has third derivative = 6
-        // Using f(i) = i³, the discrete third differences converge to 6
+        // Cubic trend: f(x) = xÂ³ has third derivative = 6
+        // Using f(i) = iÂ³, the discrete third differences converge to 6
         for (int i = 0; i < 10; i++)
         {
             double price = 100 + i * i * i; // cubic growth
@@ -194,7 +194,7 @@ public class JerkIndicatorTests
         }
 
         double lastJerk = indicator.LinesSeries[0].GetValue(0);
-        // For f(x) = x³, discrete third difference = 6
+        // For f(x) = xÂ³, discrete third difference = 6
         Assert.Equal(6.0, lastJerk, 6);
     }
 

@@ -52,7 +52,9 @@ public sealed class Atrp : AbstractBase
     public Atrp(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _alpha = 1.0 / period;
         _decay = 1.0 - _alpha;
@@ -135,18 +137,45 @@ public sealed class Atrp : AbstractBase
     public TValue Update(TBar input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         // Get valid values with last-value substitution
         double high = input.High;
         double low = input.Low;
         double close = input.Close;
 
-        if (double.IsFinite(high)) _state.LastValidHigh = high; else high = _state.LastValidHigh;
-        if (double.IsFinite(low)) _state.LastValidLow = low; else low = _state.LastValidLow;
-        if (double.IsFinite(close)) _state.LastValidClose = close; else close = _state.LastValidClose;
+        if (double.IsFinite(high))
+        {
+            _state.LastValidHigh = high;
+        }
+        else
+        {
+            high = _state.LastValidHigh;
+        }
+
+        if (double.IsFinite(low))
+        {
+            _state.LastValidLow = low;
+        }
+        else
+        {
+            low = _state.LastValidLow;
+        }
+
+        if (double.IsFinite(close))
+        {
+            _state.LastValidClose = close;
+        }
+        else
+        {
+            close = _state.LastValidClose;
+        }
 
         // Handle case where no valid values yet
         if (double.IsNaN(close))
@@ -212,7 +241,10 @@ public sealed class Atrp : AbstractBase
     /// </summary>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         var t = new List<long>(source.Count);
         var v = new List<double>(source.Count);

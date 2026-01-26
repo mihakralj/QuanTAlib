@@ -48,7 +48,10 @@ public sealed class LogCosh : BiInputIndicatorBase
         double absX = Math.Abs(x);
         // For large values, use asymptotic approximation to avoid overflow
         if (absX > 20.0)
+        {
             return absX - 0.6931471805599453; // log(2)
+        }
+
         return Math.Log(Math.Cosh(x));
     }
 
@@ -67,7 +70,10 @@ public sealed class LogCosh : BiInputIndicatorBase
         ValidateBatchInputs(actual, predicted, output, period);
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         if (len <= StackAllocThreshold)

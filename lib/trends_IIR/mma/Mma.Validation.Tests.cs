@@ -68,9 +68,13 @@ public class MmaValidationTests
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -79,16 +83,22 @@ public class MmaValidationTests
             }
 
             if (count < window)
+            {
                 count++;
+            }
             else
+            {
                 sum -= buffer[head];
+            }
 
             buffer[head] = val;
             sum += val;
 
             head++;
             if (head == window)
+            {
                 head = 0;
+            }
 
             double sma = sum / count;
             double weightedSum = ComputeWeightedSum(buffer, head, count);
@@ -101,7 +111,9 @@ public class MmaValidationTests
     {
         int idx = head - 1;
         if (idx < 0)
+        {
             idx = count - 1;
+        }
 
         double weightedSum = 0.0;
         for (int i = 0; i < count; i++)
@@ -111,7 +123,9 @@ public class MmaValidationTests
 
             idx--;
             if (idx < 0)
+            {
                 idx = count - 1;
+            }
         }
 
         return weightedSum;

@@ -41,13 +41,24 @@ public sealed class Kama : AbstractBase
     public Kama(int period = 10, int fastPeriod = 2, int slowPeriod = 30)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
         if (fastPeriod <= 0)
+        {
             throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
         if (slowPeriod <= 0)
+        {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
         if (fastPeriod >= slowPeriod)
+        {
             throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         // Buffer needs to hold period + 1 values to calculate Change over 'period' bars
         // Change = Price[0] - Price[period]
@@ -161,7 +172,10 @@ public sealed class Kama : AbstractBase
             // Avoid division by zero
             double er = (volatility > 1e-10) ? change / volatility : 0.0;
             // Cap ER at 1.0 just in case floating point errors push it slightly over
-            if (er > 1.0) er = 1.0;
+            if (er > 1.0)
+            {
+                er = 1.0;
+            }
 
             // double sc = er * (_fastAlpha - _slowAlpha) + _slowAlpha;  // skipcq: S125
             double sc = Math.FusedMultiplyAdd(er, _fastAlpha - _slowAlpha, _slowAlpha);
@@ -184,7 +198,10 @@ public sealed class Kama : AbstractBase
 
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return new TSeries([], []);
+        if (source.Count == 0)
+        {
+            return new TSeries([], []);
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -227,11 +244,30 @@ public sealed class Kama : AbstractBase
 
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period, int fastPeriod = 2, int slowPeriod = 30)
     {
-        if (period <= 0) throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (fastPeriod <= 0) throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
-        if (slowPeriod <= 0) throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
-        if (fastPeriod >= slowPeriod) throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
-        if (source.Length != output.Length) throw new ArgumentException("Source and output must have the same length", nameof(output));
+        if (period <= 0)
+        {
+            throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
+
+        if (fastPeriod <= 0)
+        {
+            throw new ArgumentException("Fast period must be greater than 0", nameof(fastPeriod));
+        }
+
+        if (slowPeriod <= 0)
+        {
+            throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
+        }
+
+        if (fastPeriod >= slowPeriod)
+        {
+            throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
+
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
         double fastAlpha = 2.0 / (fastPeriod + 1);
         double slowAlpha = 2.0 / (slowPeriod + 1);
@@ -252,9 +288,13 @@ public sealed class Kama : AbstractBase
         {
             double val = source[i];
             if (double.IsFinite(val))
+            {
                 lastValid = val;
+            }
             else
+            {
                 val = lastValid;
+            }
 
             if (double.IsNaN(val))
             {
@@ -287,7 +327,10 @@ public sealed class Kama : AbstractBase
             }
 
             bufferIdx = (bufferIdx + 1) % bufSize;
-            if (count < bufSize) count++;
+            if (count < bufSize)
+            {
+                count++;
+            }
 
             if (!kamaInitialized)
             {
@@ -307,7 +350,10 @@ public sealed class Kama : AbstractBase
                 double change = Math.Abs(val - buffer[count == bufSize ? bufferIdx : 0]);
 
                 double er = (volatilitySum > 1e-10) ? change / volatilitySum : 0.0;
-                if (er > 1.0) er = 1.0;
+                if (er > 1.0)
+                {
+                    er = 1.0;
+                }
 
                 // double sc = er * (fastAlpha - slowAlpha) + slowAlpha; // skipcq: S125
                 double sc = Math.FusedMultiplyAdd(er, fastAlpha - slowAlpha, slowAlpha);

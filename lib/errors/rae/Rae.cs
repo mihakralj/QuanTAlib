@@ -43,7 +43,9 @@ public sealed class Rae : AbstractBase
     public Rae(int period)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _actualBuffer = new RingBuffer(period);
         _absErrorBuffer = new RingBuffer(period);
@@ -61,14 +63,22 @@ public sealed class Rae : AbstractBase
         double predictedVal = predicted.Value;
 
         if (!double.IsFinite(actualVal))
+        {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
+        }
         else
+        {
             _state.LastValidActual = actualVal;
+        }
 
         if (!double.IsFinite(predictedVal))
+        {
             predictedVal = double.IsFinite(_state.LastValidPredicted) ? _state.LastValidPredicted : 0.0;
+        }
         else
+        {
             _state.LastValidPredicted = predictedVal;
+        }
 
         if (isNew)
         {
@@ -163,7 +173,9 @@ public sealed class Rae : AbstractBase
     public static TSeries Calculate(TSeries actual, TSeries predicted, int period)
     {
         if (actual.Count != predicted.Count)
+        {
             throw new ArgumentException("Actual and predicted series must have the same length", nameof(predicted));
+        }
 
         int len = actual.Count;
         var t = new List<long>(len);
@@ -184,12 +196,20 @@ public sealed class Rae : AbstractBase
     public static void Batch(ReadOnlySpan<double> actual, ReadOnlySpan<double> predicted, Span<double> output, int period)
     {
         if (actual.Length != predicted.Length || actual.Length != output.Length)
+        {
             throw new ArgumentException("All spans must have the same length", nameof(output));
+        }
+
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         int len = actual.Length;
-        if (len == 0) return;
+        if (len == 0)
+        {
+            return;
+        }
 
         const int StackAllocThreshold = 256;
         Span<double> actualBuffer = period <= StackAllocThreshold
@@ -210,11 +230,19 @@ public sealed class Rae : AbstractBase
 
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(actual[k])) { lastValidActual = actual[k]; break; }
+            if (double.IsFinite(actual[k]))
+            {
+                lastValidActual = actual[k];
+                break;
+            }
         }
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(predicted[k])) { lastValidPredicted = predicted[k]; break; }
+            if (double.IsFinite(predicted[k]))
+            {
+                lastValidPredicted = predicted[k];
+                break;
+            }
         }
 
         int bufferIndex = 0;
@@ -226,8 +254,23 @@ public sealed class Rae : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             actualSum += act;
             actualBuffer[i] = act;
@@ -250,8 +293,23 @@ public sealed class Rae : AbstractBase
             double act = actual[i];
             double pred = predicted[i];
 
-            if (double.IsFinite(act)) lastValidActual = act; else act = lastValidActual;
-            if (double.IsFinite(pred)) lastValidPredicted = pred; else pred = lastValidPredicted;
+            if (double.IsFinite(act))
+            {
+                lastValidActual = act;
+            }
+            else
+            {
+                act = lastValidActual;
+            }
+
+            if (double.IsFinite(pred))
+            {
+                lastValidPredicted = pred;
+            }
+            else
+            {
+                pred = lastValidPredicted;
+            }
 
             actualSum = actualSum - actualBuffer[bufferIndex] + act;
             actualBuffer[bufferIndex] = act;
@@ -266,7 +324,10 @@ public sealed class Rae : AbstractBase
             absBaselineBuffer[bufferIndex] = absBaseline;
 
             bufferIndex++;
-            if (bufferIndex >= period) bufferIndex = 0;
+            if (bufferIndex >= period)
+            {
+                bufferIndex = 0;
+            }
 
             output[i] = absBaselineSum > 1e-10 ? absErrorSum / absBaselineSum : 1.0;
 

@@ -24,7 +24,11 @@ public sealed class CsvFeedTests : IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
+
         _disposed = true;
         GC.SuppressFinalize(this);
 

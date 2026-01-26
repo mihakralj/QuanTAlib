@@ -33,7 +33,9 @@ public sealed class Adr : AbstractBase
     public Adr(int period, AdrMethod method = AdrMethod.Sma)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
+        }
 
         _ma = method switch
         {
@@ -137,7 +139,10 @@ public sealed class Adr : AbstractBase
     /// </summary>
     public TSeries Update(TBarSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         // Calculate range series
         TSeries rangeSeries = CalculateRanges(source);

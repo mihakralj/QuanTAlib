@@ -86,8 +86,15 @@ public class IndicatorExtensionsTests
 
         // Test GetSmoothCurvePoints
         var series = new LineSeries("Test", Color.Blue, 1, LineStyle.Solid);
-        for (int i = 0; i < 20; i++) series.AddValue();
-        for (int i = 0; i < 20; i++) series.SetValue(100 + i, i);
+        for (int i = 0; i < 20; i++)
+        {
+            series.AddValue();
+        }
+
+        for (int i = 0; i < 20; i++)
+        {
+            series.SetValue(100 + i, i);
+        }
 
         var points = IndicatorExtensions.GetSmoothCurvePoints(indicator, converter, clientRect, series);
         Assert.NotEmpty(points);
@@ -152,8 +159,15 @@ public class IndicatorExtensionsTests
         foreach (LineStyle style in Enum.GetValues<LineStyle>())
         {
             var series = new LineSeries("Test", Color.Blue, 1, style);
-            for (int i = 0; i < 20; i++) series.AddValue();
-            for (int i = 0; i < 20; i++) series.SetValue(100 + i, i);
+            for (int i = 0; i < 20; i++)
+            {
+                series.AddValue();
+            }
+
+            for (int i = 0; i < 20; i++)
+            {
+                series.SetValue(100 + i, i);
+            }
 
             // Test with warmup and cold values
             indicator.PaintSmoothCurve(args, series, warmupPeriod: 5, showColdValues: true);

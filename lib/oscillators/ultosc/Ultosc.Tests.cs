@@ -217,7 +217,10 @@ public class UltoscTests
         var gbm = new GBM();
         var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
 
-        foreach (var bar in bars) ultosc.Update(bar);
+        foreach (var bar in bars)
+        {
+            ultosc.Update(bar);
+        }
 
         double lastVal = ultosc.Last.Value;
         Assert.NotEqual(0, lastVal);

@@ -21,8 +21,10 @@ public class Cheby2ValidationTests
         Assert.True(Math.Abs(result1) > 0);
 
         // Verify stability (should decay towards zero for lowpass IIR)
-        for(int i=0; i<50; i++)
+        for (int i = 0; i < 50; i++)
+        {
             filter.Update(new TValue(DateTime.UtcNow, 0.0));
+        }
 
         Assert.True(Math.Abs(filter.Last.Value) < 1e-5);
     }

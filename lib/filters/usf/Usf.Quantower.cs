@@ -48,7 +48,9 @@ public sealed class UsfIndicator : Indicator, IWatchlistIndicator
     protected override void OnUpdate(UpdateArgs args)
     {
         if (args.Reason != UpdateReason.NewBar && args.Reason != UpdateReason.HistoricalBar)
+        {
             return;
+        }
 
         var item = HistoricalData[Count - 1, SeekOriginHistory.Begin];
         TValue result = _ma.Update(new TValue(item.TimeLeft.Ticks, _priceSelector(item)), args.IsNewBar());

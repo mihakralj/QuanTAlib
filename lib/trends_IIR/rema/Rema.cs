@@ -69,7 +69,9 @@ public sealed class Rema : AbstractBase
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(period);
         if (lambda < 0.0 || lambda > 1.0)
+        {
             throw new ArgumentOutOfRangeException(nameof(lambda), "Lambda must be between 0 and 1");
+        }
 
         _alpha = 2.0 / (period + 1);
         _decay = 1.0 - _alpha;
@@ -108,7 +110,10 @@ public sealed class Rema : AbstractBase
     /// <inheritdoc/>
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        if (source.Length == 0) return;
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         _state = State.New();
         _p_state = State.New();
@@ -152,7 +157,9 @@ public sealed class Rema : AbstractBase
         finally
         {
             if (rented != null)
+            {
                 ArrayPool<double>.Shared.Return(rented);
+            }
         }
     }
 
@@ -196,7 +203,10 @@ public sealed class Rema : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override TSeries Update(TSeries source)
     {
-        if (source.Count == 0) return [];
+        if (source.Count == 0)
+        {
+            return [];
+        }
 
         int len = source.Count;
         var t = new List<long>(len);
@@ -245,7 +255,9 @@ public sealed class Rema : AbstractBase
             state.E *= decay;
 
             if (state.E <= COVERAGE_THRESHOLD)
+            {
                 state.IsHot = true;
+            }
 
             result = input;
         }
@@ -273,7 +285,9 @@ public sealed class Rema : AbstractBase
                 state.E *= decay;
 
                 if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+                {
                     state.IsHot = true;
+                }
 
                 if (state.E <= COMPENSATOR_THRESHOLD)
                 {
@@ -311,9 +325,13 @@ public sealed class Rema : AbstractBase
         {
             double val = Unsafe.Add(ref srcRef, i);
             if (!double.IsFinite(val))
+            {
                 val = lastValidValue;
+            }
             else
+            {
                 lastValidValue = val;
+            }
 
             double result;
 
@@ -326,7 +344,9 @@ public sealed class Rema : AbstractBase
                 state.E *= decay;
 
                 if (state.E <= COVERAGE_THRESHOLD)
+                {
                     state.IsHot = true;
+                }
 
                 result = val;
             }
@@ -345,7 +365,9 @@ public sealed class Rema : AbstractBase
                     state.E *= decay;
 
                     if (!state.IsHot && state.E <= COVERAGE_THRESHOLD)
+                    {
                         state.IsHot = true;
+                    }
 
                     if (state.E <= COMPENSATOR_THRESHOLD)
                     {
@@ -399,13 +421,24 @@ public sealed class Rema : AbstractBase
     public static void Batch(ReadOnlySpan<double> source, Span<double> output, int period, double lambda = 0.5)
     {
         if (period <= 0)
+        {
             throw new ArgumentException("Period must be greater than 0", nameof(period));
-        if (lambda < 0.0 || lambda > 1.0)
-            throw new ArgumentOutOfRangeException(nameof(lambda), "Lambda must be between 0 and 1");
-        if (source.Length != output.Length)
-            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
 
-        if (source.Length == 0) return;
+        if (lambda < 0.0 || lambda > 1.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lambda), "Lambda must be between 0 and 1");
+        }
+
+        if (source.Length != output.Length)
+        {
+            throw new ArgumentException("Source and output must have the same length", nameof(output));
+        }
+
+        if (source.Length == 0)
+        {
+            return;
+        }
 
         double alpha = 2.0 / (period + 1);
 

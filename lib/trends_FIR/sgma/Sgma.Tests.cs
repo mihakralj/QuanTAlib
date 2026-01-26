@@ -124,7 +124,9 @@ public class SgmaTests
         var sgma = new Sgma(5, 0);
 
         for (int i = 0; i < 5; i++)
+        {
             sgma.Update(new TValue(DateTime.UtcNow, 100.0), isNew: true);
+        }
 
         Assert.Equal(100.0, sgma.Last.Value, 1e-9);
 
@@ -390,8 +392,15 @@ public class SgmaTests
     public void Sgma_ShapePreservation_HighDegreePreservesPeaks()
     {
         double[] prices = new double[20];
-        for (int i = 0; i < 10; i++) prices[i] = 100 + i * 5;
-        for (int i = 10; i < 20; i++) prices[i] = 145 - (i - 10) * 5;
+        for (int i = 0; i < 10; i++)
+        {
+            prices[i] = 100 + i * 5;
+        }
+
+        for (int i = 10; i < 20; i++)
+        {
+            prices[i] = 145 - (i - 10) * 5;
+        }
 
         var sgma2 = new Sgma(5, 2);
         var sgma4 = new Sgma(5, 4);

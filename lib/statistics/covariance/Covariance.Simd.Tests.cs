@@ -82,8 +82,15 @@ public class CovarianceSimdTests
         {
             double x = dataX[i];
             double y = dataY[i];
-            if (!double.IsFinite(x)) x = 0;
-            if (!double.IsFinite(y)) y = 0;
+            if (!double.IsFinite(x))
+            {
+                x = 0;
+            }
+
+            if (!double.IsFinite(y))
+            {
+                y = 0;
+            }
 
             var res = scalarCov.Update(x, y);
             Assert.Equal(res.Value, result.Values[i], precision: 9);

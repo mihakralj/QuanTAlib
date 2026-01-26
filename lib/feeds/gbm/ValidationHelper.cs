@@ -75,7 +75,10 @@ public static class ValidationHelper
             double qValue = qSeries[i].Value;
             double? sValue = selector(sSeries[i]);
 
-            if (!sValue.HasValue) continue;
+            if (!sValue.HasValue)
+            {
+                continue;
+            }
 
             Assert.True(
                 Math.Abs(qValue - sValue.Value) <= tolerance,
@@ -103,7 +106,10 @@ public static class ValidationHelper
             double qValue = qResults[i];
             double? sValue = selector(sSeries[i]);
 
-            if (!sValue.HasValue) continue;
+            if (!sValue.HasValue)
+            {
+                continue;
+            }
 
             Assert.True(
                 Math.Abs(qValue - sValue.Value) <= tolerance,
@@ -131,7 +137,10 @@ public static class ValidationHelper
             double qValue = qOutput[i];
             double? sValue = selector(sSeries[i]);
 
-            if (!sValue.HasValue) continue;
+            if (!sValue.HasValue)
+            {
+                continue;
+            }
 
             Assert.True(
                 Math.Abs(qValue - sValue.Value) <= tolerance,
@@ -161,10 +170,16 @@ public static class ValidationHelper
         {
             double qValue = qSeries[i].Value;
 
-            if (i < lookback) continue;
+            if (i < lookback)
+            {
+                continue;
+            }
 
             int tIndex = i - lookback;
-            if (tIndex >= tOutput.Length) continue;
+            if (tIndex >= tOutput.Length)
+            {
+                continue;
+            }
 
             double tValue = tOutput[tIndex];
 
@@ -191,10 +206,16 @@ public static class ValidationHelper
         {
             double qValue = qResults[i];
 
-            if (i < lookback) continue;
+            if (i < lookback)
+            {
+                continue;
+            }
 
             int tIndex = i - lookback;
-            if (tIndex >= tOutput.Length) continue;
+            if (tIndex >= tOutput.Length)
+            {
+                continue;
+            }
 
             double tValue = tOutput[tIndex];
 
@@ -221,10 +242,16 @@ public static class ValidationHelper
         {
             double qValue = qOutput[i];
 
-            if (i < lookback) continue;
+            if (i < lookback)
+            {
+                continue;
+            }
 
             int tIndex = i - lookback;
-            if (tIndex >= tOutput.Length) continue;
+            if (tIndex >= tOutput.Length)
+            {
+                continue;
+            }
 
             double tValue = tOutput[tIndex];
 
@@ -253,10 +280,16 @@ public static class ValidationHelper
         {
             double qValue = qSeries[i].Value;
 
-            if (i < lookback) continue;
+            if (i < lookback)
+            {
+                continue;
+            }
 
             int tIndex = i - offset;
-            if (tIndex < 0 || tIndex >= length) continue;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
 
             double tValue = tOutput[tIndex];
 
@@ -285,10 +318,16 @@ public static class ValidationHelper
         {
             double qValue = qResults[i];
 
-            if (i < lookback) continue;
+            if (i < lookback)
+            {
+                continue;
+            }
 
             int tIndex = i - offset;
-            if (tIndex < 0 || tIndex >= length) continue;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
 
             double tValue = tOutput[tIndex];
 
@@ -317,10 +356,16 @@ public static class ValidationHelper
         {
             double qValue = qOutput[i];
 
-            if (i < lookback) continue;
+            if (i < lookback)
+            {
+                continue;
+            }
 
             int tIndex = i - offset;
-            if (tIndex < 0 || tIndex >= length) continue;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
 
             double tValue = tOutput[tIndex];
 
@@ -388,18 +433,25 @@ public static class ValidationHelper
         Func<TResult, double?> selector)
     {
         if (qSeries.Count != sSeries.Count)
+        {
             throw new ArgumentException("Series must have the same count", nameof(sSeries));
+        }
 
         double maxDiff = 0;
 
         for (int i = 0; i < qSeries.Count; i++)
         {
             double? sValue = selector(sSeries[i]);
-            if (!sValue.HasValue) continue;
+            if (!sValue.HasValue)
+            {
+                continue;
+            }
 
             double diff = Math.Abs(qSeries[i].Value - sValue.Value);
             if (diff > maxDiff)
+            {
                 maxDiff = diff;
+            }
         }
 
         return maxDiff;
@@ -415,18 +467,25 @@ public static class ValidationHelper
         Func<TResult, double?> selector)
     {
         if (qSeries.Count != sSeries.Count)
+        {
             throw new ArgumentException("Series must have the same count", nameof(sSeries));
+        }
 
         double maxDiff = 0;
 
         for (int i = 0; i < qSeries.Count; i++)
         {
             double? sValue = selector(sSeries[i]);
-            if (!sValue.HasValue || Math.Abs(sValue.Value) < double.Epsilon) continue;
+            if (!sValue.HasValue || Math.Abs(sValue.Value) < double.Epsilon)
+            {
+                continue;
+            }
 
             double relDiff = Math.Abs((qSeries[i].Value - sValue.Value) / sValue.Value);
             if (relDiff > maxDiff)
+            {
                 maxDiff = relDiff;
+            }
         }
 
         return maxDiff;

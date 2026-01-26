@@ -37,7 +37,9 @@ public sealed class Normalize : AbstractBase
     public Normalize(int period = 14)
     {
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         _period = period;
         _buffer = new RingBuffer(period);
@@ -64,7 +66,9 @@ public sealed class Normalize : AbstractBase
     private static (double min, double max) FindMinMax(ReadOnlySpan<double> values)
     {
         if (values.Length == 0)
+        {
             return (double.MaxValue, double.MinValue);
+        }
 
         double min = values[0];
         double max = values[0];
@@ -72,8 +76,15 @@ public sealed class Normalize : AbstractBase
         for (int i = 1; i < values.Length; i++)
         {
             double v = values[i];
-            if (v < min) min = v;
-            if (v > max) max = v;
+            if (v < min)
+            {
+                min = v;
+            }
+
+            if (v > max)
+            {
+                max = v;
+            }
         }
 
         return (min, max);
@@ -83,9 +94,13 @@ public sealed class Normalize : AbstractBase
     public override TValue Update(TValue input, bool isNew = true)
     {
         if (isNew)
+        {
             _p_state = _state;
+        }
         else
+        {
             _state = _p_state;
+        }
 
         double value = input.Value;
         double result;
@@ -151,11 +166,19 @@ public sealed class Normalize : AbstractBase
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, int period = 14)
     {
         if (source.Length == 0)
+        {
             throw new ArgumentException("Source cannot be empty", nameof(source));
+        }
+
         if (output.Length < source.Length)
+        {
             throw new ArgumentException("Output length must be >= source length", nameof(output));
+        }
+
         if (period < 1)
+        {
             throw new ArgumentException("Period must be >= 1", nameof(period));
+        }
 
         double lastValid = 0.5;
 
@@ -181,8 +204,15 @@ public sealed class Normalize : AbstractBase
                 double v = source[j];
                 if (double.IsFinite(v))
                 {
-                    if (v < min) min = v;
-                    if (v > max) max = v;
+                    if (v < min)
+                    {
+                        min = v;
+                    }
+
+                    if (v > max)
+                    {
+                        max = v;
+                    }
                 }
             }
 

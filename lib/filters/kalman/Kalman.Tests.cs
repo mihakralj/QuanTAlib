@@ -125,7 +125,7 @@ public class KalmanTests
         // 3. Streaming Update
         filter.Reset();
         var streamingResults = new List<double>();
-        foreach(var item in series)
+        foreach (var item in series)
         {
             streamingResults.Add(filter.Update(item).Value);
         }
