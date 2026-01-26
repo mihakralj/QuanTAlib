@@ -29,11 +29,32 @@ resharper_condition_is_always_true_or_false_highlighting = hint
 resharper_access_to_modified_closure_highlighting = hint
 resharper_generic_enumerator_not_disposed_highlighting = hint
 
-dotnet_diagnostic.S3776.severity = none
+# Sonar rule suppressions (synced from sonar-suppressions.json)
+# See sonar-suppressions.json for detailed justifications
+dotnet_diagnostic.S107.severity = none
+dotnet_diagnostic.S1144.severity = none
 dotnet_diagnostic.S1244.severity = none
+dotnet_diagnostic.S1944.severity = none
+dotnet_diagnostic.S2053.severity = none
+dotnet_diagnostic.S2245.severity = none
+dotnet_diagnostic.S2259.severity = none
+dotnet_diagnostic.S2583.severity = none
+dotnet_diagnostic.S2589.severity = none
+dotnet_diagnostic.S3236.severity = none
+dotnet_diagnostic.S3329.severity = none
+dotnet_diagnostic.S3604.severity = none
+dotnet_diagnostic.S3655.severity = none
+dotnet_diagnostic.S3776.severity = none
+dotnet_diagnostic.S3949.severity = none
+dotnet_diagnostic.S3966.severity = none
+dotnet_diagnostic.S4158.severity = none
+dotnet_diagnostic.S4347.severity = none
+dotnet_diagnostic.S5773.severity = none
+dotnet_diagnostic.S6781.severity = none
+
+# Other suppressions
 dotnet_diagnostic.IDE0028.severity = none
 dotnet_diagnostic.CA1416.severity = none
-dotnet_diagnostic.S3236.severity = none
 dotnet_diagnostic.MA0046.severity = none
 dotnet_diagnostic.MA0003.severity = suggestion
 

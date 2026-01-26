@@ -323,10 +323,42 @@ jobs:
           IFS=,
           echo "SONAR_SARIF_PATHS=${paths[*]}" >> "$GITHUB_ENV"
 
+      - name: Generate SonarCloud multicriteria from JSON
+        id: sonar_rules
+        run: |
+          # Read rule IDs from sonar-suppressions.json and generate multicriteria args
+          if [ ! -f "sonar-suppressions.json" ]; then
+            echo "ERROR: sonar-suppressions.json not found"
+            exit 1
+          fi
+
+          # Extract rule IDs and build multicriteria parameters
+          rules=$(jq -r '.rules[].id' sonar-suppressions.json)
+          multicriteria_names=""
+          multicriteria_args=""
+          index=1
+
+          for rule in $rules; do
+            name="e${index}"
+            if [ -n "$multicriteria_names" ]; then
+              multicriteria_names="${multicriteria_names},${name}"
+            else
+              multicriteria_names="${name}"
+            fi
+            multicriteria_args="${multicriteria_args} /d:sonar.issue.ignore.multicriteria.${name}.ruleKey=csharpsquid:${rule} /d:sonar.issue.ignore.multicriteria.${name}.resourceKey=**/*"
+            index=$((index + 1))
+          done
+
+          echo "Generated multicriteria for $(echo "$rules" | wc -w) rules"
+          echo "multicriteria_names=$multicriteria_names" >> "$GITHUB_OUTPUT"
+          echo "multicriteria_args=$multicriteria_args" >> "$GITHUB_OUTPUT"
+
       - name: Begin SonarCloud Analysis
         if: steps.check_sonar.outputs.skip != 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          MULTICRITERIA_NAMES: ${{ steps.sonar_rules.outputs.multicriteria_names }}
+          MULTICRITERIA_ARGS: ${{ steps.sonar_rules.outputs.multicriteria_args }}
         run: |
           args=(
             "/k:mihakralj_QuanTAlib"
@@ -339,10 +371,11 @@ jobs:
             "/d:sonar.exclusions=**/TestResults/**/*,**/bin/**/*,**/obj/**/*,**/*.html,**/coverage/**/*,**/CoverageReport/**/*,**/*.md,**/*.css,**/docs/**/*,**/archive/**/*,**/notebooks/**/*"
             "/d:sonar.test.exclusions=**Tests.cs,**/obj/**/*,**/bin/**/*"
             "/d:sonar.scanner.scanAll=false"
-            "/d:sonar.issue.ignore.multicriteria=e1"
-            "/d:sonar.issue.ignore.multicriteria.e1.ruleKey=csharpsquid:S107"
-            "/d:sonar.issue.ignore.multicriteria.e1.resourceKey=**/*"
+            "/d:sonar.issue.ignore.multicriteria=$MULTICRITERIA_NAMES"
           )
+
+          # Add the dynamically generated multicriteria args
+          eval "args+=($MULTICRITERIA_ARGS)"
 
           if [ -n "${SONAR_SARIF_PATHS:-}" ]; then
             args+=("/d:sonar.sarifReportPaths=$SONAR_SARIF_PATHS")
@@ -670,10 +703,120 @@ jobs:
           fi
 
   # ==============================================================================
-  # 7) Codacy Upload (SARIF + Coverage)
+  # 7) Codacy Rule Sync (disable Sonar rules from sonar-suppressions.json)
+  # ==============================================================================
+  Codacy_Rule_Sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Check for Codacy API token
+        id: check_api_token
+        env:
+          CODACY_API_TOKEN: ${{ secrets.CODACY_API_TOKEN }}
+        run: |
+          if [ -z "${CODACY_API_TOKEN:-}" ]; then
+            echo "CODACY_API_TOKEN not set. Skipping Codacy rule sync."
+            echo "To enable automatic rule sync, create a CODACY_API_TOKEN secret"
+            echo "with an API token from https://app.codacy.com/account/apiTokens"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync Sonar rules to Codacy
+        if: steps.check_api_token.outputs.skip != 'true'
+        env:
+          CODACY_API_TOKEN: ${{ secrets.CODACY_API_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Configuration
+          PROVIDER="gh"
+          ORGANIZATION="mihakralj"
+          REPOSITORY="QuanTAlib"
+          TOOL_UUID="8954dff3-f19c-429c-ac76-c45fa5e73b62"  # SonarC# tool UUID
+          API_BASE="https://app.codacy.com/api/v3"
+
+          if [ ! -f "sonar-suppressions.json" ]; then
+            echo "ERROR: sonar-suppressions.json not found"
+            exit 1
+          fi
+
+          # Extract rule IDs from JSON
+          rules=$(jq -r '.rules[].id' sonar-suppressions.json)
+          rule_count=$(echo "$rules" | wc -w)
+          echo "Found $rule_count rules to disable in Codacy"
+
+          # Function to disable a pattern
+          disable_pattern() {
+            local pattern_id="$1"
+            local response
+
+            echo "Disabling pattern: $pattern_id"
+
+            response=$(curl -s -w "\n%{http_code}" -X PATCH \
+              "${API_BASE}/organizations/${PROVIDER}/${ORGANIZATION}/repositories/${REPOSITORY}/tools/${TOOL_UUID}/patterns/${pattern_id}" \
+              -H "api-token: ${CODACY_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{"enabled": false}')
+
+            http_code=$(echo "$response" | tail -1)
+            body=$(echo "$response" | head -n -1)
+
+            if [ "$http_code" = "200" ] || [ "$http_code" = "204" ]; then
+              echo "  ✓ Successfully disabled $pattern_id"
+              return 0
+            elif [ "$http_code" = "404" ]; then
+              echo "  ⚠ Pattern $pattern_id not found (may not exist in this tool)"
+              return 0
+            else
+              echo "  ✗ Failed to disable $pattern_id (HTTP $http_code)"
+              echo "  Response: $body"
+              return 1
+            fi
+          }
+
+          # Process each rule
+          success_count=0
+          fail_count=0
+
+          for rule in $rules; do
+            if disable_pattern "$rule"; then
+              success_count=$((success_count + 1))
+            else
+              fail_count=$((fail_count + 1))
+            fi
+          done
+
+          echo ""
+          echo "=== Codacy Rule Sync Summary ==="
+          echo "Total rules: $rule_count"
+          echo "Successful: $success_count"
+          echo "Failed: $fail_count"
+
+          if [ $fail_count -gt 0 ]; then
+            echo ""
+            echo "Some rules failed to sync. This may be due to:"
+            echo "- Pattern IDs not matching Codacy's internal naming"
+            echo "- API rate limiting"
+            echo "- Permission issues with the API token"
+            echo ""
+            echo "Consider manually verifying rules at:"
+            echo "https://app.codacy.com/gh/${ORGANIZATION}/${REPOSITORY}/patterns"
+          fi
+
+  # ==============================================================================
+  # 8) Codacy Upload (SARIF + Coverage)
   # ==============================================================================
   Codacy_Upload:
-    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis]
+    needs: [ReSharper_Analysis, Snyk_Scan, Semgrep_Scan, Sonar_Analysis, Codacy_Rule_Sync]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

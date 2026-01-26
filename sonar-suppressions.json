@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Single source of truth for Sonar rule suppressions across SonarCloud, Codacy, and local builds",
+  "rules": [
+    {
+      "id": "S107",
+      "reason": "Methods should not have too many parameters - high-performance SIMD methods require multiple parameters for zero-allocation patterns"
+    },
+    {
+      "id": "S1144",
+      "reason": "Unused private types or members should be removed - false positives on reflection/serialization patterns"
+    },
+    {
+      "id": "S1244",
+      "reason": "Floating point numbers should not be tested for equality - intentional exact comparisons in financial calculations"
+    },
+    {
+      "id": "S1944",
+      "reason": "Inappropriate casts should not be made - false positives on generic constraint patterns"
+    },
+    {
+      "id": "S2053",
+      "reason": "Hashes should include unpredictable salt - not applicable to non-cryptographic hashing"
+    },
+    {
+      "id": "S2245",
+      "reason": "Using pseudorandom number generators is security-sensitive - GBM uses deterministic seeds for reproducibility"
+    },
+    {
+      "id": "S2259",
+      "reason": "Null pointers should not be dereferenced - false positives with nullable reference types"
+    },
+    {
+      "id": "S2583",
+      "reason": "Conditionally executed code should be reachable - false positives on defensive programming patterns"
+    },
+    {
+      "id": "S2589",
+      "reason": "Boolean expressions should not be gratuitous - false positives on explicit clarity patterns"
+    },
+    {
+      "id": "S3236",
+      "reason": "Caller information arguments should not be provided explicitly - intentional for testing/debugging"
+    },
+    {
+      "id": "S3329",
+      "reason": "Cipher Block Chaining IVs should be unpredictable - not applicable to non-cryptographic code"
+    },
+    {
+      "id": "S3604",
+      "reason": "Member initializer values should not be redundant - null! is intentional for nullable reference types in Quantower adapters"
+    },
+    {
+      "id": "S3655",
+      "reason": "Empty nullable value should not be accessed - false positives with HasValue checks"
+    },
+    {
+      "id": "S3776",
+      "reason": "Cognitive Complexity of methods should not be too high - complex algorithms require complex implementations"
+    },
+    {
+      "id": "S3949",
+      "reason": "Calculations should not overflow - false positives on checked arithmetic contexts"
+    },
+    {
+      "id": "S3966",
+      "reason": "Objects should not be disposed more than once - false positives on defensive dispose patterns"
+    },
+    {
+      "id": "S4158",
+      "reason": "Empty collections should not be accessed or iterated - false positives on lazy initialization"
+    },
+    {
+      "id": "S4347",
+      "reason": "Secure random number generators should not output predictable values - deterministic seeds for reproducibility"
+    },
+    {
+      "id": "S5773",
+      "reason": "Types allowed to be deserialized should be restricted - not applicable to this codebase"
+    },
+    {
+      "id": "S6781",
+      "reason": "JWT tokens should not be created using insecure secrets - not applicable to this codebase"
+    }
+  ]
+}
