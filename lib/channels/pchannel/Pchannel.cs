@@ -197,19 +197,15 @@ public sealed class Pchannel : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
-        }
-        else
-        {
-            _state = _p_state;
-        }
-
-        if (isNew)
-        {
             _index++;
             if (_count < _period)
             {
                 _count++;
             }
+        }
+        else
+        {
+            _state = _p_state;
         }
 
         int bufIdx = (int)(_index % _period);

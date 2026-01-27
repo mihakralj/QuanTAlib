@@ -221,19 +221,15 @@ public sealed class Fcb : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
-        }
-        else
-        {
-            _state = _p_state;
-        }
-
-        if (isNew)
-        {
             _index++;
             if (_count < _period)
             {
                 _count++;
             }
+        }
+        else
+        {
+            _state = _p_state;
         }
 
         var (high, low) = GetValid(input.High, input.Low);
