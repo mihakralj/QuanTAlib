@@ -153,6 +153,10 @@
     {
       "id": "S3992",
       "reason": "Assemblies should have ComVisible attribute - COM interop not required"
+    },
+    {
+      "id": "S4035",
+      "reason": "Classes implementing IComparable<T> should also implement IEquatable<T> - performance-optimized value types use custom equality semantics"
     }
   ]
 }
