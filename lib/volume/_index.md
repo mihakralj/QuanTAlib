@@ -13,9 +13,9 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [EFI](lib/volume/efi/Efi.md) | Elder's Force Index | Combines price movement, direction, volume to measure buying/selling power. |
 | [EOM](lib/volume/eom/Eom.md) | Ease of Movement | Relates price change to volume. Highlights periods of effortless price movement. |
 | [III](lib/volume/iii/Iii.md) | Intraday Intensity Index | Measures buying/selling pressure within day's range using close position. |
-| KVO | Klinger Volume Oscillator | Compares short-term and long-term volume trends to identify potential reversals. |
-| MFI | Money Flow Index | Volume-weighted RSI. Measures buying/selling pressure using price and volume. |
-| NVI | Negative Volume Index | Tracks price changes on lower volume days. Assumes smart money acts on quiet days. |
+| [KVO](lib/volume/kvo/Kvo.md) | Klinger Volume Oscillator | Compares short-term and long-term volume trends to identify potential reversals. |
+| [MFI](lib/volume/mfi/Mfi.md) | Money Flow Index | Volume-weighted RSI. Measures buying/selling pressure using price and volume. |
+| [NVI](lib/volume/nvi/Nvi.md) | Negative Volume Index | Tracks price changes on lower volume days. Assumes smart money acts on quiet days. |
 | OBV | On Balance Volume | Fundamental volume indicator. Cumulative volume based on price direction. |
 | PVD | Price Volume Divergence | Systematic divergence detection between price and volume movements. |
 | PVI | Positive Volume Index | Tracks price changes on higher volume days. Assumes crowd behavior. |

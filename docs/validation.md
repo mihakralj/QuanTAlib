@@ -157,7 +157,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **KDJ Indicator** | Kdj | - | - | - | - |
 | **Keltner Channel** | [Kchannel](../lib/channels/kchannel/kchannel.md) | - | - | ✔️ | ❔ |
 | **Kendall Rank Correlation** | Kendall | - | - | - | ❔ |
-| **Klinger Volume Oscillator** | Kvo | - | ✔️ | ✔️ | ❔ |
+| **Klinger Volume Oscillator** | [Kvo](../lib/volume/kvo/Kvo.md) | - | ✔️ | ✔️ | ❔ |
 | **Kurtosis** | Kurtosis | - | - | - | ❔ |
 | **Least Squares Moving Average** | [Lsma](../lib/trends/lsma/lsma.md) | ✔️ | - | ✔️ | ❔ |
 | **Linear Regression** | [LinReg](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | [⚠️](../lib/statistics/linreg/LinReg.md#validation) |
@@ -188,11 +188,11 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Modified MA** | [Mma](../lib/trends_IIR/mma/Mma.md) | - | - | - | - |
 | **Momentum** | Mom | ✔️ | ✔️ | - | ❔ |
 | **Momentum change; 2nd derivative** | Accel | - | - | - | - |
-| **Money Flow Index** | Mfi | ✔️ | ✔️ | ✔️ | ❔ |
+| **Money Flow Index** | [Mfi](../lib/volume/mfi/Mfi.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Moon Phase** | Moon | - | - | - | - |
 | **Moving Average Convergence/Divergence** | [Macd](../lib/momentum/macd/Macd.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Moving Average Envelopes** | [Maenv](../lib/channels/maenv/maenv.md) | - | - | ✔️ | ❔ |
-| **Negative Volume Index** | Nvi | - | ✔️ | - | ❔ |
+| **Negative Volume Index** | [Nvi](../lib/volume/nvi/Nvi.md) | - | ✔️ | - | - |
 | **Normalized Average True Range** | Natr | ✔️ | ✔️ | - | - |
 | **Normalized Shannon Entropy** | Entropy | - | - | - | - |
 | **Notch Filter** | [Notch](../lib/filters/notch/Notch.md) | - | - | - | - |
