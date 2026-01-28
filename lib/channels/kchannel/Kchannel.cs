@@ -103,27 +103,42 @@ public sealed class Kchannel : ITValuePublisher
         {
             _state = _state with { LastValidClose = close };
         }
-        else
+        else if (double.IsFinite(_state.LastValidClose))
         {
             close = _state.LastValidClose;
+        }
+        else
+        {
+            // Neither input nor stored value is finite - use safe default
+            close = 0.0;
         }
 
         if (double.IsFinite(high))
         {
             _state = _state with { LastValidHigh = high };
         }
-        else
+        else if (double.IsFinite(_state.LastValidHigh))
         {
             high = _state.LastValidHigh;
+        }
+        else
+        {
+            // Neither input nor stored value is finite - use safe default
+            high = 0.0;
         }
 
         if (double.IsFinite(low))
         {
             _state = _state with { LastValidLow = low };
         }
-        else
+        else if (double.IsFinite(_state.LastValidLow))
         {
             low = _state.LastValidLow;
+        }
+        else
+        {
+            // Neither input nor stored value is finite - use safe default
+            low = 0.0;
         }
 
         return (close, high, low);

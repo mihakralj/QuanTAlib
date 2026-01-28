@@ -322,11 +322,44 @@ public sealed class Starchannel : ITValuePublisher
         upper[0] = close[0];
         lower[0] = close[0];
 
+        // Track last valid values for sanitization
+        double lastValidClose = close[0];
+        double lastValidHigh = high[0];
+        double lastValidLow = low[0];
+
         for (int i = 1; i < len; i++)
         {
             double c = close[i];
             double h = high[i];
             double l = low[i];
+
+            // Sanitize non-finite values (match Update/GetValid behavior)
+            if (double.IsFinite(c))
+            {
+                lastValidClose = c;
+            }
+            else
+            {
+                c = lastValidClose;
+            }
+
+            if (double.IsFinite(h))
+            {
+                lastValidHigh = h;
+            }
+            else
+            {
+                h = lastValidHigh;
+            }
+
+            if (double.IsFinite(l))
+            {
+                lastValidLow = l;
+            }
+            else
+            {
+                l = lastValidLow;
+            }
 
             // SMA: add current, subtract oldest if beyond window
             if (i < period)

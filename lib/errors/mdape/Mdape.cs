@@ -74,9 +74,12 @@ public sealed class Mdape : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TValue UpdateCore(DateTime time, double actualVal, double predictedVal, bool isNew)
     {
-        if (!double.IsFinite(actualVal))
+        // Validate actual: must be finite AND have sufficient magnitude (matches Batch logic)
+        if (!double.IsFinite(actualVal) || Math.Abs(actualVal) < 1e-10)
         {
-            actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 1.0;
+            actualVal = double.IsFinite(_state.LastValidActual) && Math.Abs(_state.LastValidActual) >= 1e-10
+                ? _state.LastValidActual
+                : 1.0;
         }
         else
         {
@@ -92,10 +95,10 @@ public sealed class Mdape : AbstractBase
             _state.LastValidPredicted = predictedVal;
         }
 
-        // Calculate absolute percentage error
+        // Calculate absolute percentage error (absActual guaranteed >= 1e-10 by validation above)
         double absActual = Math.Abs(actualVal);
         double absError = Math.Abs(actualVal - predictedVal);
-        double percentageError = absActual > 1e-10 ? (absError / absActual) * 100.0 : 0.0;
+        double percentageError = (absError / absActual) * 100.0;
 
         if (isNew)
         {

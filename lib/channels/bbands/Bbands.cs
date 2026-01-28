@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -168,15 +169,30 @@ public sealed class Bbands : AbstractBase
         int len = sourceSpan.Length;
 
         TSeries middleSeries = new(capacity: len);
-        Span<double> middleSpan = stackalloc double[len];
-        Span<double> upperSpan = stackalloc double[len];
-        Span<double> lowerSpan = stackalloc double[len];
 
-        Calculate(sourceSpan, middleSpan, upperSpan, lowerSpan, _period, _multiplier);
+        // Use ArrayPool to avoid stack overflow for large series
+        double[] middleRented = ArrayPool<double>.Shared.Rent(len);
+        double[] upperRented = ArrayPool<double>.Shared.Rent(len);
+        double[] lowerRented = ArrayPool<double>.Shared.Rent(len);
 
-        for (int i = 0; i < len; i++)
+        try
         {
-            middleSeries.Add(timeSpan[i], middleSpan[i], isNew: true);
+            Span<double> middleSpan = middleRented.AsSpan(0, len);
+            Span<double> upperSpan = upperRented.AsSpan(0, len);
+            Span<double> lowerSpan = lowerRented.AsSpan(0, len);
+
+            Calculate(sourceSpan, middleSpan, upperSpan, lowerSpan, _period, _multiplier);
+
+            for (int i = 0; i < len; i++)
+            {
+                middleSeries.Add(timeSpan[i], middleSpan[i], isNew: true);
+            }
+        }
+        finally
+        {
+            ArrayPool<double>.Shared.Return(middleRented);
+            ArrayPool<double>.Shared.Return(upperRented);
+            ArrayPool<double>.Shared.Return(lowerRented);
         }
 
         // Restore state from the last period values
@@ -257,8 +273,10 @@ public sealed class Bbands : AbstractBase
 
         // Calculate standard deviation and bands using O(n) rolling sums
         // Instead of O(n²) nested loop, maintain running sum and sumSq
+        // Track count of finite values to properly compute mean/variance
         double rollingSum = 0.0;
         double rollingSumSq = 0.0;
+        int finiteCount = 0;
 
         // Initialize rolling sums for first window
         for (int i = 0; i < Math.Min(period, len); i++)
@@ -268,6 +286,7 @@ public sealed class Bbands : AbstractBase
             {
                 rollingSum += val;
                 rollingSumSq += val * val;
+                finiteCount++;
             }
 
             if (i < period - 1)
@@ -280,13 +299,22 @@ public sealed class Bbands : AbstractBase
         // Process first complete window
         if (len >= period)
         {
-            double mean = rollingSum / period;
-            double variance = (rollingSumSq / period) - (mean * mean);
-            variance = Math.Max(0.0, variance); // Guard against negative due to floating point
-            double stdDev = Math.Sqrt(variance);
-            double offset = multiplier * stdDev;
-            upper[period - 1] = middle[period - 1] + offset;
-            lower[period - 1] = middle[period - 1] - offset;
+            if (finiteCount == period)
+            {
+                double mean = rollingSum / finiteCount;
+                double variance = (rollingSumSq / finiteCount) - (mean * mean);
+                variance = Math.Max(0.0, variance); // Guard against negative due to floating point
+                double stdDev = Math.Sqrt(variance);
+                double offset = multiplier * stdDev;
+                upper[period - 1] = middle[period - 1] + offset;
+                lower[period - 1] = middle[period - 1] - offset;
+            }
+            else
+            {
+                // Not all values in window are finite, emit NaN
+                upper[period - 1] = double.NaN;
+                lower[period - 1] = double.NaN;
+            }
         }
 
         // Process remaining bars with O(1) rolling update
@@ -298,6 +326,7 @@ public sealed class Bbands : AbstractBase
             {
                 rollingSum -= outgoing;
                 rollingSumSq -= outgoing * outgoing;
+                finiteCount--;
             }
 
             // Add incoming value (current)
@@ -306,18 +335,29 @@ public sealed class Bbands : AbstractBase
             {
                 rollingSum += incoming;
                 rollingSumSq += incoming * incoming;
+                finiteCount++;
             }
 
-            // Calculate variance from rolling sums: Var = E[X²] - E[X]²
-            double mean = rollingSum / period;
-            double variance = (rollingSumSq / period) - (mean * mean);
-            variance = Math.Max(0.0, variance); // Guard against negative due to floating point
+            // Only compute bands when all values in window are finite
+            if (finiteCount == period)
+            {
+                // Calculate variance from rolling sums: Var = E[X²] - E[X]²
+                double mean = rollingSum / finiteCount;
+                double variance = (rollingSumSq / finiteCount) - (mean * mean);
+                variance = Math.Max(0.0, variance); // Guard against negative due to floating point
 
-            double stdDev = Math.Sqrt(variance);
-            double offset = multiplier * stdDev;
+                double stdDev = Math.Sqrt(variance);
+                double offset = multiplier * stdDev;
 
-            upper[i] = middle[i] + offset;
-            lower[i] = middle[i] - offset;
+                upper[i] = middle[i] + offset;
+                lower[i] = middle[i] - offset;
+            }
+            else
+            {
+                // Window contains non-finite values, emit NaN
+                upper[i] = double.NaN;
+                lower[i] = double.NaN;
+            }
         }
     }
 }

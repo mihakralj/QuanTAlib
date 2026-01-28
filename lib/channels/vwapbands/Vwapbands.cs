@@ -351,6 +351,15 @@ public sealed class Vwapbands : AbstractBase
     /// <summary>
     /// Calculates VWAP Bands using span arrays.
     /// </summary>
+    /// <param name="price">Source price values (typically HLC3)</param>
+    /// <param name="volume">Volume values</param>
+    /// <param name="upper1">Output span for upper band at 1σ</param>
+    /// <param name="lower1">Output span for lower band at 1σ</param>
+    /// <param name="upper2">Output span for upper band at 2σ</param>
+    /// <param name="lower2">Output span for lower band at 2σ</param>
+    /// <param name="vwap">Output span for VWAP values</param>
+    /// <param name="stdDev">Output span for standard deviation values</param>
+    /// <param name="multiplier">Band multiplier (default 1.0)</param>
     public static void Calculate(
         ReadOnlySpan<double> price,
         ReadOnlySpan<double> volume,
@@ -359,11 +368,12 @@ public sealed class Vwapbands : AbstractBase
         Span<double> upper2,
         Span<double> lower2,
         Span<double> vwap,
+        Span<double> stdDev,
         double multiplier = DefaultMultiplier)
     {
         int len = price.Length;
         if (len != volume.Length || len != upper1.Length || len != lower1.Length ||
-            len != upper2.Length || len != lower2.Length || len != vwap.Length)
+            len != upper2.Length || len != lower2.Length || len != vwap.Length || len != stdDev.Length)
         {
             throw new ArgumentException("All spans must have the same length.", nameof(price));
         }
@@ -408,6 +418,7 @@ public sealed class Vwapbands : AbstractBase
             double stdev = Math.Sqrt(variance);
 
             vwap[i] = vwapVal;
+            stdDev[i] = stdev;
             upper1[i] = vwapVal + multiplier * stdev;
             lower1[i] = vwapVal - multiplier * stdev;
             upper2[i] = vwapVal + 2.0 * multiplier * stdev;

@@ -118,10 +118,11 @@ public sealed class VwapsdValidationTests : IDisposable
             double[] spanVwap = new double[bars.Count];
             double[] spanUpper = new double[bars.Count];
             double[] spanLower = new double[bars.Count];
+            double[] spanStdDev = new double[bars.Count];
 
             Vwapsd.Calculate(price.AsSpan(), volume.AsSpan(),
                 spanUpper.AsSpan(), spanLower.AsSpan(),
-                spanVwap.AsSpan(), numDevs);
+                spanVwap.AsSpan(), spanStdDev.AsSpan(), numDevs);
 
             // Compare last 100 values
             int compareCount = Math.Min(100, bars.Count - 2);

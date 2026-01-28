@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit Configuration - Batch 2: Test files only
+# To use: rename to .coderabbit.yaml (backup current config first)
+#
+# Test files breakdown (actual counts):
+#   - Unit tests (*.Tests.cs excluding Validation): 296 files
+#   - Validation tests (*.Validation.Tests.cs): 130 files
+#
+# Both batches fit under 300 limit:
+#   - Batch 2a: Unit tests only (296 files) - THIS CONFIG
+#   - Batch 2b: Validation tests (130 files) - see .coderabbit.batch2b-validation.yaml
+
+language: en-US
+
+reviews:
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  auto_title_placeholder: "@coderabbitai"
+  review_status: true
+  collapse_walkthrough: false
+  path_instructions: []
+  tools:
+    ast-grep:
+      essential_rules: true
+      rule_dirs:
+        - .coderabbit/ast-grep-rules
+
+  path_filters:
+    # ============================================
+    # BATCH 2: Test files only (426 total)
+    # Split into 2a (unit) and 2b (validation) if needed
+    # ============================================
+
+    # INCLUDE: Unit test files only (Batch 2a - 296 files)
+    - "lib/**/*.Tests.cs"
+    - "quantower/**/*.Tests.cs"
+
+    # EXCLUDE: Validation tests (Batch 2b)
+    - "!**/*.Validation.Tests.cs"
+
+    # EXCLUDE: Build artifacts
+    - "!**/obj/**"
+    - "!**/bin/**"
+    - "!**/Debug/**"
+    - "!**/Release/**"
+
+    # EXCLUDE: Non-code files
+    - "!**/*.md"
+    - "!**/*.pine"
+    - "!**/*.json"
+    - "!**/*.yaml"
+    - "!**/*.yml"
+
+chat:
+  auto_reply: true
+
+# ==============================================
+# BATCH 2b: Validation tests
+# ==============================================
+# If you need to review validation tests separately:
+#   path_filters:
+#     - "lib/**/*.Validation.Tests.cs"
+#     - "!**/obj/**"
+#     - "!**/bin/**"
+# ==============================================

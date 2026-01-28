@@ -603,7 +603,10 @@ public sealed class Maenv : ITValuePublisher
 
     public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Maenv Indicator) Calculate(TSeries source, int period = 20, double percentage = 1.0, MaenvType maType = MaenvType.EMA)
     {
-        var indicator = new Maenv(source, period, percentage, maType);
+        // Use parameterless constructor to avoid double-priming:
+        // The Maenv(source, ...) constructor already calls Prime(source),
+        // so calling Update(source) afterwards would Prime again.
+        var indicator = new Maenv(period, percentage, maType);
         var results = indicator.Update(source);
         return (results, indicator);
     }

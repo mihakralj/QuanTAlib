@@ -62,6 +62,17 @@ public sealed class Rae : AbstractBase
         double actualVal = actual.Value;
         double predictedVal = predicted.Value;
 
+        // Snapshot BEFORE any mutations for correct rollback
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
+        // Sanitize non-finite values AFTER snapshot/restore
         if (!double.IsFinite(actualVal))
         {
             actualVal = double.IsFinite(_state.LastValidActual) ? _state.LastValidActual : 0.0;
@@ -82,8 +93,6 @@ public sealed class Rae : AbstractBase
 
         if (isNew)
         {
-            _p_state = _state;
-
             // Update actual buffer for mean calculation
             double removedActual = _actualBuffer.Count == _actualBuffer.Capacity ? _actualBuffer.Oldest : 0.0;
             _state.ActualSum = _state.ActualSum - removedActual + actualVal;
@@ -115,8 +124,6 @@ public sealed class Rae : AbstractBase
         }
         else
         {
-            _state = _p_state;
-
             // Update buffers and recalculate sums (buffer state is inconsistent with _p_state)
             _actualBuffer.UpdateNewest(actualVal);
             _state.ActualSum = _actualBuffer.RecalculateSum();

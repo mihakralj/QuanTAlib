@@ -222,22 +222,22 @@ public sealed class Wmape : AbstractBase
             double lastValidActual = 0;
             double lastValidPredicted = 0;
 
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(actual[k]))
+            for (int k = 0; k < len; k++)
             {
-                lastValidActual = actual[k];
-                break;
+                if (double.IsFinite(actual[k]))
+                {
+                    lastValidActual = actual[k];
+                    break;
+                }
             }
-        }
-        for (int k = 0; k < len; k++)
-        {
-            if (double.IsFinite(predicted[k]))
+            for (int k = 0; k < len; k++)
             {
-                lastValidPredicted = predicted[k];
-                break;
+                if (double.IsFinite(predicted[k]))
+                {
+                    lastValidPredicted = predicted[k];
+                    break;
+                }
             }
-        }
 
             int bufferIndex = 0;
             int i = 0;

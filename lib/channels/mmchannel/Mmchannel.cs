@@ -23,7 +23,7 @@ public sealed class Mmchannel : ITValuePublisher
     private long _index;
 
     [StructLayout(LayoutKind.Auto)]
-    private record struct State(double LastValidHigh, double LastValidLow, bool IsHot);
+    private record struct State(double LastValidHigh, double LastValidLow);
     private State _state;
     private State _p_state;
 
@@ -52,7 +52,7 @@ public sealed class Mmchannel : ITValuePublisher
         _minDeque = new MonotonicDeque(_period);
         _count = 0;
         _index = -1;
-        _state = new State(double.NaN, double.NaN, false);
+        _state = new State(double.NaN, double.NaN);
         _p_state = _state;
 
         Name = $"Mmchannel({period})";
@@ -112,7 +112,8 @@ public sealed class Mmchannel : ITValuePublisher
             _state = _p_state;
         }
 
-        int bufIdx = (int)(_index % _period);
+        // Defensive guard: ensure non-negative buffer index even if _index is -1 (shouldn't happen but safeguard)
+        int bufIdx = _index < 0 ? 0 : (int)(_index % _period);
         var (high, low) = GetValid(input.High, input.Low);
 
         // If still no valid data, return NaN placeholders
@@ -142,11 +143,6 @@ public sealed class Mmchannel : ITValuePublisher
 
         double top = _maxDeque.GetExtremum(_hBuf);
         double bot = _minDeque.GetExtremum(_lBuf);
-
-        if (!IsHot && _count >= _period)
-        {
-            _state = _state with { IsHot = true };
-        }
 
         // Last returns Upper by default for single-value compatibility
         Last = new TValue(input.Time, top);
@@ -218,7 +214,7 @@ public sealed class Mmchannel : ITValuePublisher
         _minDeque.Reset();
         _count = 0;
         _index = -1;
-        _state = new State(double.NaN, double.NaN, false);
+        _state = new State(double.NaN, double.NaN);
         _p_state = _state;
         Last = default;
         Upper = default;
@@ -262,6 +258,11 @@ public sealed class Mmchannel : ITValuePublisher
 
     public static (TSeries Upper, TSeries Lower) Batch(TBarSeries source, int period)
     {
+        if (source == null || source.Count == 0)
+        {
+            return (new TSeries([], []), new TSeries([], []));
+        }
+
         int len = source.Count;
         var tUpper = new List<long>(len);
         var vUpper = new List<double>(len);

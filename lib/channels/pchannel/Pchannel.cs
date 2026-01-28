@@ -237,7 +237,7 @@ public sealed class Pchannel : ITValuePublisher
         double bot = _lBuf[_lDeque[_lHead] % _period];
         double mid = (top + bot) * 0.5;
 
-        if (!IsHot && _count >= _period)
+        if (!_state.IsHot && _count >= _period)
         {
             _state = _state with { IsHot = true };
         }

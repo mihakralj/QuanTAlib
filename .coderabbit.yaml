@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit Configuration - Batch 1: Implementation files only
+# PR has 492 files, limit is 300. This config focuses on core implementation.
+
+language: en-US
+
+reviews:
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  auto_title_placeholder: "@coderabbitai"
+  review_status: true
+  collapse_walkthrough: false
+  path_instructions: []
+  tools:
+    ast-grep:
+      essential_rules: true
+      rule_dirs:
+        - .coderabbit/ast-grep-rules
+
+  path_filters:
+    # ============================================
+    # BATCH 1: Core implementation .cs files only
+    # Target: ~297 files (under 300 limit)
+    # ============================================
+
+    # INCLUDE: Core library implementation files
+    - "lib/**/*.cs"
+
+    # EXCLUDE: Test files (426 files - Batch 2)
+    - "!**/*.Tests.cs"
+    - "!**/*.Validation.Tests.cs"
+    - "!**/Tests/**"
+
+    # EXCLUDE: Build artifacts
+    - "!**/obj/**"
+    - "!**/bin/**"
+    - "!**/Debug/**"
+    - "!**/Release/**"
+
+    # EXCLUDE: Documentation (not code review priority)
+    - "!**/*.md"
+    - "!**/*.pine"
+    - "!**/_index.md"
+
+    # EXCLUDE: Quantower adapters (Batch 2)
+    - "!quantower/**"
+
+    # EXCLUDE: Supporting directories
+    - "!perf/**"
+    - "!ndepend/**"
+    - "!docfx/**"
+    - "!temp/**"
+    - "!TestResults/**"
+    - "!TestResultsCoverage/**"
+    - "!.sarif/**"
+
+    # EXCLUDE: Config/metadata files
+    - "!**/*.json"
+    - "!**/*.yaml"
+    - "!**/*.yml"
+    - "!**/*.props"
+    - "!**/*.targets"
+    - "!**/*.csproj"
+    - "!**/*.runsettings"
+    - "!**/*.editorconfig"
+
+chat:
+  auto_reply: true
+
+# ==============================================
+# BATCH 2 INSTRUCTIONS (for future PR):
+# ==============================================
+# To review test files, create a separate PR or
+# modify path_filters to:
+#   - "lib/**/*.Tests.cs"
+#   - "lib/**/*.Validation.Tests.cs"
+#   - "quantower/**/*.cs"
+# And exclude implementation files:
+#   - "!lib/**/[!T]*.cs"  (files not starting with T)
+#
+# Test file breakdown by category:
+#   - channels: ~40 test files
+#   - trends_IIR: ~35 test files
+#   - trends_FIR: ~30 test files
+#   - filters: ~30 test files
+#   - Other categories: ~290 test files
+# ==============================================

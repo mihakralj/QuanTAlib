@@ -31,8 +31,8 @@ public class VwapsdIndicator : Indicator, IWatchlistIndicator
         Description = "Volume weighted average price with configurable standard deviation bands";
 
         VwapSeries = new("VWAP", Color.Blue, 2, LineStyle.Solid);
-        UpperSeries = new($"Upper (+{NumDevs}σ)", Color.Red, 1, LineStyle.Solid);
-        LowerSeries = new($"Lower (-{NumDevs}σ)", Color.Green, 1, LineStyle.Solid);
+        UpperSeries = new("Upper", Color.Red, 1, LineStyle.Solid);
+        LowerSeries = new("Lower", Color.Green, 1, LineStyle.Solid);
         WidthSeries = new("Width", Color.Gray, 1, LineStyle.Dot);
 
         AddLineSeries(VwapSeries);
@@ -47,7 +47,27 @@ public class VwapsdIndicator : Indicator, IWatchlistIndicator
     protected override void OnInit()
     {
         vwapsd = new(NumDevs);
+        if (UpperSeries != null)
+        {
+            UpperSeries.Name = $"Upper (+{NumDevs:F1}σ)";
+        }
+        if (LowerSeries != null)
+        {
+            LowerSeries.Name = $"Lower (-{NumDevs:F1}σ)";
+        }
         base.OnInit();
+    }
+
+    private void UpdateSeriesNames()
+    {
+        if (UpperSeries != null)
+        {
+            UpperSeries.Name = $"Upper (+{NumDevs:F1}σ)";
+        }
+        if (LowerSeries != null)
+        {
+            LowerSeries.Name = $"Lower (-{NumDevs:F1}σ)";
+        }
     }
 
     protected override void OnUpdate(UpdateArgs args)

@@ -441,17 +441,18 @@ public class VwapbandsTests
         double[] upper2 = new double[5];
         double[] lower2 = new double[5];
         double[] vwap = new double[5];
+        double[] stdDev = new double[5];
         double[] wrongSize = new double[3];
 
         // Multiplier must be >= MinMultiplier
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             Vwapbands.Calculate(price.AsSpan(), volume.AsSpan(),
-                upper1.AsSpan(), lower1.AsSpan(), upper2.AsSpan(), lower2.AsSpan(), vwap.AsSpan(), 0));
+                upper1.AsSpan(), lower1.AsSpan(), upper2.AsSpan(), lower2.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 0));
 
         // All arrays must be same length
         Assert.Throws<ArgumentException>(() =>
             Vwapbands.Calculate(price.AsSpan(), volume.AsSpan(),
-                wrongSize.AsSpan(), lower1.AsSpan(), upper2.AsSpan(), lower2.AsSpan(), vwap.AsSpan(), 1.0));
+                wrongSize.AsSpan(), lower1.AsSpan(), upper2.AsSpan(), lower2.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 1.0));
     }
 
     [Fact]
@@ -464,9 +465,10 @@ public class VwapbandsTests
         double[] upper2 = new double[5];
         double[] lower2 = new double[5];
         double[] vwap = new double[5];
+        double[] stdDev = new double[5];
 
         Vwapbands.Calculate(price.AsSpan(), volume.AsSpan(),
-            upper1.AsSpan(), lower1.AsSpan(), upper2.AsSpan(), lower2.AsSpan(), vwap.AsSpan(), 1.0);
+            upper1.AsSpan(), lower1.AsSpan(), upper2.AsSpan(), lower2.AsSpan(), vwap.AsSpan(), stdDev.AsSpan(), 1.0);
 
         foreach (var val in vwap)
         {

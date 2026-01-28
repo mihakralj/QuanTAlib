@@ -124,11 +124,15 @@ public sealed class Ubands : AbstractBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    private double GetFiniteValue(double value)
+    private double GetFiniteValue(double value, bool isNew)
     {
         if (double.IsFinite(value))
         {
-            _state.LastValidValue = value;
+            // Only update LastValidValue on new bars to avoid corrupting restored state during corrections
+            if (isNew)
+            {
+                _state = _state with { LastValidValue = value };
+            }
             return value;
         }
         return double.IsFinite(_state.LastValidValue) ? _state.LastValidValue : 0;
@@ -149,7 +153,7 @@ public sealed class Ubands : AbstractBase
             _state = _p_state;
         }
 
-        double val = GetFiniteValue(input.Value);
+        double val = GetFiniteValue(input.Value, isNew);
 
         // Initialize on first value
         if (!_state.IsInitialized)

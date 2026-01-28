@@ -16,8 +16,8 @@ public sealed class CmfIndicator : Indicator, IWatchlistIndicator
     private Cmf _cmf = null!;
     private readonly LineSeries _series;
 
-    public static int MinHistoryDepths => 20;
-    int IWatchlistIndicator.MinHistoryDepths => MinHistoryDepths;
+    public int MinHistoryDepths => Period;
+    int IWatchlistIndicator.MinHistoryDepths => Period;
 
     public override string ShortName => $"CMF({Period})";
     public override string SourceCodeLink => "https://github.com/mihakralj/QuanTAlib/blob/main/lib/volume/cmf/Cmf.Quantower.cs";

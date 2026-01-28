@@ -8,7 +8,7 @@ public class StbandsIndicator : Indicator, IWatchlistIndicator
     [InputParameter("Period", sortIndex: 1, minimum: 1, maximum: 1000, increment: 1, decimalPlaces: 0)]
     public int Period { get; set; } = 10;
 
-    [InputParameter("Multiplier", sortIndex: 2, minimum: 0.1, maximum: 10.0, increment: 0.1, decimalPlaces: 1)]
+    [InputParameter("Multiplier", sortIndex: 2, minimum: 0.001, maximum: 10.0, increment: 0.1, decimalPlaces: 3)]
     public double Multiplier { get; set; } = 3.0;
 
     [InputParameter("Show cold values", sortIndex: 21)]

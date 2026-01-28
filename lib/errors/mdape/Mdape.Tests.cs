@@ -309,17 +309,18 @@ public class MdapeTests
     }
 
     [Fact]
-    public void Calculate_ZeroActual_ReturnsZeroError()
+    public void Calculate_ZeroActual_UsesSubstituteValue()
     {
-        // When actual is zero or near-zero, should return 0 error (epsilon protection)
+        // When actual is zero or near-zero, implementation substitutes 1.0 fallback
+        // to avoid division by zero (epsilon protection means substitute, not return 0)
         var mdape = new Mdape(3);
 
-        mdape.Update(0.0, 10);
-        mdape.Update(0.0, 20);
-        mdape.Update(0.0, 30);
+        mdape.Update(0.0, 10);  // actual=1.0 (substituted), pred=10 → |1-10|/1 * 100 = 900%
+        mdape.Update(0.0, 20);  // actual=1.0 (substituted), pred=20 → |1-20|/1 * 100 = 1900%
+        mdape.Update(0.0, 30);  // actual=1.0 (substituted), pred=30 → |1-30|/1 * 100 = 2900%
 
-        // With epsilon protection, all errors are 0
-        Assert.Equal(0.0, mdape.Last.Value, Precision);
+        // Median of [900, 1900, 2900] = 1900
+        Assert.Equal(1900.0, mdape.Last.Value, Precision);
     }
 
     [Fact]

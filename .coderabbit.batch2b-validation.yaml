@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit Configuration - Batch 2b: Validation test files only
+# To use: rename to .coderabbit.yaml (backup current config first)
+#
+# Validation tests: 130 files (well under 300 limit)
+
+language: en-US
+
+reviews:
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  auto_title_placeholder: "@coderabbitai"
+  review_status: true
+  collapse_walkthrough: false
+  path_instructions: []
+  tools:
+    ast-grep:
+      essential_rules: true
+      rule_dirs:
+        - .coderabbit/ast-grep-rules
+
+  path_filters:
+    # ============================================
+    # BATCH 2b: Validation test files only (130 files)
+    # ============================================
+
+    # INCLUDE: Validation test files
+    - "lib/**/*.Validation.Tests.cs"
+
+    # EXCLUDE: Build artifacts
+    - "!**/obj/**"
+    - "!**/bin/**"
+    - "!**/Debug/**"
+    - "!**/Release/**"
+
+    # EXCLUDE: Non-code files
+    - "!**/*.md"
+    - "!**/*.pine"
+    - "!**/*.json"
+    - "!**/*.yaml"
+    - "!**/*.yml"
+
+chat:
+  auto_reply: true

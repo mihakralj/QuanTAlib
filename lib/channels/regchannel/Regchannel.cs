@@ -464,7 +464,9 @@ public sealed class Regchannel : ITValuePublisher
 
     public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Regchannel Indicator) Calculate(TSeries source, int period = 20, double multiplier = 2.0)
     {
-        var indicator = new Regchannel(source, period, multiplier);
+        // Use parameterless constructor to avoid double-processing: new Regchannel(source, ...) calls Prime(source),
+        // then Update(source) would call Prime again.
+        var indicator = new Regchannel(period, multiplier);
         var results = indicator.Update(source);
         return (results, indicator);
     }

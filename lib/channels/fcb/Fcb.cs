@@ -20,9 +20,9 @@ public sealed class Fcb : ITValuePublisher
     private readonly double[] _hBuf;
     private readonly double[] _lBuf;
 
-    // Monotonic deques (store indices)
-    private readonly int[] _hDeque;
-    private readonly int[] _lDeque;
+    // Monotonic deques (store indices as long to avoid truncation)
+    private readonly long[] _hDeque;
+    private readonly long[] _lDeque;
 
     // Deque state
     private int _hHead;
@@ -68,8 +68,8 @@ public sealed class Fcb : ITValuePublisher
 
         _hBuf = new double[_period];
         _lBuf = new double[_period];
-        _hDeque = new int[_period];
-        _lDeque = new int[_period];
+        _hDeque = new long[_period];
+        _lDeque = new long[_period];
 
         Name = $"Fcb({period})";
         _barHandler = HandleBar;
@@ -128,7 +128,7 @@ public sealed class Fcb : ITValuePublisher
         while (_hCount > 0)
         {
             int backIdx = (_hHead + _hCount - 1) % _period;
-            int bufIdx = _hDeque[backIdx] % _period;
+            int bufIdx = (int)(_hDeque[backIdx] % _period);
             if (_hBuf[bufIdx] <= value)
             {
                 _hCount--;
@@ -140,7 +140,7 @@ public sealed class Fcb : ITValuePublisher
         }
 
         int tail = (_hHead + _hCount) % _period;
-        _hDeque[tail] = (int)logicalIndex;
+        _hDeque[tail] = logicalIndex;
         _hCount++;
     }
 
@@ -157,7 +157,7 @@ public sealed class Fcb : ITValuePublisher
         while (_lCount > 0)
         {
             int backIdx = (_lHead + _lCount - 1) % _period;
-            int bufIdx = _lDeque[backIdx] % _period;
+            int bufIdx = (int)(_lDeque[backIdx] % _period);
             if (_lBuf[bufIdx] >= value)
             {
                 _lCount--;
@@ -169,7 +169,7 @@ public sealed class Fcb : ITValuePublisher
         }
 
         int tail = (_lHead + _lCount) % _period;
-        _lDeque[tail] = (int)logicalIndex;
+        _lDeque[tail] = logicalIndex;
         _lCount++;
     }
 
@@ -289,8 +289,8 @@ public sealed class Fcb : ITValuePublisher
             RebuildDeques();
         }
 
-        double top = _hBuf[_hDeque[_hHead] % _period];
-        double bot = _lBuf[_lDeque[_lHead] % _period];
+        double top = _hBuf[(int)(_hDeque[_hHead] % _period)];
+        double bot = _lBuf[(int)(_lDeque[_lHead] % _period)];
         double mid = (top + bot) * 0.5;
 
         if (!_state.IsHot && _index + 1 >= WarmupPeriod)
@@ -537,7 +537,10 @@ public sealed class Fcb : ITValuePublisher
 
     public static ((TSeries Middle, TSeries Upper, TSeries Lower) Results, Fcb Indicator) Calculate(TBarSeries source, int period = 20)
     {
-        var indicator = new Fcb(source, period);
+        // Use parameterless constructor to avoid double-priming:
+        // The Fcb(source, period) constructor already calls Prime(source),
+        // so calling Update(source) afterwards would Prime again.
+        var indicator = new Fcb(period);
         var results = indicator.Update(source);
         return (results, indicator);
     }

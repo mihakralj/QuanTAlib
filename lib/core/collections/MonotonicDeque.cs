@@ -16,7 +16,7 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class MonotonicDeque
 {
-    private readonly int[] _deque;
+    private readonly long[] _deque;
     private readonly int _period;
     private int _head;
     private int _count;
@@ -24,7 +24,7 @@ public sealed class MonotonicDeque
     /// <summary>
     /// Gets the current front index (the index of the current extremum).
     /// </summary>
-    public int FrontIndex => _count > 0 ? _deque[_head] : -1;
+    public long FrontIndex => _count > 0 ? _deque[_head] : -1;
 
     /// <summary>
     /// Gets the current element count in the deque.
@@ -43,7 +43,7 @@ public sealed class MonotonicDeque
         }
 
         _period = period;
-        _deque = new int[period];
+        _deque = new long[period];
         _head = 0;
         _count = 0;
     }
@@ -70,7 +70,7 @@ public sealed class MonotonicDeque
         while (_count > 0)
         {
             int backIdx = (_head + _count - 1) % _period;
-            int bufIdx = _deque[backIdx] % _period;
+            int bufIdx = (int)(_deque[backIdx] % _period);
             if (buffer[bufIdx] <= value)
             {
                 _count--;
@@ -83,7 +83,7 @@ public sealed class MonotonicDeque
 
         // Push new index
         int tail = (_head + _count) % _period;
-        _deque[tail] = (int)logicalIndex;
+        _deque[tail] = logicalIndex;
         _count++;
     }
 
@@ -109,7 +109,7 @@ public sealed class MonotonicDeque
         while (_count > 0)
         {
             int backIdx = (_head + _count - 1) % _period;
-            int bufIdx = _deque[backIdx] % _period;
+            int bufIdx = (int)(_deque[backIdx] % _period);
             if (buffer[bufIdx] >= value)
             {
                 _count--;
@@ -122,7 +122,7 @@ public sealed class MonotonicDeque
 
         // Push new index
         int tail = (_head + _count) % _period;
-        _deque[tail] = (int)logicalIndex;
+        _deque[tail] = logicalIndex;
         _count++;
     }
 
@@ -134,7 +134,7 @@ public sealed class MonotonicDeque
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double GetExtremum(double[] buffer)
     {
-        return _count > 0 ? buffer[_deque[_head] % _period] : double.NaN;
+        return _count > 0 ? buffer[(int)(_deque[_head] % _period)] : double.NaN;
     }
 
     /// <summary>

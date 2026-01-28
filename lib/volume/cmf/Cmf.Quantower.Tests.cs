@@ -13,7 +13,7 @@ public class CmfIndicatorTests
         Assert.Equal(20, indicator.Period);
         Assert.True(indicator.SeparateWindow);
         Assert.True(indicator.OnBackGround);
-        Assert.Equal(20, CmfIndicator.MinHistoryDepths);
+        Assert.Equal(20, indicator.MinHistoryDepths);
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class CmfIndicatorTests
     {
         var indicator = new CmfIndicator();
 
-        Assert.Equal(20, CmfIndicator.MinHistoryDepths);
+        Assert.Equal(20, indicator.MinHistoryDepths);
         Assert.Equal(20, ((IWatchlistIndicator)indicator).MinHistoryDepths);
     }
 
