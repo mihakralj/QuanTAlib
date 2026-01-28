@@ -41,7 +41,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Adaptive Price Zone** | [Apz](../lib/channels/apz/apz.md) | - | - | - | ❔ |
 | **Andrews' Pitchfork** | Apchannel | - | - | - | - |
 | **Archer Moving Averages Trends** | [Amat](../lib/momentum/amat/Amat.md) | - | - | ✔️ | ✔️ |
-| **Archer On-Balance Volume** | Aobv | - | - | - | - |
+| **Archer On-Balance Volume** | [Aobv](../lib/volume/aobv/Aobv.md) | - | - | - | - |
 | **Arnaud Legoux Moving Average** | [Alma](../lib/trends/alma/alma.md) | - | - | ✔️ | ✔️ |
 | **Aroon** | [Aroon](../lib/momentum/aroon/aroon.md) | ✔️ | ✔️ | ✔️ | - |
 | **Aroon Oscillator** | [AroonOsc](../lib/momentum/aroonosc/AroonOsc.md) | ✔️ | ✔️ | ✔️ | - |
@@ -96,7 +96,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Donchian Channels** | [Dchannel](../lib/channels/dchannel/Dchannel.md) | - | - | ✔️ | ❔ |
 | **Double Exponential Moving Average** | [Dema](../lib/trends/dema/dema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Double Weighted Moving Average** | [Dwma](../lib/trends/dwma/dwma.md) | - | - | - | - |
-| **Ease of Movement** | Eome | - | - | - | ❔ |
+| **Ease of Movement** | [Eom](../lib/volume/eom/Eom.md) | - | - | - | - |
 | **Ehlers Autocorrelation Periodogram** | Eacp | - | - | - | ❔ |
 | **BandPass Filter** | [Bpf](../lib/filters/bpf/Bpf.md) | ✔️ | - | - | - |
 | **Ehlers Center of Gravity** | Cg | - | - | - | ❔ |
@@ -115,7 +115,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Extended Traditional Pivots** | Pivotext | - | - | - | - |
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
 | **Fisher Transform** | Fisher | - | ✔️ | ✔️ | ❔ |
-| **Force Index** | Efi | - | - | ✔️ | ❔ |
+| **Force Index** | [Efi](../lib/volume/efi/Efi.md) | - | - | - | - |
 | **Fractal Chaos Bands** | [Fcb](../lib/channels/fcb/fcb.md) | - | - | ✔️ | ❔ |
 | **Garman-Klass Volatility** | Gkv | - | - | - | ❔ |
 | **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
@@ -145,7 +145,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Ichimoku Cloud** | Ichimoku | - | - | ✔️ | ❔ |
 | **Inertia** | Inertia | - | - | - | ❔ |
 | **Interquartile Range** | Iqr | - | - | - | - |
-| **Intraday Intensity Index** | Iii | - | - | - | - |
+| **Intraday Intensity Index** | [Iii](../lib/volume/iii/Iii.md) | - | - | - | - |
 | **Intraday Momentum Index** | Imi | - | - | - | ❔ |
 | **Jarque-Bera Test** | Jb | - | - | - | - |
 | **Jurik Moving Average** | [Jma](../lib/trends/jma/jma.md) | - | - | - | ❔ |
