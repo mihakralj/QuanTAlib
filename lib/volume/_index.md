@@ -16,12 +16,12 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [KVO](lib/volume/kvo/Kvo.md) | Klinger Volume Oscillator | Compares short-term and long-term volume trends to identify potential reversals. |
 | [MFI](lib/volume/mfi/Mfi.md) | Money Flow Index | Volume-weighted RSI. Measures buying/selling pressure using price and volume. |
 | [NVI](lib/volume/nvi/Nvi.md) | Negative Volume Index | Tracks price changes on lower volume days. Assumes smart money acts on quiet days. |
-| OBV | On Balance Volume | Fundamental volume indicator. Cumulative volume based on price direction. |
-| PVD | Price Volume Divergence | Systematic divergence detection between price and volume movements. |
-| PVI | Positive Volume Index | Tracks price changes on higher volume days. Assumes crowd behavior. |
-| PVO | Percentage Volume Oscillator | Compares short-term and long-term volume moving averages as percentages. |
-| PVR | Price Volume Rank | Ranks price performance relative to volume activity. |
-| PVT | Price Volume Trend | Cumulative volume adjusted by relative price changes. Similar to OBV. |
+| [OBV](lib/volume/obv/Obv.md) | On Balance Volume | Fundamental volume indicator. Cumulative volume based on price direction. |
+| [PVD](lib/volume/pvd/Pvd.md) | Price Volume Divergence | Systematic divergence detection between price and volume movements. |
+| [PVI](lib/volume/pvi/Pvi.md) | Positive Volume Index | Tracks price changes on higher volume days. Assumes crowd behavior. |
+| [PVO](lib/volume/pvo/Pvo.md) | Percentage Volume Oscillator | Compares short-term and long-term volume moving averages as percentages. |
+| [PVR](lib/volume/pvr/Pvr.md) | Price Volume Rank | Categorical indicator returning 0-4 based on combined price and volume direction. |
+| [PVT](lib/volume/pvt/Pvt.md) | Price Volume Trend | Cumulative volume adjusted by relative price changes. Similar to OBV but magnitude-weighted. |
 | TVI | Trade Volume Index | Measures intra-day buying/selling pressure based on tick data. |
 | TWAP | Time Weighted Average Price | Average price weighted equally by time. Used as execution benchmark. |
 | VA | Volume Accumulation | Cumulative volume adjusted by close position relative to range midpoint. |

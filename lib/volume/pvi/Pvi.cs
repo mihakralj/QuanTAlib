@@ -4,35 +4,34 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// NVI: Negative Volume Index
+/// PVI: Positive Volume Index
 /// </summary>
 /// <remarks>
-/// Negative Volume Index tracks price changes on days when volume decreases compared
-/// to the previous day. The theory is that on low-volume days, the "smart money"
-/// (institutional investors) is taking positions, while high-volume days are driven
-/// by less-informed traders.
+/// Positive Volume Index tracks price changes on days when volume increases compared
+/// to the previous day. The theory is that on high-volume days, the "uninformed crowd"
+/// is trading, while low-volume days are driven by smart money (institutional investors).
 ///
 /// Calculation:
-/// - If Volume &lt; Previous Volume: NVI = Previous NVI × (Close / Previous Close)
-/// - If Volume &gt;= Previous Volume: NVI = Previous NVI (unchanged)
+/// - If Volume &gt; Previous Volume: PVI = Previous PVI × (Close / Previous Close)
+/// - If Volume &lt;= Previous Volume: PVI = Previous PVI (unchanged)
 /// - Typically starts at 100 or 1000
 ///
-/// NVI is often used with its signal line (a moving average of NVI) to generate
-/// buy/sell signals. When NVI crosses above its signal line, it may indicate
-/// a bullish trend driven by smart money.
+/// PVI is often used with its signal line (a moving average of PVI) to generate
+/// buy/sell signals. When PVI is below its 1-year moving average, there is a 67%
+/// probability of a bear market according to Fosback.
 ///
 /// Sources:
-/// https://www.investopedia.com/terms/n/nvi.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:negative_volume_index
+/// https://www.investopedia.com/terms/p/pvi.asp
+/// https://school.stockcharts.com/doku.php?id=technical_indicators:positive_volume_index
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Nvi : ITValuePublisher
+public sealed class Pvi : ITValuePublisher
 {
     private readonly double _startValue;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(
-        double NviValue,
+        double PviValue,
         double PrevClose,
         double PrevVolume,
         double LastValidClose,
@@ -50,7 +49,7 @@ public sealed class Nvi : ITValuePublisher
     public event TValuePublishedHandler? Pub;
 
     /// <summary>
-    /// Current NVI value.
+    /// Current PVI value.
     /// </summary>
     public TValue Last { get; private set; }
 
@@ -67,11 +66,11 @@ public sealed class Nvi : ITValuePublisher
 #pragma warning restore S2325
 
     /// <summary>
-    /// Creates a new NVI indicator.
+    /// Creates a new PVI indicator.
     /// </summary>
-    /// <param name="startValue">Initial NVI value (default: 100)</param>
+    /// <param name="startValue">Initial PVI value (default: 100)</param>
     /// <exception cref="ArgumentException">Thrown when startValue is not positive.</exception>
-    public Nvi(double startValue = 100.0)
+    public Pvi(double startValue = 100.0)
     {
         if (startValue <= 0)
         {
@@ -79,9 +78,9 @@ public sealed class Nvi : ITValuePublisher
         }
 
         _startValue = startValue;
-        _s = new State(NviValue: startValue, PrevClose: 0, PrevVolume: 0, LastValidClose: 0, LastValidVolume: 0, Index: 0);
+        _s = new State(PviValue: startValue, PrevClose: 0, PrevVolume: 0, LastValidClose: 0, LastValidVolume: 0, Index: 0);
         _ps = _s;
-        Name = $"Nvi({startValue})";
+        Name = $"Pvi({startValue})";
     }
 
     /// <summary>
@@ -90,7 +89,7 @@ public sealed class Nvi : ITValuePublisher
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()
     {
-        _s = new State(NviValue: _startValue, PrevClose: 0, PrevVolume: 0, LastValidClose: 0, LastValidVolume: 0, Index: 0);
+        _s = new State(PviValue: _startValue, PrevClose: 0, PrevVolume: 0, LastValidClose: 0, LastValidVolume: 0, Index: 0);
         _ps = _s;
         Last = default;
     }
@@ -123,13 +122,13 @@ public sealed class Nvi : ITValuePublisher
             s.LastValidVolume = input.Volume;
         }
 
-        // Calculate NVI - only update when volume decreases
-        // Matches PineScript: if not (na(src) or na(vol) or na(src[1]) or na(vol[1]) or src[1] == 0.0 or vol[1] <= 0.0) and vol < vol[1]
-        if (s.Index > 0 && s.PrevClose > 0 && s.PrevVolume > 0 && volume < s.PrevVolume)
+        // Calculate PVI - only update when volume increases
+        // Matches PineScript: if not (na(src) or na(vol) or na(src[1]) or na(vol[1]) or src[1] == 0.0 or vol[1] <= 0.0) and vol > vol[1]
+        if (s.Index > 0 && s.PrevClose > 0 && s.PrevVolume > 0 && volume > s.PrevVolume)
         {
-            s.NviValue *= close / s.PrevClose;
+            s.PviValue *= close / s.PrevClose;
         }
-        // If volume >= previous volume, NVI stays the same
+        // If volume <= previous volume, PVI stays the same
 
         // Store for next iteration
         s.PrevClose = close;
@@ -142,23 +141,23 @@ public sealed class Nvi : ITValuePublisher
 
         _s = s;
 
-        Last = new TValue(input.Time, s.NviValue);
+        Last = new TValue(input.Time, s.PviValue);
         Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
 
     /// <summary>
-    /// Updates NVI with a TValue input.
+    /// Updates PVI with a TValue input.
     /// </summary>
     /// <remarks>
-    /// NVI requires volume data to determine when to update. Using TValue without
-    /// volume data will keep NVI unchanged. For proper NVI calculation, use Update(TBar).
+    /// PVI requires volume data to determine when to update. Using TValue without
+    /// volume data will keep PVI unchanged. For proper PVI calculation, use Update(TBar).
     /// </remarks>
 #pragma warning disable S2325 // Method signature must match ITValuePublisher contract
     public TValue Update(TValue input, bool isNew = true)
 #pragma warning restore S2325
     {
-        // NVI requires volume; without it, we can't determine direction
+        // PVI requires volume; without it, we can't determine direction
         // Return current value unchanged
         if (isNew)
         {
@@ -169,7 +168,7 @@ public sealed class Nvi : ITValuePublisher
             _s = _ps;
         }
 
-        Last = new TValue(input.Time, _s.NviValue);
+        Last = new TValue(input.Time, _s.PviValue);
         Pub?.Invoke(this, new TValueEventArgs { Value = Last, IsNew = isNew });
         return Last;
     }
@@ -198,7 +197,7 @@ public sealed class Nvi : ITValuePublisher
             return [];
         }
 
-        var t = source.Open.Times.ToArray();
+        var t = source.Close.Times.ToArray();
         var v = new double[source.Count];
 
         Calculate(source.Close.Values, source.Volume.Values, v, startValue);
@@ -247,11 +246,11 @@ public sealed class Nvi : ITValuePublisher
             lastValidVolume = volume[0];
         }
 
-        // Sanitized previous values for NVI calculation
+        // Sanitized previous values for PVI calculation
         double prevClose = double.IsFinite(close[0]) ? close[0] : lastValidClose;
         double prevVolume = double.IsFinite(volume[0]) ? volume[0] : lastValidVolume;
 
-        double nvi = startValue;
+        double pvi = startValue;
         for (int i = 1; i < len; i++)
         {
             // Sanitize current close/volume (substitute last-valid if not finite)
@@ -268,15 +267,15 @@ public sealed class Nvi : ITValuePublisher
                 lastValidVolume = volume[i];
             }
 
-            // Only update when volume decreases (using sanitized values)
-            // Matches PineScript: if not (na(src) or na(vol) or na(src[1]) or na(vol[1]) or src[1] == 0.0 or vol[1] <= 0.0) and vol < vol[1]
-            if (prevClose > 0 && prevVolume > 0 && currentVolume < prevVolume)
+            // Only update when volume increases (using sanitized values)
+            // Matches PineScript: if not (na(src) or na(vol) or na(src[1]) or na(vol[1]) or src[1] == 0.0 or vol[1] <= 0.0) and vol > vol[1]
+            if (prevClose > 0 && prevVolume > 0 && currentVolume > prevVolume)
             {
-                nvi *= currentClose / prevClose;
+                pvi *= currentClose / prevClose;
             }
-            // Otherwise NVI stays the same
+            // Otherwise PVI stays the same
 
-            output[i] = nvi;
+            output[i] = pvi;
 
             // Store sanitized values for next iteration
             prevClose = currentClose;
