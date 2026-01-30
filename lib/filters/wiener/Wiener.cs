@@ -40,8 +40,12 @@ public sealed class Wiener : AbstractBase
     {
         if (double.IsNaN(input.Value) || double.IsInfinity(input.Value))
         {
-            // If we have a valid last value, return it, otherwise return input
-            return isNew ? Last : new TValue(input.Time, Last.Value);
+            // If we have a valid last value, use it; otherwise fallback to input value
+            double fallbackValue = double.IsFinite(Last.Value) ? Last.Value : input.Value;
+            var fallbackResult = new TValue(input.Time, fallbackValue);
+            Last = fallbackResult;
+            PubEvent(fallbackResult, isNew);
+            return fallbackResult;
         }
 
         _buffer.Add(input.Value, isNew);
@@ -55,9 +59,9 @@ public sealed class Wiener : AbstractBase
             return res;
         }
 
-        double result = Calc();
+        double calcResult = Calc();
 
-        var ret = new TValue(input.Time, result);
+        var ret = new TValue(input.Time, calcResult);
         Last = ret;
         PubEvent(ret, isNew);
         return ret;

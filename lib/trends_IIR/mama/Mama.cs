@@ -150,7 +150,7 @@ public sealed class Mama : AbstractBase
 
         if (_state.Index > 6)
         {
-            double adj = (AdjSlope * _p_state.Period) + AdjIntercept;
+            double adj = (AdjSlope * _state.Period) + AdjIntercept;
 
             // Smooth
             double smooth = (4.0 * _priceBuffer[^1] + 3.0 * _priceBuffer[^2] + 2.0 * _priceBuffer[^3] + _priceBuffer[^4]) * 0.1;

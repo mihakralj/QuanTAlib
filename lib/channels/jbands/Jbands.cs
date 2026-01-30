@@ -11,7 +11,7 @@ namespace QuanTAlib;
 /// Middle band is the JMA smoothed value itself.
 /// </summary>
 [SkipLocalsInit]
-public sealed class Jbands : ITValuePublisher
+public sealed class Jbands : ITValuePublisher, IDisposable
 {
     private const int VolWindowSize = 128;
     private const int DevWindowSize = 10;
@@ -29,6 +29,10 @@ public sealed class Jbands : ITValuePublisher
     private readonly RingBuffer _devBuffer;
     private readonly RingBuffer _volBuffer;
     private readonly TValuePublishedHandler _handler;
+
+    // Subscription tracking for IDisposable
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     // Streaming state
     private State _state;
@@ -114,7 +118,27 @@ public sealed class Jbands : ITValuePublisher
     public Jbands(ITValuePublisher source, int period, int phase = 0, double power = 0.45)
         : this(period, phase, power)
     {
+        _source = source;
         source.Pub += _handler;
+    }
+
+    /// <summary>
+    /// Releases the event subscription to the source publisher.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (_source != null)
+        {
+            _source.Pub -= _handler;
+            _source = null;
+        }
+
+        _disposed = true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

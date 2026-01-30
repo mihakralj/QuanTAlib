@@ -1,4 +1,6 @@
 
+#pragma warning disable CS0618 // Tests intentionally use obsolete Next(bool) overload to verify it still works
+
 namespace QuanTAlib.Tests;
 
 public sealed class CsvFeedTests : IDisposable

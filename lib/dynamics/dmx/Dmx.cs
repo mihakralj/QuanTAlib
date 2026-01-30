@@ -85,10 +85,7 @@ public sealed class Dmx : ITValuePublisher
             {
                 _prevBar = _lastInput;
             }
-            else
-            {
-                _isInitialized = true;
-            }
+            // On correction, do NOT force initialization - only restore and recompute
         }
 
         // Update _lastInput to the current input

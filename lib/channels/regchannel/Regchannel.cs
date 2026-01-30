@@ -360,26 +360,60 @@ public sealed class Regchannel : ITValuePublisher
         double sumX2Full = (period - 1.0) * period * (2.0 * period - 1.0) / 6.0;
         double denomFull = period * sumX2Full - sumXFull * sumXFull;
 
+        // Track last valid value for NaN substitution
+        double lastValid = double.NaN;
+
         for (int i = 0; i < len; i++)
         {
+            // Get valid value with last-valid substitution
+            double currentValue = source[i];
+            if (double.IsFinite(currentValue))
+            {
+                lastValid = currentValue;
+            }
+            else
+            {
+                currentValue = lastValid;
+            }
+
+            // If still NaN (no valid value seen yet), output NaN
+            if (!double.IsFinite(currentValue))
+            {
+                middle[i] = double.NaN;
+                upper[i] = double.NaN;
+                lower[i] = double.NaN;
+                continue;
+            }
+
             int count = Math.Min(i + 1, period);
             int start = i - count + 1;
 
             if (count <= 1)
             {
-                middle[i] = source[i];
-                upper[i] = source[i];
-                lower[i] = source[i];
+                middle[i] = currentValue;
+                upper[i] = currentValue;
+                lower[i] = currentValue;
                 continue;
             }
 
-            // Calculate sums for linear regression
+            // Calculate sums for linear regression with NaN handling
             double sumY = 0;
             double sumXY = 0;
+            double lastValidInWindow = double.NaN;
 
             for (int j = 0; j < count; j++)
             {
-                double y = source[start + j];
+                double rawY = source[start + j];
+                double y;
+                if (double.IsFinite(rawY))
+                {
+                    lastValidInWindow = rawY;
+                    y = rawY;
+                }
+                else
+                {
+                    y = double.IsFinite(lastValidInWindow) ? lastValidInWindow : 0.0;
+                }
                 sumY += y;
                 sumXY += j * y;
             }
@@ -414,12 +448,24 @@ public sealed class Regchannel : ITValuePublisher
                 regression = Math.FusedMultiplyAdd(slope, count - 1, intercept);
             }
 
-            // Calculate standard deviation of residuals
+            // Calculate standard deviation of residuals with NaN handling
             double sumResiduals2 = 0;
+            lastValidInWindow = double.NaN;
             for (int j = 0; j < count; j++)
             {
+                double rawY = source[start + j];
+                double y;
+                if (double.IsFinite(rawY))
+                {
+                    lastValidInWindow = rawY;
+                    y = rawY;
+                }
+                else
+                {
+                    y = double.IsFinite(lastValidInWindow) ? lastValidInWindow : 0.0;
+                }
                 double predicted = Math.FusedMultiplyAdd(slope, j, intercept);
-                double residual = source[start + j] - predicted;
+                double residual = y - predicted;
                 sumResiduals2 = Math.FusedMultiplyAdd(residual, residual, sumResiduals2);
             }
 

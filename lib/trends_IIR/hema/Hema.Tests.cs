@@ -10,9 +10,10 @@ public class HemaTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => new Hema(0));
         Assert.Throws<ArgumentOutOfRangeException>(() => new Hema(-1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Hema(1));
 
-        var hema = new Hema(1);
-        Assert.Equal("Hema(1)", hema.Name);
+        var hema = new Hema(2);
+        Assert.Equal("Hema(2)", hema.Name);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -235,6 +236,8 @@ public sealed class Gauss : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Calculate(ReadOnlySpan<double> source, Span<double> output, double sigma)
     {
+        const int StackallocThreshold = 256;
+
         if (source.Length != output.Length)
         {
             throw new ArgumentException("Source and output spans must be of equal length.", nameof(output));
@@ -242,25 +245,40 @@ public sealed class Gauss : AbstractBase
 
         int kernelSize = (int)(2 * Math.Ceiling(3.0 * sigma) + 1);
 
-        // Precompute weights
-        Span<double> weights = stackalloc double[kernelSize];
-        double sum = 0;
-        int center = kernelSize / 2;
-        double twoSigmaSq = 2.0 * sigma * sigma;
+        // Use stackalloc for small kernels, ArrayPool for large ones to avoid stack overflow
+        double[]? rented = null;
+        scoped Span<double> weights;
+        scoped Span<double> stackBuffer = stackalloc double[Math.Min(kernelSize, StackallocThreshold)];
 
-        for (int i = 0; i < kernelSize; i++)
+        if (kernelSize <= StackallocThreshold)
         {
-            double x = i - center;
-            double weight = Math.Exp(-(x * x) / twoSigmaSq);
-            weights[i] = weight;
-            sum += weight;
+            weights = stackBuffer.Slice(0, kernelSize);
+        }
+        else
+        {
+            rented = ArrayPool<double>.Shared.Rent(kernelSize);
+            weights = rented.AsSpan(0, kernelSize);
         }
 
-        double invSum = 1.0 / sum;
-        for (int i = 0; i < kernelSize; i++)
+        try
         {
-            weights[i] *= invSum;
-        }
+            double sum = 0;
+            int center = kernelSize / 2;
+            double twoSigmaSq = 2.0 * sigma * sigma;
+
+            for (int i = 0; i < kernelSize; i++)
+            {
+                double x = i - center;
+                double weight = Math.Exp(-(x * x) / twoSigmaSq);
+                weights[i] = weight;
+                sum += weight;
+            }
+
+            double invSum = 1.0 / sum;
+            for (int i = 0; i < kernelSize; i++)
+            {
+                weights[i] *= invSum;
+            }
 
         // Apply filter
         for (int i = 0; i < source.Length; i++)
@@ -307,6 +325,14 @@ public sealed class Gauss : AbstractBase
             else
             {
                 output[i] = double.NaN;
+            }
+        }
+        }
+        finally
+        {
+            if (rented != null)
+            {
+                ArrayPool<double>.Shared.Return(rented, clearArray: false);
             }
         }
     }

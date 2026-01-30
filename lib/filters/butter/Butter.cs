@@ -32,7 +32,7 @@ public sealed class Butter : AbstractBase
         _period = period;
         CalculateCoefficients();
         Name = $"Butter({_period})";
-        WarmupPeriod = 2;
+        WarmupPeriod = 4 * period;
         _handler = new TValuePublishedHandler(Handle);
         Init();
     }

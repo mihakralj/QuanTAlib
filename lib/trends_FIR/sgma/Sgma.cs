@@ -392,7 +392,7 @@ public sealed class Sgma : AbstractBase
                 }
                 else
                 {
-                    val = 0.0;
+                    val = double.NaN;
                 }
 
                 ring[ringIdx] = val;

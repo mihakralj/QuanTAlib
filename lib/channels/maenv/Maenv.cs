@@ -24,7 +24,7 @@ public enum MaenvType
 /// Lower = Middle - (Middle × percentage / 100)
 /// </summary>
 [SkipLocalsInit]
-public sealed class Maenv : ITValuePublisher
+public sealed class Maenv : ITValuePublisher, IDisposable
 {
     private readonly int _period;
     private readonly double _percentage;
@@ -59,6 +59,10 @@ public sealed class Maenv : ITValuePublisher
     private double[]? _p_wmaBuffer;
 
     private readonly TValuePublishedHandler _valueHandler;
+
+    // Subscription tracking for IDisposable
+    private TSeries? _source;
+    private bool _disposed;
 
     public string Name { get; }
     public int WarmupPeriod { get; }
@@ -108,8 +112,28 @@ public sealed class Maenv : ITValuePublisher
 
     public Maenv(TSeries source, int period = 20, double percentage = 1.0, MaenvType maType = MaenvType.EMA) : this(period, percentage, maType)
     {
+        _source = source;
         Prime(source);
         source.Pub += _valueHandler;
+    }
+
+    /// <summary>
+    /// Releases the event subscription to the source publisher.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (_source != null)
+        {
+            _source.Pub -= _valueHandler;
+            _source = null;
+        }
+
+        _disposed = true;
     }
 
     private void HandleValue(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);
@@ -249,14 +273,19 @@ public sealed class Maenv : ITValuePublisher
         var vUpperSpan = CollectionsMarshal.AsSpan(vUpper);
         var vLowerSpan = CollectionsMarshal.AsSpan(vLower);
 
-        Batch(source.Values, vMiddleSpan, vUpperSpan, vLowerSpan, _period, _percentage, _maType);
+        // Process through streaming path to compute results and prime state in one pass
+        Reset();
+        for (int i = 0; i < len; i++)
+        {
+            Update(source[i], isNew: true);
+            vMiddleSpan[i] = Last.Value;
+            vUpperSpan[i] = Upper.Value;
+            vLowerSpan[i] = Lower.Value;
+        }
 
         source.Times.CopyTo(tSpan);
         tSpan.CopyTo(CollectionsMarshal.AsSpan(tUpper));
         tSpan.CopyTo(CollectionsMarshal.AsSpan(tLower));
-
-        // Prime internal state for continued streaming
-        Prime(source);
 
         var lastTime = new DateTime(source.Times[^1], DateTimeKind.Utc);
         Last = new TValue(lastTime, vMiddleSpan[^1]);

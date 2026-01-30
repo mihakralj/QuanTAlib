@@ -147,27 +147,13 @@ public sealed class Notch : AbstractBase
 
         if (srcSpan.Length > 0)
         {
-            _index += srcSpan.Length;
-            // Best effort state restoration from the end of the block
-            // We assume the strict history for X is valid.
-            double lastVal = srcSpan[^1];
-            _state.LastValue = lastVal;
-
-            if (srcSpan.Length >= 2)
+            // Replay last few bars through streaming Update to properly restore state
+            int replayStart = Math.Max(0, srcSpan.Length - Math.Max(WarmupPeriod, 4));
+            Reset();
+            for (int i = replayStart; i < srcSpan.Length; i++)
             {
-                _state.X1 = srcSpan[^1];
-                _state.X2 = srcSpan[^2];
-                _state.Y1 = outArray[^1];
-                _state.Y2 = outArray[^2];
+                Update(new TValue(source.Times[i], srcSpan[i]), isNew: true);
             }
-            else
-            {
-                _state.X2 = _state.X1;
-                _state.X1 = srcSpan[0];
-                _state.Y2 = _state.Y1;
-                _state.Y1 = outArray[0];
-            }
-            _p_state = _state;
         }
 
         return result;

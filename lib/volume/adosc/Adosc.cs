@@ -187,6 +187,10 @@ public sealed class Adosc : ITValuePublisher
         {
             throw new ArgumentException("Slow period must be greater than 0", nameof(slowPeriod));
         }
+        if (fastPeriod >= slowPeriod)
+        {
+            throw new ArgumentException("Fast period must be less than slow period", nameof(fastPeriod));
+        }
 
         int len = high.Length;
         if (len == 0)

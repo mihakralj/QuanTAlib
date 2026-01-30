@@ -229,9 +229,15 @@ public sealed class Yzvama : AbstractBase
     private void RemoveSorted(double value, int currentCount)
     {
         int removePos = LowerBound(_activeSortedYzv, currentCount, value);
-        if (removePos < currentCount && Math.Abs(_activeSortedYzv[removePos] - value) < EPSILON && removePos < currentCount - 1)
+        if (removePos < currentCount && Math.Abs(_activeSortedYzv[removePos] - value) < EPSILON)
         {
-            Array.Copy(_activeSortedYzv, removePos + 1, _activeSortedYzv, removePos, currentCount - 1 - removePos);
+            // Shift elements left if not removing the last element
+            if (removePos < currentCount - 1)
+            {
+                Array.Copy(_activeSortedYzv, removePos + 1, _activeSortedYzv, removePos, currentCount - 1 - removePos);
+            }
+            // Clear the now-unused tail slot to avoid stale data
+            _activeSortedYzv[currentCount - 1] = double.NaN;
         }
     }
 
@@ -249,27 +255,22 @@ public sealed class Yzvama : AbstractBase
     {
         if (isNew)
         {
-            // Save state - pointer swap instead of O(n) Array.Copy
+            // Save state - copy current to backup for potential rollback
             _p_state = _state;
             _p_lastValidSource = _lastValidSource;
 
-            // Swap buffer references for backup
-            (_activeSourceBuffer, _backupSourceBuffer) = (_backupSourceBuffer, _activeSourceBuffer);
-            (_activeYzvBuffer, _backupYzvBuffer) = (_backupYzvBuffer, _activeYzvBuffer);
-            (_activeSortedYzv, _backupSortedYzv) = (_backupSortedYzv, _activeSortedYzv);
-
-            // Copy current state to active buffer (only needed for first update after swap)
-            Array.Copy(_backupSourceBuffer, _activeSourceBuffer, _maxLength);
-            Array.Copy(_backupYzvBuffer, _activeYzvBuffer, _percentileLookback);
-            Array.Copy(_backupSortedYzv, _activeSortedYzv, _percentileLookback);
+            // Copy active to backup for rollback capability (only copy, no swap)
+            Array.Copy(_activeSourceBuffer, _backupSourceBuffer, _maxLength);
+            Array.Copy(_activeYzvBuffer, _backupYzvBuffer, _percentileLookback);
+            Array.Copy(_activeSortedYzv, _backupSortedYzv, _percentileLookback);
         }
         else
         {
-            // Restore state - pointer swap back
+            // Restore state from backup - O(1) pointer swap for rollback
             _state = _p_state;
             _lastValidSource = _p_lastValidSource;
 
-            // Swap back to restore backup as active
+            // Swap pointers so backup becomes active (true O(1) rollback)
             (_activeSourceBuffer, _backupSourceBuffer) = (_backupSourceBuffer, _activeSourceBuffer);
             (_activeYzvBuffer, _backupYzvBuffer) = (_backupYzvBuffer, _activeYzvBuffer);
             (_activeSortedYzv, _backupSortedYzv) = (_backupSortedYzv, _activeSortedYzv);

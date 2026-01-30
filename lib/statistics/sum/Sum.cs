@@ -257,21 +257,16 @@ public sealed class Sum : AbstractBase
         }
         else
         {
+            // Restore both scalar state and buffer state
             _state = _p_state;
+            _buffer.Snapshot();  // Take snapshot before mutation for potential future corrections
+            _buffer.Restore();   // Restore to pre-mutation state (uses internal snapshot)
 
             double val = GetValidValue(input.Value);
 
-            // Recalculate: remove old bar value, add new correction value
-            if (_buffer.Count == _buffer.Capacity)
-            {
-                KahanBabuskaSubtract(_buffer.Oldest);
-            }
-
-            // Replace the newest value in buffer
+            // Replace the newest value in buffer and recalculate sum
             if (_buffer.Count > 0)
             {
-                // We need to subtract the value that was added and add the new one
-                // Since we restored state, we add directly
                 _buffer.UpdateNewest(val);
                 RecalculateSum(); // Ensure accuracy after correction
             }

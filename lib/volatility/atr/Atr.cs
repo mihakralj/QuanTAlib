@@ -190,7 +190,21 @@ public sealed class Atr : AbstractBase
     public override TSeries Update(TSeries source)
     {
         // Assumes source is already TR
-        return _rma.Update(source);
+        if (source.Count == 0)
+        {
+            return _rma.Update(source);
+        }
+
+        var result = _rma.Update(source);
+
+        // Update instance state to match RMA state
+        Last = _rma.Last;
+        _isInitialized = true;
+
+        // Note: _prevBar cannot be updated from TSeries (no OHLC data)
+        // but _isInitialized signals that subsequent TBar updates should work
+
+        return result;
     }
 
     private static TSeries CalculateTrueRange(TBarSeries source)

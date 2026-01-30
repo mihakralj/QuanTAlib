@@ -24,6 +24,8 @@ public sealed class Roc : AbstractBase
     private readonly RingBuffer _buffer;
     private record struct State(double LastValid);
     private State _state, _p_state;
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     public override bool IsHot => _buffer.Count > _period;
 
@@ -51,7 +53,8 @@ public sealed class Roc : AbstractBase
     /// <param name="period">Lookback period</param>
     public Roc(ITValuePublisher source, int period = 9) : this(period)
     {
-        source.Pub += HandleUpdate;
+        _source = source;
+        _source.Pub += HandleUpdate;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -154,5 +157,19 @@ public sealed class Roc : AbstractBase
         _state = default;
         _p_state = default;
         Last = default;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _source != null)
+            {
+                _source.Pub -= HandleUpdate;
+                _source = null;
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 }

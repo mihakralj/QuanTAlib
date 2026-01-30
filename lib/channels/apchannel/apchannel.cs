@@ -333,22 +333,43 @@ public sealed class Apchannel : AbstractBase
     {
         int length = sourceHigh.Length;
 
-        // Initialize first values with NaN handling
-        double highEma = double.IsFinite(sourceHigh[0]) ? sourceHigh[0] : 0;
-        double lowEma = double.IsFinite(sourceLow[0]) ? sourceLow[0] : 0;
-        double lastValidHigh = highEma;
-        double lastValidLow = lowEma;
+        // Scan for first finite values in both high and low arrays
+        double lastValidHigh = 0;
+        double lastValidLow = 0;
+        int firstValidIdx = 0;
 
-        upperBand[0] = highEma;
-        lowerBand[0] = lowEma;
+        for (int i = 0; i < length; i++)
+        {
+            if (double.IsFinite(sourceHigh[i]) && double.IsFinite(sourceLow[i]))
+            {
+                lastValidHigh = sourceHigh[i];
+                lastValidLow = sourceLow[i];
+                firstValidIdx = i;
+                break;
+            }
+        }
 
-        // Early return for single-element arrays
-        if (length == 1)
+        // Fill NaN for indices before first valid
+        for (int i = 0; i < firstValidIdx; i++)
+        {
+            upperBand[i] = double.NaN;
+            lowerBand[i] = double.NaN;
+        }
+
+        // Initialize with first valid values
+        double highEma = lastValidHigh;
+        double lowEma = lastValidLow;
+
+        upperBand[firstValidIdx] = highEma;
+        lowerBand[firstValidIdx] = lowEma;
+
+        // Early return if no more elements after first valid
+        if (firstValidIdx >= length - 1)
         {
             return;
         }
 
-        for (int i = 1; i < length; i++)
+        for (int i = firstValidIdx + 1; i < length; i++)
         {
             double high = sourceHigh[i];
             double low = sourceLow[i];

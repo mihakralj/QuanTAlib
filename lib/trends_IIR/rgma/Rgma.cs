@@ -41,6 +41,9 @@ public sealed class Rgma : AbstractBase
     private double _lastValidValue;
     private double _p_lastValidValue;
 
+    private ITValuePublisher? _publisher;
+    private bool _disposed;
+
     private const double COVERAGE_THRESHOLD = 0.05;
     private const int ResyncInterval = 10000;
     private const int StackAllocThreshold = 512;
@@ -78,6 +81,7 @@ public sealed class Rgma : AbstractBase
     /// </summary>
     public Rgma(ITValuePublisher source, int period, int passes = 3) : this(period, passes)
     {
+        _publisher = source;
         source.Pub += Handle;
     }
 
@@ -91,6 +95,7 @@ public sealed class Rgma : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
+        _publisher = source;
         source.Pub += Handle;
     }
 
@@ -469,5 +474,20 @@ public sealed class Rgma : AbstractBase
         Array.Fill(_filters, double.NaN);
         Array.Fill(_p_filters, double.NaN);
         Last = default;
+    }
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _publisher != null)
+            {
+                _publisher.Pub -= Handle;
+                _publisher = null;
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 }

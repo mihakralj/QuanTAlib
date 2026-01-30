@@ -1,6 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using QuanTAlib;
@@ -20,7 +21,9 @@ public static class Program
     {
         // Run: dotnet run -c Release -- --filter *Sma* *Ema* *Wma*
         var config = ManualConfig.Create(DefaultConfig.Instance)
-            .AddJob(Job.ShortRun.WithId("NET10-JIT"))
+            .AddJob(Job.ShortRun
+                .WithRuntime(CoreRuntime.Core10_0)
+                .WithId("NET10-JIT"))
             .AddColumn(StatisticColumn.Mean)
             .AddColumn(StatisticColumn.StdDev)
             .HideColumns(Column.Job, Column.Error, Column.RatioSD);

@@ -7,11 +7,11 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class BpfIndicator : Indicator, IWatchlistIndicator
 {
-    [InputParameter("Max Period (HP)", sortIndex: 1, 1, 2000, 1, 0)]
-    public int LowerPeriod { get; set; } = 40;
+    [InputParameter("Lower Period (HP)", sortIndex: 1, 1, 2000, 1, 0)]
+    public int LowerPeriod { get; set; } = 10;
 
-    [InputParameter("Min Period (LP)", sortIndex: 2, 1, 2000, 1, 0)]
-    public int UpperPeriod { get; set; } = 10;
+    [InputParameter("Upper Period (LP)", sortIndex: 2, 1, 2000, 1, 0)]
+    public int UpperPeriod { get; set; } = 40;
 
     [IndicatorExtensions.DataSourceInput]
     public SourceType Source { get; set; } = SourceType.Close;

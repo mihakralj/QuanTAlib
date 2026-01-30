@@ -78,7 +78,8 @@ public sealed class Sgf : AbstractBase
             }
             else
             {
-                weight = 1.0 - Math.Abs((double)k) / (double)halfWindow;
+                // Guard against division by zero when halfWindow == 0 (period == 1)
+                weight = (halfWindow == 0) ? 1.0 : 1.0 - Math.Abs((double)k) / (double)halfWindow;
             }
 
             _weights[i] = weight;
@@ -282,7 +283,8 @@ public sealed class Sgf : AbstractBase
             }
             else
             {
-                weight = 1.0 - Math.Abs((double)k) / (double)halfWindow;
+                // Guard against division by zero when halfWindow == 0 (period == 1)
+                weight = (halfWindow == 0) ? 1.0 : 1.0 - Math.Abs((double)k) / (double)halfWindow;
             }
 
             weights[i] = weight;

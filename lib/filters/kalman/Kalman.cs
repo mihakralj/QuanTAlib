@@ -38,6 +38,8 @@ public sealed class Kalman : AbstractBase
     private readonly ITValuePublisher? _publisher;
     private readonly TValuePublishedHandler? _handler;
 
+    private const double MaxCovariance = 1e10;
+
     private State _state;
     private State _pState;
 
@@ -138,7 +140,7 @@ public sealed class Kalman : AbstractBase
             }
             else
             {
-                _state.P += ProcessNoise;
+                _state.P = Math.Min(_state.P + ProcessNoise, MaxCovariance);
                 Last = new TValue(input.Time, _state.X);
             }
 
@@ -243,7 +245,7 @@ public sealed class Kalman : AbstractBase
                 }
                 else
                 {
-                    p += q;        // predict-only
+                    p = Math.Min(p + q, MaxCovariance); // predict-only, capped
                     output[i] = x;
                 }
                 continue;

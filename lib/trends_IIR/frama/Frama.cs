@@ -16,7 +16,7 @@ namespace QuanTAlib;
 /// - Period forced to even, >= 2.
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Frama : ITValuePublisher
+public sealed class Frama : ITValuePublisher, IDisposable
 {
     private const double AlphaFloor = 0.01;
     private const double AlphaCeil = 1.0;
@@ -27,6 +27,8 @@ public sealed class Frama : ITValuePublisher
     private readonly RingBuffer _highs;
     private readonly RingBuffer _lows;
     private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Sequential)]
     private record struct State
@@ -69,6 +71,7 @@ public sealed class Frama : ITValuePublisher
 
     public Frama(ITValuePublisher source, int period) : this(period)
     {
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -131,12 +134,16 @@ public sealed class Frama : ITValuePublisher
 
         double price = (high + low) * 0.5;
 
+        // Recent half: last _half values (most recent)
         double maxRecent = GetMax(_highs, _half);
         double minRecent = GetMin(_lows, _half);
+        // Full period: all _periodEven values
         double maxFull = GetMax(_highs, _periodEven);
         double minFull = GetMin(_lows, _periodEven);
-        double maxPrev = GetMax(_highs, _half, startOffset: 0);
-        double minPrev = GetMin(_lows, _half, startOffset: 0);
+        // Previous half: older _half values (starts at count - _periodEven)
+        int prevOffset = _highs.Count - _periodEven;
+        double maxPrev = GetMax(_highs, _half, startOffset: prevOffset);
+        double minPrev = GetMin(_lows, _half, startOffset: prevOffset);
 
         double n1 = (maxRecent - minRecent) / _half;
         double n2 = (maxPrev - minPrev) / _half;
@@ -356,5 +363,25 @@ public sealed class Frama : ITValuePublisher
         }
 
         return min;
+    }
+
+    /// <summary>
+    /// Disposes the indicator and unsubscribes from the source.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
+        }
     }
 }

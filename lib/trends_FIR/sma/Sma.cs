@@ -30,6 +30,8 @@ public sealed class Sma : AbstractBase
     private readonly int _period;
     private readonly RingBuffer _buffer;
     private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double Sum, double LastValidValue, int TickCount);
@@ -58,6 +60,7 @@ public sealed class Sma : AbstractBase
 
     public Sma(ITValuePublisher source, int period) : this(period)
     {
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -68,6 +71,7 @@ public sealed class Sma : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -651,5 +655,21 @@ public sealed class Sma : AbstractBase
         _state = default;
         _p_state = default;
         Last = default;
+    }
+
+    /// <summary>
+    /// Disposes the indicator and unsubscribes from the source.
+    /// </summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 }

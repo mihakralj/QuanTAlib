@@ -173,6 +173,16 @@ public abstract class BiInputIndicatorBase : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TValue Update(TValue actual, TValue predicted, bool isNew = true)
     {
+        // Save state BEFORE sanitizers mutate it (for bar correction restore)
+        if (isNew)
+        {
+            _p_state = _state;
+        }
+        else
+        {
+            _state = _p_state;
+        }
+
         double actualVal = SanitizeActual(actual.Value);
         double predictedVal = SanitizePredicted(predicted.Value);
         double error = ComputeError(actualVal, predictedVal);

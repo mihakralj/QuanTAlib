@@ -150,6 +150,8 @@ public sealed class Beta : AbstractBase
             {
                 _prevAsset = asset.Value;
                 _prevMarket = market.Value;
+                _p_prevAsset = asset.Value;
+                _p_prevMarket = market.Value;
                 return new TValue(asset.Time, 0);
             }
 

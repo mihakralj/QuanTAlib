@@ -288,7 +288,7 @@ public sealed class RingBuffer : IEnumerable<double>
     /// If wrapped, returns span over a copy.
     /// </summary>
     /// <remarks>
-    /// <para><b>Ãƒâ€šÃ‚Â  Allocation Warning:</b> When the buffer wraps around (i.e., when data spans
+    /// <para><b>Allocation Warning:</b> When the buffer wraps around (i.e., when data spans
     /// from the end of the internal array back to the beginning), this method allocates a new
     /// array via <see cref="ToArray"/> to return contiguous data. For allocation-free iteration
     /// over wrapped buffers, use <see cref="GetSequencedSpans"/> instead.</para>

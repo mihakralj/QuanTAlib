@@ -209,34 +209,10 @@ public sealed class Pvr : ITValuePublisher
             return;
         }
 
-        // First bar - validate initial values (mirror instance Update behavior)
+        // First bar - no previous to compare, output 0 (mirror instance Update behavior)
         output[0] = 0.0;
         double prevPrice = double.IsFinite(price[0]) ? price[0] : 0.0;
         double prevVolume = double.IsFinite(volume[0]) ? Math.Max(volume[0], 0.0) : 0.0;
-
-        // If first values were NaN, find first finite values as fallback
-        if (prevPrice == 0.0 && !double.IsFinite(price[0]))
-        {
-            for (int j = 1; j < length; j++)
-            {
-                if (double.IsFinite(price[j]))
-                {
-                    prevPrice = price[j];
-                    break;
-                }
-            }
-        }
-        if (prevVolume == 0.0 && !double.IsFinite(volume[0]))
-        {
-            for (int j = 1; j < length; j++)
-            {
-                if (double.IsFinite(volume[j]))
-                {
-                    prevVolume = Math.Max(volume[j], 0.0);
-                    break;
-                }
-            }
-        }
 
         for (int i = 1; i < length; i++)
         {

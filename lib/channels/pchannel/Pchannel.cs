@@ -29,6 +29,8 @@ public sealed class Pchannel : ITValuePublisher
     // Rolling counters
     private int _count;
     private long _index;
+    private int _p_count;
+    private long _p_index;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValidHigh, double LastValidLow, bool IsHot);
@@ -197,6 +199,8 @@ public sealed class Pchannel : ITValuePublisher
         if (isNew)
         {
             _p_state = _state;
+            _p_index = _index;
+            _p_count = _count;
             _index++;
             if (_count < _period)
             {
@@ -206,6 +210,14 @@ public sealed class Pchannel : ITValuePublisher
         else
         {
             _state = _p_state;
+            _index = _p_index;
+            _count = _p_count;
+            // Re-increment for current bar being reprocessed
+            _index++;
+            if (_count < _period)
+            {
+                _count++;
+            }
         }
 
         int bufIdx = (int)(_index % _period);
@@ -318,6 +330,8 @@ public sealed class Pchannel : ITValuePublisher
         _lCount = 0;
         _count = 0;
         _index = -1;
+        _p_count = 0;
+        _p_index = -1;
         _state = new State(double.NaN, double.NaN, false);
         _p_state = _state;
         Last = default;

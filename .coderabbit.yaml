@@ -21,7 +21,8 @@ reviews:
   path_filters:
     # ============================================
     # BATCH 1: Core implementation .cs files only
-    # Target: ~297 files (under 300 limit)
+    # Target: ~293 files (under 300 limit)
+    # Excludes: Tests, Quantower adapters, errors/, numerics/
     # ============================================
 
     # INCLUDE: Core library implementation files
@@ -31,6 +32,17 @@ reviews:
     - "!**/*.Tests.cs"
     - "!**/*.Validation.Tests.cs"
     - "!**/Tests/**"
+
+    # EXCLUDE: Quantower adapter files (in lib directory)
+    - "!**/*.Quantower.cs"
+
+    # EXCLUDE: Error/loss function category (42 files - Batch 2)
+    # These are mathematical utilities, not core indicators
+    - "!lib/errors/**"
+
+    # EXCLUDE: Numeric utilities (14 files - Batch 2)
+    # These are mathematical helper functions
+    - "!lib/numerics/**"
 
     # EXCLUDE: Build artifacts
     - "!**/obj/**"

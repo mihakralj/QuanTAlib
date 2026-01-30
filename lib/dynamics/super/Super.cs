@@ -123,7 +123,6 @@ public sealed class Super : ITValuePublisher
             {
                 _prevBar = _lastInput;
             }
-            _sampleCount++;
         }
         _lastInput = input;
 

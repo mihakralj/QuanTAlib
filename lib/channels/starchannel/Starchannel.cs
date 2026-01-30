@@ -311,21 +311,25 @@ public sealed class Starchannel : ITValuePublisher
 
         double atrAlpha = 1.0 / period;
 
-        // SMA running sum
-        double smaSum = close[0];
+        // First bar - sanitize first values
+        double lastValidClose = double.IsFinite(close[0]) ? close[0] : 0;
+        double lastValidHigh = double.IsFinite(high[0]) ? high[0] : lastValidClose;
+        double lastValidLow = double.IsFinite(low[0]) ? low[0] : lastValidClose;
+
+        // SMA running sum (initialized with sanitized first close)
+        double smaSum = lastValidClose;
         double rawRma = 0.0;
         double e = 1.0;
-        double prevClose = close[0];
+        double prevClose = lastValidClose;
+        middle[0] = lastValidClose;
+        upper[0] = lastValidClose;
+        lower[0] = lastValidClose;
 
-        // First bar
-        middle[0] = close[0];
-        upper[0] = close[0];
-        lower[0] = close[0];
-
-        // Track last valid values for sanitization
-        double lastValidClose = close[0];
-        double lastValidHigh = high[0];
-        double lastValidLow = low[0];
+        // Track sanitized close values for SMA subtraction
+        // Use stackalloc for period-sized buffer to track sanitized values
+        Span<double> sanitizedCloseBuffer = period <= 256 ? stackalloc double[period] : new double[period];
+        sanitizedCloseBuffer[0] = lastValidClose;
+        int bufferHead = 1;
 
         for (int i = 1; i < len; i++)
         {
@@ -361,15 +365,21 @@ public sealed class Starchannel : ITValuePublisher
                 l = lastValidLow;
             }
 
-            // SMA: add current, subtract oldest if beyond window
+            // SMA: add current sanitized value, subtract oldest sanitized value if beyond window
             if (i < period)
             {
                 smaSum += c;
             }
             else
             {
-                smaSum += c - close[i - period];
+                // Subtract the sanitized value from period bars ago, not raw close
+                int oldIndex = bufferHead;
+                smaSum += c - sanitizedCloseBuffer[oldIndex];
             }
+
+            // Store sanitized close in ring buffer
+            sanitizedCloseBuffer[bufferHead] = c;
+            bufferHead = (bufferHead + 1) % period;
             int count = Math.Min(i + 1, period);
             double sma = smaSum / count;
 

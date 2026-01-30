@@ -88,7 +88,7 @@ public sealed class Uchannel : AbstractBase
     public TValue Width => new(Upper.Time, Upper.Value - Lower.Value);
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of Uchannel with specified parameters.
     /// </summary>
     /// <param name="strPeriod">Period for smoothing True Range. Must be >= 1.</param>
     /// <param name="centerPeriod">Period for smoothing centerline. Must be >= 1.</param>

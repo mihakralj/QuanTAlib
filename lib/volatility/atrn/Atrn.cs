@@ -36,6 +36,9 @@ public sealed class Atrn : AbstractBase
     private State _state;
     private State _p_state;
 
+    private ITValuePublisher? _publisher;
+    private bool _disposed;
+
     /// <summary>
     /// Creates ATRN with specified period.
     /// </summary>
@@ -64,6 +67,7 @@ public sealed class Atrn : AbstractBase
     /// <param name="period">Period for ATR calculation</param>
     public Atrn(ITValuePublisher source, int period) : this(period)
     {
+        _publisher = source;
         source.Pub += Handle;
     }
 
@@ -329,5 +333,20 @@ public sealed class Atrn : AbstractBase
             }
         }
         return min;
+    }
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _publisher != null)
+            {
+                _publisher.Pub -= Handle;
+                _publisher = null;
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 }

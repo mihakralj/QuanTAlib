@@ -22,11 +22,13 @@ namespace QuanTAlib;
 /// https://school.stockcharts.com/doku.php?id=technical_indicators:price_oscillators_ppo
 /// </remarks>
 [SkipLocalsInit]
-public sealed class Apo : ITValuePublisher
+public sealed class Apo : ITValuePublisher, IDisposable
 {
     private readonly Ema _emaFast;
     private readonly Ema _emaSlow;
     private readonly TValuePublishedHandler _handler;
+    private ITValuePublisher? _source;
+    private bool _disposed;
 
     /// <summary>
     /// Display name for the indicator.
@@ -87,7 +89,8 @@ public sealed class Apo : ITValuePublisher
     /// <param name="slowPeriod">Slow EMA period (default 26)</param>
     public Apo(ITValuePublisher source, int fastPeriod = 12, int slowPeriod = 26) : this(fastPeriod, slowPeriod)
     {
-        source.Pub += _handler;
+        _source = source;
+        _source.Pub += _handler;
     }
 
     /// <summary>
@@ -193,5 +196,23 @@ public sealed class Apo : ITValuePublisher
         Ema.Batch(source, slowEma, slowPeriod);
 
         SimdExtensions.Subtract(fastEma, slowEma, output);
+    }
+
+    /// <summary>
+    /// Disposes resources and unsubscribes from the source publisher.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+        _disposed = true;
+
+        if (_source != null)
+        {
+            _source.Pub -= _handler;
+            _source = null;
+        }
     }
 }

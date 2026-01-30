@@ -94,6 +94,9 @@ public sealed class Elliptic : AbstractBase
         _b2 = b2_val * gain_corr;
         _a1 = a1_val;
         _a2 = a2_val;
+
+        // Initialize LastValid to NaN so first non-finite input doesn't use uninitialized 0.0
+        _state.LastValid = double.NaN;
     }
 
     public Elliptic(ITValuePublisher source, int period) : this(period)
@@ -201,6 +204,7 @@ public sealed class Elliptic : AbstractBase
     public override void Reset()
     {
         _state = default;
+        _state.LastValid = double.NaN;
         _p_state = default;
         Last = default;
     }

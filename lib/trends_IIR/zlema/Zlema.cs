@@ -309,6 +309,7 @@ public sealed class Zlema : AbstractBase
         _lastValidValue = double.NaN;
         _p_lastValidValue = double.NaN;
 
+        // Clear the buffer and fill with zeros for proper initialization
         _lagBuffer.Clear();
         for (int i = 0; i < _lagBuffer.Capacity; i++)
         {

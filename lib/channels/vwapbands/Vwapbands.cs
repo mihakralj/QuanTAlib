@@ -266,6 +266,8 @@ public sealed class Vwapbands : AbstractBase
             throw new ArgumentNullException(nameof(source));
         }
 
+        Reset();
+
         int len = source.Count;
         TSeries result = new(capacity: len);
 
@@ -287,6 +289,8 @@ public sealed class Vwapbands : AbstractBase
         {
             throw new ArgumentNullException(nameof(source));
         }
+
+        Reset();
 
         int len = source.Count;
         TSeries result = new(capacity: len);

@@ -283,7 +283,18 @@ public sealed class CsvFeed : IFeed
 
     /// <summary>
     /// Gets the next bar with simple control.
+    /// WARNING: This overload discards changes to isNew made by the internal implementation.
+    /// Callers will not observe when streaming ends. Use Next(ref bool isNew) or check HasMore instead.
     /// </summary>
+    /// <param name="isNew">Whether to advance to the next bar (true) or replay current bar (false).</param>
+    /// <returns>The current or next bar.</returns>
+    /// <remarks>
+    /// Retained for backward compatibility with existing code. Deprecation is intentional to guide
+    /// users toward the ref overload which properly signals end-of-stream conditions.
+    /// </remarks>
+#pragma warning disable S1133 // Deprecated code kept for backward compatibility; removal would be breaking change
+    [Obsolete("Use Next(ref bool isNew) to observe end-of-stream, or check HasMore before calling. This overload discards the modified isNew value.")]
+#pragma warning restore S1133
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TBar Next(bool isNew = true)
     {

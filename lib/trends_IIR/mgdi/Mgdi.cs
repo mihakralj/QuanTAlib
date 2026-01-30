@@ -83,7 +83,7 @@ public sealed class Mgdi : AbstractBase
             else
             {
                 Last = new TValue(input.Time, double.NaN);
-                PubEvent(Last);
+                PubEvent(Last, isNew);
                 return Last;
             }
         }

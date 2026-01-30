@@ -153,6 +153,11 @@ Price-volume relationships and accumulation/distribution measurements.
 | :-------- | :-------- | :---- |
 | [**ADL**](../lib/volume/adl/Adl.md) | Accumulation/Distribution | Volume-weighted close position |
 | [**ADOSC**](../lib/volume/adosc/Adosc.md) | Chaikin A/D Oscillator | ADL momentum |
+| [**TWAP**](../lib/volume/twap/Twap.md) | Time Weighted Average Price | Time-equal-weighted price average |
+| [**VA**](../lib/volume/va/Va.md) | Volume Accumulation | Cumulative volume by close position |
+| [**VF**](../lib/volume/vf/Vf.md) | Volume Force | EMA-smoothed price-volume force |
+| [**VO**](../lib/volume/vo/Vo.md) | Volume Oscillator | Short vs long volume MA difference |
+| [**VROC**](../lib/volume/vroc/Vroc.md) | Volume Rate of Change | Volume change over lookback period |
 
 ### Channels
 

@@ -9,8 +9,8 @@ public class BpfIndicatorTests
     {
         var indicator = new BpfIndicator();
 
-        Assert.Equal(40, indicator.LowerPeriod);
-        Assert.Equal(10, indicator.UpperPeriod);
+        Assert.Equal(10, indicator.LowerPeriod);
+        Assert.Equal(40, indicator.UpperPeriod);
         Assert.Equal(SourceType.Close, indicator.Source);
         Assert.True(indicator.ShowColdValues);
         Assert.Equal("BPF - Bandpass Filter", indicator.Name);
@@ -21,7 +21,7 @@ public class BpfIndicatorTests
     [Fact]
     public void BpfIndicator_MinHistoryDepths_EqualsZero()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 20, UpperPeriod = 5 };
+        var indicator = new BpfIndicator { LowerPeriod = 5, UpperPeriod = 20 };
 
         Assert.Equal(0, BpfIndicator.MinHistoryDepths);
         Assert.Equal(0, ((IWatchlistIndicator)indicator).MinHistoryDepths);
@@ -30,17 +30,17 @@ public class BpfIndicatorTests
     [Fact]
     public void BpfIndicator_ShortName_IncludesParameters()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10 };
+        var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40 };
 
         Assert.Contains("BPF", indicator.ShortName, StringComparison.Ordinal);
-        Assert.Contains("40", indicator.ShortName, StringComparison.Ordinal);
         Assert.Contains("10", indicator.ShortName, StringComparison.Ordinal);
+        Assert.Contains("40", indicator.ShortName, StringComparison.Ordinal);
     }
 
     [Fact]
     public void BpfIndicator_Initialize_CreatesInternalBpf()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10 };
+        var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40 };
 
         // Initialize should not throw
         indicator.Initialize();
@@ -52,7 +52,7 @@ public class BpfIndicatorTests
     [Fact]
     public void BpfIndicator_ProcessUpdate_HistoricalBar_ComputesValue()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10 };
+        var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40 };
         indicator.Initialize();
 
         // Add historical data
@@ -71,7 +71,7 @@ public class BpfIndicatorTests
     [Fact]
     public void BpfIndicator_ProcessUpdate_NewBar_ComputesValue()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10 };
+        var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -87,7 +87,7 @@ public class BpfIndicatorTests
     [Fact]
     public void BpfIndicator_ProcessUpdate_NewTick_ProcessesWithoutError()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10 };
+        var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40 };
         indicator.Initialize();
 
         var now = DateTime.UtcNow;
@@ -110,7 +110,7 @@ public class BpfIndicatorTests
 
         foreach (var source in sources)
         {
-            var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10, Source = source };
+            var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40, Source = source };
             indicator.Initialize();
 
             var now = DateTime.UtcNow;
@@ -125,13 +125,13 @@ public class BpfIndicatorTests
     [Fact]
     public void BpfIndicator_Periods_CanBeChanged()
     {
-        var indicator = new BpfIndicator { LowerPeriod = 40, UpperPeriod = 10 };
-        Assert.Equal(40, indicator.LowerPeriod);
-        Assert.Equal(10, indicator.UpperPeriod);
+        var indicator = new BpfIndicator { LowerPeriod = 10, UpperPeriod = 40 };
+        Assert.Equal(10, indicator.LowerPeriod);
+        Assert.Equal(40, indicator.UpperPeriod);
 
-        indicator.LowerPeriod = 60;
-        indicator.UpperPeriod = 20;
-        Assert.Equal(60, indicator.LowerPeriod);
-        Assert.Equal(20, indicator.UpperPeriod);
+        indicator.LowerPeriod = 20;
+        indicator.UpperPeriod = 60;
+        Assert.Equal(20, indicator.LowerPeriod);
+        Assert.Equal(60, indicator.UpperPeriod);
     }
 }

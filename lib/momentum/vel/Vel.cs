@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -18,6 +19,8 @@ namespace QuanTAlib;
 [SkipLocalsInit]
 public sealed class Vel : ITValuePublisher, IDisposable
 {
+    private const int StackallocThreshold = 256;
+
     private readonly Pwma _pwma;
     private readonly Wma _wma;
     private readonly int _period;
@@ -148,13 +151,49 @@ public sealed class Vel : ITValuePublisher, IDisposable
             throw new ArgumentException("Source and output must have the same length", nameof(output));
         }
 
-        Span<double> pwma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
-        Span<double> wma = source.Length <= 1024 ? stackalloc double[source.Length] : new double[source.Length];
+        int len = source.Length;
+
+        if (len <= StackallocThreshold)
+        {
+            BatchStackalloc(source, output, period, len);
+        }
+        else
+        {
+            BatchPooled(source, output, period, len);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void BatchStackalloc(ReadOnlySpan<double> source, Span<double> output, int period, int len)
+    {
+        Span<double> pwma = stackalloc double[len];
+        Span<double> wma = stackalloc double[len];
 
         Pwma.Calculate(source, pwma, period);
         Wma.Batch(source, wma, period);
-
         SimdExtensions.Subtract(pwma, wma, output);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void BatchPooled(ReadOnlySpan<double> source, Span<double> output, int period, int len)
+    {
+        double[] rentedPwma = ArrayPool<double>.Shared.Rent(len);
+        double[] rentedWma = ArrayPool<double>.Shared.Rent(len);
+
+        try
+        {
+            Span<double> pwma = rentedPwma.AsSpan(0, len);
+            Span<double> wma = rentedWma.AsSpan(0, len);
+
+            Pwma.Calculate(source, pwma, period);
+            Wma.Batch(source, wma, period);
+            SimdExtensions.Subtract(pwma, wma, output);
+        }
+        finally
+        {
+            ArrayPool<double>.Shared.Return(rentedPwma);
+            ArrayPool<double>.Shared.Return(rentedWma);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

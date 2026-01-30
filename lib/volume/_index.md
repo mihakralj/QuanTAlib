@@ -22,12 +22,12 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [PVO](lib/volume/pvo/Pvo.md) | Percentage Volume Oscillator | Compares short-term and long-term volume moving averages as percentages. |
 | [PVR](lib/volume/pvr/Pvr.md) | Price Volume Rank | Categorical indicator returning 0-4 based on combined price and volume direction. |
 | [PVT](lib/volume/pvt/Pvt.md) | Price Volume Trend | Cumulative volume adjusted by relative price changes. Similar to OBV but magnitude-weighted. |
-| TVI | Trade Volume Index | Measures intra-day buying/selling pressure based on tick data. |
-| TWAP | Time Weighted Average Price | Average price weighted equally by time. Used as execution benchmark. |
-| VA | Volume Accumulation | Cumulative volume adjusted by close position relative to range midpoint. |
-| VF | Volume Force | Measures force of volume behind price movements. |
-| VO | Volume Oscillator | Difference between short and long volume moving averages. Shows volume momentum. |
-| VROC | Volume Rate of Change | Measures speed at which volume is changing over time. |
+| [TVI](lib/volume/tvi/Tvi.md) | Trade Volume Index | Cumulative volume with sticky direction based on minimum tick threshold. Filters noise from OBV. |
+| [TWAP](lib/volume/twap/Twap.md) | Time Weighted Average Price | Average price weighted equally by time. Used as execution benchmark. |
+| [VA](lib/volume/va/Va.md) | Volume Accumulation | Cumulative volume adjusted by close position relative to range midpoint. |
+| [VF](lib/volume/vf/Vf.md) | Volume Force | Measures force of volume behind price movements using EMA smoothing. |
+| [VO](lib/volume/vo/Vo.md) | Volume Oscillator | Difference between short and long volume moving averages. Shows volume momentum. |
+| [VROC](lib/volume/vroc/Vroc.md) | Volume Rate of Change | Measures speed at which volume is changing over time. |
 | VWAD | Volume Weighted A/D | Similar to ADL but weights accumulation/distribution by volume. |
 | VWAP | Volume Weighted Average Price | Average price weighted by volume. Common execution benchmark. |
 | VWMA | Volume Weighted MA | Moving average where each price point is weighted by its volume. |

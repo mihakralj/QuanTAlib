@@ -400,8 +400,8 @@ public sealed class Fcb : ITValuePublisher
         // Allocate buffers for fractal tracking and deques
         double[] hBuf = ArrayPool<double>.Shared.Rent(period);
         double[] lBuf = ArrayPool<double>.Shared.Rent(period);
-        int[] hDeque = ArrayPool<int>.Shared.Rent(period);
-        int[] lDeque = ArrayPool<int>.Shared.Rent(period);
+        long[] hDeque = ArrayPool<long>.Shared.Rent(period);
+        long[] lDeque = ArrayPool<long>.Shared.Rent(period);
 
         try
         {
@@ -452,7 +452,7 @@ public sealed class Fcb : ITValuePublisher
                 while (hCount > 0)
                 {
                     int backIdx = (hHead + hCount - 1) % period;
-                    int bIdx = hDeque[backIdx] % period;
+                    int bIdx = (int)(hDeque[backIdx] % period);
                     if (hBuf[bIdx] <= hiFractal)
                     {
                         hCount--;
@@ -475,7 +475,7 @@ public sealed class Fcb : ITValuePublisher
                 while (lCount > 0)
                 {
                     int backIdx = (lHead + lCount - 1) % period;
-                    int bIdx = lDeque[backIdx] % period;
+                    int bIdx = (int)(lDeque[backIdx] % period);
                     if (lBuf[bIdx] >= loFractal)
                     {
                         lCount--;
@@ -489,8 +489,8 @@ public sealed class Fcb : ITValuePublisher
                 lDeque[tail] = i;
                 lCount++;
 
-                double top = hBuf[hDeque[hHead] % period];
-                double bot = lBuf[lDeque[lHead] % period];
+                double top = hBuf[(int)(hDeque[hHead] % period)];
+                double bot = lBuf[(int)(lDeque[lHead] % period)];
                 upper[i] = top;
                 lower[i] = bot;
                 middle[i] = (top + bot) * 0.5;
@@ -500,8 +500,8 @@ public sealed class Fcb : ITValuePublisher
         {
             ArrayPool<double>.Shared.Return(hBuf);
             ArrayPool<double>.Shared.Return(lBuf);
-            ArrayPool<int>.Shared.Return(hDeque);
-            ArrayPool<int>.Shared.Return(lDeque);
+            ArrayPool<long>.Shared.Return(hDeque);
+            ArrayPool<long>.Shared.Return(lDeque);
         }
     }
 

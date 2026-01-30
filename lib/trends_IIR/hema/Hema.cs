@@ -75,9 +75,9 @@ public sealed class Hema : AbstractBase
 
     public Hema(int period)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(period);
+        ArgumentOutOfRangeException.ThrowIfLessThan(period, 2);
 
-        double n = Math.Max((double)period, 2.0);
+        double n = (double)period;
         _alphaSlow = AlphaFromHalfLife(n);
         _alphaFast = AlphaFromHalfLife(Math.Max(1.0, n * 0.5));
         _alphaSmooth = AlphaFromHalfLife(Math.Max(1.0, Math.Sqrt(n)));

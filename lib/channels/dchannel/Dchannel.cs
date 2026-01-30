@@ -145,7 +145,7 @@ public sealed class Dchannel : ITValuePublisher
         double bot = _minDeque.GetExtremum(_lBuf);
         double mid = (top + bot) * 0.5;
 
-        if (!IsHot && _count >= _period)
+        if (!_state.IsHot && _count >= _period)
         {
             _state = _state with { IsHot = true };
         }

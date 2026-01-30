@@ -31,6 +31,8 @@ public sealed class Sinema : AbstractBase
     private readonly double _weightSum;
     private readonly RingBuffer _buffer;
     private readonly TValuePublishedHandler _handler;
+    private readonly ITValuePublisher? _source;
+    private bool _disposed;
 
     [StructLayout(LayoutKind.Auto)]
     private record struct State(double LastValidValue);
@@ -67,6 +69,7 @@ public sealed class Sinema : AbstractBase
 
     public Sinema(ITValuePublisher source, int period) : this(period)
     {
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -77,6 +80,7 @@ public sealed class Sinema : AbstractBase
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
+        _source = source;
         source.Pub += _handler;
     }
 
@@ -442,5 +446,21 @@ public sealed class Sinema : AbstractBase
         _state = default;
         _p_state = default;
         Last = default;
+    }
+
+    /// <summary>
+    /// Disposes the indicator and unsubscribes from the source.
+    /// </summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing && _source != null)
+            {
+                _source.Pub -= _handler;
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 }

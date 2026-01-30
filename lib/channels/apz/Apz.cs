@@ -679,7 +679,8 @@ public sealed class Apz : ITValuePublisher
         int len = close.Length;
         for (int k = 0; k < len; k++)
         {
-            if (double.IsFinite(close[k]))
+            // Check all three values are finite before assigning state
+            if (double.IsFinite(close[k]) && double.IsFinite(high[k]) && double.IsFinite(low[k]))
             {
                 state.LastValidPrice = close[k];
                 state.LastValidHigh = high[k];

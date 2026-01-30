@@ -278,6 +278,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
             double prevSlowCompensated = GetCompensatedValue(_state.PrevSlowEma, _state.SlowE * (1.0 / _slowDecay), _state.SlowIsCompensated);
 
             bool fastAboveSlow = fastEma > slowEma;
+            bool fastBelowSlow = fastEma < slowEma;
             bool fastRising = fastEma > prevFastCompensated;
             bool slowRising = slowEma > prevSlowCompensated;
             bool fastFalling = fastEma < prevFastCompensated;
@@ -289,7 +290,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
                 trend = 1.0;
             }
             // Bearish: Fast < Slow AND both falling
-            else if (!fastAboveSlow && fastFalling && slowFalling)
+            else if (fastBelowSlow && fastFalling && slowFalling)
             {
                 trend = -1.0;
             }
@@ -465,6 +466,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
                 double prevSlowEma = slowSpan[i - 1];
 
                 bool fastAboveSlow = fastEma > slowEma;
+                bool fastBelowSlow = fastEma < slowEma;
                 bool fastRising = fastEma > prevFastEma;
                 bool slowRising = slowEma > prevSlowEma;
                 bool fastFalling = fastEma < prevFastEma;
@@ -476,7 +478,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
                     trend[i] = 1.0;
                 }
                 // Bearish: Fast < Slow AND both falling
-                else if (!fastAboveSlow && fastFalling && slowFalling)
+                else if (fastBelowSlow && fastFalling && slowFalling)
                 {
                     trend[i] = -1.0;
                 }
@@ -567,6 +569,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
                 double prevSlowEma = slowSpan[i - 1];
 
                 bool fastAboveSlow = fastEma > slowEma;
+                bool fastBelowSlow = fastEma < slowEma;
                 bool fastRising = fastEma > prevFastEma;
                 bool slowRising = slowEma > prevSlowEma;
                 bool fastFalling = fastEma < prevFastEma;
@@ -578,7 +581,7 @@ public sealed class Amat : ITValuePublisher, IDisposable
                     trend[i] = 1.0;
                 }
                 // Bearish: Fast < Slow AND both falling
-                else if (!fastAboveSlow && fastFalling && slowFalling)
+                else if (fastBelowSlow && fastFalling && slowFalling)
                 {
                     trend[i] = -1.0;
                 }

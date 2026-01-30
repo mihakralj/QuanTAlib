@@ -77,13 +77,13 @@ public sealed class Usf : AbstractBase
 
     public Usf(TSeries source, int period) : this(period)
     {
+        _publisher = source;
+        source.Pub += _handler;
         Prime(source.Values);
         if (source.Count > 0)
         {
             Last = new TValue(source.LastTime, Last.Value);
         }
-        _publisher = source;
-        source.Pub += _handler;
     }
 
     private void Handle(object? sender, in TValueEventArgs e) => Update(e.Value, e.IsNew);

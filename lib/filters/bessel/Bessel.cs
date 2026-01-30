@@ -329,7 +329,7 @@ public sealed class Bessel : AbstractBase
         }
 
         Last = new TValue(input.Time, filt);
-        PubEvent(Last);
+        PubEvent(Last, isNew);
         return Last;
     }
 

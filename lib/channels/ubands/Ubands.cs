@@ -44,15 +44,13 @@ public sealed class Ubands : AbstractBase
         double Usf2,
         double PrevInput1,
         double PrevInput2,
-        double LastValidValue,
-        int Count,
-        bool IsInitialized);
+        double LastPrice,
+        int Bars);
 
     private State _state;
     private State _p_state;
-    private int _index;
 
-    public override bool IsHot => _index >= WarmupPeriod;
+    public override bool IsHot => _state.Bars >= WarmupPeriod;
 
     /// <summary>
     /// Upper band (middle + mult × RMS)
@@ -113,99 +111,109 @@ public sealed class Ubands : AbstractBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Init()
     {
-        _index = 0;
-        _state = new State(0, 0, 0, 0, double.NaN, 0, false);
-        _p_state = _state;
+        _state = default;
+        _p_state = default;
         _residualBuffer.Clear();
-        Upper = new TValue(DateTime.UtcNow, 0);
-        Middle = new TValue(DateTime.UtcNow, 0);
-        Lower = new TValue(DateTime.UtcNow, 0);
-        Width = new TValue(DateTime.UtcNow, 0);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    private double GetFiniteValue(double value, bool isNew)
-    {
-        if (double.IsFinite(value))
-        {
-            // Only update LastValidValue on new bars to avoid corrupting restored state during corrections
-            if (isNew)
-            {
-                _state = _state with { LastValidValue = value };
-            }
-            return value;
-        }
-        return double.IsFinite(_state.LastValidValue) ? _state.LastValidValue : 0;
+        Upper = default;
+        Middle = default;
+        Lower = default;
+        Width = default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override TValue Update(TValue input, bool isNew = true)
+    private void HandleStateSnapshot(bool isNew)
     {
-        // State management for bar correction
         if (isNew)
         {
             _p_state = _state;
-            _index++;
+            _residualBuffer.Snapshot();
         }
         else
         {
-            // Restore previous state
             _state = _p_state;
+            _residualBuffer.Restore();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private (double usf, double upper, double lower) Step(double value, bool isNew)
+    {
+        HandleStateSnapshot(isNew);
+
+        // Handle NaN/Infinity input
+        if (!double.IsFinite(value))
+        {
+            if (_state.Bars == 0)
+            {
+                return (double.NaN, double.NaN, double.NaN);
+            }
+            value = _state.LastPrice;
+        }
+        else
+        {
+            _state.LastPrice = value;
         }
 
-        double val = GetFiniteValue(input.Value, isNew);
+        _state.Bars++;
 
-        // Initialize on first value
-        if (!_state.IsInitialized)
+        // Initialize on first bar
+        if (_state.Bars == 1)
         {
-            _state = _state with
-            {
-                Usf1 = val,
-                Usf2 = val,
-                PrevInput1 = val,
-                PrevInput2 = val,
-                Count = 1,
-                IsInitialized = true
-            };
+            _state.Usf1 = value;
+            _state.Usf2 = value;
+            _state.PrevInput1 = value;
+            _state.PrevInput2 = value;
+            return (value, value, value);
         }
 
         // Calculate USF (Ehlers Ultrasmooth Filter)
         double usf;
-        if (_state.Count < 4)
+        if (_state.Bars < 4)
         {
-            usf = val;
+            usf = value;
         }
         else
         {
             usf = Math.FusedMultiplyAdd(_c3, _state.Usf2,
                 Math.FusedMultiplyAdd(_c2, _state.Usf1,
                     Math.FusedMultiplyAdd(_k2, _state.PrevInput2,
-                        Math.FusedMultiplyAdd(_k1, _state.PrevInput1, _k0 * val))));
+                        Math.FusedMultiplyAdd(_k1, _state.PrevInput1, _k0 * value))));
+            // Guard against NaN propagation from state
+            if (!double.IsFinite(usf))
+            {
+                usf = value;
+            }
         }
 
         // Update USF state
-        _state = _state with
-        {
-            Usf2 = _state.Usf1,
-            Usf1 = usf,
-            PrevInput2 = _state.PrevInput1,
-            PrevInput1 = val,
-            Count = isNew ? _state.Count + 1 : _state.Count
-        };
+        _state.Usf2 = _state.Usf1;
+        _state.Usf1 = usf;
+        _state.PrevInput2 = _state.PrevInput1;
+        _state.PrevInput1 = value;
 
         // Calculate residual and add to buffer
-        double residual = val - usf;
-        _residualBuffer.Add(residual * residual, isNew); // Store squared residual
+        double residual = value - usf;
+        _residualBuffer.Add(residual * residual); // Store squared residual
 
         // Calculate RMS from squared residuals
-        double rms = _residualBuffer.Count > 0
-            ? Math.Sqrt(_residualBuffer.Sum / _residualBuffer.Count)
+        // Use Max(0, Sum) to protect against floating-point drift making Sum slightly negative
+        double sumSq = _residualBuffer.Sum;
+        double rms = (_residualBuffer.Count > 0 && sumSq > 0)
+            ? Math.Sqrt(sumSq / _residualBuffer.Count)
             : 0;
 
         // Calculate bands
         double bandOffset = _multiplier * rms;
         double upper = usf + bandOffset;
         double lower = usf - bandOffset;
+
+        return (usf, upper, lower);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override TValue Update(TValue input, bool isNew = true)
+    {
+        var (usf, upper, lower) = Step(input.Value, isNew);
 
         // Update output values
         Upper = new TValue(input.Time, upper);

@@ -162,7 +162,7 @@ public sealed class Alma : AbstractBase
         Last = new TValue(input.Time, result);
         if (publish)
         {
-            PubEvent(Last);
+            PubEvent(Last, isNew);
         }
         return Last;
     }
@@ -202,10 +202,56 @@ public sealed class Alma : AbstractBase
 
     public override void Prime(ReadOnlySpan<double> source, TimeSpan? step = null)
     {
-        foreach (var value in source)
+        if (source.Length == 0)
         {
-            Update(new TValue(DateTime.MinValue, value));
+            return;
         }
+
+        // Reset state
+        _buffer.Clear();
+        _state = default;
+        _p_state = default;
+
+        int warmupLength = Math.Min(source.Length, WarmupPeriod);
+        int startIndex = source.Length - warmupLength;
+
+        // Seed LastValidValue from history before warmup window
+        double lastValid = double.NaN;
+        for (int i = startIndex - 1; i >= 0; i--)
+        {
+            if (double.IsFinite(source[i]))
+            {
+                lastValid = source[i];
+                break;
+            }
+        }
+
+        // If not found, search in warmup window
+        if (double.IsNaN(lastValid))
+        {
+            for (int i = startIndex; i < source.Length; i++)
+            {
+                if (double.IsFinite(source[i]))
+                {
+                    lastValid = source[i];
+                    break;
+                }
+            }
+        }
+
+        // Initialize state with seeded LastValidValue
+        if (double.IsFinite(lastValid))
+        {
+            _state = new State(lastValid, IsInitialized: true);
+        }
+
+        // Feed the warmup data
+        for (int i = startIndex; i < source.Length; i++)
+        {
+            Update(new TValue(DateTime.MinValue, source[i]), isNew: true, publish: false);
+        }
+
+        _p_state = _state;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

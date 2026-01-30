@@ -50,6 +50,7 @@ public sealed class Stbands : AbstractBase
     private State _state;
     private State _p_state;
     private int _index;
+    private int _p_index;
 
     public override bool IsHot => _index >= WarmupPeriod;
 
@@ -98,6 +99,7 @@ public sealed class Stbands : AbstractBase
     private void Init()
     {
         _index = 0;
+        _p_index = 0;
         _state = new State(0, 0, 1, 0, false);
         _p_state = _state;
         _trBuffer.Clear();
@@ -118,12 +120,14 @@ public sealed class Stbands : AbstractBase
         if (isNew)
         {
             _p_state = _state;
+            _p_index = _index;
             _index++;
         }
         else
         {
             // Restore previous state
             _state = _p_state;
+            _index = _p_index;
         }
 
         double high = GetFiniteValue(input.High, _state.PrevClose);

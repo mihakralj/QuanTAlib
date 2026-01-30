@@ -98,18 +98,26 @@ public class UbandsTests
         double originalUpper = ubands.Upper.Value;
         double originalLower = ubands.Lower.Value;
 
-        // Make multiple corrections
+        // Verify original values are finite
+        Assert.True(double.IsFinite(originalMiddle), $"Original middle should be finite: {originalMiddle}");
+
+        // Make multiple corrections - check each one
         for (int i = 0; i < 10; i++)
         {
             ubands.Update(new TValue(DateTime.UtcNow, 150.0 + i), isNew: false);
+            Assert.True(double.IsFinite(ubands.Middle.Value),
+                $"Correction {i}: Middle should be finite, got {ubands.Middle.Value}");
         }
 
-        // Restore original
+        // Restore original - verify input is finite
+        Assert.True(double.IsFinite(series[^1].Value), $"series[^1] should be finite: {series[^1].Value}");
+
         ubands.Update(series[^1], isNew: false);
         double restoredMiddle = ubands.Middle.Value;
         double restoredUpper = ubands.Upper.Value;
         double restoredLower = ubands.Lower.Value;
 
+        Assert.True(double.IsFinite(restoredMiddle), $"Restored middle should be finite: {restoredMiddle}");
         Assert.Equal(originalMiddle, restoredMiddle, precision: 8);
         Assert.Equal(originalUpper, restoredUpper, precision: 8);
         Assert.Equal(originalLower, restoredLower, precision: 8);

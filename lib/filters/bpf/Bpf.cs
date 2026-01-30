@@ -62,6 +62,13 @@ public sealed class Bpf : AbstractBase
             throw new ArgumentOutOfRangeException(nameof(upperPeriod), "Upper period must be >= 1");
         }
 
+        if (lowerPeriod >= upperPeriod)
+        {
+            throw new ArgumentException(
+                $"Lower cutoff period ({lowerPeriod}) must be less than upper cutoff period ({upperPeriod}) for a valid passband.",
+                nameof(lowerPeriod));
+        }
+
         LowerPeriod = lowerPeriod;
         UpperPeriod = upperPeriod;
         Name = $"BPF({lowerPeriod},{upperPeriod})";
