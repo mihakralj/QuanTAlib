@@ -4,27 +4,24 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// TWAP: Time Weighted Average Price
-/// A session-based average price that resets at specified intervals.
-/// Unlike VWAP which weights by volume, TWAP gives equal weight to each price point.
+/// Computes the Time Weighted Average Price (TWAP) that gives equal weight to each price point
+/// within a session, optionally resetting at specified period intervals.
 /// </summary>
 /// <remarks>
 /// TWAP Formula:
-///   On session reset: sumPrices = 0, count = 0
-///   sumPrices += price
-///   count += 1
-///   TWAP = sumPrices / count
+/// <c>SumPrices += Price</c>,
+/// <c>Count += 1</c>,
+/// <c>TWAP = SumPrices / Count</c>.
 ///
-/// Key characteristics:
-/// - Equal weighting of all price points within session
-/// - Resets at specified period intervals
-/// - Used as benchmark for algorithmic trading execution
-/// - Period of 0 means never reset (continuous average from start)
+/// Session resets when period > 0 and index exceeds period; period of 0 means never reset.
+/// This implementation is optimized for streaming updates with O(1) per bar using running sums.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Sources:
-///   PineScript reference: twap.pine
-///   Algorithmic trading benchmarks
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Twap.md">Detailed documentation</seealso>
+/// <seealso href="twap.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Twap : ITValuePublisher
 {

@@ -4,25 +4,25 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// VA: Volume Accumulation
-/// A cumulative volume indicator that measures volume flow relative to the midpoint of
-/// each bar's range. Volume is multiplied by the difference between close and midpoint.
+/// Computes the Volume Accumulation (VA) indicator that measures cumulative volume flow
+/// relative to each bar's range midpoint, indicating buying or selling pressure.
 /// </summary>
 /// <remarks>
 /// VA Formula:
-///   midpoint = (High + Low) / 2
-///   va_period = Volume × (Close - midpoint)
-///   VA = cumulative sum of va_period
+/// <c>Midpoint = (High + Low) / 2</c>,
+/// <c>VA_period = Volume × (Close - Midpoint)</c>,
+/// <c>VA = Σ(VA_period)</c>.
 ///
-/// Key characteristics:
-/// - Positive when close is above the midpoint (buying pressure)
-/// - Negative when close is below the midpoint (selling pressure)
-/// - Cumulative measure of volume-weighted price position
-/// - Similar to ADL but uses range midpoint instead of full range
+/// Positive values indicate buying pressure (close above midpoint); negative indicates selling pressure.
+/// This implementation is optimized for streaming updates with O(1) per bar using cumulative summation.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed
+/// for each OHLCV component independently.
 ///
-/// Sources:
-///   PineScript reference: va.pine
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Va.md">Detailed documentation</seealso>
+/// <seealso href="va.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Va : ITValuePublisher
 {

@@ -1,0 +1,40 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Chaikin A/D Oscillator (ADOSC)", "ADOSC", overlay=false)
+
+//@function Calculates the Chaikin Accumulation/Distribution Oscillator (ADOSC), a momentum indicator derived from the ADL
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/volume/adosc.md
+//@param shortPeriod (simple int) Length of the short-term EMA applied to the ADL
+//@param longPeriod (simple int) Length of the long-term EMA applied to the ADL
+//@returns (float) The ADOSC value for the current bar (difference between short and long EMAs of ADL)
+adosc(simple int shortPeriod, simple int longPeriod) =>
+    float EPSILON = 1e-10
+    if shortPeriod <= 0 or longPeriod <= 0
+        runtime.error("Periods must be greater than 0")
+    short_alpha = 2.0 / (shortPeriod + 1)
+    long_alpha = 2.0 / (longPeriod + 1)
+    one_minus_long_alpha = 1.0 - long_alpha
+    float rng = high - low
+    float mf = rng != 0.0 ? ((2 * close - high - low) / rng) * volume : 0.0
+    var float cum = 0.0
+    var float e = 1.0
+    cum := bar_index == 0 ? mf : cum + mf
+    var float short_raw_ema = 0.0
+    short_raw_ema := short_alpha * (cum - short_raw_ema) + short_raw_ema
+    float short_ema = e > EPSILON ? short_raw_ema / (1.0 - e) : short_raw_ema
+    var float long_raw_ema = 0.0
+    long_raw_ema := long_alpha * (cum - long_raw_ema) + long_raw_ema
+    float long_ema = e > EPSILON ? long_raw_ema / (1.0 - e) : long_raw_ema
+    e := one_minus_long_alpha * e
+    short_ema - long_ema
+
+// ---------- Inputs ----------
+shortPeriod = input.int(3, "Short Period", minval=1)
+longPeriod = input.int(10, "Long Period", minval=1)
+
+// ---------- Calculations ----------
+osc = adosc(shortPeriod, longPeriod)
+
+// ---------- Plotting ----------
+plot(osc, "ADOSC", color.new(color.yellow, 0, color=color.yellow, linewidth=2), linewidth=2)

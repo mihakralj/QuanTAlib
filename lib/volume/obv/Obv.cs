@@ -7,23 +7,14 @@ namespace QuanTAlib;
 /// OBV: On Balance Volume
 /// </summary>
 /// <remarks>
-/// On Balance Volume is a cumulative indicator that measures buying and selling pressure
-/// by adding volume on up days and subtracting volume on down days. Developed by Joseph
-/// Granville in 1963, it relates price changes to volume to predict price movements.
+/// Cumulative indicator measuring buying/selling pressure: adds volume on up days, subtracts on down.
+/// Divergences between price and OBV can signal potential reversals.
 ///
-/// Calculation:
-/// - If Close &gt; Previous Close: OBV = Previous OBV + Volume
-/// - If Close &lt; Previous Close: OBV = Previous OBV - Volume
-/// - If Close == Previous Close: OBV = Previous OBV (unchanged)
-///
-/// OBV is often used to confirm price trends. When price and OBV make higher highs and
-/// higher lows, the uptrend is likely to continue. Divergences between price and OBV
-/// can signal potential trend reversals.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/o/onbalancevolume.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:on_balance_volume_obv
+/// Calculation: <c>if Close > Prev_Close: OBV += Volume</c>;
+/// <c>if Close &lt; Prev_Close: OBV -= Volume</c>; otherwise unchanged.
 /// </remarks>
+/// <seealso href="Obv.md">Detailed documentation</seealso>
+/// <seealso href="obv.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Obv : ITValuePublisher
 {

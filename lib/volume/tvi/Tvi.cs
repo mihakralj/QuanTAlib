@@ -4,27 +4,24 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// TVI: Trade Volume Index
+/// Computes the Trade Volume Index (TVI) that accumulates volume based on price direction,
+/// using a minimum tick threshold to filter noise from minor price fluctuations.
 /// </summary>
 /// <remarks>
-/// Trade Volume Index is a cumulative indicator that measures buying and selling pressure
-/// by accumulating volume based on price direction determined by a minimum tick threshold.
-/// Unlike OBV which uses any price change, TVI requires price to move beyond a minimum
-/// threshold before switching direction, reducing noise from minor price fluctuations.
+/// TVI Formula:
+/// If <c>ΔPrice > MinTick</c>: direction = +1, <c>TVI += Volume</c>;
+/// If <c>ΔPrice &lt; -MinTick</c>: direction = -1, <c>TVI -= Volume</c>;
+/// Otherwise: direction unchanged (sticky), <c>TVI += direction × Volume</c>.
 ///
-/// Calculation:
-/// - If price change > MinTick: direction = 1 (up), TVI += Volume
-/// - If price change &lt; -MinTick: direction = -1 (down), TVI -= Volume
-/// - If -MinTick &lt;= price change &lt;= MinTick: direction unchanged, TVI += direction * Volume
+/// Unlike OBV, TVI requires price to move beyond a threshold before switching direction.
+/// This implementation is optimized for streaming updates with O(1) per bar using cumulative summation.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Key differences from OBV:
-/// - OBV uses any price change to determine direction
-/// - TVI uses a minimum tick threshold to filter noise
-/// - TVI has "sticky" direction when price moves less than MinTick
-///
-/// Sources:
-/// https://github.com/mihakralj/pinescript/blob/main/indicators/volume/tvi.md
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Tvi.md">Detailed documentation</seealso>
+/// <seealso href="tvi.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Tvi : ITValuePublisher
 {

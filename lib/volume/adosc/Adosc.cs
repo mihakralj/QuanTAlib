@@ -6,20 +6,13 @@ namespace QuanTAlib;
 /// ADOSC: Accumulation/Distribution Oscillator (Chaikin Oscillator)
 /// </summary>
 /// <remarks>
-/// The Chaikin Oscillator is a momentum indicator for the Accumulation/Distribution Line (ADL).
-/// It calculates the difference between two Exponential Moving Averages (EMAs) of the ADL.
+/// Measures momentum of the ADL using dual EMAs. Positive values indicate accumulation momentum;
+/// negative indicates distribution. Standard parameters: fast=3, slow=10.
 ///
-/// Calculation:
-/// ADOSC = EMA(Fast, ADL) - EMA(Slow, ADL)
-///
-/// Standard Parameters:
-/// Fast Period: 3
-/// Slow Period: 10
-///
-/// Sources:
-/// https://www.investopedia.com/terms/c/chaikinoscillator.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_oscillator
+/// Calculation: <c>ADOSC = EMA(ADL, fast) - EMA(ADL, slow)</c>.
 /// </remarks>
+/// <seealso href="Adosc.md">Detailed documentation</seealso>
+/// <seealso href="adosc.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Adosc : ITValuePublisher
 {

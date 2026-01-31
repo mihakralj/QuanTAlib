@@ -7,22 +7,14 @@ namespace QuanTAlib;
 /// AOBV: Archer On-Balance Volume
 /// </summary>
 /// <remarks>
-/// Archer On-Balance Volume applies dual EMA smoothing to On-Balance Volume (OBV)
-/// to create fast and slow signal lines. The indicator helps identify volume-based
-/// momentum and potential trend changes.
+/// Applies dual EMA smoothing (4,14) to OBV for fast/slow signal lines.
+/// Fast crossing above slow indicates bullish momentum; below indicates bearish.
 ///
-/// Calculation:
-/// 1. OBV = cumulative sum of volume when close > prev_close, minus volume when close &lt; prev_close
-/// 2. AOBV Fast = EMA(OBV, 4) with warmup compensation
-/// 3. AOBV Slow = EMA(OBV, 14) with warmup compensation
-///
-/// The crossover of fast and slow lines can signal trend changes:
-/// - Fast crossing above slow indicates bullish momentum
-/// - Fast crossing below slow indicates bearish momentum
-///
-/// Sources:
-/// https://github.com/mihakralj/pinescript/blob/main/indicators/volume/aobv.md
+/// Calculation: <c>OBV = cumulative sum(±Volume)</c> based on close direction,
+/// <c>AOBV_Fast = EMA(OBV, 4)</c>, <c>AOBV_Slow = EMA(OBV, 14)</c>.
 /// </remarks>
+/// <seealso href="Aobv.md">Detailed documentation</seealso>
+/// <seealso href="aobv.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Aobv : ITValuePublisher
 {

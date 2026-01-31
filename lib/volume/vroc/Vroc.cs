@@ -4,24 +4,20 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// VROC: Volume Rate of Change
-/// Measures the rate of change in volume over a specified period,
-/// either as a percentage or as absolute point change.
+/// Computes the Volume Rate of Change (VROC) measuring volume momentum over a specified period.
 /// </summary>
 /// <remarks>
-/// VROC Formula:
-///   Percentage Mode: VROC = ((Current Volume - Historical Volume) / Historical Volume) × 100
-///   Point Mode: VROC = Current Volume - Historical Volume
+/// VROC measures volume change: <c>VROC = ((Volume - Volume[period]) / Volume[period]) × 100</c>
+/// for percentage mode, or <c>VROC = Volume - Volume[period]</c> for point mode.
 ///
-/// Key characteristics:
-/// - Positive when current volume exceeds historical volume
-/// - Negative when current volume is below historical volume
-/// - Percentage mode normalizes across different securities
-/// - Point mode shows absolute volume changes
+/// This implementation is optimized for streaming updates with O(1) per bar using circular buffers.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Sources:
-///   PineScript reference: vroc.pine
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Vroc.md">Detailed documentation</seealso>
+/// <seealso href="vroc.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Vroc : ITValuePublisher
 {

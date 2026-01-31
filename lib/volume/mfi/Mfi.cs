@@ -7,26 +7,14 @@ namespace QuanTAlib;
 /// MFI: Money Flow Index
 /// </summary>
 /// <remarks>
-/// Money Flow Index is a volume-weighted RSI that measures buying and selling pressure
-/// using both price and volume data. It compares positive money flow to negative money
-/// flow to determine if a security is overbought or oversold.
+/// Volume-weighted RSI measuring buying/selling pressure for overbought/oversold conditions.
+/// Oscillates 0-100; above 80 indicates overbought, below 20 oversold.
 ///
-/// Calculation:
-/// 1. Typical Price = (High + Low + Close) / 3
-/// 2. Raw Money Flow = Typical Price × Volume
-/// 3. Positive MF = Sum of Raw MF when Typical Price increases
-/// 4. Negative MF = Sum of Raw MF when Typical Price decreases
-/// 5. Money Flow Ratio = Positive MF / Negative MF
-/// 6. MFI = 100 - (100 / (1 + Money Flow Ratio))
-///
-/// MFI oscillates between 0 and 100:
-/// - Values above 80 typically indicate overbought conditions
-/// - Values below 20 typically indicate oversold conditions
-///
-/// Sources:
-/// https://www.investopedia.com/terms/m/mfi.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:money_flow_index_mfi
+/// Calculation: <c>TP = (H+L+C)/3</c>, <c>MFR = Sum(Positive_MF) / Sum(Negative_MF)</c>,
+/// <c>MFI = 100 - (100 / (1 + MFR))</c>.
 /// </remarks>
+/// <seealso href="Mfi.md">Detailed documentation</seealso>
+/// <seealso href="mfi.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Mfi : ITValuePublisher
 {

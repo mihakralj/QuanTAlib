@@ -7,23 +7,14 @@ namespace QuanTAlib;
 /// CMF: Chaikin Money Flow
 /// </summary>
 /// <remarks>
-/// Chaikin Money Flow measures buying and selling pressure over a specified period.
-/// It uses the Money Flow Multiplier and Volume to determine if a security is being
-/// accumulated (bought) or distributed (sold).
+/// Measures buying/selling pressure via close position within range and volume.
+/// Oscillates between -1 and +1; positive indicates accumulation, negative indicates distribution.
 ///
-/// Calculation:
-/// 1. Money Flow Multiplier = [(Close - Low) - (High - Close)] / (High - Low)
-/// 2. Money Flow Volume = Money Flow Multiplier × Volume
-/// 3. CMF = Sum(Money Flow Volume, period) / Sum(Volume, period)
-///
-/// CMF oscillates between -1 and +1:
-/// - Positive values indicate buying pressure (accumulation)
-/// - Negative values indicate selling pressure (distribution)
-///
-/// Sources:
-/// https://www.investopedia.com/terms/c/chaikinoscillator.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_money_flow_cmf
+/// Calculation: <c>MFM = [(Close - Low) - (High - Close)] / (High - Low)</c>,
+/// <c>MFV = MFM × Volume</c>, <c>CMF = Sum(MFV, period) / Sum(Volume, period)</c>.
 /// </remarks>
+/// <seealso href="Cmf.md">Detailed documentation</seealso>
+/// <seealso href="cmf.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Cmf : ITValuePublisher
 {

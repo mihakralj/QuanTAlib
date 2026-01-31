@@ -4,25 +4,17 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// EFI: Elder's Force Index
+/// EFI: Elder Force Index
 /// </summary>
 /// <remarks>
-/// Elder's Force Index measures buying and selling pressure by combining price change
-/// with volume. A large positive Force Index indicates strong buying pressure, while
-/// a large negative value indicates strong selling pressure.
+/// Measures force of price movements by combining price change with volume.
+/// Large positive values indicate strong buying; large negative indicates selling pressure.
 ///
-/// Calculation:
-/// 1. Raw Force = (Close - Previous Close) × Volume
-/// 2. EFI = EMA(Raw Force, period) with bias correction during warmup
-///
-/// The indicator was developed by Dr. Alexander Elder and is described in his book
-/// "Trading for a Living." It helps identify potential trend reversals and
-/// confirm trend strength.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/f/force-index.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:force_index
+/// Calculation: <c>EFI = (Close - prev_Close) × Volume</c>,
+/// <c>Smoothed_EFI = EMA(EFI, period)</c>.
 /// </remarks>
+/// <seealso href="Efi.md">Detailed documentation</seealso>
+/// <seealso href="efi.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Efi : ITValuePublisher
 {

@@ -4,28 +4,25 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// PVO: Percentage Volume Oscillator
-/// A momentum indicator that measures the difference between two volume EMAs
-/// as a percentage of the slower EMA. Similar to MACD but applied to volume.
+/// Computes the Percentage Volume Oscillator (PVO) that measures the difference between two
+/// volume EMAs as a percentage of the slower EMA, similar to MACD applied to volume.
 /// </summary>
 /// <remarks>
-/// The PVO calculation process:
-/// 1. Calculate Fast EMA of volume
-/// 2. Calculate Slow EMA of volume
-/// 3. PVO = ((Fast EMA - Slow EMA) / Slow EMA) * 100
-/// 4. Signal = EMA of PVO
-/// 5. Histogram = PVO - Signal
+/// PVO Formula:
+/// <c>PVO = ((EMA_fast - EMA_slow) / EMA_slow) × 100</c>,
+/// <c>Signal = EMA(PVO, signalPeriod)</c>,
+/// <c>Histogram = PVO - Signal</c>.
 ///
-/// Key characteristics:
-/// - Positive values indicate volume is above its average (bullish)
-/// - Negative values indicate volume is below its average (bearish)
-/// - Signal line crossovers provide trading signals
-/// - Uses EMA compensator for proper early-stage bias correction
+/// Positive values indicate volume above average (bullish); negative indicates below average (bearish).
+/// This implementation is optimized for streaming updates with O(1) per bar using EMA compensators
+/// for proper early-stage bias correction.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Sources:
-///     https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvo.md
-///     https://school.stockcharts.com/doku.php?id=technical_indicators:percentage_volume_oscillator_pvo
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Pvo.md">Detailed documentation</seealso>
+/// <seealso href="pvo.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Pvo : ITValuePublisher
 {

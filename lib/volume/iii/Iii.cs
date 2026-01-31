@@ -5,27 +5,16 @@ namespace QuanTAlib;
 
 /// <summary>
 /// III: Intraday Intensity Index
-/// A volume-based indicator that measures buying and selling pressure by
-/// analyzing where the close falls within the high-low range, weighted by volume.
-/// Values range from -1 (close at low) to +1 (close at high) times volume.
 /// </summary>
 /// <remarks>
-/// The III calculation process:
-/// 1. Calculate position multiplier = (2 * Close - High - Low) / (High - Low)
-/// 2. Calculate raw III = position multiplier * volume
-/// 3. Apply SMA smoothing to raw III
-/// 4. Optionally accumulate values in cumulative mode
+/// Volume-weighted indicator measuring buying/selling pressure based on close position in range.
+/// Range: -1 (close at low) to +1 (close at high) times volume; indicates distribution vs accumulation.
 ///
-/// Key characteristics:
-/// - Positive values indicate accumulation (close near high)
-/// - Negative values indicate distribution (close near low)
-/// - Combines price position with volume for confirmation
-/// - Can be used in smoothed or cumulative mode
-///
-/// Sources:
-///     David Bostian - Original developer
-///     https://github.com/mihakralj/pinescript/blob/main/indicators/volume/iii.md
+/// Calculation: <c>Position = (2 × Close - High - Low) / (High - Low)</c>,
+/// <c>Raw_III = Position × Volume</c>, <c>III = SMA(Raw_III, period)</c> or cumulative sum.
 /// </remarks>
+/// <seealso href="Iii.md">Detailed documentation</seealso>
+/// <seealso href="iii.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Iii : ITValuePublisher
 {

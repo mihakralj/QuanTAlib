@@ -282,16 +282,16 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Volume Force** | Vf | - | - | - | - |
 | **Volume Oscillator** | Vo | - | ✔️ | - | - |
 | **Volume Rate of Change** | Vroc | - | - | - | - |
-| **Volume Weighted Accumulation/Distribution** | Vwad | - | - | - | - |
-| **Volume Weighted Average Price** | Vwap | - | - | ✔️ | ❔ |
-| **Volume Weighted Moving Average** | Vwma | - | ✔️ | ✔️ | ❔ |
+| **Volume Weighted Accumulation/Distribution** | [Vwad](../lib/volume/vwad/Vwad.md) | - | - | - | - |
+| **Volume Weighted Average Price** | [Vwap](../lib/volume/vwap/Vwap.md) | - | - | ✔️ | ✔️ |
+| **Volume Weighted Moving Average** | [Vwma](../lib/volume/vwma/Vwma.md) | - | - | ✔️ | - |
 | **Vortex Indicator** | Vortex | - | - | ✔️ | ❔ |
 | **VWAP Bands** | [Vwapbands](../lib/channels/vwapbands/Vwapbands.md) | - | - | - | - |
 | **VWAP with Standard Deviation Bands** | [Vwapsd](../lib/channels/vwapsd/Vwapsd.md) | - | - | - | - |
 | **Weighted Moving Average** | [Wma](../lib/trends/wma/wma.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Wiener Filter** | Wiener | - | - | - | - |
 | **Williams %R** | Willr | ✔️ | ✔️ | ✔️ | ❔ |
-| **Williams Accumulation/Distribution** | Wad | - | ✔️ | - | ❔ |
+| **Williams Accumulation/Distribution** | [Wad](../lib/volume/wad/Wad.md) | - | - | - | [⚠️](../lib/volume/wad/Wad.md#validation) |
 | **Williams Alligator** | Alligator | - | - | ✔️ | ❔ |
 | **Williams Fractal** | Fractals | - | - | ✔️ | ❔ |
 | **Woodie's Pivot Points** | Pivotwood | - | - | - | ❔ |

@@ -4,25 +4,26 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// PVD: Price Volume Divergence
-/// Measures the divergence between price momentum and volume momentum.
-/// Detects situations where price and volume are moving in opposite directions.
+/// Computes the Price Volume Divergence (PVD) that measures divergence between price momentum
+/// and volume momentum, detecting situations where price and volume move in opposite directions.
 /// </summary>
 /// <remarks>
-/// The PVD indicator calculates:
-/// 1. Price ROC = (Close - Close[pricePeriod]) / Close[pricePeriod] * 100
-/// 2. Volume ROC = (Volume - Volume[volumePeriod]) / Volume[volumePeriod] * 100
-/// 3. Price Momentum = Sign(Price ROC)
-/// 4. Volume Momentum = Sign(Volume ROC)
-/// 5. Magnitude = |Price ROC| + |Volume ROC|
-/// 6. Raw Divergence = Price Momentum * -Volume Momentum * Magnitude
-/// 7. PVD = SMA(Raw Divergence, smoothingPeriod)
+/// PVD Formula:
+/// <c>Price_ROC = ((Close - Close[pricePeriod]) / Close[pricePeriod]) × 100</c>,
+/// <c>Volume_ROC = ((Volume - Volume[volumePeriod]) / Volume[volumePeriod]) × 100</c>,
+/// <c>Raw_Divergence = Sign(Price_ROC) × -Sign(Volume_ROC) × (|Price_ROC| + |Volume_ROC|)</c>,
+/// <c>PVD = SMA(Raw_Divergence, smoothingPeriod)</c>.
 ///
-/// Key characteristics:
-/// - Positive values indicate price up/volume down or price down/volume up divergence
-/// - Negative values indicate price and volume moving in same direction
-/// - Zero indicates no significant momentum in either price or volume
+/// Positive values indicate price up/volume down or price down/volume up divergence;
+/// negative values indicate price and volume moving in same direction.
+/// This implementation is optimized for streaming updates with O(1) per bar using ring buffers.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
+///
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Pvd.md">Detailed documentation</seealso>
+/// <seealso href="pvd.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Pvd : ITValuePublisher
 {

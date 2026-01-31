@@ -5,28 +5,16 @@ namespace QuanTAlib;
 
 /// <summary>
 /// EOM: Ease of Movement
-/// A volume-based oscillator that relates price change to volume,
-/// designed to show the relationship between volume and price change.
-/// Developed by Richard Arms Jr., it measures how easily prices move.
 /// </summary>
 /// <remarks>
-/// The EOM calculation process:
-/// 1. Calculate midpoint = (High + Low) / 2
-/// 2. Calculate midpoint change = midpoint - previous midpoint
-/// 3. Calculate box ratio = (volume / volumeScale) / (high - low)
-/// 4. Calculate raw EOM = midpoint change / box ratio
-/// 5. Apply SMA smoothing to raw EOM
+/// Volume-based oscillator measuring how easily prices move via price change and volume relationship.
+/// Positive values indicate upward ease; negative values indicate downward ease.
 ///
-/// Key characteristics:
-/// - Positive values indicate prices are moving up with relative ease
-/// - Negative values indicate prices are moving down with relative ease
-/// - Near zero values suggest prices are having difficulty moving
-/// - Volume scale normalizes for different volume magnitudes
-///
-/// Sources:
-///     Richard Arms Jr. - "Volume Cycles in the Stock Market"
-///     https://github.com/mihakralj/pinescript/blob/main/indicators/volume/eom.md
+/// Calculation: <c>Midpoint = (High + Low) / 2</c>, <c>Box_Ratio = (Volume / Scale) / (High - Low)</c>,
+/// <c>Raw_EOM = (Midpoint - prev_Midpoint) / Box_Ratio</c>, <c>EOM = SMA(Raw_EOM, period)</c>.
 /// </remarks>
+/// <seealso href="Eom.md">Detailed documentation</seealso>
+/// <seealso href="eom.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Eom : ITValuePublisher
 {

@@ -4,26 +4,22 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// PVT: Price Volume Trend
+/// Computes the Price Volume Trend (PVT) that weights volume by relative price change,
+/// providing a cumulative measure of buying and selling pressure proportional to price moves.
 /// </summary>
 /// <remarks>
-/// Price Volume Trend is a cumulative volume-based indicator that measures buying
-/// and selling pressure by weighting volume by the relative price change. Unlike OBV
-/// which uses all-or-nothing volume assignment, PVT uses proportional volume based
-/// on how much price moved.
+/// PVT Formula:
+/// <c>PVT = PVT_prev + Volume × ((Close - Close_prev) / Close_prev)</c>.
 ///
-/// Calculation:
-/// PVT = Previous PVT + Volume * ((Close - Previous Close) / Previous Close)
+/// Unlike OBV which uses all-or-nothing volume, PVT assigns proportional volume based on price change magnitude.
+/// This implementation is optimized for streaming updates with O(1) per bar using cumulative summation.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Key differences from OBV:
-/// - OBV assigns entire volume to buyers or sellers
-/// - PVT assigns proportional volume based on price change magnitude
-/// - PVT is more sensitive to the size of price moves
-///
-/// Sources:
-/// https://www.investopedia.com/terms/p/pvtrend.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:price_volume_trend_pvt
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Pvt.md">Detailed documentation</seealso>
+/// <seealso href="pvt.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Pvt : ITValuePublisher
 {

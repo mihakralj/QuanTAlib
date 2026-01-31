@@ -4,27 +4,26 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// PVR: Price Volume Rank
-/// A categorical indicator that ranks price-volume relationships into discrete states.
-/// Returns values 0-4 based on price and volume direction changes.
+/// Computes the Price Volume Rank (PVR) that categorizes price-volume relationships into
+/// discrete states (0-4) based on price and volume direction changes.
 /// </summary>
 /// <remarks>
-/// The PVR calculation process:
-/// Compares current price and volume with previous values:
-/// - 1: Price up, Volume up (strong bullish)
-/// - 2: Price up, Volume down (weak bullish)
-/// - 3: Price down, Volume down (weak bearish)
-/// - 4: Price down, Volume up (strong bearish)
-/// - 0: Price unchanged
+/// PVR Categories:
+/// <c>1</c>: Price up, Volume up (strong bullish);
+/// <c>2</c>: Price up, Volume down (weak bullish);
+/// <c>3</c>: Price down, Volume down (weak bearish);
+/// <c>4</c>: Price down, Volume up (strong bearish);
+/// <c>0</c>: Price unchanged.
 ///
-/// Key characteristics:
-/// - Categorical output (0, 1, 2, 3, or 4)
-/// - No warmup period needed (only requires 1 previous bar)
-/// - Useful for filtering trade signals based on price-volume confirmation
+/// Useful for filtering trade signals based on price-volume confirmation.
+/// This implementation is optimized for streaming updates with O(1) per bar using direction comparison.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Sources:
-///     https://github.com/mihakralj/pinescript/blob/main/indicators/volume/pvr.md
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Pvr.md">Detailed documentation</seealso>
+/// <seealso href="pvr.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Pvr : ITValuePublisher
 {

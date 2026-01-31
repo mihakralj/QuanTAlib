@@ -28,7 +28,7 @@ Volume is market fuel. Price tells what happened; volume tells how hard the mark
 | [VF](lib/volume/vf/Vf.md) | Volume Force | Measures force of volume behind price movements using EMA smoothing. |
 | [VO](lib/volume/vo/Vo.md) | Volume Oscillator | Difference between short and long volume moving averages. Shows volume momentum. |
 | [VROC](lib/volume/vroc/Vroc.md) | Volume Rate of Change | Measures speed at which volume is changing over time. |
-| VWAD | Volume Weighted A/D | Similar to ADL but weights accumulation/distribution by volume. |
-| VWAP | Volume Weighted Average Price | Average price weighted by volume. Common execution benchmark. |
-| VWMA | Volume Weighted MA | Moving average where each price point is weighted by its volume. |
-| WAD | Williams A/D | Measures cumulative buying/selling pressure by comparing closes to opens/highs/lows. |
+| [VWAD](lib/volume/vwad/Vwad.md) | Volume Weighted A/D | Similar to ADL but weights accumulation/distribution by volume. |
+| [VWAP](lib/volume/vwap/Vwap.md) | Volume Weighted Average Price | Average price weighted by volume. Common execution benchmark and intraday reference. |
+| [VWMA](lib/volume/vwma/Vwma.md) | Volume Weighted Moving Average | Moving average where each price point is weighted by its volume over a sliding window. |
+| [WAD](lib/volume/wad/Wad.md) | Williams Accumulation/Distribution | Measures cumulative buying/selling pressure using True Range and volume. |

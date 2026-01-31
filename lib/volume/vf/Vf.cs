@@ -4,30 +4,21 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// VF: Volume Force
-/// Measures the force of volume behind price movements by multiplying price change
-/// by volume and applying EMA smoothing with warmup compensation.
+/// Computes the Volume Force (VF) indicator measuring the force of volume behind price movements.
 /// </summary>
 /// <remarks>
-/// VF Formula:
-///   price_change = Close - Previous Close
-///   raw_vf = price_change × Volume
-///   VF = EMA(raw_vf, period) with warmup compensation
+/// VF multiplies price change by volume with EMA smoothing:
+/// <c>rawVF = (Close - prevClose) × Volume</c>, <c>VF = EMA(rawVF, period)</c>
+/// with warmup compensation: <c>VF = compensator × EMA</c> where <c>compensator = 1 / (1 - e)</c>.
 ///
-/// Warmup compensation:
-///   e *= (1 - alpha)
-///   compensator = 1 / (1 - e)
-///   VF = compensator × EMA during warmup phase
+/// This implementation is optimized for streaming updates with O(1) per bar using EMA recursion.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Key characteristics:
-/// - Positive when price is rising with volume
-/// - Negative when price is falling with volume
-/// - EMA smoothing reduces noise
-/// - Warmup compensation prevents initial bias
-///
-/// Sources:
-///   PineScript reference: vf.pine
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Vf.md">Detailed documentation</seealso>
+/// <seealso href="vf.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Vf : ITValuePublisher
 {

@@ -4,26 +4,20 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// VO: Volume Oscillator
-/// Measures the difference between two volume moving averages as a percentage,
-/// with an optional signal line for trend confirmation.
+/// Computes the Volume Oscillator (VO) measuring the difference between two volume moving averages.
 /// </summary>
 /// <remarks>
-/// VO Formula:
-///   short_ma = SMA(volume, short_period)
-///   long_ma = SMA(volume, long_period)
-///   VO = ((short_ma - long_ma) / long_ma) × 100
-///   Signal = SMA(VO, signal_period)
+/// VO compares short and long volume SMAs: <c>VO = ((SMA(vol,short) - SMA(vol,long)) / SMA(vol,long)) × 100</c>,
+/// with optional signal line: <c>Signal = SMA(VO, signalPeriod)</c>.
 ///
-/// Key characteristics:
-/// - Positive when short-term volume exceeds long-term volume
-/// - Negative when short-term volume is below long-term volume
-/// - Signal line crossovers indicate momentum shifts
-/// - Uses running sum for O(1) SMA updates
+/// This implementation is optimized for streaming updates with O(1) per bar using running sums.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// Sources:
-///   PineScript reference: vo.pine
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Vo.md">Detailed documentation</seealso>
+/// <seealso href="vo.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Vo : ITValuePublisher
 {

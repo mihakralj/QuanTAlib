@@ -7,24 +7,14 @@ namespace QuanTAlib;
 /// NVI: Negative Volume Index
 /// </summary>
 /// <remarks>
-/// Negative Volume Index tracks price changes on days when volume decreases compared
-/// to the previous day. The theory is that on low-volume days, the "smart money"
-/// (institutional investors) is taking positions, while high-volume days are driven
-/// by less-informed traders.
+/// Tracks price changes only on days when volume decreases (smart money theory).
+/// Bullish signal when NVI crosses above its signal line.
 ///
-/// Calculation:
-/// - If Volume &lt; Previous Volume: NVI = Previous NVI × (Close / Previous Close)
-/// - If Volume &gt;= Previous Volume: NVI = Previous NVI (unchanged)
-/// - Typically starts at 100 or 1000
-///
-/// NVI is often used with its signal line (a moving average of NVI) to generate
-/// buy/sell signals. When NVI crosses above its signal line, it may indicate
-/// a bullish trend driven by smart money.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/n/nvi.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:negative_volume_index
+/// Calculation: <c>If Volume &lt; Prev_Volume: NVI = Prev_NVI × (Close / Prev_Close)</c>;
+/// otherwise NVI unchanged.
 /// </remarks>
+/// <seealso href="Nvi.md">Detailed documentation</seealso>
+/// <seealso href="nvi.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Nvi : ITValuePublisher
 {

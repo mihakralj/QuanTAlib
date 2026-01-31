@@ -7,20 +7,14 @@ namespace QuanTAlib;
 /// ADL: Accumulation/Distribution Line
 /// </summary>
 /// <remarks>
-/// The Accumulation/Distribution Line is a cumulative indicator that uses volume and price
-/// to assess whether a stock is being accumulated or distributed.
+/// Cumulative indicator using volume and price to assess accumulation or distribution.
+/// Rising ADL confirms accumulation; falling confirms distribution.
 ///
-/// Calculation:
-/// 1. Money Flow Multiplier = [(Close - Low) - (High - Close)] / (High - Low)
-/// 2. Money Flow Volume = Money Flow Multiplier * Volume
-/// 3. ADL = Previous ADL + Money Flow Volume
-///
-/// If High equals Low, the Multiplier is 0.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/a/accumulationdistribution.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:accumulation_distribution_line
+/// Calculation: <c>MFM = [(Close - Low) - (High - Close)] / (High - Low)</c>,
+/// <c>MFV = MFM × Volume</c>, <c>ADL = prev_ADL + MFV</c>. If High equals Low, MFM is 0.
 /// </remarks>
+/// <seealso href="Adl.md">Detailed documentation</seealso>
+/// <seealso href="adl.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Adl : ITValuePublisher
 {

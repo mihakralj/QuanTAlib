@@ -5,30 +5,16 @@ namespace QuanTAlib;
 
 /// <summary>
 /// KVO: Klinger Volume Oscillator
-/// A volume-based oscillator developed by Stephen Klinger that compares volume
-/// flowing through securities with price movements. It identifies long-term
-/// money flow trends while remaining sensitive to short-term fluctuations.
 /// </summary>
 /// <remarks>
-/// The KVO calculation process:
-/// 1. Calculate HLC3 (typical price) = (High + Low + Close) / 3
-/// 2. Determine trend direction: +1 if HLC3 > previous HLC3, -1 if lower, else unchanged
-/// 3. Calculate cumulation measure (CM) = |2 * ((range - (close - low)) / range) - 1|
-/// 4. Calculate direction multiplier (DM) = trend * volume * CM
-/// 5. Apply Fast EMA and Slow EMA to DM
-/// 6. KVO = Fast EMA(DM) - Slow EMA(DM)
-/// 7. Signal = EMA of KVO
+/// Volume-based oscillator comparing volume flow with price movements for money flow trends.
+/// Positive values indicate accumulation; negative indicates distribution.
 ///
-/// Key characteristics:
-/// - Positive values indicate accumulation (buying pressure)
-/// - Negative values indicate distribution (selling pressure)
-/// - Signal line crossovers provide trading signals
-/// - Uses EMA compensator for proper early-stage bias correction
-///
-/// Sources:
-///     Stephen Klinger - Original developer
-///     https://github.com/mihakralj/pinescript/blob/main/indicators/volume/kvo.md
+/// Calculation: <c>HLC3 = (H+L+C)/3</c>, <c>Trend = ±1 based on HLC3 direction</c>,
+/// <c>DM = Trend × Volume × CM</c>, <c>KVO = EMA(DM, fast) - EMA(DM, slow)</c>.
 /// </remarks>
+/// <seealso href="Kvo.md">Detailed documentation</seealso>
+/// <seealso href="kvo.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Kvo : ITValuePublisher
 {

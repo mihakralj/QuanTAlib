@@ -4,26 +4,24 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// PVI: Positive Volume Index
+/// Computes the Positive Volume Index (PVI) that tracks price changes only on days when
+/// volume increases, based on the theory that high-volume days reflect uninformed crowd trading.
 /// </summary>
 /// <remarks>
-/// Positive Volume Index tracks price changes on days when volume increases compared
-/// to the previous day. The theory is that on high-volume days, the "uninformed crowd"
-/// is trading, while low-volume days are driven by smart money (institutional investors).
+/// PVI Formula:
+/// <c>If Volume &gt; Previous_Volume: PVI = Previous_PVI × (Close / Previous_Close)</c>,
+/// <c>If Volume ≤ Previous_Volume: PVI = Previous_PVI (unchanged)</c>.
 ///
-/// Calculation:
-/// - If Volume &gt; Previous Volume: PVI = Previous PVI × (Close / Previous Close)
-/// - If Volume &lt;= Previous Volume: PVI = Previous PVI (unchanged)
-/// - Typically starts at 100 or 1000
+/// Typically starts at 100 or 1000. When PVI is below its 1-year moving average, there is
+/// a 67% probability of a bear market according to Fosback's research.
+/// This implementation is optimized for streaming updates with O(1) per bar.
+/// Non-finite inputs (NaN/±Inf) are sanitized by substituting the last finite value observed.
 ///
-/// PVI is often used with its signal line (a moving average of PVI) to generate
-/// buy/sell signals. When PVI is below its 1-year moving average, there is a 67%
-/// probability of a bear market according to Fosback.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/p/pvi.asp
-/// https://school.stockcharts.com/doku.php?id=technical_indicators:positive_volume_index
+/// For the authoritative algorithm reference, full rationale, and behavioral contracts, see the
+/// companion files in the same directory.
 /// </remarks>
+/// <seealso href="Pvi.md">Detailed documentation</seealso>
+/// <seealso href="pvi.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Pvi : ITValuePublisher
 {

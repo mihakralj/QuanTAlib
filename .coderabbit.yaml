@@ -1,6 +1,5 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 # CodeRabbit Configuration - Batch 1: Implementation files only
-# PR has 492 files, limit is 300. This config focuses on core implementation.
 
 language: en-US
 
@@ -20,62 +19,57 @@ reviews:
 
   path_filters:
     # ============================================
-    # BATCH 1: Core implementation .cs files only
-    # Target: ~293 files (under 300 limit)
-    # Excludes: Tests, Quantower adapters, errors/, numerics/
+    # Only analyze .cs implementation files in lib/
+    # Excludes: Tests, Quantower adapters, all non-.cs files
     # ============================================
 
-    # INCLUDE: Core library implementation files
+    # INCLUDE: Only .cs files in lib directory
     - "lib/**/*.cs"
 
-    # EXCLUDE: Test files (426 files - Batch 2)
+    # EXCLUDE: Test files
     - "!**/*.Tests.cs"
     - "!**/*.Validation.Tests.cs"
-    - "!**/Tests/**"
 
-    # EXCLUDE: Quantower adapter files (in lib directory)
+    # EXCLUDE: Quantower adapter files
     - "!**/*.Quantower.cs"
 
-    # EXCLUDE: Error/loss function category (42 files - Batch 2)
-    # These are mathematical utilities, not core indicators
-    - "!lib/errors/**"
 
-    # EXCLUDE: Numeric utilities (14 files - Batch 2)
-    # These are mathematical helper functions
-    - "!lib/numerics/**"
-
-    # EXCLUDE: Build artifacts
-    - "!**/obj/**"
-    - "!**/bin/**"
-    - "!**/Debug/**"
-    - "!**/Release/**"
-
-    # EXCLUDE: Documentation (not code review priority)
+    # EXCLUDE: All non-.cs files
     - "!**/*.md"
     - "!**/*.pine"
-    - "!**/_index.md"
+    - "!**/*.json"
+    - "!**/*.yaml"
+    - "!**/*.yml"
+    - "!**/*.xml"
+    - "!**/*.props"
+    - "!**/*.targets"
+    - "!**/*.csproj"
+    - "!**/*.sln"
+    - "!**/*.runsettings"
+    - "!**/*.editorconfig"
+    - "!**/*.gitignore"
+    - "!**/*.gitattributes"
+    - "!**/*.sarif"
+    - "!**/*.html"
+    - "!**/*.css"
+    - "!**/*.png"
+    - "!**/*.gif"
+    - "!**/*.dll"
+    - "!**/*.exe"
+    - "!**/*.ps1"
 
-    # EXCLUDE: Quantower adapters (Batch 2)
+    # EXCLUDE: All directories outside lib/
     - "!quantower/**"
-
-    # EXCLUDE: Supporting directories
     - "!perf/**"
     - "!ndepend/**"
     - "!docfx/**"
+    - "!docs/**"
     - "!temp/**"
     - "!TestResults/**"
     - "!TestResultsCoverage/**"
     - "!.sarif/**"
-
-    # EXCLUDE: Config/metadata files
-    - "!**/*.json"
-    - "!**/*.yaml"
-    - "!**/*.yml"
-    - "!**/*.props"
-    - "!**/*.targets"
-    - "!**/*.csproj"
-    - "!**/*.runsettings"
-    - "!**/*.editorconfig"
+    - "!**/obj/**"
+    - "!**/bin/**"
 
 chat:
   auto_reply: true
