@@ -7,23 +7,12 @@ namespace QuanTAlib;
 /// ATRP: Average True Range Percent
 /// </summary>
 /// <remarks>
-/// ATRP normalizes ATR as a percentage of the closing price, enabling volatility
-/// comparison across different assets regardless of their price levels.
+/// ATR as percentage of closing price for cross-asset volatility comparison.
+/// Higher values indicate greater relative volatility; typical range 0-10%.
 ///
-/// Calculation:
-/// 1. True Range (TR) = Max(High - Low, |High - PrevClose|, |Low - PrevClose|)
-///    - For the first bar, TR = High - Low
-/// 2. ATR = RMA(TR, Period) with warmup compensation
-/// 3. ATRP = (ATR / Close) × 100
-///
-/// Key characteristics:
-/// - Normalized volatility allows cross-asset comparison
-/// - Higher ATRP indicates higher relative volatility
-/// - Typical values range from 0 to 10+ depending on asset class
-///
-/// Sources:
-/// Derived from ATR by J. Welles Wilder, expressed as percentage.
+/// Calculation: <c>ATRP = (ATR / Close) × 100</c>.
 /// </remarks>
+/// <seealso href="Atrp.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Atrp : AbstractBase
 {

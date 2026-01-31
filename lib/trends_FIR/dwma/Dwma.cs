@@ -8,12 +8,12 @@ namespace QuanTAlib;
 /// DWMA: Double Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// DWMA applies a Weighted Moving Average (WMA) twice.
-/// It provides a smoother curve than a standard WMA but with slightly more lag.
+/// Double-pass WMA for enhanced smoothing with slight additional lag.
+/// Triangular-like weighting via cascaded linear filters.
 ///
-/// Formula:
-/// DWMA = WMA(WMA(source, period), period)
+/// Calculation: <c>DWMA = WMA(WMA(source, n), n)</c>.
 /// </remarks>
+/// <seealso href="Dwma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Dwma : AbstractBase
 {

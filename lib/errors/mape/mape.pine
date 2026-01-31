@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Mean Absolute %Error (MAPE)", "MAPE")
+
+//@function Calculates Mean Absolute Percentage Error between two sources using SMA for averaging
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/mape.md
+//@param source1 First series to compare (actual)
+//@param source2 Second series to compare (predicted)
+//@param period Lookback period for error averaging
+//@returns MAPE value averaged over the specified period using SMA
+mape(series float source1, series float source2, simple int period) =>
+    percentage_error = 100 * math.abs((source1 - source2) / source1)
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = math.min(math.max(1, period), 4000)
+    var float[] buffer = array.new_float(p, na)
+    var int head = 0
+    var float sum = 0.0
+    var int valid_count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum := sum - oldest
+        valid_count := valid_count - 1
+    if not na(percentage_error)
+        sum := sum + percentage_error
+        valid_count := valid_count + 1
+    array.set(buffer, head, percentage_error)
+    head := (head + 1) % p
+    valid_count > 0 ? sum / valid_count : percentage_error
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source")
+i_period = input.int(100, "Period", minval=1)
+i_source2 = ta.ema(i_source1, i_period)
+
+// Calculation
+error = mape(i_source1, i_source2, i_period)
+
+// Plot
+plot(error, "MAPE", color=color.new(color.red, 60), linewidth=2, style = plot.style_area)
+plot(i_source2, "EMA", color=color.yellow, linewidth=1, style = plot.style_line, force_overlay = true)

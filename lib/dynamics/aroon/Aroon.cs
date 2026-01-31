@@ -4,23 +4,15 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Aroon Indicator
+/// AROON: Aroon Indicator
 /// </summary>
 /// <remarks>
-/// The Aroon indicator is used to identify trend changes in the price of an asset, as well as the strength of that trend.
-/// It consists of two lines: Aroon Up and Aroon Down.
+/// Trend timing indicator measuring bars since period high/low (Chande).
+/// Outputs Up [0-100], Down [0-100], and Oscillator (Up - Down).
 ///
-/// Calculation:
-/// Aroon Up = ((Period - Days Since Period High) / Period) * 100
-/// Aroon Down = ((Period - Days Since Period Low) / Period) * 100
-/// Aroon Oscillator = Aroon Up - Aroon Down
-///
-/// The indicator requires Period + 1 samples to fully calculate "Period" days ago.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/a/aroon.asp
-/// Tushar Chande (1995)
+/// Calculation: <c>Up = (Period - DaysSinceHigh) / Period × 100</c>; <c>Down = (Period - DaysSinceLow) / Period × 100</c>.
 /// </remarks>
+/// <seealso href="Aroon.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Aroon : ITValuePublisher
 {

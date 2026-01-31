@@ -9,10 +9,13 @@ namespace QuanTAlib;
 /// ZLEMA: Zero-Lag Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// ZLEMA reduces EMA lag by filtering a zero-lag signal:
-/// signal = 2 * price - price_lag
-/// zlema = EMA(signal)
+/// Reduces lag by applying EMA to a detrended signal that subtracts lagged values.
+/// Offers faster trend detection while maintaining smoothness.
+///
+/// Calculation: <c>ZLEMA = EMA(2×Price - Price[lag])</c>, where <c>lag = (period-1)/2</c>.
 /// </remarks>
+/// <seealso href="Zlema.md">Detailed documentation</seealso>
+/// <seealso href="zlema.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Zlema : AbstractBase
 {

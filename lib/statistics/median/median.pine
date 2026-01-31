@@ -1,0 +1,42 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Median", "MEDIAN", overlay=false, precision=8)
+
+//@function Calculates the median of a series over a lookback period.
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/median.md
+//@param src series float Input data series.
+//@param len simple int Lookback period (must be > 0).
+//@returns series float The median of the series over the period, or na if insufficient valid data.
+median(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    var array<float> values_in_window = array.new_float(0)
+    array.clear(values_in_window) // Clear from previous bar's calculation
+    for i = 0 to len - 1
+        val = src[i]
+        if not na(val)
+            array.push(values_in_window, val)
+    int n = array.size(values_in_window)
+    float result = na
+    if n > 0
+        array.sort(values_in_window) // Sort the array
+        if n % 2 == 1 // Odd number of elements
+            result := array.get(values_in_window, n / 2)
+        else // Even number of elements
+            float mid1 = array.get(values_in_window, n / 2 - 1)
+            float mid2 = array.get(values_in_window, n / 2)
+            result := (mid1 + mid2) / 2.0
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(14, "Period", minval=1)
+
+// Calculation
+median_value = median(i_source, i_length)
+
+// Plot
+plot(median_value, "Median", color=color.new(color.orange, 0, color=color.yellow, linewidth=2), linewidth=2)

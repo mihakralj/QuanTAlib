@@ -8,16 +8,12 @@ namespace QuanTAlib;
 /// MACD: Moving Average Convergence Divergence
 /// </summary>
 /// <remarks>
-/// MACD is a trend-following momentum indicator that shows the relationship between
-/// two moving averages of a security's price.
+/// Trend-following momentum indicator showing EMA convergence/divergence.
+/// Provides three outputs: MACD Line, Signal Line, and Histogram.
 ///
-/// Calculation:
-/// MACD Line = Fast EMA - Slow EMA
-/// Signal Line = EMA(MACD Line)
-/// Histogram = MACD Line - Signal Line
-///
-/// Standard parameters: 12, 26, 9
+/// Calculation: <c>MACD = FastEMA - SlowEMA</c>, <c>Signal = EMA(MACD)</c>, <c>Histogram = MACD - Signal</c>.
 /// </remarks>
+/// <seealso href="Macd.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Macd : ITValuePublisher, IDisposable
 {

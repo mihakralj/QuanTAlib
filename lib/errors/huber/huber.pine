@@ -1,0 +1,47 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Huber Loss (HUBER)", "HUBER")
+
+//@function Calculates Huber Loss between two sources using SMA for averaging
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/huber.md
+//@param source1 First series to compare
+//@param source2 Second series to compare
+//@param period Lookback period for error averaging
+//@param delta Threshold that determines switch between MSE and MAE behavior
+//@returns Huber loss value averaged over the specified period using SMA
+huber(series float source1, series float source2, simple int period, simple float delta = 1.345) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = math.min(math.max(1, period), 4000)
+    error = source1 - source2
+    huber_error = math.abs(error) <= delta ? 0.5 * math.pow(error, 2) : delta * math.abs(error) - 0.5 * math.pow(delta, 2)
+    var float[] buffer = array.new_float(p, na)
+    var int head = 0
+    var float sum = 0.0
+    var int valid_count = 0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum := sum - oldest
+        valid_count := valid_count - 1
+    if not na(huber_error)
+        sum := sum + huber_error
+        valid_count := valid_count + 1
+    array.set(buffer, head, huber_error)
+    head := (head + 1) % p
+    valid_count > 0 ? sum / valid_count : huber_error
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source")
+i_period = input.int(100, "Period", minval=1)
+i_delta = input.float(1.345, "Delta", minval=0.1)
+i_source2 = ta.ema(i_source1, i_period) 
+
+// Calculation
+error = huber(i_source1, i_source2, i_period, i_delta)
+
+// Plot
+plot(error, "Huber", color=color.new(color.red, 60), linewidth=2, style = plot.style_area)
+plot(i_source2, "EMA", color=color.yellow, linewidth=1, style = plot.style_line, force_overlay = true)

@@ -4,9 +4,15 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// SuperTrend Indicator
-/// A trend-following indicator that uses ATR to define upper and lower bands.
+/// SUPER: SuperTrend Indicator
 /// </summary>
+/// <remarks>
+/// ATR-based trend follower that switches between upper/lower bands on price breakouts.
+/// Returns current SuperTrend level plus bullish/bearish state.
+///
+/// Calculation: <c>Bands = HL2 ± Multiplier × ATR</c>; trend flips when price crosses opposite band.
+/// </remarks>
+/// <seealso href="Super.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Super : ITValuePublisher
 {

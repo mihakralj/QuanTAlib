@@ -1,0 +1,178 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Jurik Adaptive Envelope Bands", "JBANDS", overlay=true)
+
+//@function Jurik Adaptive Envelope Bands - Upper/Lower bands from JMA's adaptive envelope tracking
+//@doc     Bands snap to new extremes instantly but decay smoothly toward price,
+//@doc     creating volatility-responsive channels with JMA's signature smoothness.
+//@param   source Series to calculate JBANDS from
+//@param   period Number of bars used in the calculation (>= 1)
+//@param   phase  Phase shift (-100 to 100). Negative = smoother, positive = more leading
+//@returns Array of [middle (JMA), upper, lower]
+jbands(series float source, simple int period, simple int phase = 0) =>
+    // ---- Precomputed length/phase parameters (constant per series) ----
+    simple float _PHASE      = phase < -100 ? 0.5 : phase > 100 ? 2.5 : (phase * 0.01) + 1.5
+    simple float _LEN0       = period < 1.0000000002 ? 1e-10 : (period - 1.0) / 2.0
+    simple float _LOG_PARAM  = math.max(math.log(math.sqrt(_LEN0)) / math.log(2.0) + 2.0, 0.0)
+    simple float _SQRT_PARAM = math.sqrt(_LEN0) * _LOG_PARAM
+    simple float _LEN_ADJ    = _LEN0 * 0.9
+    simple float _LEN_DIV    = _LEN_ADJ / (_LEN_ADJ + 2.0)
+    simple float _SQRT_DIV   = _SQRT_PARAM / (_SQRT_PARAM + 1.0)
+    simple float _P_EXP      = math.max(_LOG_PARAM - 2.0, 0.5)
+
+    // ---- Internal state (persists across bars) ----
+    var float  upperBand   = na
+    var float  lowerBand   = na
+    var float  lastC0      = na
+    var float  lastC8      = na
+    var float  lastA8      = na
+    var float  lastJma     = na
+    var int    bars        = 0
+
+    // 10-bar local deviation window
+    var float  cycleDelta  = 0.0
+    var int    volIndex    = 0
+    var int    volCount    = 0
+    var array<float> volWindow  = array.new_float(10, 0.0)
+
+    // 128-bar volatility distribution
+    var int    distIndex   = 0
+    var int    distCount   = 0
+    var array<float> distWindow = array.new_float(128, 0.0)
+    var array<float> sorted     = array.new_float(0)
+
+    float current_jma   = na
+    float current_upper = na
+    float current_lower = na
+
+    if not na(source)
+        bars += 1
+
+        // ---- First bar: initialize anchors and filter state ----
+        if bars == 1
+            upperBand := source
+            lowerBand := source
+            lastC0    := source
+            lastC8    := 0.0
+            lastA8    := 0.0
+            lastJma   := source
+            current_jma   := source
+            current_upper := source
+            current_lower := source
+        else
+            // 1) Local deviation vs. UpperBand / LowerBand
+            float diffA    = source - upperBand
+            float diffB    = source - lowerBand
+            float absA     = math.abs(diffA)
+            float absB     = math.abs(diffB)
+            float absValue = absA > absB ? absA : absB
+            float dLocal   = absValue + 1e-10
+
+            // 2) 10-bar SMA of local deviation -> highD
+            float oldVol = array.get(volWindow, volIndex)
+            cycleDelta  += dLocal - oldVol
+            array.set(volWindow, volIndex, dLocal)
+            volIndex += 1
+            if volIndex >= 10
+                volIndex := 0
+            if volCount < 10
+                volCount += 1
+            float highD = volCount > 0 ? cycleDelta / (volCount < 10 ? volCount : 10) : dLocal
+
+            // 3) 128-bar volatility distribution + trimmed mean
+            array.set(distWindow, distIndex, highD)
+            distIndex += 1
+            if distIndex >= 128
+                distIndex := 0
+            if distCount < 128
+                distCount += 1
+
+            float dRef = highD
+            if distCount >= 16
+                int count = distCount
+                array.clear(sorted)
+                for i = 0 to count - 1
+                    int idx = distIndex - 1 - i
+                    if idx < 0
+                        idx += 128
+                    array.push(sorted, array.get(distWindow, idx))
+                array.sort(sorted)
+
+                int idxLo = 0
+                int idxHi = 0
+                if count >= 128
+                    idxLo := 32
+                    idxHi := 96
+                else
+                    int slice = int(math.max(5.0, math.round(count * 0.5)))
+                    int drop  = (count - slice) / 2
+                    idxLo := drop
+                    idxHi := drop + slice - 1
+
+                if idxLo < 0
+                    idxLo := 0
+                if idxHi >= count
+                    idxHi := count - 1
+
+                float sum = 0.0
+                for i = idxLo to idxHi
+                    sum += array.get(sorted, i)
+                dRef := sum / float(idxHi - idxLo + 1)
+
+            if dRef <= 0.0
+                dRef := dLocal
+
+            // 4) Jurik dynamic exponent
+            float ratio = absValue / dRef
+            if ratio < 0.0
+                ratio := 0.0
+            float d = math.pow(ratio, _P_EXP)
+            d := math.min(math.max(d, 1.0), _LOG_PARAM)
+
+            // 5) Update UpperBand / LowerBand via sqrtDivider ^ sqrt(d)
+            float adapt = math.pow(_SQRT_DIV, math.sqrt(d))
+            if source > upperBand
+                upperBand := source
+            else
+                upperBand := source - (source - upperBand) * adapt
+            if source < lowerBand
+                lowerBand := source
+            else
+                lowerBand := source - (source - lowerBand) * adapt
+
+            // 6) 2-pole IIR core (C0/C8/A8) with Jurik alpha for middle band (JMA)
+            float prevJma = na(lastJma) ? source : lastJma
+            float alpha  = math.pow(_LEN_DIV, d)
+            float alpha2 = alpha * alpha
+            float c0 = (1.0 - alpha) * source + alpha * lastC0
+            float c8 = (source - c0) * (1.0 - _LEN_DIV) + _LEN_DIV * lastC8
+            float a8 = (_PHASE * c8 + c0 - prevJma) * (alpha * -2.0 + alpha2 + 1.0) + alpha2 * lastA8
+            float jmaVal = prevJma + a8
+
+            lastC0  := c0
+            lastC8  := c8
+            lastA8  := a8
+            lastJma := jmaVal
+
+            current_jma   := jmaVal
+            current_upper := upperBand
+            current_lower := lowerBand
+
+    [current_jma, current_upper, current_lower]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(10, "Period", minval=1, tooltip="Number of bars used in the calculation")
+i_phase  = input.int(0, "Phase", tooltip="Phase shift (-100 to 100). Negative = smoother, positive = more leading", minval=-100, maxval=100, step=10)
+i_source = input.source(close, "Source")
+
+// Calculation
+[jma, upper, lower] = jbands(i_source, i_period, i_phase)
+
+// Plot
+p_upper = plot(upper, "Upper Band", color=color.new(color.red, 50), linewidth=1)
+p_lower = plot(lower, "Lower Band", color=color.new(color.green, 50), linewidth=1)
+plot(jma, "Middle (JMA)", color=color.yellow, linewidth=2)
+fill(p_upper, p_lower, color=color.new(color.blue, 90), title="Band Fill")

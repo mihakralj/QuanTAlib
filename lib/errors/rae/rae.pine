@@ -1,0 +1,75 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Relative Absolute Error (RAE)", "RAE")
+
+//@function Calculates Relative Absolute Error between two sources using SMA for averaging
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/rae.md
+//@param source1 First series to compare (actual)
+//@param source2 Second series to compare (predicted)
+//@param period Lookback period for error averaging
+//@returns RAE value averaged over the specified period using SMA
+rae(series float source1, series float source2, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = math.min(math.max(1, period), 4000)
+    var float sum_source1 = 0.0
+    var float[] buffer_source1 = array.new_float(p, na)
+    var int head_source1 = 0
+    var int valid_count_source1 = 0
+    float oldest_source1 = array.get(buffer_source1, head_source1)
+    if not na(oldest_source1)
+        sum_source1 := sum_source1 - oldest_source1
+        valid_count_source1 := valid_count_source1 - 1
+    if not na(source1)
+        sum_source1 := sum_source1 + source1
+        valid_count_source1 := valid_count_source1 + 1
+    array.set(buffer_source1, head_source1, source1)
+    head_source1 := (head_source1 + 1) % p
+    float mean_source1 = valid_count_source1 > 0 ? sum_source1 / valid_count_source1 : source1
+    float abs_error = math.abs(source1 - source2)
+    float abs_baseline_error = math.abs(source1 - mean_source1)
+    var float sum_abs_error = 0.0
+    var float[] buffer_abs_error = array.new_float(p, na)
+    var int head_abs_error = 0
+    var int valid_count_abs_error = 0
+    float oldest_abs_error = array.get(buffer_abs_error, head_abs_error)
+    if not na(oldest_abs_error)
+        sum_abs_error := sum_abs_error - oldest_abs_error
+        valid_count_abs_error := valid_count_abs_error - 1
+    if not na(abs_error)
+        sum_abs_error := sum_abs_error + abs_error
+        valid_count_abs_error := valid_count_abs_error + 1
+    array.set(buffer_abs_error, head_abs_error, abs_error)
+    head_abs_error := (head_abs_error + 1) % p
+    var float sum_baseline_error = 0.0
+    var float[] buffer_baseline_error = array.new_float(p, na)
+    var int head_baseline_error = 0
+    var int valid_count_baseline_error = 0
+    float oldest_baseline_error = array.get(buffer_baseline_error, head_baseline_error)
+    if not na(oldest_baseline_error)
+        sum_baseline_error := sum_baseline_error - oldest_baseline_error
+        valid_count_baseline_error := valid_count_baseline_error - 1
+    if not na(abs_baseline_error)
+        sum_baseline_error := sum_baseline_error + abs_baseline_error
+        valid_count_baseline_error := valid_count_baseline_error + 1
+    array.set(buffer_baseline_error, head_baseline_error, abs_baseline_error)
+    head_baseline_error := (head_baseline_error + 1) % p
+    float total_abs_error = valid_count_abs_error > 0 ? sum_abs_error : abs_error
+    float total_baseline_error = valid_count_baseline_error > 0 ? sum_baseline_error : abs_baseline_error
+    total_baseline_error != 0 ? total_abs_error / total_baseline_error : 1.0
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source")
+i_period = input.int(100, "Period", minval=1)
+i_source2 = ta.ema(i_source1, i_period)
+
+// Calculation
+error = rae(i_source1, i_source2, i_period)
+
+// Plot
+plot(error, "RAE", color=color.new(color.red, 60), linewidth=2, style = plot.style_area)
+plot(i_source2, "EMA", color=color.yellow, linewidth=1, style = plot.style_line, force_overlay = true)

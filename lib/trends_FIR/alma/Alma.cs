@@ -8,14 +8,12 @@ namespace QuanTAlib;
 /// ALMA: Arnaud Legoux Moving Average
 /// </summary>
 /// <remarks>
-/// ALMA uses a Gaussian distribution to determine weights for the moving average.
-/// Definition:
-/// m = offset * (period - 1)
-/// s = period / sigma
-/// W_i = exp( - (i - m)^2 / (2 * s^2) )
+/// Gaussian-weighted MA with adjustable offset and sigma for responsiveness control.
+/// Higher offset (0-1) = more responsive; higher sigma = sharper weights.
 ///
-/// The final ALMA is the weighted sum of the price window divided by the sum of weights.
+/// Calculation: <c>W_i = exp(-(i - m)² / (2s²))</c> where <c>m = offset × (period-1)</c>.
 /// </remarks>
+/// <seealso href="Alma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Alma : AbstractBase
 {

@@ -7,16 +7,12 @@ namespace QuanTAlib;
 /// ADXR: Average Directional Movement Rating
 /// </summary>
 /// <remarks>
-/// ADXR quantifies the change in momentum of the ADX. It is calculated by averaging
-/// the current ADX value and the ADX value from 'Period' bars ago.
+/// ADX momentum measure averaging current ADX with ADX from N periods ago (Wilder).
+/// Smooths ADX to reduce noise and confirm sustained trend strength changes.
 ///
-/// Calculation:
-/// ADXR = (ADX + ADX[Period]) / 2
-///
-/// Sources:
-/// https://www.investopedia.com/terms/a/adxr.asp
-/// "New Concepts in Technical Trading Systems" by J. Welles Wilder
+/// Calculation: <c>ADXR = (ADX + ADX[Period]) / 2</c>.
 /// </remarks>
+/// <seealso href="Adxr.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Adxr : ITValuePublisher
 {

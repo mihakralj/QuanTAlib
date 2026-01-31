@@ -10,18 +10,12 @@ namespace QuanTAlib;
 /// WMA: Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// <para>WMA applies linear weighting to data points, giving more weight to recent values.
-/// Uses dual running sums for O(1) complexity per update.</para>
-/// <para>Calculation:
-/// WMA = (n*P_n + (n-1)*P_(n-1) + ... + 1*P_1) / (n*(n+1)/2)</para>
+/// Linear weighting giving more weight to recent values. O(1) via dual running sums.
+/// SIMD-accelerated batch processing (AVX-512/AVX2/NEON).
 ///
-/// O(1) update:
-/// S_new = S - oldest + newest
-/// W_new = W - S_old + n*newest
-///
-/// IsHot:
-/// Becomes true when the buffer is full (period samples processed).
+/// Calculation: <c>WMA = Σ(w_i × P_i) / Σ(w_i)</c> where <c>w_i = i</c>.
 /// </remarks>
+/// <seealso href="Wma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Wma : AbstractBase
 {

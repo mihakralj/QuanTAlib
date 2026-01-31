@@ -1,0 +1,55 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Awesome Oscillator (AO)", "AO", overlay=false)
+
+//@function Calculates Bill Williams' Awesome Oscillator
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/ao.md
+//@param fastLength Period for fast MA calculation
+//@param slowLength Period for slow MA calculation
+//@returns AO value measuring market momentum
+ao(simple int fastLength, simple int slowLength) =>
+    if fastLength <= 0 or slowLength <= 0
+        runtime.error("Lengths must be greater than 0")
+    if fastLength >= slowLength
+        runtime.error("Fast length must be less than slow length")
+    float mp = (high + low) / 2.0
+    var array<float> fastBuf = array.new_float(fastLength, na)
+    var array<float> slowBuf = array.new_float(slowLength, na)
+    var int fastHead = 0, var int slowHead = 0
+    var float fastSum = 0.0, var float slowSum = 0.0
+    var int fastCount = 0, var int slowCount = 0
+    float fastOldest = array.get(fastBuf, fastHead)
+    if not na(fastOldest)
+        fastSum -= fastOldest
+        fastCount -= 1
+    if not na(mp)
+        fastSum += mp
+        fastCount += 1
+    array.set(fastBuf, fastHead, mp)
+    fastHead := (fastHead + 1) % fastLength
+    float slowOldest = array.get(slowBuf, slowHead)
+    if not na(slowOldest)
+        slowSum -= slowOldest
+        slowCount -= 1
+    if not na(mp)
+        slowSum += mp
+        slowCount += 1
+    array.set(slowBuf, slowHead, mp)
+    slowHead := (slowHead + 1) % slowLength
+    float fastMA = fastCount > 0 ? fastSum / fastCount : na
+    float slowMA = slowCount > 0 ? slowSum / slowCount : na
+    fastMA - slowMA
+
+// ---------- Main loop ----------
+
+// Inputs
+i_fastLength = input.int(5, "Fast Length", minval=1)
+i_slowLength = input.int(34, "Slow Length", minval=1)
+
+// Calculation
+ao_value = ao(i_fastLength, i_slowLength)
+ao_prev = ao_value[1]
+
+// Plot
+plot(ao_value, "AO", ao_value >= ao_prev ? color.green : color.red, linewidth=2)

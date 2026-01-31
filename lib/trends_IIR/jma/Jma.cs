@@ -4,13 +4,16 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Jurik Moving Average (JMA):
-/// - 10-bar SMA of local deviation
-/// - 128-sample volatility distribution
-/// - middle-65 trimmed mean as volatility reference
-/// - Jurik dynamic exponent and 2-pole IIR core
-/// - power parameter kept for API compatibility; ignored (matches Pine reference)
+/// JMA: Jurik Moving Average
 /// </summary>
+/// <remarks>
+/// Proprietary adaptive filter with minimal lag and overshoot using volatility-based smoothing.
+/// Combines 2-pole IIR core with trimmed-mean volatility estimation.
+///
+/// Key features: phase control [-100,100], adaptive band tracking, dynamic exponent.
+/// </remarks>
+/// <seealso href="Jma.md">Detailed documentation</seealso>
+/// <seealso href="jma.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Jma : AbstractBase
 {

@@ -1,0 +1,37 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Median Absolute Percentage Error", "MdAPE", overlay=false, format=format.percent)
+
+//@function Calculates Median Absolute Percentage Error
+//@doc     Median of absolute percentage errors, robust to outliers.
+//@doc     Scale-independent (expressed as percentage), handles zero actual with epsilon.
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for median calculation
+//@returns MdAPE value as percentage
+mdape(series float actual, series float predicted, simple int length) =>
+    float epsilon = 1e-10
+
+    // Compute absolute percentage error for current bar
+    float absActual = math.abs(nz(actual, 1.0))
+    float absError = math.abs(nz(actual, 0.0) - nz(predicted, 0.0))
+    float pctError = absActual > epsilon ? (absError / absActual) * 100.0 : 0.0
+
+    // Use ta.median for rolling median of percentage errors
+    float result = ta.median(pctError, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+mdape_value = mdape(i_actual, i_predicted, i_length)
+
+// Plot
+plot(mdape_value, "MdAPE", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

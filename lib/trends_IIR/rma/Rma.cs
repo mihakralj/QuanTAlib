@@ -3,19 +3,16 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// RMA: Running Moving Average (also known as Wilder's Moving Average or SMMA)
+/// RMA: Running Moving Average (Wilder's Moving Average)
 /// </summary>
 /// <remarks>
-/// RMA is an Exponential Moving Average (EMA) with a different smoothing factor.
-/// While EMA uses alpha = 2 / (period + 1), RMA uses alpha = 1 / period.
+/// EMA variant using α=1/period for smoother, slower response than standard EMA.
+/// Commonly used in ATR and RSI calculations per Wilder's original methodology.
 ///
-/// Calculation:
-/// alpha = 1 / period
-/// RMA_new = RMA_old + alpha * (newest - RMA_old)
-///
-/// This implementation wraps the EMA implementation to ensure identical behavior and performance,
-/// utilizing the same O(1) update complexity and zero-allocation architecture.
+/// Calculation: <c>RMA_t = α×Price + (1-α)×RMA_{t-1}</c>, where <c>α = 1/period</c>.
 /// </remarks>
+/// <seealso href="Rma.md">Detailed documentation</seealso>
+/// <seealso href="rma.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Rma : AbstractBase
 {

@@ -5,17 +5,14 @@ namespace QuanTAlib;
 
 /// <summary>
 /// MGDI: McGinley Dynamic Indicator
-/// A moving average that adjusts for shifts in market speed, designed to track the market better than existing indicators.
-/// It looks like a moving average line, yet it is a smoothing mechanism for prices that turns out to track far better than any moving average.
-/// It minimizes price separation and price hugs to avoid whipsaws.
 /// </summary>
 /// <remarks>
-/// Sources:
-/// https://www.investopedia.com/terms/m/mcginley-dynamic.asp
-/// https://dotnet.stockindicators.dev/indicators/Dynamic/
-/// Formula: MGDI = MGDI[1] + (Price - MGDI[1]) / (k * N * (Price/MGDI[1])^4)
-/// Default k = 0.6
+/// Self-adjusting MA that tracks price better by adapting to market speed shifts.
+/// Uses price-to-MA ratio raised to 4th power for speed adjustment.
+///
+/// Calculation: <c>MGDI = MGDI_{t-1} + (P - MGDI_{t-1}) / (k×N×(P/MGDI)^4)</c>.
 /// </remarks>
+/// <seealso href="Mgdi.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Mgdi : AbstractBase
 {

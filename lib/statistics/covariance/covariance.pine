@@ -1,0 +1,56 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Covariance (COVARIANCE)", "COVARIANCE", overlay=false)
+
+//@function Calculates covariance using single pass with circular buffer
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/covariance.md
+//@param src1 series float First series to analyze
+//@param src2 series float Second series to analyze
+//@param len simple int Lookback period for calculation
+//@returns float Covariance between src1 and src2
+//@optimized for performance using circular buffer
+covariance(series float src1, series float src2, simple int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, len)
+    var array<float> buffer1 = array.new_float(p, na)
+    var array<float> buffer2 = array.new_float(p, na)
+    var int head = 0, var int count = 0
+    var float sum1 = 0.0, var float sum2 = 0.0
+    var float sumProd = 0.0
+    float oldest1 = array.get(buffer1, head)
+    float oldest2 = array.get(buffer2, head)
+    if not na(oldest1) and not na(oldest2)
+        sum1 -= oldest1
+        sum2 -= oldest2
+        sumProd -= oldest1 * oldest2
+        count -= 1
+    if not na(src1) and not na(src2)
+        sum1 += src1
+        sum2 += src2
+        sumProd += src1 * src2
+        count += 1
+        array.set(buffer1, head, src1)
+        array.set(buffer2, head, src2)
+    else
+        array.set(buffer1, head, na)
+        array.set(buffer2, head, na)
+    head := (head + 1) % p
+    count > 1 ? (sumProd / count) - (sum1 / count) * (sum2 / count) : na
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source 1")
+i_source2_ticker = input.symbol("SPY", "Source 2 Ticker (e.g., SPY, AAPL)")
+i_period = input.int(20, "Period", minval=2)
+
+i_source2 = request.security(i_source2_ticker, timeframe.period, close, lookahead=barmerge.lookahead_off)
+
+// Calculation
+variance_value = covariance(i_source1, i_source2, i_period)
+
+// Plot
+plot(variance_value, "Covariance", color=color.yellow, linewidth=2)

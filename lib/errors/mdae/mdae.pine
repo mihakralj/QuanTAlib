@@ -1,0 +1,33 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Median Absolute Error", "MdAE", overlay=false)
+
+//@function Calculates Median Absolute Error
+//@doc     Median of absolute errors, robust to outliers (50% breakdown point).
+//@doc     Same units as original data, less sensitive to extreme errors than MAE.
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for median calculation
+//@returns MdAE value
+mdae(series float actual, series float predicted, simple int length) =>
+    // Compute absolute error for current bar
+    float absError = math.abs(nz(actual, 0.0) - nz(predicted, 0.0))
+
+    // Use ta.median for rolling median of absolute errors
+    float result = ta.median(absError, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+mdae_value = mdae(i_actual, i_predicted, i_length)
+
+// Plot
+plot(mdae_value, "MdAE", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

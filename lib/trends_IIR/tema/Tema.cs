@@ -7,22 +7,13 @@ namespace QuanTAlib;
 /// TEMA: Triple Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// TEMA uses triple smoothing to reduce lag even further than DEMA.
+/// Uses triple smoothing to further reduce lag beyond DEMA.
+/// Excellent for fast trend identification with minimal overshoot.
 ///
-/// Calculation:
-/// EMA1 = EMA(input)
-/// EMA2 = EMA(EMA1)
-/// EMA3 = EMA(EMA2)
-/// TEMA = 3 * EMA1 - 3 * EMA2 + EMA3
-///
-/// O(1) update:
-/// Uses three EMA instances, each with O(1) update complexity.
-///
-/// IsHot:
-/// Becomes true when the TEMA step response converges to within 5% error.
-/// This happens when the third EMA's error factor drops below ~9% (approx 2.43/alpha steps),
-/// which is faster than the standard EMA convergence (3/alpha steps).
+/// Calculation: <c>TEMA = 3×EMA1 - 3×EMA2 + EMA3</c> (cascaded EMAs).
 /// </remarks>
+/// <seealso href="Tema.md">Detailed documentation</seealso>
+/// <seealso href="tema.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Tema : AbstractBase
 {

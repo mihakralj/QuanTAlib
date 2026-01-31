@@ -1,0 +1,75 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("R² Coefficient of Determination (RSQUARED)", "RSQUARED")
+
+//@function Calculates the R-squared (Coefficient of Determination) between two sources
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/errors/rsquared.md
+//@param source1 First series to compare (actual)
+//@param source2 Second series to compare (predicted)
+//@param period Lookback period for averaging
+//@returns R-squared value averaging over the specified period
+rsquared(series float source1, series float source2, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    int p = math.min(math.max(1, period), 4000)
+    var float sum_source1 = 0.0
+    var float[] buffer_source1 = array.new_float(p, na)
+    var int head_source1 = 0
+    var int valid_count_source1 = 0
+    float oldest_source1 = array.get(buffer_source1, head_source1)
+    if not na(oldest_source1)
+        sum_source1 := sum_source1 - oldest_source1
+        valid_count_source1 := valid_count_source1 - 1
+    if not na(source1)
+        sum_source1 := sum_source1 + source1
+        valid_count_source1 := valid_count_source1 + 1
+    array.set(buffer_source1, head_source1, source1)
+    head_source1 := (head_source1 + 1) % p
+    float mean_source1 = valid_count_source1 > 0 ? sum_source1 / valid_count_source1 : source1
+    float squared_residual = math.pow(source1 - source2, 2)
+    float total_ss = math.pow(source1 - mean_source1, 2)
+    var float sum_squared_residual = 0.0
+    var float[] buffer_squared_residual = array.new_float(p, na)
+    var int head_squared_residual = 0
+    var int valid_count_squared_residual = 0
+    float oldest_squared_residual = array.get(buffer_squared_residual, head_squared_residual)
+    if not na(oldest_squared_residual)
+        sum_squared_residual := sum_squared_residual - oldest_squared_residual
+        valid_count_squared_residual := valid_count_squared_residual - 1
+    if not na(squared_residual)
+        sum_squared_residual := sum_squared_residual + squared_residual
+        valid_count_squared_residual := valid_count_squared_residual + 1
+    array.set(buffer_squared_residual, head_squared_residual, squared_residual)
+    head_squared_residual := (head_squared_residual + 1) % p
+    var float sum_total_ss = 0.0
+    var float[] buffer_total_ss = array.new_float(p, na)
+    var int head_total_ss = 0
+    var int valid_count_total_ss = 0
+    float oldest_total_ss = array.get(buffer_total_ss, head_total_ss)
+    if not na(oldest_total_ss)
+        sum_total_ss := sum_total_ss - oldest_total_ss
+        valid_count_total_ss := valid_count_total_ss - 1
+    if not na(total_ss)
+        sum_total_ss := sum_total_ss + total_ss
+        valid_count_total_ss := valid_count_total_ss + 1
+    array.set(buffer_total_ss, head_total_ss, total_ss)
+    head_total_ss := (head_total_ss + 1) % p
+    float rss = valid_count_squared_residual > 0 ? sum_squared_residual : squared_residual
+    float tss = valid_count_total_ss > 0 ? sum_total_ss : total_ss
+    tss != 0 ? 1 - (rss / tss) : 1.0
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source1 = input.source(close, "Source")
+i_period = input.int(100, "Period", minval=1)
+i_source2 = ta.ema(i_source1, i_period)
+
+// Calculation
+score = rsquared(i_source1, i_source2, i_period)
+
+// Plot
+plot(score, "R²", color.new(color.red, 60, color=color.yellow, linewidth=2), linewidth = 2, style = plot.style_area)
+plot(i_source2, "EMA", color.new(color.yellow, 0, linewidth=2), linewidth = 1, style = plot.style_line, force_overlay = true)

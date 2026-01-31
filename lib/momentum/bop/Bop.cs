@@ -8,22 +8,12 @@ namespace QuanTAlib;
 /// BOP: Balance of Power
 /// </summary>
 /// <remarks>
-/// BOP measures the strength of buyers vs sellers by comparing the close price to the open price,
-/// relative to the high-low range.
+/// Buyer/seller strength oscillator: (Close-Open)/(High-Low).
+/// Ranges [-1,1]: positive = buyers dominate, negative = sellers dominate.
 ///
-/// Formula:
-/// BOP = (Close - Open) / (High - Low)
-///
-/// Key characteristics:
-/// - Oscillates between -1 and 1
-/// - 1 indicates buyers dominated (Close = High, Open = Low)
-/// - -1 indicates sellers dominated (Close = Low, Open = High)
-/// - 0 indicates balance (Close = Open)
-/// - Often smoothed with an SMA (though this implementation provides the raw value)
-///
-/// Sources:
-/// https://www.investopedia.com/terms/b/bop.asp
+/// Calculation: <c>BOP = (Close - Open) / (High - Low)</c>.
 /// </remarks>
+/// <seealso href="Bop.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Bop : ITValuePublisher
 {

@@ -7,22 +7,13 @@ namespace QuanTAlib;
 /// VIDYA: Variable Index Dynamic Average
 /// </summary>
 /// <remarks>
-/// VIDYA is an adaptive moving average developed by Tushar Chande.
-/// It adjusts the smoothing constant of an Exponential Moving Average (EMA) based on a volatility index.
-/// The volatility index used is the Chande Momentum Oscillator (CMO).
+/// Tushar Chande's adaptive MA using CMO as volatility index to modulate smoothing.
+/// Flat in choppy markets, responsive in trending conditions.
 ///
-/// Formula:
-/// alpha = 2 / (period + 1)
-/// CMO = (Sum(Up) - Sum(Down)) / (Sum(Up) + Sum(Down))
-/// VI = Abs(CMO)
-/// DynamicAlpha = alpha * VI
-/// VIDYA = DynamicAlpha * Price + (1 - DynamicAlpha) * VIDYA_prev
-///
-/// Key characteristics:
-/// - Adapts to market volatility
-/// - Flattens in ranging markets (low volatility)
-/// - Reacts quickly in trending markets (high volatility)
+/// Calculation: <c>VI = |CMO|; α' = α×VI; VIDYA = α'×P + (1-α')×VIDYA_{t-1}</c>.
 /// </remarks>
+/// <seealso href="Vidya.md">Detailed documentation</seealso>
+/// <seealso href="vidya.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Vidya : AbstractBase
 {

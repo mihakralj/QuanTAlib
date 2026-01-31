@@ -8,25 +8,12 @@ namespace QuanTAlib;
 /// AMAT: Archer Moving Averages Trends
 /// </summary>
 /// <remarks>
-/// AMAT is a trend identification system that uses multiple EMAs to identify
-/// trend direction and strength. Unlike simple crossovers, AMAT requires alignment
-/// of both fast and slow moving averages in the same direction.
+/// Trend system requiring fast/slow EMA alignment in same direction for signals.
+/// Returns +1 (bullish), -1 (bearish), or 0 (neutral) with strength percentage.
 ///
-/// Calculation:
-/// 1. Calculate Fast and Slow EMAs
-/// 2. Bullish (+1): Fast EMA > Slow EMA AND Fast EMA rising AND Slow EMA rising
-/// 3. Bearish (-1): Fast EMA &lt; Slow EMA AND Fast EMA falling AND Slow EMA falling
-/// 4. Neutral (0): Mixed conditions
-/// 5. Strength = |Fast EMA - Slow EMA| / Slow EMA * 100
-///
-/// Key features:
-/// - Direction alignment reduces false signals
-/// - Trend strength measurement for conviction assessment
-/// - Clear +1/-1/0 trend signals
-///
-/// Sources:
-/// Tom Joseph (2009), based on Mark Whistler (Archer) concepts
+/// Signal: <c>+1</c> when FastEMA > SlowEMA and both rising; <c>-1</c> when FastEMA &lt; SlowEMA and both falling.
 /// </remarks>
+/// <seealso href="Amat.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Amat : ITValuePublisher, IDisposable
 {

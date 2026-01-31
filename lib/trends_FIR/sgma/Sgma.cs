@@ -1,6 +1,3 @@
-// Sgma.cs - Savitzky-Golay Moving Average
-// FIR filter using polynomial fitting for smoothing with shape preservation.
-
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,29 +6,14 @@ namespace QuanTAlib;
 
 /// <summary>
 /// SGMA: Savitzky-Golay Moving Average
-/// A FIR filter that uses polynomial fitting to smooth data while preserving
-/// higher moments (peaks, valleys, and inflection points) better than simple averaging.
 /// </summary>
 /// <remarks>
-/// <b>Key characteristics</b>
-/// <list type="bullet">
-///   <item><description>Uses polynomial fitting for smoothing</description></item>
-///   <item><description>Preserves peak shapes better than standard MAs</description></item>
-///   <item><description>Period must be odd (even periods are adjusted to next odd)</description></item>
-///   <item><description>Polynomial degree (0-4) controls smoothing vs shape preservation</description></item>
-///   <item><description>O(N) complexity per bar due to window convolution</description></item>
-/// </list>
+/// Polynomial-fitting FIR filter preserving peaks and inflection points.
+/// Superior shape preservation vs standard MAs; odd period required.
 ///
-/// <b>Weight calculation</b>
-/// For polynomial degree d, weights are based on:
-/// <code>
-/// w_i = 1 - |norm_x|^d  where norm_x = (i - half_window) / half_window
-/// </code>
-///
-/// <b>Sources</b>
-///   Savitzky, A., Golay, M.J.E. (1964) - "Smoothing and Differentiation of Data by Simplified Least Squares Procedures"
-///   Analytical Chemistry 36(8): 1627-1639
+/// Calculation: <c>W_i = 1 - |norm_x|^d</c> with degree 0-4 controlling smoothing.
 /// </remarks>
+/// <seealso href="Sgma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Sgma : AbstractBase
 {

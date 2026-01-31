@@ -1,0 +1,35 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Cumulative Moving Average", "CMA", overlay=true)
+
+//@function Calculates Cumulative Moving Average (Running Average / Cumulative Mean)
+//@doc     Calculates the arithmetic mean of ALL data points seen so far.
+//@doc     Uses Welford's algorithm for numerical stability, O(1) per update.
+//@param   source Series to calculate CMA from
+//@returns CMA value - running mean of all historical values
+cma(series float source) =>
+    // Persistent state
+    var float mean = 0.0
+    var int count = 0
+
+    float val = nz(source, mean)
+    count += 1
+
+    // Welford's algorithm: M_n = M_(n-1) + alpha * (x_n - M_(n-1))
+    float alpha = 1.0 / count
+    float delta = val - mean
+    mean := mean + alpha * delta
+
+    mean
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+
+// Calculation
+cma_value = cma(i_source)
+
+// Plot
+plot(cma_value, "CMA", color=color.yellow, linewidth=2)

@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Weighted Mean Absolute Percentage Error", "WMAPE", overlay=false, format=format.percent)
+
+//@function Calculates Weighted Mean Absolute Percentage Error
+//@doc     Weights errors by actual value magnitude, industry standard for demand forecasting.
+//@doc     WMAPE = (Σ|actual - predicted| / Σ|actual|) * 100
+//@doc     More stable than MAPE for intermittent data with zero/low values.
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for calculation
+//@returns WMAPE value as percentage
+wmape(series float actual, series float predicted, simple int length) =>
+    float epsilon = 1e-10
+
+    // Compute absolute error and absolute actual for current bar
+    float absError = math.abs(nz(actual, 0.0) - nz(predicted, 0.0))
+    float absActual = math.abs(nz(actual, 0.0))
+
+    // Rolling sums
+    float sumAbsError = ta.sum(absError, length)
+    float sumAbsActual = ta.sum(absActual, length)
+
+    // WMAPE = (Σ|error| / Σ|actual|) * 100
+    float result = sumAbsActual > epsilon ? (sumAbsError / sumAbsActual) * 100.0 : 0.0
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+wmape_value = wmape(i_actual, i_predicted, i_length)
+
+// Plot
+plot(wmape_value, "WMAPE", color=color.yellow, linewidth=2)
+hline(0, "Perfect", color=color.green, linestyle=hline.style_dotted)

@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Bilateral Filter (BILATERAL)", "BILATERAL", overlay=true)
+
+//@function Calculates Bilateral Filter
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/bilateral.md
+//@param src Series to calculate Bilateral Filter from
+//@param length Number of bars used in the calculation (spatial domain)
+//@param sigma_s_ratio Ratio to determine spatial standard deviation
+//@param sigma_r_mult Multiplier for range standard deviation
+//@returns Bilateral Filter value
+//@optimized Uses edge-preserving bilateral smoothing with O(n) complexity per bar
+bilateral(series float src, simple int length, simple float sigma_s_ratio, simple float sigma_r_mult) =>
+    float sigma_s = math.max(length * sigma_s_ratio, 1e-10)
+    float sigma_r = math.max(ta.stdev(src, length) * sigma_r_mult, 1e-10)
+    float sum_weights = 0.0
+    float sum_weighted_src = 0.0
+    float center_val = nz(src[0], src[1])
+    for i = 0 to length - 1
+        float val = nz(src[i], center_val)
+        float diff_spatial = float(i)
+        float diff_range = center_val - val
+        float weight_spatial = math.exp(-(diff_spatial * diff_spatial) / (2.0 * sigma_s * sigma_s))
+        float weight_range = math.exp(-(diff_range * diff_range) / (2.0 * sigma_r * sigma_r))
+        float weight = weight_spatial * weight_range
+        sum_weights += weight
+        sum_weighted_src += weight * val
+    float result = sum_weights == 0.0 ? center_val : sum_weighted_src / sum_weights
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=2)
+i_sigma_s_ratio = input.float(0.5, "Spatial Sigma Ratio", minval=0.01, step=0.05)
+i_sigma_r_mult = input.float(1.0, "Range Sigma Multiplier", minval=0.01, step=0.1)
+i_source = input.source(close, "Source")
+
+// Calculation
+filtered_value = bilateral(i_source, i_length, i_sigma_s_ratio, i_sigma_r_mult)
+
+// Plot
+plot(filtered_value, "Bilateral", color=color.yellow, linewidth=2)

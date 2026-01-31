@@ -7,16 +7,12 @@ namespace QuanTAlib;
 /// YZVAMA: Yang-Zhang Volatility Adjusted Moving Average
 /// </summary>
 /// <remarks>
-/// YZVAMA adjusts the SMA length based on the percentile rank of short-term
-/// Yang-Zhang volatility (YZV) observed over a rolling lookback window.
+/// Adaptive MA using Yang-Zhang volatility percentile rank to adjust SMA length.
+/// Higher volatility → shorter period; uses OHLC log returns for variance.
 ///
-/// Calculation (per bar):
-/// 1) Compute Yang-Zhang daily variance proxy from OHLC (log returns).
-/// 2) Smooth variance with bias-compensated RMA for short and long periods (sqrt -> volatility).
-/// 3) Compute percentile rank of current short YZV within the lookback window.
-/// 4) Map percentile to adjusted SMA length: higher volatility -> shorter length.
-/// 5) Output SMA(source, adjusted_length) over a circular buffer.
+/// Calculation: <c>length = max - percentile×(max-min)</c>.
 /// </remarks>
+/// <seealso href="Yzvama.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Yzvama : AbstractBase
 {

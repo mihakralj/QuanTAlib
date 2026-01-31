@@ -1,0 +1,79 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Jurik Composite Fractal Behavior", "CFB", overlay=false)
+
+//@function Calculates Jurik Composite Fractal Behavior (Trend Duration Index)
+//@doc     Measures trend duration via fractal efficiency across multiple timescales.
+//@doc     Adaptive, zero-lag indicator for modulating other indicator periods.
+//@param   source Series to calculate CFB from
+//@param   maxLength Maximum lookback length (default 192, lengths 2,4,6,...,maxLength used)
+//@returns CFB value - weighted average of efficient trend lengths, minimum 1
+cfb(series float source, simple int maxLength = 192) =>
+    // Generate lengths array: 2, 4, 6, ..., maxLength
+    int numLengths = int(maxLength / 2)
+
+    // Persistent state
+    var float prevCfb = 1.0
+    var array<float> runningSums = array.new_float(numLengths, 0.0)
+
+    float currentVol = bar_index == 0 ? 0.0 : math.abs(source - source[1])
+
+    float sumWeightedLen = 0.0
+    float sumWeights = 0.0
+
+    // Update running sums and calculate ratios for each length
+    for i = 0 to numLengths - 1
+        int L = (i + 1) * 2
+
+        // Update running sum of volatility
+        float oldSum = array.get(runningSums, i)
+        float volToRemove = bar_index > L ? math.abs(source[L] - source[L + 1]) : 0.0
+        float newSum = oldSum + currentVol - volToRemove
+        array.set(runningSums, i, newSum)
+
+        // Skip if not enough bars
+        if bar_index < L
+            continue
+
+        // Skip if very small volatility
+        if newSum < 1e-12
+            continue
+
+        // Net move over L bars
+        float netMove = math.abs(source - source[L])
+        float ratio = netMove / newSum
+
+        if ratio >= 0.25
+            sumWeightedLen += float(L) * ratio
+            sumWeights += ratio
+
+    // Calculate CFB
+    float cfbVal = 1.0
+    if sumWeights > 0.25
+        cfbVal := sumWeightedLen / sumWeights
+    else
+        cfbVal := prevCfb > 1.0 ? prevCfb * 0.5 : 1.0
+
+    if cfbVal < 1.0
+        cfbVal := 1.0
+
+    cfbVal := math.round(cfbVal)
+    if cfbVal < 1.0
+        cfbVal := 1.0
+
+    prevCfb := cfbVal
+    cfbVal
+
+// ---------- Main loop ----------
+
+// Inputs
+i_maxLength = input.int(192, "Max Length", minval=4, step=2, tooltip="Maximum lookback length. Lengths 2,4,6,...,maxLength are used")
+i_source = input.source(close, "Source")
+
+// Calculation
+cfb_value = cfb(i_source, i_maxLength)
+
+// Plot
+plot(cfb_value, "CFB", color=color.yellow, linewidth=2)
+hline(1, "Min", color=color.gray, linestyle=hline.style_dotted)

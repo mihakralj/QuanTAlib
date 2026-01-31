@@ -1,0 +1,84 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Skewness (SKEW)", "SKEW", overlay=false, precision=6)
+
+//@function Calculates the skewness of a source series over a specified period.
+// Skewness is a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean.
+// This implementation calculates the population skewness (Fisher-Pearson coefficient g1).
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/skew.md
+//@param src The source series.
+//@param len The lookback period. Must be > 2.
+//@returns The skewness value.
+//@optimized Uses efficient rolling calculations for mean, variance, and the third central moment.
+skew(series float src, simple int len) =>
+    if len <= 2
+        runtime.error("Length must be greater than 2 for Skewness calculation.")
+    var float sum_m = 0.0
+    var array<float> buffer_m = array.new_float(len)
+    var int head_m = 0
+    if bar_index >= len 
+        sum_m -= array.get(buffer_m, head_m)
+    float current_src_nz = nz(src) 
+    sum_m += current_src_nz
+    array.set(buffer_m, head_m, current_src_nz) 
+    head_m := (head_m + 1) % len
+    
+    float mean_val = na
+    if bar_index >= len - 1
+        mean_val := sum_m / len
+    else 
+        mean_val := sum_m / (bar_index + 1)
+    float dev = src - mean_val
+    var float sum_v = 0.0
+    var array<float> buffer_v = array.new_float(len)
+    var int head_v = 0
+    float dev_sq_nz = nz(math.pow(dev, 2))
+    if bar_index >= len
+        sum_v -= array.get(buffer_v, head_v)
+    sum_v += dev_sq_nz
+    array.set(buffer_v, head_v, dev_sq_nz)
+    head_v := (head_v + 1) % len
+    float variance_val = na
+    if bar_index >= len - 1
+        variance_val := sum_v / len
+    else
+        variance_val := sum_v / (bar_index + 1)
+    float stddev_val = variance_val > 1e-9 ? math.sqrt(variance_val) : 0.0 
+    var float sum_s3 = 0.0
+    var array<float> buffer_s3 = array.new_float(len)
+    var int head_s3 = 0
+    float dev_cubed_nz = nz(math.pow(dev, 3)) 
+    if bar_index >= len
+        sum_s3 -= array.get(buffer_s3, head_s3)
+    sum_s3 += dev_cubed_nz
+    array.set(buffer_s3, head_s3, dev_cubed_nz)
+    head_s3 := (head_s3 + 1) % len
+    float m3 = na 
+    if bar_index >= len - 1
+        m3 := sum_s3 / len
+    else
+        m3 := sum_s3 / (bar_index + 1)
+    float skew_val = na
+    if not na(m3) and not na(stddev_val)
+        if stddev_val > 1e-9 
+            float stddev_cubed = math.pow(stddev_val, 3)
+            if stddev_cubed != 0
+                skew_val := m3 / stddev_cubed
+            else 
+                skew_val := 0.0 
+        else 
+            skew_val := 0.0 
+    skew_val
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_length = input.int(20, "Length", minval=3) // Minval 3 for skewness
+
+// Calculation
+skewValue = skew(i_source, i_length)
+
+// Plot
+plot(skewValue, "Skewness", color=color.yellow, linewidth=2)

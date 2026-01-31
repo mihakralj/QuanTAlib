@@ -1,6 +1,3 @@
-// Hanma.cs - Hanning Moving Average
-// Finite Impulse Response (FIR) filter using Hanning window weighting.
-
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,28 +6,14 @@ namespace QuanTAlib;
 
 /// <summary>
 /// HANMA: Hanning Moving Average
-/// A weighted moving average using Hanning (Hann) window coefficients, providing
-/// excellent spectral characteristics with smooth transitions at window edges.
 /// </summary>
 /// <remarks>
-/// <b>Key characteristics</b>
-/// <list type="bullet">
-///   <item><description>Hanning window: w[i] = 0.5 × (1 - cos(2πi/(period-1)))</description></item>
-///   <item><description>Raised-cosine window that reaches zero at both endpoints</description></item>
-///   <item><description>First side lobe is approximately -32 dB down from main lobe</description></item>
-///   <item><description>Also known as Hann window (after Julius von Hann)</description></item>
-/// </list>
+/// Window-based MA using Hanning (Hann) raised-cosine coefficients.
+/// Zero at endpoints for smooth spectral transition; -32 dB first side lobe.
 ///
-/// <b>Calculation</b>
-/// <code>
-/// w[i] = 0.5 × (1 - cos(2π × i / (period - 1)))
-/// HANMA = Σ(price[i] × w[i]) / Σ(w[i])
-/// </code>
-///
-/// <b>Sources</b>
-///   Julius von Hann - Austrian meteorologist
-///   Blackman, Tukey - "The Measurement of Power Spectra" (1958)
+/// Calculation: <c>W_i = 0.5×(1 - cos(2πi/(n-1)))</c>.
 /// </remarks>
+/// <seealso href="Hanma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Hanma : AbstractBase
 {

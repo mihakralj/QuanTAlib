@@ -7,24 +7,11 @@ namespace QuanTAlib;
 /// PWMA: Parabolic Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// PWMA applies parabolic weighting to data points, giving significantly more weight to recent values.
-/// Uses triple running sums for O(1) complexity per update.
+/// Quadratic weighting (w[i]=i²) emphasizing recent values via O(1) triple running sums.
 ///
-/// Weights: w(i) = i^2
-///
-/// Calculation:
-/// PWMA = Sum(i^2 * P_i) / Sum(i^2)
-///
-/// O(1) update logic:
-/// S1_new = S1_old - oldest + newest
-/// S2_new = S2_old - S1_old + n * newest
-/// S3_new = S3_old - 2*S2_old + S1_old + n^2 * newest
-///
-/// Where:
-/// S1 is simple sum
-/// S2 is linear weighted sum
-/// S3 is parabolic weighted sum
+/// Calculation: <c>PWMA = Σ(i²×P_i) / Σ(i²)</c> with efficient incremental updates.
 /// </remarks>
+/// <seealso href="Pwma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Pwma : AbstractBase
 {

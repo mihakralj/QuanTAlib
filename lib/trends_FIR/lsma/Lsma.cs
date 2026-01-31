@@ -4,30 +4,15 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// LSMA: Least Squares Moving Average
+/// LSMA: Least Squares Moving Average (Linear Regression)
 /// </summary>
 /// <remarks>
-/// LSMA calculates the linear regression line for the last n values and returns the value at the current position (or offset).
-/// Uses a RingBuffer for storage and O(1) updates for regression sums.
+/// Linear regression endpoint with O(1) updates using running sums.
+/// Projects trend line value at current bar (or offset position).
 ///
-/// Calculation:
-/// Uses linear regression y = mx + b where x=0 is the current bar and x increases into the past.
-/// m = (n * sum_xy - sum_x * sum_y) / denominator
-/// b = (sum_y - m * sum_x) / n
-/// LSMA = b - m * offset
-///
-/// O(1) update:
-/// sum_y_new = sum_y_old - oldest + newest
-/// sum_xy_new = sum_xy_old + sum_y_prev - n * oldest
-///
-/// IsHot:
-/// Becomes true when the buffer is full (period samples processed).
-///
-/// Disposal:
-/// When constructed with an ITValuePublisher source, Lsma subscribes to the source's Pub event.
-/// Call Dispose() to unsubscribe and prevent memory leaks, especially in long-running applications
-/// or when creating many short-lived indicator instances.
+/// Calculation: <c>LSMA = b - m × offset</c> where <c>m = (n×Σxy - Σx×Σy) / denom</c>.
 /// </remarks>
+/// <seealso href="Lsma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Lsma : AbstractBase
 {

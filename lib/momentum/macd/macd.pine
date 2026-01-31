@@ -1,0 +1,75 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Moving Average Convergence Divergence (MACD)", "MACD", overlay=false)
+
+//@function Calculates MACD with fast and slow EMAs and signal line
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/macd.md
+//@param src Source series to calculate MACD from
+//@param fast_length Period for fast EMA
+//@param slow_length Period for slow EMA
+//@param signal_length Period for signal line EMA
+//@returns Tuple [macd, signal, histogram] values
+//@optimized for performance and dirty data with embedded EMA calculations
+macd(series float src, simple int fast_length, simple int slow_length, simple int signal_length) =>
+    if fast_length <= 0 or slow_length <= 0 or signal_length <= 0
+        runtime.error("All periods must be greater than 0")
+    if fast_length >= slow_length
+        runtime.error("Fast length must be less than slow length")
+    float alpha_fast = 2.0 / (fast_length + 1)
+    float alpha_slow = 2.0 / (slow_length + 1)
+    float alpha_signal = 2.0 / (signal_length + 1)
+    float beta_fast = 1.0 - alpha_fast
+    float beta_slow = 1.0 - alpha_slow
+    float beta_signal = 1.0 - alpha_signal
+    var bool warmup = true
+    var float e_fast = 1.0
+    var float e_slow = 1.0
+    var float e_signal = 1.0
+    var float ema_fast = 0.0
+    var float ema_slow = 0.0
+    var float ema_signal = 0.0
+    var float result_fast = src
+    var float result_slow = src
+    var float result_signal = 0.0
+    ema_fast := alpha_fast * (src - ema_fast) + ema_fast
+    ema_slow := alpha_slow * (src - ema_slow) + ema_slow
+    if warmup
+        e_fast *= beta_fast
+        e_slow *= beta_slow
+        e_signal *= beta_signal
+        float c_fast = 1.0 / (1.0 - e_fast)
+        float c_slow = 1.0 / (1.0 - e_slow)
+        float c_signal = 1.0 / (1.0 - e_signal)
+        result_fast := c_fast * ema_fast
+        result_slow := c_slow * ema_slow
+        float macd_line = result_fast - result_slow
+        ema_signal := alpha_signal * (macd_line - ema_signal) + ema_signal
+        result_signal := c_signal * ema_signal
+        warmup := e_fast > 1e-10 or e_slow > 1e-10 or e_signal > 1e-10
+    else
+        result_fast := ema_fast
+        result_slow := ema_slow
+        float macd_line = result_fast - result_slow
+        ema_signal := alpha_signal * (macd_line - ema_signal) + ema_signal
+        result_signal := ema_signal
+    float macd_line = result_fast - result_slow
+    float histogram = macd_line - result_signal
+    [macd_line, result_signal, histogram]
+
+// ---------- Main loop ----------
+
+// Inputs
+i_fast = input.int(12, "Fast Length", minval=1)
+i_slow = input.int(26, "Slow Length", minval=2)
+i_signal = input.int(9, "Signal Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+[macd_line, signal_line, histogram] = macd(i_source, i_fast, i_slow, i_signal)
+
+// Plot
+hline(0, "Zero Line", color=color.gray)
+plot(histogram, "Histogram", style=plot.style_columns, color=histogram >= 0 ? (histogram[1] < histogram ? color.green : color.green) : (histogram[1] < histogram ? color.red : color.red))
+plot(macd_line, "MACD", color=color.blue, linewidth=2)
+plot(signal_line, "Signal", color=color.red, linewidth=2)

@@ -1,0 +1,36 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Relative Strength Index (RSI)", "RSI", overlay=false)
+
+//@function Calculates Relative Strength Index using Wilder's smoothing
+//@param src Source series to calculate RSI for
+//@param len Lookback period for RSI calculation
+//@returns RSI value measuring momentum and overbought/oversold conditions
+rsi(series float src, simple int len) =>
+    if len <= 0
+        runtime.error("Length must be greater than 0")
+    float u = math.max(src - src[1], 0)
+    float d = math.max(src[1] - src, 0)
+    float alpha = 1/len, float smoothUp = 0.0,  float smoothDown = 0.0
+    if bar_index < len
+        smoothUp := u
+        smoothDown := d
+    else
+        smoothUp := nz(smoothUp[1]) * (1 - alpha) + u * alpha
+        smoothDown := nz(smoothDown[1]) * (1 - alpha) + d * alpha
+    float rs = smoothDown == 0 ? 0 : smoothUp/smoothDown
+    float rsi = smoothDown == 0 ? 100 : 100 - (100 / (1 + rs))
+    rsi
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+rsi_value = rsi(i_source, i_length)
+
+// Plot
+plot(rsi_value, "RSI", color=color.yellow, linewidth=2)

@@ -3,23 +3,15 @@ using System.Runtime.CompilerServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Aroon Oscillator
+/// AROONOSC: Aroon Oscillator
 /// </summary>
 /// <remarks>
-/// The Aroon Oscillator is a trend-following indicator that uses aspects of the Aroon Indicator (Aroon Up and Aroon Down)
-/// to gauge the strength of a current trend and the likelihood that it will continue.
+/// Single-line trend indicator derived from Aroon Up minus Aroon Down (Chande).
+/// Range [-100, +100]: positive = uptrend, negative = downtrend.
 ///
-/// Calculation:
-/// Aroon Up = ((Period - Days Since Period High) / Period) * 100
-/// Aroon Down = ((Period - Days Since Period Low) / Period) * 100
-/// Aroon Oscillator = Aroon Up - Aroon Down
-///
-/// The indicator requires Period + 1 samples to fully calculate "Period" days ago.
-///
-/// Sources:
-/// https://www.investopedia.com/terms/a/aroonoscillator.asp
-/// Tushar Chande (1995)
+/// Calculation: <c>AroonOsc = AroonUp - AroonDown</c>.
 /// </remarks>
+/// <seealso href="AroonOsc.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class AroonOsc : ITValuePublisher
 {

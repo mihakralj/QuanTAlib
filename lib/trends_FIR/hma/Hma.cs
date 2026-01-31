@@ -10,14 +10,12 @@ namespace QuanTAlib;
 /// HMA: Hull Moving Average
 /// </summary>
 /// <remarks>
-/// HMA reduces lag by using a combination of weighted moving averages.
+/// Lag-reduced MA combining weighted MAs with square root smoothing.
+/// SIMD-accelerated intermediate calculation (AVX-512/AVX2/NEON).
 ///
-/// Calculation:
-/// HMA = WMA(sqrt(n), 2 * WMA(n/2, price) - WMA(n, price))
-///
-/// Sources:
-/// https://alan.hull.com.au/hma.html
+/// Calculation: <c>HMA = WMA(√n, 2×WMA(n/2) - WMA(n))</c>.
 /// </remarks>
+/// <seealso href="Hma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Hma : AbstractBase
 {

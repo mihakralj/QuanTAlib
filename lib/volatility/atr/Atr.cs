@@ -6,17 +6,12 @@ namespace QuanTAlib;
 /// ATR: Average True Range
 /// </summary>
 /// <remarks>
-/// ATR measures the volatility of an asset.
-/// It is the moving average (typically RMA/Wilder's) of the True Range.
+/// Wilder's volatility measure using RMA-smoothed True Range.
+/// Accounts for gaps via max of H-L, |H-PrevClose|, |L-PrevClose|.
 ///
-/// Calculation:
-/// 1. True Range (TR) = Max(High - Low, |High - PrevClose|, |Low - PrevClose|)
-///    - For the first bar, TR = High - Low
-/// 2. ATR = RMA(TR)
-///
-/// Sources:
-/// "New Concepts in Technical Trading Systems" by J. Welles Wilder
+/// Calculation: <c>ATR = RMA(TR, period)</c>.
 /// </remarks>
+/// <seealso href="Atr.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Atr : AbstractBase
 {

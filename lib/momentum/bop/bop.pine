@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Balance of Power (BOP)", "BOP", overlay=false)
+
+//@function Calculates Balance of Power with optional smoothing
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/momentum/bop.md
+//@param length Smoothing period (0 for no smoothing)
+//@returns BOP value measuring buying/selling pressure
+bop(simple int length) =>
+    if length < 0
+        runtime.error("Length must be non-negative")
+    float rawBop = high == low ? 0.0 : (close - open) / (high - low)
+    if length == 0
+        rawBop
+    else
+        float alpha = 2.0 / (length + 1.0)
+        var float smoothBop = na
+        var float e = 1.0
+        var bool warmupComplete = false
+        var float result = na
+        if na(smoothBop)
+            smoothBop := rawBop, result := rawBop
+        else
+            smoothBop := alpha * (rawBop - smoothBop) + smoothBop
+            if not warmupComplete
+                e *= (1.0 - alpha)
+                float c = e > 1e-10 ? 1.0 / (1.0 - e) : 1.0
+                result := smoothBop * c
+                if e <= 1e-10
+                    warmupComplete := true
+            else
+                result := smoothBop
+        result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_smooth = input.int(14, "Smoothing Length", minval=0, tooltip="0 for no smoothing")
+
+// Calculation
+bop_value = bop(i_smooth)
+
+// Plot
+plot(bop_value, "BOP", color=color.yellow, linewidth=2)

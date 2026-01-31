@@ -1,0 +1,44 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ultrasmooth Filter (USF)", "USF", overlay=true)
+
+//@function Calculates Ultrasmooth Filter
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/filters/usf.md
+//@param src Series to calculate USF from
+//@param length Number of bars used in the calculation
+//@returns USF value with optimized smoothing
+//@optimized Uses 2-pole IIR filter with momentum enhancement, O(1) complexity per bar
+usf(series float src, simple int length) =>
+    var float SQRT2_PI = math.sqrt(2.0) * math.pi
+    var float usf_val = na
+    var float c1 = 0.0
+    var float c2 = 0.0
+    var float c3 = 0.0
+    var int prev_length = 0
+    if prev_length != length
+        float arg = SQRT2_PI / float(length)
+        float exp_arg = math.exp(-arg)
+        c2 := 2.0 * exp_arg * math.cos(arg)
+        c3 := -exp_arg * exp_arg
+        c1 := (1.0 + c2 - c3) / 4.0
+        prev_length := length
+    float ssrc = nz(src, src[1])
+    float src1 = nz(src[1], ssrc)
+    float src2 = nz(src[2], src1)
+    float us1 = nz(usf_val[1], src1)
+    float us2 = nz(usf_val[2], src2)
+    usf_val := (1.0 - c1) * ssrc + (2.0 * c1 - c2) * src1 - (c1 + c3) * src2 + c2 * us1 + c3 * us2
+    usf_val
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(20, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+filt = usf(i_source, i_length)
+
+// Plot
+plot(filt, "UltraSmooth", color=color.yellow, linewidth=2)

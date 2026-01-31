@@ -9,23 +9,13 @@ namespace QuanTAlib;
 /// EMA: Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// EMA applies exponential weighting to data points, giving more weight to recent values.
-/// Uses a single state variable for O(1) complexity per update.
+/// Applies exponentially decreasing weights to give more importance to recent values.
+/// Faster response to price changes than SMA; commonly used for trend identification.
 ///
-/// Calculation:
-/// alpha = 2 / (period + 1)
-/// EMA_new = EMA_old + alpha * (newest - EMA_old)
-///
-/// Initialization:
-/// Uses a compensator factor to correct early-stage bias (when n < period).
-/// Output = EMA_state / (1 - (1-alpha)^n)
-///
-/// O(1) update:
-/// No buffer required, only previous EMA value and compensator state.
-///
-/// IsHot:
-/// Becomes true when n = ln(0.05) / ln(1 - alpha)
+/// Calculation: <c>EMA_t = α × Price_t + (1-α) × EMA_{t-1}</c>, where <c>α = 2/(period+1)</c>.
 /// </remarks>
+/// <seealso href="Ema.md">Detailed documentation</seealso>
+/// <seealso href="ema.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Ema : AbstractBase
 {

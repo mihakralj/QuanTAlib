@@ -12,18 +12,12 @@ namespace QuanTAlib;
 /// SMA: Simple Moving Average
 /// </summary>
 /// <remarks>
-/// <para>SMA calculates the arithmetic mean of the last n values.
-/// Uses a RingBuffer for storage and manual running sum for O(1) complexity per update.</para>
-/// <para>Calculation:
-/// SMA = (P_n + P_(n-1) + ... + P_1) / n</para>
+/// Arithmetic mean of the last n values using running sum for O(1) updates.
+/// SIMD-accelerated batch processing (AVX-512/AVX2/NEON).
 ///
-/// O(1) update:
-/// S_new = S_old - oldest + newest
-/// SMA = S_new / n
-///
-/// IsHot:
-/// Becomes true when the buffer is full (period samples processed).
+/// Calculation: <c>SMA = Σ(values) / n</c>.
 /// </remarks>
+/// <seealso href="Sma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Sma : AbstractBase
 {

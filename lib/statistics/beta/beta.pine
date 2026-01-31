@@ -1,0 +1,72 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Beta Function (BETA)", "BETA", overlay=false)
+
+//@function Calculates the financial Beta indicator comparing src1 volatility to src2
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/beta.md
+//@param src1 series float Series to analyze
+//@param src2 series float src2 series to compare against
+//@param period simple int Lookback period for calculation
+//@returns float Beta value showing src1 volatility relative to src2
+//@optimized for performance and dirty data
+beta(series float src1, series float src2, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    var float last_src1 = na
+    var float last_src2 = na
+    src1_return = last_src1 != 0 and not na(last_src1) ? (src1 - last_src1) / last_src1 : na
+    bench_return = last_src2 != 0 and not na(last_src2) ? (src2 - last_src2) / last_src2 : na
+    last_src1 := src1
+    last_src2 := src2
+    var int count = 0
+    var float sum_sr = 0.0, var float sum_br = 0.0
+    var float sum_sr2 = 0.0, var float sum_br2 = 0.0
+    var float sum_sbr = 0.0
+    var sr_buf = array.new_float(period)
+    var br_buf = array.new_float(period)
+    var int index = 0
+    if not na(src1_return) and not na(bench_return)
+        old_sr = array.get(sr_buf, index)
+        old_br = array.get(br_buf, index)
+        if count >= period
+            sum_sr -= old_sr, sum_br -= old_br
+            sum_sr2 -= old_sr * old_sr, sum_br2 -= old_br * old_br
+            sum_sbr -= old_sr * old_br
+        else
+            count += 1
+        sum_sr += src1_return, sum_br += bench_return
+        sum_sr2 += src1_return * src1_return
+        sum_br2 += bench_return * bench_return
+        sum_sbr += src1_return * bench_return
+        array.set(sr_buf, index, src1_return)
+        array.set(br_buf, index, bench_return)
+        index := (index + 1) % period
+    if count > 0
+        mean_sr = sum_sr / count
+        mean_br = sum_br / count
+        cov = (sum_sbr / count) - (mean_sr * mean_br)
+        var_bench = (sum_br2 / count) - (mean_br * mean_br)
+        if var_bench > 1e-10
+            cov / var_bench
+        else
+            na
+    else
+        na
+
+
+// ---------- Main loop ----------
+
+// Inputs
+i_symbol = input.symbol("SPY", "src2 Symbol")
+i_period = input.int(14, "Period", minval=1)
+i_src1 = input.source(close, "src1")
+
+// Get src2 data
+src2Price = request.security(i_symbol, timeframe.period, close)
+
+// Calculate beta
+beta_value = beta(i_src1, src2Price, i_period)
+
+// Plot
+plot(beta_value, "Beta", color=color.yellow, linewidth=2)

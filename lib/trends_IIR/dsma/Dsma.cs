@@ -4,31 +4,16 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Deviation-Scaled Moving Average (DSMA):
-/// An adaptive moving average that uses standard deviation to dynamically adjust
-/// its smoothing factor. Combines a 2-pole Super Smoother filter for trend estimation
-/// with RMS-based deviation scaling for volatility adaptation.
+/// DSMA: Deviation-Scaled Moving Average
 /// </summary>
 /// <remarks>
-/// Key characteristics:
-/// - Uses Super Smoother (Butterworth) 2-pole IIR filter for trend extraction
-/// - RMS (Root Mean Square) of filtered deviations for volatility measurement
-/// - Dynamic alpha scaling based on deviation ratio (|filtered| / RMS)
-/// - O(1) streaming updates via circular buffer for RMS calculation
-/// - Adapts smoothing: faster in trending markets, slower in ranging markets
-/// 
-/// Mathematical foundation:
-/// 1. Super Smoother: H(z) = c₁(1 + z⁻¹) / (1 - b₁z⁻¹ + a₁²z⁻²)
-///    where a₁ = exp(-√2·π/period), b₁ = 2a₁·cos(√2·π/period), c₁ = (1-b₁+a₁²)/2
-/// 2. RMS = √(Σ(filt²)/period)
-/// 3. alpha = min(scaleFactor · 5/period · |filt|/RMS, 1)
-/// 4. DSMA = alpha·price + (1-alpha)·prevDSMA
-/// 
-/// Performance:
-/// - Update: O(1) with FMA optimizations
-/// - Memory: O(period) for RMS buffer
-/// - SIMD: Calculate method uses vectorized RMS computation
+/// Adaptive MA using 2-pole Super Smoother filter with RMS-based deviation scaling.
+/// Faster in trending markets, slower in ranging conditions.
+///
+/// Calculation: <c>α = scaleFactor×5/period × |filt|/RMS; DSMA = α×P + (1-α)×DSMA_{t-1}</c>.
 /// </remarks>
+/// <seealso href="Dsma.md">Detailed documentation</seealso>
+/// <seealso href="dsma.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Dsma : AbstractBase
 {

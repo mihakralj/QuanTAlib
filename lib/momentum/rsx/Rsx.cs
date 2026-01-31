@@ -7,19 +7,12 @@ namespace QuanTAlib;
 /// RSX: Jurik Relative Strength Index (Jurik's RSI Variant)
 /// </summary>
 /// <remarks>
-/// RSX is a noise-free version of RSI that eliminates lag and choppiness.
-/// It uses a cascading IIR filter structure to achieve smoothness while preserving
-/// turning points and the 0-100 range.
+/// Noise-free RSI using cascading IIR filters for zero-lag, ultra-smooth output [0-100].
+/// Preserves turning points while eliminating choppiness.
 ///
-/// Key characteristics:
-/// - Zero lag (compared to smoothed RSI)
-/// - Ultra smooth output
-/// - Bounded 0-100
-///
-/// Sources:
-/// - https://scribd.com/document/253633684/Jurik-RSX
-/// - https://www.prorealcode.com/prorealtime-indicators/jurik-rsx/
+/// Calculation: Triple-cascaded momentum/abs-momentum smoothing → <c>RSX = (ratio + 1) × 50</c>.
 /// </remarks>
+/// <seealso href="Rsx.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Rsx : ITValuePublisher
 {

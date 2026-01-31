@@ -1,6 +1,3 @@
-// Hamma.cs - Hamming Moving Average
-// Finite Impulse Response (FIR) filter using Hamming window weighting.
-
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,28 +6,14 @@ namespace QuanTAlib;
 
 /// <summary>
 /// HAMMA: Hamming Moving Average
-/// A weighted moving average using Hamming window coefficients, providing good
-/// spectral characteristics with reduced side lobes compared to simple windowing.
 /// </summary>
 /// <remarks>
-/// <b>Key characteristics</b>
-/// <list type="bullet">
-///   <item><description>Hamming window: w[i] = 0.54 - 0.46 × cos(2πi/(period-1))</description></item>
-///   <item><description>Raised-cosine window with specific coefficients for optimal side-lobe suppression</description></item>
-///   <item><description>First side lobe is approximately -43 dB down from main lobe</description></item>
-///   <item><description>Widely used in digital signal processing and spectral analysis</description></item>
-/// </list>
+/// Window-based MA using Hamming raised-cosine coefficients (0.54/0.46).
+/// -43 dB first side lobe for superior spectral characteristics.
 ///
-/// <b>Calculation</b>
-/// <code>
-/// w[i] = 0.54 - 0.46 × cos(2π × i / (period - 1))
-/// HAMMA = Σ(price[i] × w[i]) / Σ(w[i])
-/// </code>
-///
-/// <b>Sources</b>
-///   Richard W. Hamming - "Digital Filters" (1977)
-///   Oppenheim, Schafer - "Discrete-Time Signal Processing"
+/// Calculation: <c>W_i = 0.54 - 0.46×cos(2πi/(n-1))</c>.
 /// </remarks>
+/// <seealso href="Hamma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Hamma : AbstractBase
 {

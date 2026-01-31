@@ -1,6 +1,3 @@
-// Hwma.cs - Holt-Winters Moving Average
-// Triple exponential smoothing with level, velocity, and acceleration components.
-
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,30 +6,14 @@ namespace QuanTAlib;
 
 /// <summary>
 /// HWMA: Holt-Winters Moving Average
-/// A triple exponential smoothing filter that tracks level (F), velocity (V), and
-/// acceleration (A) components for adaptive trend following.
 /// </summary>
 /// <remarks>
-/// <b>Key characteristics</b>
-/// <list type="bullet">
-///   <item><description>Triple exponential smoothing with level, velocity, and acceleration</description></item>
-///   <item><description>Adapts quickly to trend changes via higher-order derivatives</description></item>
-///   <item><description>When period specified: α = 2/(period+1), β = γ = 1/period</description></item>
-///   <item><description>O(1) complexity per bar - no windowing required</description></item>
-/// </list>
+/// Triple exponential smoothing tracking level (F), velocity (V), and acceleration (A).
+/// O(1) adaptive trend follower responding quickly via higher-order derivatives.
 ///
-/// <b>Calculation</b>
-/// <code>
-/// F = α × source + (1-α) × (prevF + prevV + 0.5 × prevA)
-/// V = β × (F - prevF) + (1-β) × (prevV + prevA)
-/// A = γ × (V - prevV) + (1-γ) × prevA
-/// output = F + V + 0.5 × A
-/// </code>
-///
-/// <b>Sources</b>
-///   Holt, C.E. (1957) - "Forecasting Seasonals and Trends by Exponentially Weighted Moving Averages"
-///   Winters, P.R. (1960) - "Forecasting Sales by Exponentially Weighted Moving Averages"
+/// Calculation: <c>Output = F + V + 0.5×A</c> with recursive updates.
 /// </remarks>
+/// <seealso href="Hwma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Hwma : AbstractBase
 {

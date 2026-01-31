@@ -6,18 +6,12 @@ namespace QuanTAlib;
 /// ADR: Average Daily Range
 /// </summary>
 /// <remarks>
-/// ADR measures the average price movement range over a specified period.
-/// Unlike ATR, ADR uses only the High-Low range without accounting for gaps.
+/// Smoothed average of High-Low ranges; simpler than ATR (no gap accounting).
+/// Supports SMA/EMA/WMA smoothing methods.
 ///
-/// Calculation:
-/// 1. Daily Range = High - Low
-/// 2. ADR = MA(Daily Range, period)
-///
-/// Supports three smoothing methods:
-/// - SMA (Simple Moving Average) - default
-/// - EMA (Exponential Moving Average)
-/// - WMA (Weighted Moving Average)
+/// Calculation: <c>ADR = MA(High - Low, period)</c>.
 /// </remarks>
+/// <seealso href="Adr.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Adr : AbstractBase
 {

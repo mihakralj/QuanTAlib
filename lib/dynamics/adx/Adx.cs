@@ -6,25 +6,12 @@ namespace QuanTAlib;
 /// ADX: Average Directional Index
 /// </summary>
 /// <remarks>
-/// ADX measures the strength of a trend, regardless of its direction.
-/// It is derived from the Smoothed Directional Movement Index (DX).
+/// Trend strength indicator [0-100] regardless of direction (Wilder).
+/// Derived from smoothed DX using +DI/-DI relationship. Values above 25 indicate strong trend.
 ///
-/// Calculation:
-/// 1. Calculate True Range (TR), +DM, and -DM
-/// 2. Smooth TR, +DM, -DM using RMA (Wilder's Moving Average)
-///    - First value is SMA of first Period values
-///    - Subsequent values: Previous + (Input - Previous) / Period
-/// 3. Calculate +DI = (+DM_smooth / TR_smooth) * 100
-/// 4. Calculate -DI = (-DM_smooth / TR_smooth) * 100
-/// 5. Calculate DX = |(+DI - -DI) / (+DI + -DI)| * 100
-/// 6. ADX = RMA(DX)
-///    - First value is SMA of first Period DX values
-///    - Subsequent values: Previous + (Input - Previous) / Period
-///
-/// Sources:
-/// https://www.investopedia.com/terms/a/adx.asp
-/// "New Concepts in Technical Trading Systems" by J. Welles Wilder
+/// Calculation: <c>ADX = RMA(DX)</c> where <c>DX = |+DI - -DI| / (+DI + -DI) × 100</c>.
 /// </remarks>
+/// <seealso href="Adx.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Adx : ITValuePublisher
 {

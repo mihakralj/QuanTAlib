@@ -1,0 +1,90 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Relative Strength Xtra (RSX)", "RSX", overlay=false)
+
+//@function Calculates RSX (Relative Strength Xtra) using integrated JMA smoothing
+//@param src Source series to calculate RSX for
+//@param len Lookback period for RSX calculation
+//@returns RSX value measuring momentum with reduced noise
+rsx(series float src,simple int len)=>
+    if len<=0
+        runtime.error("Length must be greater than 0")
+    float u=math.max(src-src[1],0),d=math.max(src[1]-src,0)
+    var simple float power=0.5
+    var simple float PHASE_VALUE=0.5
+    var simple float BETA=power*(len-1)/((power*(len-1))+2)
+    var simple float LEN1=math.max((math.log(math.sqrt(0.5*(len-1)))/math.log(2.0))+2.0,0)
+    var simple float POW1=math.max(LEN1-2.0,0.5)
+    var simple float LEN2=math.sqrt(0.5*(len-1))*LEN1
+    var simple float POW1_RECIPROCAL=1.0/POW1
+    var simple float AVG_VOLTY_ALPHA=2.0/(math.max(4.0*len,65)+1.0)
+    var simple float DIV=1.0/(10.0+10.0*(math.min(math.max(len-10,0),100))/100.0)
+    var float upperBand_state_up=na,var float lowerBand_state_up=na
+    var float ma1_state_up=na,var float jma_state_up=na
+    var float vSum_state_up=0.0,var float det0_state_up=0.0,var float det1_state_up=0.0
+    var float avgVolty_state_up=na,var float smoothUp=na
+    var volty_array_state_up=array.new_float(11,0.0)
+    var float upperBand_state_down=na,var float lowerBand_state_down=na
+    var float ma1_state_down=na,var float jma_state_down=na
+    var float vSum_state_down=0.0,var float det0_state_down=0.0,var float det1_state_down=0.0
+    var float avgVolty_state_down=na,var float smoothDown=na
+    var volty_array_state_down=array.new_float(11,0.0)
+    if not na(u)
+        float del1_up=u-nz(upperBand_state_up,u),float del2_up=u-nz(lowerBand_state_up,u)
+        float volty_up=math.abs(del1_up)==math.abs(del2_up)?0.0:math.max(math.abs(del1_up),math.abs(del2_up))
+        array.unshift(volty_array_state_up,nz(volty_up,0.0))
+        array.pop(volty_array_state_up)
+        if not na(volty_up)
+            vSum_state_up:=vSum_state_up+(volty_up-array.get(volty_array_state_up,10))*DIV
+            avgVolty_state_up:=nz(avgVolty_state_up,vSum_state_up)+AVG_VOLTY_ALPHA*(vSum_state_up-nz(avgVolty_state_up,vSum_state_up))
+        float rvolty_up=math.min(math.max(nz(avgVolty_state_up,0)>0?nz(volty_up,0.0)/nz(avgVolty_state_up,1.0):1.0,1.0),math.pow(LEN1,POW1_RECIPROCAL))
+        float pow2_up=math.pow(rvolty_up,POW1)
+        float Kv_up=math.pow(LEN2/(LEN2+1),math.sqrt(pow2_up))
+        upperBand_state_up:=del1_up>0?u:u-Kv_up*del1_up
+        lowerBand_state_up:=del2_up<0?u:u-Kv_up*del2_up
+        float alpha_up=math.pow(BETA,pow2_up)
+        float alphaSquared_up=alpha_up*alpha_up,float oneMinusAlpha_up=1.0-alpha_up
+        float oneMinusAlphaSquared_up=oneMinusAlpha_up*oneMinusAlpha_up
+        ma1_state_up:=u+(alpha_up*(nz(ma1_state_up,u)-u))
+        det0_state_up:=(u-ma1_state_up)*(1-BETA)+BETA*nz(det0_state_up,0)
+        float ma2_up=ma1_state_up+(PHASE_VALUE*det0_state_up)
+        det1_state_up:=((ma2_up-nz(jma_state_up,u))*oneMinusAlphaSquared_up)+(alphaSquared_up*nz(det1_state_up,0))
+        jma_state_up:=nz(jma_state_up,u)+det1_state_up
+        smoothUp:=jma_state_up
+    if not na(d)
+        float del1_down=d-nz(upperBand_state_down,d),float del2_down=d-nz(lowerBand_state_down,d)
+        float volty_down=math.abs(del1_down)==math.abs(del2_down)?0.0:math.max(math.abs(del1_down),math.abs(del2_down))
+        array.unshift(volty_array_state_down,nz(volty_down,0.0))
+        array.pop(volty_array_state_down)
+        if not na(volty_down)
+            vSum_state_down:=vSum_state_down+(volty_down-array.get(volty_array_state_down,10))*DIV
+            avgVolty_state_down:=nz(avgVolty_state_down,vSum_state_down)+AVG_VOLTY_ALPHA*(vSum_state_down-nz(avgVolty_state_down,vSum_state_down))
+        float rvolty_down=math.min(math.max(nz(avgVolty_state_down,0)>0?nz(volty_down,0.0)/nz(avgVolty_state_down,1.0):1.0,1.0),math.pow(LEN1,POW1_RECIPROCAL))
+        float pow2_down=math.pow(rvolty_down,POW1)
+        float Kv_down=math.pow(LEN2/(LEN2+1),math.sqrt(pow2_down))
+        upperBand_state_down:=del1_down>0?d:d-Kv_down*del1_down
+        lowerBand_state_down:=del2_down<0?d:d-Kv_down*del2_down
+        float alpha_down=math.pow(BETA,pow2_down)
+        float alphaSquared_down=alpha_down*alpha_down,float oneMinusAlpha_down=1.0-alpha_down
+        float oneMinusAlphaSquared_down=oneMinusAlpha_down*oneMinusAlpha_down
+        ma1_state_down:=d+(alpha_down*(nz(ma1_state_down,d)-d))
+        det0_state_down:=(d-ma1_state_down)*(1-BETA)+BETA*nz(det0_state_down,0)
+        float ma2_down=ma1_state_down+(PHASE_VALUE*det0_state_down)
+        det1_state_down:=((ma2_down-nz(jma_state_down,d))*oneMinusAlphaSquared_down)+(alphaSquared_down*nz(det1_state_down,0))
+        jma_state_down:=nz(jma_state_down,d)+det1_state_down
+        smoothDown:=jma_state_down
+    float rs=smoothDown==0?0:smoothUp/smoothDown
+    100-(100/(1+rs))
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+rsx_value = rsx(i_source, i_length)
+
+// Plot
+plot(rsx_value, "RSX", color=color.yellow, linewidth=2)

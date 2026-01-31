@@ -1,0 +1,92 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Ultimate Oscillator (ULTOSC)", "ULTOSC", overlay=false)
+
+//@function Calculates the Ultimate Oscillator using three weighted time periods
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/ultosc.md
+//@param fastPeriod Short-term period for momentum calculation
+//@param mediumPeriod Medium-term period for momentum calculation
+//@param slowPeriod Long-term period for momentum calculation
+//@param fastWeight Weight applied to fast period calculation
+//@param mediumWeight Weight applied to medium period calculation
+//@param slowWeight Weight applied to slow period calculation
+//@returns Ultimate Oscillator value (0-100 scale)
+ultosc(simple int fastPeriod, simple int mediumPeriod, simple int slowPeriod, simple float fastWeight, simple float mediumWeight, simple float slowWeight) =>
+    if fastPeriod <= 0 or mediumPeriod <= 0 or slowPeriod <= 0
+        runtime.error("All periods must be positive")
+    if fastPeriod >= mediumPeriod or mediumPeriod >= slowPeriod
+        runtime.error("Periods must be in ascending order: fast < medium < slow")
+    if fastWeight <= 0 or mediumWeight <= 0 or slowWeight <= 0
+        runtime.error("All weights must be positive")
+    prev_close = nz(close[1], close)
+    true_low = math.min(low, prev_close)
+    true_high = math.max(high, prev_close)
+    buying_pressure = close - true_low
+    true_range = true_high - true_low
+    var array<float> bp_fast_buffer = array.new_float(fastPeriod, na)
+    var array<float> tr_fast_buffer = array.new_float(fastPeriod, na)
+    var array<float> bp_medium_buffer = array.new_float(mediumPeriod, na)
+    var array<float> tr_medium_buffer = array.new_float(mediumPeriod, na)
+    var array<float> bp_slow_buffer = array.new_float(slowPeriod, na)
+    var array<float> tr_slow_buffer = array.new_float(slowPeriod, na)
+    var int fast_head = 0, var int medium_head = 0, var int slow_head = 0
+    var float bp_fast_sum = 0.0, var float tr_fast_sum = 0.0
+    var float bp_medium_sum = 0.0, var float tr_medium_sum = 0.0
+    var float bp_slow_sum = 0.0, var float tr_slow_sum = 0.0
+    var int fast_count = 0, var int medium_count = 0, var int slow_count = 0
+    bp_fast_oldest = array.get(bp_fast_buffer, fast_head)
+    tr_fast_oldest = array.get(tr_fast_buffer, fast_head)
+    bp_fast_sum := not na(bp_fast_oldest) ? bp_fast_sum - bp_fast_oldest : bp_fast_sum
+    tr_fast_sum := not na(tr_fast_oldest) ? tr_fast_sum - tr_fast_oldest : tr_fast_sum
+    fast_count := not na(bp_fast_oldest) ? fast_count - 1 : fast_count
+    bp_fast_sum := not na(buying_pressure) ? bp_fast_sum + buying_pressure : bp_fast_sum
+    tr_fast_sum := not na(true_range) ? tr_fast_sum + true_range : tr_fast_sum
+    fast_count := not na(buying_pressure) ? fast_count + 1 : fast_count
+    array.set(bp_fast_buffer, fast_head, buying_pressure)
+    array.set(tr_fast_buffer, fast_head, true_range)
+    fast_head := (fast_head + 1) % fastPeriod
+    bp_medium_oldest = array.get(bp_medium_buffer, medium_head)
+    tr_medium_oldest = array.get(tr_medium_buffer, medium_head)
+    bp_medium_sum := not na(bp_medium_oldest) ? bp_medium_sum - bp_medium_oldest : bp_medium_sum
+    tr_medium_sum := not na(tr_medium_oldest) ? tr_medium_sum - tr_medium_oldest : tr_medium_sum
+    medium_count := not na(bp_medium_oldest) ? medium_count - 1 : medium_count
+    bp_medium_sum := not na(buying_pressure) ? bp_medium_sum + buying_pressure : bp_medium_sum
+    tr_medium_sum := not na(true_range) ? tr_medium_sum + true_range : tr_medium_sum
+    medium_count := not na(buying_pressure) ? medium_count + 1 : medium_count
+    array.set(bp_medium_buffer, medium_head, buying_pressure)
+    array.set(tr_medium_buffer, medium_head, true_range)
+    medium_head := (medium_head + 1) % mediumPeriod
+    bp_slow_oldest = array.get(bp_slow_buffer, slow_head)
+    tr_slow_oldest = array.get(tr_slow_buffer, slow_head)
+    bp_slow_sum := not na(bp_slow_oldest) ? bp_slow_sum - bp_slow_oldest : bp_slow_sum
+    tr_slow_sum := not na(tr_slow_oldest) ? tr_slow_sum - tr_slow_oldest : tr_slow_sum
+    slow_count := not na(bp_slow_oldest) ? slow_count - 1 : slow_count
+    bp_slow_sum := not na(buying_pressure) ? bp_slow_sum + buying_pressure : bp_slow_sum
+    tr_slow_sum := not na(true_range) ? tr_slow_sum + true_range : tr_slow_sum
+    slow_count := not na(buying_pressure) ? slow_count + 1 : slow_count
+    array.set(bp_slow_buffer, slow_head, buying_pressure)
+    array.set(tr_slow_buffer, slow_head, true_range)
+    slow_head := (slow_head + 1) % slowPeriod
+    raw_fast = tr_fast_sum > 0 and fast_count >= fastPeriod ? 100 * bp_fast_sum / tr_fast_sum : 0
+    raw_medium = tr_medium_sum > 0 and medium_count >= mediumPeriod ? 100 * bp_medium_sum / tr_medium_sum : 0
+    raw_slow = tr_slow_sum > 0 and slow_count >= slowPeriod ? 100 * bp_slow_sum / tr_slow_sum : 0
+    total_weight = fastWeight + mediumWeight + slowWeight
+    weighted_sum = (raw_fast * fastWeight) + (raw_medium * mediumWeight) + (raw_slow * slowWeight)
+    slow_count >= slowPeriod ? weighted_sum / total_weight : na
+
+// ---------- Main loop ----------
+
+// Inputs
+i_fastPeriod = input.int(7, "Fast Period", minval=1, maxval=50, tooltip="Short-term period for momentum calculation")
+i_mediumPeriod = input.int(14, "Medium Period", minval=1, maxval=100, tooltip="Medium-term period for momentum calculation")
+i_slowPeriod = input.int(28, "Slow Period", minval=1, maxval=200, tooltip="Long-term period for momentum calculation")
+i_fastWeight = input.float(4.0, "Fast Weight", minval=0.1, maxval=10.0, step=0.1, tooltip="Weight applied to fast period calculation")
+i_mediumWeight = input.float(2.0, "Medium Weight", minval=0.1, maxval=10.0, step=0.1, tooltip="Weight applied to medium period calculation")
+i_slowWeight = input.float(1.0, "Slow Weight", minval=0.1, maxval=10.0, step=0.1, tooltip="Weight applied to slow period calculation")
+
+// Calculation
+ultosc_value = ultosc(i_fastPeriod, i_mediumPeriod, i_slowPeriod, i_fastWeight, i_mediumWeight, i_slowWeight)
+
+// Plots
+plot(ultosc_value, "Ultimate Oscillator", color=color.yellow, linewidth=2)

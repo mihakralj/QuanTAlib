@@ -7,18 +7,12 @@ namespace QuanTAlib;
 /// ATRN: Average True Range Normalized
 /// </summary>
 /// <remarks>
-/// ATRN normalizes the ATR to a [0,1] range using min-max scaling over a lookback window.
-/// This makes volatility comparable across different price scales and time periods.
+/// ATR normalized to [0,1] via min-max scaling over 10×period lookback.
+/// Enables cross-asset volatility comparison regardless of price scale.
 ///
-/// Calculation:
-/// 1. Calculate ATR using RMA smoothing
-/// 2. Find min/max ATR over lookback window (10 * period)
-/// 3. Normalize: (ATR - minATR) / (maxATR - minATR)
-/// 4. If maxATR equals minATR, return 0.5
-///
-/// Sources:
-/// Derived from ATR by J. Welles Wilder, normalized for cross-asset comparison.
+/// Calculation: <c>ATRN = (ATR - minATR) / (maxATR - minATR)</c>.
 /// </remarks>
+/// <seealso href="Atrn.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Atrn : AbstractBase
 {

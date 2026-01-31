@@ -4,8 +4,14 @@ namespace QuanTAlib;
 
 /// <summary>
 /// BLMA: Blackman Moving Average
-/// A weighted moving average using the Blackman window function for smoother transitions.
 /// </summary>
+/// <remarks>
+/// Window-based MA using Blackman coefficients (a0=0.42, a1=0.5, a2=0.08).
+/// Minimizes spectral leakage with smooth taper to zero at edges.
+///
+/// Calculation: <c>W_i = 0.42 - 0.5×cos(2πi/(n-1)) + 0.08×cos(4πi/(n-1))</c>.
+/// </remarks>
+/// <seealso href="Blma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Blma : AbstractBase
 {

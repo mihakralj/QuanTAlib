@@ -1,0 +1,59 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Rolling Sum", "SUM", overlay=false)
+
+//@function Calculates Rolling Sum over a period using Kahan-Babuška algorithm
+//@doc     Calculates the sum of the last n values with high numerical precision.
+//@doc     Uses Kahan-Babuška summation for machine-epsilon accuracy.
+//@param   source Series to calculate sum from
+//@param   length Number of bars to sum
+//@returns Rolling sum of the last 'length' values
+rolling_sum(series float source, simple int length) =>
+    // Persistent state
+    var float sum = 0.0
+    var float c = 0.0    // First-order compensation
+    var float cc = 0.0   // Second-order compensation
+
+    float val = nz(source, 0.0)
+    float oldVal = bar_index >= length ? nz(source[length], 0.0) : 0.0
+
+    // Kahan-Babuška subtract old value
+    if bar_index >= length
+        float yS = -oldVal - c
+        float tS = sum + yS
+        c := tS - sum - yS
+        sum := tS
+
+        float zS = c - cc
+        float ttS = sum + zS
+        cc := ttS - sum - zS
+        sum := ttS
+
+    // Kahan-Babuška add new value
+    float yA = val - c
+    float tA = sum + yA
+    c := tA - sum - yA
+    sum := tA
+
+    float zA = c - cc
+    float ttA = sum + zA
+    cc := ttA - sum - zA
+    sum := ttA
+
+    sum
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+sum_value = rolling_sum(i_source, i_length)
+
+// Equivalent built-in for comparison (disabled by default)
+// sum_builtin = math.sum(i_source, i_length)
+
+// Plot
+plot(sum_value, "Sum", color=color.yellow, linewidth=2)

@@ -6,15 +6,16 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// FRAMA: Ehlers Fractal Adaptive Moving Average
+/// FRAMA: Fractal Adaptive Moving Average
 /// </summary>
 /// <remarks>
-/// Classic Traders' Tips FRAMA:
-/// - Ranges are computed from High/Low (not from source).
-/// - Smoothed price is HL2.
-/// - alpha = exp(-4.6 * (D - 1)), clamped to [0.01, 1].
-/// - Period forced to even, >= 2.
+/// Ehlers' adaptive MA using fractal dimension to compute smoothing factor.
+/// Alpha derived from High/Low ranges; smoother in trends, reactive at reversals.
+///
+/// Calculation: <c>D = ln(N1+N2)-ln(N3) / ln(2); α = exp(-4.6×(D-1))</c>, clamped [0.01,1].
 /// </remarks>
+/// <seealso href="Frama.md">Detailed documentation</seealso>
+/// <seealso href="frama.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Frama : ITValuePublisher, IDisposable
 {

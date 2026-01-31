@@ -1,22 +1,17 @@
-// ROC: Rate of Change (Absolute)
-// Calculates absolute price change: current - past
-
 using System.Runtime.CompilerServices;
 
 namespace QuanTAlib;
 
 /// <summary>
 /// ROC: Rate of Change (Absolute)
-/// Calculates the absolute difference between current value and value N periods ago.
-/// Formula: current - past
 /// </summary>
 /// <remarks>
-/// Key properties:
-/// - Returns absolute price movement in price units
-/// - Useful for momentum measurement, trend direction
-/// - Different from ROCP (percentage) and ROCR (ratio)
-/// - Can be validated against TA-Lib MOM function
+/// Absolute price momentum: difference between current and N-period-ago value.
+/// Also known as Momentum (MOM). See ROCP for percentage, ROCR for ratio.
+///
+/// Calculation: <c>ROC = Price - Price[N]</c>.
 /// </remarks>
+/// <seealso href="Roc.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Roc : AbstractBase
 {

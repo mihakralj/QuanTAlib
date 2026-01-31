@@ -4,26 +4,15 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// QEMA: Quad Exponential Moving Average with Progressive Alphas and Zero-Lag Weighting
+/// QEMA: Quad Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// QEMA uses four cascaded EMAs with progressively increasing alphas (decreasing responsiveness)
-/// and combines them using optimized weights that minimize energy while achieving zero DC lag.
+/// Four cascaded EMAs with progressive alphas combined using zero-lag optimized weights.
+/// Minimizes energy while achieving zero DC lag through Lagrange optimization.
 ///
-/// Calculation:
-/// 1. Base alpha: α₁ = 2 / (period + 1)
-/// 2. Progressive alphas: r = (1/α₁)^(1/4), then α₂ = α₁·r, α₃ = α₂·r, α₄ = α₃·r
-/// 3. Four cascaded EMAs: EMA1(input), EMA2(EMA1), EMA3(EMA2), EMA4(EMA3)
-/// 4. Cumulative lags: L₁ = (1-α₁)/α₁, L₂ = L₁ + (1-α₂)/α₂, etc.
-/// 5. Option A weights: Minimize energy subject to Σw=1 and Σw·L=0 (zero DC lag)
-/// 6. Output: w₁·EMA1 + w₂·EMA2 + w₃·EMA3 + w₄·EMA4
-///
-/// O(1) update:
-/// Uses four EMA state accumulators, each with O(1) update complexity.
-///
-/// IsHot:
-/// Becomes true when the slowest EMA (stage 1) has converged to within 5% coverage.
+/// Key features: progressive alpha ramp (α^(1/4) spacing), bias-corrected EMAs, O(1) streaming.
 /// </remarks>
+/// <seealso href="Qema.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Qema : AbstractBase
 {

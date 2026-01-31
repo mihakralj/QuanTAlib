@@ -1,0 +1,50 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Absolute Price Oscillator (APO)", "APO", overlay=false)
+
+//@function Calculates Absolute Price Oscillator (APO) as difference between fast and slow EMAs
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/oscillators/apo.md
+//@param source Series to calculate APO from
+//@param fastLength Period for fast EMA
+//@param slowLength Period for slow EMA
+//@returns APO value (fast EMA - slow EMA)
+apo(series float source, simple int fastLength, simple int slowLength) =>
+    if fastLength <= 0 or slowLength <= 0
+        runtime.error("Lengths must be greater than 0")
+    if fastLength >= slowLength
+        runtime.error("Fast length must be less than slow length")
+    float alphaFast = 2.0 / (fastLength + 1.0)
+    float alphaSlow = 2.0 / (slowLength + 1.0)
+    var float emaFast = na var float emaSlow = na, var float e = 1.0
+    var bool warmup = true, var float result = na
+    if not na(source)
+        if na(emaFast)
+            emaFast := source, emaSlow := source, result := 0
+        else
+            emaFast := alphaFast * (source - emaFast) + emaFast
+            emaSlow := alphaSlow * (source - emaSlow) + emaSlow
+            if warmup
+                e *= (1.0 - alphaSlow)
+                float c = e > 1e-10 ? 1.0 / (1.0 - e) : 1.0
+                float aFast = emaFast * c
+                float aSlow = emaSlow * c
+                result := aFast - aSlow
+                if e <= 1e-10
+                    warmup := false
+            else
+                result := emaFast - emaSlow
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_source = input.source(close, "Source")
+i_fastLength = input.int(12, "Fast Length", minval=1)
+i_slowLength = input.int(26, "Slow Length", minval=1)
+
+// Calculation
+apo_value = apo(i_source, i_fastLength, i_slowLength)
+
+// Plot
+plot(apo_value, "APO", color.new(color.yellow, 0), 2)

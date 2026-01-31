@@ -8,21 +8,12 @@ namespace QuanTAlib;
 /// SINEMA: Sine-Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// <para>SINEMA applies sine-wave weighting to data points within the lookback window.
-/// Weights are calculated as sin(π * (i+1) / period) for each position i, creating a
-/// smooth bell-shaped weighting that emphasizes middle values while gracefully
-/// tapering at the edges.</para>
-/// <para>Calculation:
-/// w[i] = sin(π * (i+1) / period)
-/// SINEMA = Σ(P[i] * w[i]) / Σ(w[i])</para>
+/// Sine-wave weighting creating smooth bell-shaped emphasis on middle values.
+/// Better noise reduction than SMA while preserving mid-frequency trends.
 ///
-/// Unlike SMA's uniform weighting or WMA's linear ramp, sine weighting provides
-/// a smooth transition that can reduce high-frequency noise while preserving
-/// mid-frequency trends.
-///
-/// IsHot:
-/// Becomes true when the buffer is full (period samples processed).
+/// Calculation: <c>W_i = sin(π×(i+1)/n)</c>; <c>SINEMA = Σ(P_i×W_i) / Σ(W_i)</c>.
 /// </remarks>
+/// <seealso href="Sinema.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Sinema : AbstractBase
 {

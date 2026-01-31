@@ -1,0 +1,36 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Quantile Loss (Pinball Loss)", "QuantileLoss", overlay=false)
+
+//@function Calculates Quantile Loss (Pinball Loss)
+//@doc     Used for quantile regression, asymmetrically penalizes over/under-predictions.
+//@doc     q=0.5 gives MAE; q>0.5 penalizes under-prediction more; q<0.5 penalizes over-prediction more.
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for averaging
+//@param   quantile Quantile value between 0 and 1 (default 0.5)
+//@returns Mean quantile loss over the window
+quantile_loss(series float actual, series float predicted, simple int length, simple float quantile = 0.5) =>
+    // Compute quantile loss for current bar
+    float diff = nz(actual, 0.0) - nz(predicted, 0.0)
+    float loss = diff >= 0 ? quantile * diff : (quantile - 1.0) * diff
+
+    // Rolling mean of losses
+    float result = ta.sma(loss, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_quantile = input.float(0.5, "Quantile", minval=0.01, maxval=0.99, step=0.05, tooltip="0.5=median (MAE), >0.5=penalize under-prediction, <0.5=penalize over-prediction")
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+quantile_value = quantile_loss(i_actual, i_predicted, i_length, i_quantile)
+
+// Plot
+plot(quantile_value, "Quantile Loss", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

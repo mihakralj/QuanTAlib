@@ -4,9 +4,16 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// MESA Adaptive Moving Average (MAMA)
-/// A trend-following indicator that adapts to the market's phase rate of change.
+/// MAMA: MESA Adaptive Moving Average
 /// </summary>
+/// <remarks>
+/// Ehlers' dual-output adaptive filter using Hilbert Transform for cycle measurement.
+/// MAMA tracks price closely; FAMA provides smoother confirmation signal.
+///
+/// Key features: homodyne discriminator, adaptive alpha from phase rate-of-change.
+/// </remarks>
+/// <seealso href="Mama.md">Detailed documentation</seealso>
+/// <seealso href="mama.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Mama : AbstractBase
 {

@@ -1,0 +1,64 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Velocity (VEL)", "VEL", overlay=false)
+
+//@function Calculates zero-lag velocity using JMA smoothing
+//@param src Source series to calculate velocity for
+//@param period Lookback period for velocity calculation
+//@returns Smoothed velocity value measuring rate of price change
+vel(series float src, simple int period) =>
+    if period <= 0
+        runtime.error("Period must be greater than 0")
+    float source = 0.0
+    if not na(src) and not na(src[period])
+        source := src - src[period]
+    var simple float phase = 100, var simple float power = 0.2
+    var simple float PHASE_VALUE = math.min(math.max((phase * 0.01) + 1.5, 0.5), 2.5)
+    var simple float BETA = power * (period - 1) / ((power * (period - 1)) + 2)
+    var simple float LEN1 = math.max((math.log(math.sqrt(0.5*(period-1))) / math.log(2.0)) + 2.0, 0)
+    var simple float POW1 = math.max(LEN1 - 2.0, 0.5)
+    var simple float LEN2 = math.sqrt(0.5*(period-1))*LEN1
+    var simple float POW1_RECIPROCAL = 1.0 / POW1
+    var simple float AVG_VOLTY_ALPHA = 2.0 / (math.max(4.0 * period, 65) + 1.0)
+    var simple float DIV = 1.0/(10.0 + 10.0*(math.min(math.max(period-10,0),100))/100.0)
+    var float upperBand_state = na, var float lowerBand_state = na
+    var float ma1_state = na, var float jma_state = na
+    var float vSum_state = 0.0, var float det0_state = 0.0, var float det1_state = 0.0
+    var float avgVolty_state = na, var float vel = na
+    var volty_array_state = array.new_float(11, 0.0)
+    if not na(source)
+        float del1 = source - nz(upperBand_state, source), float del2 = source - nz(lowerBand_state, source)
+        float volty = math.abs(del1) == math.abs(del2) ? 0.0 : math.max(math.abs(del1), math.abs(del2))
+        array.unshift(volty_array_state, nz(volty, 0.0))
+        array.pop(volty_array_state)
+        if not na(volty)
+            vSum_state := vSum_state + (volty - array.get(volty_array_state, 10)) * DIV
+            avgVolty_state := nz(avgVolty_state, vSum_state) + AVG_VOLTY_ALPHA * (vSum_state - nz(avgVolty_state, vSum_state))
+        float rvolty = math.min(math.max(nz(avgVolty_state, 0) > 0 ? nz(volty, 0.0) / nz(avgVolty_state, 1.0) : 1.0, 1.0), math.pow(LEN1, POW1_RECIPROCAL))
+        float pow2 = math.pow(rvolty, POW1)
+        float Kv = math.pow(LEN2/(LEN2+1), math.sqrt(pow2))
+        upperBand_state := del1 > 0 ? source : source - Kv * del1
+        lowerBand_state := del2 < 0 ? source : source - Kv * del2
+        float alpha = math.pow(BETA, pow2)
+        float alphaSquared = alpha * alpha, float oneMinusAlpha = 1.0 - alpha
+        float oneMinusAlphaSquared = oneMinusAlpha * oneMinusAlpha
+        ma1_state := source + (alpha * (nz(ma1_state, source) - source))
+        det0_state := (source - ma1_state) * (1 - BETA) + BETA * nz(det0_state, 0)
+        float ma2 = ma1_state + (PHASE_VALUE * det0_state)
+        det1_state := ((ma2 - nz(jma_state, source)) * oneMinusAlphaSquared) + (alphaSquared * nz(det1_state, 0))
+        jma_state := nz(jma_state, source) + det1_state
+        vel := jma_state
+    vel
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(10, "Length", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+vel_value = vel(i_source, i_length)
+
+// Plot
+plot(vel_value, "VEL", color=color.yellow, linewidth=2)

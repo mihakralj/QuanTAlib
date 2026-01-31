@@ -8,20 +8,11 @@ namespace QuanTAlib;
 /// TRIMA: Triangular Moving Average
 /// </summary>
 /// <remarks>
-/// TRIMA applies triangular weighting to data points, emphasizing the middle of the window.
-/// Equivalent to a double SMA: SMA(SMA(period1), period2).
+/// Triangular weighting emphasizing the middle via double SMA. O(1) updates.
 ///
-/// Calculation:
-/// p1 = (period + 1) / 2
-/// p2 = period / 2 + 1
-/// TRIMA = SMA(SMA(input, p1), p2)
-///
-/// O(1) update:
-/// Uses two SMA instances, each with O(1) update complexity.
-///
-/// IsHot:
-/// Becomes true when both internal SMAs are hot.
+/// Calculation: <c>TRIMA = SMA(SMA(p1), p2)</c> where <c>p1 = (n+1)/2</c>, <c>p2 = n/2+1</c>.
 /// </remarks>
+/// <seealso href="Trima.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Trima : AbstractBase
 {

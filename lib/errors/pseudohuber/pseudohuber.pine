@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Pseudo-Huber Loss", "PseudoHuber", overlay=false)
+
+//@function Calculates Pseudo-Huber Loss (Charbonnier Loss)
+//@doc     Smooth approximation to Huber loss, differentiable everywhere.
+//@doc     Approximates L2 for small errors, L1 for large errors.
+//@doc     δ (delta) controls the transition point between quadratic and linear behavior.
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for averaging
+//@param   delta Scale parameter controlling transition smoothness (default 1.0)
+//@returns Mean Pseudo-Huber loss over the window
+pseudohuber(series float actual, series float predicted, simple int length, simple float delta = 1.0) =>
+    float deltaSquared = delta * delta
+
+    // Compute Pseudo-Huber loss for current bar: δ² * (√(1 + (error/δ)²) - 1)
+    float diff = nz(actual, 0.0) - nz(predicted, 0.0)
+    float ratio = diff / delta
+    float sqrtTerm = math.sqrt(1.0 + ratio * ratio)
+    float loss = deltaSquared * (sqrtTerm - 1.0)
+
+    // Rolling mean of losses
+    float result = ta.sma(loss, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_delta = input.float(1.0, "Delta (transition scale)", minval=0.001, step=0.1, tooltip="Controls transition between quadratic and linear behavior")
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+pseudohuber_value = pseudohuber(i_actual, i_predicted, i_length, i_delta)
+
+// Plot
+plot(pseudohuber_value, "Pseudo-Huber", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

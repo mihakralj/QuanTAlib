@@ -1,0 +1,41 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Variance, Dispersion or Spread (VARIANCE)", "VARIANCE", overlay=false)
+
+//@function variance
+//@doc https://github.com/mihakralj/pinescript/blob/main/indicators/statistics/variance.md
+//@param src {series float} Source series.
+//@param len {int} Lookback length. `len` > 0.
+//@returns {series float} Variance of `src` for `len` bars back. Returns 0 if not enough data.
+variance(series float src, int len) =>
+    if len <= 0
+        runtime.error("Period must be greater than 0")
+    var int p = math.max(1, len)
+    var array<float> buffer = array.new_float(p, na)
+    var int head = 0,  var int count = 0
+    var float sum = 0.0, var float sumSq = 0.0
+    float oldest = array.get(buffer, head)
+    if not na(oldest)
+        sum -= oldest
+        sumSq -= oldest * oldest
+        count -= 1
+    float val = nz(src)
+    sum += val
+    sumSq += val * val
+    count += 1
+    array.set(buffer, head, val)
+    head := (head + 1) % p
+    count > 1 ? math.max(0.0, (sumSq / count) - math.pow(sum / count, 2)) : 0.0
+
+// ---------- Main loop ----------
+
+// Inputs
+i_period = input.int(14, "Period", minval=1)
+i_source = input.source(close, "Source")
+
+// Calculation
+variance_value = variance(i_source, i_period)
+
+// Plot
+plot(variance_value, "Var", color=color.yellow, linewidth=2)

@@ -8,17 +8,12 @@ namespace QuanTAlib;
 /// RSI: Relative Strength Index
 /// </summary>
 /// <remarks>
-/// RSI measures the speed and change of price movements.
+/// Momentum oscillator measuring overbought/oversold conditions [0-100].
+/// Uses Wilder's smoothing (RMA) for average gain/loss calculation.
 ///
-/// Calculation:
-/// RS = Average Gain / Average Loss
-/// RSI = 100 - 100 / (1 + RS)
-///
-/// Average Gain/Loss are smoothed using RMA (Wilder's Smoothing).
-///
-/// Sources:
-/// https://www.investopedia.com/terms/r/rsi.asp
+/// Calculation: <c>RSI = 100 - 100/(1 + RS)</c> where <c>RS = AvgGain/AvgLoss</c>.
 /// </remarks>
+/// <seealso href="Rsi.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Rsi : AbstractBase
 {

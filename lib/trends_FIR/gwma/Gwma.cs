@@ -8,15 +8,12 @@ namespace QuanTAlib;
 /// GWMA: Gaussian-Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// GWMA uses a centered Gaussian window to weight price data.
-/// Definition:
-/// center = (period - 1) / 2
-/// W_i = exp(-0.5 * ((i - center) / (sigma * period))^2)
+/// Centered Gaussian window weighting with sigma-controlled bell curve width.
+/// Symmetric smoothing emphasizing center of window.
 ///
-/// The final GWMA is the weighted sum of the price window divided by the sum of weights.
-/// Unlike ALMA (which has an offset parameter), GWMA centers the Gaussian peak at the
-/// middle of the window and uses sigma to control the bell curve width.
+/// Calculation: <c>W_i = exp(-0.5×((i - center)/(σ×n))²)</c> centered at <c>(n-1)/2</c>.
 /// </remarks>
+/// <seealso href="Gwma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Gwma : AbstractBase
 {

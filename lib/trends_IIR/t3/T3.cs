@@ -7,22 +7,13 @@ namespace QuanTAlib;
 /// T3: Tillson T3 Moving Average
 /// </summary>
 /// <remarks>
-/// T3 works by running price data through a series of six EMAs, then combining the outputs
-/// of these EMAs using carefully calculated weights.
+/// Six cascaded EMAs with weighted combination for ultra-smooth trend following.
+/// The volume factor controls overshooting behavior; lower values reduce lag.
 ///
-/// Formula:
-/// T3 = c1*e6 + c2*e5 + c3*e4 + c4*e3
-///
-/// Where:
-/// e1..e6 are cascaded EMAs
-/// c1 = -v^3
-/// c2 = 3(v^2 + v^3)
-/// c3 = -3(2v^2 + v + v^3)
-/// c4 = 1 + 3v + 3v^2 + v^3
-///
-/// v is volume factor (default 0.7)
-/// alpha = 2 / (period + 1)
+/// Calculation: <c>T3 = c1×e6 + c2×e5 + c3×e4 + c4×e3</c> (six EMAs with polynomial weights).
 /// </remarks>
+/// <seealso href="T3.md">Detailed documentation</seealso>
+/// <seealso href="t3.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class T3 : AbstractBase
 {

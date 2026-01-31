@@ -4,22 +4,15 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// Convolution Indicator
+/// CONV: Convolution Filter
 /// </summary>
 /// <remarks>
-/// Applies a custom kernel (weights) to the data window.
-/// The kernel is applied such that kernel[0] multiplies the oldest data point in the window,
-/// and kernel[n-1] multiplies the newest data point.
+/// FIR filter applying custom kernel weights via dot product.
+/// Foundation for all window-based moving averages.
 ///
-/// Calculation:
-/// Result = Sum(kernel[i] * data[i]) for i = 0 to n-1
-///
-/// Complexity:
-/// Update: O(K) where K is kernel length.
-///
-/// IMPORTANT: This class implements IDisposable. When using the constructor with ITValuePublisher,
-/// you MUST dispose the instance to unsubscribe from the source event and prevent memory leaks.
+/// Calculation: <c>Result = Σ(kernel[i] × data[i])</c> where kernel[0] weights oldest sample.
 /// </remarks>
+/// <seealso href="Conv.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Conv : AbstractBase
 {

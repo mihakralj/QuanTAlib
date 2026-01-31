@@ -1,0 +1,38 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Mean Relative Absolute Error", "MRAE", overlay=false)
+
+//@function Calculates Mean Relative Absolute Error
+//@doc     Average relative absolute error, normalized by actual value.
+//@doc     Similar to MAPE but expressed as ratio (0-1) instead of percentage (0-100%).
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for averaging
+//@returns MRAE value (0 = perfect, 1 = 100% error)
+mrae(series float actual, series float predicted, simple int length) =>
+    float epsilon = 1e-10
+
+    // Compute relative absolute error for current bar
+    float absActual = math.abs(nz(actual, 1.0))
+    float absError = math.abs(nz(actual, 0.0) - nz(predicted, 0.0))
+    float relError = absActual > epsilon ? absError / absActual : 0.0
+
+    // Rolling mean of relative errors
+    float result = ta.sma(relError, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+mrae_value = mrae(i_actual, i_predicted, i_length)
+
+// Plot
+plot(mrae_value, "MRAE", color=color.yellow, linewidth=2)
+hline(0, "Perfect", color=color.green, linestyle=hline.style_dotted)
+hline(1, "100% Error", color=color.red, linestyle=hline.style_dotted)

@@ -25,24 +25,12 @@ file static class CfbDefaults
 /// CFB: Jurik Composite Fractal Behavior (Trend Duration Index)
 /// </summary>
 /// <remarks>
-/// CFB measures the duration of a trend by analyzing fractal efficiency across multiple time scales.
-/// It calculates a composite index based on which lookback periods show "quality" trending behavior.
+/// Measures trend duration via fractal efficiency across multiple timescales.
+/// Adaptive, zero-lag indicator for modulating other indicator periods.
 ///
-/// Key characteristics:
-/// - Adaptive: Adjusts to market fractal patterns.
-/// - Granular: Uses a dense array of lookback lengths for smooth transitions.
-/// - Composite: Weighted average of qualifying trend lengths.
-/// - Zero-lag: Designed to modulate other indicators with minimal latency.
-///
-/// Calculation:
-/// 1. For each length L:
-///    Ratio = NetMove(L) / TotalVolatility(L)
-///    where NetMove = Abs(Price - Price[L ago])
-///    and TotalVolatility = Sum(Abs(Price[i] - Price[i-1])) over L bars.
-/// 2. Filter: Only consider lengths where Ratio > Threshold (0.25).
-/// 3. Composite: Weighted average of qualifying lengths (Weight = Ratio).
-/// 4. Decay: If no trend found, decay the previous CFB value.
+/// Calculation: <c>CFB = Σ(L×Ratio) / Σ(Ratio)</c> for lengths where <c>NetMove/TotalVol ≥ 0.25</c>.
 /// </remarks>
+/// <seealso href="Cfb.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Cfb : ITValuePublisher, IDisposable
 {

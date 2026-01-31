@@ -8,12 +8,12 @@ namespace QuanTAlib;
 /// BWMA: Bessel-Weighted Moving Average
 /// </summary>
 /// <remarks>
-/// BWMA applies a Bessel window over the last N samples (FIR).
-/// <para>Window coefficient definition:</para>
-/// <para>x(i) = 2*i/(p-1) - 1 (maps i to [-1, 1]), arg = 1 - x(i)^2</para>
-/// <para>w(i) = arg^(order/2 + 0.5) (with PineScript special-cases for order 0 and 1)</para>
-/// <para>Output = sum(window[i] * w(i)) / sum(w(i))</para>
+/// FIR MA using Bessel window coefficients with adjustable order.
+/// Higher order produces sharper window; order 0 = parabolic.
+///
+/// Calculation: <c>W_i = (1 - x²)^(order/2 + 0.5)</c> where <c>x = 2i/(n-1) - 1</c>.
 /// </remarks>
+/// <seealso href="Bwma.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Bwma : AbstractBase
 {

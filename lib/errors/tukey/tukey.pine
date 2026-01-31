@@ -1,0 +1,49 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Tukey's Biweight Loss", "TukeyBiweight", overlay=false)
+
+//@function Calculates Tukey's Biweight (Bisquare) Loss
+//@doc     Robust loss that completely rejects outliers beyond threshold c.
+//@doc     ρ(x) = (c²/6) * (1 - (1 - (x/c)²)³) for |x| ≤ c; ρ(x) = c²/6 for |x| > c
+//@doc     Common c values: 4.685 (95% efficiency), 6.0 (more permissive)
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for averaging
+//@param   c Threshold for outlier rejection (default 4.685)
+//@returns Mean Tukey biweight loss over the window
+tukey_biweight(series float actual, series float predicted, simple int length, simple float c = 4.685) =>
+    float cSquaredOver6 = (c * c) / 6.0
+
+    // Compute Tukey biweight loss for current bar
+    float error = nz(actual, 0.0) - nz(predicted, 0.0)
+    float absError = math.abs(error)
+
+    float loss = 0.0
+    if absError > c
+        loss := cSquaredOver6
+    else
+        float ratio = error / c
+        float ratioSq = ratio * ratio
+        float oneMinusRatioSq = 1.0 - ratioSq
+        float cubed = oneMinusRatioSq * oneMinusRatioSq * oneMinusRatioSq
+        loss := cSquaredOver6 * (1.0 - cubed)
+
+    // Rolling mean of losses
+    float result = ta.sma(loss, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_c = input.float(4.685, "Threshold c", minval=0.1, step=0.1, tooltip="4.685=95% efficiency for normal; 6.0=more permissive")
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+tukey_value = tukey_biweight(i_actual, i_predicted, i_length, i_c)
+
+// Plot
+plot(tukey_value, "Tukey Biweight", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

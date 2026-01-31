@@ -7,16 +7,13 @@ namespace QuanTAlib;
 /// KAMA: Kaufman's Adaptive Moving Average
 /// </summary>
 /// <remarks>
-/// KAMA adapts to market volatility by adjusting its smoothing factor based on an Efficiency Ratio (ER).
-/// ER is calculated as the ratio of the absolute price change over a period to the sum of absolute price changes (volatility).
+/// Adapts smoothing based on efficiency ratio (signal/noise) to reduce whipsaws in ranging markets.
+/// Faster in trends, slower during consolidation.
 ///
-/// Formula:
-/// ER = Change / Volatility
-/// Change = Abs(Price - Price[period])
-/// Volatility = Sum(Abs(Price[i] - Price[i-1]), period)
-/// SC = (ER * (fast_alpha - slow_alpha) + slow_alpha)^2
-/// KAMA = KAMA[prev] + SC * (Price - KAMA[prev])
+/// Calculation: <c>ER = |Change|/Volatility; SC = (ER×(αfast-αslow)+αslow)²; KAMA += SC×(P-KAMA)</c>.
 /// </remarks>
+/// <seealso href="Kama.md">Detailed documentation</seealso>
+/// <seealso href="kama.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Kama : AbstractBase
 {

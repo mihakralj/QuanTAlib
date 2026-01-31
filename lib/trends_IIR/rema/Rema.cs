@@ -9,26 +9,12 @@ namespace QuanTAlib;
 /// REMA: Regularized Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// REMA combines exponential smoothing with a regularization term that penalizes
-/// deviations from the previous trend direction. This produces a smoother output
-/// than standard EMA while maintaining responsiveness to genuine price changes.
+/// Combines EMA smoothing with regularization term penalizing trend direction changes.
+/// Lambda controls blend: 0 = pure momentum, 1 = standard EMA.
 ///
-/// Calculation:
-/// alpha = 2 / (period + 1)
-/// ema_component = alpha * (source - rema) + rema
-/// reg_component = rema + (rema - prev_rema)  // momentum continuation
-/// REMA = lambda * (ema_component - reg_component) + reg_component
-///
-/// Parameters:
-/// - period: Controls the EMA decay rate (alpha = 2/(period+1))
-/// - lambda: Regularization strength (0 = max regularization, 1 = standard EMA)
-///
-/// O(1) update:
-/// Only requires previous REMA and prev_prev_REMA values.
-///
-/// IsHot:
-/// Becomes true after sufficient warmup similar to EMA.
+/// Calculation: <c>REMA = λ×(EMA_comp - REG_comp) + REG_comp</c>.
 /// </remarks>
+/// <seealso href="Rema.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Rema : AbstractBase
 {

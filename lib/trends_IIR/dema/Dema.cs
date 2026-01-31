@@ -8,19 +8,13 @@ namespace QuanTAlib;
 /// DEMA: Double Exponential Moving Average
 /// </summary>
 /// <remarks>
-/// DEMA reduces the lag of traditional EMA by subtracting the lag from the original EMA.
+/// Reduces lag by applying double smoothing and subtracting the extra smoothing.
+/// More responsive than EMA while maintaining smoothness.
 ///
-/// Calculation:
-/// EMA1 = EMA(input)
-/// EMA2 = EMA(EMA1)
-/// DEMA = 2 * EMA1 - EMA2
-///
-/// O(1) update:
-/// Uses two EMA instances, each with O(1) update complexity.
-///
-/// IsHot:
-/// Becomes true when the second EMA converges (approx. 2x EMA convergence time).
+/// Calculation: <c>DEMA = 2×EMA(p) - EMA(EMA(p))</c>.
 /// </remarks>
+/// <seealso href="Dema.md">Detailed documentation</seealso>
+/// <seealso href="dema.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Dema : AbstractBase
 {

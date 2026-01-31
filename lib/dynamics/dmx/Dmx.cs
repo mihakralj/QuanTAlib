@@ -5,10 +5,15 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// DMX – Jurik Directional Movement Index
-/// A smoother, lower-lag alternative to Welles Wilder’s DMI/ADX.
-/// Uses Jurik Moving Average (JMA) for smoothing directional movement components.
+/// DMX: Jurik Directional Movement Index
 /// </summary>
+/// <remarks>
+/// Smoother DMI alternative using JMA instead of Wilder smoothing (Jurik).
+/// Lower lag than ADX while maintaining directional trend detection.
+///
+/// Calculation: <c>DMX = DI+ - DI-</c> where DI values use JMA-smoothed +DM/-DM/TR.
+/// </remarks>
+/// <seealso href="Dmx.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Dmx : ITValuePublisher
 {

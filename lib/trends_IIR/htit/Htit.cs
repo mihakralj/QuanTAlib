@@ -4,15 +4,16 @@ using System.Runtime.InteropServices;
 namespace QuanTAlib;
 
 /// <summary>
-/// HTIT: Ehlers Hilbert Transform Instantaneous Trend
-/// A trend-following indicator that uses the Hilbert Transform to measure the dominant cycle period
-/// and compute an instantaneous trendline. It adapts to market cycles to reduce lag while maintaining smoothness.
+/// HTIT: Hilbert Transform Instantaneous Trendline
 /// </summary>
 /// <remarks>
-/// Sources:
-/// https://github.com/mihakralj/pinescript/blob/main/indicators/trends_IIR/htit.md
-/// https://dotnet.stockindicators.dev/indicators/HtTrendline/
+/// Ehlers' adaptive trendline using Hilbert Transform cycle measurement.
+/// Averages price over the measured dominant cycle period for cycle-adaptive smoothing.
+///
+/// Key features: homodyne discriminator, period-adaptive averaging window.
 /// </remarks>
+/// <seealso href="Htit.md">Detailed documentation</seealso>
+/// <seealso href="htit.pine">Reference Pine Script implementation</seealso>
 [SkipLocalsInit]
 public sealed class Htit : AbstractBase
 {

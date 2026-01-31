@@ -8,14 +8,12 @@ namespace QuanTAlib;
 /// VEL: Jurik Velocity
 /// </summary>
 /// <remarks>
-/// VEL is a momentum oscillator calculated as the difference between a Parabolic Weighted Moving Average (PWMA)
-/// and a Weighted Moving Average (WMA) of the same period.
+/// Momentum oscillator measuring smoothed rate of price change using differential weighting.
+/// Compares parabolic vs linear weight distributions for trend sensitivity.
 ///
-/// Calculation:
-/// VEL = PWMA(Period) - WMA(Period)
-///
-/// This indicator measures the rate of change of the price, smoothed by the difference in weighting schemes.
+/// Calculation: <c>VEL = PWMA(Period) - WMA(Period)</c>.
 /// </remarks>
+/// <seealso href="Vel.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Vel : ITValuePublisher, IDisposable
 {

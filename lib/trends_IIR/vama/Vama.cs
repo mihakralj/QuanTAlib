@@ -7,20 +7,12 @@ namespace QuanTAlib;
 /// VAMA: Volatility Adjusted Moving Average
 /// </summary>
 /// <remarks>
-/// VAMA dynamically adjusts its smoothing period based on the ratio of long-term
-/// to short-term volatility (measured via ATR). During low volatility periods,
-/// the effective period increases for smoother output; during high volatility,
-/// it decreases for faster response.
+/// Adaptive MA that adjusts period based on long/short ATR volatility ratio.
+/// Higher volatility → shorter period (faster); lower volatility → longer period (smoother).
 ///
-/// Calculation:
-/// 1. Short ATR = RMA(TR, short_period) with bias compensation
-/// 2. Long ATR = RMA(TR, long_period) with bias compensation
-/// 3. Volatility Ratio = Long_ATR / Short_ATR (clamped to avoid division by zero)
-/// 4. Adjusted Length = base_length * volatility_ratio, clamped to [min_length, max_length]
-/// 5. VAMA = SMA(source, adjusted_length)
-///
-/// O(1) ATR updates via RMA; O(adjusted_length) for SMA over the buffer.
+/// Calculation: <c>length = baseLength × (LongATR/ShortATR)</c>, clamped to [min, max].
 /// </remarks>
+/// <seealso href="Vama.md">Detailed documentation</seealso>
 [SkipLocalsInit]
 public sealed class Vama : AbstractBase
 {
