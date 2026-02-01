@@ -1,0 +1,45 @@
+// The MIT License (MIT)
+// © mihakralj
+//@version=6
+indicator("Log-Cosh Loss", "LogCosh", overlay=false)
+
+//@function Computes log(cosh(x)) in a numerically stable way
+//@doc     For large |x|, cosh(x) ≈ exp(|x|)/2, so log(cosh(x)) ≈ |x| - log(2)
+//@param   x The input value
+//@returns log(cosh(x))
+stable_logcosh(float x) =>
+    float LOG2 = 0.6931471805599453
+    float absX = math.abs(x)
+    // For large values, use asymptotic approximation to avoid overflow
+    absX > 20.0 ? absX - LOG2 : math.log(math.cosh(x))
+
+//@function Calculates Log-Cosh Loss
+//@doc     Smooth approximation to absolute error, twice differentiable everywhere.
+//@doc     Approximates L1 loss for large errors, L2 for small errors.
+//@doc     Less sensitive to outliers than MSE.
+//@param   actual Series of actual values
+//@param   predicted Series of predicted/forecast values
+//@param   length Rolling window for averaging
+//@returns Mean log-cosh loss over the window
+logcosh_loss(series float actual, series float predicted, simple int length) =>
+    // Compute log-cosh loss for current bar
+    float error = nz(actual, 0.0) - nz(predicted, 0.0)
+    float loss = stable_logcosh(error)
+
+    // Rolling mean of losses
+    float result = ta.sma(loss, length)
+    result
+
+// ---------- Main loop ----------
+
+// Inputs
+i_length = input.int(14, "Length", minval=1)
+i_actual = input.source(close, "Actual")
+i_predicted = input.source(open, "Predicted")
+
+// Calculation
+logcosh_value = logcosh_loss(i_actual, i_predicted, i_length)
+
+// Plot
+plot(logcosh_value, "Log-Cosh Loss", color=color.yellow, linewidth=2)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)

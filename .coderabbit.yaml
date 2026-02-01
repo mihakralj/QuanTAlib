@@ -1,5 +1,8 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
-# CodeRabbit Configuration - Batch 1: Implementation files only
+# CodeRabbit Configuration - QuanTAlib
+#
+# Reviews ONLY implementation .cs files (~196 files)
+# Auto-detects new indicators
 
 language: en-US
 
@@ -10,85 +13,21 @@ reviews:
   auto_title_placeholder: "@coderabbitai"
   review_status: true
   collapse_walkthrough: false
-  path_instructions: []
-  tools:
-    ast-grep:
-      essential_rules: true
-      rule_dirs:
-        - .coderabbit/ast-grep-rules
 
   path_filters:
-    # ============================================
-    # Only analyze .cs implementation files in lib/
-    # Excludes: Tests, Quantower adapters, all non-.cs files
-    # ============================================
-
-    # INCLUDE: Only .cs files in lib directory
+    # INCLUDE: Only .cs files in lib/
     - "lib/**/*.cs"
 
     # EXCLUDE: Test files
     - "!**/*.Tests.cs"
     - "!**/*.Validation.Tests.cs"
 
-    # EXCLUDE: Quantower adapter files
+    # EXCLUDE: Quantower adapters
     - "!**/*.Quantower.cs"
 
-
-    # EXCLUDE: All non-.cs files
-    - "!**/*.md"
-    - "!**/*.pine"
-    - "!**/*.json"
-    - "!**/*.yaml"
-    - "!**/*.yml"
-    - "!**/*.xml"
-    - "!**/*.props"
-    - "!**/*.targets"
-    - "!**/*.csproj"
-    - "!**/*.sln"
-    - "!**/*.runsettings"
-    - "!**/*.editorconfig"
-    - "!**/*.gitignore"
-    - "!**/*.gitattributes"
-    - "!**/*.sarif"
-    - "!**/*.html"
-    - "!**/*.css"
-    - "!**/*.png"
-    - "!**/*.gif"
-    - "!**/*.dll"
-    - "!**/*.exe"
-    - "!**/*.ps1"
-
-    # EXCLUDE: All directories outside lib/
-    - "!quantower/**"
-    - "!perf/**"
-    - "!ndepend/**"
-    - "!docfx/**"
-    - "!docs/**"
-    - "!temp/**"
-    - "!TestResults/**"
-    - "!TestResultsCoverage/**"
-    - "!.sarif/**"
+    # EXCLUDE: Build artifacts
     - "!**/obj/**"
     - "!**/bin/**"
 
 chat:
   auto_reply: true
-
-# ==============================================
-# BATCH 2 INSTRUCTIONS (for future PR):
-# ==============================================
-# To review test files, create a separate PR or
-# modify path_filters to:
-#   - "lib/**/*.Tests.cs"
-#   - "lib/**/*.Validation.Tests.cs"
-#   - "quantower/**/*.cs"
-# And exclude implementation files:
-#   - "!lib/**/[!T]*.cs"  (files not starting with T)
-#
-# Test file breakdown by category:
-#   - channels: ~40 test files
-#   - trends_IIR: ~35 test files
-#   - trends_FIR: ~30 test files
-#   - filters: ~30 test files
-#   - Other categories: ~290 test files
-# ==============================================
