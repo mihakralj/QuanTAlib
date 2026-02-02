@@ -71,7 +71,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Butterworth Filter** | [Butter](../lib/trends/butter/Butter.md) | - | - | - | ✔️ |
 | **Camarilla Pivot Points** | Pivotcam | - | - | - | ❔ |
 | **Chaikin Money Flow** | Cmf | - | - | ✔️ | ❔ |
-| **Chaikin Volatility** | Cvi | - | ✔️ | - | ❔ |
+| **Chaikin Volatility** | [Cvi](../lib/volatility/cvi/Cvi.md) | - | ✔️ | - | ❔ |
 | **Chande Forecast Oscillator** | Cfo | - | - | - | ❔ |
 | **Chande Momentum Oscillator** | Cmo | ✔️ | ✔️ | ✔️ | ❔ |
 | **Chebyshev Type I Filter** | Cheby1 | - | - | - | - |
@@ -81,7 +81,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Cointegration** | Cointegration | - | - | - | - |
 | **Commodity Channel Index** | Cci | ✔️ | ✔️ | ✔️ | ❔ |
 | **Composite Fractal Behavior** | [Cfb](../lib/momentum/cfb/cfb.md) | - | - | - | - |
-| **Conditional Volatility** | Cv | - | - | - | - |
+| **Conditional Volatility** | [Cv](../lib/volatility/cv/Cv.md) | - | - | - | - |
 | **Convolution Moving Average** | [Conv](../lib/trends/conv/conv.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Correlation** | Correlation | ✔️ | - | ✔️ | - |
 | **Cumulative Moving Average** | [Cma](../lib/statistics/cma/Cma.md) | - | - | - | - |
@@ -111,13 +111,13 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Elliptic (Cauer) Filter** | [Elliptic](../lib/filters/elliptic/Elliptic.md) | - | - | - | ❔ |
 | **Exponential Moving Average** | [Ema](../lib/trends/ema/ema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Exponential Transformation** | Exptrans | - | - | - | - |
-| **Exponential Weighted MA Volatility** | Ewma | - | - | - | - |
+| **Exponential Weighted MA Volatility** | [Ewma](../lib/volatility/ewma/Ewma.md) | - | - | - | - |
 | **Extended Traditional Pivots** | Pivotext | - | - | - | - |
 | **Fibonacci Pivot Points** | Pivotfib | - | - | - | ❔ |
 | **Fisher Transform** | Fisher | - | ✔️ | ✔️ | ❔ |
 | **Force Index** | [Efi](../lib/volume/efi/Efi.md) | - | - | - | - |
 | **Fractal Chaos Bands** | [Fcb](../lib/channels/fcb/fcb.md) | - | - | ✔️ | ❔ |
-| **Garman-Klass Volatility** | Gkv | - | - | - | ❔ |
+| **Garman-Klass Volatility** | [Gkv](../lib/volatility/gkv/Gkv.md) | - | - | - | - |
 | **Gaussian Filter** | [Gauss](../lib/filters/gauss/Gauss.md) | - | - | - | ❔ |
 | **Gaussian-Weighted MA** | Gwma | - | - | - | - |
 | **Geometric Mean** | Geomean | - | - | - | - |
@@ -126,7 +126,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Hann FIR Filter** | [Hann](../lib/filters/hann/Hann.md) | - | - | - | - |
 | **Hanning Window MA** | Hanma | - | - | - | ❔ |
 | **Harmonic Mean** | Harmean | - | - | - | - |
-| **High-Low Volatility** | Hlv | - | - | - | - |
+| **High-Low Volatility (Parkinson)** | [Hlv](../lib/volatility/hlv/Hlv.md) | - | - | - | - |
 | **Highest value** | [Highest](../lib/numerics/highest/Highest.md) | ✔️ | ✔️ | - | - |
 | **Hilbert Transform Dominant Cycle Period** | Ht_dcperiod | ✔️ | - | - | - |
 | **Hilbert Transform Dominant Cycle Phase** | Ht_dcphase | ✔️ | - | - | - |
@@ -134,7 +134,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Hilbert Transform Phasor** | Ht_phasor | ✔️ | - | - | - |
 | **Hilbert Transform Sine Wave** | Ht_sine | ✔️ | ✔️ | - | - |
 | **Hilbert Transform Trend Mode** | Ht_trendmode | ✔️ | - | - | - |
-| **Historical Volatility** | Hv | - | - | - | ❔ |
+| **Historical Volatility (Close-to-Close)** | [Hv](../lib/volatility/hv/Hv.md) | - | - | - | - |
 | **Hodrick-Prescott Filter** | [Hp](../lib/filters/hp/Hp.md) | - | - | - | - |
 | **Holt Weighted MA** | Hwma | - | - | - | ❔ |
 | **Homodyne Discriminator Dominant Cycle** | Homod | - | - | - | ❔ |

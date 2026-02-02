@@ -14,12 +14,12 @@ Volatility measures the magnitude of price changes, independent of direction. Lo
 | BBWN | BB Width Normalized | BBW normalized to [0,1] range. |
 | BBWP | BB Width Percentile | BBW percentile rank over lookback. |
 | CCV | Close-to-Close Volatility | Annualized volatility from log returns. |
-| CV | Conditional Volatility | GARCH(1,1) model for time-varying volatility. |
-| CVI | Chaikin Volatility | Rate of change in smoothed High-Low range. |
-| EWMA | EWMA Volatility | Exponentially weighted squared returns. |
-| GKV | Garman-Klass Volatility | Efficient OHLC-based estimator. |
-| HLV | High-Low Volatility | Range-based volatility without close. |
-| HV | Historical Volatility | Standard deviation of returns. |
+| [CV](lib/volatility/cv/Cv.md) | Conditional Volatility | GARCH(1,1) model for time-varying volatility. |
+| [CVI](lib/volatility/cvi/Cvi.md) | Chaikin Volatility | Rate of change in smoothed High-Low range. |
+| [EWMA](lib/volatility/ewma/Ewma.md) | EWMA Volatility | Exponentially weighted squared returns with bias correction. |
+| [GKV](lib/volatility/gkv/Gkv.md) | Garman-Klass Volatility | Efficient OHLC-based estimator with RMA smoothing. |
+| [HLV](lib/volatility/hlv/Hlv.md) | High-Low Volatility (Parkinson) | Range-based volatility using only high-low prices. |
+| [HV](lib/volatility/hv/Hv.md) | Historical Volatility (Close-to-Close) | Standard deviation of log returns with rolling window. |
 | JVOLTY | Jurik Volatility | Low-lag, smooth Jurik volatility. |
 | JVOLTYN | Jurik Volatility Normalized | JVOLTY normalized to [0,1]. |
 | MASSI | Mass Index | Range expansion/contraction for reversal detection. |
