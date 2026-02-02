@@ -482,6 +482,9 @@ public sealed class Maenv : ITValuePublisher, IDisposable
             case MaenvType.WMA:
                 BatchWMA(source, middle, upper, lower, period, percentage);
                 break;
+            default:
+                BatchEMA(source, middle, upper, lower, period, percentage);
+                break;
         }
     }
 

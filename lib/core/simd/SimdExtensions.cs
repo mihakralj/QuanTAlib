@@ -182,6 +182,19 @@ public static class SimdExtensions
     /// If result is non-finite, falls back to explicit check.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double SumSIMD(this Span<double> span)
+    {
+        return SumSIMD((ReadOnlySpan<double>)span);
+    }
+
+    /// <summary>
+    /// Calculates sum using SIMD vectorization when available.
+    /// 4-8x faster than scalar loop on AVX2/AVX-512 hardware.
+    /// Returns NaN if any input value is non-finite.
+    /// Uses lazy non-finite check: computes sum first, then validates result.
+    /// If result is non-finite, falls back to explicit check.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double SumSIMD(this ReadOnlySpan<double> span)
     {
         if (span.IsEmpty)

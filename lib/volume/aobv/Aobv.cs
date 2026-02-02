@@ -145,7 +145,10 @@ public sealed class Aobv : ITValuePublisher
         // Calculate OBV
         if (s.Index == 0)
         {
-            s.Obv = 0; // First bar, no comparison - matches span Calculate
+            // First bar initialization - all values start at 0
+            s.Obv = 0;
+            s.EmaFast = 0;
+            s.EmaSlow = 0;
         }
         else
         {
@@ -161,11 +164,6 @@ public sealed class Aobv : ITValuePublisher
         }
 
         // Calculate EMA Fast with warmup compensation
-        if (s.Index == 0)
-        {
-            s.EmaFast = 0;
-        }
-
         s.EmaFast = Math.FusedMultiplyAdd(_alphaFast, s.Obv - s.EmaFast, s.EmaFast);
 
         double resultFast;
@@ -185,11 +183,6 @@ public sealed class Aobv : ITValuePublisher
         }
 
         // Calculate EMA Slow with warmup compensation
-        if (s.Index == 0)
-        {
-            s.EmaSlow = 0;
-        }
-
         s.EmaSlow = Math.FusedMultiplyAdd(_alphaSlow, s.Obv - s.EmaSlow, s.EmaSlow);
 
         double resultSlow;

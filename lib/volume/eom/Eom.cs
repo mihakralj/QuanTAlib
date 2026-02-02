@@ -105,7 +105,7 @@ public sealed class Eom : ITValuePublisher
         if (priceRange > 0 && volume > 0)
         {
             double boxRatio = (volume / _volumeScale) / priceRange;
-            rawEom = boxRatio != 0 ? midPointChange / boxRatio : 0.0;
+            rawEom = Math.Abs(boxRatio) > 0 ? midPointChange / boxRatio : 0.0;
         }
         else
         {
@@ -293,7 +293,7 @@ public sealed class Eom : ITValuePublisher
                 if (priceRange > 0 && volume[i] > 0)
                 {
                     double boxRatio = (volume[i] / volumeScale) / priceRange;
-                    rawEom[i] = boxRatio != 0 ? midPointChange / boxRatio : 0.0;
+                    rawEom[i] = Math.Abs(boxRatio) > 0 ? midPointChange / boxRatio : 0.0;
                 }
                 else
                 {

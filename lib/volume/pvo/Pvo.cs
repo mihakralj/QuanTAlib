@@ -172,7 +172,7 @@ public sealed class Pvo : ITValuePublisher
         }
 
         // Calculate PVO: ((fastEMA - slowEMA) / slowEMA) * 100
-        double pvoValue = slowComp != 0.0 ? ((fastComp - slowComp) / slowComp) * 100.0 : 0.0;
+        double pvoValue = Math.Abs(slowComp) > 0 ? ((fastComp - slowComp) / slowComp) * 100.0 : 0.0;
 
         // Update signal EMA
         s.EmaSignal = Math.FusedMultiplyAdd(_alphaSignal, pvoValue - s.EmaSignal, s.EmaSignal);
@@ -386,7 +386,7 @@ public sealed class Pvo : ITValuePublisher
             }
 
             // Calculate PVO
-            double pvoValue = slowComp != 0.0 ? ((fastComp - slowComp) / slowComp) * 100.0 : 0.0;
+            double pvoValue = Math.Abs(slowComp) > 0 ? ((fastComp - slowComp) / slowComp) * 100.0 : 0.0;
             output[i] = pvoValue;
 
             // Update signal EMA

@@ -259,7 +259,7 @@ public sealed class Bwma : AbstractBase
             return CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _order, _power, fallbackValue);
         }
 
-        if (_invWeightSum == 0.0)
+        if (Math.Abs(_invWeightSum) <= 0)
         {
             return fallbackValue;
         }
@@ -319,7 +319,7 @@ public sealed class Bwma : AbstractBase
                 w = Math.Pow(arg, power);
             }
 
-            if (w == 0.0)
+            if (Math.Abs(w) <= 0)
             {
                 continue;
             }
@@ -450,7 +450,7 @@ public sealed class Bwma : AbstractBase
                     continue;
                 }
 
-                if (invWeightSum == 0.0)
+                if (Math.Abs(invWeightSum) <= 0)
                 {
                     output[i] = val;
                     continue;

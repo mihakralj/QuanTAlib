@@ -149,9 +149,9 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Intraday Momentum Index** | Imi | - | - | - | ❔ |
 | **Jarque-Bera Test** | Jb | - | - | - | - |
 | **Jurik Moving Average** | [Jma](../lib/trends/jma/jma.md) | - | - | - | ❔ |
-| **Jurik Volatility** | Jvolty | - | - | - | - |
+| **Jurik Volatility** | [Jvolty](../lib/volatility/jvolty/Jvolty.md) | - | - | - | - |
 | **Jurik Adaptive Envelope Bands** | [Jbands](../lib/channels/jbands/Jbands.md) | - | - | - | - |
-| **Jurik Volatility Normalized [0,1]** | Jvoltyn | - | - | - | - |
+| **Jurik Volatility Normalized [0,100]** | [Jvoltyn](../lib/volatility/jvoltyn/Jvoltyn.md) | - | - | - | - |
 | **Kalman Filter** | [Kalman](../lib/filters/kalman/Kalman.md) | - | - | - | - |
 | **Kaufman Adaptive Moving Average** | [Kama](../lib/trends/kama/kama.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **KDJ Indicator** | Kdj | - | - | - | - |
@@ -170,7 +170,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Lunar Phase** | Lunar | - | - | - | - |
 | **Lowest value** | [Lowest](../lib/numerics/lowest/Lowest.md) | ✔️ | ✔️ | - | - |
 | **Lunar Phase** | Lunar | - | - | - | - |
-| **Mass Index** | Mass | - | ✔️ | - | ❔ |
+| **Mass Index** | [Massi](../lib/volatility/massi/Massi.md) | - | ✔️ | - | ❔ |
 | **McGinley Dynamic** | [Mgdi](../lib/trends/mgdi/mgdi.md) | - | - | ✔️ | ✔️ |
 | **Mean Absolute Error** | Mae | - | - | - | - |
 | **Mean Absolute Percentage Difference** | Mapd | - | - | - | - |
@@ -198,7 +198,6 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Notch Filter** | [Notch](../lib/filters/notch/Notch.md) | - | - | - | - |
 | **On Balance Volume** | [Obv](../lib/volume/obv/Obv.md) | [⚠️](../lib/volume/obv/Obv.md#validation) | ✔️ | ✔️ | [⚠️](../lib/volume/obv/Obv.md#validation) |
 | **Parabolic SAR** | Psar | ✔️ | ✔️ | ✔️ | ❔ |
-| **Parkinson Volatility** | Pv | - | - | - | - |
 | **Pascal Weighted Moving Average** | [Pwma](../lib/trends/pwma/pwma.md) | - | - | - | - |
 | **Percentage Change** | [Change](../lib/numerics/change/Change.md) | ✔️ | - | - | - |
 | **Percentage Price Oscillator** | Ppo | ✔️ | ✔️ | - | ❔ |
@@ -221,7 +220,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Rate of change; 1st derivative** | [Slope](../lib/statistics/linreg/LinReg.md) | ✔️ | ✔️ | ✔️ | ❔ |
 | **Rate of Change Percentage** | Rocp | ✔️ | - | - | - |
 | **Rate of Change Ratio** | Rocr | ✔️ | ✔️ | - | - |
-| **Realized Volatility** | Rv | - | - | - | - |
+| **Realized Volatility** | [Rv](../lib/volatility/rv/Rv.md) | - | - | - | - |
 | **Rectified Linear Unit** | [Relu](../lib/numerics/relu/Relu.md) | - | - | - | - |
 | **Recursive Gaussian MA** | [Rgma](../lib/trends_IIR/rgma/Rgma.md) | - | - | - | - |
 | **Regression Channels** | [Regchannel](../lib/channels/regchannel/regchannel.md) | - | - | - | - |
@@ -230,7 +229,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Relative Squared Error** | Rse | - | - | - | - |
 | **Relative Strength Index** | [Rsi](../lib/momentum/rsi/Rsi.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Relative Strength Quality Index** | [Rsx](../lib/momentum/rsx/rsx.md) | - | - | - | ❔ |
-| **Relative Volatility Index** | Rvi | - | - | - | ❔ |
+| **Relative Volatility Index** | [Rvi](../lib/volatility/rvi/Rvi.md) | - | - | - | ❔ |
 | **Renko** | - | - | - | ✔️ | - |
 | **Rogers-Satchell Volatility** | Rsv | - | - | - | - |
 | **Root Mean Squared Error** | Rmse | - | - | - | - |
@@ -276,7 +275,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Variable Index Dynamic Average** | [Vidya](../lib/trends/vidya/vidya.md) | - | ✔️ | - | ❔ |
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
 | **Volatility Adjusted Moving Average** | [Vama](../lib/trends_IIR/vama/Vama.md) | - | - | - | ❔ |
-| **Volatility of Volatility** | Vov | - | - | - | - |
+| **Volatility of Volatility** | [Vov](../lib/volatility/vov/Vov.md) | - | - | - | - |
 | **Volatility Ratio** | Vr | - | - | - | ❔ |
 | **Volume Accumulation** | Va | - | - | - | ❔ |
 | **Volume Force** | Vf | - | - | - | - |

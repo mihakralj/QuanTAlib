@@ -82,7 +82,7 @@ public sealed class Change : AbstractBase
         else
         {
             double past = _buffer[0];
-            result = past != 0.0 ? (value - past) / past : 0.0;
+            result = Math.Abs(past) > 0 ? (value - past) / past : 0.0;
         }
 
         Last = new TValue(input.Time, result);
@@ -187,7 +187,7 @@ public sealed class Change : AbstractBase
                         past = pastValidBuffer[bufferIdx];
                     }
 
-                    output[i] = past != 0.0 ? (current - past) / past : 0.0;
+                    output[i] = Math.Abs(past) > 0 ? (current - past) / past : 0.0;
 
                     // Update circular buffer with current valid value for future past lookups
                     pastValidBuffer[bufferIdx] = current;

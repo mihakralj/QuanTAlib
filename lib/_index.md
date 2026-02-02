@@ -10,7 +10,7 @@
 | [Oscillators](lib/oscillators/_index.md) | 18 | Indicators that fluctuate around a center line |
 | [Dynamics](lib/dynamics/_index.md) | 16 | Trend strength and direction indicators |
 | [Momentum](lib/momentum/_index.md) | 17 | Momentum-based indicators |
-| [Volatility](lib/volatility/_index.md) | 28 | Volatility estimators and indicators |
+| [Volatility](lib/volatility/_index.md) | 27 | Volatility estimators and indicators |
 | [Volume](lib/volume/_index.md) | 26 | Volume-based indicators |
 | [Statistics](lib/statistics/_index.md) | 30 | Statistical measures and tests |
 | [Channels](lib/channels/_index.md) | 22 | Price channels and bands |
@@ -19,7 +19,7 @@
 | [Forecasts](lib/forecasts/_index.md) | 1 | Predictive indicators |
 | [Errors](lib/errors/_index.md) | 27 | Error metrics and loss functions |
 | [Numerics](lib/numerics/_index.md) | 15 | Mathematical transformations |
-| **Total** | **280** | |
+| **Total** | **279** | |
 
 ## All Indicators
 
@@ -234,7 +234,6 @@
 | [PSAR](lib/reversals/psar/Psar.md) | Parabolic Stop And Reverse | Reversals |
 | PSL | Psychological Line | Oscillators |
 | [PSEUDOHUBER](lib/errors/pseudohuber/Pseudohuber.md) | Pseudo-Huber Loss | Errors |
-| [PV](lib/volatility/pv/Pv.md) | Parkinson Volatility | Volatility |
 | [PVD](lib/volume/pvd/Pvd.md) | Price Volume Divergence | Volume |
 | [PVI](lib/volume/pvi/Pvi.md) | Positive Volume Index | Volume |
 | [PVO](lib/volume/pvo/Pvo.md) | Percentage Volume Oscillator | Volume |

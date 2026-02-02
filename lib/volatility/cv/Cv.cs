@@ -185,7 +185,7 @@ public sealed class Cv : AbstractBase
         {
             // Calculate omega based on stored LongRunVar (compute locally, don't store during !isNew)
             double omega = s.Omega;
-            if (omega == 0.0)
+            if (Math.Abs(omega) <= 0)
             {
                 omega = (1.0 - _alpha - _beta) * s.LongRunVar;
             }
@@ -212,7 +212,7 @@ public sealed class Cv : AbstractBase
             if (isNew)
             {
                 // Only store omega on first GARCH calculation
-                if (s.Omega == 0.0)
+                if (Math.Abs(s.Omega) <= 0)
                 {
                     s.Omega = omega;
                 }
@@ -402,7 +402,7 @@ public sealed class Cv : AbstractBase
             else
             {
                 // Calculate omega at the end of warmup
-                if (i == period && omega == 0.0)
+                if (i == period && Math.Abs(omega) <= 0)
                 {
                     omega = (1.0 - alpha - beta) * longRunVar;
                 }
@@ -411,7 +411,7 @@ public sealed class Cv : AbstractBase
                 double variance = Math.FusedMultiplyAdd(alpha, prevSquaredReturn, Math.FusedMultiplyAdd(beta, prevVariance, omega));
                 
                 // For zero long-run variance (constant prices), allow variance to be exactly 0
-                if (longRunVar == 0.0 && prevSquaredReturn == 0.0)
+                if (Math.Abs(longRunVar) <= 0 && Math.Abs(prevSquaredReturn) <= 0)
                 {
                     variance = 0.0;
                 }

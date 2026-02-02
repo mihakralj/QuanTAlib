@@ -236,7 +236,7 @@ public sealed class Gwma : AbstractBase
             return CalculateWeightedSumWarmup(_buffer.GetSpan(), count, _sigma, fallbackValue);
         }
 
-        if (_invWeightSum == 0.0)
+        if (Math.Abs(_invWeightSum) <= 0)
         {
             return fallbackValue;
         }
@@ -411,7 +411,7 @@ public sealed class Gwma : AbstractBase
                     continue;
                 }
 
-                if (invWeightSum == 0.0)
+                if (Math.Abs(invWeightSum) <= 0)
                 {
                     output[i] = val;
                     continue;

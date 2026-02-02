@@ -1,5 +1,7 @@
 # HLV: High-Low Volatility (Parkinson)
 
+*Also known as: PV (Parkinson Volatility)*
+
 > "The simplest solution is often the most elegant. When you only need the peaks and valleys, why ask for the whole journey?"
 
 High-Low Volatility (HLV), also known as the Parkinson estimator, is a range-based volatility measure that uses only the high and low prices of each period. Developed by Michael Parkinson in 1980, this estimator achieves approximately 5x better efficiency than close-to-close methods by exploiting the information content in the trading range. The implementation includes RMA (Wilder's) smoothing with bias correction and optional annualization.

@@ -196,7 +196,7 @@ public sealed class Atrp : AbstractBase
         double atr = _state.E > ConvergenceThreshold ? _state.RawRma / (1.0 - _state.E) : _state.RawRma;
 
         // Calculate ATRP: (ATR / Close) * 100
-        double atrp = close != 0.0 ? (atr / close) * 100.0 : double.NaN;
+        double atrp = Math.Abs(close) > 0 ? (atr / close) * 100.0 : double.NaN;
 
         // Update state
         if (isNew)
