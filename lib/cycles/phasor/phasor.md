@@ -23,7 +23,7 @@ Market Applications:
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
 | Period | 28 | Fixed cycle period for correlation analysis | Match to expected dominant cycle length |
-| Source | Close | Price series for phase calculation | Use typical price or other smoothed series |
+| Source | source | Data source for phase calculation | Use typical price or other smoothed series |
 | Show Derived Period | false | Display calculated period from phase rate | Enable for adaptive period analysis |
 | Show Trend State | false | Display trend/cycle state variable | Enable for regime identification |
 

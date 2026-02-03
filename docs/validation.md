@@ -59,7 +59,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Bessel Filter** | [Bessel](../lib/trends/bessel/Bessel.md) | - | - | - | - |
 | **Bessel-Weighted MA** | [Bwma](../lib/trends_FIR/bwma/Bwma.md) | - | - | - | - |
 | **Beta Coefficient** | [Beta](../lib/statistics/beta/Beta.md) | ✔️ | - | ✔️ | - |
-| **Bias** | Bias | - | - | - | - |
+| **Bias** | [Bias](../lib/statistics/bias/Bias.md) | - | - | - | - |
 | **Bilateral Filter** | [Bilateral](../lib/trends/bilateral/Bilateral.md) | - | - | - | - |
 | **Blackman Window MA** | [Blma](../lib/trends/blma/Blma.md) | - | - | - | - |
 | **Bollinger %B** | Bbb | - | - | - | ❔ |
@@ -276,7 +276,7 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Velocity (Jurik)** | [Vel](../lib/momentum/vel/vel.md) | - | - | - | - |
 | **Volatility Adjusted Moving Average** | [Vama](../lib/trends_IIR/vama/Vama.md) | - | - | - | ❔ |
 | **Volatility of Volatility** | [Vov](../lib/volatility/vov/Vov.md) | - | - | - | - |
-| **Volatility Ratio** | Vr | - | - | - | ❔ |
+| **Volatility Ratio** | [Vr](../lib/volatility/vr/Vr.md) | - | - | - | - |
 | **Volume Accumulation** | Va | - | - | - | ❔ |
 | **Volume Force** | Vf | - | - | - | - |
 | **Volume Oscillator** | Vo | - | ✔️ | - | - |
@@ -307,11 +307,13 @@ No external reference exists. Implementation verified through unit tests, edge c
 
 | Indicator | QuanTAlib | MathNet | TA-Lib | Tulip | Skender |
 | :-------- | :-------- | :-----: | :----: | :---: | :-----: |
+| **Autocorrelation Function** | [Acf](../lib/statistics/acf/Acf.md) | - | - | - | - |
 | **Covariance** | [Covariance](../lib/statistics/covariance/Covariance.md) | - | - | - | - |
 | **Median (Statistical)** | [Median](../lib/statistics/median/Median.md) | ✔️ | - | - | - |
 | **Skewness** | [Skew](../lib/statistics/skew/Skew.md) | ✔️ | - | - | - |
 | **Standard Deviation** | [StdDev](../lib/statistics/stddev/StdDev.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Sum (Rolling)** | [Sum](../lib/statistics/sum/Sum.md) | - | ✔️ | ✔️ | - |
+| **Partial Autocorrelation Function** | [Pacf](../lib/statistics/pacf/Pacf.md) | - | - | - | - |
 | **Variance** | [Variance](../lib/statistics/variance/Variance.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 
 ## Error Metrics

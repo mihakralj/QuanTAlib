@@ -26,4 +26,6 @@ Trend indicators based on Infinite Impulse Response (IIR) filters. Recursive arc
 | [VAMA](/lib/trends_IIR/vama/Vama.md) | Volatility Adjusted MA | Dynamically adjusts moving average length based on ATR volatility ratio, shortening during high volatility and lengthening during low volatility. |
 | [VIDYA](/lib/trends_IIR/vidya/Vidya.md) | Variable Index Dynamic Average | Adjusts smoothing factor based on market volatility using Volatility Index (ratio of short-term to long-term standard deviation). |
 | [YZVAMA](/lib/trends_IIR/yzvama/Yzvama.md) | Yang-Zhang Volatility Adjusted MA | Adjusts MA length based on percentile rank of short-term YZV, providing context-aware volatility adaptation for gap-prone markets. |
+| [ZLDEMA](/lib/trends_IIR/zldema/Zldema.md) | Zero-Lag Double Exponential MA | Combines zero-lag preprocessing with dual EMA cascade (DEMA) for faster response than DEMA with moderate smoothing. |
 | [ZLEMA](/lib/trends_IIR/zlema/Zlema.md) | Zero-Lag Exponential MA | Reduces lag by estimating future price based on current momentum, using dynamically calculated lag period. |
+| [ZLTEMA](/lib/trends_IIR/zltema/Zltema.md) | Zero-Lag Triple Exponential MA | Combines zero-lag preprocessing with triple EMA cascade (TEMA) for maximum smoothness with minimal lag. |

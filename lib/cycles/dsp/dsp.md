@@ -20,7 +20,7 @@ DSP serves as both a standalone cycle indicator and a foundational component for
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data used for calculation | Use `close` for end-of-bar analysis, `hlc3` for balanced price representation |
+| Source | source | Data source for calculation | Use `close` for end-of-bar analysis, `hlc3` for balanced price representation |
 | Dominant Cycle Period | 40 | Period used to calculate quarter-cycle and half-cycle EMAs | Should match actual market cycle: 20-30 for faster cycles, 40-50 for standard, 60-80 for slower cycles |
 
 **Pro Tip:** The Dominant Cycle Period should ideally be obtained from HT_DCPERIOD or other cycle measurement tools for adaptive behavior. For fixed analysis, 40 bars works well for daily charts (approximates a 2-month cycle). The quarter-cycle EMA (P/4 = 10) responds to short-term moves while the half-cycle EMA (P/2 = 20) provides the baseline, creating the band-pass effect.

@@ -24,7 +24,7 @@ VWAPSD is primarily used as an intraday indicator, resetting at the beginning of
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data to use for VWAP calculation | Use 'close' for closing prices only, 'hlc3' for typical price (most common), 'ohlc4' for full bar average |
+| Source | source | Data source for VWAP calculation | Use 'close' for closing prices only, 'hlc3' for typical price (most common), 'ohlc4' for full bar average |
 | Session Reset | 1D | Determines when VWAP resets | Use '1D' for daily intraday trading, '1W' for weekly swing trading, '1H' for hourly scalping, 'Never' for cumulative since chart start |
 | Standard Deviations | 2.0 | Number of standard deviations for upper and lower bands | Use 1.0 for tighter bands (more signals), 2.0 for standard volatility context (95% confidence), 3.0 for extreme moves only (99.7% confidence) |
 

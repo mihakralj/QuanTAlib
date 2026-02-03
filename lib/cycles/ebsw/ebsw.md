@@ -16,7 +16,7 @@ The Ehlers Even Better Sinewave (EBSW) indicator, developed by John Ehlers, is a
 
 | Parameter | Default | Function | When to Adjust |
 | --------- | ------- | -------- | -------------- |
-| Source | close | Price data used for calculation. | Typically `close`, but `hlc3` or `ohlc4` can be used for a more comprehensive price representation. |
+| Source | source | Data source for calculation. | Typically `close`, but `hlc3` or `ohlc4` can be used for a more comprehensive price representation. |
 | HP Length | 40 | Lookback period for the 1-pole High-Pass Filter used for detrending. | Shorter periods make the filter more responsive to shorter cycles; longer periods focus on longer-term cycles. Adjust based on observed cycle characteristics. |
 | SSF Length | 10 | Lookback period for the Super Smoother Filter used for smoothing the detrended cycle component. | Shorter periods result in a more responsive (but potentially noisier) wave; longer periods provide more smoothing. |
 

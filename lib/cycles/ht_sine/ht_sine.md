@@ -20,7 +20,7 @@ This indicator transforms the complex phase information from Hilbert Transform a
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data for cycle analysis | Use close for simpler signals; hlc3 for smoother, more comprehensive cycle detection |
+| Source | source | Data source for cycle analysis | Use close for simpler signals; hlc3 for smoother, more comprehensive cycle detection |
 
 **Pro Tip:** Watch for crossovers between the sine and lead-sine waves as potential cycle reversal signals. When lead-sine crosses above sine near the trough (-1), it suggests an upcoming cycle bottom. When lead-sine crosses below sine near the peak (+1), it suggests an upcoming cycle top. The indicator works best in ranging or cyclical markets; strong trends can produce less reliable signals as the cycle assumption breaks down.
 

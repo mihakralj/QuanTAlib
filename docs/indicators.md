@@ -185,6 +185,9 @@ Mathematical and statistical computations on price series.
 
 | Indicator | Full Name | Notes |
 | :-------- | :-------- | :---- |
+| [**BIAS**](../lib/statistics/bias/Bias.md) | Bias | Percentage deviation from SMA |
+| [**COINTEGRATION**](../lib/statistics/cointegration/Cointegration.md) | Cointegration | Engle-Granger two-step method with ADF test |
+| [**CORRELATION**](../lib/statistics/correlation/Correlation.md) | Pearson Correlation | Linear relationship between two series [-1, +1] |
 | [**CMA**](../lib/statistics/cma/Cma.md) | Cumulative Moving Average | Expanding window average |
 | [**COVARIANCE**](../lib/statistics/covariance/Covariance.md) | Covariance | Joint variability |
 | [**LINREG**](../lib/statistics/linreg/LinReg.md) | Linear Regression | Best-fit line |

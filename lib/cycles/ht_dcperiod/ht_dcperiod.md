@@ -20,7 +20,7 @@ Unlike traditional cycle detection methods that rely on fixed periods, HT_DCPERI
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data to analyze | Use close for end-of-bar signals, hlc3 for intrabar smoothing |
+| Source | source | Data source for analysis | Use close for end-of-bar signals, hlc3 for intrabar smoothing |
 
 **Pro Tip:** The indicator automatically adapts to any timeframe. On daily charts, a period of 20 indicates a 20-day cycle (about one month). On hourly charts, 20 indicates a 20-hour cycle. Consider the timeframe when interpreting the cycle length - what matters is the number of bars, not calendar time.
 

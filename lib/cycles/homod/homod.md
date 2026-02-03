@@ -18,7 +18,7 @@ Unlike fixed-length filters, HOMOD continuously adapts to current market rhythm 
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Input series analyzed for cycle period | Switch to close for end-of-day signals or to custom synthetic blends |
+| Source | source | Data source for cycle period analysis | Switch to close for end-of-day signals or to custom synthetic blends |
 | Min Period | 6 | Lower bound for detected cycle length | Increase to ignore ultrashort noise-dominated cycles |
 | Max Period | 50 | Upper bound for detected cycle length | Raise for weekly/monthly studies; lower for intraday scalping |
 

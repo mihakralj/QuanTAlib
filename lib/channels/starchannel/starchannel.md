@@ -21,7 +21,7 @@ STARCHANNEL improves upon traditional percentage-based channels by incorporating
 | ------ | ------ | ------ | ------ |
 | Period | 20 | Lookback period for both SMA and ATR calculations | Shorter (10-15) for more responsiveness to recent volatility; longer (30-50) for more stable channel and filtered signals |
 | ATR Multiplier | 2.0 | Determines channel width as a multiple of ATR | Higher (2.5-3.0) for wider channel and fewer signals; lower (1.0-1.5) for tighter channel and more frequent signals |
-| Source | Close | Price data for the centerline calculation | Can be modified to use typical price (hlc3) for a more balanced view of price action |
+| Source | source | Data source for centerline calculation | Can be modified to use typical price (hlc3) for a more balanced view of price action |
 
 **Pro Tip:** For a comprehensive trading framework, try using multiple STARCHANNEL settings simultaneously. A narrower channel (1.0-1.5× ATR) can help identify minor retracements and short-term entry points, while a wider channel (2.5-3.0× ATR) can be used for major support/resistance zones and stop placement.
 

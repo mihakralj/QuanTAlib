@@ -20,7 +20,7 @@ The indicator calculates the difference between a quarter-cycle SSF and a half-c
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data used for calculation | hlc3 provides balanced price representation; close for directional bias |
+| Source | source | Data source for calculation | hlc3 provides balanced price representation; close for directional bias |
 | Period | 40 | Dominant cycle period in bars | Match to your identified dominant cycle (typically 20-50 bars for daily charts) |
 
 **Pro Tip:** SSF-DSP provides cleaner signals than EMA-based DSP with ~1.5-2x more smoothing. If you use period=40 for regular DSP, try period=30-35 for SSF-DSP to achieve similar responsiveness with better noise rejection.

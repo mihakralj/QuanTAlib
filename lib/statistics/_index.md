@@ -6,6 +6,7 @@ Statistical tools applied to price and returns. These indicators quantify relati
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
+| [ACF](/lib/statistics/acf/Acf.md) | Autocorrelation Function | Correlation of time series with lagged copy. For ARMA model identification. |
 | [BETA](/lib/statistics/beta/Beta.md) | Beta Coefficient | Asset volatility relative to market. β=1 means market-matched risk. |
 | [BIAS](/lib/statistics/bias/Bias.md) | Bias | Percentage deviation from moving average. Measures overextension. |
 | [CMA](/lib/statistics/cma/Cma.md) | Cumulative Moving Average | Running average of all values. Welford's algorithm. No window. |
@@ -25,6 +26,7 @@ Statistical tools applied to price and returns. These indicators quantify relati
 | [LINREG](/lib/statistics/linreg/LinReg.md) | Linear Regression | Least squares fit. Outputs slope, intercept, R². |
 | [MEDIAN](/lib/statistics/median/Median.md) | Median | Middle value in sorted window. Robust to outliers. |
 | [MODE](/lib/statistics/mode/Mode.md) | Mode | Most frequent value. Use for categorical or discrete data. |
+| [PACF](/lib/statistics/pacf/Pacf.md) | Partial Autocorrelation Function | Direct correlation at lag k after removing intermediate effects. For AR model identification. |
 | [PERCENTILE](/lib/statistics/percentile/Percentile.md) | Percentile | Value below which given percentage of observations fall. |
 | [QUANTILE](/lib/statistics/quantile/Quantile.md) | Quantile | Divides distribution into equal probability intervals. |
 | [SKEW](/lib/statistics/skew/Skew.md) | Skewness | Distribution asymmetry. Positive: right tail. Negative: left tail. |

@@ -20,7 +20,7 @@ The core innovation of this indicator is its ability to measure where the "weigh
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
 | Length | 10 | Controls the lookback period for the Center of Gravity calculation | Increase for longer cycles and smoother signals, decrease for shorter cycles and more responsive signals |
-| Source | close | Price data used for calculation | Use close for trend-following, hlc3 for balanced representation, or hl2 for range-based analysis |
+| Source | source | Data source for calculation | Typically uses close; hlc3 provides balanced representation; hl2 for range-based analysis |
 
 **Pro Tip:** The optimal length setting often correlates with the dominant cycle length in the market. Start with shorter periods (8-14) for active markets and longer periods (20-30) for smoother, longer-term cycle identification.
 

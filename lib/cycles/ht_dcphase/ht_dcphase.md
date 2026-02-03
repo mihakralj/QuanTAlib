@@ -20,7 +20,7 @@ HT_DCPHASE works by computing the In-phase (I) and Quadrature (Q) components thr
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data for analysis | Use close for simpler signals; hlc3 for smoother, more comprehensive cycle detection |
+| Source | source | Data source for analysis | Use close for simpler signals; hlc3 for smoother, more comprehensive cycle detection |
 
 **Pro Tip:** HT_DCPHASE is most effective when used in conjunction with HT_DCPERIOD to understand both the cycle length and current position. Phase crossings through zero often correspond to significant trend changes. The indicator works best on instruments with clear cyclical behavior - sideways or ranging markets provide cleaner signals than strongly trending markets.
 

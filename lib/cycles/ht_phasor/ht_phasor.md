@@ -20,7 +20,7 @@ The phasor components represent the cycle in two-dimensional phase space, where 
 
 | Parameter | Default | Function | When to Adjust |
 | ------ | ------ | ------ | ------ |
-| Source | hlc3 | Price data for analysis | Use close for simpler signals; hlc3 for smoother, more comprehensive cycle detection |
+| Source | source | Data source for analysis | Use close for simpler signals; hlc3 for smoother, more comprehensive cycle detection |
 
 **Pro Tip:** HT_PHASOR is primarily useful for custom indicator development and advanced cycle analysis. The I and Q components can be used to calculate amplitude (cycle strength), phase (cycle position), and instantaneous frequency. When I and Q oscillate with constant magnitude, the market is in a strong cyclical mode. When their magnitudes vary significantly, the market may be transitioning between cycle and trend modes.
 

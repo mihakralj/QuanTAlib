@@ -26,7 +26,7 @@ The indicator forms a set of bands around a central line, creating a "zone" that
 | --------- | ------- | -------- | -------------- |
 | Period | 20 | Controls the lookback period for calculations (sqrt applied internally) | Increase (30-50) for longer-term analysis and smoother bands; decrease (10-15) for more responsive, shorter-term signals |
 | Band Multiplier | 2.0 | Multiplier for band width based on adaptive range | Increase (2.5-3.0) for wider bands in more volatile markets; decrease (1.5-1.8) for tighter bands and more frequent signals |
-| Source | close | Price series used for middle line calculation | Use 'typical price' (hlc3) for incorporating full bar range; use 'close' for end-of-period focus |
+| Source | source | Data source for middle line calculation | Use 'typical price' (hlc3) for incorporating full bar range; use 'close' for end-of-period focus |
 
 **Pro Tip:** Start with the default settings (period=20, multiplier=2.0) and adjust based on your trading timeframe and market conditions. For intraday trading on choppy markets, consider period=30 with multiplier=1.8 for more frequent signals. For daily charts in range-bound markets, period=20 with multiplier=2.2 provides reliable reversal points. Always combine with a trend filter (ADX < 30) to avoid using the APZ in strongly trending conditions where it may generate false signals.
 

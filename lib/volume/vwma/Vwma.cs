@@ -318,19 +318,19 @@ public sealed class Vwma : ITValuePublisher
     /// <summary>
     /// Zero-allocation span-based calculation.
     /// </summary>
-    /// <param name="price">Price values</param>
+    /// <param name="source">Source values</param>
     /// <param name="volume">Volume values</param>
     /// <param name="output">Output span for VWMA values</param>
     /// <param name="period">Lookback period for VWMA</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void Calculate(ReadOnlySpan<double> price, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
+    public static void Calculate(ReadOnlySpan<double> source, ReadOnlySpan<double> volume, Span<double> output, int period = 20)
     {
-        if (price.Length != volume.Length)
+        if (source.Length != volume.Length)
         {
-            throw new ArgumentException("Price and Volume spans must be of the same length", nameof(volume));
+            throw new ArgumentException("Source and Volume spans must be of the same length", nameof(volume));
         }
 
-        if (price.Length != output.Length)
+        if (source.Length != output.Length)
         {
             throw new ArgumentException("Output span must be of the same length as input", nameof(output));
         }
@@ -340,7 +340,7 @@ public sealed class Vwma : ITValuePublisher
             throw new ArgumentException("Period must be >= 1", nameof(period));
         }
 
-        int len = price.Length;
+        int len = source.Length;
         if (len == 0)
         {
             return;
@@ -380,9 +380,9 @@ public sealed class Vwma : ITValuePublisher
             // Find first valid values
             for (int k = 0; k < len; k++)
             {
-                if (double.IsFinite(price[k]))
+                if (double.IsFinite(source[k]))
                 {
-                    lastValidPrice = price[k];
+                    lastValidPrice = source[k];
                     break;
                 }
             }
@@ -400,12 +400,12 @@ public sealed class Vwma : ITValuePublisher
             for (int i = 0; i < len; i++)
             {
                 // Get valid values with NaN substitution
-                double currentPrice = double.IsFinite(price[i]) ? price[i] : lastValidPrice;
+                double currentPrice = double.IsFinite(source[i]) ? source[i] : lastValidPrice;
                 double currentVol = double.IsFinite(volume[i]) ? volume[i] : lastValidVolume;
 
-                if (double.IsFinite(price[i]))
+                if (double.IsFinite(source[i]))
                 {
-                    lastValidPrice = price[i];
+                    lastValidPrice = source[i];
                 }
                 if (double.IsFinite(volume[i]))
                 {
