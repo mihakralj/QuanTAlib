@@ -8,4 +8,4 @@ Forecasting and predictive models. Unlike reactive indicators that smooth past d
 
 | Indicator | Full Name | Description |
 | :--- | :--- | :--- |
-| [AFIRMA](/lib/forecasts/afirma/Afirma.md) | Adaptive FIR Moving Average | Windowed sinc coefficients. Optimal frequency response. Can extrapolate. |
+| [AFIRMA](afirma/Afirma.md) | Adaptive FIR Moving Average | Windowed sinc coefficients. Optimal frequency response. Can extrapolate. |

@@ -226,7 +226,6 @@
   * [COINTEGRATION - Cointegration](lib/statistics/cointegration/Cointegration.md)
   * [CORRELATION - Correlation](lib/statistics/correlation/Correlation.md)
   * [COVARIANCE - Covariance](lib/statistics/covariance/Covariance.md)
-  * [CUMMEAN - Cumulative Mean](lib/statistics/cummean/Cummean.md)
   * [ENTROPY - Shannon Entropy](lib/statistics/entropy/Entropy.md)
   * [GEOMEAN - Geometric Mean](lib/statistics/geomean/Geomean.md)
   * [GRANGER - Granger Causality](lib/statistics/granger/Granger.md)

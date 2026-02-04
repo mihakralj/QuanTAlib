@@ -43,6 +43,7 @@ public sealed class Bias : AbstractBase
     private State _p_state;
 
     private const int ResyncInterval = 1000;
+    private const double Epsilon = 1e-10;
 
     /// <summary>
     /// Creates Bias with specified period.
@@ -138,7 +139,7 @@ public sealed class Bias : AbstractBase
 
         // Calculate final Bias
         double sma = _state.Sum / _buffer.Count;
-        double bias = sma != 0 ? (_state.LastInput - sma) / sma : 0;
+        double bias = Math.Abs(sma) > Epsilon ? (_state.LastInput - sma) / sma : 0;
         Last = new TValue(DateTime.MinValue, bias);
         _p_state = _state;
     }
@@ -202,7 +203,7 @@ public sealed class Bias : AbstractBase
 
         // Calculate Bias: (Price - SMA) / SMA
         double sma = _state.Sum / _buffer.Count;
-        double bias = sma != 0 ? (_state.LastInput - sma) / sma : 0;
+        double bias = Math.Abs(sma) > Epsilon ? (_state.LastInput - sma) / sma : 0;
 
         Last = new TValue(input.Time, bias);
         PubEvent(Last, isNew);
@@ -327,7 +328,7 @@ public sealed class Bias : AbstractBase
 
                 double n = i + 1;
                 double sma = sum / n;
-                output[i] = sma != 0 ? (val - sma) / sma : 0;
+                output[i] = Math.Abs(sma) > Epsilon ? (val - sma) / sma : 0;
             }
 
             // Main phase with sliding window
@@ -354,7 +355,7 @@ public sealed class Bias : AbstractBase
                 }
 
                 double sma = sum / period;
-                output[i] = sma != 0 ? (val - sma) / sma : 0;
+                output[i] = Math.Abs(sma) > Epsilon ? (val - sma) / sma : 0;
 
                 // Periodic resync for long sequences
                 tickCount++;

@@ -97,10 +97,10 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Double Exponential Moving Average** | [Dema](../lib/trends/dema/dema.md) | ✔️ | ✔️ | ✔️ | ✔️ |
 | **Double Weighted Moving Average** | [Dwma](../lib/trends/dwma/dwma.md) | - | - | - | - |
 | **Ease of Movement** | [Eom](../lib/volume/eom/Eom.md) | - | - | - | - |
-| **Ehlers Autocorrelation Periodogram** | Eacp | - | - | - | ❔ |
+| **Ehlers Autocorrelation Periodogram** | [Eacp](../lib/cycles/eacp/eacp.md) | - | - | - | - |
 | **BandPass Filter** | [Bpf](../lib/filters/bpf/Bpf.md) | ✔️ | - | - | - |
 | **Ehlers Center of Gravity** | Cg | - | - | - | ❔ |
-| **Ehlers Even Better Sinewave** | Ebsw | - | - | - | ❔ |
+| **Ehlers Even Better Sinewave** | [Ebsw](../lib/cycles/ebsw/ebsw.md) | - | - | - | ❔ |
 | **Ehlers Fractal Adaptive MA** | [Frama](../lib/trends_IIR/frama/Frama.md) | - | - | - | ❔ |
 | **Ehlers Highpass Filter** | [Hpf](../lib/filters/hpf/Hpf.md) | - | - | - | ❔ |
 | **Ehlers Phasor Analysis** | Phasor | - | - | - | - |
@@ -128,16 +128,16 @@ No external reference exists. Implementation verified through unit tests, edge c
 | **Harmonic Mean** | Harmean | - | - | - | - |
 | **High-Low Volatility (Parkinson)** | [Hlv](../lib/volatility/hlv/Hlv.md) | - | - | - | - |
 | **Highest value** | [Highest](../lib/numerics/highest/Highest.md) | ✔️ | ✔️ | - | - |
-| **Hilbert Transform Dominant Cycle Period** | Ht_dcperiod | ✔️ | - | - | - |
-| **Hilbert Transform Dominant Cycle Phase** | Ht_dcphase | ✔️ | - | - | - |
+| **Hilbert Transform Dominant Cycle Period** | [HtDcPeriod](../lib/cycles/ht_dcperiod/ht_dcperiod.md) | ✔️ | - | - | - |
+| **Hilbert Transform Dominant Cycle Phase** | [HtDcPhase](../lib/cycles/ht_dcphase/ht_dcphase.md) | ✔️ | - | - | - |
 | **Hilbert Transform Instantaneous Trend** | [Htit](../lib/trends/htit/htit.md) | ✔️ | - | ✔️ | ✔️ |
-| **Hilbert Transform Phasor** | Ht_phasor | ✔️ | - | - | - |
-| **Hilbert Transform Sine Wave** | Ht_sine | ✔️ | ✔️ | - | - |
+| **Hilbert Transform Phasor** | [HtPhasor](../lib/cycles/ht_phasor/ht_phasor.md) | ✔️ | - | - | - |
+| **Hilbert Transform Sine Wave** | [HtSine](../lib/cycles/ht_sine/ht_sine.md) | ✔️ | - | - | - |
 | **Hilbert Transform Trend Mode** | Ht_trendmode | ✔️ | - | - | - |
 | **Historical Volatility (Close-to-Close)** | [Hv](../lib/volatility/hv/Hv.md) | - | - | - | - |
 | **Hodrick-Prescott Filter** | [Hp](../lib/filters/hp/Hp.md) | - | - | - | - |
 | **Holt Weighted MA** | Hwma | - | - | - | ❔ |
-| **Homodyne Discriminator Dominant Cycle** | Homod | - | - | - | ❔ |
+| **Homodyne Discriminator Dominant Cycle** | [Homod](../lib/cycles/homod/homod.md) | - | - | - | ❔ |
 | **Huber Loss** | Huber | - | - | - | - |
 | **Hull Exponential MA** | [Hema](../lib/trends_IIR/hema/Hema.md) | - | - | - | - |
 | **Hull Moving Average** | [Hma](../lib/trends/hma/hma.md) | - | ✔️ | ✔️ | [⚠️](../lib/trends/hma/hma.md#external-library-discrepancies) |

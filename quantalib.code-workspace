@@ -1,0 +1,49 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../pinescript"
+		}
+	],
+	"settings": {
+		"github.copilot.enable": {
+			"*": true,
+			"plaintext": false,
+			"markdown": true,
+			"scminput": false
+		},
+		"chat.editor.wordWrap": "on",
+		"git.confirmSync": false,
+		"git.decorations.enabled": true,
+		"terminal.integrated.shellIntegration.enabled": true,
+		"terminal.integrated.suggest.enabled": true,
+		"omnisharp.enableEditorConfigSupport": true,
+		"dotnet.defaultSolution": "QuanTAlib.sln",
+		"dotnet.unitTests.runSettingsPath": ".config/coverage.runsettings",
+		"dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+		"dotnet.server.useOmnisharp": false,
+		"coderabbit.agentType": "Cline",
+		"qodana.pathPrefix": "",
+		"terminal.integrated.defaultProfile.windows": "PowerShell",
+		"terminal.integrated.profiles.windows": {
+			"PowerShell": {
+				"source": "PowerShell",
+				"icon": "terminal-powershell"
+			},
+			"Git Bash": {
+				"path": "C:\\Program Files\\Git\\bin\\bash.exe",
+				"icon": "terminal-bash"
+			}
+		},
+		"qodana.projectId": "KbxmN",
+		"sarif-viewer.connectToGithubCodeScanning": "on",
+		"chatgpt.openOnStartup": true,
+		"chatgpt.commentCodeLensEnabled": false,
+		"chat.tools.terminal.autoApprove": {
+			"code": true
+		},
+		"powershell.cwd": "quantalib"
+	}
+}

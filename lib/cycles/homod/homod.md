@@ -1,175 +1,299 @@
-# HOMOD: Homodyne Discriminator Dominant Cycle
+# HOMOD: Homodyne Discriminator
 
-## Overview and Purpose
+> "The homodyne discriminator reveals instantaneous frequency by multiplying a signal with its delayed self — the phase rotation between samples directly encodes the cycle period."
 
-The Homodyne Discriminator (HOMOD) is a cycle measurement technique introduced by John F. Ehlers in *Rocket Science for Traders* (2001) and expanded in the November 2000 *Traders’ Tips* column. It applies a Hilbert Transform framework to detect the instantaneous dominant cycle present in price data while minimizing lag.
+The Homodyne Discriminator, developed by John Ehlers, estimates the dominant cycle period in market data using homodyne multiplication and phase angle measurement. Unlike spectral methods that analyze frequency bins, homodyne detection measures the instantaneous phase change between consecutive samples, providing responsive and noise-resistant cycle detection.
 
-Unlike fixed-length filters, HOMOD continuously adapts to current market rhythm by converting the in-phase and quadrature components into a complex phasor pair, multiplying them homodynally, and extracting period information from the resulting phase angle. This makes it ideal for adaptive indicators and systems requiring dynamic lookback lengths.
+## Historical Context
 
-## Core Concepts
+John Ehlers introduced the Homodyne Discriminator as part of his work on applying communications signal processing to financial markets. The term "homodyne" comes from radio engineering, where it describes a detection method that multiplies a signal with a locally generated reference at the same frequency.
 
-* **Homodyne Multiplication:** Complex multiply of current and prior phasors to isolate instantaneous frequency
-* **Hilbert FIR Kernel:** Ehlers 0.0962/0.5769 coefficients producing 90° phase shift with minimal distortion
-* **Quadrature Rotation:** Phase-advanced components (jI, jQ) enabling orthogonal phasor construction
-* **Cycle Clamping:** Limiting detected periods to realistic bounds (default 6–50 bars)
-* **Warmup Compensation:** Exponential correction ensuring stable output from bar one
+In Ehlers' adaptation, the indicator generates its own reference signals (I and Q components) using Hilbert Transform approximations, then multiplies the analytic signal with its delayed version. The resulting real and imaginary components encode the instantaneous phase difference, from which the cycle period is extracted.
 
-## Common Settings and Parameters
+The key innovation is that homodyne detection measures phase rate of change directly, rather than inferring it from spectral peaks. This makes the algorithm more responsive to cycle changes while maintaining noise immunity through multiple smoothing stages.
 
-| Parameter | Default | Function | When to Adjust |
-| ------ | ------ | ------ | ------ |
-| Source | source | Data source for cycle period analysis | Switch to close for end-of-day signals or to custom synthetic blends |
-| Min Period | 6 | Lower bound for detected cycle length | Increase to ignore ultrashort noise-dominated cycles |
-| Max Period | 50 | Upper bound for detected cycle length | Raise for weekly/monthly studies; lower for intraday scalping |
+This implementation follows Ehlers' PineScript formulation, which includes:
 
-**Pro Tip:** Align downstream indicators (e.g., RSI, moving averages) to the live HOMOD period by rounding to the nearest integer—this maintains resonance with the market’s dominant rhythm.
+- 4-bar weighted moving average for input smoothing
+- Hilbert Transform via FIR coefficients [0.0962, 0, 0.5769, 0, -0.5769, 0, -0.0962]
+- Bandwidth adaptation based on estimated period
+- Homodyne mixing with 1-bar delay
+- Multiple EMA smoothing stages (α = 0.2 and α = 0.33)
+- Exponential warmup compensation
 
-## Calculation and Mathematical Foundation
+## Architecture & Physics
 
-**Explanation:**
-HOMOD smooths price, applies a Hilbert Transform to obtain in-phase (I) and quadrature (Q) components, rotates them by 90°, forms phasors, multiplies each phasor by its predecessor, and derives period length from the resulting phase angle. Subsequent smoothing and clamping stabilize measurements.
+### 1. Input Smoothing (4-bar WMA)
 
-**Technical formula:**
+The first stage smooths the input price using a weighted moving average:
 
-1. **Weighted smoothing and detrending**
-   $$
-   SmoothPrice_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}
-   $$
-   $$
-   Detrender_t = \left(0.0962\,SP_t + 0.5769\,SP_{t-2} - 0.5769\,SP_{t-4} - 0.0962\,SP_{t-6}\right)\cdot B_t
-   $$
-   where $B_t = 0.075\cdot Period_{t-1} + 0.54$.
+$$
+\text{Smooth}_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}
+$$
 
-2. **Quadrature pair and phase advance**
-   $$
-   Q1_t = (0.0962\,Det_t + 0.5769\,Det_{t-2} - 0.5769\,Det_{t-4} - 0.0962\,Det_{t-6})\cdot B_t
-   $$
-   $$
-   I1_t = Det_{t-3}
-   $$
-   $$
-   jI_t = (0.0962\,I1_t + 0.5769\,I1_{t-2} - 0.5769\,I1_{t-4} - 0.0962\,I1_{t-6})\cdot B_t
-   $$
-   $$
-   jQ_t = (0.0962\,Q1_t + 0.5769\,Q1_{t-2} - 0.5769\,Q1_{t-4} - 0.0962\,Q1_{t-6})\cdot B_t
-   $$
+This removes high-frequency noise while introducing minimal phase shift in the cycle detection range.
 
-3. **Phasor construction**
-   $$
-   I2_t = 0.2\,(I1_t - jQ_t) + 0.8\,I2_{t-1},\quad Q2_t = 0.2\,(Q1_t + jI_t) + 0.8\,Q2_{t-1}
-   $$
+### 2. Bandwidth Calculation
 
-4. **Homodyne product and smoothing**
-   $$
-   Re_t = 0.2\,(I2_t I2_{t-1} + Q2_t Q2_{t-1}) + 0.8\,Re_{t-1}
-   $$
-   $$
-   Im_t = 0.2\,(I2_t Q2_{t-1} - Q2_t I2_{t-1}) + 0.8\,Im_{t-1}
-   $$
+The Hilbert Transform coefficients are scaled by a bandwidth factor that adapts to the estimated period:
 
-5. **Period extraction, clamp, warmup**
-   $$
-   \theta_t = \operatorname{atan2}(Im_t, Re_t)
-   $$
-   $$
-   Period^\*_{t} = \frac{2\pi}{\theta_t}
-   $$
-   $$
-   Period_t = \operatorname{clip}(|Period^\*_t|,\ Min,\ Max)
-   $$
-   $$
-   SmoothPeriod_t = SmoothPeriod_{t-1} + 0.33\,(Period_t - SmoothPeriod_{t-1})
-   $$
+$$
+\text{BW}_t = 0.075 \cdot \text{SmoothPeriod}_{t-1} + 0.54
+$$
 
-## Interpretation Details
+This creates a feedback loop where the bandwidth narrows as shorter cycles are detected and widens for longer cycles, improving detection accuracy.
 
-* **Cycle Tracking**
-  * 6–12 bars: fast oscillatory regimes suited to scalping and short-term countertrend trades
-  * 12–30 bars: medium cycles aligning with swing-trading horizons
-  * 30–60 bars: slow cycles highlighting macro rhythm or trend exhaustion zones
+### 3. Hilbert Transform (Detrender)
 
-* **Adaptive Parameterization**
-  * Use rounded SmoothPeriod as the lookback for RSI, stochastic, ATR channels, etc.
-  * Match moving-average lengths to maintain coherence between filters and underlying price rhythm.
+The detrender applies the Hilbert Transform coefficients to the smoothed price:
 
-* **Regime Analysis**
-  * Stable plateau in period → consistent cycle regime
-  * Rising period → trend elongation or consolidation broadening
-  * Falling period → volatility expansion, choppy markets, or nascent rotational phases
+$$
+\text{Det}_t = (0.0962 \cdot S_t + 0.5769 \cdot S_{t-2} - 0.5769 \cdot S_{t-4} - 0.0962 \cdot S_{t-6}) \cdot \text{BW}
+$$
 
-## Limitations and Considerations
+where $S_t$ is the smoothed price. This produces the in-phase (I) component with approximately 90° phase shift.
 
-* **Warmup Demand:** Requires ~60 bars for fully stable phasor history; early readings should be treated cautiously
-* **Trend Dominance:** Persistent directional moves degrade cycle definition, causing erratic period swings
-* **Noise Sensitivity:** Despite smoothing, extremely noisy instruments may oscillate near Min Period consistently
-* **Clamp Bias:** Hard limits prevent detection of cycles outside bounds; adjust for instruments with known longer rhythms
-* **Computational Intensity:** Multiple FIR taps and state variables raise per-bar workload versus simpler averages
+### 4. Quadrature Component (Q1)
+
+The quadrature component applies the same Hilbert Transform to the detrender:
+
+$$
+Q1_t = (0.0962 \cdot D_t + 0.5769 \cdot D_{t-2} - 0.5769 \cdot D_{t-4} - 0.0962 \cdot D_{t-6}) \cdot \text{BW}
+$$
+
+The in-phase component is simply the detrender delayed by 3 bars:
+
+$$
+I1_t = D_{t-3}
+$$
+
+### 5. Phase Rotation (JI and JQ)
+
+Additional Hilbert Transforms compute the phase-rotated versions:
+
+$$
+JI_t = (0.0962 \cdot I1_t + 0.5769 \cdot I1_{t-2} - 0.5769 \cdot I1_{t-4} - 0.0962 \cdot I1_{t-6}) \cdot \text{BW}
+$$
+
+$$
+JQ_t = (0.0962 \cdot Q1_t + 0.5769 \cdot Q1_{t-2} - 0.5769 \cdot Q1_{t-4} - 0.0962 \cdot Q1_{t-6}) \cdot \text{BW}
+$$
+
+### 6. Analytic Signal (I2 and Q2)
+
+The final I and Q components combine the original and rotated signals:
+
+$$
+I2_{\text{raw}} = I1 - JQ
+$$
+
+$$
+Q2_{\text{raw}} = Q1 + JI
+$$
+
+These are smoothed with an EMA (α = 0.2):
+
+$$
+I2_t = 0.2 \cdot I2_{\text{raw}} + 0.8 \cdot I2_{t-1}
+$$
+
+$$
+Q2_t = 0.2 \cdot Q2_{\text{raw}} + 0.8 \cdot Q2_{t-1}
+$$
+
+### 7. Homodyne Multiplication
+
+The homodyne discriminator multiplies the current analytic signal with its previous value:
+
+$$
+\text{Re}_{\text{raw}} = I2_t \cdot I2_{t-1} + Q2_t \cdot Q2_{t-1}
+$$
+
+$$
+\text{Im}_{\text{raw}} = I2_t \cdot Q2_{t-1} - Q2_t \cdot I2_{t-1}
+$$
+
+Smoothed with EMA (α = 0.2):
+
+$$
+\text{Re}_t = 0.2 \cdot \text{Re}_{\text{raw}} + 0.8 \cdot \text{Re}_{t-1}
+$$
+
+$$
+\text{Im}_t = 0.2 \cdot \text{Im}_{\text{raw}} + 0.8 \cdot \text{Im}_{t-1}
+$$
+
+### 8. Period Extraction
+
+The instantaneous angular frequency is extracted from the phase angle:
+
+$$
+\theta = \text{atan2}(\text{Im}, \text{Re})
+$$
+
+$$
+\text{Period}_{\text{candidate}} = \frac{2\pi}{\theta}
+$$
+
+The period is clamped and smoothed:
+
+$$
+\text{Period}_t = 0.2 \cdot \text{clamp}(|\text{candidate}|, \text{minPeriod}, \text{maxPeriod}) + 0.8 \cdot \text{Period}_{t-1}
+$$
+
+### 9. Final Smoothing
+
+An additional EMA with α = 0.33 provides the final output:
+
+$$
+\text{SmoothPeriod}_t = \text{SmoothPeriod}_{t-1} + 0.33 \cdot (\text{Period}_t - \text{SmoothPeriod}_{t-1})
+$$
+
+### 10. Warmup Compensation
+
+During warmup, exponential compensation accelerates convergence:
+
+$$
+\text{decay}_t = \text{decay}_{t-1} \cdot (1 - \alpha)
+$$
+
+$$
+\text{Result}_t = \frac{\text{SmoothPeriod}_t}{1 - \text{decay}_t}
+$$
+
+## Mathematical Foundation
+
+### Homodyne Detection Principle
+
+In communications, homodyne detection multiplies a received signal $s(t)$ with a local oscillator at the same frequency $\omega_0$:
+
+$$
+s(t) \cdot \cos(\omega_0 t) = A(t) \cos(\omega_0 t + \phi(t)) \cdot \cos(\omega_0 t)
+$$
+
+Using the product-to-sum identity:
+
+$$
+= \frac{A(t)}{2}[\cos(\phi(t)) + \cos(2\omega_0 t + \phi(t))]
+$$
+
+Low-pass filtering removes the double-frequency term, leaving the phase information.
+
+### Analytic Signal Representation
+
+The analytic signal $z(t)$ is the original signal plus $j$ times its Hilbert transform:
+
+$$
+z(t) = x(t) + jH\{x(t)\} = A(t)e^{j\phi(t)}
+$$
+
+Multiplying consecutive samples:
+
+$$
+z(t) \cdot z^*(t-\Delta t) = A(t)A(t-\Delta t)e^{j[\phi(t) - \phi(t-\Delta t)]}
+$$
+
+The phase difference $\Delta\phi = \phi(t) - \phi(t-\Delta t)$ directly encodes the instantaneous frequency:
+
+$$
+\omega = \frac{\Delta\phi}{\Delta t}
+$$
+
+### Hilbert Transform Approximation
+
+The FIR coefficients [0.0962, 0, 0.5769, 0, -0.5769, 0, -0.0962] approximate the ideal Hilbert transform:
+
+$$
+H(\omega) = \begin{cases}
+-j & \omega > 0 \\
++j & \omega < 0
+\end{cases}
+$$
+
+The zeros at odd indices ensure only 90° phase shift without amplitude distortion at the center frequency.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+### Operation Count (Streaming Mode, Scalar)
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | ~25 | 1 | 25 |
-| MUL | ~30 | 3 | 90 |
-| DIV | 2 | 15 | 30 |
-| ATAN2 | 1 | 80 | 80 |
-| **Total** | **~58** | — | **~225 cycles** |
+| 4-bar WMA | 4 MUL, 3 ADD, 1 DIV | 20 | 20 |
+| Bandwidth calc | 2 MUL, 1 ADD | 7 | 7 |
+| Detrender (HT) | 4 MUL, 3 ADD | 15 | 15 |
+| Q1 (HT) | 4 MUL, 3 ADD | 15 | 15 |
+| JI, JQ (HT×2) | 8 MUL, 6 ADD | 30 | 30 |
+| I2, Q2 (EMA×2) | 4 MUL, 2 ADD | 14 | 14 |
+| Re, Im (homodyne) | 4 MUL, 2 ADD/SUB | 14 | 14 |
+| Re, Im (EMA×2) | 4 MUL, 2 ADD | 14 | 14 |
+| atan2 | 1 DIV, 1 ATAN, CMP | 25 | 25 |
+| Period calc | 1 DIV, 2 MUL, ADD | 25 | 25 |
+| Smooth period (EMA) | 2 MUL, 2 ADD | 8 | 8 |
+| Warmup comp | 2 MUL, 1 DIV, CMP | 20 | 20 |
+| **Total** | — | — | **~220 cycles** |
 
-**Breakdown:**
-- Weighted smooth (4-point): 3 MUL + 3 ADD + 1 DIV = 17 cycles
-- Detrender FIR (4 taps): 5 MUL + 3 ADD = 18 cycles
-- Q1 FIR (4 taps): 5 MUL + 3 ADD = 18 cycles
-- jI/jQ FIRs (8 taps total): 10 MUL + 6 ADD = 36 cycles
-- I2/Q2 IIR phasor smoothing: 4 MUL + 4 ADD = 16 cycles
-- Homodyne Re/Im: 6 MUL + 4 ADD = 22 cycles
-- Period extraction (atan2 + div): 1 ATAN2 + 1 DIV = 95 cycles
+The homodyne discriminator is computationally efficient at O(1) per bar, dominated by the atan2 calculation and multiple Hilbert Transforms.
 
-### Complexity Analysis
+### Batch Mode (512 values, SIMD/FMA)
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Fixed FIR taps (6-deep) + IIR states |
-| Batch | O(n) | Linear scan, constant work per bar |
+The recursive nature of EMA smoothing limits SIMD applicability. However:
 
-**Memory**: ~128 bytes (6-bar FIR history × 4 series + IIR states)
+| Operation | Scalar Ops | SIMD Potential | Notes |
+| :--- | :---: | :---: | :--- |
+| Hilbert coeffs | 4 MUL + 3 ADD | Partially | Indexed memory limits gains |
+| EMA smoothing | Sequential | None | Data dependency chain |
+| atan2 | 1 per bar | None | Scalar intrinsic |
 
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Limited | FIR taps vectorizable, IIRs sequential |
-| FMA | ✅ | Hilbert kernel: `0.0962×x + 0.5769×x[2] - ...` |
-| Batch parallelism | ❌ | IIR feedback prevents cross-bar parallelism |
-
-**Optimization Notes:** The atan2 call dominates (~35% of cost). Consider:
-- Fast atan2 approximation if <1° accuracy acceptable
-- Precompute 2π constant, use reciprocal for division
+**Expected SIMD speedup:** ~1.1x (marginal due to recursion)
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 9/10 | Hilbert Transform is mathematically rigorous |
-| **Timeliness** | 7/10 | FIR kernel introduces ~3 bar delay |
-| **Overshoot** | 8/10 | Smoothed period output is stable |
-| **Smoothness** | 8/10 | IIR smoothing reduces jitter |
+| **Accuracy** | 7/10 | Good for clean cycles; degrades with noise |
+| **Timeliness** | 8/10 | More responsive than spectral methods |
+| **Overshoot** | 8/10 | Clamping prevents extreme values |
+| **Smoothness** | 8/10 | Multiple EMA stages reduce jitter |
+| **Noise Rejection** | 7/10 | Adaptive bandwidth provides moderate filtering |
+
+## Validation
+
+HOMOD is a proprietary Ehlers indicator with limited external implementations.
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | N/A | Not implemented |
+| **Tulip** | N/A | Not implemented |
+| **Ooples** | N/A | Not implemented |
+| **PineScript** | ✅ | Reference implementation |
+| **MQL5** | ✅ | Adaptive Lookback Homodyne variant |
+
+Validation is performed against:
+
+- Mathematical properties (bounded output, sine wave detection)
+- PineScript formula verification
+- Streaming vs batch consistency
+- Mode parity (TSeries, Span, events)
+
+## Common Pitfalls
+
+1. **Warmup Period**: HOMOD requires approximately 2×maxPeriod bars to stabilize. The exponential warmup compensation helps but does not eliminate bias. Always check `IsHot` before using results for trading decisions.
+
+2. **Constant Input Handling**: With constant price input, the Hilbert Transform outputs approach zero, making the atan2 calculation undefined. The implementation guards against this with magnitude checks (> 1e-10).
+
+3. **Parameter Range**: The minPeriod/maxPeriod range must bracket the expected cycle. Unlike spectral methods, homodyne detection has no frequency bins — it produces a single period estimate. If the true cycle is far outside the range, the clamping will bias results toward the boundary.
+
+4. **Trending Markets**: Strong trends produce low-frequency bias in the analytic signal. The period estimate will tend toward maxPeriod during sustained moves. Use additional trend filters if cycle detection during trends is required.
+
+5. **Memory Footprint**: Each instance maintains ~40 state variables for the cascaded filters and history buffers. Per-instance memory is approximately 320 bytes.
+
+6. **Atan2 Implementation**: The custom atan2 function matches PineScript behavior for consistency. Standard library atan2 may differ at edge cases (both arguments zero). This implementation returns 0 for robustness.
 
 ## References
 
-* Ehlers, J. F. (2001). *Rocket Science for Traders: Digital Signal Processing Applications*. Wiley.
-* Ehlers, J. F. (2000). *Traders’ Tips – Homodyne Discriminator*. *Technical Analysis of Stocks & Commodities*.
-* blackcat1402. (2023). *Ehlers Homodyne Discriminator Period Measurer* (TradingView script).
-* MrTools. (2025). *Homodyne Discriminator.mq4*. Forex-Station Forums.
-* Mladen. (2019). *Adaptive Lookback Indicators – Homodyne Update*. MQL5 Forums.
-* 3Jane. (2024). *tindicators hd.cc Implementation*. GitHub.
-
-## Validation Sources
-
-```mcp
-Validation Sources:
-Patterns: §2, §6, §7, §16, §17, §18, §19
-Wolfram: "atan2(y,x)"
-External: "TradingView Homodyne Discriminator","Forex-Station Homodyne Discriminator","MQL5 Adaptive Lookback Homodyne","tindicators hd.cc"
-Planning: phases=function,main_loop,docs,index
+- Ehlers, J.F. (2001). "Rocket Science for Traders." Wiley.
+- Ehlers, J.F. (2004). "Cybernetic Analysis for Stocks and Futures." Wiley.
+- Ehlers, J.F. "Homodyne Discriminator." Technical Analysis of Stocks & Commodities.
+- Lyons, R.G. (2011). "Understanding Digital Signal Processing." 3rd ed. Prentice Hall.
+- Oppenheim, A.V., Schafer, R.W. (2010). "Discrete-Time Signal Processing." 3rd ed. Pearson.

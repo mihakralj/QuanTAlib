@@ -90,7 +90,6 @@
 | [COVARIANCE](statistics/covariance/Covariance.md) | Covariance | Statistics |
 | CRSI | Connors RSI | Oscillators |
 | CTI | Correlation Trend Indicator | Oscillators |
-| [CUMMEAN](statistics/cummean/Cummean.md) | Cumulative Mean | Statistics |
 | [CV](volatility/cv/Cv.md) | Coefficient of Variation | Volatility |
 | [CVI](volatility/cvi/Cvi.md) | Chaikin Volatility | Volatility |
 | CWT | Continuous Wavelet Transform | Numerics |

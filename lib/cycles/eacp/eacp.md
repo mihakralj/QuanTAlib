@@ -1,182 +1,224 @@
 # EACP: Ehlers Autocorrelation Periodogram
 
-## Overview and Purpose
+> "The autocorrelation periodogram uses the Wiener-Khinchin theorem to transform autocorrelation into spectral density, revealing the dominant cycle hidden within price noise."
 
-Developed by John F. Ehlers (Technical Analysis of Stocks & Commodities, Sep 2016), the Ehlers Autocorrelation Periodogram (EACP) estimates the dominant market cycle by projecting normalized autocorrelation coefficients onto Fourier basis functions. The indicator blends a roofing filter (high-pass + Super Smoother) with a compact periodogram, yielding low-latency dominant cycle detection suitable for adaptive trading systems. Compared with Hilbert-based methods, the autocorrelation approach resists aliasing and maintains stability in noisy price data.
+The Ehlers Autocorrelation Periodogram (EACP) is a sophisticated cycle detection algorithm that estimates the dominant market cycle period by computing autocorrelation coefficients and transforming them to the frequency domain via discrete Fourier transform (DFT). Unlike simple period detectors, EACP leverages the mathematical relationship between autocorrelation and power spectral density to identify cyclical behavior even in noisy price data.
 
-EACP answers a central question in cycle analysis: “What period currently dominates the market?” It prioritizes spectral power concentration, enabling downstream tools (adaptive moving averages, oscillators) to adjust responsively without the lag present in sliding-window techniques.
+## Historical Context
 
-## Core Concepts
+John Ehlers introduced the Autocorrelation Periodogram in his work on digital signal processing applied to trading. The algorithm addresses a fundamental challenge: market cycles are not stationary, and their periods change over time. Traditional Fourier analysis assumes stationarity, making it poorly suited for adaptive cycle detection.
 
-* **Roofing Filter:** High-pass plus Super Smoother combination removes low-frequency drift while limiting aliasing.
-* **Pearson Autocorrelation:** Computes normalized lag correlation to remove amplitude bias.
-* **Fourier Projection:** Sums cosine and sine terms of autocorrelation to approximate spectral energy.
-* **Gain Normalization:** Automatic gain control prevents stale peaks from dominating power estimates.
-* **Warmup Compensation:** Exponential correction guarantees valid output from the very first bar.
+Ehlers' insight was to use the Wiener-Khinchin theorem, which states that the autocorrelation function and power spectral density are Fourier transform pairs. By computing autocorrelation coefficients at various lags and transforming them via DFT, the algorithm produces a power spectrum that reveals dominant frequencies (cycle periods) in the data.
 
-## Implementation Notes
+The implementation here follows Ehlers' PineScript version, which includes:
+- High-pass filtering to remove DC offset and low-frequency trends
+- Super-smoother filtering to reduce high-frequency noise
+- Pearson correlation for lag-based autocorrelation
+- DFT conversion to power spectrum
+- Adaptive maximum power tracking with decay
+- Optional cubic enhancement to sharpen spectral peaks
 
-**This is not a strict implementation of the TASC September 2016 specification.** It is a more advanced evolution combining the core 2016 concept with techniques Ehlers introduced later. The fundamental Wiener-Khinchin theorem (power spectral density = Fourier transform of autocorrelation) is correctly implemented, but key implementation details differ:
+## Architecture & Physics
 
-### Differences from Original 2016 TASC Article
+### 1. High-Pass Filter
 
-1. **Dominant Cycle Calculation:**
-   * **2016 TASC:** Uses peak-finding to identify the period with maximum power
-   * **This Implementation:** Uses Center of Gravity (COG) weighted average over bins where power ≥ 0.5
-   * **Rationale:** COG provides smoother transitions and reduces susceptibility to noise spikes
+The high-pass filter removes DC offset and low-frequency trend components that would otherwise dominate the autocorrelation:
 
-2. **Roofing Filter:**
-   * **2016 TASC:** Simple first-order high-pass filter
-   * **This Implementation:** Canonical 2-pole high-pass with √2 factor followed by Super Smoother bandpass
-   * **Formula:** `hp := (1-α/2)²·(p-2p[1]+p[2]) + 2(1-α)·hp[1] - (1-α)²·hp[2]`
-   * **Rationale:** Evolved filtering provides better attenuation and phase characteristics
+$$
+\alpha_{HP} = \frac{\cos(\theta) + \sin(\theta) - 1}{\cos(\theta)}
+$$
 
-3. **Normalized Power Reporting:**
-   * **2016 TASC:** Reports peak power across all periods
-   * **This Implementation:** Reports power specifically at the dominant period
-   * **Rationale:** Provides more meaningful correlation between dominant cycle strength and normalized power
+where $\theta = \sqrt{2} \cdot \frac{\pi}{\text{maxPeriod}}$
 
-4. **Automatic Gain Control (AGC):**
-   * Uses decay factor `K = 10^(-0.15/diff)` where `diff = maxPeriod - minPeriod`
-   * Ensures K < 1 for proper exponential decay of historical peaks
-   * Prevents stale peaks from dominating current power estimates
+The filter is a second-order IIR:
 
-### Performance Characteristics
+$$
+HP_t = (1 - \frac{\alpha_{HP}}{2})^2 (P_t - 2P_{t-1} + P_{t-2}) + 2(1 - \alpha_{HP})HP_{t-1} - (1 - \alpha_{HP})^2 HP_{t-2}
+$$
 
-* **Complexity:** O(N²) where N = (maxPeriod - minPeriod)
-* **Implementation:** Uses `var` arrays with native PineScript historical operator `[offset]`
-* **Warmup:** Exponential compensation (§2 pattern) ensures valid output from bar 1
+### 2. Super-Smoother Filter
 
-### Related Implementations
+The super-smoother removes high-frequency noise while preserving cyclical content:
 
-This refined approach aligns with:
-* TradingView TASC 2025.02 implementation by blackcat1402
-* Modern Ehlers cycle analysis techniques post-2016
-* Evolved filtering methods from *Cycle Analytics for Traders*
+$$
+a_1 = e^{-\sqrt{2} \cdot \pi / \text{minPeriod}}
+$$
 
-The code is mathematically sound and production-ready, representing a refined version of the autocorrelation periodogram concept rather than a literal translation of the 2016 article.
+$$
+b_1 = 2 a_1 \cos\left(\sqrt{2} \cdot \frac{\pi}{\text{minPeriod}}\right)
+$$
 
-## Common Settings and Parameters
+$$
+c_1 = 1 - c_2 - c_3, \quad c_2 = b_1, \quad c_3 = -a_1^2
+$$
 
-| Parameter | Default | Function | When to Adjust |
-| ------ | ------ | ------ | ------ |
-| Min Period | 8 | Lower bound of candidate cycles | Increase to ignore microstructure noise; decrease for scalping. |
-| Max Period | 48 | Upper bound of candidate cycles | Increase for swing analysis; decrease for intraday focus. |
-| Autocorrelation Length | 3 | Averaging window for Pearson correlation | Set to 0 to match lag, or enlarge for smoother spectra. |
-| Enhance Resolution | true | Cubic emphasis to highlight peaks | Disable when a flatter spectrum is desired for diagnostics. |
+$$
+F_t = \frac{c_1}{2}(HP_t + HP_{t-1}) + c_2 F_{t-1} + c_3 F_{t-2}
+$$
 
-**Pro Tip:** Keep `(maxPeriod - minPeriod)` ≤ 64 to control $O(n^2)$ inner loops and maintain responsiveness on lower timeframes.
+### 3. Pearson Autocorrelation
 
-## Calculation and Mathematical Foundation
+For each lag $\ell$ from 2 to maxPeriod, compute the Pearson correlation between the filtered series and its lagged version:
 
-**Explanation:**
-1. Apply roofing filter to `source` using coefficients $\alpha_1$, $a_1$, $b_1$, $c_1$, $c_2$, $c_3$.
-2. For each lag $L$ compute Pearson correlation $r_L$ over window $M$ (default $L$).
-3. For each period $p$, project onto Fourier basis:
-   $C_p=\sum_{n=2}^{N} r_n \cos\left(\frac{2\pi n}{p}\right)$ and $S_p=\sum_{n=2}^{N} r_n \sin\left(\frac{2\pi n}{p}\right)$.
-4. Power $P_p=C_p^2+S_p^2$, smoothed then normalized via adaptive peak tracking.
-5. Dominant cycle $D=\frac{\sum p\,\tilde P_p}{\sum \tilde P_p}$ over bins where $\tilde P_p≥0.5$, warmup-compensated.
+$$
+r_\ell = \frac{n \sum x_i y_i - \sum x_i \sum y_i}{\sqrt{(n \sum x_i^2 - (\sum x_i)^2)(n \sum y_i^2 - (\sum y_i)^2)}}
+$$
 
-**Technical formula:**
-```
-Step 1: hp_t = ((1-α₁)/2)(src_t - src_{t-1}) + α₁ hp_{t-1}
-Step 2: filt_t = c₁(hp_t + hp_{t-1})/2 + c₂ filt_{t-1} + c₃ filt_{t-2}
-Step 3: r_L = (M Σxy - Σx Σy) / √[(M Σx² - (Σx)²)(M Σy² - (Σy)²)]
-Step 4: P_p = (Σ_{n=2}^{N} r_n cos(2πn/p))² + (Σ_{n=2}^{N} r_n sin(2πn/p))²
-Step 5: D = Σ_{p∈Ω} p · ĤP_p / Σ_{p∈Ω} ĤP_p with warmup compensation
-```
+where $x_i = F_{t-i}$ and $y_i = F_{t-\ell-i}$ for $i \in [0, \text{window})$.
 
-> 🔍 **Technical Note:** Warmup uses $c = 1 / (1 - (1 - \alpha)^{k})$ to scale early-cycle estimates, preventing low values during initial bars.
+### 4. Discrete Fourier Transform
 
-## Interpretation Details
+Convert autocorrelation to power spectrum via DFT:
 
-* **Primary Dominant Cycle:**
-  * High $D$ (e.g., > 30) implies slow regime; adaptive MAs should lengthen.
-  * Low $D$ (e.g., < 15) signals rapid oscillations; shorten lookback windows.
+$$
+\text{cosAcc}_p = \sum_{n=2}^{\text{maxPeriod}} r_n \cos\left(\frac{2\pi n}{p}\right)
+$$
 
-* **Normalized Power:**
-  * Values > 0.8 indicate strong cycle confidence; consider cyclical strategies.
-  * Values < 0.3 warn of flat spectra; favor trend or volatility approaches.
+$$
+\text{sinAcc}_p = \sum_{n=2}^{\text{maxPeriod}} r_n \sin\left(\frac{2\pi n}{p}\right)
+$$
 
-* **Regime Shifts:**
-  * Rapid drop in $D$ alongside rising power often precedes volatility expansion.
-  * Divergence between $D$ and price swings may highlight upcoming breakouts.
+$$
+\text{Power}_p = \text{cosAcc}_p^2 + \text{sinAcc}_p^2
+$$
 
-## Limitations and Considerations
+### 5. Smoothed Power Spectrum
 
-* **Spectral Leakage:** Limited lag range can smear peaks during abrupt volatility shifts.
-* **O(n²) Segment:** Although constrained (≤ 60 loops), wide period spans increase computation.
-* **Stationarity Assumption:** Autocorrelation presumes quasi-stationary cycles; regime changes reduce accuracy.
-* **Latency in Noise:** Even with roofing, extremely noisy assets may require higher `avgLength`.
-* **Downtrend Bias:** Negative trends may clip high-pass output; ensure preprocessing retains signal.
+Apply EMA-style smoothing to the power spectrum:
+
+$$
+S_p = 0.2 \cdot \text{Power}_p^2 + 0.8 \cdot S_{p,\text{prev}}
+$$
+
+### 6. Adaptive Maximum Power Tracking
+
+Track the maximum power with decay to normalize the spectrum:
+
+$$
+\text{MaxPwr}_t = \begin{cases}
+\text{localMax} & \text{if localMax} > \text{MaxPwr}_{t-1} \\
+K \cdot \text{MaxPwr}_{t-1} & \text{otherwise}
+\end{cases}
+$$
+
+where $K = 10^{-0.15 / (\text{maxPeriod} - \text{minPeriod})}$
+
+### 7. Dominant Cycle Extraction
+
+Normalize power and optionally apply cubic enhancement:
+
+$$
+\text{pwr}_p = \frac{S_p}{\text{MaxPwr}_t}
+$$
+
+$$
+\text{pwr}_p = \text{pwr}_p^3 \quad \text{(if enhance = true)}
+$$
+
+Compute weighted average of periods with sufficient power:
+
+$$
+\text{Dom}_t = \frac{\sum_{p:\text{pwr}_p \geq 0.5} p \cdot \text{pwr}_p}{\sum_{p:\text{pwr}_p \geq 0.5} \text{pwr}_p}
+$$
+
+Apply smoothing:
+
+$$
+\text{Dom}_t = 0.2 \cdot (\text{baseDom} - \text{Dom}_{t-1}) + \text{Dom}_{t-1}
+$$
+
+## Mathematical Foundation
+
+### Wiener-Khinchin Theorem
+
+The theorem establishes that for a wide-sense stationary process:
+
+$$
+S(\omega) = \mathcal{F}\{R(\tau)\}
+$$
+
+where $S(\omega)$ is the power spectral density and $R(\tau)$ is the autocorrelation function. This means peaks in the autocorrelation at lag $\tau$ correspond to peaks in the power spectrum at frequency $\omega = 2\pi/\tau$.
+
+### Filter Design Rationale
+
+The high-pass filter cutoff at maxPeriod ensures cycles longer than the detection range are attenuated. The super-smoother cutoff at minPeriod removes noise at frequencies higher than the detection range. This creates a bandpass effect that isolates cycles within [minPeriod, maxPeriod].
+
+### Cubic Enhancement
+
+The cubic function $f(x) = x^3$ sharpens peaks because:
+- Values near 1 remain close to 1: $0.9^3 = 0.729$
+- Values near 0 become much smaller: $0.5^3 = 0.125$
+
+This creates better separation between dominant and spurious cycles.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+### Operation Count (Streaming Mode, Scalar)
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | ~N² | 1 | ~N² |
-| MUL | ~N² | 3 | ~3N² |
-| DIV | ~N | 15 | ~15N |
-| SQRT | ~N | 15 | ~15N |
-| COS | N² | 40 | 40N² |
-| SIN | N² | 40 | 40N² |
-| **Total** | **~4N²** | — | **~84N² cycles** |
+| HP filter (MUL/ADD) | 8 | 3 | 24 |
+| SS filter (MUL/ADD) | 6 | 3 | 18 |
+| Autocorrelation loop | O(maxPeriod × avgLength) | 5 | ~1200 |
+| DFT loop | O(maxPeriod²) | 10 | ~23000 |
+| Power normalization | O(maxPeriod) | 3 | ~150 |
+| Weighted average | O(maxPeriod) | 5 | ~250 |
+| **Total** | — | — | **~25000 cycles** |
 
-*Where N = maxPeriod - minPeriod (default 40)*
+The DFT loop dominates at O(maxPeriod²). For maxPeriod=48, this is ~2300 iterations per bar.
 
-**Default (N=40):** ~134,400 cycles per bar (dominated by trig functions)
+### Batch Mode
 
-**Breakdown:**
-- Roofing filter (HP + SSF): ~20 cycles
-- Autocorrelation (N lags): ~4N² for Pearson calculations
-- Fourier projection (N² iterations): 80N² cycles (COS + SIN)
-- Power + normalization: ~30N cycles
+Due to the recursive nature of autocorrelation and DFT, SIMD optimization is limited to:
+- Vectorized DFT inner products (modest gains)
+- Parallel power normalization
 
-### Complexity Analysis
-
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(N²) | Nested loops over lags × periods |
-| Batch | O(m×N²) | m = bars, N = period range |
-
-**Memory**: ~3N×8 bytes (autocorrelation + power arrays)
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | Fourier sums vectorizable across lags |
-| FMA | ✅ | Accumulation: `r × cos + sum` pattern |
-| Batch parallelism | Limited | Each bar depends on filtered history |
-
-**Optimization Notes:** Trig functions dominate cost. Consider:
-- Precomputed trig tables for fixed period range
-- SVML vectorized sin/cos for ~4× speedup
-- Reduce N by narrowing period search range
+Expected speedup: ~1.3x with AVX2 for DFT vectorization.
 
 ### Quality Metrics
 
 | Metric | Score | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 9/10 | Wiener-Khinchin theorem mathematically sound |
-| **Timeliness** | 6/10 | Spectral analysis inherently lagging |
-| **Overshoot** | 8/10 | COG averaging smooths cycle estimates |
-| **Smoothness** | 7/10 | Enhanced resolution can create jumps |
+| **Accuracy** | 8/10 | Good cycle detection for clean signals |
+| **Timeliness** | 6/10 | Requires warmup; smoothing adds lag |
+| **Overshoot** | 7/10 | Bounded output range prevents extremes |
+| **Smoothness** | 8/10 | EMA smoothing reduces jitter |
+| **Noise Rejection** | 7/10 | Dual filtering provides good denoising |
+
+## Validation
+
+EACP is a proprietary Ehlers indicator not commonly found in standard libraries.
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | N/A | Not implemented |
+| **Tulip** | N/A | Not implemented |
+| **Ooples** | N/A | Not implemented |
+| **PineScript** | ✅ | Reference implementation |
+
+Validation is performed against:
+- Mathematical properties (bounded output, sine wave detection)
+- PineScript formula verification
+- Streaming vs batch consistency
+
+## Common Pitfalls
+
+1. **Warmup Period**: EACP requires approximately 2×maxPeriod bars to stabilize. During warmup, the dominant cycle estimate is biased toward the midpoint of [minPeriod, maxPeriod]. Always check `IsHot` before using results.
+
+2. **Computational Cost**: The O(maxPeriod²) DFT is expensive. For real-time applications with maxPeriod > 100, consider reducing the period range or increasing the bar interval.
+
+3. **Parameter Sensitivity**: The minPeriod/maxPeriod range must bracket the expected cycle. If the true cycle is outside this range, detection will fail. Start with a wide range (8-48) and narrow based on market characteristics.
+
+4. **Enhance Mode**: While cubic enhancement sharpens peaks, it can also suppress weak-but-valid cycles. Disable enhancement when analyzing low-amplitude cycles or noisy data.
+
+5. **Memory Footprint**: The indicator maintains O(maxPeriod) buffers for correlation, power, and smoothed power. Each instance consumes ~2KB for default parameters.
+
+6. **Non-Stationary Markets**: Markets without clear cyclical behavior will produce unstable dominant cycle estimates. Use normalized power as a confidence metric: high power indicates strong cyclical behavior.
 
 ## References
 
-* Ehlers, J. F. (2016). “Past Market Cycles.” *Technical Analysis of Stocks & Commodities*, 34(9), 52-55.
-* Thinkorswim Learning Center. “Ehlers Autocorrelation Periodogram.”
-* Fab MacCallini. “autocorrPeriodogram.R.” GitHub repository.
-* QuantStrat TradeR Blog. “Autocorrelation Periodogram for Adaptive Lookbacks.”
-* TradingView Script by blackcat1402. “Ehlers Autocorrelation Periodogram (Updated).”
-
-``` mcp
-Validation Sources:
-Patterns: §2, §3, §7, §21
-Wolfram: "Wiener-Khinchin theorem"
-External: "Thinkorswim Ehlers Autocorrelation Periodogram","fabmaccallini autocorrPeriodogram","QuantStrat Autocorrelation Periodogram","TradingView blackcat Autocorrelation Periodogram"
-API: ref-tools confirmed input.source/int/bool usage, plot defaults
-Planning: phases=design,warmup,validation,docs
+- Ehlers, J.F. (2013). "Cycle Analytics for Traders." Wiley.
+- Ehlers, J.F. "Autocorrelation Periodogram." Technical Analysis of Stocks & Commodities.
+- Wiener, N. (1930). "Generalized Harmonic Analysis." Acta Mathematica.
+- Khinchin, A.Y. (1934). "Korrelationstheorie der stationären stochastischen Prozesse." Mathematische Annalen.
