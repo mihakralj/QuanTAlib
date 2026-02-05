@@ -16,7 +16,7 @@ Cycle analysis identifies repeating patterns in price data. John Ehlers pioneere
 | [HT_DCPERIOD](ht_dcperiod/Ht_dcperiod.md) | HT Dominant Cycle Period | Ehlers Hilbert Transform. Measures current cycle length. |
 | [HT_DCPHASE](ht_dcphase/Ht_dcphase.md) | HT Dominant Cycle Phase | Ehlers Hilbert Transform. Measures current position in cycle. |
 | [HT_PHASOR](ht_phasor/Ht_phasor.md) | HT Phasor Components | Ehlers. In-phase and quadrature components. |
-| [HT_SINE](ht_sine/Ht_sine.md) | HT SineWave | Ehlers. Sine and lead sine for cycle timing. |
+| [HT_SINE](ht_sine/HtSine.md) | Hilbert Transform SineWave | Ehlers Hilbert Transform. Sine and lead sine for cycle timing. |
 | [LUNAR](lunar/Lunar.md) | Lunar Phase | 29.5-day lunar cycle. Studied for market correlations. |
 | [PHASOR](phasor/Phasor.md) | Phasor Analysis | Ehlers. Phase angle from Hilbert Transform. |
 | [SINE](sine/Sine.md) | Sine Wave | Ehlers. Basic sinewave indicator for cycle mode. |

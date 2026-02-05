@@ -205,6 +205,15 @@ Predictive indicators and extrapolation methods.
 | :-------- | :-------- | :---- |
 | [**AFIRMA**](../lib/forecasts/afirma/Afirma.md) | Adaptive FIR MA | Predictive FIR filter |
 
+### Cycles
+
+Periodic pattern detection and dominant frequency extraction. Markets exhibit cycles; detecting them reliably remains challenging.
+
+| Indicator | Full Name | Notes |
+| :-------- | :-------- | :---- |
+| [**HT_SINE**](../lib/cycles/ht_sine/HtSine.md) | Hilbert Transform SineWave | Dominant cycle phase with 45° lead signal |
+| [**SSFDSP**](../lib/cycles/ssfdsp/Ssfdsp.md) | SSF Detrended Synthetic Price | Dual Super Smoother Filter oscillator |
+
 ### Numerics
 
 Mathematical transformations and derivative indicators. Building blocks for analysis.
