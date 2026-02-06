@@ -1,4 +1,4 @@
-# PC: Price Channel
+# PCHANNEL: Price Channel
 
 > "The Turtles didn't need complex math. They needed to know when price broke out of its cage."
 
@@ -6,9 +6,9 @@ Price Channel (PC) tracks the highest high and lowest low over a lookback period
 
 ## Historical Context
 
-Price Channel is the generic name for what Richard Donchian formalized in the 1960s while managing one of the first publicly held commodity funds. The indicator is also known as Donchian Channels, N-period high/low channels, or simply "breakout bands."
+Price Channel is the generic name for what **Richard Donchian** formalized in the 1960s while managing one of the first publicly held commodity funds. The indicator is also known as Donchian Channels, N-period high/low channels, or simply "breakout bands."
 
-The "4-week rule" (buy on 20-day high, sell on 20-day low) became the foundation for systematic trend-following. The indicator gained fame through the Turtle Trading experiment in 1983. Richard Dennis and William Eckhardt recruited novice traders and taught them a mechanical system built on channel breakouts. The Turtles reportedly made over $100 million. Curtis Faith's book and subsequent leaks revealed the core: enter on 20-day breakouts, exit on 10-day counter-breakouts.
+The "4-week rule" (buy on 20-day high, sell on 20-day low) became the foundation for systematic trend-following. The indicator gained fame through the **Turtle Trading** experiment in 1983. Richard Dennis and William Eckhardt recruited novice traders and taught them a mechanical system built on channel breakouts. The Turtles reportedly made over $100 million. Curtis Faith's book and subsequent leaks revealed the core: enter on 20-day breakouts, exit on 10-day counter-breakouts.
 
 Most implementations compute max/min by scanning the entire lookback window on every bar—O(n) per update, O(n²) for a series. This works for period=20 but becomes painful for longer windows or real-time feeds. QuanTAlib uses monotonic deques that maintain running max/min in O(1) amortized time, enabling period=500+ without performance degradation.
 
@@ -44,41 +44,20 @@ $$
 M_t = \frac{U_t + L_t}{2}
 $$
 
-This represents the "equilibrium" price over the lookback period—not a moving average of closes, but the center of the price range.
-
-## Mathematical Foundation
+This represents the "equilibrium" price over the lookback period.
 
 ### Monotonic Deque Algorithm
 
 Instead of rescanning the window on each bar, the implementation maintains two monotonic deques:
 
-**For maximum (upper band):**
+1. **Deque (Max):** Valid indices of decreasing values. Front is always the Max.
+2. **Deque (Min):** Valid indices of increasing values. Front is always the Min.
+3. **Update:**
+    - Remove old indices from front (expired).
+    - Remove values from back that are superseded by new value.
+    - Add new value to back.
 
-1. Remove elements from the back that are smaller than the new value
-2. Add the new value with its index to the back
-3. Remove elements from the front whose indices are outside the window
-4. The front element is always the maximum
-
-**For minimum (lower band):**
-
-1. Remove elements from the back that are larger than the new value
-2. Add the new value with its index to the back
-3. Remove elements from the front whose indices are outside the window
-4. The front element is always the minimum
-
-**Amortized Analysis:**
-
-Each element is added once and removed at most once. Over $n$ operations, total work is $O(n)$, giving $O(1)$ amortized per update.
-
-### Channel Width
-
-The distance between bands measures price range volatility:
-
-$$
-W_t = U_t - L_t
-$$
-
-Wider channels indicate higher volatility; narrower channels suggest consolidation.
+**Complexity:** Each element is added once and removed at most once. Total work for $N$ bars is $O(N)$, averaging $O(1)$ per bar.
 
 ## Performance Profile
 
@@ -88,39 +67,27 @@ Per-bar cost using monotonic deque optimization:
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| CMP | 4 | 1 | 4 |
-| ADD | 1 | 1 | 1 |
-| MUL | 1 | 3 | 3 |
-| **Total** | **6** | — | **~8 cycles** |
+| CMP (Bound checks) | 4 | 1 | 4 |
+| ADD (Index update) | 1 | 1 | 1 |
+| MUL (Average) | 1 | 3 | 3 |
+| Deque Maint. | ~2 | 1 | ~2 |
+| **Total** | **8** | — | **~10 cycles** |
 
-**Complexity**: O(1) amortized per bar—monotonic deque maintains max/min efficiently.
+**Complexity**: O(1) amortized.
 
 ### Batch Mode (512 values, SIMD/FMA)
 
-Finding max/min over sliding windows has limited SIMD benefit due to sequential dependency:
+Finding max/min over sliding windows has limited SIMD benefit due to sequential dependency and the efficiency of the scalar deque algorithm.
 
 | Operation | Scalar Ops | SIMD Benefit | Notes |
 | :--- | :---: | :---: | :--- |
 | Max/Min update | 4 | 1× | Deque-based, sequential |
 | Middle band | 2 | 2× | ADD + MUL parallelizable |
 
-**Batch efficiency (512 bars):**
-
 | Mode | Cycles/bar | Total (512 bars) | Improvement |
 | :--- | :---: | :---: | :---: |
-| Scalar streaming | 8 | 4,096 | — |
-| Partial SIMD | ~7 | ~3,584 | **~12%** |
-
-Price Channel is already highly efficient due to the O(1) monotonic deque algorithm.
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact max/min calculation |
-| **Timeliness** | 6/10 | Tracks past extremes, inherently lagging |
-| **Overshoot** | 10/10 | No overshoot—bands are actual price levels |
-| **Smoothness** | 5/10 | Bands move in discrete steps as extremes exit window |
+| Scalar streaming | 10 | 5,120 | — |
+| Partial SIMD | ~8 | ~4,096 | **~20%** |
 
 ## Validation
 
@@ -132,25 +99,76 @@ Price Channel is already highly efficient due to the O(1) monotonic deque algori
 | **Ooples** | ✅ | Cross-validated via Donchian equivalence |
 | **Dchannel** | ✅ | Exact match—identical algorithm |
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Stale Extremes**: Price Channel bands stay flat until a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars isn't broken—it's waiting. Traders sometimes mistake this for indicator malfunction.
+- **Stale Extremes**: Price Channel bands stay flat until a new extreme occurs or the old extreme exits the window. This is feature, not a bug.
+- **O(n) Trap**: Naive implementations rescan the full window every bar. QuanTAlib's solution is O(1).
+- **Breakout vs. Touch**: Price touching the upper band is not the same as breaking out. True breakouts close above/below the band.
+- **Asymmetric Exit**: Consider different periods for long/short entries and exits (e.g., Turtle 20/10 rule).
 
-2. **O(n) Trap**: Naive implementations rescan the full window every bar. For period=200 on tick data (60,000 bars/day), that's 12 million comparisons daily per symbol. The monotonic deque approach reduces this to ~120,000.
+## API
 
-3. **Breakout vs. Touch**: Price touching the upper band is not the same as breaking out. True breakouts close above/below the band. Intrabar spikes that don't close outside the channel often fail.
+```mermaid
+classDiagram
+    class Pchannel {
+        +Name : string
+        +WarmupPeriod : int
+        +Upper : TValue
+        +Lower : TValue
+        +Last : TValue
+        +IsHot : bool
+        +Update(TBar bar) TValue
+        +Update(TBarSeries source) TSeries
+        +Prime(TBarSeries source) void
+    }
+```
 
-4. **Asymmetric Exit**: The Turtle system used 20-day entry but 10-day exit. Using the same period for both typically underperforms. Consider different periods for entries and exits.
+### Class: `Pchannel`
 
-5. **Choppy Markets**: Price Channel generates frequent false signals during sideways consolidation. The bands narrow, making breakouts more likely, but these breakouts often fail. Filter with trend confirmation or volatility thresholds.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | — | `>0` | Lookback window size. |
+| `source` | `TBarSeries` | — | `any` | Initial input source (optional). |
 
-6. **Gap Behavior**: Overnight gaps can create instant breakouts that reverse quickly. The band immediately adjusts to include the gap, which may not represent sustainable price levels.
+### Properties
 
-7. **Memory Footprint**: The monotonic deque implementation requires storing (value, index) pairs. For period=200, this means up to 400 doubles (3.2 KB) per instance. For 5,000 symbols, budget ~16 MB.
+- `Name` (`string`): The indicator name (e.g., "Pchannel(20)").
+- `WarmupPeriod` (`int`): The number of samples needed for full validity.
+- `Upper` (`TValue`): The current highest high.
+- `Lower` (`TValue`): The current lowest low.
+- `Last` (`TValue`): The current middle line value ((Upper + Lower) / 2).
+- `IsHot` (`bool`): Returns `true` if we have processed `period` samples.
+
+### Methods
+
+- `Update(TBar bar)`: Updates the indicator with a new bar (High/Low) and returns the Middle band value.
+- `Update(TBarSeries source)`: Batch processes a series and returns (Middle, Upper, Lower) tuple.
+- `Prime(TBarSeries source)`: Pre-loads the indicator with history without returning results.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var channel = new Pchannel(period: 20);
+
+// Update Loop
+foreach (var bar in bars)
+{
+    var result = channel.Update(bar);
+
+    if (channel.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2} Upper={channel.Upper.Value:F2} Lower={channel.Lower.Value:F2}");
+    }
+}
+
+// Batch Processing
+var (mid, upper, lower) = channel.Update(bars);
+```
 
 ## References
 
-- Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*, 16(6), 133-142.
-- Faith, C. (2007). *Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders*. McGraw-Hill.
-- Schwager, J. D. (1989). *Market Wizards: Interviews with Top Traders*. Harper & Row.
-- Covel, M. (2007). *The Complete TurtleTrader*. HarperBusiness.
+- Donchian, R. (1960). "High Finance in Copper." *Financial Analysts Journal*.
+- Faith, C. (2007). *Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders*.

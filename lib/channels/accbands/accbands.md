@@ -1,73 +1,39 @@
 # ACCBANDS: Acceleration Bands
 
-## Overview and Purpose
+> "Price creates its own envelope, expanding with potential and contracting with consensus."
 
-Acceleration Bands are a volatility-based indicator developed by Price Headley that creates an adaptive price envelope around a moving average. Unlike static percentage-based bands, Acceleration Bands dynamically adjust their width based on the spread between the high and low moving averages, making them responsive to changing market conditions. This approach allows the bands to expand during volatile periods and contract during consolidation, providing traders with a visual representation of potential support and resistance levels that adapt to market volatility.
+Acceleration Bands (ACCBANDS) serve as an adaptive volatility envelope based on the high-low range rather than standard deviation. Unlike Bollinger Bands which use close-to-close variance, Acceleration Bands utilize the intra-bar high-low spread to gauge volatility, creating channels that accommodate the full price excursion of the underlying asset.
 
-The implementation provided uses efficient circular buffers for SMA calculations, ensuring optimal performance while properly handling data gaps. By creating a channel that widens during increased volatility and narrows during reduced volatility, Acceleration Bands offer traders a framework for identifying potential reversal points and measuring trend strength based on a security's natural price rhythm rather than arbitrary fixed percentages.
+## Historical Context
 
-## Core Concepts
+Developed by Price Headley and detailed in *Big Trends in Trading* (2002), Acceleration Bands addressed the need for a breakout-specific envelope. Headley observed that standard deviation often lagged in fast-moving breakout scenarios. By incorporating the High and Low prices directly into the band width calculation, he created a system that reacts immediately to range expansion, often serving as a trigger for trend-following entries when price closes outside the bands.
 
-* **Volatility-adaptive channels:** Bands automatically widen during volatile markets and narrow during calm periods
-* **Moving average foundation:** Uses simple moving averages of high, low, and close prices as the basis for calculations
-* **Dynamic bandwidth:** Band width determined by the difference between high and low SMAs, adjusted by a multiplier
-* **Symmetrical envelope:** Equal expansion above and below the centerline for balanced support/resistance identification
+## Architecture & Physics
 
-Acceleration Bands stand apart from other channel indicators by directly incorporating the natural range of price movement (high-low differential) into their width calculation. This creates a more market-adaptive envelope that responds to the inherent volatility characteristics of each security, rather than applying a uniform volatility measure across different instruments.
+The indicator maintains three parallel Simple Moving Averages (High, Low, and Close) to construct the bands. The width is derived from the smoothed High-Low range, scaled by a user-defined factor.
 
-## Common Settings and Parameters
+### Calculation Steps
 
-| Parameter | Default | Function | When to Adjust |
-| --------- | ------- | -------- | -------------- |
-| Period | 20 | Lookback period for all SMA calculations | Shorter for more sensitivity to recent price action; longer for smoother, less reactive bands |
-| Factor | 2.0 | Multiplier for band width | Higher values for wider bands that trigger fewer signals; lower values for tighter bands with more frequent signals |
-| Sources | High, Low, Close | Price data components | Rarely needs adjustment unless analyzing specific price aspects |
+1. **Component SMAs**:
+    $$SMA_{High} = \frac{1}{n} \sum_{i=0}^{n-1} \text{High}_{t-i}$$
+    $$SMA_{Low} = \frac{1}{n} \sum_{i=0}^{n-1} \text{Low}_{t-i}$$
+    $$SMA_{Close} = \frac{1}{n} \sum_{i=0}^{n-1} \text{Close}_{t-i}$$
 
-**Pro Tip:** Try using a band factor of 1.0 for shorter-term trading and 2.0-3.0 for longer-term analysis. The sweet spot often lies where the bands contain approximately 85-90% of price action, with only significant moves breaking beyond the bands.
+2. **Band Width**:
+    $$Width_t = (SMA_{High} - SMA_{Low}) \times Factor$$
 
-## Calculation and Mathematical Foundation
+3. **Band Construction**:
+    $$Upper_t = SMA_{High} + Width_t$$
+    $$Lower_t = SMA_{Low} - Width_t$$
+    $$Middle_t = SMA_{Close}$$
 
-**Simplified explanation:**
-Acceleration Bands calculate a middle line as the SMA of closing prices, then create upper and lower bands by adding or subtracting the high-low differential (multiplied by a factor) to or from this middle line.
-
-**Technical formula:**
-
-Middle Band = SMA(Close, Period)
-Upper Band = SMA(High, Period) + [SMA(High, Period) - SMA(Low, Period)] × Factor
-Lower Band = SMA(Low, Period) - [SMA(High, Period) - SMA(Low, Period)] × Factor
-
-Where:
-
-* SMA = Simple Moving Average
-* Period = Lookback period for calculations
-* Factor = Multiplier for the band width
-
-> 🔍 **Technical Note:** The implementation uses circular buffers to efficiently maintain running sums for all three SMAs (high, low, close), ensuring O(1) computational complexity regardless of the lookback period. This approach prevents recalculating entire sums each bar while properly handling NA values that may appear in the source data.
-
-## Interpretation Details
-
-Acceleration Bands provide several analytical perspectives:
-
-* **Overbought/oversold conditions:** Price reaching or exceeding the upper band suggests potentially overbought conditions; touching or breaking below the lower band indicates potentially oversold conditions
-* **Trend strength assessment:** Price persistently touching or moving beyond the bands in the direction of the trend indicates strong momentum
-* **Volatility measurement:** The distance between bands provides a visual representation of current market volatility
-* **Support and resistance levels:** During uptrends, the middle and lower bands often act as support; during downtrends, the middle and upper bands frequently serve as resistance
-* **Mean reversion signals:** Moves beyond the bands followed by reversals back inside often signal potential mean reversion opportunities
-* **Convergence/divergence patterns:** Narrowing bands indicate decreasing volatility, often preceding significant price moves; widening bands suggest increasing volatility
-
-## Limitations and Considerations
-
-* **Lagging component:** As a moving average-based indicator, Acceleration Bands exhibit some lag, potentially missing the initial stages of significant moves
-* **Parameter sensitivity:** Results can vary significantly based on period and factor settings
-* **False signals:** During strong trends, the bands may generate false reversal signals
-* **Ineffectiveness in trendless markets:** May produce excessive signals in consolidating or choppy markets
-* **Extreme volatility handling:** During periods of extremely high volatility, the bands may widen excessively, reducing their usefulness for near-term reversal identification
-* **Complementary tool:** Works best when combined with other technical indicators for confirmation
-* **Timeframe dependence:** Optimal parameters vary across different timeframes
+    Where $n$ = period (default 20), $Factor$ = multiplier (default 2.0).
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+The implementation uses three independent circular buffers (High, Low, Close) to maintain O(1) complexity for the moving averages.
+
+### Operation Count - Single value
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -76,53 +42,84 @@ Acceleration Bands provide several analytical perspectives:
 | DIV | 3 | 15 | 45 |
 | **Total** | **13** | — | **~59 cycles** |
 
-**Breakdown:**
-- SMA(High): 2 ADD + 1 DIV = 17 cycles (running sum)
-- SMA(Low): 2 ADD + 1 DIV = 17 cycles (running sum)
-- SMA(Close): 2 ADD + 1 DIV = 17 cycles (running sum)
-- Band width: 1 SUB = 1 cycle
-- Upper band: 1 MUL + 1 ADD = 4 cycles
-- Lower band: 1 MUL + 1 SUB = 4 cycles
+### Operation Count - Batch processing
 
-### Complexity Analysis
+SIMD optimization is applied to the final band construction, though the recursive nature of the SMAs limits full vectorization of the state maintenance.
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Three running sums with circular buffers |
-| Batch | O(n) | Linear scan, n = series length |
-
-**Memory**: ~192 bytes (three circular buffers for high, low, close SMAs).
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | Band calc vectorizable; SMA recursion blocks full SIMD |
-| FMA | ✅ | `SMA(High) ± Factor × (SMA(High) - SMA(Low))` |
-| Batch parallelism | Partial | Three independent SMAs can be computed in parallel |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact computation |
-| **Timeliness** | 5/10 | SMA lag (period/2 bars typical) |
-| **Overshoot** | 4/10 | Adapts to high-low spread, not pure volatility |
-| **Smoothness** | 7/10 | SMA-based, inherently smooth |
+| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
+| :--- | :---: | :---: | :---: |
+| Band Construction | 3N | 3N/VectorSize | ~4-8× |
+| SMAs | 3N | 3N | 1× |
 
 ## Validation
 
 | Library | Status | Notes |
-| :--- | :---: | :--- |
+| :--- | :--- | :--- |
 | **TA-Lib** | N/A | Not implemented |
-| **Skender** | ✅ | Validated against Skender.Stock.Indicators |
-| **Tulip** | N/A | Not implemented |
-| **Ooples** | N/A | Not implemented |
-| **Internal** | ✅ | Mode consistency verified |
+| **Skender** | ✅ | Matches `getAccelerationBands` |
+| **Internal** | ✅ | Streaming/Batch/Span match exactly |
 
-## References
+## Usage & Pitfalls
 
-* Headley, P. (2002). Big Trends in Trading: Strategies for Maximum Market Returns. John Wiley & Sons.
-* Kaufman, P. J. (2013). Trading Systems and Methods (5th ed.). John Wiley & Sons.
-* Murphy, J. J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.
-* Pring, M. J. (2002). Technical Analysis Explained. McGraw-Hill.
+- **Trend Definition**: Headley defines a breakout as two consecutive closes outside the bands.
+- **Parameter Sensitivity**: The default factor of 2.0 is tuned for equities. Crypto or FX may require higher factors (e.g., 3.0) due to "fat tails" in intra-bar range.
+- **Lag**: Inherits the lag of the underlying SMA. Not suitable for ultra-high-frequency reacting.
+- **Range vs Variance**: Because it uses High-Low range, it is more sensitive to "wicks" or momentary spikes than close-based envelopes.
+
+## API
+
+```mermaid
+classDiagram
+    class AccBands {
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +bool IsHot
+        +event Pub
+        +Update(TBar bar) TValue
+        +Update(TBarSeries source) tuple
+        +Batch(TBarSeries source, int p, double f) tuple
+    }
+```
+
+### Class: `AccBands`
+
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | — | `>0` | Lookback period for SMAs. |
+| `factor` | `double` | `2.0` | `>0` | Multiplier for band width. |
+| `source` | `TBarSeries` | — | `any` | Initial input TBar data (optional). |
+
+### Properties
+
+- `Last` (`TValue`): The current middle band value (SMA of Close).
+- `Upper` (`TValue`): The current upper band value.
+- `Lower` (`TValue`): The current lower band value.
+- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
+
+### Methods
+
+- `Update(TBar input)`: Updates the indicator with a new bar.
+- `Update(TBarSeries source)`: Processes a full series.
+- `Batch(...)`: Static method for high-performance batch processing.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var indicator = new AccBands(period: 20, factor: 2.0);
+
+// Update Loop
+foreach (var bar in bars)
+{
+    var result = indicator.Update(bar);
+    
+    // Use valid results
+    if (indicator.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2} Up={indicator.Upper.Value:F2} Low={indicator.Lower.Value:F2}");
+    }
+}
+```

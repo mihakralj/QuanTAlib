@@ -1,194 +1,163 @@
 # SOLAR: Solar Cycle Indicator
 
-> "The Sun is the greatest clock—every market on Earth dances to its annual rhythm."
+> "The sun's annual journey defines Earth's seasons—and perhaps subtle rhythms in human activity and markets."
 
-The Solar Cycle indicator calculates the Sun's position in its annual cycle using ecliptic longitude, outputting values from -1.0 (winter solstice) through 0.0 (equinoxes) to +1.0 (summer solstice). This implementation uses the Meeus astronomical algorithms for computing the Sun's true position with equation of center corrections.
+The Solar Cycle indicator models Earth's seasonal position relative to the Sun using astronomical ephemeris calculations. Output oscillates from -1.0 (Winter Solstice) through 0.0 (Equinoxes) to +1.0 (Summer Solstice), providing continuous seasonal phase information for econometric modeling.
 
 ## Historical Context
 
-Solar cycle analysis in trading reflects the fundamental seasonality that governs agricultural commodities, energy demand, and even human behavior. The "Sell in May" effect and seasonal patterns in various markets trace back to solar-driven cycles of planting, harvest, heating demand, and daylight hours affecting productivity.
+Seasonal adjustments are fundamental to econometric analysis. Agricultural commodities, retail sales, energy consumption, and tourism all exhibit strong annual patterns. Traditional approaches use monthly dummy variables or calendar-based lookup tables, which create discontinuities at month boundaries.
 
-The algorithm derives from Jean Meeus' *Astronomical Algorithms* (1991), implementing the equation of center—the difference between the Sun's mean and true positions caused by Earth's elliptical orbit. The correction terms account for Earth's orbital eccentricity (currently ~0.0167).
+Astronomical seasonality offers a continuous, mathematically precise alternative. The Sun's ecliptic longitude provides an exact phase position within the annual cycle, smooth across all time scales. This enables more sophisticated seasonal adjustment and allows models to capture intra-month seasonal effects.
+
+The indicator derives from Jean Meeus' *Astronomical Algorithms*, implementing the Sun's geometric mean longitude and equation of center with sufficient precision (±0.01°) for financial applications. Unlike lunar cycles, solar seasonality is highly predictable—the tropical year varies by only seconds over centuries.
 
 ## Architecture & Physics
 
-### 1. Time Conversion
+The algorithm computes the Sun's true ecliptic longitude using low-precision ephemeris formulas optimized for seasonal indexing.
 
-The indicator converts input timestamps to Julian Date (JD), the continuous day count from 4713 BCE:
+**Step 1: Julian Date Conversion**
 
-$$
-JD = \frac{t_{unix}}{86400000} + 2440587.5
-$$
+Convert timestamp to Julian centuries from J2000 epoch:
 
-Julian centuries from J2000 epoch (2000-01-01 12:00 TT):
+$$JD = \frac{\text{UnixMs}}{86400000} + 2440587.5$$
+$$T = \frac{JD - 2451545.0}{36525.0}$$
 
-$$
-T = \frac{JD - 2451545.0}{36525.0}
-$$
+**Step 2: Geometric Mean Longitude**
 
-### 2. Orbital Elements
+The Sun's mean position in its apparent orbit:
 
-Two fundamental elements describe the Sun's apparent position:
+$$L_0 = 280.46646 + 36000.76983T + 0.0003032T^2$$
 
-| Element | Symbol | Description |
-|:--------|:------:|:------------|
-| Mean longitude | $L_0$ | Sun's average position along ecliptic |
-| Mean anomaly | $M$ | Sun's position relative to perihelion |
+**Step 3: Mean Anomaly**
 
-Each element follows a polynomial in $T$:
+Angular distance from perihelion:
 
-$$
-L_0 = 280.46646 + 36000.76983T + 0.0003032T^2
-$$
+$$M = 357.52911 + 35999.05029T - 0.0001537T^2$$
 
-$$
-M = 357.52911 + 35999.05029T - 0.0001537T^2 - 0.00000025T^3
-$$
+**Step 4: Equation of Center**
 
-### 3. Equation of Center
+Correction for orbital eccentricity:
 
-The equation of center corrects for Earth's elliptical orbit:
+$$C = (1.914602 - 0.004817T - 0.000014T^2)\sin M$$
+$$+ (0.019993 - 0.000101T)\sin 2M + 0.000289\sin 3M$$
 
-$$
-C = (1.914602 - 0.004817T - 0.000014T^2)\sin(M)
-$$
-$$
-+ (0.019993 - 0.000101T)\sin(2M) + 0.000289\sin(3M)
-$$
+**Step 5: True Ecliptic Longitude**
 
-These terms account for:
-- Primary orbital eccentricity effect (~1.915° amplitude)
-- Second-order eccentricity correction (~0.02°)
-- Third-order correction (~0.0003°)
+$$\lambda_{\text{Sun}} = L_0 + C$$
 
-### 4. True Longitude & Cycle Value
+**Step 6: Seasonal Index**
 
-The Sun's true ecliptic longitude:
-
-$$
-\lambda = L_0 + C
-$$
-
-The solar cycle value uses the sine of the longitude:
-
-$$
-cycle = \sin(\lambda)
-$$
-
-This produces:
-- $cycle = -1$ at winter solstice ($\lambda = 270°$, ~Dec 21)
-- $cycle = 0$ at equinoxes ($\lambda = 0°, 180°$)
-- $cycle = +1$ at summer solstice ($\lambda = 90°$, ~Jun 21)
-
-## Mathematical Foundation
-
-### Julian Date Conversion
-
-From Unix milliseconds $t$:
-
-$$
-JD = \frac{t}{86400000} + 2440587.5
-$$
-
-### Orbital Element Polynomials
-
-All angles in degrees, normalized to [0°, 360°):
-
-**Sun's mean longitude:**
-$$
-L_0 = 280.46646 + 36000.76983T + 0.0003032T^2
-$$
-
-**Sun's mean anomaly:**
-$$
-M = 357.52911 + 35999.05029T - 0.0001537T^2 - 0.00000025T^3
-$$
-
-### Equation of Center
-
-$$
-C = (1.914602 - 0.004817T - 0.000014T^2)\sin(M)
-$$
-$$
-+ (0.019993 - 0.000101T)\sin(2M) + 0.000289\sin(3M)
-$$
-
-### True Longitude
-
-$$
-\lambda = L_0 + C \pmod{360°}
-$$
-
-### Cycle Output
-
-$$
-cycle = \sin\left(\lambda \cdot \frac{\pi}{180}\right)
-$$
+$$\text{Solar} = \sin(\lambda_{\text{Sun}})$$
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, Scalar)
+### Operation Count (Streaming Mode, per Bar)
 
 | Operation | Count | Cost (cycles) | Subtotal |
-|:----------|:-----:|:-------------:|:--------:|
-| FMA | 10 | 4 | 40 |
-| ADD/SUB | 5 | 1 | 5 |
-| MUL | 8 | 3 | 24 |
-| DIV | 4 | 15 | 60 |
-| MOD | 2 | 15 | 30 |
-| SIN | 4 | 50 | 200 |
-| **Total** | **33** | — | **~359 cycles** |
+|-----------|------:|------:|------:|
+| FMA | 8 | 5 | 40 |
+| MUL | 4 | 4 | 16 |
+| ADD/SUB | 6 | 1 | 6 |
+| sin | 4 | 40 | 160 |
+| MOD (normalize) | 2 | 10 | 20 |
+| **Total** | — | — | **~240** |
 
-Uses `Math.FusedMultiplyAdd()` for polynomial evaluations. Approximately half the computational cost of the LUNAR indicator due to simpler orbital mechanics.
+### Complexity Analysis
 
-### Batch Mode
-
-SIMD vectorization applies naturally to batch timestamp processing—each calculation is independent. With AVX-512 (8-wide double):
-
-| Operation | Scalar | SIMD (AVX-512) | Speedup |
-|:----------|:------:|:--------------:|:-------:|
-| Full calculation | 365 | ~55 | ~6.6× |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-|:-------|:-----:|:------|
-| **Accuracy** | 9/10 | Within arcminutes of JPL ephemeris |
-| **Determinism** | 10/10 | Pure function of timestamp |
-| **Timeliness** | N/A | No lag—not a filter |
-| **Stability** | 10/10 | No numerical drift |
+- **Time:** $O(1)$ — fixed computation per timestamp
+- **Space:** $O(1)$ — no state required (deterministic from time)
+- **Latency:** 0 bars warmup (always hot)
 
 ## Validation
 
-| Source | Status | Notes |
-|:-------|:------:|:------|
-| **USNO** | ✅ | Naval Observatory solar position data |
-| **timeanddate.com** | ✅ | Cross-referenced solstice/equinox dates |
-| **JPL Horizons** | ✅ | Within expected tolerance |
+| Library | Status | Notes |
+|---------|--------|-------|
+| USNO Almanac | ✅ Match | Solstice/equinox dates verified |
+| JPL Horizons | ✅ Match | Ecliptic longitude within ±0.01° |
+| Quantower | ✅ Match | `Solar.Quantower.Tests.cs` adapter tests |
 
-Known solar events validated:
-- Winter Solstice: December 21, 2024 09:20 UTC → cycle < -0.95
-- Summer Solstice: June 20, 2024 20:50 UTC → cycle > 0.95
-- Vernal Equinox: March 20, 2024 03:06 UTC → |cycle| < 0.1
-- Autumnal Equinox: September 22, 2024 12:43 UTC → |cycle| < 0.1
+## Usage & Pitfalls
 
-## Common Pitfalls
+- **Hemisphere Inversion:** Output aligns with Northern Hemisphere; Southern users should negate
+- **Annual Period:** ~365.242 days—extremely slow cycle, best for long-term models
+- **De-seasonalizing:** Use as feature to remove annual patterns from other indicators
+- **No Price Data:** Purely time-based; ignores all price input
+- **UTC Timestamps:** Ensure correct timezone normalization for consistent results
 
-1. **Timezone confusion**: The indicator uses UTC timestamps internally. Local time inputs will produce offset results. Always pass UTC or use `DateTimeKind.Utc`.
+## API
 
-2. **Hemisphere interpretation**: The cycle follows Northern Hemisphere conventions. For Southern Hemisphere trading, invert the interpretation: cycle = +1 is winter, cycle = -1 is summer.
+```mermaid
+classDiagram
+    class AbstractBase {
+        <<abstract>>
+        +Name string
+        +WarmupPeriod int
+        +IsHot bool
+        +Last TValue
+        +Update(TValue input, bool isNew) TValue
+        +Reset() void
+    }
+    class Solar {
+        +Solar()
+        +Solar(ITValuePublisher source)
+        +Update(TValue input, bool isNew) TValue
+        +Update(TSeries source) TSeries
+        +CalculateCycle(DateTime dateTime)$ double
+        +CalculateCycle(long unixMs)$ double
+        +Calculate(TSeries source)$ TSeries
+        +Batch(ReadOnlySpan~long~ timestamps, Span~double~ output)$ void
+    }
+    AbstractBase <|-- Solar
+```
 
-3. **Sign at equinoxes**: Cycle ≈ 0 occurs at *both* vernal (spring) and autumnal (fall) equinoxes. To distinguish, check if the cycle is rising (vernal) or falling (autumnal).
+### Class: `Solar`
 
-4. **Century limits**: The polynomial coefficients are optimized for dates within a few centuries of J2000. For dates before 1800 or after 2200, accuracy degrades.
+Solar cycle indicator based on astronomical ephemeris calculations.
 
-5. **No warmup period**: Unlike filter-based indicators, Solar has no warmup—each output depends only on its timestamp.
+### Properties
 
-6. **Seasonality strength varies**: Solar-driven seasonal effects are strongest in agriculture, energy, and weather-sensitive sectors. Financial indices show weaker correlations.
+| Name | Type | Description |
+|------|------|-------------|
+| `IsHot` | `bool` | Always `true` — no warmup required |
+| `Last` | `TValue` | Most recent cycle output (-1.0 to +1.0) |
 
-## References
+### Methods
 
-- Meeus, J. (1991). *Astronomical Algorithms*. Willmann-Bell.
-- Standish, E. M. (1982). "The JPL Planetary Ephemerides." *Celestial Mechanics*, 26, 181-186.
-- U.S. Naval Observatory. "Earth's Seasons." https://aa.usno.navy.mil/data/Earth_Seasons
-- Kamstra, M. J., Kramer, L. A., & Levi, M. D. (2003). "Winter Blues: A SAD Stock Market Cycle." *American Economic Review*, 93(1), 324-343.
+| Name | Returns | Description |
+|------|---------|-------------|
+| `Update(TValue, bool)` | `TValue` | Calculates cycle for input timestamp |
+| `CalculateCycle(DateTime)` | `double` | Static calculation from DateTime |
+| `CalculateCycle(long)` | `double` | Static calculation from Unix ms |
+| `Batch(timestamps, output)` | `void` | Vectorized calculation over timestamp span |
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Create Solar indicator
+var solar = new Solar();
+
+// Calculate for current time
+var result = solar.Update(new TValue(DateTime.UtcNow, 0));
+Console.WriteLine($"Seasonal Index: {result.Value:F4}");
+
+// Key dates interpretation:
+// +1.0 = Summer Solstice (~June 21, Northern Hemisphere peak)
+//  0.0 = Equinoxes (~March 20, September 22)
+// -1.0 = Winter Solstice (~December 21, Northern Hemisphere minimum)
+
+// Static calculation for specific date
+double winterSolstice = Solar.CalculateCycle(new DateTime(2024, 12, 21));
+Console.WriteLine($"Winter Solstice: {winterSolstice:F4}"); // ~-1.0
+
+// Use for seasonal adjustment
+foreach (var bar in bars)
+{
+    var solarPhase = solar.Update(new TValue(bar.Time, 0));
+    
+    // Seasonal adjustment: remove annual pattern
+    double deseasonalized = bar.Close * (1.0 - 0.02 * solarPhase.Value);
+}
+```

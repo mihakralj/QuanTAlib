@@ -1,313 +1,170 @@
-# HT_SINE: Hilbert Transform - SineWave
+# HT_SINE: Hilbert Transform SineWave
 
 > "The Hilbert Transform gives us the phase of the dominant cycle—knowing when to buy and sell becomes a matter of trigonometry."
 
-HT_SINE applies the Hilbert Transform to extract the dominant market cycle and outputs the sine of the current phase angle. The indicator produces two outputs: **Sine** (current phase) and **LeadSine** (45° phase lead), enabling traders to identify cycle turning points before they occur. Crossovers between Sine and LeadSine signal potential reversals in ranging markets.
+The Hilbert Transform SineWave extracts the dominant market cycle phase and outputs both sine and lead sine (45° phase advance) for cycle timing. The crossover of these two waves identifies turning points in ranging markets up to 1/8th of a cycle early.
 
 ## Historical Context
 
-John Ehlers introduced the Hilbert Transform indicator in his 2001 book *Rocket Science for Traders*, later refining it in *Cycle Analytics for Traders* (2013). The Hilbert Transform originates from signal processing, where it creates an analytic signal by generating a 90° phase-shifted version of the input. This quadrature relationship enables measurement of instantaneous phase and frequency.
+John Ehlers introduced the Hilbert Transform SineWave in *Rocket Science for Traders* (2001) as part of his comprehensive signal processing framework for financial markets. The indicator addresses a fundamental limitation of traditional oscillators—they respond to price amplitude rather than cycle phase.
 
-The HT_SINE indicator represents Ehlers' adaptation of the Hilbert Transform for financial markets. Unlike simple oscillators that assume fixed periodicity, HT_SINE dynamically measures the dominant cycle period using homodyne discrimination—a technique borrowed from radio engineering. The 45° phase lead of LeadSine anticipates turning points by approximately 1/8 of the cycle period, providing early warning of reversals.
+The HT_SINE builds upon David Hilbert's 1905 mathematical transform, which creates a 90° phase-shifted (quadrature) version of a signal. In signal processing, this enables instantaneous frequency and phase extraction. Ehlers recognized that market cycles, though noisy and variable, could be analyzed using these same techniques.
 
-TA-Lib implements a version of this indicator matching Ehlers' published specifications. This implementation validates against TA-Lib's output within floating-point tolerance.
+Unlike momentum oscillators that lag price action, the HT_SINE theoretically provides zero-lag cycle detection by measuring phase directly. This makes it particularly valuable in ranging markets where cycles are well-defined. The dual output (Sine and LeadSine) creates a built-in early warning system for cycle reversals.
 
 ## Architecture & Physics
 
-### 1. WMA Price Smoothing
+The algorithm implements a discrete approximation of the Hilbert Transform optimized for financial time series with adaptive period estimation.
 
-The algorithm begins with weighted moving average smoothing:
+**Step 1: WMA Smoothing**
 
-$$
-\text{SmoothPrice}_t = \frac{4 \cdot P_t + 3 \cdot P_{t-1} + 2 \cdot P_{t-2} + P_{t-3}}{10}
-$$
+A 4-bar weighted moving average removes Nyquist-frequency noise:
 
-This 4-bar WMA provides initial noise rejection without excessive lag. The weights (4, 3, 2, 1) sum to 10, centering the filter approximately 1.5 bars back.
+$$\bar{P}_t = \frac{4P_t + 3P_{t-1} + 2P_{t-2} + P_{t-3}}{10}$$
 
-### 2. Bandwidth Calculation
+**Step 2: Hilbert Transform FIR**
 
-The Hilbert Transform coefficients scale with the measured cycle period:
+The discrete Hilbert approximation generates quadrature components:
 
-$$
-\text{Bandwidth}_t = 0.075 \cdot \text{SmoothPeriod}_{t-1} + 0.54
-$$
+$$\text{Detrender}_t = 0.0962\bar{P}_t + 0.5769\bar{P}_{t-2} - 0.5769\bar{P}_{t-4} - 0.0962\bar{P}_{t-6}$$
 
-This adaptive bandwidth widens for longer cycles and narrows for shorter ones, maintaining filter stability across varying market conditions.
+**Step 3: I/Q Component Smoothing**
 
-### 3. Hilbert Transform Cascade
+In-phase and quadrature components undergo exponential smoothing:
 
-The transform applies Ehlers' specialized coefficients in a cascade:
+$$Q_t = 0.2(Q1_t + JI_t) + 0.8 Q_{t-1}$$
+$$I_t = 0.2(I1_t - JQ_t) + 0.8 I_{t-1}$$
 
-$$
-A = 0.0962, \quad B = 0.5769
-$$
+**Step 4: Homodyne Discriminator**
 
-**Detrender:**
-$$
-D_t = (A \cdot \text{SP}_t + B \cdot \text{SP}_{t-2} - B \cdot \text{SP}_{t-4} - A \cdot \text{SP}_{t-6}) \cdot \text{BW}
-$$
+Period estimation uses phase rate of change:
 
-**Quadrature (Q1):**
-$$
-Q1_t = (A \cdot D_t + B \cdot D_{t-2} - B \cdot D_{t-4} - A \cdot D_{t-6}) \cdot \text{BW}
-$$
+$$Re_t = 0.2(I_t \cdot I_{t-1} + Q_t \cdot Q_{t-1}) + 0.8 Re_{t-1}$$
+$$Im_t = 0.2(I_t \cdot Q_{t-1} - Q_t \cdot I_{t-1}) + 0.8 Im_{t-1}$$
+$$\text{Period}_t = \frac{2\pi}{\arctan(Im_t / Re_t)}$$
 
-**In-Phase (I1):**
-$$
-I1_t = D_{t-3}
-$$
+**Step 5: DC Phase Calculation**
 
-**jI (Hilbert of I1):**
-$$
-jI_t = (A \cdot I1_t + B \cdot I1_{t-2} - B \cdot I1_{t-4} - A \cdot I1_{t-6}) \cdot \text{BW}
-$$
+The dominant cycle phase sums weighted contributions:
 
-**jQ (Hilbert of Q1):**
-$$
-jQ_t = (A \cdot Q1_t + B \cdot Q1_{t-2} - B \cdot Q1_{t-4} - A \cdot Q1_{t-6}) \cdot \text{BW}
-$$
+$$\phi_t = \arctan\left(\frac{\sum_{i=0}^{P-1} \sin(2\pi i/P) \cdot \bar{P}_{t-i}}{\sum_{i=0}^{P-1} \cos(2\pi i/P) \cdot \bar{P}_{t-i}}\right)$$
 
-### 4. Phasor Components
+**Step 6: Output Generation**
 
-The in-phase and quadrature components combine:
-
-$$
-I2_t = I1_t - jQ_t
-$$
-
-$$
-Q2_t = Q1_t + jI_t
-$$
-
-These are smoothed with a 0.2/0.8 EMA:
-
-$$
-I2_t \leftarrow 0.2 \cdot I2_t + 0.8 \cdot I2_{t-1}
-$$
-
-$$
-Q2_t \leftarrow 0.2 \cdot Q2_t + 0.8 \cdot Q2_{t-1}
-$$
-
-### 5. Homodyne Discriminator
-
-Period measurement uses cross-correlation of consecutive phasors:
-
-$$
-\text{Re}_t = I2_t \cdot I2_{t-1} + Q2_t \cdot Q2_{t-1}
-$$
-
-$$
-\text{Im}_t = I2_t \cdot Q2_{t-1} - Q2_t \cdot I2_{t-1}
-$$
-
-Smoothed with 0.2/0.8 EMA:
-
-$$
-\text{Re}_t \leftarrow 0.2 \cdot \text{Re}_t + 0.8 \cdot \text{Re}_{t-1}
-$$
-
-$$
-\text{Im}_t \leftarrow 0.2 \cdot \text{Im}_t + 0.8 \cdot \text{Im}_{t-1}
-$$
-
-The instantaneous period:
-
-$$
-\text{Period}_t = \begin{cases}
-\frac{2\pi}{\arctan2(\text{Im}_t, \text{Re}_t)} & \text{if angle} \neq 0 \\
-\text{Period}_{t-1} & \text{otherwise}
-\end{cases}
-$$
-
-### 6. Period Clamping and Smoothing
-
-$$
-\text{Period}_t = \text{clamp}(\text{Period}_t, 6, 50)
-$$
-
-$$
-\text{SmoothPeriod}_t = 0.33 \cdot \text{Period}_t + 0.67 \cdot \text{SmoothPeriod}_{t-1}
-$$
-
-### 7. Phase and Output
-
-Phase angle from the phasor:
-
-$$
-\phi_t = \arctan2(Q2_t, I2_t)
-$$
-
-Final outputs:
-
-$$
-\text{Sine}_t = \sin(\phi_t)
-$$
-
-$$
-\text{LeadSine}_t = \sin\left(\phi_t + \frac{\pi}{4}\right)
-$$
-
-## Mathematical Foundation
-
-### Analytic Signal Theory
-
-The Hilbert Transform $\mathcal{H}$ creates a 90° phase shift:
-
-$$
-\hat{x}(t) = \mathcal{H}[x(t)]
-$$
-
-The analytic signal combines original and transformed:
-
-$$
-z(t) = x(t) + j\hat{x}(t) = A(t)e^{j\phi(t)}
-$$
-
-where $A(t)$ is instantaneous amplitude and $\phi(t)$ is instantaneous phase.
-
-### Discrete Approximation
-
-Ehlers' discrete Hilbert Transform uses a specialized FIR structure with coefficients A and B that approximate the continuous transform's frequency response over the 6-50 bar period range typical of market cycles.
-
-### LeadSine Phase Relationship
-
-The 45° ($\pi/4$ radians) phase lead means:
-
-$$
-\text{LeadSine} = \sin(\phi + 45°) = \frac{\sqrt{2}}{2}(\sin\phi + \cos\phi)
-$$
-
-This advance equals 1/8 of a full cycle. For a 32-bar cycle, LeadSine leads by 4 bars.
+$$\text{Sine}_t = \sin(\phi_t)$$
+$$\text{LeadSine}_t = \sin(\phi_t + 45°)$$
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, Scalar)
+### Operation Count (Streaming Mode, per Bar)
 
 | Operation | Count | Cost (cycles) | Subtotal |
-| :--- | :---: | :---: | :---: |
-| MUL | 32 | 3 | 96 |
-| ADD/SUB | 24 | 1 | 24 |
-| Buffer access | 28 | 1 | 28 |
-| ATAN2 | 2 | 50 | 100 |
-| SIN | 2 | 50 | 100 |
-| State EMA (×6) | 6 | 4 | 24 |
-| **Total** | — | — | **~372 cycles** |
+|-----------|------:|------:|------:|
+| FMA | 12 | 5 | 60 |
+| MUL | 18 | 4 | 72 |
+| ADD/SUB | 25 | 1 | 25 |
+| DIV | 2 | 15 | 30 |
+| sin/cos | 2P | 40 | ~80P |
+| atan | 2 | 50 | 100 |
+| Buffer access | 15 | 3 | 45 |
+| **Total** | — | — | **~370** |
 
-Dominant cost: trigonometric functions (ATAN2, SIN). The recursive nature of the Hilbert Transform cascade prevents SIMD vectorization in streaming mode.
+### Complexity Analysis
 
-### State Memory
-
-| Component | Size |
-| :--- | :---: |
-| Ring buffers (4 × 8 doubles) | 256 bytes |
-| State record (Period, SmoothPeriod, I2, Q2, Re, Im, PrevI2, PrevQ2, Price1-3, Count, LastValid) | 104 bytes |
-| Previous state (snapshot) | 104 bytes |
-| Buffer snapshots (4 × 8 doubles) | 256 bytes |
-| **Total per instance** | **~720 bytes** |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 9/10 | Matches TA-Lib output within 1e-9 tolerance |
-| **Timeliness** | 7/10 | 45° lead via LeadSine; warmup requires 63 bars |
-| **Overshoot** | 6/10 | Bounded to [-1, +1]; phase errors during trend transitions |
-| **Smoothness** | 8/10 | Multiple EMAs in cascade provide good noise rejection |
-| **Cycle Fidelity** | 8/10 | Accurate in ranging markets; degrades in strong trends |
+- **Time:** $O(P)$ per bar where P is smoothed period (typically 6-50)
+- **Space:** $O(1)$ — fixed-size circular buffers (50 + 44 + 64 elements)
+- **Latency:** 63 bars warmup (31 + 32 for TA-Lib compatibility)
 
 ## Validation
 
 | Library | Status | Notes |
-| :--- | :---: | :--- |
-| **TA-Lib** | ✅ | Matches `TALib.Functions.HtSine()` for both Sine and LeadSine outputs |
-| **Skender** | N/A | No HT_SINE implementation |
-| **Tulip** | N/A | No HT_SINE implementation |
-| **Ooples** | N/A | No HT_SINE implementation |
-| **PineScript** | ✅ | Matches `ht_sine.pine` reference within floating-point tolerance |
+|---------|--------|-------|
+| TA-Lib | ✅ Match | `TA_HT_SINE()` reference implementation |
+| PineScript | ✅ Match | Custom `ht_sine.pine` validation script |
+| Quantower | ✅ Match | `HtSine.Quantower.Tests.cs` adapter tests |
 
-Validation confirms:
-1. Lookback period = 63 bars (matches TA-Lib)
-2. Both outputs bounded to [-1, +1]
-3. LeadSine consistently leads Sine by π/4 radians
-4. Period measurement stable in 6-50 bar range
+## Usage & Pitfalls
 
-## Common Pitfalls
+- **Trend Failure:** Crossover signals whipsaw in strong trends; parallel "snake" pattern indicates trending mode
+- **Warmup Period:** Requires 63 bars before outputs stabilize
+- **Phase Lag:** Despite "zero-lag" theory, smoothing introduces 4-6 bars practical lag
+- **Range-Only:** Most effective in sideways/ranging markets with clear cyclical behavior
+- **LeadSine First:** LeadSine turns before Sine at reversals—watch for divergence
 
-1. **Trend Mode Failure**: HT_SINE assumes cyclic behavior. In strong trends, the indicator produces unreliable signals. Combine with trend detection (e.g., `HT_TRENDMODE`) to filter signals.
+## API
 
-2. **Warmup Period**: The 63-bar warmup is substantial. First 63 values should be ignored; `IsHot = false` during this period.
+```mermaid
+classDiagram
+    class AbstractBase {
+        <<abstract>>
+        +Name string
+        +WarmupPeriod int
+        +IsHot bool
+        +Last TValue
+        +Update(TValue input, bool isNew) TValue
+        +Reset() void
+    }
+    class HtSine {
+        +LeadSine double
+        +HtSine()
+        +HtSine(ITValuePublisher source)
+        +Update(TValue input, bool isNew) TValue
+        +Update(TSeries source) TSeries
+        +Prime(ReadOnlySpan~double~ source, TimeSpan? step) void
+        +Reset() void
+        +Calculate(TSeries source)$ TSeries
+        +Batch(ReadOnlySpan~double~ source, Span~double~ sine, Span~double~ leadSine)$ void
+    }
+    AbstractBase <|-- HtSine
+```
 
-3. **Period Clamping**: Cycles outside 6-50 bars get clamped, distorting phase measurement. Markets with very long cycles (weekly/monthly) may not suit HT_SINE.
+### Class: `HtSine`
 
-4. **Crossover Interpretation**: Sine crossing LeadSine from below suggests a cycle trough (buy); crossing from above suggests a peak (sell). However, this assumes price follows the extracted cycle.
+Hilbert Transform SineWave indicator with dual output.
 
-5. **Phase Discontinuities**: Phase wraps at ±π, causing potential signal jumps. The sine function naturally handles this, but raw phase values require unwrapping for derivative calculations.
+### Properties
 
-6. **Bar Correction**: When updating the same bar (`isNew = false`), all ring buffers and state must rollback. The implementation uses snapshot arrays for this; incorrect `isNew` usage corrupts 8 bars of filter memory.
+| Name | Type | Description |
+|------|------|-------------|
+| `LeadSine` | `double` | Current LeadSine value (45° phase lead) |
+| `IsHot` | `bool` | True after 63 bars warmup |
+| `Last` | `TValue` | Most recent Sine output |
 
-7. **Memory Footprint**: At ~720 bytes per instance, HT_SINE is memory-heavy compared to simple oscillators. Monitor allocation when running many instances.
+### Methods
 
-## API Usage
+| Name | Returns | Description |
+|------|---------|-------------|
+| `Update(TValue, bool)` | `TValue` | Updates state with new price value |
+| `Batch(source, sine, leadSine)` | `void` | Processes span with dual output spans |
+| `Calculate(TSeries)` | `TSeries` | Static factory returning Sine series |
+
+## C# Example
 
 ```csharp
-// Streaming mode
+using QuanTAlib;
+
+// Create HT_SINE indicator
 var htSine = new HtSine();
+
+// Process price data
 foreach (var bar in bars)
 {
-    TValue result = htSine.Update(new TValue(bar.Time, bar.Close), isNew: true);
+    var result = htSine.Update(new TValue(bar.Time, bar.Close));
+    
     if (htSine.IsHot)
     {
         double sine = result.Value;
         double leadSine = htSine.LeadSine;
         
         // Crossover detection
-        if (prevSine < prevLeadSine && sine > leadSine)
-        {
-            // Potential sell signal (peak)
-        }
+        // Buy: Sine crosses above LeadSine
+        // Sell: Sine crosses below LeadSine
+        Console.WriteLine($"Sine: {sine:F4}, LeadSine: {leadSine:F4}");
     }
 }
 
-// Bar correction (same bar, updated price)
-TValue corrected = htSine.Update(new TValue(bar.Time, newClose), isNew: false);
-
-// Batch mode with dual outputs
-Span<double> sine = stackalloc double[closes.Length];
-Span<double> leadSine = stackalloc double[closes.Length];
-HtSine.Batch(closes, sine, leadSine);
-
-// TSeries mode
-TSeries output = HtSine.Calculate(closePrices);
-// Note: LeadSine only available in streaming mode
-
-// Chaining
-var source = new Ema(10);
-var htSine = new HtSine(source);
-// htSine automatically subscribes to source.Pub events
+// Batch processing with dual outputs
+Span<double> sineOut = stackalloc double[prices.Length];
+Span<double> leadOut = stackalloc double[prices.Length];
+HtSine.Batch(prices, sineOut, leadOut);
 ```
-
-## Trading Signals
-
-### Primary Crossover Strategy
-
-1. **Buy Signal**: Sine crosses above LeadSine (from below)
-2. **Sell Signal**: Sine crosses below LeadSine (from above)
-
-### Confirmation Filters
-
-- Filter signals when both lines are near zero (flat cycle)
-- Avoid signals when Sine and LeadSine are nearly parallel (trend mode)
-- Combine with volume or momentum confirmation
-
-### Exit Strategy
-
-- Exit longs when Sine peaks (approaches +1 then reverses)
-- Exit shorts when Sine troughs (approaches -1 then reverses)
-
-## References
-
-- Ehlers, J. (2001). *Rocket Science for Traders*. Wiley.
-- Ehlers, J. (2013). *Cycle Analytics for Traders*. Wiley.
-- TA-Lib: `TALib.Functions.HtSine()`
-- PineScript reference: `lib/cycles/ht_sine/ht_sine.pine`

@@ -124,23 +124,82 @@ The monotonic deque algorithm is already highly efficient; SIMD provides margina
 | **TA-Lib** | ✅ | Exact match via MAX/MIN functions |
 | **Tulip** | ✅ | Exact match via max/min functions |
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Stale Extremes:** The bands stay flat until a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars isn't broken—it's waiting for price to exceed the current extreme or for that extreme to age out.
+- **Stale Extremes:** The bands stay flat until a new extreme occurs or the old extreme exits the window. A band that hasn't moved in 15 bars isn't broken—it's waiting for price to exceed the current extreme or for that extreme to age out.
+- **O(n) Implementation Trap:** Naive implementations rescan the window every bar. For period=200 on 60,000 bars/day, that's 12 million comparisons per symbol. The monotonic deque approach reduces this to ~120,000 operations.
+- **Breakout vs. Touch:** Price touching the upper band differs from breaking out. True breakouts require closes above/below the band. Intrabar spikes that don't close outside the channel often reverse.
+- **No Middle Band:** Unlike Donchian Channels, MMCHANNEL has no middle line. If you need a centerline, use Donchian or compute `(Upper + Lower) / 2` separately.
+- **Asymmetric Movement:** Upper and lower bands move independently.
+- **Gap Handling:** Overnight gaps immediately adjust the relevant band.
+- **Memory Footprint:** The monotonic deque stores (value, index) pairs. Worst case is `2 * period` pairs per deque.
+- **Bar Correction:** When `isNew=false`, the indicator must restore prior state before computing.
 
-2. **O(n) Implementation Trap:** Naive implementations rescan the window every bar. For period=200 on 60,000 bars/day, that's 12 million comparisons per symbol. The monotonic deque approach reduces this to ~120,000 operations.
+## API
 
-3. **Breakout vs. Touch:** Price touching the upper band differs from breaking out. True breakouts require closes above/below the band. Intrabar spikes that don't close outside the channel often reverse.
+```mermaid
+classDiagram
+    class Mmchannel {
+        +string Name
+        +int WarmupPeriod
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +bool IsHot
+        +Mmchannel(int period)
+        +Mmchannel(TBarSeries source, int period)
+        +TValue Update(TBar input, bool isNew)
+        +Tuple~TSeries,TSeries~ Update(TBarSeries source)
+        +void Prime(TBarSeries source)
+        +void Reset()
+        +static void Batch(ReadOnlySpan~double~ high, ReadOnlySpan~double~ low, Span~double~ upper, Span~double~ lower, int period)
+        +static Tuple~TSeries,TSeries~ Batch(TBarSeries source, int period)
+        +static Tuple~Tuple~TSeries,TSeries~,Mmchannel~ Calculate(TBarSeries source, int period)
+    }
+```
 
-4. **No Middle Band:** Unlike Donchian Channels, MMCHANNEL has no middle line. If you need a centerline, use Donchian or compute `(Upper + Lower) / 2` separately.
+### Class: `Mmchannel`
 
-5. **Asymmetric Movement:** Upper and lower bands move independently. The upper band can rise while the lower band stays flat (or vice versa) depending on where extremes occur in the lookback window.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | — | `>0` | Lookback period for highest high and lowest low. |
 
-6. **Gap Handling:** Overnight gaps immediately adjust the relevant band. A gap up extends the upper band; a gap down extends the lower band. These may not represent sustainable price levels.
+### Properties
 
-7. **Memory Footprint:** The monotonic deque stores (value, index) pairs. Worst case is `2 * period` pairs per deque (monotonically decreasing high prices and monotonically increasing low prices). For period=200, budget ~6.4 KB per instance. For 5,000 symbols, ~32 MB total.
+- `Last` (`TValue`): Returns the upper band value (for single-value compatibility).
+- `Upper` (`TValue`): The highest high over the lookback period.
+- `Lower` (`TValue`): The lowest low over the lookback period.
+- `IsHot` (`bool`): Returns `true` when warmup period is complete.
 
-8. **Bar Correction:** When `isNew=false`, the indicator must restore prior state before computing. The implementation maintains `_p_state` for this purpose. Failing to handle bar correction causes incorrect extremes when bars update intrabar.
+### Methods
+
+- `Update(TBar input, bool isNew)`: Updates the indicator with a new bar and returns the result.
+- `Update(TBarSeries source)`: Processes an entire bar series and returns (Upper, Lower) tuple of TSeries.
+- `Prime(TBarSeries source)`: Initializes internal state from historical data.
+- `Reset()`: Resets the indicator to its initial state.
+- `Batch(...)`: Static method for zero-allocation span-based batch processing.
+- `Calculate(TBarSeries source, int period)`: Static factory that returns results and indicator instance.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var mmchannel = new Mmchannel(period: 20);
+
+// Update Loop
+foreach (var bar in quotes)
+{
+    mmchannel.Update(bar, isNew: true);
+
+    // Use valid results
+    if (mmchannel.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Upper={mmchannel.Upper.Value:F2}, Lower={mmchannel.Lower.Value:F2}");
+    }
+}
+```
 
 ## References
 

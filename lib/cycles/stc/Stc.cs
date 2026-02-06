@@ -5,8 +5,37 @@ using System.Runtime.InteropServices;
 
 namespace QuanTAlib;
 
+/// <summary>
+/// Defines the smoothing method applied to the final STC output.
+/// </summary>
 public enum StcSmoothing { None = 0, Ema = 1, Sigmoid = 2, Digital = 3 }
 
+/// <summary>
+/// STC: Schaff Trend Cycle - A cycle oscillator that combines MACD and Stochastic to detect market trends with improved speed and accuracy.
+/// </summary>
+/// <remarks>
+/// The Schaff Trend Cycle (STC), developed by Doug Schaff, is an oscillator that moves between 0 and 100.
+/// It identifies market trends and cycles by applying a Stochastic calculation to the MACD line,
+/// and then smoothing the result. This results in an indicator that is faster than MACD and smoother than Stochastic.
+///
+/// Algorithm:
+/// 1. Calculate MACD = Exponential Moving Average (Fast) - Exponential Moving Average (Slow).
+/// 2. Calculate %K (Stoch K) of the MACD over a specified period.
+/// 3. Smooth %K with a fast average to get %D (Stoch D).
+/// 4. Re-calculate %K of the %D value (Stoch of Stoch).
+/// 5. Smooth the result again to produce the final STC value.
+///
+/// Properties:
+/// - Ranges from 0 to 100.
+/// - High values (>75) indicate overbought conditions.
+/// - Low values (<25) indicate oversold conditions.
+/// - Signals are generated when the indicator crosses these thresholds.
+/// - Minimizes false signals found in traditional MACD or Stochastic indicators.
+///
+/// Key Insight:
+/// By performing a double stochastic calculation on the MACD (Stochastic of the Stochastic of MACD),
+/// STC emphasizes the cyclic nature of trends while reducing noise.
+/// </remarks>
 [SkipLocalsInit]
 public sealed class Stc : AbstractBase
 {

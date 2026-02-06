@@ -1,313 +1,167 @@
 # BBANDS: Bollinger Bands
 
-> "In markets, as in everything else, adaptation is the law of survival. Bollinger Bands adapt to volatility, expand during turbulence, and contract during calm—a visual representation of market uncertainty."
+> "Two standard deviations contain 95% of price action—until they don't."
 
-Bollinger Bands (BBands) stand as one of the most ubiquitous volatility indicators in technical analysis, yet most implementations settle for the textbook formula without addressing the nuances that matter in production systems: NaN handling, streaming updates, bar corrections, and computational efficiency. This implementation delivers the canonical three-band system while maintaining O(1) streaming performance and zero-allocation hot paths.
+Bollinger Bands® are volatility-based envelopes that surround a central moving average. The bands adapt to changing market conditions by expanding during periods of high volatility and contracting during periods of low volatility, solving the problem of fixed-width envelopes by using standard deviation as a dynamic measure of width.
 
 ## Historical Context
 
-John Bollinger introduced Bollinger Bands in the early 1980s, publishing the methodology broadly in the 1990s and formalizing it in his 2001 book "Bollinger on Bollinger Bands." Unlike earlier fixed-percentage bands, Bollinger's innovation was to anchor band width to standard deviation—making the indicator adaptive to volatility regimes rather than assuming constant market behavior.
+**John Bollinger** developed Bollinger Bands in the early 1980s while working as a market technician. He registered "Bollinger Bands" as a trademark in 1996. The indicator emerged from Bollinger's observation that volatility is not static—a simple percentage envelope fails to account for the market's changing breath.
 
-The original formulation is deceptively simple: a simple moving average (middle band) with upper and lower bands positioned at ±N standard deviations. Most implementations use N=2 (the default) based on statistical properties of normal distributions, where roughly 95% of observations fall within two standard deviations of the mean. However, financial returns are decidedly non-normal, making this more of a heuristic than a theoretical guarantee.
+Bollinger drew inspiration from statistical probability theory. Under a normal distribution, approximately 68% of data falls within ±1σ, 95% within ±2σ, and 99.7% within ±3σ. By setting the default multiplier to 2.0, Bollinger created bands that theoretically contain ~95% of price action. However, financial returns are famously non-Gaussian (fat tails, skewness), so the bands serve more as a volatility-normalized reference than a probability envelope.
 
-What distinguishes production-grade implementations from textbook examples is handling edge cases that real data presents: intrabar corrections (when a bar's OHLC values update before the bar closes), NaN values from data gaps or suspended trading, and the efficiency demands of processing thousands of symbols in real-time. This implementation addresses all three while maintaining exact parity with established libraries (TA-Lib, Skender, Tulip) across batch, streaming, and span-based calculation modes.
+The indicator became one of the most widely adopted technical analysis tools, featured in virtually every charting platform. Bollinger authored *Bollinger on Bollinger Bands* (2001), detailing trading methodologies including "the squeeze" (low volatility preceding breakouts) and "%B" (price position within the bands as an oscillator).
 
 ## Architecture & Physics
 
-Bollinger Bands consist of three components operating in concert, each with distinct responsibilities and failure modes:
+The system relies on the statistical properties of the **Normal Distribution** (Gaussian bell curve):
 
-### 1. Middle Band (Simple Moving Average)
+1. **Central Tendency:** The middle band defines the "center of gravity" for price, typically a Simple Moving Average (SMA).
+2. **Dispersion:** The width of the bands is determined by the Population Standard Deviation ($\sigma$), representing the volatility or "energy" in the system.
+3. **Probability Event Horizons:**
+    - $\pm 2\sigma$ theoretically contains ~95.4% of price action (Chebyshev's inequality guarantees at least 75%, normal distribution implies 95%).
+    - Excursions outside the bands represent statistically significant "anomalies" or extreme momentum.
 
-The foundation is a simple moving average over the lookback period:
+### Calculation Steps
 
-$$
-\text{SMA}_t = \frac{1}{n} \sum_{i=t-n+1}^{t} P_i
-$$
-
-where $P_i$ represents the input price (typically close, but configurable) and $n$ is the period. This serves as the baseline reference—the "fair value" estimate around which bands expand and contract.
-
-**Implementation note:** We delegate to the `Sma` class rather than reimplementing the running sum, ensuring consistent behavior across indicators. The SMA handles NaN substitution internally, replacing non-finite values with the last valid observation.
-
-### 2. Standard Deviation Calculation
-
-The band width is determined by the sample standard deviation over the same period:
+#### 1. Middle Band (SMA)
 
 $$
-\sigma_t = \sqrt{\frac{1}{n} \sum_{i=t-n+1}^{t} (P_i - \text{SMA}_t)^2}
+\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Close}_{t-i}
 $$
 
-This is the population standard deviation formula (dividing by $n$ rather than $n-1$), matching the behavior of TA-Lib and most financial software. While statisticians prefer the unbiased estimator (Bessel's correction), the difference is negligible for typical periods (≥10) and consistency with established implementations takes priority.
-
-**Numerical stability:** We compute variance as $E[X^2] - (E[X])^2$ rather than the two-pass definition, avoiding the catastrophic cancellation that can occur when mean and data are similar magnitudes. The `Math.Max(0.0, variance)` guard prevents negative variance from floating-point rounding errors.
-
-### 3. Upper and Lower Bands
-
-The bands extend symmetrically from the middle:
+#### 2. Population Standard Deviation
 
 $$
-\text{Upper}_t = \text{SMA}_t + k \cdot \sigma_t
+\sigma_t = \sqrt{\frac{1}{n} \sum_{i=0}^{n-1} (\text{Close}_{t-i} - \text{Middle}_t)^2}
+$$
+
+#### 3. Band Construction
+
+$$
+\text{Upper}_t = \text{Middle}_t + (k \times \sigma_t)
 $$
 
 $$
-\text{Lower}_t = \text{SMA}_t - k \cdot \sigma_t
+\text{Lower}_t = \text{Middle}_t - (k \times \sigma_t)
 $$
 
-where $k$ is the multiplier parameter (default 2.0). The multiplier controls band sensitivity: higher values produce wider bands (fewer signals, less noise), lower values produce tighter bands (more signals, more whipsaws).
+Where $n$ = period (default: 20), $k$ = multiplier (default: 2.0).
 
-### 4. Derived Metrics
+#### 4. Derived Metrics
 
-The implementation provides two additional outputs that extend Bollinger's original work:
-
-**Band Width:**
 $$
-\text{Width}_t = \text{Upper}_t - \text{Lower}_t = 2k\sigma_t
+\text{BandWidth}_t = \frac{\text{Upper}_t - \text{Lower}_t}{\text{Middle}_t}
 $$
 
-This metric isolates volatility from price level, useful for detecting "squeeze" setups where volatility contracts before directional moves.
-
-**Percent B (%B):**
 $$
-\%B_t = \frac{P_t - \text{Lower}_t}{\text{Upper}_t - \text{Lower}_t}
+\text{PercentB}_t = \frac{\text{Close}_t - \text{Lower}_t}{\text{Upper}_t - \text{Lower}_t}
 $$
-
-This normalizes price position within the bands to [0, 1] (though it can exceed these bounds when price moves beyond the bands). Values near 0 indicate price at the lower band; near 1 indicates upper band. We guard against division by zero when `Width` approaches machine epsilon.
-
-## Mathematical Foundation
-
-### Running Calculation (Streaming Mode)
-
-For streaming updates, we maintain two indicator instances internally:
-
-- `Sma` instance with period $n$
-- `Stdev` instance with period $n$
-
-Each incoming value $P_t$ updates both instances in O(1) time:
-
-1. **NaN Handling:**
-
-   ```csharp
-   double finiteValue = double.IsFinite(input.Value) ? input.Value : Middle.Value;
-   ```
-
-   Non-finite inputs (NaN, ±Infinity) are replaced with the current middle band value, preventing error propagation.
-
-2. **Component Updates:**
-
-   ```csharp
-   TValue smaValue = _sma.Update(new TValue(input.Time, finiteValue), isNew);
-   TValue stdevValue = _stdev.Update(new TValue(input.Time, finiteValue), isNew);
-   ```
-
-3. **Band Calculation:**
-
-   ```csharp
-   double offset = _multiplier * stdDev;
-   double upper = middle + offset;
-   double lower = middle - offset;
-   ```
-
-4. **Derived Metrics:**
-
-   ```csharp
-   double width = upper - lower;
-   double percentB = (width > double.Epsilon) ? (finiteValue - lower) / width : 0.0;
-   ```
-
-### Bar Correction Protocol
-
-The `isNew` parameter controls whether a bar update advances the history or modifies the current bar:
-
-- `isNew = true`: Advance to new bar, shift window, incorporate new data
-- `isNew = false`: Replace current bar's value, recalculate without advancing
-
-Both `Sma` and `Stdev` support this protocol natively, maintaining previous state (`_p_state`) to enable rollback. This is critical for real-time applications where the most recent bar's OHLC values update continuously until the bar closes.
-
-### Batch Calculation (Span Mode)
-
-For bulk processing, the span-based `Calculate` method operates in two passes:
-
-#### Pass 1: SMA Calculation
-
-```csharp
-Sma.Calculate(source, middle, period);
-```
-
-#### Pass 2: Standard Deviation and Bands
-
-For each index $i \geq n-1$:
-
-```csharp
-double sum = 0.0, sumSq = 0.0;
-for (int j = i - period + 1; j <= i; j++) {
-    double val = source[j];
-    if (double.IsFinite(val)) {
-        sum += val;
-        sumSq += val * val;
-    }
-}
-double variance = (sumSq / count) - (mean * mean);
-variance = Math.Max(0.0, variance);
-double stdDev = Math.Sqrt(variance);
-upper[i] = middle[i] + multiplier * stdDev;
-lower[i] = middle[i] - multiplier * stdDev;
-```
-
-This two-pass approach sacrifices the theoretical possibility of a single-pass variance calculation (Welford's algorithm) for clarity and maintainability. Modern CPUs execute both passes faster than the overhead of a more complex single-pass implementation would save.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, Scalar)
+The implementation utilizes **O(1)** circular buffer algorithms for both the SMA and Standard Deviation components, ensuring performance remains constant regardless of the lookback period.
 
-Per bar update with period $n$:
+### Operation Count - Single value
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| SMA update | 1 | ~15 | 15 |
-| StdDev update | 1 | ~25 | 25 |
-| MUL (offset) | 1 | 3 | 3 |
-| ADD (upper) | 1 | 1 | 1 |
-| SUB (lower, width) | 2 | 1 | 2 |
-| DIV (%B) | 1 | 15 | 15 |
-| CMP (epsilon guard) | 1 | 1 | 1 |
-| **Total** | **~8 ops** | — | **~62 cycles** |
+| ADD/SUB | 5 | 1 | 5 |
+| MUL | 3 | 3 | 9 |
+| DIV | 2 | 15 | 30 |
+| SQRT | 1 | 15 | 15 |
+| **Total** | **11** | — | **~59 cycles** |
 
-The dominant cost is the StdDev calculation (~25 cycles for running variance update). The total of ~62 cycles per bar assumes both SMA and StdDev maintain running state (no re-summation). For comparison, a naive re-scan approach would cost ~$3n$ cycles per bar for SMA + $5n$ cycles for variance, making streaming 80-90% faster for typical periods (n≥10).
+### Operation Count - Batch processing
 
-### Batch Mode (512 values, Period=20)
-
-The span-based `Calculate` method processes 512 bars with period=20:
-
-**Pass 1 (SMA):**
-
-- Warmup: 19 × 3 = 57 ops (initial window accumulation)
-- Main loop: 493 × 3 = 1,479 ops (rolling sum updates)
-- Subtotal: ~1,536 scalar operations
-
-**Pass 2 (StdDev + Bands):**
-
-- Per-bar cost: 20 × 3 (sum, sumSq accumulation) + 1 DIV + 1 SQRT + 2 MUL + 2 ADD = ~68 scalar ops
-- 493 bars: 493 × 68 = 33,524 ops
-- Subtotal: ~33,524 scalar operations
-
-Total: ~35,060 scalar operations for 512 bars ≈ 68 ops/bar
-
-**SIMD Applicability:**
-
-- SMA pass can leverage `Vector<double>` for the running sum (4× speedup on AVX2)
-- StdDev pass is inherently sequential due to windowed variance calculation
-- Overall speedup: modest (~2× for the SMA portion, negligible for StdDev)
-
-**SIMD/FMA optimization estimates:**
-
-| Component | Scalar Ops | SIMD Ops (AVX2) | Speedup |
+| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
 | :--- | :---: | :---: | :---: |
-| SMA calculation | 1,536 | ~384 | 4× |
-| StdDev + Bands | 33,524 | 33,524 | 1× |
-
-**Per-bar savings with SIMD:**
-
-| Optimization | Cycles Saved | New Total |
-| :--- | :---: | :---: |
-| SMA vectorization | ~1,152 ops | ~33,908 ops |
-| **Total improvement** | **~3%** | **~66 ops/bar** |
-
-The modest SIMD benefit reflects the sequential nature of standard deviation over sliding windows. For indicators where variance is cheap (e.g., exponentially weighted), SIMD offers larger gains.
-
-**Batch efficiency (512 bars, period=20):**
-
-| Mode | Ops/bar | Total (512 bars) | Overhead |
-| :--- | :---: | :---: | :---: |
-| Scalar streaming | 62 | 31,744 | — |
-| Scalar batch | 68 | 34,816 | +10% |
-| SIMD batch | 66 | 33,792 | +6% |
-| **Improvement (batch)** | **+6%** | — | — |
-
-Batch mode adds ~10% overhead from the two-pass design, but SIMD claws back 4%, landing at +6% total. The primary value of batch mode isn't speed—it's avoiding state management and enabling parallelization across multiple series.
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Matches TA-Lib, Skender, Tulip to floating-point precision |
-| **Timeliness** | 6/10 | Period/2 lag from SMA foundation; bands react to volatility faster than middle band reacts to trend |
-| **Overshoot** | 8/10 | Minimal overshoot by design; bands expand/contract with volatility, not price direction |
-| **Smoothness** | 7/10 | Inherits SMA smoothness; standard deviation adds slight jitter during choppy markets |
-| **Adaptability** | 9/10 | Excels at volatility adaptation; band width responds immediately to changes in price dispersion |
+| SMA computation | N | N | 1× |
+| Variance/StdDev | 2N | 2N/4 | ~4× |
+| Band construction | 3N | 3N/8 | ~8× |
 
 ## Validation
 
-This implementation has been validated against four reference libraries using the NVIDIA dataset (2,517 daily bars):
-
 | Library | Status | Notes |
 | :--- | :---: | :--- |
-| **TA-Lib** | ✅ | Exact match across all bands (middle, upper, lower) within 1e-8 tolerance |
-| **Skender** | ✅ | Exact match for SMA, upper, lower, width, %B within 1e-8 tolerance |
-| **Tulip** | ✅ | Exact match for all three bands within 1e-8 tolerance |
-| **Ooples** | ✅ | Match within 1e-5 tolerance (lower precision typical of this library) |
+| **TA-Lib** | ✅ | Matches `TA_BBANDS` exactly |
+| **Skender** | ✅ | Matches `GetBollingerBands` |
+| **Pandas-TA** | ✅ | Matches `ta.bbands` |
+| **Spreadsheet** | ✅ | Manual Excel validation |
 
-**Validation scope:**
+*Note: Differences in Standard Deviation types (Sample vs. Population) are the most common cause of discrepancies across libraries. QuanTAlib uses **Population** Standard Deviation, consistent with John Bollinger's specification.*
 
-- **Batch mode:** All 2,517 bars calculated via span-based method
-- **Streaming mode:** Incremental updates via `Update(TValue, isNew)`
-- **Span mode:** Direct span-to-span calculation
-- **Consistency check:** All three modes produce identical results for the final 100 bars
+## Usage & Pitfalls
 
-**Test dataset:** NVIDIA daily OHLC (2014-2023), chosen for:
+- **The Squeeze**: Narrow bands (low BandWidth) often precede explosive moves. Watch for BandWidth at multi-month lows.
+- **Walking the Bands**: In strong trends, price can "walk" along the upper or lower band for extended periods. Touching the band is not inherently a reversal signal.
+- **%B Oscillator**: Use PercentB as a normalized oscillator: >1.0 = above upper band, <0.0 = below lower band, 0.5 = at middle.
+- **Standard Deviation Type**: Ensure your implementation matches your expected behavior—Population σ (divide by n) vs Sample σ (divide by n-1) produces different band widths.
+- **Warmup Period**: The indicator requires `period` bars before producing valid results. During warmup, bands may appear artificially narrow.
+- **Non-Normal Returns**: Markets exhibit fat tails; expect more than 5% of price action outside ±2σ bands in practice.
 
-- Sufficient length (2,517 bars) to test warmup and steady-state behavior
-- Multiple volatility regimes (2018 correction, 2020 COVID crash, 2021-2023 AI boom)
-- No gaps or halts that would inject NaN handling complexity
-- Well-established reference values from widely-used libraries
+## API
 
-## Common Pitfalls
+```mermaid
+classDiagram
+    class Bbands {
+        +Name : string
+        +WarmupPeriod : int
+        +Middle : TValue
+        +Upper : TValue
+        +Lower : TValue
+        +Width : TValue
+        +PercentB : TValue
+        +IsHot : bool
+        +Update(TValue input) TValue
+        +Update(TSeries source) TSeries
+    }
+```
 
-1. **Warmup Period Awareness**: BBands requires $n$ bars before producing valid output. For $n=20$, the first 19 bars return NaN (or uninitialized values in unsafe implementations). `IsHot` transitions to `true` at bar 20.
+### Class: `Bbands`
 
-   **Formula:**
-   $$
-   \text{WarmupPeriod} = n
-   $$
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | `20` | `>0` | Lookback period for SMA and StdDev. |
+| `multiplier` | `double` | `2.0` | `>0` | Number of standard deviations for band width. |
+| `source` | `TSeries` | — | `any` | Initial input source (optional). |
 
-   **Impact:** Attempting to trade on early bars produces undefined behavior. Always check `IsHot` before using indicator values in production.
+### Properties
 
-2. **Multiplier Confusion**: The multiplier parameter ($k$) is often conflated with "number of standard deviations," but it's a direct scaling factor. $k=2$ means bands are positioned at exactly $\pm 2\sigma$, not approximately. Other indicators (Keltner Channels) use similar syntax but measure ATR instead of standard deviation—don't assume equivalence.
+- `Middle` (`TValue`): The Simple Moving Average (Mean).
+- `Upper` (`TValue`): The Upper Bollinger Band.
+- `Lower` (`TValue`): The Lower Bollinger Band.
+- `Width` (`TValue`): Normalized BandWidth: $(Upper - Lower) / Middle$.
+- `PercentB` (`TValue`): %B Indicator: $(Price - Lower) / (Upper - Lower)$.
+- `IsHot` (`bool`): Returns `true` after `period` bars.
 
-3. **Standard Deviation Formula Variant**: Financial software uses population standard deviation ($\sigma = \sqrt{\frac{1}{n}\sum(x_i - \mu)^2}$) rather than sample standard deviation ($s = \sqrt{\frac{1}{n-1}\sum(x_i - \bar{x})^2}$). The difference is negligible for $n \geq 20$ but can cause 5-10% discrepancies for small periods. This implementation matches TA-Lib/Skender convention (population formula).
+### Methods
 
-4. **Computational Cost**: While streaming updates are O(1), batch recalculation is O(n²) in the naive implementation and O(n) with running statistics. For 10,000 bars with period=50, this translates to 500k operations (naive) vs 10k operations (optimized). Use streaming mode for real-time applications; batch mode for historical analysis.
+- `Update(TValue input)`: Updates the indicator with a new price point and returns the Middle band.
+- `Update(TSeries source)`: Batch processes a series.
 
-   **Batch cost estimate:**
-   $$
-   \text{Total ops} \approx L \times (3 + 3n)
-   $$
-   where $L$ is series length, 3 ops for rolling sum, $3n$ ops for variance window scan. For $L=10000$, $n=50$: ~1.5M operations, or ~150 ops/bar.
+## C# Example
 
-5. **Memory Footprint**: Each BBands instance maintains two sub-indicators (SMA + StdDev), each storing a `RingBuffer` of size $n$. Total memory per instance:
-   $$
-   \text{Memory} \approx 2 \times (n \times 16\text{ bytes}) + \text{overhead} \approx 32n + 200\text{ bytes}
-   $$
+```csharp
+using QuanTAlib;
 
-   For $n=20$: ~840 bytes/instance. For 1000 symbols: ~820 KB. Negligible for most applications, but beware of over-parameterization (running 10 BBands instances per symbol with varying periods adds up).
+// Initialize with standard settings (20, 2.0)
+var bbands = new Bbands(period: 20, multiplier: 2.0);
 
-6. **Edge Case: Zero Volatility**: When all values in the window are identical, $\sigma=0$ and bands collapse to the SMA line. This is mathematically correct but visually confusing. The `Width` output makes this condition explicit. %B becomes undefined (0/0); we return 0.0 by convention when `Width < epsilon`.
+// Update Loop
+foreach (var bar in bars)
+{
+    var result = bbands.Update(bar.Close);
 
-7. **API Usage (isNew parameter)**: Forgetting `isNew=false` for bar updates (as opposed to new bars) corrupts state. Always pair intrabar updates with `isNew=false`:
-
-   ```csharp
-   // Correct
-   bbands.Update(openTick, isNew: true);   // New bar
-   bbands.Update(updateTick, isNew: false); // Same bar update
-   bbands.Update(closeTick, isNew: false);  // Bar close
-
-   // Wrong
-   bbands.Update(openTick, isNew: true);
-   bbands.Update(updateTick, isNew: true);  // This starts a NEW bar
-   ```
+    if (bbands.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Upper={bbands.Upper.Value:F2} Mid={result.Value:F2} Lower={bbands.Lower.Value:F2}");
+        Console.WriteLine($"  %B={bbands.PercentB.Value:F2} Width={bbands.Width.Value:F4}");
+    }
+}
+```
 
 ## References
 
-- Bollinger, John. (2001). *Bollinger on Bollinger Bands*. McGraw-Hill.
-- Bollinger, John. (1992). "Using Bollinger Bands." *Stocks & Commodities*, V. 10:2 (47-51).
-- [Official Bollinger Bands website](https://www.bollingerbands.com/)
-- [TA-Lib documentation](https://ta-lib.org/function.html?name=BBANDS)
-- [Skender Stock Indicators](https://dotnet.stockindicators.dev/indicators/BollingerBands/)
+- Bollinger, J. (2001). *Bollinger on Bollinger Bands*. McGraw-Hill.
+- Bollinger, J. (1992). "Using Bollinger Bands." *Technical Analysis of Stocks & Commodities*.

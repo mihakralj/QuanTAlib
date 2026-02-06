@@ -142,19 +142,85 @@ For period=20: approximately 310 cycles per bar.
 
 Linear regression channels are not commonly found in standard TA libraries with this exact specification. Validation relies on mathematical verification against known formulas.
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Warmup Period**: The indicator requires `period` bars to reach full accuracy. During warmup, it uses all available data but may produce different results than post-warmup.
+- **Warmup Period**: The indicator requires `period` bars to reach full accuracy. During warmup, it uses all available data but may produce different results than post-warmup.
+- **Slope Interpretation**: A positive slope indicates uptrend within the window; negative indicates downtrend. The magnitude indicates trend strength.
+- **Band Width = 0**: When prices fall perfectly on a line (zero residuals), bands collapse to the middle line. This is mathematically correct but visually unexpected.
+- **Standard Deviation Choice**: This implementation uses population σ (dividing by n), not sample σ (dividing by n-1). Some implementations differ.
+- **Memory Footprint**: Each instance requires a RingBuffer of `period` doubles (~8 bytes each) plus state structs (~80 bytes). For period=20: ~240 bytes per instance.
+- **isNew Parameter**: When `isNew=false`, the indicator rolls back to the previous state before incorporating the update. This enables bar correction without state accumulation errors.
 
-2. **Slope Interpretation**: A positive slope indicates uptrend within the window; negative indicates downtrend. The magnitude indicates trend strength.
+## API
 
-3. **Band Width = 0**: When prices fall perfectly on a line (zero residuals), bands collapse to the middle line. This is mathematically correct but visually unexpected.
+```mermaid
+classDiagram
+    class Regchannel {
+        +string Name
+        +int WarmupPeriod
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +double Slope
+        +double StdDev
+        +bool IsHot
+        +Regchannel(int period, double multiplier)
+        +Regchannel(TSeries source, int period, double multiplier)
+        +TValue Update(TValue input, bool isNew)
+        +Tuple~TSeries,TSeries,TSeries~ Update(TSeries source)
+        +void Prime(TSeries source)
+        +void Reset()
+        +static void Batch(ReadOnlySpan~double~ source, Span~double~ middle, Span~double~ upper, Span~double~ lower, int period, double multiplier)
+        +static Tuple~TSeries,TSeries,TSeries~ Batch(TSeries source, int period, double multiplier)
+        +static Tuple~Tuple~TSeries,TSeries,TSeries~,Regchannel~ Calculate(TSeries source, int period, double multiplier)
+    }
+```
 
-4. **Standard Deviation Choice**: This implementation uses population σ (dividing by n), not sample σ (dividing by n-1). Some implementations differ.
+### Class: `Regchannel`
 
-5. **Memory Footprint**: Each instance requires a RingBuffer of `period` doubles (~8 bytes each) plus state structs (~80 bytes). For period=20: ~240 bytes per instance.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | `20` | `>1` | Lookback period for linear regression calculation. |
+| `multiplier` | `double` | `2.0` | `>0` | Standard deviation multiplier for band width. |
 
-6. **isNew Parameter**: When `isNew=false`, the indicator rolls back to the previous state before incorporating the update. This enables bar correction without state accumulation errors.
+### Properties
+
+- `Last` (`TValue`): The current linear regression value (middle line).
+- `Upper` (`TValue`): The upper band (regression + multiplier × σ).
+- `Lower` (`TValue`): The lower band (regression - multiplier × σ).
+- `Slope` (`double`): The slope of the linear regression line.
+- `StdDev` (`double`): The standard deviation of residuals.
+- `IsHot` (`bool`): Returns `true` when warmup period is complete.
+
+### Methods
+
+- `Update(TValue input, bool isNew)`: Updates the indicator with a new value and returns the result.
+- `Update(TSeries source)`: Processes an entire series and returns (Middle, Upper, Lower) tuple of TSeries.
+- `Prime(TSeries source)`: Initializes internal state from historical data.
+- `Reset()`: Resets the indicator to its initial state.
+- `Batch(...)`: Static method for span-based batch processing.
+- `Calculate(TSeries source, int period, double multiplier)`: Static factory that returns results and indicator instance.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var regchannel = new Regchannel(period: 20, multiplier: 2.0);
+
+// Update Loop
+foreach (var bar in quotes)
+{
+    var result = regchannel.Update(bar.Close);
+
+    // Use valid results
+    if (regchannel.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2}, Upper={regchannel.Upper.Value:F2}, Lower={regchannel.Lower.Value:F2}, Slope={regchannel.Slope:F4}");
+    }
+}
+```
 
 ## References
 

@@ -1,117 +1,84 @@
 # VWAPSD: VWAP with Standard Deviation Bands
 
-## Overview and Purpose
+> "The market's true average is weighted by conviction—and the bands reveal when conviction wavers."
 
-The Volume Weighted Average Price with Standard Deviation Bands (VWAPSD) combines two powerful analytical tools: the VWAP and statistical volatility bands. VWAP represents the true average price of a security for a given period, weighted by the volume transacted at each price level, making it particularly valuable for institutional traders and algorithms that benchmark their execution quality.
+The Volume Weighted Average Price with Standard Deviation Bands (VWAPSD) combines VWAP with statistical volatility bands. VWAP represents the true average price weighted by volume, making it the institutional benchmark for execution quality. The addition of configurable standard deviation bands transforms VWAP from a simple reference line into a complete channel system that measures both central tendency and price dispersion. VWAPSD is primarily used as an intraday indicator with session resets, ensuring the indicator remains relevant to current market conditions.
 
-Unlike simple moving averages that treat all price points equally, VWAP gives more weight to prices where significant volume occurred, providing a more accurate representation of the market's consensus value. The addition of standard deviation bands transforms VWAP from a simple reference line into a complete channel system that measures both central tendency and price dispersion.
+## Historical Context
 
-VWAPSD is primarily used as an intraday indicator, resetting at the beginning of each trading session (or other configurable periods). This anchored approach ensures that the indicator remains relevant to current market conditions and prevents the accumulation of stale historical data. The standard deviation bands provide dynamic support and resistance levels that expand and contract with market volatility, helping traders identify overbought and oversold conditions relative to the volume-weighted average.
+The Volume Weighted Average Price emerged in the 1980s as institutional traders sought a benchmark that reflected actual market participation rather than simple price averages. The seminal work by Berkowitz, Logue, and Noser (1988) on transaction costs established VWAP as the gold standard for measuring execution quality—buying below VWAP or selling above it indicates favorable execution relative to the market's true average.
 
-## Core Concepts
+The extension to standard deviation bands follows the statistical reasoning popularized by John Bollinger in the early 1980s. By applying standard deviation to volume-weighted prices, VWAPSD creates bands that adapt to actual market volatility while respecting the volume-weighted nature of the central tendency. The configurable deviation parameter (1σ, 2σ, or 3σ) allows traders to select their desired confidence level.
 
-* **Volume Weighting:** Unlike arithmetic averages, VWAP weights each price by its corresponding volume, giving more importance to prices where substantial trading activity occurred. This creates a more representative average that reflects actual market participation.
+Unlike simple moving average bands, VWAPSD anchors to session boundaries, resetting calculations at configurable intervals (daily, weekly, hourly). This anchored approach prevents the accumulation of stale historical data and keeps the indicator focused on current market structure—a critical feature for intraday traders who need actionable levels for the current session.
 
-* **Session Anchoring:** VWAP resets at the beginning of each session (configurable from 1-minute to yearly periods), ensuring the indicator reflects current market structure rather than accumulating indefinitely. This makes it particularly effective for intraday analysis.
+## Architecture & Physics
 
-* **Typical Price (HLC3):** Uses the average of high, low, and close prices to represent each bar's central value, providing a balanced price point that considers the full range of trading activity within the period.
+VWAPSD calculates a volume-weighted average price with configurable standard deviation bands using running sums for O(1) streaming updates.
 
-* **Standard Deviation Bands:** Measures the dispersion of prices around the VWAP, with bands typically set at 1, 2, or 3 standard deviations. These bands quantify how far prices are deviating from the volume-weighted mean and adapt dynamically to volatility.
+### 1. Typical Price Calculation
 
-* **Institutional Benchmark:** Large institutional traders use VWAP as an execution benchmark - buying below VWAP or selling above it is considered favorable execution, making VWAP a self-fulfilling support/resistance level.
+$$
+P_{typical} = \frac{High + Low + Close}{3}
+$$
 
-## Common Settings and Parameters
+The HLC3 typical price provides a balanced measure considering the full trading range of each bar.
 
-| Parameter | Default | Function | When to Adjust |
-| ------ | ------ | ------ | ------ |
-| Source | source | Data source for VWAP calculation | Use 'close' for closing prices only, 'hlc3' for typical price (most common), 'ohlc4' for full bar average |
-| Session Reset | 1D | Determines when VWAP resets | Use '1D' for daily intraday trading, '1W' for weekly swing trading, '1H' for hourly scalping, 'Never' for cumulative since chart start |
-| Standard Deviations | 2.0 | Number of standard deviations for upper and lower bands | Use 1.0 for tighter bands (more signals), 2.0 for standard volatility context (95% confidence), 3.0 for extreme moves only (99.7% confidence) |
+### 2. Running Sum Accumulation
 
-**Pro Tip:** For day trading, use the '1D' session reset with 2 standard deviation bands. Price touching the upper band often indicates overbought conditions suitable for taking profits or shorting, while touches of the lower band suggest oversold conditions for buying opportunities. Institutional traders often defend VWAP as a key level, making it a natural target for mean reversion strategies. Consider using multiple timeframes: 1D for the primary trend and 1H for intraday structure.
+$$
+\sum_{pv} = \sum_{i=1}^{n} P_i \times V_i
+$$
 
-## Calculation and Mathematical Foundation
+$$
+\sum_{vol} = \sum_{i=1}^{n} V_i
+$$
 
-**Explanation:**
-VWAPSD calculates a volume-weighted average price that resets at session boundaries, then adds statistical bands based on the standard deviation of price deviations from this average. The calculation maintains three running sums throughout the session: cumulative price×volume, cumulative volume, and cumulative price²×volume. These sums reset at the beginning of each new session as defined by the session type parameter.
+$$
+\sum_{pv^2} = \sum_{i=1}^{n} P_i^2 \times V_i
+$$
 
-**Technical formula:**
+Three running sums enable O(1) updates: cumulative price×volume, cumulative volume, and cumulative price²×volume.
 
-```
-Step 1: Calculate typical price for each bar
-Typical Price = (High + Low + Close) / 3  [or use selected source]
+### 3. VWAP Calculation
 
-Step 2: Accumulate weighted sums within session
-sum_pv = Σ(Price × Volume)
-sum_vol = Σ(Volume)
-sum_pv2 = Σ(Price² × Volume)
+$$
+VWAP = \frac{\sum_{pv}}{\sum_{vol}}
+$$
 
-Step 3: Calculate VWAP
-VWAP = sum_pv / sum_vol
+The volume-weighted average divides cumulative price×volume by cumulative volume.
 
-Step 4: Calculate variance and standard deviation
-Variance = (sum_pv2 / sum_vol) - VWAP²
-StdDev = √(max(0, Variance))
+### 4. Variance and Standard Deviation
 
-Step 5: Calculate bands
-Upper Band = VWAP + (num_devs × StdDev)
-Lower Band = VWAP - (num_devs × StdDev)
+$$
+\sigma^2 = \frac{\sum_{pv^2}}{\sum_{vol}} - VWAP^2
+$$
 
-Step 6: Reset on session boundary
-When reset_condition = true:
-  sum_pv = Price × Volume (initialize with current bar)
-  sum_vol = Volume
-  sum_pv2 = Price² × Volume
-```
+$$
+\sigma = \sqrt{\max(0, \sigma^2)}
+$$
 
-> 🔍 **Technical Note:** The implementation uses reset-based accumulation (Pattern §20) for session boundaries, ensuring clean starts each period. Variance is calculated using the weighted formula: E[X²] - E[X]², which is numerically stable and matches the standard deviation pattern (§8). Volume weighting ensures that high-volume price levels contribute more to both the mean and variance calculations. The implementation handles zero or missing volume gracefully by using nz() conversions (Pattern §7) and defensive division (Pattern §6).
+Variance uses the algebraic identity E[X²] - E[X]², with a guard against negative values from floating-point precision.
 
-## Interpretation Details
+### 5. Band Construction
 
-**Primary Use - Mean Reversion Trading:**
-* Price trading above VWAP with upper band touch suggests overbought conditions - potential shorting opportunity or profit-taking
-* Price trading below VWAP with lower band touch suggests oversold conditions - potential buying opportunity
-* Price returning to VWAP from extreme bands is a common mean reversion pattern
-* Volume confirmation strengthens signals: high volume at bands indicates stronger reversal potential
+$$
+Upper = VWAP + (n \times \sigma)
+$$
 
-**Institutional Trading Context:**
-* VWAP serves as a benchmark for institutional execution quality
-* Large buy orders executed below VWAP are considered favorable (buying at discount)
-* Large sell orders executed above VWAP are considered favorable (selling at premium)
-* Institutions often defend VWAP as support/resistance, creating self-fulfilling price action
+$$
+Lower = VWAP - (n \times \sigma)
+$$
 
-**Trend Identification:**
-* Price consistently above VWAP indicates bullish intraday trend
-* Price consistently below VWAP indicates bearish intraday trend
-* VWAP slope provides additional trend confirmation (rising = bullish, falling = bearish)
-* Crossovers of price through VWAP can signal trend changes, especially with volume
+Where $n$ is the number of standard deviations (default 2.0). Common settings: 1σ (~68%), 2σ (~95%), 3σ (~99.7%).
 
-**Volatility Analysis:**
-* Band width measures current volatility - wide bands indicate high volatility, narrow bands indicate low volatility
-* Contracting bands often precede breakout moves (volatility compression)
-* Expanding bands during price moves confirm momentum strength
-* Multiple touches of bands without breakout suggests ranging market
+### 6. Channel Width
 
-**Standard Deviation Levels:**
-* 1σ bands (~68% of price action): Used for active trading and frequent signals
-* 2σ bands (~95% of price action): Standard setting for most trading strategies
-* 3σ bands (~99.7% of price action): Extreme moves only, strong reversal signals
+$$
+Width = Upper - Lower = 2 \times n \times \sigma
+$$
 
-## Limitations and Considerations
-
-* **Intraday Focus:** VWAPSD is designed primarily for intraday analysis and loses effectiveness on higher timeframes where session resets become less meaningful. For multi-day analysis, consider anchored VWAP variants.
-
-* **Session Dependency:** The indicator's value depends heavily on the chosen session reset period. Incorrect session selection can produce misleading signals - ensure your session matches your trading timeframe and strategy.
-
-* **Low Volume Periods:** During low volume periods (market open/close, holidays, thin markets), VWAP can be distorted by a few large trades. Standard deviation bands may not accurately reflect true volatility in these conditions.
-
-* **Lagging Nature:** Despite being more responsive than simple moving averages, VWAP is still a lagging indicator based on historical price and volume. It confirms trends rather than predicts them.
-
-* **No Directional Bias:** VWAPSD does not predict direction - it only identifies when price has deviated significantly from the volume-weighted mean. Additional tools (momentum indicators, price action, volume analysis) are needed for directional confirmation.
-
-* **Gap Sensitivity:** Large overnight gaps can distort the morning VWAP calculation until sufficient volume accumulates. Consider waiting for the first 30-60 minutes of trading for VWAP to stabilize.
-
-* **Volume Quality:** VWAP effectiveness depends on volume data quality. In thinly traded securities or markets with unreliable volume data, VWAP may not provide reliable signals.
+The channel width provides a single volatility metric for position sizing and risk assessment.
 
 ## Performance Profile
 
@@ -126,6 +93,7 @@ When reset_condition = true:
 | **Total** | **15** | — | **~79 cycles** |
 
 **Breakdown:**
+
 - Typical price (HLC3): 2 ADD + 1 DIV = 17 cycles
 - Running sums (pv, vol, pv²): 3 ADD + 3 MUL = 12 cycles
 - VWAP + variance: 2 DIV + 1 MUL + 1 SUB = 35 cycles
@@ -138,17 +106,7 @@ When reset_condition = true:
 | Streaming | O(1) | Running sums, no buffer iteration |
 | Batch | O(n) | Linear scan per session |
 
-**Memory**: ~48 bytes (3 running sums × 8 bytes + session state)
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | HLC3 and band calculations vectorizable |
-| FMA | ✅ | Band offset: `VWAP + num_devs × StdDev` |
-| Batch parallelism | Limited | Session resets create boundaries |
-
-**Note:** VWAPSD uses simple accumulation, making it amenable to partial SIMD. However, session reset boundaries (Pattern §20) prevent full vectorization across the entire series. Intra-session batch processing can achieve ~4× speedup on the typical price and band calculations, with the running sum portion remaining sequential.
+**Memory:** ~64 bytes per instance (3 running sums × 8 bytes + state variables)
 
 ### Quality Metrics
 
@@ -159,22 +117,104 @@ When reset_condition = true:
 | **Overshoot** | 9/10 | Bands based on actual volatility |
 | **Smoothness** | 9/10 | Running average smooths noise progressively |
 
+## Validation
+
+| Library | Status | Notes |
+| :--- | :---: | :--- |
+| **TA-Lib** | N/A | No VWAP bands implementation |
+| **Skender** | N/A | Has VWAP but not with StdDev bands |
+| **Tulip** | N/A | No VWAP implementation |
+| **TradingView** | ✅ | Reference: vwapsd.pine |
+
+## Usage & Pitfalls
+
+- **Session Reset Timing:** Failing to reset VWAP at session boundaries causes stale data to dominate. Use the `reset` parameter at session start.
+- **NumDevs Selection:** Use 1σ for active trading (more signals), 2σ for standard analysis (~95% confidence), 3σ for extreme moves only.
+- **Early Session Instability:** VWAP is volatile in the first 15-30 minutes. Wait for sufficient volume before trading band signals.
+- **Zero Volume Handling:** Extended periods of zero volume degrade indicator quality despite fallback to last valid values.
+- **Bar Correction:** Use `isNew=false` when updating the current bar's value (same timestamp), `isNew=true` for new bars.
+- **Intraday Focus:** Without session resets, cumulative calculations become less responsive as early data dominates.
+- **Volume Dependency:** Requires reliable volume data; forex and index CFDs may not provide accurate signals.
+- **Gap Sensitivity:** Large overnight gaps distort morning VWAP until sufficient volume accumulates.
+
+## API
+
+```mermaid
+classDiagram
+    class Vwapsd {
+        +Vwapsd(double numDevs = 2.0)
+        +TValue Upper
+        +TValue Lower
+        +TValue Vwap
+        +TValue StdDev
+        +TValue Width
+        +bool IsHot
+        +TValue Update(TBar bar, bool isNew, bool reset)
+        +TSeries Update(TBarSeries source)
+        +void Reset()
+    }
+    AbstractBase <|-- Vwapsd
+```
+
+### Class: `Vwapsd`
+
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `numDevs` | `double` | `2.0` | `0.1–5.0` | Number of standard deviations for bands. |
+
+### Properties
+
+- `Upper` (`TValue`): Upper band (VWAP + numDevs × StdDev).
+- `Lower` (`TValue`): Lower band (VWAP - numDevs × StdDev).
+- `Vwap` (`TValue`): Volume-weighted average price (center line).
+- `StdDev` (`TValue`): Standard deviation of volume-weighted prices.
+- `Width` (`TValue`): Band width (Upper - Lower = 2 × numDevs × StdDev).
+- `IsHot` (`bool`): Returns `true` when warmup is complete (≥2 bars).
+
+### Methods
+
+- `Update(TBar bar, bool isNew = true, bool reset = false)`: Updates with new OHLCV bar. Use `reset=true` at session boundaries.
+- `Update(TBarSeries source)`: Batch update from bar series.
+- `Reset()`: Clears state and restarts calculations.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize with 2 standard deviations (~95% confidence)
+var vwapsd = new Vwapsd(numDevs: 2.0);
+
+// Streaming update - intraday with session reset
+bool isSessionStart = true;
+foreach (var bar in intradayBars)
+{
+    bool isNewBar = bar.Time > lastBarTime;
+    vwapsd.Update(bar, isNew: isNewBar, reset: isSessionStart);
+    isSessionStart = false;
+    lastBarTime = bar.Time;
+
+    if (vwapsd.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: VWAP={vwapsd.Vwap.Value:F2}");
+        Console.WriteLine($"  Bands: [{vwapsd.Lower.Value:F2}, {vwapsd.Upper.Value:F2}]");
+        Console.WriteLine($"  Width: {vwapsd.Width.Value:F2}");
+
+        // Mean reversion signals
+        double price = bar.Close;
+        if (price > vwapsd.Upper.Value)
+            Console.WriteLine("  ⚠️ Overbought - potential short");
+        else if (price < vwapsd.Lower.Value)
+            Console.WriteLine("  ⚠️ Oversold - potential long");
+    }
+}
+
+// Batch processing
+var (upper, lower, vwap, stdDev) = Vwapsd.Calculate(barSeries, numDevs: 2.0);
+```
+
 ## References
 
-* Berkowitz, S. A., Logue, D. E., & Noser, E. A. (1988). The Total Cost of Transactions on the NYSE. The Journal of Finance, 43(1), 97-112.
-* TradingView (2024). Volume Weighted Average Price (VWAP). TradingView Support Documentation.
-* thinkorswim Learning Center. VWAP Technical Indicator Reference.
-* TheVWAP.com (2024). The Detailed Guide to VWAP. Educational Resource.
-* Kissell, R. (2013). The Science of Algorithmic Trading and Portfolio Management. Academic Press.
-
-## Validation Sources
-
-**Patterns:** §20 (reset_accumulation), §7 (na_handling), §8 (variance_calculation), §6 (defensive_division), §11 (multi_return), §15 (first_bar_handling)
-
-**Wolfram:** "standard deviation formula"
-
-**External:** "VWAP standard deviation bands formula", "VWAP typical price calculation" via Tavily; TradingView VWAP documentation, thinkorswim VWAP reference, TrendSpider VWAP with St.Dev Bands guide
-
-**API:** Verified vwap.pine reference implementation (session reset pattern, inline variable declarations), stddev.pine reference implementation (variance formula with math.pow)
-
-**Planning:** Sequential thinking phases: requirements analysis, mathematical foundation, implementation strategy, session reset logic, NA handling, visualization strategy, parameter validation, final checklist
+- Berkowitz, S. A., Logue, D. E., & Noser, E. A. (1988). The Total Cost of Transactions on the NYSE. *The Journal of Finance*, 43(1), 97-112.
+- Kissell, R. (2013). *The Science of Algorithmic Trading and Portfolio Management*. Academic Press.
+- TradingView (2024). Volume Weighted Average Price (VWAP). TradingView Support Documentation.

@@ -163,23 +163,87 @@ Due to the recursive IIR structure, SIMD vectorization is limited. However, FMA 
 | **PineScript** | ✅ | Reference implementation in `uchannel.pine` |
 | **Self-consistency** | ✅ | Streaming, batch, and span modes match |
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Warmup Period**: The indicator requires `max(strPeriod, centerPeriod)` bars before producing stable values. Using results during warmup can lead to erratic signals.
+- **Warmup Period**: The indicator requires `max(strPeriod, centerPeriod)` bars before producing stable values. Using results during warmup can lead to erratic signals.
+- **Parameter Confusion**: Unlike UBANDS (which uses a single period), UCHANNEL accepts two periods: `strPeriod` controls band width responsiveness, `centerPeriod` controls centerline responsiveness.
+- **Gap Sensitivity**: True Range includes gap size, so significant overnight gaps will widen the channel.
+- **Memory Footprint**: Each instance requires ~200 bytes for state. At 1000 symbols: ~200KB.
+- **Different from UBANDS**: UBANDS uses RMS of price deviations for band width; UCHANNEL uses USF-smoothed True Range × multiplier.
+- **Bar Correction (`isNew=false`)**: When correcting the current bar, ensure you pass the complete updated OHLC values.
 
-2. **Parameter Confusion**: Unlike UBANDS (which uses a single period), UCHANNEL accepts two periods:
-   - `strPeriod`: Controls how quickly the band width responds to volatility changes
-   - `centerPeriod`: Controls how quickly the centerline follows price
+## API
 
-3. **Gap Sensitivity**: True Range includes gap size, so significant overnight gaps will widen the channel. This is intended behavior but may surprise traders expecting simple high-low range.
+```mermaid
+classDiagram
+    class Uchannel {
+        +string Name
+        +int WarmupPeriod
+        +TValue Last
+        +TValue Upper
+        +TValue Middle
+        +TValue Lower
+        +TValue STR
+        +TValue Width
+        +bool IsHot
+        +Uchannel(int strPeriod, int centerPeriod, double multiplier)
+        +TValue Update(TBar input, bool isNew)
+        +TValue Update(TValue input, bool isNew)
+        +TSeries Update(TBarSeries source)
+        +TSeries Update(TSeries source)
+        +void Reset()
+        +void Prime(ReadOnlySpan~double~ source, TimeSpan? step)
+        +static TSeries Calculate(TBarSeries source, int strPeriod, int centerPeriod, double multiplier)
+    }
+```
 
-4. **Memory Footprint**: Each instance requires ~200 bytes for state (record struct with 13 fields plus coefficients). At 1000 symbols: ~200KB.
+### Class: `Uchannel`
 
-5. **Different from UBANDS**: While both use USF for the centerline:
-   - UBANDS: Band width = RMS of price deviations from centerline
-   - UCHANNEL: Band width = USF-smoothed True Range × multiplier
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `strPeriod` | `int` | `20` | `≥1` | Period for smoothing True Range. |
+| `centerPeriod` | `int` | `20` | `≥1` | Period for smoothing centerline. |
+| `multiplier` | `double` | `1.0` | `>0.001` | STR multiplier for band width. |
 
-6. **Bar Correction (`isNew=false`)**: When correcting the current bar, ensure you pass the complete updated OHLC values. Partial corrections may produce inconsistent results.
+### Properties
+
+- `Last` (`TValue`): The upper band value (for single-value compatibility).
+- `Upper` (`TValue`): The upper band (Middle + multiplier × STR).
+- `Middle` (`TValue`): The USF-smoothed centerline.
+- `Lower` (`TValue`): The lower band (Middle - multiplier × STR).
+- `STR` (`TValue`): The Smoothed True Range (USF of TR).
+- `Width` (`TValue`): Channel width (Upper - Lower).
+- `IsHot` (`bool`): Returns `true` when warmup period is complete.
+
+### Methods
+
+- `Update(TBar input, bool isNew)`: Updates the indicator with a new bar and returns the result.
+- `Update(TValue input, bool isNew)`: Updates with a single value (treats as O=H=L=C).
+- `Update(TBarSeries source)`: Processes an entire bar series and returns TSeries.
+- `Reset()`: Resets the indicator to its initial state.
+- `Prime(ReadOnlySpan<double> source, TimeSpan? step)`: Initializes from span data.
+- `Calculate(TBarSeries source, int strPeriod, int centerPeriod, double multiplier)`: Static factory method.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var uchannel = new Uchannel(strPeriod: 20, centerPeriod: 20, multiplier: 1.0);
+
+// Update Loop
+foreach (var bar in quotes)
+{
+    uchannel.Update(bar, isNew: true);
+
+    // Use valid results
+    if (uchannel.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Upper={uchannel.Upper.Value:F2}, Middle={uchannel.Middle.Value:F2}, Lower={uchannel.Lower.Value:F2}");
+    }
+}
+```
 
 ## References
 

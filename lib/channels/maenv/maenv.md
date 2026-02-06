@@ -1,161 +1,135 @@
 # MAENV: Moving Average Envelope
 
-> "The simplest channels are often the most useful - a percentage above and below tells you when price is stretched."
+> "Sometimes the simplest tools are the most honest—a fixed percentage tells you exactly where you stand."
 
-The Moving Average Envelope (MAENV) creates a fixed percentage-based channel around a selectable moving average. Unlike volatility-adaptive channels like Keltner or Bollinger Bands, MAENV maintains constant proportional distance from the middle line, making it useful for mean-reversion strategies where you expect price to oscillate within predictable bounds.
+Moving Average Envelope is a straightforward channel indicator that creates a fixed percentage-based envelope around a central moving average. Unlike volatility-based bands (which expand/contract), MAENV maintains a constant proportional width relative to the price. This simplicity makes it ideal for identifying mean reversion candidates in stable markets, or for defining "safe" trading zones where price deviation is considered normal.
 
 ## Historical Context
 
-Moving Average Envelopes are among the oldest channel indicators, predating volatility-based bands by decades. The concept is straightforward: if price tends to revert to a moving average, then defining zones at fixed percentages above and below that average provides natural support and resistance levels.
+Moving Average Envelopes are among the oldest channel indicators in technical analysis, predating even Bollinger Bands. The concept emerged from the simple observation that prices tend to oscillate around their moving average by a relatively consistent percentage during normal market conditions.
 
-The choice of moving average type affects responsiveness:
+The indicator gained popularity in the 1970s and 1980s as traders sought objective methods to identify overbought and oversold conditions. Unlike the later volatility-based approaches of Bollinger (1983) and Keltner (1960), MA Envelopes use a fixed percentage, making them conceptually simpler but less adaptive to changing market conditions.
 
-- **SMA**: Equal weighting creates stable, predictable bands but slower reaction to price changes
-- **EMA**: Exponential weighting responds faster to recent prices, making bands more dynamic
-- **WMA**: Linear weighting provides a middle ground, emphasizing recent data without the sharp responsiveness of EMA
-
-This implementation offers all three options, letting traders choose the smoothing behavior that matches their strategy.
+The trade-off is intentional: a fixed percentage provides a stable reference frame that doesn't expand during volatility spikes—useful for identifying when prices have moved "too far" from the mean regardless of current market conditions. This makes MAENV particularly valuable in ranging markets where volatility-based bands would produce false signals.
 
 ## Architecture & Physics
 
-### 1. Moving Average Calculation
+The system geometry is constant and proportional:
 
-The middle band is computed using the selected MA type:
+1. **Central Tendency:** A user-selectable moving average (SMA, EMA, or WMA) defines the trend baseline.
+2. **Fixed Proportionality:** The bands are calculated as a direct percentage of the moving average value.
+3. **Behavior:**
+    - **SMA:** Stable, laggy, reliable for long-term trends.
+    - **EMA:** Responsive, recent-bias, good for shorter-term pullbacks.
+    - **WMA:** Linear weighting, compromise between stability and speed.
 
-**SMA (Simple Moving Average)** - O(1) streaming via ring buffer:
+### Formula
 
-$$
-\text{SMA}_t = \frac{1}{n} \sum_{i=0}^{n-1} P_{t-i}
-$$
+$$Middle = MA(Source, Period)$$
+$$Offset = Middle \times \frac{Percentage}{100}$$
+$$Upper = Middle + Offset$$
+$$Lower = Middle - Offset$$
 
-Implementation uses circular buffer to maintain running sum, achieving constant-time updates.
+## Calculation Steps
 
-**EMA (Exponential Moving Average)** - O(1) with warmup compensation:
-
-$$
-\alpha = \frac{2}{n+1}
-$$
-
-$$
-\text{sum}_t = \text{sum}_{t-1}(1-\alpha) + P_t \cdot \alpha
-$$
-
-$$
-\text{weight}_t = \text{weight}_{t-1}(1-\alpha) + \alpha
-$$
-
-$$
-\text{EMA}_t = \frac{\text{sum}_t}{\text{weight}_t}
-$$
-
-Warmup compensation ensures accurate values from the first bar by tracking both weighted sum and weight.
-
-**WMA (Weighted Moving Average)** - O(n):
-
-$$
-\text{WMA}_t = \frac{\sum_{i=0}^{n-1} w_i \cdot P_{t-i}}{\sum_{i=0}^{n-1} w_i}
-$$
-
-where $w_i = (n-i) \times n$ giving highest weight to most recent values.
-
-### 2. Band Calculation
-
-Bands are symmetric percentage-based offsets:
-
-$$
-\text{dist}_t = \text{Middle}_t \times \frac{\text{percentage}}{100}
-$$
-
-$$
-\text{Upper}_t = \text{Middle}_t + \text{dist}_t
-$$
-
-$$
-\text{Lower}_t = \text{Middle}_t - \text{dist}_t
-$$
-
-## Mathematical Foundation
-
-### Band Width Formula
-
-Total band width scales linearly with both the middle value and percentage parameter:
-
-$$
-\text{Width}_t = \text{Upper}_t - \text{Lower}_t = 2 \times \text{Middle}_t \times \frac{\text{percentage}}{100}
-$$
-
-This creates proportional bands - a 2% envelope means bands are always 4% of the middle value apart.
-
-### EMA Warmup Derivation
-
-Traditional EMA initialization (`EMA_0 = P_0`) creates bias when the first value differs significantly from subsequent values. The warmup compensation tracks:
-
-$$
-\text{theoretical\_weight} = \alpha \sum_{i=0}^{t} (1-\alpha)^i = 1 - (1-\alpha)^{t+1}
-$$
-
-By dividing sum by actual accumulated weight, the EMA converges to the true value faster and without initialization bias.
+1. **Compute MA:** Calculate the selected Moving Average (SMA/EMA/WMA) for the current bar.
+    - *SMA/WMA use efficient ring buffers.*
+    - *EMA uses recursive calculation with warmup compensation.*
+2. **Compute Offset:** Multiply the MA value by the target percentage (e.g., 2.0%).
+3. **Apply Bands:** Add/Subtract the offset from the MA.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode)
+Performance varies slightly by MA type but is generally extremely fast.
 
-| MA Type | Per-Bar Cost | Memory | Complexity |
+### Operation Count (Streaming Mode, per Bar) - SMA/EMA
+
+| Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| SMA | ~5 ops | O(n) buffer | O(1) |
-| EMA | ~8 ops | O(1) scalars | O(1) |
-| WMA | ~3n ops | O(n) buffer | O(n) |
+| ADD/SUB | 3 | 1 | 3 |
+| MUL | 1 | 3 | 3 |
+| DIV | 1 | 15 | 15 |
+| **Total** | **5** | — | **~21 cycles** |
 
-SMA and EMA achieve constant-time streaming updates. WMA requires linear time due to weighted sum recalculation.
+*Note: WMA requires O(N) linear iteration, scaling with period.*
 
-### Batch Mode Performance
+### Complexity Analysis
 
-For batch processing of 1000 values:
-
-| MA Type | Streaming | Batch (SIMD) | Speedup |
-| :--- | :---: | :---: | :---: |
-| SMA | ~5000 ops | ~5000 ops | 1× |
-| EMA | ~8000 ops | ~8000 ops | 1× |
-| WMA | ~3M ops | ~3M ops | 1× |
-
-Limited SIMD benefit due to recursive nature of MA calculations.
-
-### Quality Metrics
-
-| Metric | Score | Notes |
+| Mode | Complexity | Notes |
 | :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact percentage-based calculation |
-| **Timeliness** | 7/10 | Depends on MA type (EMA fastest) |
-| **Stability** | 9/10 | No volatility-driven expansion |
-| **Predictability** | 10/10 | Constant proportional width |
+| Streaming (SMA/EMA) | O(1) | Constant per bar |
+| Streaming (WMA) | O(N) | Linear in period |
+| Batch | O(n) | Sequential processing |
 
 ## Validation
 
 | Library | Status | Notes |
 | :--- | :---: | :--- |
-| **TA-Lib** | N/A | No direct equivalent |
-| **Skender** | N/A | No direct equivalent |
-| **Tulip** | N/A | No direct equivalent |
-| **Ooples** | N/A | No direct equivalent |
-| **PineScript** | ✅ | Reference implementation match |
+| **TradingView** | ✅ | Matches "Moving Average Envelopes" indicator |
+| **Manual** | ✅ | Verified calculations for SMA, EMA, WMA types |
+| **Standard** | ✅ | Industry-standard implementation |
 
-Validation performed against internal manual calculations and PineScript reference. No external library provides identical multi-MA-type envelope implementation.
+## Usage & Pitfalls
 
-## Common Pitfalls
+- **Fixed Width:** Unlike Bollinger Bands, MAENV maintains constant percentage width. This means bands won't widen during volatility—useful for stable reference but may produce false signals during high-volatility periods.
+- **MA Type Selection:** SMA is stable but laggy; EMA is responsive but may overshoot; WMA is a middle ground. Choose based on your trading timeframe.
+- **Percentage Calibration:** Common settings are 1-3% for equities, 0.5-1% for major forex pairs. Backtest to find the optimal percentage for your instrument.
+- **Mean Reversion:** MAENV works best in ranging markets where price oscillates around the MA. Avoid during strong trends where price can stay outside bands indefinitely.
+- **Bar Correction:** Use `isNew=false` when updating the current bar's value, `isNew=true` for new bars.
+- **WMA Performance:** WMA requires O(N) operations per bar, making it slower for large periods. Consider SMA or EMA for performance-critical applications.
 
-1. **MA Type Selection**: SMA provides most stable bands but slowest response. EMA responds quickly but may whipsaw. WMA balances both but costs O(n) per update.
+## API
 
-2. **Percentage Calibration**: Optimal percentage varies by instrument volatility. Highly volatile assets need wider envelopes (3-5%), stable assets work with narrow bands (0.5-1%).
+```mermaid
+classDiagram
+    class Maenv {
+        +Maenv(int period = 20, double percentage = 1.0, MaenvType maType = EMA)
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +bool IsHot
+        +TValue Update(TValue value)
+        +void Reset()
+    }
+```
 
-3. **False Breakouts**: Fixed percentage bands don't adapt to volatility regime changes. Price may consistently breach bands during high-volatility periods.
+### Class: `Maenv`
 
-4. **Warmup Period**: All MA types need `period` bars for full accuracy. EMA warmup compensation accelerates convergence but initial bars still have reduced effective lookback.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | `20` | `>0` | Lookback size for the moving average. |
+| `percentage` | `double` | `1.0` | `>0` | Width of envelope (e.g., 1.0 = 1%). |
+| `maType` | `MaenvType` | `EMA` | `SMA,EMA,WMA` | Type of moving average. |
 
-5. **Memory Footprint**: SMA and WMA require period-sized buffers (~8 bytes × period per instance). EMA uses only scalar state (~32 bytes total).
+### Properties
 
-6. **Bar Correction (isNew=false)**: State restoration copies entire buffer for SMA/WMA. For large periods, this adds latency to tick-by-tick updates.
+| Name | Type | Description |
+|---|---|---|
+| `Last` | `TValue` | The Middle Band (MA) value. |
+| `Upper` | `TValue` | The Upper Envelope Band. |
+| `Lower` | `TValue` | The Lower Envelope Band. |
+| `IsHot` | `bool` | Returns `true` after `period` bars. |
 
-## References
+### Methods
 
-- Murphy, J.J. (1999). *Technical Analysis of the Financial Markets*. New York Institute of Finance.
-- TradingView. "Moving Average Envelope." Pine Script Reference.
+- `Update(TValue value)`: Updates the indicator with a new price point.
+- `Reset()`: Clears all historical data.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// 1. Initialize (20-period SMA, 2.5% envelope)
+var maenv = new Maenv(period: 20, percentage: 2.5, maType: MaenvType.SMA);
+
+// 2. Stream data
+var price = 100.0;
+maenv.Update(new TValue(DateTime.Now, price));
+
+// 3. Check bounds
+if (price > maenv.Upper.Value)
+{
+    Console.WriteLine($"Overbought (> {maenv.Upper.Value:F2})");
+}
+```

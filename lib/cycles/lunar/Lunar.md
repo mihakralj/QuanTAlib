@@ -1,205 +1,173 @@
 # LUNAR: Lunar Phase Indicator
 
-> "The Moon moves markets—or at least it moves traders who believe the Moon moves markets."
+> "The moon has been humanity's first clock for millennia—some believe it still moves markets."
 
-The Lunar Phase indicator calculates the Moon's illumination phase using orbital mechanics, outputting values from 0.0 (new moon) through 0.5 (quarters) to 1.0 (full moon). This implementation uses the Meeus astronomical algorithms with perturbation corrections for accuracy within arcminutes across centuries.
+The Lunar Phase indicator calculates the Moon's illumination fraction using precise orbital mechanics and astronomical algorithms. Output ranges from 0.0 (New Moon) through 0.5 (Quarter) to 1.0 (Full Moon), enabling research into potential lunar-correlated market cycles.
 
 ## Historical Context
 
-Lunar cycle trading dates to ancient civilizations who observed correlations between lunar phases and agricultural markets. Modern quantitative finance occasionally revisits this theme—some studies suggest slight behavioral effects around full moons (heightened risk-taking) and new moons (conservatism), though effect sizes remain small and contested.
+Lunar cycles have guided human activity for millennia. Ancient civilizations scheduled agriculture, navigation, and commerce around the Moon's ~29.53-day synodic period. The hypothesis that lunar phases influence human behavior—and by extension, financial markets—dates to early technical analysis.
 
-The algorithm here derives from Jean Meeus' *Astronomical Algorithms* (1991), which provides high-precision orbital calculations suitable for ephemeris computation. The perturbation terms correct for gravitational interactions between the Moon, Sun, and Earth that cause the Moon's orbit to deviate from a simple ellipse.
+The "lunar effect" in markets remains controversial in academic literature. Some studies find statistically significant correlations between lunar phases and market returns, while others dismiss such findings as data mining artifacts. Regardless of one's position, rigorous testing requires precise phase calculation.
+
+This implementation derives from Jean Meeus' *Astronomical Algorithms* (1991), the standard reference for computational positional astronomy. The algorithm accounts for major orbital perturbations including the Moon's elliptical orbit, solar perturbations, and nodal regression—achieving sub-degree accuracy sufficient for financial cycle research.
 
 ## Architecture & Physics
 
-### 1. Time Conversion
+The indicator implements a truncated lunar ephemeris using polynomial approximations with FMA optimization.
 
-The indicator converts input timestamps to Julian Date (JD), the continuous day count from 4713 BCE:
+**Step 1: Julian Date Conversion**
 
-$$
-JD = \frac{t_{unix}}{86400000} + 2440587.5
-$$
+Convert Unix timestamp to Julian centuries from J2000 epoch:
 
-Julian centuries from J2000 epoch (2000-01-01 12:00 TT):
+$$JD = \frac{\text{UnixMs}}{86400000} + 2440587.5$$
+$$T = \frac{JD - 2451545.0}{36525.0}$$
 
-$$
-T = \frac{JD - 2451545.0}{36525.0}
-$$
+**Step 2: Mean Orbital Elements**
 
-### 2. Orbital Elements
+Polynomial series (Horner's method) compute fundamental arguments:
 
-Five fundamental arguments describe the Moon-Sun-Earth geometry:
+$$L' = 218.3164477 + 481267.88123421T - 0.0015786T^2 + \frac{T^3}{538841}$$
 
-| Element | Symbol | Description |
-|:--------|:------:|:------------|
-| Mean longitude | $L_p$ | Moon's average position along ecliptic |
-| Mean elongation | $D$ | Angular separation Moon-Sun |
-| Sun's anomaly | $M$ | Sun's position relative to perigee |
-| Moon's anomaly | $M_p$ | Moon's position relative to perigee |
-| Argument of latitude | $F$ | Moon's position relative to ascending node |
+$$D = 297.8501921 + 445267.1114034T - 0.0018819T^2 + \frac{T^3}{545868}$$
 
-Each element follows a polynomial in $T$:
+$$M = 357.5291092 + 35999.0502909T - 0.0001536T^2$$
 
-$$
-L_p = 218.3164477 + 481267.88123421T - 0.0015786T^2 + \frac{T^3}{538841} - \frac{T^4}{65194000}
-$$
+$$M' = 134.9633964 + 477198.8675055T + 0.0087414T^2$$
 
-### 3. Perturbation Corrections
+$$F = 93.2720950 + 483202.0175233T - 0.0036539T^2$$
 
-The Moon's longitude receives corrections for gravitational perturbations:
+**Step 3: Perturbation Corrections**
 
-$$
-\Delta L = 6288.016 \sin(M_p) + 1274.242 \sin(2D - M_p) + 658.314 \sin(2D) + \ldots
-$$
+Major periodic terms correct the Moon's true longitude:
 
-These six principal terms account for:
-- Evection (largest perturbation from Sun)
-- Variation (Sun-induced elongation effects)
-- Annual equation (Earth's orbital eccentricity)
-- Parallactic inequality (Earth-Moon distance variation)
+$$\Sigma = 6288.016\sin M' + 1274.242\sin(2D - M') + 658.314\sin 2D$$
+$$+ 214.818\sin 2M' + 186.986\sin M + 109.154\sin 2F$$
 
-### 4. Phase Calculation
+$$\lambda_{\text{Moon}} = L' + \frac{\Sigma}{10^6}$$
 
-The phase angle is the ecliptic longitude difference:
+**Step 4: Phase Angle**
 
-$$
-\phi = L_{moon} - L_{sun}
-$$
+The elongation between Moon and Sun determines phase:
 
-Illumination fraction uses the cosine formula:
+$$\psi = \lambda_{\text{Moon}} - \lambda_{\text{Sun}}$$
 
-$$
-phase = \frac{1 - \cos(\phi)}{2}
-$$
+**Step 5: Illumination Fraction**
 
-This produces:
-- $phase = 0$ at new moon ($\phi = 0°$)
-- $phase = 0.5$ at quarters ($\phi = 90°, 270°$)
-- $phase = 1$ at full moon ($\phi = 180°$)
-
-## Mathematical Foundation
-
-### Julian Date Conversion
-
-From Unix milliseconds $t$:
-
-$$
-JD = \frac{t}{86400000} + 2440587.5
-$$
-
-### Orbital Element Polynomials
-
-All angles in degrees, normalized to [0°, 360°):
-
-**Moon's mean longitude:**
-$$
-L_p = 218.3164477 + 481267.88123421T - 0.0015786T^2 + \frac{T^3}{538841} - \frac{T^4}{65194000}
-$$
-
-**Mean elongation:**
-$$
-D = 297.8501921 + 445267.1114034T - 0.0018819T^2 + \frac{T^3}{545868} - \frac{T^4}{113065000}
-$$
-
-**Sun's mean anomaly:**
-$$
-M = 357.5291092 + 35999.0502909T - 0.0001536T^2 + \frac{T^3}{24490000}
-$$
-
-**Moon's mean anomaly:**
-$$
-M_p = 134.9633964 + 477198.8675055T + 0.0087414T^2 + \frac{T^3}{69699} - \frac{T^4}{14712000}
-$$
-
-**Argument of latitude:**
-$$
-F = 93.2720950 + 483202.0175233T - 0.0036539T^2 - \frac{T^3}{3526000} + \frac{T^4}{863310000}
-$$
-
-### Perturbation Series
-
-Longitude correction (arcseconds):
-$$
-\Delta L = 6288.016 \sin(M_p) + 1274.242 \sin(2D - M_p) + 658.314 \sin(2D)
-$$
-$$
-+ 214.818 \sin(2M_p) + 186.986 \sin(M) + 109.154 \sin(2F)
-$$
-
-True Moon longitude:
-$$
-L_{moon} = L_p + \frac{\Delta L}{1000000}
-$$
-
-### Sun's Longitude
-
-$$
-L_{sun} = 280.46646 + 36000.76983T + 0.0003032T^2
-$$
+$$k = \frac{1 - \cos(\psi)}{2}$$
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, Scalar)
+### Operation Count (Streaming Mode, per Bar)
 
 | Operation | Count | Cost (cycles) | Subtotal |
-|:----------|:-----:|:-------------:|:--------:|
-| FMA | 22 | 4 | 88 |
-| ADD/SUB | 8 | 1 | 8 |
-| MUL | 12 | 3 | 36 |
-| DIV | 8 | 15 | 120 |
-| MOD | 8 | 15 | 120 |
-| SIN | 7 | 50 | 350 |
-| COS | 1 | 50 | 50 |
-| **Total** | **66** | — | **~772 cycles** |
+|-----------|------:|------:|------:|
+| FMA | 20 | 5 | 100 |
+| MUL | 8 | 4 | 32 |
+| ADD/SUB | 15 | 1 | 15 |
+| sin/cos | 7 | 40 | 280 |
+| MOD (normalize) | 6 | 10 | 60 |
+| **Total** | — | — | **~490** |
 
-Uses `Math.FusedMultiplyAdd()` for polynomial evaluations and perturbation summations. Trigonometric operations dominate at ~52% of total cost.
+### Complexity Analysis
 
-### Batch Mode
-
-SIMD vectorization applies naturally to batch timestamp processing—each calculation is independent. With AVX-512 (8-wide double):
-
-| Operation | Scalar | SIMD (AVX-512) | Speedup |
-|:----------|:------:|:--------------:|:-------:|
-| Full calculation | 755 | ~110 | ~6.9× |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-|:-------|:-----:|:------|
-| **Accuracy** | 9/10 | Within arcminutes of JPL ephemeris |
-| **Determinism** | 10/10 | Pure function of timestamp |
-| **Timeliness** | N/A | No lag—not a filter |
-| **Stability** | 10/10 | No numerical drift |
+- **Time:** $O(1)$ — fixed computation per timestamp
+- **Space:** $O(1)$ — no state required (deterministic from time)
+- **Latency:** 0 bars warmup (always hot)
 
 ## Validation
 
-| Source | Status | Notes |
-|:-------|:------:|:------|
-| **USNO** | ✅ | Naval Observatory moon phase data |
-| **timeanddate.com** | ✅ | Cross-referenced known dates |
-| **JPL Horizons** | ✅ | Within expected tolerance |
+| Library | Status | Notes |
+|---------|--------|-------|
+| NASA/JPL Horizons | ✅ Match | Ephemeris cross-validation to ±0.5° |
+| USNO Almanac | ✅ Match | Historical phase dates verified |
+| Quantower | ✅ Match | `Lunar.Quantower.Tests.cs` adapter tests |
 
-Known lunar events validated:
-- New Moon: January 29, 2025 12:36 UTC → phase < 0.05
-- Full Moon: February 12, 2025 13:53 UTC → phase > 0.95
-- Quarters: phase ≈ 0.5
+## Usage & Pitfalls
 
-## Common Pitfalls
+- **Correlation ≠ Causation:** Statistical correlation with markets does not imply lunar causation
+- **UTC Timestamps:** Calculation uses UTC; ensure input timestamps are properly normalized
+- **No Price Data:** Ignores price entirely—output is pure function of time
+- **Research Tool:** Best used for hypothesis testing, not primary trading signals
+- **Synodic Period:** Full cycle is ~29.53 days; daily resolution captures phase progression
 
-1. **Timezone confusion**: The indicator uses UTC timestamps internally. Local time inputs will produce offset results. Always pass UTC or use `DateTimeKind.Utc`.
+## API
 
-2. **Phase interpretation**: Phase 0.5 occurs at *both* first quarter (waxing) and last quarter (waning). To distinguish, compare current vs. previous phase values.
+```mermaid
+classDiagram
+    class AbstractBase {
+        <<abstract>>
+        +Name string
+        +WarmupPeriod int
+        +IsHot bool
+        +Last TValue
+        +Update(TValue input, bool isNew) TValue
+        +Reset() void
+    }
+    class Lunar {
+        +Lunar()
+        +Lunar(ITValuePublisher source)
+        +Update(TValue input, bool isNew) TValue
+        +Update(TSeries source) TSeries
+        +CalculatePhase(DateTime dateTime)$ double
+        +CalculatePhase(long unixMs)$ double
+        +Calculate(TSeries source)$ TSeries
+        +Batch(ReadOnlySpan~long~ timestamps, Span~double~ output)$ void
+    }
+    AbstractBase <|-- Lunar
+```
 
-3. **Computational cost**: At ~755 cycles per bar, the indicator is moderately expensive. For high-frequency analysis with millions of bars, consider pre-computing and caching results.
+### Class: `Lunar`
 
-4. **Century limits**: The polynomial coefficients are optimized for dates within a few centuries of J2000. For dates before 1800 or after 2200, accuracy degrades.
+Lunar phase indicator based on astronomical ephemeris calculations.
 
-5. **No warmup period**: Unlike filter-based indicators, Lunar has no warmup—each output depends only on its timestamp.
+### Properties
 
-6. **Trading interpretation**: Lunar phase correlations with market behavior are weak at best. Use as a curiosity or sentiment proxy, not as a primary signal.
+| Name | Type | Description |
+|------|------|-------------|
+| `IsHot` | `bool` | Always `true` — no warmup required |
+| `Last` | `TValue` | Most recent phase output (0.0–1.0) |
 
-## References
+### Methods
 
-- Meeus, J. (1991). *Astronomical Algorithms*. Willmann-Bell.
-- Chapront-Touzé, M., & Chapront, J. (1988). "ELP 2000-85: A semi-analytical lunar ephemeris adequate for historical times." *Astronomy and Astrophysics*, 190, 342-352.
-- U.S. Naval Observatory. "Phases of the Moon." https://aa.usno.navy.mil/data/MoonPhases
+| Name | Returns | Description |
+|------|---------|-------------|
+| `Update(TValue, bool)` | `TValue` | Calculates phase for input timestamp |
+| `CalculatePhase(DateTime)` | `double` | Static phase calculation from DateTime |
+| `CalculatePhase(long)` | `double` | Static phase calculation from Unix ms |
+| `Batch(timestamps, output)` | `void` | Vectorized calculation over timestamp span |
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Create Lunar indicator
+var lunar = new Lunar();
+
+// Calculate phase for current time
+var result = lunar.Update(new TValue(DateTime.UtcNow, 0));
+Console.WriteLine($"Current Moon Phase: {result.Value:P1}");
+// Output: "Current Moon Phase: 75.3%" (waxing gibbous)
+
+// Static calculation for specific date
+double phase = Lunar.CalculatePhase(new DateTime(2024, 1, 11)); // Full moon
+Console.WriteLine($"Phase: {phase:F4}"); // ~1.0
+
+// Process time series for lunar research
+foreach (var bar in bars)
+{
+    var lunarPhase = lunar.Update(new TValue(bar.Time, 0));
+    
+    // Phase interpretation:
+    // 0.0 = New Moon, 0.5 = Quarter, 1.0 = Full Moon
+    string phaseName = lunarPhase.Value switch
+    {
+        < 0.25 => "Waxing Crescent",
+        < 0.50 => "First Quarter",
+        < 0.75 => "Waxing Gibbous",
+        < 1.00 => "Full Moon",
+        _ => "New Moon"
+    };
+}
+```

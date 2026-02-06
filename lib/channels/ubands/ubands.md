@@ -206,59 +206,84 @@ This implementation has been validated against the PineScript reference:
 
 **Note:** As a proprietary Ehlers indicator (2024), Ultimate Bands are not yet implemented in common open-source libraries. Our validation relies on the PineScript reference and mathematical verification against the USF filter implementation.
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Warmup Period Awareness**: UBANDS requires $n$ bars before the USF stabilizes and RMS buffer fills. For $n=20$, the first 19 bars produce valid but not fully "hot" output. `IsHot` transitions to `true` at bar $n$.
+- **Warmup Period Awareness**: UBANDS requires $n$ bars before the USF stabilizes and RMS buffer fills. For $n=20$, the first 19 bars produce valid but not fully "hot" output. Always check `IsHot` in production.
+- **Multiplier Interpretation**: The default multiplier is 1.0 (not 2.0 like Bollinger Bands). RMS of residuals is typically larger than standard deviation of prices.
+- **IIR Filter Initialization**: The USF requires several bars to "spin up." During the first 3 bars, we return the input value directly (no filtering).
+- **Computational Cost (IIR vs FIR)**: Unlike FIR filters (SMA, WMA), the USF cannot be parallelized due to its recursive nature. Each output depends on previous outputs.
+- **Memory Footprint**: Each UBANDS instance maintains USF state (32 bytes), RingBuffer ($8n$ bytes), and metadata (~100 bytes). For $n=20$: ~292 bytes/instance.
+- **Zero Volatility Edge Case**: When all residuals are zero, RMS = 0 and bands collapse to the middle line. The `Width` output makes this condition explicit.
+- **isNew Parameter**: Critical for bar correction. Use `isNew=true` for new bars, `isNew=false` when updating the current bar.
 
-   **Formula:**
-   $$
-   \text{WarmupPeriod} = n
-   $$
+## API
 
-   **Impact:** Early bars may show artificially narrow bands (insufficient residual history). Always check `IsHot` in production.
+```mermaid
+classDiagram
+    class Ubands {
+        +string Name
+        +int WarmupPeriod
+        +TValue Last
+        +TValue Upper
+        +TValue Middle
+        +TValue Lower
+        +TValue Width
+        +bool IsHot
+        +Ubands(int period, double multiplier)
+        +TValue Update(TValue input, bool isNew)
+        +TSeries Update(TSeries source)
+        +void Reset()
+        +void Prime(ReadOnlySpan~double~ source, TimeSpan? step)
+        +static TSeries Calculate(TSeries source, int period, double multiplier)
+        +static void Calculate(ReadOnlySpan~double~ source, Span~double~ upper, Span~double~ middle, Span~double~ lower, int period, double multiplier)
+    }
+```
 
-2. **Multiplier Interpretation**: The default multiplier is 1.0 (not 2.0 like Bollinger Bands). This is because RMS of residuals is typically larger than standard deviation of prices—the filter explicitly captures what standard deviation only approximates. Adjust multiplier based on signal-to-noise requirements.
+### Class: `Ubands`
 
-3. **IIR Filter Initialization**: The USF requires several bars to "spin up." During the first 3 bars, we return the input value directly (no filtering). This prevents the explosive behavior that IIR filters can exhibit with zero-initialized state.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | `20` | `≥1` | Lookback period for USF and RMS calculation. |
+| `multiplier` | `double` | `1.0` | `>0.001` | RMS multiplier for band width. |
 
-4. **Computational Cost (IIR vs FIR)**: Unlike FIR filters (SMA, WMA), the USF cannot be parallelized due to its recursive nature. Each output depends on previous outputs. This is the tradeoff for zero-lag performance.
+### Properties
 
-   **Cost comparison:**
-   $$
-   \text{SMA: } O(1) \text{ per bar (running sum)}
-   $$
-   $$
-   \text{USF: } O(1) \text{ per bar (fixed recursion)}
-   $$
+- `Last` (`TValue`): The upper band value (for single-value compatibility).
+- `Upper` (`TValue`): The upper band (middle + multiplier × RMS).
+- `Middle` (`TValue`): The Ehlers Ultrasmooth Filter value.
+- `Lower` (`TValue`): The lower band (middle - multiplier × RMS).
+- `Width` (`TValue`): Band width (Upper - Lower = 2 × multiplier × RMS).
+- `IsHot` (`bool`): Returns `true` when warmup period is complete.
 
-   Both are O(1), but USF has higher constant factor (~4 FMA vs ~1 ADD/SUB).
+### Methods
 
-5. **Memory Footprint**: Each UBANDS instance maintains:
-   - USF state: 4 doubles (32 bytes)
-   - RingBuffer: $n$ doubles ($8n$ bytes)
-   - Metadata: ~100 bytes
+- `Update(TValue input, bool isNew)`: Updates the indicator with a new value and returns the result.
+- `Update(TSeries source)`: Processes an entire series and returns TSeries.
+- `Reset()`: Resets the indicator to its initial state.
+- `Prime(ReadOnlySpan<double> source, TimeSpan? step)`: Initializes from span data.
+- `Calculate(TSeries source, int period, double multiplier)`: Static factory method.
+- `Calculate(...)`: Static span-based calculation for zero-allocation processing.
 
-   **Total:**
-   $$
-   \text{Memory} \approx 8n + 132 \text{ bytes}
-   $$
+## C# Example
 
-   For $n=20$: ~292 bytes/instance. Significantly smaller than dual-indicator designs (BBands: ~840 bytes).
+```csharp
+using QuanTAlib;
 
-6. **Zero Volatility Edge Case**: When all residuals are zero (price exactly tracks USF), RMS = 0 and bands collapse to the middle line. This is mathematically correct but rare in practice. The `Width` output makes this condition explicit.
+// Initialize
+var ubands = new Ubands(period: 20, multiplier: 1.0);
 
-7. **API Usage (isNew parameter)**: Critical for bar correction:
+// Update Loop
+foreach (var bar in quotes)
+{
+    var result = ubands.Update(bar.Close);
 
-   ```csharp
-   // Correct
-   ubands.Update(openTick, isNew: true);   // New bar
-   ubands.Update(midTick, isNew: false);   // Same bar update
-   ubands.Update(closeTick, isNew: false); // Bar close
-
-   // Wrong
-   ubands.Update(openTick, isNew: true);
-   ubands.Update(midTick, isNew: true);    // Creates spurious bar!
-   ```
+    // Use valid results
+    if (ubands.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Upper={ubands.Upper.Value:F2}, Middle={ubands.Middle.Value:F2}, Lower={ubands.Lower.Value:F2}");
+    }
+}
+```
 
 ## References
 

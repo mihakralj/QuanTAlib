@@ -2,326 +2,150 @@
 
 > "When you combine a high-pass filter with a super-smoother, you get cleaner cycles with automatic gain control."
 
-The Even Better Sinewave (EBSW) indicator, developed by John Ehlers, is a normalized cycle oscillator that extracts the dominant cycle from price data using a cascade of high-pass and super-smoother filters with automatic gain control (AGC). The output oscillates between -1 and +1, with zero crossings indicating potential turning points.
+The Even Better Sinewave (EBSW) indicator is a refined cycle oscillator developed by John Ehlers. It combines a high-pass filter (trend removal) with a Super-Smoother filter (noise removal) and Automatic Gain Control to produce an oscillator normalized between -1 and +1 that synthesizes a clean sine wave from price action.
 
 ## Historical Context
 
-John Ehlers introduced the Even Better Sinewave as an improvement over earlier sinewave indicators. The original sinewave indicator suffered from trend contamination and noise sensitivity. EBSW addresses these issues through a multi-stage filtering approach:
+Ehlers' original "Sinewave" indicator relied on the Hilbert Transform to extract phase. However, he found that direct Hilbert Transforms were often unstable on real market data. The "Even Better" Sinewave simplifies the approach: instead of complex phase math, it uses a tuned bandpass filter (High-Pass + Low-Pass) to isolate the wave, then normalizes it.
 
-1. **High-pass filter** removes the DC (trend) component
-2. **Super-smoother filter** eliminates high-frequency noise
-3. **Automatic gain control** normalizes the output regardless of volatility
-
-The "Even Better" in the name reflects Ehlers' iterative refinement process—each successive sinewave indicator addressed limitations of its predecessors. EBSW represents the culmination of this evolution, providing a robust cycle indicator suitable for both trending and ranging markets.
-
-Unlike traditional oscillators that use arbitrary overbought/oversold levels, EBSW's AGC ensures the output always spans the full [-1, +1] range, making interpretation consistent across different instruments and timeframes.
+This resulted in a more robust tool for identifying turning points in both trending and ranging markets, first published in *Cycle Analytics for Traders*.
 
 ## Architecture & Physics
 
-EBSW uses a two-stage IIR filter cascade followed by wave extraction and normalization.
+The transformation pipeline consists of four distinct stages.
 
-### Core Components
-
-1. **High-Pass Filter**: Single-pole IIR filter that removes trend/DC component
-2. **Super-Smoother Filter**: Two-pole IIR filter (Butterworth-style) for noise reduction
-3. **Wave Calculator**: Three-bar average of filtered values
-4. **Power Calculator**: Three-bar RMS (root mean square) for normalization
-5. **AGC Normalizer**: Divides wave by RMS, clamps to [-1, +1]
-
-### Filter Cascade
-
-```
-Price → High-Pass → Super-Smoother → Wave/Power → AGC → Sinewave
-       (detrend)    (smooth)        (3-bar avg)  (normalize)
-```
-
-### State Management
-
-The indicator maintains:
-- Two source values (current and previous)
-- Two high-pass values (current and previous)
-- Three filter values (current, previous, two-back)
-- Last valid value for NaN handling
-
-## Mathematical Foundation
-
-### High-Pass Filter Coefficient
-
-The high-pass filter uses an angular frequency based on the period:
+### 1. High-Pass Filter (Trend Removal)
 
 $$
-\theta_{hp} = \frac{2\pi}{HP_{length}}
+\alpha_1 = \frac{1 - \sin(2\pi/HP)}{\cos(2\pi/HP)}
 $$
 
 $$
-\alpha_1 = \frac{1 - \sin(\theta_{hp})}{\cos(\theta_{hp})}
+HP_t = 0.5 (1 + \alpha_1)(P_t - P_{t-1}) + \alpha_1 \cdot HP_{t-1}
 $$
 
-This coefficient determines how much of the previous high-pass output carries forward. Larger HP length → larger $\alpha_1$ → more low-frequency rejection.
-
-### High-Pass Filter Equation
+### 2. Super-Smoother Filter (Noise Removal)
 
 $$
-HP_t = 0.5 \cdot (1 + \alpha_1) \cdot (P_t - P_{t-1}) + \alpha_1 \cdot HP_{t-1}
-$$
-
-The first term applies a differencing operation (removes DC) weighted by $(1 + \alpha_1)/2$. The second term provides recursive smoothing.
-
-### Super-Smoother Filter Coefficients
-
-The super-smoother uses a critically damped two-pole design:
-
-$$
-\theta_{ssf} = \frac{\sqrt{2} \cdot \pi}{SSF_{length}}
+\alpha_2 = e^{-\sqrt{2}\pi / SSF}
 $$
 
 $$
-\alpha_2 = e^{-\theta_{ssf}}
+Filt_t = \frac{1 - 2\alpha_2\cos(\sqrt{2}\pi/SSF) - \alpha_2^2}{2}(HP_t + HP_{t-1}) + 2\alpha_2\cos(\sqrt{2}\pi/SSF) \cdot Filt_{t-1} - \alpha_2^2 \cdot Filt_{t-2}
+$$
+
+### 3. Wave & Power Calculation
+
+$$
+Wave = \frac{Filt_t + Filt_{t-1} + Filt_{t-2}}{3}
 $$
 
 $$
-\beta = 2 \cdot \alpha_2 \cdot \cos(\theta_{ssf})
+Power = \frac{Filt_t^2 + Filt_{t-1}^2 + Filt_{t-2}^2}{3}
 $$
 
-$$
-c_2 = \beta, \quad c_3 = -\alpha_2^2, \quad c_1 = 1 - c_2 - c_3
-$$
-
-Note: The coefficients sum to 1, ensuring DC gain of 1 for non-zero-mean signals (though the high-pass removes DC anyway).
-
-### Super-Smoother Filter Equation
+### 4. Normalization (AGC)
 
 $$
-Filt_t = \frac{c_1}{2} \cdot (HP_t + HP_{t-1}) + c_2 \cdot Filt_{t-1} + c_3 \cdot Filt_{t-2}
+EBSW = \frac{Wave}{\sqrt{Power}}
 $$
 
-The input is averaged to reduce aliasing artifacts. The two feedback terms create the smooth response.
-
-### Wave Component (3-Bar Average)
-
-$$
-Wave_t = \frac{Filt_t + Filt_{t-1} + Filt_{t-2}}{3}
-$$
-
-### Power Component (3-Bar RMS)
-
-$$
-Pwr_t = \frac{Filt_t^2 + Filt_{t-1}^2 + Filt_{t-2}^2}{3}
-$$
-
-### AGC Normalization
-
-$$
-Sinewave_t = \text{clamp}\left(\frac{Wave_t}{\sqrt{Pwr_t}}, -1, +1\right)
-$$
-
-When $Pwr_t = 0$ (constant input), the division returns 0.
-
-### Example Calculation
-
-For default parameters (HP length=40, SSF length=10):
-
-$$
-\theta_{hp} = \frac{2\pi}{40} \approx 0.157
-$$
-
-$$
-\alpha_1 = \frac{1 - \sin(0.157)}{\cos(0.157)} \approx 0.843
-$$
-
-$$
-\theta_{ssf} = \frac{\sqrt{2} \cdot \pi}{10} \approx 0.444
-$$
-
-$$
-\alpha_2 = e^{-0.444} \approx 0.641
-$$
-
-$$
-c_1 \approx 0.213, \quad c_2 \approx 1.198, \quad c_3 \approx -0.411
-$$
+Result is clamped to $\pm 1$.
 
 ## Performance Profile
 
-| Metric | Score | Notes |
-| :--- | :--- | :--- |
-| **Throughput** | ~15 ns/bar | O(1) constant time |
-| **Allocations** | 0 | Zero-allocation in hot path |
-| **Complexity** | O(1) | Fixed operations per update |
-| **Accuracy** | 10 | Matches PineScript reference |
+### Operation Count (Streaming Mode, per Bar)
 
-### Operation Count (per update)
+| Operation | Count | Cost (cycles) | Subtotal |
+| :--- | :---: | :---: | :---: |
+| FMA (filter updates) | 4 | 4 | 16 |
+| MUL (power calc) | 3 | 3 | 9 |
+| ADD/SUB | 6 | 1 | 6 |
+| DIV | 1 | 15 | 15 |
+| SQRT | 1 | 12 | 12 |
+| **Total** | **15** | — | **~58 cycles** |
 
-| Operation | Count | Notes |
-| :--- | :---: | :--- |
-| ADD/SUB | ~12 | Filter calculations, averaging |
-| MUL | ~10 | Coefficient multiplications |
-| DIV | 3 | Averaging and normalization |
-| SQRT | 1 | RMS calculation |
-| FMA | 2 | High-pass and smoother updates |
-| CLAMP | 1 | Output bounding |
+### Complexity Analysis
 
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact match to reference |
-| **Timeliness** | 8/10 | Some lag from smoothing |
-| **Overshoot** | 9/10 | AGC prevents overshoot |
-| **Smoothness** | 9/10 | Dual filtering excellent |
-| **Normalization** | 10/10 | Always in [-1, +1] |
+- **Streaming:** O(1) per bar—fixed cascaded IIR filters
+- **Memory:** O(1)—only filter state variables
+- **Warmup:** ~hpLength bars for HP filter convergence
 
 ## Validation
 
 | Library | Status | Notes |
-| :--- | :--- | :--- |
-| **TA-Lib** | N/A | Not available in TA-Lib |
-| **Skender** | N/A | Not available in Skender |
-| **Tulip** | N/A | Not available in Tulip |
-| **PineScript** | ✅ | Validated against original EBSW implementation |
+| :--- | :---: | :--- |
+| TA-Lib | N/A | Not standard |
+| Skender | N/A | Not standard |
+| PineScript | ✅ | Matches `ebsw` script |
+| Reference | ✅ | Matches *Cycle Analytics for Traders* logic |
 
-EBSW is validated through mathematical properties:
+## Usage & Pitfalls
 
-- Constant price produces zero output (no cycles)
-- Output always bounded between -1 and +1
-- Pure sine wave input produces clean oscillation near ±1
-- Zero crossings align with cycle phase changes
-- AGC adapts to different volatility levels
+- **Range is -1 to +1**—zero crossings signal cycle phase changes
+- **HP Length is critical**—should match expected market cycle (e.g., 40 bars)
+- **Too short HP Length** filters out everything as "trend"
+- **AGC amplifies noise** in low volatility—verify with price action
+- **Strong step moves** cause railing at ±1 for extended periods
+- **Buy at valley** (EBSW turning up from -0.8), **sell at peak** (turning down from +0.8)
 
-## Common Pitfalls
+## API
 
-1. **HP Length Selection**: The high-pass length determines the longest cycle passed through. Set to approximately the dominant cycle period. Default 40 is suitable for daily data targeting ~8-week cycles.
+```mermaid
+classDiagram
+    class Ebsw {
+        +int HpLength
+        +int SsfLength
+        +double Value
+        +bool IsHot
+        +Ebsw(int hpLength, int ssfLength)
+        +Ebsw(ITValuePublisher source, int hpLength, int ssfLength)
+        +TValue Update(TValue input, bool isNew)
+        +void Reset()
+    }
+```
 
-2. **SSF Length Selection**: The super-smoother length controls noise filtering. Too short leaves noise; too long delays response. Typical ratio: SSF length = HP length / 4.
+### Class: `Ebsw`
 
-3. **Warmup Period**: EBSW needs `max(hpLength, ssfLength) + 3` bars to stabilize due to the three-bar wave calculation. Early values may not be reliable.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `hpLength` | `int` | `40` | `≥1, ≠4` | High-pass filter period (detrending) |
+| `ssfLength` | `int` | `10` | `≥1` | Super-smoother filter period |
 
-4. **Zero Crossings in Trends**: During strong trends, EBSW may oscillate around a non-zero mean. Zero crossings are most meaningful in ranging markets.
+### Properties
 
-5. **AGC Saturation**: When EBSW reaches ±1, the cycle may be extended (not peaked). Look for the turn from ±1 rather than just the extreme values.
+- `Value` (`double`): The current EBSW value (bounded -1 to +1)
+- `IsHot` (`bool`): Returns `true` when warmup is complete
 
-6. **Chained Indicators**: EBSW output is already normalized. Applying additional smoothing may distort the [-1, +1] property.
+### Methods
 
-## Usage
+- `Update(TValue input, bool isNew)`: Updates the indicator with a new data point
+
+## C# Example
 
 ```csharp
 using QuanTAlib;
 
-// Create an EBSW indicator with default parameters
+// Create EBSW for 40-bar cycle with 10-bar smoothing
 var ebsw = new Ebsw(hpLength: 40, ssfLength: 10);
 
-// Update with new values
-var result = ebsw.Update(new TValue(DateTime.UtcNow, 100.0));
+// Update with streaming data
+foreach (var bar in quotes)
+{
+    var result = ebsw.Update(new TValue(bar.Date, bar.Close));
+    
+    if (ebsw.IsHot)
+    {
+        Console.WriteLine($"{bar.Date}: EBSW = {result.Value:F4}");
+        
+        // Cycle turning point detection
+        if (result.Value < -0.8 && result.Value > ebsw.Previous.Value)
+            Console.WriteLine("  → Potential cycle bottom");
+        else if (result.Value > 0.8 && result.Value < ebsw.Previous.Value)
+            Console.WriteLine("  → Potential cycle top");
+    }
+}
 
-// Access the last calculated value
-Console.WriteLine($"EBSW: {ebsw.Last.Value}");  // Always in [-1, +1]
-
-// Chained usage
-var source = new TSeries();
-var ebswChained = new Ebsw(source, hpLength: 40, ssfLength: 10);
-
-// Static batch calculation
-var output = Ebsw.Calculate(source, hpLength: 40, ssfLength: 10);
-
-// Span-based calculation
-Span<double> outputSpan = stackalloc double[source.Count];
-Ebsw.Batch(source.Values, outputSpan, hpLength: 40, ssfLength: 10);
+// Batch calculation
+var output = Ebsw.Calculate(sourceSeries, hpLength: 40, ssfLength: 10);
 ```
-
-## Applications
-
-### Cycle Turning Points
-
-EBSW zero crossings identify cycle inflection points:
-
-- EBSW crosses above zero: cycle trough (potential buy signal)
-- EBSW crosses below zero: cycle peak (potential sell signal)
-
-### Entry/Exit Timing
-
-Use EBSW extremes for timing:
-
-- EBSW near -1 and turning up: entering bullish phase
-- EBSW near +1 and turning down: entering bearish phase
-
-### Trend Filtering
-
-Combine with trend indicators:
-
-- In uptrend: Enter long when EBSW crosses above zero
-- In downtrend: Enter short when EBSW crosses below zero
-
-### Divergence Detection
-
-EBSW divergences signal potential reversals:
-
-- Price higher high, EBSW lower high: bearish divergence
-- Price lower low, EBSW higher low: bullish divergence
-
-### Multi-Timeframe Analysis
-
-EBSW on multiple timeframes provides confluence:
-
-- Higher timeframe: Direction bias
-- Lower timeframe: Entry timing
-
-## Comparison to Related Indicators
-
-### EBSW vs Traditional Sinewave
-
-| Feature | EBSW | Traditional Sinewave |
-| :--- | :--- | :--- |
-| Trend removal | High-pass filter | None or basic |
-| Noise handling | Super-smoother | Single EMA |
-| Normalization | AGC | Fixed or none |
-| Output range | Always [-1, +1] | Variable |
-
-### EBSW vs RSI
-
-| Feature | EBSW | RSI |
-| :--- | :--- | :--- |
-| Output range | [-1, +1] | [0, 100] |
-| Zero line | 0 (midpoint) | 50 |
-| Calculation | IIR filters + AGC | Up/down averaging |
-| Cycle focus | Yes | No |
-| Trend sensitivity | Low (high-pass) | High |
-
-### EBSW vs Stochastic
-
-| Feature | EBSW | Stochastic |
-| :--- | :--- | :--- |
-| Basis | Filtered cycles | Price range position |
-| Normalization | AGC (dynamic) | Fixed lookback range |
-| Smoothing | Two-pole IIR | Simple moving average |
-| Leading nature | Yes | Yes |
-
-## Parameter Tuning
-
-### For Shorter-Term Cycles (Intraday)
-
-```csharp
-var ebsw = new Ebsw(hpLength: 20, ssfLength: 5);
-```
-
-### For Medium-Term Cycles (Daily)
-
-```csharp
-var ebsw = new Ebsw(hpLength: 40, ssfLength: 10);
-```
-
-### For Longer-Term Cycles (Weekly)
-
-```csharp
-var ebsw = new Ebsw(hpLength: 80, ssfLength: 20);
-```
-
-### Adaptive Approach
-
-Use cycle measurement (e.g., autocorrelation, Homodyne Discriminator) to dynamically adjust HP length to match the detected dominant cycle.
-
-## References
-
-- Ehlers, J.F. (2013). *Cycle Analytics for Traders*. Wiley.
-- Ehlers, J.F. (2001). *Rocket Science for Traders*. Wiley.
-- TradingView PineScript: Even Better Sinewave indicator implementation.
-- Original PineScript reference: `ebsw.pine` in QuanTAlib repository.

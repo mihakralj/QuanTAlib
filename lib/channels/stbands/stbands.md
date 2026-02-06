@@ -158,60 +158,95 @@ The recursive nature of the ratchet logic limits SIMD vectorization. However, th
 | **Ooples** | N/A | Not implemented |
 | **TradingView/PineScript** | ✅ | Reference implementation matched |
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Warmup Period**: The indicator requires `period` bars before ATR stabilizes. During warmup, bands may appear wider than expected as the TR sample size grows.
+- **Warmup Period**: The indicator requires `period` bars before ATR stabilizes. During warmup, bands may appear wider than expected as the TR sample size grows.
+- **Multiplier Sensitivity**: Default multiplier of 3.0 works well for daily data. Intraday charts often benefit from 2.0-2.5 to avoid bands too far from price.
+- **Gap Handling**: Large overnight gaps can cause TR spikes that persist in the ATR for `period` bars, temporarily widening bands.
+- **Trend Initialization**: First bar always initializes to trend = +1 (bullish). This matches PineScript behavior but may not reflect actual market state.
+- **Bar Correction (isNew=false)**: When updating the same bar multiple times (intra-bar updates), the indicator properly rolls back state. Failing to set `isNew=false` for corrections will advance the indicator incorrectly.
+- **NaN/Infinity Handling**: Non-finite OHLC values are replaced with the last valid close. This prevents NaN propagation but may mask data quality issues.
 
-2. **Multiplier Sensitivity**: Default multiplier of 3.0 works well for daily data. Intraday charts often benefit from 2.0-2.5 to avoid bands too far from price.
+## API
 
-3. **Gap Handling**: Large overnight gaps can cause TR spikes that persist in the ATR for `period` bars, temporarily widening bands.
+```mermaid
+classDiagram
+    class Stbands {
+        +string Name
+        +int WarmupPeriod
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +TValue Trend
+        +TValue Width
+        +bool IsHot
+        +Stbands(int period, double multiplier)
+        +TValue Update(TBar input, bool isNew)
+        +TValue Update(TValue input, bool isNew)
+        +TSeries Update(TBarSeries source)
+        +TSeries Update(TSeries source)
+        +void Reset()
+        +void Prime(ReadOnlySpan~double~ source, TimeSpan? step)
+        +static TSeries Calculate(TBarSeries source, int period, double multiplier)
+        +static void Calculate(ReadOnlySpan~double~ high, ReadOnlySpan~double~ low, ReadOnlySpan~double~ close, Span~double~ upper, Span~double~ lower, Span~double~ trend, int period, double multiplier)
+    }
+```
 
-4. **Trend Initialization**: First bar always initializes to trend = +1 (bullish). This matches PineScript behavior but may not reflect actual market state.
+### Class: `Stbands`
 
-5. **Bar Correction (isNew=false)**: When updating the same bar multiple times (intra-bar updates), the indicator properly rolls back state. Failing to set `isNew=false` for corrections will advance the indicator incorrectly.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | `10` | `≥1` | Lookback period for ATR calculation. |
+| `multiplier` | `double` | `3.0` | `>0.001` | ATR multiplier for band distance from HL2. |
 
-6. **NaN/Infinity Handling**: Non-finite OHLC values are replaced with the last valid close. This prevents NaN propagation but may mask data quality issues.
+### Properties
 
-## API Usage
+- `Last` (`TValue`): Returns the trend-appropriate band (Lower when bullish, Upper when bearish).
+- `Upper` (`TValue`): The upper band (resistance level).
+- `Lower` (`TValue`): The lower band (support level).
+- `Trend` (`TValue`): Trend direction: +1 = bullish, -1 = bearish.
+- `Width` (`TValue`): Band width (Upper - Lower).
+- `IsHot` (`bool`): Returns `true` when warmup period is complete.
 
-### Streaming (Recommended for Live Trading)
+### Methods
+
+- `Update(TBar input, bool isNew)`: Updates the indicator with a new bar and returns the result.
+- `Update(TValue input, bool isNew)`: Updates with a single value (treats as O=H=L=C).
+- `Update(TBarSeries source)`: Processes an entire bar series and returns TSeries.
+- `Reset()`: Resets the indicator to its initial state.
+- `Prime(ReadOnlySpan<double> source, TimeSpan? step)`: Initializes from span data.
+- `Calculate(TBarSeries source, int period, double multiplier)`: Static factory method.
+- `Calculate(...)`: Static span-based calculation for zero-allocation processing.
+
+## C# Example
 
 ```csharp
+using QuanTAlib;
+
+// Initialize
 var stbands = new Stbands(period: 10, multiplier: 3.0);
 
-foreach (var bar in liveBars)
+// Update Loop
+foreach (var bar in quotes)
 {
     stbands.Update(bar, isNew: true);
-    
-    double support = stbands.Lower.Value;
-    double resistance = stbands.Upper.Value;
-    int trend = (int)stbands.Trend.Value; // +1 or -1
-    
-    // Use trend-appropriate band as trailing stop
-    double trailingStop = trend > 0 ? support : resistance;
+
+    // Use valid results
+    if (stbands.IsHot)
+    {
+        double support = stbands.Lower.Value;
+        double resistance = stbands.Upper.Value;
+        int trend = (int)stbands.Trend.Value;
+
+        // Use trend-appropriate band as trailing stop
+        double trailingStop = trend > 0 ? support : resistance;
+        Console.WriteLine($"{bar.Time}: Stop={trailingStop:F2}, Trend={trend}");
+    }
 }
-```
-
-### Batch Processing
-
-```csharp
-// From TBarSeries
-var result = Stbands.Calculate(barSeries, period: 10, multiplier: 3.0);
-
-// From spans (most efficient for large datasets)
-Stbands.Calculate(high, low, close, upper, lower, trend, period: 10, multiplier: 3.0);
-```
-
-### Quantower Integration
-
-```csharp
-// Automatically available as "STBANDS - Super Trend Bands"
-// Parameters: Period (default 10), Multiplier (default 3.0)
-// Outputs: Upper (red), Lower (green), Trend (blue dot), Width (gray dash)
 ```
 
 ## References
 
 - Seban, O. "SuperTrend Indicator." Trading methodology documentation.
-- Wilder, J.W. (1978). "New Concepts in Technical Trading Systems." Trend Research. (ATR foundation)
+- Wilder, J. W. (1978). *New Concepts in Technical Trading Systems*. Trend Research. (ATR foundation)
 - TradingView. "SuperTrend." Pine Script Reference. https://www.tradingview.com/wiki/SuperTrend

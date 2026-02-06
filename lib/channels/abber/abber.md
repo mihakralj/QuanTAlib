@@ -2,71 +2,42 @@
 
 > "Standard deviation punishes outliers twice: once when they happen, once when they distort everything else."
 
-ABBER measures price deviation from a central moving average using absolute deviation rather than standard deviation. The result: dynamic bands that adapt to volatility while remaining robust against extreme outliers. Where Bollinger Bands amplify outliers through squaring, ABBER uses raw absolute differences. Bands respond to typical price behavior, not the occasional spike that yanks everything sideways.
+ABBER (Aberration Bands) measures price deviation from a central moving average using absolute deviation rather than standard deviation. The result: dynamic bands that adapt to volatility while remaining robust against extreme outliers. Where Bollinger Bands amplify outliers through squaring, ABBER uses raw absolute differences efficiently. Bands respond to typical price behavior, not the occasional spike that yanks everything sideways.
 
 ## Historical Context
 
-Aberration Bands emerged as a response to the statistical assumptions baked into Bollinger Bands. Standard deviation assumes normally distributed returns. Markets laugh at that assumption daily. Fat tails, volatility clustering, flash crashes: the squared-deviation approach treats these events as if they carry information about typical behavior. They do not.
+Aberration Bands emerged as a response to the statistical assumptions baked into Bollinger Bands. Standard deviation assumes normally distributed returns. Markets often defy that assumption daily with fat tails, volatility clustering, and flash crashes. The squared-deviation approach treats these events as if they carry information about typical behavior, whereas they often represent noise.
 
-The absolute deviation approach predates Bollinger's work (mean absolute deviation appears in early 20th-century statistics), but applying it to band construction arrived later, once practitioners grew tired of watching their bands blow out on single-bar anomalies. No single inventor claims credit. The technique spread through trading floors where robustness mattered more than textbook elegance.
+The absolute deviation approach predates Bollinger's work (mean absolute deviation appears in early 20th-century statistics), but applying it to band construction arrived later, once practitioners grew tired of watching their bands blow out on single-bar anomalies. No single inventor claims credit; the technique spread through trading floors where robustness mattered more than textbook elegance.
 
 ## Architecture & Physics
 
-ABBER computes three outputs through running sums maintained in O(1) streaming time:
+ABBER computes three outputs through running sums maintained in O(1) streaming time. The fundamental difference from standard deviation is linearity: ABBER is a linear damper, while standard deviation is a quadratic spring.
 
-* **Middle Band**: Simple Moving Average of source price
-* **Upper Band**: Middle + (Multiplier × Average Absolute Deviation)
-* **Lower Band**: Middle − (Multiplier × Average Absolute Deviation)
+### Calculation Steps
 
-The average absolute deviation represents typical distance price travels from the moving average. No squaring, no square roots. Just raw, intuitive dispersion.
+The algorithm maintains a central tendency (SMA) and a dispersion measure (Average Absolute Deviation).
 
-### The Outlier Problem
+1. **Middle Band (SMA)**
+    $$\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Source}_{t-i}$$
 
-Standard deviation squares each deviation before averaging, then takes the square root. A single bar 4σ from the mean contributes 16× more weight than a 1σ bar. In ABBER, that same outlier contributes only 4× more. The mathematical consequence: ABBER bands recover faster from shocks. They measure the market's normal breathing, not its occasional screams.
+2. **Absolute Deviation**
+    $$\text{Deviation}_t = |\text{Source}_t - \text{Middle}_{t-1}|$$
 
-The physics analogy: standard deviation is a spring that stores energy quadratically. Push twice as hard, store four times the energy. ABBER is a linear damper. Push twice as hard, resist twice as hard. Different behaviors, different use cases.
+3. **Average Absolute Deviation**
+    $$\text{AvgDev}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Deviation}_{t-i}$$
 
-## Mathematical Foundation
+4. **Band Calculation**
+    $$\text{Upper}_t = \text{Middle}_t + (k \times \text{AvgDev}_t)$$
+    $$\text{Lower}_t = \text{Middle}_t - (k \times \text{AvgDev}_t)$$
 
-### 1. Middle Band
-
-$$\text{Middle}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Source}_{t-i}$$
-
-### 2. Absolute Deviation
-
-$$\text{Deviation}_t = |\text{Source}_t - \text{Middle}_{t-1}|$$
-
-### 3. Average Absolute Deviation
-
-$$\text{AvgDev}_t = \frac{1}{n} \sum_{i=0}^{n-1} \text{Deviation}_{t-i}$$
-
-### 4. Band Calculation
-
-$$\text{Upper}_t = \text{Middle}_t + (k \times \text{AvgDev}_t)$$
-
-$$\text{Lower}_t = \text{Middle}_t - (k \times \text{AvgDev}_t)$$
-
-Where $n$ = lookback period (default: 20), $k$ = multiplier (default: 2.0).
-
-```csharp
-// Streaming usage
-var abber = new Abber(period: 20, multiplier: 2.0);
-foreach (var price in priceData)
-{
-    abber.Update(price);
-    // Middle: abber.Last.Value, Upper: abber.Upper.Value, Lower: abber.Lower.Value
-}
-
-// Batch calculation
-var (middle, upper, lower) = Abber.Batch(series, period: 20, multiplier: 2.0);
-
-// Span-based (zero allocation)
-Abber.Batch(source.AsSpan(), middleOut.AsSpan(), upperOut.AsSpan(), lowerOut.AsSpan(), 20, 2.0);
-```
+    Where $n$ = lookback period (default: 20), $k$ = multiplier (default: 2.0).
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+The implementation uses circular buffers to maintain running sums for both the SMA and the Average Deviation, ensuring O(1) complexity per update regardless of period length.
+
+### Operation Count - Single value
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
@@ -76,55 +47,88 @@ Abber.Batch(source.AsSpan(), middleOut.AsSpan(), upperOut.AsSpan(), lowerOut.AsS
 | ABS | 1 | 1 | 1 |
 | **Total** | **11** | — | **~43 cycles** |
 
-**Breakdown:**
-- SMA (Middle): 2 ADD + 1 DIV = 17 cycles (running sum)
-- Absolute deviation: 1 SUB + 1 ABS = 2 cycles
-- Average deviation: 2 ADD + 1 DIV = 17 cycles (running sum)
-- Band calculation: 2 MUL + 2 ADD = 8 cycles
+### Operation Count - Batch processing
 
-### Complexity Analysis
+While the recursive nature of SMA prevents full vectorization of the running state dependent steps, the final band construction supports SIMD.
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Running sums with circular buffers |
-| Batch | O(n) | Linear scan, n = series length |
-
-**Memory**: ~128 bytes (two circular buffers for price and deviation).
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | Partial | Band calc vectorizable; SMA recursion blocks full SIMD |
-| FMA | ✅ | `Middle ± (Multiplier × AvgDev)` |
-| Batch parallelism | Partial | Deviation calculation vectorizable |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Exact computation, no approximations |
-| **Timeliness** | 6/10 | Inherits SMA lag (period/2 bars typical) |
-| **Overshoot** | 3/10 | Resistant to outlier-induced band explosions |
-| **Smoothness** | 7/10 | Smoother than standard deviation under shock |
+| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
+| :--- | :---: | :---: | :---: |
+| Band Construction | 2N | 2N/VectorSize | ~4-8× |
+| Deviation | N | N | 1× |
 
 ## Validation
+
+ABBER lacks wide support in standard libraries like TA-Lib, so validation relies on internal consistency checks between streaming, batch, and span-based modes.
 
 | Library | Status | Notes |
 | :--- | :--- | :--- |
 | **TA-Lib** | N/A | Not implemented |
 | **Skender** | N/A | Not implemented |
-| **Tulip** | N/A | Not implemented |
-| **Ooples** | N/A | Not implemented |
-| **Internal** | ✅ | All API modes produce identical results |
-| **Manual Calc** | ✅ | Formula verification against known values |
+| **Internal** | ✅ | Streaming/Batch/Span match exactly |
+| **Manual** | ✅ | Validated against spreadsheet calculation |
 
-ABBER lacks external library equivalents for cross-validation. Validation relies on internal consistency (streaming vs batch vs span) and manual calculation verification.
+## Usage & Pitfalls
 
-### Common Pitfalls
+- **Parameter Sensitivity**: Multiplier of 2.0 captures ~89% of data under Gaussian assumptions, but market distributions vary. Adjust based on asset volatility characteristics.
+- **Lag Inheritance**: ABBER inherits SMA lag. For a 20-period setting, expect approximately 10 bars of delay in band response.
+- **Band Squeeze**: Narrowing bands signal consolidation, but ABBER narrows more slowly than Bollinger Bands after volatility spikes.
+- **Interpretation**: Price touching the upper band indicates strength (potentially overbought), while touching the lower band indicates weakness.
 
-**Parameter sensitivity**: Multiplier of 2.0 captures ~89% of data under Gaussian assumptions, but market distributions vary. Adjust based on asset volatility characteristics.
+## API
 
-**Lag inheritance**: ABBER inherits SMA lag. For a 20-period setting, expect approximately 10 bars of delay in band response. Not suitable for high-frequency mean reversion where milliseconds matter.
+```mermaid
+classDiagram
+    class Abber {
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +bool IsHot
+        +event Pub
+        +Update(TValue input) TValue
+        +Update(TSeries source) tuple
+        +Batch(TSeries source, int p, double k) tuple
+    }
+```
 
-**Band width interpretation**: Narrowing bands signal consolidation, but ABBER narrows more slowly than Bollinger Bands after volatility spikes. The "squeeze" pattern requires recalibration when switching from standard deviation to absolute deviation.
+### Class: `Abber`
+
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | — | `>0` | Lookback period for SMA and deviation. |
+| `multiplier` | `double` | `2.0` | `>0` | Multiplier for band width (k). |
+| `source` | `TSeries` | — | `any` | Initial input source (optional). |
+
+### Properties
+
+- `Last` (`TValue`): The current middle band value (SMA).
+- `Upper` (`TValue`): The current upper band value.
+- `Lower` (`TValue`): The current lower band value.
+- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
+
+### Methods
+
+- `Update(TValue input)`: Updates the indicator with a new data point.
+- `Update(TSeries source)`: Processes a full series.
+- `Batch(...)`: Static method for high-performance batch processing.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var indicator = new Abber(period: 20, multiplier: 2.0);
+
+// Update Loop
+foreach (var bar in quotes)
+{
+    // Update with Close price
+    var result = indicator.Update(bar.Close);
+    
+    // Use valid results
+    if (indicator.IsHot)
+    {
+        Console.WriteLine($"{bar.Date}: Middle={result.Value:F2} Upper={indicator.Upper.Value:F2} Lower={indicator.Lower.Value:F2}");
+    }
+}
+```

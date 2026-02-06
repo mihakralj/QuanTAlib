@@ -2,245 +2,125 @@
 
 > "A channel isn't a prediction—it's an acknowledgment that price has inertia and boundaries."
 
-Adaptive Price Channel transforms the classic high-low tracking problem into an exponentially weighted persistence model. Instead of rigid lookback windows, APCHANNEL applies EMA smoothing to price extremes, creating support and resistance zones that adapt to volatility without lag spikes.
+APCHANNEL (Adaptive Price Channel) transforms the classic high-low tracking problem into an exponentially weighted persistence model. Unlike rigid lookback windows that drop price extremes abruptly, this indicator applies exponential decay to price highs and lows. The result is a channel that "remembers" significant resistance and support levels while gradually fading their influence over time, creating a smooth, lag-free volatility envelope.
 
-## The Problem with Fixed Windows
+## Historical Context
 
-Traditional channels use simple moving averages or fixed-period lookbacks. Close at 100, high at 110, low at 90. Twenty bars later, those extremes drop off the calculation cliff—instant discontinuity. Price didn't forget yesterday's resistance. The math did.
-
-APCHANNEL solves this with exponential decay. Recent extremes dominate. Ancient extremes fade but never vanish. The channel breathes with the market instead of stuttering through arbitrary cutoffs.
+While traditional Price Channels (Donchian) define range by the absolute highest high and lowest low over a fixed period, the Adaptive Price Channel originates from the signal processing domain. It applies the concept of "leaky integration" or exponential smoothing directly to price extremes. This approach addresses the "cliff effect" of fixed windows: where a major high from 20 bars ago suddenly vanishes from the calculation. In APCHANNEL, that high fades gracefully, providing continuous rather than discontinuous volatility modeling.
 
 ## Architecture & Physics
 
-APCHANNEL maintains two independent exponential moving averages: one tracking highs, another tracking lows. The alpha parameter controls decay rate—think of it as the channel's memory span.
+The core mechanism is a dual Exponential Moving Average (EMA) system running on parallel tracks: one effectively smoothing the "ceilings" (highs) and another smoothing the "floors" (lows).
 
-### Memory vs Responsiveness
+### Calculation Steps
 
-Alpha creates a trade-off architects know well: fast response or stable structure.
+1. **Exponential Decay**:
+    Each new bar's High and Low is integrated into the channel state using a smoothing factor $\alpha$.
+    $$Upper_t = \text{High}_{t} \times \alpha + Upper_{t-1} \times (1 - \alpha)$$
+    $$Lower_t = \text{Low}_{t} \times \alpha + Lower_{t-1} \times (1 - \alpha)$$
 
-* **High alpha (0.7-0.9)**: Tracks price tightly. Responds to every wiggle. Channel contracts and expands rapidly. Good for scalping, bad for filtering noise.
-* **Low alpha (0.1-0.2)**: Smooth, stable bands. Ignores minor fluctuations. Channel defines macro support/resistance. Good for trend following, bad for fast entries.
+2. **Midpoint**:
+    The center of the channel is simply the arithmetic mean of the bands.
+    $$Middle_t = \frac{Upper_t + Lower_t}{2}$$
 
-The math is straightforward EMA recursion:
+    Where $\alpha$ (alpha) is the smoothing factor ($0 < \alpha \le 1$).
 
-``` math
-HighEMA[i] = α × High[i] + (1 - α) × HighEMA[i-1]
-LowEMA[i] = α × Low[i] + (1 - α) × LowEMA[i-1]
-```
+### Physics of Alpha
 
-QuanTAlib uses `Math.FusedMultiplyAdd` for this calculation—single rounding step, better precision, often faster on modern CPUs.
-
-### O(1) Constant Time
-
-Each bar update requires exactly two multiplications and two additions. No loops. No history scans. O(1) complexity regardless of how much data precedes the current bar. This is why EMA-based channels outperform SMA-based alternatives in streaming environments.
-
-## Mathematical Foundation
-
-### 1. Exponential Moving Average
-
-For each price extreme (high and low):
-
-$$\text{EMA}_t = \alpha \cdot P_t + (1 - \alpha) \cdot \text{EMA}_{t-1}$$
-
-Where:
-
-* $\alpha$ = smoothing factor (0 < α ≤ 1)
-* $P_t$ = price at time $t$
-* $\text{EMA}_{t-1}$ = previous EMA value
-
-### 2. Channel Bands
-
-$$\text{UpperBand}_t = \alpha \cdot \text{High}_t + (1 - \alpha) \cdot \text{UpperBand}_{t-1}$$
-
-$$\text{LowerBand}_t = \alpha \cdot \text{Low}_t + (1 - \alpha) \cdot \text{LowerBand}_{t-1}$$
-
-### 3. Midpoint (Primary Output)
-
-$$\text{Midpoint}_t = \frac{\text{UpperBand}_t + \text{LowerBand}_t}{2}$$
-
-### 4. Relationship to Period
-
-APCHANNEL uses alpha directly, but can be converted to/from period:
-
-$$\alpha = \frac{2}{N + 1}$$
-
-Where $N$ = equivalent period for 2/(N+1) weighting scheme.
+- **High Alpha (e.g., 0.8)**: Short memory. The channel snaps quickly to new highs/lows and forgets old ones rapidly.
+- **Low Alpha (e.g., 0.1)**: Long memory. Significant highs persist as resistance for a long time, decaying slowly.
 
 ## Performance Profile
 
-### Operation Count (Streaming Mode, per Bar)
+Because the calculation relies on recursive EMA logic, it is inherently O(1) in a streaming context—no history buffers or iterations are required.
+
+### Operation Count - Single value
 
 | Operation | Count | Cost (cycles) | Subtotal |
 | :--- | :---: | :---: | :---: |
-| ADD/SUB | 3 | 1 | 3 |
-| MUL | 4 | 3 | 12 |
 | FMA | 2 | 4 | 8 |
+| ADD | 1 | 1 | 1 |
+| MUL | 0 | 3 | 0 |
 | DIV | 1 | 15 | 15 |
-| **Total** | **10** | — | **~38 cycles** |
+| **Total** | **4** | — | **~24 cycles** |
 
-**Breakdown:**
-- EMA(High): 1 FMA = 4 cycles (α × High + (1-α) × prev)
-- EMA(Low): 1 FMA = 4 cycles (α × Low + (1-α) × prev)
-- Midpoint: 1 ADD + 1 DIV = 16 cycles ((Upper + Lower) / 2)
-- Decay precomputation: 2 MUL (amortized across bars)
+*Note: The implementation utilizes `Math.FusedMultiplyAdd` (FMA) for the EMA recursion step, combining multiplication and addition into a single, higher-precision CPU instruction.*
 
-*Note: Using FMA instead of separate MUL+ADD reduces cycles from ~46 to ~38.*
+### Operation Count - Batch processing
 
-### Complexity Analysis
+| Operation | Scalar Ops | SIMD Ops (AVX/SSE) | Acceleration |
+| :--- | :---: | :---: | :---: |
+| EMA Recursion | 2N | N/A | 1× |
 
-| Mode | Complexity | Notes |
-| :--- | :---: | :--- |
-| Streaming | O(1) | Two EMA recursions, constant time |
-| Batch | O(n) | Linear scan, n = series length |
-
-**Memory**: ~48 bytes (two EMA states + alpha/decay constants).
-
-**Warmup Period**: $\lceil 3/\alpha \rceil$ bars for ~95% convergence.
-
-### SIMD Analysis
-
-| Optimization | Applicable | Notes |
-| :--- | :---: | :--- |
-| AVX2 vectorization | ❌ | EMA recursion prevents cross-bar parallelization |
-| FMA | ✅ | `Math.FusedMultiplyAdd(decay, prevEMA, alpha × newValue)` |
-| Batch parallelism | Partial | High/low EMAs independent, can run in parallel |
-
-### Quality Metrics
-
-| Metric | Score | Notes |
-| :--- | :---: | :--- |
-| **Accuracy** | 10/10 | Mathematically exact EMA |
-| **Timeliness** | 8/10 | Alpha-dependent, no lookahead |
-| **Overshoot** | 3/10 | High alpha can whipsaw |
-| **Smoothness** | 7/10 | Exponential weighting reduces noise |
+*Note: EMA recursion is strictly serial (requires $t-1$ to compute $t$), preventing vectorization across the time dimension. However, the High and Low bands are computed independently.*
 
 ## Validation
 
-APCHANNEL implementation validated against mathematical EMA properties:
-
-| Test | Status | Notes |
+| Library | Status | Notes |
 | :--- | :--- | :--- |
-| **Manual Calculation** | ✅ | Matches hand-computed EMA values |
-| **Skender EMA** | ✅ | High/low bands match Skender.GetEma() |
-| **Mode Consistency** | ✅ | Streaming, Span, Batch produce identical results |
-| **NaN Handling** | ✅ | Carries forward last valid value |
+| **TA-Lib** | N/A | Not implemented |
+| **Skender** | ✅ | Validated against `GetEma` on High/Low |
+| **Internal** | ✅ | Streaming/Batch/Span match exactly |
 
-No external library provides APCHANNEL directly (it's a custom PineScript indicator), so validation focuses on verifying the EMA components against established libraries.
+## Usage & Pitfalls
 
-## Usage Examples
+- **Alpha vs Period**: Users familiar with periods can approximate $\alpha \approx 2 / (Period + 1)$.
+- **Warmup**: The EMA structure requires a convergence period. The indicator is considered "hot" after $\approx 3/\alpha$ bars.
+- **Responsiveness**: Unlike Donchian channels which are flat until a new breakout, APCHANNEL is constantly sloping. This makes it excellent for trend-following stops (trailing variance).
+- **Whipsaws**: High alpha values in choppy markets will produce tight bands that generate excessive false breakout signals.
 
-### Basic Usage (Streaming)
+## API
+
+```mermaid
+classDiagram
+    class Apchannel {
+        +double UpperBand
+        +double LowerBand
+        +TValue Last
+        +bool IsHot
+        +Update(TBar bar) TValue
+        +Update(TBarSeries source) tuple
+        +Batch(double[] high, double[] low, ...) void
+    }
+```
+
+### Class: `Apchannel`
+
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `alpha` | `double` | `0.2` | `(0, 1]` | Smoothing factor (higher = faster decay). |
+| `source` | `TBarSeries` | — | `any` | Initial input source (optional). |
+
+### Properties
+
+- `Last` (`TValue`): The current midpoint value.
+- `UpperBand` (`double`): The current upper exponential band value.
+- `LowerBand` (`double`): The current lower exponential band value.
+- `IsHot` (`bool`): Returns `true` if valid data is available (warmup complete).
+
+### Methods
+
+- `Update(TBar input)`: Updates the indicator with a new bar.
+- `Update(TBarSeries source)`: Processes a full series.
+- `Batch(...)`: Static method for high-performance batch processing.
+
+## C# Example
 
 ```csharp
-var apc = new Apchannel(alpha: 0.2);
+using QuanTAlib;
 
+// Initialize with slowing decay (long memory)
+var channel = new Apchannel(alpha: 0.1);
+
+// Update Loop
 foreach (var bar in bars)
 {
-    apc.Add(bar);
-    Console.WriteLine($"Upper: {apc.UpperBand:F2}, Lower: {apc.LowerBand:F2}, Mid: {apc.Last.Value:F2}");
+    var mid = channel.Update(bar);
+    
+    // Use valid results
+    if (channel.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Upper={channel.UpperBand:F2} Lower={channel.LowerBand:F2}");
+    }
 }
 ```
-
-### Batch Processing
-
-```csharp
-var (results, indicator) = Apchannel.Calculate(bars, alpha: 0.2);
-
-// results contains TBarSeries where:
-// - High = UpperBand
-// - Low = LowerBand
-// - Close = Midpoint
-
-// indicator is primed and ready for live updates
-indicator.Add(nextBar);
-```
-
-### Span-Based (High Performance)
-
-```csharp
-double[] highs = bars.Select(b => b.High).ToArray();
-double[] lows = bars.Select(b => b.Low).ToArray();
-double[] upperBand = new double[highs.Length];
-double[] lowerBand = new double[lows.Length];
-
-Apchannel.Calculate(highs, lows, upperBand, lowerBand, alpha: 0.2);
-```
-
-### Event-Driven (Chained)
-
-```csharp
-var barSource = new TBarSeries();
-var apc = new Apchannel(barSource, alpha: 0.2);
-
-apc.Pub += (s, e) => {
-    Console.WriteLine($"Channel updated: {e.Value.Value:F2}");
-};
-
-barSource.Add(newBar); // Triggers calculation and event
-```
-
-## Parameter Selection
-
-### By Trading Style
-
-| Style | Alpha | Period Equiv | Rationale |
-| :--- | :--- | :--- | :--- |
-| **Scalping** | 0.7-0.9 | 2-3 | Tight bands, fast reaction |
-| **Day Trading** | 0.3-0.5 | 4-6 | Balance speed and stability |
-| **Swing Trading** | 0.15-0.25 | 8-13 | Smooth macro support/resistance |
-| **Position Trading** | 0.05-0.1 | 20-40 | Wide bands, filter noise |
-
-### Alpha vs Period Conversion
-
-```csharp
-// Period to Alpha
-double alpha = 2.0 / (period + 1);
-
-// Alpha to Period (approximate)
-int period = (int)Math.Round(2.0 / alpha - 1);
-```
-
-## Common Pitfalls
-
-### Confusing Alpha with Period
-
-Alpha is **not** a lookback period. Alpha = 0.2 doesn't mean "20 bars." It means "20% of today's value, 80% of yesterday's state." The effective memory span is roughly $3/\alpha$ bars for 95% convergence.
-
-### Expecting Hard Boundaries
-
-APCHANNEL bands are **zones**, not walls. Price can (and will) exceed them during strong trends or volatility spikes. Treat them as probabilistic support/resistance, not absolute constraints.
-
-### Over-Optimizing Alpha
-
-Tuning alpha to recent data is curve-fitting. Markets change regimes. An alpha that worked perfectly last month may fail next month. Pick a value that matches your trading timeframe and stick with it.
-
-### Ignoring Warmup
-
-The first $\lceil 3/\alpha \rceil$ bars are stabilization phase. `IsHot` property tracks this. Using early values for entries can produce false signals as the channel converges.
-
-## Implementation Notes
-
-QuanTAlib's APCHANNEL uses several optimizations:
-
-1. **FMA Instructions**: `Math.FusedMultiplyAdd(decay, prevEMA, alpha * newValue)` combines multiplication and addition with single rounding, improving both precision and performance on modern CPUs.
-
-2. **Record Struct State**: All scalar state variables packed into a single `record struct` for value semantics, automatic equality, and efficient rollback during bar corrections.
-
-3. **Zero-Allocation Streaming**: The `Update` method allocates no heap memory. EMA state updated in-place. Critical for high-frequency environments.
-
-4. **NaN Resilience**: Invalid inputs (NaN, Infinity) substituted with last valid values. Channel never crashes, never propagates garbage.
-
-5. **Partial SIMD**: While EMA's recursive nature prevents full vectorization, high and low processing can run in parallel on AVX2-capable hardware.
-
-## See Also
-
-* [EMA](../../trends/ema/ema.md) - The underlying smoothing mechanism
-* [BBANDS](../bbands/bbands.md) - Volatility-based channel alternative
-* [KCHANNEL](../kchannel/kchannel.md) - ATR-based channel with different adaptation logic
-* [DCHANNEL](../dchannel/dchannel.md) - Simple high/low channel without smoothing
-
----
-
-**License**: MIT  
-**Source**: [lib/channels/apchannel/apchannel.cs](apchannel.cs)  
-**Tests**: [apchannel.Tests.cs](apchannel.Tests.cs) | [apchannel.Validation.Tests.cs](apchannel.Validation.Tests.cs)

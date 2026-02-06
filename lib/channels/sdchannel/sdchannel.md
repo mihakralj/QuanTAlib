@@ -165,21 +165,86 @@ Linear regression has limited SIMD benefit due to sequential dependencies and th
 
 The indicator is validated against manual calculations of linear regression and standard deviation of residuals.
 
-## Common Pitfalls
+## Usage & Pitfalls
 
-1. **Period Selection**: Short periods (5-10) make the regression overly sensitive to recent bars; long periods (50+) create substantial lag. Period 20 is common, matching roughly one month of daily data.
+- **Period Selection**: Short periods (5-10) make the regression overly sensitive to recent bars; long periods (50+) create substantial lag. Period 20 is common, matching roughly one month of daily data.
+- **Multiplier Choice**: The default multiplier of 2.0 captures ~95% of residuals assuming normal distribution. Use 1.0 for tighter bands (~68%), 3.0 for wider bands (~99.7%).
+- **Warmup Period**: The indicator requires at least 2 bars to compute a regression line. WarmupPeriod equals the period parameter. Before warmup, bands equal the input value.
+- **Zero Standard Deviation**: When all points lie exactly on a line (perfect linear trend or constant values), $\sigma = 0$ and bands collapse to the regression line.
+- **Regression vs. Moving Average**: The regression line projects the trend, not the average. It can be above or below all recent prices if the trend is strong.
+- **O(n) Complexity**: Unlike EMA (O(1)) or SMA with ring buffer (O(1)), linear regression requires O(n) operations per bar.
+- **Memory**: The ring buffer stores `period` doubles. For period=50, that's 400 bytes per instance.
 
-2. **Multiplier Choice**: The default multiplier of 2.0 captures ~95% of residuals assuming normal distribution. Use 1.0 for tighter bands (~68%), 3.0 for wider bands (~99.7%).
+## API
 
-3. **Warmup Period**: The indicator requires at least 2 bars to compute a regression line. WarmupPeriod equals the period parameter. Before warmup, bands equal the input value.
+```mermaid
+classDiagram
+    class Sdchannel {
+        +string Name
+        +int WarmupPeriod
+        +TValue Last
+        +TValue Upper
+        +TValue Lower
+        +double Slope
+        +double StdDev
+        +bool IsHot
+        +Sdchannel(int period, double multiplier)
+        +Sdchannel(TSeries source, int period, double multiplier)
+        +TValue Update(TValue input, bool isNew)
+        +Tuple~TSeries,TSeries,TSeries~ Update(TSeries source)
+        +void Prime(TSeries source)
+        +void Reset()
+        +static void Batch(ReadOnlySpan~double~ source, Span~double~ middle, Span~double~ upper, Span~double~ lower, int period, double multiplier)
+        +static Tuple~TSeries,TSeries,TSeries~ Batch(TSeries source, int period, double multiplier)
+        +static Tuple~Tuple~TSeries,TSeries,TSeries~,Sdchannel~ Calculate(TSeries source, int period, double multiplier)
+    }
+```
 
-4. **Zero Standard Deviation**: When all points lie exactly on a line (perfect linear trend or constant values), $\sigma = 0$ and bands collapse to the regression line. This is mathematically correct but may confuse traders expecting separated bands.
+### Class: `Sdchannel`
 
-5. **Regression vs. Moving Average**: The regression line projects the trend, not the average. It can be above or below all recent prices if the trend is strong. Don't expect the middle band to pass through recent data.
+| Parameter | Type | Default | Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `period` | `int` | `20` | `>1` | Lookback period for linear regression calculation. |
+| `multiplier` | `double` | `2.0` | `>0` | Standard deviation multiplier for band width. |
 
-6. **O(n) Complexity**: Unlike EMA (O(1)) or SMA with ring buffer (O(1)), linear regression requires O(n) operations per bar. For period=100 on tick data, this adds up. Consider using longer timeframes or smaller periods for real-time applications.
+### Properties
 
-7. **Memory**: The ring buffer stores `period` doubles. For period=50, that's 400 bytes per instance. For 1,000 symbols: 400 KB—negligible but worth noting for embedded systems.
+- `Last` (`TValue`): The current linear regression value (middle line).
+- `Upper` (`TValue`): The upper band (regression + multiplier × σ).
+- `Lower` (`TValue`): The lower band (regression - multiplier × σ).
+- `Slope` (`double`): The slope of the linear regression line.
+- `StdDev` (`double`): The standard deviation of residuals.
+- `IsHot` (`bool`): Returns `true` when warmup period is complete.
+
+### Methods
+
+- `Update(TValue input, bool isNew)`: Updates the indicator with a new value and returns the result.
+- `Update(TSeries source)`: Processes an entire series and returns (Middle, Upper, Lower) tuple of TSeries.
+- `Prime(TSeries source)`: Initializes internal state from historical data.
+- `Reset()`: Resets the indicator to its initial state.
+- `Batch(...)`: Static method for span-based batch processing.
+- `Calculate(TSeries source, int period, double multiplier)`: Static factory that returns results and indicator instance.
+
+## C# Example
+
+```csharp
+using QuanTAlib;
+
+// Initialize
+var sdchannel = new Sdchannel(period: 20, multiplier: 2.0);
+
+// Update Loop
+foreach (var bar in quotes)
+{
+    var result = sdchannel.Update(bar.Close);
+
+    // Use valid results
+    if (sdchannel.IsHot)
+    {
+        Console.WriteLine($"{bar.Time}: Mid={result.Value:F2}, Upper={sdchannel.Upper.Value:F2}, Lower={sdchannel.Lower.Value:F2}, Slope={sdchannel.Slope:F4}");
+    }
+}
+```
 
 ## References
 
