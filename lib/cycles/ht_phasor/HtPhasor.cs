@@ -185,10 +185,10 @@ public sealed class HtPhasor : AbstractBase
         prevI2 = i2;
 
         double tempReal1 = period;
-        if (im != 0.0 && re != 0.0)
+        if (Math.Abs(im) > 1e-10 && Math.Abs(re) > 1e-10)
         {
             double angle = Math.Atan(im / re);
-            if (angle != 0.0)
+            if (Math.Abs(angle) > 1e-10)
             {
                 period = (2.0 * Math.PI) / angle;
             }

@@ -15,3 +15,4 @@ Reversal indicators identify potential turning points where price may change dir
 | [PIVOTWOOD](pivotwood/Pivotwood.md) | Woodie's Pivot Points | Weighted close pivots (2× close weight) for intraday trading. |
 | [PSAR](psar/Psar.md) | Parabolic Stop And Reverse | Trailing stop that accelerates with trend; SAR dots mark entry/exit signals. |
 | [SWINGS](swings/Swings.md) | Swing High/Low Detection | Identifies significant price reversals and swing points using configurable lookback. |
+| [TTM_SCALPER](ttm_scalper/TtmScalper.md) | TTM Scalper Alert | 3-bar pivot high/low detection for scalping entries. John Carter. |

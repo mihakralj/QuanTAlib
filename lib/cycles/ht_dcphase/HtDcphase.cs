@@ -177,6 +177,8 @@ public sealed class HtDcphase : AbstractBase
     private static void CalcSmoothedPeriod(
         ref double re, double i2, double q2, ref double prevI2, ref double prevQ2, ref double im, ref double period)
     {
+        const double Epsilon = 1e-12;
+
         re = Math.FusedMultiplyAdd(0.2, (i2 * prevI2) + (q2 * prevQ2), 0.8 * re);
         im = Math.FusedMultiplyAdd(0.2, (i2 * prevQ2) - (q2 * prevI2), 0.8 * im);
 
@@ -184,10 +186,10 @@ public sealed class HtDcphase : AbstractBase
         prevI2 = i2;
 
         double tempReal1 = period;
-        if (im != 0.0 && re != 0.0)
+        if (Math.Abs(im) > Epsilon && Math.Abs(re) > Epsilon)
         {
             double angle = Math.Atan(im / re);
-            if (angle != 0.0)
+            if (Math.Abs(angle) > Epsilon)
             {
                 period = 360.0 / (angle * RAD_TO_DEG);
             }

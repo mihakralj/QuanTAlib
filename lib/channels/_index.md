@@ -26,6 +26,7 @@ Channels define dynamic support and resistance. Upper band shows where price ten
 | [SDCHANNEL](sdchannel/SdChannel.md) | Standard Deviation Channel | Moving average with standard deviation bands. |
 | [STARCHANNEL](starchannel/StarChannel.md) | Stoller Average Range Channel | SMA with ATR bands. Similar to Keltner but uses SMA instead of EMA. |
 | [STBANDS](stbands/Stbands.md) | Super Trend Bands | ATR-based trend-following bands. Flips direction on breakout. |
+| [TTM_LRC](ttm_lrc/TtmLrc.md) | TTM Linear Regression Channel | Linear regression with ±1σ/±2σ bands. John Carter. |
 | [UBANDS](ubands/Ubands.md) | Ehlers Ultimate Bands | USF-based volatility channel with RMS bands. Zero-lag smoothing by Ehlers. |
 | [UCHANNEL](uchannel/Uchannel.md) | Ehlers Ultimate Channel | USF-based volatility channel with Smoothed True Range bands. Zero-lag by Ehlers. |
 | [VWAPBANDS](vwapbands/Vwapbands.md) | VWAP Bands | Volume-weighted average price with dual ±1σ and ±2σ standard deviation bands. |

@@ -1,33 +1,20 @@
 // The MIT License (MIT)
 // © mihakralj
 //@version=6
-indicator("HT_TRENDMODE: Hilbert Transform Trend Mode", "HT_TRENDMODE", overlay=false)
+indicator("HT_TRENDMODE: Hilbert Transform Trend Mode (TA-Lib)", "HT_TRENDMODE", overlay=false)
 
-//@function Numerically stable atan2 implementation for quadrant-aware angle calculation
-//@param y Y-coordinate (imaginary/quadrature component)
-//@param x X-coordinate (real/in-phase component)
-//@returns Angle in radians from -π to π
-atan2(series float y, series float x) =>
-    if y == 0.0 and x == 0.0
-        runtime.error("atan2: Both y and x cannot be zero")
-    ay = math.abs(y)
-    ax = math.abs(x)
-    angle = 0.0
-    if ax > ay
-        angle := math.atan(ay / ax)
-    else
-        angle := (math.pi / 2.0) - math.atan(ax / ay)
-    if x < 0.0
-        angle := math.pi - angle
-    if y < 0.0
-        angle := -angle
-    angle
-
-//@function Determines if market is in trend mode (1) or cycle mode (0)
+//@function Determines if market is in trend mode (1) or cycle mode (0) using TA-Lib's Ehlers algorithm
 //@doc https://github.com/mihakralj/pinescript/blob/main/indicators/dynamics/ht_trendmode.md
 //@param source Series to analyze for trend/cycle state
 //@returns 1 for trend mode, 0 for cycle mode
 ht_trendmode(series float source) =>
+    // Constants
+    var float A_CONST = 0.0962
+    var float B_CONST = 0.5769
+    var float RAD2DEG = 180.0 / math.pi
+    var float DEG2RAD = math.pi / 180.0
+
+    // State variables
     var float smooth_price = 0.0
     var float detrender = 0.0
     var float i1 = 0.0
@@ -41,39 +28,131 @@ ht_trendmode(series float source) =>
     var float period = 15.0
     var float smooth_period = 15.0
     var float dc_phase = 0.0
-    var float inst_period = 15.0
+    var float prev_dc_phase = 0.0
+    var float sine = 0.0
+    var float lead_sine = 0.0
+    var float prev_sine = 0.0
+    var float prev_lead_sine = 0.0
+    var float trendline = 0.0
+    var float i_trend_1 = 0.0
+    var float i_trend_2 = 0.0
+    var float i_trend_3 = 0.0
+    var int days_in_trend = 0
     var int trend_mode = 0
+
     float price = nz(source)
     float bandwidth = 0.075 * smooth_period + 0.54
+
+    // Smoothed price (WMA-like)
     smooth_price := (4.0 * price + 3.0 * nz(price[1]) + 2.0 * nz(price[2]) + nz(price[3])) / 10.0
-    detrender := (0.0962 * smooth_price + 0.5769 * nz(smooth_price[2]) - 0.5769 * nz(smooth_price[4]) - 0.0962 * nz(smooth_price[6])) * bandwidth
-    q1 := (0.0962 * detrender + 0.5769 * nz(detrender[2]) - 0.5769 * nz(detrender[4]) - 0.0962 * nz(detrender[6])) * bandwidth
+
+    // Hilbert Transform
+    detrender := (A_CONST * smooth_price + B_CONST * nz(smooth_price[2]) - B_CONST * nz(smooth_price[4]) - A_CONST * nz(smooth_price[6])) * bandwidth
+    q1 := (A_CONST * detrender + B_CONST * nz(detrender[2]) - B_CONST * nz(detrender[4]) - A_CONST * nz(detrender[6])) * bandwidth
     i1 := nz(detrender[3])
-    ji := (0.0962 * i1 + 0.5769 * nz(i1[2]) - 0.5769 * nz(i1[4]) - 0.0962 * nz(i1[6])) * bandwidth
-    jq := (0.0962 * q1 + 0.5769 * nz(q1[2]) - 0.5769 * nz(q1[4]) - 0.0962 * nz(q1[6])) * bandwidth
+    ji := (A_CONST * i1 + B_CONST * nz(i1[2]) - B_CONST * nz(i1[4]) - A_CONST * nz(i1[6])) * bandwidth
+    jq := (A_CONST * q1 + B_CONST * nz(q1[2]) - B_CONST * nz(q1[4]) - A_CONST * nz(q1[6])) * bandwidth
+
+    // Phasor rotation
     i2 := i1 - jq
     q2 := q1 + ji
     i2 := 0.2 * i2 + 0.8 * nz(i2[1])
     q2 := 0.2 * q2 + 0.8 * nz(q2[1])
+
+    // Re/Im calculation
     re := i2 * nz(i2[1]) + q2 * nz(q2[1])
     im := i2 * nz(q2[1]) - q2 * nz(i2[1])
     re := 0.2 * re + 0.8 * nz(re[1])
     im := 0.2 * im + 0.8 * nz(im[1])
-    if im != 0.0 or re != 0.0
-        float angle = atan2(im, re)
-        if angle != 0.0
-            period := 2.0 * math.pi / angle
+
+    // Period calculation
+    float temp_period = period
+    if math.abs(im) > 1e-10 and math.abs(re) > 1e-10
+        period := 360.0 / (math.atan(im / re) * RAD2DEG)
+    
+    // Clamp period to 1.5x and 0.67x of previous
+    if period > 1.5 * temp_period
+        period := 1.5 * temp_period
+    if period < 0.67 * temp_period
+        period := 0.67 * temp_period
     period := math.max(6.0, math.min(50.0, period))
+    period := 0.2 * period + 0.8 * temp_period
+
     smooth_period := 0.33 * period + 0.67 * smooth_period
-    if im != 0.0 or re != 0.0
-        dc_phase := atan2(im, re)
-    float delta_phase = dc_phase - nz(dc_phase[1])
-    if math.abs(delta_phase) < 0.1
-        delta_phase := nz(delta_phase[1])
-    if delta_phase != 0.0
-        float temp_period = 2.0 * math.pi / delta_phase
-        inst_period := 0.33 * temp_period + 0.67 * nz(inst_period[1])
-    trend_mode := inst_period > (1.5 * smooth_period) ? 1 : 0
+
+    // DC Phase calculation
+    prev_dc_phase := dc_phase
+    int dc_period_int = int(smooth_period + 0.5)
+
+    float real_part = 0.0
+    float imag_part = 0.0
+    for i = 0 to dc_period_int - 1
+        float angle = (float(i) * 360.0 / float(dc_period_int)) * DEG2RAD
+        real_part += math.sin(angle) * nz(smooth_price[i])
+        imag_part += math.cos(angle) * nz(smooth_price[i])
+
+    if math.abs(imag_part) > 0.0
+        dc_phase := math.atan(real_part / imag_part) * RAD2DEG
+    else if math.abs(imag_part) <= 0.01
+        if real_part < 0.0
+            dc_phase := dc_phase - 90.0
+        else if real_part > 0.0
+            dc_phase := dc_phase + 90.0
+
+    dc_phase += 90.0
+    dc_phase += 360.0 / smooth_period  // Lag compensation
+    if imag_part < 0.0
+        dc_phase += 180.0
+    if dc_phase > 315.0
+        dc_phase -= 360.0
+
+    // Sine and LeadSine
+    prev_sine := sine
+    prev_lead_sine := lead_sine
+    sine := math.sin(dc_phase * DEG2RAD)
+    lead_sine := math.sin((dc_phase + 45.0) * DEG2RAD)
+
+    // Trendline calculation (SMA over cycle, then WMA smoothing)
+    float sum_price = 0.0
+    for i = 0 to dc_period_int - 1
+        sum_price += nz(source[i])
+    float sma_value = dc_period_int > 0 ? sum_price / float(dc_period_int) : price
+    trendline := (4.0 * sma_value + 3.0 * i_trend_1 + 2.0 * i_trend_2 + i_trend_3) / 10.0
+    i_trend_3 := i_trend_2
+    i_trend_2 := i_trend_1
+    i_trend_1 := sma_value
+
+    // ==========================================
+    // Trend Mode Decision (TA-Lib Algorithm)
+    // ==========================================
+    int trend = 1  // Assume trend by default
+
+    // Criterion 1: SineWave crossing resets counter
+    bool sine_crosses = ((sine > lead_sine) and (prev_sine <= prev_lead_sine)) or
+                        ((sine < lead_sine) and (prev_sine >= prev_lead_sine))
+    if sine_crosses
+        days_in_trend := 0
+        trend := 0
+
+    days_in_trend += 1
+
+    // Criterion 2: Must be trending for at least half the smooth period
+    if days_in_trend < int(0.5 * smooth_period)
+        trend := 0
+
+    // Criterion 3: Phase rate check (normal rate → cycle mode)
+    float phase_change = dc_phase - prev_dc_phase
+    if smooth_period > 0.0
+        float expected_change = 360.0 / smooth_period
+        if (phase_change > 0.67 * expected_change) and (phase_change < 1.5 * expected_change)
+            trend := 0
+
+    // Criterion 4: Price-trendline deviation override (≥1.5% → trend)
+    if math.abs(trendline) > 1e-10
+        if math.abs((smooth_price - trendline) / trendline) >= 0.015
+            trend := 1
+
+    trend_mode := trend
     trend_mode
 
 // ---------- Main loop ----------

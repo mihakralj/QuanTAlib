@@ -24,4 +24,5 @@ Dynamics indicators measure trend strength, speed, and direction. Unlike momentu
 | SAR | Stop and Reverse | |
 | [SUPER](super/Super.md) | SuperTrend | ATR-based trailing stop. Flips on breakout. Color-coded direction. |
 | [TTM](ttm/Ttm.md) | TTM Trend | Fast 6-period EMA. Color-coded trend from John Carter. |
+| [TTM_SQUEEZE](ttm_squeeze/TtmSqueeze.md) | TTM Squeeze | BB inside KC squeeze detection with linear regression momentum. John Carter. |
 | [VORTEX](vortex/Vortex.md) | Vortex Indicator | VI+ and VI- measure positive/negative trend movement. |
