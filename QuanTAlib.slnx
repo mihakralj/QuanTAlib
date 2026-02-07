@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/lib/">
+    <Project Path="lib/quantalib.csproj" />
+    <Project Path="lib/QuanTAlib.Tests.csproj" />
+  </Folder>
+  <Folder Name="/quantower/">
+    <Project Path="quantower/Dynamics.csproj" />
+    <Project Path="quantower/Filters.csproj" />
+    <Project Path="quantower/Forecasts.csproj" />
+    <Project Path="quantower/Momentum.csproj" />
+    <Project Path="quantower/Oscillators.csproj" />
+    <Project Path="quantower/Statistics.csproj" />
+    <Project Path="quantower/Trends_FIR.csproj" />
+    <Project Path="quantower/Trends_IIR.csproj" />
+    <Project Path="quantower/Volatility.csproj" />
+    <Project Path="quantower/Volume.csproj" />
+    <Project Path="quantower/Quantower.Tests.csproj" />
+  </Folder>
+</Solution>

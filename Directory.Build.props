@@ -33,7 +33,7 @@
   <!-- SARIF 2.1 output for Roslyn analyzers - all projects -->
   <PropertyGroup>
     <!-- Use forward slashes for cross-platform compatibility (works on Windows, Linux, macOS) -->
-    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.sln'))/.sarif</SarifOutputDir>
+    <SarifOutputDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'QuanTAlib.slnx'))/.sarif</SarifOutputDir>
     <ErrorLog>$(SarifOutputDir)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
   </PropertyGroup>
 

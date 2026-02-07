@@ -20,7 +20,7 @@
 		"terminal.integrated.shellIntegration.enabled": true,
 		"terminal.integrated.suggest.enabled": true,
 		"omnisharp.enableEditorConfigSupport": true,
-		"dotnet.defaultSolution": "QuanTAlib.sln",
+		"dotnet.defaultSolution": "QuanTAlib.slnx",
 		"dotnet.unitTests.runSettingsPath": ".config/coverage.runsettings",
 		"dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
 		"dotnet.server.useOmnisharp": false,

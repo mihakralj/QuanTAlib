@@ -2,7 +2,7 @@
 <NDepend AppName="quantalib" Platform="DotNet" FileWrittenByProductVersion="2026.1.2.9787">
   <OutputDir KeepXmlFiles="True">.\NDependOut</OutputDir>
   <IDEFiles>
-    <IDEFile FilePath="..\QuanTAlib.sln" Filters="-test" Configuration="DEBUG|AnyCPU">
+    <IDEFile FilePath="..\QuanTAlib.slnx" Filters="-test" Configuration="DEBUG|AnyCPU">
       <RootDirResolvingInfo Enabled="False" Hints="Debug|bin|.bin|b|AnyCPU|x64|x86|v*.*|net*" TimeOut="10">
         <RootDir>.</RootDir>
       </RootDirResolvingInfo>

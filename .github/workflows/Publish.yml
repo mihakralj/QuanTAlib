@@ -80,7 +80,7 @@ jobs:
       - name: Run ReSharper InspectCode (SARIF)
         run: |
           set +e
-          jb inspectcode QuanTAlib.sln \
+          jb inspectcode QuanTAlib.slnx \
             --format=sarif \
             --output=.sarif/resharper.sarif
           rc=$?
@@ -387,7 +387,7 @@ jobs:
         run: |
           # Use the ErrorLog setting from Directory.Build.props which outputs
           # per-project SARIF files to .sarif/ directory with version=2.1
-          dotnet build QuanTAlib.sln \
+          dotnet build QuanTAlib.slnx \
             --no-restore \
             --configuration Debug \
             --nologo \
@@ -396,7 +396,7 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
-          dotnet test QuanTAlib.sln \
+          dotnet test QuanTAlib.slnx \
             --no-build \
             --configuration Debug \
             --collect:"XPlat Code Coverage;Format=opencover,cobertura,lcov" \
