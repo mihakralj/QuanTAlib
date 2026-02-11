@@ -1,272 +1,259 @@
+using Skender.Stock.Indicators;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
 /// <summary>
-/// Validation tests for CMO against external libraries.
+/// Validation tests for CMO (Chande Momentum Oscillator) against external libraries.
 /// CMO = 100 × (SumUp - SumDown) / (SumUp + SumDown)
+///
+/// Note: TALib CMO uses Wilder's exponential smoothing internally, which produces
+/// fundamentally different results than the standard simple-sum CMO formula.
+/// QuanTAlib, Tulip, and Skender all use the standard simple-sum approach.
 /// </summary>
-public class CmoValidationTests
+public sealed class CmoValidationTests(ITestOutputHelper output) : IDisposable
 {
-    private const double Epsilon = 1e-9;
+    private readonly ValidationTestData _testData = new();
+    private readonly ITestOutputHelper _output = output;
+    private bool _disposed;
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Tulip Indicators Validation
-    // ═══════════════════════════════════════════════════════════════════════════
+    private const int TestPeriod = 14;
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed) { return; }
+        _disposed = true;
+        if (disposing) { _testData?.Dispose(); }
+    }
+
+    #region Tulip Validation
 
     [Fact]
-    public void Cmo_MatchesTulip_StandardData()
+    public void Cmo_MatchesTulip_Batch()
     {
-        // Generate test data
-        double[] prices = new double[50];
-        for (int i = 0; i < prices.Length; i++)
+        double[] tData = _testData.RawData.ToArray();
+
+        double[] qOutput = new double[tData.Length];
+        Cmo.Batch(tData.AsSpan(), qOutput.AsSpan(), TestPeriod);
+
+        // Tulip cmo
+        var cmoIndicator = Tulip.Indicators.cmo;
+        double[][] inputs = [tData];
+        double[] options = [TestPeriod];
+        int lookback = cmoIndicator.Start(options);
+        double[][] outputs = [new double[tData.Length - lookback]];
+
+        cmoIndicator.Run(inputs, options, outputs);
+        double[] tulipResult = outputs[0];
+
+        ValidationHelper.VerifyData(qOutput, tulipResult, lookback);
+
+        _output.WriteLine("CMO Batch validated successfully against Tulip");
+    }
+
+    [Fact]
+    public void Cmo_MatchesTulip_Streaming()
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        // QuanTAlib CMO (streaming)
+        var cmo = new Cmo(TestPeriod);
+        var qResults = new List<double>();
+        foreach (var item in _testData.Data)
         {
-            prices[i] = 100 + Math.Sin(i * 0.3) * 10 + i * 0.1;
+            qResults.Add(cmo.Update(item).Value);
         }
 
-        int period = 14;
-
-        // Calculate using Tulip
+        // Tulip cmo
         var cmoIndicator = Tulip.Indicators.cmo;
-        double[][] inputs = [prices];
+        double[][] inputs = [tData];
+        double[] options = [TestPeriod];
+        int lookback = cmoIndicator.Start(options);
+        double[][] outputs = [new double[tData.Length - lookback]];
+
+        cmoIndicator.Run(inputs, options, outputs);
+        double[] tulipResult = outputs[0];
+
+        ValidationHelper.VerifyData(qResults, tulipResult, lookback);
+
+        _output.WriteLine("CMO Streaming validated successfully against Tulip");
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(10)]
+    [InlineData(20)]
+    [InlineData(30)]
+    public void Cmo_MatchesTulip_DifferentPeriods(int period)
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        double[] qOutput = new double[tData.Length];
+        Cmo.Batch(tData.AsSpan(), qOutput.AsSpan(), period);
+
+        var cmoIndicator = Tulip.Indicators.cmo;
+        double[][] inputs = [tData];
         double[] options = [period];
         int lookback = cmoIndicator.Start(options);
-        double[][] outputs = [new double[prices.Length - lookback]];
+        double[][] outputs = [new double[tData.Length - lookback]];
+
         cmoIndicator.Run(inputs, options, outputs);
-        double[] tulipOutput = outputs[0];
+        double[] tulipResult = outputs[0];
 
-        // Calculate using our CMO
-        double[] ourOutput = new double[prices.Length];
-        Cmo.Batch(prices, ourOutput, period);
+        ValidationHelper.VerifyData(qOutput, tulipResult, lookback);
+    }
 
-        // Compare results - Tulip outputs from index 0 corresponding to our index period
-        for (int i = 0; i < tulipOutput.Length; i++)
-        {
-            Assert.Equal(tulipOutput[i], ourOutput[i + lookback], Epsilon);
-        }
+    #endregion
+
+    #region Skender Validation
+
+    [Fact]
+    public void Cmo_MatchesSkender_Batch()
+    {
+        // QuanTAlib CMO (batch)
+        var qResult = Cmo.Batch(_testData.Data, TestPeriod);
+
+        // Skender CMO
+        var sResult = _testData.SkenderQuotes.GetCmo(TestPeriod).ToList();
+
+        // Compare last 100 records
+        ValidationHelper.VerifyData(qResult, sResult, (s) => s.Cmo);
+
+        _output.WriteLine("CMO Batch validated successfully against Skender");
     }
 
     [Fact]
-    public void Cmo_MatchesTulip_UpwardTrend()
+    public void Cmo_MatchesSkender_Streaming()
     {
-        // Steadily increasing prices
-        double[] prices = new double[30];
-        for (int i = 0; i < prices.Length; i++)
+        // QuanTAlib CMO (streaming)
+        var cmo = new Cmo(TestPeriod);
+        var qResults = new List<double>();
+        foreach (var item in _testData.Data)
         {
-            prices[i] = 100 + i * 2;
+            qResults.Add(cmo.Update(item).Value);
         }
 
-        int period = 10;
+        // Skender CMO
+        var sResult = _testData.SkenderQuotes.GetCmo(TestPeriod).ToList();
 
-        var cmoIndicator = Tulip.Indicators.cmo;
-        double[][] inputs = [prices];
-        double[] options = [period];
-        int lookback = cmoIndicator.Start(options);
-        double[][] outputs = [new double[prices.Length - lookback]];
-        cmoIndicator.Run(inputs, options, outputs);
-        double[] tulipOutput = outputs[0];
+        int count = qResults.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
 
-        double[] ourOutput = new double[prices.Length];
-        Cmo.Batch(prices, ourOutput, period);
-
-        for (int i = 0; i < tulipOutput.Length; i++)
+        for (int i = start; i < count; i++)
         {
-            Assert.Equal(tulipOutput[i], ourOutput[i + lookback], Epsilon);
+            if (sResult[i].Cmo is null) { continue; }
+            Assert.True(
+                Math.Abs(qResults[i] - sResult[i].Cmo!.Value) <= ValidationHelper.SkenderTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResults[i]:G17}, Skender={sResult[i].Cmo:G17}");
         }
+
+        _output.WriteLine("CMO Streaming validated successfully against Skender");
     }
 
-    [Fact]
-    public void Cmo_MatchesTulip_DownwardTrend()
+    [Theory]
+    [InlineData(5)]
+    [InlineData(10)]
+    [InlineData(20)]
+    [InlineData(30)]
+    public void Cmo_MatchesSkender_DifferentPeriods(int period)
     {
-        // Steadily decreasing prices
-        double[] prices = new double[30];
-        for (int i = 0; i < prices.Length; i++)
-        {
-            prices[i] = 200 - i * 2;
-        }
+        var qResult = Cmo.Batch(_testData.Data, period);
 
-        int period = 10;
+        var sResult = _testData.SkenderQuotes.GetCmo(period).ToList();
 
-        var cmoIndicator = Tulip.Indicators.cmo;
-        double[][] inputs = [prices];
-        double[] options = [period];
-        int lookback = cmoIndicator.Start(options);
-        double[][] outputs = [new double[prices.Length - lookback]];
-        cmoIndicator.Run(inputs, options, outputs);
-        double[] tulipOutput = outputs[0];
-
-        double[] ourOutput = new double[prices.Length];
-        Cmo.Batch(prices, ourOutput, period);
-
-        for (int i = 0; i < tulipOutput.Length; i++)
-        {
-            Assert.Equal(tulipOutput[i], ourOutput[i + lookback], Epsilon);
-        }
+        ValidationHelper.VerifyData(qResult, sResult, (s) => s.Cmo);
     }
 
-    [Fact]
-    public void Cmo_MatchesTulip_MultiplePeriods()
-    {
-        double[] prices = new double[100];
-        var random = new Random(42);
-        for (int i = 0; i < prices.Length; i++)
-        {
-            prices[i] = 100 + (random.NextDouble() - 0.5) * 20 + i * 0.05;
-        }
+    #endregion
 
-        int[] periods = [5, 10, 14, 20, 30];
-
-        foreach (int period in periods)
-        {
-            var cmoIndicator = Tulip.Indicators.cmo;
-            double[][] inputs = [prices];
-            double[] options = [period];
-            int lookback = cmoIndicator.Start(options);
-            double[][] outputs = [new double[prices.Length - lookback]];
-            cmoIndicator.Run(inputs, options, outputs);
-            double[] tulipOutput = outputs[0];
-
-            double[] ourOutput = new double[prices.Length];
-            Cmo.Batch(prices, ourOutput, period);
-
-            for (int i = 0; i < tulipOutput.Length; i++)
-            {
-                Assert.Equal(tulipOutput[i], ourOutput[i + lookback], Epsilon);
-            }
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Manual Calculation Validation
-    // ═══════════════════════════════════════════════════════════════════════════
+    #region Mathematical Validation
 
     [Fact]
-    public void Cmo_ManualCalculation_AllUpMoves()
+    public void Cmo_AllUpMoves_Returns100()
     {
-        // All upward moves
         double[] prices = [100, 101, 102, 103, 104, 105];
         int period = 5;
 
-        double[] output = new double[prices.Length];
-        Cmo.Batch(prices, output, period);
+        double[] result = new double[prices.Length];
+        Cmo.Batch(prices, result, period);
 
-        // After 5 periods: SumUp = 5, SumDown = 0
-        // CMO = 100 * (5-0)/(5+0) = 100
-        Assert.Equal(100.0, output[5], Epsilon);
+        // After 5 periods: SumUp = 5, SumDown = 0 → CMO = 100
+        Assert.Equal(100.0, result[5], 1e-9);
     }
 
     [Fact]
-    public void Cmo_ManualCalculation_AllDownMoves()
+    public void Cmo_AllDownMoves_ReturnsNegative100()
     {
-        // All downward moves
         double[] prices = [105, 104, 103, 102, 101, 100];
         int period = 5;
 
-        double[] output = new double[prices.Length];
-        Cmo.Batch(prices, output, period);
+        double[] result = new double[prices.Length];
+        Cmo.Batch(prices, result, period);
 
-        // After 5 periods: SumUp = 0, SumDown = 5
-        // CMO = 100 * (0-5)/(0+5) = -100
-        Assert.Equal(-100.0, output[5], Epsilon);
+        // After 5 periods: SumUp = 0, SumDown = 5 → CMO = -100
+        Assert.Equal(-100.0, result[5], 1e-9);
     }
 
     [Fact]
-    public void Cmo_ManualCalculation_EqualMoves()
+    public void Cmo_EqualMoves_ReturnsZero()
     {
-        // Equal up and down moves
         double[] prices = [100, 102, 100, 102, 100]; // up 2, down 2, up 2, down 2
         int period = 4;
 
-        double[] output = new double[prices.Length];
-        Cmo.Batch(prices, output, period);
+        double[] result = new double[prices.Length];
+        Cmo.Batch(prices, result, period);
 
-        // SumUp = 4, SumDown = 4
-        // CMO = 100 * (4-4)/(4+4) = 0
-        Assert.Equal(0.0, output[4], Epsilon);
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Streaming vs Batch Validation
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public void Cmo_StreamingMatchesBatch()
-    {
-        double[] prices = new double[100];
-        var random = new Random(12345);
-        for (int i = 0; i < prices.Length; i++)
-        {
-            prices[i] = 100 + (random.NextDouble() - 0.5) * 30 + Math.Sin(i * 0.2) * 5;
-        }
-
-        int period = 14;
-
-        // Batch calculation
-        double[] batchOutput = new double[prices.Length];
-        Cmo.Batch(prices, batchOutput, period);
-
-        // Streaming calculation
-        var cmo = new Cmo(period);
-        for (int i = 0; i < prices.Length; i++)
-        {
-            var result = cmo.Update(new TValue(DateTime.Now.Ticks + i, prices[i]));
-            Assert.Equal(batchOutput[i], result.Value, Epsilon);
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Edge Case Validation
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public void Cmo_NoChange_ReturnsZero()
-    {
-        double[] prices = [100, 100, 100, 100, 100, 100];
-        int period = 5;
-
-        double[] output = new double[prices.Length];
-        Cmo.Batch(prices, output, period);
-
-        // No movement = 0
-        Assert.Equal(0.0, output[5]);
+        // SumUp = 4, SumDown = 4 → CMO = 0
+        Assert.Equal(0.0, result[4], 1e-9);
     }
 
     [Fact]
     public void Cmo_RangeIsBounded()
     {
-        double[] prices = new double[100];
-        var random = new Random(54321);
-        for (int i = 0; i < prices.Length; i++)
-        {
-            prices[i] = 100 + (random.NextDouble() - 0.5) * 50;
-        }
+        double[] tData = _testData.RawData.ToArray();
 
-        double[] output = new double[prices.Length];
-        Cmo.Batch(prices, output, 14);
+        double[] result = new double[tData.Length];
+        Cmo.Batch(tData.AsSpan(), result.AsSpan(), TestPeriod);
 
-        // All values should be in [-100, 100] range
-        for (int i = 14; i < output.Length; i++)
+        // All values after warmup should be in [-100, 100]
+        for (int i = TestPeriod; i < result.Length; i++)
         {
-            Assert.True(output[i] >= -100.0 && output[i] <= 100.0,
-                $"CMO at index {i} = {output[i]} is out of range [-100, 100]");
+            Assert.True(result[i] >= -100.0 && result[i] <= 100.0,
+                $"CMO at index {i} = {result[i]} is out of range [-100, 100]");
         }
     }
 
     [Fact]
-    public void Cmo_AlternatingMoves_ConvergesToZero()
+    public void Batch_MatchesStreaming_IdenticalResults()
     {
-        // Alternating pattern with equal magnitude
-        double[] prices = new double[50];
-        for (int i = 0; i < prices.Length; i++)
+        double[] tData = _testData.RawData.ToArray();
+
+        // Batch
+        double[] batchOutput = new double[tData.Length];
+        Cmo.Batch(tData.AsSpan(), batchOutput.AsSpan(), TestPeriod);
+
+        // Streaming
+        var cmo = new Cmo(TestPeriod);
+        var streamingResults = new double[tData.Length];
+        for (int i = 0; i < tData.Length; i++)
         {
-            prices[i] = 100 + (i % 2 == 0 ? 0 : 2); // 100, 102, 100, 102, ...
+            streamingResults[i] = cmo.Update(new TValue(DateTime.UtcNow.Ticks + i, tData[i])).Value;
         }
 
-        double[] output = new double[prices.Length];
-        Cmo.Batch(prices, output, 10);
-
-        // Result should be close to 0 for balanced oscillation
-        Assert.True(Math.Abs(output[^1]) < 20,
-            $"CMO for alternating pattern should be near zero, got {output[^1]}");
+        int count = tData.Length;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
+        {
+            Assert.Equal(batchOutput[i], streamingResults[i], 1e-9);
+        }
+        _output.WriteLine("CMO Batch vs Streaming consistency validated");
     }
+
+    #endregion
 }

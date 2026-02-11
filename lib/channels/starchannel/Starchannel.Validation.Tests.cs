@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -566,5 +567,97 @@ public sealed class StarchannelValidationTests : IDisposable
         Assert.True(double.IsFinite(diff));
 
         _output.WriteLine($"Starchannel vs Kchannel middle difference: {diff:F6}");
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  Skender.Stock.Indicators Validation
+    //  Skender GetStarcBands(smaPeriods, multiplier, atrPeriods)
+    //  uses SMA centerline + ATR bands — same algorithm as QuanTAlib.
+    //  We pass atrPeriods = smaPeriods to match QuanTAlib's single-period design.
+    // ═══════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Validate_Skender_Centerline()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double multiplier = 2.0;
+
+        foreach (var period in periods)
+        {
+            var (qMid, _, _) = Starchannel.Batch(_testData.Bars, period, multiplier);
+
+            var sResult = _testData.SkenderQuotes
+                .GetStarcBands(period, multiplier, period)
+                .ToList();
+
+            ValidationHelper.VerifyData(qMid, sResult, s => s.Centerline);
+        }
+        _output.WriteLine("Starchannel centerline validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_UpperBand()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double multiplier = 2.0;
+
+        foreach (var period in periods)
+        {
+            var (_, qUp, _) = Starchannel.Batch(_testData.Bars, period, multiplier);
+
+            var sResult = _testData.SkenderQuotes
+                .GetStarcBands(period, multiplier, period)
+                .ToList();
+
+            ValidationHelper.VerifyData(qUp, sResult, s => s.UpperBand);
+        }
+        _output.WriteLine("Starchannel upper band validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_LowerBand()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double multiplier = 2.0;
+
+        foreach (var period in periods)
+        {
+            var (_, _, qLo) = Starchannel.Batch(_testData.Bars, period, multiplier);
+
+            var sResult = _testData.SkenderQuotes
+                .GetStarcBands(period, multiplier, period)
+                .ToList();
+
+            ValidationHelper.VerifyData(qLo, sResult, s => s.LowerBand);
+        }
+        _output.WriteLine("Starchannel lower band validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_BandStructure()
+    {
+        var period = 20;
+        var multiplier = 2.0;
+
+        var sResult = _testData.SkenderQuotes
+            .GetStarcBands(period, multiplier, period)
+            .ToList();
+
+        var (qMid, qUp, qLo) = Starchannel.Batch(_testData.Bars, period, multiplier);
+
+        int warmup = period * 2;
+        for (int i = warmup; i < qMid.Count && i < sResult.Count; i++)
+        {
+            var sk = sResult[i];
+            if (sk.UpperBand.HasValue && sk.LowerBand.HasValue && sk.Centerline.HasValue)
+            {
+                Assert.True(sk.UpperBand.Value > sk.Centerline.Value, $"Skender Upper > Middle at {i}");
+                Assert.True(sk.LowerBand.Value < sk.Centerline.Value, $"Skender Lower < Middle at {i}");
+                Assert.True(qUp[i].Value > qMid[i].Value, $"Q Upper > Middle at {i}");
+                Assert.True(qLo[i].Value < qMid[i].Value, $"Q Lower < Middle at {i}");
+            }
+        }
+
+        _output.WriteLine("Starchannel vs Skender band structure validated");
     }
 }

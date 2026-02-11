@@ -1,14 +1,92 @@
+using Xunit.Abstractions;
+
 namespace QuanTAlib.Tests;
 
-public class NviValidationTests
+/// <summary>
+/// Negative Volume Index validation tests.
+/// Cross-validated against: Tulip (nvi).
+/// Skender, TA-Lib, and Ooples do not have NVI implementations.
+/// Note: Tulip NVI starts at 0, QuanTAlib starts at a configurable value (default 100).
+/// Validation compares bar-to-bar percentage changes rather than absolute values.
+/// </summary>
+public sealed class NviValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
+    private readonly ITestOutputHelper _output;
     private const double DefaultStartValue = 100.0;
 
-    public NviValidationTests()
+    public NviValidationTests(ITestOutputHelper output)
     {
         _data = new ValidationTestData();
+        _output = output;
     }
+
+    public void Dispose() { /* nothing to dispose */ }
+
+    #region Tulip Cross Validation Tests
+
+    [Fact]
+    public void Validate_Tulip_NVI()
+    {
+        // Tulip nvi: inputs={close, volume}, options={}, outputs={nvi}
+        var close = _data.Bars.Close.Values.ToArray();
+        var volume = _data.Bars.Volume.Values.ToArray();
+
+        var tulipIndicator = Tulip.Indicators.nvi;
+        double[][] inputs = { close, volume };
+        double[] options = Array.Empty<double>();
+        double[][] outputs = { new double[close.Length] };
+
+        tulipIndicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+        int lookback = tulipIndicator.Start(options);
+
+        // QuanTAlib NVI — starts at 100 (Tulip starts at different value)
+        // Compare bar-over-bar percentage changes since absolute values differ
+        var nvi = new Nvi(DefaultStartValue);
+        var qValues = new double[_data.Bars.Count];
+        int idx = 0;
+        foreach (var bar in _data.Bars)
+        {
+            qValues[idx++] = nvi.Update(bar).Value;
+        }
+
+        _output.WriteLine($"Tulip NVI lookback: {lookback}, output length: {tResult.Length}");
+        _output.WriteLine($"Tulip first 5: {string.Join(", ", tResult.Take(5).Select(v => v.ToString("F4", System.Globalization.CultureInfo.InvariantCulture)))}");
+        _output.WriteLine($"QuanTAlib first 5: {string.Join(", ", qValues.Take(5).Select(v => v.ToString("F4", System.Globalization.CultureInfo.InvariantCulture)))}");
+
+        // Compare bar-over-bar percentage changes
+        int compared = 0;
+        int startIdx = lookback + 5; // skip warmup
+        for (int i = startIdx; i < qValues.Length - 1 && (i - lookback + 1) < tResult.Length; i++)
+        {
+            int ti = i - lookback;
+            double qPrev = qValues[i];
+            double qCurr = qValues[i + 1];
+            double tPrev = tResult[ti];
+            double tCurr = tResult[ti + 1];
+
+            // Skip if previous values are near zero
+            if (Math.Abs(qPrev) < 1e-10 || Math.Abs(tPrev) < 1e-10)
+            {
+                continue;
+            }
+
+            double qPctChange = (qCurr - qPrev) / Math.Abs(qPrev);
+            double tPctChange = (tCurr - tPrev) / Math.Abs(tPrev);
+
+            double diff = Math.Abs(qPctChange - tPctChange);
+
+            Assert.True(diff < 1e-6,
+                $"Bar {i}: QuanTAlib pct={qPctChange:F8}, Tulip pct={tPctChange:F8}, Diff={diff:F8}");
+            compared++;
+        }
+
+        _output.WriteLine($"Tulip NVI: Compared {compared} bar-over-bar percentage changes");
+        Assert.True(compared > 100, $"Should compare at least 100 values, got {compared}");
+    }
+
+    #endregion
 
     [Fact]
     public void Nvi_Matches_Skender()
@@ -22,32 +100,6 @@ public class NviValidationTests
     {
         // TA-Lib does not have NVI/Negative Volume Index
         Assert.True(true, "TA-Lib does not have a Negative Volume Index implementation");
-    }
-
-    [Fact]
-    public void Nvi_Matches_Tulip()
-    {
-        // Tulip has nvi (Negative Volume Index)
-        // QuanTAlib implementation follows the standard formula:
-        // If volume < previous volume: NVI = NVI × (close / previous close)
-        // Otherwise NVI stays unchanged
-        var nvi = new Nvi(DefaultStartValue);
-        var quantalibValues = new List<double>();
-        foreach (var bar in _data.Bars)
-        {
-            quantalibValues.Add(nvi.Update(bar).Value);
-        }
-
-        // Note: Tulip's implementation may differ in start value handling
-        Assert.True(quantalibValues.All(v => double.IsFinite(v) && v > 0),
-            "QuanTAlib NVI produces finite positive values");
-    }
-
-    [Fact]
-    public void Nvi_Matches_Ooples()
-    {
-        // Ooples does not have Negative Volume Index implementation
-        Assert.True(true, "Ooples does not have a Negative Volume Index implementation");
     }
 
     [Fact]

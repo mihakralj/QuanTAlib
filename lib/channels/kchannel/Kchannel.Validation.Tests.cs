@@ -383,84 +383,96 @@ public sealed class KchannelValidationTests : IDisposable
     }
 
     [Fact]
-    public void Validate_SkenderComparison_BandStructure()
+    public void Validate_Skender_MiddleBand()
     {
-        // Skender uses ATR-based bands similar to our implementation
-        // Validate structural correctness: upper > middle > lower, symmetric bands
+        // Skender GetKeltner uses EMA center + ATR bands, same as QuanTAlib.
+        // IMPORTANT: Skender defaults atrPeriods=10, but QuanTAlib uses the same period
+        // for both EMA and ATR. We must pass atrPeriods=emaPeriods for exact comparison.
+        // Both use warmup compensation differently, so we skip early bars.
 
-        var skenderPeriod = 20;
-        var skenderMultiplier = 2.0;
+        int[] periods = { 5, 10, 20, 50 };
+        double multiplier = 2.0;
 
-        // Get Skender results (they use EMA middle + ATR bands)
-        var skenderResults = _testData.SkenderQuotes
-            .GetKeltner(skenderPeriod, skenderMultiplier)
-            .ToList();
-
-        // Get our results
-        var (ourMid, _, _) = Kchannel.Batch(_testData.Bars, skenderPeriod, skenderMultiplier);
-
-        // Both should have upper > middle > lower structure
-        int warmup = skenderPeriod * 2;
-        for (int i = warmup; i < ourMid.Count && i < skenderResults.Count; i++)
+        foreach (var period in periods)
         {
-            var sk = skenderResults[i];
-            if (sk.UpperBand.HasValue && sk.LowerBand.HasValue && sk.Centerline.HasValue)
-            {
-                // Structural check
-                Assert.True(sk.UpperBand.Value > sk.Centerline.Value, $"Skender Upper > Middle at {i}");
-                Assert.True(sk.LowerBand.Value < sk.Centerline.Value, $"Skender Lower < Middle at {i}");
+            var (qMiddle, _, _) = Kchannel.Batch(_testData.Bars, period, multiplier);
 
-                // Both use symmetric ATR-based bands
-                double skWidth = sk.UpperBand.Value - sk.LowerBand.Value;
+            // Skender: atrPeriods = period to match QuanTAlib's single-period design
+            var sResult = _testData.SkenderQuotes
+                .GetKeltner(period, multiplier, period)
+                .ToList();
 
-                Assert.True(skWidth > 0, $"Skender width > 0 at {i}");
-            }
+            // Compare middle band (EMA of close) using ValidationHelper
+            ValidationHelper.VerifyData(qMiddle, sResult, s => s.Centerline);
         }
-
-        _output.WriteLine($"Kchannel vs Skender structure validated (period={skenderPeriod}, mult={skenderMultiplier})");
+        _output.WriteLine("Kchannel middle band validated against Skender for all periods");
     }
 
     [Fact]
-    public void Validate_SkenderComparison_ApproximateMatch()
+    public void Validate_Skender_UpperBand()
     {
-        // Note: Skender may use slightly different ATR/EMA warmup, so we check approximate match
-        // Our implementation uses sum/weight warmup compensation; Skender may not
+        int[] periods = { 5, 10, 20, 50 };
+        double multiplier = 2.0;
 
-        var skenderPeriod = 20;
-        var skenderMultiplier = 2.0;
+        foreach (var period in periods)
+        {
+            var (_, up, _) = Kchannel.Batch(_testData.Bars, period, multiplier);
 
-        var skenderResults = _testData.SkenderQuotes
-            .GetKeltner(skenderPeriod, skenderMultiplier)
+            var sResult = _testData.SkenderQuotes
+                .GetKeltner(period, multiplier, period)
+                .ToList();
+
+            ValidationHelper.VerifyData(up, sResult, s => s.UpperBand);
+        }
+        _output.WriteLine("Kchannel upper band validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_LowerBand()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double multiplier = 2.0;
+
+        foreach (var period in periods)
+        {
+            var (_, _, lo) = Kchannel.Batch(_testData.Bars, period, multiplier);
+
+            var sResult = _testData.SkenderQuotes
+                .GetKeltner(period, multiplier, period)
+                .ToList();
+
+            ValidationHelper.VerifyData(lo, sResult, s => s.LowerBand);
+        }
+        _output.WriteLine("Kchannel lower band validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_BandStructure()
+    {
+        // Structural validation: upper > middle > lower, symmetric bands
+        var period = 20;
+        var multiplier = 2.0;
+
+        var sResult = _testData.SkenderQuotes
+            .GetKeltner(period, multiplier, period)
             .ToList();
 
-        var (ourMid, _, _) = Kchannel.Batch(_testData.Bars, skenderPeriod, skenderMultiplier);
+        var (ourMid, ourUp, ourLo) = Kchannel.Batch(_testData.Bars, period, multiplier);
 
-        // Compare after significant warmup (values should converge)
-        int compareStart = skenderPeriod * 5; // Well past warmup
-        int closeCount = 0;
-
-        for (int i = compareStart; i < Math.Min(ourMid.Count, skenderResults.Count); i++)
+        int warmup = period * 2;
+        for (int i = warmup; i < ourMid.Count && i < sResult.Count; i++)
         {
-            var sk = skenderResults[i];
-            if (sk.Centerline.HasValue)
+            var sk = sResult[i];
+            if (sk.UpperBand.HasValue && sk.LowerBand.HasValue && sk.Centerline.HasValue)
             {
-                double midDiff = Math.Abs(ourMid[i].Value - sk.Centerline.Value);
-                double midPct = midDiff / Math.Max(1, Math.Abs(sk.Centerline.Value));
-
-                // After warmup, values should be within 5% (warmup methods may differ)
-                if (midPct < 0.05)
-                {
-                    closeCount++;
-                }
+                Assert.True(sk.UpperBand.Value > sk.Centerline.Value, $"Skender Upper > Middle at {i}");
+                Assert.True(sk.LowerBand.Value < sk.Centerline.Value, $"Skender Lower < Middle at {i}");
+                Assert.True(ourUp[i].Value > ourMid[i].Value, $"Q Upper > Middle at {i}");
+                Assert.True(ourLo[i].Value < ourMid[i].Value, $"Q Lower < Middle at {i}");
             }
         }
 
-        // Most values should be close
-        int total = Math.Min(ourMid.Count, skenderResults.Count) - compareStart;
-        double closeRatio = (double)closeCount / total;
-        Assert.True(closeRatio > 0.9, $"Close ratio {closeRatio:P0} should be > 90%");
-
-        _output.WriteLine($"Kchannel vs Skender approximate match: {closeRatio:P0} within 5%");
+        _output.WriteLine($"Kchannel vs Skender band structure validated");
     }
 
     [Fact]

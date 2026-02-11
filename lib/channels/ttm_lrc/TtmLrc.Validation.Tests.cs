@@ -1,3 +1,4 @@
+using TALib;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -644,5 +645,128 @@ public sealed class TtmLrcValidationTests : IDisposable
         Assert.Equal(regchannel2x.Lower.Value, ttmLrc.Lower2.Value, 1e-9);
 
         _output.WriteLine("TtmLrc ±2σ vs Regchannel(multiplier=2) validated");
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  TALib Validation
+    //  TALib LinearReg computes the linear regression value at the end
+    //  of the lookback window — same as TtmLrc's midline.
+    // ═══════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Validate_Talib_LinearReg_Midline()
+    {
+        int[] periods = { 10, 20, 50, 100 };
+        double[] sourceData = _testData.RawData.ToArray();
+        double[] linregOutput = new double[sourceData.Length];
+
+        foreach (var period in periods)
+        {
+            var (qMid, _, _, _, _) = TtmLrc.Batch(_testData.Data, period);
+
+            var retCode = Functions.LinearReg<double>(
+                sourceData,
+                0..^0,
+                linregOutput,
+                out var outRange,
+                period);
+
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = Functions.LinearRegLookback(period);
+
+            ValidationHelper.VerifyData(qMid, linregOutput, outRange, lookback);
+        }
+        _output.WriteLine("TtmLrc midline validated against TALib LinearReg for all periods");
+    }
+
+    [Fact]
+    public void Validate_Talib_LinearRegSlope()
+    {
+        int[] periods = { 10, 20, 50, 100 };
+        double[] sourceData = _testData.RawData.ToArray();
+        double[] slopeOutput = new double[sourceData.Length];
+
+        foreach (var period in periods)
+        {
+            var ind = new TtmLrc(period);
+            var slopes = new List<double>();
+            foreach (var tv in _testData.Data)
+            {
+                ind.Update(tv);
+                slopes.Add(ind.Slope);
+            }
+
+            var retCode = Functions.LinearRegSlope<double>(
+                sourceData,
+                0..^0,
+                slopeOutput,
+                out var outRange,
+                period);
+
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = Functions.LinearRegSlopeLookback(period);
+            var (offset, _) = outRange.GetOffsetAndLength(slopeOutput.Length);
+
+            int count = slopes.Count;
+            int start = Math.Max(0, count - 100);
+
+            for (int i = start; i < count; i++)
+            {
+                if (i < lookback)
+                {
+                    continue;
+                }
+
+                int tIndex = i - offset;
+                if (tIndex < 0 || tIndex >= slopeOutput.Length)
+                {
+                    continue;
+                }
+
+                Assert.True(
+                    Math.Abs(slopes[i] - slopeOutput[tIndex]) <= ValidationHelper.TalibTolerance,
+                    $"Slope mismatch at {i}: QuanTAlib={slopes[i]:G17}, TALib={slopeOutput[tIndex]:G17}");
+            }
+        }
+        _output.WriteLine("TtmLrc slope validated against TALib LinearRegSlope for all periods");
+    }
+
+    [Fact]
+    public void Validate_Tulip_LinearReg_Midline()
+    {
+        int[] periods = { 10, 20, 50, 100 };
+        double[] sourceData = _testData.RawData.ToArray();
+
+        foreach (var period in periods)
+        {
+            var (qMid, _, _, _, _) = TtmLrc.Batch(_testData.Data, period);
+
+            var linregIndicator = Tulip.Indicators.linreg;
+            double[][] inputs = { sourceData };
+            double[] options = { period };
+            double[][] outputs = { new double[sourceData.Length - period + 1] };
+            linregIndicator.Run(inputs, options, outputs);
+
+            var tLinreg = outputs[0];
+            int offset = period - 1;
+
+            int count = qMid.Count;
+            int start = Math.Max(0, count - 100);
+            for (int i = start; i < count; i++)
+            {
+                int tIndex = i - offset;
+                if (tIndex < 0 || tIndex >= tLinreg.Length)
+                {
+                    continue;
+                }
+
+                Assert.True(
+                    Math.Abs(qMid[i].Value - tLinreg[tIndex]) <= ValidationHelper.TulipTolerance,
+                    $"Mismatch at {i}: QuanTAlib={qMid[i].Value:G17}, Tulip={tLinreg[tIndex]:G17}");
+            }
+        }
+        _output.WriteLine("TtmLrc midline validated against Tulip linreg for all periods");
     }
 }

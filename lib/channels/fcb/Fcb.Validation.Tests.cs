@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -280,5 +281,95 @@ public sealed class FcbValidationTests : IDisposable
         }
 
         _output.WriteLine("FCB band monotonicity validated");
+    }
+
+    [Fact]
+    public void Validate_Skender_BandStructure()
+    {
+        // Skender GetFcb(windowSpan) uses Williams fractal carry-forward:
+        //   - windowSpan is half-width for 3-bar fractal detection (min=2)
+        //   - UpperBand = last confirmed FractalBear (highest high carry-forward)
+        //   - LowerBand = last confirmed FractalBull (lowest low carry-forward)
+        //   - Results are decimal? (need cast to double)
+        //
+        // NOTE: Skender's UpperBand can be LOWER than LowerBand when the last
+        // bear fractal occurred at a lower price than the last bull fractal.
+        // This is a known property of fractal carry-forward algorithms.
+        //
+        // QuanTAlib Fcb(period) uses monotonic deques over a lookback window
+        // and always maintains Upper >= Lower ordering.
+
+        int windowSpan = 2;
+        var sResult = _testData.SkenderQuotes
+            .GetFcb(windowSpan)
+            .ToList();
+
+        // Verify Skender produces finite values
+        int validCount = 0;
+        for (int i = 0; i < sResult.Count; i++)
+        {
+            if (sResult[i].UpperBand.HasValue && sResult[i].LowerBand.HasValue)
+            {
+                double upper = (double)sResult[i].UpperBand!.Value;
+                double lower = (double)sResult[i].LowerBand!.Value;
+                Assert.True(double.IsFinite(upper), $"Skender Upper finite at bar {i}");
+                Assert.True(double.IsFinite(lower), $"Skender Lower finite at bar {i}");
+                Assert.True(upper > 0, $"Skender Upper positive at bar {i}");
+                Assert.True(lower > 0, $"Skender Lower positive at bar {i}");
+                validCount++;
+            }
+        }
+
+        Assert.True(validCount > 0, "Skender should produce some valid FCB values");
+        _output.WriteLine($"Skender FCB band structure validated ({validCount} valid bars with finite values)");
+    }
+
+    [Fact]
+    public void Validate_Skender_BothProduceChannels()
+    {
+        // Both QuanTAlib and Skender FCB should produce meaningful channels
+        // that track price structure. Verify both produce valid finite values.
+        //
+        // NOTE: Skender bands can cross (Upper < Lower) due to fractal
+        // carry-forward semantics, so we only validate finite positive values.
+
+        int windowSpan = 2;
+        int period = 20;
+
+        var sResult = _testData.SkenderQuotes
+            .GetFcb(windowSpan)
+            .ToList();
+
+        var (qMiddle, qUpper, qLower) = Fcb.Batch(_testData.Bars, period);
+
+        // After warmup, both should have valid bands
+        int qValidCount = 0;
+        int sValidCount = 0;
+
+        for (int i = period + 2; i < qMiddle.Count && i < sResult.Count; i++)
+        {
+            if (qUpper[i].Value > 0 && qLower[i].Value > 0)
+            {
+                Assert.True(qUpper[i].Value >= qLower[i].Value,
+                    $"QuanTAlib Upper >= Lower at bar {i}");
+                qValidCount++;
+            }
+
+            if (sResult[i].UpperBand.HasValue && sResult[i].LowerBand.HasValue)
+            {
+                double sUpper = (double)sResult[i].UpperBand!.Value;
+                double sLower = (double)sResult[i].LowerBand!.Value;
+                Assert.True(double.IsFinite(sUpper) && sUpper > 0,
+                    $"Skender Upper finite and positive at bar {i}");
+                Assert.True(double.IsFinite(sLower) && sLower > 0,
+                    $"Skender Lower finite and positive at bar {i}");
+                sValidCount++;
+            }
+        }
+
+        Assert.True(qValidCount > 100, $"QuanTAlib produced {qValidCount} valid bars");
+        Assert.True(sValidCount > 100, $"Skender produced {sValidCount} valid bars");
+
+        _output.WriteLine($"FCB channel comparison: QuanTAlib={qValidCount}, Skender={sValidCount} valid bars");
     }
 }

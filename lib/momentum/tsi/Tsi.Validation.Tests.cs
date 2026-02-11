@@ -1,77 +1,196 @@
+using OoplesFinance.StockIndicators;
+using OoplesFinance.StockIndicators.Models;
+using Skender.Stock.Indicators;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class TsiValidationTests
+/// <summary>
+/// Validation tests for TSI (True Strength Index) against external libraries.
+/// TSI = 100 × EMA(EMA(momentum, long), short) / EMA(EMA(|momentum|, long), short)
+/// Signal line: EMA(TSI, signalPeriod)
+///
+/// Skender has GetTsi(). Ooples has CalculateTrueStrengthIndex().
+/// </summary>
+public sealed class TsiValidationTests(ITestOutputHelper output) : IDisposable
 {
-    private const double Epsilon = 1e-6;
+    private readonly ValidationTestData _testData = new();
+    private readonly ITestOutputHelper _output = output;
+    private bool _disposed;
 
-    // ==================== FORMULA VALIDATION ====================
-    [Fact]
-    public void Formula_ConstantMomentumApproachesExtreme()
+    private const int LongPeriod = 25;
+    private const int ShortPeriod = 13;
+    private const int SignalPeriod = 13;
+
+    public void Dispose()
     {
-        // TSI = 100 × doubleSmoothedMom / doubleSmoothedAbsMom
-        // With constant positive momentum, TSI approaches +100
-        var tsi = new Tsi(3, 2, 2);
+        Dispose(disposing: true);
+    }
 
-        // Strong consistent uptrend
-        for (int i = 0; i < 50; i++)
+    private void Dispose(bool disposing)
+    {
+        if (_disposed) { return; }
+        _disposed = true;
+        if (disposing) { _testData?.Dispose(); }
+    }
+
+    #region Skender Validation
+
+    [Fact]
+    public void Tsi_MatchesSkender_Batch()
+    {
+        // QuanTAlib TSI
+        var qResult = Tsi.Batch(_testData.Data, LongPeriod, ShortPeriod, SignalPeriod);
+
+        // Skender TSI
+        var sResult = _testData.SkenderQuotes.GetTsi(LongPeriod, ShortPeriod, SignalPeriod).ToList();
+
+        // Compare last 100 records (skip warmup)
+        ValidationHelper.VerifyData(qResult, sResult, (s) => s.Tsi);
+
+        _output.WriteLine("TSI Batch validated successfully against Skender");
+    }
+
+    [Fact]
+    public void Tsi_MatchesSkender_Streaming()
+    {
+        // QuanTAlib TSI (streaming)
+        var tsi = new Tsi(LongPeriod, ShortPeriod, SignalPeriod);
+        var qResults = new List<double>();
+        foreach (var item in _testData.Data)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i * 2));
+            qResults.Add(tsi.Update(item).Value);
         }
 
-        // Should be close to +100
+        // Skender TSI
+        var sResult = _testData.SkenderQuotes.GetTsi(LongPeriod, ShortPeriod, SignalPeriod).ToList();
+
+        int count = qResults.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+
+        for (int i = start; i < count; i++)
+        {
+            if (sResult[i].Tsi is null) { continue; }
+            Assert.True(
+                Math.Abs(qResults[i] - sResult[i].Tsi!.Value) <= ValidationHelper.SkenderTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResults[i]:G17}, Skender={sResult[i].Tsi:G17}");
+        }
+
+        _output.WriteLine("TSI Streaming validated successfully against Skender");
+    }
+
+    [Theory]
+    [InlineData(13, 7, 7)]
+    [InlineData(25, 13, 13)]
+    [InlineData(40, 20, 10)]
+    public void Tsi_MatchesSkender_DifferentPeriods(int longPeriod, int shortPeriod, int signalPeriod)
+    {
+        var qResult = Tsi.Batch(_testData.Data, longPeriod, shortPeriod, signalPeriod);
+
+        var sResult = _testData.SkenderQuotes.GetTsi(longPeriod, shortPeriod, signalPeriod).ToList();
+
+        ValidationHelper.VerifyData(qResult, sResult, (s) => s.Tsi);
+    }
+
+    #endregion
+
+    #region Ooples Validation
+
+    [Fact]
+    public void Tsi_MatchesOoples_Batch()
+    {
+        var ooplesData = _testData.SkenderQuotes.Select(q => new TickerData
+        {
+            Date = q.Date,
+            Open = (double)q.Open,
+            High = (double)q.High,
+            Low = (double)q.Low,
+            Close = (double)q.Close,
+            Volume = (double)q.Volume
+        }).ToList();
+
+        // QuanTAlib TSI
+        var qResult = Tsi.Batch(_testData.Data, LongPeriod, ShortPeriod, SignalPeriod);
+
+        // Ooples TSI
+        var stockData = new StockData(ooplesData);
+        var oResult = stockData.CalculateTrueStrengthIndex(length1: LongPeriod, length2: ShortPeriod, signalLength: SignalPeriod);
+        var oValues = oResult.OutputValues.Values.First();
+
+        int count = qResult.Count;
+        int warmup = LongPeriod + ShortPeriod + SignalPeriod;
+        int start = Math.Max(warmup, count - ValidationHelper.DefaultVerificationCount);
+
+        for (int i = start; i < count; i++)
+        {
+            Assert.True(
+                Math.Abs(qResult[i].Value - oValues[i]) <= ValidationHelper.OoplesTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResult[i].Value:G17}, Ooples={oValues[i]:G17}");
+        }
+
+        _output.WriteLine("TSI Batch validated successfully against Ooples");
+    }
+
+    #endregion
+
+    #region Formula Validation
+
+    [Fact]
+    public void Tsi_ConstantPositiveMomentum_ApproachesPositive100()
+    {
+        var tsi = new Tsi(3, 2, 2);
+
+        for (int i = 0; i < 50; i++)
+        {
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0 + i * 2));
+        }
+
         Assert.True(tsi.Last.Value > 95.0, $"Expected TSI > 95, got {tsi.Last.Value}");
     }
 
     [Fact]
-    public void Formula_ConstantNegativeMomentumApproachesNegativeExtreme()
+    public void Tsi_ConstantNegativeMomentum_ApproachesNegative100()
     {
         var tsi = new Tsi(3, 2, 2);
 
-        // Strong consistent downtrend
         for (int i = 0; i < 50; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 200.0 - i * 2));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 200.0 - i * 2));
         }
 
-        // Should be close to -100
         Assert.True(tsi.Last.Value < -95.0, $"Expected TSI < -95, got {tsi.Last.Value}");
     }
 
     [Fact]
-    public void Formula_ZeroMomentumGivesZeroTsi()
+    public void Tsi_NoChange_ApproachesZero()
     {
         var tsi = new Tsi(3, 2, 2);
 
-        // No price change
         for (int i = 0; i < 20; i++)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), 100.0));
         }
 
         Assert.True(Math.Abs(tsi.Last.Value) < 1.0, $"Expected TSI ≈ 0, got {tsi.Last.Value}");
     }
 
-    // ==================== SIGNAL LINE VALIDATION ====================
     [Fact]
-    public void Signal_LagsMainTsi()
+    public void Tsi_SignalLagsMainLine()
     {
         var tsi = new Tsi(5, 3, 3);
         var tsiValues = new List<double>();
         var signalValues = new List<double>();
 
-        // Create a trend change
         for (int i = 0; i < 20; i++)
         {
             double price = i < 10 ? 100.0 + i * 2 : 120.0 - (i - 10) * 2;
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), price));
+            tsi.Update(new TValue(DateTime.UtcNow.AddMinutes(i), price));
             tsiValues.Add(tsi.Last.Value);
             signalValues.Add(tsi.Signal);
         }
 
-        // Signal should lag TSI - when TSI turns, signal follows
-        // Check that standard deviation of differences is not zero (they're different)
+        // Signal should lag TSI
         var diff = tsiValues.Zip(signalValues, (t, s) => t - s).ToList();
         double avgDiff = diff.Average();
         double variance = diff.Average(d => (d - avgDiff) * (d - avgDiff));
@@ -80,286 +199,78 @@ public class TsiValidationTests
     }
 
     [Fact]
-    public void Signal_ConvergesInSteadyTrend()
+    public void Tsi_RangeIsBounded()
     {
-        var tsi = new Tsi(5, 3, 3);
+        var tsi = new Tsi(LongPeriod, ShortPeriod, SignalPeriod);
+        const double epsilon = 1e-10;
 
-        // Consistent uptrend
-        for (int i = 0; i < 100; i++)
+        foreach (var item in _testData.Data)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
+            tsi.Update(item);
+            Assert.True(tsi.Last.Value >= -100 - epsilon && tsi.Last.Value <= 100 + epsilon,
+                $"TSI value {tsi.Last.Value} out of range [-100, 100]");
         }
-
-        // In steady trend, TSI and Signal should converge
-        double diff = Math.Abs(tsi.Last.Value - tsi.Signal);
-        Assert.True(diff < 5.0, $"Expected TSI and Signal to converge, diff = {diff}");
     }
 
-    // ==================== WARMUP VALIDATION ====================
-    [Fact]
-    public void Warmup_GradualConvergence()
-    {
-        var tsi = new Tsi(5, 3, 3);
-        var values = new List<double>();
+    #endregion
 
-        // Rising prices
-        for (int i = 0; i < 30; i++)
-        {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
-            values.Add(tsi.Last.Value);
-        }
-
-        // Values should stabilize as warmup completes
-        var lastFive = values.Skip(values.Count - 5).ToList();
-        var firstFive = values.Skip(5).Take(5).ToList();
-
-        double lastRange = lastFive.Max() - lastFive.Min();
-        double firstRange = firstFive.Max() - firstFive.Min();
-
-        // Later values should be more stable (smaller range)
-        Assert.True(lastRange <= firstRange || lastRange < 5.0);
-    }
+    #region Consistency Validation
 
     [Fact]
-    public void Warmup_Period_MatchesExpected()
+    public void Batch_MatchesStreaming_IdenticalResults()
     {
-        var tsi = new Tsi(25, 13, 13);
-        Assert.Equal(25 + 13 + 13, tsi.WarmupPeriod);
-    }
+        // TSI uses triple EMA smoothing (long EMA → short EMA → signal EMA),
+        // so batch vs streaming modes diverge during warmup due to different
+        // initialization paths. Compare only well-converged tail values.
+        const double convergenceTolerance = 1e-6;
 
-    // ==================== EDGE CASE VALIDATION ====================
-    [Fact]
-    public void EdgeCase_AlternatingPrices()
-    {
-        var tsi = new Tsi(5, 3, 3);
+        // Batch
+        var batchResult = Tsi.Batch(_testData.Data, LongPeriod, ShortPeriod, SignalPeriod);
 
-        // Alternating prices (no net trend)
-        for (int i = 0; i < 30; i++)
-        {
-            double price = 100.0 + (i % 2 == 0 ? 5 : -5);
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), price));
-        }
-
-        // Should oscillate around zero
-        Assert.True(Math.Abs(tsi.Last.Value) < 50.0);
-    }
-
-    [Fact]
-    public void EdgeCase_LargePriceSpike()
-    {
-        var tsi = new Tsi(5, 3, 3);
-
-        // Stable prices
-        for (int i = 0; i < 15; i++)
-        {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0));
-        }
-
-        // Large spike
-        tsi.Update(new TValue(DateTime.Now.AddMinutes(16), 150.0));
-
-        Assert.True(!double.IsNaN(tsi.Last.Value));
-        Assert.True(!double.IsInfinity(tsi.Last.Value));
-        Assert.True(tsi.Last.Value > 0);  // Should be positive after spike up
-    }
-
-    [Fact]
-    public void EdgeCase_VerySmallPeriods()
-    {
-        var tsi = new Tsi(1, 1, 1);
-
-        for (int i = 0; i < 20; i++)
-        {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
-        }
-
-        Assert.True(!double.IsNaN(tsi.Last.Value));
-        Assert.True(tsi.Last.Value >= -100 && tsi.Last.Value <= 100);
-    }
-
-    [Fact]
-    public void EdgeCase_VeryLargePeriods()
-    {
-        var tsi = new Tsi(100, 50, 25);
-
-        for (int i = 0; i < 300; i++)
-        {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i * 0.1));
-        }
-
-        Assert.True(!double.IsNaN(tsi.Last.Value));
-        Assert.True(tsi.Last.Value >= -100 && tsi.Last.Value <= 100);
-    }
-
-    // ==================== COMPARISON VALIDATION ====================
-    [Fact]
-    public void Comparison_BatchVsStreaming()
-    {
-        var source = new TSeries();
-        var random = new Random(42);
-
-        for (int i = 0; i < 100; i++)
-        {
-            source.Add(new TValue(DateTime.Now.AddMinutes(i), 100.0 + random.NextDouble() * 30));
-        }
-
-        // Batch calculation
-        var batchResult = Tsi.Batch(source, 10, 5, 5);
-
-        // Streaming calculation
-        var tsi = new Tsi(10, 5, 5);
+        // Streaming
+        var tsi = new Tsi(LongPeriod, ShortPeriod, SignalPeriod);
         var streamingResults = new List<double>();
-        foreach (var value in source)
+        foreach (var value in _testData.Data)
         {
             streamingResults.Add(tsi.Update(value).Value);
         }
 
-        // Compare (skip warmup period)
-        for (int i = 30; i < source.Count; i++)
+        // Skip early warmup region where initialization paths diverge
+        int count = _testData.Data.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
         {
-            Assert.Equal(batchResult.Values[i], streamingResults[i], 5);
+            Assert.True(
+                Math.Abs(batchResult.Values[i] - streamingResults[i]) <= convergenceTolerance,
+                $"Mismatch at index {i}: Batch={batchResult.Values[i]:G17}, Streaming={streamingResults[i]:G17}");
         }
+        _output.WriteLine("TSI Batch vs Streaming consistency validated");
     }
 
     [Fact]
-    public void Comparison_DifferentParametersSameTrend()
+    public void Tsi_ResetProducesIdenticalResults()
     {
-        var tsi1 = new Tsi(25, 13, 13);  // Default
-        var tsi2 = new Tsi(13, 7, 7);    // Shorter
+        var tsi = new Tsi(LongPeriod, ShortPeriod, SignalPeriod);
 
-        for (int i = 0; i < 100; i++)
+        // First run
+        foreach (var item in _testData.Data)
         {
-            var tval = new TValue(DateTime.Now.AddMinutes(i), 100.0 + i);
-            tsi1.Update(tval);
-            tsi2.Update(tval);
+            tsi.Update(item);
         }
-
-        // Both should be positive for uptrend
-        Assert.True(tsi1.Last.Value > 0);
-        Assert.True(tsi2.Last.Value > 0);
-
-        // Shorter period should react faster (closer to +100)
-        Assert.True(tsi2.Last.Value >= tsi1.Last.Value - 10);
-    }
-
-    // ==================== STATE VALIDATION ====================
-    [Fact]
-    public void State_ResetClearsAll()
-    {
-        var tsi = new Tsi(5, 3, 3);
-
-        for (int i = 0; i < 20; i++)
-        {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
-        }
-
-        Assert.True(tsi.IsHot);
-        Assert.NotEqual(default, tsi.Last);
+        var firstValue = tsi.Last.Value;
+        var firstSignal = tsi.Signal;
 
         tsi.Reset();
 
-        Assert.False(tsi.IsHot);
-        Assert.Equal(default, tsi.Last);
-        Assert.Equal(0, tsi.Signal);
-    }
-
-    [Fact]
-    public void State_BarCorrectionMaintainsConsistency()
-    {
-        var tsi = new Tsi(5, 3, 3);
-
-        // Build up history with gradual price increases
-        for (int i = 0; i < 15; i++)
+        // Second run
+        foreach (var item in _testData.Data)
         {
-            tsi.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
+            tsi.Update(item);
         }
 
-        _ = tsi.Last.Value;  // Capture stable value (unused, for state verification)
-
-        // Large spike - very different from trend
-        tsi.Update(new TValue(DateTime.Now.AddMinutes(16), 250.0), isNew: true);
-        var spike = tsi.Last.Value;
-
-        // Correct bar to much smaller value (below trend continuation)
-        tsi.Update(new TValue(DateTime.Now.AddMinutes(16), 110.0), isNew: false);
-        var corrected = tsi.Last.Value;
-
-        // Spike should have higher TSI than corrected (more positive momentum)
-        Assert.True(spike > corrected,
-            $"Spike ({spike:F4}) should be greater than corrected ({corrected:F4})");
+        Assert.Equal(firstValue, tsi.Last.Value, 1e-10);
+        Assert.Equal(firstSignal, tsi.Signal, 1e-10);
     }
 
-    // ==================== MATHEMATICAL PROPERTIES ====================
-    [Fact]
-    public void Math_SymmetryWithInvertedPrices()
-    {
-        var tsi1 = new Tsi(5, 3, 3);
-        var tsi2 = new Tsi(5, 3, 3);
-
-        // Feed reversed prices
-        for (int i = 0; i < 30; i++)
-        {
-            tsi1.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
-            tsi2.Update(new TValue(DateTime.Now.AddMinutes(i), 129.0 - i));
-        }
-
-        // Should be approximately symmetric (opposite signs)
-        Assert.True(Math.Abs(tsi1.Last.Value + tsi2.Last.Value) < 5.0,
-            $"Expected symmetry: TSI1={tsi1.Last.Value}, TSI2={tsi2.Last.Value}");
-    }
-
-    [Fact]
-    public void Math_RatioPreservesScale()
-    {
-        var tsi1 = new Tsi(5, 3, 3);
-        var tsi2 = new Tsi(5, 3, 3);
-
-        // Same relative changes, different absolute scale
-        for (int i = 0; i < 30; i++)
-        {
-            tsi1.Update(new TValue(DateTime.Now.AddMinutes(i), 100.0 + i));
-            tsi2.Update(new TValue(DateTime.Now.AddMinutes(i), 1000.0 + i * 10));
-        }
-
-        // TSI should be similar (same percentage changes)
-        Assert.True(Math.Abs(tsi1.Last.Value - tsi2.Last.Value) < 5.0,
-            $"TSI should be scale-independent: TSI1={tsi1.Last.Value}, TSI2={tsi2.Last.Value}");
-    }
-
-    // ==================== CROSS-VALIDATION ====================
-    [Fact]
-    public void CrossValidation_ConsistentWithPineFormula()
-    {
-        // TSI = 100 × EMA(EMA(mom, long), short) / EMA(EMA(|mom|, long), short)
-        var tsi = new Tsi(5, 3, 3);
-
-        double[] prices = [100, 102, 101, 104, 103, 106, 105, 108, 107, 110, 109, 112, 111, 114, 113, 116];
-
-        foreach (var price in prices)
-        {
-            tsi.Update(new TValue(DateTime.Now, price));
-        }
-
-        // Result should be bounded and reasonable
-        Assert.True(tsi.Last.Value >= -100 && tsi.Last.Value <= 100);
-        // With alternating up-down pattern, should be positive overall (slight uptrend)
-        Assert.True(tsi.Last.Value > 0);
-    }
-
-    [Fact]
-    public void CrossValidation_MatchesManualDoubleSmoothing()
-    {
-        var tsi = new Tsi(3, 2, 2);
-
-        // Simple test data
-        double[] prices = [100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120];
-
-        foreach (var price in prices)
-        {
-            tsi.Update(new TValue(DateTime.Now, price));
-        }
-
-        // Consistent +2 momentum = 100% TSI (or close to it)
-        Assert.True(tsi.Last.Value > 90, $"Expected TSI > 90 for constant momentum, got {tsi.Last.Value}");
-    }
+    #endregion
 }

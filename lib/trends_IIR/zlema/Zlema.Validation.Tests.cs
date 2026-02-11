@@ -4,6 +4,14 @@ namespace QuanTAlib.Tests;
 
 public class ZlemaValidationTests
 {
+    // Note: External library validation is not feasible for ZLEMA:
+    // - Tulip: Uses SMA-seeded EMA initialization, producing a persistent offset vs QuanTAlib's
+    //   debiased warmup (diff ~0.009% at bar 200, does not converge). Algorithm variant.
+    // - Skender.Stock.Indicators: Does not have a ZLEMA implementation.
+    // - TALib: Does not have a ZLEMA function.
+    // - OoplesFinance: Does not have a ZLEMA implementation.
+    // Validated against independent reference implementation in tests below.
+
     [Fact]
     public void Zlema_Streaming_MatchesReference()
     {

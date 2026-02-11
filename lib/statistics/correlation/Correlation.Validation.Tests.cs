@@ -1,12 +1,204 @@
+using Skender.Stock.Indicators;
+using Xunit.Abstractions;
+
 namespace QuanTAlib.Tests;
 
 /// <summary>
 /// Validation tests for Correlation (Pearson Correlation Coefficient) indicator.
-/// Validates against mathematical properties and expected statistical behavior.
+/// Validates against Skender.Stock.Indicators.GetCorrelation and mathematical properties.
 /// </summary>
-public class CorrelationValidationTests
+public sealed class CorrelationValidationTests : IDisposable
 {
     private const double Tolerance = 1e-10;
+    private readonly ValidationTestData _data;
+    private readonly ITestOutputHelper _output;
+
+    public CorrelationValidationTests(ITestOutputHelper output)
+    {
+        _data = new ValidationTestData();
+        _output = output;
+    }
+
+    public void Dispose()
+    {
+        _data.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    #region External Library Validation — Skender
+
+    [Fact]
+    public void Validate_Skender_Correlation()
+    {
+        // === DESCRIPTION ===
+        // Compares QuanTAlib Correlation against Skender.Stock.Indicators.GetCorrelation
+        // using Close prices (series A) vs Open prices (series B) from the same dataset.
+
+        const int period = 20;
+
+        // --- Skender: uses IQuote-based API ---
+        // GetCorrelation compares two quote series by their Close prices
+        // We use the same quotes for both but shift perspective: A=Close, B=Open
+        // To use GetCorrelation, we need two separate IEnumerable<Quote> that share the same dates
+        // Skender correlates the Close of quotesA with the Close of quotesB.
+        // So we create quotesB where Close = Open of the original data.
+        var quotesA = _data.SkenderQuotes; // Close = actual close prices
+        var quotesB = new Quote[_data.Count];
+        var closePrices = _data.ClosePrices.Span;
+        var openPrices = _data.OpenPrices.Span;
+        var timestamps = _data.Timestamps.Span;
+
+        for (int i = 0; i < _data.Count; i++)
+        {
+            quotesB[i] = new Quote
+            {
+                Date = new DateTime(timestamps[i], DateTimeKind.Utc),
+                Open = (decimal)openPrices[i],
+                High = (decimal)openPrices[i],
+                Low = (decimal)openPrices[i],
+                Close = (decimal)openPrices[i], // Use Open prices as the "Close" for series B
+                Volume = 0
+            };
+        }
+
+        var sResult = quotesA.GetCorrelation(quotesB, period).ToList();
+
+        // --- QuanTAlib: streaming API ---
+        var corr = new Correlation(period);
+        var qValues = new List<double>();
+
+        for (int i = 0; i < _data.Count; i++)
+        {
+            var result = corr.Update(closePrices[i], openPrices[i]);
+            qValues.Add(result.Value);
+        }
+
+        // --- Compare ---
+        int matched = 0;
+        int compared = 0;
+
+        for (int i = period; i < _data.Count; i++)
+        {
+            double? sCorr = sResult[i].Correlation;
+            double qCorr = qValues[i];
+
+            if (!sCorr.HasValue || !double.IsFinite(qCorr))
+            {
+                continue;
+            }
+
+            compared++;
+            double diff = Math.Abs(qCorr - sCorr.Value);
+
+            Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                $"Correlation mismatch at [{i}]: QuanTAlib={qCorr:G17}, Skender={sCorr.Value:G17}, diff={diff:E3}");
+            matched++;
+        }
+
+        Assert.True(matched > 100, $"Only matched {matched} Correlation values (expected > 100)");
+        _output.WriteLine($"Correlation validated against Skender ({matched} values matched within tolerance {ValidationHelper.SkenderTolerance:E1})");
+    }
+
+    [Fact]
+    public void Validate_Skender_Correlation_MultiplePeriods()
+    {
+        // === DESCRIPTION ===
+        // Cross-validates QuanTAlib vs Skender across multiple lookback periods.
+
+        int[] periods = [10, 20, 50];
+        var closePrices = _data.ClosePrices.Span;
+        var openPrices = _data.OpenPrices.Span;
+        var timestamps = _data.Timestamps.Span;
+
+        // Build quotesB (Open prices as Close for series B)
+        var quotesB = new Quote[_data.Count];
+        for (int i = 0; i < _data.Count; i++)
+        {
+            quotesB[i] = new Quote
+            {
+                Date = new DateTime(timestamps[i], DateTimeKind.Utc),
+                Close = (decimal)openPrices[i],
+            };
+        }
+
+        foreach (int period in periods)
+        {
+            var sResult = _data.SkenderQuotes.GetCorrelation(quotesB, period).ToList();
+
+            var corr = new Correlation(period);
+            int matched = 0;
+
+            for (int i = 0; i < _data.Count; i++)
+            {
+                var result = corr.Update(closePrices[i], openPrices[i]);
+
+                if (i >= period)
+                {
+                    double? sCorr = sResult[i].Correlation;
+                    if (sCorr.HasValue && double.IsFinite(result.Value))
+                    {
+                        double diff = Math.Abs(result.Value - sCorr.Value);
+                        Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                            $"Period={period}, [{i}]: Q={result.Value:G17}, S={sCorr.Value:G17}, diff={diff:E3}");
+                        matched++;
+                    }
+                }
+            }
+
+            Assert.True(matched > 50, $"Period={period}: only matched {matched} values");
+            _output.WriteLine($"  Period {period}: {matched} values matched");
+        }
+    }
+
+    [Fact]
+    public void Validate_Skender_Correlation_HighLow()
+    {
+        // === DESCRIPTION ===
+        // Validates correlation between High and Low price series against Skender.
+
+        const int period = 20;
+        var highPrices = _data.HighPrices.Span;
+        var lowPrices = _data.LowPrices.Span;
+        var timestamps = _data.Timestamps.Span;
+
+        // quotesA: Close = High prices
+        var quotesA = new Quote[_data.Count];
+        var quotesB = new Quote[_data.Count];
+
+        for (int i = 0; i < _data.Count; i++)
+        {
+            var date = new DateTime(timestamps[i], DateTimeKind.Utc);
+            quotesA[i] = new Quote { Date = date, Close = (decimal)highPrices[i] };
+            quotesB[i] = new Quote { Date = date, Close = (decimal)lowPrices[i] };
+        }
+
+        var sResult = quotesA.GetCorrelation(quotesB, period).ToList();
+
+        var corr = new Correlation(period);
+        int matched = 0;
+
+        for (int i = 0; i < _data.Count; i++)
+        {
+            var result = corr.Update(highPrices[i], lowPrices[i]);
+
+            if (i >= period)
+            {
+                double? sCorr = sResult[i].Correlation;
+                if (sCorr.HasValue && double.IsFinite(result.Value))
+                {
+                    double diff = Math.Abs(result.Value - sCorr.Value);
+                    Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                        $"HighLow [{i}]: Q={result.Value:G17}, S={sCorr.Value:G17}, diff={diff:E3}");
+                    matched++;
+                }
+            }
+        }
+
+        Assert.True(matched > 100, $"Only matched {matched} HighLow correlation values");
+        _output.WriteLine($"Correlation (High vs Low) validated against Skender ({matched} values matched)");
+    }
+
+    #endregion
 
     #region Mathematical Property Validation
 

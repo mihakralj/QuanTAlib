@@ -1,12 +1,14 @@
+using TALib;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
 /// <summary>
 /// Validation tests for AccBands indicator.
-/// Note: Skender.Stock.Indicators, TA-Lib, Tulip, and OoplesFinance do not provide
-/// AccBands implementation for cross-validation. These tests validate against
-/// manual calculations and internal consistency across all API modes.
+/// Note: TA-Lib provides ACCBANDS but uses a different formula (per-bar adaptive width
+/// via High*(1+4*(H-L)/(H+L))) whereas QuanTAlib uses SMA-based band width.
+/// The middle band (SMA of Close) matches exactly between both implementations.
+/// Skender, Tulip, and OoplesFinance do not provide AccBands.
 /// </summary>
 public sealed class AccBandsValidationTests : IDisposable
 {
@@ -377,5 +379,150 @@ public sealed class AccBandsValidationTests : IDisposable
         Assert.Equal(batchLower.Last.Value, primedIndicator.Lower.Value, 1e-9);
 
         _output.WriteLine("AccBands Prime method validated successfully");
+    }
+
+    [Fact]
+    public void Validate_Talib_MiddleBand_Batch()
+    {
+        // TALib ACCBANDS uses a different upper/lower formula (per-bar adaptive width via
+        // High*(1+4*(H-L)/(H+L))) but the MIDDLE band is SMA(Close) which matches exactly.
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        double[] high = _testData.HighPrices.ToArray();
+        double[] low = _testData.LowPrices.ToArray();
+        double[] close = _testData.ClosePrices.ToArray();
+        int len = close.Length;
+
+        double[] talibUpper = new double[len];
+        double[] talibMiddle = new double[len];
+        double[] talibLower = new double[len];
+
+        foreach (var period in periods)
+        {
+            // QuanTAlib AccBands (batch)
+            var (qMiddle, _, _) = AccBands.Batch(_testData.Bars, period, 2.0);
+
+            // TALib Accbands
+            var retCode = Functions.Accbands<double>(
+                high, low, close,
+                0..^0,
+                talibUpper, talibMiddle, talibLower,
+                out var outRange,
+                period);
+
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = Functions.AccbandsLookback(period);
+
+            // Middle band = SMA(Close) in both implementations — should match exactly
+            ValidationHelper.VerifyData(qMiddle, talibMiddle, outRange, lookback);
+        }
+        _output.WriteLine("AccBands middle band validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Talib_MiddleBand_Span()
+    {
+        // Validate middle band match using Span API
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        double[] high = _testData.HighPrices.ToArray();
+        double[] low = _testData.LowPrices.ToArray();
+        double[] close = _testData.ClosePrices.ToArray();
+        int len = close.Length;
+
+        double[] talibUpper = new double[len];
+        double[] talibMiddle = new double[len];
+        double[] talibLower = new double[len];
+
+        foreach (var period in periods)
+        {
+            // QuanTAlib AccBands (Span API)
+            double[] qMiddle = new double[len];
+            double[] qUpper = new double[len];
+            double[] qLower = new double[len];
+            AccBands.Batch(high.AsSpan(), low.AsSpan(), close.AsSpan(),
+                          qMiddle.AsSpan(), qUpper.AsSpan(), qLower.AsSpan(),
+                          period, 2.0);
+
+            // TALib Accbands
+            var retCode = Functions.Accbands<double>(
+                high, low, close,
+                0..^0,
+                talibUpper, talibMiddle, talibLower,
+                out var outRange,
+                period);
+
+            Assert.Equal(Core.RetCode.Success, retCode);
+
+            int lookback = Functions.AccbandsLookback(period);
+
+            // Middle band = SMA(Close) — exact match
+            ValidationHelper.VerifyData(qMiddle, talibMiddle, outRange, lookback);
+        }
+        _output.WriteLine("AccBands Span middle band validated successfully against TA-Lib");
+    }
+
+    [Fact]
+    public void Validate_Talib_FormulaConventionDifference()
+    {
+        // Document and verify that upper/lower bands differ between implementations.
+        // TALib: Upper = SMA(High * (1 + 4*(H-L)/(H+L))), per-bar adaptive width
+        // QuanTAlib: Upper = SMA(High) + factor*(SMA(High)-SMA(Low)), SMA-based width
+        // Both are valid "Acceleration Bands" variants.
+
+        const int period = 20;
+
+        double[] high = _testData.HighPrices.ToArray();
+        double[] low = _testData.LowPrices.ToArray();
+        double[] close = _testData.ClosePrices.ToArray();
+        int len = close.Length;
+
+        double[] talibUpper = new double[len];
+        double[] talibMiddle = new double[len];
+        double[] talibLower = new double[len];
+
+        var retCode = Functions.Accbands<double>(
+            high, low, close,
+            0..^0,
+            talibUpper, talibMiddle, talibLower,
+            out var outRange,
+            period);
+
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        var (qMiddle, qUpper, qLower) = AccBands.Batch(_testData.Bars, period, 2.0);
+
+        int lookback = Functions.AccbandsLookback(period);
+        int talibStart = outRange.Start.Value;
+
+        // Middle bands should match (both SMA of Close)
+        for (int i = lookback; i < qMiddle.Count && (i - talibStart) < len; i++)
+        {
+            int tIdx = i - talibStart;
+            if (tIdx >= 0 && tIdx < len && talibMiddle[tIdx] != 0)
+            {
+                Assert.Equal(qMiddle[i].Value, talibMiddle[tIdx], 1e-7);
+            }
+        }
+
+        // Upper/Lower bands should differ (different formulas) but maintain same structure
+        int structuralCount = 0;
+        for (int i = lookback; i < qMiddle.Count && (i - talibStart) < len; i++)
+        {
+            int tIdx = i - talibStart;
+            if (tIdx >= 0 && tIdx < len && talibUpper[tIdx] != 0)
+            {
+                // Both should have Upper > Middle > Lower
+                Assert.True(qUpper[i].Value > qMiddle[i].Value, $"Q: Upper > Middle at {i}");
+                Assert.True(qLower[i].Value < qMiddle[i].Value, $"Q: Lower < Middle at {i}");
+                Assert.True(talibUpper[tIdx] > talibMiddle[tIdx], $"TALib: Upper > Middle at {i}");
+                Assert.True(talibLower[tIdx] < talibMiddle[tIdx], $"TALib: Lower < Middle at {i}");
+                structuralCount++;
+            }
+        }
+
+        Assert.True(structuralCount > 100, $"Validated {structuralCount} bars structurally");
+        _output.WriteLine($"AccBands formula convention difference validated ({structuralCount} bars)");
     }
 }

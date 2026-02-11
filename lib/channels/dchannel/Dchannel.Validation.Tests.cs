@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -196,5 +197,134 @@ public sealed class DchannelValidationTests : IDisposable
         }
 
         _output.WriteLine("Dchannel large dataset validated");
+    }
+
+    [Fact]
+    public void Validate_Skender_Batch_UpperBand()
+    {
+        // Convention difference: Skender Donchian uses prior N bars [i-N, i-1] (excludes current bar)
+        // QuanTAlib Dchannel uses inclusive N bars [i-N+1, i] (includes current bar).
+        // Therefore: QuanTAlib[i] should match Skender[i+1] for converged values.
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        foreach (var period in periods)
+        {
+            var (_, qUp, _) = Dchannel.Batch(_testData.Bars, period);
+            var sResult = _testData.SkenderQuotes.GetDonchian(period).ToList();
+
+            int count = Math.Min(qUp.Count, sResult.Count);
+            int start = Math.Max(period + 1, count - 100);
+            for (int i = start; i < count - 1; i++)
+            {
+                double qValue = qUp[i].Value;
+                double? sValue = (double?)sResult[i + 1].UpperBand;
+                if (!sValue.HasValue)
+                {
+                    continue;
+                }
+
+                Assert.True(
+                    Math.Abs(qValue - sValue.Value) <= ValidationHelper.SkenderTolerance,
+                    $"Period={period}, Mismatch at q[{i}] vs s[{i + 1}]: QuanTAlib={qValue:G17}, Skender={sValue.Value:G17}");
+            }
+        }
+        _output.WriteLine("Dchannel upper band validated against Skender GetDonchian (offset +1)");
+    }
+
+    [Fact]
+    public void Validate_Skender_Batch_LowerBand()
+    {
+        // Same offset convention: QuanTAlib[i] == Skender[i+1]
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        foreach (var period in periods)
+        {
+            var (_, _, qLo) = Dchannel.Batch(_testData.Bars, period);
+            var sResult = _testData.SkenderQuotes.GetDonchian(period).ToList();
+
+            int count = Math.Min(qLo.Count, sResult.Count);
+            int start = Math.Max(period + 1, count - 100);
+            for (int i = start; i < count - 1; i++)
+            {
+                double qValue = qLo[i].Value;
+                double? sValue = (double?)sResult[i + 1].LowerBand;
+                if (!sValue.HasValue)
+                {
+                    continue;
+                }
+
+                Assert.True(
+                    Math.Abs(qValue - sValue.Value) <= ValidationHelper.SkenderTolerance,
+                    $"Period={period}, Mismatch at q[{i}] vs s[{i + 1}]: QuanTAlib={qValue:G17}, Skender={sValue.Value:G17}");
+            }
+        }
+        _output.WriteLine("Dchannel lower band validated against Skender GetDonchian (offset +1)");
+    }
+
+    [Fact]
+    public void Validate_Skender_Batch_Centerline()
+    {
+        // Same offset convention: QuanTAlib[i] == Skender[i+1]
+        int[] periods = { 5, 10, 20, 50, 100 };
+
+        foreach (var period in periods)
+        {
+            var (qMid, _, _) = Dchannel.Batch(_testData.Bars, period);
+            var sResult = _testData.SkenderQuotes.GetDonchian(period).ToList();
+
+            int count = Math.Min(qMid.Count, sResult.Count);
+            int start = Math.Max(period + 1, count - 100);
+            for (int i = start; i < count - 1; i++)
+            {
+                double qValue = qMid[i].Value;
+                double? sValue = (double?)sResult[i + 1].Centerline;
+                if (!sValue.HasValue)
+                {
+                    continue;
+                }
+
+                Assert.True(
+                    Math.Abs(qValue - sValue.Value) <= ValidationHelper.SkenderTolerance,
+                    $"Period={period}, Mismatch at q[{i}] vs s[{i + 1}]: QuanTAlib={qValue:G17}, Skender={sValue.Value:G17}");
+            }
+        }
+        _output.WriteLine("Dchannel centerline validated against Skender GetDonchian (offset +1)");
+    }
+
+    [Fact]
+    public void Validate_Skender_Streaming_UpperBand()
+    {
+        // Same offset convention: QuanTAlib[i] == Skender[i+1]
+        int[] periods = { 10, 20, 50 };
+
+        foreach (var period in periods)
+        {
+            var dchannel = new Dchannel(period);
+            var qUpResults = new TSeries();
+            foreach (var bar in _testData.Bars)
+            {
+                dchannel.Update(bar);
+                qUpResults.Add(dchannel.Upper);
+            }
+
+            var sResult = _testData.SkenderQuotes.GetDonchian(period).ToList();
+
+            int count = Math.Min(qUpResults.Count, sResult.Count);
+            int start = Math.Max(period + 1, count - 100);
+            for (int i = start; i < count - 1; i++)
+            {
+                double qValue = qUpResults[i].Value;
+                double? sValue = (double?)sResult[i + 1].UpperBand;
+                if (!sValue.HasValue)
+                {
+                    continue;
+                }
+
+                Assert.True(
+                    Math.Abs(qValue - sValue.Value) <= ValidationHelper.SkenderTolerance,
+                    $"Period={period}, Mismatch at q[{i}] vs s[{i + 1}]: QuanTAlib={qValue:G17}, Skender={sValue.Value:G17}");
+            }
+        }
+        _output.WriteLine("Dchannel streaming upper band validated against Skender GetDonchian (offset +1)");
     }
 }

@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -542,5 +543,91 @@ public sealed class SdchannelValidationTests : IDisposable
         Assert.True(ind.StdDev > 0 && ind.StdDev < 10, $"StdDev={ind.StdDev} should be positive");
 
         _output.WriteLine($"Sdchannel stdDev formula validated: Slope={ind.Slope:F4}, StdDev={ind.StdDev:F4}");
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  Skender.Stock.Indicators Validation
+    //  NOTE: Skender's GetStdDevChannels uses a SEGMENTED approach
+    //  (non-overlapping windows with a single regression per segment),
+    //  while QuanTAlib's Sdchannel uses a ROLLING window approach
+    //  (regression recomputed at every bar). These are fundamentally
+    //  different algorithms, so exact value matching is not possible.
+    //  We validate structural properties instead.
+    // ═══════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Validate_Skender_BandStructure()
+    {
+        // Both implementations should produce valid channel bands:
+        // Upper >= Centerline >= Lower, all finite after warmup
+        int period = 20;
+        double multiplier = 2.0;
+
+        // QuanTAlib rolling regression
+        var (qMid, qUp, qLo) = Sdchannel.Batch(_testData.Data, period, multiplier);
+
+        // Skender segmented regression
+        var sResult = _testData.SkenderQuotes
+            .GetStdDevChannels(period, multiplier)
+            .ToList();
+
+        // Both should have same count
+        Assert.Equal(qMid.Count, sResult.Count);
+
+        // Verify QuanTAlib structural integrity
+        for (int i = 0; i < qMid.Count; i++)
+        {
+            Assert.True(double.IsFinite(qMid[i].Value), $"QTAlib mid NaN at {i}");
+            Assert.True(qUp[i].Value >= qMid[i].Value - 1e-10, $"QTAlib Upper < Mid at {i}");
+            Assert.True(qLo[i].Value <= qMid[i].Value + 1e-10, $"QTAlib Lower > Mid at {i}");
+        }
+
+        // Verify Skender structural integrity (where values exist)
+        int skenderValidCount = 0;
+        for (int i = 0; i < sResult.Count; i++)
+        {
+            if (sResult[i].Centerline.HasValue)
+            {
+                skenderValidCount++;
+                double sMid = sResult[i].Centerline!.Value;
+                double sUp = sResult[i].UpperChannel!.Value;
+                double sLo = sResult[i].LowerChannel!.Value;
+
+                Assert.True(double.IsFinite(sMid), $"Skender mid NaN at {i}");
+                Assert.True(sUp >= sMid - 1e-10, $"Skender Upper < Mid at {i}");
+                Assert.True(sLo <= sMid + 1e-10, $"Skender Lower > Mid at {i}");
+            }
+        }
+
+        Assert.True(skenderValidCount > 0, "Skender should produce some valid values");
+
+        _output.WriteLine($"Sdchannel vs Skender structural validation passed " +
+            $"(QTAlib: {qMid.Count} bars, Skender valid: {skenderValidCount} bars). " +
+            $"Note: different algorithms (rolling vs segmented).");
+    }
+
+    [Fact]
+    public void Validate_Skender_BandSymmetry()
+    {
+        // Both implementations should produce symmetric bands around centerline
+        int period = 20;
+        double multiplier = 2.0;
+
+        // Skender segmented regression
+        var sResult = _testData.SkenderQuotes
+            .GetStdDevChannels(period, multiplier)
+            .ToList();
+
+        foreach (var r in sResult)
+        {
+            if (r.Centerline.HasValue)
+            {
+                double upperWidth = r.UpperChannel!.Value - r.Centerline.Value;
+                double lowerWidth = r.Centerline.Value - r.LowerChannel!.Value;
+                Assert.Equal(upperWidth, lowerWidth, 1e-10);
+            }
+        }
+
+        _output.WriteLine("Skender StdDevChannels band symmetry validated");
     }
 }

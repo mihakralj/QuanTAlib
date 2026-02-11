@@ -661,4 +661,12 @@ public class UiValidationTests
         double expected = Math.Sqrt(22.6757369614512 / 3.0);
         Assert.Equal(expected, result.Value, 5);
     }
+
+    // === External Library Validation ===
+    // NOTE: Skender.Stock.Indicators uses a different Ulcer Index algorithm variant:
+    //   Skender: For each bar j in the period window, highestClose = max(closes from window_start to j)
+    //            Each bar gets its own "growing" highest reference within the evaluation window.
+    //   QuanTAlib: highestClose = max(closes over the entire rolling period window)
+    //   Both are valid implementations of the Ulcer Index concept, but produce different values.
+    //   No external validation test is added for UI due to this algorithmic difference.
 }

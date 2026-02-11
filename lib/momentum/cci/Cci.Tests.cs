@@ -46,7 +46,8 @@ public class CciTests
     [Fact]
     public void WarmupPeriod_IsDefault()
     {
-        Assert.Equal(20, Cci.WarmupPeriod);
+        var cci = new Cci();
+        Assert.Equal(20, cci.WarmupPeriod);
     }
 
     #endregion

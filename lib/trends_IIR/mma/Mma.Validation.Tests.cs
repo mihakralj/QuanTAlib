@@ -4,6 +4,13 @@ namespace QuanTAlib.Tests;
 
 public class MmaValidationTests
 {
+    // Note: External library validation is not feasible for MMA:
+    // - MMA (Modified Moving Average) is a QuanTAlib-specific algorithm that blends SMA with
+    //   a weighted deviation component: output = SMA + weightedSum * 6/(count*(count+1)).
+    // - Skender's GetSmma() / Tulip's wilders = Wilder's smoothing (SMMA), a completely different algorithm.
+    // - TALib, OoplesFinance: No equivalent MMA implementation.
+    // Validated against independent reference implementation in tests below.
+
     [Fact]
     public void Mma_Streaming_MatchesReference()
     {

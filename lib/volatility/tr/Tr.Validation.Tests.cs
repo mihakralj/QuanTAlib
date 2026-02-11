@@ -1,3 +1,5 @@
+using TALib;
+
 namespace QuanTAlib.Test;
 
 using Xunit;
@@ -655,6 +657,60 @@ public class TrValidationTests
         {
             Assert.True(double.IsFinite(output[i]), $"Output at index {i} should be finite");
             Assert.True(output[i] >= 0, $"Output at index {i} should be non-negative");
+        }
+    }
+
+    // === External Library Validation ===
+
+    [Fact]
+    public void Validate_Talib_TrueRange()
+    {
+        var bars = GenerateTestData(500);
+        double[] high = bars.Select(b => b.High).ToArray();
+        double[] low = bars.Select(b => b.Low).ToArray();
+        double[] close = bars.Select(b => b.Close).ToArray();
+        double[] output = new double[high.Length];
+
+        var retCode = Functions.TRange<double>(high, low, close, 0..^0, output, out var outRange);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        int lookback = Functions.TRangeLookback();
+
+        // Batch comparison
+        double[] qOutput = new double[high.Length];
+        Tr.Batch(high, low, close, qOutput);
+
+        // Use ValidationHelper for correct TALib index mapping
+        QuanTAlib.Tests.ValidationHelper.VerifyData(qOutput, output, outRange, lookback);
+    }
+
+    [Fact]
+    public void Validate_Tulip_TrueRange()
+    {
+        var bars = GenerateTestData(500);
+        double[] high = bars.Select(b => b.High).ToArray();
+        double[] low = bars.Select(b => b.Low).ToArray();
+        double[] close = bars.Select(b => b.Close).ToArray();
+
+        var trIndicator = Tulip.Indicators.tr;
+        double[][] inputs = { high, low, close };
+        double[] options = Array.Empty<double>();
+        int lookback = trIndicator.Start(options);
+        double[][] outputs = { new double[high.Length - lookback] };
+        trIndicator.Run(inputs, options, outputs);
+
+        double[] qOutput = new double[high.Length];
+        Tr.Batch(high, low, close, qOutput);
+
+        int tulipLen = outputs[0].Length;
+        int count = Math.Min(tulipLen, 100);
+        int start = tulipLen - count;
+        for (int i = start; i < tulipLen; i++)
+        {
+            int qIdx = lookback + i;
+            Assert.True(
+                Math.Abs(qOutput[qIdx] - outputs[0][i]) <= 1e-7,
+                $"TR mismatch at {qIdx}: QuanTAlib={qOutput[qIdx]:G17}, Tulip={outputs[0][i]:G17}");
         }
     }
 }

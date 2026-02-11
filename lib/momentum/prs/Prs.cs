@@ -54,6 +54,8 @@ public sealed class Prs : AbstractBase
     private double _p_e;
     private bool _p_isEmaInitialized;
     private bool _p_isWarmup;
+    private double _p_lastValidBase;
+    private double _p_lastValidComp;
 
     private int _count;
 
@@ -187,6 +189,8 @@ public sealed class Prs : AbstractBase
         _p_e = _e;
         _p_isEmaInitialized = _isEmaInitialized;
         _p_isWarmup = _isWarmup;
+        _p_lastValidBase = _lastValidBase;
+        _p_lastValidComp = _lastValidComp;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -196,6 +200,8 @@ public sealed class Prs : AbstractBase
         _e = _p_e;
         _isEmaInitialized = _p_isEmaInitialized;
         _isWarmup = _p_isWarmup;
+        _lastValidBase = _p_lastValidBase;
+        _lastValidComp = _p_lastValidComp;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -209,8 +215,8 @@ public sealed class Prs : AbstractBase
 
         if (!_isEmaInitialized)
         {
-            // First value: initialize EMA
-            _ema = 0;
+            // First value: initialize EMA with the first ratio
+            _ema = ratio;
             _isEmaInitialized = true;
             return ratio;
         }
@@ -277,6 +283,8 @@ public sealed class Prs : AbstractBase
         _p_e = 1.0;
         _p_isEmaInitialized = false;
         _p_isWarmup = true;
+        _p_lastValidBase = 0;
+        _p_lastValidComp = 0;
     }
 
     /// <summary>

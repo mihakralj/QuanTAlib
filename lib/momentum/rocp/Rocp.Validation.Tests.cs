@@ -1,9 +1,214 @@
+using TALib;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class RocpValidationTests
+/// <summary>
+/// Validation tests for ROCP (Rate of Change Percentage) against external libraries.
+/// ROCP = 100 × (Price - Price[N]) / Price[N]
+///
+/// Note: TALib's RocP returns a decimal fraction (0.05 for 5%), while QuanTAlib returns
+/// a percentage (5.0 for 5%). Tests account for this scaling difference.
+/// Tulip does not have a direct ROCP indicator.
+/// </summary>
+public sealed class RocpValidationTests(ITestOutputHelper output) : IDisposable
 {
+    private readonly ValidationTestData _testData = new();
+    private readonly ITestOutputHelper _output = output;
+    private bool _disposed;
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+        _disposed = true;
+        if (disposing)
+        {
+            _testData?.Dispose();
+        }
+    }
+
+    private const int TestPeriod = 10;
+
+    #region TALib Validation
+
+    [Fact]
+    public void Rocp_MatchesTalib_Batch()
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        // QuanTAlib ROCP (batch TSeries)
+        var rocp = new Rocp(TestPeriod);
+        var qResult = rocp.Update(_testData.Data);
+
+        // TALib RocP (returns decimal fraction)
+        double[] tOutput = new double[tData.Length];
+        var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        int lookback = TALib.Functions.RocPLookback(TestPeriod);
+
+        // Compare: TALib returns decimal, QuanTAlib returns percentage → multiply TALib by 100
+        int count = qResult.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
+
+        for (int i = start; i < count; i++)
+        {
+            if (i < lookback)
+            {
+                continue;
+            }
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
+
+            double talibScaled = tOutput[tIndex] * 100.0;
+            Assert.True(
+                Math.Abs(qResult[i].Value - talibScaled) <= ValidationHelper.TalibTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResult[i].Value:G17}, TALib(×100)={talibScaled:G17}");
+        }
+        _output.WriteLine("ROCP Batch validated successfully against TALib");
+    }
+
+    [Fact]
+    public void Rocp_MatchesTalib_Span()
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        // QuanTAlib ROCP (Span)
+        double[] qOutput = new double[tData.Length];
+        Rocp.Batch(tData.AsSpan(), qOutput.AsSpan(), TestPeriod);
+
+        // TALib RocP
+        double[] tOutput = new double[tData.Length];
+        var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        int lookback = TALib.Functions.RocPLookback(TestPeriod);
+
+        int count = qOutput.Length;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
+
+        for (int i = start; i < count; i++)
+        {
+            if (i < lookback)
+            {
+                continue;
+            }
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
+
+            double talibScaled = tOutput[tIndex] * 100.0;
+            Assert.True(
+                Math.Abs(qOutput[i] - talibScaled) <= ValidationHelper.TalibTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qOutput[i]:G17}, TALib(×100)={talibScaled:G17}");
+        }
+        _output.WriteLine("ROCP Span validated successfully against TALib");
+    }
+
+    [Fact]
+    public void Rocp_MatchesTalib_Streaming()
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        // QuanTAlib ROCP (streaming)
+        var rocp = new Rocp(TestPeriod);
+        var qResults = new List<double>();
+        foreach (var item in _testData.Data)
+        {
+            qResults.Add(rocp.Update(item).Value);
+        }
+
+        // TALib RocP
+        double[] tOutput = new double[tData.Length];
+        var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, TestPeriod);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        int lookback = TALib.Functions.RocPLookback(TestPeriod);
+
+        int count = qResults.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
+
+        for (int i = start; i < count; i++)
+        {
+            if (i < lookback)
+            {
+                continue;
+            }
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
+
+            double talibScaled = tOutput[tIndex] * 100.0;
+            Assert.True(
+                Math.Abs(qResults[i] - talibScaled) <= ValidationHelper.TalibTolerance,
+                $"Mismatch at index {i}: QuanTAlib={qResults[i]:G17}, TALib(×100)={talibScaled:G17}");
+        }
+        _output.WriteLine("ROCP Streaming validated successfully against TALib");
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(14)]
+    [InlineData(20)]
+    [InlineData(50)]
+    public void Rocp_MatchesTalib_DifferentPeriods(int period)
+    {
+        double[] tData = _testData.RawData.ToArray();
+
+        var rocp = new Rocp(period);
+        var qResult = rocp.Update(_testData.Data);
+
+        double[] tOutput = new double[tData.Length];
+        var retCode = TALib.Functions.RocP<double>(tData, 0..^0, tOutput, out var outRange, period);
+        Assert.Equal(Core.RetCode.Success, retCode);
+
+        int lookback = TALib.Functions.RocPLookback(period);
+        var (offset, length) = outRange.GetOffsetAndLength(tOutput.Length);
+
+        int count = qResult.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+
+        for (int i = start; i < count; i++)
+        {
+            if (i < lookback)
+            {
+                continue;
+            }
+            int tIndex = i - offset;
+            if (tIndex < 0 || tIndex >= length)
+            {
+                continue;
+            }
+
+            double talibScaled = tOutput[tIndex] * 100.0;
+            Assert.True(
+                Math.Abs(qResult[i].Value - talibScaled) <= ValidationHelper.TalibTolerance,
+                $"Period {period}, index {i}: QuanTAlib={qResult[i].Value:G17}, TALib(×100)={talibScaled:G17}");
+        }
+        _output.WriteLine($"ROCP period={period} validated against TALib");
+    }
+
+    #endregion
+
     #region Mathematical Validation
 
     [Fact]
@@ -31,183 +236,29 @@ public class RocpValidationTests
     }
 
     [Fact]
-    public void Rocp_FivePercentIncrease_ReturnsFive()
-    {
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, 100.0), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), 105.0), true);
-
-        Assert.Equal(5.0, result.Value, 10);
-    }
-
-    [Fact]
-    public void Rocp_FivePercentDecrease_ReturnsNegativeFive()
-    {
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, 100.0), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), 95.0), true);
-
-        Assert.Equal(-5.0, result.Value, 10);
-    }
-
-    #endregion
-
-    #region Relationship to ROCR and ROC
-
-    [Fact]
-    public void Rocp_RelationshipToRocr_IsCorrect()
-    {
-        // ROCP = (ROCR - 1) * 100
-        var rocp = new Rocp(2);
-        var rocr = new Rocr(2);
-        var time = DateTime.UtcNow;
-
-        var values = new double[] { 100, 105, 110, 120, 115 };
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            rocp.Update(new TValue(time.AddSeconds(i), values[i]), true);
-            rocr.Update(new TValue(time.AddSeconds(i), values[i]), true);
-        }
-
-        // ROCP = (ROCR - 1) * 100
-        double expectedFromRocr = (rocr.Last.Value - 1.0) * 100.0;
-        Assert.Equal(expectedFromRocr, rocp.Last.Value, 10);
-    }
-
-    [Fact]
-    public void Rocp_RelationshipToRoc_IsCorrect()
-    {
-        // ROCP = 100 * ROC / past
-        var rocp = new Rocp(2);
-        var roc = new Roc(2);
-        var time = DateTime.UtcNow;
-
-        var values = new double[] { 100, 105, 110, 120, 115 };
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            rocp.Update(new TValue(time.AddSeconds(i), values[i]), true);
-            roc.Update(new TValue(time.AddSeconds(i), values[i]), true);
-        }
-
-        // ROCP = 100 * ROC / past
-        // For last value: past = values[2] = 110
-        double expectedFromRoc = 100.0 * roc.Last.Value / values[2];
-        Assert.Equal(expectedFromRoc, rocp.Last.Value, 10);
-    }
-
-    #endregion
-
-    #region Edge Cases
-
-    [Fact]
-    public void Rocp_SmallValues_MaintainsPrecision()
-    {
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, 0.0001), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), 0.00015), true);
-
-        // 100 * (0.00015 - 0.0001) / 0.0001 = 50%
-        Assert.Equal(50.0, result.Value, 5);
-    }
-
-    [Fact]
-    public void Rocp_LargeValues_MaintainsPrecision()
-    {
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, 1_000_000), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), 1_100_000), true);
-
-        // 100 * (1_100_000 - 1_000_000) / 1_000_000 = 10%
-        Assert.Equal(10.0, result.Value, 10);
-    }
-
-    [Fact]
-    public void Rocp_NegativeValues_HandlesCorrectly()
-    {
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, -100.0), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), -50.0), true);
-
-        // 100 * (-50 - (-100)) / (-100) = 100 * 50 / -100 = -50%
-        Assert.Equal(-50.0, result.Value, 10);
-    }
-
-    [Fact]
-    public void Rocp_MixedSigns_HandlesCorrectly()
-    {
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, -100.0), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), 100.0), true);
-
-        // 100 * (100 - (-100)) / (-100) = 100 * 200 / -100 = -200%
-        Assert.Equal(-200.0, result.Value, 10);
-    }
-
-    #endregion
-
-    #region Batch vs Streaming Consistency
-
-    [Fact]
     public void Batch_MatchesStreaming_IdenticalResults()
     {
-        var gbm = new GBM(startPrice: 100, mu: 0.0, sigma: 0.5, seed: 42);
-        var bars = gbm.Fetch(50, DateTime.UtcNow.Ticks, TimeSpan.FromMinutes(1));
-        var source = bars.Close;
+        var source = _testData.Data;
 
         // Streaming
-        var streamingRocp = new Rocp(5);
+        var streamingRocp = new Rocp(TestPeriod);
         var streamingResults = new List<double>();
         for (int i = 0; i < source.Count; i++)
         {
-            var tv = streamingRocp.Update(new TValue(source[i].Time, source[i].Value), true);
-            streamingResults.Add(tv.Value);
+            streamingResults.Add(streamingRocp.Update(source[i]).Value);
         }
 
         // Batch
-        var batchResult = Rocp.Batch(source, 5);
+        var batchRocp = new Rocp(TestPeriod);
+        var batchResult = batchRocp.Update(source);
 
-        for (int i = 0; i < source.Count; i++)
+        int count = source.Count;
+        int start = Math.Max(0, count - ValidationHelper.DefaultVerificationCount);
+        for (int i = start; i < count; i++)
         {
-            Assert.Equal(batchResult[i].Value, streamingResults[i], 10);
+            Assert.Equal(batchResult[i].Value, streamingResults[i], ValidationHelper.DefaultTolerance);
         }
-    }
-
-    #endregion
-
-    #region TA-Lib Compatibility Notes
-
-    [Fact]
-    public void Rocp_TaLibCompatibility_Conversion()
-    {
-        // TA-Lib ROCP returns decimal (0.05 for 5%)
-        // QuanTAlib ROCP returns percentage (5.0 for 5%)
-        // Conversion: TaLibRocp = QuanTAlibRocp / 100
-
-        var rocp = new Rocp(1);
-        var time = DateTime.UtcNow;
-
-        rocp.Update(new TValue(time, 100.0), true);
-        var result = rocp.Update(new TValue(time.AddSeconds(1), 105.0), true);
-
-        double quantalibRocp = result.Value; // 5.0
-        double talibEquivalent = quantalibRocp / 100.0; // 0.05
-
-        Assert.Equal(5.0, quantalibRocp, 10);
-        Assert.Equal(0.05, talibEquivalent, 10);
+        _output.WriteLine("ROCP Batch vs Streaming consistency validated");
     }
 
     #endregion

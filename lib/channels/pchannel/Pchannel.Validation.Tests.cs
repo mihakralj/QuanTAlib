@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;

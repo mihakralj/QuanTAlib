@@ -1,3 +1,4 @@
+using Skender.Stock.Indicators;
 using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
@@ -511,5 +512,67 @@ public sealed class MaenvValidationTests : IDisposable
         }
 
         _output.WriteLine("Maenv SMA ring buffer O(1) validated");
+    }
+
+    [Fact]
+    public void Validate_Skender_SMA_Centerline()
+    {
+        // Skender GetMaEnvelopes(lookbackPeriods, percentOffset, MaType.SMA)
+        // QuanTAlib Maenv(period, percentage, MaenvType.SMA)
+        // Both compute: Middle = SMA(Close), Upper = Middle + Middle*pct/100, Lower = Middle - Middle*pct/100
+        // For SMA type, results should match exactly.
+
+        int[] periods = { 5, 10, 20, 50 };
+        double percentage = 2.5;
+
+        foreach (var period in periods)
+        {
+            var (qMiddle, _, _) = Maenv.Batch(_testData.Data, period, percentage, MaenvType.SMA);
+
+            var sResult = _testData.SkenderQuotes
+                .GetMaEnvelopes(period, percentage, MaType.SMA)
+                .ToList();
+
+            ValidationHelper.VerifyData(qMiddle, sResult, s => s.Centerline);
+        }
+        _output.WriteLine("Maenv SMA centerline validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_SMA_UpperEnvelope()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double percentage = 2.5;
+
+        foreach (var period in periods)
+        {
+            var (_, qUpper, _) = Maenv.Batch(_testData.Data, period, percentage, MaenvType.SMA);
+
+            var sResult = _testData.SkenderQuotes
+                .GetMaEnvelopes(period, percentage, MaType.SMA)
+                .ToList();
+
+            ValidationHelper.VerifyData(qUpper, sResult, s => s.UpperEnvelope);
+        }
+        _output.WriteLine("Maenv SMA upper envelope validated against Skender for all periods");
+    }
+
+    [Fact]
+    public void Validate_Skender_SMA_LowerEnvelope()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+        double percentage = 2.5;
+
+        foreach (var period in periods)
+        {
+            var (_, _, qLower) = Maenv.Batch(_testData.Data, period, percentage, MaenvType.SMA);
+
+            var sResult = _testData.SkenderQuotes
+                .GetMaEnvelopes(period, percentage, MaType.SMA)
+                .ToList();
+
+            ValidationHelper.VerifyData(qLower, sResult, s => s.LowerEnvelope);
+        }
+        _output.WriteLine("Maenv SMA lower envelope validated against Skender for all periods");
     }
 }

@@ -1,12 +1,42 @@
 using System;
 using System.Collections.Generic;
+using Skender.Stock.Indicators;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
-public class IchimokuValidationTests
+public sealed class IchimokuValidationTests : IDisposable
 {
     private const double Precision = 1e-10;
+    private readonly ValidationTestData _testData;
+    private readonly ITestOutputHelper _output;
+    private bool _disposed;
+
+    public IchimokuValidationTests(ITestOutputHelper output)
+    {
+        _output = output;
+        _testData = new ValidationTestData();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+        _disposed = true;
+        if (disposing)
+        {
+            _testData?.Dispose();
+        }
+    }
 
     #region Tenkan-sen Validation Tests
 
@@ -485,6 +515,145 @@ public class IchimokuValidationTests
         // Tenkan (short-term) should react faster to the uptrend
         // In uptrend, Tenkan >= Kijun
         Assert.True(ichimoku.Tenkan.Value >= ichimoku.Kijun.Value);
+    }
+
+    #endregion
+
+    #region Skender Cross-Validation Tests
+
+    [Fact]
+    public void Validate_Skender_TenkanSen()
+    {
+        // Skender GetIchimoku returns IchimokuResult with TenkanSen (decimal?)
+        // Both use Donchian midpoint: (highest-high + lowest-low) / 2 over tenkanPeriod
+        var (qTenkan, _, _, _, _) = Ichimoku.Batch(_testData.Bars);
+        var sResult = _testData.SkenderQuotes.GetIchimoku(9, 26, 52).ToList();
+
+        int count = Math.Min(qTenkan.Count, sResult.Count);
+        int start = Math.Max(9, count - 100);
+        int matched = 0;
+
+        for (int i = start; i < count; i++)
+        {
+            double qValue = qTenkan[i].Value;
+            decimal? sValue = sResult[i].TenkanSen;
+            if (!sValue.HasValue || !double.IsFinite(qValue))
+            {
+                continue;
+            }
+
+            double diff = Math.Abs(qValue - (double)sValue.Value);
+            Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                $"Tenkan mismatch at [{i}]: QuanTAlib={qValue:G17}, Skender={(double)sValue.Value:G17}, diff={diff:E3}");
+            matched++;
+        }
+
+        Assert.True(matched > 50, $"Only matched {matched} Tenkan values");
+        _output.WriteLine($"Ichimoku Tenkan validated against Skender ({matched} values matched)");
+    }
+
+    [Fact]
+    public void Validate_Skender_KijunSen()
+    {
+        var (_, qKijun, _, _, _) = Ichimoku.Batch(_testData.Bars);
+        var sResult = _testData.SkenderQuotes.GetIchimoku(9, 26, 52).ToList();
+
+        int count = Math.Min(qKijun.Count, sResult.Count);
+        int start = Math.Max(26, count - 100);
+        int matched = 0;
+
+        for (int i = start; i < count; i++)
+        {
+            double qValue = qKijun[i].Value;
+            decimal? sValue = sResult[i].KijunSen;
+            if (!sValue.HasValue || !double.IsFinite(qValue))
+            {
+                continue;
+            }
+
+            double diff = Math.Abs(qValue - (double)sValue.Value);
+            Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                $"Kijun mismatch at [{i}]: QuanTAlib={qValue:G17}, Skender={(double)sValue.Value:G17}, diff={diff:E3}");
+            matched++;
+        }
+
+        Assert.True(matched > 50, $"Only matched {matched} Kijun values");
+        _output.WriteLine($"Ichimoku Kijun validated against Skender ({matched} values matched)");
+    }
+
+    [Fact]
+    public void Validate_Skender_SenkouSpanB()
+    {
+        // SenkouSpanB is the Donchian midpoint over the longest period (52)
+        // Note: Skender shifts SenkouB forward by displacement periods in its output array,
+        // so sResult[i].SenkouSpanB at index i is the value computed for bar (i - displacement).
+        // QuanTAlib does NOT apply displacement in its batch output.
+        // Therefore: QuanTAlib SenkouB[i] should match Skender SenkouSpanB[i + displacement].
+        var (_, _, _, qSenkouB, _) = Ichimoku.Batch(_testData.Bars);
+        var sResult = _testData.SkenderQuotes.GetIchimoku(9, 26, 52).ToList();
+
+        int displacement = 26;
+        int count = Math.Min(qSenkouB.Count, sResult.Count - displacement);
+        int start = Math.Max(52, count - 100);
+        int matched = 0;
+
+        for (int i = start; i < count; i++)
+        {
+            double qValue = qSenkouB[i].Value;
+            int sIdx = i + displacement;
+            if (sIdx >= sResult.Count)
+            {
+                break;
+            }
+            decimal? sValue = sResult[sIdx].SenkouSpanB;
+            if (!sValue.HasValue || !double.IsFinite(qValue))
+            {
+                continue;
+            }
+
+            double diff = Math.Abs(qValue - (double)sValue.Value);
+            Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                $"SenkouB mismatch at q[{i}] vs s[{sIdx}]: QuanTAlib={qValue:G17}, Skender={(double)sValue.Value:G17}, diff={diff:E3}");
+            matched++;
+        }
+
+        Assert.True(matched > 30, $"Only matched {matched} SenkouB values");
+        _output.WriteLine($"Ichimoku SenkouB validated against Skender ({matched} values, offset +{displacement})");
+    }
+
+    [Fact]
+    public void Validate_Skender_ChikouSpan()
+    {
+        // Chikou Span = current close price (plotted backward by displacement)
+        // Both should agree that Chikou = Close at each bar
+        var (_, _, _, _, qChikou) = Ichimoku.Batch(_testData.Bars);
+        var sResult = _testData.SkenderQuotes.GetIchimoku(9, 26, 52).ToList();
+
+        int displacement = 26;
+        int count = Math.Min(qChikou.Count, sResult.Count);
+        int matched = 0;
+
+        // Skender stores ChikouSpan at index (i - displacement), i.e. sResult[i].ChikouSpan
+        // is the close of bar (i + displacement). QuanTAlib Chikou[i] = Close[i].
+        // So QuanTAlib Chikou[i] == Skender ChikouSpan[i - displacement] when i >= displacement.
+        for (int i = displacement; i < count; i++)
+        {
+            double qValue = qChikou[i].Value;
+            int sIdx = i - displacement;
+            decimal? sValue = sResult[sIdx].ChikouSpan;
+            if (!sValue.HasValue || !double.IsFinite(qValue))
+            {
+                continue;
+            }
+
+            double diff = Math.Abs(qValue - (double)sValue.Value);
+            Assert.True(diff <= ValidationHelper.SkenderTolerance,
+                $"Chikou mismatch at q[{i}] vs s[{sIdx}]: QuanTAlib={qValue:G17}, Skender={(double)sValue.Value:G17}, diff={diff:E3}");
+            matched++;
+        }
+
+        Assert.True(matched > 50, $"Only matched {matched} Chikou values");
+        _output.WriteLine($"Ichimoku Chikou validated against Skender ({matched} values matched)");
     }
 
     #endregion

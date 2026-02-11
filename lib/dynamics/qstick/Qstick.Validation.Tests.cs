@@ -1,18 +1,21 @@
 using Xunit;
+using Xunit.Abstractions;
 
 namespace QuanTAlib.Tests;
 
 /// <summary>
 /// Validation tests for Qstick indicator.
-/// Validates against manual formula calculations since Qstick is not
-/// available in TA-Lib, Skender, Tulip, or Ooples.
+/// Validates against manual formula calculations and Tulip Indicators qstick.
+/// Qstick is not available in TA-Lib, Skender, or Ooples.
 /// </summary>
 public sealed class QstickValidationTests : IDisposable
 {
     private readonly ValidationTestData _data;
+    private readonly ITestOutputHelper _output;
 
-    public QstickValidationTests()
+    public QstickValidationTests(ITestOutputHelper output)
     {
+        _output = output;
         _data = new ValidationTestData();
     }
 
@@ -349,5 +352,73 @@ public sealed class QstickValidationTests : IDisposable
                 Assert.Equal(expectedSum / 5.0, qstick.Last.Value, 10);
             }
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Tulip Indicators Cross-Validation
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Validate_Tulip_Qstick()
+    {
+        // Tulip qstick: inputs = {open[], close[]}, options = {period}, outputs = {qstick[]}
+        // Formula: SMA(close - open, period) — same as QuanTAlib Qstick with useEma=false
+        int period = 14;
+
+        double[] openData = _data.OpenPrices.ToArray();
+        double[] closeData = _data.ClosePrices.ToArray();
+
+        // QuanTAlib batch
+        var qSeries = Qstick.Batch(_data.Bars, period);
+        double[] qResult = new double[qSeries.Count];
+        for (int i = 0; i < qSeries.Count; i++)
+        {
+            qResult[i] = qSeries[i].Value;
+        }
+
+        // Tulip qstick
+        var indicator = Tulip.Indicators.qstick;
+        double[][] inputs = { openData, closeData };
+        double[] options = { period };
+        double[][] outputs = { new double[openData.Length] };
+        indicator.Run(inputs, options, outputs);
+        double[] tResult = outputs[0];
+
+        // Tulip output is shorter by (period-1) — lookback = period - 1
+        int lookback = period - 1;
+        ValidationHelper.VerifyData(qResult, tResult, lookback);
+
+        _output.WriteLine($"Qstick validated against Tulip Indicators (period={period})");
+    }
+
+    [Fact]
+    public void Validate_Tulip_Qstick_MultiplePeriods()
+    {
+        int[] periods = { 5, 10, 20, 50 };
+
+        foreach (int period in periods)
+        {
+            double[] openData = _data.OpenPrices.ToArray();
+            double[] closeData = _data.ClosePrices.ToArray();
+
+            var qSeries = Qstick.Batch(_data.Bars, period);
+            double[] qResult = new double[qSeries.Count];
+            for (int i = 0; i < qSeries.Count; i++)
+            {
+                qResult[i] = qSeries[i].Value;
+            }
+
+            var indicator = Tulip.Indicators.qstick;
+            double[][] inputs = { openData, closeData };
+            double[] options = { period };
+            double[][] outputs = { new double[openData.Length] };
+            indicator.Run(inputs, options, outputs);
+            double[] tResult = outputs[0];
+
+            int lookback = period - 1;
+            ValidationHelper.VerifyData(qResult, tResult, lookback);
+        }
+
+        _output.WriteLine("Qstick validated against Tulip for multiple periods (5, 10, 20, 50)");
     }
 }
